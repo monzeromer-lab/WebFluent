@@ -260,6 +260,21 @@ fn as_program(shared: &[Declaration], test: &crate::parser::ast::TestDecl) -> Pr
             )
         })
         .cloned()
+        .map(|d| match d {
+            // `data: { Cart: { items: […] } }` starts the store there, as a
+            // test that only looks does.
+            Declaration::Store(mut store) => {
+                if let Some(Expr::MapLiteral(pairs)) = &test.data
+                    && let Some((_, given)) = pairs
+                        .iter()
+                        .find(|(k, _)| k.trim_matches('"') == store.name)
+                {
+                    store.body = seeded(&store.body, Some(given));
+                }
+                Declaration::Store(store)
+            }
+            other => other,
+        })
         .collect();
     declarations.push(Declaration::Page(PageDecl {
         name: "Test".to_string(),

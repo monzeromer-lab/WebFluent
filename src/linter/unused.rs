@@ -129,9 +129,9 @@ pub fn lint_unused_in(
                         "Place it in a page, name it as a layout, or remove it",
                     ));
                 }
-                local_unused(&c.body, &file, &mut out);
+                local_unused(&c.body, &[], &file, &mut out);
             }
-            Declaration::Page(p) => local_unused(&p.body, &file, &mut out),
+            Declaration::Page(p) => local_unused(&p.body, &header_reads(p), &file, &mut out),
             Declaration::Store(s) => {
                 let outside = store_reads.get(&s.name).cloned().unwrap_or_default();
                 let mut inside = Reads::default();
@@ -170,11 +170,34 @@ pub fn lint_unused_in(
     out
 }
 
+/// What a page's header reads of its body: its guard, its static paths, its
+/// computed title and description, its layout's arguments and its head
+/// tags — a `derived` value read only in `head { }` is read.
+fn header_reads(p: &PageDecl) -> Vec<&Expr> {
+    let mut out: Vec<&Expr> = p
+        .guard
+        .iter()
+        .chain(p.paths.iter())
+        .chain(p.title_expr.iter())
+        .chain(p.description_expr.iter())
+        .collect();
+    for arg in p.layout.iter().flat_map(|l| l.args.iter()) {
+        match arg {
+            Arg::Positional(e) | Arg::Named(_, e) => out.push(e),
+        }
+    }
+    out.extend(p.head.iter().flat_map(|t| t.attrs.iter().map(|(_, e)| e)));
+    out
+}
+
 /// The state, derived values and actions of a page or component body that
-/// nothing in the body reads.
-fn local_unused(body: &[Statement], file: &str, out: &mut Vec<A11yWarning>) {
+/// nothing in the body (or the page's header) reads.
+fn local_unused(body: &[Statement], header: &[&Expr], file: &str, out: &mut Vec<A11yWarning>) {
     let mut reads = Reads::default();
     read_statements(body, &mut reads);
+    for e in header {
+        read_expr(e, &mut reads);
+    }
     for stmt in body {
         let (code, name, what) = match &stmt.kind {
             StatementKind::State(s) => ("U01", &s.name, "state"),

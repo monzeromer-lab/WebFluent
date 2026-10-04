@@ -259,11 +259,13 @@ page Booking(path: "/", title: "Booking", description: "How many seats.") {
 }
 ```
 
-**Handlers reach the root; classes and attributes do not.** A DOM event
-handler on a call — `Chip("x") { on click { … } }` — attaches to the
-component's root element. A `class:`, an `id:` or an `aria-*` on the call is
-not forwarded: the component decides its own markup. When a caller needs to
-style or label it, declare the prop and place it yourself:
+**What a call puts on the root.** A DOM event handler on a call —
+`Chip("x") { on click { … } }` — attaches to the component's root element,
+and so does an attribute the component takes no prop for: a `class:`
+(added to the root's own classes), `aria-*`, `data-*`, `id`, `role`,
+`title`, `hidden`. A component that declares a prop of that name receives
+it instead, and decides where it goes — declare it when the root is not
+the right element:
 
 ```wf
 component Chip(_ label: String, extra: String = "", note: String = "") {

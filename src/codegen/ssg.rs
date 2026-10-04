@@ -260,14 +260,37 @@ pub fn render_page_html_studio(
     // A page with a layout is that component with the page as its default
     // slot; the shell then wraps the layout as it would wrap the page.
     let framed: Vec<Statement>;
+    let mut skip_to_content = false;
     let page_body: &[Statement] = match &page.layout {
         Some(layout) => {
+            // Where the page starts inside its layout: its first element is
+            // the skip link's target, past the layout's own chrome.
+            let mut children = page.body.clone();
+            if let Some(StatementKind::UIElement(first)) = children
+                .iter_mut()
+                .map(|s| &mut s.kind)
+                .find(|k| matches!(k, StatementKind::UIElement(_)))
+                && !first
+                    .args
+                    .iter()
+                    .any(|a| matches!(a, Arg::Named(k, _) if k == "id"))
+            {
+                first.args.push(Arg::Named(
+                    "id".to_string(),
+                    Expr::StringLiteral("wf-content".to_string()),
+                ));
+                first.args.push(Arg::Named(
+                    "tabindex".to_string(),
+                    Expr::StringLiteral("-1".to_string()),
+                ));
+                skip_to_content = true;
+            }
             framed = vec![Statement::new(
                 StatementKind::UIElement(UIElement {
                     component: ComponentRef::UserDefined(layout.name.clone()),
                     args: layout.args.clone(),
                     modifiers: Vec::new(),
-                    children: page.body.clone(),
+                    children,
                     style_block: None,
                     transition_block: None,
                     events: Vec::new(),
@@ -400,7 +423,11 @@ pub fn render_page_html_studio(
         crate::codegen::html::script_tags(config, &base),
         base,
         page_chunk,
-        crate::codegen::html::SKIP_LINK,
+        if skip_to_content {
+            crate::codegen::html::SKIP_LINK.replace("#wf-main", "#wf-content")
+        } else {
+            crate::codegen::html::SKIP_LINK.to_string()
+        },
         body_html
     )
 }
@@ -685,10 +712,83 @@ fn render_user_component(name: &str, call: &UIElement, ctx: &mut SsgContext) -> 
         .flat_map(|st| substitute_statement(st, &bindings, &slots))
         .collect();
 
+    // The component's own state and derived values, worked out with its
+    // props in place: a `derived on = S.b.includes(x)` paints as the live
+    // component draws it. They leave with the component.
+    let outer = ctx.scope.clone();
+    ctx.scope.push_state(&body);
     ctx.depth += 1;
-    let html = render_statements(&body, ctx);
+    let mut html = render_statements(&body, ctx);
     ctx.depth -= 1;
-    html
+    ctx.scope = outer;
+    // The call's attributes the component takes no prop for — `aria-label`,
+    // `id`, `hidden`, `class` — are its root element's, as on the live page.
+    let mut attrs = String::new();
+    let mut extra_class: Vec<String> = Vec::new();
+    for arg in &call.args {
+        let Arg::Named(key, value) = arg else {
+            continue;
+        };
+        if decl.props.iter().any(|p| &p.name == key) {
+            continue;
+        }
+        // `class:` joins the root's own classes.
+        if key == "class" {
+            known_classes(value, &ctx.scope, &mut extra_class);
+            continue;
+        }
+        if !crate::codegen::js::is_root_attribute(key) {
+            continue;
+        }
+        match eval(value, &ctx.scope) {
+            Some(Static::Bool(b)) if key.starts_with("aria-") => {
+                attrs.push_str(&format!(" {key}=\"{b}\""))
+            }
+            Some(Static::Bool(true)) => attrs.push_str(&format!(" {key}")),
+            Some(Static::Bool(false)) | Some(Static::Null) | None => {}
+            Some(Static::List(_) | Static::Map(_)) => {}
+            Some(v) => attrs.push_str(&format!(" {key}=\"{}\"", html_escape(&v.to_text()))),
+        }
+    }
+    if !extra_class.is_empty()
+        && let Some(at) = first_tag_end(&html)
+    {
+        let close = html[at..].find('>').map_or(html.len(), |i| at + i);
+        let joined = extra_class.join(" ");
+        html = match html[at..close].find("class=\"") {
+            Some(i) => {
+                let value = at + i + "class=\"".len();
+                let end = html[value..].find('"').map_or(value, |j| value + j);
+                format!("{} {joined}{}", &html[..end], &html[end..])
+            }
+            None => format!("{} class=\"{joined}\"{}", &html[..at], &html[at..]),
+        };
+    }
+    if attrs.is_empty() {
+        return html;
+    }
+    match first_tag_end(&html) {
+        Some(at) => format!("{}{attrs}{}", &html[..at], &html[at..]),
+        None => html,
+    }
+}
+
+/// Where the first element's tag name ends in a painted fragment — the
+/// place its root's attributes go. Comments are skipped.
+fn first_tag_end(html: &str) -> Option<usize> {
+    let bytes = html.as_bytes();
+    let mut i = 0;
+    while i + 1 < bytes.len() {
+        if bytes[i] == b'<' && bytes[i + 1].is_ascii_alphabetic() {
+            let mut j = i + 1;
+            while j < bytes.len() && (bytes[j].is_ascii_alphanumeric() || bytes[j] == b'-') {
+                j += 1;
+            }
+            return Some(j);
+        }
+        i += 1;
+    }
+    None
 }
 
 /// Bind a call's arguments to a component's props: positional arguments fill the
@@ -1291,7 +1391,21 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                         }
                     }
                     "visible" | "bind" | "checked" | "span" => {} // Runtime-only attrs
-                    "gap" | "align" | "justify" => {}             // Utility classes, added below
+                    // The global attributes, as the live page writes them:
+                    // `hidden: true` is the bare attribute, `false` none.
+                    "hidden" => {
+                        if matches!(eval(val, &ctx.scope), Some(Static::Bool(true))) {
+                            attrs.push("hidden".to_string());
+                        }
+                    }
+                    "id" | "tabindex" | "lang" | "dir"
+                        if !attrs.iter().any(|a| a.starts_with(&format!("{key}="))) =>
+                    {
+                        if let Some(v) = static_attr(val, &ctx.scope) {
+                            attrs.push(format!("{}=\"{}\"", key, html_escape(&v)));
+                        }
+                    }
+                    "gap" | "align" | "justify" => {} // Utility classes, added below
                     // A hyphenated name is an HTML attribute (`aria-*`, `data-*`);
                     // it is painted when its value is known at build time.
                     k if k.contains('-') => {
@@ -1975,11 +2089,36 @@ fn extra_classes(ui: &UIElement, ctx: &SsgContext) -> Vec<String> {
         .args
         .iter()
         .find(|a| matches!(a, Arg::Named(k, _) if k == "class"))
-        && let Some(value) = eval(value, &ctx.scope)
     {
-        crate::codegen::builtin::static_classes(&value, &mut classes);
+        known_classes(value, &ctx.scope, &mut classes);
     }
     classes
+}
+
+/// The classes a `class:` value names that the build can know, entry by
+/// entry: in `["chip", { "is-current": tag == "" }]` with `tag` read from
+/// the address, `chip` is painted and the condition is left to the live
+/// page — one unknown entry no longer loses the rest.
+fn known_classes(value: &Expr, scope: &Scope, classes: &mut Vec<String>) {
+    match value {
+        Expr::ListLiteral(items) => {
+            for item in items {
+                known_classes(item, scope, classes);
+            }
+        }
+        Expr::MapLiteral(pairs) => {
+            for (class, condition) in pairs {
+                if eval(condition, scope).is_some_and(|v| v.truthy()) {
+                    classes.push(class.trim_matches('"').to_string());
+                }
+            }
+        }
+        other => {
+            if let Some(v) = eval(other, scope) {
+                crate::codegen::builtin::static_classes(&v, classes);
+            }
+        }
+    }
 }
 
 /// A `Table(caption: …)` argument, resolved to text by `resolve`.

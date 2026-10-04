@@ -16,8 +16,17 @@ use crate::error::{Result, WebFluentError};
 use crate::parser::ast::*;
 
 pub fn run_test(path: &Path, update: bool) -> Result<()> {
+    // A file's project is the nearest folder above it with a
+    // `webfluent.app.json` — `wf test tests/cart.wf` runs that file's tests
+    // in the project it belongs to.
     let project_dir = if path.is_file() {
-        path.parent().unwrap_or(Path::new(".")).to_path_buf()
+        let absolute = path.canonicalize().unwrap_or_else(|_| path.to_path_buf());
+        absolute
+            .ancestors()
+            .skip(1)
+            .find(|dir| dir.join("webfluent.app.json").is_file())
+            .map(Path::to_path_buf)
+            .unwrap_or_else(|| path.parent().unwrap_or(Path::new(".")).to_path_buf())
     } else {
         path.to_path_buf()
     };
@@ -252,6 +261,47 @@ pub fn render_test(
     crate::template::render_program_fragment_with(&program, &data, messages.clone())
 }
 
+/// The text a render shows, as a reader would read it: tags gone (a block's
+/// edge a space, an inline element's nothing), the common entities decoded.
+fn visible_text(html: &str) -> String {
+    const INLINE: &[&str] = &[
+        "a", "abbr", "b", "bdi", "bdo", "code", "em", "i", "kbd", "mark", "q", "s", "small",
+        "span", "strong", "sub", "sup", "time", "u",
+    ];
+    let mut out = String::with_capacity(html.len());
+    let mut rest = html;
+    while let Some(open) = rest.find('<') {
+        out.push_str(&rest[..open]);
+        let Some(close) = rest[open..].find('>') else {
+            rest = "";
+            break;
+        };
+        let tag = &rest[open + 1..open + close];
+        let name: String = tag
+            .trim_start_matches('/')
+            .chars()
+            .take_while(|c| c.is_ascii_alphanumeric())
+            .collect::<String>()
+            .to_ascii_lowercase();
+        if !INLINE.contains(&name.as_str()) {
+            out.push(' ');
+        }
+        rest = &rest[open + close + 1..];
+    }
+    out.push_str(rest);
+    out.replace("&lt;", "<")
+        .replace("&gt;", ">")
+        .replace("&quot;", "\"")
+        .replace("&#39;", "'")
+        .replace("&nbsp;", " ")
+        .replace("&amp;", "&")
+}
+
+/// Runs of whitespace as one space, for comparing what text says.
+fn squeeze(text: &str) -> String {
+    text.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
 fn run_one(
     shared: &[Declaration],
     test: &TestDecl,
@@ -263,6 +313,9 @@ fn run_one(
     let html = render_test(shared, test, messages).map_err(|e| vec![e.to_string()])?;
     let mut reasons = Vec::new();
     let empty = crate::codegen::static_eval::Scope::of([]);
+    // What a reader sees: the text, not the markup — `expect "wf-text"` is
+    // not satisfied by a class name.
+    let visible = visible_text(&html);
     for step in &test.steps {
         let crate::parser::ast::Step::Expect { text, negated, .. } = step else {
             continue; // a test that acts does not come this way
@@ -270,7 +323,7 @@ fn run_one(
         let text = crate::codegen::static_eval::eval(text, &empty)
             .map(|v| v.to_text())
             .unwrap_or_default();
-        let found = html.contains(&text);
+        let found = squeeze(&visible).contains(&squeeze(&text));
         if found == *negated {
             reasons.push(if *negated {
                 format!("expected not to find {text:?}, but the render holds it")

@@ -45,7 +45,9 @@ test "a list renders each row"(data: { rows: [{ name: "a" }, { name: "b" }] }) {
 
 - Tests live in `tests/*.wf` (or beside the code in `src/`).
 - `expect "text"` must appear in what the page shows; `expect not "text"`
-  must not.
+  must not. It reads the text a reader sees — a class name in the markup
+  does not count.
+- `t("key")` reads the project's translations, in its default locale.
 - `data: { … }` supplies values by name; a `state` in the body is seeded
   with its initial value.
 - Each render is also compared to `tests/__snapshots__/<file>/<test>.html`,
@@ -111,7 +113,8 @@ A test that acts takes no snapshot. What it expects is the test.
 ## Seeding data and stores
 
 A test's `data:` names values its body reads, and a key that is a store's
-name seeds that store's state:
+name seeds that store's state — in a test that only looks and in one that
+clicks alike:
 
 ```wf
 test "the cart shows what is in it"(data: { Cart: { items: [{ id: "a", qty: 2 }] } }) {
@@ -124,7 +127,7 @@ test "the cart shows what is in it"(data: { Cart: { items: [{ id: "a", qty: 2 }]
 
 ```bash
 wf test
-wf test tests/cart.wf
+wf test tests/cart.wf     # one file's tests, in the project it belongs to
 wf test --update
 ```
 

@@ -92,6 +92,11 @@ polls.
 stores, types and constants at hand, and holds the render to what it
 expects and to a snapshot in `tests/__snapshots__/<file>/<name>.html`
 (written when missing, rewritten with `--update`). A build ignores tests.
+`expect` reads the text a reader sees, never the markup; `t("key")` reads
+the project's default locale; `data: { … }` seeds the body's state and,
+by a store's name, the store — in a render and in a browser alike; and
+`wf test tests/cart.wf` runs one file's tests in the project it belongs
+to.
 
 ```wf
 test "greets by name" {
@@ -182,7 +187,8 @@ page Home(path: "/", title: "Home") {
 - `type` — `"website"` (default) or `"article"`
 - `noindex: true` — keeps the page out of search results and out of the sitemap
 - `layout: Shell(crumb: "Home")` — the component that frames the page; the
-  page renders in its default slot
+  page renders in its default slot, and the skip link jumps past the
+  layout's own chrome to the page's first element
 - `guard` — Expression that must hold for the route to render
 - `redirect` — Where to send the visitor when the guard fails
 
@@ -308,6 +314,9 @@ A component declares the events it fires and their arguments; `emit` fires
 one; the caller handles it with `on name(args) { }`. A DOM event written on
 a component call — `on click { }` — attaches to the component's root
 element, so a styled button component is clickable wherever it is used.
+So does an attribute the component takes no prop for — `aria-label`,
+`data-*`, `id`, `role`, `title`, `hidden` — on the live page and in the
+static paint alike: `Avatar2(user, aria-label: "Profile")`.
 
 ```wf
 component TodoRow(_ label: String, done: Bool = false) {
@@ -768,8 +777,10 @@ page Signup(path: "/join", title: "Join", description: "Make an account.") {
 The rules: `required`, `email`, `url`, `minLength(n)`, `maxLength(n)`,
 `min(v)`, `max(v)`, `pattern(/…/)`, `matches(other)`, `oneOf([…])`,
 `custom "…" { expr }`, `async "…" { await … }`. Each takes an optional
-message; without one the rule's own is used, which a project's
-translations replace by naming `form.required`, `form.email` and so on.
+message — a string, or `t("key")` read in the reader's language; without
+one the rule's own is used, which a project's translations replace by
+naming `form.required`, `form.email` and so on. An argument that reads
+state — `max(Ledger.today)` — is read each time the rule is checked.
 A rule is checked against what it guards — `minLength` on a `Number` is
 `T01` — and every rule but `required` passes an empty value, so a blank
 optional field is one message, not two.
@@ -1405,7 +1416,7 @@ file would change; a `.wfx` file is normalised through its braced spelling.
 |-----------|-------|
 | `Navbar` | `Navbar { Navbar.Brand { ... } Navbar.Links { ... } Navbar.Actions { ... } }` |
 | `Sidebar` | `Sidebar { Sidebar.Header { ... } Sidebar.Item(to: "/", icon: "home") { ... } Sidebar.Divider }` |
-| `Link` | `Link(to: "/path") { Text("Label") }` — the link whose `to` matches the current route carries `.active` and `aria-current="page"`; `active: .prefix` also matches routes beneath it; a `to` with a query (`"/?show=open"`) matches only when the address has those values too |
+| `Link` | `Link(to: "/path") { Text("Label") }` — the link whose `to` matches the current route carries `.active` and `aria-current="page"`; `active: .prefix` also matches routes beneath it; a `to` with a query (`"/?show=open"`) matches only when the address has those values too, and a plain link to the same path then gives way to it |
 | `Tabs` | `Tabs { Tabs.Page("Tab 1") { ... } Tabs.Page("Tab 2") { ... } }` |
 | `Breadcrumb` | `Breadcrumb { Breadcrumb.Item(to: "/") { Text("Home") } Breadcrumb.Item { Text("Current") } }` |
 | `Menu` | `Menu(trigger: "Options") { Menu.Item { ... } }` |
@@ -1627,7 +1638,9 @@ A flag is written tight after the element, its arguments or another flag:
 .lg`, `.primary` is `tone: .primary`); a case that more than one prop has
 is named — `tone: .info`. Each component's flags are listed in its entry
 above; the language server offers them after `.`, and a flag the
-component does not take is an error.
+component does not take is an error. A `Bool` prop may be given a
+condition instead — `Button("Light", outlined: theme != "light")` — and
+the flag's look follows it.
 
 **Sizes**: `.sm`, `.md`, `.lg` (`Spacer` and `gap:` also take `.xs`, `.xl`)
 **Tones**: `.primary`, `.secondary`, `.success`, `.danger`, `.warning`, `.info`
@@ -2675,7 +2688,8 @@ everything; a *name* nothing declares is `T13`. `T04` also covers an item at a
 fixed index (`todos[0]`, which is nothing when the list is empty, unless a
 condition like `todos.length > 0` encloses it) and a field that may be null
 read after a `?.` (`sel?.note.length`). A check for `null` narrows in the
-`else` branch and after `if x == null { return }`. A refined type
+`else` branch and after `if x == null { return }`, and `xs.filter(x => x
+!= null)` is a list of what is there (`[T?]` becomes `[T]`). A refined type
 (`Number(1..=30)`) is held to every literal assigned to it, and a `derived`
 value's annotation to what it works out to.
 

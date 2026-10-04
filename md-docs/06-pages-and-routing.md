@@ -83,7 +83,7 @@ The link whose `to:` matches the current route carries the class `.active`
 and `aria-current="page"`; `.prefix` makes a section link active for the
 routes beneath it. A `to:` with a query — `"/?show=open"` — is active only
 when the address carries those values too, so a row of filter links marks
-the one that is on. `navigate(path)` moves in code. Write paths from the
+the one that is on — a plain link to the same path gives way to it. `navigate(path)` moves in code. Write paths from the
 site's root — `"/about"` — even when the site is served under a sub-path:
 with `build.base_path` set to `"/docs"`, every `Link`, `navigate` and asset
 is prefixed for you. In a static build, links
@@ -151,7 +151,9 @@ is drawn once the page is live.
 
 A `layout:` is a component with a default slot; the page renders in it. Use
 it for a section's own chrome — a docs sidebar, an app rail — where the
-`app` shell is the site's.
+`app` shell is the site's. The page's skip link jumps past that chrome to
+the page's first element, which is given `id="wf-content"` when it has no
+id of its own.
 
 ```wf
 component DocsShell(_ crumb: String) {

@@ -90,6 +90,29 @@ taken from the machine, and `"system_fonts": false` forbids it.
 - **A `Link` whose `to` has a query** (`/?show=open`) is active only when
   the address has those values too; a row of filter links no longer marks
   every one as the current page.
+- **Attributes on a component's call reach its root** — `class:`,
+  `aria-*`, `data-*`, `id`, `role`, `title`, `hidden` — on the live page
+  and in the static paint; before, they were dropped without a word. A
+  component that declares a prop of that name still receives it.
+- **A `Bool` prop given a condition** — `outlined: theme != "light"` —
+  follows it, instead of becoming an attribute.
+- **The static paint draws what the live page does**: a component's
+  `derived` that reads a store, a `class:` list with one entry only the
+  browser knows, `hidden:`.
+- **On a page with a layout, the skip link jumps past the layout's
+  chrome** to where the page starts.
+- **`wf test`**: `expect` reads the text a reader sees, not the markup; a
+  date or money literal draws; `data:` seeds stores in a test that clicks;
+  `wf test tests/x.wf` runs that file in its project.
+- **A `validate` rule's message may be `t("key")`**, and a rule's argument
+  that reads state is read when it checks.
+- **`xs.filter(x => x != null)` is a list of what is there** (`[T?]` to
+  `[T]`).
+- **`wf fmt` leaves arguments laid out over lines as written.**
+- **The breadcrumb JSON-LD lists only pages a reader can open**; a page's
+  `head { }` counts as reading its values (no false `U02`); a store
+  action called in the store's own initial value is named for what it is.
+- **`Host(title:)`** is the `title` attribute.
 
 ## Diagnostics
 

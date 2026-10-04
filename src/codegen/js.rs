@@ -2334,10 +2334,20 @@ impl JsCodegen {
                                         attrs.push(format!("\"data-cols\": {v}"));
                                     }
                                 }
-                                "title" => {
-                                    // For Modal/Dialog title
+                                // A Modal's or Dialog's title is its heading, which
+                                // the dialog reads; on anything else `title` is the
+                                // global attribute — the tooltip a pointer shows.
+                                "title" if matches!(name.as_str(), "Modal" | "Dialog") => {
                                     let v = self.emit_expr(val);
                                     attrs.push(format!("\"data-title\": {}", v));
+                                }
+                                "title" => {
+                                    let v = self.emit_expr(val);
+                                    if self.is_reactive(&v) {
+                                        attrs.push(format!("title: () => {v}"));
+                                    } else {
+                                        attrs.push(format!("title: {v}"));
+                                    }
                                 }
                                 "caption" if name == "Table" => {
                                     // Emitted as the table's first child below.
@@ -2992,6 +3002,14 @@ impl JsCodegen {
                         matches!(a, Arg::Named(k, _)
                         if matches!(k.as_str(), "mount" | "update" | "cleanup") && !own.contains(k))
                     });
+                // An attribute the component does not take as a prop —
+                // `aria-label`, `data-*`, `id`, `hidden`, `title` — is its
+                // root element's, as it is a built-in's.
+                let (root_attrs, passed): (Vec<Arg>, Vec<Arg>) =
+                    passed.into_iter().partition(|a| {
+                        matches!(a, Arg::Named(k, _)
+                            if !own.contains(k) && (is_root_attribute(k) || k == "class"))
+                    });
                 let mut args_obj = self.emit_component_args(name, &passed);
                 if !emitted.is_empty() {
                     let handlers: Vec<String> = emitted
@@ -3101,6 +3119,27 @@ impl JsCodegen {
                     .collect();
                 if !marks.is_empty() {
                     self.emit_line(&format!("WF.mark({}, {{ {} }});", var, marks.join(", ")));
+                }
+                if !root_attrs.is_empty() {
+                    let attrs: Vec<String> = root_attrs
+                        .iter()
+                        .filter_map(|a| match a {
+                            Arg::Named(k, v) => {
+                                let value = self.emit_expr(v);
+                                Some(if self.is_reactive(&value) {
+                                    format!("\"{k}\": () => {value}")
+                                } else {
+                                    format!("\"{k}\": {value}")
+                                })
+                            }
+                            Arg::Positional(_) => None,
+                        })
+                        .collect();
+                    self.emit_line(&format!(
+                        "WF.rootAttrs({}, {{ {} }});",
+                        var,
+                        attrs.join(", ")
+                    ));
                 }
                 self.emit_line(&format!("{}.appendChild({});", parent, var));
             }
@@ -7076,6 +7115,17 @@ const BROWSER_CLASSES: &[&str] = &[
     "WeakSet",
     "Worker",
 ];
+
+/// An attribute a component call hands its root element when the component
+/// takes no prop of that name: the ARIA and data families (not the motion
+/// markers, which `WF.mark` sets) and the global attributes.
+pub(crate) fn is_root_attribute(name: &str) -> bool {
+    (name.starts_with("aria-") || (name.starts_with("data-") && !name.starts_with("data-wf-")))
+        || matches!(
+            name,
+            "id" | "role" | "tabindex" | "title" | "hidden" | "lang" | "dir"
+        )
+}
 
 /// Whether either side of a comparison is the literal `null`.
 fn null_side(left: &Expr, right: &Expr) -> bool {

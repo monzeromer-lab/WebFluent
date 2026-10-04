@@ -32,7 +32,7 @@ test "a list renders each row"(data: { rows: [{ name: "a" }, { name: "b" }] }) {
     expect "b"
 }"#, title: "wf")
 
-        Markdown("- Tests live in `tests/*.wf` (or beside the code in `src/`).\n- `expect \"text\"` must appear in what the page shows; `expect not \"text\"` must not.\n- `data: \{ … \}` supplies values by name; a `state` in the body is seeded with its initial value.\n- Each render is also compared to `tests/__snapshots__/<file>/<test>.html`, written when missing; `--update` rewrites them after an intended change.\n\n`wf test` exits non-zero on a failure, with a diff.")
+        Markdown("- Tests live in `tests/*.wf` (or beside the code in `src/`).\n- `expect \"text\"` must appear in what the page shows; `expect not \"text\"` must not. It reads the text a reader sees — a class name in the markup does not count.\n- `t(\"key\")` reads the project's translations, in its default locale.\n- `data: \{ … \}` supplies values by name; a `state` in the body is seeded with its initial value.\n- Each render is also compared to `tests/__snapshots__/<file>/<test>.html`, written when missing; `--update` rewrites them after an intended change.\n\n`wf test` exits non-zero on a failure, with a diff.")
 
         Heading("A test that acts", id: "a-test-that-acts").h2
 
@@ -89,7 +89,7 @@ test "a list renders each row"(data: { rows: [{ name: "a" }, { name: "b" }] }) {
 
         Heading("Seeding data and stores", id: "seeding-data-and-stores").h2
 
-        Markdown("A test's `data:` names values its body reads, and a key that is a store's name seeds that store's state:")
+        Markdown("A test's `data:` names values its body reads, and a key that is a store's name seeds that store's state — in a test that only looks and in one that clicks alike:")
 
         CodeBlock(#"test "the cart shows what is in it"(data: { Cart: { items: [{ id: "a", qty: 2 }] } }) {
     CartSummary()
@@ -100,7 +100,7 @@ test "a list renders each row"(data: { rows: [{ name: "a" }, { name: "b" }] }) {
 
         Terminal(lines: [
                 Line(command: "wf test"),
-                Line(command: "wf test tests/cart.wf"),
+                Line(command: "wf test tests/cart.wf     # one file's tests, in the project it belongs to"),
                 Line(command: "wf test --update")
             ])
 

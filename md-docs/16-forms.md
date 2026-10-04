@@ -192,9 +192,11 @@ page Signup(path: "/join", title: "Join", description: "Make an account.") {
 | `custom "…" { expr }` | The expression is true |
 | `async "…" { await … }` | The answer, once it arrives |
 
-Each takes an optional message after it. Without one, the rule's own is
-used — and a project with translations replaces it by naming
-`form.required`, `form.email`, `form.minLength` and so on.
+Each takes an optional message after it — a string, or `t("key")`, read in
+the reader's language. Without one, the rule's own is used — and a project
+with translations replaces it by naming `form.required`, `form.email`,
+`form.minLength` and so on. An argument that reads state —
+`max(Ledger.today)` — is read each time the rule is checked.
 
 Every rule but `required` passes an empty value, so a blank optional field
 shows one message rather than two. An `async` rule is only asked once the

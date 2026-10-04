@@ -114,7 +114,8 @@ attributes and `meta.*` in `webfluent.app.json`:
   `og:image` (the page's `image:` or the site's), `og:type` from `type:`
   (`website` or `article`), `og:site_name`.
 - JSON-LD: an `Organization`, a `WebPage` or `Article`, and a
-  `BreadcrumbList` derived from the route's segments.
+  `BreadcrumbList` derived from the route's segments — each a page a
+  reader can open; a level no route answers is left out.
 - `hreflang` alternates for each locale when the project has several.
 - The icons: `<link rel="icon">` for `favicon` (typed, so an SVG is read
   as one) and `<link rel="apple-touch-icon">` for `touch_icon`, each

@@ -345,7 +345,9 @@ page Narrow(path: "/") {
 ```
 
 Narrowing is flow-sensitive within a block: it holds in the branch the
-condition guards, not after it.
+condition guards, not after it. A list narrows too: `xs.filter(x => x !=
+null)` is a list of what is there, so a `[Todo?]` filtered that way is a
+`[Todo]` whose items need no `?.`.
 
 ## Typing what comes from the network
 

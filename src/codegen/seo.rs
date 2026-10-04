@@ -349,24 +349,46 @@ fn breadcrumbs(
         r#"{{"@type":"ListItem","position":1,"name":"Home","item":"{origin}{base}/"}}"#
     )];
 
+    // A crumb is a page a reader can open: a level of the path that no
+    // route answers (`/notes` above `/notes/:slug`) is left out, so a
+    // search result never links to a 404.
+    let answers = |path: &str| {
+        let parts: Vec<&str> = path.split('/').filter(|s| !s.is_empty()).collect();
+        program.declarations.iter().any(|d| match d {
+            Declaration::Page(p) if p.path != "*" => {
+                let pattern: Vec<&str> = p.path.split('/').filter(|s| !s.is_empty()).collect();
+                pattern.len() == parts.len()
+                    && pattern
+                        .iter()
+                        .zip(&parts)
+                        .all(|(a, b)| a.starts_with(':') || a == b)
+            }
+            _ => false,
+        })
+    };
     let mut accumulated = String::new();
     for (i, segment) in segments.iter().enumerate() {
         accumulated.push('/');
         accumulated.push_str(segment);
+        let last = i + 1 == segments.len();
+        if !last && !answers(&accumulated) {
+            continue;
+        }
         // Prefer the declared page's own title over the URL segment.
-        let name = program
-            .declarations
-            .iter()
-            .find_map(|d| match d {
+        let name = if last {
+            page.title.clone()
+        } else {
+            program.declarations.iter().find_map(|d| match d {
                 Declaration::Page(p) if p.path.trim_end_matches('/') == accumulated => {
                     p.title.clone()
                 }
                 _ => None,
             })
-            .unwrap_or_else(|| humanise(segment));
+        }
+        .unwrap_or_else(|| humanise(segment));
         items.push(format!(
             r#"{{"@type":"ListItem","position":{},"name":"{}","item":"{origin}{base}{}"}}"#,
-            i + 2,
+            items.len() + 1,
             json_str(&name),
             accumulated
         ));
@@ -636,9 +658,20 @@ mod tests {
         assert!(nested.contains(r#""@type":"BreadcrumbList""#), "{nested}");
         assert!(nested.contains(r#""name":"Getting Started""#), "{nested}");
         assert!(
-            nested.contains(r#""name":"Docs""#),
-            "a URL segment becomes a readable name: {nested}"
+            !nested.contains(r#""name":"Docs""#),
+            "a level no page answers is no crumb, so a result never links to a 404: {nested}"
         );
+        // A level a page answers is a crumb, by that page's title.
+        let program = parse(
+            r#"page Docs(path: "/docs", title: "The docs") { Text("x") }
+page Guide(path: "/docs/getting-started", title: "Getting Started") { Text("x") }"#,
+        );
+        let Declaration::Page(guide) = &program.declarations[1] else {
+            unreachable!("the second declaration is a page")
+        };
+        let crumbs =
+            super::breadcrumbs(guide, &config(SITE), &program, "https://ledger.example").unwrap();
+        assert!(crumbs.contains(r#""name":"The docs""#), "{crumbs}");
 
         let home = head(r#"page P(path: "/", title: "Home") { Text("x") }"#, SITE);
         assert!(

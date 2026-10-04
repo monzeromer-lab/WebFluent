@@ -62,8 +62,12 @@ fn build(app: &App) -> (bool, String) {
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(dir.join("src")).expect("create the project");
     std::fs::write(dir.join("webfluent.app.json"), app.config).expect("write the config");
-    let source = std::fs::read_to_string(repo_root().join("tests/fixtures/cookbook").join(app.heading))
-        .expect("read the application");
+    let source = std::fs::read_to_string(
+        repo_root()
+            .join("tests/fixtures/cookbook")
+            .join(app.heading),
+    )
+    .expect("read the application");
     std::fs::write(dir.join("src/App.wf"), source).expect("write the source");
     for (rel, body) in app.files {
         std::fs::write(dir.join(rel), body).expect("write a data file");

@@ -1119,7 +1119,11 @@ impl<'a> RenderContext<'a> {
                 Value::Array(items)
             }
             Expr::Token(name) => Value::String(format!("var(--{name})")),
-            _ => Value::Null,
+            // `@2026-02-01`, `$12.50`, `3.days`: the carrier is the value.
+            Expr::Typed(_, carrier) => self.eval_expr(carrier),
+            // Anything else the build-time evaluator knows — a regex test,
+            // a range — it works out over the data.
+            _ => self.eval_static(expr),
         }
     }
 

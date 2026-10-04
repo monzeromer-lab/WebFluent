@@ -5,16 +5,51 @@
   // A link is the page's when its route is the one shown; a link whose
   // address carries a query (`/?show=open`) only when the address has those
   // values too, read through `query`, which the compiler hands over then.
+  //
+  // A plain link to a path gives way to one with a query on the same path
+  // that matches: with `All` at `/` and a chip at `/?tag=x`, only the chip
+  // is current while `?tag=x` is in the address.
+  const _queryLinks = [];
+  let _queryLinkFn = null;
+  let _queryLinkCount = null;
+  // Where a page inside a layout starts: its first element, marked as the
+  // skip link's target — as the pre-rendered page marks it.
+  function _content(frag) {
+    if (!frag) return frag;
+    const first = frag.nodeType === 11 ? [...frag.childNodes].find((n) => n.nodeType === 1) : frag;
+    if (first && first.nodeType === 1 && !first.id) {
+      first.id = "wf-content";
+      if (!first.hasAttribute("tabindex")) first.setAttribute("tabindex", "-1");
+    }
+    return frag;
+  }
+
   function activeLink(el, href, prefix, query) {
     const target = _routeOf(href).replace(/\/$/, "") || "/";
     const search = String(href).split("#")[0].split("?")[1] || "";
     const wanted = query && search ? [...new URLSearchParams(search)] : [];
+    if (!_queryLinkCount) _queryLinkCount = signal(0);
+    if (wanted.length) {
+      const entry = { target, wanted };
+      _queryLinks.push(entry);
+      _queryLinkFn = query;
+      _queryLinkCount.set(_queryLinks.length);
+      onCleanup(() => {
+        const i = _queryLinks.indexOf(entry);
+        if (i >= 0) _queryLinks.splice(i, 1);
+        _queryLinkCount.set(_queryLinks.length);
+      });
+    }
     effect(() => {
       const path = pathSignal()().replace(/\/$/, "") || "/";
       let on = path === target || (prefix && target !== "/" && path.startsWith(target + "/"));
       if (wanted.length) {
         const now = query();
         on = on && wanted.every(([k, v]) => now[k] === v);
+      } else if (on && path === target && _queryLinkCount() > 0 && _queryLinkFn) {
+        const now = _queryLinkFn();
+        const shadowed = _queryLinks.some((l) => l.target === target && l.wanted.every(([k, v]) => now[k] === v));
+        if (shadowed) on = false;
       }
       if (on) {
         el.classList.add("active");
@@ -137,9 +172,12 @@
         const prev = currentEffect;
         currentEffect = null;
         try {
-          // A page that names a layout is rendered inside it.
+          // A page that names a layout is rendered inside it. The skip link
+          // jumps past a layout's own chrome to where the page starts.
+          const skip = document.querySelector(".wf-skip-link");
+          if (skip) skip.setAttribute("href", match.route.layout ? "#wf-content" : "#wf-main");
           const [el, dispose] = scoped(() => match.route.layout
-            ? match.route.layout(renderFn, match.params)
+            ? match.route.layout((params) => _content(renderFn(params)), match.params)
             : renderFn(match.params));
           disposePage = dispose;
           if (el instanceof Node) container.appendChild(el);

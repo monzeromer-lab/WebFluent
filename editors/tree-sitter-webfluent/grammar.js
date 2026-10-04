@@ -520,11 +520,17 @@ module.exports = grammar({
         seq(
           field("rule", $.identifier),
           optional(field("arguments", $.arguments)),
-          optional(field("message", $.string)),
+          // A message: a string, or `t("key")`, a translated one.
+          optional(field("message", choice($.string, $.rule_translation))),
           // `custom "…" { expr }` and `async "…" { await … }` say what to check.
           optional(seq("{", field("check", $._expression), "}")),
         ),
       ),
+
+    // `required t("form.amount")`: a rule's message, translated. Lexed as
+    // one token so it is never read as the next rule.
+    rule_translation: ($) =>
+      seq(alias(token(prec(2, "t(")), "t("), sepBy($._argument, ","), optional(","), ")"),
 
     // `socket chat = ws("wss://…") { send Out  receive In  on message(m) { } }`,
     // `stream ticks = sse("/events")`, `channel cart = broadcast("cart") { … }`,

@@ -738,8 +738,11 @@ impl Checker<'_, '_> {
                 }
                 Arg::Named(key, value) => {
                     let Some(prop) = decl.props.iter().find(|p| p.name == *key) else {
+                        // `aria-*`, `data-*` and the global attributes are
+                        // the root element's when no prop takes them.
                         if !key.contains('-')
                             && !registry::UNIVERSAL_PROPS.iter().any(|p| p.name == key)
+                            && !crate::codegen::js::is_root_attribute(key)
                         {
                             self.warning(
                                 at,
@@ -1656,6 +1659,7 @@ fn lower_builtin(el: &mut UIElement, sig: &'static ComponentSig) {
     let mut modifier_spans = Vec::new();
     let mut kept_args = Vec::new();
     let mut kept_spans = Vec::new();
+    let mut conditional_classes: Vec<(Expr, Span)> = Vec::new();
     let arg_spans: Vec<Span> = (0..el.args.len())
         .map(|i| el.arg_spans.get(i).copied().unwrap_or_default())
         .collect();
@@ -1684,8 +1688,64 @@ fn lower_builtin(el: &mut UIElement, sig: &'static ComponentSig) {
                 kept_args.push(Arg::Named(key.clone(), Expr::StringLiteral(case.clone())));
                 kept_spans.push(span);
             }
+            // `outlined: true` is the flag; `outlined: theme != "light"` is
+            // the flag's class while the condition holds — a class map, so
+            // it follows the state rather than landing as an attribute.
+            Arg::Named(key, value)
+                if sig.prop(key).is_some_and(|p| {
+                    p.ty == PropType::Bool && matches!(p.legacy, Legacy::Modifier(_))
+                }) =>
+            {
+                let Some(Legacy::Modifier(word)) = sig.prop(key).map(|p| p.legacy) else {
+                    unreachable!("matched above")
+                };
+                match value {
+                    Expr::BoolLiteral(true) => {
+                        modifiers.push(word.to_string());
+                        modifier_spans.push(span);
+                    }
+                    Expr::BoolLiteral(false) => {}
+                    _ => {
+                        let base = match sig.ir {
+                            registry::Ir::BuiltIn(name) => {
+                                crate::codegen::builtin::builtin_to_html(name).1
+                            }
+                            _ => "",
+                        };
+                        let class = crate::codegen::builtin::modifier_to_class(base, word);
+                        if class.is_empty() {
+                            continue;
+                        }
+                        // Quoted, as a hyphenated key is written.
+                        let entry = Expr::MapLiteral(vec![(format!("\"{class}\""), value.clone())]);
+                        conditional_classes.push((entry, span));
+                    }
+                }
+            }
             _ => {
                 kept_args.push(arg);
+                kept_spans.push(span);
+            }
+        }
+    }
+    // A flag's class that follows a condition joins whatever `class:` says.
+    for (entry, span) in conditional_classes {
+        match kept_args
+            .iter_mut()
+            .find(|a| matches!(a, Arg::Named(k, _) if k == "class"))
+        {
+            Some(Arg::Named(_, existing)) => {
+                let before = std::mem::replace(existing, Expr::Null);
+                *existing = match before {
+                    Expr::ListLiteral(mut items) => {
+                        items.push(entry);
+                        Expr::ListLiteral(items)
+                    }
+                    other => Expr::ListLiteral(vec![other, entry]),
+                };
+            }
+            _ => {
+                kept_args.push(Arg::Named("class".to_string(), entry));
                 kept_spans.push(span);
             }
         }

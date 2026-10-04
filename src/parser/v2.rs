@@ -2248,6 +2248,13 @@ impl ParserV2 {
                     self.advance();
                     Some(self.string_expr(&text)?)
                 }
+                // `required t("form.amount")`: a translated message, read in
+                // the reader's language whenever it is shown.
+                TokenType::Identifier(word)
+                    if word == "t" && matches!(self.kind_at(1), TokenType::OpenParen) =>
+                {
+                    Some(self.parse_expression()?)
+                }
                 _ => None,
             };
             // `custom { expr }` and `async { await … }` say what to check.

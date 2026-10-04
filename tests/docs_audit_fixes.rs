@@ -506,3 +506,231 @@ fn a_test_reads_the_projects_translations() {
     assert!(text.contains("1 passed"), "{text}");
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// A project in a temp folder with these sources, built; the output folder.
+fn built_project(name: &str, config: &str, app: &str) -> std::path::PathBuf {
+    built_project_with(name, config, app, &[])
+}
+
+fn built_project_with(
+    name: &str,
+    config: &str,
+    app: &str,
+    files: &[(&str, &str)],
+) -> std::path::PathBuf {
+    let dir = std::env::temp_dir().join(format!("wf-audit-{name}-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(dir.join("src")).unwrap();
+    std::fs::write(dir.join("webfluent.app.json"), config).unwrap();
+    std::fs::write(dir.join("src/App.wf"), app).unwrap();
+    for (path, text) in files {
+        let at = dir.join(path);
+        std::fs::create_dir_all(at.parent().unwrap()).unwrap();
+        std::fs::write(at, text).unwrap();
+    }
+    let out = std::process::Command::new(env!("CARGO_BIN_EXE_wf"))
+        .args(["build", "-d"])
+        .arg(&dir)
+        .output()
+        .unwrap();
+    let text =
+        String::from_utf8_lossy(&out.stdout).to_string() + &String::from_utf8_lossy(&out.stderr);
+    assert!(out.status.success(), "{text}");
+    assert!(!text.contains("warning["), "{text}");
+    dir
+}
+
+/// The static paint drew less than the live page: a component's `derived`
+/// that read a store was empty, one unknown entry of a `class:` list lost
+/// the rest, `hidden:` was dropped, a call's `aria-label` never reached the
+/// component's root, and a Bool prop given a condition (`outlined: x`)
+/// became an attribute instead of the flag's class.
+#[test]
+fn the_static_paint_draws_what_the_live_page_draws() {
+    let dir = built_project(
+        "paint",
+        r#"{ "name": "t", "build": { "ssg": true, "minify": false, "split": false } }"#,
+        "store S { state b: [String] = [] }\n\
+         component C {\n\
+         \x20   use S\n\
+         \x20   derived on = S.b.includes(\"x\")\n\
+         \x20   Button(if on { \"Yes\" } else { \"No\" }, class: \"cbtn\")\n\
+         }\n\
+         page Home(path: \"/\", title: \"H\", description: \"D.\") {\n\
+         \x20   derived tag = query.tag ?? \"\"\n\
+         \x20   state theme = \"dark\"\n\
+         \x20   Heading(\"Home\").h1\n\
+         \x20   C(aria-label: \"A component\")\n\
+         \x20   Text(\"chip text\", class: [\"chip\", { \"is-current\": tag == \"\" }])\n\
+         \x20   Text(\"hidden text\", hidden: true)\n\
+         \x20   Button(\"Light\", outlined: theme != \"light\")\n\
+         \x20   Host(tag: \"div\", title: \"a tip\")\n\
+         }\n",
+    );
+    let html = std::fs::read_to_string(dir.join("build/index.html")).unwrap();
+    assert!(html.contains(">No</button>"), "{html}");
+    assert!(
+        html.contains(r#"<button aria-label="A component" class="wf-btn cbtn""#),
+        "{html}"
+    );
+    assert!(html.contains(r#"class="wf-text chip""#), "{html}");
+    assert!(
+        html.contains(r#"<p class="wf-text" hidden>hidden text"#),
+        "{html}"
+    );
+    assert!(
+        html.contains(r#"class="wf-btn wf-btn--outlined""#),
+        "{html}"
+    );
+    let js = std::fs::read_to_string(dir.join("build/app.js")).unwrap();
+    assert!(
+        js.contains("WF.rootAttrs("),
+        "a call's attributes reach the component's root: {js}"
+    );
+    assert!(
+        js.contains("\"wf-btn--outlined\""),
+        "the flag's class follows the condition: {js}"
+    );
+    assert!(
+        js.contains("title: \"a tip\""),
+        "`title` is the global attribute: {js}"
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// On a page with a layout, the skip link jumped to the layout's chrome; it
+/// jumps to where the page starts.
+#[test]
+fn the_skip_link_passes_a_layouts_chrome() {
+    let dir = built_project(
+        "skip",
+        r#"{ "name": "t", "build": { "ssg": true, "minify": false, "split": false } }"#,
+        "component Site { slot  Navbar { Navbar.Brand { Link(\"Brand\", to: \"/\") } }  children }\n\
+         page Home(path: \"/\", title: \"H\", description: \"D.\", layout: Site) { Heading(\"Home\").h1 }\n\
+         page Bare(path: \"/bare\", title: \"B\", description: \"D.\") { Heading(\"Bare\").h1 }\n",
+    );
+    let home = std::fs::read_to_string(dir.join("build/index.html")).unwrap();
+    assert!(
+        home.contains(r##"class="wf-skip-link" href="#wf-content""##),
+        "{home}"
+    );
+    assert!(
+        home.contains(r#"<h1 class="wf-heading" id="wf-content" tabindex="-1">"#),
+        "{home}"
+    );
+    let bare = std::fs::read_to_string(dir.join("build/bare/index.html")).unwrap();
+    assert!(
+        bare.contains(r##"class="wf-skip-link" href="#wf-main""##),
+        "{bare}"
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// What the checker refused or reported wrongly: a `derived` read only in
+/// `head { }` (U02), `hidden:` on a component call (C02), a `[T?]` filtered
+/// to what is there (T04 on the next read), and a translated rule message.
+#[test]
+fn the_checker_reads_head_attributes_filters_and_messages() {
+    let dir = built_project_with(
+        "checker",
+        r#"{ "name": "t", "build": { "minify": false, "split": false }, "i18n": { "default_locale": "en", "locales": ["en"], "dir": "src/translations" } }"#,
+        "type Item { name: String }\n\
+         component Box { Card { Text(\"x\") } }\n\
+         page Home(path: \"/\", title: \"H\", description: \"D.\") {\n\
+         \x20   derived summary = \"for the head\"\n\
+         \x20   state items: [Item?] = [Item(name: \"a\"), null]\n\
+         \x20   derived names = items.filter(i => i != null).map(i => i.name)\n\
+         \x20   state email = \"\"\n\
+         \x20   validate email { required t(\"form.email\") }\n\
+         \x20   head { meta(name: \"x-summary\", content: summary) }\n\
+         \x20   Heading(\"Home\").h1\n\
+         \x20   Box(hidden: true, aria-label: \"A box\")\n\
+         \x20   Text(names.join(\", \"))\n\
+         \x20   Input(bind: email, label: \"Email\")\n\
+         }\n",
+        &[(
+            "src/translations/en.json",
+            r#"{ "form.email": "Give an email" }"#,
+        )],
+    );
+    let js = std::fs::read_to_string(dir.join("build/app.js")).unwrap();
+    assert!(
+        js.contains(r#"message: () => WF.i18n.t("form.email")"#),
+        "{js}"
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// What `wf check` says about a program in a temp project.
+fn check_output(name: &str, app: &str) -> String {
+    let dir = std::env::temp_dir().join(format!("wf-audit-check-{name}-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(dir.join("src")).unwrap();
+    std::fs::write(dir.join("webfluent.app.json"), r#"{ "name": "t" }"#).unwrap();
+    std::fs::write(dir.join("src/App.wf"), app).unwrap();
+    let out = std::process::Command::new(env!("CARGO_BIN_EXE_wf"))
+        .args(["check", "-d"])
+        .arg(&dir)
+        .output()
+        .unwrap();
+    let _ = std::fs::remove_dir_all(&dir);
+    String::from_utf8_lossy(&out.stdout).to_string() + &String::from_utf8_lossy(&out.stderr)
+}
+
+/// A store's own action called in its initial values was "a function
+/// nothing declares" — it is declared; it does not exist yet there.
+#[test]
+fn a_store_action_in_an_initial_value_is_named_for_what_it_is() {
+    let out = check_output(
+        "store-init",
+        "store S { state xs = [1, 2].map(n => dbl(n))\n action dbl(n: Number) { return n * 2 } }\n\
+         page P(path: \"/\", title: \"P\", description: \"D.\") { Heading(\"P\").h1  Text(\"{S.xs.length}\") }\n",
+    );
+    assert!(out.contains("is an action of `S`"), "{out}");
+    assert!(!out.contains("nothing declares"), "{out}");
+}
+
+/// A template drew `@2026-02-01` and `$12.50` as nothing: a typed literal's
+/// value is its carrier.
+#[test]
+fn a_template_draws_dates_and_money_written_as_literals() {
+    let tpl = webfluent::Template::from_str(
+        "const D = @2026-02-01\nconst M = $12.50\n\
+         component Show(day: Date, price: Money) { Text(\"{day:.date(long)} for {format(price)}\") }\n\
+         page P(path: \"/\") { Show(day: @2026-02-01, price: $12.50) }\n",
+    )
+    .unwrap();
+    let html = tpl.render_html_fragment(&serde_json::json!({})).unwrap();
+    assert!(html.contains("February 1, 2026 for $12.50"), "{html}");
+}
+
+/// `wf test tests/x.wf` read `tests/` as the project; and a look-only
+/// `expect` was satisfied by a class name in the markup.
+#[test]
+fn a_test_file_runs_in_its_project_and_expects_read_text() {
+    let dir = std::env::temp_dir().join(format!("wf-audit-test-file-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(dir.join("src")).unwrap();
+    std::fs::create_dir_all(dir.join("tests")).unwrap();
+    std::fs::write(dir.join("webfluent.app.json"), r#"{ "name": "t" }"#).unwrap();
+    std::fs::write(
+        dir.join("src/App.wf"),
+        "page Home(path: \"/\", title: \"H\", description: \"D.\") { Heading(\"H\").h1 }\n",
+    )
+    .unwrap();
+    std::fs::write(
+        dir.join("tests/a.wf"),
+        "test \"text, not markup\" {\n    Text(\"hello\")\n    expect \"hello\"\n    expect not \"wf-text\"\n}\n",
+    )
+    .unwrap();
+    let out = std::process::Command::new(env!("CARGO_BIN_EXE_wf"))
+        .args(["test", "tests/a.wf"])
+        .current_dir(&dir)
+        .output()
+        .unwrap();
+    let text =
+        String::from_utf8_lossy(&out.stdout).to_string() + &String::from_utf8_lossy(&out.stderr);
+    assert!(out.status.success(), "{text}");
+    assert!(text.contains("1 passed"), "{text}");
+    let _ = std::fs::remove_dir_all(&dir);
+}

@@ -3777,7 +3777,13 @@ impl<'a, 'p> Checker<'a, 'p> {
                         for (i, _) in args.iter().enumerate() {
                             self.infer_arg(args, i, Some(&lambda(Type::Bool)));
                         }
-                        Type::list(item)
+                        // `xs.filter(x => x != null)` keeps what is there:
+                        // a `[T?]` becomes a `[T]`.
+                        if method == "filter" && args.first().is_some_and(keeps_present) {
+                            Type::list(item.unwrapped())
+                        } else {
+                            Type::list(item)
+                        }
                     }
                     // A comparator is handed two elements, not an element and
                     // an index: `(a, b) => a.age - b.age`.
@@ -4620,6 +4626,35 @@ impl<'a, 'p> Checker<'a, 'p> {
 
     /// `name` resolves to nothing: recorded, for the build to refuse.
     fn unresolved(&mut self, name: &str, called: bool) {
+        // A store's own action, called where the store is not built yet —
+        // its initial values are worked out before its actions exist.
+        if called
+            && let Some(store) = self
+                .world
+                .store_actions
+                .iter()
+                .find(|(_, actions)| actions.contains_key(name))
+                .map(|(s, _)| s.to_string())
+        {
+            let message = format!(
+                "`{name}(…)` is an action of `{store}`, which nothing here reaches by that name"
+            );
+            let span = self.located(self.current_span, &message);
+            let d = Diagnostic::coded("T13", message, self.file, span.line as usize, span.col as usize)
+                .with_span(span, self.source.as_deref())
+                .with_hint(format!(
+                    "Outside the store, call it `{store}.{name}(…)`. Inside it, a store's initial values are worked out before its actions exist: write the value out, or work it out in a `derived`, which may call them"
+                ));
+            if !self
+                .info
+                .unresolved
+                .iter()
+                .any(|u| u.message == d.message && u.line == d.line)
+            {
+                self.info.unresolved.push(d);
+            }
+            return;
+        }
         let message = if called {
             format!("`{name}(…)` calls a function nothing declares")
         } else {
@@ -5824,6 +5859,21 @@ fn scalar_method(scalar: Scalar, method: &str) -> Option<Type> {
         _ if scalar.is_text() => return string_method(method),
         _ => return None,
     })
+}
+
+/// Whether a `filter` callback keeps only the items that are there:
+/// `x => x != null`, `x => null != x`.
+fn keeps_present(callback: &Expr) -> bool {
+    let Expr::Lambda(param, body) = callback else {
+        return false;
+    };
+    match body.as_ref() {
+        Expr::BinaryOp(l, BinOp::Neq, r) => matches!(
+            (l.as_ref(), r.as_ref()),
+            (Expr::Identifier(x), Expr::Null) | (Expr::Null, Expr::Identifier(x)) if x == param
+        ),
+        _ => false,
+    }
 }
 
 /// What a `String`'s method gives back, `None` when it has none.

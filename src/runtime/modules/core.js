@@ -415,6 +415,29 @@
     }
   }
 
+  // Attributes written on a component's call — `aria-label`, `data-*`,
+  // `id`, `hidden` — land on its root element, as a built-in's do. An ARIA
+  // state keeps `false` as the string; any other attribute given `false`
+  // or nothing is taken off.
+  function rootAttrs(frag, attrs) {
+    const isFragment = frag.nodeType === 11 || frag.tagName === "#DOCUMENT-FRAGMENT";
+    const root = isFragment ? [...frag.childNodes].find((n) => n.nodeType === 1) : frag;
+    if (!root) return;
+    for (const [k, v] of Object.entries(attrs)) {
+      // `class:` adds to the root's own classes, as on a built-in.
+      if (k === "class") {
+        classes(root, typeof v === "function" ? v : () => v);
+        continue;
+      }
+      const set = (val) => {
+        if (val == null || (val === false && !k.startsWith("aria-"))) root.removeAttribute(k);
+        else root.setAttribute(k, val === true && !k.startsWith("aria-") ? "" : String(val));
+      };
+      if (typeof v === "function") effect(() => set(v()));
+      else set(v);
+    }
+  }
+
   function appendChildren(el, children) {
     for (const child of children.flat(Infinity)) {
       if (child == null || child === false) continue;

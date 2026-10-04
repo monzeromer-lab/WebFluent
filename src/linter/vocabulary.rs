@@ -307,7 +307,32 @@ fn check_engine_classes(el: &UIElement, file: &str, out: &mut Vec<VocabWarning>)
     };
     let mut found = Vec::new();
     names(value, &mut found);
-    for class in found.iter().filter(|c| c.starts_with("wf-")) {
+    // `outlined: theme != "light"` is the element's own flag, followed:
+    // lowered to a class map of the flag's class, which is no other
+    // built-in's rule.
+    let own: Vec<String> = match &el.component {
+        ComponentRef::BuiltIn(name) => {
+            let base = crate::codegen::builtin::builtin_to_html(name).1;
+            crate::registry::component(name)
+                .map(|sig| {
+                    sig.props
+                        .iter()
+                        .filter_map(|p| match p.legacy {
+                            crate::registry::Legacy::Modifier(w) => {
+                                Some(crate::codegen::builtin::modifier_to_class(base, w))
+                            }
+                            _ => None,
+                        })
+                        .collect()
+                })
+                .unwrap_or_default()
+        }
+        _ => Vec::new(),
+    };
+    for class in found
+        .iter()
+        .filter(|c| c.starts_with("wf-") && !own.contains(c))
+    {
         out.push(VocabWarning {
             rule_id: "V04".to_string(),
             message: format!("`class:` names `{class}`, one of the engine's own classes"),

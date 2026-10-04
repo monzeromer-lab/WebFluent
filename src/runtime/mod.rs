@@ -60,7 +60,7 @@ pub const MODULES: &[Module] = &[
         same("signal"), same("effect"), same("computed"), same("scoped"), same("onCleanup"),
         same("every"), same("after"), same("listen"), same("onKey"), same("keyIs"),
         same("ref"), same("safeUrl"), same("jsonAttr"), same("el"), same("bound"), same("text"), same("props"),
-        same("onRoot"), same("mark"), same("classes"), same("caseOf"), same("payload"),
+        same("onRoot"), same("mark"), same("rootAttrs"), same("classes"), same("caseOf"), same("payload"),
         same("emit"), same("navigate"), same("setSsgMode"), same("setBasePath"),
         same("theme"), same("setTheme"), same("mount"), same("mainOf"),
     ], deps: [], triggers: []),

@@ -45,6 +45,10 @@ fn format_braced(source: &str, file: &str) -> Result<String> {
     let mut depth_at: Vec<usize> = vec![0; lines.len() + 1];
     let mut inside_token: Vec<bool> = vec![false; lines.len() + 1];
     let mut closes_first: Vec<bool> = vec![false; lines.len() + 1];
+    // Whether a line starts inside a `(` or `[` an earlier line opened: an
+    // argument list or a value carried over a line, laid out by its author.
+    let mut in_parens: Vec<bool> = vec![false; lines.len() + 1];
+    let mut parens = 0usize;
     let mut depth = 0usize;
     let mut line_of_last = 0usize;
     let mut first_on_line: Vec<bool> = vec![true; lines.len() + 1];
@@ -56,6 +60,7 @@ fn format_braced(source: &str, file: &str) -> Result<String> {
         // Lines between the last token and this one start at the running depth.
         for l in (line_of_last + 1)..=line {
             depth_at[l.min(lines.len())] = depth;
+            in_parens[l.min(lines.len())] = parens > 0;
         }
         if first_on_line[line.min(lines.len())] {
             first_on_line[line.min(lines.len())] = false;
@@ -64,7 +69,15 @@ fn format_braced(source: &str, file: &str) -> Result<String> {
             }
         }
         match &token.token_type {
-            TokenType::OpenBrace | TokenType::OpenParen | TokenType::OpenBracket => depth += 1,
+            TokenType::OpenBrace => depth += 1,
+            TokenType::OpenParen | TokenType::OpenBracket => {
+                depth += 1;
+                parens += 1;
+            }
+            TokenType::CloseParen | TokenType::CloseBracket => {
+                depth = depth.saturating_sub(1);
+                parens = parens.saturating_sub(1);
+            }
             t if is_closer(t) => depth = depth.saturating_sub(1),
             _ => {}
         }
@@ -98,7 +111,7 @@ fn format_braced(source: &str, file: &str) -> Result<String> {
             continue;
         }
         blank_run = 0;
-        if inside_token[n] {
+        if inside_token[n] || in_parens[n] {
             out.push(trimmed_end.to_string());
             continue;
         }
@@ -261,6 +274,12 @@ mod tests {
     #[test]
     fn a_value_carried_over_a_line_is_left_as_written() {
         let src = "page P(path: \"/\") {\n    Card {\n        style {\n            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1),\n                        0 2px 8px rgba(0, 0, 0, 0.2)\n        }\n    }\n}\n";
+        assert_eq!(format_source(src, "t.wf").unwrap(), src);
+    }
+
+    #[test]
+    fn arguments_carried_over_lines_keep_their_layout() {
+        let src = "page P(path: \"/\",\n          title: \"T\") {\n    C(N(a: \"one\",\n        b: \"two\"))\n    Text(\"x\",\n         class: \"y\")\n}\n";
         assert_eq!(format_source(src, "t.wf").unwrap(), src);
     }
 
