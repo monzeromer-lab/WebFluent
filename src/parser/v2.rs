@@ -47,7 +47,7 @@ fn key_problem(spelling: &str) -> Option<String> {
         return Some("names no key after its modifiers".to_string());
     }
     for m in modifiers {
-        if !matches!(m.as_str(), "ctrl" | "shift" | "alt" | "meta" | "cmd") {
+        if !KEY_MODIFIERS.contains(&m.as_str()) {
             return Some(format!("names `{m}`, which is not a modifier"));
         }
     }
@@ -164,7 +164,7 @@ pub struct ParserV2 {
 const CLAUSE_WORDS: &[&str] = &["style", "transition", "on"];
 /// The words a declaration begins with, where the parser picks up again
 /// after an error.
-const DECLARATION_WORDS: &[&str] = &[
+pub const DECLARATION_WORDS: &[&str] = &[
     "page",
     "component",
     "store",
@@ -187,6 +187,45 @@ const STATEMENT_WORDS: &[&str] = &[
     // lowercase word before a block, which is what a fill looks like.
     "sequence",
 ];
+
+/// Every word a statement in a page's or a component's body may begin with
+/// — for a tool that offers them; a test parses a statement led by each.
+pub const BODY_KEYWORDS: &[&str] = &[
+    "state",
+    "persist",
+    "derived",
+    "effect",
+    "action",
+    "use",
+    "resource",
+    "validate",
+    "socket",
+    "stream",
+    "channel",
+    "peer",
+    "every",
+    "after",
+    "head",
+    "event",
+    "slot",
+    "part",
+    "if",
+    "for",
+    "show",
+    "match",
+    "children",
+    "emit",
+    "sequence",
+    "on",
+    "style",
+    "transition",
+    "navigate",
+    "log",
+];
+
+/// Every word a statement in an action, a handler or an effect may begin
+/// with, beside the body's.
+pub const IMPERATIVE_KEYWORDS: &[&str] = &["let", "return", "if", "else", "for", "try", "emit"];
 
 impl ParserV2 {
     pub fn new(tokens: Vec<Token>, file: &str) -> Self {
@@ -3932,13 +3971,49 @@ impl ParserV2 {
     }
 }
 
+/// What a `persist` value's block may say about it.
+pub const PERSIST_POLICY_KEYS: &[&str] = &["in", "version", "sync", "key", "migrate"];
+
+/// The HTTP methods an `api` endpoint begins with.
+pub const HTTP_VERBS: &[&str] = &["get", "post", "put", "patch", "delete", "head", "options"];
+
 /// Whether a word names an HTTP method.
 fn is_http_method(word: &str) -> bool {
-    matches!(
-        word,
-        "get" | "post" | "put" | "patch" | "delete" | "head" | "options"
-    )
+    HTTP_VERBS.contains(&word)
 }
+
+/// The units a number may carry as a `Duration` (`3.days`), for a tool to
+/// offer; [`duration_unit`] reads each, a test holds them together.
+pub const DURATION_UNITS: &[&str] = &["ms", "seconds", "minutes", "hours", "days", "weeks"];
+
+/// The named keys `on key("…")` reads, as the browser spells them — for a
+/// tool to offer; a single character and `F1`–`F24` are keys too.
+pub const KEY_NAMES: &[&str] = &[
+    "Enter",
+    "Escape",
+    "Tab",
+    "Backspace",
+    "Delete",
+    "Insert",
+    "Home",
+    "End",
+    "PageUp",
+    "PageDown",
+    "ArrowUp",
+    "ArrowDown",
+    "ArrowLeft",
+    "ArrowRight",
+    "space",
+    "CapsLock",
+    "ContextMenu",
+    "Pause",
+    "PrintScreen",
+    "ScrollLock",
+    "NumLock",
+];
+
+/// The modifiers a key combination may hold, before its key.
+pub const KEY_MODIFIERS: &[&str] = &["ctrl", "shift", "alt", "meta", "cmd"];
 
 /// The milliseconds one of the units a number may carry is worth.
 fn duration_unit(name: &str) -> Option<f64> {
@@ -4268,6 +4343,89 @@ mod tests {
         match parse(src).declarations.into_iter().next() {
             Some(Declaration::Page(p)) => p.body,
             other => panic!("expected a page, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn the_lists_a_tool_offers_are_the_ones_the_parser_reads() {
+        for unit in DURATION_UNITS {
+            assert!(
+                duration_unit(unit).is_some(),
+                "`{unit}` is offered and not read"
+            );
+        }
+        for key in KEY_NAMES {
+            assert_eq!(key_problem(key), None, "`{key}` is offered and refused");
+        }
+        for m in KEY_MODIFIERS {
+            assert_eq!(
+                key_problem(&format!("{m}+k")),
+                None,
+                "`{m}` is offered and refused"
+            );
+        }
+        for verb in HTTP_VERBS {
+            assert!(is_http_method(verb));
+        }
+        // Each key of a `persist` block, in one.
+        for key in PERSIST_POLICY_KEYS {
+            let line = match *key {
+                "in" => "in: .session",
+                "version" => "version: 2\n        migrate 1 -> 2 { old }",
+                "sync" => "sync: false",
+                "key" => "key: \"a\"",
+                "migrate" => "version: 2\n        migrate 1 -> 2 { old }",
+                other => panic!("`{other}` has no example here"),
+            };
+            parse(&format!(
+                "page P(path: \"/\") {{\n    persist n = 0 {{\n        {line}\n    }}\n}}\n"
+            ));
+        }
+    }
+
+    /// Each word of [`BODY_KEYWORDS`] leads a statement of its own — not a
+    /// component, a call or a slot fill — in a page or a component.
+    #[test]
+    fn every_body_keyword_leads_a_statement() {
+        for word in BODY_KEYWORDS {
+            let line = match *word {
+                "state" | "persist" => format!("{word} n = 0"),
+                "derived" => "derived n = 1".to_string(),
+                "effect" => "effect { log(1) }".to_string(),
+                "action" => "action a() { log(1) }".to_string(),
+                "use" => "use S".to_string(),
+                "resource" => "resource r = fetch(\"/x\")".to_string(),
+                "validate" => "state e = \"\"\n    validate e { required }".to_string(),
+                "socket" => "socket s = ws(\"wss://x\")".to_string(),
+                "stream" => "stream s = sse(\"/e\")".to_string(),
+                "channel" => "channel c = broadcast(\"x\")".to_string(),
+                "peer" => "peer p = rtc(signal: m => log(m))".to_string(),
+                "every" | "after" => format!("{word}(1000) {{ log(1) }}"),
+                "head" => "head { meta(name: \"a\", content: \"b\") }".to_string(),
+                "event" => "event pick(id: String)".to_string(),
+                "slot" => "slot trailing".to_string(),
+                "part" => "part Header { Text(\"h\") }".to_string(),
+                "if" => "if true { Text(\"a\") }".to_string(),
+                "for" => "for x in [1] { Text(\"a\") }".to_string(),
+                "show" => "show true { Text(\"a\") }".to_string(),
+                "match" => "state t = 1\n    match t { else { Text(\"a\") } }".to_string(),
+                "children" => "children".to_string(),
+                "emit" => "event go()\n    Button(\"b\") { on click { emit go() } }".to_string(),
+                "sequence" => "sequence { step { Text(\"a\") } }".to_string(),
+                "on" => "on key(\"Escape\") { log(1) }".to_string(),
+                "style" => "Card { style { padding: 1rem } }".to_string(),
+                "transition" => "Card { transition { opacity: 200ms ease } }".to_string(),
+                "navigate" => "Button(\"b\") { on click { navigate(\"/\") } }".to_string(),
+                "log" => "Button(\"b\") { on click { log(1) } }".to_string(),
+                other => panic!("`{other}` has no example here: add one"),
+            };
+            // Component-only words go in a component; the rest in a page.
+            let src = if matches!(*word, "event" | "slot" | "part" | "children" | "emit") {
+                format!("component C {{\n    {line}\n}}\n")
+            } else {
+                format!("page P(path: \"/\") {{\n    {line}\n}}\n")
+            };
+            parse(&src);
         }
     }
 

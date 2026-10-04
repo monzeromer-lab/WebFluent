@@ -872,3 +872,468 @@ fn a_field_renames_where_it_is_read_and_where_a_record_is_built() {
         "type User { id: String, title: String }\npage P(path: \"/\") {\n    state u: User = User(id: \"1\", title: \"Ada\")\n    state row = { name: \"x\" }\n    Text(\"{u.title}\")\n    Text(u.title)\n    Text(row.name)\n}\n"
     );
 }
+
+// ─── Completion: what the compiler knows ──────────────────────────────────
+
+/// Completion at `‸` in `broken`, the server holding `valid` as the last
+/// parse that succeeded — as it does while the user types. Labels come back
+/// without a prop's `:` or a token's `$`.
+fn offered(valid: &str, broken: &str) -> Vec<String> {
+    let at = broken.find('‸').expect("a ‸ marks the cursor");
+    let text = broken.replacen('‸', "", 1);
+    let project = mid_edit(valid, &text);
+    let pos = project.files[0].index.offset_to_position(&text, at);
+    provide_completions(&project, 0, pos)
+        .into_iter()
+        .map(|c| {
+            c.label
+                .trim_end_matches(':')
+                .trim_start_matches('$')
+                .to_string()
+        })
+        .collect()
+}
+
+#[track_caller]
+fn offers(labels: &[String], want: &[&str]) {
+    let missing: Vec<&&str> = want
+        .iter()
+        .filter(|w| !labels.iter().any(|l| l == *w))
+        .collect();
+    assert!(missing.is_empty(), "missing {missing:?} in {labels:?}");
+}
+
+const HEAD: &str =
+    "page Home(path: \"/\", title: \"H\", description: \"D\") {\n    Heading(\"H\").h1\n";
+
+/// `body` inside a page, as the last good parse and as the buffer.
+fn in_page(valid_body: &str, broken_body: &str) -> Vec<String> {
+    offered(
+        &format!("{HEAD}{valid_body}\n}}\n"),
+        &format!("{HEAD}{broken_body}\n}}\n"),
+    )
+}
+
+#[test]
+fn every_keyword_the_parser_reads_is_documented() {
+    use wf_lsp::reference::KEYWORDS;
+    let documented = |w: &str| KEYWORDS.iter().any(|k| k.name == w);
+    for word in webfluent::parser::v2::DECLARATION_WORDS
+        .iter()
+        .filter(|w| **w != "external")
+    {
+        assert!(
+            documented(word),
+            "`{word}` declares something and has no entry"
+        );
+    }
+    for word in webfluent::parser::v2::BODY_KEYWORDS
+        .iter()
+        .chain(webfluent::parser::v2::IMPERATIVE_KEYWORDS)
+    {
+        assert!(
+            documented(word),
+            "`{word}` begins a statement and has no entry"
+        );
+    }
+    for name in webfluent::sema::types::built_in_functions()
+        .iter()
+        .chain(webfluent::codegen::js::BROWSER_VALUES)
+    {
+        assert!(
+            wf_lsp::reference::builtin(name).is_some(),
+            "`{name}` is the language's and has no entry"
+        );
+    }
+}
+
+#[test]
+fn keywords_are_offered_where_they_may_be_written() {
+    offers(
+        &offered("", "‸\n"),
+        &[
+            "page",
+            "component",
+            "store",
+            "app",
+            "theme",
+            "animation",
+            "type",
+            "enum",
+            "const",
+            "data",
+            "image",
+            "api",
+            "test",
+        ],
+    );
+    let body = in_page("    Text(\"a\")", "    ‸");
+    offers(
+        &body,
+        &[
+            "state", "persist", "validate", "resource", "socket", "stream", "channel", "peer",
+            "every", "after", "head", "sequence", "match", "show", "for", "if",
+        ],
+    );
+    assert!(
+        !body.contains(&"slot".to_string()) && !body.contains(&"let".to_string()),
+        "{body:?}"
+    );
+    let comp = offered(
+        "component C {\n    Text(\"a\")\n}\n",
+        "component C {\n    ‸\n}\n",
+    );
+    offers(&comp, &["slot", "part", "event", "emit", "children"]);
+    assert!(!comp.contains(&"head".to_string()));
+    let action = in_page(
+        "    action a() {\n        log(1)\n    }",
+        "    action a() {\n        ‸\n    }",
+    );
+    offers(
+        &action,
+        &[
+            "let", "return", "try", "if", "for", "format", "uuid", "navigate",
+        ],
+    );
+    let test = offered(
+        "test \"t\" {\n    Text(\"a\")\n    expect \"a\"\n}\n",
+        "test \"t\" {\n    Text(\"a\")\n    ‸\n}\n",
+    );
+    offers(&test, &["expect", "click", "type", "press", "state"]);
+}
+
+#[test]
+fn the_language_s_functions_and_values_and_the_program_s_constants_are_offered_in_expressions() {
+    let src = "const LIMIT = 3\ndata posts = \"p.json\"\nimage hero = \"h.jpg\"\n";
+    let labels = offered(
+        &format!("{src}{HEAD}    Text(\"a\")\n}}\n"),
+        &format!("{src}{HEAD}    Text(‸)\n}}\n"),
+    );
+    offers(
+        &labels,
+        &[
+            "format", "ago", "t", "uuid", "viewport", "query", "now", "network", "LIMIT", "posts",
+            "hero",
+        ],
+    );
+}
+
+#[test]
+fn after_a_dot_a_value_offers_what_its_type_has() {
+    let pairs: &[(&str, &str, &str, &[&str])] = &[
+        (
+            "state d: Date = @2026-03-14",
+            "d.year()",
+            "d.‸",
+            &["plus", "year", "isBefore", "startOfMonth", "until"],
+        ),
+        (
+            "state m: Money = €12.99",
+            "m.amount",
+            "m.‸",
+            &["amount", "currency", "plus", "times"],
+        ),
+        (
+            "state u: Url = \"https://a.com\"",
+            "u.host()",
+            "u.‸",
+            &["host", "path", "with"],
+        ),
+        (
+            "state xs = [1, 2]",
+            "xs.length",
+            "xs.‸",
+            &[
+                "length", "map", "sortBy", "groupBy", "unique", "take", "first", "sum",
+            ],
+        ),
+        (
+            "state s = \"a\"",
+            "s.length",
+            "s.‸",
+            &[
+                "capitalize",
+                "truncate",
+                "dedent",
+                "lines",
+                "words",
+                "toLowerCase",
+            ],
+        ),
+        (
+            "state w = 3.seconds",
+            "w",
+            "3.‸",
+            &["ms", "seconds", "minutes", "hours", "days", "weeks"],
+        ),
+        (
+            "state n = 3",
+            "format(n, .currency)",
+            "format(n, .‸)",
+            &[
+                "number", "currency", "percent", "compact", "date", "relative",
+            ],
+        ),
+        (
+            "state x = 0",
+            "viewport.md",
+            "viewport.‸",
+            &["md", "width", "sm", "xl"],
+        ),
+        (
+            "state x = 0",
+            "network.online",
+            "network.‸",
+            &["online", "saveData", "queued"],
+        ),
+    ];
+    for (decl, valid, broken, want) in pairs {
+        let labels = in_page(
+            &format!("    {decl}\n    Text({valid})"),
+            &format!("    {decl}\n    Text({broken})"),
+        );
+        offers(&labels, want);
+    }
+}
+
+#[test]
+fn after_a_dot_a_declaration_or_a_handle_offers_its_members() {
+    let api = "api Backend(base: \"/api\") {\n    get users() -> [Map]\n    get user(id: String) at \"users/:id\" -> Map\n}\n";
+    let v = format!("{api}{HEAD}    resource r = Backend.users()\n}}\n");
+    offers(
+        &offered(&v, &v.replace("Backend.users()", "Backend.‸")),
+        &["users", "user", "invalidate"],
+    );
+    offers(
+        &offered(&v, &v.replace("Backend.users()", "Backend.users.‸")),
+        &["invalidate", "prefetch", "pending", "url"],
+    );
+    let e = "enum Tone { calm, loud }\n";
+    let v = format!(
+        "{e}{HEAD}    state t: Tone = .calm\n    Text(if t == .calm {{ \"a\" }} else {{ \"b\" }})\n}}\n"
+    );
+    offers(
+        &offered(&v, &v.replacen("Tone = .calm", "Tone = .‸", 1)),
+        &["calm", "loud"],
+    );
+    offers(
+        &offered(&v, &v.replace("t == .calm", "t == .‸")),
+        &["calm", "loud"],
+    );
+    let im = "image hero = \"h.jpg\"\n";
+    let v = format!("{im}{HEAD}    Text(hero.src)\n}}\n");
+    offers(
+        &offered(&v, &v.replace("hero.src", "hero.‸")),
+        &["src", "width", "height", "color", "srcset"],
+    );
+    for (decl, valid, broken, want) in [
+        (
+            "socket chat = ws(\"wss://x\")",
+            "chat.state",
+            "chat.‸",
+            &["send", "messages", "state", "close", "last"][..],
+        ),
+        (
+            "channel c = broadcast(\"x\")",
+            "c.post(1)",
+            "c.‸",
+            &["post", "messages"][..],
+        ),
+        (
+            "resource r = fetch(\"/x\")",
+            "r.data",
+            "r.‸",
+            &["reload", "state", "data", "error", "loadMore"][..],
+        ),
+        (
+            "action save() { await fetch(\"/x\") }",
+            "save.pending",
+            "save.‸",
+            &["pending"][..],
+        ),
+        ("state p: Map? = null", "p?.x", "p?.‸", &[][..]),
+    ] {
+        offers(
+            &in_page(
+                &format!("    {decl}\n    Text({valid})"),
+                &format!("    {decl}\n    Text({broken})"),
+            ),
+            want,
+        );
+    }
+    let form = "    Form(bind: f) { Button(\"x\", disabled: !f.valid) }";
+    offers(
+        &in_page(form, &form.replace("f.valid", "f.‸")),
+        &["valid", "errors", "reset", "pending", "touched"],
+    );
+    let el = "    Input(ref: box, label: \"L\")\n    Button(\"x\") { on click { box.focus() } }";
+    offers(
+        &in_page(el, &el.replace("box.focus()", "box.‸")),
+        &["focus", "blur", "value"],
+    );
+}
+
+#[test]
+fn a_type_is_offered_wherever_one_is_written() {
+    let decls = "type Post { id: String }\nenum Tone { calm, loud }\n";
+    let types = &[
+        "Post", "Tone", "String", "Number", "Bool", "Date", "Money", "Url", "Duration",
+    ];
+    let v = format!("{decls}{HEAD}    state p: Post? = null\n}}\n");
+    offers(
+        &offered(&v, &v.replace("state p: Post?", "state p: ‸")),
+        types,
+    );
+    let v = format!("{decls}component C(title: String) {{ Text(title) }}\n");
+    offers(&offered(&v, &v.replace("title: String", "title: ‸")), types);
+    let v = format!("{decls}type Row {{ id: String }}\n");
+    offers(
+        &offered(
+            &v,
+            &v.replace("type Row { id: String }", "type Row { id: ‸ }"),
+        ),
+        types,
+    );
+    let v = format!("{decls}api B(base: \"/x\") {{\n    get posts() -> [Post]\n}}\n");
+    offers(&offered(&v, &v.replace("-> [Post]", "-> ‸")), types);
+    offers(&offered(&v, &v.replace("-> [Post]", "-> [‸")), types);
+}
+
+#[test]
+fn a_block_offers_what_it_may_hold() {
+    let persist = "    persist n = 0 {\n        sync: false\n    }";
+    offers(
+        &in_page(persist, &persist.replace("sync: false", "‸")),
+        &["in", "version", "sync", "key", "migrate"],
+    );
+    let validate = "    state e = \"\"\n    validate e {\n        required\n    }\n    Input(bind: e, label: \"E\")";
+    offers(
+        &in_page(validate, &validate.replace("required", "‸")),
+        &[
+            "required",
+            "email",
+            "minLength",
+            "pattern",
+            "matches",
+            "custom",
+            "async",
+        ],
+    );
+    let api = "api B(base: \"/x\") {\n    get a() -> Map\n}\n";
+    offers(
+        &offered(api, &api.replace("get a() -> Map", "‸")),
+        &[
+            "timeout",
+            "retry",
+            "credentials",
+            "cache",
+            "headers",
+            "get",
+            "post",
+            "delete",
+            "on",
+        ],
+    );
+    let grid = "    Grid(columns: { base: 1 }) { Text(\"a\") }";
+    offers(
+        &in_page(grid, &grid.replace("{ base: 1 }", "{ ‸ }")),
+        &["base", "sm", "md", "lg", "xl"],
+    );
+    offers(
+        &in_page(grid, &grid.replace("{ base: 1 }", "{ base: 1, ‸ }")),
+        &["md"],
+    );
+}
+
+#[test]
+fn a_string_or_a_comment_that_names_something_offers_it() {
+    let key = "    on key(\"Escape\") { log(1) }";
+    offers(
+        &in_page(key, &key.replace("\"Escape\"", "\"‸\"")),
+        &["Escape", "Enter", "ArrowDown", "ctrl+"],
+    );
+    let host = "    Host(tag: \"canvas\")";
+    offers(
+        &in_page(host, &host.replace("\"canvas\"", "\"‸\"")),
+        &["div", "canvas", "svg", "table"],
+    );
+    let allow = "    // wf-allow(U01)\n    state n = 0";
+    let labels = in_page(allow, &allow.replace("(U01)", "(‸"));
+    offers(&labels, &["U01", "A01", "R01"]);
+    assert!(
+        !labels.contains(&"T05".to_string()),
+        "an error no allow may silence is not offered"
+    );
+    let splice =
+        "    state count = 0\n    state d: Date = @2026-01-01\n    Text(\"{count} {d.year()}\")";
+    offers(
+        &in_page(splice, &splice.replace("{count}", "{cou‸}")),
+        &["count", "format"],
+    );
+    offers(
+        &in_page(splice, &splice.replace("d.year()", "d.‸")),
+        &["year", "plus"],
+    );
+}
+
+#[test]
+fn a_project_s_messages_and_public_env_names_are_offered() {
+    let app = "app { Router }\npage Home(path: \"/\", title: \"H\", description: \"D\") {\n    Heading(t(\"hello\")).h1\n    Text(env.PUBLIC_NAME)\n}\n";
+    let root = std::env::temp_dir().join(format!("wf-lsp-msgs-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&root);
+    std::fs::create_dir_all(root.join("src/translations")).unwrap();
+    std::fs::write(
+        root.join("webfluent.app.json"),
+        r#"{ "name": "t", "env": { "PUBLIC_NAME": "x", "SECRET": "y" }, "i18n": { "default_locale": "en", "locales": ["en"], "dir": "src/translations" } }"#,
+    )
+    .unwrap();
+    std::fs::write(
+        root.join("src/translations/en.json"),
+        r#"{ "hello": "Hello", "nav.home": "Home" }"#,
+    )
+    .unwrap();
+    std::fs::write(root.join("src/App.wf"), app).unwrap();
+    let uri = Url::from_file_path(root.join("src/App.wf")).unwrap();
+    let complete = |broken: &str| -> Vec<String> {
+        let at = broken.find('‸').unwrap();
+        let text = broken.replacen('‸', "", 1);
+        let project = Project::load(
+            &uri,
+            &|_| {
+                Some(wf_lsp::project::OpenText {
+                    text: text.as_str().into(),
+                    last_valid: Some(std::sync::Arc::new(
+                        webfluent::parse_source(app, "src/App.wf").unwrap(),
+                    )),
+                })
+            },
+            &wf_lsp::project::FileCache::default(),
+        );
+        let ix = project.file_index(&uri).unwrap();
+        let pos = project.files[ix].index.offset_to_position(&text, at);
+        provide_completions(&project, ix, pos)
+            .into_iter()
+            .map(|c| c.label)
+            .collect()
+    };
+    offers(
+        &complete(&app.replace("t(\"hello\")", "t(\"‸\")")),
+        &["hello", "nav.home"],
+    );
+    let env = complete(&app.replace("env.PUBLIC_NAME", "env.‸"));
+    offers(&env, &["PUBLIC_NAME"]);
+    assert!(
+        !env.contains(&"SECRET".to_string()),
+        "a private name is never offered: {env:?}"
+    );
+}
+
+#[test]
+fn a_theme_s_own_tokens_are_offered_after_a_dollar() {
+    let theme = "theme Brand {\n    viz-1: #ff0000\n    color-primary: #000000\n}\n";
+    let v = format!("{theme}{HEAD}    Card {{ style {{ color: $viz-1 }} }}\n}}\n");
+    offers(
+        &offered(&v, &v.replace("$viz-1", "$‸")),
+        &["viz-1", "color-primary", "surface"],
+    );
+}

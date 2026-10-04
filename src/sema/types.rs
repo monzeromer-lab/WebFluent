@@ -107,6 +107,21 @@ pub enum Scalar {
 }
 
 impl Scalar {
+    /// Every one, in the order the guide lists them.
+    pub const ALL: [Scalar; 11] = [
+        Scalar::Date,
+        Scalar::Time,
+        Scalar::DateTime,
+        Scalar::Duration,
+        Scalar::Money,
+        Scalar::Url,
+        Scalar::Email,
+        Scalar::Color,
+        Scalar::Uuid,
+        Scalar::File,
+        Scalar::Secret,
+    ];
+
     /// The name it is written with.
     pub fn name(self) -> &'static str {
         match self {
@@ -511,10 +526,15 @@ pub fn check_in(
     // the build has not resolved yet is what it declares, or `Any`.
     for (index, decl) in program.declarations.iter().enumerate() {
         if let Declaration::Data(d) = decl {
-            let ty =
+            // An `image` is the asset the build made of it; `data` what it
+            // declares, or `Any`.
+            let ty = if d.is_image {
+                image_type()
+            } else {
                 d.ty.as_ref()
                     .map(|t| world.resolve(Type::from_ref(t)))
-                    .unwrap_or(Type::Any);
+                    .unwrap_or(Type::Any)
+            };
             info.bindings.push(Typed {
                 decl: index,
                 name: d.name.clone(),
@@ -5545,6 +5565,23 @@ fn case_signature(case: &str, fields: &[(String, Type)]) -> String {
 }
 
 /// What a rule is a rule for, or `None` when there is no such rule.
+/// The rules a `validate` block may hold, for a tool to offer;
+/// [`rule_wants`] reads each.
+pub const VALIDATE_RULES: &[&str] = &[
+    "required",
+    "email",
+    "url",
+    "minLength",
+    "maxLength",
+    "min",
+    "max",
+    "pattern",
+    "matches",
+    "oneOf",
+    "custom",
+    "async",
+];
+
 fn rule_wants(name: &str) -> Option<Vec<Type>> {
     Some(match name {
         // A value of any type is either there or not.
@@ -5851,8 +5888,304 @@ pub fn expr_text(expr: &Expr) -> String {
     }
 }
 
+/// The plain types a program writes, beside its own and [`Scalar::ALL`].
+pub const PRIMITIVE_TYPES: &[&str] = &["String", "Number", "Bool", "Map", "Any"];
+
+/// One thing a value of some type has, as a tool offers it after `value.`:
+/// a field (`price.amount`) or a method (`due.plus(…)`).
+#[derive(Debug, Clone, PartialEq)]
+pub struct Member {
+    pub name: String,
+    pub method: bool,
+    /// What it gives back, where the checker knows.
+    pub ty: Option<Type>,
+}
+
+/// Every name a scalar's methods may take, held to [`scalar_method`] for
+/// each scalar by [`members`]; a test keeps it in step with the methods the
+/// code generator routes (`codegen::js::SCALAR_METHODS`).
+const SCALAR_MEMBER_NAMES: &[&str] = &[
+    "year",
+    "month",
+    "day",
+    "weekday",
+    "hour",
+    "minute",
+    "second",
+    "native",
+    "date",
+    "time",
+    "inZone",
+    "startOfDay",
+    "startOfWeek",
+    "startOfMonth",
+    "endOfDay",
+    "isBefore",
+    "isAfter",
+    "isSame",
+    "until",
+    "plus",
+    "minus",
+    "days",
+    "hours",
+    "minutes",
+    "seconds",
+    "ms",
+    "times",
+    "convert",
+    "host",
+    "path",
+    "query",
+    "with",
+    "domain",
+    "mix",
+    "lighten",
+    "darken",
+    "alpha",
+    "contrast",
+    "preview",
+];
+
+/// What a value of type `ty` has after a dot — the same tables and rules
+/// the checker holds a program to, so an editor offers exactly what the
+/// build accepts. A record's fields, a store's members and a service's
+/// endpoints need the program, and are the caller's to add.
+pub fn members(ty: &Type) -> Vec<Member> {
+    let field = |name: &str, ty: Type| Member {
+        name: name.to_string(),
+        method: false,
+        ty: Some(ty),
+    };
+    let method = |name: &str, ty: Option<Type>| Member {
+        name: name.to_string(),
+        method: true,
+        ty,
+    };
+    let text = |out: &mut Vec<Member>| {
+        out.push(field("length", Type::Number));
+        out.extend(STRING_METHODS.iter().map(|m| method(m, string_method(m))));
+    };
+    let ty = match ty {
+        Type::Optional(inner) => inner.as_ref(),
+        other => other,
+    };
+    let mut out = Vec::new();
+    match ty {
+        Type::List(_) => {
+            out.push(field("length", Type::Number));
+            out.extend(LIST_METHODS.iter().map(|m| method(m, None)));
+        }
+        Type::String => text(&mut out),
+        Type::Number => out.extend(NUMBER_METHODS.iter().map(|m| method(m, Some(Type::String)))),
+        Type::Scalar(scalar) => {
+            match scalar {
+                Scalar::Money => {
+                    out.push(field("amount", Type::Number));
+                    out.push(field("currency", Type::String));
+                }
+                Scalar::File => {
+                    out.push(field("name", Type::String));
+                    out.push(field("size", Type::Number));
+                    out.push(field("type", Type::String));
+                }
+                _ => {}
+            }
+            // Exactly what `scalar_method` types: its own methods, and — for
+            // one carried by a string — the string methods it allows.
+            if *scalar != Scalar::Secret {
+                let strings: &[&'static str] = if scalar.is_text() {
+                    STRING_METHODS
+                } else {
+                    &[]
+                };
+                let mut seen: Vec<&str> = Vec::new();
+                for m in SCALAR_MEMBER_NAMES
+                    .iter()
+                    .chain(strings)
+                    .chain(["length"].iter())
+                {
+                    if seen.contains(m) {
+                        continue;
+                    }
+                    seen.push(m);
+                    if let Some(ty) = scalar_method(*scalar, m) {
+                        out.push(if *m == "length" {
+                            field("length", ty)
+                        } else {
+                            method(m, Some(ty))
+                        });
+                    }
+                }
+            }
+        }
+        Type::Shape(fields) => {
+            for (name, ty) in fields {
+                out.push(Member {
+                    name: name.clone(),
+                    method: matches!(ty, Type::Func(..)),
+                    ty: Some(ty.clone()),
+                });
+            }
+        }
+        Type::Resource(inner) => {
+            out.push(field("state", Type::String));
+            out.push(field("data", Type::optional((**inner).clone())));
+            out.push(field("error", Type::optional(Type::NetError)));
+            out.push(field("items", Type::list(Type::Any)));
+            out.push(field("hasMore", Type::Bool));
+            out.push(method("reload", None));
+            out.push(method("loadMore", None));
+            out.push(method("invalidate", None));
+            out.push(method("cancel", None));
+        }
+        Type::NetError => {
+            out.push(field("message", Type::String));
+            out.push(field("status", Type::Number));
+            out.push(field("kind", Type::String));
+            out.push(field("body", Type::Any));
+            out.push(field("headers", Type::Map));
+        }
+        _ => {}
+    }
+    out
+}
+
+/// What an `image` name is: the asset the build made of the picture —
+/// `media::Asset::as_json`, which a test holds to this.
+pub fn image_type() -> Type {
+    Type::Shape(vec![
+        ("src".to_string(), Type::String),
+        ("width".to_string(), Type::Number),
+        ("height".to_string(), Type::Number),
+        ("color".to_string(), Type::String),
+        ("placeholder".to_string(), Type::String),
+        ("srcset".to_string(), Type::String),
+        ("sources".to_string(), Type::list(Type::Map)),
+    ])
+}
+
+/// The type of a name every program can read — `viewport`, `network`,
+/// `now` — for a tool to describe and complete.
+pub fn browser_value_type(name: &str) -> Option<Type> {
+    crate::codegen::js::BROWSER_VALUES
+        .contains(&name)
+        .then(|| global_type(name))
+}
+
+/// The functions the language gives a program, which it calls by name.
+pub fn built_in_functions() -> &'static [&'static str] {
+    BUILT_IN_FUNCTIONS
+}
+
 #[cfg(test)]
 mod tests {
+
+    #[test]
+    fn every_type_name_a_tool_offers_is_one_the_checker_reads() {
+        for s in Scalar::ALL {
+            assert_eq!(Scalar::of_name(s.name()), Some(s));
+        }
+        for name in PRIMITIVE_TYPES {
+            let src = format!("page P(path: \"/\") {{ state x: {name}? = null\n Text(\"a\") }}");
+            let program = crate::syntax::parse_source(&src, "t.wf").unwrap();
+            assert!(
+                check(&program, &|_| String::new())
+                    .findings
+                    .errors
+                    .is_empty(),
+                "{name}"
+            );
+        }
+    }
+
+    #[test]
+    fn every_rule_a_tool_offers_is_one_the_checker_reads() {
+        for rule in VALIDATE_RULES {
+            assert!(
+                rule_wants(rule).is_some(),
+                "`{rule}` is offered and not a rule"
+            );
+        }
+    }
+
+    #[test]
+    fn members_are_the_checker_s_own_tables() {
+        let names = |ty: Type| -> Vec<&'static str> {
+            members(&ty)
+                .into_iter()
+                .map(|m| &*Box::leak(m.name.into_boxed_str()))
+                .collect()
+        };
+        let list = names(Type::list(Type::Number));
+        for m in [
+            "length", "map", "sortBy", "groupBy", "unique", "take", "first", "sum",
+        ] {
+            assert!(list.contains(&m), "a list's `{m}`: {list:?}");
+        }
+        let text = names(Type::String);
+        for m in [
+            "capitalize",
+            "truncate",
+            "dedent",
+            "lines",
+            "words",
+            "toLowerCase",
+        ] {
+            assert!(text.contains(&m), "a string's `{m}`: {text:?}");
+        }
+        let date = names(Type::Scalar(Scalar::Date));
+        for m in ["plus", "year", "isBefore", "startOfMonth", "until"] {
+            assert!(date.contains(&m), "a date's `{m}`: {date:?}");
+        }
+        assert!(!date.contains(&"amount") && !date.contains(&"host"));
+        let money = names(Type::Scalar(Scalar::Money));
+        for m in ["amount", "currency", "plus", "times", "convert"] {
+            assert!(money.contains(&m), "money's `{m}`: {money:?}");
+        }
+        let url = names(Type::Scalar(Scalar::Url));
+        assert!(url.contains(&"host") && url.contains(&"with") && url.contains(&"toLowerCase"));
+        assert_eq!(url.iter().filter(|m| **m == "length").count(), 1);
+        assert!(
+            names(Type::Scalar(Scalar::Secret)).is_empty(),
+            "a secret is not read apart"
+        );
+        let viewport = names(browser_value_type("viewport").unwrap());
+        assert!(
+            viewport.contains(&"md") && viewport.contains(&"width"),
+            "{viewport:?}"
+        );
+        // Every value `members` offers for a scalar is one the checker types.
+        for scalar in [
+            Scalar::Date,
+            Scalar::Time,
+            Scalar::DateTime,
+            Scalar::Duration,
+            Scalar::Money,
+            Scalar::Url,
+            Scalar::Email,
+            Scalar::Color,
+            Scalar::File,
+            Scalar::Uuid,
+        ] {
+            for m in members(&Type::Scalar(scalar)) {
+                if m.method {
+                    assert!(
+                        scalar_method(scalar, &m.name).is_some(),
+                        "{scalar:?}.{}",
+                        m.name
+                    );
+                }
+            }
+        }
+        // …and every scalar method the code generator routes is offered.
+        for (m, _) in crate::codegen::js::SCALAR_METHODS {
+            assert!(
+                SCALAR_MEMBER_NAMES.contains(m),
+                "`{m}` is routed but not offered"
+            );
+        }
+    }
+
     use super::*;
     use crate::parser::v2::parse_v2;
 

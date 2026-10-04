@@ -736,7 +736,28 @@ fn binding_doc(
         BindingKind::FetchError => "The error the enclosing `fetch` failed with.",
         BindingKind::Store => "A store brought into scope with `use`.",
         BindingKind::Resource => "An async value; render its states with `match`.",
-        BindingKind::ArmBinding => "The value the enclosing arm binds.",
+        BindingKind::ArmBinding => "The value the enclosing arm, `if let` or slot fill binds.",
+        BindingKind::RouteParam => {
+            "A parameter of the page's route: the part of the address its `:name` stands for."
+        }
+        BindingKind::Socket => {
+            "A WebSocket the page holds open. `match` reads its state; `.send(v)`, `.messages`, `.last(kind)`, `.error`, `.closure`, `.close()`."
+        }
+        BindingKind::Stream => {
+            "A stream of server-sent events. `match` reads its state; `.messages`, `.last(kind)`, `.error`, `.close()`."
+        }
+        BindingKind::Channel => {
+            "A channel every tab of the site hears. `.post(v)` sends; `.messages` holds what arrived."
+        }
+        BindingKind::Peer => {
+            "A WebRTC data channel to another page. `match` reads its state; `.send(v)`, `.signal(m)`, `.messages`, `.close()`."
+        }
+        BindingKind::FormHandle => {
+            "A handle on the form: `.valid`, `.errors`, `.touched`, `.pending`, `.values`, `.reset()`, `.submit()`, `.apply(errors)`."
+        }
+        BindingKind::ElementHandle => {
+            "A handle on the element, from `ref:`: `.focus()`, `.blur()`, `.value`, and the rest of the element."
+        }
     };
     match source {
         Some(line) => format!(

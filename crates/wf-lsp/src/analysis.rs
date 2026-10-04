@@ -25,6 +25,13 @@ pub fn declaration_at(project: &Project, file_ix: usize, offset: usize) -> Optio
             Declaration::Component(c) if contains(c.span, offset) => return Some(ix),
             Declaration::Store(s) if contains(s.span, offset) => return Some(ix),
             Declaration::Theme(t) if contains(t.span, offset) => return Some(ix),
+            Declaration::Test(t) if contains(t.span, offset) => return Some(ix),
+            Declaration::Type(t) if contains(t.span, offset) => return Some(ix),
+            Declaration::Enum(e) if contains(e.span, offset) => return Some(ix),
+            Declaration::Api(a) if contains(a.span, offset) => return Some(ix),
+            Declaration::Const(c) if contains(c.span, offset) => return Some(ix),
+            Declaration::Data(d) if contains(d.span, offset) => return Some(ix),
+            Declaration::Animation(a) if contains(a.span, offset) => return Some(ix),
             Declaration::App(a) => {
                 let start = a.body.first().map(|s| s.span.start as usize);
                 let end = a.body.last().map(|s| s.span.end as usize);
@@ -60,8 +67,8 @@ pub fn body_of(decl: &Declaration) -> &[Statement] {
         | Declaration::Script(_)
         | Declaration::Const(_)
         | Declaration::Animation(_)
-        | Declaration::Test(_)
         | Declaration::Data(_) => &[],
+        Declaration::Test(t) => &t.body,
     }
 }
 
@@ -212,8 +219,20 @@ pub enum BindingKind {
     Store,
     /// A `resource`, rendered with `match`.
     Resource,
-    /// The value or error a `match` arm binds, or an `if let` name.
+    /// The value or error a `match` arm binds, an `if let` name, or a name
+    /// a scoped slot's fill gives a value.
     ArmBinding,
+    /// A `:param` of the page's route.
+    RouteParam,
+    /// A connection the page holds open.
+    Socket,
+    Stream,
+    Channel,
+    Peer,
+    /// `Form(bind: form)`: a handle on the form.
+    FormHandle,
+    /// `ref: name`: a handle on an element.
+    ElementHandle,
 }
 
 impl BindingKind {
@@ -231,6 +250,13 @@ impl BindingKind {
             BindingKind::Store => "store",
             BindingKind::Resource => "resource",
             BindingKind::ArmBinding => "binding",
+            BindingKind::RouteParam => "route parameter",
+            BindingKind::Socket => "socket",
+            BindingKind::Stream => "stream",
+            BindingKind::Channel => "channel",
+            BindingKind::Peer => "peer",
+            BindingKind::FormHandle => "form handle",
+            BindingKind::ElementHandle => "element handle",
         }
     }
 }
@@ -314,7 +340,46 @@ pub fn scope_at(decl: &Declaration, offset: usize) -> Vec<Binding> {
                     });
                 }
             }
+            // `catch e { … }`: what was thrown, inside the catch block.
+            StatementKind::Try(t) => {
+                if let Some(param) = &t.param
+                    && t.catch_body
+                        .first()
+                        .is_some_and(|s| offset >= s.span.start as usize)
+                {
+                    scope.push(Binding {
+                        name: param.clone(),
+                        kind: BindingKind::Param,
+                        span: stmt.span,
+                    });
+                }
+            }
+            // `row(t, i) { … }`: the values a scoped slot hands its fill.
+            StatementKind::UIElement(el) => {
+                for fill in &el.slot_fills {
+                    if contains(fill.span, offset) {
+                        for param in &fill.params {
+                            scope.push(Binding {
+                                name: param.clone(),
+                                kind: BindingKind::ArmBinding,
+                                span: fill.span,
+                            });
+                        }
+                    }
+                }
+            }
             _ => {}
+        }
+    }
+
+    // A page's route parameters: `page User(path: "/u/:id", id: String)`.
+    if let Declaration::Page(p) = decl {
+        for param in &p.params {
+            scope.push(Binding {
+                name: param.name.clone(),
+                kind: BindingKind::RouteParam,
+                span: p.header_span,
+            });
         }
     }
 
@@ -362,6 +427,41 @@ pub fn hoisted(stmts: &[Statement], scope: &mut Vec<Binding>) {
                 kind: BindingKind::Resource,
                 span: stmt.span,
             }),
+            StatementKind::Connection(c) => scope.push(Binding {
+                name: c.name.clone(),
+                kind: match c.kind {
+                    ConnectionKind::Socket => BindingKind::Socket,
+                    ConnectionKind::Stream => BindingKind::Stream,
+                    ConnectionKind::Channel => BindingKind::Channel,
+                    ConnectionKind::Peer => BindingKind::Peer,
+                },
+                span: stmt.span,
+            }),
+            // `Form(bind: form)` and `ref: name`: handles the page names.
+            StatementKind::UIElement(el) => {
+                for arg in &el.args {
+                    match arg {
+                        Arg::Named(key, Expr::Identifier(name))
+                            if key == "bind"
+                                && matches!(&el.component, ComponentRef::BuiltIn(n) if n == "Form") =>
+                        {
+                            scope.push(Binding {
+                                name: name.clone(),
+                                kind: BindingKind::FormHandle,
+                                span: stmt.span,
+                            });
+                        }
+                        Arg::Named(key, Expr::Identifier(name)) if key == "ref" => {
+                            scope.push(Binding {
+                                name: name.clone(),
+                                kind: BindingKind::ElementHandle,
+                                span: stmt.span,
+                            });
+                        }
+                        _ => {}
+                    }
+                }
+            }
             _ => {}
         }
         for body in child_bodies(stmt) {

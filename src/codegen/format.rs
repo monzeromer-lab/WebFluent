@@ -304,6 +304,24 @@ impl Moment {
     }
 }
 
+/// The styles `format(value, .style, option)` takes, each with what it
+/// shows — for a tool to offer; a test holds them to [`format`].
+pub const STYLES: &[(&str, &str)] = &[
+    ("number", "a number in the locale's way: 1,234.5"),
+    ("integer", "a whole number: 1,235"),
+    ("decimal", "a fixed number of places (option: places, 2)"),
+    ("currency", "money (option: the currency code, USD)"),
+    ("percent", "a fraction as a percentage (option: places, 0)"),
+    ("compact", "a short number: 1.2K"),
+    ("date", "a date (option: short, medium, long, full)"),
+    ("time", "a time of day (option: short, medium, long, full)"),
+    (
+        "datetime",
+        "a date and a time (option: short, medium, long, full)",
+    ),
+    ("relative", "how long ago or from now: 3 minutes ago"),
+];
+
 /// `format(value, style, option)`: `None` when the value cannot be read as
 /// what the style needs.
 pub fn format(
@@ -434,6 +452,22 @@ pub fn relative(seconds: i64) -> String {
 
 #[cfg(test)]
 mod tests {
+
+    #[test]
+    fn every_style_a_tool_offers_is_one_format_shows() {
+        for (style, _) in STYLES {
+            let value = if matches!(*style, "date" | "time" | "datetime" | "relative") {
+                t("2026-03-14T09:30:00Z")
+            } else {
+                n(1234.5)
+            };
+            assert!(
+                format(&value, Some(style), None, "en").is_some(),
+                "`.{style}` is offered and shows nothing"
+            );
+        }
+    }
+
     use super::*;
 
     fn n(v: f64) -> Input {

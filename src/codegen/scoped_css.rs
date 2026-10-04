@@ -500,7 +500,7 @@ pub fn breakpoints(program: &Program) -> BTreeMap<String, String> {
 
 /// The order the breakpoints are written in, narrowest first, so a later
 /// rule wins for a wider screen.
-const STEPS: &[&str] = &["base", "sm", "md", "lg", "xl"];
+pub const RESPONSIVE_STEPS: &[&str] = &["base", "sm", "md", "lg", "xl"];
 
 /// Whether a value written for a prop is one value per breakpoint:
 /// `{ base: 1, md: 2, lg: 3 }`.
@@ -511,7 +511,7 @@ pub fn is_responsive(value: &Expr) -> bool {
     !pairs.is_empty()
         && pairs
             .iter()
-            .all(|(key, _)| STEPS.contains(&key.trim_matches('"')))
+            .all(|(key, _)| RESPONSIVE_STEPS.contains(&key.trim_matches('"')))
 }
 
 /// The CSS one of a layout prop's values means.
@@ -577,7 +577,7 @@ pub fn responsive_rules(
         return None;
     };
     let mut written: Vec<(String, String)> = Vec::new();
-    for step in STEPS {
+    for step in RESPONSIVE_STEPS {
         let Some((_, at)) = pairs.iter().find(|(key, _)| key.trim_matches('"') == *step) else {
             continue;
         };

@@ -25,7 +25,6 @@ use tower_lsp::lsp_types::*;
 use webfluent::lexer::{Token, TokenType};
 use webfluent::parser::ast::*;
 use webfluent::registry::{self, Children, ComponentSig, PropType};
-use webfluent::sema::types::Type;
 
 use crate::analysis::{self, Binding, BindingKind};
 use crate::project::Project;
@@ -46,7 +45,25 @@ pub fn provide_completions(
     if crate::classes::in_class_value(&tokens, offset) {
         return crate::classes::completions(project);
     }
-    if analysis::in_string(&tokens, offset) || analysis::in_comment(source, &tokens, offset) {
+    // Inside a string's `{…}` splice: code — names in scope, and what a
+    // value has after a dot, read from the text since the lexer has no
+    // tokens there.
+    if analysis::in_splice(source, &tokens, offset) {
+        return splice_items(project, file_ix, source, offset);
+    }
+    // Inside a string, some strings name things: a key, a tag, a message.
+    if analysis::in_string(&tokens, offset) {
+        return string_value(project, &tokens, offset);
+    }
+    // In a comment, only an allow names anything: the codes it may name.
+    if analysis::in_comment(source, &tokens, offset) {
+        let line = &source[..offset];
+        let line = &line[line.rfind('\n').map_or(0, |i| i + 1)..];
+        if let Some(open) = line.rfind("wf-allow(")
+            && !line[open..].contains(')')
+        {
+            return allow_codes();
+        }
         return Vec::new();
     }
 
@@ -96,7 +113,9 @@ pub fn provide_completions(
         Some(TokenType::Identifier(w)) if w == "emit" => {
             return declared_events(project, file_ix, anchor);
         }
-        Some(TokenType::Dot) => return after_dot(project, file_ix, &previous, anchor),
+        Some(TokenType::Dot | TokenType::OptionalChain) => {
+            return after_dot(project, file_ix, &previous, anchor);
+        }
         _ => {}
     }
 
@@ -127,10 +146,58 @@ pub fn provide_completions(
         return fallback(project, &previous);
     };
     let decl = &project.program.declarations[decl_ix];
+
+    // A type is being written: after `name:` in a declaration, in a
+    // parameter list, in a `type`'s body, or after `->`.
+    if type_position(&previous, decl) {
+        return type_items(project);
+    }
+    // What a block holds, by the word that opened it.
+    if open_paren_owner(&previous).is_none() {
+        match block_word(&previous).as_deref() {
+            Some("persist") => return persist_keys(),
+            Some("validate") => return validate_rules(),
+            _ => {}
+        }
+        if matches!(decl, Declaration::Api(_)) {
+            return api_body();
+        }
+    }
+    match decl {
+        // A value written at the top level: what it may read.
+        Declaration::Const(_) | Declaration::Data(_) => {
+            let mut items = top_level_names(project);
+            items.extend(builtin_items());
+            return items;
+        }
+        Declaration::Type(_) | Declaration::Enum(_) | Declaration::Animation(_) => {
+            return Vec::new();
+        }
+        _ => {}
+    }
+
     let body = analysis::body_of(decl);
     let path = analysis::statement_path(body, anchor.saturating_sub(1));
     let innermost = path.last().copied();
     let scope = analysis::scope_at(decl, anchor);
+
+    // `Grid(columns: { ‸ }`: one value per breakpoint.
+    if responsive_key_position(&previous) {
+        return webfluent::codegen::scoped_css::RESPONSIVE_STEPS
+            .iter()
+            .map(|step| CompletionItem {
+                label: step.to_string(),
+                kind: Some(CompletionItemKind::PROPERTY),
+                detail: Some(if *step == "base" {
+                    "the value at every width, unless a wider step says otherwise".to_string()
+                } else {
+                    format!("the value from the `screen-{step}` breakpoint up")
+                }),
+                insert_text: Some(format!("{step}: ")),
+                ..Default::default()
+            })
+            .collect();
+    }
 
     if let Some(open) = open_paren_owner(&previous) {
         // Inside the parentheses of something. Whose?
@@ -138,6 +205,18 @@ pub fn provide_completions(
             ParenOwner::Element(name) => {
                 items.extend(element_props(project, &name, &previous));
                 items.extend(scope_items(&scope));
+                // Where a value goes — after `prop:`, or first in the
+                // parentheses of an element that takes a positional value —
+                // the program's constants and the language's functions too.
+                let value_position = match last.map(|t| &t.token_type) {
+                    Some(TokenType::Colon) => true,
+                    Some(TokenType::OpenParen) => takes_positional(project, &name),
+                    _ => false,
+                };
+                if value_position {
+                    items.extend(top_level_names(project));
+                    items.extend(builtin_items());
+                }
                 items.extend(script_items(project));
                 return items;
             }
@@ -148,11 +227,15 @@ pub fn provide_completions(
             ParenOwner::Fetch => {
                 items.extend(args(reference::RESOURCE_OPTIONS, "fetch option"));
                 items.extend(scope_items(&scope));
+                items.extend(top_level_names(project));
+                items.extend(builtin_items());
                 items.extend(script_items(project));
                 return items;
             }
             ParenOwner::Call | ParenOwner::Unknown => {
                 items.extend(scope_items(&scope));
+                items.extend(top_level_names(project));
+                items.extend(builtin_items());
                 items.extend(script_items(project));
                 return items;
             }
@@ -194,14 +277,87 @@ pub fn provide_completions(
 
     // In a body: what a statement can start with, and the names in scope.
     let in_store = matches!(decl, Declaration::Store(_));
-    let in_component = matches!(decl, Declaration::Component(_));
-    if !in_store {
+    let imperative = path.iter().any(|s| imperative_body(s, anchor));
+    let context = if imperative {
+        Context::Imperative
+    } else {
+        match decl {
+            Declaration::Store(_) => Context::Store,
+            Declaration::Component(_) => Context::Component,
+            Declaration::Test(_) => Context::Test,
+            _ => Context::Page,
+        }
+    };
+    if !in_store && !imperative {
         items.extend(components(project));
     }
-    items.extend(keywords(in_store, in_component));
+    items.extend(keywords(context));
     items.extend(scope_items(&scope));
+    if imperative {
+        items.extend(top_level_names(project));
+        items.extend(builtin_items());
+    }
     items.extend(script_items(project));
     items
+}
+
+/// The functions the language gives a program and the values it reads from
+/// the browser, with what each does.
+fn builtin_items() -> Vec<CompletionItem> {
+    let functions = webfluent::sema::types::built_in_functions();
+    reference::BUILTINS
+        .iter()
+        .map(|(name, usage, doc)| {
+            let value = webfluent::codegen::js::BROWSER_VALUES.contains(name);
+            let callable = functions.contains(name) && !value;
+            let insert = match *name {
+                "every" | "after" => format!("{name}(${{1:1000}}) {{\n\t$0\n}}"),
+                _ if callable => format!("{name}($0)"),
+                _ => name.to_string(),
+            };
+            CompletionItem {
+                label: name.to_string(),
+                kind: Some(if callable {
+                    CompletionItemKind::FUNCTION
+                } else {
+                    CompletionItemKind::CONSTANT
+                }),
+                detail: Some(usage.to_string()),
+                documentation: Some(Documentation::String(doc.to_string())),
+                insert_text: Some(insert),
+                insert_text_format: Some(InsertTextFormat::SNIPPET),
+                sort_text: Some(format!("4{name}")),
+                ..Default::default()
+            }
+        })
+        .collect()
+}
+
+/// The names the program declares at its top level that a value may read:
+/// its constants, `data` and images.
+fn top_level_names(project: &Project) -> Vec<CompletionItem> {
+    project
+        .program
+        .declarations
+        .iter()
+        .filter_map(|d| {
+            let (name, what) = match d {
+                Declaration::Const(c) => (c.name.clone(), "const".to_string()),
+                Declaration::Data(d) if d.is_image => {
+                    (d.name.clone(), format!("image from `{}`", d.file))
+                }
+                Declaration::Data(d) => (d.name.clone(), format!("data from `{}`", d.file)),
+                _ => return None,
+            };
+            Some(CompletionItem {
+                label: name.clone(),
+                kind: Some(CompletionItemKind::CONSTANT),
+                detail: Some(what),
+                sort_text: Some(format!("1{name}")),
+                ..Default::default()
+            })
+        })
+        .collect()
 }
 
 /// What the project's scripts make global, with how a call reads.
@@ -280,6 +436,19 @@ fn statement_start(previous: &[&Token], back: usize) -> bool {
         ),
         _ => false,
     }
+}
+
+/// Whether `stmt` is an action, a handler, an effect or a timer — whose
+/// body does something, rather than draws something. (Inside an action's
+/// parameter list, the parenthesis decides before this is asked.)
+fn imperative_body(stmt: &Statement, _offset: usize) -> bool {
+    matches!(
+        stmt.kind,
+        StatementKind::Action(_)
+            | StatementKind::EventHandler(_)
+            | StatementKind::Effect(_)
+            | StatementKind::Timer(_)
+    )
 }
 
 /// Whether `offset` lies inside one of the statement's own blocks.
@@ -442,10 +611,34 @@ fn after_dot(
             {
                 return cases_of(project, &el, key);
             }
-            Vec::new()
+            opening_dot(project, file_ix, previous, anchor)
         }
+        // `3.` — a number given a unit: a `Duration`.
+        TokenType::NumberLiteral(_) => webfluent::parser::v2::DURATION_UNITS
+            .iter()
+            .map(|u| CompletionItem {
+                label: u.to_string(),
+                kind: Some(CompletionItemKind::UNIT),
+                detail: Some(format!("a Duration: 3.{u}")),
+                ..Default::default()
+            })
+            .collect(),
         TokenType::Identifier(word) => {
+            // `Backend.users.` — what a service's endpoint offers besides
+            // being called.
+            if let (Some(TokenType::Dot), Some(TokenType::Identifier(api))) = (
+                n.checked_sub(3).map(|i| &previous[i].token_type),
+                n.checked_sub(4).map(|i| &previous[i].token_type),
+            ) && api_named(project, api)
+                .is_some_and(|a| a.endpoints.iter().any(|e| &e.name == word))
+            {
+                return endpoint_members();
+            }
             if word.chars().next().is_some_and(char::is_uppercase) {
+                // `Backend.` — its endpoints.
+                if let Some(api) = api_named(project, word) {
+                    return api_members(api);
+                }
                 // `Card.` — its parts, and its flags; `Store.` — its members.
                 if let Some(store) = project.program.declarations.iter().find_map(|d| match d {
                     Declaration::Store(s) if &s.name == word => Some(s),
@@ -479,132 +672,747 @@ fn after_dot(
                 };
                 return name.map(|n| flags(project, &n)).unwrap_or_default();
             }
+            // `env.` — the public names the config supplies.
+            if word == "env" {
+                return project
+                    .env_names
+                    .iter()
+                    .map(|n| CompletionItem {
+                        label: n.clone(),
+                        kind: Some(CompletionItemKind::CONSTANT),
+                        detail: Some("a public env name, fixed at build time".to_string()),
+                        ..Default::default()
+                    })
+                    .collect();
+            }
             // `item.` — a value: its fields, or the methods of its kind,
             // when the checker knows what it is.
             value_members(project, file_ix, anchor, word)
         }
-        _ => Vec::new(),
+        // `= .`, `(.`, `== .`: a case of the enum the value is, or — not
+        // knowing which — of any, and the animations an `animate:` plays.
+        _ => opening_dot(project, file_ix, previous, anchor),
     }
 }
 
-/// What follows `name.` for a name in scope: a record's fields, an enum's
-/// nothing, a list's or a string's methods.
+fn api_named<'a>(project: &'a Project, name: &str) -> Option<&'a ApiDecl> {
+    project.program.declarations.iter().find_map(|d| match d {
+        Declaration::Api(a) if a.name == name => Some(a),
+        _ => None,
+    })
+}
+
+/// `Backend.`: the service's endpoints, and what the whole service offers.
+fn api_members(api: &ApiDecl) -> Vec<CompletionItem> {
+    let mut items: Vec<CompletionItem> = api
+        .endpoints
+        .iter()
+        .map(|e| {
+            let params: Vec<String> = e
+                .params
+                .iter()
+                .map(|p| format!("{}: {}", p.name, type_name(&p.prop_type)))
+                .collect();
+            let returns = e
+                .returns
+                .as_ref()
+                .map(|t| format!(" -> {}", type_name(t)))
+                .unwrap_or_default();
+            CompletionItem {
+                label: e.name.clone(),
+                kind: Some(CompletionItemKind::METHOD),
+                detail: Some(format!(
+                    "{} {}({}){returns}",
+                    e.method,
+                    e.name,
+                    params.join(", ")
+                )),
+                documentation: e.doc.clone().map(Documentation::String),
+                insert_text: Some(format!("{}($0)", e.name)),
+                insert_text_format: Some(InsertTextFormat::SNIPPET),
+                sort_text: Some(format!("0{}", e.name)),
+                ..Default::default()
+            }
+        })
+        .collect();
+    items.push(CompletionItem {
+        label: "invalidate".to_string(),
+        kind: Some(CompletionItemKind::METHOD),
+        detail: Some(format!("forget what every endpoint of {} cached", api.name)),
+        insert_text: Some("invalidate()".to_string()),
+        sort_text: Some("1invalidate".to_string()),
+        ..Default::default()
+    });
+    items
+}
+
+/// `Backend.users.`: what an endpoint offers besides being called.
+fn endpoint_members() -> Vec<CompletionItem> {
+    [
+        (
+            "invalidate",
+            true,
+            "forget what it cached, for every argument or one",
+        ),
+        ("prefetch", true, "ask now for what will be wanted soon"),
+        ("key", true, "the cache key of a call"),
+        ("url", true, "the address a call goes to"),
+        (
+            "lines",
+            true,
+            "every line of a streamed response, as it arrives",
+        ),
+        ("pending", false, "whether a call of it is under way"),
+        ("progress", false, "how far an upload has got, 0 to 1"),
+    ]
+    .iter()
+    .map(|(name, call, doc)| CompletionItem {
+        label: name.to_string(),
+        kind: Some(if *call {
+            CompletionItemKind::METHOD
+        } else {
+            CompletionItemKind::PROPERTY
+        }),
+        detail: Some(doc.to_string()),
+        insert_text: Some(if *call {
+            format!("{name}($0)")
+        } else {
+            name.to_string()
+        }),
+        insert_text_format: Some(InsertTextFormat::SNIPPET),
+        ..Default::default()
+    })
+    .collect()
+}
+
+/// A dot that opens a value: `state t: Tone = .`, `if t == .`, `animate: .`,
+/// `format(n, .`. The cases of the enum the value is when that is known; a
+/// `format` call's styles; otherwise every enum's cases and the program's
+/// animations.
+fn opening_dot(
+    project: &Project,
+    file_ix: usize,
+    previous: &[&Token],
+    anchor: usize,
+) -> Vec<CompletionItem> {
+    let n = previous.len();
+    let at = |back: usize| n.checked_sub(back).map(|i| &previous[i].token_type);
+    // `format(value, .`: the styles.
+    if matches!(at(2), Some(TokenType::Comma))
+        && let Some(ParenOwner::Call) = open_paren_owner(&previous[..n - 1])
+        && call_name(&previous[..n - 1]).as_deref() == Some("format")
+    {
+        return webfluent::codegen::format::STYLES
+            .iter()
+            .map(|(style, doc)| CompletionItem {
+                label: style.to_string(),
+                kind: Some(CompletionItemKind::ENUM_MEMBER),
+                detail: Some(doc.to_string()),
+                ..Default::default()
+            })
+            .collect();
+    }
+    // The enum the value must be: `name: Enum = .`, or the type of the name
+    // compared with — `t == .`, `t != .`.
+    let expected: Option<String> = match (at(2), at(3), at(4)) {
+        (Some(TokenType::Equals), Some(TokenType::Identifier(ty)), Some(TokenType::Colon)) => {
+            Some(ty.clone())
+        }
+        (
+            Some(TokenType::DoubleEquals | TokenType::NotEquals | TokenType::StrictNotEqual),
+            Some(TokenType::Identifier(name)),
+            _,
+        ) => analysis::declaration_at(project, file_ix, anchor.saturating_sub(1)).and_then(
+            |decl_ix| {
+                let decl = &project.program.declarations[decl_ix];
+                let binding = analysis::scope_at(decl, anchor)
+                    .into_iter()
+                    .find(|b| &b.name == name)?;
+                match crate::hover::type_of_binding(project, decl_ix, &binding)? {
+                    webfluent::sema::types::Type::Enum(e) => Some(e),
+                    webfluent::sema::types::Type::Optional(inner) => match *inner {
+                        webfluent::sema::types::Type::Enum(e) => Some(e),
+                        _ => None,
+                    },
+                    _ => None,
+                }
+            },
+        ),
+        _ => None,
+    };
+    let case_item = |e: &EnumDecl, case: &EnumCase| CompletionItem {
+        label: case.name.clone(),
+        kind: Some(CompletionItemKind::ENUM_MEMBER),
+        detail: Some(format!(".{} — {}", case.name, e.name)),
+        sort_text: Some(format!("0{}", case.name)),
+        ..Default::default()
+    };
+    if let Some(e) = expected
+        .as_deref()
+        .and_then(|name| find_enum(project, name))
+    {
+        return e.cases.iter().map(|c| case_item(e, c)).collect();
+    }
+    let mut items = Vec::new();
+    for decl in &project.program.declarations {
+        match decl {
+            Declaration::Enum(e) => items.extend(e.cases.iter().map(|c| case_item(e, c))),
+            Declaration::Animation(a) => items.push(CompletionItem {
+                label: a.name.clone(),
+                kind: Some(CompletionItemKind::ENUM_MEMBER),
+                detail: Some("animation — `animate: .Name`".to_string()),
+                sort_text: Some(format!("1{}", a.name)),
+                ..Default::default()
+            }),
+            _ => {}
+        }
+    }
+    items
+}
+
+/// Whether the cursor is where a type is written: `state x: ‸`,
+/// `component C(name: ‸`, `action a(n: ‸`, `type T { field: ‸`,
+/// `get users() -> ‸`, `items: [‸`.
+fn type_position(previous: &[&Token], decl: &Declaration) -> bool {
+    let n = previous.len();
+    let at = |back: usize| n.checked_sub(back).map(|i| &previous[i].token_type);
+    match at(1) {
+        // `[‸` after a colon: a list of some type.
+        Some(TokenType::OpenBracket) => return type_position(&previous[..n - 1], decl),
+        // `-> ‸`
+        Some(TokenType::GreaterThan) if matches!(at(2), Some(TokenType::Minus)) => return true,
+        Some(TokenType::Colon) => {}
+        _ => return false,
+    }
+    let Some(TokenType::Identifier(_)) = at(2) else {
+        return false;
+    };
+    // `state x:`, `const N:`, `data d:`, `resource r:` — a declaration's type.
+    if let Some(TokenType::Identifier(kw)) = at(3)
+        && matches!(
+            kw.as_str(),
+            "state" | "derived" | "persist" | "const" | "data" | "resource"
+        )
+    {
+        return true;
+    }
+    // A field of a `type`, outside any parenthesis.
+    if matches!(decl, Declaration::Type(_)) && open_paren_owner(&previous[..n - 1]).is_none() {
+        return true;
+    }
+    // A parameter of a declaration: the word before the `(`'s name says so.
+    let mut depth = 0i32;
+    for (ix, token) in previous[..n - 1].iter().enumerate().rev() {
+        match token.token_type {
+            TokenType::CloseParen => depth += 1,
+            TokenType::OpenParen => {
+                if depth > 0 {
+                    depth -= 1;
+                    continue;
+                }
+                let keyword = ix
+                    .checked_sub(2)
+                    .and_then(|i| previous.get(i))
+                    .map(|t| &t.token_type);
+                return matches!(keyword, Some(TokenType::Identifier(kw))
+                    if matches!(kw.as_str(), "component" | "action" | "event" | "slot" | "part")
+                        || webfluent::parser::v2::HTTP_VERBS.contains(&kw.as_str()));
+            }
+            TokenType::OpenBrace | TokenType::CloseBrace if depth == 0 => return false,
+            _ => {}
+        }
+    }
+    false
+}
+
+/// The types a program can write: its own, the language's, the plain ones.
+fn type_items(project: &Project) -> Vec<CompletionItem> {
+    let mut items: Vec<CompletionItem> = project
+        .program
+        .declarations
+        .iter()
+        .filter_map(|d| {
+            let (name, what) = match d {
+                Declaration::Type(t) => (t.name.clone(), "type"),
+                Declaration::Enum(e) => (e.name.clone(), "enum"),
+                _ => return None,
+            };
+            Some(CompletionItem {
+                label: name.clone(),
+                kind: Some(CompletionItemKind::STRUCT),
+                detail: Some(what.to_string()),
+                sort_text: Some(format!("0{name}")),
+                ..Default::default()
+            })
+        })
+        .collect();
+    for name in webfluent::sema::types::PRIMITIVE_TYPES {
+        items.push(CompletionItem {
+            label: name.to_string(),
+            kind: Some(CompletionItemKind::KEYWORD),
+            detail: Some("type".to_string()),
+            sort_text: Some(format!("1{name}")),
+            ..Default::default()
+        });
+    }
+    for scalar in webfluent::sema::types::Scalar::ALL {
+        items.push(CompletionItem {
+            label: scalar.name().to_string(),
+            kind: Some(CompletionItemKind::KEYWORD),
+            detail: Some("a type the language brings".to_string()),
+            sort_text: Some(format!("2{}", scalar.name())),
+            ..Default::default()
+        });
+    }
+    items
+}
+
+/// The word the innermost open block's statement begins with: `persist`
+/// for `persist n = 0 { ‸`, `validate` for `validate email { ‸`.
+fn block_word(previous: &[&Token]) -> Option<String> {
+    let mut depth = 0i32;
+    let mut brace = None;
+    for (ix, token) in previous.iter().enumerate().rev() {
+        match token.token_type {
+            TokenType::CloseBrace => depth += 1,
+            TokenType::OpenBrace => {
+                if depth == 0 {
+                    brace = Some(ix);
+                    break;
+                }
+                depth -= 1;
+            }
+            _ => {}
+        }
+    }
+    let brace = brace?;
+    // A statement ends at its line's end, so the one the brace opens begins
+    // with the first token on the brace's line.
+    let line = previous[brace].line;
+    let start = previous[..brace]
+        .iter()
+        .rposition(|t| t.line != line)
+        .map_or(0, |i| i + 1);
+    match &previous.get(start)?.token_type {
+        TokenType::Identifier(word) => Some(word.clone()),
+        _ => None,
+    }
+}
+
+fn persist_keys() -> Vec<CompletionItem> {
+    reference::PERSIST_KEYS
+        .iter()
+        .map(|(name, body, doc)| CompletionItem {
+            documentation: Some(Documentation::String(doc.to_string())),
+            kind: Some(CompletionItemKind::PROPERTY),
+            ..snippet(name, first_sentence(doc), body)
+        })
+        .collect()
+}
+
+fn validate_rules() -> Vec<CompletionItem> {
+    webfluent::sema::types::VALIDATE_RULES
+        .iter()
+        .map(|rule| {
+            let body = match *rule {
+                "minLength" | "maxLength" => format!("{rule}(${{1:8}}) \"${{2:message}}\""),
+                "min" | "max" => format!("{rule}(${{1:0}})"),
+                "pattern" => "pattern(/${1:[0-9]}/) \"${2:message}\"".to_string(),
+                "matches" => "matches(${1:other}) \"${2:message}\"".to_string(),
+                "oneOf" => "oneOf([${1}])".to_string(),
+                "custom" => "custom \"${1:message}\" { ${0:condition} }".to_string(),
+                "async" => "async \"${1:message}\" { await ${0:call} }".to_string(),
+                other => other.to_string(),
+            };
+            CompletionItem {
+                kind: Some(CompletionItemKind::KEYWORD),
+                ..snippet(rule, "validation rule", &body)
+            }
+        })
+        .collect()
+}
+
+/// An `api` block: its settings, an endpoint by its verb, a hook.
+fn api_body() -> Vec<CompletionItem> {
+    let mut items: Vec<CompletionItem> = reference::API_SETTINGS
+        .iter()
+        .map(|(name, body, doc)| CompletionItem {
+            documentation: Some(Documentation::String(doc.to_string())),
+            kind: Some(CompletionItemKind::PROPERTY),
+            ..snippet(name, first_sentence(doc), body)
+        })
+        .collect();
+    for verb in webfluent::parser::v2::HTTP_VERBS {
+        items.push(CompletionItem {
+            kind: Some(CompletionItemKind::KEYWORD),
+            ..snippet(
+                verb,
+                &format!(
+                    "an endpoint the service answers with {}",
+                    verb.to_uppercase()
+                ),
+                &format!("{verb} ${{1:name}}(${{2}}) -> ${{3:Map}}"),
+            )
+        });
+    }
+    items.push(snippet(
+        "on",
+        "a hook on every request, response or error",
+        "on ${1|request,response,error|}(${2:r}) {\n\t$0\n}",
+    ));
+    items
+}
+
+/// Whether an element's first argument may be a value without a name.
+fn takes_positional(project: &Project, name: &str) -> bool {
+    match find_component(project, name) {
+        Some(component) => component.props.iter().any(|p| p.positional),
+        None => signature(name).is_some_and(|sig| sig.positional.is_some()),
+    }
+}
+
+/// Whether the cursor is where a key of a responsive value goes: just after
+/// `prop: {` or after a `,` inside one, in an element's parentheses.
+fn responsive_key_position(previous: &[&Token]) -> bool {
+    if !matches!(
+        previous.last().map(|t| &t.token_type),
+        Some(TokenType::OpenBrace | TokenType::Comma)
+    ) {
+        return false;
+    }
+    let mut depth = 0i32;
+    for (ix, token) in previous.iter().enumerate().rev() {
+        match token.token_type {
+            TokenType::CloseBrace | TokenType::CloseParen | TokenType::CloseBracket => depth += 1,
+            TokenType::OpenParen | TokenType::OpenBracket if depth == 0 => return false,
+            TokenType::OpenBrace if depth == 0 => {
+                return matches!(
+                    (
+                        ix.checked_sub(1).map(|i| &previous[i].token_type),
+                        ix.checked_sub(2).map(|i| &previous[i].token_type)
+                    ),
+                    (Some(TokenType::Colon), Some(TokenType::Identifier(_)))
+                ) && matches!(
+                    open_paren_owner(&previous[..ix]),
+                    Some(ParenOwner::Element(_))
+                );
+            }
+            TokenType::OpenBrace | TokenType::OpenParen | TokenType::OpenBracket => depth -= 1,
+            _ => {}
+        }
+    }
+    false
+}
+
+/// Completion inside a string's `{…}` splice: after `name.`, what that
+/// value has; otherwise the names in scope, the program's constants and the
+/// language's functions.
+fn splice_items(
+    project: &Project,
+    file_ix: usize,
+    source: &str,
+    offset: usize,
+) -> Vec<CompletionItem> {
+    let before = &source[..offset];
+    let typed = before.trim_end_matches(|c: char| c.is_alphanumeric() || c == '_');
+    if let Some(owner_text) = typed.strip_suffix('.') {
+        let owner_text = owner_text.strip_suffix('?').unwrap_or(owner_text);
+        let owner: String = owner_text
+            .chars()
+            .rev()
+            .take_while(|c| c.is_alphanumeric() || *c == '_')
+            .collect::<String>()
+            .chars()
+            .rev()
+            .collect();
+        if owner.is_empty() {
+            return Vec::new();
+        }
+        if let Some(store) = project.program.declarations.iter().find_map(|d| match d {
+            Declaration::Store(s) if s.name == owner => Some(s),
+            _ => None,
+        }) {
+            return analysis::store_members(store)
+                .into_iter()
+                .map(|m| binding_item(&m, Some(&store.name)))
+                .collect();
+        }
+        return value_members(project, file_ix, offset, &owner);
+    }
+    let mut items = Vec::new();
+    if let Some(decl_ix) = analysis::declaration_at(project, file_ix, offset) {
+        items.extend(scope_items(&analysis::scope_at(
+            &project.program.declarations[decl_ix],
+            offset,
+        )));
+    }
+    items.extend(top_level_names(project));
+    items.extend(builtin_items());
+    items
+}
+
+/// What a string the cursor is in names, by where it is written:
+/// `on key("‸")` a key, `Host(tag: "‸")` a tag, `t("‸")` a message.
+fn string_value(project: &Project, tokens: &[Token], offset: usize) -> Vec<CompletionItem> {
+    let Some(ix) = tokens.iter().position(|t| {
+        matches!(t.token_type, TokenType::StringLiteral(_)) && t.offset < offset && offset < t.end
+    }) else {
+        return Vec::new();
+    };
+    let at = |back: usize| ix.checked_sub(back).map(|i| &tokens[i].token_type);
+    let word = |back: usize| match at(back) {
+        Some(TokenType::Identifier(w)) => Some(w.as_str()),
+        _ => None,
+    };
+    let values = |names: Vec<(String, String)>, kind: CompletionItemKind| -> Vec<CompletionItem> {
+        names
+            .into_iter()
+            .map(|(label, detail)| CompletionItem {
+                label,
+                kind: Some(kind),
+                detail: Some(detail),
+                ..Default::default()
+            })
+            .collect()
+    };
+    // `on key("…")`: the keys, and a modifier to begin with.
+    if matches!(at(1), Some(TokenType::OpenParen))
+        && word(2) == Some("key")
+        && word(3) == Some("on")
+    {
+        let mut names: Vec<(String, String)> = webfluent::parser::v2::KEY_NAMES
+            .iter()
+            .map(|k| (k.to_string(), "a key".to_string()))
+            .collect();
+        names.extend(webfluent::parser::v2::KEY_MODIFIERS.iter().map(|m| {
+            (
+                format!("{m}+"),
+                "a modifier, then the key: `ctrl+k`".to_string(),
+            )
+        }));
+        return values(names, CompletionItemKind::CONSTANT);
+    }
+    // `Host(tag: "…")`: the elements a Host is made of.
+    if matches!(at(1), Some(TokenType::Colon)) && word(2) == Some("tag") {
+        let in_host = tokens[..ix].iter().rev().find_map(|t| match &t.token_type {
+            TokenType::Identifier(w) if w.chars().next().is_some_and(char::is_uppercase) => {
+                Some(w == "Host")
+            }
+            _ => None,
+        });
+        if in_host == Some(true) {
+            return values(
+                webfluent::codegen::builtin::HOST_TAGS
+                    .iter()
+                    .map(|t| (t.to_string(), format!("Host makes a <{t}>")))
+                    .collect(),
+                CompletionItemKind::VALUE,
+            );
+        }
+    }
+    // `t("…")`: the messages the project's translations hold.
+    if matches!(at(1), Some(TokenType::OpenParen)) && word(2) == Some("t") {
+        return values(
+            project
+                .messages
+                .iter()
+                .map(|k| (k.clone(), "a message in the translations".to_string()))
+                .collect(),
+            CompletionItemKind::TEXT,
+        );
+    }
+    Vec::new()
+}
+
+/// The codes `// wf-allow(…)` may name: those `lints` could lower.
+fn allow_codes() -> Vec<CompletionItem> {
+    webfluent::diagnostics::codes::CODES
+        .iter()
+        .filter(|c| webfluent::diagnostics::codes::lowerable(c.code))
+        .map(|c| CompletionItem {
+            label: c.code.to_string(),
+            kind: Some(CompletionItemKind::CONSTANT),
+            detail: Some(c.title.replace('`', "")),
+            documentation: Some(Documentation::String(c.summary.to_string())),
+            ..Default::default()
+        })
+        .collect()
+}
+
+/// The name of the call whose parenthesis is open at the end of `previous`.
+fn call_name(previous: &[&Token]) -> Option<String> {
+    let mut depth = 0i32;
+    for (ix, token) in previous.iter().enumerate().rev() {
+        match token.token_type {
+            TokenType::CloseParen => depth += 1,
+            TokenType::OpenParen => {
+                if depth == 0 {
+                    return match &previous.get(ix.checked_sub(1)?)?.token_type {
+                        TokenType::Identifier(name) => Some(name.clone()),
+                        _ => None,
+                    };
+                }
+                depth -= 1;
+            }
+            _ => {}
+        }
+    }
+    None
+}
+
+/// What follows `name.` for a name: a record's fields, and everything else
+/// the checker says a value of its type has (`webfluent::sema::types::
+/// members`) — a list's, a string's, a date's, money's, a resource's, a
+/// form's — for a name in scope, a constant, `data`, an image or a value the
+/// browser gives; and a handle's members for an action (`.pending`), a
+/// connection, a form or an element.
 fn value_members(
     project: &Project,
     file_ix: usize,
     anchor: usize,
     name: &str,
 ) -> Vec<CompletionItem> {
-    let Some(decl_ix) = analysis::declaration_at(project, file_ix, anchor.saturating_sub(1)) else {
-        return Vec::new();
-    };
-    let decl = &project.program.declarations[decl_ix];
-    let Some(binding) = analysis::scope_at(decl, anchor)
-        .into_iter()
-        .find(|b| b.name == name)
-    else {
-        return Vec::new();
-    };
-    let Some(ty) = crate::hover::type_of_binding(project, decl_ix, &binding) else {
-        return Vec::new();
-    };
-    let method = |m: &str, detail: &str| CompletionItem {
-        label: m.to_string(),
-        kind: Some(CompletionItemKind::METHOD),
-        detail: Some(detail.to_string()),
-        insert_text: Some(format!("{m}($0)")),
+    use webfluent::sema::types::{self as types, Type};
+    let member_item = |name: &str, method: bool, detail: String, sort: &str| CompletionItem {
+        label: name.to_string(),
+        kind: Some(if method {
+            CompletionItemKind::METHOD
+        } else {
+            CompletionItemKind::FIELD
+        }),
+        detail: Some(detail),
+        insert_text: Some(if method {
+            format!("{name}($0)")
+        } else {
+            name.to_string()
+        }),
         insert_text_format: Some(InsertTextFormat::SNIPPET),
-        sort_text: Some(format!("1{m}")),
+        sort_text: Some(format!("{sort}{name}")),
         ..Default::default()
     };
-    // A value that may be null offers what it holds; the checker says so.
-    let ty = match ty {
-        Type::Optional(inner) => *inner,
-        other => other,
+    let handle = |names: &[(&str, bool, &str)]| -> Vec<CompletionItem> {
+        names
+            .iter()
+            .map(|(n, m, d)| member_item(n, *m, d.to_string(), "0"))
+            .collect()
     };
-    match ty {
-        Type::Record(record) => project
-            .program
-            .declarations
-            .iter()
-            .find_map(|d| match d {
-                Declaration::Type(t) if t.name == record => Some(t),
-                _ => None,
-            })
-            .map(|t| {
-                t.all_fields(&|name| crate::hover::find_type(project, name))
-                    .into_iter()
-                    .map(|f| CompletionItem {
-                        label: f.name.clone(),
-                        kind: Some(CompletionItemKind::FIELD),
-                        detail: Some(format!("{} — field of {}", type_name(&f.ty), record)),
-                        documentation: f.doc.clone().map(Documentation::String),
-                        sort_text: Some(format!("0{}", f.name)),
-                        ..Default::default()
-                    })
-                    .collect()
-            })
-            .unwrap_or_default(),
-        Type::List(_) => {
-            let mut items = vec![CompletionItem {
-                label: "length".to_string(),
-                kind: Some(CompletionItemKind::PROPERTY),
-                detail: Some("Number".to_string()),
-                sort_text: Some("0length".to_string()),
-                ..Default::default()
-            }];
-            for (m, d) in [
-                ("map", "a new list, one result per item"),
-                ("filter", "the items the test holds for"),
-                ("find", "the first item the test holds for, or null"),
-                ("some", "whether the test holds for any item"),
-                ("every", "whether the test holds for every item"),
-                ("includes", "whether the list holds the value"),
-                ("indexOf", "where the value is, or -1"),
-                ("concat", "this list and another"),
-                ("slice", "a part of the list"),
-                ("join", "the items as one string"),
-                ("reduce", "one value folded from the items"),
-                ("sum", "the total of the numbers"),
-            ] {
-                items.push(method(m, d));
+    let decl_ix = analysis::declaration_at(project, file_ix, anchor.saturating_sub(1));
+    let binding = decl_ix.and_then(|ix| {
+        analysis::scope_at(&project.program.declarations[ix], anchor)
+            .into_iter()
+            .find(|b| b.name == name)
+    });
+    if let Some(b) = &binding {
+        let connection = [
+            ("state", false, "connecting, open, closed or error"),
+            ("messages", false, "what arrived, in order"),
+            (
+                "last",
+                true,
+                "the latest message, or the latest of one kind",
+            ),
+            ("error", false, "what went wrong"),
+            ("close", true, "close it now"),
+        ];
+        match b.kind {
+            BindingKind::Action => {
+                return handle(&[("pending", false, "whether a call of it is under way")]);
             }
-            items
-        }
-        Type::String => {
-            let mut items = vec![CompletionItem {
-                label: "length".to_string(),
-                kind: Some(CompletionItemKind::PROPERTY),
-                detail: Some("Number".to_string()),
-                sort_text: Some("0length".to_string()),
-                ..Default::default()
-            }];
-            for (m, d) in [
-                ("toUpperCase", "in upper case"),
-                ("toLowerCase", "in lower case"),
-                ("trim", "without surrounding whitespace"),
-                ("includes", "whether it holds the text"),
-                ("startsWith", "whether it begins with the text"),
-                ("endsWith", "whether it ends with the text"),
-                ("split", "the parts between a separator"),
-                ("replace", "with a part swapped"),
-                ("slice", "a part of it"),
-            ] {
-                items.push(method(m, d));
+            BindingKind::Socket | BindingKind::Peer => {
+                let mut items = handle(&connection);
+                items.extend(handle(&[
+                    ("send", true, "send a value"),
+                    ("closure", false, "the close code and reason"),
+                ]));
+                if b.kind == BindingKind::Peer {
+                    items.extend(handle(&[(
+                        "signal",
+                        true,
+                        "hand it what the other side sent",
+                    )]));
+                }
+                return items;
             }
-            items
+            BindingKind::Stream => return handle(&connection),
+            BindingKind::Channel => {
+                return handle(&[
+                    ("post", true, "send a value to every tab"),
+                    ("messages", false, "what arrived, in order"),
+                    ("close", true, "leave the channel"),
+                ]);
+            }
+            BindingKind::ElementHandle => {
+                return handle(&[
+                    ("focus", true, "move focus to it"),
+                    ("blur", true, "take focus from it"),
+                    ("value", false, "a control's value"),
+                    ("select", true, "select a field's text"),
+                    ("click", true, "click it"),
+                    ("scrollIntoView", true, "scroll it into view"),
+                ]);
+            }
+            _ => {}
         }
-        Type::Resource(_) => ["state", "data", "error"]
-            .iter()
-            .map(|f| CompletionItem {
-                label: f.to_string(),
-                kind: Some(CompletionItemKind::FIELD),
-                detail: Some("of the resource".to_string()),
-                ..Default::default()
-            })
-            .collect(),
-        _ => Vec::new(),
     }
+    let ty: Option<Type> = match &binding {
+        Some(b) if b.kind == BindingKind::FormHandle => Some(types::form_type()),
+        Some(b) => decl_ix.and_then(|ix| crate::hover::type_of_binding(project, ix, b)),
+        None => top_level_type(project, name).or_else(|| types::browser_value_type(name)),
+    };
+    let Some(ty) = ty else {
+        return Vec::new();
+    };
+    let mut items = Vec::new();
+    // A record's fields, by the program's declaration.
+    let record = match &ty {
+        Type::Record(r) => Some(r.clone()),
+        Type::Optional(inner) => match inner.as_ref() {
+            Type::Record(r) => Some(r.clone()),
+            _ => None,
+        },
+        _ => None,
+    };
+    if let Some(record) = record
+        && let Some(t) = project.program.declarations.iter().find_map(|d| match d {
+            Declaration::Type(t) if t.name == record => Some(t),
+            _ => None,
+        })
+    {
+        for f in t.all_fields(&|name| crate::hover::find_type(project, name)) {
+            items.push(CompletionItem {
+                label: f.name.clone(),
+                kind: Some(CompletionItemKind::FIELD),
+                detail: Some(format!("{} — field of {}", type_name(&f.ty), record)),
+                documentation: f.doc.clone().map(Documentation::String),
+                sort_text: Some(format!("0{}", f.name)),
+                ..Default::default()
+            });
+        }
+    }
+    for m in types::members(&ty) {
+        let detail = match &m.ty {
+            Some(t) => format!("{t}"),
+            None if m.method => "method".to_string(),
+            None => String::new(),
+        };
+        items.push(member_item(&m.name, m.method, detail, "1"));
+    }
+    items
+}
+
+/// The type the checker gives a constant, a `data` constant or an image.
+fn top_level_type(project: &Project, name: &str) -> Option<webfluent::sema::types::Type> {
+    let ix = project.program.declarations.iter().position(|d| match d {
+        Declaration::Const(c) => c.name == name,
+        Declaration::Data(d) => d.name == name,
+        _ => false,
+    })?;
+    let info = webfluent::sema::types::check(&project.program, &|_| String::new());
+    info.bindings
+        .iter()
+        .find(|t| t.decl == ix && t.name == name)
+        .map(|t| t.ty.clone())
+        .filter(|t| !t.is_any())
 }
 
 /// The name of the element whose `)` sits at `close_ix`: the word before
@@ -898,40 +1706,40 @@ fn layouts(project: &Project) -> Vec<CompletionItem> {
         .collect()
 }
 
+/// What a file's top level can declare: every top-level keyword the table
+/// documents, each with the snippet that writes one.
 fn top_level() -> Vec<CompletionItem> {
-    vec![
-        snippet(
-            "page",
-            "A routed page",
-            "page ${1:Name}(path: \"${2:/}\", title: \"${3:$1}\") {\n\t$0\n}",
-        ),
-        snippet(
-            "component",
-            "A reusable component",
-            "component ${1:Name}(${2:label}: ${3:String}) {\n\t$0\n}",
-        ),
-        snippet(
-            "store",
-            "Shared state",
-            "store ${1:Name}Store {\n\tstate ${2:items} = ${3:[]}\n\t$0\n}",
-        ),
-        snippet(
-            "theme",
-            "Design tokens",
-            "theme ${1:Brand} {\n\tcolor-primary: ${2:#3B82F6}\n\t$0\n}",
-        ),
-        snippet("app", "The root of the site", "app {\n\t$0\n\tRouter\n}"),
-        snippet(
-            "type",
-            "A record type",
-            "type ${1:Name} {\n\t${2:id}: ${3:String}\n}",
-        ),
-        snippet(
-            "enum",
-            "A set of cases",
-            "enum ${1:Name} { ${2:a}, ${3:b} }",
-        ),
-    ]
+    reference::KEYWORDS
+        .iter()
+        .filter(|k| k.place == Place::TopLevel)
+        .map(|k| {
+            let body = match k.name {
+                "page" => "page ${1:Name}(path: \"${2:/}\", title: \"${3:$1}\", description: \"${4}\") {\n\t$0\n}",
+                "component" => "component ${1:Name}(${2:label}: ${3:String}) {\n\t$0\n}",
+                "store" => "store ${1:Name}Store {\n\tstate ${2:items} = ${3:[]}\n\t$0\n}",
+                "theme" => "theme ${1:Brand} {\n\tcolor-primary: ${2:#3B82F6}\n\t$0\n}",
+                "app" => "app {\n\t$0\n\tRouter\n}",
+                "type" => "type ${1:Name} {\n\t${2:id}: ${3:String}\n}",
+                "enum" => "enum ${1:Name} { ${2:a}, ${3:b} }",
+                "animation" => "animation ${1:Name} {\n\tfrom { ${2:opacity: 0} }\n\tto { ${3:opacity: 1} }\n}",
+                "const" => "const ${1:NAME} = ${2:value}",
+                "data" => "data ${1:name} = \"${2:data.json}\"",
+                "image" => "image ${1:name} = \"${2:media/photo.jpg}\"",
+                "api" => "api ${1:Backend}(base: \"${2:/api}\") {\n\tget ${3:items}() -> ${4:[Map]}\n}",
+                "test" => "test \"${1:what it does}\" {\n\t$0\n}",
+                other => other,
+            };
+            CompletionItem {
+                documentation: Some(Documentation::String(k.summary.to_string())),
+                ..snippet(k.name, first_sentence(k.summary), body)
+            }
+        })
+        .collect()
+}
+
+/// The first sentence of a summary, for a completion's one-line detail.
+fn first_sentence(text: &str) -> &str {
+    text.split_once(". ").map_or(text, |(first, _)| first)
 }
 
 fn theme_body() -> Vec<CompletionItem> {
@@ -1329,41 +2137,41 @@ fn components(project: &Project) -> Vec<CompletionItem> {
     items
 }
 
-fn keywords(in_store: bool, in_component: bool) -> Vec<CompletionItem> {
+/// Where a statement is being written, which decides the words it can
+/// begin with.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Context {
+    Page,
+    Component,
+    Store,
+    /// An action's, a handler's, an effect's or a timer's body.
+    Imperative,
+    /// A `test "…" { }` body.
+    Test,
+}
+
+fn keywords(context: Context) -> Vec<CompletionItem> {
+    // A component's own words, and a page's.
+    let component_only =
+        |name: &str| matches!(name, "event" | "slot" | "part" | "children" | "emit");
     reference::KEYWORDS
         .iter()
-        .filter(|k| k.place == Place::Body)
-        .filter(|k| {
-            if in_store {
-                matches!(
-                    k.name,
-                    "state"
-                        | "derived"
-                        | "action"
-                        | "effect"
-                        | "return"
-                        | "if"
-                        | "else"
-                        | "let"
-                        | "log"
-                        | "navigate"
-                        | "await"
-                )
-            } else if in_component {
-                !matches!(k.name, "let" | "return" | "await" | "null" | "by")
-            } else {
-                !matches!(
-                    k.name,
-                    "let"
-                        | "return"
-                        | "await"
-                        | "null"
-                        | "by"
-                        | "event"
-                        | "slot"
-                        | "children"
-                        | "emit"
-                )
+        .filter(|k| match context {
+            Context::Page => k.place == Place::Body && !component_only(k.name),
+            Context::Component => k.place == Place::Body && k.name != "head",
+            Context::Test => {
+                k.place == Place::Test || (k.place == Place::Body && !component_only(k.name))
+            }
+            Context::Store => {
+                k.place == Place::Body
+                    && matches!(
+                        k.name,
+                        "state" | "persist" | "derived" | "action" | "effect" | "every" | "after"
+                    )
+            }
+            Context::Imperative => {
+                k.place == Place::Imperative
+                    || matches!(k.name, "if" | "else" | "for" | "emit" | "navigate" | "log")
             }
         })
         .map(|k| CompletionItem {
@@ -1405,6 +2213,23 @@ fn keyword_snippet(name: &str) -> String {
         "on" => "on ${1:click} {\n\t$0\n}".into(),
         "style" => "style {\n\t${1:padding}: ${2:1rem}\n\t$0\n}".into(),
         "transition" => "transition {\n\t${1:background}: ${2:200ms} ${3:ease}\n}".into(),
+        "validate" => "validate ${1:name} {\n\t${2:required}\n}".into(),
+        "socket" => "socket ${1:chat} = ws(\"${2:wss://}\") {\n\ton message(${3:m}) { $0 }\n}".into(),
+        "stream" => "stream ${1:events} = sse(\"${2:/events}\")".into(),
+        "channel" => "channel ${1:tabs} = broadcast(\"${2:name}\") {\n\ton message(${3:m}) { $0 }\n}".into(),
+        "peer" => "peer ${1:link} = rtc(signal: ${2:m} => ${3:lobby}.post($2), initiator: ${4:true}) {\n\ton message(${5:m}) { $0 }\n}".into(),
+        "every" => "every(${1:1000}) {\n\t$0\n}".into(),
+        "after" => "after(${1:1000}) {\n\t$0\n}".into(),
+        "head" => "head {\n\t${1:meta}(${2:name}: \"$3\", content: \"$4\")\n}".into(),
+        "part" => "part ${1:Header} {\n\t$0\n}".into(),
+        "let" => "let ${1:name} = ${2:value}".into(),
+        "return" => "return ${1:value}".into(),
+        "await" => "await ${1:call}".into(),
+        "try" => "try {\n\t$1\n} catch ${2:e} {\n\t$0\n}".into(),
+        "expect" => "expect \"${1:text}\"".into(),
+        "click" => "click \"${1:Save}\"".into(),
+        "type" => "type \"${1:text}\" into \"${2:Label}\"".into(),
+        "press" => "press \"${1:Enter}\"".into(),
         other => other.into(),
     }
 }
@@ -1447,7 +2272,7 @@ fn fallback(project: &Project, previous: &[&Token]) -> Vec<CompletionItem> {
         return element_props(project, &name, previous);
     }
     let mut items = components(project);
-    items.extend(keywords(false, false));
+    items.extend(keywords(Context::Page));
     items
 }
 

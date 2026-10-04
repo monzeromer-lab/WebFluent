@@ -756,6 +756,12 @@ pub static CODES: &[CodeInfo] = &[
         "An event the element does not fire",
         "A handler names neither a DOM event nor one the element declares, so it never runs; often a misspelling (`on clik`).",
     ),
+    code(
+        "V10",
+        Warning,
+        "A `Host` tag it does not make",
+        "A `Host` is made of one of a few elements — `div`, `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul`, `table`; any other tag is a `div`.",
+    ),
 ];
 
 /// The errors a project may lower with `lints`: each is a mistake, and none

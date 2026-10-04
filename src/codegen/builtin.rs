@@ -404,19 +404,18 @@ pub fn element_tag(name: &str, modifiers: &[String]) -> &'static str {
 /// document, and a library asking for a `canvas` or an `svg` is the whole
 /// of what this is for. Anything else is a `div`, which is what it was.
 pub fn host_tag(named: Option<&str>) -> &'static str {
-    match named.unwrap_or("div") {
-        "span" => "span",
-        "canvas" => "canvas",
-        "svg" => "svg",
-        "section" => "section",
-        "figure" => "figure",
-        "pre" => "pre",
-        "p" => "p",
-        "ul" => "ul",
-        "table" => "table",
-        _ => "div",
-    }
+    let named = named.unwrap_or("div");
+    HOST_TAGS
+        .iter()
+        .find(|t| **t == named)
+        .copied()
+        .unwrap_or("div")
 }
+
+/// The elements a `Host` may be made of. A tag outside it is a `V10`.
+pub const HOST_TAGS: &[&str] = &[
+    "div", "span", "canvas", "svg", "section", "figure", "pre", "p", "ul", "table",
+];
 
 /// The `type=` value an input modifier selects, if it selects one.
 ///

@@ -666,3 +666,11 @@ fn u06_u08_u09_code_that_never_runs_and_loops_that_lose_state() {
     assert_eq!(with(&src, "U08").len(), 2);
     assert_eq!(with(&src, "U09").len(), 1);
 }
+
+#[test]
+fn an_image_is_the_asset_the_build_makes_of_it() {
+    let src = "image hero = \"hero.jpg\"\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"H\").h1\n    Text(\"{hero.width} by {hero.widht}\")\n}\n";
+    let found = with(src, "T05");
+    assert_eq!(found.len(), 1, "{found:?}");
+    assert!(found[0].contains("widht"), "{found:?}");
+}

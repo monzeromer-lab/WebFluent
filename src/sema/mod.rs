@@ -562,6 +562,32 @@ impl Checker<'_, '_> {
                 }
             }
         }
+        // `Host(tag: "…")`: one of the elements it makes, or it is a `div`.
+        if sig.name == "Host"
+            && let Some((Expr::StringLiteral(tag), span)) = el
+                .args
+                .iter()
+                .zip(&el.arg_spans)
+                .find_map(|(a, s)| match a {
+                    Arg::Named(k, v) if k == "tag" => Some((v, *s)),
+                    _ => None,
+                })
+            && !crate::codegen::builtin::HOST_TAGS.contains(&tag.as_str())
+        {
+            self.warning(
+                span,
+                "V10",
+                format!("`Host` makes no `{tag}`, so it is a `div`"),
+                &format!(
+                    "It makes {}",
+                    crate::codegen::builtin::HOST_TAGS
+                        .iter()
+                        .map(|t| format!("`{t}`"))
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                ),
+            );
+        }
         // `Element("tag-name")`: the tag is written out, and is one a
         // browser lets a script define — lower case, with a hyphen.
         if sig.name == "Element" {

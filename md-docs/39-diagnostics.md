@@ -2437,6 +2437,33 @@ warning[V09]: `clik` is not an event Button fires
 **Fix:** Name a DOM event (`click`, `input`, `change`, `submit`, `keydown`,
 …) or one the component declares.
 
+
+### V10 — A `Host` tag it does not make
+
+A `Host` is made of one of a few elements: `div`, `span`, `canvas`, `svg`,
+`section`, `figure`, `pre`, `p`, `ul` or `table` — the tag is written into
+the document, so it is an allow-list rather than whatever the string says.
+Any other tag is a `div`.
+
+```wf expect V10
+page P(path: "/", title: "T", description: "D") {
+    Heading("Chart").h1
+    Host(tag: "video", mount: (n) => n)
+}
+```
+
+```text
+warning[V10]: `Host` makes no `video`, so it is a `div`
+ --> src/App.wf:3:10
+  |
+3 |     Host(tag: "video", mount: (n) => n)
+  |          ^^^
+  = help: It makes `div`, `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul`, `table`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v10-a-host-tag-it-does-not-make
+```
+
+**Fix:** Make it one of the tags `Host` makes, or use the element the
+built-ins offer for it (`Video`, `Audio`, `Image`).
 ## Next
 
 [Built-ins](40-built-ins.md).

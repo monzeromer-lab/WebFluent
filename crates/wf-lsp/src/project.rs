@@ -72,6 +72,11 @@ pub struct Project {
     pub stylesheets: String,
     /// The same stylesheets one by one, for a class's definition.
     pub stylesheet_files: Vec<(PathBuf, Arc<str>)>,
+    /// Every message key the project's translations hold, for `t("…")`.
+    pub messages: Vec<String>,
+    /// The `env` names a page may read: the public ones the config, `.env`
+    /// and the shell supply.
+    pub env_names: Vec<String>,
 }
 
 /// Parsed disk files, keyed by path, reused while the file is unchanged.
@@ -127,9 +132,31 @@ impl Project {
         let mut script_paths: Vec<PathBuf> = Vec::new();
         // What `meta.scripts` says its libraries define, in scope as `Any`.
         let mut library_globals: Vec<String> = Vec::new();
+        let mut messages: Vec<String> = Vec::new();
+        let mut env_names: Vec<String> = Vec::new();
         let (theme, paths, stylesheets) = match &root {
             Some(root) if path.starts_with(root.join("src")) => {
-                let config = ProjectConfig::load(root).ok();
+                let config = ProjectConfig::load(root).ok().map(|mut c| {
+                    c.resolve_env(root);
+                    c
+                });
+                if let Some(config) = &config {
+                    if let Some(i18n) = &config.i18n
+                        && let Ok(tables) = webfluent::i18n::load(root, i18n)
+                    {
+                        let mut keys: Vec<String> =
+                            tables.values().flat_map(|t| t.keys().cloned()).collect();
+                        keys.sort();
+                        keys.dedup();
+                        messages = keys;
+                    }
+                    env_names = config
+                        .env
+                        .keys()
+                        .filter(|k| config.env_is_public(k))
+                        .cloned()
+                        .collect();
+                }
                 library_globals = config
                     .iter()
                     .flat_map(|c| c.meta.scripts.iter().flat_map(|s| s.names()))
@@ -288,6 +315,8 @@ impl Project {
             decl_file,
             stylesheets,
             stylesheet_files,
+            messages,
+            env_names,
         }
     }
 
@@ -327,6 +356,8 @@ impl Project {
             decl_file,
             stylesheets: String::new(),
             stylesheet_files: Vec::new(),
+            messages: Vec::new(),
+            env_names: Vec::new(),
         }
     }
 

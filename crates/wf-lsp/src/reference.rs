@@ -61,7 +61,14 @@ pub struct KeywordDoc {
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Place {
     TopLevel,
+    /// A page's or a component's body.
     Body,
+    /// An action's, a handler's or an effect's body.
+    Imperative,
+    /// A `test "…" { }` body, beside what a page's holds.
+    Test,
+    /// Inside an expression, never at a statement's start.
+    Expression,
     Style,
 }
 
@@ -184,7 +191,7 @@ pub const KEYWORDS: &[KeywordDoc] = &[
         name: "by",
         summary: "The key of a `for` item: `for t in todos by t.id`. An item keeps its nodes while it is the same value under the same key.",
         example: "for t in todos by t.id { Text(t.title) }",
-        place: Place::Body,
+        place: Place::Expression,
     },
     KeywordDoc {
         name: "show",
@@ -202,13 +209,13 @@ pub const KEYWORDS: &[KeywordDoc] = &[
         name: "let",
         summary: "A local of an action or handler.",
         example: "action save() {\n    let payload = { title: draft }\n    Todos.add(payload)\n}",
-        place: Place::Body,
+        place: Place::Imperative,
     },
     KeywordDoc {
         name: "return",
         summary: "Leaves an action, with a value or without.",
         example: "action total() { return items.length }",
-        place: Place::Body,
+        place: Place::Imperative,
     },
     KeywordDoc {
         name: "emit",
@@ -256,13 +263,13 @@ pub const KEYWORDS: &[KeywordDoc] = &[
         name: "await",
         summary: "Waits for a promise inside an action or handler, which becomes async: `let r = await fetch(url)`.",
         example: "action load() {\n    let r = await fetch(\"/api\")\n    items = r.items\n}",
-        place: Place::Body,
+        place: Place::Imperative,
     },
     KeywordDoc {
         name: "null",
         summary: "No value. `a ?? b` takes `b` when `a` is null; `if let x = a { }` renders when it is not.",
         example: "state selected = null\nText(selected ?? \"none\")",
-        place: Place::Body,
+        place: Place::Expression,
     },
     KeywordDoc {
         name: "style",
@@ -281,6 +288,126 @@ pub const KEYWORDS: &[KeywordDoc] = &[
         summary: "A rule that applies within a media query; its values must be literals or tokens.",
         example: "@media (max-width: 768px) {\n    padding: $sm\n}",
         place: Place::Style,
+    },
+    KeywordDoc {
+        name: "animation",
+        summary: "Keyframes, declared once: play them with `animate: .Name` or `exit: .Name` on any element, or write `animation: Name 1s infinite` in a style.",
+        example: "animation Wobble {\n    from { transform: rotate(-2deg) }\n    to { transform: rotate(2deg) }\n}",
+        place: Place::TopLevel,
+    },
+    KeywordDoc {
+        name: "const",
+        summary: "A value every page, component and store reads by name, fixed when the program is written. It may declare its type: `const PAGE_SIZE: Number = 20`.",
+        example: "const API = \"/api/v1\"",
+        place: Place::TopLevel,
+    },
+    KeywordDoc {
+        name: "data",
+        summary: "A constant whose value is a JSON file's, read at build time from the project or its `src/` and inlined into the bundle. A `:param` page names the values it renders for with `paths:`.",
+        example: "data posts: [Post] = \"content/posts.json\"",
+        place: Place::TopLevel,
+    },
+    KeywordDoc {
+        name: "image",
+        summary: "A picture the build reads and writes again at every width a page asks for, with its real size and colour. `Image(hero, alt: …)` draws it as a `<picture>`; `hero.src`, `.width`, `.height`, `.color`, `.srcset` read it.",
+        example: "image hero = \"media/hero.jpg\"",
+        place: Place::TopLevel,
+    },
+    KeywordDoc {
+        name: "api",
+        summary: "A service, described once: its address, how it is reached (`timeout`, `retry`, `credentials`), hooks on each request and response, and its endpoints. Every call is typed, cached, deduplicated and cancellable. `api B from \"openapi.json\"` reads it from a specification.",
+        example: "api Backend(base: \"/api/v1\") {\n    timeout: 10.seconds\n    get users(page: Number = 1) -> [User]\n    get user(id: String) at \"users/:id\" -> User\n}",
+        place: Place::TopLevel,
+    },
+    KeywordDoc {
+        name: "test",
+        summary: "A test `wf test` runs: what it draws, and what the page must show. A step that acts — `click`, `type`, `press` — runs it in a headless Chrome; the rest is compared with a snapshot.",
+        example: "test \"adds a row\" {\n    use Rows\n    Button(\"Add\") { on click { Rows.add() } }\n    click \"Add\"\n    expect \"1 row\"\n}",
+        place: Place::TopLevel,
+    },
+    KeywordDoc {
+        name: "validate",
+        summary: "What the state it names must be. The control bound to that state shows what the rules say, with the accessible plumbing. Rules: `required`, `email`, `url`, `minLength(n)`, `maxLength(n)`, `min(v)`, `max(v)`, `pattern(/…/)`, `matches(other)`, `oneOf([…])`, `custom \"…\" { }`, `async \"…\" { }`.",
+        example: "validate email {\n    required\n    email \"That is not an address\"\n}",
+        place: Place::Body,
+    },
+    KeywordDoc {
+        name: "socket",
+        summary: "A WebSocket the page holds open: typed both ways, reconnecting with backoff, kept alive by a heartbeat, and closed when the page leaves. `match` reads its state; `.send(v)`, `.messages`, `.last(kind)`, `.error`, `.closure`, `.close()`.",
+        example: "socket chat = ws(\"wss://example.com/chat\") {\n    on message(m) { Feed.add(m) }\n}",
+        place: Place::Body,
+    },
+    KeywordDoc {
+        name: "stream",
+        summary: "A stream of server-sent events, resumed where it was after a drop and closed when the page leaves. `.last(\"price\")` is the latest of one kind; `.messages` all of them.",
+        example: "stream ticks = sse(\"/events\", events: [\"price\"])",
+        place: Place::Body,
+    },
+    KeywordDoc {
+        name: "channel",
+        summary: "A message every tab of the site hears (`BroadcastChannel`). `.post(v)` sends one; `on message(m)` hears the others'.",
+        example: "channel cart = broadcast(\"cart\") {\n    on message(m) { Cart.merge(m) }\n}",
+        place: Place::Body,
+    },
+    KeywordDoc {
+        name: "peer",
+        summary: "A WebRTC data channel straight to another reader's page. What the two sides must tell each other goes out through `signal:`; what the other side sent is handed to `link.signal(m)`. `.send(v)` once it is `open`.",
+        example: "peer link = rtc(signal: m => lobby.post(m), initiator: query.host == \"1\") {\n    on message(m) { heard = m.text }\n}",
+        place: Place::Body,
+    },
+    KeywordDoc {
+        name: "every",
+        summary: "A timer: the block runs every so many milliseconds, and stops when its page, branch or list item leaves.",
+        example: "every(1000) { tick = tick + 1 }",
+        place: Place::Body,
+    },
+    KeywordDoc {
+        name: "after",
+        summary: "The block runs once, so many milliseconds from now — unless its page, branch or list item leaves first.",
+        example: "after(3000) { toast = null }",
+        place: Place::Body,
+    },
+    KeywordDoc {
+        name: "head",
+        summary: "Tags this page adds to the document's head — painted at build time where the value is known, kept current on the live page, gone when the page is.",
+        example: "head {\n    meta(property: \"og:image\", content: post.image)\n    link(rel: \"canonical\", href: \"https://example.com/p/{slug}\")\n}",
+        place: Place::Body,
+    },
+    KeywordDoc {
+        name: "part",
+        summary: "A component of a component's own, called under its name: `Panel.Header(…)`.",
+        example: "part Header(_ text: String) { Heading(text).h3 }",
+        place: Place::Body,
+    },
+    KeywordDoc {
+        name: "try",
+        summary: "Run the block; if anything in it throws, run the `catch` block with what was thrown.",
+        example: "try {\n    let r = await fetch(\"/api/sync\")\n} catch e {\n    error = e.message\n}",
+        place: Place::Imperative,
+    },
+    KeywordDoc {
+        name: "expect",
+        summary: "What the page under test must show — or, with `not`, must not.",
+        example: "expect \"3 open\"\nexpect not \"Error\"",
+        place: Place::Test,
+    },
+    KeywordDoc {
+        name: "click",
+        summary: "Click whatever carries that name: a button's text, a control's label or `aria-label`. Runs the test in a headless Chrome.",
+        example: "click \"Save\"",
+        place: Place::Test,
+    },
+    KeywordDoc {
+        name: "type",
+        summary: "Type text into the control a label, placeholder or `aria-label` names (a `Select` takes an option's text).",
+        example: "type \"Ada\" into \"Name\"",
+        place: Place::Test,
+    },
+    KeywordDoc {
+        name: "press",
+        summary: "Press a key on the focused element, or on the one named after `in`. `Escape` closes an open `Modal` or `Dialog`.",
+        example: "press \"Enter\"\npress \"Escape\" in \"Search\"",
+        place: Place::Test,
     },
 ];
 
@@ -460,4 +587,224 @@ pub const EASINGS: &[&str] = &[
     "spring",
     "bouncy",
     "smooth",
+];
+
+/// What each function the language gives a program does, and each value a
+/// page reads from the browser — for completion and hover. A test holds it
+/// to the compiler's own lists.
+pub const BUILTINS: &[(&str, &str, &str)] = &[
+    (
+        "log",
+        "log(value)",
+        "Writes a value to the browser's console.",
+    ),
+    (
+        "navigate",
+        "navigate(\"/path\")",
+        "Goes to another route of the site, without a page load.",
+    ),
+    (
+        "format",
+        "format(value, .style, option)",
+        "A number, money, a date or a time as the page's locale shows it: `.number`, `.integer`, `.decimal`, `.currency`, `.percent`, `.compact`, `.date`, `.time`, `.datetime`, `.relative`.",
+    ),
+    (
+        "ago",
+        "ago(when)",
+        "How long ago or from now, in words: `3 minutes ago`, `yesterday`, `in 2 weeks`.",
+    ),
+    (
+        "t",
+        "t(\"key\", { name: value })",
+        "A message from the project's translations, in the current locale; `count` picks a plural form.",
+    ),
+    (
+        "setLocale",
+        "setLocale(\"ar\")",
+        "Switches the locale; an RTL one (`ar`, `he`, `fa`, `ur`) turns the page right to left.",
+    ),
+    (
+        "setTheme",
+        "setTheme(\"dark\")",
+        "Chooses `\"dark\"`, `\"light\"` or `\"system\"`, kept across visits; `theme` reads the choice.",
+    ),
+    ("uuid", "uuid()", "A new random identifier, a `Uuid`."),
+    (
+        "sanitize",
+        "sanitize(html)",
+        "The allow-listed part of some markup — no script, style, frame, form or `on*` — for `Unsafe.Html`.",
+    ),
+    (
+        "fetch",
+        "fetch(url, method: \"POST\", body: …)",
+        "A request through the language's engine — timeouts, retries, the cache — in a `resource` or after `await`.",
+    ),
+    (
+        "optimistic",
+        "optimistic(holder, change)",
+        "Shows a change at once; if the action throws later, it is taken back.",
+    ),
+    (
+        "beacon",
+        "beacon(\"/analytics\", data)",
+        "Sends data that survives the page being closed.",
+    ),
+    (
+        "animate",
+        "animate(target, \"pulse\", \"400ms\")",
+        "Plays an animation on an element handle, and gives a handle back to play or cancel it.",
+    ),
+    (
+        "replayAnimation",
+        "replayAnimation(element, \"fadeIn\")",
+        "Plays an element's animation again.",
+    ),
+    (
+        "every",
+        "every(ms) { … }",
+        "A timer, stopped when its page, branch or item leaves.",
+    ),
+    (
+        "after",
+        "after(ms) { … }",
+        "Runs once after a delay, unless its page, branch or item leaves first.",
+    ),
+    (
+        "now",
+        "now",
+        "The current moment, a `DateTime` that keeps itself current — every minute, or as often as `now(every: 1.seconds)` asks.",
+    ),
+    (
+        "ws",
+        "ws(\"wss://…\", protocols: […], heartbeat: 20.seconds)",
+        "Opens a WebSocket, for a `socket`.",
+    ),
+    (
+        "sse",
+        "sse(\"/events\", events: [\"price\"])",
+        "Opens a stream of server-sent events, for a `stream`.",
+    ),
+    (
+        "broadcast",
+        "broadcast(\"name\")",
+        "Joins a channel every tab of the site hears, for a `channel`.",
+    ),
+    (
+        "rtc",
+        "rtc(signal: m => …, initiator: true, ice: […])",
+        "Opens a WebRTC data channel to another page, for a `peer`.",
+    ),
+    ("String", "String(value)", "A value as text."),
+    ("Number", "Number(value)", "A value as a number."),
+    ("Boolean", "Boolean(value)", "A value as `true` or `false`."),
+    ("Bool", "Bool(value)", "A value as `true` or `false`."),
+    (
+        "Money",
+        "Money(amount: 1299, currency: \"EUR\")",
+        "An amount of money, in minor units.",
+    ),
+    (
+        "viewport",
+        "viewport.md",
+        "The window's size, kept current: `.width`, `.height`, and `.sm` … `.xl`, whether it is at least that breakpoint.",
+    ),
+    (
+        "query",
+        "query.tab",
+        "The address's query string, by name: `?tab=open` is `query.tab`.",
+    ),
+    ("hash", "hash", "The address's `#fragment`, kept current."),
+    (
+        "theme",
+        "theme",
+        "The reader's colour scheme choice: `\"light\"`, `\"dark\"` or `\"system\"`.",
+    ),
+    (
+        "network",
+        "network.online",
+        "The connection: `.online`, `.effectiveType`, `.saveData`, `.downlink`, and `.queued` — the writes waiting for it.",
+    ),
+    (
+        "update",
+        "update.available",
+        "A new version of an offline site: `.available`, and `.apply()` to take it and reload once.",
+    ),
+];
+
+/// The entry for a built-in function or browser value.
+pub fn builtin(name: &str) -> Option<&'static (&'static str, &'static str, &'static str)> {
+    BUILTINS.iter().find(|(n, _, _)| *n == name)
+}
+
+/// What an `api` block's settings say, each with what it does.
+pub const API_SETTINGS: &[(&str, &str, &str)] = &[
+    (
+        "timeout",
+        "timeout: ${1:10}.seconds",
+        "How long a request may take before it ends as `.timeout`.",
+    ),
+    (
+        "retry",
+        "retry: .backoff(times: ${1:3}, on: [.network, .timeout, .status5xx])",
+        "When to try again: exponential backoff with jitter, per error kind, honouring `Retry-After`.",
+    ),
+    (
+        "credentials",
+        "credentials: .${1:sameOrigin}",
+        "Whether the session cookie is sent: `.omit`, `.sameOrigin`, `.include` — where a session belongs.",
+    ),
+    (
+        "cache",
+        "cache: .swr(${1:60}.seconds)",
+        "How long an answer stands: `.swr(…)`, `.none`, `.forever`.",
+    ),
+    (
+        "mode",
+        "mode: .${1:cors}",
+        "The request's mode, as `fetch` names it.",
+    ),
+    (
+        "redirect",
+        "redirect: .${1:follow}",
+        "What a redirect does, as `fetch` names it.",
+    ),
+    (
+        "referrer",
+        "referrer: .${1:strictOriginWhenCrossOrigin}",
+        "The referrer policy, as `fetch` names it.",
+    ),
+    (
+        "headers",
+        "headers {\n\t\"${1:X-Api-Key}\": ${2:value}\n}",
+        "Headers every request carries, each read at the moment of the request.",
+    ),
+];
+
+/// What a `persist` value's block may say, each with what it does.
+pub const PERSIST_KEYS: &[(&str, &str, &str)] = &[
+    (
+        "in",
+        "in: .${1:session}",
+        "Where it is kept: `.local` (the default, across visits) or `.session` (this tab).",
+    ),
+    (
+        "version",
+        "version: ${1:2}",
+        "The version of the shape this build writes; an older value is brought forward by `migrate`.",
+    ),
+    (
+        "sync",
+        "sync: ${1:false}",
+        "Whether a write in another tab is taken here (on by default for `.local`).",
+    ),
+    (
+        "key",
+        "key: ${1:id}",
+        "What tells this instance's value from another's: one stored value per instance of a component placed more than once.",
+    ),
+    (
+        "migrate",
+        "migrate ${1:1} -> ${2:2} { ${0:old} }",
+        "One step forward: what a value of the older version becomes, read as `old`.",
+    ),
 ];

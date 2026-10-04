@@ -184,3 +184,37 @@ pub fn process(
         sources,
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// What a program may read of an `image` is what the build hands it.
+    #[test]
+    fn an_image_s_type_is_the_asset_the_build_hands_the_program() {
+        let asset = Asset {
+            name: "hero".into(),
+            source: PathBuf::from("hero.jpg"),
+            url: "/img/hero.jpg".into(),
+            width: 10,
+            height: 5,
+            color: "#000000".into(),
+            placeholder: String::new(),
+            sources: BTreeMap::new(),
+        };
+        let mut written: Vec<String> = asset
+            .as_json()
+            .as_object()
+            .unwrap()
+            .keys()
+            .cloned()
+            .collect();
+        written.sort();
+        let crate::sema::types::Type::Shape(fields) = crate::sema::types::image_type() else {
+            panic!("an image is a shape");
+        };
+        let mut typed: Vec<String> = fields.into_iter().map(|(n, _)| n).collect();
+        typed.sort();
+        assert_eq!(written, typed);
+    }
+}
