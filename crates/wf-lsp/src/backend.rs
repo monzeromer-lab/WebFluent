@@ -167,6 +167,14 @@ impl LanguageServer for Backend {
                 document_symbol_provider: Some(OneOf::Left(true)),
                 workspace_symbol_provider: Some(OneOf::Left(true)),
                 definition_provider: Some(OneOf::Left(true)),
+                references_provider: Some(OneOf::Left(true)),
+                document_highlight_provider: Some(OneOf::Left(true)),
+                document_formatting_provider: Some(OneOf::Left(true)),
+                signature_help_provider: Some(SignatureHelpOptions {
+                    trigger_characters: Some(vec!["(".to_string(), ",".to_string()]),
+                    retrigger_characters: Some(vec![":".to_string()]),
+                    work_done_progress_options: Default::default(),
+                }),
                 rename_provider: Some(OneOf::Right(RenameOptions {
                     prepare_provider: Some(true),
                     work_done_progress_options: Default::default(),
@@ -351,6 +359,46 @@ impl LanguageServer for Backend {
                 data: None,
             }),
         }
+    }
+
+    async fn references(&self, params: ReferenceParams) -> Result<Option<Vec<Location>>> {
+        let uri = params.text_document_position.text_document.uri;
+        let position = params.text_document_position.position;
+        let Some((project, ix)) = self.locate(&uri) else {
+            return Ok(None);
+        };
+        let found =
+            crate::rename::references(&project, ix, position, params.context.include_declaration);
+        Ok((!found.is_empty()).then_some(found))
+    }
+
+    async fn document_highlight(
+        &self,
+        params: DocumentHighlightParams,
+    ) -> Result<Option<Vec<DocumentHighlight>>> {
+        let uri = params.text_document_position_params.text_document.uri;
+        let position = params.text_document_position_params.position;
+        let Some((project, ix)) = self.locate(&uri) else {
+            return Ok(None);
+        };
+        let found = crate::rename::highlights(&project, ix, position);
+        Ok((!found.is_empty()).then_some(found))
+    }
+
+    async fn signature_help(&self, params: SignatureHelpParams) -> Result<Option<SignatureHelp>> {
+        let uri = params.text_document_position_params.text_document.uri;
+        let position = params.text_document_position_params.position;
+        let Some((project, ix)) = self.locate(&uri) else {
+            return Ok(None);
+        };
+        Ok(crate::signature::signature_help(&project, ix, position))
+    }
+
+    async fn formatting(&self, params: DocumentFormattingParams) -> Result<Option<Vec<TextEdit>>> {
+        let Some((project, ix)) = self.locate(&params.text_document.uri) else {
+            return Ok(None);
+        };
+        Ok(crate::formatting::format_document(&project, ix))
     }
 
     async fn code_action(&self, params: CodeActionParams) -> Result<Option<CodeActionResponse>> {

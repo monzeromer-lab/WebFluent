@@ -79,58 +79,114 @@ pub fn rename(
     }
 
     let mut changes: HashMap<Url, Vec<TextEdit>> = HashMap::new();
-    for (ix, other) in project.files.iter().enumerate() {
-        // A script is JavaScript; its text is not WebFluent's to rewrite.
-        if other.script {
-            continue;
-        }
-        let src: &str = &other.source;
-        let Some(toks) = analysis::tokens_of(other) else {
-            continue;
-        };
-        let mut edits: Vec<TextEdit> = Vec::new();
-        for occurrence in occurrences(src, &toks, word) {
-            let same = definition_at(project, ix, occurrence, &toks)
-                .map(single)
-                .is_some_and(|d| d == target);
-            if !same {
-                continue;
-            }
-            edits.push(TextEdit {
-                range: Range {
-                    start: other.index.offset_to_position(src, occurrence),
-                    end: other.index.offset_to_position(src, occurrence + word.len()),
-                },
-                new_text: new_name.to_string(),
-            });
-        }
-        // The declaration itself: the first whole word inside its range.
-        if other.uri == target.uri
-            && let Some(start) = other.index.position_to_offset(src, target.range.start)
-            && let Some(end) = other.index.position_to_offset(src, target.range.end)
-            && let Some(at) = whole_word(&src[start..end.min(src.len())], word).map(|i| start + i)
-            && !edits
-                .iter()
-                .any(|e| e.range.start == other.index.offset_to_position(src, at))
-        {
-            edits.push(TextEdit {
-                range: Range {
-                    start: other.index.offset_to_position(src, at),
-                    end: other.index.offset_to_position(src, at + word.len()),
-                },
-                new_text: new_name.to_string(),
-            });
-        }
-        if !edits.is_empty() {
-            edits.sort_by_key(|e| (e.range.start.line, e.range.start.character));
-            changes.insert(other.uri.clone(), edits);
-        }
+    for (uri, range) in uses(project, &target, word) {
+        changes.entry(uri).or_default().push(TextEdit {
+            range,
+            new_text: new_name.to_string(),
+        });
+    }
+    for edits in changes.values_mut() {
+        edits.sort_by_key(|e| (e.range.start.line, e.range.start.character));
     }
     Ok(WorkspaceEdit {
         changes: Some(changes),
         document_changes: None,
         change_annotations: None,
     })
+}
+
+/// Every place in the project where `word` names what `target` declares —
+/// its uses (inside string splices too) and the declaration itself. What
+/// rename changes, find-references lists and document-highlight marks.
+pub fn uses(project: &Project, target: &Location, word: &str) -> Vec<(Url, Range)> {
+    let mut out: Vec<(Url, Range)> = Vec::new();
+    for (ix, other) in project.files.iter().enumerate() {
+        let src: &str = &other.source;
+        // A script is JavaScript, a page in Markdown is Markdown: neither is
+        // WebFluent's to read for names.
+        let Some(toks) = analysis::tokens_of(other) else {
+            continue;
+        };
+        let mut ranges: Vec<Range> = Vec::new();
+        for occurrence in occurrences(src, &toks, word) {
+            let same = definition_at(project, ix, occurrence, &toks)
+                .map(single)
+                .is_some_and(|d| d == *target);
+            if same {
+                ranges.push(Range {
+                    start: other.index.offset_to_position(src, occurrence),
+                    end: other.index.offset_to_position(src, occurrence + word.len()),
+                });
+            }
+        }
+        // The declaration itself: the first whole word inside its range.
+        if other.uri == target.uri
+            && let Some(start) = other.index.position_to_offset(src, target.range.start)
+            && let Some(end) = other.index.position_to_offset(src, target.range.end)
+            && let Some(at) = whole_word(&src[start..end.min(src.len())], word).map(|i| start + i)
+        {
+            let range = Range {
+                start: other.index.offset_to_position(src, at),
+                end: other.index.offset_to_position(src, at + word.len()),
+            };
+            if !ranges.contains(&range) {
+                ranges.push(range);
+            }
+        }
+        ranges.sort_by_key(|r| (r.start.line, r.start.character));
+        out.extend(ranges.into_iter().map(|r| (other.uri.clone(), r)));
+    }
+    out
+}
+
+/// The name at `position`, what declares it, and every place it is named:
+/// for find-references and document-highlight.
+pub fn references(
+    project: &Project,
+    file_ix: usize,
+    position: Position,
+    include_declaration: bool,
+) -> Vec<Location> {
+    let file = &project.files[file_ix];
+    let source: &str = &file.source;
+    let Some(offset) = file.index.position_to_offset(source, position) else {
+        return Vec::new();
+    };
+    let tokens = analysis::tokens_of(file).unwrap_or_default();
+    if analysis::in_comment(source, &tokens, offset)
+        || (analysis::in_string(&tokens, offset) && !analysis::in_splice(source, &tokens, offset))
+    {
+        return Vec::new();
+    }
+    let Some((word, _)) = word_at(source, offset) else {
+        return Vec::new();
+    };
+    let Some(target) = definition_at(project, file_ix, offset, &tokens).map(single) else {
+        return Vec::new();
+    };
+    uses(project, &target, word)
+        .into_iter()
+        .filter(|(uri, range)| {
+            include_declaration
+                || !(uri == &target.uri
+                    && range.start >= target.range.start
+                    && range.end <= target.range.end)
+        })
+        .map(|(uri, range)| Location { uri, range })
+        .collect()
+}
+
+/// The places in this file the name at `position` is named.
+pub fn highlights(project: &Project, file_ix: usize, position: Position) -> Vec<DocumentHighlight> {
+    let uri = &project.files[file_ix].uri;
+    references(project, file_ix, position, true)
+        .into_iter()
+        .filter(|l| &l.uri == uri)
+        .map(|l| DocumentHighlight {
+            range: l.range,
+            kind: Some(DocumentHighlightKind::TEXT),
+        })
+        .collect()
 }
 
 fn single(response: GotoDefinitionResponse) -> Location {

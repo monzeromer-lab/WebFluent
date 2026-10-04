@@ -1440,3 +1440,156 @@ fn hover_on_every_keyword_explains_it() {
         assert!(doc.contains(&format!("**{word}**")), "{word}: {doc}");
     }
 }
+
+// ─── Formatting, references, highlights ───────────────────────────────────
+
+#[test]
+fn formatting_is_what_wf_fmt_writes() {
+    let src = "page P(path: \"/\"){\n  Heading(\"H\").h1\n\n\n  Text(\"a\")\n}";
+    let project = project(src);
+    let edits = wf_lsp::formatting::format_document(&project, 0).unwrap();
+    let want = webfluent::fmt::format_source(src, "test.wf").unwrap();
+    assert_eq!(edits.len(), 1);
+    assert_eq!(edits[0].new_text, want);
+    assert_eq!(edits[0].range.start, Position::new(0, 0));
+    // Formatted already: nothing to do.
+    let done = project_of(&want);
+    assert_eq!(
+        wf_lsp::formatting::format_document(&done, 0).unwrap(),
+        Vec::new()
+    );
+    // A file that does not parse is left as it is.
+    assert!(
+        wf_lsp::formatting::format_document(&project_of("page P(path: \"/\") { Text(\"a\" }"), 0)
+            .is_none()
+    );
+    // An indented file is formatted as one.
+    let wfx = Project::single(
+        Url::parse("file:///t.wfx").unwrap(),
+        "page P(path: \"/\")\n  Text(\"a\")\n",
+    );
+    let edits = wf_lsp::formatting::format_document(&wfx, 0).unwrap();
+    assert_eq!(edits[0].new_text, "page P(path: \"/\")\n    Text(\"a\")\n");
+}
+
+fn project_of(src: &str) -> Project {
+    project(src)
+}
+
+#[test]
+fn references_and_highlights_are_every_place_a_name_is_named() {
+    let src = "const LIMIT = 3\npage P(path: \"/\") {\n    state count = 0\n    Text(\"{count} of {LIMIT}\")\n    Button(\"+\") { on click { count = count + 1 } }\n    Text(\"count\")\n}\ncomponent C {\n    state count = 1\n    Text(\"{count}\")\n}\n";
+    let project = project(src);
+    let lines = |locations: Vec<Location>| -> Vec<(u32, u32)> {
+        locations
+            .iter()
+            .map(|l| (l.range.start.line + 1, l.range.start.character))
+            .collect()
+    };
+    let at = |needle: &str, nth: usize| {
+        let offset = src.match_indices(needle).nth(nth).unwrap().0 + 1;
+        project.files[0].index.offset_to_position(src, offset)
+    };
+    // The page's `count`: its declaration, the splice, both sides of the
+    // assignment — not the text "count", not the component's own.
+    let all = lines(wf_lsp::rename::references(
+        &project,
+        0,
+        at("count", 1),
+        true,
+    ));
+    assert_eq!(all, vec![(3, 10), (4, 11), (5, 29), (5, 37)], "{all:?}");
+    let uses = lines(wf_lsp::rename::references(
+        &project,
+        0,
+        at("count", 1),
+        false,
+    ));
+    assert_eq!(uses, vec![(4, 11), (5, 29), (5, 37)]);
+    // A constant, from a use inside a splice.
+    let limit = lines(wf_lsp::rename::references(
+        &project,
+        0,
+        at("LIMIT", 1),
+        true,
+    ));
+    assert_eq!(limit, vec![(1, 6), (4, 22)]);
+    let marks = wf_lsp::rename::highlights(&project, 0, at("count", 1));
+    assert_eq!(marks.len(), 4);
+    // Text names nothing.
+    assert!(wf_lsp::rename::references(&project, 0, at("count", 4), true).is_empty());
+}
+
+// ─── Signature help ───────────────────────────────────────────────────────
+
+/// The signature shown at `‸` in `broken` (`valid` the last good parse), and
+/// the label of the argument it marks.
+fn signature_at(valid: &str, broken: &str) -> Option<(String, Option<String>)> {
+    let at = broken.find('‸').unwrap();
+    let text = broken.replacen('‸', "", 1);
+    let project = mid_edit(valid, &text);
+    let pos = project.files[0].index.offset_to_position(&text, at);
+    let help = wf_lsp::signature::signature_help(&project, 0, pos)?;
+    let sig = help.signatures.into_iter().next()?;
+    let active = help.active_parameter.and_then(|i| {
+        sig.parameters
+            .as_ref()?
+            .get(i as usize)
+            .map(|p| match &p.label {
+                ParameterLabel::Simple(s) => s.clone(),
+                _ => String::new(),
+            })
+    });
+    Some((sig.label, active))
+}
+
+#[test]
+fn signature_help_shows_what_a_call_takes_and_where_the_cursor_is() {
+    let decls = "component UserCard(_ name: String, role: String, active: Bool = true) { Text(name) }\napi Backend(base: \"/api\") {\n    get user(id: String) at \"users/:id\" -> Map\n}\nstore Cart {\n    state n = 0\n    action add(item: Map, qty: Number) { n = n + qty }\n}\n";
+    let page = |valid: &str, broken: &str| {
+        signature_at(
+            &format!("{decls}{HEAD}    use Cart\n{valid}\n}}\n"),
+            &format!("{decls}{HEAD}    use Cart\n{broken}\n}}\n"),
+        )
+    };
+    let (label, active) = page(
+        "    UserCard(\"Ada\", role: \"Dev\")",
+        "    UserCard(\"Ada\", role: ‸)",
+    )
+    .unwrap();
+    assert_eq!(
+        label,
+        "UserCard(_ name: String, role: String, active: Bool = …)"
+    );
+    assert_eq!(active.as_deref(), Some("role: String"));
+    let (_, active) = page("    UserCard(\"Ada\")", "    UserCard(‸)").unwrap();
+    assert_eq!(active.as_deref(), Some("_ name: String"));
+    let (label, _) = page(
+        "    Row(gap: .md) { Text(\"a\") }",
+        "    Row(gap: ‸) { Text(\"a\") }",
+    )
+    .unwrap();
+    assert!(
+        label.starts_with("Row(") && label.contains("gap: ") && label.contains(".md"),
+        "{label}"
+    );
+    let (label, active) = page(
+        "    Button(\"x\") { on click { Backend.user(id: \"1\") } }",
+        "    Button(\"x\") { on click { Backend.user(‸) } }",
+    )
+    .unwrap();
+    assert_eq!(label, "Backend.user(id: String) -> Map");
+    assert_eq!(active.as_deref(), Some("id: String"));
+    let (label, active) = page(
+        "    Button(\"x\") { on click { Cart.add({}, 1) } }",
+        "    Button(\"x\") { on click { Cart.add({}, ‸) } }",
+    )
+    .unwrap();
+    assert_eq!(label, "Cart.add(item: Map, qty: Number)");
+    assert_eq!(active.as_deref(), Some("qty: Number"));
+    let (label, active) = page("    Text(format(3, .currency))", "    Text(format(3, ‸))").unwrap();
+    assert_eq!(label, "format(value, .style, option)");
+    assert_eq!(active.as_deref(), Some(".style"));
+    // Outside every parenthesis: none.
+    assert!(page("    Text(\"a\")", "    ‸Text(\"a\")").is_none());
+}
