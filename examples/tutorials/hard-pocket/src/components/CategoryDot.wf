@@ -1,0 +1,6 @@
+/// A category's colour, as a small round swatch.
+component CategoryDot(color: Color) {
+    Host(tag: "span", class: "dot", aria-hidden: "true") {
+        style { background: {color} }
+    }
+}

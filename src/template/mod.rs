@@ -655,18 +655,33 @@ fn to_value<T: Serialize + ?Sized>(data: &T) -> Result<Value> {
 /// The HTML fragment of every page of a lowered program, over `data`:
 /// what a template renders, and what `wf test` holds a test to.
 pub fn render_program_fragment(program: &Program, data: &Value) -> Result<String> {
-    render_program(program, data, false)
+    render_program(program, data, false, Default::default())
+}
+
+/// As [`render_program_fragment`], with the messages `t("key")` reads.
+pub fn render_program_fragment_with(
+    program: &Program,
+    data: &Value,
+    messages: HashMap<String, String>,
+) -> Result<String> {
+    render_program(program, data, false, std::rc::Rc::new(messages))
 }
 
 /// The markup a paged output lays out: as [`render_program_fragment`], with
 /// `page` and `pages` in a running element written as the marks each page
 /// replaces with its number.
 pub fn render_program_paged(program: &Program, data: &Value) -> Result<String> {
-    render_program(program, data, true)
+    render_program(program, data, true, Default::default())
 }
 
-fn render_program(program: &Program, data: &Value, paged: bool) -> Result<String> {
+fn render_program(
+    program: &Program,
+    data: &Value,
+    paged: bool,
+    messages: std::rc::Rc<HashMap<String, String>>,
+) -> Result<String> {
     let mut ctx = RenderContext::for_program(program, data);
+    ctx.messages = messages;
     if paged {
         ctx.locals.insert(PAGED.to_string(), Value::Bool(true));
     }
@@ -713,6 +728,9 @@ struct RenderContext<'a> {
     slots: Vec<HashMap<String, Fill>>,
     /// Fields rendered so far, for their ids.
     fields: usize,
+    /// The messages `t("key")` reads: the project's default locale, when it
+    /// has translations. Without them `t` shows its key.
+    messages: std::rc::Rc<HashMap<String, String>>,
 }
 
 impl<'a> RenderContext<'a> {
@@ -796,6 +814,7 @@ impl<'a> RenderContext<'a> {
             in_thead: false,
             slots: Vec::new(),
             fields: 0,
+            messages: Default::default(),
         }
     }
 
@@ -814,6 +833,7 @@ impl<'a> RenderContext<'a> {
             in_thead: self.in_thead,
             slots: self.slots.clone(),
             fields: self.fields,
+            messages: self.messages.clone(),
         }
     }
 
@@ -1018,13 +1038,45 @@ impl<'a> RenderContext<'a> {
             }
             Expr::Regex(..) => self.eval_static(expr),
             Expr::FunctionCall(name, _args) => {
-                // t() in template mode — not supported, return key
+                // `t("key", { name: v, count: n })`: the message, its plural
+                // form picked by `count` (`key.one` for exactly one, else
+                // `key.other`, then `key`), its placeholders filled. Without
+                // a table, the key.
                 if name == "t" {
-                    if let Some(Expr::StringLiteral(key)) = _args.first() {
-                        Value::String(key.clone())
-                    } else {
-                        Value::Null
+                    let Some(Value::String(key)) = _args.first().map(|a| self.eval_expr(a)) else {
+                        return Value::Null;
+                    };
+                    let params = _args.get(1).map(|a| self.eval_expr(a));
+                    let count = params
+                        .as_ref()
+                        .and_then(|p| p.get("count"))
+                        .and_then(|c| c.as_f64());
+                    let forms = match count {
+                        None => Vec::new(),
+                        Some(n) => {
+                            let form = if n == 1.0 {
+                                "one"
+                            } else if n == 0.0 {
+                                "zero"
+                            } else {
+                                "other"
+                            };
+                            vec![format!("{key}.{form}"), format!("{key}.other")]
+                        }
+                    };
+                    let message = forms
+                        .iter()
+                        .chain(std::iter::once(&key))
+                        .find_map(|k| self.messages.get(k))
+                        .cloned()
+                        .unwrap_or(key);
+                    let mut out = message;
+                    if let Some(Value::Object(map)) = params {
+                        for (k, v) in map {
+                            out = out.replace(&format!("{{{k}}}"), &value_to_string(&v));
+                        }
                     }
+                    Value::String(out)
                 } else if name == "format" || name == "ago" {
                     // Formatting speaks the data's `locale`, or English.
                     self.eval_static(expr)

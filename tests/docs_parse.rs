@@ -280,6 +280,19 @@ fn abbreviates(block: &str) -> bool {
     if block.contains('…') {
         return true;
     }
+    // A run of a tutorial project's file, named on its first line
+    // (`// src/pages/Home.wf`): `tests/tutorials.rs` holds it to the file,
+    // which the project's own build checks whole.
+    if block
+        .lines()
+        .next()
+        .and_then(|l| l.strip_prefix("// "))
+        .is_some_and(|path| {
+            (path.starts_with("src/") || path.starts_with("tests/")) && !path.contains(' ')
+        })
+    {
+        return true;
+    }
     block.match_indices("...").any(|(i, _)| {
         !block[i + 3..]
             .chars()

@@ -1,0 +1,22 @@
+/// One entry in a list: what it was, which category, when, and how much —
+/// the whole row a link to the entry.
+component EntryRow(_ entry: Entry) {
+    use Ledger
+    derived category = Ledger.categories.find(c => c.id == entry.category)
+    derived sign = if entry.kind == .income { "+" } else { "−" }
+
+    Link(to: "/entries/{entry.id}", class: "entry-row") {
+        CategoryDot(color: category?.color ?? #94A3B8)
+        Stack(gap: .xs, class: "entry-row__main") {
+            Text(if entry.note != "" { entry.note } else { category?.name ?? entry.category }, class: "entry-row__note")
+            // Two texts, not one sentence: in Arabic a Latin category name and
+            // a date in one string would reorder each other.
+            Row(gap: .xs, class: "entry-row__meta") {
+                Text(category?.name ?? entry.category).muted.sm
+                Text(format(entry.date, .date, "medium")).muted.sm
+            }
+        }
+        // `dir: "ltr"` keeps the sign in front of the amount in a right-to-left page.
+        Text("{sign}{format(entry.amount)}", dir: "ltr", class: { "entry-row__amount": true, "is-income": entry.kind == .income })
+    }
+}

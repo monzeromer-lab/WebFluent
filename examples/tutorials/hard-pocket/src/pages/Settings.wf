@@ -1,0 +1,110 @@
+page Settings(path: "/settings", title: "Settings", description: "Language, appearance, and your data: export it, import it, start again.") {
+    use Ledger
+    use Prefs
+
+    state confirmingReset = false
+    state problem = ""
+
+    // The same channel the app listens on. A post reaches every other
+    // `broadcast("pocket")` — the app shell of every open tab, this one's too.
+    channel news = broadcast("pocket")
+
+    // One entry as a line of CSV. The note is quoted, and a quote inside it
+    // doubled, so a comma in a note cannot split the line.
+    action csvLine(e: Entry) {
+        let note = e.note.replaceAll(QUOTE, QUOTE + QUOTE)
+        return [e.id, e.date, e.kind, e.category, (e.amount.amount / 100).toFixed(2), e.amount.currency, QUOTE + note + QUOTE].join(",")
+    }
+
+    action exportCsv() {
+        let lines = Ledger.newestFirst.map(e => csvLine(e))
+        saveTextFile("pocket-{Ledger.today}.csv", [CSV_HEADER, ...lines].join("\n"), "text/csv")
+    }
+
+    // One line of CSV back into an entry — a list of one, or of none when the
+    // line is not an entry, so `flatMap` keeps only the lines that were.
+    action parseLine(line: String) {
+        let cells: [Any] = line.split(",")
+        if cells.length < 7 || !/^\d{4}-\d{2}-\d{2}$/.test(cells[1]) { return [] }
+        let note = cells.slice(6).join(",").replace(/^"|"$/g, "").replaceAll(QUOTE + QUOTE, QUOTE)
+        return [Entry(
+                id: cells[0] ?? "",
+                date: cells[1] ?? "",
+                amount: ONE.times(Number(cells[4])),
+                kind: if cells[2] == "income" { .income } else { .expense },
+                category: cells[3] ?? "",
+                note: note,
+            )]
+    }
+
+    action importCsv(text: String) {
+        problem = ""
+        let rows = text.lines().slice(1).filter(l => l.trim() != "")
+        let parsed = rows.flatMap(l => parseLine(l))
+        if parsed.length == 0 {
+            problem = t("import.nothing")
+            return
+        }
+        let added = Ledger.merge(parsed)
+        news.post({ count: added })
+    }
+
+    PageHeader(t("nav.settings"))
+
+    Grid(columns: { base: 1, lg: 2 }, gap: .md) {
+        Card(class: "panel") {
+            Heading(t("settings.language")).h2
+            // `locale` is the language showing; choosing one keeps it in
+            // `Prefs`, and the app shell's effect applies it.
+            Row(gap: .xs, class: "segmented") {
+                Button("English", aria-pressed: locale == "en", lang: "en") { on click { Prefs.language = "en" } }
+                Button("العربية", aria-pressed: locale == "ar", lang: "ar") { on click { Prefs.language = "ar" } }
+            }
+            Text(t("settings.languageNote")).muted.sm
+        }
+
+        Card(class: "panel") {
+            Heading(t("settings.appearance")).h2
+            // `theme` is the reader's choice, kept across visits; `aria-pressed`
+            // marks the one in force, and pocket.css styles it.
+            Row(gap: .xs, class: "segmented") {
+                Button(t("theme.light"), aria-pressed: theme == "light") { on click { setTheme("light") } }
+                Button(t("theme.dark"), aria-pressed: theme == "dark") { on click { setTheme("dark") } }
+                Button(t("theme.system"), aria-pressed: theme == "system") { on click { setTheme("system") } }
+            }
+        }
+
+        Card(class: "panel") {
+            Heading(t("settings.data")).h2
+            Text(t("settings.dataNote", { count: Ledger.entries.length })).muted
+            Row(gap: .sm, align: .center) {
+                Button(t("action.export")).primary { on click { exportCsv() } }
+            }
+            FileUpload(accept: ".csv,text/csv", label: t("action.import")) {
+                on change(ev) { if let f = ev.target.files[0] { importCsv(await f.text()) } }
+            }
+            if problem != "" { Alert(problem).warning }
+        }
+
+        Card(class: "panel") {
+            Heading(t("settings.reset")).h2
+            Text(t("settings.resetNote")).muted
+            Row {
+                Button(t("action.reset")).danger.outlined { on click { confirmingReset = true } }
+            }
+        }
+    }
+
+    Dialog(visible: confirmingReset, title: t("reset.title")) {
+        Text(t("reset.body"))
+        Row(gap: .sm, justify: .end) {
+            Button(t("action.cancel")) { on click { confirmingReset = false } }
+            Button(t("action.reset")).danger {
+                on click {
+                    Ledger.reset()
+                    confirmingReset = false
+                }
+            }
+        }
+    }
+}

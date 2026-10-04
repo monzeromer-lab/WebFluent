@@ -26,3 +26,9 @@ page OldTooling(path: "/docs/guide/tooling", title: "Command line and editors", 
     Heading(t("ch.37")).h1
     Link(t("ch.37"), to: "/docs/guide/cli")
 }
+
+/// The cookbook became the tutorials: three projects built step by step.
+page OldCookbook(path: "/docs/cookbook", title: "Tutorials", description: "This chapter moved.", guard: false, redirect: "/docs/tutorials", noindex: true) {
+    Heading(t("ch.35")).h1
+    Link(t("ch.35"), to: "/docs/tutorials")
+}

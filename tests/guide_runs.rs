@@ -76,6 +76,9 @@ fn page_examples(markdown: &str) -> Vec<(usize, String)> {
                 && !src.contains("data ")
                 && !src.contains("image ")
                 && !src.contains(" from \"")
+                // A tutorial project's file, named on its first line: built
+                // with its project by `tests/tutorials.rs`.
+                && !src.starts_with("// src/")
         })
         .collect()
 }

@@ -1,0 +1,11 @@
+/// Which way a figure leans, which decides its colour.
+enum Lean { neutral, good, bad }
+
+/// One figure on the dashboard: what it is, how much, and a line of context.
+component KpiCard(_ label: String, value: Money, note: String = "", lean: Lean = .neutral) {
+    Card(class: "kpi") {
+        Text(label, class: "kpi__label").sm
+        Text(format(value), class: "kpi__value")
+        if note != "" { Text(note).muted.sm }
+    }
+}

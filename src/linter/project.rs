@@ -198,7 +198,12 @@ pub fn translations(
                     let mut plural = false;
                     for (k, m) in source {
                         let form = k.strip_prefix(key.as_str());
-                        if form == Some("") || form.is_some_and(|r| r.starts_with('.')) {
+                        // The message itself and its plural forms — not
+                        // `key.in`, a message of its own under the same name.
+                        let plural_form = |r: &str| {
+                            matches!(r, ".zero" | ".one" | ".two" | ".few" | ".many" | ".other")
+                        };
+                        if form == Some("") || form.is_some_and(plural_form) {
                             plural |= form != Some("");
                             used.extend(placeholders(m));
                         }
@@ -276,7 +281,21 @@ pub fn translations(
             );
             continue;
         };
-        let missing: Vec<&&String> = all.iter().filter(|k| !own.contains_key(**k)).collect();
+        // A plural form one locale's rules need and another's do not —
+        // Arabic's `.two` and `.few` — is not missing where the message has
+        // its `.other`: that is what the form falls back to.
+        let falls_back = |k: &str| {
+            [".zero", ".one", ".two", ".few", ".many"]
+                .iter()
+                .find_map(|f| k.strip_suffix(f))
+                .is_some_and(|base| {
+                    own.contains_key(&format!("{base}.other")) || own.contains_key(base)
+                })
+        };
+        let missing: Vec<&&String> = all
+            .iter()
+            .filter(|k| !own.contains_key(**k) && !falls_back(k))
+            .collect();
         if !missing.is_empty() {
             let shown: Vec<String> = missing.iter().take(8).map(|k| format!("`{k}`")).collect();
             let more = if missing.len() > 8 {

@@ -1,0 +1,97 @@
+// Tests that look: rendered once, compared with what they must show and with
+// a snapshot under tests/__snapshots__/.
+
+test "a figure on the dashboard is money, formatted"(data: { balance: { amount: 123450, currency: "USD" } }) {
+    KpiCard("Balance", value: balance, note: "Everything in, less everything out")
+    expect "$1,234.50"
+    expect "Everything in, less everything out"
+}
+
+test "an entry row shows which way the money went"(data: {
+    entry: { id: "6f1c1f3e-1d0a-4c55-9a43-1b1c4e7d2a10", date: "2026-09-14", amount: { amount: 1200, currency: "USD" },
+             kind: "expense", category: "groceries", note: "Bread and cheese" },
+    Ledger: { categories: [{ id: "groceries", name: "Groceries", color: "#16A34A", budget: { amount: 45000, currency: "USD" } }] }
+}) {
+    EntryRow(entry)
+    expect "Bread and cheese"
+    expect "Groceries"
+    expect "−$12.00"
+    expect not "+$12.00"
+}
+
+test "a budget that is all spent fills its bar"(data: {
+    line: { category: { id: "dining", name: "Eating out", color: "#EA580C", budget: { amount: 20000, currency: "USD" } },
+            spent: { amount: 23550, currency: "USD" }, left: { amount: -3550, currency: "USD" }, share: 1.1775 }
+}) {
+    BudgetBar(line)
+    expect "Eating out"
+    expect "$235.50 / $200.00"
+}
+
+test "six months of totals draw six pairs of bars"(data: {
+    months: [
+        { month: "2026-05-01", income: { amount: 420000, currency: "USD" }, spent: { amount: 180000, currency: "USD" } },
+        { month: "2026-06-01", income: { amount: 420000, currency: "USD" }, spent: { amount: 150000, currency: "USD" } },
+    ]
+}) {
+    MonthChart(months: months, top: 420000)
+    expect "May"
+    expect "Jun"
+}
+
+// Tests that act: compiled into a real page and run in headless Chrome,
+// because a click runs a handler, which runs an action, which repaints.
+
+// A test that acts starts from the sample ledger: 69 entries, a balance of
+// $16,533.56. It drives the real form, by the labels a reader sees — the
+// English ones, since a test reads the project's default locale.
+test "an entry added through the form moves the balance" {
+    use Ledger
+    Text("Balance {format(Ledger.balance)}")
+    EntryForm
+
+    expect "Balance $16,533.56"
+    click "Money in"
+    type "250" into "Amount"
+    click "Add entry"
+    expect "Balance $16,783.56"
+
+    click "Money out"
+    type "40.5" into "Amount"
+    click "Add entry"
+    expect "Balance $16,743.06"
+}
+
+test "the form will not add an amount of nothing" {
+    use Ledger
+    Text("{Ledger.entries.length} in the ledger")
+    EntryForm
+
+    type "0" into "Amount"
+    click "Note"
+    expect "Enter an amount above zero"
+    expect "69 in the ledger"
+}
+
+test "n opens a new entry and Escape closes it" {
+    use Ui
+    on key("n") { Ui.compose() }
+    Text(if Ui.composing { "Composing" } else { "Idle" })
+    Modal(visible: Ui.composing, title: "New entry") { Text("The form goes here") }
+
+    expect "Idle"
+    press "n"
+    expect "Composing"
+    press "Escape"
+    expect "Idle"
+}
+
+test "removing an entry takes it out of every total" {
+    use Ledger
+    Text("{Ledger.entries.length} entries, balance {format(Ledger.balance)}")
+    Button("Remove the salary") { on click { Ledger.remove("ac6e4b35-6e02-5440-ac86-021ac86bcd23") } }
+
+    expect "69 entries, balance $16,533.56"
+    click "Remove the salary"
+    expect "68 entries, balance $12,333.56"
+}

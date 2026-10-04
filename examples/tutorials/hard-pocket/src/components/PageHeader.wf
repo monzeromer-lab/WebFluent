@@ -1,0 +1,12 @@
+/// The top of every page: its heading, a line under it, and room on the
+/// other side for the page's own buttons.
+component PageHeader(_ title: String, subtitle: String = "") {
+    slot actions
+    Row(justify: .between, align: .end, gap: .md, class: "page-header") {
+        Stack(gap: .xs) {
+            Heading(title).h1
+            if subtitle != "" { Text(subtitle).muted }
+        }
+        Row(gap: .sm, align: .center, class: "page-header__actions") { actions }
+    }
+}

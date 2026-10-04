@@ -110,8 +110,29 @@
       try { return fn(); } finally { currentEffect = prev; }
     };
 
+    // A change made while the list is being drawn — a handler that runs as
+    // a node leaves (an input's `blur`) and writes the list — waits for the
+    // drawing to finish and is drawn after it, from the list as it is then.
+    // Drawn inside, it would find the items already moved missing and draw
+    // them twice.
+    let drawing = false;
+    let again = false;
     effect(() => {
       const items = listFn() || [];
+      if (drawing) { again = true; return; }
+      drawing = true;
+      try {
+        draw(items);
+        while (again) {
+          again = false;
+          draw(untracked(() => listFn() || []));
+        }
+      } finally {
+        drawing = false;
+      }
+    });
+
+    function draw(items) {
       if (!key) {
         // Rebuilt whole.
         for (const d of disposers.splice(0)) d();
@@ -167,5 +188,5 @@
         entries = next;
         slide(before);
       });
-    });
+    }
   }

@@ -1,0 +1,10 @@
+/// What a list shows when there is nothing in it: a sentence, and the way
+/// to put something there.
+component EmptyState(_ title: String, body: String = "") {
+    Stack(gap: .sm, align: .center, class: "empty") {
+        Icon("search").lg.muted
+        Text(title).bold
+        if body != "" { Text(body).muted.sm.center }
+        children
+    }
+}

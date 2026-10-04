@@ -1,0 +1,11 @@
+/// Saves a note for later, or takes it off the saved list.
+component SaveButton(_ slug: String, title: String) {
+    use Saved
+
+    Button(if Saved.slugs.includes(slug) { "Saved" } else { "Save" },
+        aria-pressed: Saved.slugs.includes(slug),
+        aria-label: if Saved.slugs.includes(slug) { "Saved: {title}" } else { "Save: {title}" },
+        class: "save-button").sm.outlined {
+        on click { Saved.toggle(slug) }
+    }
+}

@@ -76,6 +76,20 @@ pub fn run_test(path: &Path, update: bool) -> Result<()> {
         .cloned()
         .collect();
     let snapshots = project_dir.join("tests").join("__snapshots__");
+    // The project's translations: a test draws `t("key")` as the site does,
+    // in its default locale.
+    let i18n = crate::config::ProjectConfig::load(&project_dir)
+        .ok()
+        .and_then(|c| c.i18n)
+        .and_then(|i| {
+            crate::i18n::load(&project_dir, &i)
+                .ok()
+                .map(|tables| (i, tables))
+        });
+    let messages = i18n
+        .as_ref()
+        .and_then(|(i, tables)| tables.get(&i.default_locale).cloned())
+        .unwrap_or_default();
     let mut passed = 0;
     let mut failed = 0;
     let mut written = 0;
@@ -88,6 +102,7 @@ pub fn run_test(path: &Path, update: bool) -> Result<()> {
                     crate::project_js::load(&project_dir, &project_dir.join("src"))
                         .unwrap_or_default(),
                 );
+                let stage = stage.with_i18n(i18n.clone());
                 Some(match crate::config::ProjectConfig::load(&project_dir) {
                     Ok(config) => stage.with_theme(config.theme),
                     Err(_) => stage,
@@ -126,7 +141,7 @@ pub fn run_test(path: &Path, update: bool) -> Result<()> {
             }
             continue;
         }
-        match run_one(&shared, test, &snapshots, file, update) {
+        match run_one(&shared, test, &snapshots, file, update, &messages) {
             Ok(Outcome::Passed) => {
                 passed += 1;
                 println!("  ok    {} — {}", file, test.name);
@@ -166,13 +181,18 @@ enum Outcome {
 
 /// The rendered fragment of one test: its body as a page over the shared
 /// declarations, seeded with its `state` and its `data`.
-pub fn render_test(shared: &[Declaration], test: &TestDecl) -> Result<String> {
+pub fn render_test(
+    shared: &[Declaration],
+    test: &TestDecl,
+    messages: &std::collections::HashMap<String, String>,
+) -> Result<String> {
     let mut declarations = shared.to_vec();
     declarations.push(Declaration::Page(PageDecl {
         name: "__Test".to_string(),
         path: "/__test".to_string(),
         title: None,
         title_expr: None,
+        description_expr: None,
         guard: None,
         redirect: None,
         description: None,
@@ -229,7 +249,7 @@ pub fn render_test(shared: &[Declaration], test: &TestDecl) -> Result<String> {
             }
         }
     }
-    crate::template::render_program_fragment(&program, &data)
+    crate::template::render_program_fragment_with(&program, &data, messages.clone())
 }
 
 fn run_one(
@@ -238,8 +258,9 @@ fn run_one(
     snapshots: &Path,
     file: &str,
     update: bool,
+    messages: &std::collections::HashMap<String, String>,
 ) -> std::result::Result<Outcome, Vec<String>> {
-    let html = render_test(shared, test).map_err(|e| vec![e.to_string()])?;
+    let html = render_test(shared, test, messages).map_err(|e| vec![e.to_string()])?;
     let mut reasons = Vec::new();
     let empty = crate::codegen::static_eval::Scope::of([]);
     for step in &test.steps {

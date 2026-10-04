@@ -1,0 +1,16 @@
+/// Switches between the light and the dark theme. `setTheme` remembers the
+/// choice across visits and writes it to `<html data-theme>`.
+///
+/// Until a reader chooses, `theme` is "system" — and only the stylesheet
+/// knows whether the system is dark. So both buttons are drawn, and
+/// styles.css shows the one that switches away from what is on screen.
+component ThemeToggle {
+    Row(gap: .xs, class: "theme-toggle") {
+        IconButton(icon: "moon", label: "Use the dark theme", class: "theme-toggle__dark").sm {
+            on click { setTheme("dark") }
+        }
+        IconButton(icon: "sun", label: "Use the light theme", class: "theme-toggle__light").sm {
+            on click { setTheme("light") }
+        }
+    }
+}

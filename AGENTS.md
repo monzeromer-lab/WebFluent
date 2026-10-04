@@ -1405,7 +1405,7 @@ file would change; a `.wfx` file is normalised through its braced spelling.
 |-----------|-------|
 | `Navbar` | `Navbar { Navbar.Brand { ... } Navbar.Links { ... } Navbar.Actions { ... } }` |
 | `Sidebar` | `Sidebar { Sidebar.Header { ... } Sidebar.Item(to: "/", icon: "home") { ... } Sidebar.Divider }` |
-| `Link` | `Link(to: "/path") { Text("Label") }` — the link whose `to` matches the current route carries `.active` and `aria-current="page"`; `active: .prefix` also matches routes beneath it |
+| `Link` | `Link(to: "/path") { Text("Label") }` — the link whose `to` matches the current route carries `.active` and `aria-current="page"`; `active: .prefix` also matches routes beneath it; a `to` with a query (`"/?show=open"`) matches only when the address has those values too |
 | `Tabs` | `Tabs { Tabs.Page("Tab 1") { ... } Tabs.Page("Tab 2") { ... } }` |
 | `Breadcrumb` | `Breadcrumb { Breadcrumb.Item(to: "/") { Text("Home") } Breadcrumb.Item { Text("Current") } }` |
 | `Menu` | `Menu(trigger: "Options") { Menu.Item { ... } }` |
@@ -1482,7 +1482,7 @@ Button flags: `.sm`, `.lg`, `.full`, `.rounded`, `.pill`, `.outlined`; `type: .s
 | `Code` | `Code("const x = 1").block` — `.block` for multi-line |
 | `Blockquote` | `Blockquote { Text("Quote text") }` |
 | `Unsafe.Html` | `Unsafe.Html(sanitize(body))` — markup, as markup. The one door for HTML a page did not write; every use draws a `V03` |
-| `Markdown` | `Markdown(text)` — a small Markdown rendered as HTML, at build time and live: `#` headings, paragraphs, fenced code, `>` quotes, one-level `-`/`1.` lists, `---`, `` `code` ``, `**strong**`, `*em*`, `[text](url)`, `![alt](src)`; the text is escaped first, so HTML in it is shown, not run |
+| `Markdown` | `Markdown(text)` — a small Markdown rendered as HTML, at build time and live: `#` headings, paragraphs (a line ending in two spaces or `\` breaks; any other newline is a space, as in CommonMark), fenced code, `>` quotes, one-level `-`/`1.` lists, `---`, `` `code` ``, `**strong**`, `*em*`, `[text](url)`, `![alt](src)`; the text is escaped first, so HTML in it is shown, not run |
 
 Text flags: `.bold`, `.italic`, `.underline`, `.uppercase`, `.lowercase`, `.left`, `.center`, `.right`, `.muted`, `.sm`, `.lg`, `.heading`, `.subtitle`, and the tones `.primary`, `.secondary`, `.danger`, `.success`, `.warning`, `.info`
 
@@ -2302,7 +2302,8 @@ and CSS a template renders, and that is laid out on paper:
 - **The cascade.** The engine's rules for every built-in, the theme's
   tokens, every `.css` file under `src/` and every `style { }` block:
   descendant, child and sibling combinators, attribute selectors,
-  `:first-child`/`:nth-child`, specificity, inheritance, `var()`, `em`,
+  `:first-child`/`:nth-child`, `:not()`/`:is()`/`:where()`, specificity,
+  inheritance, `var()`, `em`,
   `rem`, `%`, `::before`/`::after` content. A `Card` in a PDF looks like the
   `Card` on the page; `class: "callout"` brings its rules.
 - **Layout.** Block, flex and grid as CSS defines them — `Row`, `Stack`,
@@ -2441,8 +2442,23 @@ Everything static draws.
 ```
 
 The same engine, **one `Slide` = one page**: a slide is a box the size of
-the page with `slides.margin` as its padding. A deck is a `Presentation { }`
-inside a page; slide elements outside one are a compile error.
+the page with `slides.margin` as its padding (a deck's own rule overrides
+it). A deck is a `Presentation { }` inside a page; slide elements outside
+one are a compile error. A `Presentation` holds slides, a `for` or an `if`
+over them, and components whose body is a slide — so a deck writes its
+openers and footers once and makes a slide per item of its data:
+
+```wf
+component Point(_ label: String, n: Number) {
+    Slide { Heading(label).h1  Text("{n} of 3").muted }
+}
+page D(path: "/", title: "Deck") {
+    Presentation {
+        TitleSlide("Three points")
+        for p, i in ["Fast", "Small", "Typed"] { Point(p, n: i + 1) }
+    }
+}
+```
 
 | Element | Purpose |
 |---|---|
@@ -2968,9 +2984,9 @@ page Invoice(path: "/", title: "Invoice") {
 }
 ```
 
-**Supported in templates**: all layout, typography, data display components, `for` loops, `if/else`, string interpolation, style blocks, flags, themes.
+**Supported in templates**: all layout, typography, data display components, `for` loops, `if/else`, string interpolation, style blocks, flags, themes. A `state` is its first value and a `derived` value what that works out to (data handed to the render wins over either) — so a page may work its figures out once and show them anywhere.
 
-**Not supported**: `state`, `derived`, `effect`, handlers (`on click`), navigation, stores, animations, `resource`.
+**Not supported**: `effect`, handlers (`on click`), navigation, stores, animations, `resource` — nothing runs after the render.
 
 ## Key Rules
 
@@ -2989,7 +3005,7 @@ page Invoice(path: "/", title: "Invoice") {
 13. **`@media` and nested rules inside style blocks**: `@media (max-width: 768px) { display: none }` and `&:hover { … }` compile to stylesheet rules scoped to the element
 14. **Router nests anywhere**: `Router` can be inside `Row`, `Container`, `Stack`, or any layout wrapper at any depth; pages own their routes
 15. **Browser globals are not prefixed**: `localStorage`, `window`, `console`, `JSON`, `Math`, `Date`, `setTimeout`, `fetch`, `Promise`, etc. compile as-is
-16. **Both `!=` and `!==`**: both inequality operators are supported (both compile to `!==` in JS)
+16. **Both `!=` and `!==`**: both inequality operators are supported (both compile to `!==` in JS); against a `null` literal, `==` and `!=` compile to JavaScript's loose `== null`, so an absent value — a query key the address lacks — counts as null
 17. **Quoted map keys**: `{ "Content-Type": "application/json" }` — use for HTTP headers and hyphenated keys
 18. **Reserved words as map keys**: `{ action: "approve", token: tok }` — all keywords work as map keys
 19. **`public/` copies to build root**: files in `public/` land at the root of the output directory, not nested

@@ -1,0 +1,61 @@
+/// The form for a new entry — or, given one, for changing it. It checks what
+/// the reader typed, writes it to the ledger, and says so with `saved`.
+component EntryForm(entry: Entry? = null) {
+    use Ledger
+    event saved()
+
+    state kind: Kind = entry?.kind ?? .expense
+    state amount: Number? = if let e = entry { e.amount.amount / 100 } else { null }
+    state date: Date? = entry?.date ?? Ledger.today
+    state category = entry?.category ?? "groceries"
+    state note = entry?.note ?? ""
+
+    validate amount {
+        required
+        min(0.01)
+    }
+    // Not in the future. With no message of its own, the rule shows the
+    // translation of `form.max`; `Ledger.today` is read each time it checks.
+    validate date {
+        required
+        max(Ledger.today)
+    }
+    validate note { maxLength(60) }
+
+    action save() {
+        if let a = amount {
+            if let d = date {
+                let money = ONE.times(a)
+                if let e = entry {
+                    Ledger.update(e.id, kind, money, d, category, note.trim())
+                } else {
+                    Ledger.add(kind, money, d, category, note.trim())
+                    amount = null
+                    note = ""
+                }
+                emit saved()
+            }
+        }
+    }
+
+    Form(bind: form, class: "entry-form") {
+        on submit { save() }
+        Row(gap: .md, class: "kind-choice", role: "radiogroup", aria-label: t("form.kind")) {
+            Radio(bind: kind, value: "expense", label: t("kind.expense"))
+            Radio(bind: kind, value: "income", label: t("kind.income"))
+        }
+        Grid(columns: { base: 1, sm: 2 }, gap: .md) {
+            Input(bind: amount, label: t("form.amount"), placeholder: "0.00", step: 0.01).number
+            DatePicker(bind: date, label: t("form.date"), max: "{Ledger.today}")
+        }
+        Select(bind: category, label: t("form.category")) {
+            for c in Ledger.categories by c.id {
+                Select.Option(c.name, value: c.id)
+            }
+        }
+        Textarea(bind: note, label: t("form.note"), hint: t("form.noteHint"), rows: 2, maxLength: 60)
+        Row(justify: .end, gap: .sm) {
+            Button(if entry != null { t("action.save") } else { t("action.add") }, type: .submit, disabled: !form.valid).primary
+        }
+    }
+}

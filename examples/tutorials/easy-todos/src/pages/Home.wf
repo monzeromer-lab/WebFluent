@@ -1,0 +1,56 @@
+page Home(path: "/", title: "Todos", description: "A small list of things to do, kept in your browser.") {
+    use Todos
+    state draft = ""
+
+    // The filter lives in the address — `/?show=open` — so a reload or a
+    // shared link keeps it.
+    derived filter: Filter = if query.show == "open" { .open } else if query.show == "done" { .done } else { .all }
+    derived shown = match filter {
+        .open { Todos.open }
+        .done { Todos.done }
+        .all { Todos.items }
+    }
+
+    action add() {
+        Todos.add(draft)
+        draft = ""
+    }
+
+    Stack(class: "card", gap: .md) {
+        Row(justify: .between, align: .baseline) {
+            Heading("Todos").h1
+            Text("{Todos.open.length} left", class: "count")
+        }
+
+        Row(class: "new", gap: .sm) {
+            Input(bind: draft, placeholder: "What needs doing?", aria-label: "New todo") {
+                on key("Enter") { add() }
+            }
+            Button("Add", disabled: draft.trim() == "").primary {
+                on click { add() }
+            }
+        }
+
+        Row(class: "filters", gap: .xs, align: .center) {
+            Link("All", to: "/?show=all", class: { "is-on": filter == .all })
+            Link("Open", to: "/?show=open", class: { "is-on": filter == .open })
+            Link("Done", to: "/?show=done", class: { "is-on": filter == .done })
+            Spacer
+            if Todos.done.length > 0 {
+                Button("Clear done").sm {
+                    on click { Todos.clearDone() }
+                }
+            }
+        }
+
+        if shown.length == 0 {
+            Text(if Todos.items.length == 0 { "Nothing yet — add your first todo above." } else { "Nothing here." }, class: "empty")
+        }
+        Stack(class: "list") {
+            for todo in shown by todo.id {
+                TodoRow(todo, animate: .fadeIn, exit: .fadeOut)
+            }
+        }
+    }
+    Text("Your list stays in this browser, and nowhere else.", class: "hint")
+}

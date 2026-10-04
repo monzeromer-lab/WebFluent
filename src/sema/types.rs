@@ -5818,6 +5818,8 @@ fn scalar_method(scalar: Scalar, method: &str) -> Option<Type> {
         "contrast" if scalar == Color => Type::Number,
         // A file the reader chose.
         "preview" if scalar == File => Type::String,
+        // The browser's own: what the file holds, read when awaited.
+        "text" | "arrayBuffer" | "slice" | "stream" if scalar == File => Type::Any,
         // Everything a string can do, a string-carried scalar can do.
         _ if scalar.is_text() => return string_method(method),
         _ => return None,

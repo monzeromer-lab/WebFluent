@@ -1,0 +1,10 @@
+page NotFound(path: "*", title: "Not found — Field Notes",
+    description: "Nothing in the notebook lives at this address.",
+    noindex: true, layout: Sheet) {
+
+    Stack(gap: .md, class: "hero") {
+        Heading("Nothing lives here").h1
+        Text("That page is not in the notebook. It may have moved, or never been written.", class: "lede")
+        Link("Back to every note", to: "/")
+    }
+}

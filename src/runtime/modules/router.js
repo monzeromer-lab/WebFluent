@@ -2,11 +2,20 @@
     return String(path).split(/[?#]/)[0];
   }
 
-  function activeLink(el, href, prefix) {
+  // A link is the page's when its route is the one shown; a link whose
+  // address carries a query (`/?show=open`) only when the address has those
+  // values too, read through `query`, which the compiler hands over then.
+  function activeLink(el, href, prefix, query) {
     const target = _routeOf(href).replace(/\/$/, "") || "/";
+    const search = String(href).split("#")[0].split("?")[1] || "";
+    const wanted = query && search ? [...new URLSearchParams(search)] : [];
     effect(() => {
       const path = pathSignal()().replace(/\/$/, "") || "/";
-      const on = path === target || (prefix && target !== "/" && path.startsWith(target + "/"));
+      let on = path === target || (prefix && target !== "/" && path.startsWith(target + "/"));
+      if (wanted.length) {
+        const now = query();
+        on = on && wanted.every(([k, v]) => now[k] === v);
+      }
       if (on) {
         el.classList.add("active");
         el.setAttribute("aria-current", "page");

@@ -1,0 +1,19 @@
+/// The notes this reader has saved for later, kept in their browser.
+store Saved {
+    persist slugs: [String] = []
+
+    derived count = slugs.length
+
+    // Save a note, or un-save it if it is already saved.
+    action toggle(slug: String) {
+        if slugs.includes(slug) {
+            slugs = slugs.filter(s => s != slug)
+        } else {
+            slugs = [...slugs, slug]
+        }
+    }
+
+    action clear() {
+        slugs = []
+    }
+}

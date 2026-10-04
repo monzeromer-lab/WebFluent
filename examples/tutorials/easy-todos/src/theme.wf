@@ -1,0 +1,21 @@
+/// Warm paper and ink, with one teal for what you can act on.
+theme Paper {
+    color-primary: #0F766E
+    color-background: #F6F4EF
+    color-surface: #FFFFFF
+    color-text: #1F2328
+    color-text-muted: #5E6670
+    color-border: #E4E0D8
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif
+    radius-md: 10px
+}
+
+/// The same page after dark.
+theme Night {
+    color-primary: #2DD4BF
+    color-background: #14171A
+    color-surface: #1C2024
+    color-text: #ECEEF0
+    color-text-muted: #A3ABB3
+    color-border: #2C3238
+}

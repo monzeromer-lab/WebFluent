@@ -1,0 +1,36 @@
+page SavedPage(path: "/saved", title: "Saved — Field Notes",
+    description: "The notes you saved for later. They are kept in this browser, and nowhere else.",
+    layout: Sheet) {
+
+    use Saved
+    derived mine = notes.filter(n => Saved.slugs.includes(n.slug)).sortBy(n => n.date).reverse()
+
+    Stack(gap: .xl) {
+        Stack(gap: .sm, class: "hero") {
+            Heading("Saved for later").h1
+            Text("Notes you saved are kept in this browser — there is no account, and nothing is sent anywhere.", class: "lede")
+        }
+
+        if mine.length == 0 {
+            Card(class: "empty") {
+                Stack(gap: .sm, align: .start) {
+                    Heading("Nothing saved yet").h2
+                    Text("Press Save on any note and it will wait for you here.").muted
+                    Link("Browse the notes", to: "/")
+                }
+            }
+        } else {
+            Stack(gap: .md) {
+                Row(justify: .between, align: .center) {
+                    Text(if mine.length == 1 { "1 saved note" } else { "{mine.length} saved notes" }, class: "count").sm.muted
+                    Button("Clear the list").sm.outlined {
+                        on click { Saved.clear() }
+                    }
+                }
+                for note in mine by note.slug {
+                    NoteCard(note)
+                }
+            }
+        }
+    }
+}

@@ -65,7 +65,7 @@ suite, so what you read is what the compiler accepts.
 | 32 | [JavaScript interop](32-javascript-interop.md) | Write plain JavaScript beside your pages and call it by name; load a library from a CDN; hand an element to a script and get it back; place custom elements; publish your components for any framework. |
 | 33 | [PDF and slides](33-pdf-and-slides.md) | The same language, compiled to a paginated PDF document or a slide deck — invoices, reports and talks, laid out like the web. |
 | 34 | [Server rendering](34-server-rendering.md) | Render a .wf template with JSON on a server — an email, an invoice, a report, an HTML fragment — from the CLI, Rust or Node. |
-| 35 | [Cookbook](35-recipes.md) | Three complete applications you can paste into a fresh project, and recipes for the things every site needs. |
+| 35 | [Tutorials](35-tutorials.md) | Three projects built step by step — a todo app, a statically built notes site, a budget tracker — none needing a server. |
 | | **Reference** | |
 | 36 | [Components reference](36-components-reference.md) | Every built-in with its props, cases, flags, events, slots and parts — generated from the compiler's own registry. |
 | 37 | [Command line and editors](37-cli.md) | Every wf command and flag, the dev server, and the language server in each editor. |

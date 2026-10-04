@@ -121,8 +121,23 @@
     const want = { ctrl: parts.includes("ctrl"), shift: parts.includes("shift"), alt: parts.includes("alt"), meta: parts.includes("meta") || parts.includes("cmd") };
     return !!e.ctrlKey === want.ctrl && !!e.shiftKey === want.shift && !!e.altKey === want.alt && !!e.metaKey === want.meta;
   }
+  // On the page, a key with no modifier — `n`, `/`, `?` — is the reader
+  // typing when the focus is in a field, not a shortcut; one with `ctrl`,
+  // `alt` or `meta`, and `Escape`, still is. On an element it is that
+  // element's, and always answers.
+  function _typing(e) {
+    const t = e.target;
+    if (!t || t.nodeType !== 1) return false;
+    return t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName);
+  }
   function onKey(target, spelling, fn) {
-    listen(target, "keydown", (e) => { if (keyIs(e, spelling)) fn(e); });
+    const plain = !/(^|\+)(ctrl|control|alt|option|meta|cmd|command)\+/i.test(spelling)
+      && !/^(escape|esc)$/i.test(spelling.split("+").pop());
+    const page = target === document || target === window;
+    listen(target, "keydown", (e) => {
+      if (page && plain && _typing(e)) return;
+      if (keyIs(e, spelling)) fn(e);
+    });
   }
 
   // `ref: name`: a handle on an element, usable as the element itself —

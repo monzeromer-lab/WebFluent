@@ -94,7 +94,7 @@ component SiteHeader(docs: Bool = false) {
                 }
                 Link(t("nav.guide"), to: "/docs/guide", active: .prefix)
                 Link(t("nav.reference"), to: "/docs/reference", active: .prefix)
-                Link(t("nav.cookbook"), to: "/docs/cookbook", active: .prefix)
+                Link(t("nav.tutorials"), to: "/docs/tutorials", active: .prefix)
             }
         }
 
@@ -230,7 +230,7 @@ component SiteHeader(docs: Bool = false) {
             }
             Link(t("nav.guide"), to: "/docs/guide", active: .prefix) { on click { menu = false } }
             Link(t("nav.reference"), to: "/docs/reference", active: .prefix) { on click { menu = false } }
-            Link(t("nav.cookbook"), to: "/docs/cookbook", active: .prefix) { on click { menu = false } }
+            Link(t("nav.tutorials"), to: "/docs/tutorials", active: .prefix) { on click { menu = false } }
             Link(t("nav.source"), href: REPO)
         }
     }

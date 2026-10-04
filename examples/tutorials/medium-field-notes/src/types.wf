@@ -1,0 +1,13 @@
+/// One note in the notebook.
+type Note {
+    slug: String
+    title: String
+    date: Date
+    tags: [String]
+    summary: String
+    minutes: Number
+    body: String
+}
+
+/// Every note, read from `notes.json` when the site is built.
+data notes: [Note] = "notes.json"

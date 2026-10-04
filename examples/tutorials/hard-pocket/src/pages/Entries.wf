@@ -1,0 +1,51 @@
+page Entries(path: "/entries", title: "Entries", description: "Every entry in the ledger, by month and by category.") {
+    use Ledger
+    use Ui
+
+    // The filters live in the address — `/entries?month=2026-09&category=dining` —
+    // so they survive a reload, a shared link and the back button.
+    derived month = query.month ?? ""
+    derived category = query.category ?? ""
+    derived shown = Ledger.newestFirst.filter(e => (month == "" || e.date.slice(0, 7) == month) && (category == "" || e.category == category))
+    derived moneyIn = Ledger.sum(shown.filter(e => e.kind == .income))
+    derived moneyOut = Ledger.sum(shown.filter(e => e.kind == .expense))
+    derived recentMonths = (0..12).map(i => Ledger.today.startOfMonth().minus(months: i))
+
+    PageHeader(t("nav.entries"), subtitle: t("entries", { count: shown.length })) {
+        actions {
+            Button(t("action.new")).primary { on click { Ui.compose() } }
+        }
+    }
+
+    Card(class: "panel") {
+        Grid(columns: { base: 1, md: 2 }, gap: .md, class: "filters") {
+            Select(value: month, label: t("filter.month")) {
+                on change(ev) { navigate("/entries?month={ev.target.value}&category={category}") }
+                Select.Option(t("filter.allMonths"), value: "")
+                for m in recentMonths by m { Select.Option(format(m, "MMMM yyyy"), value: m.slice(0, 7)) }
+            }
+            Select(value: category, label: t("filter.category")) {
+                on change(ev) { navigate("/entries?month={month}&category={ev.target.value}") }
+                Select.Option(t("filter.allCategories"), value: "")
+                for c in Ledger.categories by c.id { Select.Option(c.name, value: c.id) }
+            }
+        }
+        Row(gap: .lg, class: "totals") {
+            Text(t("totals.in", { amount: format(moneyIn) }), class: "is-income").sm
+            Text(t("totals.out", { amount: format(moneyOut) }), class: "is-expense").sm
+            Text(t("totals.net", { amount: format(moneyIn.minus(moneyOut)) })).sm.muted
+        }
+    }
+
+    Card(class: "panel") {
+        if shown.length == 0 {
+            EmptyState(t("empty.filtered"), body: t("empty.filteredBody")) {
+                Link(t("filter.clear"), to: "/entries")
+            }
+        } else {
+            Stack(class: "entry-list") {
+                for e in shown by e.id { EntryRow(e) }
+            }
+        }
+    }
+}

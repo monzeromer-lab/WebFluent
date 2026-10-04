@@ -1,0 +1,56 @@
+/// The list on the front page: a search box, a row of tag filters, and
+/// every note that matches both, newest first.
+component NoteFinder(
+    _ all: [Note],
+    /// The tag to show, or "" for every note. The front page passes the
+    /// URL's `?tag=`, so a reload or a shared link keeps the filter.
+    tag: String = ""
+) {
+    state q = ""
+
+    derived needle = q.trim().toLowerCase()
+    derived newest = all.sortBy(n => n.date).reverse()
+    derived shown = newest.filter(n =>
+        (tag == "" || n.tags.includes(tag))
+        && (needle == ""
+            || n.title.toLowerCase().includes(needle)
+            || n.summary.toLowerCase().includes(needle)))
+    derived visible = shown.map(n => n.slug)
+    derived allTags = all.flatMap(n => n.tags).unique().sort()
+
+    Stack(gap: .lg) {
+        Stack(gap: .md, class: "filters") {
+            Input(bind: q, label: "Search the notes", placeholder: "Tomatoes, bread, Portugal…").search
+            Row(gap: .xs, align: .center, class: "tag-filter", role: "navigation", aria-label: "Filter by tag") {
+                Link("All", to: "/", class: { "is-current": tag == "" })
+                for t in allTags by t {
+                    Link(t, to: "/?tag={t}", class: { "is-current": tag == t })
+                }
+            }
+        }
+
+        Stack(gap: .md) {
+            Text(if tag == "" { "{shown.length} of {all.length} notes" } else { "{shown.length} of {all.length} notes, tagged “{tag}”" }, class: "count").sm.muted
+
+            // Every note is drawn, and the ones that do not match are hidden.
+            // A pre-rendered page cannot know the URL's query, so a list
+            // filtered by it would be missing from the HTML; this way the
+            // page carries every note, and the filter applies once it is live.
+            for note in newest by note.slug {
+                NoteCard(note, hidden: !visible.includes(note.slug))
+            }
+
+            if shown.length == 0 {
+                Card(class: "empty") {
+                    Stack(gap: .sm, align: .start) {
+                        Heading("Nothing matches").h2
+                        Text("No note here mentions “{q}”. Try another word, or look through every note.").muted
+                        Button("Clear the search").sm {
+                            on click { q = "" }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

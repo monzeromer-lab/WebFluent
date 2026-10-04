@@ -1,0 +1,126 @@
+/// Everything Pocket knows — the entries and the categories — and what they
+/// add up to. It lives in the browser: `persist` keeps it across visits and
+/// keeps every open tab in step, and there is no server to ask.
+store Ledger {
+    // The ledger itself, newest change last.
+    //
+    // Version 1 of Pocket kept an amount as a plain, signed number of
+    // dollars (`-52.4` was money out). Version 2 keeps a `Money` and a
+    // `Kind`, so `migrate 1 -> 2` turns what a returning reader's browser
+    // holds into the new shape instead of throwing it away.
+    persist entries: [Entry] = SAMPLE_ENTRIES.map(s => Entry(
+            id: s.id,
+            date: now.date().minus(days: s.ago),
+            amount: s.amount,
+            kind: s.kind,
+            category: s.category,
+            note: s.note,
+        )) {
+        version: 2
+        migrate 1 -> 2 {
+            old.map(e => Entry(
+                    id: e.id,
+                    date: e.date,
+                    amount: ONE.times(Math.abs(e.amount)),
+                    kind: if e.amount < 0 { .expense } else { .income },
+                    category: e.category,
+                    note: e.note ?? "",
+                ))
+        }
+    }
+
+    // What money is spent on, and how much of it a month may take.
+    persist categories: [Category] = SAMPLE_CATEGORIES
+
+    // ── What it adds up to ────────────────────────────────────────
+
+    derived today = now.date()
+    derived newestFirst = entries.sortBy(e => e.date).reverse()
+
+    derived income = sum(entries.filter(e => e.kind == .income))
+    derived spent = sum(entries.filter(e => e.kind == .expense))
+    derived balance = income.minus(spent)
+
+    derived thisMonth = entries.filter(e => e.date.startOfMonth().isSame(today.startOfMonth()))
+    derived monthIncome = sum(thisMonth.filter(e => e.kind == .income))
+    derived monthSpent = sum(thisMonth.filter(e => e.kind == .expense))
+    derived monthBudget = categories.reduce((s, c) => s.plus(c.budget), ZERO)
+    derived budgetLeft = monthBudget.minus(monthSpent)
+
+    // Each budgeted category beside what this month has spent of it.
+    derived budgets = categories.filter(c => c.budget.amount > 0).map(c => budgetLine(c))
+
+    // The last six months, oldest first: a pair of bars each.
+    derived months = (0..6).map(i => monthTotal(today.startOfMonth().minus(months: 5 - i)))
+
+    // What a month of the six brings in, sends out and keeps, on average.
+    derived averageIn = months.reduce((s, m) => s.plus(m.income), ZERO).times(1 / months.length)
+    derived averageOut = months.reduce((s, m) => s.plus(m.spent), ZERO).times(1 / months.length)
+    derived averageKept = averageIn.minus(averageOut)
+
+    // The tallest bar in the chart, which every other bar is a share of.
+    derived chartTop = months.reduce((top, m) => Math.max(top, m.income.amount, m.spent.amount), 1)
+
+    // ── Helpers the values above share ────────────────────────────
+
+    // The money in a list of entries, added up.
+    action sum(list: [Entry]) {
+        return list.reduce((total, e) => total.plus(e.amount), ZERO)
+    }
+
+    action budgetLine(c: Category) {
+        let used = sum(thisMonth.filter(e => e.kind == .expense && e.category == c.id))
+        return BudgetLine(category: c, spent: used, left: c.budget.minus(used), share: used.amount / c.budget.amount)
+    }
+
+    action monthTotal(month: Date) {
+        let inMonth = entries.filter(e => e.date.startOfMonth().isSame(month))
+        return MonthTotal(
+            month: month,
+            income: sum(inMonth.filter(e => e.kind == .income)),
+            spent: sum(inMonth.filter(e => e.kind == .expense)),
+        )
+    }
+
+    // ── Changing it ───────────────────────────────────────────────
+
+    action add(kind: Kind, amount: Money, date: Date, category: String, note: String) {
+        entries = [...entries, Entry(id: uuid(), date: date, amount: amount, kind: kind, category: category, note: note)]
+    }
+
+    action update(id: Uuid, kind: Kind, amount: Money, date: Date, category: String, note: String) {
+        entries = entries.map(e => if e.id == id { Entry(id: id, date: date, amount: amount, kind: kind, category: category, note: note) } else { e })
+    }
+
+    action remove(id: Uuid) {
+        entries = entries.filter(e => e.id != id)
+    }
+
+    // Adds what a CSV file held, skipping any entry already in the ledger.
+    // Returns how many were new.
+    action merge(incoming: [Entry]) {
+        let known = entries.map(e => e.id)
+        let fresh = incoming.filter(e => !known.includes(e.id))
+        entries = [...entries, ...fresh]
+        return fresh.length
+    }
+
+    action addCategory(name: String, color: Color, budget: Money) {
+        let id = name.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+        categories = [...categories, Category(id: "{id}-{categories.length}", name: name, color: color, budget: budget)]
+    }
+
+    action setBudget(id: String, budget: Money) {
+        categories = categories.map(c => if c.id == id { Category(id: c.id, name: c.name, color: c.color, budget: budget) } else { c })
+    }
+
+    action removeCategory(id: String) {
+        categories = categories.filter(c => c.id != id)
+    }
+
+    // Back to the sample ledger a first visit opens on.
+    action reset() {
+        entries = SAMPLE_ENTRIES.map(s => Entry(id: s.id, date: today.minus(days: s.ago), amount: s.amount, kind: s.kind, category: s.category, note: s.note))
+        categories = SAMPLE_CATEGORIES
+    }
+}

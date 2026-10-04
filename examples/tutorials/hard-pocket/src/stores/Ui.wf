@@ -1,0 +1,33 @@
+/// What the interface is doing, as opposed to what the ledger holds: whether
+/// the "new entry" dialog is open, whether the narrow-screen menu is, and
+/// the notices waiting in the corner.
+store Ui {
+    state composing = false
+    state menuOpen = false
+    state notices: [Notice] = []
+
+    action compose() {
+        menuOpen = false
+        composing = true
+    }
+
+    action closeAll() {
+        composing = false
+        menuOpen = false
+    }
+
+    action toggleMenu() { menuOpen = !menuOpen }
+
+    // Shows a message in the corner. Each notice is drawn once, which is
+    // what makes a `Toast` appear, so a new one is a new item in the list.
+    action notify(text: String) {
+        notices = [...notices.slice(-4), Notice(id: uuid(), text: text)]
+    }
+}
+
+/// What the reader chose, kept across visits. The language starts empty —
+/// "no choice yet" — so a first visit opens in the default locale, or in the
+/// one its address names (`/?lang=ar`).
+store Prefs {
+    persist language = ""
+}

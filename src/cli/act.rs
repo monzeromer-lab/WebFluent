@@ -30,7 +30,16 @@ pub struct Stage {
     /// The project's own scripts, linked on every page this stage builds as
     /// a site links them, so a test that clicks runs the code they define.
     scripts: Vec<crate::project_js::Script>,
+    /// The project's translations, so `t("key")` on a test's page reads the
+    /// same messages the site does.
+    i18n: Option<I18n>,
 }
+
+/// A project's `i18n` settings and every locale's messages.
+pub type I18n = (
+    crate::config::project::I18nConfig,
+    std::collections::HashMap<String, std::collections::HashMap<String, String>>,
+);
 
 impl Stage {
     pub fn open() -> Result<Self> {
@@ -39,7 +48,14 @@ impl Stage {
             work: std::env::temp_dir().join(format!("wf-act-{}", std::process::id())),
             theme: crate::config::project::ThemeConfig::default(),
             scripts: Vec::new(),
+            i18n: None,
         })
+    }
+
+    /// The project's translations, for every page this stage builds.
+    pub fn with_i18n(mut self, i18n: Option<I18n>) -> Self {
+        self.i18n = i18n;
+        self
     }
 
     /// The project's own scripts, for every page this stage builds.
@@ -77,7 +93,13 @@ impl Stage {
         // there is no printer from the tree to the text, and a test does
         // not need one — the compiler takes the tree.
         let program = crate::sema::lower(as_program(shared, test));
-        write_site(&program, &dir, &self.theme, &self.scripts)?;
+        write_site(
+            &program,
+            &dir,
+            &self.theme,
+            &self.scripts,
+            self.i18n.as_ref(),
+        )?;
 
         let server = super::preview::serve_directory(dir.clone(), "")?;
         let origin = server.origin.clone();
@@ -191,9 +213,11 @@ fn write_site(
     dir: &Path,
     theme: &crate::config::project::ThemeConfig,
     scripts: &[crate::project_js::Script],
+    i18n: Option<&I18n>,
 ) -> Result<()> {
     let mut config = crate::config::ProjectConfig::default_config("test");
     config.theme = theme.clone();
+    config.i18n = i18n.map(|(c, _)| c.clone());
     for script in scripts {
         let to = dir.join(&script.href);
         if let Some(parent) = to.parent() {
@@ -207,6 +231,9 @@ fn write_site(
     config.build.split = false;
     let mut js = crate::codegen::JsCodegen::new();
     js.set_split_pages(false);
+    if let Some((c, tables)) = i18n {
+        js.set_i18n(c.default_locale.clone(), tables.clone());
+    }
     std::fs::write(dir.join("app.js"), js.generate(program))?;
 
     let tokens = crate::themes::resolve_tokens(program, &config.theme)?;
@@ -239,6 +266,7 @@ fn as_program(shared: &[Declaration], test: &crate::parser::ast::TestDecl) -> Pr
         path: "/".to_string(),
         title: Some(test.name.clone()),
         title_expr: None,
+        description_expr: None,
         description: Some("A test.".to_string()),
         guard: None,
         redirect: None,

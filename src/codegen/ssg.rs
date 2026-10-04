@@ -183,21 +183,22 @@ pub fn render_page_html_studio(
 ) -> String {
     // `title: "{post.title} — Blog"`: the title this file shows, worked out
     // from what is known at build time.
+    // `description:` likewise; one that cannot be worked out falls back to
+    // the project's, never to its `{…}` source.
     let worked;
-    let page = match &page.title_expr {
-        Some(expr) => {
-            let scope = Scope::from_program_with_env(site.program, &page.body, &site.config.env);
-            match eval(expr, &scope) {
-                Some(value) => {
-                    let mut p = page.clone();
-                    p.title = Some(value.to_text());
-                    worked = p;
-                    &worked
-                }
-                None => page,
-            }
+    let page = if page.title_expr.is_some() || page.description_expr.is_some() {
+        let scope = Scope::from_program_with_env(site.program, &page.body, &site.config.env);
+        let mut p = page.clone();
+        if let Some(value) = page.title_expr.as_ref().and_then(|e| eval(e, &scope)) {
+            p.title = Some(value.to_text());
         }
-        None => page,
+        if let Some(expr) = &page.description_expr {
+            p.description = eval(expr, &scope).map(|v| v.to_text());
+        }
+        worked = p;
+        &worked
+    } else {
+        page
     };
     let SiteContext {
         config,

@@ -1,7 +1,7 @@
 {
   "nav.guide": "Guide",
   "nav.reference": "Components",
-  "nav.cookbook": "Cookbook",
+  "nav.tutorials": "Tutorials",
   "nav.source": "GitHub",
   "nav.group.basics": "The basics",
   "nav.group.reference": "Reference",
@@ -174,7 +174,7 @@
   "ch.32": "JavaScript interop",
   "ch.33": "PDF and slides",
   "ch.34": "Server rendering",
-  "ch.35": "Cookbook",
+  "ch.35": "Tutorials",
   "ch.36": "Components reference",
   "ch.37": "Command line and editors",
   "ch.38": "Configuration",

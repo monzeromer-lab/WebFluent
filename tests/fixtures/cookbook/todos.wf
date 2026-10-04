@@ -1,0 +1,98 @@
+// The todos application of the former cookbook chapter, kept as a
+// fixture: tests/cookbook.rs builds it and tests/js/cookbook.test.mjs
+// clicks through the bundle.
+enum Filter { all, open, done }
+
+type Todo { id: Number, title: String, done: Bool = false, createdAt: String }
+
+store Todos {
+    persist items: [Todo] = []
+    persist nextId = 1
+    derived open = items.filter(t => !t.done)
+    derived done = items.filter(t => t.done)
+    derived count = items.length
+
+    action add(title: String) {
+        let text = title.trim()
+        if text == "" { return }
+        items.push(Todo(id: nextId, title: text, createdAt: "{Date.now()}"))
+        nextId = nextId + 1
+    }
+    action toggle(id: Number) {
+        items = items.map(t => if t.id == id { Todo(id: t.id, title: t.title, done: !t.done, createdAt: t.createdAt) } else { t })
+    }
+    action rename(id: Number, title: String) {
+        items = items.map(t => if t.id == id { Todo(id: t.id, title: title, done: t.done, createdAt: t.createdAt) } else { t })
+    }
+    action remove(id: Number) { items = items.filter(t => t.id != id) }
+    action clearDone() { items = items.filter(t => !t.done) }
+}
+
+component TodoRow(_ todo: Todo) {
+    use Todos
+    event edit(id: Number)
+    state editing = false
+    state draft = todo.title
+
+    Row(align: .center, gap: .sm, exit: .fadeOut) {
+        style { padding: $sm 0; border-bottom: 1px solid $border; &:hover { background: $surface } }
+        Checkbox(checked: todo.done, aria-label: "Done: {todo.title}") { on change { Todos.toggle(todo.id) } }
+        if editing {
+            Input(bind: draft, ref: box, aria-label: "Edit {todo.title}") {
+                on key("Enter") { Todos.rename(todo.id, draft)  editing = false }
+                on key("Escape") { draft = todo.title  editing = false }
+                on blur { Todos.rename(todo.id, draft)  editing = false }
+            }
+        } else {
+            Text(todo.title, class: if todo.done { "is-done" } else { "" }) {
+                style { flex: 1; &.is-done { text-decoration: line-through; color: $text-muted } }
+                on click { editing = true  emit edit(todo.id) }
+            }
+        }
+        IconButton(icon: "trash", label: "Remove {todo.title}").sm { on click { Todos.remove(todo.id) } }
+    }
+}
+
+app {
+    Container {
+        style { max-width: 40rem; padding: $lg }
+        Router
+    }
+}
+
+page Home(path: "/", title: "Todos", description: "A small list of things to do.") {
+    use Todos
+    state draft = ""
+    state lastEdited: Number? = null
+    derived filter: Filter = if query.filter == "open" { .open } else if query.filter == "done" { .done } else { .all }
+    derived shown = match filter { .open { Todos.open } .done { Todos.done } else { Todos.items } }
+
+    on key("/") { box.focus() }
+
+    Heading("Todos").h1
+    Row(gap: .sm) {
+        Input(bind: draft, ref: box, placeholder: "What needs doing? (press / to focus)", aria-label: "New todo") {
+            on key("Enter") { Todos.add(draft)  draft = "" }
+        }
+        Button("Add", disabled: draft.trim() == "").primary { on click { Todos.add(draft)  draft = "" } }
+    }
+
+    Row(gap: .sm, align: .center) {
+        style { margin: $md 0 }
+        Link("All", to: "/?filter=all", active: .prefix)
+        Link("Open ({Todos.open.length})", to: "/?filter=open")
+        Link("Done ({Todos.done.length})", to: "/?filter=done")
+        Spacer
+        if Todos.done.length > 0 { Button("Clear done").sm { on click { Todos.clearDone() } } }
+    }
+
+    if shown.length == 0 {
+        Card(animate: .fadeIn) {
+            Text(if Todos.count == 0 { "Nothing yet. Add your first todo above." } else { "Nothing here." }).muted
+        }
+    }
+    for todo in shown by todo.id {
+        TodoRow(todo, animate: .fadeIn) { on edit(id) { lastEdited = id } }
+    }
+    if let id = lastEdited { Text("Editing #{id}").muted.sm }
+}

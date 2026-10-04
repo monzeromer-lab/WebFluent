@@ -1,0 +1,6 @@
+// The frame every page sits in: a narrow column, centred.
+app {
+    Container(class: "shell") {
+        Router
+    }
+}

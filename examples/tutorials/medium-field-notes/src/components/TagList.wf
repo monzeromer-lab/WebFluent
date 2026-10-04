@@ -1,0 +1,8 @@
+/// A row of tags, each a link to the notes filed under it.
+component TagList(_ tags: [String]) {
+    Row(gap: .xs, class: "tag-list") {
+        for tag in tags by tag {
+            Link("#{tag}", to: "/?tag={tag}", class: "tag-link")
+        }
+    }
+}

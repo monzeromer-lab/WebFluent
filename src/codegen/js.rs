@@ -107,6 +107,9 @@ pub struct JsCodegen {
     /// The form handle the body binds, which a `validate` block registers
     /// into, and which decides when a message is shown.
     current_form: Option<String>,
+    /// Every `Form(bind: name)` handle of the page or component being
+    /// written: `form.valid` reads signals, so what reads it is followed.
+    form_handles: Vec<String>,
     /// The states a `validate` block guards, so the control bound to one
     /// shows its message without being told to.
     validated: Vec<String>,
@@ -227,6 +230,7 @@ impl JsCodegen {
             own_actions: Vec::new(),
             refs: Vec::new(),
             current_form: None,
+            form_handles: Vec::new(),
             validated: Vec::new(),
             current_body: Vec::new(),
             own_names: Vec::new(),
@@ -1148,6 +1152,11 @@ impl JsCodegen {
                     BinOp::Mul => "*",
                     BinOp::Div => "/",
                     BinOp::Mod => "%",
+                    // Against `null`, a value that is absent — a query key
+                    // the address lacks, a field a record leaves out — is
+                    // `undefined` in the browser, and counts as null.
+                    BinOp::Eq if null_side(left, right) => "==",
+                    BinOp::Neq if null_side(left, right) => "!=",
                     BinOp::Eq => "===",
                     BinOp::Neq => "!==",
                     BinOp::Lt => "<",
@@ -1252,7 +1261,9 @@ impl JsCodegen {
                     format!("WF.{}({})", name, args_str.join(", "))
                 } else if name == "fetch" {
                     format!("WF.request({})", args_str.join(", "))
-                } else if self.script_classes.contains(name) {
+                } else if self.script_classes.contains(name)
+                    || BROWSER_CLASSES.contains(&name.as_str())
+                {
                     format!("new {}({})", name, args_str.join(", "))
                 } else {
                     format!("{}({})", name, args_str.join(", "))
@@ -1558,6 +1569,7 @@ impl JsCodegen {
         // A form handle resolves as a bare name like a ref does, but is
         // declared here, once, as a form.
         let handles = self.refs.clone();
+        self.form_handles = crate::sema::types::form_names(&comp.body);
         for name in crate::sema::types::form_names(&comp.body) {
             self.emit_line(&format!(
                 "const {name} = WF.form({});",
@@ -1638,6 +1650,7 @@ impl JsCodegen {
         self.own_names = declared_names(&page.body);
         self.emit_pending_signals(&page.body);
         let handles = self.refs.clone();
+        self.form_handles = crate::sema::types::form_names(&page.body);
         for name in crate::sema::types::form_names(&page.body) {
             self.emit_line(&format!(
                 "const {name} = WF.form({});",
@@ -2816,10 +2829,7 @@ impl JsCodegen {
                 if let Some(href) = &link_to
                     && name == "Link"
                 {
-                    self.emit_line(&format!(
-                        "WF.activeLink({}, {}, {});",
-                        var, href, link_prefix
-                    ));
+                    self.emit_line(&active_link(&var, href, link_prefix));
                 }
 
                 self.emit_style_and_transition(&var, ui);
@@ -2942,7 +2952,7 @@ impl JsCodegen {
                     let prefix = ui.args.iter().any(|a| {
                         matches!(a, Arg::Named(k, Expr::StringLiteral(v)) if k == "active" && v == "prefix")
                     });
-                    self.emit_line(&format!("WF.activeLink({var}, {href}, {prefix});"));
+                    self.emit_line(&active_link(&var, href, prefix));
                 }
                 for child in &ui.children {
                     self.emit_statement_dom(child, &var);
@@ -3973,10 +3983,7 @@ impl JsCodegen {
                                 let prefix = ui_child.args.iter().any(|a| {
                                     matches!(a, Arg::Named(k, Expr::StringLiteral(v)) if k == "active" && v == "prefix")
                                 });
-                                self.emit_line(&format!(
-                                    "WF.activeLink({}, {}, {});",
-                                    item_var, href, prefix
-                                ));
+                                self.emit_line(&active_link(&item_var, &href, prefix));
                             } else {
                                 self.emit_line(&format!(
                                         "const {} = WF.el(\"div\", {{ className: \"wf-sidebar__item\"{} }});",
@@ -5834,6 +5841,11 @@ impl JsCodegen {
                     BinOp::Mul => "*",
                     BinOp::Div => "/",
                     BinOp::Mod => "%",
+                    // Against `null`, a value that is absent — a query key
+                    // the address lacks, a field a record leaves out — is
+                    // `undefined` in the browser, and counts as null.
+                    BinOp::Eq if null_side(left, right) => "==",
+                    BinOp::Neq if null_side(left, right) => "!=",
                     BinOp::Eq => "===",
                     BinOp::Neq => "!==",
                     BinOp::Lt => "<",
@@ -5990,8 +6002,12 @@ impl JsCodegen {
                         args_str.first().unwrap_or(&String::new()),
                         args_str.get(1..).unwrap_or(&[]).join(", ")
                     )
-                } else if self.script_classes.contains(name) && !self.own_names.contains(name) {
-                    // A class a project script declares: constructed.
+                } else if (self.script_classes.contains(name)
+                    || BROWSER_CLASSES.contains(&name.as_str()))
+                    && !self.own_names.contains(name)
+                {
+                    // A class a project script or the browser declares:
+                    // constructed, since calling one without `new` throws.
                     format!("new {}({})", name, args_str.join(", "))
                 } else if self.current_props.contains(name)
                     || (self.own_names.contains(name) && !self.own_actions.contains(name))
@@ -6460,6 +6476,10 @@ impl JsCodegen {
     fn is_reactive(&self, expr_str: &str) -> bool {
         is_reactive_expr(expr_str)
             || expr_str.contains("_p.")
+            || self
+                .form_handles
+                .iter()
+                .any(|f| expr_str.contains(&format!("{f}.")))
             || self
                 .stores
                 .iter()
@@ -7022,6 +7042,58 @@ pub fn external_modules(config: &crate::config::ProjectConfig) -> Vec<(String, O
         .collect()
 }
 
+/// The browser's classes a program may call by name: `Blob([text])` is
+/// `new Blob([text])`, since most of them throw when called without `new`
+/// (and `Date(x)` ignores `x`).
+const BROWSER_CLASSES: &[&str] = &[
+    "AbortController",
+    "ArrayBuffer",
+    "Blob",
+    "BroadcastChannel",
+    "CustomEvent",
+    "DOMParser",
+    "DataView",
+    "Date",
+    "Event",
+    "File",
+    "FileReader",
+    "FormData",
+    "Headers",
+    "IntersectionObserver",
+    "Map",
+    "MutationObserver",
+    "Promise",
+    "Request",
+    "ResizeObserver",
+    "Response",
+    "Set",
+    "TextDecoder",
+    "TextEncoder",
+    "URL",
+    "URLSearchParams",
+    "Uint8Array",
+    "WeakMap",
+    "WeakSet",
+    "Worker",
+];
+
+/// Whether either side of a comparison is the literal `null`.
+fn null_side(left: &Expr, right: &Expr) -> bool {
+    matches!(left, Expr::Null) || matches!(right, Expr::Null)
+}
+
+/// The call that keeps a link's `active` class and `aria-current` with the
+/// route. A link whose address has a query is the page's only when the
+/// query matches too, so it is handed `WF.query` — which brings that module
+/// only into a program that has one.
+fn active_link(var: &str, href: &str, prefix: impl std::fmt::Display) -> String {
+    if href.contains('?') {
+        format!("WF.activeLink({var}, {href}, {prefix}, WF.query);")
+    } else {
+        format!("WF.activeLink({var}, {href}, {prefix});")
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -7122,6 +7194,7 @@ mod tests {
             path: "/".to_string(),
             title: None,
             title_expr: None,
+            description_expr: None,
             guard: None,
             redirect: None,
             description: None,
@@ -8221,7 +8294,7 @@ mod tests {
             "{out}"
         );
         assert!(
-            out.contains("() => (Ui.confirmId !== null), null);"),
+            out.contains("() => (Ui.confirmId != null), null);"),
             "{out}"
         );
     }

@@ -749,7 +749,8 @@ module.exports = grammar({
     // Element arguments: one positional value first, then `name: value`
     // pairs. The precedence settles `Foo(x)` at the start of a statement as
     // an element rather than a call.
-    argument_list: ($) => prec(1, seq("(", sepBy($._argument, ","), ")")),
+    argument_list: ($) =>
+      prec(1, seq("(", sepBy($._argument, ","), optional(","), ")")),
 
     _argument: ($) => choice($.named_argument, $._expression),
 
@@ -766,7 +767,9 @@ module.exports = grammar({
     // Call arguments; `name: value` is accepted so `t("greeting", name:
     // user.name)`, `fetch(url, method: "POST")` and `Todo(id: 1)` read as
     // one call each.
-    arguments: ($) => seq("(", sepBy($._argument, ","), ")"),
+    // A trailing comma is allowed, as the compiler allows it, so a call
+    // written one argument a line can end every line with one.
+    arguments: ($) => seq("(", sepBy($._argument, ","), optional(","), ")"),
 
     // ─── Events and slots ───────────────────────────────────────────────
 

@@ -1,0 +1,75 @@
+// `wf test` runs these. The first two only look; the others click and type,
+// so they run in a headless Chrome.
+
+test "a row shows its title and a box to tick" {
+    TodoRow(Todo(id: "1", title: "Water the plants"))
+    expect "Water the plants"
+}
+
+test "a done todo is shown done" {
+    TodoRow(Todo(id: "2", title: "Post the letter", done: true))
+    expect "Post the letter"
+}
+
+test "adding a todo puts it in the list" {
+    use Todos
+    state draft = ""
+    Input(bind: draft, aria-label: "New todo")
+    Button("Add") { on click { Todos.add(draft)  draft = "" } }
+    for t in Todos.items by t.id { TodoRow(t) }
+    Text("{Todos.open.length} left")
+
+    expect "0 left"
+    type "Buy bread" into "New todo"
+    click "Add"
+    expect "Buy bread"
+    expect "1 left"
+}
+
+test "a blank todo is not added" {
+    use Todos
+    state draft = ""
+    Input(bind: draft, aria-label: "New todo")
+    Button("Add") { on click { Todos.add(draft) } }
+    Text("{Todos.items.length} in all")
+
+    type "   " into "New todo"
+    click "Add"
+    expect "0 in all"
+}
+
+test "ticking a todo and clearing done empties the list" {
+    use Todos
+    state draft = ""
+    Input(bind: draft, aria-label: "New todo")
+    Button("Add") { on click { Todos.add(draft)  draft = "" } }
+    Button("Clear done") { on click { Todos.clearDone() } }
+    for t in Todos.items by t.id { TodoRow(t) }
+    Text("{Todos.items.length} in all")
+
+    type "Call the bank" into "New todo"
+    click "Add"
+    expect "1 in all"
+    click "Done: Call the bank"
+    click "Clear done"
+    expect "0 in all"
+}
+
+test "renaming a todo keeps one row for each" {
+    use Todos
+    state draft = ""
+    Input(bind: draft, aria-label: "New todo")
+    Button("Add") { on click { Todos.add(draft)  draft = "" } }
+    for t in Todos.items by t.id { TodoRow(t) }
+    Text("{Todos.items.length} in all")
+
+    type "Water the plants" into "New todo"
+    click "Add"
+    type "Buy bread" into "New todo"
+    click "Add"
+    click "Rename Buy bread"
+    type "Buy bread and milk" into "New title for Buy bread"
+    press "Enter" in "New title for Buy bread"
+    expect "Buy bread and milk"
+    expect "2 in all"
+}

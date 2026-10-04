@@ -1,0 +1,9 @@
+/// One thing to do.
+type Todo {
+    id: Uuid
+    title: String
+    done: Bool = false
+}
+
+/// Which todos the list shows.
+enum Filter { all, open, done }

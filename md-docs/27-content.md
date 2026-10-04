@@ -26,7 +26,8 @@ page Notes(path: "/") {
 }
 ```
 
-Blocks: `#`–`######` headings, paragraphs, fenced code with a language
+Blocks: `#`–`######` headings, paragraphs (their lines run together, as
+in CommonMark — end a line with two spaces or `\` to break it), fenced code with a language
 (`` ```js ``), `>` quotes, `-`/`*` and `1.` lists (one level), `---` rules.
 Inline: `` `code` ``, `**strong**`, `*em*`/`_em_`, links, images. Raw HTML
 in the text is shown as text, not run — Markdown from a user or an API is

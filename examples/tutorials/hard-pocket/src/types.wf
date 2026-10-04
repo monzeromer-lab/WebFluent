@@ -1,0 +1,54 @@
+/// Which way the money went.
+enum Kind { income, expense }
+
+/// Something money is spent on, with what the reader means to spend on it
+/// in a month.
+type Category {
+    id: String
+    name: String
+    color: Color
+    budget: Money
+}
+
+/// One line of the ledger: money in, or money out.
+type Entry {
+    id: Uuid
+    date: Date
+    amount: Money
+    kind: Kind
+    category: String
+    note: String = ""
+}
+
+/// One month, added up — a bar pair in the dashboard's chart.
+type MonthTotal {
+    month: Date
+    income: Money
+    spent: Money
+}
+
+/// A category beside what this month has spent of its budget.
+type BudgetLine {
+    category: Category
+    spent: Money
+    left: Money
+    share: Number
+}
+
+/// A message that slides in from the corner and goes away again.
+type Notice {
+    id: Uuid
+    text: String
+}
+
+/// Nothing yet: the starting point every sum adds to.
+const ZERO: Money = $0.00
+
+/// One dollar — `ONE.times(12.5)` is $12.50, rounded to the cent.
+const ONE: Money = $1.00
+
+/// The first line of an exported file: what each column holds.
+const CSV_HEADER = "id,date,kind,category,amount,currency,note"
+
+/// A double quote, which CSV wraps a note in and doubles inside one.
+const QUOTE = "\""

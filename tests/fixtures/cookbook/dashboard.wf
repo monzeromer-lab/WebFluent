@@ -1,0 +1,220 @@
+// The dashboard application of the former cookbook chapter, kept as a
+// fixture: tests/cookbook.rs builds it and tests/js/cookbook.test.mjs
+// clicks through the bundle.
+type Deploy { id: String, service: String, status: String, startedAt: String, by: String }
+type Service { name: String, healthy: Bool, region: String }
+
+enum Sort { newest, service, status }
+
+store Session {
+    persist user: Map? = null
+    state error = ""
+    derived loggedIn = user != null
+    action login(email: String, password: String) {
+        error = ""
+        try {
+            let r = await fetch("/api/login", { method: "POST", body: { email: email, password: password } })
+            user = r.user
+            navigate("/")
+        } catch e {
+            error = "Sign-in failed: {e.message}"
+        }
+    }
+    action logout() { user = null  navigate("/login") }
+}
+
+store Ui {
+    state palette = false
+    state confirmId: String? = null
+    action openPalette() { palette = true }
+    action close() { palette = false  confirmId = null }
+}
+
+component Shell {
+    use Session
+    use Ui
+    slot
+    on key("cmd+k") { Ui.openPalette() }
+    on key("ctrl+k") { Ui.openPalette() }
+    on key("Escape") { Ui.close() }
+    Row {
+        style { min-height: 100vh }
+        Sidebar {
+            style { width: 220px }
+            Sidebar.Header { Text("Ops").bold }
+            Sidebar.Item(to: "/", icon: "home") { Text("Overview") }
+            Sidebar.Item(to: "/deploys", icon: "upload") { Text("Deploys") }
+            Sidebar.Item(to: "/settings", icon: "settings") { Text("Settings") }
+            Sidebar.Divider
+            if let u = Session.user {
+                Text(u.email).muted.sm
+                Button("Sign out").sm { on click { Session.logout() } }
+            }
+        }
+        Container {
+            style { flex: 1; padding: $lg }
+            children
+        }
+    }
+    Palette
+}
+
+component Palette {
+    use Ui
+    state q = ""
+    derived commands = [
+        { label: "Go to overview", to: "/" },
+        { label: "Go to deploys", to: "/deploys" },
+        { label: "Go to settings", to: "/settings" },
+    ]
+    derived hits = commands.filter(c => c.label.toLowerCase().includes(q.toLowerCase()))
+    Modal(visible: Ui.palette, title: "Command palette") {
+        Input(bind: q, placeholder: "Type a command", aria-label: "Command")
+        for c, i in hits {
+            Button(c.label).sm { on click { navigate(c.to)  Ui.close() } }
+        }
+        if hits.length == 0 { Text("No matches").muted }
+    }
+}
+
+app { Router }
+
+page Login(path: "/login", title: "Sign in", description: "Sign in to the console.") {
+    use Session
+    state email = ""
+    state password = ""
+    Container {
+        style { max-width: 24rem; margin: 4rem auto }
+        Heading("Sign in").h1
+        Form(bind: form) {
+            on submit { Session.login(email, password) }
+            Input(bind: email, name: "email", label: "Email").email.required
+            Input(bind: password, name: "password", label: "Password").password.required
+            Button("Sign in", type: .submit, disabled: !form.valid || Session.login.pending).primary
+        }
+        if Session.error != "" { Alert(Session.error).danger }
+    }
+}
+
+page Overview(path: "/", title: "Overview", description: "Service health.", guard: Session.loggedIn, redirect: "/login", layout: Shell) {
+    resource services: [Service] = fetch("/api/services")
+    every(30000) { services.reload() }
+    Heading("Overview").h1
+    match services {
+        loading { Skeleton }
+        error(e) { Alert("Could not load services: {e.message}").danger { Button("Retry") { on click { services.reload() } } } }
+        ready(list) {
+            derived healthy = list.filter(s => s.healthy).length
+            Row(gap: .md) {
+                Card { Text("Services").muted.sm  Heading("{list.length}").h2 }
+                Card { Text("Healthy").muted.sm  Heading("{healthy}").h2 }
+                Card { Text("Regions").muted.sm  Heading("{list.map(s => s.region).unique().length}").h2 }
+            }
+            Grid(columns: if viewport.lg { 3 } else { 1 }, gap: .md) {
+                for s in list by s.name {
+                    Card {
+                        Row(justify: .between, align: .center) {
+                            Text(s.name).bold
+                            Badge(if s.healthy { "healthy" } else { "down" }, tone: if s.healthy { .success } else { .danger })
+                        }
+                        Text(s.region).muted.sm
+                    }
+                }
+            }
+        }
+    }
+}
+
+page Deploys(path: "/deploys", title: "Deploys", description: "Recent deploys.", guard: Session.loggedIn, redirect: "/login", layout: Shell) {
+    use Ui
+    state sort: Sort = .newest
+    state q = ""
+    state rolledBack = ""
+    resource deploys: [Deploy] = fetch("/api/deploys")
+    action rollback(id: String) {
+        await fetch("/api/deploys/{id}/rollback", { method: "POST" })
+        rolledBack = id
+        Ui.close()
+        deploys.reload()
+    }
+    Row(justify: .between, align: .center) {
+        Heading("Deploys").h1
+        Row(gap: .sm) {
+            Input(bind: q, placeholder: "Filter by service", aria-label: "Filter")
+            Select(bind: sort, label: "Sort") {
+                Select.Option("Newest", value: "newest")
+                Select.Option("Service", value: "service")
+                Select.Option("Status", value: "status")
+            }
+        }
+    }
+    match deploys {
+        loading { Spinner }
+        error(e) { Alert(e.message).danger }
+        ready(rows) {
+            derived shown = rows.filter(d => d.service.toLowerCase().includes(q.toLowerCase()))
+            derived sorted = match sort { .service { shown.sortBy(d => d.service) } .status { shown.sortBy(d => d.status) } else { shown.sortBy(d => d.startedAt).reverse() } }
+            Table(caption: "Recent deploys") {
+                Table.Head {
+                    Table.Row { Table.Cell("Service")  Table.Cell("Status")  Table.Cell("When")  Table.Cell("By")  Table.Cell("") }
+                }
+                Table.Body {
+                    for d in sorted by d.id {
+                        Table.Row {
+                            Table.Cell(d.service)
+                            Table.Cell { Badge(d.status, tone: if d.status == "ok" { .success } else if d.status == "failed" { .danger } else { .info }) }
+                            Table.Cell(ago(d.startedAt))
+                            Table.Cell(d.by)
+                            Table.Cell {
+                                Menu(trigger: "Actions", aria-label: "Actions for {d.service}") {
+                                    Menu.Item { Link("Details", to: "/deploys/{d.id}") }
+                                    Menu.Divider
+                                    Menu.Item { Button("Roll back").sm.danger { on click { Ui.confirmId = d.id } } }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if sorted.length == 0 { Text("No deploys match.").muted }
+        }
+    }
+    Modal(visible: Ui.confirmId != null, title: "Roll back this deploy?") {
+        Text("The previous build will be restored.")
+        Modal.Footer {
+            Button("Cancel") { on click { Ui.close() } }
+            Button("Roll back", disabled: rollback.pending).danger { on click { if let id = Ui.confirmId { rollback(id) } } }
+        }
+    }
+    if rolledBack != "" { Toast("Rolled back {rolledBack}").success }
+}
+
+page DeployDetail(path: "/deploys/:id", id: String, title: "Deploy", description: "One deploy.", guard: Session.loggedIn, redirect: "/login", layout: Shell) {
+    resource deploy: Deploy = fetch("/api/deploys/{id}")
+    Breadcrumb {
+        Breadcrumb.Item(to: "/deploys") { Text("Deploys") }
+        Breadcrumb.Item { Text(id) }
+    }
+    match deploy {
+        loading { Skeleton }
+        error(e) { Alert("Not found").warning }
+        ready(d) {
+            Heading("{d.service} — {d.status}").h1
+            Text("Started {ago(d.startedAt)} by {d.by}")
+        }
+    }
+}
+
+page Settings(path: "/settings", title: "Settings", description: "Your preferences.", guard: Session.loggedIn, redirect: "/login", layout: Shell) {
+    persist density = "comfortable"
+    persist notify = true
+    Heading("Settings").h1
+    Radio(bind: density, value: "comfortable", label: "Comfortable")
+    Radio(bind: density, value: "compact", label: "Compact")
+    Switch(bind: notify, label: "Email me when a deploy fails")
+    Row(gap: .sm) {
+        Button("Light") { on click { setTheme("light") } }
+        Button("Dark") { on click { setTheme("dark") } }
+        Button("System") { on click { setTheme("system") } }
+    }
+}

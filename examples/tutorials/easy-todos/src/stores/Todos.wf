@@ -1,0 +1,31 @@
+/// The list, kept in the browser between visits.
+store Todos {
+    persist items: [Todo] = []
+
+    derived open = items.filter(t => !t.done)
+    derived done = items.filter(t => t.done)
+
+    action add(title: String) {
+        let text = title.trim()
+        if text == "" { return }
+        items = items.concat([Todo(id: uuid(), title: text)])
+    }
+
+    action toggle(id: Uuid) {
+        items = items.map(t => if t.id == id { { ...t, done: !t.done } } else { t })
+    }
+
+    action rename(id: Uuid, title: String) {
+        let text = title.trim()
+        if text == "" { return }
+        items = items.map(t => if t.id == id { { ...t, title: text } } else { t })
+    }
+
+    action remove(id: Uuid) {
+        items = items.filter(t => t.id != id)
+    }
+
+    action clearDone() {
+        items = items.filter(t => !t.done)
+    }
+}

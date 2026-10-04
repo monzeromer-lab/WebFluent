@@ -1,0 +1,34 @@
+page Tags(path: "/tags", title: "Tags — Field Notes",
+    description: "Every tag in the notebook, with the notes filed under each.",
+    layout: Sheet(wide: true)) {
+
+    derived allTags = notes.flatMap(n => n.tags).unique().sort()
+
+    Stack(gap: .xl) {
+        Stack(gap: .sm, class: "hero") {
+            Heading("Tags").h1
+            Text("Every note carries a tag or two. Pick one to see what is filed under it.", class: "lede")
+        }
+
+        Grid(columns: { base: 1, md: 2 }, gap: .md, align: .start) {
+            for tag in allTags by tag {
+                derived filed = notes.filter(n => n.tags.includes(tag)).sortBy(n => n.date).reverse()
+                Card(class: "tag-card") {
+                    Stack(gap: .sm) {
+                        Row(justify: .between, align: .center) {
+                            Link(to: "/?tag={tag}", class: "tag-card__name") {
+                                Heading("#{tag}").h2
+                            }
+                            Text(if filed.length == 1 { "1 note" } else { "{filed.length} notes" }).sm.muted
+                        }
+                        List(class: "tag-card__list") {
+                            for n in filed by n.slug {
+                                List.Item { Link(n.title, to: "/notes/{n.slug}") }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,62 @@
+/// Colours a new category is offered, one after another.
+const SWATCHES: [Color] = [#0E7C66, #7C3AED, #DB2777, #EA580C, #2563EB, #CA8A04, #0891B2, #16A34A]
+
+page Categories(path: "/categories", title: "Categories", description: "What your money goes on, and how much each may take in a month.") {
+    use Ledger
+
+    state name = ""
+    state color: Color = SWATCHES[Ledger.categories.length % SWATCHES.length] ?? #0E7C66
+    state budget: Number? = null
+
+    validate name {
+        required
+        maxLength(24)
+    }
+    validate budget { min(0) }
+
+    action create() {
+        Ledger.addCategory(name.trim(), color, ONE.times(budget ?? 0))
+        form.reset()   // forget that the fields were ever touched
+        name = ""
+        budget = null
+        color = SWATCHES[Ledger.categories.length % SWATCHES.length] ?? #0E7C66
+    }
+
+    PageHeader(t("nav.categories"), subtitle: t("categories.subtitle"))
+
+    Grid(columns: { base: 1, md: 2, xl: 3 }, gap: .md) {
+        for c in Ledger.categories by c.id {
+            derived used = Ledger.entries.filter(e => e.category == c.id).length
+            Card(class: "panel category") {
+                Row(justify: .between, align: .center) {
+                    Row(gap: .sm, align: .center) {
+                        CategoryDot(color: c.color)
+                        Heading(c.name).h2
+                    }
+                    Text(t("entries", { count: used })).muted.sm
+                }
+                Input(label: t("categories.budget"), value: c.budget.amount / 100, min: 0, step: 0.01).number {
+                    on change(ev) { Ledger.setBudget(c.id, ONE.times(Number(ev.target.value))) }
+                }
+                if used == 0 {
+                    Button(t("action.remove")).sm.danger.outlined { on click { Ledger.removeCategory(c.id) } }
+                }
+            }
+        }
+    }
+
+    Card(class: "panel narrow") {
+        Heading(t("categories.new")).h2
+        Form(bind: form) {
+            on submit { create() }
+            Grid(columns: { base: 1, sm: 3 }, gap: .md) {
+                Input(bind: name, label: t("categories.name"))
+                Input(bind: color, label: t("categories.color")).color
+                Input(bind: budget, label: t("categories.budget"), min: 0, step: 0.01).number
+            }
+            Row(justify: .end) {
+                Button(t("action.addCategory"), type: .submit, disabled: !form.valid).primary
+            }
+        }
+    }
+}

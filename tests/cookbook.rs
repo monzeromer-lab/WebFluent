@@ -1,13 +1,13 @@
-//! The cookbook's applications, taken from the guide and built as written.
+//! Three complete applications — todos, a static blog, a guarded dashboard —
+//! built with the `wf` binary and run by `tests/js/cookbook.test.mjs` against
+//! the fake DOM.
 //!
 //! `docs_parse.rs` holds every block in the documentation to the grammar and
 //! the semantic checks. That stops short of the back end: a block can parse,
 //! type-check and still compile to JavaScript that throws on the first click.
-//!
-//! So the three applications in `md-docs/35-recipes.md` are extracted from the
-//! guide itself — not copied into a fixture, which would drift from what the
-//! reader sees — built with the `wf` binary, and then run by
-//! `tests/js/cookbook.test.mjs` against the fake DOM.
+//! These applications were the guide's cookbook; when the tutorials replaced
+//! it they moved to `tests/fixtures/cookbook/`, where they keep exercising
+//! the runtime end to end.
 
 use std::path::PathBuf;
 use std::process::Command;
@@ -17,24 +17,8 @@ fn repo_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
 }
 
-/// The first `wf` fence after the heading `heading`, as written in the guide.
-fn app_after(markdown: &str, heading: &str) -> String {
-    let start = markdown
-        .find(heading)
-        .unwrap_or_else(|| panic!("`{heading}` is no longer a heading in the cookbook"));
-    let rest = &markdown[start..];
-    let open = rest
-        .find("```wf\n")
-        .unwrap_or_else(|| panic!("`{heading}` no longer has a `wf` block"));
-    let body = &rest[open + "```wf\n".len()..];
-    let close = body
-        .find("\n```")
-        .unwrap_or_else(|| panic!("`{heading}`'s block is unterminated"));
-    body[..close + 1].to_string()
-}
-
-/// An application from the cookbook: what to call it, the heading it sits
-/// under, the config it needs, and any file it reads.
+/// An application: what to call it, its source under
+/// `tests/fixtures/cookbook/`, the config it needs, and any file it reads.
 struct App {
     name: &'static str,
     heading: &'static str,
@@ -52,34 +36,35 @@ const POSTS: &str = r#"[
 const APPS: &[App] = &[
     App {
         name: "cookbook-todos",
-        heading: "## App 1: Todos",
+        heading: "todos.wf",
         config: r#"{ "name": "todos", "build": { "output": "build" } }"#,
         files: &[],
     },
     App {
         name: "cookbook-blog",
         // Two themes, so the build is told which one is the light default.
-        heading: "## App 2: A blog, statically built",
+        heading: "blog.wf",
         config: r#"{ "name": "blog", "build": { "output": "build", "ssg": true },
                      "theme": { "name": "Paper" } }"#,
         files: &[("src/posts.json", POSTS)],
     },
     App {
         name: "cookbook-dashboard",
-        heading: "## App 3: A dashboard behind a login",
+        heading: "dashboard.wf",
         config: r#"{ "name": "dashboard", "build": { "output": "build" } }"#,
         files: &[],
     },
 ];
 
 /// Write `app` into `target/e2e/<name>` and build it there.
-fn build(app: &App, cookbook: &str) -> (bool, String) {
+fn build(app: &App) -> (bool, String) {
     let dir = repo_root().join("target/e2e").join(app.name);
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(dir.join("src")).expect("create the project");
     std::fs::write(dir.join("webfluent.app.json"), app.config).expect("write the config");
-    std::fs::write(dir.join("src/App.wf"), app_after(cookbook, app.heading))
-        .expect("write the source");
+    let source = std::fs::read_to_string(repo_root().join("tests/fixtures/cookbook").join(app.heading))
+        .expect("read the application");
+    std::fs::write(dir.join("src/App.wf"), source).expect("write the source");
     for (rel, body) in app.files {
         std::fs::write(dir.join(rel), body).expect("write a data file");
     }
@@ -97,17 +82,10 @@ fn build(app: &App, cookbook: &str) -> (bool, String) {
     (out.status.success(), text)
 }
 
-fn cookbook() -> String {
-    std::fs::read_to_string(repo_root().join("md-docs/35-recipes.md")).expect("read the cookbook")
-}
-
 /// Every application built once, however many tests ask for them: each build
 /// clears and rewrites its own directory, so letting the tests race would have
 /// one deleting the tree another is reading.
-static BUILT: LazyLock<Vec<(bool, String)>> = LazyLock::new(|| {
-    let cookbook = cookbook();
-    APPS.iter().map(|app| build(app, &cookbook)).collect()
-});
+static BUILT: LazyLock<Vec<(bool, String)>> = LazyLock::new(|| APPS.iter().map(build).collect());
 
 fn node_available() -> bool {
     Command::new("node")
@@ -116,8 +94,7 @@ fn node_available() -> bool {
         .is_ok_and(|o| o.status.success())
 }
 
-/// Every application in the cookbook builds as printed, and cleanly: the guide
-/// shows the idiomatic spelling, so a warning is a failure here too.
+/// Every application builds, and cleanly: a warning is a failure here too.
 #[test]
 fn the_cookbook_applications_build_as_printed() {
     let mut failures = Vec::new();
@@ -160,7 +137,7 @@ fn the_cookbook_applications_behave_when_executed() {
     );
 }
 
-/// The guide's Todos app is the one a store's `remove` action broke: it must
+/// The Todos app is the one a store's `remove` action broke: it must
 /// keep calling the action, never a list's `splice`.
 #[test]
 fn a_store_action_survives_into_the_cookbooks_bundle() {
@@ -185,22 +162,4 @@ fn a_store_action_survives_into_the_cookbooks_bundle() {
         !js.contains("Todos.splice("),
         "the store is being handed a list's `splice`"
     );
-}
-
-/// Extraction tracks the guide rather than a copy of it.
-#[test]
-fn the_cookbook_headings_still_name_the_applications() {
-    let cookbook = cookbook();
-    for app in APPS {
-        assert!(
-            cookbook.contains(app.heading),
-            "the cookbook no longer has `{}` — update tests/cookbook.rs",
-            app.heading
-        );
-        assert!(
-            !app_after(&cookbook, app.heading).trim().is_empty(),
-            "`{}` has an empty block",
-            app.heading
-        );
-    }
 }

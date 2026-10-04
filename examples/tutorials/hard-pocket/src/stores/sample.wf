@@ -1,0 +1,98 @@
+// The ledger a first visit opens on, so the dashboard has something to
+// show. Every date is "so many days ago", worked out when the page loads,
+// so the sample stays recent however long after today it is opened.
+
+/// One sample entry, before it has a date.
+type Seed {
+    id: Uuid
+    ago: Number
+    amount: Money
+    kind: Kind
+    category: String
+    note: String
+}
+
+/// The categories a first visit starts with.
+const SAMPLE_CATEGORIES: [Category] = [
+    Category(id: "salary", name: "Salary", color: #0F766E, budget: $0.00),
+    Category(id: "freelance", name: "Freelance", color: #0891B2, budget: $0.00),
+    Category(id: "rent", name: "Rent", color: #7C3AED, budget: $1400.00),
+    Category(id: "groceries", name: "Groceries", color: #16A34A, budget: $450.00),
+    Category(id: "dining", name: "Eating out", color: #EA580C, budget: $200.00),
+    Category(id: "transport", name: "Transport", color: #2563EB, budget: $140.00),
+    Category(id: "bills", name: "Bills", color: #DB2777, budget: $260.00),
+    Category(id: "fun", name: "Fun", color: #CA8A04, budget: $120.00),
+]
+
+/// The entries a first visit starts with: five months of a plausible life.
+const SAMPLE_ENTRIES: [Seed] = [
+    Seed(id: "4d98c3c6-6bf9-59b1-a1d1-b4c5316ec725", ago: 0, amount: $58.40, kind: .expense, category: "groceries", note: "Weekly shop"),
+    Seed(id: "ac6e4b35-6e02-5440-ac86-021ac86bcd23", ago: 1, amount: $4200.00, kind: .income, category: "salary", note: "Monthly salary"),
+    Seed(id: "787a5017-503f-5989-b2d4-f522043ce52d", ago: 1, amount: $42.50, kind: .expense, category: "dining", note: "Dinner with Sam"),
+    Seed(id: "ab9e73a7-68bf-5f5b-bc59-bfbf02424134", ago: 2, amount: $1400.00, kind: .expense, category: "rent", note: "Rent"),
+    Seed(id: "8ad31b1c-4712-59c8-8705-046d344cc63c", ago: 2, amount: $30.00, kind: .expense, category: "transport", note: "Transit pass top-up"),
+    Seed(id: "4822d695-a153-5f88-9b67-546b8fe3b262", ago: 3, amount: $18.90, kind: .expense, category: "dining", note: "Lunch"),
+    Seed(id: "482adada-5722-5d97-8f3d-46f87d5c1623", ago: 4, amount: $23.15, kind: .expense, category: "groceries", note: "Bakery and fruit"),
+    Seed(id: "7255f6f7-bdf2-5c9f-8fbb-b7c05de893c2", ago: 5, amount: $64.20, kind: .expense, category: "bills", note: "Electricity"),
+    Seed(id: "d44385ec-c7f2-55d3-ae17-168c1384527a", ago: 6, amount: $64.00, kind: .expense, category: "dining", note: "Birthday dinner"),
+    Seed(id: "f3488509-a62c-54c9-8fd0-f634f9cb83c5", ago: 7, amount: $91.60, kind: .expense, category: "groceries", note: "Big shop"),
+    Seed(id: "f3d07334-6c8f-5d45-adc7-a319a8fa83c4", ago: 8, amount: $24.99, kind: .expense, category: "fun", note: "Concert tickets"),
+    Seed(id: "be6d774d-b487-5a75-99ea-5c598d39e324", ago: 9, amount: $39.99, kind: .expense, category: "bills", note: "Phone and internet"),
+    Seed(id: "8a5b6b38-70ad-51b5-ad00-e72a23441788", ago: 10, amount: $650.00, kind: .income, category: "freelance", note: "Logo for a café"),
+    Seed(id: "c915d048-a210-5406-a4f4-0a1276f4fc33", ago: 11, amount: $12.40, kind: .expense, category: "dining", note: "Coffee and cake"),
+    Seed(id: "30e00e3d-f010-51b1-a8ce-31ec2e4791ee", ago: 13, amount: $47.80, kind: .expense, category: "groceries", note: "Weekly shop"),
+    Seed(id: "24ed8f38-1c17-57dc-862c-9eb775d55f6c", ago: 14, amount: $45.50, kind: .expense, category: "transport", note: "Train to the coast"),
+    Seed(id: "7cad7dac-53ad-51b1-b798-90042840e735", ago: 16, amount: $86.75, kind: .expense, category: "dining", note: "Team dinner"),
+    Seed(id: "bc4c1a19-6463-5325-bf53-5f67730c3346", ago: 19, amount: $72.35, kind: .expense, category: "groceries", note: "Weekly shop"),
+    Seed(id: "6b4a2607-a832-525c-97f0-933f9c87857b", ago: 21, amount: $14.99, kind: .expense, category: "fun", note: "Streaming"),
+    Seed(id: "61269869-a3bd-52aa-9113-39c71e61b8cd", ago: 26, amount: $35.10, kind: .expense, category: "groceries", note: "Market"),
+    Seed(id: "9f322990-b35c-5a56-8900-6729877f05ba", ago: 31, amount: $4200.00, kind: .income, category: "salary", note: "Monthly salary"),
+    Seed(id: "8c537963-5453-528b-b172-6a88ae90203e", ago: 32, amount: $1400.00, kind: .expense, category: "rent", note: "Rent"),
+    Seed(id: "69e35dbd-9ddf-5544-bf99-1e6555643cf9", ago: 32, amount: $30.00, kind: .expense, category: "transport", note: "Transit pass top-up"),
+    Seed(id: "9231310b-f225-5d26-a75a-ef64926de1e0", ago: 33, amount: $88.90, kind: .expense, category: "groceries", note: "Big shop"),
+    Seed(id: "070179d1-fa26-563a-9cf7-f801ba36a14f", ago: 35, amount: $64.20, kind: .expense, category: "bills", note: "Electricity"),
+    Seed(id: "5fa32119-93f0-5fb9-9db8-190ba79932a8", ago: 36, amount: $28.00, kind: .expense, category: "dining", note: "Pizza night"),
+    Seed(id: "32cb529c-b228-590c-8afe-521b0077136a", ago: 39, amount: $39.99, kind: .expense, category: "bills", note: "Phone and internet"),
+    Seed(id: "5aca0b74-8ff7-54a9-a37f-52e0bc56e416", ago: 40, amount: $52.75, kind: .expense, category: "groceries", note: "Weekly shop"),
+    Seed(id: "885d2d65-ac29-5f30-8b58-2e54a0f1ccdd", ago: 44, amount: $1200.00, kind: .income, category: "freelance", note: "Website project"),
+    Seed(id: "3f558cb7-027b-575a-9098-98d8b6620976", ago: 45, amount: $54.30, kind: .expense, category: "dining", note: "Dinner out"),
+    Seed(id: "72343d94-9c6b-5ede-8500-c83ce168c2e2", ago: 47, amount: $61.30, kind: .expense, category: "groceries", note: "Weekly shop"),
+    Seed(id: "4ea4e98c-1a01-5f4e-bab0-500d8caea484", ago: 51, amount: $14.99, kind: .expense, category: "fun", note: "Streaming"),
+    Seed(id: "74eeec5d-94d1-500d-9cba-5c405924df4a", ago: 55, amount: $44.20, kind: .expense, category: "groceries", note: "Market"),
+    Seed(id: "70f7c24f-fb7f-56c8-ab55-35f080b95698", ago: 58, amount: $38.00, kind: .expense, category: "fun", note: "Climbing gym"),
+    Seed(id: "dff8ce58-9aed-5e6c-84a2-0fcd039ff213", ago: 61, amount: $4200.00, kind: .income, category: "salary", note: "Monthly salary"),
+    Seed(id: "1c59dbc5-6dec-5bf8-b4ee-cdfe5c2f298c", ago: 62, amount: $1400.00, kind: .expense, category: "rent", note: "Rent"),
+    Seed(id: "104c1433-d33d-5df1-a6ae-e55da6d89080", ago: 62, amount: $30.00, kind: .expense, category: "transport", note: "Transit pass top-up"),
+    Seed(id: "43834689-6b2d-5797-848d-ae26bc11b8ed", ago: 63, amount: $79.40, kind: .expense, category: "groceries", note: "Big shop"),
+    Seed(id: "8cca005f-0d2d-5d4d-80ed-14f79bcec429", ago: 65, amount: $64.20, kind: .expense, category: "bills", note: "Electricity"),
+    Seed(id: "144710a8-33fe-53b6-888e-37cbed0b5f87", ago: 68, amount: $31.20, kind: .expense, category: "dining", note: "Brunch"),
+    Seed(id: "2b6e9f6a-2075-51ff-9102-e1d32513c6d9", ago: 69, amount: $39.99, kind: .expense, category: "bills", note: "Phone and internet"),
+    Seed(id: "41eee384-5405-5509-a804-038f0be7abeb", ago: 71, amount: $56.10, kind: .expense, category: "groceries", note: "Weekly shop"),
+    Seed(id: "744adb79-e993-5d2d-914e-8ee4cb77bac7", ago: 77, amount: $22.80, kind: .expense, category: "transport", note: "Taxi home"),
+    Seed(id: "23645aa3-7cbb-543e-9642-cf0ef15dff86", ago: 81, amount: $14.99, kind: .expense, category: "fun", note: "Streaming"),
+    Seed(id: "8738e977-2d5f-5f6e-a7cf-531146abb51d", ago: 84, amount: $95.00, kind: .expense, category: "groceries", note: "Big shop"),
+    Seed(id: "15ff5f72-e022-54ea-a815-5b374f1717c1", ago: 88, amount: $480.00, kind: .income, category: "freelance", note: "Illustration"),
+    Seed(id: "26b1d563-8e61-5287-af54-0d4c00156087", ago: 91, amount: $4200.00, kind: .income, category: "salary", note: "Monthly salary"),
+    Seed(id: "f566bd91-5a0b-50c8-97f0-964fc2c5bdf7", ago: 92, amount: $1400.00, kind: .expense, category: "rent", note: "Rent"),
+    Seed(id: "ea14d2ed-a1f1-54f7-bd5b-381ae4322967", ago: 92, amount: $30.00, kind: .expense, category: "transport", note: "Transit pass top-up"),
+    Seed(id: "12a00bfd-3426-54a7-b9bf-163ee87be0cb", ago: 95, amount: $64.20, kind: .expense, category: "bills", note: "Electricity"),
+    Seed(id: "5ecff112-725d-5a85-8b02-f4019fd035e0", ago: 95, amount: $47.60, kind: .expense, category: "dining", note: "Dinner out"),
+    Seed(id: "0e2bddba-e1f0-5263-8ec2-a4bdc647044a", ago: 98, amount: $62.45, kind: .expense, category: "groceries", note: "Weekly shop"),
+    Seed(id: "58b5613a-8ef4-5c56-a2f8-b5008ee904fb", ago: 99, amount: $39.99, kind: .expense, category: "bills", note: "Phone and internet"),
+    Seed(id: "4c7ea29b-c629-5370-ba7b-17573d90cb22", ago: 103, amount: $60.00, kind: .expense, category: "fun", note: "Festival day pass"),
+    Seed(id: "b6463a42-9a8c-5af9-9f0c-b717d1442860", ago: 112, amount: $70.80, kind: .expense, category: "groceries", note: "Weekly shop"),
+    Seed(id: "736d9e78-d7f5-58bb-8e36-dadc227dcf6a", ago: 121, amount: $4200.00, kind: .income, category: "salary", note: "Monthly salary"),
+    Seed(id: "0c6dc861-2b7e-5c0f-9ee3-6bc04590c49c", ago: 122, amount: $1400.00, kind: .expense, category: "rent", note: "Rent"),
+    Seed(id: "db46fb01-4f56-5601-98e6-723271997b06", ago: 125, amount: $64.20, kind: .expense, category: "bills", note: "Electricity"),
+    Seed(id: "a971b36d-d172-5b64-b128-4a08f2a2c463", ago: 126, amount: $81.30, kind: .expense, category: "groceries", note: "Big shop"),
+    Seed(id: "04e24252-5d03-5de0-a6c4-9967bd1dfa6a", ago: 129, amount: $39.99, kind: .expense, category: "bills", note: "Phone and internet"),
+    Seed(id: "6e9c4230-7834-5794-b475-0f64f941da67", ago: 133, amount: $30.00, kind: .expense, category: "transport", note: "Transit pass top-up"),
+    Seed(id: "c3cd6c32-786c-543b-9d5e-d1b8ba481f25", ago: 137, amount: $39.50, kind: .expense, category: "dining", note: "Dinner out"),
+    Seed(id: "afc7a678-f171-54d8-9b29-fb7112d10244", ago: 140, amount: $57.90, kind: .expense, category: "groceries", note: "Weekly shop"),
+    Seed(id: "a2fde8fc-dd36-5872-bd07-4ca7f13ed3b3", ago: 144, amount: $14.99, kind: .expense, category: "fun", note: "Streaming"),
+    Seed(id: "05928074-b737-554e-bfd0-1cf63abdb8e7", ago: 147, amount: $66.40, kind: .expense, category: "groceries", note: "Weekly shop"),
+    Seed(id: "02a17932-80b9-554f-b63c-500353ad0626", ago: 151, amount: $4200.00, kind: .income, category: "salary", note: "Monthly salary"),
+    Seed(id: "202d07e5-6f43-5f5c-ac89-55b02c175685", ago: 152, amount: $1400.00, kind: .expense, category: "rent", note: "Rent"),
+    Seed(id: "03877686-8cc3-5cbe-8ee4-13ca216de5b4", ago: 155, amount: $64.20, kind: .expense, category: "bills", note: "Electricity"),
+    Seed(id: "5560034a-4035-54b8-885d-995679cf211f", ago: 159, amount: $39.99, kind: .expense, category: "bills", note: "Phone and internet"),
+]

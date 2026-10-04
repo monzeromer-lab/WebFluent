@@ -1,0 +1,6 @@
+page NotFound(path: "*", title: "Not found", description: "Nothing lives at this address.", noindex: true) {
+    PageHeader(t("notfound.title"))
+    Card(class: "panel") {
+        EmptyState(t("notfound.body")) { Link(t("notfound.home"), to: "/") }
+    }
+}

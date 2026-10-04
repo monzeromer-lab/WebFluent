@@ -270,6 +270,7 @@ impl Parser {
             path,
             title,
             title_expr: None,
+            description_expr: None,
             description,
             image,
             page_type,

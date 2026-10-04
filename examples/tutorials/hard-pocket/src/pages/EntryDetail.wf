@@ -1,0 +1,48 @@
+page EntryDetail(path: "/entries/:id", id: String, paths: SAMPLE_ENTRIES.take(2).map(s => s.id), title: "Entry", description: "One entry, to change or to remove.") {
+    use Ledger
+    use Ui
+    // `paths:` names two sample entries for `wf verify` to open; the app
+    // itself is a single page, so any id is answered at run time.
+
+    state confirming = false
+    derived entry = Ledger.entries.find(e => e.id == id)
+
+    if let e = entry {
+        Breadcrumb {
+            Breadcrumb.Item(to: "/entries") { Text(t("nav.entries")) }
+            Breadcrumb.Item { Text(t("entry.title")) }
+        }
+        PageHeader(if e.note != "" { e.note } else { t("entry.untitled") }, subtitle: format(e.date, .date, "full")) {
+            actions {
+                Button(t("action.delete")).danger.outlined { on click { confirming = true } }
+            }
+        }
+        Card(class: "panel narrow") {
+            EntryForm(entry: e) {
+                on saved {
+                    Ui.notify(t("toast.saved"))
+                    navigate("/entries")
+                }
+            }
+        }
+        Dialog(visible: confirming, title: t("delete.title")) {
+            Text(t("delete.body"))
+            Row(gap: .sm, justify: .end) {
+                Button(t("action.cancel")) { on click { confirming = false } }
+                Button(t("action.delete")).danger {
+                    on click {
+                        Ledger.remove(e.id)
+                        confirming = false
+                        Ui.notify(t("toast.deleted"))
+                        navigate("/entries")
+                    }
+                }
+            }
+        }
+    } else {
+        PageHeader(t("entry.missing"))
+        Card(class: "panel") {
+            EmptyState(t("entry.missingBody")) { Link(t("dash.all"), to: "/entries") }
+        }
+    }
+}

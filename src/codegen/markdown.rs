@@ -99,7 +99,9 @@ pub fn render(text: &str) -> String {
             continue;
         }
         // A paragraph runs to the next blank line or block.
-        let mut para: Vec<&str> = Vec::new();
+        // Its lines run together, as CommonMark's do; a line that ends in
+        // two spaces or a backslash breaks there (`\u{1}` marks it).
+        let mut para: Vec<String> = Vec::new();
         while i < lines.len() {
             let t = lines[i].trim();
             if t.is_empty()
@@ -112,8 +114,17 @@ pub fn render(text: &str) -> String {
             {
                 break;
             }
-            para.push(t);
+            if let Some(text) = t.strip_suffix('\\') {
+                para.push(format!("{}\u{1}", text.trim_end()));
+            } else if lines[i].ends_with("  ") {
+                para.push(format!("{t}\u{1}"));
+            } else {
+                para.push(t.to_string());
+            }
             i += 1;
+        }
+        if let Some(last) = para.last_mut() {
+            *last = last.trim_end_matches('\u{1}').to_string();
         }
         out.push_str(&format!("<p>{}</p>\n", inline(&para.join("\n"))));
     }
@@ -182,7 +193,7 @@ fn inline(text: &str) -> String {
     for (i, span) in spans.iter().enumerate() {
         s = s.replace(&format!("\u{0}{i}\u{0}"), span);
     }
-    s.replace('\n', "<br>\n")
+    s.replace("\u{1}\n", "<br>\n").replace('\u{1}', "")
 }
 
 #[cfg(test)]
@@ -206,11 +217,11 @@ mod tests {
 
     #[test]
     fn blocks_and_inline_spans_render() {
-        let md = "# Title\n\nA *word* and **more**, `x < y` and [a link](https://x.y) plus ![alt](/i.png).\nSecond line.\n\n- one\n- two\n\n1. first\n2. second\n\n> quoted *text*\n\n---\n\n```js\nlet a = 1 < 2;\n```\n<script>alert(1)</script>";
+        let md = "# Title\n\nA *word* and **more**, `x < y` and [a link](https://x.y) plus ![alt](/i.png).\\\nSecond line,\nthe same paragraph.\n\n- one\n- two\n\n1. first\n2. second\n\n> quoted *text*\n\n---\n\n```js\nlet a = 1 < 2;\n```\n<script>alert(1)</script>";
         let html = render(md);
         assert_eq!(
             html,
-            "<h1>Title</h1>\n<p>A <em>word</em> and <strong>more</strong>, <code>x &lt; y</code> and <a href=\"https://x.y\">a link</a> plus <img src=\"/i.png\" alt=\"alt\">.<br>\nSecond line.</p>\n<ul>\n<li>one</li>\n<li>two</li>\n</ul>\n<ol>\n<li>first</li>\n<li>second</li>\n</ol>\n<blockquote>\n<p>quoted <em>text</em></p>\n</blockquote>\n<hr>\n<pre><code class=\"language-js\">let a = 1 &lt; 2;\n</code></pre>\n<p>&lt;script&gt;alert(1)&lt;/script&gt;</p>\n"
+            "<h1>Title</h1>\n<p>A <em>word</em> and <strong>more</strong>, <code>x &lt; y</code> and <a href=\"https://x.y\">a link</a> plus <img src=\"/i.png\" alt=\"alt\">.<br>\nSecond line,\nthe same paragraph.</p>\n<ul>\n<li>one</li>\n<li>two</li>\n</ul>\n<ol>\n<li>first</li>\n<li>second</li>\n</ol>\n<blockquote>\n<p>quoted <em>text</em></p>\n</blockquote>\n<hr>\n<pre><code class=\"language-js\">let a = 1 &lt; 2;\n</code></pre>\n<p>&lt;script&gt;alert(1)&lt;/script&gt;</p>\n"
         );
     }
 }

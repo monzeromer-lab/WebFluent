@@ -344,6 +344,13 @@ version of your `wf` — `wf-lsp --version` says which it is. It gives:
 - Diagnostics as you type — every check `wf build` runs, for `.wf`, `.wfx`
   and Markdown pages, again whenever a file one depends on changes (a
   translation, a `.env`, a script, a `public/` asset).
+- It knows what the project writes. In a project whose `build.output_type`
+  is `pdf` or `slides`, completion offers only what paper draws — no
+  `Button`, no `on click`, no `resource` — a `Presentation` is offered
+  slides (and the project's slide components) and a slide everything else;
+  hover says when an element is not drawn in this output, and why; `page`
+  and `pages` are names inside a `Header`, `Footer` or `Background`. On a
+  web project the paper-only elements are offered last.
 - Completion, from the compiler's own tables: components and their props
   after `(`, flags and parts after `.`, enum cases after `:`, events after
   `on `, `$` tokens, `match` arms, slot names; the fields of a record and

@@ -1,0 +1,11 @@
+/// The places Pocket has, as a column of links. The sidebar shows it on a
+/// wide screen and the drawer on a narrow one; the link for the page that is
+/// showing is marked as the current one.
+component NavLinks {
+    Stack(gap: .xs, class: "nav") {
+        Link(to: "/", class: "nav__link") { Icon("home")  Text(t("nav.dashboard")) }
+        Link(to: "/entries", active: .prefix, class: "nav__link") { Icon("calendar")  Text(t("nav.entries")) }
+        Link(to: "/categories", class: "nav__link") { Icon("filter")  Text(t("nav.categories")) }
+        Link(to: "/settings", class: "nav__link") { Icon("settings")  Text(t("nav.settings")) }
+    }
+}

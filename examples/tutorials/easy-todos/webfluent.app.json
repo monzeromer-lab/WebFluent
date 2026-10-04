@@ -1,0 +1,12 @@
+{
+  "name": "todos",
+  "version": "1.0.0",
+  "theme": { "name": "Paper", "dark": "Night" },
+  "build": { "output": "./build", "output_type": "spa", "csp": true },
+  "meta": {
+    "title": "Todos",
+    "description": "A small list of things to do, kept in your browser.",
+    "lang": "en",
+    "favicon": "/favicon.svg"
+  }
+}

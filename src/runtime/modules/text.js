@@ -42,7 +42,7 @@
     s = s.replace(MD.em, "<em>$1</em>");
     s = s.replace(MD.em2, "$1<em>$2</em>$3");
     spans.forEach((span, i) => { s = s.split("\u0000" + i + "\u0000").join(span); });
-    return s.replace(/\n/g, "<br>\n");
+    return s.replace(/\u0001\n/g, "<br>\n").replace(/\u0001/g, "");
   }
   // ─── Syntax colouring ───────────────────────────────
   //
@@ -278,8 +278,17 @@
         out += "</" + tag + ">\n";
         continue;
       }
+      // Lines run together, as CommonMark's do; one that ends in two spaces
+      // or a backslash breaks there (`\u0001` marks it).
       const para = [];
-      while (i < lines.length && !isBlock(lines[i].trim())) { para.push(lines[i].trim()); i++; }
+      while (i < lines.length && !isBlock(lines[i].trim())) {
+        const t = lines[i].trim();
+        if (t.endsWith("\\")) para.push(t.slice(0, -1).trimEnd() + "\u0001");
+        else if (lines[i].endsWith("  ")) para.push(t + "\u0001");
+        else para.push(t);
+        i++;
+      }
+      if (para.length) para[para.length - 1] = para[para.length - 1].replace(/\u0001+$/, "");
       out += "<p>" + mdInline(para.join("\n")) + "</p>\n";
     }
     return out;

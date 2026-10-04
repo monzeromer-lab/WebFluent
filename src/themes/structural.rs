@@ -66,11 +66,6 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .wf-row--center { align-items: center; }
 .wf-row--between { justify-content: space-between; }
 .wf-row--end { justify-content: flex-end; }
-.wf-gap--xs { gap: var(--spacing-xs); }
-.wf-gap--sm { gap: var(--spacing-sm); }
-.wf-gap--md { gap: var(--spacing-md); }
-.wf-gap--lg { gap: var(--spacing-lg); }
-.wf-gap--xl { gap: var(--spacing-xl); }
 .wf-align--start { align-items: flex-start; }
 .wf-align--center { align-items: center; }
 .wf-align--end { align-items: flex-end; }
@@ -109,6 +104,12 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .wf-grid[data-cols="11"] { grid-template-columns: repeat(11, 1fr); }
 .wf-grid[data-cols="12"] { grid-template-columns: repeat(12, 1fr); }
 .wf-stack { display: flex; flex-direction: column; gap: var(--spacing-md); }
+/* A gap a layout names wins over its default, so it comes after them. */
+.wf-gap--xs { gap: var(--spacing-xs); }
+.wf-gap--sm { gap: var(--spacing-sm); }
+.wf-gap--md { gap: var(--spacing-md); }
+.wf-gap--lg { gap: var(--spacing-lg); }
+.wf-gap--xl { gap: var(--spacing-xl); }
 .wf-spacer { height: var(--spacing-md); }
 .wf-spacer--xs { height: var(--spacing-xs); }
 .wf-spacer--sm { height: var(--spacing-sm); }
@@ -314,7 +315,7 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 @keyframes wf-toast-out { from { opacity: 1; } to { opacity: 0; transform: translateX(100%); } }
 
 /* ─── Modal (overlay) ───────────────────────────────── */
-.wf-modal { border: none; padding: 0; background: transparent; max-width: 90vw; max-height: 90vh; overflow: visible; }
+.wf-modal { margin: auto; border: none; padding: 0; background: transparent; max-width: 90vw; max-height: 90vh; overflow: visible; }
 .wf-modal::backdrop { background: rgba(0,0,0,0.5); }
 .wf-modal__content { background: var(--color-background); max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; }
 .wf-modal__header { padding: var(--spacing-md); display: flex; justify-content: space-between; align-items: center; }
@@ -323,7 +324,7 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 .wf-modal__footer { padding: var(--spacing-md); display: flex; justify-content: flex-end; gap: var(--spacing-sm); }
 
 /* ─── Dialog (overlay) ──────────────────────────────── */
-.wf-dialog { border: none; padding: 0; background: transparent; max-width: 90vw; max-height: 90vh; overflow: visible; }
+.wf-dialog { margin: auto; border: none; padding: 0; background: transparent; max-width: 90vw; max-height: 90vh; overflow: visible; }
 .wf-dialog::backdrop { background: rgba(0,0,0,0.5); }
 .wf-dialog__content { background: var(--color-background); padding: var(--spacing-lg); max-width: 400px; width: 90%; display: flex; flex-direction: column; gap: var(--spacing-md); }
 

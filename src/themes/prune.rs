@@ -182,7 +182,10 @@ fn keep(title: &str, usage: &Usage) -> bool {
     let any = |names: &[&str]| names.iter().any(|n| usage.uses(n));
     match name {
         "Navbar" => any(&["Navbar"]),
-        "Sidebar" | "Off-canvas controls" => any(&["Sidebar"]),
+        "Sidebar" => any(&["Sidebar"]),
+        // The toggle that opens a narrow screen's menu: a navbar has one too,
+        // which without this rule shows at every width.
+        "Off-canvas controls" => any(&["Sidebar", "Navbar"]),
         "Breadcrumb" => any(&["Breadcrumb"]),
         // A navbar's and a sidebar's entries are links.
         "Link" => any(&["Link", "Navbar", "Sidebar", "Breadcrumb"]),

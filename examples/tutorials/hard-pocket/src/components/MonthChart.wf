@@ -1,0 +1,29 @@
+/// Six months of money in and money out, as pairs of bars.
+///
+/// The built-in `Chart` draws at build time, from data the build can see.
+/// This ledger only exists in the reader's browser, so the chart is made of
+/// plain elements whose heights follow the store: `height: {share}%` is a
+/// style value that reads state, and repaints when it changes.
+component MonthChart(months: [MonthTotal], top: Number) {
+    Stack(gap: .sm) {
+        Row(class: "chart", align: .end, role: "img", aria-label: t("chart.label")) {
+            for m in months by m.month {
+                Stack(gap: .xs, align: .center, class: "chart__month") {
+                    Row(gap: .xs, align: .end, class: "chart__bars") {
+                        Host(tag: "span", class: "chart__bar chart__bar--in") {
+                            style { height: {m.income.amount / top * 100}% }
+                        }
+                        Host(tag: "span", class: "chart__bar chart__bar--out") {
+                            style { height: {m.spent.amount / top * 100}% }
+                        }
+                    }
+                    Text(format(m.month, "MMM"), class: "chart__label").sm.muted
+                }
+            }
+        }
+        Row(gap: .md, class: "chart__legend") {
+            Row(gap: .xs, align: .center) { Host(tag: "span", class: "swatch swatch--in")  Text(t("chart.in")).sm.muted }
+            Row(gap: .xs, align: .center) { Host(tag: "span", class: "swatch swatch--out")  Text(t("chart.out")).sm.muted }
+        }
+    }
+}

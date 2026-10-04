@@ -1,0 +1,23 @@
+/// One category's budget for this month: how much has gone, as a bar in the
+/// category's colour that turns to a warning once it is all spent.
+component BudgetBar(_ line: BudgetLine) {
+    derived over = line.share > 1
+    Stack(gap: .xs, class: { "budget": true, "is-over": over }) {
+        Row(justify: .between, align: .center) {
+            Row(gap: .sm, align: .center) {
+                CategoryDot(color: line.category.color)
+                Text(line.category.name).bold.sm
+            }
+            Text("{format(line.spent)} / {format(line.category.budget)}").sm.muted
+        }
+        Host(tag: "div", class: "budget__track") {
+            Host(tag: "div", class: "budget__fill") {
+                style {
+                    width: {Math.min(line.share, 1) * 100}%
+                    background: {if over { "var(--money-out)" } else { line.category.color }}
+                }
+            }
+        }
+        Text(if over { t("budget.over", { amount: format(line.left.times(-1)) }) } else { t("budget.left", { amount: format(line.left) }) }, class: "budget__note").sm
+    }
+}

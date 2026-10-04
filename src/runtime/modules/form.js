@@ -43,7 +43,10 @@
   /// Whether one rule holds. `null` means "cannot say yet", which is what
   /// an async rule is until its answer arrives.
   function holds(rule, value) {
-    const arg = rule.args && rule.args.length ? rule.args[0] : undefined;
+    // An argument that reads state — `max(Ledger.today)` — arrives as a
+    // function, and is read when the rule is checked.
+    const given0 = rule.args && rule.args.length ? rule.args[0] : undefined;
+    const arg = typeof given0 === "function" ? given0() : given0;
     switch (rule.name) {
       case "required": return given(value);
       // Every other rule passes an empty value: `required` is what says a
@@ -55,7 +58,7 @@
       case "min": return !given(value) || compare(value, arg) >= 0;
       case "max": return !given(value) || compare(value, arg) <= 0;
       case "pattern": return !given(value) || new RegExp(arg.source || arg, arg.flags || "").test(String(value));
-      case "matches": return value === (typeof arg === "function" ? arg() : arg);
+      case "matches": return value === arg;
       case "oneOf": return !given(value) || (Array.isArray(arg) ? arg : []).includes(value);
       case "custom": return !!rule.check;
       default: return true;

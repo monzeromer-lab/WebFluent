@@ -29,8 +29,9 @@ itself — no browser, no external tool:
 - **The page's own stylesheet.** The engine's rules for every built-in, the
   theme's tokens, every `.css` file under `src/` and every `style { }`
   block, through a real CSS cascade: selectors with descendant, child and
-  sibling combinators, attribute selectors and `:first-child`/`:nth-child`,
-  specificity, inheritance, `var()`, `em`, `rem` and `%`. A `Card` in a
+  sibling combinators, attribute selectors, `:first-child`/`:nth-child`,
+  `:not()`, `:is()` and `:where()`, specificity, inheritance, `var()`,
+  `em`, `rem` and `%`. A `Card` in a
   PDF looks like the `Card` on the page, and a class of your own
   (`class: "callout"`) brings its rules with it. `@media print` applies;
   rules only a screen has (`:hover`, a media query on width) do not.
@@ -285,8 +286,14 @@ page Deck(path: "/", title: "Q4 review", description: "The quarter in slides.") 
 ```
 
 - A deck is laid out by the same engine, a slide to a page: a slide is a
-  box the size of the page, its `slides.margin` its padding, and what runs
-  past its edge is clipped, with a note naming the slide.
+  box the size of the page, its `slides.margin` its padding (which a rule
+  of the deck's own overrides), and what runs past its edge is clipped,
+  with a note naming the slide.
+- A `Presentation` holds slides, a `for` or an `if` over them, and
+  components whose body is a slide: a deck writes its section openers,
+  headings and footers once, and makes a slide per item of its data. A
+  page's `derived` values are worked out before it is drawn, so a slide can
+  show a figure computed from a `data` file.
 - Kinds: `Slide { }` freeform (a column); `TitleSlide(title, subtitle:)`
   centred; `SectionSlide(label).primary/.success/.danger/.warning/.info`
   full-bleed; `TwoColumn { … }` two equal columns; `ImageSlide(src:,

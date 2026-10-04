@@ -1,0 +1,7 @@
+/// Pocket's name, as a link home.
+component Brand {
+    Link(to: "/", class: "brand") {
+        Host(tag: "span", class: "brand__mark", aria-hidden: "true")
+        Text("Pocket", class: "brand__name")
+    }
+}

@@ -111,7 +111,7 @@ page PagesAndRoutingGuide(path: "/docs/guide/pages-and-routing", title: "Pages a
     Button("Go") { on click { navigate("/about") } }
 }"#, title: "wf")
 
-        Markdown("The link whose `to:` matches the current route carries the class `.active` and `aria-current=\"page\"`; `.prefix` makes a section link active for the routes beneath it. `navigate(path)` moves in code. Write paths from the site's root — `\"/about\"` — even when the site is served under a sub-path: with `build.base_path` set to `\"/docs\"`, every `Link`, `navigate` and asset is prefixed for you. In a static build, links are real page loads and `navigate` is too; in a single-page app they swap pages without a reload, move focus to the new page's heading, reset the scroll and announce the title.")
+        Markdown("The link whose `to:` matches the current route carries the class `.active` and `aria-current=\"page\"`; `.prefix` makes a section link active for the routes beneath it. A `to:` with a query — `\"/?show=open\"` — is active only when the address carries those values too, so a row of filter links marks the one that is on. `navigate(path)` moves in code. Write paths from the site's root — `\"/about\"` — even when the site is served under a sub-path: with `build.base_path` set to `\"/docs\"`, every `Link`, `navigate` and asset is prefixed for you. In a static build, links are real page loads and `navigate` is too; in a single-page app they swap pages without a reload, move focus to the new page's heading, reset the scroll and announce the title.")
 
         Heading("Route parameters", id: "route-parameters").h2
 

@@ -1,0 +1,34 @@
+/* The page: one column, a card holding the list. */
+body { background: var(--color-background); }
+.shell { max-width: 36rem; padding: 3rem 1rem; }
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+.count { color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+.new { flex-wrap: nowrap; }
+.new .wf-input { flex: 1; }
+
+.filters a {
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+.filters a.is-on { background: var(--color-background); color: var(--color-text); font-weight: 600; }
+
+.list { gap: 0; }
+.todo { flex-wrap: nowrap; padding: 0.6rem 0.25rem; border-top: 1px solid var(--color-border); }
+.todo__title { flex: 1; }
+.todo.is-done .todo__title { text-decoration: line-through; color: var(--color-text-muted); }
+.todo__edit { flex: 1; }
+.todo__action { opacity: 0.55; }
+.todo:hover .todo__action, .todo__action:focus-visible { opacity: 1; }
+
+.empty { padding: 1.5rem 0; text-align: center; color: var(--color-text-muted); }
+.hint { margin-top: 1rem; text-align: center; font-size: 0.85rem; color: var(--color-text-muted); }

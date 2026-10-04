@@ -1,0 +1,31 @@
+test "with no tag, every note is listed, newest first" {
+    NoteFinder(notes)
+    expect "7 of 7 notes"
+    expect "Keeping a garden notebook"
+    expect "Sowing tomatoes on a windowsill"
+}
+
+test "a tag narrows the list to the notes filed under it" {
+    NoteFinder(notes, tag: "travel")
+    expect "2 of 7 notes, tagged “travel”"
+    expect "Three days on the West Highland Way"
+    expect "A week of markets in southern Portugal"
+}
+
+test "the search box narrows the list as you type" {
+    NoteFinder(notes)
+    type "loaf" into "Search the notes"
+    expect "1 of 7 notes"
+    expect "A loaf for people in a hurry"
+    expect not "Green sauce for everything"
+}
+
+test "a search that matches nothing says so, and clears" {
+    NoteFinder(notes)
+    type "zeppelin" into "Search the notes"
+    expect "Nothing matches"
+    expect "0 of 7 notes"
+    click "Clear the search"
+    expect "7 of 7 notes"
+    expect not "Nothing matches"
+}

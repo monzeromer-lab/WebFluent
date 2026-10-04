@@ -1,0 +1,42 @@
+// The shell every page shares: the bar across the top, the `Router` where
+// the current page is drawn, and the footer. The Router draws each page
+// inside `<main>`, so the navigation and the footer stay outside it — and
+// the "Skip to content" link jumps straight past them.
+app {
+    use Saved
+
+    Navbar(class: "site-nav") {
+        Navbar.Brand {
+            Link("Field Notes", to: "/", class: "brand")
+        }
+        Navbar.Links {
+            Link("Notes", to: "/")
+            Link("Tags", to: "/tags")
+            Link(to: "/saved", class: "saved-link") {
+                Text("Saved")
+                if Saved.count > 0 {
+                    Badge("{Saved.count}").pill
+                }
+            }
+            Link("About", to: "/about")
+        }
+        Navbar.Actions {
+            ThemeToggle
+        }
+    }
+
+    Router(transition: .fade, duration: "160ms")
+
+    Footer(class: "site-footer") {
+        Container {
+            Row(justify: .between, align: .center, gap: .md).stacks {
+                Text("Field Notes — written in a shed, between the beds and the stove.").sm
+                Row(gap: .md) {
+                    Link("Notes", to: "/")
+                    Link("Tags", to: "/tags")
+                    Link("About", to: "/about")
+                }
+            }
+        }
+    }
+}

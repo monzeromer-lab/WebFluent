@@ -795,6 +795,17 @@ page Report(path: "/", title: "Report", description: "The quarter.") {
 }
 
 // AGENTS.md
+component Point(_ label: String, n: Number) {
+    Slide { Heading(label).h1  Text("{n} of 3").muted }
+}
+page D(path: "/", title: "Deck") {
+    Presentation {
+        TitleSlide("Three points")
+        for p, i in ["Fast", "Small", "Typed"] { Point(p, n: i + 1) }
+    }
+}
+
+// AGENTS.md
 page Deck(path: "/", title: "Q1 Review", description: "The quarter.") {
     Presentation {
         TitleSlide("Q1 Review", subtitle: "Company Inc. — March 2026")

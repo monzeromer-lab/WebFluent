@@ -1,0 +1,25 @@
+{
+  "name": "pocket",
+  "version": "1.0.0",
+  "author": "WebFluent tutorials",
+  "theme": { "name": "Pocket", "dark": "PocketNight" },
+  "build": {
+    "output": "./build",
+    "output_type": "spa",
+    "csp": true
+  },
+  "meta": {
+    "title": "Pocket",
+    "description": "A budget that lives in your browser: income, spending and what is left, month by month.",
+    "lang": "en"
+  },
+  "i18n": {
+    "default_locale": "en",
+    "locales": ["en", "ar"],
+    "dir": "src/translations"
+  },
+  "offline": {
+    "precache": ["/", "/entries", "/categories", "/settings"],
+    "fallback": "/"
+  }
+}

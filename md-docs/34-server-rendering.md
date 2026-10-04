@@ -178,9 +178,11 @@ are read relative to the template. `format` and `ago` speak the data's
 The static subset of the language: every layout, typography and
 data-display element, `for` loops, `if`/`else`, string
 interpolation, `format` and `ago`, `style { }` blocks, flags, themes,
-`type`s, `const`s and components. Not: `state` that changes, `derived`,
-`effect`, handlers, navigation, stores, animations, `resource` — there is no
-browser to run them in.
+`type`s, `const`s and components. A `state` is its first value and a
+`derived` value what that works out to — a page may work out its totals
+once, in order, and show them anywhere — and a value the data hands over
+wins over either. Not: `effect`, handlers, navigation, stores, animations,
+`resource` — there is no browser to run them in.
 
 A template may read private `env` names ([Environments](30-environments.md)):
 it runs on your server, where a secret stays secret.
@@ -195,4 +197,4 @@ it runs on your server, where a secret stays secret.
 
 ## Next
 
-[Cookbook](35-recipes.md).
+[Tutorials](35-tutorials.md).

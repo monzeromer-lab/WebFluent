@@ -1,0 +1,8 @@
+/// The column a page is set in, and the frame every page names with
+/// `layout: Sheet`. A narrow sheet is for reading; a wide one holds a grid.
+component Sheet(wide: Bool = false) {
+    slot
+    Container(class: ["sheet", if wide { "sheet--wide" }]) {
+        children
+    }
+}

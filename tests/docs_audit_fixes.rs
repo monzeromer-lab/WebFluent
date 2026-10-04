@@ -335,3 +335,174 @@ fn a_responsive_layout_keeps_its_class_on_the_live_page() {
     );
     assert!(!js.contains("direction:"), "nor is `direction`: {js}");
 }
+
+/// `description: "{entry?.summary ?? slug}"` was written into every file as
+/// its own source — only `title:` worked a splice out. A description is
+/// worked out per file as the title is, and one that cannot be falls back
+/// to the project's rather than printing braces.
+#[test]
+fn a_description_may_splice_an_expression_over_the_parameters() {
+    let dir = std::env::temp_dir().join(format!("wf-audit-desc-expr-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(dir.join("src")).unwrap();
+    std::fs::write(
+        dir.join("webfluent.app.json"),
+        r#"{ "name": "t", "build": { "ssg": true }, "meta": { "description": "The site." } }"#,
+    )
+    .unwrap();
+    std::fs::write(
+        dir.join("src/App.wf"),
+        "const NOTES = [{ slug: \"bread\", summary: \"A quick loaf.\" }]\n\
+         page Note(path: \"/n/:slug\", slug: String, title: \"{slug}\", description: \"{NOTES.find(n => n.slug == slug)?.summary ?? slug}\", paths: NOTES.map(n => n.slug)) {\n\
+         \x20   Heading(slug).h1\n\
+         }\n\
+         page Home(path: \"/\", title: \"Home\", description: \"Home.\") { Heading(\"Home\").h1 }\n",
+    )
+    .unwrap();
+    let out = std::process::Command::new(env!("CARGO_BIN_EXE_wf"))
+        .args(["build", "-d"])
+        .arg(&dir)
+        .output()
+        .unwrap();
+    assert!(
+        out.status.success(),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let page = std::fs::read_to_string(dir.join("build/n/bread/index.html")).unwrap();
+    assert!(
+        page.contains(r#"name="description" content="A quick loaf.""#),
+        "{page}"
+    );
+    assert!(!page.contains("NOTES.find"), "{page}");
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// `query.tag == null` was false when the address had no `tag`: the key is
+/// `undefined` in the browser, and `=== null` told the two apart.
+#[test]
+fn a_comparison_with_null_catches_an_absent_value() {
+    let js = spa_generated(
+        "page Home(path: \"/\", title: \"H\", description: \"D\") {\n\
+         \x20   derived none = query.tag == null\n\
+         \x20   derived some = query.tag != null\n\
+         \x20   Text(if none { \"none\" } else { \"some\" })\n\
+         \x20   Text(if some { \"yes\" } else { \"no\" })\n\
+         }\n",
+    );
+    assert!(js.contains("== null") && !js.contains("=== null"), "{js}");
+    assert!(js.contains("!= null") && !js.contains("!== null"), "{js}");
+}
+
+/// `disabled: !form.valid` was read once: `form.valid` reads signals, but
+/// nothing else in the expression did, so it was written as a value and the
+/// button stayed disabled.
+#[test]
+fn what_reads_a_form_handle_is_followed() {
+    let js = spa_generated(
+        "page Home(path: \"/\", title: \"H\", description: \"D\") {\n\
+         \x20   state n = \"\"\n\
+         \x20   validate n { required }\n\
+         \x20   Form(bind: form) {\n\
+         \x20       Input(bind: n, label: \"N\")\n\
+         \x20       Button(\"Go\", type: .submit, disabled: !form.valid)\n\
+         \x20   }\n\
+         }\n",
+    );
+    assert!(js.contains("disabled: () => !form.valid"), "{js}");
+}
+
+/// `Blob([text])` compiled to a call, which throws: most of the browser's
+/// classes must be constructed.
+#[test]
+fn a_browser_class_is_constructed() {
+    let js = spa_generated(
+        "page Home(path: \"/\", title: \"H\", description: \"D\") {\n\
+         \x20   state csv = \"a,b\"\n\
+         \x20   Button(\"Save\") { on click { let b = Blob([csv], { type: \"text/csv\" })  let u = URLSearchParams(\"a=1\")  log(b.size)  log(u) } }\n\
+         }\n",
+    );
+    assert!(js.contains("new Blob(["), "{js}");
+    assert!(js.contains("new URLSearchParams("), "{js}");
+}
+
+fn i18n_project(name: &str) -> std::path::PathBuf {
+    let dir = std::env::temp_dir().join(format!("wf-audit-{name}-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(dir.join("src/translations")).unwrap();
+    std::fs::create_dir_all(dir.join("tests")).unwrap();
+    std::fs::write(
+        dir.join("webfluent.app.json"),
+        r#"{ "name": "t", "i18n": { "default_locale": "en", "locales": ["en", "ar"], "dir": "src/translations" } }"#,
+    )
+    .unwrap();
+    std::fs::write(
+        dir.join("src/translations/en.json"),
+        r#"{ "hello": "Hello", "entries.one": "{count} entry", "entries.other": "{count} entries", "entries.in": "In {amount}" }"#,
+    )
+    .unwrap();
+    std::fs::write(
+        dir.join("src/translations/ar.json"),
+        r#"{ "hello": "مرحبا", "entries.zero": "لا قيود", "entries.one": "قيد", "entries.two": "قيدان", "entries.few": "{count} قيود", "entries.many": "{count} قيدًا", "entries.other": "{count} قيد", "entries.in": "في {amount}" }"#,
+    )
+    .unwrap();
+    std::fs::write(
+        dir.join("src/App.wf"),
+        "page Home(path: \"/\", title: \"H\", description: \"D\") {\n\
+         \x20   Heading(t(\"hello\")).h1\n\
+         \x20   Text(t(\"entries\", { count: 2 }))\n\
+         \x20   Text(t(\"entries.in\", { amount: \"$3\" }))\n\
+         }\n",
+    )
+    .unwrap();
+    dir
+}
+
+/// `t("entries", { count })` was told it passes `count` the message does
+/// not use when a sibling message `entries.in` existed, and English was
+/// asked for Arabic's `zero`, `two`, `few` and `many`, which fall back to
+/// its `other`.
+#[test]
+fn plural_messages_draw_no_false_translation_findings() {
+    let dir = i18n_project("plurals");
+    let out = std::process::Command::new(env!("CARGO_BIN_EXE_wf"))
+        .args(["check", "--deny-warnings", "-d"])
+        .arg(&dir)
+        .output()
+        .unwrap();
+    let text =
+        String::from_utf8_lossy(&out.stdout).to_string() + &String::from_utf8_lossy(&out.stderr);
+    assert!(out.status.success(), "{text}");
+    assert!(!text.contains("I02") && !text.contains("I03"), "{text}");
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// `wf test` drew `t("hello")` as its key: a test reads the project's
+/// translations, in its default locale, plural forms and placeholders
+/// filled.
+#[test]
+fn a_test_reads_the_projects_translations() {
+    let dir = i18n_project("test-i18n");
+    std::fs::write(
+        dir.join("tests/t.wf"),
+        "test \"translated\" {\n\
+         \x20   Heading(t(\"hello\")).h1\n\
+         \x20   Text(t(\"entries\", { count: 1 }))\n\
+         \x20   Text(t(\"entries\", { count: 3 }))\n\
+         \x20   expect \"Hello\"\n\
+         \x20   expect \"1 entry\"\n\
+         \x20   expect \"3 entries\"\n\
+         }\n",
+    )
+    .unwrap();
+    let out = std::process::Command::new(env!("CARGO_BIN_EXE_wf"))
+        .args(["test"])
+        .current_dir(&dir)
+        .output()
+        .unwrap();
+    let text =
+        String::from_utf8_lossy(&out.stdout).to_string() + &String::from_utf8_lossy(&out.stderr);
+    assert!(out.status.success(), "{text}");
+    assert!(text.contains("1 passed"), "{text}");
+    let _ = std::fs::remove_dir_all(&dir);
+}

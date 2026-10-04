@@ -1,0 +1,16 @@
+page Home(path: "/", title: "Field Notes",
+    description: "Notes from a small garden, a busy kitchen and the roads between them.",
+    layout: Sheet) {
+
+    Stack(gap: .xl) {
+        Stack(gap: .sm, class: "hero") {
+            Text("A notebook, kept in public", class: "eyebrow").sm
+            Heading("Field Notes").h1
+            Text("Notes from a small garden, a busy kitchen and the roads between them — what worked, what did not, and what to try next year.", class: "lede")
+        }
+
+        // `query.tag` is the URL's `?tag=…`; it is missing when the URL has
+        // none, and `?? ""` turns that into the finder's "every note".
+        NoteFinder(notes, tag: query.tag ?? "")
+    }
+}

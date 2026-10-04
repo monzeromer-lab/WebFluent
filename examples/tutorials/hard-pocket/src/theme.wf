@@ -1,0 +1,51 @@
+// Pocket's look: a quiet paper-and-ink palette with one green that means
+// "money", and a night version of it. Every token not named here keeps the
+// engine's baseline value.
+
+theme Pocket {
+    color-primary: #0E7C66
+    color-secondary: #5F6B66
+    color-success: #13795B
+    color-danger: #C2410C
+    color-warning: #B45309
+    color-info: #0E7490
+    color-background: #F5F6F2
+    color-surface: #FFFFFF
+    color-text: #17201C
+    color-text-muted: #5C6863
+    color-border: #E2E6E0
+    radius-md: 10px
+    radius-lg: 16px
+    shadow-sm: 0 1px 2px rgba(23, 32, 28, 0.06)
+    shadow-md: 0 6px 20px -8px rgba(23, 32, 28, 0.18)
+
+    // Pocket's own tokens, for what the built-ins have no name for.
+    surface-sunken: #EEF1EC
+    money-in: #13795B
+    money-out: #C2410C
+    bar-in: #34A27F
+    bar-out: #E3895A
+    brand-ink: #0B3D33
+    on-primary: #FFFFFF
+}
+
+theme PocketNight {
+    color-primary: #3CC59C
+    color-secondary: #98A6A0
+    color-success: #4CC79A
+    color-danger: #F08A5D
+    color-warning: #F2B35B
+    color-background: #0D1311
+    color-surface: #141C19
+    color-text: #E6ECE9
+    color-text-muted: #95A39D
+    color-border: #24302B
+
+    surface-sunken: #101815
+    money-in: #4CC79A
+    money-out: #F08A5D
+    bar-in: #2F9E7B
+    bar-out: #C86E45
+    brand-ink: #C9F2E4
+    on-primary: #05261D
+}

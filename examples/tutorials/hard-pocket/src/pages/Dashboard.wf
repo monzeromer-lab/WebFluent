@@ -1,0 +1,56 @@
+page Dashboard(path: "/", title: "Pocket", description: "Where your money went this month, and what is left of it.") {
+    use Ledger
+    use Ui
+
+    PageHeader(t("dash.title"), subtitle: format(Ledger.today, "MMMM yyyy")) {
+        actions {
+            Button(t("action.new")).primary { on click { Ui.compose() } }
+        }
+    }
+
+    Grid(columns: { base: 2, xl: 4 }, gap: .md) {
+        KpiCard(t("kpi.balance"), value: Ledger.balance, note: t("kpi.balanceNote"))
+        KpiCard(t("kpi.income"), value: Ledger.monthIncome, note: t("kpi.thisMonth"), lean: .good)
+        KpiCard(t("kpi.spent"), value: Ledger.monthSpent, note: t("kpi.thisMonth"), lean: .bad)
+        KpiCard(t("kpi.left"), value: Ledger.budgetLeft, note: t("kpi.leftNote", { budget: format(Ledger.monthBudget) }),
+            lean: if Ledger.budgetLeft.amount < 0 { .bad } else { .good })
+    }
+
+    Grid(columns: { base: 1, lg: 2 }, gap: .md) {
+        Card(class: "panel") {
+            Heading(t("dash.chart")).h2
+            MonthChart(months: Ledger.months, top: Ledger.chartTop)
+            Grid(columns: 3, gap: .sm, class: "averages") {
+                Stack(gap: .xs) { Text(t("avg.in")).sm.muted  Text(format(Ledger.averageIn), class: "is-income").bold }
+                Stack(gap: .xs) { Text(t("avg.out")).sm.muted  Text(format(Ledger.averageOut), class: "is-expense").bold }
+                Stack(gap: .xs) { Text(t("avg.kept")).sm.muted  Text(format(Ledger.averageKept)).bold }
+            }
+        }
+        Card(class: "panel") {
+            Heading(t("dash.budgets")).h2
+            if Ledger.budgets.length == 0 {
+                EmptyState(t("budget.none")) { Link(t("budget.set"), to: "/categories") }
+            } else {
+                Stack(gap: .md) {
+                    for line in Ledger.budgets by line.category.id { BudgetBar(line) }
+                }
+            }
+        }
+    }
+
+    Card(class: "panel") {
+        Row(justify: .between, align: .center) {
+            Heading(t("dash.recent")).h2
+            Link(t("dash.all"), to: "/entries")
+        }
+        if Ledger.entries.length == 0 {
+            EmptyState(t("empty.ledger"), body: t("empty.ledgerBody")) {
+                Button(t("action.new")).primary { on click { Ui.compose() } }
+            }
+        } else {
+            Stack(class: "entry-list") {
+                for e in Ledger.newestFirst.take(6) by e.id { EntryRow(e) }
+            }
+        }
+    }
+}

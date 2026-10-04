@@ -51,11 +51,45 @@ their family name, variable fonts at the asked weight. A character no
 named face has is drawn from one that has it; the build names any family
 taken from the machine, and `"system_fonts": false` forbids it.
 
+## Decks
+
+- **A `Presentation` holds `for`, `if` and slide components**: a deck
+  writes its openers and footers once and makes a slide per item of its
+  data.
+- **A page's `state` and `derived` values have their values on paper** —
+  and in any template render — so a slide shows a figure worked out from a
+  `data` file. Data handed to a render wins over either.
+- **`:is()` and `:where()`** in the paged cascade. The engine's slide
+  heading sizes use `:where`, and the slide margin is a default, so a
+  deck's own classes always win.
+
 ## Templates
 
 - **`render_pdf_report` and `render_slides_report`** return a `PdfReport`:
   the bytes, the page count, each page's text in reading order and the
   notes. A template reads fonts and pictures from beside its files.
+
+## The editor
+
+- **The language server knows what the project writes.** In a `pdf` or
+  `slides` project, completion offers only what paper draws — no
+  `Button`, no `on click`, no `resource` — a `Presentation` is offered its
+  slides and the project's slide components, and hover says when an
+  element is not drawn in this output and why. `page` and `pages` are names
+  inside a `Header`, `Footer` or `Background`. On a web project the
+  paper-only elements are offered last.
+
+## Fixes
+
+- **Right to left, a flex row runs from the right.** taffy already
+  mirrors a row under `direction: rtl`; the engine reversed it again, so
+  rows in an Arabic PDF came out left to right.
+- **A keyed list no longer draws a row twice** when a handler that runs as
+  a row leaves — an input's `blur` — writes the list while it is being
+  drawn.
+- **A `Link` whose `to` has a query** (`/?show=open`) is active only when
+  the address has those values too; a row of filter links no longer marks
+  every one as the current page.
 
 ## Diagnostics
 
@@ -71,6 +105,18 @@ Halyard platform report (dark cover, contents, charts, a 64-row table that
 repeats its header, incidents, a QR code), an invoice (band, watermark,
 repeated header, totals kept whole), and an Arabic résumé laid out right to
 left.
+
+`examples/decks/` holds three slide decks: WebFluent itself in the docs
+site's design system, Halyard's quarterly review drawn from the report's
+data (a slide per incident from a `for`), and an Arabic workshop.
+
+## Tutorials
+
+The cookbook is now **Tutorials**: three projects built step by step, each
+complete under `examples/tutorials/` and none needing a server — **Todos**
+(easy), **Field Notes**, a statically built notes site (medium), and
+**Pocket**, a budget tracker with forms, i18n and offline (hard). A test
+holds every file the chapter shows to the project it comes from.
 
 ## Editors
 

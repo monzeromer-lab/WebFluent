@@ -1,0 +1,34 @@
+/// One row of the list: a box to tick, the title, and buttons to rename and
+/// remove it.
+component TodoRow(_ todo: Todo) {
+    use Todos
+    state editing = false
+    state draft = todo.title
+
+    action save() {
+        Todos.rename(todo.id, draft)
+        editing = false
+    }
+
+    Row(class: ["todo", if todo.done { "is-done" }], align: .center, gap: .sm) {
+        Checkbox(checked: todo.done, aria-label: "Done: {todo.title}") {
+            on change { Todos.toggle(todo.id) }
+        }
+        if editing {
+            // `mount:` runs when the input is made: the cursor goes straight in.
+            Input(bind: draft, aria-label: "New title for {todo.title}", class: "todo__edit", mount: (n) => n.focus()) {
+                on key("Enter") { save() }
+                on key("Escape") { draft = todo.title  editing = false }
+                on blur { save() }
+            }
+        } else {
+            Text(todo.title, class: "todo__title")
+            IconButton(icon: "edit", label: "Rename {todo.title}", class: "todo__action").sm {
+                on click { draft = todo.title  editing = true }
+            }
+        }
+        IconButton(icon: "trash", label: "Remove {todo.title}", class: "todo__action").sm {
+            on click { Todos.remove(todo.id) }
+        }
+    }
+}

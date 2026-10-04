@@ -1,0 +1,21 @@
+{
+  "name": "field-notes",
+  "version": "1.0.0",
+  "author": "Field Notes",
+  "theme": { "name": "Meadow", "dark": "Dusk" },
+  "build": {
+    "output": "./build",
+    "ssg": true,
+    "csp": true
+  },
+  "meta": {
+    "title": "Field Notes",
+    "description": "Notes from a small garden, a busy kitchen and the roads between them.",
+    "lang": "en",
+    "site_url": "https://field-notes.example.com",
+    "site_name": "Field Notes",
+    "favicon": "/favicon.svg",
+    "image": "/card.png",
+    "sitemap": true
+  }
+}

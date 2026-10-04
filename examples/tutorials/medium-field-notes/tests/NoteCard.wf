@@ -1,0 +1,25 @@
+test "a card shows when the note was written and how long it takes" {
+    NoteCard(Note(slug: "pickled-onions", title: "Pickled onions", date: "2026-02-01",
+                  tags: ["kitchen", "preserving"], summary: "Sharp, sweet and ready in a week.",
+                  minutes: 2, body: ""))
+    expect "Pickled onions"
+    expect "February 1, 2026 · 2 min read"
+    expect "#kitchen"
+    expect "#preserving"
+    expect "Save"
+}
+
+test "saving a note counts it, and saving it again takes it back" {
+    use Saved
+    Text("{Saved.count} saved")
+    NoteCard(Note(slug: "pickled-onions", title: "Pickled onions", date: @2026-02-01,
+                  tags: ["kitchen"], summary: "Sharp, sweet and ready in a week.",
+                  minutes: 2, body: ""))
+
+    expect "0 saved"
+    click "Save: Pickled onions"
+    expect "1 saved"
+    expect "Saved"
+    click "Saved: Pickled onions"
+    expect "0 saved"
+}

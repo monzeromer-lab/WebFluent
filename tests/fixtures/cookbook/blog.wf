@@ -1,0 +1,127 @@
+// The blog application of the former cookbook chapter, kept as a
+// fixture: tests/cookbook.rs builds it and tests/js/cookbook.test.mjs
+// clicks through the bundle.
+theme Paper {
+    color-primary: #7C3AED
+    color-background: #FFFFFF
+    color-surface: #FAF5FF
+    color-text: #1F1235
+    color-text-muted: #5B5470
+    font-family: 'Georgia', serif
+    radius-md: 4px
+}
+
+theme Ink {
+    color-background: #14101C
+    color-surface: #1D1728
+    color-text: #F3EEFF
+    color-text-muted: #B9AECF
+    color-border: #2E2540
+}
+
+type Post {
+    slug: String
+    title: String
+    summary: String
+    date: String
+    tags: [String]
+    body: String
+}
+
+data posts: [Post] = "posts.json"
+
+component Shell(_ crumb: String) {
+    slot
+    Navbar {
+        Navbar.Brand { Link("Paper & Ink", to: "/") }
+        Navbar.Links {
+            Link("Posts", to: "/", active: .prefix)
+            Link("Tags", to: "/tags")
+            Link("About", to: "/about")
+        }
+        Navbar.Actions {
+            Button(if theme == "dark" { "Light" } else { "Dark" }).sm {
+                on click { setTheme(if theme == "dark" { "light" } else { "dark" }) }
+            }
+        }
+    }
+    Container {
+        style { max-width: 44rem; padding: $lg $md }
+        Breadcrumb {
+            Breadcrumb.Item(to: "/") { Text("Home") }
+            Breadcrumb.Item { Text(crumb) }
+        }
+        children
+    }
+}
+
+component PostCard(_ post: Post) {
+    Card {
+        style { margin-bottom: $md }
+        Link(post.title, to: "/posts/{post.slug}") { style { font-size: $xl; font-weight: 700 } }
+        Text(format(post.date, .date, "long")).muted.sm
+        Text(post.summary)
+        Row(gap: .xs) {
+            for tag in post.tags by tag { Tag(tag) }
+        }
+    }
+}
+
+app { Router(transition: .fade) }
+
+page Home(path: "/", title: "Paper & Ink", description: "Notes on making things.", layout: Shell(crumb: "Posts")) {
+    derived sorted = posts.sortBy(p => p.date).reverse()
+    Heading("Posts").h1
+    for p in sorted by p.slug { PostCard(p) }
+}
+
+page PostPage(path: "/posts/:slug", slug: String, title: "Paper & Ink", description: "A post.", type: "article", layout: Shell(crumb: "Post"), paths: posts.map(p => p.slug)) {
+    derived post = posts.find(p => p.slug == slug)
+    derived related = posts.filter(p => p.slug != slug && p.tags.some(t => post?.tags.includes(t) ?? false)).take(3)
+    head {
+        meta(property: "og:title", content: post?.title ?? "Post")
+        meta(property: "og:description", content: post?.summary ?? "")
+        meta(property: "article:published_time", content: post?.date ?? "")
+    }
+    if let p = post {
+        Heading(p.title).h1
+        Text(format(p.date, .date, "long")).muted
+        Markdown(p.body)
+        Divider
+        if related.length > 0 {
+            Heading("Related").h2
+            for r in related by r.slug { Link(r.title, to: "/posts/{r.slug}") }
+        }
+    } else {
+        Alert("No such post.").warning
+        Link("Back to posts", to: "/")
+    }
+}
+
+page Tags(path: "/tags", title: "Tags", description: "Every tag on the blog.", layout: Shell(crumb: "Tags")) {
+    derived tags = posts.flatMap(p => p.tags).unique().sort()
+    Heading("Tags").h1
+    for tag in tags by tag {
+        derived count = posts.filter(p => p.tags.includes(tag)).length
+        Row(gap: .sm, align: .center) {
+            Link(tag, to: "/tags/{tag}")
+            Badge("{count}").info
+        }
+    }
+}
+
+page TagPage(path: "/tags/:tag", tag: String, title: "Tag", description: "Posts under a tag.", layout: Shell(crumb: "Tag"), paths: posts.flatMap(p => p.tags).unique()) {
+    derived hits = posts.filter(p => p.tags.includes(tag))
+    Heading("Tagged {tag}").h1
+    for p in hits by p.slug { PostCard(p) }
+}
+
+page About(path: "/about", title: "About", description: "Who writes here.", layout: Shell(crumb: "About")) {
+    Heading("About").h1
+    Markdown("Written with **WebFluent**. Every page here is a static file, hydrated in place.")
+}
+
+page NotFound(path: "*", title: "Not found", description: "Nothing lives here.", noindex: true, layout: Shell(crumb: "404")) {
+    Heading("Not found").h1
+    Link("Back home", to: "/")
+}

@@ -436,6 +436,9 @@ pub struct PageDecl {
     /// it for each file and the router works it out on each visit; a title
     /// that only names parameters (`"{slug} — Blog"`) needs none.
     pub title_expr: Option<Expr>,
+    /// The description as an expression, on the same terms as `title_expr`:
+    /// `description: "{post.summary}"`, worked out for each file.
+    pub description_expr: Option<Expr>,
     pub guard: Option<Expr>,
     pub redirect: Option<String>,
 

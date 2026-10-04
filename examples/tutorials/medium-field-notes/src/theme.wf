@@ -1,0 +1,31 @@
+/// The light theme: warm paper, garden green, a terracotta accent.
+theme Meadow {
+    color-primary: #2F6B4F
+    color-secondary: #A4492F
+    color-background: #FBF8F1
+    color-surface: #F3EEE2
+    color-text: #1F2A24
+    color-text-muted: #5A665F
+    color-border: #E2DACA
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Charter, Georgia, serif
+    font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif
+    radius-md: 10px
+    radius-lg: 16px
+    paper-raised: #FFFDF8
+    tag-bg: #E6EFE8
+    tag-text: #24553E
+}
+
+/// The dark theme: only the tokens that change.
+theme Dusk {
+    color-primary: #86C9A6
+    color-secondary: #E8A086
+    color-background: #121614
+    color-surface: #1A201D
+    color-text: #E9E5DA
+    color-text-muted: #A6AFA9
+    color-border: #2B3430
+    paper-raised: #171C19
+    tag-bg: #213129
+    tag-text: #A9DCC1
+}

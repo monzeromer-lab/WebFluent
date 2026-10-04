@@ -1,0 +1,21 @@
+/// A note at a glance: when it was written, its title, a summary, its tags
+/// and the button that saves it.
+component NoteCard(
+    _ note: Note,
+    /// Keeps the card in the page but out of sight — what a filter does.
+    hidden: Bool = false
+) {
+    Card(class: "note-card", hidden: hidden) {
+        Stack(gap: .sm) {
+            Row(justify: .between, align: .center, gap: .sm) {
+                Text("{note.date:.date(long)} · {note.minutes} min read", class: "note-meta").sm
+                SaveButton(note.slug, title: note.title)
+            }
+            Link(to: "/notes/{note.slug}", class: "note-card__link") {
+                Heading(note.title).h2
+            }
+            Text(note.summary, class: "note-card__summary")
+            TagList(note.tags)
+        }
+    }
+}

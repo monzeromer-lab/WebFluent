@@ -1,0 +1,54 @@
+page NotePage(path: "/notes/:slug", slug: String,
+    title: "{notes.find(n => n.slug == slug)?.title ?? slug} — Field Notes",
+    description: "{notes.find(n => n.slug == slug)?.summary ?? slug}",
+    type: "article",
+    layout: Sheet,
+    paths: notes.map(n => n.slug)) {
+
+    derived note = notes.find(n => n.slug == slug)
+    derived alike = notes.filter(n => n.slug != slug && n.tags.some(t => note?.tags.includes(t) ?? false))
+    derived related = alike.sortBy(n => n.date).reverse().take(3)
+
+    // When the note was written, for a link preview that shows it.
+    head {
+        meta(property: "article:published_time", content: note?.date ?? "")
+    }
+
+    if let n = note {
+        Stack(gap: .lg, class: "note") {
+            Breadcrumb {
+                Breadcrumb.Item(to: "/") { Text("Notes") }
+                Breadcrumb.Item { Text(n.title) }
+            }
+
+            Stack(gap: .sm, class: "note__header") {
+                TagList(n.tags)
+                Heading(n.title).h1
+                Row(justify: .between, align: .center, gap: .sm).stacks {
+                    Text("{n.date:.date(long)} · {n.minutes} min read", class: "note-meta")
+                    SaveButton(n.slug, title: n.title)
+                }
+            }
+
+            Markdown(n.body)
+
+            if related.length > 0 {
+                Stack(gap: .sm, class: "related") {
+                    Heading("More like this").h2
+                    for r in related by r.slug {
+                        Link(to: "/notes/{r.slug}", class: "related__item") {
+                            Text(r.title, class: "related__title")
+                            Text(r.summary, class: "related__summary").sm.muted
+                        }
+                    }
+                }
+            }
+        }
+    } else {
+        Stack(gap: .md) {
+            Heading("No such note").h1
+            Text("Nothing in the notebook is filed under “{slug}”.").muted
+            Link("Back to every note", to: "/")
+        }
+    }
+}

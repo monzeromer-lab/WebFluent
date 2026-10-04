@@ -542,6 +542,7 @@ impl ParserV2 {
             path: String::new(),
             title: None,
             title_expr: None,
+            description_expr: None,
             guard: None,
             redirect: None,
             description: None,
@@ -580,7 +581,17 @@ impl ParserV2 {
                         });
                     }
                     "description" => {
-                        page.description = Some(self.expect_string("the description")?)
+                        let expr = match self.kind() {
+                            TokenType::StringLiteral(lit) => Some(self.string_expr(&lit.clone())?),
+                            _ => None,
+                        };
+                        page.description = Some(self.expect_string("the description")?);
+                        page.description_expr = expr.filter(|e| match e {
+                            Expr::InterpolatedString(parts) => parts.iter().any(|p| {
+                                matches!(p, StringPart::Expression(x) if !matches!(x, Expr::Identifier(_)))
+                            }),
+                            _ => false,
+                        });
                     }
                     "image" => page.image = Some(self.expect_string("the image")?),
                     "type" => page.page_type = Some(self.expect_string("the page type")?),
@@ -1220,6 +1231,11 @@ impl ParserV2 {
         let open = self.expect(&TokenType::OpenBrace, "`{`")?;
         let mut statements = Vec::new();
         while !self.check(&TokenType::CloseBrace) && !self.at_end() {
+            // A `///` above a store's action or state documents it for the
+            // reader of the source; nothing else reads it yet.
+            if self.take_docs().is_some() {
+                continue;
+            }
             self.push_render_statement(body, &mut statements)?;
         }
         let close = self.expect(&TokenType::CloseBrace, "`}`")?;

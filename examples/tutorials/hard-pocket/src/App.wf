@@ -1,0 +1,72 @@
+// The shell every page shares: a sidebar on a wide screen, a bar with a
+// menu on a narrow one, the "new entry" dialog, the shortcuts that open
+// and close it, and the notices in the corner.
+app {
+    use Ui
+    use Prefs
+
+    // The language the reader picked last time, applied on every visit.
+    effect { if Prefs.language != "" { setLocale(Prefs.language) } }
+
+    // `n` opens a new entry from anywhere. A key with no modifier is left to
+    // the field the reader is typing in, so an `n` in a note is just a letter.
+    on key("n") { Ui.compose() }
+    on key("Escape") { Ui.closeAll() }
+
+    // Another tab (or the settings page of this one) imported a file: say so.
+    channel news = broadcast("pocket") {
+        on message(m) { Ui.notify(t("toast.imported", { count: m.count })) }
+    }
+
+    Row(class: "shell", align: .stretch) {
+        if viewport.lg {
+            Sidebar(class: "rail") {
+                Sidebar.Header { Brand }
+                NavLinks
+                Spacer
+                Button(t("action.new"), class: "rail__new").primary.full { on click { Ui.compose() } }
+                Text(t("shortcut.hint"), class: "rail__hint").muted.sm
+            }
+        } else {
+            Row(justify: .between, align: .center, class: "topbar") {
+                IconButton(icon: "menu", label: t("nav.open"), aria-expanded: Ui.menuOpen) { on click { Ui.toggleMenu() } }
+                Brand
+                IconButton(icon: "plus", label: t("action.new")).primary { on click { Ui.compose() } }
+            }
+            if Ui.menuOpen {
+                Host(tag: "div", class: "scrim") { on click { Ui.closeAll() } }
+                Stack(gap: .md, class: "drawer", animate: .slideRight, exit: .fadeOut) {
+                    on click { Ui.menuOpen = false }
+                    Brand
+                    NavLinks
+                }
+            }
+        }
+
+        Stack(gap: .lg, class: "main") {
+            if update.available {
+                Alert.info {
+                    Row(justify: .between, align: .center, gap: .md) {
+                        Text(t("update.ready"))
+                        Button(t("update.reload")).sm { on click { update.apply() } }
+                    }
+                }
+            }
+            if !network.online { Alert(t("offline.note")).warning }
+            Router
+        }
+    }
+
+    Modal(visible: Ui.composing, title: t("compose.title")) {
+        if Ui.composing {
+            EntryForm {
+                on saved {
+                    Ui.composing = false
+                    Ui.notify(t("toast.added"))
+                }
+            }
+        }
+    }
+
+    for n in Ui.notices by n.id { Toast(n.text).success }
+}

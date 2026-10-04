@@ -1,10 +1,8 @@
-//! The cookbook's three applications, built from the guide and then run.
+//! Three complete applications — the former cookbook's — built and then run.
 //!
 //! `rendered_site.test.mjs` drives the fixture projects under `tests/fixtures/`.
-//! This one drives the apps printed in `md-docs/21-cookbook.md` itself, so a
-//! reader who pastes one into a fresh project gets something that works. The
-//! sources are extracted by `tests/cookbook.rs`, which builds them into
-//! `target/e2e/cookbook-*` before handing over here.
+//! This one drives `tests/fixtures/cookbook/*.wf`, which `tests/cookbook.rs`
+//! builds into `target/e2e/cookbook-*` before handing over here.
 //!
 //! These go through the store actions rather than only reading the first paint:
 //! a store is an object of actions, and a codegen that mistook one of them for
