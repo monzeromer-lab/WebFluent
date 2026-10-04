@@ -5566,7 +5566,7 @@ fn case_signature(case: &str, fields: &[(String, Type)]) -> String {
 
 /// What a rule is a rule for, or `None` when there is no such rule.
 /// The rules a `validate` block may hold, for a tool to offer;
-/// [`rule_wants`] reads each.
+/// `rule_wants` reads each.
 pub const VALIDATE_RULES: &[&str] = &[
     "required",
     "email",

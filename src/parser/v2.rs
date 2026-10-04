@@ -3983,7 +3983,7 @@ fn is_http_method(word: &str) -> bool {
 }
 
 /// The units a number may carry as a `Duration` (`3.days`), for a tool to
-/// offer; [`duration_unit`] reads each, a test holds them together.
+/// offer; `duration_unit` reads each, a test holds them together.
 pub const DURATION_UNITS: &[&str] = &["ms", "seconds", "minutes", "hours", "days", "weeks"];
 
 /// The named keys `on key("…")` reads, as the browser spells them — for a

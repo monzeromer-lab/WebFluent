@@ -305,7 +305,7 @@ impl Moment {
 }
 
 /// The styles `format(value, .style, option)` takes, each with what it
-/// shows — for a tool to offer; a test holds them to [`format`].
+/// shows — for a tool to offer; a test holds them to [`format()`].
 pub const STYLES: &[(&str, &str)] = &[
     ("number", "a number in the locale's way: 1,234.5"),
     ("integer", "a whole number: 1,235"),
