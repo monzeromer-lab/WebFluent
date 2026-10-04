@@ -1593,3 +1593,122 @@ fn signature_help_shows_what_a_call_takes_and_where_the_cursor_is() {
     // Outside every parenthesis: none.
     assert!(page("    Text(\"a\")", "    ‸Text(\"a\")").is_none());
 }
+
+#[test]
+fn folding_covers_declarations_and_the_blocks_inside_them() {
+    let src = "page Home(path: \"/\", title: \"Home\") {\n    state n = 0\n    Card {\n        Text(\"a\")\n        Text(\"b\")\n    }\n}\n\ncomponent Tag(_ label: String) {\n    Text(label)\n}\n";
+    let ranges = wf_lsp::folding::folding_ranges(&project(src), 0);
+    let spans: Vec<(u32, u32)> = ranges.iter().map(|r| (r.start_line, r.end_line)).collect();
+    assert!(spans.contains(&(0, 5)), "{spans:?}");
+    assert!(spans.contains(&(2, 4)), "{spans:?}");
+    assert!(spans.contains(&(8, 9)), "{spans:?}");
+    // A one-line statement folds nothing.
+    assert!(!spans.iter().any(|(s, _)| *s == 1), "{spans:?}");
+}
+
+#[test]
+fn inlay_hints_show_the_type_of_an_unannotated_state_or_derived() {
+    let src = "page Home(path: \"/\", title: \"Home\") {\n    state count = 0\n    state name: String = \"\"\n    derived label = \"{count} items\"\n    Text(label)\n    Text(name)\n}\n";
+    let p = project(src);
+    let all = Range::new(Position::new(0, 0), Position::new(99, 0));
+    let hints: Vec<(Position, String)> = wf_lsp::inlay::inlay_hints(&p, 0, all)
+        .into_iter()
+        .map(|h| match h.label {
+            InlayHintLabel::String(s) => (h.position, s),
+            _ => unreachable!(),
+        })
+        .collect();
+    assert!(
+        hints.contains(&(Position::new(1, 15), ": Number".into())),
+        "{hints:?}"
+    );
+    assert!(
+        hints.contains(&(Position::new(3, 17), ": String".into())),
+        "{hints:?}"
+    );
+    // An annotated state has its type written already.
+    assert!(!hints.iter().any(|(p, _)| p.line == 2), "{hints:?}");
+    // A long shape is cut short, and the tooltip has all of it.
+    let long = "page Home(path: \"/\", title: \"Home\") {\n    state form = { name: \"\", email: \"\", company: \"\", country: \"\" }\n    Text(form.name)\n}\n";
+    let hint = &wf_lsp::inlay::inlay_hints(&project(long), 0, all)[0];
+    let InlayHintLabel::String(label) = &hint.label else {
+        unreachable!()
+    };
+    assert!(
+        label.ends_with('…') && label.chars().count() == 42,
+        "{label}"
+    );
+    let Some(InlayHintTooltip::String(full)) = &hint.tooltip else {
+        panic!("no tooltip")
+    };
+    assert!(full.contains("country: String"), "{full}");
+    // Only the lines asked for.
+    let first = Range::new(Position::new(0, 0), Position::new(2, 0));
+    assert_eq!(wf_lsp::inlay::inlay_hints(&p, 0, first).len(), 1);
+}
+
+#[test]
+fn semantic_tokens_classify_names_by_what_they_resolve_to() {
+    use wf_lsp::semantic::{MODIFIERS, TYPES, classify};
+    let src = "enum Tone { calm, loud }\ntype Todo { id: String }\nstore Cart {\n    state items = []\n    action add(t: Todo) { items = items.concat([t]) }\n}\ncomponent Tag(_ label: String, tone: Tone = .calm) {\n    Text(label).bold\n}\npage Home(path: \"/\", title: \"Home\") {\n    use Cart\n    state n = 0\n    derived d = n * 2\n    derived c = Cart.items.length\n    Text(\"{c}\")\n    Tag(\"x\", tone: .loud)\n    Card.elevated { Card.Body { Text(format(d, .integer)) } }\n    Button(\"Add\") { on click { Cart.add(Todo(id: uuid())) } }\n}\n";
+    let p = project(src);
+    let classified = classify(&p, 0);
+    let kind_at =
+        |needle: &str, nth: usize| -> Option<(SemanticTokenType, Vec<SemanticTokenModifier>)> {
+            let offset = src.match_indices(needle).nth(nth)?.0;
+            let pos = p.files[0].index.offset_to_position(src, offset);
+            classified.iter().find(|c| c.start == pos).map(|c| {
+                let mods = MODIFIERS
+                    .iter()
+                    .enumerate()
+                    .filter(|(i, _)| c.modifiers & (1 << i) != 0)
+                    .map(|(_, m)| m.clone())
+                    .collect();
+                (TYPES[c.kind as usize].clone(), mods)
+            })
+        };
+    let ty = |needle: &str, nth: usize| kind_at(needle, nth).map(|(t, _)| t);
+    assert_eq!(ty("Tone", 1), Some(SemanticTokenType::ENUM));
+    assert_eq!(ty("Todo", 1), Some(SemanticTokenType::TYPE));
+    assert_eq!(ty("Cart", 1), Some(SemanticTokenType::NAMESPACE));
+    assert_eq!(ty("add", 1), Some(SemanticTokenType::METHOD));
+    assert_eq!(ty("Tag", 1), Some(SemanticTokenType::CLASS));
+    assert_eq!(ty("calm", 1), Some(SemanticTokenType::ENUM_MEMBER));
+    assert_eq!(ty("loud", 1), Some(SemanticTokenType::ENUM_MEMBER));
+    assert_eq!(ty("tone:", 1), Some(SemanticTokenType::PROPERTY));
+    assert_eq!(ty("label)", 0), Some(SemanticTokenType::PARAMETER));
+    assert_eq!(ty("n *", 0), Some(SemanticTokenType::VARIABLE));
+    let (t, m) = kind_at("d, .integer", 0).unwrap();
+    assert_eq!(t, SemanticTokenType::VARIABLE);
+    assert!(m.contains(&SemanticTokenModifier::READONLY));
+    let (t, m) = kind_at("Card.elevated", 0).unwrap();
+    assert_eq!(t, SemanticTokenType::CLASS);
+    assert!(m.contains(&SemanticTokenModifier::DEFAULT_LIBRARY));
+    assert_eq!(ty("Body", 0), Some(SemanticTokenType::CLASS));
+    assert_eq!(ty("elevated", 0), Some(SemanticTokenType::ENUM_MEMBER));
+    assert_eq!(ty("bold", 0), Some(SemanticTokenType::ENUM_MEMBER));
+    // A field down a store's chain is a field, not a flag.
+    assert_eq!(ty("items.length", 0), Some(SemanticTokenType::PROPERTY));
+    assert_eq!(ty("length", 0), Some(SemanticTokenType::PROPERTY));
+    let (t, m) = kind_at("format(", 0).unwrap();
+    assert_eq!(t, SemanticTokenType::FUNCTION);
+    assert!(m.contains(&SemanticTokenModifier::DEFAULT_LIBRARY));
+    assert_eq!(ty("uuid", 0), Some(SemanticTokenType::FUNCTION));
+    assert_eq!(ty("String", 0), Some(SemanticTokenType::TYPE));
+    // Keywords are the grammar's to colour.
+    assert_eq!(ty("state", 0), None);
+    assert_eq!(ty("page", 0), None);
+    // The encoding is relative, and decodes back to the same places.
+    let encoded = wf_lsp::semantic::semantic_tokens(&p, 0).data;
+    assert_eq!(encoded.len(), classified.len());
+    let (mut line, mut col) = (0, 0);
+    for (e, c) in encoded.iter().zip(&classified) {
+        line += e.delta_line;
+        col = if e.delta_line == 0 {
+            col + e.delta_start
+        } else {
+            e.delta_start
+        };
+        assert_eq!(Position::new(line, col), c.start);
+    }
+}

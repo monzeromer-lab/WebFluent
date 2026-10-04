@@ -598,3 +598,30 @@ pub fn in_string(tokens: &[Token], offset: usize) -> bool {
         matches!(t.token_type, TokenType::StringLiteral(_)) && t.offset < offset && offset < t.end
     })
 }
+
+/// The whole extent of a declaration, where it has one.
+pub fn decl_span(decl: &Declaration) -> Option<Span> {
+    Some(match decl {
+        Declaration::Page(p) => p.span,
+        Declaration::Component(c) => c.span,
+        Declaration::Store(s) => s.span,
+        Declaration::Theme(t) => t.span,
+        Declaration::Type(t) => t.span,
+        Declaration::Enum(e) => e.span,
+        Declaration::Api(a) => a.span,
+        Declaration::Const(c) => c.span,
+        Declaration::Data(d) => d.span,
+        Declaration::Animation(a) => a.span,
+        Declaration::Test(t) => t.span,
+        Declaration::App(a) => {
+            let first = a.body.first()?.span;
+            let last = a.body.last()?.span;
+            Span {
+                start: first.start,
+                end: last.end,
+                ..first
+            }
+        }
+        Declaration::Script(_) => return None,
+    })
+}

@@ -6,7 +6,9 @@ that checks them as you type.
 - **Diagnostics** — the compiler's own errors and warnings, with the line.
 - **Completion** — elements, their props, flags, events and slots, from the
   compiler's registry.
-- **Hover, go to definition, rename** across the project.
+- **Hover, signature help, go to definition, references, rename** across
+  the project.
+- **Formatting, folding, inlay types and semantic highlighting.**
 - **Quick fixes** and *Extract component*.
 
 ## The language server

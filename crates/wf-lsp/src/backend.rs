@@ -170,6 +170,18 @@ impl LanguageServer for Backend {
                 references_provider: Some(OneOf::Left(true)),
                 document_highlight_provider: Some(OneOf::Left(true)),
                 document_formatting_provider: Some(OneOf::Left(true)),
+                folding_range_provider: Some(FoldingRangeProviderCapability::Simple(true)),
+                inlay_hint_provider: Some(OneOf::Left(true)),
+                semantic_tokens_provider: Some(
+                    SemanticTokensServerCapabilities::SemanticTokensOptions(
+                        SemanticTokensOptions {
+                            legend: crate::semantic::legend(),
+                            full: Some(SemanticTokensFullOptions::Bool(true)),
+                            range: None,
+                            work_done_progress_options: Default::default(),
+                        },
+                    ),
+                ),
                 signature_help_provider: Some(SignatureHelpOptions {
                     trigger_characters: Some(vec!["(".to_string(), ",".to_string()]),
                     retrigger_characters: Some(vec![":".to_string()]),
@@ -399,6 +411,32 @@ impl LanguageServer for Backend {
             return Ok(None);
         };
         Ok(crate::formatting::format_document(&project, ix))
+    }
+
+    async fn folding_range(&self, params: FoldingRangeParams) -> Result<Option<Vec<FoldingRange>>> {
+        let Some((project, ix)) = self.locate(&params.text_document.uri) else {
+            return Ok(None);
+        };
+        Ok(Some(crate::folding::folding_ranges(&project, ix)))
+    }
+
+    async fn inlay_hint(&self, params: InlayHintParams) -> Result<Option<Vec<InlayHint>>> {
+        let Some((project, ix)) = self.locate(&params.text_document.uri) else {
+            return Ok(None);
+        };
+        Ok(Some(crate::inlay::inlay_hints(&project, ix, params.range)))
+    }
+
+    async fn semantic_tokens_full(
+        &self,
+        params: SemanticTokensParams,
+    ) -> Result<Option<SemanticTokensResult>> {
+        let Some((project, ix)) = self.locate(&params.text_document.uri) else {
+            return Ok(None);
+        };
+        Ok(Some(SemanticTokensResult::Tokens(
+            crate::semantic::semantic_tokens(&project, ix),
+        )))
     }
 
     async fn code_action(&self, params: CodeActionParams) -> Result<Option<CodeActionResponse>> {

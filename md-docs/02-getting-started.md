@@ -73,7 +73,8 @@ cd WebFluent && cargo install --path .
 
 The language server, `wf-lsp`, gives your editor the same checks `wf build`
 runs, as you type: diagnostics, completion of props, flags and cases, hover
-with types and docs, go to definition, rename and quick fixes.
+with types and docs, signature help, go to definition, references, rename,
+formatting, inlay types, semantic highlighting and quick fixes.
 
 It is a second binary. Get it from the same
 [release](https://github.com/monzeromer-lab/WebFluent/releases) as `wf` —

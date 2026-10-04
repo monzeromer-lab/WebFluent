@@ -340,12 +340,32 @@ the checker accepts.
 (`wf-lsp-<version>-<arch>-<os>.tar.gz`) and put it on your `PATH`, or build
 it from a clone with `cargo install --path crates/wf-lsp`. It gives:
 
-- Diagnostics as you type — every check `wf build` runs.
-- Completion: components and their props after `(`, flags and parts after
-  `.`, enum cases after `:`, events after `on `, `$` tokens, `match` arms,
-  slot names, fields of a record, methods of a string or a list.
-- Hover: a component's doc and signature, a name's inferred type.
-- Go to definition, find references, rename across the project.
+- Diagnostics as you type — every check `wf build` runs, for `.wf`, `.wfx`
+  and Markdown pages, again whenever a file one depends on changes (a
+  translation, a `.env`, a script, a `public/` asset).
+- Completion, from the compiler's own tables: components and their props
+  after `(`, flags and parts after `.`, enum cases after `:`, events after
+  `on `, `$` tokens, `match` arms, slot names; the fields of a record and
+  the methods of each built-in type (`due.` offers `plus`, `isBefore`, …);
+  a service's endpoints; the keywords each place allows (a store's,
+  an action's, a test's steps); type names after `:`; duration units after
+  a number; `validate` rules, `persist` settings, `format` styles,
+  responsive steps, `Host` tags, key names in `on key("…")`, translation
+  keys in `t("…")`, public `env.` names and lint codes in `// wf-allow(`.
+- Hover: what every name is — a component's doc and signature, the props
+  every element takes, a name's inferred type, a field or an endpoint, a
+  case, a keyword, a function the language gives, an `image`'s size.
+- Signature help inside a call: what it takes and which argument the
+  cursor is on — an element, a component, an endpoint, an action, a project
+  script's function or a built-in one.
+- Go to definition, find references, highlight the uses in a file, and
+  rename across the project — for every declaration (a type, an enum, a
+  case, a field, a `const`, a `data` file, an animation, an endpoint) and
+  inside a string's `{…}` splices.
+- Formatting — `wf fmt`, on the open file.
+- Folding, inlay hints for the type of a `state` or `derived` value
+  written without one, and semantic highlighting: a name coloured by what
+  it resolves to, a component, a type, a store, a prop or a state.
 - Document symbols and the outline.
 - Quick fixes, from the compiler's own findings: the nearest name for a
   misspelt field, member, method, variable, component or flag; `?.` for a

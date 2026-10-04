@@ -47,7 +47,7 @@ page GettingStartedGuide(path: "/docs/guide/getting-started", title: "Getting st
 
         Heading("Set up your editor", id: "set-up-your-editor").h2
 
-        Markdown("The language server, `wf-lsp`, gives your editor the same checks `wf build` runs, as you type: diagnostics, completion of props, flags and cases, hover with types and docs, go to definition, rename and quick fixes.\n\nIt is a second binary. Get it from the same [release](https://github.com/monzeromer-lab/WebFluent/releases) as `wf` — `wf-lsp-<version>-<arch>-<os>.tar.gz` — and put it on your `PATH`, or build it from a clone:")
+        Markdown("The language server, `wf-lsp`, gives your editor the same checks `wf build` runs, as you type: diagnostics, completion of props, flags and cases, hover with types and docs, signature help, go to definition, references, rename, formatting, inlay types, semantic highlighting and quick fixes.\n\nIt is a second binary. Get it from the same [release](https://github.com/monzeromer-lab/WebFluent/releases) as `wf` — `wf-lsp-<version>-<arch>-<os>.tar.gz` — and put it on your `PATH`, or build it from a clone:")
 
         Terminal(lines: [
                 Line(command: "cargo install --path crates/wf-lsp")
