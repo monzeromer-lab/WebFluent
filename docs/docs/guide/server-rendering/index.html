@@ -32,7 +32,7 @@
     <script src="../../../pages/ServerRenderingGuide.js" data-wf-page="ServerRenderingGuide" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
@@ -41,13 +41,13 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.1</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
-                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -56,14 +56,12 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
@@ -206,9 +204,9 @@
                         <p class="wf-text num">34</p>
                         <p class="wf-text">Server rendering</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tutorials">
                         <p class="wf-text num">35</p>
-                        <p class="wf-text">Cookbook</p>
+                        <p class="wf-text">Tutorials</p>
                     </a>
                     <p class="wf-text group-label">Reference</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
@@ -275,12 +273,12 @@
                         <h1 class="wf-heading wf-sa3503382">Server rendering</h1>
                         <p class="wf-text wf-sfd35f593">Render a .wf template with JSON on a server — an email, an invoice, a report, an HTML fragment — from the CLI, Rust or Node.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
-                        <div class="wf-stack wf-gap--lg">
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
 <p>A WebFluent site is static files. When HTML has to be made on a server — an email, an invoice PDF per order, a fragment for an existing page — the same language renders a template with JSON data, from the command line, from Rust or from Node.</p>
                             </div>
-                            <h2 class="wf-heading">A template and its data</h2>
+                            <h2 class="wf-heading" id="a-template-and-its-data">A template and its data</h2>
                             <div class="wf-markdown">
 <p>A <code>.wf</code> file can be rendered with JSON data — an invoice, an email, a report — from the CLI or from Rust and Node. The data's top-level keys are in scope by name; the static subset of the language applies (no <code>state</code>, handlers, stores, <code>resource</code>, motion).</p>
                             </div>
@@ -289,7 +287,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Invoice(path: &quot;/&quot;, title: &quot;Invoice&quot;, description: &quot;An invoice.&quot;) {
     Heading(&quot;Invoice #{number}&quot;).h1
@@ -315,7 +313,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{
   &quot;number&quot;: &quot;INV-001&quot;,
@@ -326,20 +324,20 @@
   &quot;locale&quot;: &quot;en&quot;
 }</code>
                             </div>
-                            <h3 class="wf-heading">From the command line</h3>
+                            <h3 class="wf-heading" id="from-the-command-line">From the command line</h3>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
                             <div class="wf-markdown">
 <p><code>--format</code> is <code>html</code> (a whole document with its CSS), <code>html-fragment</code> (the body only), <code>pdf</code> or <code>slides</code>; <code>-o file</code> writes instead of printing; <code>--theme Name</code> picks one of several <code>theme</code> declarations; <code>--token NAME=VALUE</code> sets a design token over the theme's; <code>--lang ar</code> sets the document's language; the data is read from stdin when <code>--data</code> is omitted. The template may be a directory — every <code>.wf</code> and <code>.wfx</code> under it as one, components shared — with <code>--page Name</code> choosing the page to render. A template that names a component nothing declares, or a flag a component does not take, is refused, as a build would refuse it.</p>
                             </div>
-                            <h3 class="wf-heading">From Rust</h3>
+                            <h3 class="wf-heading" id="from-rust">From Rust</h3>
                             <div class="wf-markdown">
 <p>The template engine is the <code>webfluent</code> crate. Without the <code>wf</code> command's own dependencies (its argument parser and dev server):</p>
                             </div>
@@ -348,7 +346,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">toml</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">[dependencies]
 webfluent = { version = &quot;4&quot;, default-features = false }
@@ -362,7 +360,7 @@ serde = { version = &quot;1&quot;, features = [&quot;derive&quot;] }</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">rust</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">use serde::Serialize;
 use webfluent::{PdfConfig, Template};
@@ -392,14 +390,14 @@ let pdf: Vec&lt;u8&gt; = templates
 <ul>
 <li><strong>Loading.</strong> <code>Template::from_str(source)</code>, <code>from_file(path)</code> (a <code>.wfx</code> file is read as its indented layout), <code>from_files(&amp;[..])</code>, <code>from_dir(dir)</code>, and <code>from_sources(&amp;[(name, source), ..])</code> for templates embedded in the binary with <code>include_str!</code>. Each parses and checks once; an error names the file and line. <code>pages()</code> lists the pages, <code>page(name)</code> picks one — without it, every page of the template renders.</li>
 <li><strong>Data</strong> is anything <code>serde</code> serializes: your own <code>#[derive(Serialize)]</code> structs, or a <code>serde_json::Value</code>. Its top-level fields are the names the template reads; a <code>const</code> and a <code>data</code> file are in scope too.</li>
-<li><strong>Output.</strong> <code>render_html</code> is a whole document: <code>&lt;html lang&gt;</code>, a <code>&lt;title&gt;</code> from the page's (its <code>{…}</code> filled from the data), the CSS in a <code>&lt;style&gt;</code> block. <code>render_html_parts</code> hands the CSS and the markup back separately, for a server that links its stylesheet and keeps a strict Content-Security-Policy. <code>render_html_fragment</code> is the markup alone; <code>render_pdf</code> and <code>render_slides</code> are PDF bytes.</li>
+<li><strong>Output.</strong> <code>render_html</code> is a whole document: <code>&lt;html lang&gt;</code>, a <code>&lt;title&gt;</code> from the page's (its <code>{…}</code> filled from the data), the CSS in a <code>&lt;style&gt;</code> block. <code>render_html_parts</code> hands the CSS and the markup back separately, for a server that links its stylesheet and keeps a strict Content-Security-Policy. <code>render_html_fragment</code> is the markup alone; <code>render_pdf</code> and <code>render_slides</code> are PDF bytes, laid out by the paged engine of <a href="/WebFluent/docs/guide/pdf-and-slides">chapter 33</a>; <code>render_pdf_report</code> and <code>render_slides_report</code> return a <code>PdfReport</code> — the bytes, the page count, each page's text in reading order (for a test that holds a document to what it says) and the notes (a font taken from the machine, a character no font had). A template loaded from files reads its fonts from <code>fonts/</code> beside it, and its pictures from there too.</li>
 <li><strong>Settings.</strong> <code>with_theme(name)</code>, <code>with_tokens(&amp;[(name, value)])</code>, <code>with_lang(&quot;ar&quot;)</code> (an RTL language also sets <code>dir=&quot;rtl&quot;</code>), <code>with_pdf(PdfConfig { .. })</code> for page size, margins and fonts, and <code>with_slides(SlidesConfig { .. })</code>.</li>
 <li><strong>In a server.</strong> A <code>Template</code> is <code>Send + Sync</code> and cheap to clone — the parsed program is shared — so keep it in your framework's state (an <code>Arc</code>, or a clone per handler) and render from any thread. A render takes tens of microseconds.</li>
 <li><strong>Untrusted data.</strong> Every value the data supplies is escaped as text, and a URL from the data that a browser would run — <code>javascript:</code>, <code>data:</code> — is dropped from <code>href</code> and <code>src</code>, as the browser build drops it.</li>
 </ul>
 <p><code>cargo run --example invoice</code> in the repository renders a directory of templates to HTML, a fragment and a PDF.</p>
                             </div>
-                            <h3 class="wf-heading">From Node</h3>
+                            <h3 class="wf-heading" id="from-node">From Node</h3>
                             <div class="wf-markdown">
 <p><code>npm install webfluent</code> — a small wrapper around <code>wf render</code>. It needs <code>wf</code> itself installed: it looks on <code>PATH</code>, in <code>~/.webfluent/bin</code> and <code>~/.cargo/bin</code>, or at <code>WF_BIN</code>. Its version is the compiler's.</p>
                             </div>
@@ -408,7 +406,7 @@ let pdf: Vec&lt;u8&gt; = templates
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">js</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">const { Template } = require(&quot;webfluent&quot;);
 
@@ -427,12 +425,12 @@ app.get(&quot;/invoices/:id.pdf&quot;, async (req, res) =&gt; {
 <p>Every render has a synchronous form (<code>renderHtml</code>, <code>renderHtmlFragment</code>, <code>renderPdf</code>, <code>renderSlides</code>) and an <code>…Async</code> one that does not block the event loop — use those in a server. <code>withTheme</code>, <code>withTokens</code> and <code>withLang</code> set what the Rust API sets. A render runs <code>wf</code> once, a few milliseconds; the data goes over stdin, so nothing is written to disk.</p>
 <p>A template may declare <code>type</code>s and a <code>theme</code> like any file; <code>data</code> files are read relative to the template. <code>format</code> and <code>ago</code> speak the data's <code>locale</code> when it has one, else English.</p>
                             </div>
-                            <h2 class="wf-heading">What a template may use</h2>
+                            <h2 class="wf-heading" id="what-a-template-may-use">What a template may use</h2>
                             <div class="wf-markdown">
-<p>The static subset of the language: every layout, typography and data-display element, <code>for</code> loops, <code>if</code>/<code>else</code>, string interpolation, <code>format</code> and <code>ago</code>, <code>style { }</code> blocks, flags, themes, <code>type</code>s, <code>const</code>s and components. Not: <code>state</code> that changes, <code>derived</code>, <code>effect</code>, handlers, navigation, stores, animations, <code>resource</code> — there is no browser to run them in.</p>
+<p>The static subset of the language: every layout, typography and data-display element, <code>for</code> loops, <code>if</code>/<code>else</code>, string interpolation, <code>format</code> and <code>ago</code>, <code>style { }</code> blocks, flags, themes, <code>type</code>s, <code>const</code>s and components. A <code>state</code> is its first value and a <code>derived</code> value what that works out to — a page may work out its totals once, in order, and show them anywhere — and a value the data hands over wins over either. Not: <code>effect</code>, handlers, navigation, stores, animations, <code>resource</code> — there is no browser to run them in.</p>
 <p>A template may read private <code>env</code> names (<a href="/WebFluent/docs/guide/environments">Environments</a>): it runs on your server, where a secret stays secret.</p>
                             </div>
-                            <h2 class="wf-heading">Uses</h2>
+                            <h2 class="wf-heading" id="uses">Uses</h2>
                             <div class="wf-markdown">
 <ul>
 <li><strong>Email</strong>: render with <code>--format html</code>; inline the styles with your mailer if it needs them.</li>
@@ -447,9 +445,9 @@ app.get(&quot;/invoices/:id.pdf&quot;, async (req, res) =&gt; {
                             <p class="wf-text wf-s3e0c6c38">Previous</p>
                             <p class="wf-text wf-s2c78daf6">33. PDF and slides</p>
                         </a>
-                        <a class="wf-link wf-sc144b15a" href="/WebFluent/docs/cookbook">
+                        <a class="wf-link wf-sc144b15a" href="/WebFluent/docs/tutorials">
                             <p class="wf-text wf-s3e0c6c38">Next</p>
-                            <p class="wf-text wf-s2c78daf6">35. Cookbook</p>
+                            <p class="wf-text wf-s2c78daf6">35. Tutorials</p>
                         </a>
                     </div>
                 </div>
@@ -502,7 +500,7 @@ app.get(&quot;/invoices/:id.pdf&quot;, async (req, res) =&gt; {
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>

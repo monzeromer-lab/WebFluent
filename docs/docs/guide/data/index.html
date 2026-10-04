@@ -32,7 +32,7 @@
     <script src="../../../pages/DataGuide.js" data-wf-page="DataGuide" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
@@ -41,13 +41,13 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.1</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
-                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -56,14 +56,12 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
@@ -206,9 +204,9 @@
                         <p class="wf-text num">34</p>
                         <p class="wf-text">Server rendering</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tutorials">
                         <p class="wf-text num">35</p>
-                        <p class="wf-text">Cookbook</p>
+                        <p class="wf-text">Tutorials</p>
                     </a>
                     <p class="wf-text group-label">Reference</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
@@ -275,12 +273,12 @@
                         <h1 class="wf-heading wf-sa3503382">Data</h1>
                         <p class="wf-text wf-sfd35f593">Getting data onto a page: a service described once, a resource a page shows, a fetch an action makes, and files read at build time.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
-                        <div class="wf-stack wf-gap--lg">
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
 <p>Ways to get data onto a page: <code>api</code> for a service described once and called everywhere, <code>resource</code> for something fetched while the page shows, <code>await fetch</code> inside an action for something fetched on demand, and <code>data</code> for a file read at build time. A connection the page holds open — a socket, a stream, a channel, a peer — is <a href="/WebFluent/docs/guide/realtime">Real-time</a>; working without a network is <a href="/WebFluent/docs/guide/offline">Offline</a>; values fixed per build are <a href="/WebFluent/docs/guide/environments">Environments</a>.</p>
                             </div>
-                            <h2 class="wf-heading">resource</h2>
+                            <h2 class="wf-heading" id="resource">resource</h2>
                             <div class="wf-markdown">
 <p>A resource is a request the page makes and a <code>match</code> shows:</p>
                             </div>
@@ -289,7 +287,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Deploy { id: String, status: String, startedAt: String }
 
@@ -320,13 +318,13 @@ page Deploys(path: &quot;/&quot;, title: &quot;Deploys&quot;, description: &quot
 <li>A failed response (<code>!ok</code>) is an error with <code>e.message</code> of <code>HTTP 500</code>.</li>
 </ul>
                             </div>
-                            <h3 class="wf-heading">Options</h3>
+                            <h3 class="wf-heading" id="options">Options</h3>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Search(path: &quot;/&quot;) {
     state q = &quot;&quot;
@@ -344,7 +342,7 @@ page Deploys(path: &quot;/&quot;, title: &quot;Deploys&quot;, description: &quot
                             <div class="wf-markdown">
 <p>Options are named after the URL: <code>method:</code>, <code>headers:</code> (a map), <code>body:</code> (a map, sent as JSON with the content type set). The body of a response is parsed as JSON.</p>
                             </div>
-                            <h3 class="wf-heading">A reactive URL</h3>
+                            <h3 class="wf-heading" id="a-reactive-url">A reactive URL</h3>
                             <div class="wf-markdown">
 <p>A URL that reads state is re-fetched whenever that state changes — a search box that fetches as you type, or a detail page that follows its parameter:</p>
                             </div>
@@ -353,7 +351,7 @@ page Deploys(path: &quot;/&quot;, title: &quot;Deploys&quot;, description: &quot
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Post { slug: String, title: String, body: String }
 
@@ -372,7 +370,7 @@ page PostPage(path: &quot;/posts/:slug&quot;, slug: String) {
                             <div class="wf-markdown">
 <p>Debounce a fast-changing URL by deriving it from a slower value, or by keeping the query in state and copying it to a <code>submitted</code> state on Enter.</p>
                             </div>
-                            <h2 class="wf-heading">api: a service, described once</h2>
+                            <h2 class="wf-heading" id="api-a-service-described-once">api: a service, described once</h2>
                             <div class="wf-markdown">
 <p>An address, how it is reached, and what it has — in one place, so every call site is typed, cached and cancellable:</p>
                             </div>
@@ -381,7 +379,7 @@ page PostPage(path: &quot;/posts/:slug&quot;, slug: String) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type User { id: String, name: String }
 
@@ -419,7 +417,7 @@ page Users(path: &quot;/users&quot;, title: &quot;Users&quot;, description: &quo
                             <div class="wf-markdown">
 <p>A parameter the path names goes in the path; every other goes in the query. <code>-&gt;</code> says what comes back, and a <code>resource</code> over the endpoint is typed by it — <code>u.nam</code> is <code>T05</code>, before the page ever runs.</p>
                             </div>
-                            <h3 class="wf-heading">Headers, and what happens around a call</h3>
+                            <h3 class="wf-heading" id="headers-and-what-happens-around-a-call">Headers, and what happens around a call</h3>
                             <div class="wf-markdown">
 <p>A <code>headers { }</code> block names what every call carries. Each value is read <strong>at the moment of the request</strong>, not when the service is declared — so a token that has just been refreshed is the one that is sent:</p>
                             </div>
@@ -428,7 +426,7 @@ page Users(path: &quot;/users&quot;, title: &quot;Users&quot;, description: &quo
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type User { id: String, name: String }
 
@@ -516,7 +514,7 @@ api Backend(base: env.PUBLIC_API ?? &quot;/api/v1&quot;) {
                             <div class="wf-markdown">
 <p>A hook may <code>await</code>. One that throws fails the call it was watching.</p>
                             </div>
-                            <h3 class="wf-heading">What each call gets</h3>
+                            <h3 class="wf-heading" id="what-each-call-gets">What each call gets</h3>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">What each call gets</caption>
                                 <thead>
@@ -591,20 +589,20 @@ api Backend(base: env.PUBLIC_API ?? &quot;/api/v1&quot;) {
                             <div class="wf-markdown">
 <p>And beside each endpoint: <code>Backend.users.invalidate()</code>, <code>.prefetch(args)</code>, <code>.url(args)</code>, <code>.key(args)</code>.</p>
                             </div>
-                            <h3 class="wf-heading">From a specification</h3>
+                            <h3 class="wf-heading" id="from-a-specification">From a specification</h3>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">api Backend from &quot;openapi.json&quot; (base: env.PUBLIC_API)</code>
                             </div>
                             <div class="wf-markdown">
 <p>Every endpoint, parameter, response type and error shape is read from the file at build time, and each named schema becomes a <code>type</code> the program can name. The day the server changes its contract, the build says so.</p>
                             </div>
-                            <h3 class="wf-heading">Settings</h3>
+                            <h3 class="wf-heading" id="settings">Settings</h3>
                             <div class="wf-markdown">
 <p>What goes in the service's parentheses or its block, before the endpoints:</p>
                             </div>
@@ -752,13 +750,13 @@ api Backend(base: env.PUBLIC_API ?? &quot;/api/v1&quot;) {
                             <div class="wf-markdown">
 <p><code>retry</code>'s <code>on:</code> takes <code>.network</code>, <code>.timeout</code>, <code>.status5xx</code>, <code>.status4xx</code>, <code>.status429</code> and <code>.status503</code>-style single codes; left out, it retries the network, timeouts, 5xx and 429. The wait doubles from <code>delay</code> (ms) up to <code>max</code>, with jitter, and a <code>Retry-After</code> from the server wins. An aborted call is never retried.</p>
                             </div>
-                            <h3 class="wf-heading">Endpoints</h3>
+                            <h3 class="wf-heading" id="endpoints">Endpoints</h3>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">get users(page: Number = 1, q: String?) -&gt; [User]
 get user(id: String) at &quot;users/:id&quot; -&gt; User
@@ -779,13 +777,13 @@ get report(id: String) at &quot;reports/:id&quot; as: .blob</code>
 </ul>
 <p>A call passes the endpoint's parameters by name, and may add <code>cache:</code>, <code>retry:</code> and — in a <code>resource</code> — <code>on:</code> for when to fetch again (<code>.focus</code>, <code>.reconnect</code>, <code>.interval(30.seconds)</code>) and <code>paginate:</code>.</p>
                             </div>
-                            <h3 class="wf-heading">Pages of results</h3>
+                            <h3 class="wf-heading" id="pages-of-results">Pages of results</h3>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Item { id: String, name: String }
 
@@ -806,17 +804,17 @@ page Items(path: &quot;/items&quot;, title: &quot;Items&quot;, description: &quo
                             <div class="wf-markdown">
 <p><code>paginate: .page</code> gathers the pages into <code>.items</code>, <code>loadMore()</code> moves <code>page</code> on by one, and <code>.hasMore</code> turns false when a page comes back empty.</p>
                             </div>
-                            <h3 class="wf-heading">An API on another origin</h3>
+                            <h3 class="wf-heading" id="an-api-on-another-origin">An API on another origin</h3>
                             <div class="wf-markdown">
 <p>A page on <code>https://example.com</code> calling <code>https://api.example.com</code> is a cross-origin request: the API must answer with CORS headers (<code>Access-Control-Allow-Origin</code>, and <code>-Allow-Credentials</code> if cookies go with it), or the browser refuses the response. The same applies while you develop: <code>wf serve</code> answers on <code>localhost:3000</code> and has no proxy, so an API on <code>localhost:8080</code> must allow that origin. The alternative is to serve the API and the site from one origin behind a reverse proxy, where <code>base: &quot;/api&quot;</code> needs no CORS at all (<a href="/WebFluent/docs/guide/deploying#an-api-on-the-same-origin">Deploying</a>).</p>
                             </div>
-                            <h3 class="wf-heading">Showing a change before the server agrees</h3>
+                            <h3 class="wf-heading" id="showing-a-change-before-the-server-agrees">Showing a change before the server agrees</h3>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">action rename(id: String, name: String) {
     optimistic(Todos.items, items =&gt; items.map(i =&gt; if i.id == id { { ...i, title: name } } else { i }))
@@ -827,7 +825,7 @@ page Items(path: &quot;/items&quot;, title: &quot;Items&quot;, description: &quo
                             <div class="wf-markdown">
 <p>The change shows at once. If anything later in the action throws, what was shown is taken back.</p>
                             </div>
-                            <h2 class="wf-heading">await fetch in an action</h2>
+                            <h2 class="wf-heading" id="await-fetch-in-an-action">await fetch in an action</h2>
                             <div class="wf-markdown">
 <p>For a request made on demand — a save, a delete, a step in a flow — <code>fetch</code> returns the parsed body and throws on a failed response:</p>
                             </div>
@@ -836,7 +834,7 @@ page Items(path: &quot;/items&quot;, title: &quot;Items&quot;, description: &quo
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Todo { id: String, title: String, done: Bool = false }
 
@@ -881,7 +879,7 @@ page Todos(path: &quot;/&quot;) {
                             <div class="wf-markdown">
 <p>The second argument is a map: <code>method</code>, <code>headers</code>, <code>body</code>. <code>name.pending</code> is true while the action runs. The browser's own <code>fetch</code>, for a response you want raw, is <code>window.fetch</code>.</p>
                             </div>
-                            <h2 class="wf-heading">data: a file at build time</h2>
+                            <h2 class="wf-heading" id="data-a-file-at-build-time">data: a file at build time</h2>
                             <div class="wf-markdown">
 <p><code>data name = &quot;file.json&quot;</code> reads a JSON file (from the project root or <code>src/</code>) at build time and makes its value a constant. It is in every page and component, costs nothing at run time, and is painted into the static build:</p>
                             </div>
@@ -890,7 +888,7 @@ page Todos(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Post { slug: String, title: String, date: String, body: String }
 
@@ -911,7 +909,7 @@ page Blog(path: &quot;/&quot;, title: &quot;Blog&quot;, description: &quot;Every
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">[
   { &quot;slug&quot;: &quot;hello&quot;, &quot;title&quot;: &quot;Hello&quot;, &quot;date&quot;: &quot;2026-01-10&quot;, &quot;body&quot;: &quot;# Hi\nFirst post.&quot; },
@@ -921,7 +919,7 @@ page Blog(path: &quot;/&quot;, title: &quot;Blog&quot;, description: &quot;Every
                             <div class="wf-markdown">
 <p>Annotate it (<code>data posts: [Post]</code>) and the checker knows every field.</p>
                             </div>
-                            <h3 class="wf-heading">Static paths</h3>
+                            <h3 class="wf-heading" id="static-paths">Static paths</h3>
                             <div class="wf-markdown">
 <p>A <code>:param</code> page is rendered once per value in <code>paths:</code> by a static build — one HTML file per post, each with its own title and description:</p>
                             </div>
@@ -930,7 +928,7 @@ page Blog(path: &quot;/&quot;, title: &quot;Blog&quot;, description: &quot;Every
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Post { slug: String, title: String, date: String, body: String }
 
@@ -950,7 +948,7 @@ page PostPage(path: &quot;/posts/:slug&quot;, slug: String, title: &quot;Post&qu
                             <div class="wf-markdown">
 <p><code>paths:</code> must be knowable at build time — a <code>data</code> file, a <code>const</code>, a literal. For a route with several parameters, each value is a map naming them: <code>paths: pairs.map(x =&gt; { year: x.y, slug: x.s })</code>. Routes not in <code>paths:</code> still work in the SPA; only the static build needs the list.</p>
                             </div>
-                            <h2 class="wf-heading">Where data lands in the static paint</h2>
+                            <h2 class="wf-heading" id="where-data-lands-in-the-static-paint">Where data lands in the static paint</h2>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">Where data lands in the static paint</caption>
                                 <thead>
@@ -1062,7 +1060,7 @@ page PostPage(path: &quot;/posts/:slug&quot;, slug: String, title: &quot;Post&qu
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>

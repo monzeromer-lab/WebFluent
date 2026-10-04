@@ -32,7 +32,7 @@
     <script src="../../../pages/PerformanceGuide.js" data-wf-page="PerformanceGuide" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
@@ -41,13 +41,13 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.1</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
-                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -56,14 +56,12 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
@@ -206,9 +204,9 @@
                         <p class="wf-text num">34</p>
                         <p class="wf-text">Server rendering</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tutorials">
                         <p class="wf-text num">35</p>
-                        <p class="wf-text">Cookbook</p>
+                        <p class="wf-text">Tutorials</p>
                     </a>
                     <p class="wf-text group-label">Reference</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
@@ -275,9 +273,9 @@
                         <h1 class="wf-heading wf-sa3503382">Performance</h1>
                         <p class="wf-text wf-sfd35f593">What a build already does to be fast, how to see what it weighs, budgets that warn, and the few things that make a site slow.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
-                        <div class="wf-stack wf-gap--lg">
-                            <h2 class="wf-heading">What the build does already</h2>
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
+                            <h2 class="wf-heading" id="what-the-build-does-already">What the build does already</h2>
                             <div class="wf-markdown">
 <ul>
 <li><strong>Only the runtime you use.</strong> The runtime is a set of modules; a build keeps the ones its code reaches. A page of static text carries 3 of its 37 modules: an <code>app.js</code> of 11 kB, 3.7 kB gzipped.</li>
@@ -289,13 +287,13 @@
 <li><strong>Minified</strong> output (<code>build.minify</code>).</li>
 </ul>
                             </div>
-                            <h2 class="wf-heading">Seeing what it weighs</h2>
+                            <h2 class="wf-heading" id="seeing-what-it-weighs">Seeing what it weighs</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
@@ -304,7 +302,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">  What it weighs
     app.js                               47.6 kB  (14.6 kB gzipped)  +20 B
@@ -332,33 +330,33 @@
 <p>That is the <a href="/WebFluent/docs/guide/tutorial">tutorial</a>'s site: a form brings <code>form</code> and <code>field</code>, a store <code>store</code> and <code>keep</code>, a second page <code>router</code>.</p>
 <p>Each build records its sizes in <code>.wf-sizes.json</code>, so the next <code>--stats</code> shows what moved. Each runtime module is listed with what reached it — the first place to look when a module you did not expect is in.</p>
                             </div>
-                            <h2 class="wf-heading">Budgets</h2>
+                            <h2 class="wf-heading" id="budgets">Budgets</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{ &quot;build&quot;: { &quot;budget&quot;: { &quot;app.js&quot;: &quot;40 kB&quot;, &quot;styles.css&quot;: &quot;30 kB&quot;, &quot;pages/Home.js&quot;: &quot;10 kB&quot; } } }</code>
                             </div>
                             <div class="wf-markdown">
 <p>A gzipped size an output should stay under. Going over prints a warning and the build goes on; a CI job that wants to fail on it can read the same numbers.</p>
                             </div>
-                            <h2 class="wf-heading">Timing it in a browser</h2>
+                            <h2 class="wf-heading" id="timing-it-in-a-browser">Timing it in a browser</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
                             <div class="wf-markdown">
 <p><code>wf verify</code> loads every route in headless Chrome and prints its first contentful paint, the nodes in the document and the bytes and requests it took; <code>--budget</code> fails a route slower than that. Lighthouse and the browser's performance panel work on the build as on any site.</p>
                             </div>
-                            <h2 class="wf-heading">What makes a site slow</h2>
+                            <h2 class="wf-heading" id="what-makes-a-site-slow">What makes a site slow</h2>
                             <div class="wf-markdown">
 <ul>
 <li><strong>A large <code>data</code> file.</strong> <code>data posts = &quot;posts.json&quot;</code> is inlined into the bundle, so a 2 MB file is 2 MB of JavaScript. Keep build-time data to what pages show; fetch the rest, or split it across pages that each read one.</li>
@@ -434,7 +432,7 @@
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>

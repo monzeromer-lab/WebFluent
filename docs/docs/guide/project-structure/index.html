@@ -32,7 +32,7 @@
     <script src="../../../pages/ProjectStructureGuide.js" data-wf-page="ProjectStructureGuide" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
@@ -41,13 +41,13 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.1</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
-                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -56,14 +56,12 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
@@ -206,9 +204,9 @@
                         <p class="wf-text num">34</p>
                         <p class="wf-text">Server rendering</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tutorials">
                         <p class="wf-text num">35</p>
-                        <p class="wf-text">Cookbook</p>
+                        <p class="wf-text">Tutorials</p>
                     </a>
                     <p class="wf-text group-label">Reference</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
@@ -275,15 +273,15 @@
                         <h1 class="wf-heading wf-sa3503382">Project structure</h1>
                         <p class="wf-text wf-sfd35f593">Where files go, how the compiler reads them, how names work across a project, and how a project grows without getting lost.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
-                        <div class="wf-stack wf-gap--lg">
-                            <h2 class="wf-heading">The layout</h2>
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
+                            <h2 class="wf-heading" id="the-layout">The layout</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">my-site/
 ├── AGENTS.md               the language reference, for a coding agent (`wf init` writes it)
@@ -309,7 +307,7 @@
                             <div class="wf-markdown">
 <p>Only <code>webfluent.app.json</code> and one <code>.wf</code> or <code>.wfx</code> file under <code>src/</code> are required. The folders are convention: the compiler does not care where a declaration lives.</p>
                             </div>
-                            <h2 class="wf-heading">One program, no imports</h2>
+                            <h2 class="wf-heading" id="one-program-no-imports">One program, no imports</h2>
                             <div class="wf-markdown">
 <p>Every <code>.wf</code> and <code>.wfx</code> file under <code>src/</code> is read and merged into a single program. A page uses a component declared in another file, and a component a store, by name, with nothing to import. <code>App.wf</code> is read first; the rest in path order, which matters for nothing but the order of equal things in the output.</p>
 <p>That makes the namespace global: two components, two pages, two stores, two types or two constants with one name is an error, naming both places.</p>
@@ -321,7 +319,7 @@
 </ul>
 <p><code>use Store</code> at the top of a page or component says it reads that store. It is documentation for the reader and the editor; it scopes nothing.</p>
                             </div>
-                            <h2 class="wf-heading">Files that are not .wf</h2>
+                            <h2 class="wf-heading" id="files-that-are-not-wf">Files that are not .wf</h2>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">Files that are not .wf</caption>
                                 <thead>
@@ -437,20 +435,20 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <h2 class="wf-heading">Starting files: wf generate</h2>
+                            <h2 class="wf-heading" id="starting-files-wf-generate">Starting files: wf generate</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
                             <div class="wf-markdown">
 <p>Each writes a starter declaration in the conventional folder — <code>src/pages/Pricing.wf</code> with <code>path: &quot;/pricing&quot;</code>, a title, a description and an <code>h1</code>; <code>src/components/PriceCard.wf</code>; <code>src/stores/Cart.wf</code> — in <code>.wfx</code> when the project is written that way. It never overwrites a file.</p>
                             </div>
-                            <h2 class="wf-heading">What to commit</h2>
+                            <h2 class="wf-heading" id="what-to-commit">What to commit</h2>
                             <div class="wf-markdown">
 <p>Commit <code>webfluent.app.json</code>, <code>src/</code>, <code>public/</code>, <code>tests/</code> (with <code>__snapshots__/</code>). Do not commit:</p>
                             </div>
@@ -459,7 +457,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">build/
 .wf-cache/
@@ -469,7 +467,7 @@
                             <div class="wf-markdown">
 <p><code>.wf-cache/</code> holds resized images between builds; <code>.wf-sizes.json</code> what the last build weighed, for <code>wf build --stats</code> to compare against.</p>
                             </div>
-                            <h2 class="wf-heading">As a project grows</h2>
+                            <h2 class="wf-heading" id="as-a-project-grows">As a project grows</h2>
                             <div class="wf-markdown">
 <ul>
 <li><strong>Group by feature once folders get long.</strong> <code>src/billing/</code> holding the billing pages, components, store and types reads better than four folders each holding a slice of it. The compiler does not mind either way.</li>
@@ -544,7 +542,7 @@
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>

@@ -32,7 +32,7 @@
     <script src="../../../pages/ContentGuide.js" data-wf-page="ContentGuide" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
@@ -41,13 +41,13 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.1</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
-                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -56,14 +56,12 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
@@ -206,9 +204,9 @@
                         <p class="wf-text num">34</p>
                         <p class="wf-text">Server rendering</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tutorials">
                         <p class="wf-text num">35</p>
-                        <p class="wf-text">Cookbook</p>
+                        <p class="wf-text">Tutorials</p>
                     </a>
                     <p class="wf-text group-label">Reference</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
@@ -275,12 +273,12 @@
                         <h1 class="wf-heading wf-sa3503382">Content</h1>
                         <p class="wf-text wf-sfd35f593">Markdown, pages written as .md files, code on the page, and what the build writes for search engines and link previews.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
-                        <div class="wf-stack wf-gap--lg">
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
 <p>A site is also its words: pages of prose, a blog, docs. This chapter covers writing content in Markdown, showing code, and what the build writes for search engines and link previews. Pre-rendering is <a href="/WebFluent/docs/guide/static-and-spa">Static or single-page</a>; pictures and video are <a href="/WebFluent/docs/guide/media">Media</a>.</p>
                             </div>
-                            <h2 class="wf-heading">The Markdown element</h2>
+                            <h2 class="wf-heading" id="the-markdown-element">The Markdown element</h2>
                             <div class="wf-markdown">
 <p><code>Markdown(text)</code> renders a small, predictable Markdown — the same at build time and in the browser, so a hydrated page repaints what was painted:</p>
                             </div>
@@ -289,7 +287,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Notes(path: &quot;/&quot;) {
     state body = &quot;# Release notes\n\nVersion **3.3** adds:\n\n- Markdown pages\n- `wf docs`\n\n&gt; Ship it.&quot;
@@ -298,9 +296,9 @@
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Blocks: <code>#</code>–<code>######</code> headings, paragraphs, fenced code with a language (`<code> </code>`<code>js </code><code>), </code>&gt;<code> quotes, </code>-<code>/</code><em><code> and </code>1.<code> lists (one level), </code>---<code> rules. Inline: </code><code> </code>code<code> </code><code>, </code><strong>strong</strong><code>, </code></em>em*<code>/</code><em>em</em>`, links, images. Raw HTML in the text is shown as text, not run — Markdown from a user or an API is safe to render.</p>
+<p>Blocks: <code>#</code>–<code>######</code> headings, paragraphs (their lines run together, as in CommonMark — end a line with two spaces or <code>\</code> to break it), fenced code with a language (`<code> </code>`<code>js </code><code>), </code>&gt;<code> quotes, </code>-<code>/</code><em><code> and </code>1.<code> lists (one level), </code>---<code> rules. Inline: </code><code> </code>code<code> </code><code>, </code><strong>strong</strong><code>, </code></em>em*<code>/</code><em>em</em>`, links, images. Raw HTML in the text is shown as text, not run — Markdown from a user or an API is safe to render.</p>
                             </div>
-                            <h2 class="wf-heading">.md pages</h2>
+                            <h2 class="wf-heading" id="md-pages">.md pages</h2>
                             <div class="wf-markdown">
 <p>A Markdown file in <code>src/</code> is a page. Its front matter names the page's attributes; the rest is the body:</p>
                             </div>
@@ -309,7 +307,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">markdown</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">---
 path: /guide/install
@@ -338,7 +336,7 @@ Then `wf init my-site`.</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">component DocsShell {
     slot
@@ -354,7 +352,7 @@ Then `wf init my-site`.</code>
                             <div class="wf-markdown">
 <p>A docs site is a folder of <code>.md</code> files, one layout, and a <code>.wf</code> for the <code>app</code>. (<code>wf docs</code> is something else: a gallery of every component the project can use — <a href="/WebFluent/docs/guide/cli#wf-docs-wf-registry-wf-types">chapter 37</a>.)</p>
                             </div>
-                            <h2 class="wf-heading">Search and sharing</h2>
+                            <h2 class="wf-heading" id="search-and-sharing">Search and sharing</h2>
                             <div class="wf-markdown">
 <p>For every page the build writes the standard head from the page's attributes and <code>meta.*</code> in <code>webfluent.app.json</code>:</p>
                             </div>
@@ -363,7 +361,7 @@ Then `wf init my-site`.</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{
   &quot;meta&quot;: {
@@ -386,7 +384,7 @@ Then `wf init my-site`.</code>
 <li><code>&lt;title&gt;</code> and <code>&lt;meta name=&quot;description&quot;&gt;</code> from the page's <code>title:</code> and <code>description:</code> — the snippet a search result shows and a link preview quotes. Keep the description under ~150 characters.</li>
 <li>A canonical link and <code>og:url</code>, when <code>site_url</code> is set (a relative canonical is worse than none, so without <code>site_url</code> the build emits none).</li>
 <li>Open Graph and Twitter card tags: <code>og:title</code>, <code>og:description</code>, <code>og:image</code> (the page's <code>image:</code> or the site's), <code>og:type</code> from <code>type:</code> (<code>website</code> or <code>article</code>), <code>og:site_name</code>.</li>
-<li>JSON-LD: an <code>Organization</code>, a <code>WebPage</code> or <code>Article</code>, and a <code>BreadcrumbList</code> derived from the route's segments.</li>
+<li>JSON-LD: an <code>Organization</code>, a <code>WebPage</code> or <code>Article</code>, and a <code>BreadcrumbList</code> derived from the route's segments — each a page a reader can open; a level no route answers is left out.</li>
 <li><code>hreflang</code> alternates for each locale when the project has several.</li>
 <li>The icons: <code>&lt;link rel=&quot;icon&quot;&gt;</code> for <code>favicon</code> (typed, so an SVG is read as one) and <code>&lt;link rel=&quot;apple-touch-icon&quot;&gt;</code> for <code>touch_icon</code>, each linked from the site's root under the <code>base_path</code> (<code>/my-site/favicon.svg</code>), so it stays right when the router moves the page to another address. A sharing image is best 1200×630.</li>
 <li><code>&lt;meta name=&quot;robots&quot; content=&quot;noindex&quot;&gt;</code> and no sitemap entry for a <code>noindex: true</code> page.</li>
@@ -398,7 +396,7 @@ Then `wf init my-site`.</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Post { slug: String, title: String, summary: String, cover: String, date: String, body: String }
 
@@ -422,7 +420,7 @@ page PostPage(path: &quot;/posts/:slug&quot;, slug: String, type: &quot;article&
                             <div class="wf-markdown">
 <p>The <code>title:</code> and <code>description:</code> of a <code>:param</code> page may name its parameters — <code>title: &quot;{slug} — Blog&quot;</code> — and each pre-rendered file, and the live page's tab, has that route's value. The title may also splice an expression over the parameters and the program's constants and data — <code>title: &quot;{posts.find(p =&gt; p.slug == slug)?.title ?? slug} — Blog&quot;</code> — which the build works out for each file and the router again on each visit. Anything else the head should say about the entry goes in <code>head { }</code>, as above; the runtime keeps those tags current as the parameter changes.</p>
                             </div>
-                            <h2 class="wf-heading">A checklist for being found</h2>
+                            <h2 class="wf-heading" id="a-checklist-for-being-found">A checklist for being found</h2>
                             <div class="wf-markdown">
 <ul>
 <li>Set <code>meta.site_url</code> — without it there are no canonical links, no sitemap and no absolute sharing URLs.</li>
@@ -434,7 +432,7 @@ page PostPage(path: &quot;/posts/:slug&quot;, slug: String, type: &quot;article&
 <li>Check the result: view a built page's source, and paste a URL into a link-preview debugger.</li>
 </ul>
                             </div>
-                            <h2 class="wf-heading">Code on the page</h2>
+                            <h2 class="wf-heading" id="code-on-the-page">Code on the page</h2>
                             <div class="wf-markdown">
 <p><code>Code(&quot;…&quot;)</code> is inline code; <code>Code(&quot;…&quot;).block</code> a block. <code>language:</code> colours it — <code>wf</code>, <code>json</code>, <code>bash</code> or <code>css</code> — at build time and in the browser alike, with the theme's <code>syntax-*</code> tokens; a <code>Markdown</code> fence with one of those languages is coloured the same way.</p>
                             </div>
@@ -443,7 +441,7 @@ page PostPage(path: &quot;/posts/:slug&quot;, slug: String, type: &quot;article&
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Snippets(path: &quot;/&quot;) {
     Text(&quot;Run &quot;)  Code(&quot;wf serve&quot;)  Text(&quot; to start.&quot;)
@@ -515,7 +513,7 @@ page PostPage(path: &quot;/posts/:slug&quot;, slug: String, type: &quot;article&
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>

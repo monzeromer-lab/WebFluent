@@ -32,7 +32,7 @@
     <script src="../../../pages/ContributingGuide.js" data-wf-page="ContributingGuide" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
@@ -41,13 +41,13 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.1</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
-                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -56,14 +56,12 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
@@ -206,9 +204,9 @@
                         <p class="wf-text num">34</p>
                         <p class="wf-text">Server rendering</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tutorials">
                         <p class="wf-text num">35</p>
-                        <p class="wf-text">Cookbook</p>
+                        <p class="wf-text">Tutorials</p>
                     </a>
                     <p class="wf-text group-label">Reference</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
@@ -275,18 +273,18 @@
                         <h1 class="wf-heading wf-sa3503382">Contributing</h1>
                         <p class="wf-text wf-sfd35f593">How the compiler is put together, how to build and test it, and how to change the language, a built-in or this guide.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
-                        <div class="wf-stack wf-gap--lg">
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
 <p>WebFluent is one Rust crate — the compiler and the <code>wf</code> binary — with a language server beside it, editor extensions, a small JavaScript runtime and this guide, all in one repository: <a href="https://github.com/monzeromer-lab/WebFluent">github.com/monzeromer-lab/WebFluent</a>.</p>
                             </div>
-                            <h2 class="wf-heading">The repository</h2>
+                            <h2 class="wf-heading" id="the-repository">The repository</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">src/
   lexer/, parser/, syntax/   source → tokens → tree; the .wfx layout in layout/
@@ -306,13 +304,13 @@ site/                        the documentation site, written in WebFluent
 tests/                       Rust integration tests, tests/js (runtime), tests/browser (Chrome)
 spec/                        design notes and plans</code>
                             </div>
-                            <h2 class="wf-heading">The pipeline</h2>
+                            <h2 class="wf-heading" id="the-pipeline">The pipeline</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">.wf / .wfx → lexer → parser → lower → semantic checks → type checker → linters → code generators
                                                                                  ├─ JavaScript + HTML + CSS
@@ -321,20 +319,20 @@ spec/                        design notes and plans</code>
                             <div class="wf-markdown">
 <p>Every stage reads the <strong>registry</strong> for what a built-in takes, so a prop added there is known to the checker, the linters, the language server, <code>wf docs</code> and the <a href="/WebFluent/docs/reference">components reference</a> at once.</p>
                             </div>
-                            <h2 class="wf-heading">Building and testing</h2>
+                            <h2 class="wf-heading" id="building-and-testing">Building and testing</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
                             <div class="wf-markdown">
 <p>The browser suites need Chrome: <code>cd tests/browser &amp;&amp; npm ci &amp;&amp; node offline.mjs</code> (and <code>peer.mjs</code>). CI runs all of it on every push.</p>
                             </div>
-                            <h2 class="wf-heading">Changing things</h2>
+                            <h2 class="wf-heading" id="changing-things">Changing things</h2>
                             <div class="wf-markdown">
 <ul>
 <li><strong>A built-in's props or flags</strong>: edit <code>src/registry/builtins.rs</code>, its CSS in <code>src/themes/</code>, and its code generation; then run <code>python3 scripts/components-reference.py</code> to rewrite the reference.</li>
@@ -343,7 +341,7 @@ spec/                        design notes and plans</code>
 <li><strong>A diagnostic</strong>: give it a code, an entry with a failing example in <a href="/WebFluent/docs/guide/diagnostics">Diagnostics</a> — the test suite compiles every example and checks it draws its code.</li>
 </ul>
                             </div>
-                            <h2 class="wf-heading">The guide</h2>
+                            <h2 class="wf-heading" id="the-guide">The guide</h2>
                             <div class="wf-markdown">
 <p>The guide lives in <code>md-docs/</code>, one file per chapter, and is the source of the documentation site: <code>python3 scripts/site-from-guide.py</code> writes the site's chapter pages, sidebar and search index from it. Each chapter starts with a comment naming its route, its group in the sidebar, the line under its title and its search description.</p>
 <p>The test suite holds the guide to the compiler:</p>
@@ -357,7 +355,7 @@ spec/                        design notes and plans</code>
 </ul>
 <p>A code block that is deliberately incomplete says so with a <code>…</code>, and is only checked for spelling.</p>
                             </div>
-                            <h2 class="wf-heading">Releasing</h2>
+                            <h2 class="wf-heading" id="releasing">Releasing</h2>
                             <div class="wf-markdown">
 <p><a href="https://github.com/monzeromer-lab/WebFluent/blob/master/RELEASING.md"><code>RELEASING.md</code></a> in the repository has the steps: one tag builds the binaries, the packages and the editor extensions.</p>
                             </div>
@@ -422,7 +420,7 @@ spec/                        design notes and plans</code>
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>

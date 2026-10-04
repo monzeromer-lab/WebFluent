@@ -32,7 +32,7 @@
     <script src="../../../pages/PagesAndRoutingGuide.js" data-wf-page="PagesAndRoutingGuide" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
@@ -41,13 +41,13 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.1</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
-                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -56,14 +56,12 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
@@ -206,9 +204,9 @@
                         <p class="wf-text num">34</p>
                         <p class="wf-text">Server rendering</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tutorials">
                         <p class="wf-text num">35</p>
-                        <p class="wf-text">Cookbook</p>
+                        <p class="wf-text">Tutorials</p>
                     </a>
                     <p class="wf-text group-label">Reference</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
@@ -275,18 +273,18 @@
                         <h1 class="wf-heading wf-sa3503382">Pages and routing</h1>
                         <p class="wf-text wf-sfd35f593">A page is a route and what it shows. Pages own their paths; the app shell frames them; a layout wraps them.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
-                        <div class="wf-stack wf-gap--lg">
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
 <p>A page is a route and what it shows. Pages own their paths: there is no route table to keep in step with them.</p>
                             </div>
-                            <h2 class="wf-heading">Declaring a page</h2>
+                            <h2 class="wf-heading" id="declaring-a-page">Declaring a page</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page About(path: &quot;/about&quot;, title: &quot;About us&quot;, description: &quot;Who we are and why we build this.&quot;) {
     Container {
@@ -436,7 +434,7 @@
                             <div class="wf-markdown">
 <p>A page without a <code>title</code> or <code>description</code> builds with a warning (<code>S01</code>, <code>S02</code>); the compiler cannot write those for you, and a page without them ships unshareable.</p>
                             </div>
-                            <h2 class="wf-heading">The app shell</h2>
+                            <h2 class="wf-heading" id="the-app-shell">The app shell</h2>
                             <div class="wf-markdown">
 <p><code>app</code> declares what every page renders inside — a navbar, a footer, the <code>Router</code> where the current page goes:</p>
                             </div>
@@ -445,7 +443,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">app {
     Navbar {
@@ -464,13 +462,13 @@
 <p><code>Router</code> is bare — it takes no children — and the table is built from every page's <code>path</code>, ordered by specificity (static segments before <code>:params</code>, <code>*</code> last), so declaration order can never shadow a route. A project with no <code>app</code> declaration gets a bare router.</p>
 <p><code>Router(transition: .fade, duration: &quot;200ms&quot;)</code> animates page changes (<a href="/WebFluent/docs/guide/motion#route-transitions">chapter 20</a>).</p>
                             </div>
-                            <h2 class="wf-heading">Links and navigation</h2>
+                            <h2 class="wf-heading" id="links-and-navigation">Links and navigation</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Nav(path: &quot;/nav&quot;) {
     Link(&quot;Home&quot;, to: &quot;/&quot;)                       // an &lt;a&gt;; the router handles the click
@@ -479,9 +477,9 @@
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>The link whose <code>to:</code> matches the current route carries the class <code>.active</code> and <code>aria-current=&quot;page&quot;</code>; <code>.prefix</code> makes a section link active for the routes beneath it. <code>navigate(path)</code> moves in code. Write paths from the site's root — <code>&quot;/about&quot;</code> — even when the site is served under a sub-path: with <code>build.base_path</code> set to <code>&quot;/docs&quot;</code>, every <code>Link</code>, <code>navigate</code> and asset is prefixed for you. In a static build, links are real page loads and <code>navigate</code> is too; in a single-page app they swap pages without a reload, move focus to the new page's heading, reset the scroll and announce the title.</p>
+<p>The link whose <code>to:</code> matches the current route carries the class <code>.active</code> and <code>aria-current=&quot;page&quot;</code>; <code>.prefix</code> makes a section link active for the routes beneath it. A <code>to:</code> with a query — <code>&quot;/?show=open&quot;</code> — is active only when the address carries those values too, so a row of filter links marks the one that is on — a plain link to the same path gives way to it. <code>navigate(path)</code> moves in code. Write paths from the site's root — <code>&quot;/about&quot;</code> — even when the site is served under a sub-path: with <code>build.base_path</code> set to <code>&quot;/docs&quot;</code>, every <code>Link</code>, <code>navigate</code> and asset is prefixed for you. In a static build, links are real page loads and <code>navigate</code> is too; in a single-page app they swap pages without a reload, move focus to the new page's heading, reset the scroll and announce the title.</p>
                             </div>
-                            <h2 class="wf-heading">Route parameters</h2>
+                            <h2 class="wf-heading" id="route-parameters">Route parameters</h2>
                             <div class="wf-markdown">
 <p>A <code>:name</code> segment is declared as a typed parameter of the page and read as a plain name, or as <code>params.name</code>:</p>
                             </div>
@@ -490,7 +488,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Post { slug: String, title: String, body: String }
 
@@ -516,7 +514,7 @@ page PostPage(path: &quot;/posts/:slug&quot;, title: &quot;Post&quot;, descripti
                             <div class="wf-markdown">
 <p>A parameter is a <code>String</code> unless you say otherwise (<code>id: Number</code>). A static build renders a <code>:param</code> page once per value named in <code>paths:</code> — see <a href="/WebFluent/docs/guide/static-and-spa#static-paths">Data</a>.</p>
                             </div>
-                            <h2 class="wf-heading">Query strings and fragments</h2>
+                            <h2 class="wf-heading" id="query-strings-and-fragments">Query strings and fragments</h2>
                             <div class="wf-markdown">
 <p><code>query</code> is the URL's query string as a map, and <code>hash</code> its <code>#fragment</code>; both are kept current by the runtime, so a page that reads them follows the address:</p>
                             </div>
@@ -525,7 +523,7 @@ page PostPage(path: &quot;/posts/:slug&quot;, title: &quot;Post&quot;, descripti
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Products(path: &quot;/products&quot;, title: &quot;Products&quot;, description: &quot;Everything we sell.&quot;) {
     derived tab = query.tab ?? &quot;all&quot;
@@ -541,16 +539,16 @@ page PostPage(path: &quot;/posts/:slug&quot;, title: &quot;Post&quot;, descripti
                             <div class="wf-markdown">
 <p>A query string is not part of the route: <code>/products?tab=sale</code> is the <code>/products</code> page. To change it from code, <code>navigate(&quot;/products?tab=sale&quot;)</code>. In the static paint <code>query</code> and <code>hash</code> are unknown, so what depends on them is drawn once the page is live.</p>
                             </div>
-                            <h2 class="wf-heading">Layouts</h2>
+                            <h2 class="wf-heading" id="layouts">Layouts</h2>
                             <div class="wf-markdown">
-<p>A <code>layout:</code> is a component with a default slot; the page renders in it. Use it for a section's own chrome — a docs sidebar, an app rail — where the <code>app</code> shell is the site's.</p>
+<p>A <code>layout:</code> is a component with a default slot; the page renders in it. Use it for a section's own chrome — a docs sidebar, an app rail — where the <code>app</code> shell is the site's. The page's skip link jumps past that chrome to the page's first element, which is given <code>id=&quot;wf-content&quot;</code> when it has no id of its own.</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">component DocsShell(_ crumb: String) {
     slot
@@ -580,7 +578,7 @@ page Reference(path: &quot;/docs/reference&quot;, title: &quot;Reference&quot;, 
                             <div class="wf-markdown">
 <p>The layout's arguments are checked like any component call. The layout component is required to declare a <code>slot</code> (its default slot); a layout without one is an error, since the page would have nowhere to go.</p>
                             </div>
-                            <h2 class="wf-heading">Guards</h2>
+                            <h2 class="wf-heading" id="guards">Guards</h2>
                             <div class="wf-markdown">
 <p><code>guard:</code> names an expression — usually a store's derived value — that must be true for the route to render; otherwise the reader is sent to <code>redirect:</code>.</p>
                             </div>
@@ -589,7 +587,7 @@ page Reference(path: &quot;/docs/reference&quot;, title: &quot;Reference&quot;, 
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Auth {
     state user = null
@@ -612,7 +610,7 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
                             <div class="wf-markdown">
 <p>The guard is evaluated on every navigation, in the browser. A static build still pre-renders the page's HTML (the guard is a client-side gate, not a secret), so keep anything private behind an API the page fetches.</p>
                             </div>
-                            <h2 class="wf-heading">Per-page head tags</h2>
+                            <h2 class="wf-heading" id="per-page-head-tags">Per-page head tags</h2>
                             <div class="wf-markdown">
 <p>A page may add tags of its own to the document's <code>&lt;head&gt;</code>; they are painted at build time where the value is known, kept current on the live page, and gone when the page is:</p>
                             </div>
@@ -621,7 +619,7 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Share(path: &quot;/share&quot;, title: &quot;Share&quot;, description: &quot;A page with its own tags.&quot;) {
     state image = &quot;/og-share.png&quot;
@@ -636,7 +634,7 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
                             <div class="wf-markdown">
 <p><code>title</code> and <code>description</code> are page attributes, not head tags; the compiler writes the standard tags (charset, viewport, description, canonical, Open Graph, Twitter card, JSON-LD) from them and the config.</p>
                             </div>
-                            <h2 class="wf-heading">The catch-all page</h2>
+                            <h2 class="wf-heading" id="the-catch-all-page">The catch-all page</h2>
                             <div class="wf-markdown">
 <p><code>path: &quot;*&quot;</code> is the page a static host serves as <code>404.html</code> and the router shows for a route no page claims:</p>
                             </div>
@@ -645,7 +643,7 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page NotFound(path: &quot;*&quot;, title: &quot;Not found&quot;, description: &quot;Nothing lives here.&quot;, noindex: true) {
     Container {
@@ -654,7 +652,7 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
     }
 }</code>
                             </div>
-                            <h2 class="wf-heading">Set-up code: what runs when a page opens</h2>
+                            <h2 class="wf-heading" id="set-up-code-what-runs-when-a-page-opens">Set-up code: what runs when a page opens</h2>
                             <div class="wf-markdown">
 <p>A page's body is a render block: it declares state, derived values and actions, and lists what to show. Everything at the top of the body runs once when the page renders; a call at the top — <code>Store.load(id)</code> — is set-up code.</p>
                             </div>
@@ -663,7 +661,7 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Deploys {
     state rows = []
@@ -758,7 +756,7 @@ page Deploy(path: &quot;/deploys/:id&quot;, title: &quot;Deploy&quot;, descripti
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>

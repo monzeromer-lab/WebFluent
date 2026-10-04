@@ -32,7 +32,7 @@
     <script src="../../../pages/I18nGuide.js" data-wf-page="I18nGuide" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
@@ -41,13 +41,13 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.1</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
-                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -56,14 +56,12 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
@@ -206,9 +204,9 @@
                         <p class="wf-text num">34</p>
                         <p class="wf-text">Server rendering</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tutorials">
                         <p class="wf-text num">35</p>
-                        <p class="wf-text">Cookbook</p>
+                        <p class="wf-text">Tutorials</p>
                     </a>
                     <p class="wf-text group-label">Reference</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
@@ -275,12 +273,12 @@
                         <h1 class="wf-heading wf-sa3503382">Internationalisation</h1>
                         <p class="wf-text wf-sfd35f593">One JSON file per locale, t() to read it, and a switch that flips the whole site — direction included.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
-                        <div class="wf-stack wf-gap--lg">
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
 <p>A site speaks several languages by keeping its text in one JSON file per locale and reading it with <code>t(&quot;key&quot;)</code>. Switching the locale re-renders every translated string, flips the document to right-to-left where the language reads that way, and changes how <code>format</code> and <code>ago</code> spell numbers and dates.</p>
                             </div>
-                            <h2 class="wf-heading">Setting up</h2>
+                            <h2 class="wf-heading" id="setting-up">Setting up</h2>
                             <div class="wf-markdown">
 <p>In <code>webfluent.app.json</code>:</p>
                             </div>
@@ -289,7 +287,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{
   &quot;i18n&quot;: {
@@ -307,7 +305,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{
   &quot;nav.home&quot;: &quot;Home&quot;,
@@ -323,7 +321,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{
   &quot;nav.home&quot;: &quot;الرئيسية&quot;,
@@ -341,13 +339,13 @@
                             <div class="wf-markdown">
 <p>A missing file is a build warning; a key missing from a locale falls back to the default locale, then to the key itself.</p>
                             </div>
-                            <h2 class="wf-heading">t(&quot;key&quot;)</h2>
+                            <h2 class="wf-heading" id="t-key">t(&quot;key&quot;)</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type User { name: String }
 
@@ -367,13 +365,13 @@ page Home(path: &quot;/&quot;, title: &quot;Home&quot;, description: &quot;The h
 <li>The static paint resolves <code>t</code> for the default locale at build time, so the pre-rendered HTML is already in the default language.</li>
 </ul>
                             </div>
-                            <h2 class="wf-heading">Switching the locale</h2>
+                            <h2 class="wf-heading" id="switching-the-locale">Switching the locale</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">app {
     state chosen = &quot;en&quot;
@@ -404,7 +402,7 @@ page Home(path: &quot;/&quot;) {
 <p><code>setLocale(&quot;ar&quot;)</code> switches; <code>locale</code> is the current code and <code>dir</code> is <code>&quot;ltr&quot;</code> or <code>&quot;rtl&quot;</code>. On a switch, <code>&lt;html lang&gt;</code> and <code>&lt;html dir&gt;</code> are set: <code>ar</code>, <code>he</code>, <code>fa</code> and <code>ur</code> are right-to-left, everything else left-to-right. The built-ins use logical CSS properties (<code>margin-inline-start</code>, not <code>margin-left</code>), so layouts mirror without work on your side; do the same in your own <code>style</code> blocks.</p>
 <p>An <code>app</code> block may declare <code>state</code> like a page, as <code>chosen</code> above.</p>
                             </div>
-                            <h2 class="wf-heading">Which locale a page opens in</h2>
+                            <h2 class="wf-heading" id="which-locale-a-page-opens-in">Which locale a page opens in</h2>
                             <div class="wf-markdown">
 <p>A page opens in <code>default_locale</code>, unless its address carries <code>?lang=&lt;code&gt;</code> for one of the configured locales — <code>/about?lang=ar</code> opens the Arabic page. That is the address the build gives each language in the <code>hreflang</code> alternates it writes for search engines, so a reader who arrives from a search result in Arabic reads Arabic.</p>
 <p>The runtime does not guess from the browser's language, and it does not remember a choice across visits on its own: both are a few lines of yours. To remember what the reader picked, keep it in a store with <code>persist</code>, and apply it from an <code>effect</code> in the app:</p>
@@ -414,7 +412,7 @@ page Home(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Prefs {
     persist language = &quot;&quot;
@@ -440,15 +438,15 @@ app {
 <p>The stored value starts empty — &quot;no choice yet&quot; — so a first visit, and a search engine's crawler, still get the <code>?lang=</code> locale or the default. To start from the browser's language, apply it when nothing is stored: <code>setLocale(navigator.language.slice(0, 2))</code>.</p>
 <p>A static build pre-renders every page once, in the default locale; another locale is applied as the page loads. For search engines that is what the <code>?lang=</code> alternates are for.</p>
                             </div>
-                            <h2 class="wf-heading">Numbers, dates and the locale</h2>
+                            <h2 class="wf-heading" id="numbers-dates-and-the-locale">Numbers, dates and the locale</h2>
                             <div class="wf-markdown">
 <p><code>format</code> and <code>ago</code> follow the current locale (<a href="/WebFluent/docs/guide/expressions#format-and-ago">chapter 14</a>): <code>format(1234.5, .currency, &quot;EUR&quot;)</code> is <code>€1,234.50</code> in <code>en</code>, <code>1.234,50 €</code> in <code>de</code>; <code>ago(date)</code> says &quot;il y a 3 jours&quot; in <code>fr</code>. The static paint uses a table of the common locales' separators and currency symbols; the live page uses <code>Intl</code> and corrects any difference.</p>
                             </div>
-                            <h2 class="wf-heading">Translating a Markdown page or a .md page</h2>
+                            <h2 class="wf-heading" id="translating-a-markdown-page-or-a-md-page">Translating a Markdown page or a .md page</h2>
                             <div class="wf-markdown">
 <p>Text inside a <code>.md</code> page is not passed through <code>t</code>; keep one Markdown file per locale and route by a <code>:locale</code> parameter, or keep the long-form text in the translation file under a key and render <code>Markdown(t(&quot;about.body&quot;))</code>.</p>
                             </div>
-                            <h2 class="wf-heading">Checklist</h2>
+                            <h2 class="wf-heading" id="checklist">Checklist</h2>
                             <div class="wf-markdown">
 <ul>
 <li>Every visible string goes through <code>t</code>, including <code>label:</code>, <code>placeholder:</code> and <code>aria-label:</code> values.</li>
@@ -523,7 +521,7 @@ app {
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>

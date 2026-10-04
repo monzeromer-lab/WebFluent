@@ -20,7 +20,7 @@
     <meta name="twitter:title" content="Footer — Components reference">
     <meta name="twitter:description" content="One built-in element: its signature, props, flags, events and parts, from the compiler&#x27;s registry.">
     <meta name="twitter:image" content="https://monzeromer-lab.github.io/WebFluent/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/reference/footer#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/reference/footer","name":"Footer — Components reference","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"One built-in element: its signature, props, flags, events and parts, from the compiler's registry."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/reference/footer#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Components reference","item":"https://monzeromer-lab.github.io/WebFluent/docs/reference"},{"@type":"ListItem","position":4,"name":"Footer","item":"https://monzeromer-lab.github.io/WebFluent/docs/reference/footer"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/reference/footer#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/reference/footer","name":"Footer — Components reference","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"One built-in element: its signature, props, flags, events and parts, from the compiler's registry."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/reference/footer#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Components reference","item":"https://monzeromer-lab.github.io/WebFluent/docs/reference"},{"@type":"ListItem","position":4,"name":"Footer — Components reference","item":"https://monzeromer-lab.github.io/WebFluent/docs/reference/footer"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/WebFluent/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/WebFluent/apple-touch-icon.png">
@@ -42,13 +42,13 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.1</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link" href="/WebFluent/docs/guide">Guide</a>
                         <a class="wf-link active" href="/WebFluent/docs/reference" aria-current="page">Components</a>
-                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -57,23 +57,248 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-sc879c3a5" aria-label="Components">
                     <div class="wf-row wf-align--center wf-gap--sm wf-sc37bab83 site-search">
                         <i class="wf-icon" data-icon="search"></i>
-                        <input class="wf-input" placeholder="Filter 67 built-ins" aria-label="Filter 67 built-ins" type="search">
+                        <input class="wf-input" placeholder="Filter 72 built-ins" aria-label="Filter 72 built-ins" type="search">
                     </div>
-                    <!--wf-for-->
+                    <p class="wf-text group-label">Layout</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/container">
+                        <p class="wf-text">Container</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/row">
+                        <p class="wf-text">Row</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/column">
+                        <p class="wf-text">Column</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/grid">
+                        <p class="wf-text">Grid</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/stack">
+                        <p class="wf-text">Stack</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/spacer">
+                        <p class="wf-text">Spacer</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/divider">
+                        <p class="wf-text">Divider</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/host">
+                        <p class="wf-text">Host</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/element">
+                        <p class="wf-text">Element</p>
+                    </a>
+                    <p class="wf-text group-label">Navigation</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/navbar">
+                        <p class="wf-text">Navbar</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/sidebar">
+                        <p class="wf-text">Sidebar</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/link">
+                        <p class="wf-text">Link</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/tabs">
+                        <p class="wf-text">Tabs</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/breadcrumb">
+                        <p class="wf-text">Breadcrumb</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/menu">
+                        <p class="wf-text">Menu</p>
+                    </a>
+                    <p class="wf-text group-label">Data display</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/card">
+                        <p class="wf-text">Card</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/table">
+                        <p class="wf-text">Table</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/list">
+                        <p class="wf-text">List</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/badge">
+                        <p class="wf-text">Badge</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/tag">
+                        <p class="wf-text">Tag</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/avatar">
+                        <p class="wf-text">Avatar</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/tooltip">
+                        <p class="wf-text">Tooltip</p>
+                    </a>
+                    <p class="wf-text group-label">Form</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/input">
+                        <p class="wf-text">Input</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/select">
+                        <p class="wf-text">Select</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/checkbox">
+                        <p class="wf-text">Checkbox</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/radio">
+                        <p class="wf-text">Radio</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/switch">
+                        <p class="wf-text">Switch</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/slider">
+                        <p class="wf-text">Slider</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/datepicker">
+                        <p class="wf-text">DatePicker</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/fileupload">
+                        <p class="wf-text">FileUpload</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/form">
+                        <p class="wf-text">Form</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/textarea">
+                        <p class="wf-text">Textarea</p>
+                    </a>
+                    <p class="wf-text group-label">Feedback</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/alert">
+                        <p class="wf-text">Alert</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/toast">
+                        <p class="wf-text">Toast</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/modal">
+                        <p class="wf-text">Modal</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/dialog">
+                        <p class="wf-text">Dialog</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/spinner">
+                        <p class="wf-text">Spinner</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/progress">
+                        <p class="wf-text">Progress</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/skeleton">
+                        <p class="wf-text">Skeleton</p>
+                    </a>
+                    <p class="wf-text group-label">Actions</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/button">
+                        <p class="wf-text">Button</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/iconbutton">
+                        <p class="wf-text">IconButton</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/buttongroup">
+                        <p class="wf-text">ButtonGroup</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/dropdown">
+                        <p class="wf-text">Dropdown</p>
+                    </a>
+                    <p class="wf-text group-label">Media</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/image">
+                        <p class="wf-text">Image</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/video">
+                        <p class="wf-text">Video</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/audio">
+                        <p class="wf-text">Audio</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/icon">
+                        <p class="wf-text">Icon</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/carousel">
+                        <p class="wf-text">Carousel</p>
+                    </a>
+                    <p class="wf-text group-label">Typography</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/text">
+                        <p class="wf-text">Text</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/heading">
+                        <p class="wf-text">Heading</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/code">
+                        <p class="wf-text">Code</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/markdown">
+                        <p class="wf-text">Markdown</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/unsafe">
+                        <p class="wf-text">Unsafe</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/blockquote">
+                        <p class="wf-text">Blockquote</p>
+                    </a>
+                    <p class="wf-text group-label">Data Display</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/chart">
+                        <p class="wf-text">Chart</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/qrcode">
+                        <p class="wf-text">QrCode</p>
+                    </a>
+                    <p class="wf-text group-label">PDF</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/tableofcontents">
+                        <p class="wf-text">TableOfContents</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/document">
+                        <p class="wf-text">Document</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/section">
+                        <p class="wf-text">Section</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/paragraph">
+                        <p class="wf-text">Paragraph</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/header">
+                        <p class="wf-text">Header</p>
+                    </a>
+                    <a class="wf-sidebar__item active" href="/WebFluent/docs/reference/footer" aria-current="page">
+                        <p class="wf-text">Footer</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/background">
+                        <p class="wf-text">Background</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/watermark">
+                        <p class="wf-text">Watermark</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/pagebreak">
+                        <p class="wf-text">PageBreak</p>
+                    </a>
+                    <p class="wf-text group-label">Slides</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/presentation">
+                        <p class="wf-text">Presentation</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/slide">
+                        <p class="wf-text">Slide</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/titleslide">
+                        <p class="wf-text">TitleSlide</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/sectionslide">
+                        <p class="wf-text">SectionSlide</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/twocolumn">
+                        <p class="wf-text">TwoColumn</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/imageslide">
+                        <p class="wf-text">ImageSlide</p>
+                    </a>
+                    <p class="wf-text group-label">Routing</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference/router">
+                        <p class="wf-text">Router</p>
+                    </a>
                 </aside>
-                <div class="wf-stack wf-gap--lg wf-s759b941a docs-main reference-main" role="main">
+                <div class="wf-stack wf-gap--lg wf-s759b941a docs-main reference-main" role="main" dir="ltr">
                     <div class="wf-stack wf-gap--sm wf-s3df5f255">
                         <div class="wf-row wf-align--center wf-gap--xs crumbs">
                             <a class="wf-link" href="/WebFluent/docs/reference">Chapter 36</a>
@@ -86,9 +311,9 @@
                             <p class="wf-text pill pill-accent">Takes a block</p>
                         </div>
                         <div class="wf-markdown wf-sa01f76ef">
-<p>Repeated at the bottom of every PDF page; a <code>&lt;footer&gt;</code> on the web.</p>
+<p>Repeated at the bottom of every PDF page (or those <code>on:</code> names), where <code>page</code> and <code>pages</code> are the page's number and the count; a <code>&lt;footer&gt;</code> on the web.</p>
                         </div>
-                        <code class="wf-code wf-code--block wf-s42a9213e"><span class="wf-tok-name">Footer</span> { … }</code>
+                        <code class="wf-code wf-code--block wf-s42a9213e"><span class="wf-tok-name">Footer</span>(<span class="wf-tok-prop">on</span>: …) { … }</code>
                         <p class="wf-text wf-s080a8452 overline">Example</p>
                         <code class="wf-code wf-code--block wf-s1235381a"><span class="wf-tok-name">Footer</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;© Company Inc.&quot;</span>).muted.sm }</code>
                         <div class="wf-markdown wf-s4e367f57">
@@ -100,8 +325,28 @@
                         <button class="wf-btn" role="tab" aria-selected="false" type="button">Flags and cases</button>
                         <button class="wf-btn" role="tab" aria-selected="false" type="button">Events</button>
                     </div>
-                    <div class="wf-stack wf-gap--md wf-s28a8547f" role="tabpanel">
-                        <p class="wf-text wf-s99329845">This element takes no props of its own.</p>
+                    <div class="wf-stack wf-gap--md wf-s28a8547f" role="tabpanel" id="props">
+                        <table class="wf-table wf-s219b5f22 props-table">
+                            <caption class="wf-visually-hidden">Props of Footer</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Prop</th>
+                                    <th scope="col">Type</th>
+                                    <th scope="col">Meaning</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>on:</td>
+                                    <td>.all .first .rest .odd .even</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>Which pages it is drawn on</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                         <div class="wf-markdown wf-s4e367f57">
 <p>Attribute families: <code>global, aria, data</code>. Plus the universal props on every element: <code>animate:</code>, <code>exit:</code>, <code>speed:</code>, <code>class:</code>, <code>ref:</code>.</p>
                         </div>
@@ -122,10 +367,10 @@
                     </div>
                     <div class="wf-stack wf-gap--xs wf-s981f2f27">
                         <p class="wf-text overline">Nearby</p>
+                        <a class="wf-link" href="/WebFluent/docs/reference/tableofcontents">TableOfContents</a>
                         <a class="wf-link" href="/WebFluent/docs/reference/document">Document</a>
                         <a class="wf-link" href="/WebFluent/docs/reference/section">Section</a>
                         <a class="wf-link" href="/WebFluent/docs/reference/paragraph">Paragraph</a>
-                        <a class="wf-link" href="/WebFluent/docs/reference/header">Header</a>
                     </div>
                 </div>
             </div>
@@ -154,7 +399,7 @@
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>

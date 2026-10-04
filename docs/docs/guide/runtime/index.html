@@ -32,7 +32,7 @@
     <script src="../../../pages/RuntimeGuide.js" data-wf-page="RuntimeGuide" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
@@ -41,13 +41,13 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.1</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
-                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -56,14 +56,12 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
@@ -206,9 +204,9 @@
                         <p class="wf-text num">34</p>
                         <p class="wf-text">Server rendering</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tutorials">
                         <p class="wf-text num">35</p>
-                        <p class="wf-text">Cookbook</p>
+                        <p class="wf-text">Tutorials</p>
                     </a>
                     <p class="wf-text group-label">Reference</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
@@ -275,8 +273,8 @@
                         <h1 class="wf-heading wf-sa3503382">Runtime API</h1>
                         <p class="wf-text wf-sfd35f593">window.WF — the runtime every compiled page calls, usable from a script of your own, the console or a library&#x27;s callback.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
-                        <div class="wf-stack wf-gap--lg">
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
 <p><code>app.js</code> opens with the runtime, and the page can reach it as <code>window.WF</code>. Compiled code calls it; so may a hand-written script in <code>public/</code>, a library's callback, or you in the browser's console:</p>
                             </div>
@@ -285,7 +283,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">js</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">WF.navigate(&quot;/about&quot;);
 WF.toast(&quot;Saved&quot;, &quot;success&quot;);
@@ -294,11 +292,11 @@ WF.storeSnapshot(&quot;Cart&quot;);</code>
                             <div class="wf-markdown">
 <p>A build keeps only the modules its own code reaches, so a script calling a module nothing else uses needs <code>&quot;build&quot;: { &quot;runtime&quot;: &quot;full&quot; }</code> (<a href="/WebFluent/docs/guide/interop">chapter 32</a>). Most names here are what the compiler emits for the language's features; the ones worth calling yourself are marked <strong>●</strong>.</p>
                             </div>
-                            <h2 class="wf-heading">Events the runtime says</h2>
+                            <h2 class="wf-heading" id="events-the-runtime-says">Events the runtime says</h2>
                             <div class="wf-markdown">
 <p><code>wf:render</code> is dispatched on <code>document</code> once a drawing lands — the first mount, the takeover of a pre-rendered page, and every route change — with <code>{ route, params }</code> in <code>detail</code>. A script that finds elements itself listens for it (<a href="/WebFluent/docs/guide/interop#wf-render-for-a-script-that-finds-elements-itself">JavaScript interop</a>).</p>
                             </div>
-                            <h2 class="wf-heading">State — core</h2>
+                            <h2 class="wf-heading" id="state-core">State — core</h2>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">State — core</caption>
                                 <thead>
@@ -370,7 +368,7 @@ WF.storeSnapshot(&quot;Cart&quot;);</code>
                                     </tr>
                                 </tbody>
                             </table>
-                            <h2 class="wf-heading">Elements and bodies — core, when, each, show, match, slot</h2>
+                            <h2 class="wf-heading" id="elements-and-bodies-core-when-each-show-match-slot">Elements and bodies — core, when, each, show, match, slot</h2>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">Elements and bodies — core, when, each, show, match, slot</caption>
                                 <thead>
@@ -494,7 +492,7 @@ WF.storeSnapshot(&quot;Cart&quot;);</code>
                                     </tr>
                                 </tbody>
                             </table>
-                            <h2 class="wf-heading">Motion — motion</h2>
+                            <h2 class="wf-heading" id="motion-motion">Motion — motion</h2>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">Motion — motion</caption>
                                 <thead>
@@ -566,7 +564,7 @@ WF.storeSnapshot(&quot;Cart&quot;);</code>
                                     </tr>
                                 </tbody>
                             </table>
-                            <h2 class="wf-heading">Routing — core, router, pages</h2>
+                            <h2 class="wf-heading" id="routing-core-router-pages">Routing — core, router, pages</h2>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">Routing — core, router, pages</caption>
                                 <thead>
@@ -634,11 +632,11 @@ WF.storeSnapshot(&quot;Cart&quot;);</code>
                                     </tr>
                                 </tbody>
                             </table>
-                            <h2 class="wf-heading">Browser values — browser, core</h2>
+                            <h2 class="wf-heading" id="browser-values-browser-core">Browser values — browser, core</h2>
                             <div class="wf-markdown">
 <p><code>viewport()</code>, <code>query()</code>, <code>hash()</code>, <code>now(every)</code>, <code>network()</code> and <code>theme()</code> read what the language's browser values hold; <code>setTheme(choice)</code> ● switches the theme.</p>
                             </div>
-                            <h2 class="wf-heading">Data — net, http, api</h2>
+                            <h2 class="wf-heading" id="data-net-http-api">Data — net, http, api</h2>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">Data — net, http, api</caption>
                                 <thead>
@@ -738,7 +736,7 @@ WF.storeSnapshot(&quot;Cart&quot;);</code>
                                     </tr>
                                 </tbody>
                             </table>
-                            <h2 class="wf-heading">Stores — store, keep</h2>
+                            <h2 class="wf-heading" id="stores-store-keep">Stores — store, keep</h2>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">Stores — store, keep</caption>
                                 <thead>
@@ -813,7 +811,7 @@ WF.storeSnapshot(&quot;Cart&quot;);</code>
                             <div class="wf-markdown">
 <p>Nothing is recorded while nothing is watching.</p>
                             </div>
-                            <h2 class="wf-heading">Widgets — toast, overlay, announce, field, tooltip, carousel, drawer, form</h2>
+                            <h2 class="wf-heading" id="widgets-toast-overlay-announce-field-tooltip-carousel-drawer-form">Widgets — toast, overlay, announce, field, tooltip, carousel, drawer, form</h2>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">Widgets — toast, overlay, announce, field, tooltip, carousel, drawer, form</caption>
                                 <thead>
@@ -869,7 +867,7 @@ WF.storeSnapshot(&quot;Cart&quot;);</code>
                                     </tr>
                                 </tbody>
                             </table>
-                            <h2 class="wf-heading">Safety — core, sanitize</h2>
+                            <h2 class="wf-heading" id="safety-core-sanitize">Safety — core, sanitize</h2>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">Safety — core, sanitize</caption>
                                 <thead>
@@ -912,15 +910,15 @@ WF.storeSnapshot(&quot;Cart&quot;);</code>
                             <div class="wf-markdown">
 <p>Both <code>safeUrl</code> and <code>sanitize</code> have a build-time twin, held to one table of cases.</p>
                             </div>
-                            <h2 class="wf-heading">Text — text, format</h2>
+                            <h2 class="wf-heading" id="text-text-format">Text — text, format</h2>
                             <div class="wf-markdown">
 <p><code>markdown(text)</code> ● renders the language's Markdown to HTML; <code>highlight(code, lang)</code> ● colours <code>wf</code>, <code>json</code>, <code>bash</code> or <code>css</code>; <code>format(value, style, option)</code> ● and <code>ago(date)</code> ● format in the locale.</p>
                             </div>
-                            <h2 class="wf-heading">Values — helpers, scalars</h2>
+                            <h2 class="wf-heading" id="values-helpers-scalars">Values — helpers, scalars</h2>
                             <div class="wf-markdown">
 <p>The list and string helpers (<code>sortBy</code>, <code>groupBy</code>, <code>unique</code>, <code>take</code>, <code>first</code>, <code>last</code>, <code>capitalize</code>, <code>truncate</code>, <code>dedent</code>, <code>lines</code>, <code>words</code>, <code>range</code>, <code>removeAt</code>) and the built-in types' methods (<code>plus</code>, <code>minus</code>, <code>until</code>, <code>year</code> … <code>inZone</code>, <code>money</code>, <code>times</code>, <code>convert</code>, <code>host</code>, <code>path</code>, <code>domain</code>, <code>mix</code>, <code>lighten</code>, <code>darken</code>, <code>alpha</code>, <code>contrast</code>, <code>preview</code>, <code>uuid</code>, <code>dateOf</code>, <code>timeOf</code>, <code>urlWith</code>, <code>urlQuery</code>), and <code>caseOf(v)</code> and <code>payload(v)</code> for an enum case — each a function of the value it works on.</p>
                             </div>
-                            <h2 class="wf-heading">Everything else</h2>
+                            <h2 class="wf-heading" id="everything-else">Everything else</h2>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">Everything else</caption>
                                 <thead>
@@ -1100,7 +1098,7 @@ WF.storeSnapshot(&quot;Cart&quot;);</code>
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>

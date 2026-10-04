@@ -32,7 +32,7 @@
     <script src="../../../pages/GettingStartedGuide.js" data-wf-page="GettingStartedGuide" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
@@ -41,13 +41,13 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.1</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
-                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -56,14 +56,12 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
@@ -206,9 +204,9 @@
                         <p class="wf-text num">34</p>
                         <p class="wf-text">Server rendering</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tutorials">
                         <p class="wf-text num">35</p>
-                        <p class="wf-text">Cookbook</p>
+                        <p class="wf-text">Tutorials</p>
                     </a>
                     <p class="wf-text group-label">Reference</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
@@ -275,68 +273,68 @@
                         <h1 class="wf-heading wf-sa3503382">Getting started</h1>
                         <p class="wf-text wf-sfd35f593">Install the compiler and your editor&#x27;s support, make a project, and see what a build writes.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
-                        <div class="wf-stack wf-gap--lg">
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
 <p>By the end of this chapter you will have installed the compiler, set up your editor, built a two-page site, changed it with the dev server watching, and know what every file the build writes is for.</p>
                             </div>
-                            <h2 class="wf-heading">Install</h2>
+                            <h2 class="wf-heading" id="install">Install</h2>
                             <div class="wf-markdown">
 <p>WebFluent is one binary, <code>wf</code>. Run the line for your machine; each one leaves <code>wf</code> on your <code>PATH</code>.</p>
                             </div>
-                            <h3 class="wf-heading">macOS and Linux</h3>
+                            <h3 class="wf-heading" id="macos-and-linux">macOS and Linux</h3>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
                             <div class="wf-markdown">
 <p>Fetches the binary for your platform from the latest release — no Rust needed. It covers Apple Silicon and Intel Macs and x86_64 Linux.</p>
                             </div>
-                            <h3 class="wf-heading">Windows (PowerShell)</h3>
+                            <h3 class="wf-heading" id="windows-powershell">Windows (PowerShell)</h3>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">powershell</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">irm https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.ps1 | iex</code>
                             </div>
-                            <h3 class="wf-heading">With Rust</h3>
+                            <h3 class="wf-heading" id="with-rust">With Rust</h3>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
                             <div class="wf-markdown">
 <p>Builds from crates.io. This works everywhere Rust does, and it is how to install on Linux arm64, which has no prebuilt binary yet.</p>
                             </div>
-                            <h3 class="wf-heading">Packages</h3>
+                            <h3 class="wf-heading" id="packages">Packages</h3>
                             <div class="wf-markdown">
 <p>Each <a href="https://github.com/monzeromer-lab/WebFluent/releases">release</a> also carries a <code>.deb</code>, an <code>.msi</code> and plain tarballs, for a machine where piping a script to a shell is not an option.</p>
                             </div>
-                            <h3 class="wf-heading">Check it</h3>
+                            <h3 class="wf-heading" id="check-it">Check it</h3>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
                             <div class="wf-markdown">
 <p>If the shell cannot find <code>wf</code>, open a new terminal: the installer adds its directory to your <code>PATH</code> in your shell's startup file, which the session you ran it in had already read.</p>
-<p>Both installers read two environment variables: <code>WF_INSTALL_DIR</code> puts the binary somewhere other than <code>~/.webfluent/bin</code>, and <code>WF_VERSION</code> pins a release (<code>WF_VERSION=v5.1.1</code>) rather than taking the latest. Running the installer again upgrades in place.</p>
+<p>Both installers read two environment variables: <code>WF_INSTALL_DIR</code> puts the binary somewhere other than <code>~/.webfluent/bin</code>, and <code>WF_VERSION</code> pins a release (<code>WF_VERSION=v5.2.0</code>) rather than taking the latest. Running the installer again upgrades in place.</p>
 <p>To build from a clone instead — for an unreleased change, or to work on the compiler itself:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
@@ -344,11 +342,11 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
-                            <h2 class="wf-heading">Set up your editor</h2>
+                            <h2 class="wf-heading" id="set-up-your-editor">Set up your editor</h2>
                             <div class="wf-markdown">
 <p>The language server, <code>wf-lsp</code>, gives your editor the same checks <code>wf build</code> runs, as you type: diagnostics, completion of props, flags and cases, hover with types and docs, signature help, go to definition, references, rename, formatting, inlay types, semantic highlighting and quick fixes.</p>
 <p>It is a second binary. Get it from the same <a href="https://github.com/monzeromer-lab/WebFluent/releases">release</a> as <code>wf</code> — <code>wf-lsp-&lt;version&gt;-&lt;arch&gt;-&lt;os&gt;.tar.gz</code> — and put it on your <code>PATH</code>, or build it from a clone:</p>
@@ -358,7 +356,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
@@ -369,13 +367,13 @@
 <li><strong>Neovim, Helix, Emacs, anything else with LSP</strong> — run <code>wf-lsp</code> over stdio for the <code>webfluent</code> file type (<code>*.wf</code>, <code>*.wfx</code>). <a href="/WebFluent/docs/guide/cli#editors">Editors</a> has configuration for each.</li>
 </ul>
                             </div>
-                            <h2 class="wf-heading">A first project</h2>
+                            <h2 class="wf-heading" id="a-first-project">A first project</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
@@ -429,7 +427,7 @@
                             <div class="wf-markdown">
 <p>Not sure between <code>spa</code> and <code>static</code>? Start with <code>static</code>: every page is real HTML before any script runs, which is better for search and for a first paint, and it is still fully interactive once the script loads. <a href="/WebFluent/docs/guide/static-and-spa">Static or single-page</a> explains the difference.</p>
                             </div>
-                            <h2 class="wf-heading">The smallest site</h2>
+                            <h2 class="wf-heading" id="the-smallest-site">The smallest site</h2>
                             <div class="wf-markdown">
 <p>Replace <code>src/</code> with two files.</p>
 <p><code>src/App.wf</code> — the shell every page shares, and the router:</p>
@@ -439,7 +437,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">app {
     Navbar {
@@ -460,7 +458,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Home(path: &quot;/&quot;, title: &quot;Hello&quot;, description: &quot;A first WebFluent site.&quot;) {
     state count = 0
@@ -489,13 +487,13 @@ page About(path: &quot;/about&quot;, title: &quot;About&quot;, description: &quo
 </ul>
 <p>Save, and the dev server shows the change. Run <code>wf build</code> to write the finished site to <code>build/</code>.</p>
                             </div>
-                            <h2 class="wf-heading">What a build produces</h2>
+                            <h2 class="wf-heading" id="what-a-build-produces">What a build produces</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">build/
   index.html          the page, pre-rendered (static) or the app shell (spa)
@@ -515,13 +513,13 @@ page About(path: &quot;/about&quot;, title: &quot;About&quot;, description: &quo
 <p>Nothing in <code>build/</code> is for editing: it is written again on every build, so keep it out of version control. <code>public/</code> is copied to its root as it is.</p>
 <p><code>app.js</code> carries only the parts of the runtime the program reaches. The runtime is a set of feature modules — <code>each</code> for a <code>for</code>, <code>router</code> for a second page, <code>net</code> for a <code>resource</code>, <code>icons</code> for an <code>Icon</code> — and the build works out which ones the code it just wrote calls. A page of static text carries 3 of its 37 modules — an <code>app.js</code> of 3.7 kB gzipped. <code>wf build --stats</code> shows what a build weighs; <a href="/WebFluent/docs/guide/performance">Performance</a> reads it.</p>
                             </div>
-                            <h2 class="wf-heading">The project, in brief</h2>
+                            <h2 class="wf-heading" id="the-project-in-brief">The project, in brief</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">AGENTS.md             the language reference, for you and a coding agent
 webfluent.app.json    the config
@@ -544,7 +542,7 @@ tests/*.wf            `test &quot;…&quot; { }` declarations for `wf test`</cod
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{ &quot;name&quot;: &quot;hello&quot; }</code>
                             </div>
@@ -613,7 +611,7 @@ tests/*.wf            `test &quot;…&quot; { }` declarations for `wf test`</cod
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>

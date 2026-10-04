@@ -32,7 +32,7 @@
     <script src="../../../pages/FormsGuide.js" data-wf-page="FormsGuide" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
@@ -41,13 +41,13 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.1</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
-                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -56,14 +56,12 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
@@ -206,9 +204,9 @@
                         <p class="wf-text num">34</p>
                         <p class="wf-text">Server rendering</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tutorials">
                         <p class="wf-text num">35</p>
-                        <p class="wf-text">Cookbook</p>
+                        <p class="wf-text">Tutorials</p>
                     </a>
                     <p class="wf-text group-label">Reference</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
@@ -275,12 +273,12 @@
                         <h1 class="wf-heading wf-sa3503382">Forms and validation</h1>
                         <p class="wf-text wf-sfd35f593">Controls bound to state, forms with a handle, validation rules that show their own messages, files, and what the server said.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
-                        <div class="wf-stack wf-gap--lg">
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
 <p>A form in WebFluent is controls bound to state, a <code>Form</code> that knows whether they are valid, and <code>validate</code> blocks that say what each value must be. The accessible plumbing — labels, <code>aria-describedby</code>, <code>aria-invalid</code>, announced errors, focus on the first problem — is written for you.</p>
                             </div>
-                            <h2 class="wf-heading">Controls and bind:</h2>
+                            <h2 class="wf-heading" id="controls-and-bind">Controls and bind:</h2>
                             <div class="wf-markdown">
 <p><code>bind: stateName</code> on a control keeps the state and the control in step, both ways:</p>
                             </div>
@@ -289,7 +287,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Signup(path: &quot;/&quot;) {
     state name = &quot;&quot;
@@ -325,7 +323,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">for t in todos by t.id {
     Input(bind: t.title, label: &quot;Title&quot;)
@@ -336,7 +334,7 @@ Text(&quot;{todos.filter(t =&gt; !t.done).length} left&quot;)</code>
                             <div class="wf-markdown">
 <p>The item is written and the list is told it changed, so everything that reads <code>todos</code> follows. In a keyed loop that happens as the reader types; in a loop with no <code>by</code>, which redraws every item when its list changes, the list hears of it when the field is left, so the row is not redrawn under the cursor.</p>
                             </div>
-                            <h2 class="wf-heading">Labels, hints and errors you write yourself</h2>
+                            <h2 class="wf-heading" id="labels-hints-and-errors-you-write-yourself">Labels, hints and errors you write yourself</h2>
                             <div class="wf-markdown">
 <p>Every control takes <code>label:</code>, <code>hint:</code> and <code>error:</code>. With any of them the control is wrapped in a field: the label is a real <code>&lt;label for&gt;</code>, the hint and the error are linked with <code>aria-describedby</code>, and an error — a string, empty when there is none — is announced as it appears and sets <code>aria-invalid</code>.</p>
                             </div>
@@ -345,7 +343,7 @@ Text(&quot;{todos.filter(t =&gt; !t.done).length} left&quot;)</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Handle(path: &quot;/&quot;, title: &quot;Handle&quot;, description: &quot;Pick a handle.&quot;) {
     state handle = &quot;&quot;
@@ -357,7 +355,7 @@ Text(&quot;{todos.filter(t =&gt; !t.done).length} left&quot;)</code>
                             <div class="wf-markdown">
 <p>Most of the time a <code>validate</code> block (below) is simpler: it computes the error for you. <code>error:</code> is for a message that comes from somewhere else.</p>
                             </div>
-                            <h2 class="wf-heading">Forms</h2>
+                            <h2 class="wf-heading" id="forms">Forms</h2>
                             <div class="wf-markdown">
 <p>A <code>Form</code> groups controls; <code>on submit</code> runs when it is submitted, and the page never navigates away. <code>Form(bind: name)</code> hands you a handle on the form:</p>
                             </div>
@@ -366,7 +364,7 @@ Text(&quot;{todos.filter(t =&gt; !t.done).length} left&quot;)</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Contact(path: &quot;/&quot;) {
     state name = &quot;&quot;
@@ -496,7 +494,7 @@ Text(&quot;{todos.filter(t =&gt; !t.done).length} left&quot;)</code>
                             <div class="wf-markdown">
 <p>A <code>Button</code> with <code>type: .submit</code> (or <code>.submit</code>) submits; the browser's own constraint validation runs first, so an invalid form never reaches <code>on submit</code>. Any other button in a form — &quot;Add a row&quot;, &quot;Show password&quot; — is <code>type=&quot;button&quot;</code> and does only what its <code>on click</code> says.</p>
                             </div>
-                            <h2 class="wf-heading">What a value must be: validate</h2>
+                            <h2 class="wf-heading" id="what-a-value-must-be-validate">What a value must be: validate</h2>
                             <div class="wf-markdown">
 <p>A <code>validate</code> block sits beside the state it guards. Every rule is one line, and the control bound to that state shows what they say — there is no <code>error:</code> to write and no <code>derived</code> to compute:</p>
                             </div>
@@ -505,7 +503,7 @@ Text(&quot;{todos.filter(t =&gt; !t.done).length} left&quot;)</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Signup(path: &quot;/join&quot;, title: &quot;Join&quot;, description: &quot;Make an account.&quot;) {
     state email = &quot;&quot;
@@ -535,7 +533,7 @@ Text(&quot;{todos.filter(t =&gt; !t.done).length} left&quot;)</code>
     }
 }</code>
                             </div>
-                            <h3 class="wf-heading">The rules</h3>
+                            <h3 class="wf-heading" id="the-rules">The rules</h3>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">The rules</caption>
                                 <thead>
@@ -620,21 +618,21 @@ Text(&quot;{todos.filter(t =&gt; !t.done).length} left&quot;)</code>
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>Each takes an optional message after it. Without one, the rule's own is used — and a project with translations replaces it by naming <code>form.required</code>, <code>form.email</code>, <code>form.minLength</code> and so on.</p>
+<p>Each takes an optional message after it — a string, or <code>t(&quot;key&quot;)</code>, read in the reader's language. Without one, the rule's own is used — and a project with translations replaces it by naming <code>form.required</code>, <code>form.email</code>, <code>form.minLength</code> and so on. An argument that reads state — <code>max(Ledger.today)</code> — is read each time the rule is checked.</p>
 <p>Every rule but <code>required</code> passes an empty value, so a blank optional field shows one message rather than two. An <code>async</code> rule is only asked once the rest have passed, and once per value — so a server is not asked about every keystroke of an address that is not one yet.</p>
                             </div>
-                            <h3 class="wf-heading">When a message shows</h3>
+                            <h3 class="wf-heading" id="when-a-message-shows">When a message shows</h3>
                             <div class="wf-markdown">
 <p><code>Form(show:)</code> says: <code>.onBlur</code> (the default — after the reader leaves the field), <code>.onSubmit</code>, or <code>.live</code> as they type. The fault is known either way, so <code>form.valid</code> is the truth whatever the reader has seen.</p>
 <p>A submit that fails shows every message, moves focus to the first field that has one and announces it, and does not run <code>on submit</code>.</p>
                             </div>
-                            <h3 class="wf-heading">A refined type validates itself</h3>
+                            <h3 class="wf-heading" id="a-refined-type-validates-itself">A refined type validates itself</h3>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">state nights: Number(1..=30) = 2
 validate nights { required }</code>
@@ -642,13 +640,13 @@ validate nights { required }</code>
                             <div class="wf-markdown">
 <p>The range on the type is already a rule; only <code>required</code> needed saying. See <a href="/WebFluent/docs/guide/types#a-condition-on-a-type">Types</a>.</p>
                             </div>
-                            <h3 class="wf-heading">What the server said</h3>
+                            <h3 class="wf-heading" id="what-the-server-said">What the server said</h3>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">action signUp() {
     try {
@@ -661,7 +659,7 @@ validate nights { required }</code>
                             <div class="wf-markdown">
 <p>Each message is shown on the field it names, and stands until the reader changes that value.</p>
                             </div>
-                            <h2 class="wf-heading">Files</h2>
+                            <h2 class="wf-heading" id="files">Files</h2>
                             <div class="wf-markdown">
 <p><code>FileUpload</code> is a file input; the files arrive in its <code>change</code> event. Each is a <code>File</code> — <code>.name</code>, <code>.size</code>, <code>.type</code>, and <code>.preview()</code>, an object URL for showing an image before it is uploaded, revoked when the page leaves.</p>
                             </div>
@@ -670,7 +668,7 @@ validate nights { required }</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">api Backend(base: &quot;/api&quot;) {
     post avatar(id: String, file: File) at &quot;users/:id/avatar&quot;
@@ -703,7 +701,7 @@ page Avatar(path: &quot;/avatar&quot;, title: &quot;Your picture&quot;, descript
                             <div class="wf-markdown">
 <p>An endpoint with a <code>File</code> parameter sends a multipart form, and <code>Backend.avatar.progress</code> follows the upload from 0 to 1. <code>accept:</code> and the size are conveniences for the reader, not checks: the server decides what it accepts (<a href="/WebFluent/docs/guide/security#uploads">Security</a>). <code>FileUpload(…).multiple</code> takes several.</p>
                             </div>
-                            <h2 class="wf-heading">Sending it to a server</h2>
+                            <h2 class="wf-heading" id="sending-it-to-a-server">Sending it to a server</h2>
                             <div class="wf-markdown">
 <p>Describe the service once with <code>api</code>, call it from the submit handler, and hand what a <code>422</code> said back to the form:</p>
                             </div>
@@ -712,7 +710,7 @@ page Avatar(path: &quot;/avatar&quot;, title: &quot;Your picture&quot;, descript
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">api Backend(base: &quot;/api&quot;) {
     post signUp(body: Map) -&gt; Map
@@ -749,7 +747,7 @@ page Join(path: &quot;/join&quot;, title: &quot;Join&quot;, description: &quot;M
                             <div class="wf-markdown">
 <p><code>form.apply({ email: &quot;That address is taken&quot; })</code> shows each message on the field whose <code>name:</code> it matches, until the reader changes that value. <a href="/WebFluent/docs/guide/data">Data and APIs</a> covers the service in full: retries, timeouts, typed errors.</p>
                             </div>
-                            <h2 class="wf-heading">Pending actions</h2>
+                            <h2 class="wf-heading" id="pending-actions">Pending actions</h2>
                             <div class="wf-markdown">
 <p>An action that <code>await</code>s exposes <code>name.pending</code>, <code>true</code> while a call of it runs — for a disabled button or a spinner:</p>
                             </div>
@@ -758,7 +756,7 @@ page Join(path: &quot;/join&quot;, title: &quot;Join&quot;, description: &quot;M
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Api {
     state saved = 0
@@ -777,7 +775,7 @@ page Save(path: &quot;/&quot;) {
     Text(&quot;Saved {Api.saved} times&quot;)
 }</code>
                             </div>
-                            <h2 class="wf-heading">A checklist for a good form</h2>
+                            <h2 class="wf-heading" id="a-checklist-for-a-good-form">A checklist for a good form</h2>
                             <div class="wf-markdown">
 <ul>
 <li>Every control has a <code>label:</code> — a placeholder is not a label.</li>
@@ -855,7 +853,7 @@ page Save(path: &quot;/&quot;) {
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>

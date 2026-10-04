@@ -32,7 +32,7 @@
     <script src="../../../pages/AccessibilityGuide.js" data-wf-page="AccessibilityGuide" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
@@ -41,13 +41,13 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.1</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
-                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -56,14 +56,12 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
@@ -206,9 +204,9 @@
                         <p class="wf-text num">34</p>
                         <p class="wf-text">Server rendering</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tutorials">
                         <p class="wf-text num">35</p>
-                        <p class="wf-text">Cookbook</p>
+                        <p class="wf-text">Tutorials</p>
                     </a>
                     <p class="wf-text group-label">Reference</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
@@ -275,12 +273,12 @@
                         <h1 class="wf-heading wf-sa3503382">Accessibility</h1>
                         <p class="wf-text wf-sfd35f593">What the built-ins do for readers who use a keyboard, a screen reader or voice control, what the compiler checks on every build, and what is still yours to do.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
-                        <div class="wf-stack wf-gap--lg">
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
 <p>Accessibility is not a plugin here: the built-ins render the markup assistive technology expects, the router and the form manage focus, and the compiler checks every page on every build.</p>
                             </div>
-                            <h2 class="wf-heading">What you get without asking</h2>
+                            <h2 class="wf-heading" id="what-you-get-without-asking">What you get without asking</h2>
                             <div class="wf-markdown">
 <ul>
 <li><strong>Semantic elements.</strong> A <code>Button</code> is a <code>&lt;button&gt;</code>, a <code>Link</code> an <code>&lt;a&gt;</code>, <code>Heading(…).h2</code> an <code>&lt;h2&gt;</code>, <code>Header</code>/<code>Section</code>/<code>Footer</code> landmarks, a <code>Table</code> a <code>&lt;table&gt;</code> whose head cells are <code>&lt;th scope=&quot;col&quot;&gt;</code>, a <code>List</code> a <code>&lt;ul&gt;</code> or <code>&lt;ol&gt;</code>, the page's content a <code>&lt;main&gt;</code>.</li>
@@ -296,7 +294,7 @@
 <li><strong>Visible focus.</strong> Every interactive built-in has a focus ring for the keyboard (<code>:focus-visible</code>), not on every click.</li>
 </ul>
                             </div>
-                            <h2 class="wf-heading">What the compiler checks</h2>
+                            <h2 class="wf-heading" id="what-the-compiler-checks">What the compiler checks</h2>
                             <div class="wf-markdown">
 <p>Warnings on every build and in the editor (<a href="/WebFluent/docs/guide/diagnostics#accessibility">Diagnostics</a>):</p>
                             </div>
@@ -427,7 +425,7 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <h2 class="wf-heading">What is still yours</h2>
+                            <h2 class="wf-heading" id="what-is-still-yours">What is still yours</h2>
                             <div class="wf-markdown">
 <p>The compiler can see markup; it cannot see meaning.</p>
 <ul>
@@ -440,13 +438,13 @@
 <li><strong>Time limits.</strong> A <code>Toast</code> disappears; anything the reader must act on belongs in an <code>Alert</code> that stays.</li>
 </ul>
                             </div>
-                            <h2 class="wf-heading">Labelling things well</h2>
+                            <h2 class="wf-heading" id="labelling-things-well">Labelling things well</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Search(path: &quot;/&quot;, title: &quot;Search&quot;, description: &quot;Find a page.&quot;) {
     state q = &quot;&quot;
@@ -463,7 +461,7 @@
 <li>An <code>aria-label</code> begins with the visible words, so someone saying &quot;click Search&quot; hits the right button (<code>A15</code>).</li>
 </ul>
                             </div>
-                            <h2 class="wf-heading">Testing with assistive technology</h2>
+                            <h2 class="wf-heading" id="testing-with-assistive-technology">Testing with assistive technology</h2>
                             <div class="wf-markdown">
 <ul>
 <li><strong>Keyboard.</strong> Put the mouse away: Tab through the page, open and close every menu and dialog, submit every form. Focus should always be visible and never lost.</li>
@@ -537,7 +535,7 @@
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>

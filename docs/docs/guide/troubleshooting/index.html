@@ -32,7 +32,7 @@
     <script src="../../../pages/TroubleshootingGuide.js" data-wf-page="TroubleshootingGuide" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
@@ -41,13 +41,13 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.1</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
-                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -56,14 +56,12 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
@@ -206,9 +204,9 @@
                         <p class="wf-text num">34</p>
                         <p class="wf-text">Server rendering</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tutorials">
                         <p class="wf-text num">35</p>
-                        <p class="wf-text">Cookbook</p>
+                        <p class="wf-text">Tutorials</p>
                     </a>
                     <p class="wf-text group-label">Reference</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
@@ -275,20 +273,20 @@
                         <h1 class="wf-heading wf-sa3503382">Troubleshooting</h1>
                         <p class="wf-text wf-sfd35f593">The problems people meet, what causes each, and the fix — from installing to deploying, plus the questions that come up most.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
-                        <div class="wf-stack wf-gap--lg">
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
 <p>Every diagnostic has its own entry in <a href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>; search it for the code in brackets. This chapter covers what goes wrong without one.</p>
                             </div>
-                            <h2 class="wf-heading">Installing</h2>
+                            <h2 class="wf-heading" id="installing">Installing</h2>
                             <div class="wf-markdown">
 <p><strong><code>wf: command not found</code> after installing.</strong> Open a new terminal: the installer added <code>~/.webfluent/bin</code> to your shell's startup file, which the open session read before. Or run it by its full path, <code>~/.webfluent/bin/wf</code>.</p>
-<p><strong>The installer says it cannot find the latest version.</strong> GitHub's API limits unauthenticated requests. Pin one: <code>WF_VERSION=v5.1.1</code>.</p>
+<p><strong>The installer says it cannot find the latest version.</strong> GitHub's API limits unauthenticated requests. Pin one: <code>WF_VERSION=v5.2.0</code>.</p>
 <p><strong>Linux on ARM (a Raspberry Pi, an ARM server).</strong> There is no prebuilt binary yet: <code>cargo install webfluent</code>.</p>
 <p><strong><code>wf-lsp</code> not found by the editor.</strong> It is a separate binary; see <a href="/WebFluent/docs/guide/getting-started#set-up-your-editor">Getting started</a>.</p>
 <p><strong>The editor reports what <code>wf build</code> does not</strong> — an element it calls unknown (<code>Host</code>), a message <code>wf check</code> never prints. The editor is running an older <code>wf-lsp</code> than the <code>wf</code> you build with: one on your <code>PATH</code> is used before a downloaded release, and <code>cargo install</code> does not update it when <code>wf</code> is updated. Compare <code>wf-lsp --version</code> with <code>wf --version</code> (the editor's language server log names the version it started, too), install the matching one, and restart the language server.</p>
                             </div>
-                            <h2 class="wf-heading">Building</h2>
+                            <h2 class="wf-heading" id="building">Building</h2>
                             <div class="wf-markdown">
 <p><strong>&quot;is not an element or a statement a render block can hold&quot;.</strong> Code that does something — <code>n = n + 1</code>, a call that is not a store's set-up — was written loose in a page. Put it in <code>on click { }</code>, an <code>action</code> or an <code>effect</code>.</p>
 <p><strong>&quot;Only the first argument may be positional&quot;.</strong> An element takes one unnamed value; name the rest: <code>Card(&quot;Laptop&quot;, price: 999)</code>.</p>
@@ -299,7 +297,7 @@
 <p><strong>Failing CI on warnings, or annotating a pull request.</strong> <code>wf check --deny-warnings</code> fails on a warning; <code>--format github</code> writes annotations a workflow shows on the pull request, and <code>--format sarif</code> a file for code scanning (<a href="/WebFluent/docs/guide/cli#wf-check">Command line</a>).</p>
 <p><strong>The build is slow.</strong> The first build resizes every <code>image</code>; later builds reuse <code>.wf-cache/</code>. Do not delete it in CI if you can cache it.</p>
                             </div>
-                            <h2 class="wf-heading">In the browser</h2>
+                            <h2 class="wf-heading" id="in-the-browser">In the browser</h2>
                             <div class="wf-markdown">
 <p><strong>The page is blank after deploying, but works locally.</strong> The site is served under a sub-path and the build does not know it. Set <code>build.base_path</code> to the path (<code>&quot;/my-repo&quot;</code> on GitHub Pages) and rebuild.</p>
 <p><strong>Reloading any page but the home page is a 404.</strong> A single-page build needs the host to answer every path with <code>index.html</code> (<a href="/WebFluent/docs/guide/deploying">Deploying</a>), or build static with <code>build.ssg: true</code>.</p>
@@ -316,19 +314,19 @@
 <p><strong>An <code>api</code> call stays loading.</strong> A parameter its path names is empty — <code>Backend.user(id: &quot;&quot;)</code> for <code>users/:id</code> — so nothing was requested: <code>users/</code> would be the whole collection. It loads when the value arrives.</p>
 <p><strong>A layout that is right after the page loads jumps first.</strong> Something depends on <code>viewport</code>, which is unknown until the script runs. Use <a href="/WebFluent/docs/guide/styling#responsive-values">responsive values</a> for layout.</p>
                             </div>
-                            <h2 class="wf-heading">Styling</h2>
+                            <h2 class="wf-heading" id="styling">Styling</h2>
                             <div class="wf-markdown">
 <p><strong>My <code>style { }</code> does not apply.</strong> Check the property name (a style block is real CSS; a misspelt one is a <code>V05</code> warning) and the token (<code>$brand-colour</code> that no theme defines is a <code>V06</code> error). Values end at a newline, a <code>;</code>, or two spaces before the next declaration.</p>
 <p><strong>My stylesheet does not override a built-in.</strong> Your <code>.css</code> files come after the built-ins' rules, so on equal specificity they win — but <code>.wf-btn--primary</code> beats <code>.button</code>. Match the built-in's selector, or change the tokens it reads, or use <code>style { }</code> on the element.</p>
 <p><strong>Dark mode does not switch.</strong> Name the dark theme in the config: <code>&quot;theme&quot;: { &quot;name&quot;: &quot;Light&quot;, &quot;dark&quot;: &quot;Night&quot; }</code>. A colour written raw instead of a token does not change with the theme.</p>
                             </div>
-                            <h2 class="wf-heading">Data</h2>
+                            <h2 class="wf-heading" id="data">Data</h2>
                             <div class="wf-markdown">
 <p><strong>A request fails with a CORS error.</strong> The API is on another origin and does not allow this one. Allow it on the server, or serve the API from the same origin (<a href="/WebFluent/docs/guide/data#an-api-on-another-origin">Data</a>).</p>
 <p><strong><code>env.MY_VALUE</code> is a compile error.</strong> A page may only read public names: rename it <code>PUBLIC_MY_VALUE</code> or list it in <code>public_env</code> — only if anyone may see it (<a href="/WebFluent/docs/guide/environments">Environments</a>).</p>
 <p><strong>A value from <code>.env</code> or the shell is not used.</strong> Values are fixed at build time: rebuild after changing them. The shell supplies only names the config or <code>.env</code> declares, or <code>PUBLIC_</code> ones.</p>
                             </div>
-                            <h2 class="wf-heading">Questions people ask</h2>
+                            <h2 class="wf-heading" id="questions-people-ask">Questions people ask</h2>
                             <div class="wf-markdown">
 <p><strong>Can I use npm packages?</strong> A library, yes, by its CDN URL in <code>meta.scripts</code> (<a href="/WebFluent/docs/guide/interop">JavaScript interop</a>); your own JavaScript is a plain <code>.js</code> file under <code>src/</code>. There is no package manager for WebFluent code itself.</p>
 <p><strong>Can I use it with React or Vue?</strong> Publish components as custom elements and place the tags (<a href="/WebFluent/docs/guide/interop#publishing-your-components-as-custom-elements">chapter 32</a>).</p>
@@ -404,7 +402,7 @@
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>

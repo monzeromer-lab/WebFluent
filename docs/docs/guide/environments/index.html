@@ -32,7 +32,7 @@
     <script src="../../../pages/EnvironmentsGuide.js" data-wf-page="EnvironmentsGuide" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
@@ -41,13 +41,13 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.1</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
-                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -56,14 +56,12 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
@@ -206,9 +204,9 @@
                         <p class="wf-text num">34</p>
                         <p class="wf-text">Server rendering</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tutorials">
                         <p class="wf-text num">35</p>
-                        <p class="wf-text">Cookbook</p>
+                        <p class="wf-text">Tutorials</p>
                     </a>
                     <p class="wf-text group-label">Reference</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
@@ -275,8 +273,8 @@
                         <h1 class="wf-heading wf-sa3503382">Environments</h1>
                         <p class="wf-text wf-sfd35f593">Values fixed per build — an API address, a feature switch, a public key — from the config, a .env file or the shell, and which of them a page may read.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
-                        <div class="wf-stack wf-gap--lg">
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
 <p>A site usually needs a few values that differ between your machine, staging and production: the API's address, an analytics key, a feature switch. In WebFluent they are read as <code>env.NAME</code> and fixed <strong>at build time</strong> — the build writes the value into the output, so there is nothing to configure on the host.</p>
                             </div>
@@ -285,7 +283,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">const API = env.PUBLIC_API ?? &quot;/api&quot;
 const FEATURES = { billing: env.PUBLIC_BILLING == &quot;on&quot; }
@@ -304,7 +302,7 @@ page Rows(path: &quot;/&quot;, title: &quot;Rows&quot;, description: &quot;Rows 
                             <div class="wf-markdown">
 <p>A name nothing sets reads as nothing, so <code>??</code> supplies a default.</p>
                             </div>
-                            <h2 class="wf-heading">Where values come from</h2>
+                            <h2 class="wf-heading" id="where-values-come-from">Where values come from</h2>
                             <div class="wf-markdown">
 <p>Three places, later ones winning:</p>
 <ol>
@@ -324,7 +322,7 @@ page Rows(path: &quot;/&quot;, title: &quot;Rows&quot;, description: &quot;Rows 
 **4.1.** Earlier versions read only the config's `env` map.
 </code></pre>
                             </div>
-                            <h2 class="wf-heading">Public and private names</h2>
+                            <h2 class="wf-heading" id="public-and-private-names">Public and private names</h2>
                             <div class="wf-markdown">
 <p><code>env.NAME</code> is replaced by its value in the JavaScript and HTML every reader downloads. That is right for an API address and wrong for an API key — so a page, a component, a store or an <code>api</code> block may only read a name that says it is public:</p>
 <ul>
@@ -337,7 +335,7 @@ page Rows(path: &quot;/&quot;, title: &quot;Rows&quot;, description: &quot;Rows 
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{
   &quot;env&quot;: { &quot;PUBLIC_API&quot;: &quot;/api/v1&quot;, &quot;ANALYTICS_ID&quot;: &quot;UA-1&quot;, &quot;STRIPE_SECRET&quot;: &quot;sk_…&quot; },
@@ -348,7 +346,7 @@ page Rows(path: &quot;/&quot;, title: &quot;Rows&quot;, description: &quot;Rows 
 <p><code>env.PUBLIC_API</code> and <code>env.ANALYTICS_ID</code> may be read from a page; <code>env.STRIPE_SECRET</code> read from one is a <strong>compile error</strong>, naming the file and the line. A private value is still there for <a href="/WebFluent/docs/guide/server-rendering">server rendering</a>, which runs where a secret stays secret — and it never reaches the bundle: the build writes only public values into it.</p>
 <p>A secret a third party needs belongs in a request your server makes, not in a page (<a href="/WebFluent/docs/guide/security#sessions-and-tokens">Security</a>).</p>
                             </div>
-                            <h2 class="wf-heading">A build per environment</h2>
+                            <h2 class="wf-heading" id="a-build-per-environment">A build per environment</h2>
                             <div class="wf-markdown">
 <p>The same source, different values:</p>
                             </div>
@@ -357,7 +355,7 @@ page Rows(path: &quot;/&quot;, title: &quot;Rows&quot;, description: &quot;Rows 
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
@@ -369,14 +367,14 @@ page Rows(path: &quot;/&quot;, title: &quot;Rows&quot;, description: &quot;Rows 
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">yaml</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">- run: ~/.webfluent/bin/wf build
   env:
     PUBLIC_API: https://api.example.com
     PUBLIC_ANALYTICS_ID: ${{ vars.ANALYTICS_ID }}</code>
                             </div>
-                            <h2 class="wf-heading">Other settings that change per deploy</h2>
+                            <h2 class="wf-heading" id="other-settings-that-change-per-deploy">Other settings that change per deploy</h2>
                             <div class="wf-markdown">
 <ul>
 <li><strong><code>build.base_path</code></strong> — the sub-path the site is served under. Every link, asset and route is prefixed (<a href="/WebFluent/docs/guide/deploying">Deploying</a>).</li>
@@ -385,13 +383,13 @@ page Rows(path: &quot;/&quot;, title: &quot;Rows&quot;, description: &quot;Rows 
 </ul>
 <p>These live in <code>webfluent.app.json</code>. There is no separate config per environment; a pipeline that needs one writes the file before building.</p>
                             </div>
-                            <h2 class="wf-heading">What a review asks</h2>
+                            <h2 class="wf-heading" id="what-a-review-asks">What a review asks</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
@@ -462,7 +460,7 @@ page Rows(path: &quot;/&quot;, title: &quot;Rows&quot;, description: &quot;Rows 
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>

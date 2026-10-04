@@ -32,7 +32,7 @@
     <script src="../../../pages/TutorialGuide.js" data-wf-page="TutorialGuide" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
@@ -41,13 +41,13 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.1</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
-                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -56,14 +56,12 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
@@ -206,9 +204,9 @@
                         <p class="wf-text num">34</p>
                         <p class="wf-text">Server rendering</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tutorials">
                         <p class="wf-text num">35</p>
-                        <p class="wf-text">Cookbook</p>
+                        <p class="wf-text">Tutorials</p>
                     </a>
                     <p class="wf-text group-label">Reference</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
@@ -275,20 +273,20 @@
                         <h1 class="wf-heading wf-sa3503382">Tutorial</h1>
                         <p class="wf-text wf-sfd35f593">Build a small, complete site — data, components, a store, a form, a theme, a test — and put it on the web.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
-                        <div class="wf-stack wf-gap--lg">
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
 <p>In this chapter you build <strong>Shelf</strong>, a small site that lists books worth reading and lets a reader keep the ones they want. Along the way you use most of what a real site needs: typed data read at build time, a reusable component, a page per book, a store the reader's choices are kept in, a validated form, a theme with a dark mode, a test that clicks, and a deploy.</p>
 <p>Each step says what to write and why, and links the chapter that covers the idea in depth. It takes about half an hour.</p>
 <p>You need <code>wf</code> installed (<a href="/WebFluent/docs/guide/getting-started">Getting started</a>).</p>
                             </div>
-                            <h2 class="wf-heading">Step 1: a project</h2>
+                            <h2 class="wf-heading" id="step-1-a-project">Step 1: a project</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
@@ -300,7 +298,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{
   &quot;name&quot;: &quot;shelf&quot;,
@@ -316,7 +314,7 @@
                             <div class="wf-markdown">
 <p><code>ssg</code> pre-renders; <code>csp</code> ships a Content-Security-Policy and makes the build check its own output against it; <code>theme</code> names the themes you will declare in step 7. <a href="/WebFluent/docs/guide/config">Configuration</a> lists every key.</p>
                             </div>
-                            <h2 class="wf-heading">Step 2: the data</h2>
+                            <h2 class="wf-heading" id="step-2-the-data">Step 2: the data</h2>
                             <div class="wf-markdown">
 <p>The books are data, not code. Put them in <code>src/books.json</code>:</p>
                             </div>
@@ -325,7 +323,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">[
   { &quot;slug&quot;: &quot;notes-on-the-analytical-engine&quot;, &quot;title&quot;: &quot;Notes on the Analytical Engine&quot;,
@@ -350,7 +348,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">/// One book on the list.
 type Book {
@@ -368,7 +366,7 @@ data books: [Book] = &quot;books.json&quot;</code>
                             <div class="wf-markdown">
 <p><code>type Book</code> is a record the type checker holds every use to: <code>book.titel</code> is an error where you write it. <code>data books</code> reads the file <strong>at build time</strong> and makes it a constant every page can read — nothing is fetched when the page loads. (<a href="/WebFluent/docs/guide/types">Types</a>, <a href="/WebFluent/docs/guide/data#data-a-file-at-build-time">Data</a>.)</p>
                             </div>
-                            <h2 class="wf-heading">Step 3: a component</h2>
+                            <h2 class="wf-heading" id="step-3-a-component">Step 3: a component</h2>
                             <div class="wf-markdown">
 <p>Every book is shown the same way, so it is a component. <code>src/components/BookCard.wf</code>:</p>
                             </div>
@@ -377,7 +375,7 @@ data books: [Book] = &quot;books.json&quot;</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// … reads what the other steps declare
 /// A book at a glance, with the button that puts it on the shelf.
@@ -406,7 +404,7 @@ component BookCard(_ book: Book) {
 </ul>
 <p>(<a href="/WebFluent/docs/guide/components">Components</a>, <a href="/WebFluent/docs/guide/elements">Elements</a>.)</p>
                             </div>
-                            <h2 class="wf-heading">Step 4: the reader&#x27;s shelf</h2>
+                            <h2 class="wf-heading" id="step-4-the-reader-s-shelf">Step 4: the reader&#x27;s shelf</h2>
                             <div class="wf-markdown">
 <p>What the reader keeps must survive a reload and be the same on every page — a store with a <code>persist</code>ed value. <code>src/stores/Shelf.wf</code>:</p>
                             </div>
@@ -415,7 +413,7 @@ component BookCard(_ book: Book) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">/// The books the reader wants to read, kept across visits.
 store Shelf {
@@ -434,7 +432,7 @@ store Shelf {
                             <div class="wf-markdown">
 <p><code>persist</code> is a <code>state</code> kept in the browser's storage and read back on the next visit; a change in another tab arrives here too. <code>derived count</code> recomputes whenever <code>saved</code> changes. (<a href="/WebFluent/docs/guide/stores">Stores</a>.)</p>
                             </div>
-                            <h2 class="wf-heading">Step 5: pages</h2>
+                            <h2 class="wf-heading" id="step-5-pages">Step 5: pages</h2>
                             <div class="wf-markdown">
 <p>The shell every page shares, <code>src/App.wf</code>:</p>
                             </div>
@@ -443,7 +441,7 @@ store Shelf {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// … reads what the other steps declare
 app {
@@ -467,7 +465,7 @@ app {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// … reads what the other steps declare
 page Home(path: &quot;/&quot;, title: &quot;Shelf&quot;, description: &quot;Books worth reading, and the ones you want to.&quot;) {
@@ -502,7 +500,7 @@ page Home(path: &quot;/&quot;, title: &quot;Shelf&quot;, description: &quot;Book
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// … reads what the other steps declare
 page BookPage(path: &quot;/books/:slug&quot;, slug: String, title: &quot;Book&quot;, description: &quot;One book on the shelf.&quot;, type: &quot;article&quot;, paths: books.map(b =&gt; b.slug)) {
@@ -540,7 +538,7 @@ page BookPage(path: &quot;/books/:slug&quot;, slug: String, title: &quot;Book&qu
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// … reads what the other steps declare
 page ShelfPage(path: &quot;/shelf&quot;, title: &quot;Your shelf&quot;, description: &quot;The books you want to read.&quot;) {
@@ -567,7 +565,7 @@ page ShelfPage(path: &quot;/shelf&quot;, title: &quot;Your shelf&quot;, descript
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page NotFound(path: &quot;*&quot;, title: &quot;Not found&quot;, description: &quot;Nothing lives at this address.&quot;, noindex: true) {
     Container {
@@ -579,7 +577,7 @@ page ShelfPage(path: &quot;/shelf&quot;, title: &quot;Your shelf&quot;, descript
                             <div class="wf-markdown">
 <p>Run <code>wf serve</code> and open <code>http://localhost:3000</code>: search, open a book, put two on your shelf, reload — they are still there. (<a href="/WebFluent/docs/guide/pages-and-routing">Pages and routing</a>.)</p>
                             </div>
-                            <h2 class="wf-heading">Step 6: a form</h2>
+                            <h2 class="wf-heading" id="step-6-a-form">Step 6: a form</h2>
                             <div class="wf-markdown">
 <p>Readers suggest books. <code>src/pages/Suggest.wf</code>:</p>
                             </div>
@@ -588,7 +586,7 @@ page ShelfPage(path: &quot;/shelf&quot;, title: &quot;Your shelf&quot;, descript
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Suggest(path: &quot;/suggest&quot;, title: &quot;Suggest a book&quot;, description: &quot;Tell us what belongs on the shelf.&quot;) {
     state title = &quot;&quot;
@@ -627,7 +625,7 @@ page ShelfPage(path: &quot;/shelf&quot;, title: &quot;Your shelf&quot;, descript
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">api Suggestions(base: env.PUBLIC_API ?? &quot;/api&quot;) {
     post suggest(body: Map)
@@ -642,7 +640,7 @@ on submit {
                             <div class="wf-markdown">
 <p>(<a href="/WebFluent/docs/guide/data">Data and APIs</a>, <a href="/WebFluent/docs/guide/environments">Environments</a>.)</p>
                             </div>
-                            <h2 class="wf-heading">Step 7: a look of its own</h2>
+                            <h2 class="wf-heading" id="step-7-a-look-of-its-own">Step 7: a look of its own</h2>
                             <div class="wf-markdown">
 <p>A theme changes the design tokens every built-in is drawn with. <code>src/theme.wf</code>:</p>
                             </div>
@@ -651,7 +649,7 @@ on submit {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">theme Paper {
     color-primary: #6D28D9
@@ -670,7 +668,7 @@ theme Ink {
                             <div class="wf-markdown">
 <p>The config named <code>Paper</code> as the theme and <code>Ink</code> as the dark one, so a reader whose system is dark gets <code>Ink</code> — before the first paint, with no flash. A token you do not name keeps its baseline value. (<a href="/WebFluent/docs/guide/styling">Styling</a>.)</p>
                             </div>
-                            <h2 class="wf-heading">Step 8: a test</h2>
+                            <h2 class="wf-heading" id="step-8-a-test">Step 8: a test</h2>
                             <div class="wf-markdown">
 <p><code>tests/BookCard.wf</code>:</p>
                             </div>
@@ -679,7 +677,7 @@ theme Ink {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// … reads what the other steps declare
 test &quot;a card shows who wrote the book, and when&quot; {
@@ -701,27 +699,27 @@ test &quot;a book goes on the shelf, and comes off again&quot; {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
                             <div class="wf-markdown">
 <p>The first test renders the card and reads what it shows; it also writes a snapshot the next run compares against. The second <strong>clicks</strong>, so it runs in a headless Chrome — the same compiler and runtime a reader gets. Buttons are found by their text, as a reader finds them. (<a href="/WebFluent/docs/guide/testing">Testing</a>.)</p>
                             </div>
-                            <h2 class="wf-heading">Step 9: build and check</h2>
+                            <h2 class="wf-heading" id="step-9-build-and-check">Step 9: build and check</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
                             <div class="wf-markdown">
 <p><code>wf build</code> writes <code>build/</code> — a folder of HTML, CSS and JavaScript any static host can serve — and prints every warning: a missing <code>alt</code>, a page without a description, a state nothing reads. <code>wf verify</code> loads every page in a real browser and fails on a script error, a failed request or a blank page.</p>
                             </div>
-                            <h2 class="wf-heading">Step 10: deploy</h2>
+                            <h2 class="wf-heading" id="step-10-deploy">Step 10: deploy</h2>
                             <div class="wf-markdown">
 <p>Any static host serves <code>build/</code>. For GitHub Pages, a project site lives under <code>https://&lt;you&gt;.github.io/shelf/</code>, so tell the build its sub-path and its address — add to <code>webfluent.app.json</code>:</p>
                             </div>
@@ -730,7 +728,7 @@ test &quot;a book goes on the shelf, and comes off again&quot; {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{
   &quot;build&quot;: { &quot;ssg&quot;: true, &quot;csp&quot;: true, &quot;base_path&quot;: &quot;/shelf&quot; },
@@ -745,7 +743,7 @@ test &quot;a book goes on the shelf, and comes off again&quot; {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">yaml</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">name: Deploy
 on:
@@ -774,7 +772,7 @@ jobs:
                             <div class="wf-markdown">
 <p>Push, and in the repository's <em>Settings → Pages</em> choose <em>GitHub Actions</em> as the source. <a href="/WebFluent/docs/guide/deploying">Deploying</a> covers Netlify, Vercel, Cloudflare Pages, nginx and the rest.</p>
                             </div>
-                            <h2 class="wf-heading">The whole program</h2>
+                            <h2 class="wf-heading" id="the-whole-program">The whole program</h2>
                             <div class="wf-markdown">
 <p>Every file above, as one listing — this is exactly what the steps built:</p>
                             </div>
@@ -783,7 +781,7 @@ jobs:
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Book {
     slug: String
@@ -950,7 +948,7 @@ test &quot;a card shows who wrote the book, and when&quot; {
     expect &quot;Want to read&quot;
 }</code>
                             </div>
-                            <h2 class="wf-heading">Where to go from here</h2>
+                            <h2 class="wf-heading" id="where-to-go-from-here">Where to go from here</h2>
                             <div class="wf-markdown">
 <ul>
 <li>Read the language properly, from <a href="/WebFluent/docs/guide/language-basics">Language basics</a>.</li>
@@ -1030,7 +1028,7 @@ test &quot;a card shows who wrote the book, and when&quot; {
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>

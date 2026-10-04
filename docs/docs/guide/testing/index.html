@@ -32,7 +32,7 @@
     <script src="../../../pages/TestingGuide.js" data-wf-page="TestingGuide" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
@@ -41,13 +41,13 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.1</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
-                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -56,14 +56,12 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
@@ -206,9 +204,9 @@
                         <p class="wf-text num">34</p>
                         <p class="wf-text">Server rendering</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tutorials">
                         <p class="wf-text num">35</p>
-                        <p class="wf-text">Cookbook</p>
+                        <p class="wf-text">Tutorials</p>
                     </a>
                     <p class="wf-text group-label">Reference</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
@@ -275,12 +273,12 @@
                         <h1 class="wf-heading wf-sa3503382">Testing</h1>
                         <p class="wf-text wf-sfd35f593">Tests written in WebFluent: render a component and read what it shows, or click through it in a real browser — then check every page in one.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
-                        <div class="wf-stack wf-gap--lg">
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
 <p>Tests are WebFluent declarations: <code>test &quot;name&quot; { … }</code>. A test renders something — a component, a fragment of a page — and holds it to what it must and must not show. A test that clicks or types runs in a real, headless browser. <code>wf verify</code> then loads every page of the built site in one.</p>
                             </div>
-                            <h2 class="wf-heading">A test that looks</h2>
+                            <h2 class="wf-heading" id="a-test-that-looks">A test that looks</h2>
                             <div class="wf-markdown">
 <p>A test declaration renders a body with the project's components, stores, types and constants at hand, and holds the result to what it expects:</p>
                             </div>
@@ -289,7 +287,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">component PriceTag(_ amount: Number, sale: Bool = false) {
     Row(gap: .sm, align: .center) {
@@ -318,13 +316,14 @@ test &quot;a list renders each row&quot;(data: { rows: [{ name: &quot;a&quot; },
                             <div class="wf-markdown">
 <ul>
 <li>Tests live in <code>tests/*.wf</code> (or beside the code in <code>src/</code>).</li>
-<li><code>expect &quot;text&quot;</code> must appear in what the page shows; <code>expect not &quot;text&quot;</code> must not.</li>
+<li><code>expect &quot;text&quot;</code> must appear in what the page shows; <code>expect not &quot;text&quot;</code> must not. It reads the text a reader sees — a class name in the markup does not count.</li>
+<li><code>t(&quot;key&quot;)</code> reads the project's translations, in its default locale.</li>
 <li><code>data: { … }</code> supplies values by name; a <code>state</code> in the body is seeded with its initial value.</li>
 <li>Each render is also compared to <code>tests/__snapshots__/&lt;file&gt;/&lt;test&gt;.html</code>, written when missing; <code>--update</code> rewrites them after an intended change.</li>
 </ul>
 <p><code>wf test</code> exits non-zero on a failure, with a diff.</p>
                             </div>
-                            <h2 class="wf-heading">A test that acts</h2>
+                            <h2 class="wf-heading" id="a-test-that-acts">A test that acts</h2>
                             <div class="wf-markdown">
 <p>Everything above only <strong>looks</strong>: the body is rendered and the expects read the result. A click cannot be rendered — it runs a handler, which runs an action, which changes a store, which repaints — so a test with an interaction in it is compiled into a real page, served, and run in a headless browser. Same compiler, same runtime, same output a reader gets.</p>
                             </div>
@@ -333,7 +332,7 @@ test &quot;a list renders each row&quot;(data: { rows: [{ name: &quot;a&quot; },
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">test &quot;reporting an incident opens one more&quot; {
     use IncidentStore
@@ -404,7 +403,7 @@ test &quot;a list renders each row&quot;(data: { rows: [{ name: &quot;a&quot; },
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872"></p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">  FAIL  tests/cart.wf — the count follows what is added
         nothing to click called &quot;Publish&quot;
@@ -415,29 +414,29 @@ test &quot;a list renders each row&quot;(data: { rows: [{ name: &quot;a&quot; },
 <p><strong>A handler that throws fails the test</strong>, even where the expects would have passed — a click that quietly did nothing is the bug, not a pass. These tests need a Chrome or Chromium on the machine, or <code>WF_CHROME</code> pointing at one; a test that only looks needs neither. The page a test that acts runs on links the project's scripts under <code>src/</code>, so a click that calls one runs it; a test that only looks renders without them.</p>
 <p>A test that acts takes no snapshot. What it expects is the test.</p>
                             </div>
-                            <h2 class="wf-heading">Seeding data and stores</h2>
+                            <h2 class="wf-heading" id="seeding-data-and-stores">Seeding data and stores</h2>
                             <div class="wf-markdown">
-<p>A test's <code>data:</code> names values its body reads, and a key that is a store's name seeds that store's state:</p>
+<p>A test's <code>data:</code> names values its body reads, and a key that is a store's name seeds that store's state — in a test that only looks and in one that clicks alike:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">test &quot;the cart shows what is in it&quot;(data: { Cart: { items: [{ id: &quot;a&quot;, qty: 2 }] } }) {
     CartSummary()
     expect &quot;2 items&quot;
 }</code>
                             </div>
-                            <h2 class="wf-heading">Running them</h2>
+                            <h2 class="wf-heading" id="running-them">Running them</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
@@ -445,26 +444,26 @@ test &quot;a list renders each row&quot;(data: { rows: [{ name: &quot;a&quot; },
 <p><code>wf test</code> runs every test under <code>tests/</code> (and any declared in <code>src/</code>), prints a line per test and exits non-zero when one fails — so it is a CI step as it is. <code>--update</code> rewrites the snapshots after a change you meant. A build never includes tests.</p>
 <p>A test that acts needs Chrome or Chromium on the machine, or <code>WF_CHROME</code> pointing at one; a test that only looks needs neither.</p>
                             </div>
-                            <h2 class="wf-heading">Checking every page: wf verify</h2>
+                            <h2 class="wf-heading" id="checking-every-page-wf-verify">Checking every page: wf verify</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
                             <div class="wf-markdown">
 <p><code>wf verify</code> serves the build, opens every route in headless Chrome, and fails on an uncaught exception, a <code>console.error</code>, a request that failed, an image that did not load, or a page that rendered no text. It prints each route's first contentful paint, its size and its requests; <code>--budget 400</code> fails a route slower than 400 ms to paint, and <code>--json</code> is the report for a pipeline. It also lists the built-ins no page drew — a fact about coverage, not a failure. <a href="/WebFluent/docs/guide/cli#wf-verify">CLI</a> has the details.</p>
                             </div>
-                            <h2 class="wf-heading">In CI</h2>
+                            <h2 class="wf-heading" id="in-ci">In CI</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">yaml</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">name: Check
 on: [push, pull_request]
@@ -483,7 +482,7 @@ jobs:
                             <div class="wf-markdown">
 <p>GitHub's Ubuntu runners come with Chrome, so the interactive tests and <code>wf verify</code> run there as they do on your machine.</p>
                             </div>
-                            <h2 class="wf-heading">What to test</h2>
+                            <h2 class="wf-heading" id="what-to-test">What to test</h2>
                             <div class="wf-markdown">
 <ul>
 <li><strong>Components</strong> with more than one state: each branch a prop can take.</li>
@@ -559,7 +558,7 @@ jobs:
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>

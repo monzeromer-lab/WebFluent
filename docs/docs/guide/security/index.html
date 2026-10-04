@@ -32,7 +32,7 @@
     <script src="../../../pages/SecurityGuide.js" data-wf-page="SecurityGuide" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
@@ -41,13 +41,13 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.1</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
-                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -56,14 +56,12 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
@@ -206,9 +204,9 @@
                         <p class="wf-text num">34</p>
                         <p class="wf-text">Server rendering</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tutorials">
                         <p class="wf-text num">35</p>
-                        <p class="wf-text">Cookbook</p>
+                        <p class="wf-text">Tutorials</p>
                     </a>
                     <p class="wf-text group-label">Reference</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
@@ -275,13 +273,13 @@
                         <h1 class="wf-heading wf-sa3503382">Security</h1>
                         <p class="wf-text wf-sfd35f593">What the compiler guarantees, what it cannot, and the decisions left to you: markup, secrets, storage, headers and a deployment checklist.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
-                        <div class="wf-stack wf-gap--lg">
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
 <p>A web page is a program you hand to a stranger's machine, and the strings in it come from everywhere: a form, a URL, a CMS, a database, another service. Most of what goes wrong is one mistake — a string arriving somewhere it becomes <em>code</em> rather than <em>content</em>.</p>
 <p>This chapter says what the compiler stops, what it cannot, and what is left for you to decide.</p>
                             </div>
-                            <h2 class="wf-heading">What the compiler guarantees</h2>
+                            <h2 class="wf-heading" id="what-the-compiler-guarantees">What the compiler guarantees</h2>
                             <div class="wf-markdown">
 <p>These are properties of the output, not advice. You do not opt in.</p>
 <ul>
@@ -294,7 +292,7 @@
 <li><strong>A non-public <code>env</code> name may not be read from a page.</strong> See below.</li>
 </ul>
                             </div>
-                            <h2 class="wf-heading">What it cannot</h2>
+                            <h2 class="wf-heading" id="what-it-cannot">What it cannot</h2>
                             <div class="wf-markdown">
 <ul>
 <li><strong>What your server does with what you send it.</strong> Injection into a query, a template or a shell is on the other side of the wire.</li>
@@ -303,7 +301,7 @@
 <li><strong>Your hosting.</strong> HTTPS, HSTS, cookie flags and rate limits are the host's.</li>
 </ul>
                             </div>
-                            <h2 class="wf-heading">Markup you did not write</h2>
+                            <h2 class="wf-heading" id="markup-you-did-not-write">Markup you did not write</h2>
                             <div class="wf-markdown">
 <p>A CMS body, a Markdown renderer of your own, an email — sometimes the content really is HTML. There is one door:</p>
                             </div>
@@ -312,7 +310,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Post { title: String, body: String }
 
@@ -334,7 +332,7 @@ page PostPage(path: &quot;/p/:slug&quot;, title: &quot;Post&quot;, description: 
 <p>It runs at build time as well as in the browser, from the same allow-list, so a pre-rendered page shows the sanitised body immediately rather than an empty box that fills in when the script loads.</p>
 <p><code>Unsafe.Html(raw)</code> without <code>sanitize</code> is for markup <strong>your project produced</strong>. Anything that arrived from outside goes through the sanitiser.</p>
                             </div>
-                            <h2 class="wf-heading">Sessions and tokens</h2>
+                            <h2 class="wf-heading" id="sessions-and-tokens">Sessions and tokens</h2>
                             <div class="wf-markdown">
 <p><code>persist</code> writes to <code>localStorage</code> or <code>sessionStorage</code>. <strong>Neither is a place for a session token.</strong> Any script that reaches your page can read both, which is the whole payload of a cross-site scripting bug: without a readable token it is a defacement, with one it is an account takeover.</p>
 <p>Keep the session in an <strong>httpOnly cookie</strong>, set by the server:</p>
@@ -344,7 +342,7 @@ page PostPage(path: &quot;/p/:slug&quot;, title: &quot;Post&quot;, description: 
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872"></p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Set-Cookie: session=…; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=1209600</code>
                             </div>
@@ -356,7 +354,7 @@ page PostPage(path: &quot;/p/:slug&quot;, title: &quot;Post&quot;, description: 
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">api Backend(base: &quot;/api/v1&quot;) {
     credentials: .sameOrigin      // the cookie goes with every call
@@ -375,7 +373,7 @@ store Session {
 <p>What a page <em>may</em> keep is what a page may show: a display name, a theme, a preference. If a value would matter to someone who stole it, it belongs behind a request.</p>
 <p>The compiler enforces the part it can: <code>persist token: Secret = &quot;&quot;</code> is a <code>T12</code>. Declaring a token <code>Secret</code> is how you ask it to.</p>
                             </div>
-                            <h2 class="wf-heading">env, and what ends up in the bundle</h2>
+                            <h2 class="wf-heading" id="env-and-what-ends-up-in-the-bundle">env, and what ends up in the bundle</h2>
                             <div class="wf-markdown">
 <p><code>env.NAME</code> is replaced by its value <strong>at build time</strong>, and the value lands in the JavaScript the browser downloads. That is right for an API base and wrong for an API key, and nothing in the spelling said which was which.</p>
 <p>Now a name is public when it says so, or when the config says so:</p>
@@ -385,7 +383,7 @@ store Session {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{
   &quot;env&quot;: { &quot;PUBLIC_API&quot;: &quot;/api/v1&quot;, &quot;ANALYTICS_ID&quot;: &quot;UA-1&quot;, &quot;STRIPE_SECRET&quot;: &quot;sk_…&quot; },
@@ -396,11 +394,11 @@ store Session {
 <p><code>env.PUBLIC_API</code> and <code>env.ANALYTICS_ID</code> may be read from a page. <code>env.STRIPE_SECRET</code> read from a page, a component, a store or an <code>api</code> block is a compile error naming the file and the line. The value is still there for <code>wf render</code>, which runs on a server where a secret is a secret.</p>
 <p>A secret that has to reach a third party belongs in a request your server makes, not in a page.</p>
                             </div>
-                            <h2 class="wf-heading">Uploads</h2>
+                            <h2 class="wf-heading" id="uploads">Uploads</h2>
                             <div class="wf-markdown">
 <p>A <code>File</code> from <code>FileUpload</code> is a handle on a file on the reader's machine. <code>accept:</code> and <code>.size</code> are conveniences for them, <strong>not</strong> checks: both are the page's, and a page is the attacker's to rewrite. The server decides what it accepts — the type from the bytes rather than the name, a size limit it enforces itself, a filename it generates rather than one it was given, and storage somewhere nothing is served from.</p>
                             </div>
-                            <h2 class="wf-heading">Content-Security-Policy</h2>
+                            <h2 class="wf-heading" id="content-security-policy">Content-Security-Policy</h2>
                             <div class="wf-markdown">
 <p><code>&quot;build&quot;: { &quot;csp&quot;: true }</code> — on for a project <code>wf init</code> creates — ships:</p>
 <ul>
@@ -412,7 +410,7 @@ store Session {
 <p><strong>The build checks its own output against it.</strong> Every HTML file is read back and held to the policy it carries: an inline <code>&lt;script&gt;</code>, a <code>&lt;style&gt;</code>, a <code>style=</code> attribute, an <code>on*</code> attribute, or a script or stylesheet from an origin the policy never named stops the build. A policy is a promise about what a page contains, and this is how the promise is kept — the browser would enforce it and show a blank page. A page's own <code>head { script(src: …) }</code> or stylesheet <code>link</code> is added on the live page, after the HTML is written, so it is held to the policy where it is written instead: one from an origin the config does not declare is an <code>E902</code> on that line.</p>
 <p>One thing is allowed rather than refused: a <code>style { }</code> value that <strong>reads state</strong> is written on the element, because there is nowhere else for it to go. Where a build emits one, <code>style-src</code> gains <code>'unsafe-inline'</code> and the build names the pages that caused it, so the stricter policy is one edit away. A literal in a <code>style { }</code> block is already a shared class and costs nothing.</p>
                             </div>
-                            <h2 class="wf-heading">Another origin&#x27;s files</h2>
+                            <h2 class="wf-heading" id="another-origin-s-files">Another origin&#x27;s files</h2>
                             <div class="wf-markdown">
 <p>A stylesheet or a font from somewhere else is code that origin can change after you read it. Declare its hash:</p>
                             </div>
@@ -421,7 +419,7 @@ store Session {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{
   &quot;meta&quot;: {
@@ -433,11 +431,11 @@ store Session {
                             <div class="wf-markdown">
 <p>The build emits <code>integrity</code> and <code>crossorigin=&quot;anonymous&quot;</code>, and warns about a declared external asset that has none. It never fetches the file to work the hash out — that would make a build depend on the network. A Google Fonts stylesheet is exempt: it is written per user-agent, so its bytes differ between readers and no hash can match.</p>
                             </div>
-                            <h2 class="wf-heading">Your own scripts</h2>
+                            <h2 class="wf-heading" id="your-own-scripts">Your own scripts</h2>
                             <div class="wf-markdown">
 <p>A <code>.js</code> file under <code>src/</code> runs on every page exactly as written — the compiler reads its names, it does not rewrite or sandbox it. It is code you trust, like the rest of <code>src/</code>: what it puts in the page with <code>innerHTML</code> is markup, so markup from outside the project goes through <code>WF.sanitize(…)</code> there too. A library from another origin is listed in <code>meta.scripts</code> with an integrity hash, so a change at that origin cannot reach your readers.</p>
                             </div>
-                            <h2 class="wf-heading">wf audit</h2>
+                            <h2 class="wf-heading" id="wf-audit">wf audit</h2>
                             <div class="wf-markdown">
 <p>One command for the questions a review asks:</p>
                             </div>
@@ -446,14 +444,14 @@ store Session {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
                             <div class="wf-markdown">
 <p>Every <code>Unsafe.*</code> and whether it is sanitised, the project's own scripts and the names each declares, every origin the pages load from, everything written to the reader's machine and where, every <code>env</code> name and whether it is public, the policy this build ships, and what the compiler itself depends on. <code>--json</code> for a tool. It reports; it never fails a build.</p>
                             </div>
-                            <h2 class="wf-heading">Before you deploy</h2>
+                            <h2 class="wf-heading" id="before-you-deploy">Before you deploy</h2>
                             <div class="wf-markdown">
 <ul>
 <li><code>wf audit</code>, and read all of it.</li>
@@ -537,7 +535,7 @@ store Session {
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>

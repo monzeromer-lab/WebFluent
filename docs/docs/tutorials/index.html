@@ -1,0 +1,1961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorials</title>
+    <meta name="description" content="Three WebFluent tutorials, easy to hard — Todos, Field Notes and Pocket — each a complete project with no backend, built step by step.">
+    <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/docs/tutorials">
+    <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/docs/tutorials?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/docs/tutorials?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/docs/tutorials">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Tutorials">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="Three WebFluent tutorials, easy to hard — Todos, Field Notes and Pocket — each a complete project with no backend, built step by step.">
+    <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/docs/tutorials">
+    <meta property="og:locale" content="en">
+    <meta property="og:image" content="https://monzeromer-lab.github.io/WebFluent/og.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Tutorials">
+    <meta name="twitter:description" content="Three WebFluent tutorials, easy to hard — Todos, Field Notes and Pocket — each a complete project with no backend, built step by step.">
+    <meta name="twitter:image" content="https://monzeromer-lab.github.io/WebFluent/og.png">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/tutorials#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/tutorials","name":"Tutorials","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Three WebFluent tutorials, easy to hard — Todos, Field Notes and Pocket — each a complete project with no backend, built step by step."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/tutorials#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Tutorials","item":"https://monzeromer-lab.github.io/WebFluent/docs/tutorials"}]}]}</script>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <link rel="icon" href="/WebFluent/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/WebFluent/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="../../styles.css">
+    <script src="../../app.js" defer></script>
+    <script src="../../pages/TutorialsGuide.js" data-wf-page="TutorialsGuide" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--lg wf-sbdfa5493">
+                    <a class="wf-link" href="/WebFluent/">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
+                            <p class="wf-text wf-sb993cc9b">wf</p>
+                            <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
+                        </div>
+                    </a>
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
+                        <a class="wf-link" href="/WebFluent/docs/guide">Guide</a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
+                        <a class="wf-link active" href="/WebFluent/docs/tutorials" aria-current="page">Tutorials</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-sfe922990 site-search">
+                        <i class="wf-icon" data-icon="search"></i>
+                        <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
+                        <p class="wf-text wf-s8947c952">/</p>
+                    </div>
+                    <button class="wf-icon-btn site-icon-button" type="button"></button>
+                    <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
+                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
+                </div>
+            </div>
+            <div class="wf-row wf-align--stretch wf-s8fba8729">
+                <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
+                    <p class="wf-text group-label">Start</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/introduction">
+                        <p class="wf-text num">01</p>
+                        <p class="wf-text">Introduction</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/getting-started">
+                        <p class="wf-text num">02</p>
+                        <p class="wf-text">Getting started</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/tutorial">
+                        <p class="wf-text num">03</p>
+                        <p class="wf-text">Tutorial</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/coming-from">
+                        <p class="wf-text num">04</p>
+                        <p class="wf-text">Coming from React, Vue or Svelte</p>
+                    </a>
+                    <p class="wf-text group-label">The basics</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/language-basics">
+                        <p class="wf-text num">05</p>
+                        <p class="wf-text">Language basics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/pages-and-routing">
+                        <p class="wf-text num">06</p>
+                        <p class="wf-text">Pages and routing</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/elements">
+                        <p class="wf-text num">07</p>
+                        <p class="wf-text">Elements</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/state">
+                        <p class="wf-text num">08</p>
+                        <p class="wf-text">State and reactivity</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/events">
+                        <p class="wf-text num">09</p>
+                        <p class="wf-text">Events</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/control-flow">
+                        <p class="wf-text num">10</p>
+                        <p class="wf-text">Control flow</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/components">
+                        <p class="wf-text num">11</p>
+                        <p class="wf-text">Components</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/stores">
+                        <p class="wf-text num">12</p>
+                        <p class="wf-text">Stores</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/types">
+                        <p class="wf-text num">13</p>
+                        <p class="wf-text">Types</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/expressions">
+                        <p class="wf-text num">14</p>
+                        <p class="wf-text">Expressions</p>
+                    </a>
+                    <p class="wf-text group-label">Building</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/styling">
+                        <p class="wf-text num">15</p>
+                        <p class="wf-text">Styling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/forms">
+                        <p class="wf-text num">16</p>
+                        <p class="wf-text">Forms and validation</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/data">
+                        <p class="wf-text num">17</p>
+                        <p class="wf-text">Data</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/realtime">
+                        <p class="wf-text num">18</p>
+                        <p class="wf-text">Real-time</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/offline">
+                        <p class="wf-text num">19</p>
+                        <p class="wf-text">Offline</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/motion">
+                        <p class="wf-text num">20</p>
+                        <p class="wf-text">Motion</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/i18n">
+                        <p class="wf-text num">21</p>
+                        <p class="wf-text">Internationalisation</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/accessibility">
+                        <p class="wf-text num">22</p>
+                        <p class="wf-text">Accessibility</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/security">
+                        <p class="wf-text num">23</p>
+                        <p class="wf-text">Security</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/testing">
+                        <p class="wf-text num">24</p>
+                        <p class="wf-text">Testing</p>
+                    </a>
+                    <p class="wf-text group-label">Shipping</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/project-structure">
+                        <p class="wf-text num">25</p>
+                        <p class="wf-text">Project structure</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/static-and-spa">
+                        <p class="wf-text num">26</p>
+                        <p class="wf-text">Static or single-page</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/content">
+                        <p class="wf-text num">27</p>
+                        <p class="wf-text">Content</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/media">
+                        <p class="wf-text num">28</p>
+                        <p class="wf-text">Media</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/deploying">
+                        <p class="wf-text num">29</p>
+                        <p class="wf-text">Deploying</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/environments">
+                        <p class="wf-text num">30</p>
+                        <p class="wf-text">Environments</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/performance">
+                        <p class="wf-text num">31</p>
+                        <p class="wf-text">Performance</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/interop">
+                        <p class="wf-text num">32</p>
+                        <p class="wf-text">JavaScript interop</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/pdf-and-slides">
+                        <p class="wf-text num">33</p>
+                        <p class="wf-text">PDF and slides</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/server-rendering">
+                        <p class="wf-text num">34</p>
+                        <p class="wf-text">Server rendering</p>
+                    </a>
+                    <a class="wf-sidebar__item active" href="/WebFluent/docs/tutorials" aria-current="page">
+                        <p class="wf-text num">35</p>
+                        <p class="wf-text">Tutorials</p>
+                    </a>
+                    <p class="wf-text group-label">Reference</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
+                        <p class="wf-text num">36</p>
+                        <p class="wf-text">Components reference</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/cli">
+                        <p class="wf-text num">37</p>
+                        <p class="wf-text">Command line and editors</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/config">
+                        <p class="wf-text num">38</p>
+                        <p class="wf-text">Configuration</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/diagnostics">
+                        <p class="wf-text num">39</p>
+                        <p class="wf-text">Diagnostics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/built-ins">
+                        <p class="wf-text num">40</p>
+                        <p class="wf-text">Built-ins</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/tokens">
+                        <p class="wf-text num">41</p>
+                        <p class="wf-text">Design tokens</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/runtime">
+                        <p class="wf-text num">42</p>
+                        <p class="wf-text">Runtime API</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/grammar">
+                        <p class="wf-text num">43</p>
+                        <p class="wf-text">Grammar</p>
+                    </a>
+                    <p class="wf-text group-label">Help</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/troubleshooting">
+                        <p class="wf-text num">44</p>
+                        <p class="wf-text">Troubleshooting</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/upgrading">
+                        <p class="wf-text num">45</p>
+                        <p class="wf-text">Upgrading</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/browser-support">
+                        <p class="wf-text num">46</p>
+                        <p class="wf-text">Browser support</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/glossary">
+                        <p class="wf-text num">47</p>
+                        <p class="wf-text">Glossary</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/contributing">
+                        <p class="wf-text num">48</p>
+                        <p class="wf-text">Contributing</p>
+                    </a>
+                </aside>
+                <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
+                        <a class="wf-link" href="/WebFluent/docs/guide/introduction">Guide</a>
+                        <p class="wf-text">/</p>
+                        <p class="wf-text wf-s8c71c534">Chapter 35</p>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s28a8547f">
+                        <h1 class="wf-heading wf-sa3503382">Tutorials</h1>
+                        <p class="wf-text wf-sfd35f593">Three projects built step by step — a todo app, a statically built notes site, a budget tracker — none needing a server.</p>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
+                            <div class="wf-markdown">
+<p>Three projects, each built step by step and each complete in the repository under <code>examples/tutorials/</code>. None needs a server: what they keep, they keep in the reader's browser. Pick the one that matches where you are — each stands on its own — or do them in order.</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Tutorials</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col"></th>
+                                        <th scope="col">Project</th>
+                                        <th scope="col">What you build</th>
+                                        <th scope="col">What it teaches</th>
+                                        <th scope="col">Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><strong>Easy</strong></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#easy-todos">Todos</a></p>
+                                            </div>
+                                        </td>
+                                        <td>A list of things to do: add, tick, rename, filter</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Types, a store with <code>persist</code>, a component, a keyed list, a filter in the address, tests that click</p>
+                                            </div>
+                                        </td>
+                                        <td>20 minutes</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><strong>Medium</strong></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#medium-field-notes">Field Notes</a></p>
+                                            </div>
+                                        </td>
+                                        <td>A notebook site, statically built, a page per note</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>data</code> files, a layout, <code>:slug</code> pages with <code>paths:</code>, Markdown pages, search and tags, what a static page can know</p>
+                                            </div>
+                                        </td>
+                                        <td>An hour</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><strong>Hard</strong></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#hard-pocket">Pocket</a></p>
+                                            </div>
+                                        </td>
+                                        <td>A budget tracker with a dashboard, forms and two languages</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Money</code> and <code>Date</code>, derived totals, a <code>persist</code> migration, <code>validate</code>, a dialog and shortcuts, i18n and RTL, a script of your own, offline</p>
+                                            </div>
+                                        </td>
+                                        <td>A couple of hours</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>Every block that names a file — <code>// src/stores/Todos.wf</code> on its first line — is that file, or a run of it, word for word: a test holds the chapter to the projects. To start from a finished one:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>If you have not written WebFluent before, <a href="/WebFluent/docs/guide/tutorial">the Shelf tutorial</a> is a gentler first half hour.</p>
+                            </div>
+                            <h2 class="wf-heading" id="easy-todos">Easy: Todos</h2>
+                            <div class="wf-markdown">
+<p>A list of things to do, kept in the reader's browser: add one, tick it, rename it, remove it, show the open ones. One page, one store, one component — about twenty minutes. The finished project is <a href="https://github.com/monzeromer-lab/WebFluent/tree/master/examples/tutorials/easy-todos"><code>examples/tutorials/easy-todos</code></a>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="step-1-a-project">Step 1: a project</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Delete what the template put in <code>src/</code> — you write every file yourself — and replace <code>webfluent.app.json</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{
+  &quot;name&quot;: &quot;todos&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;theme&quot;: { &quot;name&quot;: &quot;Paper&quot;, &quot;dark&quot;: &quot;Night&quot; },
+  &quot;build&quot;: { &quot;output&quot;: &quot;./build&quot;, &quot;output_type&quot;: &quot;spa&quot;, &quot;csp&quot;: true },
+  &quot;meta&quot;: {
+    &quot;title&quot;: &quot;Todos&quot;,
+    &quot;description&quot;: &quot;A small list of things to do, kept in your browser.&quot;,
+    &quot;lang&quot;: &quot;en&quot;,
+    &quot;favicon&quot;: &quot;/favicon.svg&quot;
+  }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>spa</code> is a single-page app: one HTML shell, pages swapped without a reload (<a href="/WebFluent/docs/guide/static-and-spa">Static sites and SPAs</a>). <code>csp</code> ships a content security policy and holds the build to it (<a href="/WebFluent/docs/guide/security">Security</a>). Run <code>wf serve</code> in another terminal and leave it running: every save rebuilds and reloads the page.</p>
+                            </div>
+                            <h3 class="wf-heading" id="step-2-what-a-todo-is">Step 2: what a todo is</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/types.wf
+/// One thing to do.
+type Todo {
+    id: Uuid
+    title: String
+    done: Bool = false
+}
+
+/// Which todos the list shows.
+enum Filter { all, open, done }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A <code>type</code> names the fields a value has, and the checker holds every use to them: <code>todo.titel</code> is an error where it is written, with the field you meant (<a href="/WebFluent/docs/guide/types">Types</a>). <code>Uuid</code> is one of the types the language brings; <code>uuid()</code> makes one. <code>done</code> has a default, so a new todo can leave it out. An <code>enum</code> is a fixed set of cases, written <code>.open</code> where a <code>Filter</code> is wanted.</p>
+                            </div>
+                            <h3 class="wf-heading" id="step-3-a-store-that-remembers">Step 3: a store that remembers</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/stores/Todos.wf
+/// The list, kept in the browser between visits.
+store Todos {
+    persist items: [Todo] = []
+
+    derived open = items.filter(t =&gt; !t.done)
+    derived done = items.filter(t =&gt; t.done)
+
+    action add(title: String) {
+        let text = title.trim()
+        if text == &quot;&quot; { return }
+        items = items.concat([Todo(id: uuid(), title: text)])
+    }
+
+    action toggle(id: Uuid) {
+        items = items.map(t =&gt; if t.id == id { { ...t, done: !t.done } } else { t })
+    }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A store is state any page or component can read (<a href="/WebFluent/docs/guide/stores">Stores</a>). <code>persist</code> is <code>state</code> that is kept in the browser's storage: the list is there after a reload, and a second tab follows the first, with no storage code written. <code>derived</code> values follow what they read — <code>open</code> is always the todos not done. An action is the only place state changes; <code>{ ...t, done: !t.done }</code> is the todo with one field changed.</p>
+<p>The rest of the store renames, removes and clears in the same way — see the <a href="https://github.com/monzeromer-lab/WebFluent/blob/master/examples/tutorials/easy-todos/src/stores/Todos.wf">whole file</a>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="step-4-one-row">Step 4: one row</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/components/TodoRow.wf
+/// One row of the list: a box to tick, the title, and buttons to rename and
+/// remove it.
+component TodoRow(_ todo: Todo) {
+    use Todos
+    state editing = false
+    state draft = todo.title
+
+    action save() {
+        Todos.rename(todo.id, draft)
+        editing = false
+    }
+
+    Row(class: [&quot;todo&quot;, if todo.done { &quot;is-done&quot; }], align: .center, gap: .sm) {
+        Checkbox(checked: todo.done, aria-label: &quot;Done: {todo.title}&quot;) {
+            on change { Todos.toggle(todo.id) }
+        }
+        if editing {
+            // `mount:` runs when the input is made: the cursor goes straight in.
+            Input(bind: draft, aria-label: &quot;New title for {todo.title}&quot;, class: &quot;todo__edit&quot;, mount: (n) =&gt; n.focus()) {
+                on key(&quot;Enter&quot;) { save() }
+                on key(&quot;Escape&quot;) { draft = todo.title  editing = false }
+                on blur { save() }
+            }
+        } else {
+            Text(todo.title, class: &quot;todo__title&quot;)
+            IconButton(icon: &quot;edit&quot;, label: &quot;Rename {todo.title}&quot;, class: &quot;todo__action&quot;).sm {
+                on click { draft = todo.title  editing = true }
+            }
+        }
+        IconButton(icon: &quot;trash&quot;, label: &quot;Remove {todo.title}&quot;, class: &quot;todo__action&quot;).sm {
+            on click { Todos.remove(todo.id) }
+        }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A component is an element of your own (<a href="/WebFluent/docs/guide/components">Components</a>). <code>_ todo</code> is its one positional prop, so a call reads <code>TodoRow(todo)</code>. Its <code>state</code> belongs to each row: one row being renamed does not put the others in edit mode. <code>class:</code> adds classes to the element's own — a list may hold an <code>if</code>, which adds <code>is-done</code> only while the todo is done. Every control has an accessible name: the checkbox and the icon buttons say which todo they act on, so a screen reader — and the tests in step 7 — can tell them apart (<a href="/WebFluent/docs/guide/accessibility">Accessibility</a>).</p>
+                            </div>
+                            <h3 class="wf-heading" id="step-5-the-page">Step 5: the page</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/pages/Home.wf
+page Home(path: &quot;/&quot;, title: &quot;Todos&quot;, description: &quot;A small list of things to do, kept in your browser.&quot;) {
+    use Todos
+    state draft = &quot;&quot;
+
+    // The filter lives in the address — `/?show=open` — so a reload or a
+    // shared link keeps it.
+    derived filter: Filter = if query.show == &quot;open&quot; { .open } else if query.show == &quot;done&quot; { .done } else { .all }
+    derived shown = match filter {
+        .open { Todos.open }
+        .done { Todos.done }
+        .all { Todos.items }
+    }
+
+    action add() {
+        Todos.add(draft)
+        draft = &quot;&quot;
+    }
+
+    Stack(class: &quot;card&quot;, gap: .md) {
+        Row(justify: .between, align: .baseline) {
+            Heading(&quot;Todos&quot;).h1
+            Text(&quot;{Todos.open.length} left&quot;, class: &quot;count&quot;)
+        }
+
+        Row(class: &quot;new&quot;, gap: .sm) {
+            Input(bind: draft, placeholder: &quot;What needs doing?&quot;, aria-label: &quot;New todo&quot;) {
+                on key(&quot;Enter&quot;) { add() }
+            }
+            Button(&quot;Add&quot;, disabled: draft.trim() == &quot;&quot;).primary {
+                on click { add() }
+            }
+        }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>bind: draft</code> ties the input to the state both ways: typing changes <code>draft</code>, and <code>draft = &quot;&quot;</code> empties the box. <code>query</code> is the address's query string as a value, kept current, so <code>filter</code> follows the address and <code>shown</code> follows <code>filter</code>. A <code>match</code> over an enum must cover every case — a fourth filter added to <code>Filter</code> would be an error here until it is handled. The rest of the page draws the list:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/pages/Home.wf
+        Row(class: &quot;filters&quot;, gap: .xs, align: .center) {
+            Link(&quot;All&quot;, to: &quot;/?show=all&quot;, class: { &quot;is-on&quot;: filter == .all })
+            Link(&quot;Open&quot;, to: &quot;/?show=open&quot;, class: { &quot;is-on&quot;: filter == .open })
+            Link(&quot;Done&quot;, to: &quot;/?show=done&quot;, class: { &quot;is-on&quot;: filter == .done })
+            Spacer
+            if Todos.done.length &gt; 0 {
+                Button(&quot;Clear done&quot;).sm {
+                    on click { Todos.clearDone() }
+                }
+            }
+        }
+
+        if shown.length == 0 {
+            Text(if Todos.items.length == 0 { &quot;Nothing yet — add your first todo above.&quot; } else { &quot;Nothing here.&quot; }, class: &quot;empty&quot;)
+        }
+        Stack(class: &quot;list&quot;) {
+            for todo in shown by todo.id {
+                TodoRow(todo, animate: .fadeIn, exit: .fadeOut)
+            }
+        }
+    }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>for … by todo.id</code> is a keyed list: when a todo is ticked away by the filter or renamed, only its row changes — the others keep their nodes, and the row being edited keeps its cursor (<a href="/WebFluent/docs/guide/control-flow">Control flow</a>). <code>animate:</code> and <code>exit:</code> fade a row in and out. A class map, <code>{ &quot;is-on&quot;: filter == .all }</code>, turns a class on while its condition holds.</p>
+<p>And the frame every page sits in:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/App.wf
+// The frame every page sits in: a narrow column, centred.
+app {
+    Container(class: &quot;shell&quot;) {
+        Router
+    }
+}</code>
+                            </div>
+                            <h3 class="wf-heading" id="step-6-a-look-of-its-own">Step 6: a look of its own</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/theme.wf
+/// Warm paper and ink, with one teal for what you can act on.
+theme Paper {
+    color-primary: #0F766E
+    color-background: #F6F4EF
+    color-surface: #FFFFFF
+    color-text: #1F2328
+    color-text-muted: #5E6670
+    color-border: #E4E0D8
+    font-family: system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif
+    radius-md: 10px
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A theme names only the design tokens it changes (<a href="/WebFluent/docs/guide/styling">Styling</a>); <code>Night</code>, named as <code>&quot;dark&quot;</code> in the config, is used when the reader's system is dark. The classes the page names — <code>card</code>, <code>todo</code>, <code>is-done</code>, <code>filters</code> — are styled in <code>src/todos.css</code>, which the build bundles because it is under <code>src/</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">css</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">.todo { flex-wrap: nowrap; padding: 0.6rem 0.25rem; border-top: 1px solid var(--color-border); }
+.todo__title { flex: 1; }
+.todo.is-done .todo__title { text-decoration: line-through; color: var(--color-text-muted); }
+.filters a.is-on { background: var(--color-background); color: var(--color-text); font-weight: 600; }</code>
+                            </div>
+                            <h3 class="wf-heading" id="step-7-tests">Step 7: tests</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// tests/todos.wf
+test &quot;adding a todo puts it in the list&quot; {
+    use Todos
+    state draft = &quot;&quot;
+    Input(bind: draft, aria-label: &quot;New todo&quot;)
+    Button(&quot;Add&quot;) { on click { Todos.add(draft)  draft = &quot;&quot; } }
+    for t in Todos.items by t.id { TodoRow(t) }
+    Text(&quot;{Todos.open.length} left&quot;)
+
+    expect &quot;0 left&quot;
+    type &quot;Buy bread&quot; into &quot;New todo&quot;
+    click &quot;Add&quot;
+    expect &quot;Buy bread&quot;
+    expect &quot;1 left&quot;
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A test draws what it declares and then follows its steps in order: it types into the control named &quot;New todo&quot; and clicks the button named &quot;Add&quot;, the way a reader would, in a headless Chrome (<a href="/WebFluent/docs/guide/testing">Testing</a>). <code>wf test</code> runs every test under <code>tests/</code>; the project has six — a blank todo is refused, ticking and clearing empties the list, renaming keeps one row for each.</p>
+                            </div>
+                            <h3 class="wf-heading" id="step-8-build-it">Step 8: build it</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>wf check</code> reports every finding with nothing written; <code>wf build</code> writes <code>build/</code>, which any static host serves — <a href="/WebFluent/docs/guide/deploying">Deploying</a> has GitHub Pages, Netlify and the rest. <code>wf verify</code> loads the built page in a real browser and fails on an error, a missing file or a page that draws nothing.</p>
+                            </div>
+                            <h2 class="wf-heading" id="medium-field-notes">Medium: Field Notes</h2>
+                            <div class="wf-markdown">
+<p>A notebook kept in public — notes from a garden, a kitchen and a few trips — built as a static site. The notes are a JSON file read when the site is built; every page, one per note included, is written out as HTML a search engine reads; the one thing a reader changes, the notes they save for later, stays in their browser. About an hour. The finished project is <a href="https://github.com/monzeromer-lab/WebFluent/tree/master/examples/tutorials/medium-field-notes"><code>examples/tutorials/medium-field-notes</code></a>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="step-1-a-static-project-and-its-look">Step 1: a static project and its look</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{
+  &quot;name&quot;: &quot;field-notes&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;author&quot;: &quot;Field Notes&quot;,
+  &quot;theme&quot;: { &quot;name&quot;: &quot;Meadow&quot;, &quot;dark&quot;: &quot;Dusk&quot; },
+  &quot;build&quot;: {
+    &quot;output&quot;: &quot;./build&quot;,
+    &quot;ssg&quot;: true,
+    &quot;csp&quot;: true
+  },
+  &quot;meta&quot;: {
+    &quot;title&quot;: &quot;Field Notes&quot;,
+    &quot;description&quot;: &quot;Notes from a small garden, a busy kitchen and the roads between them.&quot;,
+    &quot;lang&quot;: &quot;en&quot;,
+    &quot;site_url&quot;: &quot;https://field-notes.example.com&quot;,
+    &quot;site_name&quot;: &quot;Field Notes&quot;,
+    &quot;favicon&quot;: &quot;/favicon.svg&quot;,
+    &quot;image&quot;: &quot;/card.png&quot;,
+    &quot;sitemap&quot;: true
+  }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>ssg</code> pre-renders every page to its own <code>index.html</code>, and the script takes the page over when it loads (<a href="/WebFluent/docs/guide/static-and-spa">Static sites and SPAs</a>). <code>site_url</code> lets the build write what search engines and link previews read: a canonical address, Open Graph tags, JSON-LD, <code>sitemap.xml</code> and <code>robots.txt</code> (<a href="/WebFluent/docs/guide/content">Content</a>).</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/theme.wf
+/// The dark theme: only the tokens that change.
+theme Dusk {
+    color-primary: #86C9A6
+    color-secondary: #E8A086
+    color-background: #121614
+    color-surface: #1A201D
+    color-text: #E9E5DA
+    color-text-muted: #A6AFA9
+    color-border: #2B3430
+    paper-raised: #171C19
+    tag-bg: #213129
+    tag-text: #A9DCC1
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The light theme, <code>Meadow</code>, sets the same names. A theme may declare tokens of its own — <code>paper-raised</code>, <code>tag-bg</code> — and the project's stylesheet, <code>src/styles.css</code>, reads every colour as a token (<code>var(--tag-bg)</code>), so the dark theme needs no rule of its own (<a href="/WebFluent/docs/guide/tokens">Design tokens</a>).</p>
+                            </div>
+                            <h3 class="wf-heading" id="step-2-typed-data">Step 2: typed data</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/types.wf
+/// One note in the notebook.
+type Note {
+    slug: String
+    title: String
+    date: Date
+    tags: [String]
+    summary: String
+    minutes: Number
+    body: String
+}
+
+/// Every note, read from `notes.json` when the site is built.
+data notes: [Note] = &quot;notes.json&quot;</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>data</code> reads a JSON file at build time: it is a constant, typed by the annotation, inlined into the bundle and seeded into every pre-rendered page (<a href="/WebFluent/docs/guide/data">Data</a>). The checker holds the program to <code>Note</code>: a page that reads <code>note.titel</code> is an error where it is written. <code>date</code> is a <code>Date</code>, a plain <code>&quot;2026-03-08&quot;</code> string the language knows how to format — <code>{note.date:.date(long)}</code> is &quot;March 8, 2026&quot;. <code>src/notes.json</code> holds seven notes, each with a Markdown <code>body</code>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="step-3-the-shell-and-a-layout">Step 3: the shell and a layout</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/App.wf
+app {
+    use Saved
+
+    Navbar(class: &quot;site-nav&quot;) {
+        Navbar.Brand {
+            Link(&quot;Field Notes&quot;, to: &quot;/&quot;, class: &quot;brand&quot;)
+        }
+        Navbar.Links {
+            Link(&quot;Notes&quot;, to: &quot;/&quot;)
+            Link(&quot;Tags&quot;, to: &quot;/tags&quot;)
+            Link(to: &quot;/saved&quot;, class: &quot;saved-link&quot;) {
+                Text(&quot;Saved&quot;)
+                if Saved.count &gt; 0 {
+                    Badge(&quot;{Saved.count}&quot;).pill
+                }
+            }
+            Link(&quot;About&quot;, to: &quot;/about&quot;)
+        }
+        Navbar.Actions {
+            ThemeToggle
+        }
+    }
+
+    Router(transition: .fade, duration: &quot;160ms&quot;)</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>app</code> is what wraps every page; the current page is drawn where <code>Router</code> stands, inside <code>&lt;main&gt;</code>, so the skip link a page carries jumps past the navigation (<a href="/WebFluent/docs/guide/pages-and-routing">Pages and routing</a>). The link whose <code>to:</code> is the page shown is marked <code>aria-current=&quot;page&quot;</code>. Each page names the column it is set in with <code>layout:</code> — a component whose default slot is the page:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/components/Sheet.wf
+/// The column a page is set in, and the frame every page names with
+/// `layout: Sheet`. A narrow sheet is for reading; a wide one holds a grid.
+component Sheet(wide: Bool = false) {
+    slot
+    Container(class: [&quot;sheet&quot;, if wide { &quot;sheet--wide&quot; }]) {
+        children
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>ThemeToggle</code> is two icon buttons that call <code>setTheme(&quot;dark&quot;)</code> and <code>setTheme(&quot;light&quot;)</code>; the choice is kept across visits.</p>
+                            </div>
+                            <h3 class="wf-heading" id="step-4-a-card">Step 4: a card</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/components/NoteCard.wf
+/// A note at a glance: when it was written, its title, a summary, its tags
+/// and the button that saves it.
+component NoteCard(
+    _ note: Note,
+    /// Keeps the card in the page but out of sight — what a filter does.
+    hidden: Bool = false
+) {
+    Card(class: &quot;note-card&quot;, hidden: hidden) {
+        Stack(gap: .sm) {
+            Row(justify: .between, align: .center, gap: .sm) {
+                Text(&quot;{note.date:.date(long)} · {note.minutes} min read&quot;, class: &quot;note-meta&quot;).sm
+                SaveButton(note.slug, title: note.title)
+            }
+            Link(to: &quot;/notes/{note.slug}&quot;, class: &quot;note-card__link&quot;) {
+                Heading(note.title).h2
+            }
+            Text(note.summary, class: &quot;note-card__summary&quot;)
+            TagList(note.tags)
+        }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A <code>///</code> comment above a component or a prop is its documentation, shown when the editor hovers a call (<a href="/WebFluent/docs/guide/components">Components</a>). A splice may say how to show its value: <code>{note.date:.date(long)}</code> is <code>format(note.date, .date, &quot;long&quot;)</code> written where it is read (<a href="/WebFluent/docs/guide/expressions">Expressions</a>). <code>TagList</code> is a row of <code>#tag</code> links to <code>/?tag=…</code>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="step-5-the-front-page-a-search-and-a-filter-in-the-address">Step 5: the front page — a search and a filter in the address</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/components/NoteFinder.wf
+    state q = &quot;&quot;
+
+    derived needle = q.trim().toLowerCase()
+    derived newest = all.sortBy(n =&gt; n.date).reverse()
+    derived shown = newest.filter(n =&gt;
+        (tag == &quot;&quot; || n.tags.includes(tag))
+        &amp;&amp; (needle == &quot;&quot;
+            || n.title.toLowerCase().includes(needle)
+            || n.summary.toLowerCase().includes(needle)))
+    derived visible = shown.map(n =&gt; n.slug)
+    derived allTags = all.flatMap(n =&gt; n.tags).unique().sort()</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>q</code> is bound to the search box; everything else follows it. <code>sortBy</code>, <code>flatMap</code> and <code>unique</code> are list helpers the language brings, and each runs at build time too, so the pre-rendered page shows the sorted list (<a href="/WebFluent/docs/guide/state">State and reactivity</a>).</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/components/NoteFinder.wf
+            // Every note is drawn, and the ones that do not match are hidden.
+            // A pre-rendered page cannot know the URL&#x27;s query, so a list
+            // filtered by it would be missing from the HTML; this way the
+            // page carries every note, and the filter applies once it is live.
+            for note in newest by note.slug {
+                NoteCard(note, hidden: !visible.includes(note.slug))
+            }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>This is the one idea a static site adds: the HTML is written once, before any reader arrives, so it cannot depend on what only the browser knows — the address's query, what is in storage. Drawing every note and hiding the misses means the HTML holds them all, for a reader without script and for a search engine, and the filter applies the moment the page is live. The front page hands the finder the address's tag:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/pages/Home.wf
+        // `query.tag` is the URL&#x27;s `?tag=…`; it is missing when the URL has
+        // none, and `?? &quot;&quot;` turns that into the finder&#x27;s &quot;every note&quot;.
+        NoteFinder(notes, tag: query.tag ?? &quot;&quot;)</code>
+                            </div>
+                            <h3 class="wf-heading" id="step-6-a-page-per-note">Step 6: a page per note</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/pages/NotePage.wf
+page NotePage(path: &quot;/notes/:slug&quot;, slug: String,
+    title: &quot;{notes.find(n =&gt; n.slug == slug)?.title ?? slug} — Field Notes&quot;,
+    description: &quot;{notes.find(n =&gt; n.slug == slug)?.summary ?? slug}&quot;,
+    type: &quot;article&quot;,
+    layout: Sheet,
+    paths: notes.map(n =&gt; n.slug)) {
+
+    derived note = notes.find(n =&gt; n.slug == slug)</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>:slug</code> in the path is a typed parameter of the page. <code>paths:</code> names the values a static build renders it for — one <code>notes/&lt;slug&gt;/index.html</code> per note, each listed in the sitemap (<a href="/WebFluent/docs/guide/content">Content</a>). <code>title:</code> and <code>description:</code> may compute from the parameters, so each note's search result shows its own title and summary. The body is the note's Markdown:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/pages/NotePage.wf
+            Markdown(n.body)</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>Markdown</code> renders headings, lists, quotes, emphasis and links, at build time and live; the text is escaped first, so HTML in a note is shown, not run (<a href="/WebFluent/docs/guide/elements">Elements</a>). Below it, <code>related</code> is the three newest notes that share a tag — a <code>derived</code> value like any other.</p>
+                            </div>
+                            <h3 class="wf-heading" id="step-7-tags-and-a-page-written-in-markdown">Step 7: tags, and a page written in Markdown</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/pages/Tags.wf
+        Grid(columns: { base: 1, md: 2 }, gap: .md, align: .start) {
+            for tag in allTags by tag {
+                derived filed = notes.filter(n =&gt; n.tags.includes(tag)).sortBy(n =&gt; n.date).reverse()</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A layout prop takes one value per breakpoint — one column on a phone, two from <code>md</code> up — compiled to a media query, so the first paint is right (<a href="/WebFluent/docs/guide/styling">Styling</a>). A <code>derived</code> value inside a <code>for</code> is worked out per item.</p>
+<p>The About page is not a <code>.wf</code> file at all: <code>src/about.md</code> is a page, its front matter naming its path, title, description and layout:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">markdown</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">---
+path: /about
+title: About — Field Notes
+description: Who keeps this notebook, why it exists, and how the site is built.
+layout: Sheet
+---
+# About</code>
+                            </div>
+                            <h3 class="wf-heading" id="step-8-the-reader-s-saved-notes">Step 8: the reader&#x27;s saved notes</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/stores/Saved.wf
+/// The notes this reader has saved for later, kept in their browser.
+store Saved {
+    persist slugs: [String] = []
+
+    derived count = slugs.length</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>persist</code> keeps the list in the browser across visits — there is no account and nothing is sent anywhere (<a href="/WebFluent/docs/guide/stores">Stores</a>). The button that saves a note says whether it is pressed, the way assistive technology reads it:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/components/SaveButton.wf
+/// Saves a note for later, or takes it off the saved list.
+component SaveButton(_ slug: String, title: String) {
+    use Saved
+
+    Button(if Saved.slugs.includes(slug) { &quot;Saved&quot; } else { &quot;Save&quot; },
+        aria-pressed: Saved.slugs.includes(slug),
+        aria-label: if Saved.slugs.includes(slug) { &quot;Saved: {title}&quot; } else { &quot;Save: {title}&quot; },
+        class: &quot;save-button&quot;).sm.outlined {
+        on click { Saved.toggle(slug) }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>aria-pressed</code> follows the state, and <code>styles.css</code> styles the pressed button with <code>[aria-pressed=&quot;true&quot;]</code> — the look and the meaning are one attribute (<a href="/WebFluent/docs/guide/accessibility">Accessibility</a>). The Saved page lists <code>notes.filter(n =&gt; Saved.slugs.includes(n.slug))</code>, and the navbar's badge is <code>Saved.count</code>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="step-9-tests-and-the-checks-a-static-site-deserves">Step 9: tests, and the checks a static site deserves</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// tests/NoteFinder.wf
+test &quot;a search that matches nothing says so, and clears&quot; {
+    NoteFinder(notes)
+    type &quot;zeppelin&quot; into &quot;Search the notes&quot;
+    expect &quot;Nothing matches&quot;
+    expect &quot;0 of 7 notes&quot;
+    click &quot;Clear the search&quot;
+    expect &quot;7 of 7 notes&quot;
+    expect not &quot;Nothing matches&quot;
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A test reads the project's <code>data</code> file like any page does (<a href="/WebFluent/docs/guide/testing">Testing</a>). Then:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>wf verify</code> loads every route of the built site in a headless Chrome — each note's page at its <code>paths:</code> value — and fails on an error, a missing file or a page that draws nothing (<a href="/WebFluent/docs/guide/cli">Command line</a>). <code>build/</code> is ready for any static host.</p>
+                            </div>
+                            <h2 class="wf-heading" id="hard-pocket">Hard: Pocket</h2>
+                            <div class="wf-markdown">
+<p>A personal budget tracker that lives entirely in the reader's browser: money in and money out, a budget per category, what is left of it this month, six months of bars, two languages, a CSV out and back in, and a page that keeps working offline. No server and no account. A couple of hours; it assumes the easy tutorial, and every step links the chapter that goes deeper. The finished project is <a href="https://github.com/monzeromer-lab/WebFluent/tree/master/examples/tutorials/hard-pocket"><code>examples/tutorials/hard-pocket</code></a>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="step-1-a-project">Step 1: a project</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{
+  &quot;name&quot;: &quot;pocket&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;author&quot;: &quot;WebFluent tutorials&quot;,
+  &quot;theme&quot;: { &quot;name&quot;: &quot;Pocket&quot;, &quot;dark&quot;: &quot;PocketNight&quot; },
+  &quot;build&quot;: {
+    &quot;output&quot;: &quot;./build&quot;,
+    &quot;output_type&quot;: &quot;spa&quot;,
+    &quot;csp&quot;: true
+  },
+  &quot;meta&quot;: {
+    &quot;title&quot;: &quot;Pocket&quot;,
+    &quot;description&quot;: &quot;A budget that lives in your browser: income, spending and what is left, month by month.&quot;,
+    &quot;lang&quot;: &quot;en&quot;
+  },
+  &quot;i18n&quot;: {
+    &quot;default_locale&quot;: &quot;en&quot;,
+    &quot;locales&quot;: [&quot;en&quot;, &quot;ar&quot;],
+    &quot;dir&quot;: &quot;src/translations&quot;
+  },
+  &quot;offline&quot;: {
+    &quot;precache&quot;: [&quot;/&quot;, &quot;/entries&quot;, &quot;/categories&quot;, &quot;/settings&quot;],
+    &quot;fallback&quot;: &quot;/&quot;
+  }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Three settings this project adds to the easy one: <code>i18n</code> names the languages and where their messages live (<a href="/WebFluent/docs/guide/i18n">Internationalization</a>); <code>offline</code> makes <code>wf build</code> write a service worker that stores the four pages, so a second visit opens with no network (<a href="/WebFluent/docs/guide/offline">Offline</a>); and the two themes, light and dark, both of which the build ships.</p>
+                            </div>
+                            <h3 class="wf-heading" id="step-2-what-money-is">Step 2: what money is</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/types.wf
+/// Which way the money went.
+enum Kind { income, expense }
+
+/// Something money is spent on, with what the reader means to spend on it
+/// in a month.
+type Category {
+    id: String
+    name: String
+    color: Color
+    budget: Money
+}
+
+/// One line of the ledger: money in, or money out.
+type Entry {
+    id: Uuid
+    date: Date
+    amount: Money
+    kind: Kind
+    category: String
+    note: String = &quot;&quot;
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>Money</code>, <code>Date</code>, <code>Color</code> and <code>Uuid</code> are types the language brings, each a plain JSON value at run time (<a href="/WebFluent/docs/guide/types">Types</a>). Money is kept in minor units, <code>{ amount: 1299, currency: &quot;USD&quot; }</code>, so a sum never drifts by a fraction of a cent; it is written <code>$12.99</code> and shown with <code>format(m)</code>. Its methods are calls — <code>a.plus(b)</code>, <code>a.minus(b)</code>, <code>ONE.times(12.5)</code> — and its carrier's fields are fields: <code>m.amount</code>.</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/types.wf
+/// Nothing yet: the starting point every sum adds to.
+const ZERO: Money = $0.00
+
+/// One dollar — `ONE.times(12.5)` is $12.50, rounded to the cent.
+const ONE: Money = $1.00</code>
+                            </div>
+                            <h3 class="wf-heading" id="step-3-a-ledger-that-adds-itself-up">Step 3: a ledger that adds itself up</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/stores/Ledger.wf
+    derived today = now.date()
+    derived newestFirst = entries.sortBy(e =&gt; e.date).reverse()
+
+    derived income = sum(entries.filter(e =&gt; e.kind == .income))
+    derived spent = sum(entries.filter(e =&gt; e.kind == .expense))
+    derived balance = income.minus(spent)
+
+    derived thisMonth = entries.filter(e =&gt; e.date.startOfMonth().isSame(today.startOfMonth()))
+    derived monthIncome = sum(thisMonth.filter(e =&gt; e.kind == .income))
+    derived monthSpent = sum(thisMonth.filter(e =&gt; e.kind == .expense))
+    derived monthBudget = categories.reduce((s, c) =&gt; s.plus(c.budget), ZERO)
+    derived budgetLeft = monthBudget.minus(monthSpent)</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Every figure on every page is a <code>derived</code> value of the store: add an entry and the balance, this month's spending, each budget bar and the chart all follow, with nothing written to keep them in step (<a href="/WebFluent/docs/guide/stores">Stores</a>). <code>now</code> is the browser's clock as a value, so <code>today</code> turns over at midnight. <code>sum</code> is an action that only returns a value, which a derived value may call:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/stores/Ledger.wf
+    // The money in a list of entries, added up.
+    action sum(list: [Entry]) {
+        return list.reduce((total, e) =&gt; total.plus(e.amount), ZERO)
+    }</code>
+                            </div>
+                            <h3 class="wf-heading" id="step-4-changing-the-shape-without-losing-anyone-s-data">Step 4: changing the shape without losing anyone&#x27;s data</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/stores/Ledger.wf
+    // Version 1 of Pocket kept an amount as a plain, signed number of
+    // dollars (`-52.4` was money out). Version 2 keeps a `Money` and a
+    // `Kind`, so `migrate 1 -&gt; 2` turns what a returning reader&#x27;s browser
+    // holds into the new shape instead of throwing it away.
+    persist entries: [Entry] = SAMPLE_ENTRIES.map(s =&gt; Entry(
+            id: s.id,
+            date: now.date().minus(days: s.ago),
+            amount: s.amount,
+            kind: s.kind,
+            category: s.category,
+            note: s.note,
+        )) {
+        version: 2
+        migrate 1 -&gt; 2 {
+            old.map(e =&gt; Entry(
+                    id: e.id,
+                    date: e.date,
+                    amount: ONE.times(Math.abs(e.amount)),
+                    kind: if e.amount &lt; 0 { .expense } else { .income },
+                    category: e.category,
+                    note: e.note ?? &quot;&quot;,
+                ))
+        }
+    }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>What a <code>persist</code> keeps outlives the build that wrote it: a reader who visited last month has last month's shape in their browser. <code>version: 2</code> says what this build writes; <code>migrate 1 -&gt; 2</code> brings an older value forward, given as <code>old</code>. Raise the version without a migration and the build warns (<code>P01</code>); change the shape without raising it and it warns too (<code>D04</code>), from the shapes it keeps in <code>.wf-cache/</code> (<a href="/WebFluent/docs/guide/stores">Stores</a>). A first visit opens on a sample ledger dated from today, so the dashboard is never empty.</p>
+                            </div>
+                            <h3 class="wf-heading" id="step-5-a-shell-that-fits-the-screen">Step 5: a shell that fits the screen</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/App.wf
+            if Ui.menuOpen {
+                Host(tag: &quot;div&quot;, class: &quot;scrim&quot;) { on click { Ui.closeAll() } }
+                Stack(gap: .md, class: &quot;drawer&quot;, animate: .slideRight, exit: .fadeOut) {
+                    on click { Ui.menuOpen = false }
+                    Brand
+                    NavLinks
+                }
+            }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The shell draws a <code>Sidebar</code> when <code>viewport.lg</code> holds and a top bar with this drawer when it does not. <code>viewport</code> is the window's size as a value, following <code>matchMedia</code>, so the switch happens once as the window crosses the breakpoint (<a href="/WebFluent/docs/guide/styling">Styling</a>). The layout itself — grids that are one column on a phone — is responsive values, <code>Grid(columns: { base: 1, lg: 2 })</code>, which need no script. A second store, <code>Ui</code>, holds what the interface is doing — the dialog, the menu, the notices — apart from what the ledger holds.</p>
+                            </div>
+                            <h3 class="wf-heading" id="step-6-a-dashboard-drawn-from-elements">Step 6: a dashboard drawn from elements</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/components/MonthChart.wf
+/// Six months of money in and money out, as pairs of bars.
+///
+/// The built-in `Chart` draws at build time, from data the build can see.
+/// This ledger only exists in the reader&#x27;s browser, so the chart is made of
+/// plain elements whose heights follow the store: `height: {share}%` is a
+/// style value that reads state, and repaints when it changes.
+component MonthChart(months: [MonthTotal], top: Number) {
+    Stack(gap: .sm) {
+        Row(class: &quot;chart&quot;, align: .end, role: &quot;img&quot;, aria-label: t(&quot;chart.label&quot;)) {
+            for m in months by m.month {
+                Stack(gap: .xs, align: .center, class: &quot;chart__month&quot;) {
+                    Row(gap: .xs, align: .end, class: &quot;chart__bars&quot;) {
+                        Host(tag: &quot;span&quot;, class: &quot;chart__bar chart__bar--in&quot;) {
+                            style { height: {m.income.amount / top * 100}% }
+                        }
+                        Host(tag: &quot;span&quot;, class: &quot;chart__bar chart__bar--out&quot;) {
+                            style { height: {m.spent.amount / top * 100}% }
+                        }
+                    }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A <code>{…}</code> in a style value reads state, and the property follows it (<a href="/WebFluent/docs/guide/styling">Styling</a>). The chart is one <code>role=&quot;img&quot;</code> with a label, so a screen reader hears what it shows rather than twelve unnamed boxes (<a href="/WebFluent/docs/guide/accessibility">Accessibility</a>). The figures above it are one component placed four times:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/pages/Dashboard.wf
+    Grid(columns: { base: 2, xl: 4 }, gap: .md) {
+        KpiCard(t(&quot;kpi.balance&quot;), value: Ledger.balance, note: t(&quot;kpi.balanceNote&quot;))
+        KpiCard(t(&quot;kpi.income&quot;), value: Ledger.monthIncome, note: t(&quot;kpi.thisMonth&quot;), lean: .good)
+        KpiCard(t(&quot;kpi.spent&quot;), value: Ledger.monthSpent, note: t(&quot;kpi.thisMonth&quot;), lean: .bad)
+        KpiCard(t(&quot;kpi.left&quot;), value: Ledger.budgetLeft, note: t(&quot;kpi.leftNote&quot;, { budget: format(Ledger.monthBudget) }),
+            lean: if Ledger.budgetLeft.amount &lt; 0 { .bad } else { .good })
+    }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>lean</code> is an enum prop, and a component's enum props are written to its root element as <code>data-lean=&quot;good&quot;</code>, which <code>pocket.css</code> colours by (<a href="/WebFluent/docs/guide/components">Components</a>).</p>
+                            </div>
+                            <h3 class="wf-heading" id="step-7-filters-in-the-address">Step 7: filters in the address</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/pages/Entries.wf
+    // The filters live in the address — `/entries?month=2026-09&amp;category=dining` —
+    // so they survive a reload, a shared link and the back button.
+    derived month = query.month ?? &quot;&quot;
+    derived category = query.category ?? &quot;&quot;
+    derived shown = Ledger.newestFirst.filter(e =&gt; (month == &quot;&quot; || e.date.slice(0, 7) == month) &amp;&amp; (category == &quot;&quot; || e.category == category))</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Choosing a month calls <code>navigate(&quot;/entries?month=…&quot;)</code>; the address changes, <code>query</code> follows it, and so does the list. An entry has a page of its own at <code>/entries/:id</code>, where <code>id</code> is a typed parameter; the page looks the entry up with <code>Ledger.entries.find(…)</code> and draws it inside <code>if let e = entry</code> — <code>if let</code> binds the value only when it is there, which the checker requires before reading its fields (<a href="/WebFluent/docs/guide/pages-and-routing">Pages and routing</a>).</p>
+                            </div>
+                            <h3 class="wf-heading" id="step-8-one-form-for-new-and-for-edit">Step 8: one form for new and for edit</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/components/EntryForm.wf
+/// The form for a new entry — or, given one, for changing it. It checks what
+/// the reader typed, writes it to the ledger, and says so with `saved`.
+component EntryForm(entry: Entry? = null) {
+    use Ledger
+    event saved()
+
+    state kind: Kind = entry?.kind ?? .expense
+    state amount: Number? = if let e = entry { e.amount.amount / 100 } else { null }
+    state date: Date? = entry?.date ?? Ledger.today
+    state category = entry?.category ?? &quot;groceries&quot;
+    state note = entry?.note ?? &quot;&quot;
+
+    validate amount {
+        required
+        min(0.01)
+    }
+    // Not in the future. With no message of its own, the rule shows the
+    // translation of `form.max`; `Ledger.today` is read each time it checks.
+    validate date {
+        required
+        max(Ledger.today)
+    }
+    validate note { maxLength(60) }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A <code>validate</code> block sits beside the state it guards, and the control bound to that state shows what the rules say — the message, <code>aria-invalid</code>, the link between them — with nothing written (<a href="/WebFluent/docs/guide/forms">Forms</a>). A rule without a message of its own shows the translation of <code>form.&lt;rule&gt;</code>, so <code>en.json</code> and <code>ar.json</code> each say &quot;that date has not happened yet&quot; once. The form says when it is done with an event; the caller decides what that means — close the dialog, or go back to the entry:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/components/EntryForm.wf
+        Row(justify: .end, gap: .sm) {
+            Button(if entry != null { t(&quot;action.save&quot;) } else { t(&quot;action.add&quot;) }, type: .submit, disabled: !form.valid).primary
+        }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>Form(bind: form)</code> hands a handle on the form; <code>form.valid</code> is whether every rule holds, and the button follows it as the reader types.</p>
+                            </div>
+                            <h3 class="wf-heading" id="step-9-a-dialog-and-a-shortcut">Step 9: a dialog and a shortcut</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/App.wf
+    // `n` opens a new entry from anywhere. A key with no modifier is left to
+    // the field the reader is typing in, so an `n` in a note is just a letter.
+    on key(&quot;n&quot;) { Ui.compose() }
+    on key(&quot;Escape&quot;) { Ui.closeAll() }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>on key</code> at the top of the app listens on the document for as long as the page shows (<a href="/WebFluent/docs/guide/events">Events</a>). The dialog is a <code>Modal</code> whose <code>title:</code> is its accessible name; it traps focus while open, and <code>Escape</code> closes it:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/App.wf
+    Modal(visible: Ui.composing, title: t(&quot;compose.title&quot;)) {
+        if Ui.composing {
+            EntryForm {
+                on saved {
+                    Ui.composing = false
+                    Ui.notify(t(&quot;toast.added&quot;))
+                }
+            }
+        }
+    }</code>
+                            </div>
+                            <h3 class="wf-heading" id="step-10-two-languages">Step 10: two languages</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{
+  &quot;entries.zero&quot;: &quot;No entries&quot;,
+  &quot;entries.one&quot;: &quot;{count} entry&quot;,
+  &quot;entries.other&quot;: &quot;{count} entries&quot;
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Every word on screen is <code>t(&quot;key&quot;)</code>, read from <code>src/translations/en.json</code> or <code>ar.json</code>. A message with plural forms is several keys, and <code>t(&quot;entries&quot;, { count: n })</code> picks the form the language's rules call for — Arabic has six (<a href="/WebFluent/docs/guide/i18n">Internationalization</a>). Switching to Arabic sets <code>dir=&quot;rtl&quot;</code> on the page, and the sidebar, the rows and the grids mirror themselves. <code>format(m)</code> and dates follow the language too. The reader's choice is a <code>persist</code> in a small <code>Prefs</code> store, applied on every visit by an <code>effect</code> in the app shell.</p>
+                            </div>
+                            <h3 class="wf-heading" id="step-11-your-data-out-and-back-in">Step 11: your data out, and back in</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/pages/Settings.wf
+    action exportCsv() {
+        let lines = Ledger.newestFirst.map(e =&gt; csvLine(e))
+        saveTextFile(&quot;pocket-{Ledger.today}.csv&quot;, [CSV_HEADER, ...lines].join(&quot;\n&quot;), &quot;text/csv&quot;)
+    }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>saveTextFile</code> is not WebFluent: it is a function in <code>src/files.js</code>, a plain browser script the build links on every page and whose JSDoc types the call, so <code>saveTextFile(1)</code> is an error where it is written (<a href="/WebFluent/docs/guide/interop">JavaScript interop</a>). Importing reads a file from a <code>FileUpload</code> with <code>await f.text()</code>, parses each line, and merges what is new; then it tells every other open tab:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/pages/Settings.wf
+        let added = Ledger.merge(parsed)
+        news.post({ count: added })</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>news</code> is <code>channel news = broadcast(&quot;pocket&quot;)</code>, a channel every tab of the site hears; the app shell listens on it and shows a toast (<a href="/WebFluent/docs/guide/realtime">Realtime</a>). The ledger itself needs no channel — <code>persist</code> already keeps every tab in step.</p>
+                            </div>
+                            <h3 class="wf-heading" id="step-12-tests-and-the-checks">Step 12: tests, and the checks</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// tests/pocket.wf
+test &quot;an entry added through the form moves the balance&quot; {
+    use Ledger
+    Text(&quot;Balance {format(Ledger.balance)}&quot;)
+    EntryForm
+
+    expect &quot;Balance $16,533.56&quot;
+    click &quot;Money in&quot;
+    type &quot;250&quot; into &quot;Amount&quot;
+    click &quot;Add entry&quot;
+    expect &quot;Balance $16,783.56&quot;</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The test drives the real form by the labels a reader sees — the English ones, since a test reads the project's default locale — in a headless Chrome (<a href="/WebFluent/docs/guide/testing">Testing</a>). Pocket has eight: the cards and rows render what they should, a blank amount is refused, <code>n</code> opens the dialog and <code>Escape</code> closes it, removing an entry takes it out of every total.</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>build/</code> is a single-page app with a service worker beside it: put it on a host that serves <code>index.html</code> for every path (<a href="/WebFluent/docs/guide/deploying">Deploying</a>), and the second visit works on a plane.</p>
+                            </div>
+                            <h2 class="wf-heading" id="recipes">Recipes</h2>
+                            <div class="wf-markdown">
+<p>Smaller pieces every project meets, each a block you can drop into a page.</p>
+                            </div>
+                            <h3 class="wf-heading" id="debounced-search">Debounced search</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Search(path: &quot;/&quot;) {
+    state typed = &quot;&quot;
+    state q = &quot;&quot;
+    action commit(value: String) { if value == typed { q = value } }
+    effect {
+        let pending = typed
+        setTimeout(() =&gt; commit(pending), 300)
+    }
+    resource hits = fetch(&quot;/api/search?q={q}&quot;)
+    Input(bind: typed, placeholder: &quot;Search&quot;, aria-label: &quot;Search&quot;)
+    match hits {
+        loading { Spinner.sm }
+        error(e) { Text(e.message).danger }
+        ready(list) { Text(&quot;{list.length} results for {q}&quot;) }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The effect re-runs on every keystroke; each run schedules a check, and only the one whose value is still current commits to <code>q</code>, which the resource follows. (<code>after(ms)</code> is a declaration of a body, not a statement, so a timer inside an effect is the browser's <code>setTimeout</code>.)</p>
+                            </div>
+                            <h3 class="wf-heading" id="pagination">Pagination</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Rows(path: &quot;/&quot;) {
+    state page = 1
+    state perPage = 20
+    resource rows = fetch(&quot;/api/rows?page={page}&amp;per={perPage}&quot;)
+    match rows {
+        loading { Spinner }
+        error(e) { Text(e.message).danger }
+        ready(r) {
+            for row in r.items by row.id { Text(row.name) }
+            Row(gap: .sm, align: .center) {
+                Button(&quot;Previous&quot;, disabled: page == 1) { on click { page = page - 1 } }
+                Text(&quot;Page {page} of {r.pages}&quot;)
+                Button(&quot;Next&quot;, disabled: page &gt;= r.pages) { on click { page = page + 1 } }
+            }
+        }
+    }
+}</code>
+                            </div>
+                            <h3 class="wf-heading" id="optimistic-update-with-rollback">Optimistic update with rollback</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">type Item { id: String, liked: Bool }
+
+page Likes(path: &quot;/&quot;) {
+    state items: [Item] = [Item(id: &quot;a&quot;, liked: false)]
+    state error = &quot;&quot;
+    action like(id: String) {
+        let before = items
+        items = items.map(i =&gt; if i.id == id { Item(id: i.id, liked: !i.liked) } else { i })
+        try {
+            await fetch(&quot;/api/like/{id}&quot;, { method: &quot;POST&quot; })
+        } catch e {
+            items = before
+            error = &quot;Could not save. Try again.&quot;
+        }
+    }
+    for i in items by i.id {
+        Button(if i.liked { &quot;♥&quot; } else { &quot;♡&quot; }, aria-label: &quot;Like&quot;).sm { on click { like(i.id) } }
+    }
+    if error != &quot;&quot; { Toast(error).danger }
+}</code>
+                            </div>
+                            <h3 class="wf-heading" id="a-confirm-dialog-component">A confirm dialog component</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">component Confirm(_ title: String, visible: Bool, danger: Bool = false) {
+    event confirm()
+    event cancel()
+    slot
+    Dialog(visible: visible, title: title) {
+        children
+        Row(gap: .sm, justify: .end) {
+            Button(&quot;Cancel&quot;) { on click { emit cancel() } }
+            Button(&quot;Confirm&quot;, tone: if danger { .danger } else { .primary }) { on click { emit confirm() } }
+        }
+    }
+}
+
+page Use(path: &quot;/&quot;) {
+    state asking = false
+    state gone = false
+    Button(&quot;Delete account&quot;).danger { on click { asking = true } }
+    Confirm(&quot;Delete your account?&quot;, visible: asking, danger: true) {
+        on confirm { gone = true  asking = false }
+        on cancel { asking = false }
+        Text(&quot;Everything goes. This cannot be undone.&quot;)
+    }
+    if gone { Alert(&quot;Account deleted.&quot;).info }
+}</code>
+                            </div>
+                            <h3 class="wf-heading" id="responsive-navigation">Responsive navigation</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Nav(path: &quot;/&quot;) {
+    state open = false
+    if viewport.md {
+        Row(gap: .md) {
+            Link(&quot;Home&quot;, to: &quot;/&quot;)
+            Link(&quot;Docs&quot;, to: &quot;/docs&quot;)
+            Link(&quot;Pricing&quot;, to: &quot;/pricing&quot;)
+        }
+    } else {
+        IconButton(icon: &quot;menu&quot;, label: &quot;Open navigation&quot;) { on click { open = !open } }
+        show open {
+            Stack(gap: .sm, animate: .slideDown) {
+                Link(&quot;Home&quot;, to: &quot;/&quot;)
+                Link(&quot;Docs&quot;, to: &quot;/docs&quot;)
+                Link(&quot;Pricing&quot;, to: &quot;/pricing&quot;)
+            }
+        }
+    }
+}</code>
+                            </div>
+                            <h3 class="wf-heading" id="a-form-with-validation-messages">A form with validation messages</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Signup(path: &quot;/&quot;) {
+    state email = &quot;&quot;
+    state password = &quot;&quot;
+    state confirm = &quot;&quot;
+    state sent = false
+    validate email { required  email &quot;Enter a valid email&quot; }
+    validate password { required  minLength(8) &quot;At least 8 characters&quot; }
+    validate confirm { matches(password) &quot;The passwords differ&quot; }
+    Form(bind: form) {
+        on submit { sent = true  form.reset() }
+        Input(bind: email, name: &quot;email&quot;, label: &quot;Email&quot;).email
+        Input(bind: password, name: &quot;password&quot;, label: &quot;Password&quot;).password
+        Input(bind: confirm, name: &quot;confirm&quot;, label: &quot;Confirm password&quot;).password
+        Button(&quot;Create account&quot;, type: .submit, disabled: !form.valid).primary
+    }
+    if sent { Alert(&quot;Welcome aboard.&quot;).success }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Each control shows its own message when the reader leaves it, and a submit that fails focuses the first problem. <a href="/WebFluent/docs/guide/forms">Forms</a> has every rule.</p>
+                            </div>
+                            <h3 class="wf-heading" id="tabs-with-the-active-tab-in-the-url">Tabs with the active tab in the URL</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Account(path: &quot;/account&quot;) {
+    derived tab = if hash != &quot;&quot; { hash } else { &quot;profile&quot; }
+    Row(gap: .sm) {
+        Link(&quot;Profile&quot;, to: &quot;/account#profile&quot;)
+        Link(&quot;Billing&quot;, to: &quot;/account#billing&quot;)
+    }
+    if tab == &quot;profile&quot; { Text(&quot;Profile settings&quot;) }
+    if tab == &quot;billing&quot; { Text(&quot;Billing settings&quot;) }
+}</code>
+                            </div>
+                            <h3 class="wf-heading" id="reading-a-store-from-a-component-without-use">Reading a store from a component without use</h3>
+                            <div class="wf-markdown">
+<p>A component that only needs one value takes it as a prop, which keeps it reusable outside that store:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">store Cart { state count = 0 }
+
+component CartBadge(count: Number) {
+    if count &gt; 0 { Badge(&quot;{count}&quot;).primary }
+}
+
+page Shop(path: &quot;/&quot;) {
+    use Cart
+    CartBadge(count: Cart.count)
+}</code>
+                            </div>
+                            <h3 class="wf-heading" id="countdown">Countdown</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Countdown(path: &quot;/&quot;) {
+    state left = 10
+    every(1000) { if left &gt; 0 { left = left - 1 } }
+    Progress(value: 10 - left, max: 10)
+    Text(if left == 0 { &quot;Done&quot; } else { &quot;{left}s&quot; })
+}</code>
+                            </div>
+                            <h3 class="wf-heading" id="signing-in-with-a-session-cookie">Signing in with a session cookie</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">type User { id: String, name: String }
+
+api Auth(base: &quot;/api&quot;) {
+    credentials: .sameOrigin
+    get me() -&gt; User
+    post signIn(body: Map) -&gt; User
+        errors { 401 -&gt; Map }
+    post signOut()
+}
+
+store Session {
+    state user: User? = null
+    state checked = false
+    derived signedIn = user != null
+    action load() {
+        try { user = await Auth.me() } catch e { user = null }
+        checked = true
+    }
+    action signIn(email: String, password: String) {
+        user = await Auth.signIn(body: { email: email, password: password })
+        navigate(&quot;/account&quot;)
+    }
+    action signOut() {
+        await Auth.signOut()
+        user = null
+        navigate(&quot;/&quot;)
+    }
+}
+
+page SignIn(path: &quot;/sign-in&quot;, title: &quot;Sign in&quot;, description: &quot;Sign in to your account.&quot;, noindex: true) {
+    state email = &quot;&quot;
+    state password = &quot;&quot;
+    state problem = &quot;&quot;
+    validate email { required  email }
+    validate password { required }
+    action send() {
+        problem = &quot;&quot;
+        try { await Session.signIn(email, password) } catch e { problem = &quot;That email and password do not match.&quot; }
+    }
+    Heading(&quot;Sign in&quot;).h1
+    if problem != &quot;&quot; { Alert(problem).danger }
+    Form(bind: form) {
+        on submit { send() }
+        Input(bind: email, label: &quot;Email&quot;).email
+        Input(bind: password, label: &quot;Password&quot;).password
+        Button(&quot;Sign in&quot;, type: .submit, disabled: send.pending).primary
+    }
+}
+
+page Account(path: &quot;/account&quot;, title: &quot;Your account&quot;, description: &quot;Your account.&quot;, guard: Session.signedIn, redirect: &quot;/sign-in&quot;) {
+    use Session
+    Heading(&quot;Your account&quot;).h1
+    if let u = Session.user { Text(&quot;Signed in as {u.name}&quot;) }
+    Button(&quot;Sign out&quot;) { on click { Session.signOut() } }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The session is an httpOnly cookie the server sets; the page never holds a token. <code>guard:</code> hides the page from the signed-out, and the server still checks every request (<a href="/WebFluent/docs/guide/security#sessions-and-tokens">Security</a>). Call <code>Session.load()</code> from the app's set-up so a returning reader is signed in.</p>
+                            </div>
+                            <h3 class="wf-heading" id="load-more">Load more</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">type Item { id: String, name: String }
+
+api Catalog(base: &quot;/api&quot;) {
+    get items(page: Number = 1) -&gt; [Item]
+}
+
+page Items(path: &quot;/items&quot;, title: &quot;Items&quot;, description: &quot;Everything, a page at a time.&quot;) {
+    state page = 1
+    resource list = Catalog.items(page: page, paginate: .page)
+    Heading(&quot;Items&quot;).h1
+    for item in list.items by item.id { Text(item.name) }
+    if list.hasMore {
+        Button(&quot;Load more&quot;, disabled: list.state == &quot;loading&quot;) { on click { list.loadMore() } }
+    }
+}</code>
+                            </div>
+                            <h3 class="wf-heading" id="filters-in-the-url">Filters in the URL</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Products(path: &quot;/products&quot;, title: &quot;Products&quot;, description: &quot;Everything we sell.&quot;) {
+    derived sort = query.sort ?? &quot;name&quot;
+    Heading(&quot;Products&quot;).h1
+    Row(gap: .sm) {
+        Link(&quot;By name&quot;, to: &quot;/products?sort=name&quot;)
+        Link(&quot;By price&quot;, to: &quot;/products?sort=price&quot;)
+    }
+    Text(&quot;Sorted by {sort}&quot;)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A filter in the query string survives a reload, a shared link and the back button, where a <code>state</code> would not.</p>
+                            </div>
+                            <h3 class="wf-heading" id="a-dark-mode-switch">A dark-mode switch</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Settings(path: &quot;/settings&quot;, title: &quot;Settings&quot;, description: &quot;How the site looks.&quot;) {
+    Heading(&quot;Settings&quot;).h1
+    Row(gap: .sm) {
+        Button(&quot;Light&quot;, outlined: theme != &quot;light&quot;) { on click { setTheme(&quot;light&quot;) } }
+        Button(&quot;Dark&quot;, outlined: theme != &quot;dark&quot;) { on click { setTheme(&quot;dark&quot;) } }
+        Button(&quot;Match the system&quot;, outlined: theme != &quot;system&quot;) { on click { setTheme(&quot;system&quot;) } }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>It needs a dark theme named in the config (<a href="/WebFluent/docs/guide/styling#dark-mode">Styling</a>).</p>
+                            </div>
+                            <h3 class="wf-heading" id="copy-to-the-clipboard">Copy to the clipboard</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Share(path: &quot;/share&quot;, title: &quot;Share&quot;, description: &quot;Copy the link.&quot;) {
+    state copied = false
+    action copy(text: String) {
+        await navigator.clipboard.writeText(text)
+        copied = true
+    }
+    Heading(&quot;Share&quot;).h1
+    Button(&quot;Copy the link&quot;) { on click { copy(location.href) } }
+    if copied { Toast(&quot;Copied&quot;).success }
+}</code>
+                            </div>
+                            <h3 class="wf-heading" id="a-chart">A chart</h3>
+                            <div class="wf-markdown">
+<p>A charting library is a URL in <code>meta.scripts</code>, called from a script of your own and handed a canvas with <code>Host</code>; the full example is in <a href="/WebFluent/docs/guide/interop#a-library-from-a-cdn">JavaScript interop</a>.</p>
+                            </div>
+                            <h2 class="wf-heading" id="where-to-go-next">Where to go next</h2>
+                            <div class="wf-markdown">
+<ul>
+<li>The <a href="/WebFluent/docs/reference">components reference</a> for every prop and flag.</li>
+<li><code>examples/</code> in the repository: the tutorials, reference PDFs and slide decks, and the <code>tests/fixtures/</code> projects — a gallery, a dashboard, a docs site, an offline site — each complete.</li>
+<li><code>wf docs</code> in your own project, for what <em>your</em> components take.</li>
+</ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
+                        <a class="wf-link wf-seeb37b6c" href="/WebFluent/docs/guide/server-rendering">
+                            <p class="wf-text wf-s3e0c6c38">Previous</p>
+                            <p class="wf-text wf-s2c78daf6">34. Server rendering</p>
+                        </a>
+                        <a class="wf-link wf-sc144b15a" href="/WebFluent/docs/reference">
+                            <p class="wf-text wf-s3e0c6c38">Next</p>
+                            <p class="wf-text wf-s2c78daf6">36. Components reference</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-sac91c322" aria-label="On this page">
+                    <div class="wf-stack wf-gap--xs wf-se43b90d0">
+                        <p class="wf-text overline">On this page</p>
+                        <a class="wf-link wf-s3e136ca4" href="#easy-todos">Easy: Todos</a>
+                        <a class="wf-link wf-s3e136ca4" href="#medium-field-notes">Medium: Field Notes</a>
+                        <a class="wf-link wf-s3e136ca4" href="#hard-pocket">Hard: Pocket</a>
+                        <a class="wf-link wf-s3e136ca4" href="#recipes">Recipes</a>
+                        <a class="wf-link wf-s3e136ca4" href="#where-to-go-next">Where to go next</a>
+                    </div>
+                    <hr class="wf-divider wf-se3c90f45">
+                    <div class="wf-stack wf-gap--xs wf-s614f8b98">
+                        <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/35-tutorials.md">
+                            <i class="wf-icon" data-icon="edit"></i>
+                            <p class="wf-text wf-s5c9c3c02">Edit this page</p>
+                        </a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">
+                            <i class="wf-icon" data-icon="menu"></i>
+                            <p class="wf-text wf-s5c9c3c02">Components reference</p>
+                        </a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-sa5763942">
+                        <p class="wf-text wf-s2880cc3a">Checked by the test suite</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is parsed, checked and type-checked on each release.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s2a0a6f19">
+            <div class="wf-stack wf-gap--lg wf-sc70179bd">
+                <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-seacec3bd">
+                    <div class="wf-stack wf-gap--sm wf-s1f90318e">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s02873871">
+                            <p class="wf-text wf-s7c2fb5e9">wf</p>
+                            <p class="wf-text wf-s312df231">WebFluent</p>
+                        </div>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 4, parsed, type-checked and compiled by the test suite.</p>
+                    </div>
+                    <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
+                        <div class="wf-stack wf-gap--xs wf-sf27948d8">
+                            <p class="wf-text overline">Guide</p>
+                            <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Getting started</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/tutorial">Tutorial</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/deploying">Deploying</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/troubleshooting">Troubleshooting</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-sf27948d8">
+                            <p class="wf-text overline">Reference</p>
+                            <a class="wf-link" href="/WebFluent/docs/reference">Built-in components</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
+                            <a class="wf-link active" href="/WebFluent/docs/tutorials" aria-current="page">Tutorials</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-sf27948d8">
+                            <p class="wf-text overline">Project</p>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/releases">Releases</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/issues">Issues</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
+                    <p class="wf-text">WebFluent 4 — GPL-3.0</p>
+                    <p class="wf-text">© 2026 Monzer Omer</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

@@ -32,7 +32,7 @@
     <script src="../../../pages/ComponentsGuide.js" data-wf-page="ComponentsGuide" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
@@ -41,13 +41,13 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.1</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
-                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -56,14 +56,12 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
@@ -206,9 +204,9 @@
                         <p class="wf-text num">34</p>
                         <p class="wf-text">Server rendering</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tutorials">
                         <p class="wf-text num">35</p>
-                        <p class="wf-text">Cookbook</p>
+                        <p class="wf-text">Tutorials</p>
                     </a>
                     <p class="wf-text group-label">Reference</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
@@ -275,18 +273,18 @@
                         <h1 class="wf-heading wf-sa3503382">Components</h1>
                         <p class="wf-text wf-sfd35f593">A component is a reusable element you declare: typed props, events, slots, parts and a body, checked like a built-in.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
-                        <div class="wf-stack wf-gap--lg">
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
 <p>A component is a reusable element you declare: typed props, the events it fires, the slots its caller fills, the parts it offers, and a body. A call to it is checked like a call to a built-in.</p>
                             </div>
-                            <h2 class="wf-heading">Declaring and calling</h2>
+                            <h2 class="wf-heading" id="declaring-and-calling">Declaring and calling</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">/// A person, at a glance.
 component UserCard(_ name: String, role: String, active: Bool = true, avatar: String? = null) {
@@ -317,13 +315,13 @@ page Team(path: &quot;/&quot;) {
 </ul>
 <p>A prop that reads the caller's state stays live inside the component: a <code>Chip(pressed: isOn)</code> repaints when <code>isOn</code> changes.</p>
                             </div>
-                            <h2 class="wf-heading">Enum props</h2>
+                            <h2 class="wf-heading" id="enum-props">Enum props</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">enum Tone { calm, loud }
 
@@ -342,7 +340,7 @@ page Notes(path: &quot;/&quot;) {
                             <div class="wf-markdown">
 <p>A component's enum props are written to its root element as <code>data-&lt;prop&gt;=&quot;&lt;case&gt;&quot;</code> — <code>data-tone=&quot;loud&quot;</code> — so a stylesheet can select on them: <code>.note[data-tone=&quot;loud&quot;] { font-weight: 700 }</code>.</p>
                             </div>
-                            <h2 class="wf-heading">Events</h2>
+                            <h2 class="wf-heading" id="events">Events</h2>
                             <div class="wf-markdown">
 <p>A component declares the events it fires with <code>event name(param: Type)</code>, fires them with <code>emit name(value)</code>, and the caller handles them with <code>on name(value) { }</code>:</p>
                             </div>
@@ -351,7 +349,7 @@ page Notes(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Todo { id: String, title: String, done: Bool = false }
 
@@ -380,7 +378,7 @@ page Todos(path: &quot;/&quot;) {
                             <div class="wf-markdown">
 <p>The checker holds <code>emit</code> to the declared parameters (<code>T09</code>) and a handler on a call to a declared event or a DOM event; a DOM event on a component call attaches to its root element.</p>
                             </div>
-                            <h2 class="wf-heading">Slots</h2>
+                            <h2 class="wf-heading" id="slots">Slots</h2>
                             <div class="wf-markdown">
 <p>A component places its caller's block with <code>children</code>, and may declare named slots the caller fills with <code>name { … }</code>:</p>
                             </div>
@@ -389,7 +387,7 @@ page Todos(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">component Panel(_ title: String) {
     slot
@@ -414,7 +412,7 @@ page Keys(path: &quot;/&quot;) {
                             <div class="wf-markdown">
 <p><code>slot</code> declares the default slot (<code>children</code>); <code>slot trailing</code> a named one. A fill is compiled in the caller's scope — it reads the caller's state and loop variables — and the component only decides where it lands. A page's <code>layout:</code> is a component with a default slot, called with the page as its block.</p>
                             </div>
-                            <h3 class="wf-heading">Scoped slots</h3>
+                            <h3 class="wf-heading" id="scoped-slots">Scoped slots</h3>
                             <div class="wf-markdown">
 <p>A slot may hand values to its fill. The component declares what it hands, uses the slot with those values by name, and the caller's fill names them in order:</p>
                             </div>
@@ -423,7 +421,7 @@ page Keys(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Todo { id: String, title: String, done: Bool = false }
 
@@ -448,7 +446,7 @@ page Use(path: &quot;/&quot;) {
                             <div class="wf-markdown">
 <p>The fill's names are typed by the declaration (<code>t</code> is a <code>Todo</code>), and the fill is drawn again when a value it is handed changes.</p>
                             </div>
-                            <h2 class="wf-heading">Parts</h2>
+                            <h2 class="wf-heading" id="parts">Parts</h2>
                             <div class="wf-markdown">
 <p>A component may declare parts — components of its own, called under its name, the way <code>Card.Header</code> is a part of <code>Card</code>:</p>
                             </div>
@@ -457,7 +455,7 @@ page Use(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">component Panel(_ title: String) {
     part Header(_ text: String) { Heading(text).h3 }
@@ -477,7 +475,7 @@ page Parts(path: &quot;/&quot;) {
                             <div class="wf-markdown">
 <p>A part is declared inside the component and has props, events and slots of its own; a part declares no parts.</p>
                             </div>
-                            <h2 class="wf-heading">Local state and actions</h2>
+                            <h2 class="wf-heading" id="local-state-and-actions">Local state and actions</h2>
                             <div class="wf-markdown">
 <p>A component has its own <code>state</code>, <code>derived</code>, <code>effect</code>, actions, timers and handles; each instance gets its own:</p>
                             </div>
@@ -486,7 +484,7 @@ page Parts(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">component Stepper(_ start: Number, step: Number = 1) {
     event change(value: Number)
@@ -501,7 +499,7 @@ page Parts(path: &quot;/&quot;) {
     }
 }</code>
                             </div>
-                            <h2 class="wf-heading">Using stores inside a component</h2>
+                            <h2 class="wf-heading" id="using-stores-inside-a-component">Using stores inside a component</h2>
                             <div class="wf-markdown">
 <p><code>use StoreName</code> brings a store into a component as it does a page:</p>
                             </div>
@@ -510,7 +508,7 @@ page Parts(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Cart {
     state items: [String] = []
@@ -528,7 +526,7 @@ page Shop(path: &quot;/&quot;) {
     Text(&quot;{Cart.items.length} in cart&quot;)
 }</code>
                             </div>
-                            <h2 class="wf-heading">Designing components</h2>
+                            <h2 class="wf-heading" id="designing-components">Designing components</h2>
                             <div class="wf-markdown">
 <p><strong>A value down, an event up.</strong> A component does not take <code>bind:</code>. To make a control of your own, take the value as a prop and fire an event when it should change; the caller decides what to do with it:</p>
                             </div>
@@ -537,7 +535,7 @@ page Shop(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">component Stepper(_ value: Number, label: String, min: Number = 0) {
     event change(value: Number)
@@ -555,14 +553,14 @@ page Booking(path: &quot;/&quot;, title: &quot;Booking&quot;, description: &quot
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p><strong>Handlers reach the root; classes and attributes do not.</strong> A DOM event handler on a call — <code>Chip(&quot;x&quot;) { on click { … } }</code> — attaches to the component's root element. A <code>class:</code>, an <code>id:</code> or an <code>aria-*</code> on the call is not forwarded: the component decides its own markup. When a caller needs to style or label it, declare the prop and place it yourself:</p>
+<p><strong>What a call puts on the root.</strong> A DOM event handler on a call — <code>Chip(&quot;x&quot;) { on click { … } }</code> — attaches to the component's root element, and so does an attribute the component takes no prop for: a <code>class:</code> (added to the root's own classes), <code>aria-*</code>, <code>data-*</code>, <code>id</code>, <code>role</code>, <code>title</code>, <code>hidden</code>. A component that declares a prop of that name receives it instead, and decides where it goes — declare it when the root is not the right element:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">component Chip(_ label: String, extra: String = &quot;&quot;, note: String = &quot;&quot;) {
     Badge(label, class: extra, aria-description: note)
@@ -639,11 +637,11 @@ page Chips(path: &quot;/&quot;, title: &quot;Chips&quot;, description: &quot;Sty
 <p><strong>Keep state where it is read.</strong> A component's own <code>state</code> is right for what only it cares about (an open menu, a hover). What the page or other components care about is a prop coming in and an event going out — or a store.</p>
 <p><strong>Document it.</strong> A <code>///</code> comment above the component, a prop or an event is shown on hover in the editor and in <code>wf docs</code>.</p>
                             </div>
-                            <h2 class="wf-heading">Other people&#x27;s code</h2>
+                            <h2 class="wf-heading" id="other-people-s-code">Other people&#x27;s code</h2>
                             <div class="wf-markdown">
 <p>A JavaScript library — a chart, a map, an editor — is called from a <code>.js</code> file under <code>src/</code> and handed an element with <code>mount:</code> and <code>cleanup:</code>; somebody else's custom element is placed with <code>Element(&quot;tag-name&quot;, …)</code>; and a component can be published as a custom element for another framework to place. Both are in <a href="/WebFluent/docs/guide/interop">JavaScript interop</a>.</p>
                             </div>
-                            <h2 class="wf-heading">Components in the static paint</h2>
+                            <h2 class="wf-heading" id="components-in-the-static-paint">Components in the static paint</h2>
                             <div class="wf-markdown">
 <p>A static build expands every component call into HTML at build time — its props substituted, its slots filled, its loops and branches over seeded state painted — so a page built from components is a real page before any script runs.</p>
                             </div>
@@ -716,7 +714,7 @@ page Chips(path: &quot;/&quot;, title: &quot;Chips&quot;, description: &quot;Sty
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>

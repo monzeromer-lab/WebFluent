@@ -32,7 +32,7 @@
     <script src="../../../pages/InteropGuide.js" data-wf-page="InteropGuide" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
@@ -41,13 +41,13 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.1</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
-                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -56,14 +56,12 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
@@ -206,9 +204,9 @@
                         <p class="wf-text num">34</p>
                         <p class="wf-text">Server rendering</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tutorials">
                         <p class="wf-text num">35</p>
-                        <p class="wf-text">Cookbook</p>
+                        <p class="wf-text">Tutorials</p>
                     </a>
                     <p class="wf-text group-label">Reference</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
@@ -275,8 +273,8 @@
                         <h1 class="wf-heading wf-sa3503382">JavaScript interop</h1>
                         <p class="wf-text wf-sfd35f593">Write plain JavaScript beside your pages and call it by name; load a library from a CDN; hand an element to a script and get it back; place custom elements; publish your components for any framework.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
-                        <div class="wf-stack wf-gap--lg">
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
 <p>WebFluent has no package manager of its own, and does not need one to use the JavaScript ecosystem. A <code>.js</code> file is part of the project the way a <code>.css</code> file is: put it under <code>src/</code> and its functions are there.</p>
                             </div>
@@ -339,7 +337,7 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <h2 class="wf-heading">Your own script</h2>
+                            <h2 class="wf-heading" id="your-own-script">Your own script</h2>
                             <div class="wf-markdown">
 <p>A plain browser script, written as any <code>&lt;script src&gt;</code> file is written — no <code>export</code>, no <code>import</code>, no build step:</p>
                             </div>
@@ -348,7 +346,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">js</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/tilt.js
 /**
@@ -374,7 +372,7 @@ function initTilt(node, max = 15) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Gallery(path: &quot;/gallery&quot;, title: &quot;Gallery&quot;, description: &quot;Cards that lean.&quot;) {
     state max = 15
@@ -400,7 +398,7 @@ function initTilt(node, max = 15) {
 </ul>
 <p><code>wf serve</code> rebuilds when a script changes, <code>wf audit</code> lists what each one declares, <code>wf types</code> prints each function's signature, and the editor completes, documents and jumps to them.</p>
                             </div>
-                            <h3 class="wf-heading">Types from JSDoc</h3>
+                            <h3 class="wf-heading" id="types-from-jsdoc">Types from JSDoc</h3>
                             <div class="wf-markdown">
 <p>JSDoc is a comment, so the file stays exactly what the browser runs. The checker reads it:</p>
                             </div>
@@ -498,7 +496,7 @@ function initTilt(node, max = 15) {
                             <div class="wf-markdown">
 <p>With no comment at all every parameter is <code>Any</code>, so adding a script never breaks a build; each tag only narrows what a call may pass.</p>
                             </div>
-                            <h3 class="wf-heading">A script reports; WebFluent owns the class</h3>
+                            <h3 class="wf-heading" id="a-script-reports-webfluent-owns-the-class">A script reports; WebFluent owns the class</h3>
                             <div class="wf-markdown">
 <p>When how an element looks depends on something only a script can see — an intersection, a scroll position, a library's event — hand the script an action. An action is a plain function at run time, and the class stays a <code>class:</code> the compiler can read:</p>
                             </div>
@@ -507,7 +505,7 @@ function initTilt(node, max = 15) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">js</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/visible.js
 /**
@@ -526,7 +524,7 @@ function watchVisible(node, onChange) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Story(path: &quot;/story&quot;, title: &quot;Story&quot;, description: &quot;It fades in.&quot;) {
     state visible = false
@@ -543,7 +541,7 @@ function watchVisible(node, onChange) {
                             <div class="wf-markdown">
 <p>One owner per class: a class <code>class:</code> names is WebFluent's, and a class a script adds with <code>classList.add</code> is the script's — <code>class:</code> only ever takes off what it put on.</p>
                             </div>
-                            <h2 class="wf-heading">A library from a CDN</h2>
+                            <h2 class="wf-heading" id="a-library-from-a-cdn">A library from a CDN</h2>
                             <div class="wf-markdown">
 <p>The compiler never fetches anything, so it cannot read a file on another origin. A library is a URL the config lists, and your own scripts use it:</p>
                             </div>
@@ -552,7 +550,7 @@ function watchVisible(node, onChange) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{ &quot;meta&quot;: {
     &quot;scripts&quot;: [&quot;https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js&quot;],
@@ -566,7 +564,7 @@ function watchVisible(node, onChange) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">js</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/charts.js
 /**
@@ -586,7 +584,7 @@ function drawSales(canvas, values) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Sales(path: &quot;/sales&quot;, title: &quot;Sales&quot;, description: &quot;How it is going.&quot;) {
     state values: [Number] = [12, 19, 7, 15]
@@ -606,7 +604,7 @@ function drawSales(canvas, values) {
 <li><strong>Calling it from <code>.wf</code> directly.</strong> <code>{ &quot;src&quot;: &quot;…&quot;, &quot;globals&quot;: [&quot;Chart&quot;] }</code> puts the names a library defines in scope, each <code>Any</code> — the compiler cannot see their shape. A class among them is constructed when called.</li>
 </ul>
                             </div>
-                            <h2 class="wf-heading">mount:, update:, cleanup: — on any element</h2>
+                            <h2 class="wf-heading" id="mount-update-cleanup-on-any-element">mount:, update:, cleanup: — on any element</h2>
                             <div class="wf-markdown">
 <p>Every element and every component call takes the three:</p>
 <ul>
@@ -618,7 +616,7 @@ function drawSales(canvas, values) {
 </ul>
 <p><code>Host</code> is the same lifetime on a bare node: <code>Host(tag: &quot;canvas&quot;, …)</code> makes the element a library wants — <code>div</code> by default, or <code>span</code>, <code>canvas</code>, <code>svg</code>, <code>section</code>, <code>figure</code>, <code>pre</code>, <code>p</code>, <code>ul</code>, <code>table</code>.</p>
                             </div>
-                            <h2 class="wf-heading">wf:render — for a script that finds elements itself</h2>
+                            <h2 class="wf-heading" id="wf-render-for-a-script-that-finds-elements-itself">wf:render — for a script that finds elements itself</h2>
                             <div class="wf-markdown">
 <p>The page is drawn after your scripts run, drawn again over a pre-rendered one, and drawn anew on every route, so a script that does its own <code>querySelectorAll</code> listens for the drawing to land:</p>
                             </div>
@@ -627,7 +625,7 @@ function drawSales(canvas, values) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">js</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/tilt-all.js
 document.addEventListener(&quot;wf:render&quot;, (e) =&gt; {
@@ -641,13 +639,13 @@ document.addEventListener(&quot;wf:render&quot;, (e) =&gt; {
                             <div class="wf-markdown">
 <p>It fires once per drawing, not for an <code>if</code> branch or a list item arriving later — that is what <code>mount:</code> is for.</p>
                             </div>
-                            <h2 class="wf-heading">Somebody else&#x27;s custom element</h2>
+                            <h2 class="wf-heading" id="somebody-else-s-custom-element">Somebody else&#x27;s custom element</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Pricing(path: &quot;/pricing&quot;, title: &quot;Pricing&quot;, description: &quot;Plans.&quot;) {
     state loaded = false
@@ -660,13 +658,13 @@ document.addEventListener(&quot;wf:render&quot;, (e) =&gt; {
                             <div class="wf-markdown">
 <p><code>Element</code> places any custom element by its tag — lower case, with a hyphen, as every custom element's is. A named argument is an attribute (<code>publishableKey</code> is written <code>publishable-key</code>) and follows state like any other value; an <code>on</code> handler hears the events it fires, whatever their names; the block is its children; <code>class:</code>, <code>style { }</code> and <code>mount:</code> work as on anything else. The script that defines it — your own, or one in <code>meta.scripts</code> — upgrades it when it runs.</p>
                             </div>
-                            <h2 class="wf-heading">Publishing your components as custom elements</h2>
+                            <h2 class="wf-heading" id="publishing-your-components-as-custom-elements">Publishing your components as custom elements</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{ &quot;build&quot;: { &quot;output_type&quot;: &quot;elements&quot;, &quot;elements&quot;: [&quot;PriceTag&quot;, &quot;Rating&quot;] } }</code>
                             </div>
@@ -678,7 +676,7 @@ document.addEventListener(&quot;wf:render&quot;, (e) =&gt; {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">html</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">&lt;script src=&quot;/elements.js&quot; defer&gt;&lt;/script&gt;
 &lt;link rel=&quot;stylesheet&quot; href=&quot;/styles.css&quot;&gt;
@@ -689,7 +687,7 @@ document.addEventListener(&quot;wf:render&quot;, (e) =&gt; {
 <p>An attribute is a prop, read when the element is connected and again whenever it changes: a <code>Number</code> prop is read as a number, a <code>Map</code> or a list as JSON, and a <code>Bool</code> is true when the attribute is present — as HTML reads <code>disabled</code> — and false when it is <code>=&quot;false&quot;</code>, so a framework that writes the string still works. An event the component declares is dispatched as a <code>CustomEvent</code> that bubbles. What the component created goes when the element leaves the document.</p>
 <p>React, Vue, Svelte, Angular, Rails, WordPress and a plain page can all place a tag. That is the whole reason this is the answer rather than an adapter per framework: <strong>the shared interface between frameworks is the platform.</strong></p>
                             </div>
-                            <h2 class="wf-heading">WF from a script of your own</h2>
+                            <h2 class="wf-heading" id="wf-from-a-script-of-your-own">WF from a script of your own</h2>
                             <div class="wf-markdown">
 <p>The runtime is <code>window.WF</code>: a script under <code>src/</code>, the console, or a library's callback can use it — <code>WF.navigate(&quot;/about&quot;)</code>, <code>WF.toast(&quot;Saved&quot;, &quot;success&quot;)</code>, <code>WF.storeSnapshot(&quot;Cart&quot;)</code>. The <a href="/WebFluent/docs/guide/runtime">runtime reference</a> lists every function.</p>
 <p>Two things to know:</p>
@@ -698,7 +696,7 @@ document.addEventListener(&quot;wf:render&quot;, (e) =&gt; {
 <li>A script from another origin must be listed in <code>meta.scripts</code>, which widens the policy for it. An inline <code>&lt;script&gt;</code> is refused by the build's CSP check (<a href="/WebFluent/docs/guide/security#content-security-policy">Security</a>).</li>
 </ul>
                             </div>
-                            <h2 class="wf-heading">Coming from external</h2>
+                            <h2 class="wf-heading" id="coming-from-external">Coming from external</h2>
                             <div class="wf-markdown">
 <p>WebFluent 4.1 described JavaScript with <code>external</code> declarations; 4.2 removed them. <code>wf migrate</code> rewrites a project: a remote module becomes a <code>meta.scripts</code> entry (its calls keep working, typed <code>Any</code>), a local module becomes a plain script under <code>src/</code> with its signatures as JSDoc and <code>X.f(…)</code> rewritten to <code>f(…)</code>, and <code>external element</code> call sites become <code>Element(&quot;tag-name&quot;, …)</code>.</p>
                             </div>
@@ -769,7 +767,7 @@ document.addEventListener(&quot;wf:render&quot;, (e) =&gt; {
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>

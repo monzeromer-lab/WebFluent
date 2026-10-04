@@ -32,7 +32,7 @@
     <script src="../../../pages/TypesGuide.js" data-wf-page="TypesGuide" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
@@ -41,13 +41,13 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.1</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
-                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -56,14 +56,12 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
@@ -206,9 +204,9 @@
                         <p class="wf-text num">34</p>
                         <p class="wf-text">Server rendering</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tutorials">
                         <p class="wf-text num">35</p>
-                        <p class="wf-text">Cookbook</p>
+                        <p class="wf-text">Tutorials</p>
                     </a>
                     <p class="wf-text group-label">Reference</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
@@ -275,12 +273,12 @@
                         <h1 class="wf-heading wf-sa3503382">Types</h1>
                         <p class="wf-text wf-sfd35f593">A gradual, structural type checker that changes no output and names every mistake with a hint.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
-                        <div class="wf-stack wf-gap--lg">
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
 <p>WebFluent has a gradual, structural type checker. It runs in <code>wf build</code> and in the editor, before anything is emitted, and its findings are errors with a hint. A program that declares no types checks as it always did — what the checker cannot resolve is <code>Any</code>, and <code>Any</code> agrees with everything — and every annotation you add narrows what it can say.</p>
                             </div>
-                            <h2 class="wf-heading">The type language</h2>
+                            <h2 class="wf-heading" id="the-type-language">The type language</h2>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">The type language</caption>
                                 <thead>
@@ -414,7 +412,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Typed(path: &quot;/&quot;) {
     state name: String = &quot;&quot;
@@ -428,7 +426,7 @@
     Button(&quot;Go&quot;) { on click { greet(name, count) } }
 }</code>
                             </div>
-                            <h2 class="wf-heading">The types the language brings with it</h2>
+                            <h2 class="wf-heading" id="the-types-the-language-brings-with-it">The types the language brings with it</h2>
                             <div class="wf-markdown">
 <p>Eleven more come with the language. Each is a <strong>plain JSON value at run time</strong> — no wrapper object — so it crosses a <code>fetch</code>, a <code>persist</code>, the static paint and the template engine unchanged; <code>.native()</code> hands a real platform object to a library that wants one.</p>
                             </div>
@@ -607,7 +605,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Booking {
     id: Uuid
@@ -733,7 +731,7 @@ page Stay(path: &quot;/&quot;, title: &quot;Stay&quot;, description: &quot;One b
                             <div class="wf-markdown">
 <p>Adding a month lands on a day that exists: <code>@2026-01-31.plus(months: 1)</code> is the 28th of February, not the 3rd of March. All of it runs at build time too, so the static paint shows the answer rather than a blank that fills in when the page hydrates.</p>
                             </div>
-                            <h3 class="wf-heading">A literal is held to its type</h3>
+                            <h3 class="wf-heading" id="a-literal-is-held-to-its-type">A literal is held to its type</h3>
                             <div class="wf-markdown">
 <p>A string written where one of these is wanted is read as one, and checked where it is written:</p>
                             </div>
@@ -742,12 +740,12 @@ page Stay(path: &quot;/&quot;, title: &quot;Stay&quot;, description: &quot;One b
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">state site: Url = &quot;https://example.com&quot;     // fine
 state bad: Url = &quot;example&quot;                  // T01: A URL has a scheme</code>
                             </div>
-                            <h3 class="wf-heading">now</h3>
+                            <h3 class="wf-heading" id="now">now</h3>
                             <div class="wf-markdown">
 <p><code>now</code> is a <code>DateTime</code> that keeps itself current — every minute by default, or as often as a page asks:</p>
                             </div>
@@ -756,7 +754,7 @@ state bad: Url = &quot;example&quot;                  // T01: A URL has a scheme
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Feed(path: &quot;/&quot;, title: &quot;Feed&quot;, description: &quot;What just happened.&quot;) {
     state posted: DateTime = @2026-03-14T09:30:00Z
@@ -765,7 +763,7 @@ state bad: Url = &quot;example&quot;                  // T01: A URL has a scheme
     Text(&quot;ticking: {now(every: 1.seconds)}&quot;)
 }</code>
                             </div>
-                            <h3 class="wf-heading">A condition on a type</h3>
+                            <h3 class="wf-heading" id="a-condition-on-a-type">A condition on a type</h3>
                             <div class="wf-markdown">
 <p>Any type may say what its values must be, and every value the compiler can read is held to it:</p>
                             </div>
@@ -774,7 +772,7 @@ state bad: Url = &quot;example&quot;                  // T01: A URL has a scheme
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">state nights: Number(1..=30) = 12
 state pass: String(minLength: 8) = &quot;correcthorse&quot;
@@ -783,7 +781,7 @@ state start: Date(after: @2026-01-01) = @2026-03-14</code>
                             <div class="wf-markdown">
 <p><code>min</code>, <code>max</code>, <code>minLength</code>, <code>maxLength</code>, <code>pattern</code>, <code>after</code>, <code>before</code>, and a range (<code>1..=30</code> inclusive, <code>0..10</code> exclusive of the end) for the two ends. A value that arrives at run time is validation's to refuse, from the same condition.</p>
                             </div>
-                            <h3 class="wf-heading">Secret is not a string</h3>
+                            <h3 class="wf-heading" id="secret-is-not-a-string">Secret is not a string</h3>
                             <div class="wf-markdown">
 <p>A <code>Secret</code> is a string the compiler will not let escape. Each of these is a <code>T12</code>:</p>
                             </div>
@@ -792,7 +790,7 @@ state start: Date(after: @2026-01-01) = @2026-03-14</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">state token: Secret = &quot;&quot;
 Text(token)                     // shown
@@ -803,17 +801,17 @@ log(token)                      // in the console, and often in a log service</c
                             <div class="wf-markdown">
 <p>Hold it in <code>state</code>, which the visit ends; what must outlive the visit belongs on the server.</p>
                             </div>
-                            <h3 class="wf-heading">Your own name wins</h3>
+                            <h3 class="wf-heading" id="your-own-name-wins">Your own name wins</h3>
                             <div class="wf-markdown">
 <p>A <code>type</code> the program declares takes the name back. A project with its own <code>type Color { name: String }</code> means that one everywhere.</p>
                             </div>
-                            <h2 class="wf-heading">Records: type</h2>
+                            <h2 class="wf-heading" id="records-type">Records: type</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">enum Tone { neutral, info, danger }
 
@@ -851,13 +849,13 @@ page Records(path: &quot;/&quot;) {
 <li>A <code>Map</code> fits any record and a record fits a <code>Map</code>: JSON from <code>fetch</code> fits a <code>type</code> it was never declared as.</li>
 </ul>
                             </div>
-                            <h2 class="wf-heading">Enums</h2>
+                            <h2 class="wf-heading" id="enums">Enums</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">enum Size { sm, md, lg }
 enum Status { idle, running(job: String), failed(reason: String), done(count: Number) }
@@ -883,7 +881,7 @@ page Enums(path: &quot;/&quot;) {
 <li><code>size == .lg</code> compares cases; an enum is written to a component's root as <code>data-&lt;prop&gt;</code> (<a href="/WebFluent/docs/guide/components#enum-props">chapter 11</a>).</li>
 </ul>
                             </div>
-                            <h2 class="wf-heading">Map literals are shapes</h2>
+                            <h2 class="wf-heading" id="map-literals-are-shapes">Map literals are shapes</h2>
                             <div class="wf-markdown">
 <p>A map literal has the fields it was written with: <code>{ name: &quot;&quot;, age: 0 }</code> is <code>{ name: String, age: Number }</code>, and reading <code>form.nam</code> is <code>T05</code> with the fields it does have. A shape fits a <code>Map</code>, a record with the same fields, and any shape it agrees with. <code>{}</code> and a literal with a spread are plain <code>Map</code>s.</p>
                             </div>
@@ -892,7 +890,7 @@ page Enums(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Shapes(path: &quot;/&quot;) {
     state form = { name: &quot;&quot;, age: 0, tags: [&quot;new&quot;] }
@@ -900,7 +898,7 @@ page Enums(path: &quot;/&quot;) {
     Text(&quot;{form.name} is {form.age} with {form.tags.length} tags&quot;)
 }</code>
                             </div>
-                            <h2 class="wf-heading">Where types come from</h2>
+                            <h2 class="wf-heading" id="where-types-come-from">Where types come from</h2>
                             <div class="wf-markdown">
 <p><strong>Declared</strong> — annotations, a <code>type</code>'s fields, an <code>enum</code>'s cases, a page's route parameters, an event's parameters, a component's props.</p>
 <p><strong>Inferred</strong> — a literal; a list of literals (<code>[1, 2]</code> is <code>[Number]</code>, <code>[]</code> is <code>[Any]</code>); a record construction; a <code>derived</code> from its expression; a <code>state</code> from its initial value (one that starts as <code>null</code> is <code>Any?</code>); a <code>for</code> binding from the list's element type; a <code>match</code> arm's binding; an <code>if let</code> binding; a lambda's parameters from what the method expects (<code>items.filter(t =&gt; …)</code> gives <code>t</code> the item type).</p>
@@ -909,7 +907,7 @@ page Enums(path: &quot;/&quot;) {
 <p><strong>From stores</strong> — <code>Todos.items</code> has the type of the store's state, <code>Todos.add</code> the signature of its action.</p>
 <p>Browser globals (<code>window</code>, <code>document</code>, <code>JSON</code>, <code>Math</code>, <code>Date</code>, …) are <code>Any</code>.</p>
                             </div>
-                            <h2 class="wf-heading">Inference is bidirectional</h2>
+                            <h2 class="wf-heading" id="inference-is-bidirectional">Inference is bidirectional</h2>
                             <div class="wf-markdown">
 <p>An expression is checked against the type its context wants when there is one, and its type is read off it otherwise:</p>
                             </div>
@@ -918,7 +916,7 @@ page Enums(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Row { id: Number, label: String, score: Number? }
 
@@ -943,7 +941,7 @@ page Infer(path: &quot;/&quot;) {
 <li><code>let { a, b } = m</code> and <code>let [x, y] = l</code> bind the fields and items.</li>
 </ul>
                             </div>
-                            <h2 class="wf-heading">Narrowing optionals</h2>
+                            <h2 class="wf-heading" id="narrowing-optionals">Narrowing optionals</h2>
                             <div class="wf-markdown">
 <p>A <code>T?</code> must be unwrapped before a field or method is read off it (<code>T04</code>). Each of these proves a name non-null within its branch:</p>
                             </div>
@@ -952,7 +950,7 @@ page Infer(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Todo { id: String, title: String, note: String? }
 
@@ -969,9 +967,9 @@ page Narrow(path: &quot;/&quot;) {
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Narrowing is flow-sensitive within a block: it holds in the branch the condition guards, not after it.</p>
+<p>Narrowing is flow-sensitive within a block: it holds in the branch the condition guards, not after it. A list narrows too: <code>xs.filter(x =&gt; x != null)</code> is a list of what is there, so a <code>[Todo?]</code> filtered that way is a <code>[Todo]</code> whose items need no <code>?.</code>.</p>
                             </div>
-                            <h2 class="wf-heading">Typing what comes from the network</h2>
+                            <h2 class="wf-heading" id="typing-what-comes-from-the-network">Typing what comes from the network</h2>
                             <div class="wf-markdown">
 <p><code>fetch</code> returns <code>Any</code>. Annotate the resource or the local to type its value:</p>
                             </div>
@@ -980,7 +978,7 @@ page Narrow(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Deploy { id: String, status: String, startedAt: String }
 
@@ -998,7 +996,7 @@ page Deploys(path: &quot;/&quot;) {
                             <div class="wf-markdown">
 <p>The checker trusts the annotation: it cannot see what a URL will return. When the server publishes an OpenAPI specification, let the compiler read it instead — <code>api Backend from &quot;openapi.json&quot;</code> types every endpoint, parameter, response and error from the file, and turns each named schema into a <code>type</code> (<a href="/WebFluent/docs/guide/data#from-a-specification">Data and APIs</a>). An <code>api</code> written by hand types its calls the same way: <code>get users() -&gt; [User]</code>.</p>
                             </div>
-                            <h2 class="wf-heading">The checks</h2>
+                            <h2 class="wf-heading" id="the-checks">The checks</h2>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">The checks</caption>
                                 <thead>
@@ -1134,7 +1132,7 @@ page Deploys(path: &quot;/&quot;) {
 <p>Each comes with a hint: a conversion (<code>Number(value)</code>, <code>&quot;{value}&quot;</code>), the cases an enum takes, the fields a record has, the unwrapping forms above.</p>
 <p>What the checker does not do: it does not check a lambda's body against a return type, does not change a name's type across assignments (<code>state x = 1</code> stays a <code>Number</code>; assigning a string to it is <code>T01</code>), and does not know what a plain <code>fetch</code> returns (annotate it, or use an <code>api</code>).</p>
                             </div>
-                            <h2 class="wf-heading">In the editor</h2>
+                            <h2 class="wf-heading" id="in-the-editor">In the editor</h2>
                             <div class="wf-markdown">
 <p>Hover shows a name's inferred type (<code>state draft: String</code>, <code>derived remaining: Number</code>, <code>Todos.add: action(String)</code>); completion after <code>.</code> offers a record's fields, an enum's cases where one is wanted, and the methods of a <code>String</code>, a <code>Number</code> or a list. A type error is a diagnostic at the argument it belongs to. <a href="/WebFluent/docs/guide/cli#editors">Chapter 37</a> sets it up.</p>
                             </div>
@@ -1208,7 +1206,7 @@ page Deploys(path: &quot;/&quot;) {
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>

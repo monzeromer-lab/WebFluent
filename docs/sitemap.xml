@@ -169,6 +169,15 @@
     <loc>https://monzeromer-lab.github.io/WebFluent/docs/reference/blockquote</loc>
   </url>
   <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/reference/chart</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/reference/qrcode</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/reference/tableofcontents</loc>
+  </url>
+  <url>
     <loc>https://monzeromer-lab.github.io/WebFluent/docs/reference/document</loc>
   </url>
   <url>
@@ -182,6 +191,12 @@
   </url>
   <url>
     <loc>https://monzeromer-lab.github.io/WebFluent/docs/reference/footer</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/reference/background</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/reference/watermark</loc>
   </url>
   <url>
     <loc>https://monzeromer-lab.github.io/WebFluent/docs/reference/pagebreak</loc>
@@ -310,7 +325,7 @@
     <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/server-rendering</loc>
   </url>
   <url>
-    <loc>https://monzeromer-lab.github.io/WebFluent/docs/cookbook</loc>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/tutorials</loc>
   </url>
   <url>
     <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/cli</loc>

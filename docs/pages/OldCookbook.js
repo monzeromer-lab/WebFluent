@@ -1,0 +1,2 @@
+function Page_OldCookbook(params){const _root=document.createDocumentFragment();const _e440=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("ch.35"));_root.appendChild(_e440);const _e441=WF.el("a",{className:"wf-link",href:WF._basePath+"/docs/tutorials"},()=>WF.i18n.t("ch.35"));WF.activeLink(_e441,"/docs/tutorials",false);_root.appendChild(_e441);return _root;}
+WF.page("OldCookbook",Page_OldCookbook);

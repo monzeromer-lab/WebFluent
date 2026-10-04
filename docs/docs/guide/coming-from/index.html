@@ -32,7 +32,7 @@
     <script src="../../../pages/ComingFromGuide.js" data-wf-page="ComingFromGuide" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
@@ -41,13 +41,13 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.1</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
-                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -56,14 +56,12 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
@@ -206,9 +204,9 @@
                         <p class="wf-text num">34</p>
                         <p class="wf-text">Server rendering</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tutorials">
                         <p class="wf-text num">35</p>
-                        <p class="wf-text">Cookbook</p>
+                        <p class="wf-text">Tutorials</p>
                     </a>
                     <p class="wf-text group-label">Reference</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
@@ -275,12 +273,12 @@
                         <h1 class="wf-heading wf-sa3503382">Coming from React, Vue or Svelte</h1>
                         <p class="wf-text wf-sfd35f593">What you already know, mapped to what is here — and the few places WebFluent works differently.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
-                        <div class="wf-stack wf-gap--lg">
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
 <p>If you have built with a JavaScript framework, most of WebFluent will feel familiar: components with props, reactive state, a router, a store. This chapter maps those ideas across, then lists what is genuinely different.</p>
                             </div>
-                            <h2 class="wf-heading">The map</h2>
+                            <h2 class="wf-heading" id="the-map">The map</h2>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">The map</caption>
                                 <thead>
@@ -659,7 +657,7 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <h2 class="wf-heading">The same component, three ways</h2>
+                            <h2 class="wf-heading" id="the-same-component-three-ways">The same component, three ways</h2>
                             <div class="wf-markdown">
 <p>React:</p>
                             </div>
@@ -668,7 +666,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">jsx</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">function Counter({ start = 0, onChange }) {
   const [n, setN] = useState(start);
@@ -690,7 +688,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">component Counter(start: Number = 0) {
     event change(value: Number)
@@ -706,7 +704,7 @@
                             <div class="wf-markdown">
 <p>What changed: no hooks and no dependency arrays — <code>derived</code> knows what it read. No setter — you assign. No <code>className</code> — <code>Badge</code> is designed, and <code>.info</code> is a flag the compiler checks. The event is declared, so a caller handling <code>on chnage</code> is an error, not a handler that never runs.</p>
                             </div>
-                            <h2 class="wf-heading">What is genuinely different</h2>
+                            <h2 class="wf-heading" id="what-is-genuinely-different">What is genuinely different</h2>
                             <div class="wf-markdown">
 <p><strong>It is a compiler, not a library.</strong> There is no virtual DOM and no re-render of a component. Each text, attribute or style that reads a state subscribes to it and updates alone. A component's body runs once, when it is placed.</p>
 <p><strong>The markup is typed.</strong> A built-in's props, flags, events and slots are known to the compiler, and so are yours. <code>Button(&quot;Save&quot;).primray</code> does not build. There is no &quot;any prop goes through to the DOM&quot; — an unknown named argument becomes an HTML attribute with a warning, unless it is <code>aria-*</code>, <code>data-*</code> or a global attribute.</p>
@@ -716,7 +714,7 @@
 <p><strong>The build is the site.</strong> Pre-rendering, code splitting, precompression, image resizing, a sitemap, Open Graph, a CSP — all from <code>wf build</code>, with no plugins to choose.</p>
 <p><strong>Safe by construction.</strong> Text is always text; the only way to inject markup is <code>Unsafe.Html(…)</code>, which the build flags every time. Inline handlers and <code>javascript:</code> URLs do not compile. See <a href="/WebFluent/docs/guide/security">Security</a>.</p>
                             </div>
-                            <h2 class="wf-heading">Things you might look for</h2>
+                            <h2 class="wf-heading" id="things-you-might-look-for">Things you might look for</h2>
                             <div class="wf-markdown">
 <ul>
 <li><strong>npm packages.</strong> There is no package manager for WebFluent code. A JavaScript library is a URL in <code>meta.scripts</code>; your own JavaScript is a plain <code>.js</code> file under <code>src/</code>, whose functions <code>.wf</code> code calls by name; and <code>mount:</code>/<code>cleanup:</code> hand any element to a script with a lifetime. <a href="/WebFluent/docs/guide/interop">JavaScript interop</a> shows a chart library end to end.</li>
@@ -788,7 +786,7 @@
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>

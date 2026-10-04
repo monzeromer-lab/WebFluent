@@ -32,7 +32,7 @@
     <script src="../../../pages/GrammarGuide.js" data-wf-page="GrammarGuide" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
@@ -41,13 +41,13 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.1</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
-                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -56,14 +56,12 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
@@ -206,9 +204,9 @@
                         <p class="wf-text num">34</p>
                         <p class="wf-text">Server rendering</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tutorials">
                         <p class="wf-text num">35</p>
-                        <p class="wf-text">Cookbook</p>
+                        <p class="wf-text">Tutorials</p>
                     </a>
                     <p class="wf-text group-label">Reference</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
@@ -275,20 +273,20 @@
                         <h1 class="wf-heading wf-sa3503382">Grammar</h1>
                         <p class="wf-text wf-sfd35f593">Every keyword and where it may appear, the shapes of declarations, statements and expressions, operators and precedence, and the literals.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
-                        <div class="wf-stack wf-gap--lg">
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
 <p>A compact map of what the parser accepts. The chapters say what each form means; this page says where it may be written.</p>
                             </div>
-                            <h2 class="wf-heading">Words</h2>
+                            <h2 class="wf-heading" id="words">Words</h2>
                             <div class="wf-markdown">
 <p>No word is reserved. <code>page</code>, <code>state</code>, <code>type</code> and the rest are keywords only where a statement starts, so every one of them is also usable as a map key (<code>{ action: &quot;approve&quot;, type: &quot;a&quot; }</code>), a field name or a parameter. Declarations are lowercase; elements and the names declarations introduce are capitalised; everything else is camelCase.</p>
                             </div>
-                            <h2 class="wf-heading">Keywords</h2>
+                            <h2 class="wf-heading" id="keywords">Keywords</h2>
                             <div class="wf-markdown">
 <p>Where a statement starts, these words have meaning: <code>page</code>, <code>component</code>, <code>store</code>, <code>app</code>, <code>theme</code>, <code>type</code>, <code>enum</code>, <code>api</code>, <code>const</code>, <code>data</code>, <code>image</code>, <code>animation</code> and <code>test</code> at the top of a file; <code>state</code>, <code>persist</code>, <code>derived</code>, <code>effect</code>, <code>cleanup</code>, <code>action</code>, <code>use</code>, <code>resource</code>, <code>validate</code>, <code>socket</code>, <code>stream</code>, <code>channel</code>, <code>peer</code>, <code>every</code>, <code>after</code>, <code>on key</code>, <code>head</code>, <code>if</code>, <code>if let</code>, <code>for</code>, <code>show</code>, <code>match</code>, <code>sequence</code> and <code>step</code> in a render block; <code>slot</code>, <code>event</code>, <code>part</code> and <code>children</code> in a component; <code>let</code>, <code>return</code>, <code>try</code>, <code>catch</code>, <code>await</code> and <code>emit</code> in an action; <code>expect</code>, <code>click</code>, <code>type</code>, <code>press</code> in a test. Everywhere else they are ordinary names.</p>
                             </div>
-                            <h2 class="wf-heading">Declarations</h2>
+                            <h2 class="wf-heading" id="declarations">Declarations</h2>
                             <div class="wf-markdown">
 <p>At the top of a file, and nowhere else:</p>
                             </div>
@@ -297,7 +295,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Name(path: &quot;/&quot;, title: …, description: …, image: …, type: …, noindex: …,
           layout: Component(…), guard: expr, redirect: &quot;/…&quot;, paths: expr,
@@ -319,7 +317,7 @@ test &quot;name&quot;(data: { … }) { render block and test steps }</code>
                             <div class="wf-markdown">
 <p>A <code>///</code> comment before a declaration, a prop, a field, an event or an endpoint is its documentation.</p>
                             </div>
-                            <h2 class="wf-heading">Render blocks</h2>
+                            <h2 class="wf-heading" id="render-blocks">Render blocks</h2>
                             <div class="wf-markdown">
 <p>A page, a component, the app, a test and every element's children:</p>
                             </div>
@@ -494,7 +492,7 @@ test &quot;name&quot;(data: { … }) { render block and test steps }</code>
                                     </tr>
                                 </tbody>
                             </table>
-                            <h2 class="wf-heading">Component bodies</h2>
+                            <h2 class="wf-heading" id="component-bodies">Component bodies</h2>
                             <div class="wf-markdown">
 <p>A component's body is a render block, plus:</p>
                             </div>
@@ -503,7 +501,7 @@ test &quot;name&quot;(data: { … }) { render block and test steps }</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">slot                                  the default slot, placed with `children`
 slot name                             a named slot
@@ -511,7 +509,7 @@ slot name(value: Type, …)             a scoped slot
 event name(param: Type, …)            an event it fires with `emit`
 part Name(props) { render block }     a part, called as `Component.Name`</code>
                             </div>
-                            <h2 class="wf-heading">Element blocks</h2>
+                            <h2 class="wf-heading" id="element-blocks">Element blocks</h2>
                             <div class="wf-markdown">
 <p>In this order, each optional:</p>
                             </div>
@@ -520,7 +518,7 @@ part Name(props) { render block }     a part, called as `Component.Name`</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Name(…).flags {
     style { declarations }
@@ -530,7 +528,7 @@ part Name(props) { render block }     a part, called as `Component.Name`</code>
     children
 }</code>
                             </div>
-                            <h2 class="wf-heading">Imperative blocks</h2>
+                            <h2 class="wf-heading" id="imperative-blocks">Imperative blocks</h2>
                             <div class="wf-markdown">
 <p>Actions, handlers, effects, timers and hooks:</p>
                             </div>
@@ -617,13 +615,13 @@ part Name(props) { render block }     a part, called as `Component.Name`</code>
                                     </tr>
                                 </tbody>
                             </table>
-                            <h2 class="wf-heading">Style blocks and themes</h2>
+                            <h2 class="wf-heading" id="style-blocks-and-themes">Style blocks and themes</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">style {
     property: raw css value               to the end of the line, a `;`, or two spaces and the next declaration
@@ -636,11 +634,11 @@ part Name(props) { render block }     a part, called as `Component.Name`</code>
                             <div class="wf-markdown">
 <p>A theme's body is the same declarations, without nesting.</p>
                             </div>
-                            <h2 class="wf-heading">Test steps</h2>
+                            <h2 class="wf-heading" id="test-steps">Test steps</h2>
                             <div class="wf-markdown">
 <p>In a <code>test</code>, beside render statements: <code>expect &quot;text&quot;</code>, <code>expect not &quot;text&quot;</code>, <code>click &quot;name&quot;</code>, <code>type &quot;text&quot; into &quot;name&quot;</code>, <code>press &quot;Key&quot;</code>, <code>press &quot;Key&quot; in &quot;name&quot;</code>.</p>
                             </div>
-                            <h2 class="wf-heading">Expressions</h2>
+                            <h2 class="wf-heading" id="expressions">Expressions</h2>
                             <div class="wf-markdown">
 <p>From weakest to strongest binding:</p>
                             </div>
@@ -739,7 +737,7 @@ part Name(props) { render block }     a part, called as `Component.Name`</code>
 <p>So <code>1..n + 1</code> is <code>1..(n + 1)</code>, and <code>a ?? b || c</code> is <code>a ?? (b || c)</code>.</p>
 <p>Values that are expressions: <code>if c { a } else { b }</code> (<code>null</code> when there is no <code>else</code> and <code>c</code> fails), <code>if let x = v { a } else { b }</code>, <code>match v { .case { a } else { b } }</code>, lambdas <code>x =&gt; expr</code>, <code>(a, b) =&gt; expr</code>, <code>() =&gt; expr</code>, spreads <code>...x</code> in a list or map.</p>
                             </div>
-                            <h2 class="wf-heading">Literals</h2>
+                            <h2 class="wf-heading" id="literals">Literals</h2>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">Literals</caption>
                                 <thead>
@@ -839,11 +837,11 @@ part Name(props) { render block }     a part, called as `Component.Name`</code>
                                     </tr>
                                 </tbody>
                             </table>
-                            <h2 class="wf-heading">Comments</h2>
+                            <h2 class="wf-heading" id="comments">Comments</h2>
                             <div class="wf-markdown">
 <p><code>// to the end of the line</code>, <code>/* across lines */</code>, and <code>///</code> documentation.</p>
                             </div>
-                            <h2 class="wf-heading">Layout</h2>
+                            <h2 class="wf-heading" id="layout">Layout</h2>
                             <div class="wf-markdown">
 <p>A <code>.wf</code> file writes blocks in braces. A <code>.wfx</code> file writes them by indentation: a line indented deeper than the one before opens a block, a dedent closes it, and braces written by hand still work inside a line (<a href="/WebFluent/docs/guide/language-basics#two-layouts-wf-and-wfx">chapter 5</a>). Statements need no separator; on one line, a <code>;</code> or two spaces reads best.</p>
                             </div>
@@ -919,7 +917,7 @@ part Name(props) { render block }     a part, called as `Component.Name`</code>
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>

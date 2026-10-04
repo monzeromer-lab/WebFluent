@@ -32,7 +32,7 @@
     <script src="../../../pages/BuiltInsGuide.js" data-wf-page="BuiltInsGuide" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
@@ -41,13 +41,13 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.1</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
-                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -56,14 +56,12 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
@@ -206,9 +204,9 @@
                         <p class="wf-text num">34</p>
                         <p class="wf-text">Server rendering</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tutorials">
                         <p class="wf-text num">35</p>
-                        <p class="wf-text">Cookbook</p>
+                        <p class="wf-text">Tutorials</p>
                     </a>
                     <p class="wf-text group-label">Reference</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
@@ -275,9 +273,9 @@
                         <h1 class="wf-heading wf-sa3503382">Built-ins</h1>
                         <p class="wf-text wf-sfd35f593">Every function, browser value, method and global the language gives a program, in one place.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
-                        <div class="wf-stack wf-gap--lg">
-                            <h2 class="wf-heading">Functions</h2>
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
+                            <h2 class="wf-heading" id="functions">Functions</h2>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">Functions</caption>
                                 <thead>
@@ -490,7 +488,7 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <h2 class="wf-heading">Browser values</h2>
+                            <h2 class="wf-heading" id="browser-values">Browser values</h2>
                             <div class="wf-markdown">
 <p>Always in scope and kept current; a <code>state</code> of the same name shadows one.</p>
                             </div>
@@ -601,7 +599,7 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <h2 class="wf-heading">String methods</h2>
+                            <h2 class="wf-heading" id="string-methods">String methods</h2>
                             <div class="wf-markdown">
 <p><code>length</code>, <code>trim()</code>, <code>trimStart()</code>, <code>trimEnd()</code>, <code>toLowerCase()</code>, <code>toUpperCase()</code>, <code>includes(s)</code>, <code>startsWith(s)</code>, <code>endsWith(s)</code>, <code>indexOf(s)</code>, <code>lastIndexOf(s)</code>, <code>slice(a, b)</code>, <code>substring(a, b)</code>, <code>charAt(i)</code>, <code>at(i)</code>, <code>replace(a, b)</code>, <code>replaceAll(a, b)</code>, <code>split(sep)</code>, <code>padStart(n, c)</code>, <code>padEnd(n, c)</code>, <code>repeat(n)</code>, <code>normalize()</code>, <code>localeCompare(other)</code>, <code>match(re)</code>, <code>search(re)</code> — the browser's — and WebFluent's own:</p>
                             </div>
@@ -660,7 +658,7 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <h2 class="wf-heading">List methods</h2>
+                            <h2 class="wf-heading" id="list-methods">List methods</h2>
                             <div class="wf-markdown">
 <p><code>length</code>, <code>map(f)</code>, <code>filter(f)</code>, <code>find(f)</code>, <code>findIndex(f)</code>, <code>some(f)</code>, <code>every(f)</code>, <code>includes(x)</code>, <code>indexOf(x)</code>, <code>reduce(f, init)</code>, <code>join(sep)</code>, <code>slice(a, b)</code>, <code>concat(other)</code>, <code>reverse()</code>, <code>sort(f)</code>, <code>flatMap(f)</code> — the browser's; <code>push(x)</code> in an action — and WebFluent's own:</p>
                             </div>
@@ -742,11 +740,11 @@
                             <div class="wf-markdown">
 <p>Every helper runs at build time too, so a static page shows its result.</p>
                             </div>
-                            <h2 class="wf-heading">Number methods</h2>
+                            <h2 class="wf-heading" id="number-methods">Number methods</h2>
                             <div class="wf-markdown">
 <p><code>toFixed(n)</code>, <code>toString()</code>. Convert with <code>Number(&quot;12&quot;)</code> and <code>String(n)</code>, or <code>&quot;{n}&quot;</code>; round with <code>Math.round</code>, <code>Math.floor</code>, <code>Math.max</code> and the rest.</p>
                             </div>
-                            <h2 class="wf-heading">The built-in types</h2>
+                            <h2 class="wf-heading" id="the-built-in-types">The built-in types</h2>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">The built-in types</caption>
                                 <thead>
@@ -929,7 +927,7 @@
                             <div class="wf-markdown">
 <p><code>.plus</code> and <code>.minus</code> take <code>years</code>, <code>months</code>, <code>weeks</code>, <code>days</code>, <code>hours</code>, <code>minutes</code>, <code>seconds</code> and <code>ms</code>. Durations are written with <code>ms</code>, <code>seconds</code>, <code>minutes</code>, <code>hours</code>, <code>days</code> and <code>weeks</code>. <a href="/WebFluent/docs/guide/types#the-types-the-language-brings-with-it">Chapter 13</a> has the rest.</p>
                             </div>
-                            <h2 class="wf-heading">Browser globals</h2>
+                            <h2 class="wf-heading" id="browser-globals">Browser globals</h2>
                             <div class="wf-markdown">
 <p>These compile to themselves, with no prefix: <code>window</code>, <code>document</code>, <code>console</code>, <code>navigator</code>, <code>location</code>, <code>localStorage</code>, <code>sessionStorage</code>, <code>JSON</code>, <code>Math</code>, <code>Date</code>, <code>setTimeout</code>, <code>setInterval</code>, <code>clearTimeout</code>, <code>clearInterval</code>, <code>parseInt</code>, <code>parseFloat</code>, <code>Array</code>, <code>Object</code>, <code>String</code>, <code>Number</code>, <code>Boolean</code>, <code>Promise</code>, <code>Error</code>, <code>Map</code>, <code>Set</code>, <code>RegExp</code>, <code>Infinity</code>, <code>NaN</code>, <code>undefined</code>, <code>encodeURIComponent</code>, <code>decodeURIComponent</code>, <code>encodeURI</code>, <code>decodeURI</code>, <code>atob</code>, <code>btoa</code>, <code>alert</code>, <code>confirm</code>, <code>prompt</code>, <code>requestAnimationFrame</code>, <code>cancelAnimationFrame</code>, <code>history</code>, <code>screen</code>, <code>performance</code>, <code>crypto</code>, <code>globalThis</code>, <code>Intl</code>, <code>Symbol</code>, <code>Reflect</code>, <code>URL</code>, <code>URLSearchParams</code>, <code>FormData</code>, <code>Blob</code>, <code>File</code>, <code>FileReader</code>, <code>Event</code>, <code>CustomEvent</code>, <code>AbortController</code>, <code>TextEncoder</code>, <code>TextDecoder</code>, <code>Notification</code>, <code>matchMedia</code>, <code>getComputedStyle</code>, <code>structuredClone</code>, <code>queueMicrotask</code>. The checker types them as <code>Any</code>, and a name the program declares itself wins over them.</p>
                             </div>
@@ -999,7 +997,7 @@
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>

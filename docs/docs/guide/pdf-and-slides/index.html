@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF and slides</title>
-    <meta name="description" content="PDF documents and slide decks: configuration, the document and slide elements, what renders, styling, and templates for them.">
+    <meta name="description" content="PDF documents and slide decks — the paged engine, CSS layout, fonts, Arabic, headers, page numbers, contents, charts and QR codes.">
     <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/pdf-and-slides">
     <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/pdf-and-slides?lang=en">
     <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/pdf-and-slides?lang=ar">
@@ -12,15 +12,15 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="PDF and slides">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="PDF documents and slide decks: configuration, the document and slide elements, what renders, styling, and templates for them.">
+    <meta property="og:description" content="PDF documents and slide decks — the paged engine, CSS layout, fonts, Arabic, headers, page numbers, contents, charts and QR codes.">
     <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/docs/guide/pdf-and-slides">
     <meta property="og:locale" content="en">
     <meta property="og:image" content="https://monzeromer-lab.github.io/WebFluent/og.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="PDF and slides">
-    <meta name="twitter:description" content="PDF documents and slide decks: configuration, the document and slide elements, what renders, styling, and templates for them.">
+    <meta name="twitter:description" content="PDF documents and slide decks — the paged engine, CSS layout, fonts, Arabic, headers, page numbers, contents, charts and QR codes.">
     <meta name="twitter:image" content="https://monzeromer-lab.github.io/WebFluent/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/pdf-and-slides#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/pdf-and-slides","name":"PDF and slides","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"PDF documents and slide decks: configuration, the document and slide elements, what renders, styling, and templates for them."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/pdf-and-slides#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"PDF and slides","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/pdf-and-slides"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/pdf-and-slides#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/pdf-and-slides","name":"PDF and slides","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"PDF documents and slide decks — the paged engine, CSS layout, fonts, Arabic, headers, page numbers, contents, charts and QR codes."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/pdf-and-slides#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"PDF and slides","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/pdf-and-slides"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/WebFluent/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/WebFluent/apple-touch-icon.png">
@@ -32,7 +32,7 @@
     <script src="../../../pages/PdfAndSlidesGuide.js" data-wf-page="PdfAndSlidesGuide" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
@@ -41,13 +41,13 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.1</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
-                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -56,14 +56,12 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
@@ -206,9 +204,9 @@
                         <p class="wf-text num">34</p>
                         <p class="wf-text">Server rendering</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tutorials">
                         <p class="wf-text num">35</p>
-                        <p class="wf-text">Cookbook</p>
+                        <p class="wf-text">Tutorials</p>
                     </a>
                     <p class="wf-text group-label">Reference</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
@@ -273,10 +271,10 @@
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s28a8547f">
                         <h1 class="wf-heading wf-sa3503382">PDF and slides</h1>
-                        <p class="wf-text wf-sfd35f593">The same language, compiled to a paginated PDF document or a slide deck — invoices, reports and talks.</p>
+                        <p class="wf-text wf-sfd35f593">The same language, compiled to a paginated PDF document or a slide deck — invoices, reports and talks, laid out like the web.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
-                        <div class="wf-stack wf-gap--lg">
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
 <p>The same language compiles to paper. <code>build.output_type</code> in <code>webfluent.app.json</code> chooses what <code>wf build</code> writes:</p>
                             </div>
@@ -349,15 +347,26 @@
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>The PDF is written by the compiler itself — PDF 1.7, the standard PDF fonts, no browser and no external tool — so a document builds anywhere <code>wf</code> runs. To produce one PDF per invoice from data, use <a href="/WebFluent/docs/guide/server-rendering">server rendering</a> with the same templates.</p>
+<p>To produce one PDF per invoice from data, use <a href="/WebFluent/docs/guide/server-rendering">server rendering</a> with the same templates.</p>
                             </div>
-                            <h2 class="wf-heading">PDF documents</h2>
+                            <h2 class="wf-heading" id="the-engine">The engine</h2>
+                            <div class="wf-markdown">
+<p>A PDF is the page, printed. The compiler renders the program to the same static HTML and CSS a template renders, then lays that out on paper itself — no browser, no external tool:</p>
+<ul>
+<li><strong>The page's own stylesheet.</strong> The engine's rules for every built-in, the theme's tokens, every <code>.css</code> file under <code>src/</code> and every <code>style { }</code> block, through a real CSS cascade: selectors with descendant, child and sibling combinators, attribute selectors, <code>:first-child</code>/<code>:nth-child</code>, <code>:not()</code>, <code>:is()</code> and <code>:where()</code>, specificity, inheritance, <code>var()</code>, <code>em</code>, <code>rem</code> and <code>%</code>. A <code>Card</code> in a PDF looks like the <code>Card</code> on the page, and a class of your own (<code>class: &quot;callout&quot;</code>) brings its rules with it. <code>@media print</code> applies; rules only a screen has (<code>:hover</code>, a media query on width) do not.</li>
+<li><strong>Layout.</strong> Block, flex and grid as CSS defines them — <code>Row</code>, <code>Stack</code>, <code>Grid</code> and <code>Column</code> side by side exactly as on the web — with absolute positioning, <code>gap</code>, <code>min-</code>/<code>max-</code> sizes, <code>aspect-ratio</code>, inline-blocks on a line of text (a badge in a sentence), tables sized by their content, and list markers.</li>
+<li><strong>Text.</strong> Every run shaped (ligatures, kerning, Arabic joining, combining marks), set right to left where the language is, broken at Unicode's line-break opportunities, aligned or justified. A word too long for its line is cut rather than overflowing.</li>
+<li><strong>Paint.</strong> Backgrounds (colours, linear and radial gradients with any number of stops, pictures), borders per side (solid, dashed, dotted) with rounded corners, shadows, opacity, <code>overflow: hidden</code>, <code>transform: rotate()</code>, and pictures with their transparency — PNG, JPEG (embedded as it is), WebP, GIF and SVG, which stays vector.</li>
+<li><strong>The file.</strong> Fonts embedded as subsets with the text attached, so a reader copies and searches it; compressed; with its title and author; an outline of its headings in the reader's sidebar; links that work.</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading" id="pdf-documents">PDF documents</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{
   &quot;build&quot;: {
@@ -373,14 +382,14 @@
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>A PDF page holds a <code>Document</code> with a body of the document components:</p>
+<p>A PDF page holds a <code>Document</code>; everything inside it flows from page to page:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Line { item: String, qty: Number, price: Number }
 
@@ -391,55 +400,117 @@ const LINES: [Line] = [
 
 page Invoice(path: &quot;/&quot;, title: &quot;Invoice&quot;, description: &quot;An invoice.&quot;) {
     derived total = LINES.reduce((sum, l) =&gt; sum + l.qty * l.price, 0)
-    Document(page_size: &quot;A4&quot;) {
-        Header { Text(&quot;Acme Studio&quot;).muted.sm.right }
-        Footer { Text(&quot;Page footer — thank you for your business&quot;).muted.sm.center }
-        Section {
-            Heading(&quot;Invoice #2026-014&quot;).h1
-            Text(&quot;Issued {format(&quot;2026-09-01&quot;, .date, &quot;long&quot;)}&quot;)
-            Spacer
-            Table {
-                Table.Head {
-                    Table.Row { Table.Cell(&quot;Item&quot;)  Table.Cell(&quot;Qty&quot;)  Table.Cell(&quot;Price&quot;)  Table.Cell(&quot;Amount&quot;) }
-                }
-                Table.Body {
-                    for l in LINES {
-                        Table.Row {
-                            Table.Cell(l.item)
-                            Table.Cell(&quot;{l.qty}&quot;)
-                            Table.Cell(format(l.price, .currency))
-                            Table.Cell(format(l.qty * l.price, .currency))
-                        }
+    Document(size: &quot;A4&quot;, title: &quot;Invoice 2026-014&quot;, author: &quot;Acme Studio&quot;) {
+        Header(on: .rest) { Text(&quot;Acme Studio · invoice 2026-014&quot;).muted.sm.right }
+        Footer { Text(&quot;Page {page} of {pages}&quot;).muted.sm.center }
+        Watermark(&quot;PAID&quot;)
+
+        Row(justify: .between, align: .start) {
+            Heading(&quot;Invoice&quot;).h1
+            Stack(gap: .xs) {
+                Text(&quot;No. 2026-014&quot;).bold
+                Text(&quot;Issued {format(&quot;2026-09-01&quot;, .date, &quot;long&quot;)}&quot;).muted
+            }
+        }
+        Table {
+            Table.Head {
+                Table.Row { Table.Cell(&quot;Item&quot;)  Table.Cell(&quot;Qty&quot;)  Table.Cell(&quot;Price&quot;)  Table.Cell(&quot;Amount&quot;) }
+            }
+            Table.Body {
+                for l in LINES {
+                    Table.Row {
+                        Table.Cell(l.item)
+                        Table.Cell(&quot;{l.qty}&quot;)
+                        Table.Cell(format(l.price, .currency))
+                        Table.Cell(format(l.qty * l.price, .currency))
                     }
                 }
             }
-            Divider
+        }
+        Card {
+            style { break-inside: avoid; margin-top: 12pt }
             Text(&quot;Total: {format(total, .currency)}&quot;).bold.lg
         }
         PageBreak
-        Section {
-            Heading(&quot;Terms&quot;).h2
-            Paragraph { Text(&quot;Payment within 30 days.&quot;) }
-        }
+        Heading(&quot;Terms&quot;).h2
+        Paragraph { Text(&quot;Payment within 30 days.&quot;) }
+    }
+}</code>
+                            </div>
+                            <h3 class="wf-heading" id="pages">Pages</h3>
+                            <div class="wf-markdown">
+<ul>
+<li><strong><code>Document(size:, landscape, margin:, title:, author:, subject:, keywords:, lang:)</code></strong> — the paper (<code>A4</code>, <code>A3</code>, <code>A5</code>, <code>Letter</code>, <code>Legal</code>, <code>Tabloid</code>, or two lengths: <code>&quot;210mm 297mm&quot;</code>), its margins (one length or four, <code>&quot;20mm 25mm&quot;</code>), and what the file says about itself. Without them, <code>build.pdf</code> decides.</li>
+<li><strong><code>Header</code></strong> and <strong><code>Footer</code></strong> are drawn in the top and bottom margins of every page, or of those <code>on:</code> names — <code>.all</code> (the default), <code>.first</code>, <code>.rest</code>, <code>.odd</code>, <code>.even</code>. Inside them, <code>page</code> and <code>pages</code> are the page's number and the count: <code>Text(&quot;Page {page} of {pages}&quot;)</code>.</li>
+<li><strong><code>Background</code></strong> is drawn behind each page's content, the size of the whole page, margins and all: a cover's full-bleed gradient, a coloured band, a sidebar strip that runs down every page. It takes <code>on:</code> too.</li>
+<li><strong><code>Watermark(&quot;DRAFT&quot;)</code></strong> — large, faint, rotated text behind each page; its look is the rule <code>.wf-watermark</code>, which a stylesheet may change.</li>
+<li><strong><code>PageBreak</code></strong> starts a new page; so do <code>break-before: page</code> and <code>break-after: page</code> in a style.</li>
+</ul>
+<p>The page's background — the <code>html</code> or <code>body</code> rule's — fills every page, edge to edge, so a dark theme prints dark.</p>
+                            </div>
+                            <h3 class="wf-heading" id="breaking-across-pages">Breaking across pages</h3>
+                            <div class="wf-markdown">
+<p>Content flows onto as many pages as it needs, and never through the middle of a line of text:</p>
+<ul>
+<li>Paragraphs break between lines, keeping at least two on each side (<code>orphans</code>, <code>widows</code>).</li>
+<li>Tables break between rows, and <strong>the header row is drawn again</strong> at the top of every page the table continues on.</li>
+<li>A grid breaks between its rows; a row of cards moves to the next page together.</li>
+<li>Side-by-side columns taller than a page break each on its own, and what follows waits for the longer.</li>
+<li>A heading never ends a page: it moves with what follows.</li>
+<li><code>break-inside: avoid</code> keeps a box whole (a totals block, a signature).</li>
+<li>A box that runs onto the next page is painted on both, its border open at the break.</li>
+</ul>
+                            </div>
+                            <h3 class="wf-heading" id="tables-of-contents-links-and-the-outline">Tables of contents, links and the outline</h3>
+                            <div class="wf-markdown">
+<p><code>TableOfContents(levels: 2)</code> lists the document's headings with the page each one lands on, dotted leaders between them, each entry a link to its heading. The engine lays the document out, learns where every heading landed, and fills the numbers in. <code>title:</code> puts a heading above it.</p>
+<p>A <code>Link</code> is a link: to a URL, or <code>to: &quot;#terms&quot;</code> to the element whose <code>id:</code> is <code>terms</code>. Every heading appears in the reader's outline, nested by level.</p>
+                            </div>
+                            <h3 class="wf-heading" id="charts-and-qr-codes">Charts and QR codes</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">const SALES = [
+    { month: &quot;Jan&quot;, web: 41, store: 22 },
+    { month: &quot;Feb&quot;, web: 48, store: 25 },
+    { month: &quot;Mar&quot;, web: 55, store: 21 },
+]
+
+page Report(path: &quot;/&quot;, title: &quot;Sales&quot;, description: &quot;The quarter.&quot;) {
+    Document {
+        Heading(&quot;Sales by channel&quot;).h1
+        Chart(kind: .bar, data: SALES, x: &quot;month&quot;, y: [&quot;web&quot;, &quot;store&quot;], unit: &quot;k&quot;)
+        Chart(kind: .donut, data: SALES, x: &quot;month&quot;, y: &quot;web&quot;, labels: true)
+        QrCode(&quot;https://example.com/report/q1&quot;)
     }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<ul>
-<li><code>Document(page_size:)</code> — <code>A4</code>, <code>A3</code>, <code>A5</code>, <code>Letter</code>, <code>Legal</code> — is the root; <code>Header</code> and <code>Footer</code> repeat on every page; <code>Section</code> groups with spacing; <code>Paragraph</code> is a block of text; <code>PageBreak</code> starts a new page.</li>
-<li>Typography, layout containers, <code>Table</code>, <code>List</code>, <code>Badge</code>, <code>Card</code>, <code>Image</code>, <code>Divider</code>, <code>Spacer</code> render; <code>if</code> and <code>for</code> work over static data (<code>const</code>, <code>data</code>, literals).</li>
-<li>Interactive components (<code>Button</code>, <code>Input</code>, <code>Form</code>, <code>Modal</code>, …), navigation, handlers, <code>resource</code>, <code>state</code> that changes, and motion do not belong in a PDF; the PDF validator rejects them before codegen.</li>
-<li>A <code>style { }</code> on a container honours a subset: <code>background</code> (colour or a two-stop <code>linear-gradient</code>), <code>padding</code>, <code>border</code>, <code>border-radius</code>, <code>box-shadow</code>, <code>width</code>, <code>height</code> in <code>pt</code> or <code>%</code>. Unknown properties warn once per component and property.</li>
-</ul>
+<p><code>Chart</code> draws <code>.bar</code> (grouped, or <code>stacked</code>), <code>.line</code>, <code>.area</code>, <code>.pie</code> and <code>.donut</code> over a list of records, as vector graphics: <code>x</code> names each row's label, <code>y</code> its value or a list of values (one series each); <code>colors</code>, <code>ink</code> (labels), <code>grid</code>, <code>legend</code>, <code>labels</code> (values on bars and slices), <code>unit</code>, and <code>width</code>/<code>height</code> in user units — it scales to its box, so draw a narrow chart narrower for larger text. <code>QrCode(value, color:, background:)</code> encodes a URL or any text. Both work on a web page too, as an SVG drawn when the page is built — there, what they read must be known at build time (a literal, a <code>const</code>, a <code>data</code> file).</p>
+                            </div>
+                            <h3 class="wf-heading" id="fonts-and-languages">Fonts and languages</h3>
+                            <div class="wf-markdown">
+<p>The default faces are Liberation Sans, Serif and Mono — the metric twins of Helvetica, Times and Courier — built into <code>wf</code>, so <code>Helvetica</code>, <code>Arial</code>, <code>system-ui</code>, <code>sans-serif</code>, <code>Times</code>, <code>serif</code>, <code>Courier</code> and <code>monospace</code> all resolve without anything installed, with Latin, Greek and Cyrillic.</p>
+<p>Any other family is a file: put <code>.ttf</code> or <code>.otf</code> files under the project's <code>fonts/</code> (or <code>src/fonts/</code>, or name them in <code>pdf.fonts</code>), and the theme's <code>font-family: Manrope, sans-serif</code> uses them by the family name inside the file. Variable fonts are drawn at the weight a style asks for; a weight or an italic a family does not have is synthesised. A font a stylesheet's <code>@font-face</code> names, from a local file, is used too.</p>
+<p>A character no named face has is drawn from one that has it — the project's fonts first, then the machine's. The build says which families came from the machine, so a document can be made the same everywhere by copying them into <code>fonts/</code>; <code>&quot;system_fonts&quot;: false</code> forbids it, and a character no font has is reported, never drawn as <code>?</code>.</p>
+<p>A document whose <code>lang</code> is right to left (<code>ar</code>, <code>he</code>, <code>fa</code>, <code>ur</code>) is laid out right to left — text, flex rows, grids, table columns, list markers — and a run of the other direction inside it is ordered by the Unicode bidirectional algorithm.</p>
+                            </div>
+                            <h3 class="wf-heading" id="what-a-pdf-does-not-draw">What a PDF does not draw</h3>
+                            <div class="wf-markdown">
+<p>Everything static draws. What only means something in a browser is refused where it is written (<code>E109</code>): controls (<code>Button</code>, <code>Input</code>, <code>Form</code>, …), navigation (<code>Router</code>, <code>Navbar</code>, <code>Tabs</code>, <code>Menu</code>), overlays (<code>Modal</code>, <code>Dialog</code>, <code>Toast</code>, <code>Tooltip</code>), media that plays (<code>Video</code>, <code>Audio</code>, <code>Carousel</code>), elements a script draws (<code>Host</code>, <code>Element</code>), handlers, <code>resource</code>, motion.</p>
 <p><code>wf init my-report --template pdf</code> scaffolds one.</p>
                             </div>
-                            <h2 class="wf-heading">Slide decks</h2>
+                            <h2 class="wf-heading" id="slide-decks">Slide decks</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{
   &quot;build&quot;: {
@@ -458,7 +529,7 @@ page Invoice(path: &quot;/&quot;, title: &quot;Invoice&quot;, description: &quot
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Deck(path: &quot;/&quot;, title: &quot;Q4 review&quot;, description: &quot;The quarter in slides.&quot;) {
     Presentation {
@@ -484,7 +555,7 @@ page Invoice(path: &quot;/&quot;, title: &quot;Invoice&quot;, description: &quot
         }
         ImageSlide(src: &quot;chart.png&quot;, caption: &quot;Monthly recurring revenue&quot;)
         Slide {
-            style { background: linear-gradient(135deg, #1E3A8A, #0F172A) }
+            style { background: linear-gradient(135deg, #1E3A8A, #0F172A); color: #fff }
             Heading(&quot;Thank you&quot;).h1
         }
     }
@@ -492,12 +563,12 @@ page Invoice(path: &quot;/&quot;, title: &quot;Invoice&quot;, description: &quot
                             </div>
                             <div class="wf-markdown">
 <ul>
-<li><code>Presentation</code> holds only slides; a slide is one PDF page and never flows onto the next (content past the bottom margin is clipped, with a warning).</li>
-<li>Kinds: <code>Slide { }</code> freeform; <code>TitleSlide(title, subtitle:)</code>; <code>SectionSlide(label).primary/.success/.danger/.warning/.info</code> full-bleed; <code>TwoColumn { Container { } Container { } }</code>; <code>ImageSlide(src:, caption:)</code>.</li>
-<li><code>slides.size</code>: <code>16:9</code> (default, 960×540pt), <code>4:3</code> (720×540), <code>A4-landscape</code> (841.89×595.28), or <code>WIDTHxHEIGHT</code> in points. <code>slides.width</code> and <code>slides.height</code> override it outright; <code>slides.margin</code> (60pt) is the space round the content, and what runs past it is clipped.</li>
-<li><code>show_slide_numbers</code>, <code>footer_text</code> and <code>chrome_color</code> add the chrome (the colour auto-flips between dark and light on the slide's background when unset). <code>default_font</code>, <code>default_font_size</code> (24pt) and <code>output_filename</code> are the deck's own.</li>
-<li>Backgrounds: <code>slides.background_color</code> deck-wide, a <code>Slide</code>'s <code>style { background }</code>, a <code>Container</code>'s; hex or a two-stop <code>linear-gradient</code>.</li>
-<li>Inside a slide: <code>Text</code>, <code>Heading</code> (scaled up), <code>List</code>, layout containers, <code>Spacer</code>, <code>Divider</code>, <code>if</code>/<code>for</code> over literals. Interactive, navigation and media components are rejected.</li>
+<li>A deck is laid out by the same engine, a slide to a page: a slide is a box the size of the page, its <code>slides.margin</code> its padding (which a rule of the deck's own overrides), and what runs past its edge is clipped, with a note naming the slide.</li>
+<li>A <code>Presentation</code> holds slides, a <code>for</code> or an <code>if</code> over them, and components whose body is a slide: a deck writes its section openers, headings and footers once, and makes a slide per item of its data. A page's <code>derived</code> values are worked out before it is drawn, so a slide can show a figure computed from a <code>data</code> file.</li>
+<li>Kinds: <code>Slide { }</code> freeform (a column); <code>TitleSlide(title, subtitle:)</code> centred; <code>SectionSlide(label).primary/.success/.danger/.warning/.info</code> full-bleed; <code>TwoColumn { … }</code> two equal columns; <code>ImageSlide(src:, caption:)</code>. Each is styled by the engine's sheet, and a project's rules or a <code>style { }</code> change it as anywhere.</li>
+<li><code>slides.size</code>: <code>16:9</code> (default, 960×540pt), <code>4:3</code> (720×540), <code>A4-landscape</code> (841.89×595.28), or <code>WIDTHxHEIGHT</code> in points; <code>slides.width</code> and <code>slides.height</code> override it outright.</li>
+<li><code>show_slide_numbers</code>, <code>footer_text</code> and <code>chrome_color</code> add the chrome (the colour flips between dark and light on the slide's background when unset). <code>default_font</code>, <code>default_font_size</code> (24pt — every size in the engine's slide rules is relative to it) and <code>output_filename</code> are the deck's own.</li>
+<li>Everything a document draws, a slide draws: layout, charts, pictures, tables, Arabic.</li>
 </ul>
 <p><code>wf init my-deck --template slides</code> scaffolds one.</p>
                             </div>
@@ -517,6 +588,7 @@ page Invoice(path: &quot;/&quot;, title: &quot;Invoice&quot;, description: &quot
                 <div class="wf-stack wf-gap--lg wf-sac91c322" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
+                        <a class="wf-link wf-s3e136ca4" href="#the-engine">The engine</a>
                         <a class="wf-link wf-s3e136ca4" href="#pdf-documents">PDF documents</a>
                         <a class="wf-link wf-s3e136ca4" href="#slide-decks">Slide decks</a>
                     </div>
@@ -562,7 +634,7 @@ page Invoice(path: &quot;/&quot;, title: &quot;Invoice&quot;, description: &quot
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>

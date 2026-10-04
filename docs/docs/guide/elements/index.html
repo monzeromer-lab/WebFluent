@@ -32,7 +32,7 @@
     <script src="../../../pages/ElementsGuide.js" data-wf-page="ElementsGuide" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
@@ -41,13 +41,13 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.1</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
-                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -56,14 +56,12 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
@@ -206,9 +204,9 @@
                         <p class="wf-text num">34</p>
                         <p class="wf-text">Server rendering</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tutorials">
                         <p class="wf-text num">35</p>
-                        <p class="wf-text">Cookbook</p>
+                        <p class="wf-text">Tutorials</p>
                     </a>
                     <p class="wf-text group-label">Reference</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
@@ -275,18 +273,18 @@
                         <h1 class="wf-heading wf-sa3503382">Elements</h1>
                         <p class="wf-text wf-sfd35f593">Everything on screen is an element: a call with one positional value, named props, flags, and a block.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
-                        <div class="wf-stack wf-gap--lg">
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
 <p>Everything a page shows is an element: a built-in such as <code>Button</code>, or a component you declare. Every element is written the same way.</p>
                             </div>
-                            <h2 class="wf-heading">The call shape</h2>
+                            <h2 class="wf-heading" id="the-call-shape">The call shape</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Name(positional, prop: value, prop: value).flag.flag { block }</code>
                             </div>
@@ -304,7 +302,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;) {
     Button(&quot;Save&quot;, disabled: false).primary.lg {
@@ -315,7 +313,7 @@
     }
 }</code>
                             </div>
-                            <h2 class="wf-heading">Props, cases and flags</h2>
+                            <h2 class="wf-heading" id="props-cases-and-flags">Props, cases and flags</h2>
                             <div class="wf-markdown">
 <p>A prop has a type the compiler knows: <code>String</code>, <code>Number</code>, <code>Bool</code>, a state binding, a path, or an <strong>enum</strong> — a fixed set of cases. An enum prop takes a case written with a leading dot:</p>
                             </div>
@@ -324,7 +322,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;) {
     Row(gap: .md, align: .center, justify: .between) {
@@ -341,7 +339,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;) {
     Button(&quot;Danger&quot;).danger            // tone: .danger
@@ -515,7 +513,7 @@
                             <div class="wf-markdown">
 <p>The <a href="/WebFluent/docs/reference">components reference</a> lists every element's own props.</p>
                             </div>
-                            <h2 class="wf-heading">Attributes</h2>
+                            <h2 class="wf-heading" id="attributes">Attributes</h2>
                             <div class="wf-markdown">
 <p>Named arguments that are not props are HTML attributes, checked against the families the element accepts: the global attributes (<code>id</code>, <code>title</code>, <code>role</code>, <code>tabindex</code>, <code>lang</code>, …), <code>aria-*</code>, <code>data-*</code>, and per element the input, anchor, media, form and table attributes. A hyphenated name is written as-is:</p>
                             </div>
@@ -524,7 +522,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;) {
     Button(&quot;More&quot;, aria-expanded: &quot;false&quot;, aria-controls: &quot;panel&quot;, data-track: &quot;more&quot;)
@@ -535,7 +533,7 @@
                             <div class="wf-markdown">
 <p>An attribute value that reads state is kept in step with it; <code>aria-*</code> keeps a <code>false</code> value (it means something), other attributes drop it.</p>
                             </div>
-                            <h2 class="wf-heading">Parts</h2>
+                            <h2 class="wf-heading" id="parts">Parts</h2>
                             <div class="wf-markdown">
 <p>Some built-ins are made of parts, written under their owner's name:</p>
                             </div>
@@ -544,7 +542,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;) {
     Card.elevated {
@@ -570,13 +568,13 @@
                             <div class="wf-markdown">
 <p>A part belongs inside its owner: <code>Card.Body</code> is drawn as a card's body section, and outside a <code>Card</code> it is only a section with no card around it. Your own components may declare parts too (chapter 11).</p>
                             </div>
-                            <h2 class="wf-heading">Text and headings</h2>
+                            <h2 class="wf-heading" id="text-and-headings">Text and headings</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;) {
     Heading(&quot;Title&quot;).h1                       // a real &lt;h1&gt;; .h2 is the default
@@ -591,13 +589,13 @@
                             <div class="wf-markdown">
 <p>Headings form an outline the compiler checks: one <code>h1</code> per page, no skipped levels (<code>A11</code>, <code>A12</code>).</p>
                             </div>
-                            <h2 class="wf-heading">Layout elements</h2>
+                            <h2 class="wf-heading" id="layout-elements">Layout elements</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;) {
     Container {                                  // centred, max-width
@@ -618,7 +616,7 @@
                             <div class="wf-markdown">
 <p><code>Header</code>, <code>Section</code> and <code>Footer</code> are real landmarks (<code>&lt;header&gt;</code>, <code>&lt;section&gt;</code>, <code>&lt;footer&gt;</code>); use them for page regions so the page has an outline a screen reader and a search engine can follow.</p>
                             </div>
-                            <h2 class="wf-heading">The families of built-ins</h2>
+                            <h2 class="wf-heading" id="the-families-of-built-ins">The families of built-ins</h2>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">The families of built-ins</caption>
                                 <thead>
@@ -710,11 +708,11 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <h2 class="wf-heading">What an element renders</h2>
+                            <h2 class="wf-heading" id="what-an-element-renders">What an element renders</h2>
                             <div class="wf-markdown">
 <p>Each built-in renders real, semantic HTML — a <code>Button</code> is a <code>&lt;button&gt;</code>, a <code>Link</code> an <code>&lt;a&gt;</code>, a <code>Heading(…).h2</code> an <code>&lt;h2&gt;</code>, a <code>Table</code> a <code>&lt;table&gt;</code> with <code>&lt;th scope=&quot;col&quot;&gt;</code> in its head — and carries a stable class named <code>wf-&lt;name&gt;</code>, with modifier classes for its flags: <code>Button(&quot;Save&quot;).primary.lg</code> is <code>&lt;button class=&quot;wf-btn wf-btn--primary wf-btn--large&quot;&gt;</code>. The classes are part of the public surface and stable across releases, so your own stylesheet may target them (<a href="/WebFluent/docs/guide/styling#classes-and-your-own-stylesheet">Styling</a>). The reference names each element's class.</p>
                             </div>
-                            <h2 class="wf-heading">What the compiler checks on every element</h2>
+                            <h2 class="wf-heading" id="what-the-compiler-checks-on-every-element">What the compiler checks on every element</h2>
                             <div class="wf-markdown">
 <ul>
 <li>The name is a built-in, a part in its owner, or a declared component.</li>
@@ -795,7 +793,7 @@
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>

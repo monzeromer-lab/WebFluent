@@ -32,7 +32,7 @@
     <script src="../../../pages/StoresGuide.js" data-wf-page="StoresGuide" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
@@ -41,13 +41,13 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.1</p>
+                            <p class="wf-text wf-s859a58d7">5.2</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
-                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -56,14 +56,12 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
@@ -206,9 +204,9 @@
                         <p class="wf-text num">34</p>
                         <p class="wf-text">Server rendering</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tutorials">
                         <p class="wf-text num">35</p>
-                        <p class="wf-text">Cookbook</p>
+                        <p class="wf-text">Tutorials</p>
                     </a>
                     <p class="wf-text group-label">Reference</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
@@ -275,19 +273,19 @@
                         <h1 class="wf-heading wf-sa3503382">Stores</h1>
                         <p class="wf-text wf-sfd35f593">A store is state shared by every page and component that uses it, built the first time something reads it.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
-                        <div class="wf-stack wf-gap--lg">
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
 <p>A store is state shared by every page and component that uses it: the cart, the signed-in user, the theme, a cache of what was fetched. It holds <code>state</code>, <code>derived</code> values and actions.</p>
 <p><strong>A store is built the first time something reads it.</strong> Declaring one does nothing; the first <code>Cart.items</code>, <code>Cart.count</code> or <code>Cart.add(…)</code> builds it, and everything after that is the same instance. So the order stores are declared in does not matter — a <code>derived</code> may read a store declared below it — and a store nothing reads costs nothing, in time or in bytes.</p>
                             </div>
-                            <h2 class="wf-heading">Declaring a store</h2>
+                            <h2 class="wf-heading" id="declaring-a-store">Declaring a store</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Item { id: String, name: String, price: Number, qty: Number = 1 }
 
@@ -316,13 +314,13 @@ store Cart {
 <p>Inside the store its members are read bare (<code>items</code>, <code>count</code>); outside, a page or component says <code>use Cart</code> and reads them as <code>Cart.items</code>, <code>Cart.count</code>, and calls <code>Cart.add(…)</code>.</p>
 <p>A store may be declared in any <code>.wf</code> file the build reads — <code>src/stores/</code> by convention, and <code>wf generate store Cart</code> puts it there — and is reached by name from anywhere. <code>use</code> says which stores a page reads, for the reader and for the editor; it does not scope anything.</p>
                             </div>
-                            <h2 class="wf-heading">How long it lives</h2>
+                            <h2 class="wf-heading" id="how-long-it-lives">How long it lives</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Cart(scope: .app) { … }        // the default: as long as the page is open
 store Session(scope: .session) { … } // this tab&#x27;s
@@ -332,13 +330,13 @@ store Filters(scope: .route) { … }   // this route&#x27;s</code>
 <p><code>.route</code> is the natural home for what belongs to one screen — the filters on a list, a wizard's step. When the route changes, what it holds goes with it, and the next read builds it again from its initial values. <code>.session</code> changes where what it keeps is written: the tab's own storage, gone when the tab is.</p>
 <p><code>store X(eager: true)</code> builds it at boot instead, for the rare store whose set-up has to happen whether or not a page reads it. If a <code>derived</code> of yours has a side effect that used to run when the page loaded, this is the switch that keeps it running then.</p>
                             </div>
-                            <h2 class="wf-heading">Using a store</h2>
+                            <h2 class="wf-heading" id="using-a-store">Using a store</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Item { id: String, name: String, price: Number, qty: Number = 1 }
 
@@ -370,7 +368,7 @@ page CartPage(path: &quot;/cart&quot;, title: &quot;Cart&quot;, description: &qu
                             <div class="wf-markdown">
 <p>Everything that reads <code>Cart.count</code> — on any page — updates when it changes. The checker knows every member and its type: <code>Cart.cont</code> is an error (<code>T06</code>), and <code>Cart.add(&quot;pen&quot;)</code> is an error because <code>add</code> takes an <code>Item</code> (<code>T01</code>).</p>
                             </div>
-                            <h2 class="wf-heading">Actions</h2>
+                            <h2 class="wf-heading" id="actions">Actions</h2>
                             <div class="wf-markdown">
 <p>A store's actions are its API. They may be asynchronous, and an async action exposes <code>pending</code>:</p>
                             </div>
@@ -379,7 +377,7 @@ page CartPage(path: &quot;/cart&quot;, title: &quot;Cart&quot;, description: &qu
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Session {
     state user: Map? = null
@@ -418,7 +416,7 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
                             <div class="wf-markdown">
 <p>A derived value may call one of the store's own actions, and an action may read other stores through their names — stores are global, so no <code>use</code> is needed inside a store.</p>
                             </div>
-                            <h2 class="wf-heading">Keeping a value across visits</h2>
+                            <h2 class="wf-heading" id="keeping-a-value-across-visits">Keeping a value across visits</h2>
                             <div class="wf-markdown">
 <p><code>persist</code> keeps a member in the browser's storage, keyed by the store's name. It works the same way at the top of a page or a component.</p>
                             </div>
@@ -427,7 +425,7 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Prefs {
     persist theme = &quot;system&quot;
@@ -447,7 +445,7 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Cart {
     persist items: [Item] = [] {
@@ -469,7 +467,7 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">component Panel(_ title: String) {
     persist open = false { key: title }
@@ -481,7 +479,7 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
 <p><strong>A changed shape needs a new version.</strong> The build remembers the shape of every persisted value (in <code>.wf-cache/persist.json</code>) and warns (<code>D04</code>) when it changes with no <code>version:</code> raised: a returning reader's browser holds the old shape, which the page would read as the new one.</p>
 <p><strong>A <code>Secret</code> is never written down.</strong> <code>persist token: Secret = &quot;&quot;</code> is a <code>T12</code> — the whole point of the type is that it does not reach a place any script can read.</p>
                             </div>
-                            <h2 class="wf-heading">Loading data into a store</h2>
+                            <h2 class="wf-heading" id="loading-data-into-a-store">Loading data into a store</h2>
                             <div class="wf-markdown">
 <p>A store can own a <code>resource</code> too, or fill its state from a fetch in an action called at the top of a page:</p>
                             </div>
@@ -490,7 +488,7 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Deploys {
     state rows: [Map] = []
@@ -513,16 +511,16 @@ page DeploysPage(path: &quot;/deploys&quot;, title: &quot;Deploys&quot;, descrip
                             <div class="wf-markdown">
 <p>A call at the top of a page's body runs once when the page renders — set-up code, in the right place.</p>
                             </div>
-                            <h2 class="wf-heading">Stores in the static paint</h2>
+                            <h2 class="wf-heading" id="stores-in-the-static-paint">Stores in the static paint</h2>
                             <div class="wf-markdown">
 <p>A pre-rendered page seeds a store's state from its initial values, so <code>Cart.count</code> paints as <code>0</code> and a store seeded with rows paints the rows. A value an action changes at run time is corrected once the page is live.</p>
                             </div>
-                            <h2 class="wf-heading">Looking at one while it runs</h2>
+                            <h2 class="wf-heading" id="looking-at-one-while-it-runs">Looking at one while it runs</h2>
                             <div class="wf-markdown">
 <p><code>wf serve</code> puts a <strong>stores</strong> button in the corner of the page. It opens on what every store that has been built is holding, and a log of every action that has run — the arguments it was given, and the state on each side of it. Clicking an entry puts the store back to what it held before that action, which is as much time travel as a bug usually needs.</p>
 <p>The same surface is on <code>window.WF</code> for a console or a script: <code>WF.storeSnapshot()</code> for the tree, <code>WF.storeSnapshot(&quot;Cart&quot;)</code> for one, <code>WF.restoreStore(&quot;Cart&quot;, values)</code> to put one back, and <code>WF.watchStores(fn)</code> to be told about every action, which returns the function that stops it. Nothing is recorded while nothing is watching, so a deployed site pays nothing for any of it.</p>
                             </div>
-                            <h2 class="wf-heading">Testing one</h2>
+                            <h2 class="wf-heading" id="testing-one">Testing one</h2>
                             <div class="wf-markdown">
 <p><code>wf test</code> renders a declaration with the project's stores at hand, and a test's <code>data</code> seeds them by name:</p>
                             </div>
@@ -531,14 +529,14 @@ page DeploysPage(path: &quot;/deploys&quot;, title: &quot;Deploys&quot;, descrip
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">test &quot;the cart shows what is in it&quot;(data: { Cart: { items: [{ id: &quot;a&quot;, qty: 2 }] } }) {
     CartSummary()
     expect &quot;2 items&quot;
 }</code>
                             </div>
-                            <h2 class="wf-heading">When to use a store, when a page&#x27;s state</h2>
+                            <h2 class="wf-heading" id="when-to-use-a-store-when-a-page-s-state">When to use a store, when a page&#x27;s state</h2>
                             <div class="wf-markdown">
 <ul>
 <li>Read by more than one page, or must outlive a navigation: a store.</li>
@@ -616,7 +614,7 @@ page DeploysPage(path: &quot;/deploys&quot;, title: &quot;Deploys&quot;, descrip
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            <a class="wf-link" href="/WebFluent/docs/tutorials">Tutorials</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>
