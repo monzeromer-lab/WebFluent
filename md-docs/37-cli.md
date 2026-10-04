@@ -338,7 +338,8 @@ the checker accepts.
 `wf-lsp` is the language server. Get the binary from a
 [release](https://github.com/monzeromer-lab/WebFluent/releases)
 (`wf-lsp-<version>-<arch>-<os>.tar.gz`) and put it on your `PATH`, or build
-it from a clone with `cargo install --path crates/wf-lsp`. It gives:
+it from a clone with `cargo install --path crates/wf-lsp`. Keep it at the
+version of your `wf` — `wf-lsp --version` says which it is. It gives:
 
 - Diagnostics as you type — every check `wf build` runs, for `.wf`, `.wfx`
   and Markdown pages, again whenever a file one depends on changes (a

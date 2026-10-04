@@ -26,6 +26,14 @@ binary yet: `cargo install webfluent`.
 **`wf-lsp` not found by the editor.** It is a separate binary; see
 [Getting started](02-getting-started.md#set-up-your-editor).
 
+**The editor reports what `wf build` does not** — an element it calls
+unknown (`Host`), a message `wf check` never prints. The editor is running
+an older `wf-lsp` than the `wf` you build with: one on your `PATH` is used
+before a downloaded release, and `cargo install` does not update it when
+`wf` is updated. Compare `wf-lsp --version` with `wf --version` (the
+editor's language server log names the version it started, too), install
+the matching one, and restart the language server.
+
 ## Building
 
 **"is not an element or a statement a render block can hold".** Code that
