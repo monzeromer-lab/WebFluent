@@ -41,7 +41,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.0</p>
+                            <p class="wf-text wf-s859a58d7">5.1</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -3657,6 +3657,40 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Name a DOM event (<code>click</code>, <code>input</code>, <code>change</code>, <code>submit</code>, <code>keydown</code>, …) or one the component declares.</p>
+                            </div>
+                            <h3 class="wf-heading">V10 — A Host tag it does not make</h3>
+                            <div class="wf-markdown">
+<p>A <code>Host</code> is made of one of a few elements: <code>div</code>, <code>span</code>, <code>canvas</code>, <code>svg</code>, <code>section</code>, <code>figure</code>, <code>pre</code>, <code>p</code>, <code>ul</code> or <code>table</code> — the tag is written into the document, so it is an allow-list rather than whatever the string says. Any other tag is a <code>div</code>.</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws V10</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    Heading(&quot;Chart&quot;).h1
+    Host(tag: &quot;video&quot;, mount: (n) =&gt; n)
+}</code>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">warning[V10]: `Host` makes no `video`, so it is a `div`
+ --&gt; src/App.wf:3:10
+  |
+3 |     Host(tag: &quot;video&quot;, mount: (n) =&gt; n)
+  |          ^^^
+  = help: It makes `div`, `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul`, `table`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v10-a-host-tag-it-does-not-make</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Make it one of the tags <code>Host</code> makes, or use the element the built-ins offer for it (<code>Video</code>, <code>Audio</code>, <code>Image</code>).</p>
                             </div>
                         </div>
                     </div>

@@ -1,3 +1,45 @@
+# WebFluent v5.1.0 Release Notes
+
+The language server catches up with the language. Everything the compiler
+knows — every declaration, every built-in type's methods, every keyword in
+every place — the editor now completes, explains, finds and renames, and
+it gains formatting, references, signature help, folding, inlay types and
+semantic highlighting. What it offers is read from tables the compiler
+publishes, each held by a test to the code that reads it, so the editor
+cannot fall behind the compiler again.
+
+## The editor
+
+- **Markdown pages** are checked as you type, and a finding is checked
+  again when a file it depends on changes: a translation, a `.env`, a
+  project script, a file in `public/`.
+- **Go to definition, find references, highlight and rename** work for
+  every declaration — a type, an enum and its cases, a record's field, a
+  `const`, a `data` file, an animation, a service's endpoint, a route
+  parameter, a socket, a form or element handle — and inside a string's
+  `{…}` splices.
+- **Completion** knows the fields of a record and the methods of each
+  built-in type (`due.` offers `plus`, `isBefore`, …), a service's
+  endpoints, the keywords each place allows (a store's, an action's, a
+  test's steps), type names after `:`, duration units after a number,
+  `validate` rules, `persist` settings, `format` styles, responsive steps,
+  `Host` tags, key names in `on key("…")`, translation keys in `t("…")`,
+  public `env.` names, and codes in `// wf-allow(`.
+- **Hover** says what every name is: `Host` and the props every element
+  takes, a function the language gives, every keyword, a record's field, an
+  endpoint, a case, an `image`'s size.
+- **New**: formatting (`wf fmt` on the open file), find references,
+  document highlights, signature help inside a call, folding, inlay hints
+  for the type of a `state` or `derived` value written without one, and
+  semantic highlighting — a name coloured by what it resolves to.
+
+## The compiler
+
+- **`V10`**: a `Host(tag: …)` it does not make used to be a `div` without a
+  word; it is now a warning naming the tags it makes.
+- **An `image` is typed**: `hero.widht` is a `T05`, with the fields an
+  image has.
+
 # WebFluent v5.0.1 Release Notes
 
 A new project comes with the language reference its coding agent needs.

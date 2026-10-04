@@ -41,7 +41,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.0</p>
+                            <p class="wf-text wf-s859a58d7">5.1</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -709,10 +709,13 @@
                             <div class="wf-markdown">
 <p><code>wf-lsp</code> is the language server. Get the binary from a <a href="https://github.com/monzeromer-lab/WebFluent/releases">release</a> (<code>wf-lsp-&lt;version&gt;-&lt;arch&gt;-&lt;os&gt;.tar.gz</code>) and put it on your <code>PATH</code>, or build it from a clone with <code>cargo install --path crates/wf-lsp</code>. It gives:</p>
 <ul>
-<li>Diagnostics as you type — every check <code>wf build</code> runs.</li>
-<li>Completion: components and their props after <code>(</code>, flags and parts after <code>.</code>, enum cases after <code>:</code>, events after <code>on </code>, <code>$</code> tokens, <code>match</code> arms, slot names, fields of a record, methods of a string or a list.</li>
-<li>Hover: a component's doc and signature, a name's inferred type.</li>
-<li>Go to definition, find references, rename across the project.</li>
+<li>Diagnostics as you type — every check <code>wf build</code> runs, for <code>.wf</code>, <code>.wfx</code> and Markdown pages, again whenever a file one depends on changes (a translation, a <code>.env</code>, a script, a <code>public/</code> asset).</li>
+<li>Completion, from the compiler's own tables: components and their props after <code>(</code>, flags and parts after <code>.</code>, enum cases after <code>:</code>, events after <code>on </code>, <code>$</code> tokens, <code>match</code> arms, slot names; the fields of a record and the methods of each built-in type (<code>due.</code> offers <code>plus</code>, <code>isBefore</code>, …); a service's endpoints; the keywords each place allows (a store's, an action's, a test's steps); type names after <code>:</code>; duration units after a number; <code>validate</code> rules, <code>persist</code> settings, <code>format</code> styles, responsive steps, <code>Host</code> tags, key names in <code>on key(&quot;…&quot;)</code>, translation keys in <code>t(&quot;…&quot;)</code>, public <code>env.</code> names and lint codes in <code>// wf-allow(</code>.</li>
+<li>Hover: what every name is — a component's doc and signature, the props every element takes, a name's inferred type, a field or an endpoint, a case, a keyword, a function the language gives, an <code>image</code>'s size.</li>
+<li>Signature help inside a call: what it takes and which argument the cursor is on — an element, a component, an endpoint, an action, a project script's function or a built-in one.</li>
+<li>Go to definition, find references, highlight the uses in a file, and rename across the project — for every declaration (a type, an enum, a case, a field, a <code>const</code>, a <code>data</code> file, an animation, an endpoint) and inside a string's <code>{…}</code> splices.</li>
+<li>Formatting — <code>wf fmt</code>, on the open file.</li>
+<li>Folding, inlay hints for the type of a <code>state</code> or <code>derived</code> value written without one, and semantic highlighting: a name coloured by what it resolves to, a component, a type, a store, a prop or a state.</li>
 <li>Document symbols and the outline.</li>
 <li>Quick fixes, from the compiler's own findings: the nearest name for a misspelt field, member, method, variable, component or flag; <code>?.</code> for a value that may be null; the props a call leaves out; the arms a <code>match</code> misses; a bare word written as its flag; <code>alt: &quot;&quot;</code> for an image; an <code>_</code> before a name nothing reads. And <code>Extract component</code> on a selection.</li>
 </ul>
