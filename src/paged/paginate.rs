@@ -137,7 +137,44 @@ impl State<'_> {
                 Kind::Table { header_rows, .. } => self.table(f, *header_rows),
                 _ => self.children(f, before),
             }
-            f.h += self.off - before;
+            f.h = match &lb.kind {
+                // A box grows to hold what moved down inside it: its content's
+                // new bottom, its padding, border and the last child's margin
+                // — and never less than it was (a `min-height`, which a body
+                // of `100vh` has, is not grown by the moves as well).
+                Kind::Container | Kind::Table { .. } if !f.children.is_empty() => {
+                    let last = f
+                        .children
+                        .iter()
+                        .filter(|c| {
+                            !matches!(
+                                tree.boxes[c.boxed].style.position,
+                                Position::Absolute | Position::Fixed
+                            )
+                        })
+                        .max_by(|a, b| {
+                            (a.y + a.h)
+                                .partial_cmp(&(b.y + b.h))
+                                .unwrap_or(std::cmp::Ordering::Equal)
+                        });
+                    match last {
+                        Some(c) => {
+                            let s = &style;
+                            let cs = &tree.boxes[c.boxed].style;
+                            let tail = s.padding[2].or_zero(f.w)
+                                + if s.border[2].visible() {
+                                    s.border[2].width
+                                } else {
+                                    0.0
+                                }
+                                + cs.margin[2].or_zero(f.w);
+                            (c.y + c.h + tail - f.y).max(f.h)
+                        }
+                        None => f.h + self.off - before,
+                    }
+                }
+                _ => f.h + self.off - before,
+            };
             // A box whose first content moved to a new page goes with it,
             // rather than leaving an empty slice of itself behind.
             if !matches!(lb.kind, Kind::Inline(_)) && !f.children.is_empty() {
@@ -248,8 +285,20 @@ impl State<'_> {
         }
     }
 
+    /// A heading, or a box whose content ends in one (a row of a number
+    /// and a title): what must not end a page.
     fn is_heading_frag(&self, f: &Frag) -> bool {
-        self.tree.headings.iter().any(|(b, _)| *b == f.boxed)
+        if self.tree.headings.iter().any(|(b, _)| *b == f.boxed) {
+            return true;
+        }
+        match f.children.iter().max_by(|a, b| {
+            (a.y + a.h)
+                .partial_cmp(&(b.y + b.h))
+                .unwrap_or(std::cmp::Ordering::Equal)
+        }) {
+            Some(last) => f.h <= self.h / 4.0 && self.is_heading_frag(last),
+            None => false,
+        }
     }
 
     fn first_unit_height(&self, f: &Frag) -> f32 {
@@ -314,14 +363,14 @@ impl State<'_> {
         }
         self.off += extra;
         // A paragraph that moved whole starts where its first line does.
-        if let Some(first) = f.lines.first().map(|l| l.top) {
-            if first > EPS {
-                f.y += first;
-                for l in &mut f.lines {
-                    l.top -= first;
-                }
-                f.h -= first;
+        if let Some(first) = f.lines.first().map(|l| l.top)
+            && first > EPS
+        {
+            f.y += first;
+            for l in &mut f.lines {
+                l.top -= first;
             }
+            f.h -= first;
         }
     }
 

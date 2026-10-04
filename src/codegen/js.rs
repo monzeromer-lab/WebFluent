@@ -1746,10 +1746,10 @@ impl JsCodegen {
                     if let Arg::Named(name, expr) = arg {
                         if name == "path" {
                             path = self.emit_expr(expr);
-                        } else if name == "page" {
-                            if let Expr::Identifier(id) = expr {
-                                page_name = id.clone();
-                            }
+                        } else if name == "page"
+                            && let Expr::Identifier(id) = expr
+                        {
+                            page_name = id.clone();
                         }
                     }
                 }
@@ -1907,11 +1907,10 @@ impl JsCodegen {
             if let StatementKind::UIElement(ui) = &stmt.kind {
                 if matches!(&ui.component, ComponentRef::BuiltIn(n) if n == "Router") {
                     return ui.children.iter().filter_map(|s| {
-                        if let StatementKind::UIElement(child_ui) = &s.kind {
-                            if matches!(&child_ui.component, ComponentRef::BuiltIn(n) if n == "Route") {
+                        if let StatementKind::UIElement(child_ui) = &s.kind
+                            && matches!(&child_ui.component, ComponentRef::BuiltIn(n) if n == "Route") {
                                 return Some(child_ui);
                             }
-                        }
                         None
                     }).collect();
                 }
@@ -2509,33 +2508,31 @@ impl JsCodegen {
 
                 // A live region has to be announced when it appears; a class
                 // alone tells assistive technology nothing.
-                if let Some(role) = implicit_role(name, &ui.modifiers) {
-                    if !attrs.iter().any(|a| a.starts_with("role:")) {
-                        attrs.push(format!("role: \"{}\"", role));
-                    }
+                if let Some(role) = implicit_role(name, &ui.modifiers)
+                    && !attrs.iter().any(|a| a.starts_with("role:"))
+                {
+                    attrs.push(format!("role: \"{}\"", role));
                 }
 
                 // Two `<nav>` landmarks on a page are two entries called
                 // "navigation" in a screen reader's landmark list, with nothing
                 // to choose between them.
-                if let Some(label) = landmark_label(name) {
-                    if !attrs.iter().any(|a| a.starts_with("\"aria-label\":")) {
-                        attrs.push(format!("\"aria-label\": \"{}\"", label));
-                    }
+                if let Some(label) = landmark_label(name)
+                    && !attrs.iter().any(|a| a.starts_with("\"aria-label\":"))
+                {
+                    attrs.push(format!("\"aria-label\": \"{}\"", label));
                 }
 
                 // A void element cannot hold text. `WF.el("hr", {}, "label")` asks
                 // the runtime to append into a node that takes no children, and
                 // the text is simply lost; carry it as the accessible name.
-                if is_void(tag) {
-                    if let Some(text) = inner_text.take() {
-                        if !attrs
-                            .iter()
-                            .any(|a| a.starts_with("alt:") || a.starts_with("title:"))
-                        {
-                            attrs.push(format!("title: {}", text));
-                        }
-                    }
+                if is_void(tag)
+                    && let Some(text) = inner_text.take()
+                    && !attrs
+                        .iter()
+                        .any(|a| a.starts_with("alt:") || a.starts_with("title:"))
+                {
+                    attrs.push(format!("title: {}", text));
                 }
 
                 if tag == "th" {
@@ -2696,18 +2693,17 @@ impl JsCodegen {
                 // A table's caption is its accessible name. It is rendered
                 // visually hidden: the heading above the table already says
                 // what it is to a sighted reader.
-                if name == "Table" {
-                    if let Some(Arg::Named(_, cap)) = ui
+                if name == "Table"
+                    && let Some(Arg::Named(_, cap)) = ui
                         .args
                         .iter()
                         .find(|a| matches!(a, Arg::Named(k, _) if k == "caption"))
-                    {
-                        let v = self.emit_expr(cap);
-                        children_arr.push(format!(
-                            "WF.el(\"caption\", {{ className: \"wf-visually-hidden\" }}, {})",
-                            v
-                        ));
-                    }
+                {
+                    let v = self.emit_expr(cap);
+                    children_arr.push(format!(
+                        "WF.el(\"caption\", {{ className: \"wf-visually-hidden\" }}, {})",
+                        v
+                    ));
                 }
 
                 // Inner text content — unless a `Code` with a `language:`
@@ -2817,13 +2813,13 @@ impl JsCodegen {
                     ));
                 }
 
-                if let Some(href) = &link_to {
-                    if name == "Link" {
-                        self.emit_line(&format!(
-                            "WF.activeLink({}, {}, {});",
-                            var, href, link_prefix
-                        ));
-                    }
+                if let Some(href) = &link_to
+                    && name == "Link"
+                {
+                    self.emit_line(&format!(
+                        "WF.activeLink({}, {}, {});",
+                        var, href, link_prefix
+                    ));
                 }
 
                 self.emit_style_and_transition(&var, ui);
@@ -3519,13 +3515,12 @@ impl JsCodegen {
         let mut footer_wf = String::new();
         let mut body_stmts = Vec::new();
         for child in &ui.children {
-            if let StatementKind::UIElement(ui_child) = &child.kind {
-                if matches!(&ui_child.component, ComponentRef::SubComponent(p, s) if p == name && s == "Footer")
-                {
-                    footer_stmts = ui_child.children.clone();
-                    footer_wf = self.wf_node_inline(ui_child);
-                    continue;
-                }
+            if let StatementKind::UIElement(ui_child) = &child.kind
+                && matches!(&ui_child.component, ComponentRef::SubComponent(p, s) if p == name && s == "Footer")
+            {
+                footer_stmts = ui_child.children.clone();
+                footer_wf = self.wf_node_inline(ui_child);
+                continue;
             }
             body_stmts.push(child);
         }
@@ -3583,10 +3578,10 @@ impl JsCodegen {
             .iter()
             .enumerate()
             .filter_map(|(i, s)| {
-                if let StatementKind::UIElement(ui_child) = &s.kind {
-                    if matches!(&ui_child.component, ComponentRef::BuiltIn(n) if n == "TabPage") {
-                        return Some((ui_child, i));
-                    }
+                if let StatementKind::UIElement(ui_child) = &s.kind
+                    && matches!(&ui_child.component, ComponentRef::BuiltIn(n) if n == "TabPage")
+                {
+                    return Some((ui_child, i));
                 }
                 None
             })
@@ -3801,13 +3796,13 @@ impl JsCodegen {
                 None
             }
         });
-        if bind_var.is_none() {
-            if let Some(cv) = checked_val {
-                if self.is_reactive(&cv) {
-                    input_attrs.push_str(&format!(", checked: () => {}", cv));
-                } else {
-                    input_attrs.push_str(&format!(", checked: {}", cv));
-                }
+        if bind_var.is_none()
+            && let Some(cv) = checked_val
+        {
+            if self.is_reactive(&cv) {
+                input_attrs.push_str(&format!(", checked: () => {}", cv));
+            } else {
+                input_attrs.push_str(&format!(", checked: {}", cv));
             }
         }
 
@@ -4261,14 +4256,12 @@ impl JsCodegen {
         if let Some(w) = &width {
             self.emit_line(&format!("{}.style.width = {};", var, w));
         }
-        if is_circle {
-            if let Some(s) = &size {
-                if height.is_none() {
-                    self.emit_line(&format!("{}.style.height = {};", var, s));
-                }
-                if width.is_none() {
-                    self.emit_line(&format!("{}.style.width = {};", var, s));
-                }
+        if is_circle && let Some(s) = &size {
+            if height.is_none() {
+                self.emit_line(&format!("{}.style.height = {};", var, s));
+            }
+            if width.is_none() {
+                self.emit_line(&format!("{}.style.width = {};", var, s));
             }
         }
         self.emit_line(&format!("{}.appendChild({});", parent, var));
@@ -4568,17 +4561,17 @@ impl JsCodegen {
         // the raw number is not repeated beside the track.
         let mut announces_value = false;
         for arg in &ui.args {
-            if let Arg::Named(k, v) = arg {
-                if k.contains('-') {
-                    let value = self.emit_expr(v);
-                    if k == "aria-valuetext" {
-                        announces_value = true;
-                    }
-                    if self.is_reactive(&value) {
-                        input_attrs.push_str(&format!(", \"{}\": () => {}", k, value));
-                    } else {
-                        input_attrs.push_str(&format!(", \"{}\": {}", k, value));
-                    }
+            if let Arg::Named(k, v) = arg
+                && k.contains('-')
+            {
+                let value = self.emit_expr(v);
+                if k == "aria-valuetext" {
+                    announces_value = true;
+                }
+                if self.is_reactive(&value) {
+                    input_attrs.push_str(&format!(", \"{}\": () => {}", k, value));
+                } else {
+                    input_attrs.push_str(&format!(", \"{}\": {}", k, value));
                 }
             }
         }

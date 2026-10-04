@@ -832,15 +832,14 @@ fn stylesheet_variants_are_reachable_from_the_registry() {
             .find(|c: char| !c.is_ascii_alphanumeric() && c != '-' && c != '_')
             .unwrap_or(after.len());
         let selector = &after[..end];
-        if let Some((_, variant)) = selector.split_once("--") {
-            if !variant.is_empty()
-                && variant.parse::<u32>().is_err()
-                && !vocab.contains(&variant)
-                && !non_modifier_variants.contains(&variant)
-                && !unreachable.iter().any(|s| s == selector)
-            {
-                unreachable.push(selector.to_string());
-            }
+        if let Some((_, variant)) = selector.split_once("--")
+            && !variant.is_empty()
+            && variant.parse::<u32>().is_err()
+            && !vocab.contains(&variant)
+            && !non_modifier_variants.contains(&variant)
+            && !unreachable.iter().any(|s| s == selector)
+        {
+            unreachable.push(selector.to_string());
         }
         rest = after;
     }

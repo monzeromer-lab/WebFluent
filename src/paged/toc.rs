@@ -26,15 +26,14 @@ fn level(dom: &Dom, n: usize) -> Option<u8> {
 /// whose headings are not the document's.
 fn excluded(dom: &Dom, mut n: usize) -> bool {
     while let Some(p) = dom.nodes[n].parent {
-        if let Some(e) = dom.element(p) {
-            if e.has_class("wf-toc")
+        if let Some(e) = dom.element(p)
+            && (e.has_class("wf-toc")
                 || e.has_class("wf-header")
                 || e.has_class("wf-footer")
                 || e.has_class("wf-background")
-                || e.has_class("wf-watermark")
-            {
-                return true;
-            }
+                || e.has_class("wf-watermark"))
+        {
+            return true;
         }
         n = p;
     }

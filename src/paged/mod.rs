@@ -416,21 +416,21 @@ pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
         let mut links = Vec::new();
         {
             let mut s = page.surface();
-            if canvas.is_visible() {
-                if let Some(p) = paint::rounded(0.0, 0.0, paper.width, paper.height, [0.0; 4]) {
-                    s.set_stroke(None);
-                    s.set_fill(Some(krilla::paint::Fill {
-                        paint: krilla::color::rgb::Color::new(
-                            (canvas.r * 255.0) as u8,
-                            (canvas.g * 255.0) as u8,
-                            (canvas.b * 255.0) as u8,
-                        )
-                        .into(),
-                        opacity: krilla::num::NormalizedF32::ONE,
-                        rule: Default::default(),
-                    }));
-                    s.draw_path(&p);
-                }
+            if canvas.is_visible()
+                && let Some(p) = paint::rounded(0.0, 0.0, paper.width, paper.height, [0.0; 4])
+            {
+                s.set_stroke(None);
+                s.set_fill(Some(krilla::paint::Fill {
+                    paint: krilla::color::rgb::Color::new(
+                        (canvas.r * 255.0) as u8,
+                        (canvas.g * 255.0) as u8,
+                        (canvas.b * 255.0) as u8,
+                    )
+                    .into(),
+                    opacity: krilla::num::NormalizedF32::ONE,
+                    rule: Default::default(),
+                }));
+                s.draw_path(&p);
             }
             // Backgrounds and watermarks, behind the content.
             for r in running
@@ -472,10 +472,12 @@ pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
                     paper.margin[3],
                     paper.margin[0] - top,
                 ));
-                painter.frag(&mut s, &flow);
+                // A repeated table header first: it is what the page reads
+                // first.
                 for e in extra.iter().filter(|e| e.y >= top - 0.5 && e.y < top + ch) {
                     painter.frag(&mut s, e);
                 }
+                painter.frag(&mut s, &flow);
                 s.pop();
                 s.pop();
             }
@@ -574,6 +576,7 @@ pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
         .finish()
         .map_err(|e| format!("the PDF could not be written: {e:?}"))?;
     let mut notes = font_notes;
+    notes.extend(tree.notes.iter().cloned());
     for (ch, _) in &tree.missing {
         notes.push(format!(
             "no font has `{ch}` (U+{:04X}); put one that does under fonts/",
@@ -850,20 +853,20 @@ pub fn render_slides(
         let mut links = Vec::new();
         {
             let mut s = page.surface();
-            if let Some(bg) = chrome.background {
-                if let Some(p) = paint::rounded(0.0, 0.0, paper.width, paper.height, [0.0; 4]) {
-                    s.set_fill(Some(krilla::paint::Fill {
-                        paint: krilla::color::rgb::Color::new(
-                            (bg.r * 255.0) as u8,
-                            (bg.g * 255.0) as u8,
-                            (bg.b * 255.0) as u8,
-                        )
-                        .into(),
-                        opacity: krilla::num::NormalizedF32::ONE,
-                        rule: Default::default(),
-                    }));
-                    s.draw_path(&p);
-                }
+            if let Some(bg) = chrome.background
+                && let Some(p) = paint::rounded(0.0, 0.0, paper.width, paper.height, [0.0; 4])
+            {
+                s.set_fill(Some(krilla::paint::Fill {
+                    paint: krilla::color::rgb::Color::new(
+                        (bg.r * 255.0) as u8,
+                        (bg.g * 255.0) as u8,
+                        (bg.b * 255.0) as u8,
+                    )
+                    .into(),
+                    opacity: krilla::num::NormalizedF32::ONE,
+                    rule: Default::default(),
+                }));
+                s.draw_path(&p);
             }
             painter.tree = &tree;
             painter.band = (f32::MIN, f32::MAX);
@@ -906,6 +909,7 @@ pub fn render_slides(
     let bytes = document
         .finish()
         .map_err(|e| format!("the PDF could not be written: {e:?}"))?;
+    notes.extend(tree.notes.iter().cloned());
     for (ch, _) in &tree.missing {
         notes.push(format!(
             "no font has `{ch}` (U+{:04X}); put one that does under fonts/",

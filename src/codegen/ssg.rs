@@ -1305,10 +1305,10 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                 // `Icon("home")` names the glyph; the runtime draws it from
                 // `data-icon`, so it must not become visible text.
                 if name == "Icon" {
-                    if !attrs.iter().any(|a| a.starts_with("data-icon=")) {
-                        if let Some(v) = static_attr(expr, &ctx.scope) {
-                            attrs.push(format!("data-icon=\"{}\"", html_escape(&v)));
-                        }
+                    if !attrs.iter().any(|a| a.starts_with("data-icon="))
+                        && let Some(v) = static_attr(expr, &ctx.scope)
+                    {
+                        attrs.push(format!("data-icon=\"{}\"", html_escape(&v)));
                     }
                     continue;
                 }
@@ -1458,14 +1458,14 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
 
     let mut result = format!("{}<{}{}>\n", indent, actual_tag, attrs_str);
 
-    if name == "Table" {
-        if let Some(cap) = table_caption(ui, |e| static_attr(e, &ctx.scope)) {
-            result.push_str(&format!(
-                "{}    <caption class=\"wf-visually-hidden\">{}</caption>\n",
-                indent,
-                html_escape(&cap)
-            ));
-        }
+    if name == "Table"
+        && let Some(cap) = table_caption(ui, |e| static_attr(e, &ctx.scope))
+    {
+        result.push_str(&format!(
+            "{}    <caption class=\"wf-visually-hidden\">{}</caption>\n",
+            indent,
+            html_escape(&cap)
+        ));
     }
 
     if let Some(text) = &text_content {
@@ -1813,10 +1813,10 @@ fn render_labelled_input(
         ],
     };
     for key in ["min", "max", "accept", "value"] {
-        if name != "Slider" || !matches!(key, "min" | "max") {
-            if let Some(v) = named(key) {
-                input_attrs.push(format!("{}=\"{}\"", key, html_escape(&v)));
-            }
+        if (name != "Slider" || !matches!(key, "min" | "max"))
+            && let Some(v) = named(key)
+        {
+            input_attrs.push(format!("{}=\"{}\"", key, html_escape(&v)));
         }
     }
     if ui.modifiers.iter().any(|m| m == "multiple") {

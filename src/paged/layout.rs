@@ -264,7 +264,13 @@ impl<'a> Layout<'a> {
         let mut taffy: TaffyTree<Leaf> = TaffyTree::new();
         taffy.disable_rounding();
         let node = self.build(&mut taffy, root, true);
-        if let Some(w) = force_width {
+        // A box laid out at a width fills it, as a block does — taffy would
+        // size a flex or grid root to its content.
+        let fill = force_width.or(match available.width {
+            AvailableSpace::Definite(w) if self.tree.boxes[root].style.width == L::Auto => Some(w),
+            _ => None,
+        });
+        if let Some(w) = fill {
             let mut st = taffy.style(node).cloned().unwrap_or_default();
             st.size.width = Dimension::length(w);
             let _ = taffy.set_style(node, st);

@@ -38,14 +38,13 @@ fn rule_body<'a>(css: &'a str, selector: &str) -> Option<&'a str> {
             .chars()
             .next()
             .is_none_or(|c| c.is_whitespace() || c == '{' || c == ',');
-        if boundary {
-            if let Some(open) = after.find('{') {
-                if after[..open].trim().is_empty() {
-                    let body = &after[open + 1..];
-                    if let Some(close) = body.find('}') {
-                        return Some(&body[..close]);
-                    }
-                }
+        if boundary
+            && let Some(open) = after.find('{')
+            && after[..open].trim().is_empty()
+        {
+            let body = &after[open + 1..];
+            if let Some(close) = body.find('}') {
+                return Some(&body[..close]);
             }
         }
         rest = after;
@@ -423,22 +422,20 @@ fn the_stacking_order_is_coherent() {
             let mut rest = css.as_str();
             while let Some(i) = rest.find(sel) {
                 let after = &rest[i + sel.len()..];
-                if let Some(open) = after.find('{') {
-                    if let Some(close) = after.find('}') {
-                        if open < close {
-                            let body = &after[open + 1..close];
-                            if let Some(at) = body.find("z-index:") {
-                                if let Ok(v) = body[at + 8..]
-                                    .trim_start()
-                                    .chars()
-                                    .take_while(|c| c.is_ascii_digit())
-                                    .collect::<String>()
-                                    .parse::<u32>()
-                                {
-                                    best = Some(v);
-                                }
-                            }
-                        }
+                if let Some(open) = after.find('{')
+                    && let Some(close) = after.find('}')
+                    && open < close
+                {
+                    let body = &after[open + 1..close];
+                    if let Some(at) = body.find("z-index:")
+                        && let Ok(v) = body[at + 8..]
+                            .trim_start()
+                            .chars()
+                            .take_while(|c| c.is_ascii_digit())
+                            .collect::<String>()
+                            .parse::<u32>()
+                    {
+                        best = Some(v);
                     }
                 }
                 rest = after;

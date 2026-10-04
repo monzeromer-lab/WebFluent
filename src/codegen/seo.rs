@@ -165,36 +165,36 @@ pub fn head_tags(page: &PageDecl, config: &ProjectConfig, program: &Program) -> 
 
     // Self-referencing and absolute. Google's guidance calls a self-canonical on
     // every indexable page the thing that stops duplicate clustering.
-    if let Some(url) = &canonical {
-        if !page.noindex {
-            push(format!(r#"<link rel="canonical" href="{}">"#, attr(url)));
-        }
+    if let Some(url) = &canonical
+        && !page.noindex
+    {
+        push(format!(r#"<link rel="canonical" href="{}">"#, attr(url)));
     }
 
     // Language alternates. Every variant must list itself as well as the others,
     // or the set is ignored.
-    if let (Some(i18n), Some(origin)) = (&config.i18n, site_origin(config)) {
-        if i18n.locales.len() > 1 {
-            let base = config.build.base_path.trim_end_matches('/');
-            let route = page.path.trim_start_matches('/');
-            for locale in &i18n.locales {
-                let href = if route.is_empty() {
-                    format!("{origin}{base}/?lang={locale}")
-                } else {
-                    format!("{origin}{base}/{route}?lang={locale}")
-                };
-                push(format!(
-                    r#"<link rel="alternate" hreflang="{}" href="{}">"#,
-                    attr(locale),
-                    attr(&href)
-                ));
-            }
-            if let Some(url) = &canonical {
-                push(format!(
-                    r#"<link rel="alternate" hreflang="x-default" href="{}">"#,
-                    attr(url)
-                ));
-            }
+    if let (Some(i18n), Some(origin)) = (&config.i18n, site_origin(config))
+        && i18n.locales.len() > 1
+    {
+        let base = config.build.base_path.trim_end_matches('/');
+        let route = page.path.trim_start_matches('/');
+        for locale in &i18n.locales {
+            let href = if route.is_empty() {
+                format!("{origin}{base}/?lang={locale}")
+            } else {
+                format!("{origin}{base}/{route}?lang={locale}")
+            };
+            push(format!(
+                r#"<link rel="alternate" hreflang="{}" href="{}">"#,
+                attr(locale),
+                attr(&href)
+            ));
+        }
+        if let Some(url) = &canonical {
+            push(format!(
+                r#"<link rel="alternate" hreflang="x-default" href="{}">"#,
+                attr(url)
+            ));
         }
     }
 
@@ -446,11 +446,9 @@ pub fn sitemap(config: &ProjectConfig, program: &Program) -> Option<String> {
 /// `robots.txt`, pointing at the sitemap.
 pub fn robots_txt(config: &ProjectConfig, has_sitemap: bool) -> String {
     let mut out = String::from("User-agent: *\nAllow: /\n");
-    if has_sitemap {
-        if let Some(origin) = site_origin(config) {
-            let base = config.build.base_path.trim_end_matches('/');
-            out.push_str(&format!("\nSitemap: {origin}{base}/sitemap.xml\n"));
-        }
+    if has_sitemap && let Some(origin) = site_origin(config) {
+        let base = config.build.base_path.trim_end_matches('/');
+        out.push_str(&format!("\nSitemap: {origin}{base}/sitemap.xml\n"));
     }
     out
 }

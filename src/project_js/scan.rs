@@ -593,12 +593,13 @@ impl Reader<'_, '_> {
                 let kind = self.value_kind(i + 4);
                 self.add(name, kind, name_tok.line, name_tok.col, doc);
             }
-            if depth == 0 && (statement_start || self.t[i].newline_before) {
-                if let Some(next) = self.top_level_statement(i) {
-                    self.i = next;
-                    statement_start = true;
-                    continue;
-                }
+            if depth == 0
+                && (statement_start || self.t[i].newline_before)
+                && let Some(next) = self.top_level_statement(i)
+            {
+                self.i = next;
+                statement_start = true;
+                continue;
             }
             match self.punct_at(i) {
                 Some("{" | "(" | "[") => depth += 1,

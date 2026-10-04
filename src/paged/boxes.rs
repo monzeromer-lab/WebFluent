@@ -94,7 +94,7 @@ impl On {
             On::First => page == 1,
             On::Rest => page > 1,
             On::Odd => page % 2 == 1,
-            On::Even => page % 2 == 0,
+            On::Even => page.is_multiple_of(2),
         }
     }
 }
@@ -123,6 +123,11 @@ pub struct Tree {
     /// The heading boxes and their levels, in document order: what keeps
     /// with what follows, and what the outline lists.
     pub headings: Vec<(usize, u8)>,
+    /// The pictures `background-image: url(…)` names, by address.
+    pub backgrounds: std::collections::HashMap<String, usize>,
+    /// What the reader of the build should know about the boxes: a
+    /// picture that could not be read.
+    pub notes: Vec<String>,
 }
 
 /// Reads an asset by the address a page names it by.
@@ -176,6 +181,8 @@ impl<'a> Builder<'a> {
                 document: None,
                 missing: Vec::new(),
                 headings: Vec::new(),
+                backgrounds: std::collections::HashMap::new(),
+                notes: Vec::new(),
             },
             page_vars: None,
             keep_running: false,
@@ -249,6 +256,15 @@ impl<'a> Builder<'a> {
     }
 
     fn push(&mut self, b: LBox) -> usize {
+        // A background picture is read once, by its address.
+        for img in &b.style.background_images {
+            if let super::style::Image::Url(url) = img
+                && !self.tree.backgrounds.contains_key(url)
+                && let Some(asset) = self.load(url)
+            {
+                self.tree.backgrounds.insert(url.clone(), asset);
+            }
+        }
         self.tree.boxes.push(b);
         self.tree.boxes.len() - 1
     }
@@ -830,11 +846,20 @@ impl<'a> Builder<'a> {
             let text = String::from_utf8_lossy(&bytes).to_string();
             return self.svg(&text);
         }
-        let (width, height) = image::ImageReader::new(std::io::Cursor::new(&bytes))
+        // Read whole now: a picture the writer could not decode would stop
+        // the whole document at the end.
+        let decoded = image::ImageReader::new(std::io::Cursor::new(&bytes))
             .with_guessed_format()
-            .ok()?
-            .into_dimensions()
-            .ok()?;
+            .ok()
+            .and_then(|r| r.decode().ok());
+        let Some(decoded) = decoded else {
+            let note = format!("the picture `{src}` could not be read, and is left out");
+            if !self.tree.notes.contains(&note) {
+                self.tree.notes.push(note);
+            }
+            return None;
+        };
+        let (width, height) = (decoded.width(), decoded.height());
         self.tree.assets.push(Asset::Raster {
             data: bytes,
             width,
@@ -854,7 +879,9 @@ impl<'a> Builder<'a> {
             markup.replacen("<svg", r#"<svg xmlns="http://www.w3.org/2000/svg""#, 1)
         };
         let tree = usvg::Tree::from_str(&markup, &options).ok()?;
-        self.tree.assets.push(Asset::Svg { tree: Box::new(tree) });
+        self.tree.assets.push(Asset::Svg {
+            tree: Box::new(tree),
+        });
         Some(self.tree.assets.len() - 1)
     }
 }

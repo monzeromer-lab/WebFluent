@@ -228,13 +228,13 @@ fn collect_in(
     for stmt in stmts {
         match &stmt.kind {
             StatementKind::UIElement(el) => {
-                if let Some(block) = &el.style_block {
-                    if let Some(class) = scoped_class(block) {
-                        rules
-                            .entry(class.clone())
-                            .or_insert_with(|| rules_for(&class, block, points));
-                        uses.classes.insert(class);
-                    }
+                if let Some(block) = &el.style_block
+                    && let Some(class) = scoped_class(block)
+                {
+                    rules
+                        .entry(class.clone())
+                        .or_insert_with(|| rules_for(&class, block, points));
+                    uses.classes.insert(class);
                 }
                 // `Grid(columns: { base: 1, md: 2 })`: one class, one rule
                 // per breakpoint, and the right layout in the first paint.

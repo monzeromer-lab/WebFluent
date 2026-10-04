@@ -174,9 +174,10 @@ fn check_one_meaning(
     // A component named like a built-in would never be drawn: a call of that
     // name is the built-in's. It used to be accepted and quietly shadowed.
     for (index, decl) in program.declarations.iter().enumerate() {
-        if let Declaration::Component(c) = decl {
-            if crate::registry::component(&c.name).is_some() {
-                diags.push(
+        if let Declaration::Component(c) = decl
+            && crate::registry::component(&c.name).is_some()
+        {
+            diags.push(
                     diag(
                         "V11",
                         format!("`{}` is a built-in component, so a call of that name draws the built-in, never this one", c.name),
@@ -185,7 +186,6 @@ fn check_one_meaning(
                     )
                     .with_hint(format!("Rename it — `My{0}`, `Report{0}` — and its call sites", c.name)),
                 );
-            }
         }
     }
 
@@ -417,37 +417,37 @@ fn check_element(
     file: &str,
     diags: &mut Vec<Diagnostic>,
 ) {
-    if let ComponentRef::UserDefined(name) = &ui.component {
-        if !components.contains(name.as_str()) {
-            diags.push(
-                diag(
-                    "E101",
-                    format!("unknown component `{name}`: no `component {name}` is declared"),
-                    file,
-                    ui.span,
-                )
-                .with_hint(format!(
-                    "declare `component {name} {{ … }}` or check the spelling"
-                )),
-            );
-            // The component it may have meant: the project's, or a built-in.
-            let known: Vec<&str> = components
-                .iter()
-                .copied()
-                .chain(crate::registry::components().map(|c| c.name))
-                .collect();
-            if let Some(near) = crate::diagnostics::fixes::nearest(name, known.iter().copied())
-                && let Some(d) = diags.pop()
-            {
-                let hint = format!("did you mean `{near}`? Or declare `component {name} {{ … }}`");
-                diags.push(d.with_hint(hint).with_plan(
-                    format!("Change to `{near}`"),
-                    crate::diagnostics::fixes::Plan::Rename {
-                        from: name.clone(),
-                        to: near.to_string(),
-                    },
-                ));
-            }
+    if let ComponentRef::UserDefined(name) = &ui.component
+        && !components.contains(name.as_str())
+    {
+        diags.push(
+            diag(
+                "E101",
+                format!("unknown component `{name}`: no `component {name}` is declared"),
+                file,
+                ui.span,
+            )
+            .with_hint(format!(
+                "declare `component {name} {{ … }}` or check the spelling"
+            )),
+        );
+        // The component it may have meant: the project's, or a built-in.
+        let known: Vec<&str> = components
+            .iter()
+            .copied()
+            .chain(crate::registry::components().map(|c| c.name))
+            .collect();
+        if let Some(near) = crate::diagnostics::fixes::nearest(name, known.iter().copied())
+            && let Some(d) = diags.pop()
+        {
+            let hint = format!("did you mean `{near}`? Or declare `component {name} {{ … }}`");
+            diags.push(d.with_hint(hint).with_plan(
+                format!("Change to `{near}`"),
+                crate::diagnostics::fixes::Plan::Rename {
+                    from: name.clone(),
+                    to: near.to_string(),
+                },
+            ));
         }
     }
 }
@@ -478,22 +478,20 @@ fn check_routes(
     let file = file_of(index);
     let file = file.as_str();
     for route in wired_routes(app_body) {
-        if let Some((page, span)) = route_page(route) {
-            if !pages.contains(page) {
-                diags.push(
-                    diag(
-                        "R01",
-                        format!(
-                            "Route targets unknown page `{page}`: no `Page {page}` is declared"
-                        ),
-                        file,
-                        span,
-                    )
-                    .with_hint(format!(
-                        "declare `Page {page} (path: …) {{ … }}` or fix the `page:` name"
-                    )),
-                );
-            }
+        if let Some((page, span)) = route_page(route)
+            && !pages.contains(page)
+        {
+            diags.push(
+                diag(
+                    "R01",
+                    format!("Route targets unknown page `{page}`: no `Page {page}` is declared"),
+                    file,
+                    span,
+                )
+                .with_hint(format!(
+                    "declare `Page {page} (path: …) {{ … }}` or fix the `page:` name"
+                )),
+            );
         }
     }
 }
@@ -532,10 +530,10 @@ fn wired_routes(body: &[Statement]) -> Vec<&UIElement> {
 /// (the argument's own span when available, else the whole element).
 fn route_page(ui: &UIElement) -> Option<(&str, Span)> {
     ui.args.iter().enumerate().find_map(|(i, arg)| {
-        if let Arg::Named(name, Expr::Identifier(id)) = arg {
-            if name == "page" {
-                return Some((id.as_str(), ui.arg_spans.get(i).copied().unwrap_or(ui.span)));
-            }
+        if let Arg::Named(name, Expr::Identifier(id)) = arg
+            && name == "page"
+        {
+            return Some((id.as_str(), ui.arg_spans.get(i).copied().unwrap_or(ui.span)));
         }
         None
     })

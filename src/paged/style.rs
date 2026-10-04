@@ -710,26 +710,26 @@ pub fn color(value: &str) -> Option<Rgba> {
             Some(s.parse::<f32>().ok()? / scale)
         }
     };
-    if let Some(parts) = func("rgba").or_else(|| func("rgb")) {
-        if parts.len() >= 3 {
-            let a = parts.get(3).map(|s| channel(s, 1.0)).unwrap_or(Some(1.0))?;
-            return Some(Rgba {
-                r: channel(&parts[0], 255.0)?,
-                g: channel(&parts[1], 255.0)?,
-                b: channel(&parts[2], 255.0)?,
-                a,
-            });
-        }
+    if let Some(parts) = func("rgba").or_else(|| func("rgb"))
+        && parts.len() >= 3
+    {
+        let a = parts.get(3).map(|s| channel(s, 1.0)).unwrap_or(Some(1.0))?;
+        return Some(Rgba {
+            r: channel(&parts[0], 255.0)?,
+            g: channel(&parts[1], 255.0)?,
+            b: channel(&parts[2], 255.0)?,
+            a,
+        });
     }
-    if let Some(parts) = func("hsla").or_else(|| func("hsl")) {
-        if parts.len() >= 3 {
-            let h = parts[0].trim_end_matches("deg").parse::<f32>().ok()? / 360.0;
-            let s = channel(&parts[1], 100.0)?;
-            let l = channel(&parts[2], 100.0)?;
-            let a = parts.get(3).map(|s| channel(s, 1.0)).unwrap_or(Some(1.0))?;
-            let (r, g, b) = hsl_to_rgb(h, s, l);
-            return Some(Rgba { r, g, b, a });
-        }
+    if let Some(parts) = func("hsla").or_else(|| func("hsl"))
+        && parts.len() >= 3
+    {
+        let h = parts[0].trim_end_matches("deg").parse::<f32>().ok()? / 360.0;
+        let s = channel(&parts[1], 100.0)?;
+        let l = channel(&parts[2], 100.0)?;
+        let a = parts.get(3).map(|s| channel(s, 1.0)).unwrap_or(Some(1.0))?;
+        let (r, g, b) = hsl_to_rgb(h, s, l);
+        return Some(Rgba { r, g, b, a });
     }
     if let Some(inner) = v
         .strip_prefix("color-mix(")
@@ -884,8 +884,8 @@ pub fn image(value: &str) -> Option<Image> {
         (false, i)
     } else {
         let i = lower
-        .strip_prefix("radial-gradient(")
-        .or_else(|| lower.strip_prefix("repeating-radial-gradient("))?;
+            .strip_prefix("radial-gradient(")
+            .or_else(|| lower.strip_prefix("repeating-radial-gradient("))?;
         (true, i)
     };
     let inner = inner.strip_suffix(')')?;

@@ -410,10 +410,10 @@ impl Shaped {
         }
         // No-wrap text breaks only where it must.
         for c in &mut clusters {
-            if let Item::Text { style, .. } = &items[c.item] {
-                if matches!(style.white_space, WhiteSpace::NoWrap | WhiteSpace::Pre) {
-                    c.break_after = false;
-                }
+            if let Item::Text { style, .. } = &items[c.item]
+                && matches!(style.white_space, WhiteSpace::NoWrap | WhiteSpace::Pre)
+            {
+                c.break_after = false;
             }
         }
         Shaped {
@@ -520,13 +520,14 @@ impl Shaped {
                     last_break = Some(end);
                 }
             }
-            if !forced && end < self.clusters.len() {
-                if let Some(b) = last_break.filter(|&b| b > start) {
-                    end = b;
-                }
-                // No opportunity at all: the word is cut where it overflows
-                // (CSS's `overflow-wrap: anywhere`), so text never leaves its box.
+            if !forced
+                && end < self.clusters.len()
+                && let Some(b) = last_break.filter(|&b| b > start)
+            {
+                end = b;
             }
+            // No opportunity at all: the word is cut where it overflows
+            // (CSS's `overflow-wrap: anywhere`), so text never leaves its box.
             if end == start {
                 end = start + 1;
             }
@@ -700,10 +701,11 @@ impl Shaped {
                 let run = runs.last_mut().unwrap();
                 // Justification widens the space glyph's advance.
                 let mut glyphs = c.glyphs.clone();
-                if c.space && extra_per_space > 0.0 {
-                    if let Some(g) = glyphs.last_mut() {
-                        g.advance += extra_per_space;
-                    }
+                if c.space
+                    && extra_per_space > 0.0
+                    && let Some(g) = glyphs.last_mut()
+                {
+                    g.advance += extra_per_space;
                 }
                 run.glyphs.extend(glyphs);
                 run.width += w;

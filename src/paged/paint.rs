@@ -269,11 +269,9 @@ impl<'a> Painter<'a> {
             _ => {}
         }
         let clip = style.clip && !matches!(lb.kind, Kind::Inline(_));
-        if clip {
-            if let Some(p) = rounded(f.x, f.y, f.w, f.h, radii(style, f.w, f.h)) {
-                s.push_clip_path(&p, &FillRule::NonZero);
-                pushed += 1;
-            }
+        if clip && let Some(p) = rounded(f.x, f.y, f.w, f.h, radii(style, f.w, f.h)) {
+            s.push_clip_path(&p, &FillRule::NonZero);
+            pushed += 1;
         }
         if let Some(m) = lb.marker {
             self.marker(s, f, m);
@@ -394,7 +392,53 @@ impl<'a> Painter<'a> {
                     }));
                     s.draw_path(&path);
                 }
-                BgImage::Url(_) => {}
+                BgImage::Url(url) => {
+                    let Some(&asset) = self.tree.backgrounds.get(url) else {
+                        continue;
+                    };
+                    // `cover` fills the box, cropping what overflows; otherwise
+                    // the picture at its own size from the top-left, clipped.
+                    let (iw, ih) = match &self.tree.assets[asset] {
+                        Asset::Raster { width, height, .. } => {
+                            (*width as f32 * 0.75, *height as f32 * 0.75)
+                        }
+                        Asset::Svg { tree } => {
+                            (tree.size().width() * 0.75, tree.size().height() * 0.75)
+                        }
+                    };
+                    if iw <= 0.0 || ih <= 0.0 {
+                        continue;
+                    }
+                    let (dw, dh) = if style.background_size_cover {
+                        let k = (f.w / iw).max(f.h / ih);
+                        (iw * k, ih * k)
+                    } else {
+                        (iw, ih)
+                    };
+                    let (ox, oy) = if style.background_size_cover {
+                        (f.x + (f.w - dw) / 2.0, f.y + (f.h - dh) / 2.0)
+                    } else {
+                        (f.x, f.y)
+                    };
+                    s.push_clip_path(&path, &FillRule::NonZero);
+                    s.push_transform(&Transform::from_translate(ox, oy));
+                    match &self.tree.assets[asset] {
+                        Asset::Svg { tree } => {
+                            if let Some(size) = Size::from_wh(dw, dh) {
+                                let _ = s.draw_svg(tree, size, SvgSettings::default());
+                            }
+                        }
+                        Asset::Raster { .. } => {
+                            if let (Some(img), Some(size)) =
+                                (self.image(asset), Size::from_wh(dw, dh))
+                            {
+                                s.draw_image(img, size);
+                            }
+                        }
+                    }
+                    s.pop();
+                    s.pop();
+                }
             }
         }
         self.border(s, f, style, r);
@@ -559,10 +603,8 @@ impl<'a> Painter<'a> {
         let (ox, oy) = (x + (w - dw) / 2.0, y + (h - dh) / 2.0);
         let r = radii(style, f.w, f.h);
         let clip = style.object_fit == ObjectFit::Cover || r.iter().any(|v| *v > 0.0);
-        if clip {
-            if let Some(p) = rounded(x, y, w, h, r) {
-                s.push_clip_path(&p, &FillRule::NonZero);
-            }
+        if clip && let Some(p) = rounded(x, y, w, h, r) {
+            s.push_clip_path(&p, &FillRule::NonZero);
         }
         s.push_transform(&Transform::from_translate(ox, oy));
         match &self.tree.assets[asset] {
@@ -600,11 +642,11 @@ impl<'a> Painter<'a> {
             s.set_fill(Some(fill(track)));
             s.draw_path(&p);
         }
-        if frac > 0.0 {
-            if let Some(p) = rounded(f.x, f.y, f.w * frac, f.h, [r; 4]) {
-                s.set_fill(Some(fill(bar)));
-                s.draw_path(&p);
-            }
+        if frac > 0.0
+            && let Some(p) = rounded(f.x, f.y, f.w * frac, f.h, [r; 4])
+        {
+            s.set_fill(Some(fill(bar)));
+            s.draw_path(&p);
         }
     }
 
@@ -684,12 +726,12 @@ impl<'a> Painter<'a> {
                 ext.width + pl + pr,
                 fs * 1.15 + pt + pb,
             );
-            if st.background_color.is_visible() {
-                if let Some(p) = rounded(x, y, w, h, radii(st, w, h)) {
-                    s.set_stroke(None);
-                    s.set_fill(Some(fill(st.background_color)));
-                    s.draw_path(&p);
-                }
+            if st.background_color.is_visible()
+                && let Some(p) = rounded(x, y, w, h, radii(st, w, h))
+            {
+                s.set_stroke(None);
+                s.set_fill(Some(fill(st.background_color)));
+                s.draw_path(&p);
             }
             if st.border.iter().any(|b| b.visible()) {
                 let fr = Frag {

@@ -173,13 +173,12 @@ fn parse_block_contents(css: &str, sheet: &mut Sheet) {
             break;
         };
         // An at-rule with no block (`@import …;`, `@charset`).
-        if b[i] == b'@' {
-            if let Some(semi) = css[i..].find(';').map(|p| i + p) {
-                if semi < brace {
-                    i = semi + 1;
-                    continue;
-                }
-            }
+        if b[i] == b'@'
+            && let Some(semi) = css[i..].find(';').map(|p| i + p)
+            && semi < brace
+        {
+            i = semi + 1;
+            continue;
         }
         let prelude = css[i..brace].trim();
         let close = matching_brace(css, brace);

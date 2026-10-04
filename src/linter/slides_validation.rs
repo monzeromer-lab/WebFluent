@@ -68,23 +68,23 @@ fn validate_page_body(
     errors: &mut Vec<SlidesValidationError>,
 ) {
     for stmt in stmts {
-        if let StatementKind::UIElement(ui) = &stmt.kind {
-            if let ComponentRef::BuiltIn(name) = &ui.component {
-                if name == "Presentation" {
-                    validate_presentation_children(&ui.children, context, decl, errors);
-                    continue;
-                }
-                if SLIDE_KINDS.contains(&name.as_str()) {
-                    errors.push(SlidesValidationError {
-                        decl,
-                        span: ui.span,
-                        component: name.clone(),
-                        context: context.to_string(),
-                        reason: "slide elements must be inside a Presentation { ... } block"
-                            .to_string(),
-                    });
-                    continue;
-                }
+        if let StatementKind::UIElement(ui) = &stmt.kind
+            && let ComponentRef::BuiltIn(name) = &ui.component
+        {
+            if name == "Presentation" {
+                validate_presentation_children(&ui.children, context, decl, errors);
+                continue;
+            }
+            if SLIDE_KINDS.contains(&name.as_str()) {
+                errors.push(SlidesValidationError {
+                    decl,
+                    span: ui.span,
+                    component: name.clone(),
+                    context: context.to_string(),
+                    reason: "slide elements must be inside a Presentation { ... } block"
+                        .to_string(),
+                });
+                continue;
             }
         }
         // Anything else outside a Presentation is allowed but ignored at codegen time.
@@ -304,17 +304,17 @@ fn validate_outside_presentation(
     // Slide-kind components are only valid inside a Presentation; flag them anywhere else.
     for stmt in stmts {
         if let StatementKind::UIElement(ui) = &stmt.kind {
-            if let ComponentRef::BuiltIn(name) = &ui.component {
-                if SLIDE_KINDS.contains(&name.as_str()) {
-                    errors.push(SlidesValidationError {
-                        decl,
-                        span: ui.span,
-                        component: name.clone(),
-                        context: context.to_string(),
-                        reason: "slide elements must be inside a Presentation { ... } block"
-                            .to_string(),
-                    });
-                }
+            if let ComponentRef::BuiltIn(name) = &ui.component
+                && SLIDE_KINDS.contains(&name.as_str())
+            {
+                errors.push(SlidesValidationError {
+                    decl,
+                    span: ui.span,
+                    component: name.clone(),
+                    context: context.to_string(),
+                    reason: "slide elements must be inside a Presentation { ... } block"
+                        .to_string(),
+                });
             }
             validate_outside_presentation(&ui.children, context, decl, errors);
         }

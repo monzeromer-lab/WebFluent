@@ -1438,11 +1438,11 @@ impl Parser {
                 let number_end = self.tokens[self.pos].end;
                 self.advance();
                 let mut part = format!("{}", n as u64);
-                if let TokenType::Identifier(id) = self.current_type().clone() {
-                    if self.tokens[self.pos].offset == number_end {
-                        part.push_str(&id);
-                        self.advance();
-                    }
+                if let TokenType::Identifier(id) = self.current_type().clone()
+                    && self.tokens[self.pos].offset == number_end
+                {
+                    part.push_str(&id);
+                    self.advance();
                 }
                 name = format!("{}-{}", name, part);
                 continue;

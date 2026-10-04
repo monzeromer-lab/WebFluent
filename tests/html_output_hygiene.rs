@@ -123,18 +123,18 @@ fn void_elements_are_emitted_without_children_or_closing_tags() {
             // The SPA path expresses children as extra `WF.el` arguments after the
             // attribute object; a void element handed one is asking the runtime to
             // append into a node that cannot hold children.
-            if backend == Backend::Spa {
-                if let Some(e) = root(backend, &src) {
-                    if VOID_ELEMENTS.contains(&e.tag.as_str()) && e.raw.contains("}, ") {
-                        failures.push(format!(
-                            "`{}` in {} gave <{}> a child: {}",
-                            body,
-                            backend.name(),
-                            e.tag,
-                            e.raw.trim()
-                        ));
-                    }
-                }
+            if backend == Backend::Spa
+                && let Some(e) = root(backend, &src)
+                && VOID_ELEMENTS.contains(&e.tag.as_str())
+                && e.raw.contains("}, ")
+            {
+                failures.push(format!(
+                    "`{}` in {} gave <{}> a child: {}",
+                    body,
+                    backend.name(),
+                    e.tag,
+                    e.raw.trim()
+                ));
             }
             // The static renderers must not put text inside a void element either.
             if backend != Backend::Spa {

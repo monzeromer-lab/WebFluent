@@ -211,10 +211,10 @@ fn apply(s: &mut StyleProps, name: &str, value: &Expr) {
 
         // ─── Shadow ─────────────────────────────────────────
         "box-shadow" => {
-            if let Some(v) = expr_str(value) {
-                if let Some(sh) = parse_box_shadow(&v) {
-                    s.box_shadow = Some(sh);
-                }
+            if let Some(v) = expr_str(value)
+                && let Some(sh) = parse_box_shadow(&v)
+            {
+                s.box_shadow = Some(sh);
             }
         }
 

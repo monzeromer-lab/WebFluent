@@ -456,19 +456,18 @@ fn unknown_graphic_args(
         out: &mut Vec<(usize, crate::parser::ast::Span, String, String)>,
     ) {
         for stmt in stmts {
-            if let StatementKind::UIElement(ui) = &stmt.kind {
-                if let ComponentRef::BuiltIn(name) = &ui.component {
-                    if name == "Chart" || name == "QrCode" {
-                        for arg in &ui.args {
-                            let (label, e) = match arg {
-                                Arg::Named(k, e) => (k.clone(), e),
-                                Arg::Positional(e) => ("value".to_string(), e),
-                            };
-                            if crate::codegen::static_eval::eval(e, scope).is_none() {
-                                out.push((decl, ui.span, name.clone(), label));
-                                break;
-                            }
-                        }
+            if let StatementKind::UIElement(ui) = &stmt.kind
+                && let ComponentRef::BuiltIn(name) = &ui.component
+                && (name == "Chart" || name == "QrCode")
+            {
+                for arg in &ui.args {
+                    let (label, e) = match arg {
+                        Arg::Named(k, e) => (k.clone(), e),
+                        Arg::Positional(e) => ("value".to_string(), e),
+                    };
+                    if crate::codegen::static_eval::eval(e, scope).is_none() {
+                        out.push((decl, ui.span, name.clone(), label));
+                        break;
                     }
                 }
             }

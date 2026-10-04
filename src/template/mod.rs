@@ -1638,26 +1638,26 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
         return format!("{}<{}{}></{}>\n", indent, actual_tag, attrs_str, actual_tag);
     }
 
-    if let Some(text) = &text_content {
-        if !has_children {
-            // `Code(…, language: "wf")`: coloured, as every other backend.
-            let language = if name == "Code" {
-                ui.args.iter().find_map(|a| match a {
-                    Arg::Named(k, v) if k == "language" => Some(value_to_string(&ctx.eval_expr(v))),
-                    _ => None,
-                })
-            } else {
-                None
-            };
-            let inner = match language {
-                Some(lang) => crate::codegen::highlight::highlight(text, &lang),
-                None => html_escape(text),
-            };
-            return format!(
-                "{}<{}{}>{}</{}>\n",
-                indent, actual_tag, attrs_str, inner, actual_tag
-            );
-        }
+    if let Some(text) = &text_content
+        && !has_children
+    {
+        // `Code(…, language: "wf")`: coloured, as every other backend.
+        let language = if name == "Code" {
+            ui.args.iter().find_map(|a| match a {
+                Arg::Named(k, v) if k == "language" => Some(value_to_string(&ctx.eval_expr(v))),
+                _ => None,
+            })
+        } else {
+            None
+        };
+        let inner = match language {
+            Some(lang) => crate::codegen::highlight::highlight(text, &lang),
+            None => html_escape(text),
+        };
+        return format!(
+            "{}<{}{}>{}</{}>\n",
+            indent, actual_tag, attrs_str, inner, actual_tag
+        );
     }
 
     let mut result = format!("{}<{}{}>\n", indent, actual_tag, attrs_str);

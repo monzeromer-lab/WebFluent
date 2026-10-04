@@ -883,20 +883,19 @@ fn lint_ui_element(
     // A call to a component contributes that component's headings to this
     // page's outline. Its element checks were already reported once, on the
     // component itself, so they are not repeated here.
-    if let ComponentRef::UserDefined(name) = &ui.component {
-        if !heading_tracker.expanding.contains(name) {
-            if let Some(comp) = heading_tracker.component(name) {
-                heading_tracker.expanding.push(name.clone());
-                let outer = std::mem::replace(&mut heading_tracker.props, bool_props(&comp, ui));
-                let mut quiet = Vec::new();
-                lint_statements(&comp.body, file, &mut quiet, heading_tracker);
-                heading_tracker.props = outer;
-                // Only the outline findings from inside the expansion matter
-                // here — and they are about this page's outline.
-                warnings.extend(quiet.into_iter().filter(|w| w.rule_id == "A11"));
-                heading_tracker.expanding.pop();
-            }
-        }
+    if let ComponentRef::UserDefined(name) = &ui.component
+        && !heading_tracker.expanding.contains(name)
+        && let Some(comp) = heading_tracker.component(name)
+    {
+        heading_tracker.expanding.push(name.clone());
+        let outer = std::mem::replace(&mut heading_tracker.props, bool_props(&comp, ui));
+        let mut quiet = Vec::new();
+        lint_statements(&comp.body, file, &mut quiet, heading_tracker);
+        heading_tracker.props = outer;
+        // Only the outline findings from inside the expansion matter
+        // here — and they are about this page's outline.
+        warnings.extend(quiet.into_iter().filter(|w| w.rule_id == "A11"));
+        heading_tracker.expanding.pop();
     }
 
     // Recurse into children

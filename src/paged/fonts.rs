@@ -376,10 +376,10 @@ impl FontDb {
     /// The faces of the first family in the list that something has.
     pub fn family_faces(&mut self, families: &[String]) -> Vec<usize> {
         for family in families {
-            if let Some(v) = self.by_family.get(&family.to_ascii_lowercase()) {
-                if self.faces[v[0]].source != Source::Bundled || alias(family).is_some() {
-                    return v.clone();
-                }
+            if let Some(v) = self.by_family.get(&family.to_ascii_lowercase())
+                && (self.faces[v[0]].source != Source::Bundled || alias(family).is_some())
+            {
+                return v.clone();
             }
             if let Some(bundled) = alias(family) {
                 return self.by_family[&bundled.to_ascii_lowercase()].clone();

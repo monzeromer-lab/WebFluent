@@ -590,14 +590,14 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
         }
         Expr::MethodCall(base, method, args) => {
             // `Math.max(a, b)` and the like: a global, not a value.
-            if let Expr::Identifier(global) = base.as_ref() {
-                if scope.get(global).is_none() {
-                    let args = args
-                        .iter()
-                        .map(|a| eval_in(a, scope, fuel))
-                        .collect::<Option<Vec<_>>>()?;
-                    return global_method(global, method, &args);
-                }
+            if let Expr::Identifier(global) = base.as_ref()
+                && scope.get(global).is_none()
+            {
+                let args = args
+                    .iter()
+                    .map(|a| eval_in(a, scope, fuel))
+                    .collect::<Option<Vec<_>>>()?;
+                return global_method(global, method, &args);
             }
             let receiver = eval_in(base, scope, fuel)?;
             if matches!(receiver, Static::Null) && in_optional_chain(base) {
@@ -1292,10 +1292,10 @@ fn run(stmts: &[Statement], scope: &mut Scope, fuel: &Fuel) -> Option<Flow> {
                     }
                     chosen.or(i.else_body.as_ref())
                 };
-                if let Some(body) = branch {
-                    if let Flow::Return(v) = run(body, scope, fuel)? {
-                        return Some(Flow::Return(v));
-                    }
+                if let Some(body) = branch
+                    && let Flow::Return(v) = run(body, scope, fuel)?
+                {
+                    return Some(Flow::Return(v));
                 }
             }
             StatementKind::For(f) => {

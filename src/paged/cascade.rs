@@ -124,10 +124,10 @@ impl Styler {
             return Vec::new();
         };
         let mut candidates: Vec<usize> = Vec::new();
-        if let Some(id) = el.attr("id") {
-            if let Some(v) = self.by_id.get(id) {
-                candidates.extend(v);
-            }
+        if let Some(id) = el.attr("id")
+            && let Some(v) = self.by_id.get(id)
+        {
+            candidates.extend(v);
         }
         for class in el.classes() {
             if let Some(v) = self.by_class.get(class) {
@@ -1104,15 +1104,15 @@ fn compound_matches(dom: &Dom, node: usize, c: &Compound) -> bool {
     let Some(el) = dom.element(node) else {
         return false;
     };
-    if let Some(tag) = &c.tag {
-        if &el.tag != tag {
-            return false;
-        }
+    if let Some(tag) = &c.tag
+        && &el.tag != tag
+    {
+        return false;
     }
-    if let Some(id) = &c.id {
-        if el.attr("id") != Some(id.as_str()) {
-            return false;
-        }
+    if let Some(id) = &c.id
+        && el.attr("id") != Some(id.as_str())
+    {
+        return false;
     }
     if !c.classes.iter().all(|cl| el.has_class(cl)) {
         return false;
