@@ -42,6 +42,7 @@ absent unless you add them.
     "sourcemap": false,
     "ssg": false,
     "base_path": "",
+    "clean_urls": null,
     "csp": false,
     "split": true,
     "compress": true,
@@ -89,7 +90,11 @@ absent unless you add them.
     "lang": "en",
     "site_url": "",
     "site_name": "",
+    "owner": "organization",
+    "same_as": [],
+    "job_title": "",
     "image": "",
+    "image_alt": "",
     "sitemap": true,
     "fonts": [],
     "stylesheets": [],
@@ -120,6 +125,7 @@ absent unless you add them.
 | `output_type` | `"spa"` | `spa` (a website), `pdf`, `slides` or `elements` ([chapter 33](33-pdf-and-slides.md)). |
 | `ssg` | `false` | Pre-render every page to its own HTML ([chapter 26](26-static-and-spa.md)). |
 | `base_path` | `""` | The sub-path the site is served under, such as `"/docs"`. Every link and asset is prefixed. |
+| `clean_urls` | unset | How a route's address avoids a redirect on a host that adds the slash: `"file"` also writes `contact.html` beside `contact/index.html`; `"directory"` names every route `/contact/` in canonical links, the sitemap and links to pages ([chapter 27](27-content.md#addresses-that-do-not-redirect)). |
 | `split` | `true` | One script and stylesheet chunk per page, loaded when its route shows. |
 | `minify` | `true` | Strip comments and whitespace from the scripts and stylesheets. |
 | `sourcemap` | `false` | Write a source map beside the bundle. |
@@ -188,8 +194,12 @@ absent unless you add them.
 | `title`, `description` | the name, `""` | What a page falls back to when it declares none. |
 | `lang` | `"en"` | The document's language. |
 | `site_url` | `""` | The absolute address. Without it, canonical links, the sitemap's URLs and absolute sharing URLs are left out rather than guessed. |
-| `site_name` | `""` | The name a link preview shows. |
-| `image` | `""` | The sharing image for pages that set none. |
+| `site_name` | `""` | The name a link preview shows, and the site's owner in the structured data. |
+| `owner` | `"organization"` | Whether the owner is an `"organization"` or a `"person"` — the JSON-LD node the site is published by ([chapter 27](27-content.md#who-the-site-belongs-to)). |
+| `same_as` | `[]` | The owner's profiles elsewhere, as its `sameAs`. |
+| `job_title` | `""` | A person's `jobTitle`. |
+| `image` | `""` | The sharing image for pages that set none; one in `public/` has its size read into `og:image:width`/`height`. |
+| `image_alt` | `""` | What that image shows: `og:image:alt` and `twitter:image:alt`. A page's `image_alt:` wins. |
 | `favicon` | `""` | The icon a tab shows: a file in `public/` — an SVG scales to every size — or a URL. |
 | `touch_icon` | `""` | The icon a phone puts on its home screen: a 180×180 PNG in `public/`. iOS reads this, not an SVG `favicon`. |
 | `sitemap` | `true` | Write `sitemap.xml` and `robots.txt`. |

@@ -29,6 +29,7 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
     "sourcemap": false,
     "ssg": false,
     "base_path": "",
+    "clean_urls": null,
     "csp": false,
     "split": true,
     "compress": true,
@@ -76,7 +77,11 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
     "lang": "en",
     "site_url": "",
     "site_name": "",
+    "owner": "organization",
+    "same_as": [],
+    "job_title": "",
     "image": "",
+    "image_alt": "",
     "sitemap": true,
     "fonts": [],
     "stylesheets": [],
@@ -144,6 +149,11 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
                     Table.Cell { Markdown("`base_path`") }
                     Table.Cell { Markdown("`\"\"`") }
                     Table.Cell { Markdown("The sub-path the site is served under, such as `\"/docs\"`. Every link and asset is prefixed.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`clean_urls`") }
+                    Table.Cell("unset")
+                    Table.Cell { Markdown("How a route's address avoids a redirect on a host that adds the slash: `\"file\"` also writes `contact.html` beside `contact/index.html`; `\"directory\"` names every route `/contact/` in canonical links, the sitemap and links to pages ([chapter 27](/docs/guide/content#addresses-that-do-not-redirect)).") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`split`") }
@@ -422,12 +432,32 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
                 Table.Row {
                     Table.Cell { Markdown("`site_name`") }
                     Table.Cell { Markdown("`\"\"`") }
-                    Table.Cell("The name a link preview shows.")
+                    Table.Cell("The name a link preview shows, and the site's owner in the structured data.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`owner`") }
+                    Table.Cell { Markdown("`\"organization\"`") }
+                    Table.Cell { Markdown("Whether the owner is an `\"organization\"` or a `\"person\"` — the JSON-LD node the site is published by ([chapter 27](/docs/guide/content#who-the-site-belongs-to)).") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`same_as`") }
+                    Table.Cell { Markdown("`[]`") }
+                    Table.Cell { Markdown("The owner's profiles elsewhere, as its `sameAs`.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`job_title`") }
+                    Table.Cell { Markdown("`\"\"`") }
+                    Table.Cell { Markdown("A person's `jobTitle`.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`image`") }
                     Table.Cell { Markdown("`\"\"`") }
-                    Table.Cell("The sharing image for pages that set none.")
+                    Table.Cell { Markdown("The sharing image for pages that set none; one in `public/` has its size read into `og:image:width`/`height`.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`image_alt`") }
+                    Table.Cell { Markdown("`\"\"`") }
+                    Table.Cell { Markdown("What that image shows: `og:image:alt` and `twitter:image:alt`. A page's `image_alt:` wins.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`favicon`") }

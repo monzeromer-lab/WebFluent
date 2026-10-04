@@ -184,6 +184,7 @@ page Home(path: "/", title: "Home") {
   over them and the constants: `"{posts.find(p => p.slug == slug)?.title ?? slug} — Blog"`
 - `description` — The snippet a search result and a link preview show
 - `image` — Link-preview image, site-relative or absolute
+- `image_alt` — What that image shows (`og:image:alt`, `twitter:image:alt`)
 - `type` — `"website"` (default) or `"article"`
 - `noindex: true` — keeps the page out of search results and out of the sitemap
 - `layout: Shell(crumb: "Home")` — the component that frames the page; the
@@ -2143,6 +2144,9 @@ better than a wrong one.
     "site_name": "Ledger",
     "description": "Fallback for pages that set none",
     "image": "/card.png",
+    "image_alt": "The ledger, open on a desk",
+    "owner": "organization",
+    "same_as": ["https://github.com/ledger"],
     "sitemap": true
   }
 }
@@ -2151,11 +2155,25 @@ better than a wrong one.
 Every page then carries:
 
 - a self-referencing absolute `<link rel="canonical">`
-- Open Graph and Twitter card tags, built from the page's title, description and image
+- Open Graph and Twitter card tags, built from the page's title, description and image;
+  `og:image:width`/`og:image:height` read from the file when the image is in `public/`,
+  `og:image:alt`/`twitter:image:alt` from the page's `image_alt:` or `meta.image_alt`,
+  and `og:locale` as Open Graph spells it (`en` → `en_US`, `en-GB` → `en_GB`) with an
+  `og:locale:alternate` per other locale
 - `<link rel="alternate" hreflang="…">` for each locale plus `x-default`, when i18n
   declares more than one
-- JSON-LD (`WebSite`, `Organization`, `WebPage`/`Article`, and a `BreadcrumbList`
-  derived from the route)
+- JSON-LD (`WebSite`, the owner, `WebPage`/`Article`, and a `BreadcrumbList`
+  derived from the route). The owner is `site_name` as an `Organization`, or a
+  `Person` with `"owner": "person"` (and `job_title`); `same_as` lists its other
+  profiles; `WebSite.publisher` names it, and on a personal site every page is
+  `about` it
+
+A static build writes `/contact` as `contact/index.html`, and a host such as
+GitHub Pages answers `/contact` with a `301` to `/contact/`. `build.clean_urls`
+keeps the canonical address one the host serves directly: `"file"` also writes
+`contact.html` (and addresses the page's assets from the root under
+`base_path`); `"directory"` names every route `/contact/` — canonical, `og:url`,
+sitemap, breadcrumbs, and every `Link(to:)`/`navigate()` to one of the pages.
 
 A build also writes `sitemap.xml` and `robots.txt`. Dynamic routes, catch-alls and
 `noindex` pages are left out of the sitemap. `priority` and `changefreq` are not
@@ -2821,6 +2839,7 @@ now ships on every page.
         "minify": true,
         "ssg": false,
         "base_path": "",
+        "clean_urls": null,
         "csp": false,
         "split": true,
         "compress": true,
@@ -2863,6 +2882,14 @@ now ships on every page.
         "favicon": "",
         "touch_icon": "",
         "lang": "en",
+        "site_url": "",
+        "site_name": "",
+        "owner": "organization",
+        "same_as": [],
+        "job_title": "",
+        "image": "",
+        "image_alt": "",
+        "sitemap": true,
         "fonts": [],
         "stylesheets": [],
         "scripts": [],

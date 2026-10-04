@@ -14,7 +14,8 @@
     "minify": true,
     "compress": true,
     "csp": true,
-    "base_path": "/WebFluent",
+    "base_path": "",
+    "clean_urls": "file",
     "output_type": "spa"
   },
   "dev": {
@@ -28,7 +29,7 @@
     "favicon": "/favicon.svg",
     "touch_icon": "/apple-touch-icon.png",
     "image": "/og.png",
-    "site_url": "https://monzeromer-lab.github.io/WebFluent",
+    "site_url": "https://webfluent.monzeromer.dev",
     "site_name": "WebFluent",
     "sitemap": true,
     "fonts": [

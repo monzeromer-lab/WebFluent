@@ -14,8 +14,12 @@
 //! require it are omitted rather than guessed at, since Google's guidance is
 //! explicit that a relative canonical causes problems later.
 
-use crate::config::ProjectConfig;
-use crate::parser::ast::{Declaration, Expr, PageDecl, Program};
+use std::path::Path;
+
+use crate::config::{CleanUrls, Owner, ProjectConfig};
+use crate::parser::ast::{
+    Arg, Declaration, Expr, PageDecl, Program, Statement, StatementKind, StringPart,
+};
 
 /// Escape text for an HTML attribute value.
 fn attr(value: &str) -> String {
@@ -74,12 +78,71 @@ pub fn site_origin(config: &ProjectConfig) -> Option<&str> {
 pub fn absolute_url(config: &ProjectConfig, path: &str) -> Option<String> {
     let origin = site_origin(config)?;
     let base = config.build.base_path.trim_end_matches('/');
+    Some(format!("{origin}{base}{}", route_address(config, path)))
+}
+
+/// A route as the address a host answers without a redirect: `/contact`, or
+/// `/contact/` under `build.clean_urls: "directory"`, where the build writes
+/// `contact/index.html` and a host answers `/contact` with a `301` to it.
+pub fn route_address(config: &ProjectConfig, path: &str) -> String {
     let route = path.trim_start_matches('/');
-    Some(if route.is_empty() {
-        format!("{origin}{base}/")
-    } else {
-        format!("{origin}{base}/{route}")
-    })
+    if route.is_empty() {
+        return "/".to_string();
+    }
+    match config.build.clean_urls {
+        Some(CleanUrls::Directory) if !route.ends_with('/') => format!("/{route}/"),
+        _ => format!("/{route}"),
+    }
+}
+
+/// `og:locale` for a language tag: Open Graph reads `language_TERRITORY`
+/// (`en_US`), not the BCP 47 tag a document's `lang` holds (`en`, `en-GB`).
+///
+/// A tag that names its region keeps it; one that does not takes the region
+/// the language is most read in, and a language this table does not know
+/// is paired with its own code (`xx_XX`), which is the usual spelling.
+pub fn og_locale(lang: &str) -> String {
+    let mut parts = lang.split(['-', '_']).filter(|p| !p.is_empty());
+    let language = parts.next().unwrap_or("en").to_ascii_lowercase();
+    // A script subtag (`zh-Hant-TW`) sits between the language and region.
+    if let Some(region) = parts.find(|p| p.len() == 2 || p.chars().all(|c| c.is_ascii_digit())) {
+        return format!("{language}_{}", region.to_ascii_uppercase());
+    }
+    let region = match language.as_str() {
+        "en" => "US",
+        "ar" => "AR",
+        "zh" => "CN",
+        "ja" => "JP",
+        "ko" => "KR",
+        "he" => "IL",
+        "fa" => "IR",
+        "ur" => "PK",
+        "hi" | "bn" | "ta" | "te" | "mr" | "gu" => "IN",
+        "pt" => "BR",
+        "sv" => "SE",
+        "da" => "DK",
+        "nb" | "nn" | "no" => "NO",
+        "el" => "GR",
+        "cs" => "CZ",
+        "uk" => "UA",
+        "vi" => "VN",
+        "ms" => "MY",
+        "sw" => "KE",
+        "ca" => "ES",
+        "et" => "EE",
+        "sl" => "SI",
+        "sq" => "AL",
+        "sr" => "RS",
+        "ga" => "IE",
+        "ka" => "GE",
+        "hy" => "AM",
+        "kk" => "KZ",
+        "af" => "ZA",
+        "fil" | "tl" => "PH",
+        "ps" => "AF",
+        _ => return format!("{language}_{}", language.to_ascii_uppercase()),
+    };
+    format!("{language}_{region}")
 }
 
 /// Resolve a possibly-relative asset reference to an absolute URL.
@@ -108,6 +171,77 @@ fn title(page: &PageDecl, config: &ProjectConfig) -> String {
         .clone()
         .or_else(|| Some(config.meta.title.clone()).filter(|t| !t.is_empty()))
         .unwrap_or_else(|| config.name.clone())
+}
+
+/// The page's sharing image as the reference it was written with.
+fn image_ref<'a>(page: &'a PageDecl, config: &'a ProjectConfig) -> Option<&'a str> {
+    page.image
+        .as_deref()
+        .filter(|i| !i.is_empty())
+        .or(Some(config.meta.image.as_str()))
+        .filter(|i| !i.is_empty())
+}
+
+/// What the page's sharing image shows: the page's own `image_alt:`, or the
+/// project's `meta.image_alt` — but the project's only describes the
+/// project's image, so a page that names its own picture needs its own.
+fn image_alt<'a>(page: &'a PageDecl, config: &'a ProjectConfig) -> Option<&'a str> {
+    if let Some(alt) = page.image_alt.as_deref().filter(|a| !a.is_empty()) {
+        return Some(alt);
+    }
+    let own_image = page
+        .image
+        .as_deref()
+        .is_some_and(|i| !i.is_empty() && i != config.meta.image);
+    if own_image {
+        return None;
+    }
+    Some(config.meta.image_alt.as_str()).filter(|a| !a.is_empty())
+}
+
+/// Read the size of every sharing image that is a file under `public/` —
+/// `meta.image` and each page's `image:` — into `meta.image_sizes`, so the
+/// card carries `og:image:width` and `og:image:height`. Only the header of
+/// each file is read. An image on another origin, or a file that is not
+/// there or not a picture, is left unmeasured and its card says nothing of
+/// its size, which is what it said before.
+pub fn measure_images(project_dir: &Path, config: &mut ProjectConfig, program: &Program) {
+    let mut refs: Vec<String> = vec![config.meta.image.clone()];
+    refs.extend(program.declarations.iter().filter_map(|d| match d {
+        Declaration::Page(p) => p.image.clone(),
+        _ => None,
+    }));
+    for reference in refs {
+        if reference.is_empty()
+            || reference.contains("://")
+            || reference.starts_with("//")
+            || config.meta.image_sizes.contains_key(&reference)
+        {
+            continue;
+        }
+        let relative = reference
+            .split(['?', '#'])
+            .next()
+            .unwrap_or_default()
+            .trim_start_matches('/');
+        // A reference written with the base path (`/docs/card.png`) names
+        // the same file as one without it.
+        let base = config.build.base_path.trim_matches('/');
+        let relative = if base.is_empty() {
+            relative
+        } else {
+            relative
+                .strip_prefix(base)
+                .and_then(|r| r.strip_prefix('/'))
+                .unwrap_or(relative)
+        };
+        if relative.is_empty() || relative.split('/').any(|s| s == "..") {
+            continue;
+        }
+        if let Ok(size) = image::image_dimensions(project_dir.join("public").join(relative)) {
+            config.meta.image_sizes.insert(reference, size);
+        }
+    }
 }
 
 fn site_name(config: &ProjectConfig) -> String {
@@ -177,13 +311,9 @@ pub fn head_tags(page: &PageDecl, config: &ProjectConfig, program: &Program) -> 
         && i18n.locales.len() > 1
     {
         let base = config.build.base_path.trim_end_matches('/');
-        let route = page.path.trim_start_matches('/');
+        let route = route_address(config, &page.path);
         for locale in &i18n.locales {
-            let href = if route.is_empty() {
-                format!("{origin}{base}/?lang={locale}")
-            } else {
-                format!("{origin}{base}/{route}?lang={locale}")
-            };
+            let href = format!("{origin}{base}{route}?lang={locale}");
             push(format!(
                 r#"<link rel="alternate" hreflang="{}" href="{}">"#,
                 attr(locale),
@@ -225,24 +355,49 @@ pub fn head_tags(page: &PageDecl, config: &ProjectConfig, program: &Program) -> 
         ));
     }
     if !config.meta.lang.is_empty() {
+        let locale = og_locale(&config.meta.lang);
         push(format!(
             r#"<meta property="og:locale" content="{}">"#,
-            attr(&config.meta.lang)
+            attr(&locale)
         ));
+        // The site's other languages, each as Open Graph spells it.
+        if let Some(i18n) = &config.i18n {
+            let mut seen = vec![locale];
+            for other in &i18n.locales {
+                let other = og_locale(other);
+                if !seen.contains(&other) {
+                    push(format!(
+                        r#"<meta property="og:locale:alternate" content="{}">"#,
+                        attr(&other)
+                    ));
+                    seen.push(other);
+                }
+            }
+        }
     }
 
-    let image = page
-        .image
-        .as_deref()
-        .filter(|i| !i.is_empty())
-        .or(Some(config.meta.image.as_str()))
-        .filter(|i| !i.is_empty())
-        .and_then(|i| absolute_asset(config, i));
+    let reference = image_ref(page, config);
+    let image = reference.and_then(|i| absolute_asset(config, i));
+    let alt = image_alt(page, config);
     if let Some(img) = &image {
         push(format!(
             r#"<meta property="og:image" content="{}">"#,
             attr(img)
         ));
+        // The size lets a preview lay the card out before the picture
+        // arrives — and some only draw the large card when they know it.
+        if let Some((w, h)) = reference.and_then(|r| config.meta.image_sizes.get(r)) {
+            push(format!(r#"<meta property="og:image:width" content="{w}">"#));
+            push(format!(
+                r#"<meta property="og:image:height" content="{h}">"#
+            ));
+        }
+        if let Some(a) = alt {
+            push(format!(
+                r#"<meta property="og:image:alt" content="{}">"#,
+                attr(a)
+            ));
+        }
     }
 
     // A card with an image is worth showing large; one without would render as a
@@ -270,6 +425,12 @@ pub fn head_tags(page: &PageDecl, config: &ProjectConfig, program: &Program) -> 
             r#"<meta name="twitter:image" content="{}">"#,
             attr(img)
         ));
+        if let Some(a) = alt {
+            push(format!(
+                r#"<meta name="twitter:image:alt" content="{}">"#,
+                attr(a)
+            ));
+        }
     }
 
     out.push_str(&structured_data(page, config, program));
@@ -294,15 +455,41 @@ fn structured_data(page: &PageDecl, config: &ProjectConfig, program: &Program) -
 
     let mut graph = Vec::new();
 
+    // Who the site belongs to: a person for a personal site, an
+    // organisation otherwise. The site is published by them, and a page of a
+    // personal site is about them.
+    let (owner_type, owner_id) = match config.meta.owner {
+        Owner::Person => ("Person", format!("{origin}/#person")),
+        Owner::Organization => ("Organization", format!("{origin}/#organization")),
+    };
+
     graph.push(format!(
-        r#"{{"@type":"WebSite","@id":"{origin}/#website","url":"{origin}/","name":"{}"}}"#,
+        r#"{{"@type":"WebSite","@id":"{origin}/#website","url":"{origin}/","name":"{}","publisher":{{"@id":"{owner_id}"}}}}"#,
         json_str(&name)
     ));
 
-    graph.push(format!(
-        r#"{{"@type":"Organization","@id":"{origin}/#organization","name":"{}","url":"{origin}/"}}"#,
+    let mut owner = format!(
+        r#"{{"@type":"{owner_type}","@id":"{owner_id}","name":"{}","url":"{origin}/""#,
         json_str(&name)
-    ));
+    );
+    if config.meta.owner == Owner::Person && !config.meta.job_title.is_empty() {
+        owner.push_str(&format!(
+            r#","jobTitle":"{}""#,
+            json_str(&config.meta.job_title)
+        ));
+    }
+    let same_as: Vec<String> = config
+        .meta
+        .same_as
+        .iter()
+        .filter(|u| !u.is_empty())
+        .map(|u| format!(r#""{}""#, json_str(u)))
+        .collect();
+    if !same_as.is_empty() {
+        owner.push_str(&format!(r#","sameAs":[{}]"#, same_as.join(",")));
+    }
+    owner.push('}');
+    graph.push(owner);
 
     let page_type = match page.page_type.as_deref() {
         Some("article") => "Article",
@@ -316,6 +503,9 @@ fn structured_data(page: &PageDecl, config: &ProjectConfig, program: &Program) -
     );
     if let Some(d) = description(page, config) {
         web_page.push_str(&format!(r#","description":"{}""#, json_str(d)));
+    }
+    if config.meta.owner == Owner::Person {
+        web_page.push_str(&format!(r#","about":{{"@id":"{owner_id}"}}"#));
     }
     web_page.push('}');
     graph.push(web_page);
@@ -390,13 +580,13 @@ fn breadcrumbs(
             r#"{{"@type":"ListItem","position":{},"name":"{}","item":"{origin}{base}{}"}}"#,
             items.len() + 1,
             json_str(&name),
-            accumulated
+            route_address(config, &accumulated)
         ));
     }
 
     Some(format!(
         r#"{{"@type":"BreadcrumbList","@id":"{origin}{base}{}#breadcrumb","itemListElement":[{}]}}"#,
-        page.path,
+        route_address(config, &page.path),
         items.join(",")
     ))
 }
@@ -415,6 +605,136 @@ fn humanise(segment: &str) -> String {
         })
         .collect::<Vec<_>>()
         .join(" ")
+}
+
+// ─── Addresses that do not redirect ───────────────────────────────────
+
+/// Under `build.clean_urls: "directory"`, give every link to a page the
+/// trailing slash its address has — `Link(to: "/contact")`, `Sidebar.Item(to:
+/// …)`, `navigate("/contact")` — so a link, like the canonical, names the
+/// address the host answers rather than one it redirects. A link that is
+/// not to a page — a file, another origin, a fragment, an address worked out
+/// whole at run time — is left as written. Run once, after the checks and
+/// before code generation, so the static paint and the live page agree.
+pub fn directory_links(config: &ProjectConfig, program: &mut Program) {
+    if config.build.clean_urls != Some(CleanUrls::Directory) {
+        return;
+    }
+    let routes: Vec<Vec<String>> = program
+        .declarations
+        .iter()
+        .filter_map(|d| match d {
+            Declaration::Page(p) if !p.path.contains('*') => Some(
+                p.path
+                    .split('/')
+                    .filter(|s| !s.is_empty())
+                    .map(str::to_string)
+                    .collect(),
+            ),
+            _ => None,
+        })
+        .collect();
+    let fix_expr = |e: &mut Expr| {
+        if let Some(fixed) = with_trailing_slash(e, &routes) {
+            *e = fixed;
+        }
+    };
+    let mut fix = |stmt: &mut Statement| match &mut stmt.kind {
+        StatementKind::UIElement(ui) => {
+            for arg in &mut ui.args {
+                if let Arg::Named(k, v) = arg
+                    && k == "to"
+                {
+                    fix_expr(v);
+                }
+            }
+        }
+        StatementKind::Navigate(target) => fix_expr(target),
+        StatementKind::ExprStatement(Expr::FunctionCall(name, args))
+            if name == "navigate" && !args.is_empty() =>
+        {
+            fix_expr(&mut args[0]);
+        }
+        _ => {}
+    };
+    for decl in &mut program.declarations {
+        let body = match decl {
+            Declaration::Page(p) => &mut p.body,
+            Declaration::Component(c) => &mut c.body,
+            Declaration::Store(s) => &mut s.body,
+            Declaration::App(a) => &mut a.body,
+            _ => continue,
+        };
+        crate::parser::ast::walk_statements_mut(body, &mut fix);
+    }
+}
+
+/// `target` with a `/` at the end of its path, when it is a link to one of
+/// `routes` (each a page's path, by segment) that has none; `None` when it
+/// is not a page's address or already ends in one.
+fn with_trailing_slash(target: &Expr, routes: &[Vec<String>]) -> Option<Expr> {
+    const SPLICE: char = '\u{1}';
+    let parts: Vec<StringPart> = match target {
+        Expr::StringLiteral(s) => vec![StringPart::Literal(s.clone())],
+        Expr::InterpolatedString(parts) => parts.clone(),
+        _ => return None,
+    };
+    let text: String = parts
+        .iter()
+        .map(|p| match p {
+            StringPart::Literal(t) => t.clone(),
+            StringPart::Expression(_) => SPLICE.to_string(),
+        })
+        .collect();
+    let path = text.split(['?', '#']).next().unwrap_or("");
+    if !path.starts_with('/') || path.starts_with("//") || path == "/" || path.ends_with('/') {
+        return None;
+    }
+    let segments: Vec<&str> = path.split('/').filter(|s| !s.is_empty()).collect();
+    // A file — `/cv.pdf` — is not a page.
+    if segments
+        .last()
+        .is_some_and(|last| !last.contains(SPLICE) && last.contains('.'))
+    {
+        return None;
+    }
+    let is_page = routes.iter().any(|route| {
+        route.len() == segments.len()
+            && route
+                .iter()
+                .zip(&segments)
+                .all(|(r, s)| r.starts_with(':') || s.contains(SPLICE) || r == s)
+    });
+    if !is_page {
+        return None;
+    }
+    // The slash goes where the path ends: before the first `?` or `#` a
+    // literal part holds, or at the very end.
+    let mut out = Vec::with_capacity(parts.len() + 1);
+    let mut placed = false;
+    for part in parts {
+        match part {
+            StringPart::Literal(t) if !placed && t.contains(['?', '#']) => {
+                let at = t.find(['?', '#']).unwrap_or(t.len());
+                out.push(StringPart::Literal(format!("{}/{}", &t[..at], &t[at..])));
+                placed = true;
+            }
+            other => out.push(other),
+        }
+    }
+    if !placed {
+        match out.last_mut() {
+            Some(StringPart::Literal(t)) => t.push('/'),
+            _ => out.push(StringPart::Literal("/".to_string())),
+        }
+    }
+    Some(match target {
+        Expr::StringLiteral(_) => match out.as_slice() {
+            [StringPart::Literal(t)] => Expr::StringLiteral(t.clone()),
+            _ => unreachable!("a literal stays one part"),
+        },
+        _ => Expr::InterpolatedString(out),
+    })
 }
 
 // ─── Site-level files ───────────────────────────────────────────────────
@@ -816,5 +1136,329 @@ page Guide(path: "/docs/getting-started", title: "Getting Started") { Text("x") 
             absolute_url(&cfg, "/").as_deref(),
             Some("https://l.example/docs/")
         );
+    }
+
+    // ─── The owner ──────────────────────────────────────
+
+    fn graph(out: &str) -> serde_json::Value {
+        let json = out
+            .split_once("ld+json\">")
+            .and_then(|(_, r)| r.split_once("</script>"))
+            .expect("a script body")
+            .0;
+        serde_json::from_str::<serde_json::Value>(json).expect("valid JSON-LD")["@graph"].clone()
+    }
+
+    fn node<'a>(graph: &'a serde_json::Value, ty: &str) -> &'a serde_json::Value {
+        graph
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|n| n["@type"] == ty)
+            .unwrap_or_else(|| panic!("no {ty} node in {graph}"))
+    }
+
+    #[test]
+    fn a_site_is_published_by_an_organization_by_default() {
+        let out = head(r#"page P(path: "/", title: "Home") { Text("x") }"#, SITE);
+        let g = graph(&out);
+        let org = node(&g, "Organization");
+        assert_eq!(org["@id"], "https://ledger.example/#organization");
+        assert_eq!(
+            node(&g, "WebSite")["publisher"]["@id"],
+            "https://ledger.example/#organization"
+        );
+        assert!(
+            node(&g, "WebPage").get("about").is_none(),
+            "a company's page is not about the company: {out}"
+        );
+    }
+
+    #[test]
+    fn a_personal_site_is_a_person_the_site_and_its_pages_point_at() {
+        let out = head(
+            r#"page P(path: "/about", title: "About") { Text("x") }"#,
+            r#"{"name":"site","meta":{"site_url":"https://ada.example","site_name":"Ada Lovelace",
+                "owner":"person","job_title":"Analyst",
+                "same_as":["https://github.com/ada","https://www.linkedin.com/in/ada/"]}}"#,
+        );
+        let g = graph(&out);
+        assert!(!out.contains(r#""Organization""#), "{out}");
+        let person = node(&g, "Person");
+        assert_eq!(person["@id"], "https://ada.example/#person");
+        assert_eq!(person["name"], "Ada Lovelace");
+        assert_eq!(person["jobTitle"], "Analyst");
+        assert_eq!(person["sameAs"][1], "https://www.linkedin.com/in/ada/");
+        assert_eq!(
+            node(&g, "WebSite")["publisher"]["@id"],
+            "https://ada.example/#person"
+        );
+        assert_eq!(
+            node(&g, "WebPage")["about"]["@id"],
+            "https://ada.example/#person"
+        );
+    }
+
+    #[test]
+    fn an_organization_takes_its_profiles_but_no_job_title() {
+        let out = head(
+            r#"page P(path: "/", title: "Home") { Text("x") }"#,
+            r#"{"name":"L","meta":{"site_url":"https://l.example","job_title":"CEO",
+                "same_as":["https://github.com/l"]}}"#,
+        );
+        let g = graph(&out);
+        let org = node(&g, "Organization");
+        assert_eq!(org["sameAs"][0], "https://github.com/l");
+        assert!(org.get("jobTitle").is_none(), "{out}");
+    }
+
+    // ─── The sharing image ──────────────────────────────
+
+    #[test]
+    fn a_measured_image_carries_its_size_and_its_description() {
+        let program = parse(r#"page P(path: "/", title: "P") { Text("x") }"#);
+        let mut cfg = config(
+            r#"{"name":"L","meta":{"site_url":"https://l.example","image":"/card.png",
+                "image_alt":"The ledger, open on a desk"}}"#,
+        );
+        cfg.meta.image_sizes.insert("/card.png".into(), (1200, 630));
+        let Declaration::Page(page) = &program.declarations[0] else {
+            unreachable!()
+        };
+        let out = head_tags(page, &cfg, &program);
+        for tag in [
+            r#"<meta property="og:image:width" content="1200">"#,
+            r#"<meta property="og:image:height" content="630">"#,
+            r#"<meta property="og:image:alt" content="The ledger, open on a desk">"#,
+            r#"<meta name="twitter:image:alt" content="The ledger, open on a desk">"#,
+        ] {
+            assert!(out.contains(tag), "{tag} missing: {out}");
+        }
+    }
+
+    #[test]
+    fn an_unmeasured_image_says_nothing_of_its_size() {
+        let out = head(
+            r#"page P(path: "/", title: "P", image: "https://cdn.example/c.png") { Text("x") }"#,
+            SITE,
+        );
+        assert!(out.contains("og:image"), "{out}");
+        assert!(!out.contains("og:image:width"), "{out}");
+        assert!(
+            !out.contains("image:alt"),
+            "no description was given: {out}"
+        );
+    }
+
+    #[test]
+    fn a_page_describes_its_own_image_and_the_projects_alt_stays_with_the_projects_image() {
+        let cfg = r#"{"name":"L","meta":{"site_url":"https://l.example","image":"/card.png",
+            "image_alt":"The project card"}}"#;
+        let own = head(
+            r#"page P(path: "/", title: "P", image: "/post.png", image_alt: "A chart going up") { Text("x") }"#,
+            cfg,
+        );
+        assert!(
+            own.contains(r#"<meta property="og:image:alt" content="A chart going up">"#),
+            "{own}"
+        );
+        let other = head(
+            r#"page P(path: "/", title: "P", image: "/post.png") { Text("x") }"#,
+            cfg,
+        );
+        assert!(
+            !other.contains("The project card"),
+            "the project's alt describes another picture: {other}"
+        );
+    }
+
+    #[test]
+    fn the_build_reads_an_images_size_from_public() {
+        let dir = std::env::temp_dir().join(format!("wf-seo-measure-{}", std::process::id()));
+        std::fs::create_dir_all(dir.join("public/img")).unwrap();
+        image::RgbImage::new(40, 21)
+            .save(dir.join("public/img/card.png"))
+            .unwrap();
+        let program = parse(
+            r#"page P(path: "/", title: "P", image: "/img/card.png") { Text("x") }
+               page Q(path: "/q", title: "Q", image: "/missing.png") { Text("x") }"#,
+        );
+        let mut cfg = config(
+            r#"{"name":"L","meta":{"image":"https://cdn.example/x.png"},"build":{"base_path":"/docs"}}"#,
+        );
+        measure_images(&dir, &mut cfg, &program);
+        let _ = std::fs::remove_dir_all(&dir);
+        assert_eq!(cfg.meta.image_sizes.get("/img/card.png"), Some(&(40, 21)));
+        assert_eq!(cfg.meta.image_sizes.len(), 1, "{:?}", cfg.meta.image_sizes);
+    }
+
+    // ─── og:locale ──────────────────────────────────────
+
+    #[test]
+    fn a_language_tag_becomes_the_locale_open_graph_reads() {
+        assert_eq!(og_locale("en"), "en_US");
+        assert_eq!(og_locale("en-GB"), "en_GB");
+        assert_eq!(og_locale("pt_br"), "pt_BR");
+        assert_eq!(og_locale("ar"), "ar_AR");
+        assert_eq!(og_locale("fr"), "fr_FR");
+        assert_eq!(og_locale("zh-Hant-TW"), "zh_TW");
+        assert_eq!(og_locale("es-419"), "es_419");
+    }
+
+    #[test]
+    fn the_card_names_its_locale_and_the_sites_others() {
+        let out = head(
+            r#"page P(path: "/", title: "P") { Text("x") }"#,
+            r#"{"name":"L","meta":{"site_url":"https://l.example","lang":"en"},
+                "i18n":{"default_locale":"en","locales":["en","ar"]}}"#,
+        );
+        assert!(
+            out.contains(r#"<meta property="og:locale" content="en_US">"#),
+            "{out}"
+        );
+        assert!(
+            out.contains(r#"<meta property="og:locale:alternate" content="ar_AR">"#),
+            "{out}"
+        );
+        assert!(!out.contains(r#"alternate" content="en_US""#), "{out}");
+    }
+
+    // ─── Addresses that do not redirect ─────────────────
+
+    const DIRECTORY: &str = r#"{"name":"L","meta":{"site_url":"https://l.example"},
+        "build":{"clean_urls":"directory"}}"#;
+
+    #[test]
+    fn a_directory_site_names_every_route_with_its_slash() {
+        let out = head(
+            r#"page Docs(path: "/docs", title: "Docs") { Text("x") }
+               page Guide(path: "/docs/guide", title: "Guide") { Text("x") }"#,
+            DIRECTORY,
+        );
+        assert!(
+            out.contains(r#"<link rel="canonical" href="https://l.example/docs/">"#),
+            "{out}"
+        );
+        assert!(
+            out.contains(r#"<meta property="og:url" content="https://l.example/docs/">"#),
+            "{out}"
+        );
+        let program = parse(
+            r#"page Home(path: "/", title: "H") { Text("x") }
+               page Docs(path: "/docs", title: "Docs") { Text("x") }
+               page Guide(path: "/docs/guide", title: "Guide") { Text("x") }"#,
+        );
+        let xml = sitemap(&config(DIRECTORY), &program).unwrap();
+        assert!(xml.contains("<loc>https://l.example/</loc>"), "{xml}");
+        assert!(xml.contains("<loc>https://l.example/docs/</loc>"), "{xml}");
+        assert!(
+            xml.contains("<loc>https://l.example/docs/guide/</loc>"),
+            "{xml}"
+        );
+        let Declaration::Page(guide) = &program.declarations[2] else {
+            unreachable!()
+        };
+        let crumbs = breadcrumbs(guide, &config(DIRECTORY), &program, "https://l.example").unwrap();
+        assert!(
+            crumbs.contains(r#""item":"https://l.example/docs/""#),
+            "{crumbs}"
+        );
+        assert!(
+            crumbs.contains(r#""item":"https://l.example/docs/guide/""#),
+            "{crumbs}"
+        );
+    }
+
+    #[test]
+    fn a_file_site_and_an_unset_one_keep_the_address_without_the_slash() {
+        for cfg in [
+            r#"{"name":"L","meta":{"site_url":"https://l.example"},"build":{"clean_urls":"file"}}"#,
+            r#"{"name":"L","meta":{"site_url":"https://l.example"}}"#,
+        ] {
+            assert_eq!(
+                absolute_url(&config(cfg), "/contact").as_deref(),
+                Some("https://l.example/contact")
+            );
+        }
+    }
+
+    fn to_of(program: &Program, page: usize) -> Vec<String> {
+        let Declaration::Page(p) = &program.declarations[page] else {
+            unreachable!()
+        };
+        let mut found = Vec::new();
+        fn walk(stmts: &[Statement], found: &mut Vec<String>) {
+            for s in stmts {
+                match &s.kind {
+                    StatementKind::UIElement(ui) => {
+                        for a in &ui.args {
+                            if let Arg::Named(k, v) = a
+                                && k == "to"
+                            {
+                                found.push(match v {
+                                    Expr::StringLiteral(t) => t.clone(),
+                                    Expr::InterpolatedString(parts) => parts
+                                        .iter()
+                                        .map(|p| match p {
+                                            StringPart::Literal(t) => t.clone(),
+                                            StringPart::Expression(_) => "{}".into(),
+                                        })
+                                        .collect(),
+                                    other => format!("{other:?}"),
+                                });
+                            }
+                        }
+                        walk(&ui.children, found);
+                        for h in &ui.events {
+                            walk(&h.body, found);
+                        }
+                    }
+                    StatementKind::Navigate(Expr::StringLiteral(t)) => found.push(t.clone()),
+                    _ => {}
+                }
+            }
+        }
+        walk(&p.body, &mut found);
+        found
+    }
+
+    #[test]
+    fn a_directory_site_links_to_a_page_with_its_slash_and_to_a_file_as_written() {
+        let mut program = parse(
+            r#"page Home(path: "/", title: "H") {
+                   Link("Contact", to: "/contact")
+                   Link("Post", to: "/p/{slug}?ref=home#top")
+                   Link("CV", to: "/cv.pdf")
+                   Link("Home", to: "/")
+                   Link("Away", to: "https://x.example/contact")
+                   Link("Nowhere", to: "/nowhere")
+                   Link("Already", to: "/contact/")
+                   Button("Go") { on click { navigate("/contact") } }
+               }
+               page Contact(path: "/contact", title: "C") { Text("x") }
+               page Post(path: "/p/:slug", title: "P", slug: String) { Text(slug) }"#,
+        );
+        directory_links(&config(DIRECTORY), &mut program);
+        assert_eq!(
+            to_of(&program, 0),
+            [
+                "/contact/",
+                "/p/{}/?ref=home#top",
+                "/cv.pdf",
+                "/",
+                "https://x.example/contact",
+                "/nowhere",
+                "/contact/",
+                "/contact/",
+            ]
+        );
+
+        // Unset, nothing moves.
+        let mut program = parse(
+            r#"page Home(path: "/", title: "H") { Link("Contact", to: "/contact") }
+               page Contact(path: "/contact", title: "C") { Text("x") }"#,
+        );
+        directory_links(&config(SITE), &mut program);
+        assert_eq!(to_of(&program, 0), ["/contact"]);
     }
 }

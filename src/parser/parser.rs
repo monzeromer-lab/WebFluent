@@ -215,6 +215,7 @@ impl Parser {
         let mut redirect = None;
         let mut description = None;
         let mut image = None;
+        let mut image_alt = None;
         let mut page_type = None;
         let mut noindex = false;
 
@@ -240,6 +241,7 @@ impl Parser {
                 "redirect" => redirect = Some(self.expect_string()?),
                 "description" => description = Some(self.expect_string()?),
                 "image" => image = Some(self.expect_string()?),
+                "image_alt" => image_alt = Some(self.expect_string()?),
                 "type" => page_type = Some(self.expect_string()?),
                 "noindex" => {
                     // `noindex: true`, or bare `noindex` for the common case.
@@ -273,6 +275,7 @@ impl Parser {
             description_expr: None,
             description,
             image,
+            image_alt,
             page_type,
             noindex,
             guard,

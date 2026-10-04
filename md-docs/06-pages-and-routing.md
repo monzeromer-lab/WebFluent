@@ -29,6 +29,7 @@ The header takes these attributes:
 | `title:` | strongly | The `<title>`, the history entry, what a screen reader announces on arrival; may name the page's parameters, `"{slug} — Blog"`, or splice an expression over them and the program's constants |
 | `description:` | strongly | The meta description and the snippet a search result and a link preview show (~150 characters) |
 | `image:` | | The image a shared link previews with, site-relative or absolute |
+| `image_alt:` | | What that image shows, for a reader who cannot see it (`og:image:alt`); `meta.image_alt` describes the site's image |
 | `type:` | | `og:type` — `website` (default) or `article` |
 | `noindex:` | | `true` keeps the page out of search results and the sitemap |
 | `layout:` | | The component that frames the page (below) |

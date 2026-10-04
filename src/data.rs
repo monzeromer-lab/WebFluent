@@ -196,6 +196,7 @@ pub fn markdown_page(source: &str, file: &str) -> Result<Program> {
             redirect: None,
             description: get("description"),
             image: get("image"),
+            image_alt: get("image_alt"),
             page_type: get("type"),
             noindex: get("noindex").is_some_and(|v| v == "true"),
             layout,

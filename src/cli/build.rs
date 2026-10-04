@@ -142,6 +142,8 @@ pub fn analyse(
     // script each, copied as written and linked before the compiled code.
     let scripts = crate::project_js::load(project_dir, &project_dir.join("src"))?;
     config.build.scripts = scripts.iter().map(|s| s.href.clone()).collect();
+    // The size of each sharing image under `public/`, for the card.
+    crate::codegen::seo::measure_images(project_dir, config, &program);
     let file_of = |index: usize| {
         declaration_files
             .get(index)
@@ -238,7 +240,10 @@ fn build(project_dir: &Path, options: Options) -> Result<()> {
     // storage — the values of the build before, when it changed — to load
     // the pages as a reader who last visited then.
     crate::linter::project::keep_persisted_values(project_dir, &program, &config.env);
-    let program = lowered;
+    let mut program = lowered;
+    // Under `clean_urls: "directory"`, every link to a page names the
+    // address with the slash, as the canonical does.
+    crate::codegen::seo::directory_links(&config, &mut program);
 
     // A PDF document or a slide deck: the page's markup and the site's
     // stylesheet, laid out on paper by the paged engine — so the document
@@ -459,6 +464,7 @@ fn build(project_dir: &Path, options: Options) -> Result<()> {
                         fs::create_dir_all(&dir)?;
                         fs::write(dir.join("index.html"), &page_html)?;
                         written_html.push(dir.join("index.html"));
+                        write_beside(&config, &dir, &page_html)?;
                     }
                     continue;
                 }
@@ -481,6 +487,7 @@ fn build(project_dir: &Path, options: Options) -> Result<()> {
                     fs::create_dir_all(&dir)?;
                     fs::write(dir.join("index.html"), &page_html)?;
                     written_html.push(dir.join("index.html"));
+                    write_beside(&config, &dir, &page_html)?;
                 }
             }
         }
@@ -810,6 +817,24 @@ const SIZES_FILE: &str = ".wf-sizes.json";
 /// Every text output with its gzipped size, keyed by its path in the output.
 ///
 /// Gzipped, because that is what a visitor downloads.
+/// Under `build.clean_urls: "file"`, `contact/index.html` is written again
+/// as `contact.html`, which a static host serves for `/contact` itself —
+/// GitHub Pages answers `/contact` with a `301` to `/contact/` otherwise, so
+/// the canonical address would be one that redirects. The page addresses its
+/// assets from the site root under this setting, so the copy is exact.
+fn write_beside(config: &ProjectConfig, dir: &Path, page_html: &str) -> Result<()> {
+    if config.build.clean_urls != Some(crate::config::CleanUrls::File) {
+        return Ok(());
+    }
+    let (Some(parent), Some(name)) = (dir.parent(), dir.file_name()) else {
+        return Ok(());
+    };
+    let mut file = name.to_os_string();
+    file.push(".html");
+    fs::write(parent.join(file), page_html)?;
+    Ok(())
+}
+
 fn gzipped_sizes(output_dir: &Path) -> Result<BTreeMap<String, usize>> {
     let mut sizes = BTreeMap::new();
     let mut walk = vec![output_dir.to_path_buf()];

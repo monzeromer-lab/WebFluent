@@ -36,4 +36,4 @@ data registry: Map = "registry.json"
 /// Every chapter, section, component and diagnostic of the guide, for the
 /// header's search: `public/search-index.json`, fetched the first time the
 /// search box is used rather than carried by every page.
-const SEARCH_INDEX = "/WebFluent/search-index.json"
+const SEARCH_INDEX = "/search-index.json"

@@ -358,8 +358,13 @@ pub fn render_page_html_studio(
     // is served for any path a static host has no file for, at any depth, so
     // its assets are addressed from the site root: a relative `./app.js` from
     // `/app/builds/8f2c41` used to fetch a second 404 page as the script.
+    // Under `clean_urls: "file"` a page is also written as `contact.html`
+    // at the level above its directory, and one file served from two
+    // depths cannot address its assets relatively: from the root they are
+    // the same from both.
     let route = page.path.trim_start_matches('/');
-    let base = if route == "*" {
+    let from_root = config.build.clean_urls == Some(crate::config::CleanUrls::File);
+    let base = if route == "*" || (from_root && !route.is_empty() && route != "/") {
         let root = config.build.base_path.trim_end_matches('/');
         if root.is_empty() {
             String::new()

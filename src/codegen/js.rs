@@ -7249,6 +7249,7 @@ mod tests {
             redirect: None,
             description: None,
             image: None,
+            image_alt: None,
             page_type: None,
             noindex: false,
             layout: None,

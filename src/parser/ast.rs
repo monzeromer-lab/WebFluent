@@ -449,6 +449,9 @@ pub struct PageDecl {
     pub description: Option<String>,
     /// The image a shared link previews with, as a site-relative or absolute URL.
     pub image: Option<String>,
+    /// What the sharing image shows, for a reader who cannot see it:
+    /// `og:image:alt` and `twitter:image:alt`. Falls back to `meta.image_alt`.
+    pub image_alt: Option<String>,
     /// `og:type` — `website` for most pages, `article` for a post.
     pub page_type: Option<String>,
     /// Keep this page out of search results (`robots: noindex`).
@@ -1512,6 +1515,70 @@ pub fn walk_exprs_mut(stmts: &mut [Statement], f: &mut dyn FnMut(&mut Expr)) {
                 walk_exprs_mut(&mut t.catch_body, f);
             }
             StatementKind::Use(_) | StatementKind::Animate(_) => {}
+        }
+    }
+}
+
+/// `f` on every statement under `stmts`, at any depth, before the
+/// statements nested in it: an element's children, fills and handlers, a
+/// branch, a loop, an arm, an action's and an effect's bodies.
+pub fn walk_statements_mut(stmts: &mut [Statement], f: &mut dyn FnMut(&mut Statement)) {
+    for stmt in stmts.iter_mut() {
+        f(stmt);
+        match &mut stmt.kind {
+            StatementKind::Effect(e) => {
+                walk_statements_mut(&mut e.body, f);
+                walk_statements_mut(&mut e.cleanup, f);
+            }
+            StatementKind::Timer(t) => walk_statements_mut(&mut t.body, f),
+            StatementKind::Action(a) => walk_statements_mut(&mut a.body, f),
+            StatementKind::UIElement(el) => {
+                for h in &mut el.events {
+                    walk_statements_mut(&mut h.body, f);
+                }
+                for fill in &mut el.slot_fills {
+                    walk_statements_mut(&mut fill.body, f);
+                }
+                walk_statements_mut(&mut el.children, f);
+            }
+            StatementKind::If(i) => {
+                walk_statements_mut(&mut i.then_body, f);
+                for (_, b) in &mut i.else_if_branches {
+                    walk_statements_mut(b, f);
+                }
+                if let Some(b) = &mut i.else_body {
+                    walk_statements_mut(b, f);
+                }
+            }
+            StatementKind::For(fs) => walk_statements_mut(&mut fs.body, f),
+            StatementKind::Show(s) => walk_statements_mut(&mut s.body, f),
+            StatementKind::Fetch(fd) => {
+                if let Some(b) = &mut fd.loading_block {
+                    walk_statements_mut(b, f);
+                }
+                if let Some((_, b)) = &mut fd.error_block {
+                    walk_statements_mut(b, f);
+                }
+                if let Some(b) = &mut fd.success_block {
+                    walk_statements_mut(b, f);
+                }
+            }
+            StatementKind::EventHandler(h) => walk_statements_mut(&mut h.body, f),
+            StatementKind::Connection(c) => {
+                for h in &mut c.handlers {
+                    walk_statements_mut(&mut h.body, f);
+                }
+            }
+            StatementKind::Match(m) => {
+                for arm in &mut m.arms {
+                    walk_statements_mut(&mut arm.body, f);
+                }
+            }
+            StatementKind::Try(t) => {
+                walk_statements_mut(&mut t.body, f);
+                walk_statements_mut(&mut t.catch_body, f);
+            }
+            _ => {}
         }
     }
 }
