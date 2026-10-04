@@ -1,3 +1,82 @@
+# WebFluent v5.2.0 Release Notes
+
+A PDF is the page, printed. The PDF and slide writers are replaced by one
+paged layout engine: the program is rendered to the HTML and CSS a
+template renders, and the compiler lays that out on paper itself — the
+real cascade, block, flex and grid layout, shaped and bidirectional text,
+pagination, and a PDF with embedded font subsets, an outline and links. No
+browser, no external tool. A design that works on the web works on paper.
+
+## The engine
+
+- **CSS, as the page has it.** The engine's rules for every built-in, the
+  theme's tokens, the project's `.css` files and every `style { }` block,
+  through a cascade with combinators, attribute selectors,
+  `:first-child`/`:nth-child`, specificity, inheritance, `var()`, `em`,
+  `rem`, `%` and `::before`/`::after`. `@media print` applies.
+- **Layout.** Block, flex and grid, absolute positioning, `gap`,
+  `min-`/`max-` sizes, `aspect-ratio`, inline-blocks on a line, tables
+  sized by their content, list markers.
+- **Text.** Shaped (ligatures, kerning, Arabic joining), bidirectional,
+  broken at Unicode's opportunities, justified. A right-to-left document
+  mirrors its rows, grids, tables and list markers.
+- **Paint.** Gradients with any number of stops, background pictures,
+  per-side borders with radii, shadows, opacity, clipping, rotation; PNG,
+  JPEG, WebP, GIF and SVG (kept vector).
+- **Pagination.** Lines kept two to a side, tables broken between rows with
+  their header repeated, side-by-side columns broken each on its own,
+  headings kept with what follows, `break-inside: avoid`, `PageBreak` and
+  `break-before`/`break-after`.
+
+## New elements
+
+- **`Header(on:)`, `Footer(on:)`** with `page` and `pages` in scope;
+  **`Background(on:)`**, drawn edge to edge behind each page;
+  **`Watermark("DRAFT")`**.
+- **`TableOfContents(levels:, title:)`** — headings with the page each
+  lands on, dotted leaders, linked.
+- **`Chart(kind: .bar | .line | .area | .pie | .donut, …)`** and
+  **`QrCode(value)`**, vector graphics in a PDF, and SVG on a web page
+  where what they read is known at build time.
+- **`Document(size:, landscape, margin:, title:, author:, subject:,
+  keywords:, lang:)`** names the paper and the file's metadata.
+
+## Fonts
+
+Liberation Sans, Serif and Mono are built into `wf`, so `Helvetica`,
+`Arial`, `sans-serif`, `Times` and `monospace` resolve with nothing
+installed. `.ttf`/`.otf` files under `fonts/` (or `src/fonts/`,
+`public/fonts/`, `pdf.fonts`) and local `@font-face` rules are used by
+their family name, variable fonts at the asked weight. A character no
+named face has is drawn from one that has it; the build names any family
+taken from the machine, and `"system_fonts": false` forbids it.
+
+## Templates
+
+- **`render_pdf_report` and `render_slides_report`** return a `PdfReport`:
+  the bytes, the page count, each page's text in reading order and the
+  notes. A template reads fonts and pictures from beside its files.
+
+## Diagnostics
+
+- **`V11`**: a component of the project's own named like a built-in
+  (`component Chart`), which shadows it.
+- **`E109`** now refuses only what a page means only in a browser;
+  everything static draws.
+
+## Examples
+
+`examples/documents/` holds three reference documents: a nine-page
+Halyard platform report (dark cover, contents, charts, a 64-row table that
+repeats its header, incidents, a QR code), an invoice (band, watermark,
+repeated header, totals kept whole), and an Arabic résumé laid out right to
+left.
+
+## Editors
+
+The tree-sitter grammars and the VS Code grammar highlight the new
+elements.
+
 # WebFluent v5.1.1 Release Notes
 
 The language server says which version it is.

@@ -65,6 +65,7 @@ const BUILTIN_COMPONENTS = [
   "Host", "Element",
   // Document (PDF)
   "Document", "Section", "Paragraph", "PageBreak", "Header", "Footer",
+  "Background", "Watermark", "TableOfContents", "Chart", "QrCode",
   // Slides
   "Presentation", "Slide", "TitleSlide", "SectionSlide", "TwoColumn",
   "ImageSlide",

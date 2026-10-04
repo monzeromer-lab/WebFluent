@@ -120,7 +120,13 @@ let pdf: Vec<u8> = templates
   block. `render_html_parts` hands the CSS and the markup back separately,
   for a server that links its stylesheet and keeps a strict
   Content-Security-Policy. `render_html_fragment` is the markup alone;
-  `render_pdf` and `render_slides` are PDF bytes.
+  `render_pdf` and `render_slides` are PDF bytes, laid out by the paged
+  engine of [chapter 33](33-pdf-and-slides.md); `render_pdf_report` and
+  `render_slides_report` return a `PdfReport` — the bytes, the page count,
+  each page's text in reading order (for a test that holds a document to
+  what it says) and the notes (a font taken from the machine, a character
+  no font had). A template loaded from files reads its fonts from
+  `fonts/` beside it, and its pictures from there too.
 - **Settings.** `with_theme(name)`, `with_tokens(&[(name, value)])`,
   `with_lang("ar")` (an RTL language also sets `dir="rtl"`),
   `with_pdf(PdfConfig { .. })` for page size, margins and fonts, and

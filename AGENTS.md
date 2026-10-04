@@ -484,8 +484,7 @@ The name is a value too: `hero.src`, `.width`, `.height`, `.color`,
 
 `media.pipeline: false` copies the file as `public/` always did. The work
 is cached in `.wf-cache/media/` by content hash, so a build that changes no
-image does no image work. The PDF and slides backends embed the real
-picture — the grey `[Image]` rectangle is gone.
+image does no image work. A PDF or a deck embeds the real picture.
 
 `data posts = "posts.json"` (or `data posts: [Post] = "content/posts.json"`)
 is a constant whose value is a JSON file's, read at build time from the
@@ -1766,27 +1765,13 @@ it: `style { width: {pct}% }` or `style { background: {tone} }` repaints
 whenever `pct` or `tone` changes; a value without a splice compiles to a
 stylesheet rule the element carries by class.
 
-### Style support in PDF and Slides
+### Style in PDF and slides
 
-The PDF and Slides backends honor the same set of style properties on `Slide` (slides only) and on layout containers (`Container`, `Column`, `Stack`, `Grid`, `Card`, `Section`). Anything else emits a `warning[pdf]:` or `warning[slides]: unsupported style property '<name>' on <Component>` (deduped per build).
-
-| Property | Values | Notes |
-|----------|--------|-------|
-| `background` / `background-color` | `"#hex"`, `"linear-gradient(...)"` | Paint color or PDF axial-shading gradient |
-| `padding`, `padding-{top,right,bottom,left}` | `Npt`, `Npx`, `N` | Insets the container's child rendering |
-| `border` | `"Npt #hex"` (CSS shorthand, simplified) | Width + color |
-| `border-color` | `"#hex"` | |
-| `border-width` | `Npt` | |
-| `border-radius` | `Npt` | Rounds the bg + border |
-| `box-shadow` | `"X Y #hex"` | Offset rect; blur is ignored |
-| `width`, `height` | `Npt`, `N%` | Fixed-size or percent of parent |
-| `color`, `font-family`, `font-size`, `text-align` | as CSS | On `Text`/`Heading` |
-
-Linear gradient syntax: `linear-gradient(to bottom, #color1, #color2)`, `linear-gradient(45deg, #c1, #c2)`, or named directions `to top|right|bottom|left|top-right|...`. Two color stops only.
-
-The `Slide` element accepts `style { background }` (full-bleed page background). Setting `background` on a `Container` paints the rect under that container's measured box (or its explicit `width`/`height`).
-
-Painting order inside a styled container: shadow → background → border → children. Children paint on top of decoration via content-stream splicing.
+A PDF or a deck is laid out from the same HTML and CSS the page would
+get, so a `style { }` block, a theme and the project's `.css` files mean
+there what they mean on the web — every property the engine draws, on any
+element (see [PDF Output](#pdf-output)). `@media print { }` applies to
+paper only; a rule only a screen has (`:hover`, a width query) does not.
 
 ### Responsive values
 
@@ -2302,64 +2287,137 @@ RTL locales (automatic `dir="rtl"`): `ar`, `he`, `fa`, `ur`
             "margins": { "top": 72, "bottom": 72, "left": 72, "right": 72 },
             "default_font": "Helvetica",
             "default_font_size": 12,
-            "output_filename": "report.pdf"
+            "output_filename": "report.pdf",
+            "fonts": [],
+            "system_fonts": true
         }
     }
 }
 ```
 
-### PDF-specific components
+A PDF is the page, printed — by the compiler's own paged engine, no
+browser and no external tool. The program is rendered to the static HTML
+and CSS a template renders, and that is laid out on paper:
 
-| Component | Purpose |
-|-----------|---------|
-| `Document(page_size: "A4")` | Root document wrapper |
-| `Section` | Groups content with spacing |
-| `Paragraph` | Block of text with paragraph spacing |
-| `Header` | Content repeated at top of every page |
-| `Footer` | Content repeated at bottom of every page |
-| `PageBreak()` | Forces a new page |
+- **The cascade.** The engine's rules for every built-in, the theme's
+  tokens, every `.css` file under `src/` and every `style { }` block:
+  descendant, child and sibling combinators, attribute selectors,
+  `:first-child`/`:nth-child`, specificity, inheritance, `var()`, `em`,
+  `rem`, `%`, `::before`/`::after` content. A `Card` in a PDF looks like the
+  `Card` on the page; `class: "callout"` brings its rules.
+- **Layout.** Block, flex and grid as CSS defines them — `Row`, `Stack`,
+  `Grid`, `Column` side by side as on the web — absolute positioning, `gap`,
+  `min-`/`max-` sizes, `aspect-ratio`, inline-blocks on a line (a badge in a
+  sentence), tables sized by their content, list markers. `px` is 0.75pt;
+  `100vh` is the page's height.
+- **Text.** Shaped (ligatures, kerning, Arabic joining), bidirectional,
+  broken at Unicode's line-break opportunities, aligned or justified.
+- **Paint.** Colours, linear and radial gradients with any number of stops,
+  background pictures, borders per side (solid, dashed, dotted) with rounded
+  corners, shadows, opacity, `overflow: hidden`, `transform: rotate()`;
+  PNG, JPEG (embedded as it is), WebP, GIF, and SVG kept vector.
+- **The file.** Fonts embedded as subsets with the text attached (copy and
+  search work), compressed, with title and author, an outline of the
+  headings, and links that work.
 
-Supported in PDF: `Text`, `Heading`, `Table`, `List`, `Code`, `Blockquote`, `Divider`, `Alert`, `Badge`, `Progress`, `Card`, `Image`, `Spacer`, `Container`, `Row`, `Stack`, `Grid`
+### Document elements
 
-**Rejected in PDF** (compile error): `Button`, `Input`, `Select`, `Checkbox`, `Switch`, `Form`, `Modal`, `Dialog`, `Toast`, `Router`, `Navbar`, `Sidebar`, `Tabs`, `Video`, `Carousel`, and all event handlers.
+| Element | Purpose |
+|---|---|
+| `Document(size:, landscape, margin:, title:, author:, subject:, keywords:, lang:)` | The root: paper (`A4`, `A3`, `A5`, `Letter`, `Legal`, `Tabloid`, or `"210mm 297mm"`), margins (one length or four), and the file's metadata; `build.pdf` decides what it omits |
+| `Header(on:)` · `Footer(on:)` | Drawn in the top/bottom margin of every page, or `on: .first`, `.rest`, `.odd`, `.even` (`.all` is the default) |
+| `Background(on:)` | Behind each page's content, the whole page edge to edge: a cover's gradient, a band, a sidebar strip |
+| `Watermark("DRAFT")` | Large, faint, rotated text behind each page; styled by `.wf-watermark` |
+| `TableOfContents(levels: 2, title:)` | The headings with the page each lands on, dotted leaders, each entry a link |
+| `PageBreak` | A new page; so do `break-before: page` / `break-after: page` |
+| `Section`, `Paragraph` | Grouping, and a paragraph's spacing |
+| `Chart(kind:, data:, x:, y:)` | `.bar` (grouped, or `stacked`), `.line`, `.area`, `.pie`, `.donut` over a list of records, as vector graphics; `colors`, `ink`, `grid`, `legend`, `labels`, `unit`, `width`/`height` |
+| `QrCode(value, color:, background:)` | A QR code of a URL or any text |
 
-Page sizes: `A4`, `A3`, `A5`, `Letter`, `Legal`
-Fonts: Helvetica, Helvetica-Bold, Times-Roman, Times-Bold, Courier, Courier-Bold (all Base14)
+Inside a `Header`, `Footer` or `Background`, `page` and `pages` are the
+page's number and the count: `Text("Page {page} of {pages}")`. The `html`
+or `body` background fills every page edge to edge, so a dark theme prints
+dark. `Chart` and `QrCode` draw on a web page too, as an SVG made at build
+time — there what they read must be known then (a literal, a `const`, a
+`data` file), or it is `E109`.
+
+### Breaking across pages
+
+- Paragraphs break between lines, two at least on each side (`orphans`,
+  `widows`).
+- Tables break between rows, and the header row is drawn again on every
+  page the table continues on.
+- A grid breaks between its rows; side-by-side columns taller than a page
+  break each on its own.
+- A heading never ends a page: it moves with what follows.
+- `break-inside: avoid` keeps a box whole (a totals block, a signature).
+- A box that runs onto the next page is painted on both, its border open
+  at the break.
+
+### Fonts and languages
+
+The default faces are Liberation Sans, Serif and Mono, built into `wf`, so
+`Helvetica`, `Arial`, `system-ui`, `sans-serif`, `Times`, `serif`, `Courier`
+and `monospace` resolve with nothing installed. Any other family is a file:
+`.ttf`/`.otf` under `fonts/`, `src/fonts/`, `public/fonts/` or `pdf.fonts`,
+named by the family inside it (variable fonts drawn at the asked weight; a
+missing bold or italic synthesised), or a local `@font-face`. A character no
+named face has comes from one that has it — the project's fonts, then the
+machine's, which the build names in a `note:` so the document can be made
+reproducible by copying them into `fonts/`. `system_fonts: false` forbids
+the machine's; a character no font has is reported, never drawn as `?`.
+
+A document whose `lang` is `ar`, `he`, `fa` or `ur` is laid out right to
+left — text, flex rows, grids, table columns, list markers — with runs of
+the other direction ordered by the Unicode bidirectional algorithm.
 
 ### PDF example
 
 ```wf
-page Report(path: "/", title: "Report") {
-    Document(page_size: "A4") {
-        Header {
-            Text("Company Inc.").muted.sm.right
-        }
-        Footer {
-            Text("Confidential").muted.sm.center
-        }
-        Section {
-            Heading("Q1 Report").h1
-            Text("Revenue grew 15% this quarter.")
+const SALES = [
+    { month: "Jan", web: 41, store: 22 },
+    { month: "Feb", web: 48, store: 25 },
+]
 
-            Table {
-                Table.Head { Table.Row { Table.Cell("Region") Table.Cell("Revenue") } }
-                Table.Body { Table.Row { Table.Cell("North America") Table.Cell("$2.4M") } }
-            }
-
-            PageBreak
-            Heading("Highlights").h2
-            List {
-                Text("Launched 3 new products")
-                Text("Expanded to 5 markets")
-            }
+page Report(path: "/", title: "Report", description: "The quarter.") {
+    Document(size: "A4", title: "Q1 report", author: "Company Inc.") {
+        Background(on: .first) {
+            Stack { style { height: 100%; background: linear-gradient(160deg, #0B1220, #1E3A8A) } }
         }
+        Header(on: .rest) { Text("Company Inc. · Q1").muted.sm.right }
+        Footer { Text("Page {page} of {pages}").muted.sm.center }
+        Watermark("DRAFT")
+
+        Heading("Q1 Report").h1
+        TableOfContents(levels: 2)
+        PageBreak
+
+        Heading("Sales").h2
+        Row(gap: .lg) {
+            Chart(kind: .bar, data: SALES, x: "month", y: ["web", "store"], unit: "k")
+            Chart(kind: .donut, data: SALES, x: "month", y: "web", labels: true)
+        }
+        Table {
+            Table.Head { Table.Row { Table.Cell("Region")  Table.Cell("Revenue") } }
+            Table.Body { Table.Row { Table.Cell("North America")  Table.Cell("$2.4M") } }
+        }
+        Card {
+            style { break-inside: avoid }
+            Text("Revenue grew 15% this quarter.").bold
+        }
+        QrCode("https://example.com/q1")
     }
 }
 ```
 
-## Slides Output (PDF Slide Decks)
+**Refused in a PDF or a deck** (`E109`, where it is written): controls
+(`Button`, `Input`, `Select`, `Checkbox`, `Switch`, `Form`, …), navigation
+(`Router`, `Navbar`, `Sidebar`, `Tabs`, `Menu`), overlays (`Modal`, `Dialog`,
+`Toast`, `Tooltip`), media that plays (`Video`, `Audio`, `Carousel`),
+elements a script draws (`Host`, `Element`), handlers, `resource`, motion.
+Everything static draws.
 
-PDF deck output where **one `Slide` = one PDF page** (no flow pagination).
+## Slides Output (PDF Slide Decks)
 
 ```json
 {
@@ -2374,88 +2432,60 @@ PDF deck output where **one `Slide` = one PDF page** (no flow pagination).
             "footer_text": "My Deck",
             "background_color": "#1A1A19",
             "chrome_color": null,
-            "output_filename": "deck.pdf"
+            "output_filename": "deck.pdf",
+            "fonts": [],
+            "system_fonts": true
         }
     }
 }
 ```
 
-`background_color` paints every slide full-bleed with the given color (override per-slide via `Slide { style { background } }`). `chrome_color` overrides the slide-number/footer color; if `null`, it auto-flips between dark and light grey based on the slide's background luminance.
+The same engine, **one `Slide` = one page**: a slide is a box the size of
+the page with `slides.margin` as its padding. A deck is a `Presentation { }`
+inside a page; slide elements outside one are a compile error.
 
-A deck must be wrapped in a `Presentation { ... }` block inside a `Page` body. Slide elements must not appear outside `Presentation` (compile error).
+| Element | Purpose |
+|---|---|
+| `Presentation { ... }` | The deck — its children are slides |
+| `Slide { ... }` | Freeform, a column from the top |
+| `TitleSlide("Title", subtitle: "…")` | Cover, centred |
+| `SectionSlide("Label").primary` | Full-bleed band; `.primary`, `.success`, `.danger`, `.warning`, `.info` |
+| `TwoColumn { Container { … } Container { … } }` | Two equal columns |
+| `ImageSlide(src: "…", caption: "…")` | A picture with an optional caption |
 
-### Slide kinds
+Each is styled by the engine's sheet (every size relative to
+`default_font_size`), and a project's rules or a `style { }` change it as
+anywhere: `Slide { style { background: linear-gradient(135deg, #1E3A8A,
+#0F172A); color: #fff } }`. Everything a document draws, a slide draws —
+layout, charts, QR codes, pictures, tables, Arabic.
 
-| Component | Purpose |
-|-----------|---------|
-| `Presentation { ... }` | Deck root — children must be slide elements only |
-| `Slide { ... }` | Freeform slide; top-aligned content |
-| `TitleSlide("Title", subtitle: "Subtitle")` | Cover slide; title 56pt bold + subtitle 28pt grey, vertical-centered |
-| `SectionSlide("Label").primary` | Full-bleed colored band, white centered label (48pt bold). Tones: `.primary`, `.success`, `.danger`, `.warning`, `.info` |
-| `TwoColumn { Container { ... } Container { ... } }` | Two equal columns with a 24pt gutter — requires exactly 2 `Container` children |
-| `ImageSlide(src: "...", caption: "...")` | Image slide with optional caption; `src` is required |
-
-Body components inside a `Slide` (or inside `TwoColumn`'s columns): `Text`, `Heading` (auto-scaled ~2× for slides), `List`, `Container`, `Stack`, `Column`, `Grid`, `Section`, `Spacer`, `Divider`, `if`/`for` (static iteration only).
-
-### Slide sizing (`slides.size`)
-
-- `"16:9"` → 960×540pt (default)
-- `"4:3"` → 720×540pt
-- `"A4-landscape"` → 841.89×595.28pt
-- `"WIDTHxHEIGHT"` (e.g. `"800x600"`) → explicit points
-
-Or override with `slides.width` + `slides.height` (in points).
-
-### Slide chrome (opt-in via config)
-
-- `slides.show_slide_numbers: true` → `n / total` in bottom-right
-- `slides.footer_text: "..."` → text in bottom-left
-
-Both render in 11pt grey at the bottom margin.
-
-### Overflow
-
-Content that exceeds the bottom margin is **clipped** and a warning is printed to stderr (`warning[slides]: slide N content overflows; truncated`). The build does **not** fail on overflow.
-
-### Rejected in slides
-
-Same interactive components as PDF (`Button`, `Input`, `Form`, `Modal`, `Router`, `Navbar`, `Video`, etc.) plus PDF document components (`Document`, `Paragraph`, `PageBreak`, `Header`, `Footer`) — slides have their own footer chrome via config.
-
-### Slides example
+- `slides.size`: `"16:9"` (960×540pt, default), `"4:3"` (720×540),
+  `"A4-landscape"` (841.89×595.28), or `"WIDTHxHEIGHT"` in points;
+  `slides.width` + `slides.height` override it.
+- `show_slide_numbers` (`n / total`, bottom right) and `footer_text` (bottom
+  left) are the chrome; `chrome_color` colours it, flipping between dark and
+  light on the slide's background when `null`. `background_color` paints
+  every slide.
+- What runs past a slide's edge is **clipped**, with a note naming the
+  slide; the build does not fail.
 
 ```wf
-page Deck(path: "/", title: "Q1 Review") {
+page Deck(path: "/", title: "Q1 Review", description: "The quarter.") {
     Presentation {
         TitleSlide("Q1 Review", subtitle: "Company Inc. — March 2026")
-
+        SectionSlide("Numbers").primary
         Slide {
             Heading("Highlights").h1
             List {
-                Text("Launched 3 new products")
-                Text("Expanded to 5 markets")
-                Text("Revenue grew 15%")
+                List.Item { Text("Launched 3 new products") }
+                List.Item { Text("Revenue grew 15%") }
             }
         }
-
         TwoColumn {
-            Container {
-                Heading("Wins").h3
-                Text("New enterprise deals")
-            }
-            Container {
-                Heading("Risks").h3
-                Text("Supply chain delays")
-            }
+            Container { Heading("Wins").h3  Text("New enterprise deals") }
+            Container { Heading("Risks").h3  Text("Supply chain delays") }
         }
-
         ImageSlide(src: "chart.png", caption: "Q1 revenue by region")
-
-        SectionSlide("Q2 Plan").primary
-
-        Slide {
-            Heading("Thanks").h1
-            Text("Questions?")
-        }
     }
 }
 ```
@@ -2775,7 +2805,9 @@ now ships on every page.
             "margins": { "top": 72, "bottom": 72, "left": 72, "right": 72 },
             "default_font": "Helvetica",
             "default_font_size": 12,
-            "output_filename": null
+            "output_filename": null,
+            "fonts": [],
+            "system_fonts": true
         },
         "slides": {
             "size": "16:9",
@@ -2788,7 +2820,9 @@ now ships on every page.
             "footer_text": null,
             "background_color": null,
             "chrome_color": null,
-            "output_filename": null
+            "output_filename": null,
+            "fonts": [],
+            "system_fonts": true
         }
     },
     "dev": { "port": 3000, "hot_reload": true },
@@ -2960,4 +2994,5 @@ page Invoice(path: "/", title: "Invoice") {
 18. **Reserved words as map keys**: `{ action: "approve", token: tok }` — all keywords work as map keys
 19. **`public/` copies to build root**: files in `public/` land at the root of the output directory, not nested
 20. **Slides need a Presentation wrapper**: `Page X { Presentation { Slide { ... } } }` — slide elements outside `Presentation` are a compile error
-21. **One Slide = one PDF page**: slides do not flow across pages; overflow is clipped with a stderr warning
+21. **One Slide = one PDF page**: slides do not flow across pages; overflow is clipped with a note
+22. **A PDF is the page, printed**: the same CSS lays it out — style a document as you would a web page, and use `break-inside: avoid`, `PageBreak` and `Header`/`Footer` for what paper needs

@@ -4383,6 +4383,10 @@
     "named": false
   },
   {
+    "type": "Background",
+    "named": false
+  },
+  {
     "type": "Badge",
     "named": false
   },
@@ -4412,6 +4416,10 @@
   },
   {
     "type": "Carousel",
+    "named": false
+  },
+  {
+    "type": "Chart",
     "named": false
   },
   {
@@ -4555,6 +4563,10 @@
     "named": false
   },
   {
+    "type": "QrCode",
+    "named": false
+  },
+  {
     "type": "Radio",
     "named": false
   },
@@ -4627,6 +4639,10 @@
     "named": false
   },
   {
+    "type": "TableOfContents",
+    "named": false
+  },
+  {
     "type": "Tabs",
     "named": false
   },
@@ -4680,6 +4696,10 @@
   },
   {
     "type": "Video",
+    "named": false
+  },
+  {
+    "type": "Watermark",
     "named": false
   },
   {

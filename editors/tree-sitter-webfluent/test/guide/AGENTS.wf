@@ -760,66 +760,57 @@ page Doc(path: "/") {
 }
 
 // AGENTS.md
-page Report(path: "/", title: "Report") {
-    Document(page_size: "A4") {
-        Header {
-            Text("Company Inc.").muted.sm.right
+const SALES = [
+    { month: "Jan", web: 41, store: 22 },
+    { month: "Feb", web: 48, store: 25 },
+]
+page Report(path: "/", title: "Report", description: "The quarter.") {
+    Document(size: "A4", title: "Q1 report", author: "Company Inc.") {
+        Background(on: .first) {
+            Stack { style { height: 100%; background: linear-gradient(160deg, #0B1220, #1E3A8A) } }
         }
-        Footer {
-            Text("Confidential").muted.sm.center
-        }
-        Section {
-            Heading("Q1 Report").h1
-            Text("Revenue grew 15% this quarter.")
+        Header(on: .rest) { Text("Company Inc. · Q1").muted.sm.right }
+        Footer { Text("Page {page} of {pages}").muted.sm.center }
+        Watermark("DRAFT")
 
-            Table {
-                Table.Head { Table.Row { Table.Cell("Region") Table.Cell("Revenue") } }
-                Table.Body { Table.Row { Table.Cell("North America") Table.Cell("$2.4M") } }
-            }
+        Heading("Q1 Report").h1
+        TableOfContents(levels: 2)
+        PageBreak
 
-            PageBreak
-            Heading("Highlights").h2
-            List {
-                Text("Launched 3 new products")
-                Text("Expanded to 5 markets")
-            }
+        Heading("Sales").h2
+        Row(gap: .lg) {
+            Chart(kind: .bar, data: SALES, x: "month", y: ["web", "store"], unit: "k")
+            Chart(kind: .donut, data: SALES, x: "month", y: "web", labels: true)
         }
+        Table {
+            Table.Head { Table.Row { Table.Cell("Region")  Table.Cell("Revenue") } }
+            Table.Body { Table.Row { Table.Cell("North America")  Table.Cell("$2.4M") } }
+        }
+        Card {
+            style { break-inside: avoid }
+            Text("Revenue grew 15% this quarter.").bold
+        }
+        QrCode("https://example.com/q1")
     }
 }
 
 // AGENTS.md
-page Deck(path: "/", title: "Q1 Review") {
+page Deck(path: "/", title: "Q1 Review", description: "The quarter.") {
     Presentation {
         TitleSlide("Q1 Review", subtitle: "Company Inc. — March 2026")
-
+        SectionSlide("Numbers").primary
         Slide {
             Heading("Highlights").h1
             List {
-                Text("Launched 3 new products")
-                Text("Expanded to 5 markets")
-                Text("Revenue grew 15%")
+                List.Item { Text("Launched 3 new products") }
+                List.Item { Text("Revenue grew 15%") }
             }
         }
-
         TwoColumn {
-            Container {
-                Heading("Wins").h3
-                Text("New enterprise deals")
-            }
-            Container {
-                Heading("Risks").h3
-                Text("Supply chain delays")
-            }
+            Container { Heading("Wins").h3  Text("New enterprise deals") }
+            Container { Heading("Risks").h3  Text("Supply chain delays") }
         }
-
         ImageSlide(src: "chart.png", caption: "Q1 revenue by region")
-
-        SectionSlide("Q2 Plan").primary
-
-        Slide {
-            Heading("Thanks").h1
-            Text("Questions?")
-        }
     }
 }
 

@@ -4815,6 +4815,26 @@
           },
           {
             "type": "STRING",
+            "value": "Background"
+          },
+          {
+            "type": "STRING",
+            "value": "Watermark"
+          },
+          {
+            "type": "STRING",
+            "value": "TableOfContents"
+          },
+          {
+            "type": "STRING",
+            "value": "Chart"
+          },
+          {
+            "type": "STRING",
+            "value": "QrCode"
+          },
+          {
+            "type": "STRING",
             "value": "Presentation"
           },
           {
