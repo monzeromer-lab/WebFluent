@@ -418,15 +418,10 @@ impl<'a> Layout<'a> {
             grid_row: placement(s.grid_row),
             ..Default::default()
         };
-        // Right to left: a grid and a block mirror themselves; a flex row
-        // runs from the right, as a reversed row does.
+        // Right to left: taffy runs a flex row and a grid from the right
+        // itself; a block's children are mirrored after layout (below).
         if s.direction == super::style::Direction::Rtl {
             st.direction = taffy::Direction::Rtl;
-            st.flex_direction = match st.flex_direction {
-                FlexDirection::Row => FlexDirection::RowReverse,
-                FlexDirection::RowReverse => FlexDirection::Row,
-                other => other,
-            };
         }
         // A box laid out on its own is placed where it is asked to be.
         if root {
@@ -792,6 +787,28 @@ mod tests {
         assert!((xs[1] - (ws[0] + 12.0)).abs() < 0.5);
         // All on one line.
         assert!(row.children.iter().all(|c| (c.y - row.y).abs() < 0.01));
+    }
+
+    #[test]
+    fn right_to_left_a_row_starts_at_the_right_once() {
+        // taffy runs a row from the right under `direction: rtl`; the row
+        // must not be reversed again on top of that.
+        let (_, f) = lay(
+            r#"<body dir="rtl"><div class="row"><p>one</p><p>two</p><p>three</p></div><div class="rev"><p>a</p><p>b</p></div></body>"#,
+            ".row { display: flex; width: 300pt } .rev { display: flex; flex-direction: row-reverse; width: 300pt } p { margin: 0; width: 50pt }",
+            300.0,
+        );
+        let xs: Vec<f32> = f.children[0].children.iter().map(|c| c.x).collect();
+        assert!(
+            xs[0] > xs[1] && xs[1] > xs[2],
+            "the first child is rightmost: {xs:?}"
+        );
+        assert!(
+            (xs[0] - 250.0).abs() < 0.5,
+            "against the right edge: {xs:?}"
+        );
+        let rev: Vec<f32> = f.children[1].children.iter().map(|c| c.x).collect();
+        assert!(rev[0] < rev[1], "row-reverse runs from the left: {rev:?}");
     }
 
     #[test]

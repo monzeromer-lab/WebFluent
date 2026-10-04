@@ -57,10 +57,6 @@ pub fn project_diagnostics(project: &Project) -> Vec<Vec<Diagnostic>> {
             .get(project.decl_file[decl_ix])
             .map(|f| f.source.to_string())
     };
-    let config = project
-        .root
-        .as_ref()
-        .and_then(|root| webfluent::config::ProjectConfig::load(root).ok());
     let scripts = project
         .root
         .as_ref()
@@ -77,7 +73,7 @@ pub fn project_diagnostics(project: &Project) -> Vec<Vec<Diagnostic>> {
             file_of: &file_of,
             source_of: &source_of,
             dir: project.root.as_deref(),
-            config: config.as_ref(),
+            config: project.config.as_ref(),
             declaration_files: &declaration_files,
             scripts: &scripts,
             stylesheets: &project.stylesheets,

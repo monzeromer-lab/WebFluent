@@ -1,0 +1,7 @@
+<!-- The Halyard mark, exactly as the artboards draw it, on the canvas the
+     site is painted on. Two rotated squares: no other asset is needed. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Halyard">
+  <rect width="24" height="24" rx="5" fill="#0b0c0e"/>
+  <path d="M12 3 21 12 12 21 3 12Z" fill="none" stroke="#ff6a2b" stroke-width="1.75" stroke-linejoin="round"/>
+  <path d="M12 8 16 12 12 16 8 12Z" fill="#ff6a2b" opacity=".85"/>
+</svg>

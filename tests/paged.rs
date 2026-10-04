@@ -200,8 +200,15 @@ fn a_deck_is_a_page_per_slide_with_its_chrome() {
 
 /// Build a reference document in a copy of its project, as a reader would.
 fn build_document(name: &str) -> (String, std::path::PathBuf) {
-    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("examples/documents");
-    let tmp = std::env::temp_dir().join(format!("wf-documents-{}-{name}", std::process::id()));
+    build_example("documents", name)
+}
+
+/// Build an example under `examples/<group>/<name>` in a copy laid out as the
+/// repository is, so its `../../documents/fonts` resolves.
+fn build_example(group: &str, name: &str) -> (String, std::path::PathBuf) {
+    let examples = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("examples");
+    let root = examples.join(group);
+    let tmp = std::env::temp_dir().join(format!("wf-{group}-{}-{name}", std::process::id()));
     let _ = std::fs::remove_dir_all(&tmp);
     fn copy(from: &std::path::Path, to: &std::path::Path) {
         std::fs::create_dir_all(to).unwrap();
@@ -218,11 +225,14 @@ fn build_document(name: &str) -> (String, std::path::PathBuf) {
             }
         }
     }
-    copy(&root.join("fonts"), &tmp.join("fonts"));
-    copy(&root.join(name), &tmp.join(name));
+    copy(
+        &examples.join("documents/fonts"),
+        &tmp.join("documents/fonts"),
+    );
+    copy(&root.join(name), &tmp.join(group).join(name));
     let out = std::process::Command::new(env!("CARGO_BIN_EXE_wf"))
         .args(["build", "-d"])
-        .arg(tmp.join(name))
+        .arg(tmp.join(group).join(name))
         .output()
         .unwrap();
     let stdout =
@@ -241,6 +251,81 @@ fn pages_in(stdout: &str) -> usize {
         .and_then(|p| p.split_whitespace().next())
         .and_then(|n| n.parse().ok())
         .unwrap()
+}
+
+fn slides_in(stdout: &str) -> usize {
+    let line = stdout
+        .lines()
+        .find(|l| l.contains("Slides:"))
+        .expect("a Slides line");
+    line.split(", ")
+        .nth(1)
+        .and_then(|p| p.split_whitespace().next())
+        .and_then(|n| n.parse().ok())
+        .unwrap()
+}
+
+#[test]
+fn the_webfluent_deck_builds_whole_with_its_own_fonts() {
+    let (out, tmp) = build_example("decks", "webfluent");
+    assert!(
+        !out.contains("note:"),
+        "nothing clipped, nothing missing: {out}"
+    );
+    assert!(!out.contains("warning"), "{out}");
+    assert_eq!(slides_in(&out), 16, "{out}");
+    let _ = std::fs::remove_dir_all(tmp);
+}
+
+#[test]
+fn the_halyard_review_deck_makes_a_slide_per_incident() {
+    let (out, tmp) = build_example("decks", "halyard-review");
+    assert!(!out.contains("note:"), "{out}");
+    // Twelve written slides, and one for each of the four incidents.
+    assert_eq!(slides_in(&out), 16, "{out}");
+    let _ = std::fs::remove_dir_all(tmp);
+}
+
+#[test]
+fn the_arabic_deck_builds_right_to_left() {
+    let (out, tmp) = build_example("decks", "arabic-workshop");
+    assert!(!out.contains("note:"), "{out}");
+    assert!(!out.contains("warning"), "{out}");
+    assert_eq!(slides_in(&out), 8, "{out}");
+    let _ = std::fs::remove_dir_all(tmp);
+}
+
+#[test]
+fn a_presentation_takes_slides_from_components_and_loops() {
+    let src = r#"
+const POINTS = ["One", "Two", "Three"]
+component Point(_ label: String, n: Number) {
+    Slide { Heading(label).h1  Text("Slide {n}") }
+}
+page D(path: "/") {
+    derived count = POINTS.length
+    Presentation {
+        TitleSlide("Deck", subtitle: "{count} points")
+        for p, i in POINTS { Point(p, n: i + 1) }
+        if count > 2 { Slide { Text("Many") } }
+    }
+}
+"#;
+    let r = Template::from_str(src)
+        .unwrap()
+        .render_slides_report(&json!({}))
+        .unwrap();
+    assert_eq!(r.pages, 5);
+    let text: Vec<String> = r.text.iter().map(|p| p.join(" ")).collect();
+    assert!(
+        text[0].contains("3 points"),
+        "a derived value is its value on paper: {text:?}"
+    );
+    assert!(
+        text[2].contains("Two") && text[2].contains("Slide 2"),
+        "{text:?}"
+    );
+    assert!(text[4].contains("Many"), "{text:?}");
 }
 
 #[test]

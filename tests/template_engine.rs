@@ -273,3 +273,27 @@ fn constants_and_data_files_are_in_scope() {
     );
     assert!(pdf_text(&tpl, &json!({})).contains("limit 3"));
 }
+
+#[test]
+fn a_page_s_state_and_derived_values_are_their_values_in_a_render() {
+    let tpl = Template::from_str(
+        r#"page P(path: "/") {
+    derived total = items.map(i => i.price).sum()
+    derived label = "{count} items, {total} in all"
+    state count = items.length
+    state note = "draft"
+    Text(label)
+    Text(note)
+}"#,
+    )
+    .unwrap();
+    let html = tpl
+        .render_html_fragment(
+            &json!({ "items": [{ "price": 2 }, { "price": 3 }], "note": "final" }),
+        )
+        .unwrap();
+    // A derived value may read one declared below it, and a state.
+    assert!(html.contains("2 items, 5 in all"), "{html}");
+    // Data handed to the render wins over the state's first value.
+    assert!(html.contains("final") && !html.contains("draft"), "{html}");
+}

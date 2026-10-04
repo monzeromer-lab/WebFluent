@@ -6,10 +6,11 @@ use std::fs;
 use std::path::Path;
 
 /// The output format for the build pipeline.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Default)]
 #[serde(rename_all = "lowercase")]
 pub enum OutputType {
     /// Single-page application with client-side routing.
+    #[default]
     Spa,
     /// Static site with pre-rendered HTML pages.
     Static,

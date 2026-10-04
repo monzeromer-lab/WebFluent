@@ -82,6 +82,43 @@ pub(crate) fn drawn_in_pdf(name: &str) -> bool {
     PAGED_DRAWN.contains(&name)
 }
 
+/// Whether an output draws a built-in, and why not when it does not — what
+/// a build refuses with `E109`, asked of one name. A web page draws every
+/// built-in.
+pub fn drawn_in(output: crate::config::OutputType, name: &str) -> Result<(), &'static str> {
+    use crate::config::OutputType;
+    match output {
+        OutputType::Pdf if !drawn_in_pdf(name) => Err(refusal(name)),
+        OutputType::Slides if !drawn_in_pdf(name) => Err(refusal(name)),
+        OutputType::Slides if super::slides_validation::SLIDES_INCOMPATIBLE.contains(&name) => {
+            Err(if matches!(name, "Header" | "Footer") {
+                "a deck's chrome is `slides.footer_text` and `slides.show_slide_numbers`"
+            } else {
+                "it belongs to a PDF document, not a slide deck"
+            })
+        }
+        _ => Ok(()),
+    }
+}
+
+/// Whether an editor should offer a built-in in an output: what it draws,
+/// less what belongs to the other paged output (a deck's slides in a
+/// document, a document's pages in a deck).
+pub fn offered_in(output: crate::config::OutputType, name: &str) -> bool {
+    use crate::config::OutputType;
+    let slide = name == "Presentation" || super::slides_validation::SLIDE_KINDS.contains(&name);
+    match output {
+        OutputType::Pdf => drawn_in_pdf(name) && !slide,
+        OutputType::Slides => drawn_in(output, name).is_ok(),
+        _ => true,
+    }
+}
+
+/// Whether a built-in is one of a slide deck's slides.
+pub fn is_slide(name: &str) -> bool {
+    super::slides_validation::SLIDE_KINDS.contains(&name)
+}
+
 #[derive(Debug)]
 pub struct PdfValidationError {
     pub component: String,

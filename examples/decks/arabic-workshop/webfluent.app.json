@@ -1,0 +1,19 @@
+{
+  "name": "arabic-workshop",
+  "version": "1.0.0",
+  "theme": { "name": "Sand", "builtin": "structural" },
+  "build": {
+    "output": "./build",
+    "output_type": "slides",
+    "slides": {
+      "size": "16:9",
+      "margin": 0,
+      "default_font": "Noto Sans Arabic",
+      "default_font_size": 16,
+      "output_filename": "arabic-interfaces.pdf",
+      "fonts": ["../../documents/fonts"],
+      "system_fonts": false
+    }
+  },
+  "meta": { "lang": "ar" }
+}

@@ -1,0 +1,228 @@
+// ورشة عمل: واجهات عربية من ملف واحد — a deck in Arabic, laid out right to
+// left by the same engine: rows, grids, the chart's labels, the checklist.
+
+const TOTAL = 8
+
+const AGENDA = [
+    { n: "١", what: "الاتجاه: ما الذي ينقلب وما الذي يبقى", time: "١٠ دقائق" },
+    { n: "٢", what: "الخطوط العربية: الحجم والمسافة بين الأسطر", time: "١٠ دقائق" },
+    { n: "٣", what: "الترجمة: ملف لكل لغة، ومفتاح لكل نص", time: "١٥ دقيقة" },
+    { n: "٤", what: "الأرقام والرسوم البيانية", time: "١٠ دقائق" },
+    { n: "٥", what: "قائمة المراجعة قبل النشر", time: "٥ دقائق" },
+]
+
+const SCALE = [
+    { size: 48, name: "عنوان رئيسي", sample: "واجهات عربية من ملف واحد", kufi: true },
+    { size: 32, name: "عنوان فرعي", sample: "الاتجاه ينقلب، والمعنى يبقى", kufi: true },
+    { size: 22, name: "نص أساسي", sample: "يُكتب النص العربي من اليمين إلى اليسار، وتتصل حروفه.", kufi: false },
+    { size: 16, name: "ملاحظة", sample: "يحتاج الخط العربي إلى مسافة أسطر أوسع من اللاتيني بقليل.", kufi: false },
+]
+
+const PAGE = #"page Home(path: "/", title: "Home") {
+    Heading(t("hero.title")).h1
+    Text(t("hero.lede"))
+    Button(t("hero.start")).primary
+    Button("EN") { on click { setLocale("en") } }
+}"#
+
+const MESSAGES = #"{
+  "hero.title": "واجهات عربية من ملف واحد",
+  "hero.lede": "اكتب الصفحة مرة، واقرأها بلغتين.",
+  "hero.start": "ابدأ"
+}"#
+
+const READERS = [
+    { city: "الرياض", n: 42 },
+    { city: "القاهرة", n: 38 },
+    { city: "دبي", n: 27 },
+    { city: "عمّان", n: 19 },
+    { city: "الدار البيضاء", n: 15 },
+    { city: "الخرطوم", n: 11 },
+]
+
+const CHECKS = [
+    { title: "اتجاه الصفحة", why: "meta.lang هو ar، فتُكتب الصفحة من اليمين إلى اليسار تلقائياً." },
+    { title: "الخطوط في المشروع", why: "ملفات الخطوط في fonts/ حتى تبدو الوثيقة واحدة على كل جهاز." },
+    { title: "لا نص مكتوب داخل الواجهة", why: "كل نص في ملف ترجمة، والمفتاح الناقص خطأ I01 عند البناء." },
+    { title: "الأيقونات الاتجاهية", why: "السهم إلى الأمام يشير إلى اليسار في العربية." },
+    { title: "الأرقام والتواريخ", why: "format() يتحدث لغة الصفحة: ١٬٢٣٤ أو 1,234 حسب اختيارك." },
+    { title: "الكود يبقى من اليسار", why: "direction: ltr على كتل الكود والعناوين اللاتينية." },
+]
+
+/// The foot of a content slide.
+component Foot(_ section: String, n: Number) {
+    Stack(class: "edge") { }
+    Row(class: "foot") {
+        Text("ورشة الواجهات العربية · {section}")
+        Text("{n} / {TOTAL}", class: "foot__n")
+    }
+}
+
+/// A slide's heading.
+component Head(_ title: String, over: String, lede: String = "") {
+    Text(over, class: "over")
+    Heading(title, class: "title").h2
+    if lede != "" {
+        Text(lede, class: "lede")
+    }
+}
+
+page Workshop(path: "/", title: "واجهات عربية من ملف واحد", description: "ورشة عمل عن بناء واجهات عربية بلغة WebFluent.") {
+    Presentation {
+
+        // ١ · الغلاف
+        Slide(class: "cover") {
+            Row(class: "cover__top") {
+                Text("ورشة عمل · أكتوبر ٢٠٢٦", class: "cover__over")
+                Stack(class: "badge") { Text("و ع") }
+            }
+            Stack {
+                style { gap: 0 }
+                Heading("واجهات عربية من ملف واحد", class: "cover__title").h1
+                Text("كيف تُكتب صفحة واحدة تُقرأ من اليمين إلى اليسار، وتُطبع، وتُعرض في شرائح — بالقواعد نفسها.", class: "cover__lede")
+            }
+            Row(class: "cover__foot") {
+                Text("ساعة واحدة · خمسة أجزاء")
+                Text("WebFluent 5.2", class: "latin")
+            }
+        }
+
+        // ٢ · البرنامج
+        Slide {
+            Head("برنامج الساعة", over: "البرنامج")
+            Stack(class: "agenda") {
+                for a in AGENDA {
+                    Row(class: "agenda__item") {
+                        Text(a.n, class: "agenda__n")
+                        Text(a.what, class: "agenda__what")
+                        Text(a.time, class: "agenda__time")
+                    }
+                }
+            }
+            Foot("البرنامج", n: 2)
+        }
+
+        // ٣ · الاتجاه
+        Slide {
+            Head("الاتجاه ينقلب، والمعنى يبقى", over: "الجزء الأول", lede: "الصف نفسه، بالقواعد نفسها: في صفحة عربية يبدأ من اليمين، وفي صفحة إنجليزية من اليسار.")
+            Row(class: "mirror") {
+                Stack(class: "mirror__side") {
+                    Text("صفحة عربية — dir=\"rtl\"", class: "mirror__label")
+                    Stack(class: "frame") {
+                        Row(class: "boxes") {
+                            Text("أولاً", class: "box first")
+                            Text("ثانياً", class: "box")
+                            Text("ثالثاً", class: "box")
+                        }
+                        Stack(class: "line") { }
+                        Stack(class: "line short") { }
+                    }
+                }
+                Stack(class: "mirror__side") {
+                    Text("English page — dir=\"ltr\"", class: "mirror__label latin")
+                    Stack(class: "frame ltr") {
+                        Row(class: "boxes") {
+                            Text("First", class: "box first")
+                            Text("Second", class: "box")
+                            Text("Third", class: "box")
+                        }
+                        Stack(class: "line") { }
+                        Stack(class: "line short") { }
+                    }
+                }
+            }
+            Text("لا شيء يُكتب مرتين: Row وGrid والجداول وعلامات القوائم تنقلب كلها مع اتجاه الصفحة.", class: "mirror__note") { style { margin-top: 24px } }
+            Foot("الاتجاه", n: 3)
+        }
+
+        // ٤ · الخطوط
+        Slide {
+            Head("الخط العربي يحتاج مساحة", over: "الجزء الثاني")
+            Stack(class: "scale") {
+                for row in SCALE {
+                    Row(class: "scale__row") {
+                        Stack(class: "scale__meta") {
+                            style { gap: 0 }
+                            Text(row.name) { style { font-weight: 700; color: #1E293B } }
+                            Text("{row.size}px · {if row.kufi { "Noto Kufi" } else { "Noto Sans" }}", class: "latin")
+                        }
+                        Text(row.sample, class: ["scale__sample", if row.kufi { "kufi" }]) {
+                            style { font-size: {row.size}px; line-height: {row.size * 1.8}px }
+                        }
+                    }
+                }
+            }
+            Foot("الخطوط", n: 4)
+        }
+
+        // ٥ · الترجمة
+        Slide {
+            Head("ملف لكل لغة، ومفتاح لكل نص", over: "الجزء الثالث")
+            Row(class: "code-pair") {
+                Stack(class: "code-card") {
+                    Text("src/pages/Home.wf", class: "code-card__bar")
+                    Code(PAGE, language: "wf").block
+                }
+                Stack(class: "code-card") {
+                    Text("src/translations/ar.json", class: "code-card__bar")
+                    Code(MESSAGES, language: "json").block
+                }
+            }
+            Row(class: "result") {
+                Text("ما يراه القارئ:", class: "result__label")
+                Text("واجهات عربية من ملف واحد — اكتب الصفحة مرة، واقرأها بلغتين.", class: "result__text")
+            }
+            Foot("الترجمة", n: 5)
+        }
+
+        // ٦ · الرسوم البيانية
+        Slide {
+            Head("الرسم البياني يتكلم العربية", over: "الجزء الرابع")
+            Row(class: "chart-row") {
+                Stack(class: "chart-card") {
+                    Text("المشاركون في الورشات حسب المدينة", class: "chart-card__title")
+                    Chart(kind: .bar, data: READERS, x: "city", y: "n", colors: ["#0E7490"], labels: true, grid: "#E9E0D0", ink: "#64748B", width: 620, height: 320)
+                }
+                Stack(class: "chart-side") {
+                    Text("الرسوم متجهية: تُرسم من البيانات عند البناء، وتبقى حادة عند التكبير والطباعة.", class: "callout")
+                    Text("أسماء المدن مشكّلة ومتصلة الحروف، لأن النص يمر بالمشكِّل نفسه الذي يرسم الفقرات.", class: "callout")
+                }
+            }
+            Foot("الرسوم", n: 6)
+        }
+
+        // ٧ · قائمة المراجعة
+        Slide {
+            Head("قبل النشر: ست نقاط", over: "الجزء الخامس")
+            Grid(class: "checks") {
+                for c in CHECKS {
+                    Row(class: "check") {
+                        Stack(class: "check__mark") { Icon("check") }
+                        Stack(class: "check__text") {
+                            Text(c.title, class: "check__title")
+                            Text(c.why, class: "check__why")
+                        }
+                    }
+                }
+            }
+            Foot("المراجعة", n: 7)
+        }
+
+        // ٨ · شكراً
+        Slide(class: "close") {
+            Stack {
+                style { gap: 0 }
+                Text("نهاية الورشة", class: "over")
+                Text("شكراً لكم", class: "close__title")
+            }
+            Row(class: "close__row") {
+                Stack {
+                    style { gap: 4px }
+                    Text("الأمثلة كلها في المستودع، وكل شريحة هنا ملف .wf واحد.", class: "muted")
+                    Text("monzeromer-lab.github.io/WebFluent", class: "latin muted")
+                }
+                QrCode("https://monzeromer-lab.github.io/WebFluent/", color: "#0F2B3D", class: "close__qr")
+            }
+        }
+    }
+}

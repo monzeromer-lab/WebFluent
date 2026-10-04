@@ -88,6 +88,11 @@ pub enum Pseudo {
     Empty,
     Root,
     Not(Vec<Compound>),
+    /// `:is(a, b)`: any of them, as specific as the most specific.
+    Is(Vec<Compound>),
+    /// `:where(a, b)`: any of them, adding nothing to the specificity — how a
+    /// default is written that any rule of the author's overrides.
+    Where(Vec<Compound>),
     /// `::before` / `::after`: kept so the rule is known, matched only when a
     /// generated box is asked for.
     Before,
@@ -441,14 +446,18 @@ fn compound_specificity(c: &Compound) -> (u32, u32, u32) {
     let mut d = c.tag.is_some() as u32;
     for p in &c.pseudos {
         match p {
-            Pseudo::Not(inner) => {
-                for i in inner {
-                    let (x, y, z) = compound_specificity(i);
-                    a += x;
-                    b += y;
-                    d += z;
-                }
+            // `:not()` and `:is()` count as their most specific argument.
+            Pseudo::Not(inner) | Pseudo::Is(inner) => {
+                let (x, y, z) = inner
+                    .iter()
+                    .map(compound_specificity)
+                    .max()
+                    .unwrap_or_default();
+                a += x;
+                b += y;
+                d += z;
             }
+            Pseudo::Where(_) => {}
             Pseudo::Before | Pseudo::After => d += 1,
             _ => b += 1,
         }
@@ -518,7 +527,7 @@ fn parse_compound(s: &str) -> Option<(Compound, usize)> {
                         let (x, y) = parse_nth(a)?;
                         Pseudo::NthOfType(x, y)
                     }
-                    ("not", Some(a)) => {
+                    ("not" | "is" | "where" | "matches", Some(a)) => {
                         let mut inner = Vec::new();
                         for part in split_top_level(a, b',') {
                             let part = part.trim();
@@ -528,13 +537,16 @@ fn parse_compound(s: &str) -> Option<(Compound, usize)> {
                             }
                             inner.push(comp);
                         }
-                        Pseudo::Not(inner)
+                        match name.as_str() {
+                            "not" => Pseudo::Not(inner),
+                            "where" => Pseudo::Where(inner),
+                            _ => Pseudo::Is(inner),
+                        }
                     }
                     ("before", None) => Pseudo::Before,
                     ("after", None) => Pseudo::After,
-                    // `:is()` / `:where()` with one compound are that
-                    // compound; anything else is a screen's (hover, focus,
-                    // visited, placeholder, selection, marker…).
+                    // Anything else is a screen's (hover, focus, visited,
+                    // placeholder, selection, marker…).
                     _ => return None,
                 };
                 c.pseudos.push(pseudo);
@@ -667,6 +679,9 @@ mod tests {
         assert_eq!(s("#x .y > p:first-child"), (1, 2, 1));
         assert_eq!(s(".wf-grid[data-cols=\"3\"]"), (0, 2, 0));
         assert_eq!(s("li:not(.done)"), (0, 1, 1));
+        assert_eq!(s(":where(.wf-slide) h1"), (0, 0, 1));
+        assert_eq!(s(":is(.a, #b) p"), (1, 0, 1));
+        assert_eq!(s("li:not(.a, .b.c)"), (0, 2, 1));
         assert!(parse_selector("a:hover").is_none());
         assert!(parse_selector("input::placeholder").is_none());
     }

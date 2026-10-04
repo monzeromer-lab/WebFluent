@@ -231,6 +231,9 @@ pub enum BindingKind {
     Peer,
     /// `Form(bind: form)`: a handle on the form.
     FormHandle,
+    /// `page` and `pages` inside a `Header`, `Footer` or `Background`: the
+    /// page being drawn, and how many there are.
+    PageNumber,
     /// `ref: name`: a handle on an element.
     ElementHandle,
 }
@@ -256,6 +259,7 @@ impl BindingKind {
             BindingKind::Channel => "channel",
             BindingKind::Peer => "peer",
             BindingKind::FormHandle => "form handle",
+            BindingKind::PageNumber => "page number",
             BindingKind::ElementHandle => "element handle",
         }
     }
@@ -356,6 +360,17 @@ pub fn scope_at(decl: &Declaration, offset: usize) -> Vec<Binding> {
             }
             // `row(t, i) { … }`: the values a scoped slot hands its fill.
             StatementKind::UIElement(el) => {
+                if let ComponentRef::BuiltIn(n) = &el.component
+                    && matches!(n.as_str(), "Header" | "Footer" | "Background")
+                {
+                    for name in ["page", "pages"] {
+                        scope.push(Binding {
+                            name: name.to_string(),
+                            kind: BindingKind::PageNumber,
+                            span: stmt.span,
+                        });
+                    }
+                }
                 for fill in &el.slot_fills {
                     if contains(fill.span, offset) {
                         for param in &fill.params {

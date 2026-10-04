@@ -122,8 +122,14 @@ pub struct Output {
 
 /// The sheets a page ships: the `<style>` elements of the document, then
 /// any given beside it.
-fn sheets(dom: &Dom, extra: &str) -> Sheet {
+/// The author's sheet: the engine's paged rules, then `defaults` (rules the
+/// configuration implies, which the page's own may override), then every
+/// `<style>` of the page, then `extra`.
+fn sheets(dom: &Dom, defaults: &str, extra: &str) -> Sheet {
     let mut sheet = Sheet::parse(PAGED_SHEET);
+    if !defaults.is_empty() {
+        sheet.extend(Sheet::parse(defaults));
+    }
     for n in dom.descendants(0) {
         if dom.tag(n) == Some("style") {
             sheet.extend(Sheet::parse(&dom.text_content(n)));
@@ -232,7 +238,7 @@ fn positions(f: &Frag, out: &mut std::collections::HashMap<usize, (f32, f32)>) {
 /// a PDF.
 pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
     let dom = Dom::parse(html);
-    let author = sheets(&dom, css);
+    let author = sheets(&dom, "", css);
     let mut db = FontDb::new(opts.system_fonts);
     for dir in &opts.font_dirs {
         db.add_dir(dir);
@@ -736,11 +742,12 @@ pub fn render_slides(
 ) -> Result<Output, String> {
     let dom = Dom::parse(html);
     let m = chrome.margin;
-    // A slide is the page: its margin is its padding.
+    // A slide is the page: its margin is its padding, unless the deck's own
+    // rules say otherwise.
     let slide_css = format!(
-        ".wf-slide, .wf-title-slide, .wf-section-slide, .wf-two-column, .wf-image-slide {{ padding: {m}pt; overflow: hidden; }}\n{css}"
+        ".wf-slide, .wf-title-slide, .wf-section-slide, .wf-two-column, .wf-image-slide {{ padding: {m}pt; overflow: hidden; }}"
     );
-    let author = sheets(&dom, &slide_css);
+    let author = sheets(&dom, &slide_css, css);
     let mut db = FontDb::new(opts.system_fonts);
     for dir in &opts.font_dirs {
         db.add_dir(dir);

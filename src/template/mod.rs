@@ -5,7 +5,7 @@ use crate::codegen::builtin::{
 use crate::codegen::css::generate_css;
 use crate::config::project::{PdfConfig, SlidesConfig};
 use crate::error::{Result, WebFluentError};
-use crate::parser::ast::{ArmPattern, ForStmt, IfStmt, PropDecl};
+use crate::parser::ast::{ArmPattern, DerivedDecl, ForStmt, IfStmt, PropDecl};
 use crate::parser::{
     Arg, ComponentRef, Declaration, Expr, Program, Statement, StatementKind, StringPart, UIElement,
 };
@@ -1109,7 +1109,54 @@ impl<'a> RenderContext<'a> {
 
 // ─── HTML Rendering ──────────────────────────────────────────────────
 
+/// A body's `state` and `derived` values, as a static render sees them: a
+/// state is its first value and a derived value what that works out to —
+/// on paper nothing changes. Data handed to the render wins over either.
+/// Derived values are worked out twice, so one may read one declared below
+/// it. What was shadowed comes back when the body is done.
+fn seed_values(stmts: &[Statement], ctx: &mut RenderContext) -> Vec<(String, Option<Value>)> {
+    let mut saved = Vec::new();
+    let given = |ctx: &RenderContext, name: &str| matches!(ctx.data, Value::Object(m) if m.contains_key(name));
+    for stmt in stmts {
+        if let StatementKind::State(st) = &stmt.kind
+            && !given(ctx, &st.name)
+        {
+            let v = ctx.eval_expr(&st.value);
+            saved.push((st.name.clone(), ctx.locals.insert(st.name.clone(), v)));
+        }
+    }
+    let derived: Vec<&DerivedDecl> = stmts
+        .iter()
+        .filter_map(|s| match &s.kind {
+            StatementKind::Derived(d) if !given(ctx, &d.name) => Some(d),
+            _ => None,
+        })
+        .collect();
+    for pass in 0..2 {
+        for d in &derived {
+            let v = ctx.eval_expr(&d.value);
+            let old = ctx.locals.insert(d.name.clone(), v);
+            if pass == 0 {
+                saved.push((d.name.clone(), old));
+            }
+        }
+    }
+    saved
+}
+
 fn render_statements(stmts: &[Statement], ctx: &mut RenderContext) -> String {
+    let saved = seed_values(stmts, ctx);
+    let html = render_statements_seeded(stmts, ctx);
+    for (name, old) in saved.into_iter().rev() {
+        match old {
+            Some(v) => ctx.locals.insert(name, v),
+            None => ctx.locals.remove(&name),
+        };
+    }
+    html
+}
+
+fn render_statements_seeded(stmts: &[Statement], ctx: &mut RenderContext) -> String {
     let mut html = String::new();
     for stmt in stmts {
         match &stmt.kind {
@@ -1157,7 +1204,8 @@ fn render_statements(stmts: &[Statement], ctx: &mut RenderContext) -> String {
                     }
                 }
             }
-            // Skip state, derived, effect, action, use, events, navigate, etc.
+            // State and derived values are seeded above; effects, actions,
+            // handlers and navigation do nothing on paper.
             _ => {}
         }
     }

@@ -28,9 +28,11 @@ pub mod vocabulary;
 
 pub use accessibility::lint_accessibility_in;
 pub use contrast::lint_contrast_in;
-pub use pdf_validation::validate_for_pdf;
+#[allow(unused_imports)]
+pub use pdf_validation::{drawn_in, is_slide, offered_in, validate_for_pdf};
 pub use semantic::validate_semantics_in;
-pub use slides_validation::validate_for_slides;
+#[allow(unused_imports)]
+pub use slides_validation::{renders_slides, validate_for_slides};
 #[allow(unused_imports)]
 pub use unused::lint_unused;
 pub use unused::lint_unused_in;

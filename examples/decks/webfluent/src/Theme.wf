@@ -1,0 +1,38 @@
+/// The docs site's design system, MO: graphite is structure, blue is
+/// intent, cyan is data, and nothing else carries colour. The same tokens
+/// as `site/src/theme.wf`, so the deck and the site are one family.
+theme Day {
+    color-primary: #2B5178
+    color-secondary: #0F7285
+    color-success: #1C7A5A
+    color-danger: #B3261E
+    color-warning: #8A5800
+    color-background: #F9FAFB
+    color-surface: #FFFFFF
+    color-text: #17191C
+    color-text-muted: #5A5F64
+    color-border: #E2E5E8
+
+    font-family: Inter, sans-serif
+    font-family-mono: 'JetBrains Mono', monospace
+
+    surface-canvas: #EEF0F2
+    surface-sunken: #F4F6F7
+    ink-subtle: #676C71
+    brand-ink: #2B5178
+    brand-subtle: #E7EEF6
+    accent: #0F7285
+    accent-ink: #0D6274
+    accent-subtle: #E0F2F6
+    border-strong: #868B91
+
+    term-bg: #1B1F22
+    term-ink: #E6E9EC
+    term-dim: #959BA1
+    syntax-keyword: #8FBDE7
+    syntax-string: #7FD6A8
+    syntax-number: #E0B070
+    syntax-function: #6FD3E6
+    syntax-punct: #B3BAC0
+    syntax-comment: #959BA1
+}

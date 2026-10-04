@@ -1,0 +1,37 @@
+// Fluant Ink, as Halyard's site declares it: the deck is the same brand as the report.
+theme FluantInk {
+    surface-canvas: #0b0c0e
+    surface-sunken: #060708
+    surface-raised: #131519
+    surface-overlay: #1a1d23
+    surface-inset: #101318
+    line-hairline: #1c2026
+    line-default: #2a2f37
+    line-strong: #3d444f
+    text-primary: #f4f1ec
+    text-secondary: #b9bec7
+    text-tertiary: #949ba7
+    text-brand: #ff8a5c
+    text-accent: #58e8bf
+    brand: #ff6a2b
+    brand-soft: #2a1409
+    accent: #35e0b0
+    accent-soft: #07221c
+    brass: #d9b45a
+    success: #3ad07f
+    success-soft: #06231a
+    warning: #f5b53c
+    warning-soft: #241a06
+    danger: #ff5d5d
+    danger-soft: #2a0d0f
+    info: #48b6ef
+    font-sans: Manrope, sans-serif
+    font-display: Fraunces, serif
+    font-mono: JetBrains Mono, monospace
+    color-background: #0b0c0e
+    color-text: #f4f1ec
+    term-bg: #060708
+    color-surface: #131519
+    color-text-muted: #b9bec7
+    color-border: #2a2f37
+}

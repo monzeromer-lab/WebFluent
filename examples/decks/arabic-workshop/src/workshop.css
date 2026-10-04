@@ -1,0 +1,116 @@
+/* A workshop deck in Arabic, laid out right to left: navy and sand, a warm
+   accent, Noto Kufi Arabic for display. 1280 × 720 px a slide. */
+
+body { font-family: var(--font-family); color: var(--color-text); }
+
+.wf-slide {
+  position: relative;
+  padding: 60px 76px 80px;
+  gap: 0;
+  background: var(--color-background);
+  font-size: 20px;
+  line-height: 1.7;
+}
+:where(.wf-slide) p { margin: 0; }
+
+.kufi { font-family: "Noto Kufi Arabic", sans-serif; }
+.latin { direction: ltr; font-family: Manrope, sans-serif; }
+.muted { color: var(--color-text-muted); }
+
+.over { font-family: "Noto Kufi Arabic", sans-serif; font-size: 15px; font-weight: 700; color: var(--warm); }
+.title { margin-top: 6px; font-family: "Noto Kufi Arabic", sans-serif; font-size: 42px; line-height: 64px; font-weight: 700; color: var(--navy); }
+.lede { margin-top: 6px; max-width: 900px; font-size: 21px; line-height: 36px; color: var(--color-text-muted); }
+
+/* The edge every content slide carries: a warm rule on the start side. */
+.edge { position: absolute; top: 0; bottom: 0; right: 0; width: 10px; background: var(--navy); }
+.edge::after { content: ""; position: absolute; top: 0; right: 0; width: 10px; height: 120px; background: var(--warm); }
+.foot {
+  position: absolute;
+  left: 76px;
+  right: 76px;
+  bottom: 26px;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid var(--sand-deep);
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+.foot__n { font-family: Manrope, sans-serif; direction: ltr; }
+
+/* ── Cover ─────────────────────────────────────────────── */
+
+.cover { background: var(--navy); color: #FFFFFF; padding: 72px 80px; justify-content: space-between; }
+.cover__top { display: flex; flex-wrap: nowrap; justify-content: space-between; align-items: center; }
+.badge { width: 72px; height: 72px; border-radius: 50%; border: 3px solid var(--warm); display: flex; align-items: center; justify-content: center; font-family: "Noto Kufi Arabic", sans-serif; font-size: 26px; font-weight: 700; color: var(--warm); }
+.cover__over { font-family: "Noto Kufi Arabic", sans-serif; font-size: 18px; font-weight: 700; color: var(--warm); }
+.cover__title { margin-top: 10px; font-family: "Noto Kufi Arabic", sans-serif; font-size: 64px; line-height: 100px; font-weight: 700; }
+.cover__lede { margin-top: 8px; max-width: 760px; font-size: 22px; line-height: 38px; color: #C9D6E0; }
+.cover__foot { display: flex; flex-wrap: nowrap; justify-content: space-between; font-size: 16px; color: #9FB3C2; border-top: 1px solid var(--navy-soft); padding-top: 16px; }
+
+/* ── Agenda ────────────────────────────────────────────── */
+
+.agenda { margin-top: 28px; gap: 0; border-top: 1px solid var(--sand-deep); }
+.agenda__item { display: flex; flex-wrap: nowrap; align-items: center; gap: 24px; padding: 14px 0; border-bottom: 1px solid var(--sand-deep); }
+.agenda__n { width: 52px; height: 52px; border-radius: 12px; background: var(--sand); color: var(--navy); font-family: "Noto Kufi Arabic", sans-serif; font-size: 22px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.agenda__what { flex: 1 1 0; font-size: 24px; font-weight: 700; color: var(--navy); }
+.agenda__time { font-size: 16px; color: var(--color-text-muted); }
+
+/* ── Direction ─────────────────────────────────────────── */
+
+.mirror { display: flex; flex-wrap: nowrap; gap: 36px; margin-top: 34px; }
+.mirror__side { flex: 1 1 0; gap: 14px; }
+.mirror__label { font-size: 16px; font-weight: 700; color: var(--color-text-muted); }
+.frame { background: #FFFFFF; border: 1px solid var(--sand-deep); border-radius: 14px; padding: 22px; gap: 16px; }
+.boxes { display: flex; flex-wrap: nowrap; gap: 12px; }
+.box { flex: 1 1 0; height: 70px; border-radius: 10px; background: var(--sand); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--navy); font-size: 20px; }
+.box.first { background: var(--navy); color: #FFFFFF; }
+.line { height: 12px; border-radius: 6px; background: var(--sand-deep); }
+.line.short { width: 60%; }
+.ltr { direction: ltr; }
+.ltr .box { font-family: Manrope, sans-serif; }
+.mirror__note { font-size: 17px; line-height: 30px; color: var(--color-text-muted); }
+
+/* ── Type ──────────────────────────────────────────────── */
+
+.scale { margin-top: 26px; gap: 0; }
+.scale__row { display: flex; flex-wrap: nowrap; align-items: baseline; gap: 28px; padding: 10px 0; border-bottom: 1px solid var(--sand-deep); }
+.scale__meta { width: 190px; font-size: 14px; color: var(--color-text-muted); }
+.scale__meta span { font-family: Manrope, sans-serif; }
+.scale__sample { flex: 1 1 0; color: var(--navy); }
+
+/* ── Code ──────────────────────────────────────────────── */
+
+.code-pair { display: flex; flex-wrap: nowrap; gap: 24px; margin-top: 30px; }
+.code-card { flex: 1 1 0; gap: 0; border-radius: 12px; overflow: hidden; background: var(--term-bg); direction: ltr; }
+.code-card__bar { padding: 10px 18px; font-family: var(--font-family-mono); font-size: 13px; color: #8A9BAA; background: var(--navy-soft); }
+.code-card .wf-code--block { margin: 0; padding: 18px 20px; background: var(--term-bg); color: var(--syntax-punct); font-family: var(--font-family-mono); font-size: 15px; line-height: 26px; white-space: pre; border-radius: 0; border: 0; }
+.result { margin-top: 22px; display: flex; flex-wrap: nowrap; gap: 16px; align-items: center; background: var(--teal-soft); border-radius: 12px; padding: 16px 20px; }
+.result__label { font-size: 15px; font-weight: 700; color: var(--color-primary); }
+.result__text { font-size: 22px; font-weight: 700; color: var(--navy); }
+
+/* ── Chart ─────────────────────────────────────────────── */
+
+.chart-row { display: flex; flex-wrap: nowrap; gap: 32px; margin-top: 26px; align-items: center; }
+.chart-card { flex: 1.5 1 0; background: #FFFFFF; border: 1px solid var(--sand-deep); border-radius: 14px; padding: 20px 24px; gap: 8px; }
+.chart-card__title { font-size: 15px; font-weight: 700; color: var(--color-text-muted); }
+.chart-side { flex: 1 1 0; gap: 14px; }
+.callout { background: var(--sand); border-right: 4px solid var(--warm); border-radius: 10px 0 0 10px; padding: 14px 18px; font-size: 17px; line-height: 30px; }
+
+/* ── Checklist ─────────────────────────────────────────── */
+
+.checks { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 28px; margin-top: 28px; }
+.check { display: flex; flex-wrap: nowrap; gap: 14px; align-items: flex-start; background: #FFFFFF; border: 1px solid var(--sand-deep); border-radius: 12px; padding: 14px 18px; }
+.check__mark { width: 30px; height: 30px; flex-shrink: 0; border-radius: 8px; background: var(--color-primary); color: #FFFFFF; display: flex; align-items: center; justify-content: center; }
+.check__mark svg { width: 18px; height: 18px; }
+.check__text { flex: 1 1 0; gap: 2px; }
+.check__title { font-size: 19px; font-weight: 700; color: var(--navy); }
+.check__why { font-size: 15px; line-height: 25px; color: var(--color-text-muted); }
+
+/* ── Close ─────────────────────────────────────────────── */
+
+.close { background: var(--sand); padding: 72px 80px; justify-content: space-between; }
+.close__title { font-family: "Noto Kufi Arabic", sans-serif; font-size: 96px; line-height: 140px; font-weight: 700; color: var(--navy); }
+.close__row { display: flex; flex-wrap: nowrap; justify-content: space-between; align-items: flex-end; }
+.close__qr { width: 130px; padding: 10px; background: #FFFFFF; border-radius: 10px; }

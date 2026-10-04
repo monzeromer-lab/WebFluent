@@ -1,0 +1,385 @@
+// Halyard's Q3 business review — the report's data, as a deck. Every
+// number on a slide is worked out from review.json when the deck is built;
+// the four incident slides are one component, placed by a `for`.
+
+data review = "review.json"
+
+const QUARTER = "Q3 2026"
+const TOTAL = 16
+
+/// The foot of every content slide.
+component Foot(_ section: String, n: Number) {
+    Row(class: "foot") {
+        Row(class: "foot__brand") {
+            Image(src: "/mark.svg", alt: "")
+            Text("Halyard")
+            Text("· {section}", class: "muted")
+        }
+        Text("{QUARTER} review · {n} / {TOTAL}", class: "foot__page")
+    }
+}
+
+/// A slide's heading: where we are, then what it says.
+component Head(_ title: String, over: String, sub: String = "") {
+    Text(over, class: "eyebrow")
+    Heading(title, class: "headline").h2
+    if sub != "" {
+        Text(sub, class: "sub")
+    }
+}
+
+/// A section opener.
+component Opener(_ title: String, num: String, line: String) {
+    Slide(class: "opener") {
+        Text(num, class: "opener__num")
+        Text(title, class: "opener__title")
+        Text(line, class: "opener__line")
+        Stack(class: "opener__rule") { }
+    }
+}
+
+/// A status as a coloured pill.
+component Status(_ status: String) {
+    Row(class: ["pill", if status == "ready" || status == "operational" { "pill-ok" } else if status == "degraded" || status == "rolled back" { "pill-warn" } else { "pill-bad" }]) {
+        Stack(class: "dot") { }
+        Text(status)
+    }
+}
+
+/// One incident, a slide of its own.
+component IncidentSlide(_ inc: Map, n: Number) {
+    Slide {
+        Stack(class: ["stripe", "stripe-{inc.severity}"]) { }
+        Head(inc.title, over: "{inc.id} · {inc.start}")
+        Row(class: "incident") {
+            Stack(class: "incident__main") {
+                Text(inc.severity, class: ["sev", "sev-{inc.severity}"])
+                Text(inc.summary, class: "incident__summary")
+            }
+            Stack(class: "incident__side panel") {
+                Text("The record", class: "panel__title")
+                Row(class: "fact") { Text("Severity", class: "fact__k")  Text(inc.severity, class: "fact__v") }
+                Row(class: "fact") { Text("Started", class: "fact__k")  Text(inc.start, class: "fact__v") }
+                Row(class: "fact") { Text("Lasted", class: "fact__k")  Text(inc.duration, class: "fact__v") }
+                Row(class: "fact") { Text("Cause", class: "fact__k")  Text(inc.cause, class: "fact__v") }
+            }
+        }
+        Foot("Incidents", n: n)
+    }
+}
+
+page Review(path: "/", title: "Halyard — {QUARTER} business review", description: "Traffic, latency, deployments and incidents for the quarter, as a deck.") {
+    derived requests = review.weeks.map(w => w.requests).sum()
+    derived p95 = review.weeks.map(w => w.p95).sum() / review.weeks.length
+    derived deploys = review.deploys.length
+    derived ready = review.deploys.filter(d => d.status == "ready").length
+    derived failed = review.deploys.filter(d => d.status == "failed").length
+    derived rolled = review.deploys.filter(d => d.status == "rolled back").length
+    derived busiest = review.regions.sortBy(r => -r.requests).take(10)
+    derived peak = review.regions.map(r => r.requests).sort((a, b) => b - a)[0] ?? 1
+    derived slowest = review.regions.sortBy(r => -r.p95).take(8)
+    derived outcomes = [
+        { status: "ready", n: ready },
+        { status: "failed", n: failed },
+        { status: "rolled back", n: rolled },
+    ]
+    derived recent = review.deploys.take(11)
+
+    Presentation {
+
+        // 1 · Cover
+        Slide(class: "cover") {
+            Stack {
+                style { gap: 0 }
+                Row(class: "brand") {
+                    Image(src: "/mark.svg", alt: "")
+                    Text("Halyard")
+                }
+                Text("{QUARTER} business review · storefront-edge", class: "eyebrow") { style { margin-top: 56px } }
+                Text("Every region, one artifact.", class: "cover__title")
+                Text("Nineteen regions served {format(requests, .decimal, 1)} billion requests at a {format(p95, .integer)} ms p95, through {deploys} atomic deploys and four incidents.", class: "cover__lede")
+            }
+            Grid(class: "kpis") {
+                Stack(class: "kpi") {
+                    Text("Requests", class: "kpi__label")
+                    Text("{format(requests, .decimal, 1)}B", class: "kpi__value")
+                    Text("+18.4% on Q2", class: "kpi__delta up")
+                }
+                Stack(class: "kpi") {
+                    Text("p95 latency", class: "kpi__label")
+                    Text("{format(p95, .integer)} ms", class: "kpi__value")
+                    Text("−4 ms on Q2", class: "kpi__delta up")
+                }
+                Stack(class: "kpi") {
+                    Text("Deploys", class: "kpi__label")
+                    Text("{deploys}", class: "kpi__value")
+                    Text("{rolled} rolled back by hash", class: "kpi__delta down")
+                }
+                Stack(class: "kpi") {
+                    Text("Uptime", class: "kpi__label")
+                    Text("99.995%", class: "kpi__value")
+                    Text("one major incident", class: "kpi__delta down")
+                }
+            }
+        }
+
+        // 2 · Agenda
+        Slide {
+            Row(class: "agenda") {
+                Stack(class: "agenda__intro") {
+                    Head("Where the quarter went.", over: "Agenda", sub: "Five parts, sixteen slides — the same data as the printed report, cut for a room.")
+                }
+                Stack(class: "agenda__list") {
+                    Row(class: "agenda__item") { Text("01", class: "agenda__num")  Text("Traffic and latency", class: "agenda__what")  Text("3–5", class: "agenda__slide") }
+                    Row(class: "agenda__item") { Text("02", class: "agenda__num")  Text("Deployments", class: "agenda__what")  Text("6–8", class: "agenda__slide") }
+                    Row(class: "agenda__item") { Text("03", class: "agenda__num")  Text("Incidents", class: "agenda__what")  Text("9–14", class: "agenda__slide") }
+                    Row(class: "agenda__item") { Text("04", class: "agenda__num")  Text("The plan for Q4", class: "agenda__what")  Text("15", class: "agenda__slide") }
+                    Row(class: "agenda__item") { Text("05", class: "agenda__num")  Text("Questions", class: "agenda__what")  Text("16", class: "agenda__slide") }
+                }
+            }
+            Foot("Agenda", n: 2)
+        }
+
+        // 3 · Latency
+        Slide {
+            Head("Latency held while traffic grew.", over: "01 · Traffic and latency")
+            Row(class: "split") {
+                Stack(class: "panel wide") {
+                    Text("Latency by week (ms)", class: "panel__title")
+                    Chart(kind: .line, data: review.weeks, x: "week", y: ["p50", "p95", "p99"], colors: ["#35e0b0", "#ff6a2b", "#d9b45a"], grid: "#1c2026", ink: "#949ba7", legend: true, width: 640, height: 330)
+                }
+                Stack(class: "notes") {
+                    Stack(class: "note") {
+                        Text("The exception", class: "note__k")
+                        Text("gru1's p99 reached 1.4 s for 47 minutes in W37 — a saturated carrier link, now replaced.")
+                    }
+                    Stack(class: "note accent") {
+                        Text("The trend", class: "note__k")
+                        Text("p95 stayed within 36–41 ms all quarter, while weekly requests grew from 2.65 to 3.4 billion.")
+                    }
+                    Stack(class: "note accent") {
+                        Text("Next", class: "note__k")
+                        Text("Request-level routing on cookie and header ships in 2.15; a p99 alert per region follows.")
+                    }
+                }
+            }
+            Foot("Traffic and latency", n: 3)
+        }
+
+        // 4 · Requests and regions
+        Slide {
+            Head("Where the requests landed.", over: "01 · Traffic and latency")
+            Row(class: "split") {
+                Stack(class: "panel") {
+                    Text("Requests by week (billions)", class: "panel__title")
+                    Chart(kind: .area, data: review.weeks, x: "week", y: "requests", colors: ["#ff6a2b"], grid: "#1c2026", ink: "#949ba7", width: 520, height: 330)
+                }
+                Stack(class: "panel") {
+                    Text("Slowest p95 by region (ms)", class: "panel__title")
+                    Chart(kind: .bar, data: slowest, x: "code", y: "p95", colors: ["#35e0b0"], grid: "#1c2026", ink: "#949ba7", labels: true, width: 520, height: 330)
+                }
+            }
+            Foot("Traffic and latency", n: 4)
+        }
+
+        // 5 · Regions
+        Slide {
+            Head("The ten busiest regions.", over: "01 · Traffic and latency")
+            Table(class: "tbl") {
+                Table.Head {
+                    Table.Row {
+                        Table.Cell("Region")  Table.Cell("City")  Table.Cell("Status")
+                        Table.Cell("Requests (B)", class: "num")  Table.Cell("Share")
+                        Table.Cell("p95", class: "num")  Table.Cell("Errors", class: "num")  Table.Cell("Uptime", class: "num")
+                    }
+                }
+                Table.Body {
+                    for r in busiest {
+                        Table.Row {
+                            Table.Cell(r.code, class: "code")
+                            Table.Cell(r.city, class: "strong")
+                            Table.Cell { Status(r.status) }
+                            Table.Cell(format(r.requests, .decimal, 2), class: "num")
+                            Table.Cell {
+                                Stack(class: "bar") {
+                                    Stack(class: "bar__fill") { style { width: {r.requests / peak * 100}% } }
+                                }
+                            }
+                            Table.Cell("{r.p95} ms", class: "num")
+                            Table.Cell("{r.errors}%", class: "num")
+                            Table.Cell("{r.uptime}%", class: "num")
+                        }
+                    }
+                }
+            }
+            Foot("Traffic and latency", n: 5)
+        }
+
+        // 6 · Deployments
+        Opener("Deployments", num: "02", line: "Every deploy is a content-addressed build; a rollback re-points traffic to a hash that already exists.")
+
+        // 7 · The numbers
+        Slide {
+            Head("{deploys} deploys, {rolled} rolled back in seconds.", over: "02 · Deployments")
+            Grid(class: "stats") {
+                Stack(class: "stat") { Text("{deploys}", class: "stat__n")  Text("deploys to production in the last 64 builds", class: "stat__what") }
+                Stack(class: "stat") { Text("{ready}", class: "stat__n up")  Text("went live and stayed live", class: "stat__what") }
+                Stack(class: "stat") { Text("{failed}", class: "stat__n down")  Text("failed their checks and never served", class: "stat__what") }
+                Stack(class: "stat") { Text("{rolled}", class: "stat__n")  Text("rolled back to an older hash, under four seconds each", class: "stat__what") }
+            }
+            Row(class: "deploy-row") {
+                Stack(class: "panel") {
+                    Text("Outcomes", class: "panel__title")
+                    Row {
+                        style { flex-wrap: nowrap; gap: 28px; align-items: center }
+                        Chart(kind: .donut, data: outcomes, x: "status", y: "n", colors: ["#3ad07f", "#ff5d5d", "#f5b53c"], labels: true, legend: false, ink: "#f4f1ec", width: 220, height: 220) { style { width: 210px } }
+                        Stack(class: "legend") {
+                            Row(class: "legend__item") { Stack(class: "swatch") { style { background: #3ad07f } }  Text("ready — {ready}") }
+                            Row(class: "legend__item") { Stack(class: "swatch") { style { background: #ff5d5d } }  Text("failed — {failed}") }
+                            Row(class: "legend__item") { Stack(class: "swatch") { style { background: #f5b53c } }  Text("rolled back — {rolled}") }
+                        }
+                    }
+                }
+                Stack(class: "panel") {
+                    Text("What a failure costs", class: "panel__title")
+                    Text("A failed build never takes traffic: checks run against the artifact before the hash is promoted. A rollback is a pointer change, so the median one took 3.1 s and none needed a rebuild.", class: "secondary") { style { font-size: 17px; line-height: 27px } }
+                }
+            }
+            Foot("Deployments", n: 7)
+        }
+
+        // 8 · Recent deploys
+        Slide {
+            Head("The most recent eleven.", over: "02 · Deployments")
+            Table(class: "tbl") {
+                Table.Head {
+                    Table.Row {
+                        Table.Cell("Build")  Table.Cell("Change")  Table.Cell("Branch")  Table.Cell("Author")
+                        Table.Cell("Took", class: "num")  Table.Cell("Status")  Table.Cell("When", class: "num")
+                    }
+                }
+                Table.Body {
+                    for d in recent {
+                        Table.Row {
+                            Table.Cell(d.hash, class: "code")
+                            Table.Cell(d.message, class: "strong")
+                            Table.Cell(d.branch)
+                            Table.Cell(d.author)
+                            Table.Cell(d.duration, class: "num")
+                            Table.Cell { Status(d.status) }
+                            Table.Cell(d.date, class: "num")
+                        }
+                    }
+                }
+            }
+            Foot("Deployments", n: 8)
+        }
+
+        // 9 · Incidents
+        Opener("Incidents", num: "03", line: "Four this quarter — one major. Each has a slide: what happened, how long it lasted, and what caused it.")
+
+        // 10–13 · One slide per incident, from the data
+        for inc, i in review.incidents {
+            IncidentSlide(inc, n: 10 + i)
+        }
+
+        // 14 · Causes
+        Slide {
+            Head("What caused them, all year.", over: "03 · Incidents")
+            Row(class: "split") {
+                Stack(class: "panel") {
+                    Text("Causes this year", class: "panel__title")
+                    Chart(kind: .donut, data: review.causes, x: "cause", y: "count", colors: ["#ff6a2b", "#48b6ef", "#d9b45a", "#35e0b0"], labels: true, legend: true, ink: "#f4f1ec", width: 420, height: 300)
+                }
+                Stack(class: "notes") {
+                    Stack(class: "note") {
+                        Text("Releases lead", class: "note__k")
+                        Text("Nine of eighteen began with a deploy. Rollback by hash kept every one under ten minutes.")
+                    }
+                    Stack(class: "note accent") {
+                        Text("Changed", class: "note__k")
+                        Text("Cache keys are pre-warmed before cut-over, and a release may not cut over during a region's peak hour.")
+                    }
+                    Stack(class: "note accent") {
+                        Text("Changed", class: "note__k")
+                        Text("Two carriers per edge where there was one; gru1 first.")
+                    }
+                }
+            }
+            Foot("Incidents", n: 14)
+        }
+
+        // 15 · Q4
+        Slide {
+            Head("The plan for Q4.", over: "04 · Next")
+            Grid(class: "months") {
+                Stack(class: "month") {
+                    Text("October", class: "month__name")
+                    Stack(class: "milestone featured") {
+                        Text("2.15", class: "milestone__tag")
+                        Text("Request-level routing", class: "milestone__title")
+                        Text("Route by cookie and header, not only by country.", class: "milestone__what")
+                    }
+                    Stack(class: "milestone") {
+                        Text("ops", class: "milestone__tag")
+                        Text("A p99 alert per region", class: "milestone__title")
+                        Text("Paged at 2× the region's own baseline.", class: "milestone__what")
+                    }
+                }
+                Stack(class: "month") {
+                    Text("November", class: "month__name")
+                    Stack(class: "milestone") {
+                        Text("2.16", class: "milestone__tag")
+                        Text("KV replication, streamed", class: "milestone__title")
+                        Text("Reads stay in-region during a bulk import.", class: "milestone__what")
+                    }
+                    Stack(class: "milestone") {
+                        Text("edge", class: "milestone__tag")
+                        Text("Three new regions", class: "milestone__title")
+                        Text("Lagos, Jakarta and Bogotá.", class: "milestone__what")
+                    }
+                }
+                Stack(class: "month") {
+                    Text("December", class: "month__name")
+                    Stack(class: "milestone featured") {
+                        Text("3.0", class: "milestone__tag")
+                        Text("Workers at the edge", class: "milestone__title")
+                        Text("Image resize and auth checks run where the request lands.", class: "milestone__what")
+                    }
+                    Stack(class: "milestone") {
+                        Text("freeze", class: "milestone__tag")
+                        Text("Holiday change freeze", class: "milestone__title")
+                        Text("Dec 18 – Jan 4; rollbacks only.", class: "milestone__what")
+                    }
+                }
+            }
+            Foot("Next", n: 15)
+        }
+
+        // 16 · Questions
+        Slide(class: "close") {
+            Stack {
+                style { gap: 0 }
+                Row(class: "brand") {
+                    Image(src: "/mark.svg", alt: "")
+                    Text("Halyard")
+                }
+                Text("05 · Questions", class: "eyebrow") { style { margin-top: 48px } }
+                Text("Questions?", class: "close__title") { style { margin-top: 14px } }
+            }
+            Row(class: "close__row") {
+                Stack(class: "close__people") {
+                    Text("Presented by the Halyard platform team", class: "secondary")
+                    Text("platform@halyard.example · #platform-review", class: "mono muted")
+                }
+                Row(class: "qr-card") {
+                    QrCode("https://halyard.example.com/projects/storefront-edge/review", color: "#0b0c0e", class: "qr")
+                    Stack(class: "qr-card__text") {
+                        Text("The live review", class: "eyebrow")
+                        Text("Every chart here, drillable to the request, in the dashboard.")
+                    }
+                }
+            }
+        }
+    }
+}

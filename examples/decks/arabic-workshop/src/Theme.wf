@@ -1,0 +1,22 @@
+/// The résumé's palette, widened for a room: navy and sand, a warm accent.
+theme Sand {
+    color-primary: #0E7490
+    color-text: #1E293B
+    color-text-muted: #5B6779
+    color-background: #FBF8F3
+    font-family: Noto Sans Arabic, Manrope, sans-serif
+    font-family-mono: JetBrains Mono, monospace
+    navy: #0F2B3D
+    navy-soft: #16384F
+    sand: #F4EFE6
+    sand-deep: #E9E0D0
+    warm: #E2A33B
+    teal-soft: #E0F2F1
+    term-bg: #0F2B3D
+    syntax-keyword: #8FBDE7
+    syntax-string: #F2C879
+    syntax-number: #E2A33B
+    syntax-function: #6FD3E6
+    syntax-punct: #C9D3DC
+    syntax-comment: #8A9BAA
+}

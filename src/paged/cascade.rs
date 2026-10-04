@@ -1162,6 +1162,9 @@ fn pseudo_matches(dom: &Dom, node: usize, el: &Element, p: &Pseudo) -> bool {
                 _ => false,
             }),
         Pseudo::Not(inner) => !inner.iter().any(|c| compound_matches(dom, node, c)),
+        Pseudo::Is(inner) | Pseudo::Where(inner) => {
+            inner.iter().any(|c| compound_matches(dom, node, c))
+        }
         _ => {
             let sibs = siblings(dom, node);
             let pos = sibs.iter().position(|&s| s == node).unwrap_or(0);

@@ -9,6 +9,7 @@
 
 use tower_lsp::lsp_types::*;
 use webfluent::codegen::builtin::{builtin_to_html, implicit_role, landmark_label};
+use webfluent::config::OutputType;
 use webfluent::lexer::TokenType;
 use webfluent::parser::ast::*;
 use webfluent::registry::{self, Children, ComponentSig, Flag, PropSig, PropType, Sink};
@@ -231,7 +232,7 @@ fn hover_text(
 
     // Names that are global to the project.
     if let Some(sig) = registry::component(word) {
-        return Some(builtin_doc(sig));
+        return Some(builtin_doc(project, sig));
     }
     if let Some((script_ix, name)) = project.script_name(word) {
         return Some(script_doc(project, script_ix, name));
@@ -510,11 +511,11 @@ pub fn type_name(ty: &TypeRef) -> String {
 fn component_doc(project: &Project, reference: &ComponentRef) -> String {
     match reference {
         ComponentRef::BuiltIn(name) => match registry::component(name) {
-            Some(sig) => builtin_doc(sig),
+            Some(sig) => builtin_doc(project, sig),
             None => format!("**{name}**"),
         },
         ComponentRef::SubComponent(owner, part) => match registry::part(owner, part) {
-            Some(sig) => builtin_doc(sig),
+            Some(sig) => builtin_doc(project, sig),
             None => format!("**{owner}.{part}**\n\n`{owner}` has no part called `{part}`."),
         },
         ComponentRef::UserDefined(name) => match find_declaration(project, name) {
@@ -540,13 +541,28 @@ fn prop_usage(prop: &PropSig) -> String {
     }
 }
 
-fn builtin_doc(sig: &'static ComponentSig) -> String {
+fn builtin_doc(project: &Project, sig: &'static ComponentSig) -> String {
     let full = sig.qualified();
     let what = match sig.owner {
         Some(owner) => format!("part of `{owner}`"),
         None => format!("{} component", sig.group),
     };
     let mut out = format!("**{full}** — {what}\n\n{}\n", sig.summary);
+
+    // A PDF or a deck draws less than a page: say so where it is written.
+    let output = project.output_type;
+    let paged = matches!(output, OutputType::Pdf | OutputType::Slides);
+    let paper = if output == OutputType::Slides {
+        "a slide deck"
+    } else {
+        "a PDF"
+    };
+    if paged && let Err(why) = webfluent::linter::drawn_in(output, sig.owner.unwrap_or(sig.name)) {
+        out.push_str(&format!(
+            "\n**Not drawn in {paper}** — {why}. This project's `build.output_type` is `{}`, so `wf build` refuses it (`E109`).\n",
+            output_name(output)
+        ));
+    }
 
     // The usage line: the positional, the block.
     let mut usage = full.clone();
@@ -596,7 +612,11 @@ fn builtin_doc(sig: &'static ComponentSig) -> String {
 
     if let registry::Ir::BuiltIn(ir) = sig.ir {
         let (tag, class) = builtin_to_html(ir);
-        let mut html = format!("\nRenders `<{tag}>`");
+        let mut html = if paged {
+            format!("\nLaid out in {paper} from `<{tag}>`")
+        } else {
+            format!("\nRenders `<{tag}>`")
+        };
         if !class.is_empty() {
             html.push_str(&format!(" with class `{class}`"));
         }
@@ -610,6 +630,17 @@ fn builtin_doc(sig: &'static ComponentSig) -> String {
         out.push('.');
     }
     out
+}
+
+/// How the config spells an output.
+fn output_name(output: OutputType) -> &'static str {
+    match output {
+        OutputType::Spa => "spa",
+        OutputType::Static => "static",
+        OutputType::Pdf => "pdf",
+        OutputType::Slides => "slides",
+        OutputType::Elements => "elements",
+    }
 }
 
 fn declaration_doc(project: &Project, decl: &Declaration) -> String {
@@ -943,6 +974,9 @@ fn binding_doc(
         }
         BindingKind::ElementHandle => {
             "A handle on the element, from `ref:`: `.focus()`, `.blur()`, `.value`, and the rest of the element."
+        }
+        BindingKind::PageNumber => {
+            "Inside a `Header`, `Footer` or `Background`: `page` is the number of the page being drawn and `pages` how many the document has — `Text(\"Page {page} of {pages}\")`."
         }
     };
     match source {

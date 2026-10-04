@@ -22,7 +22,9 @@
 //! Nothing is offered inside a string or a comment.
 
 use tower_lsp::lsp_types::*;
+use webfluent::config::OutputType;
 use webfluent::lexer::{Token, TokenType};
+use webfluent::linter;
 use webfluent::parser::ast::*;
 use webfluent::registry::{self, Children, ComponentSig, PropType};
 
@@ -289,9 +291,19 @@ pub fn provide_completions(
         }
     };
     if !in_store && !imperative {
-        items.extend(components(project));
+        // The element whose block the cursor is in decides what may go
+        // there in a deck: slides in a `Presentation`, no slide in a slide.
+        let enclosing = path.iter().rev().find_map(|s| match &s.kind {
+            StatementKind::UIElement(el) => Some(&el.component),
+            _ => None,
+        });
+        items.extend(components_in(project, enclosing));
     }
-    items.extend(keywords(context));
+    items.extend(
+        keywords(context)
+            .into_iter()
+            .filter(|k| !paged(project) || !web_only_keyword(&k.label)),
+    );
     items.extend(scope_items(&scope));
     if imperative {
         items.extend(top_level_names(project));
@@ -2087,20 +2099,94 @@ fn builtin_snippet(sig: &ComponentSig) -> String {
     }
 }
 
+/// Whether the project writes paper — a PDF or a deck — where only what
+/// can be drawn may be written.
+fn paged(project: &Project) -> bool {
+    matches!(project.output_type, OutputType::Pdf | OutputType::Slides)
+}
+
+/// A word that starts something only a browser runs: a handler, a timer, a
+/// request, a connection, a value kept in storage.
+fn web_only_keyword(word: &str) -> bool {
+    matches!(
+        word,
+        "on" | "effect"
+            | "every"
+            | "after"
+            | "resource"
+            | "socket"
+            | "stream"
+            | "channel"
+            | "peer"
+            | "persist"
+            | "show"
+            | "sequence"
+            | "navigate"
+            | "validate"
+            | "head"
+    )
+}
+
 fn components(project: &Project) -> Vec<CompletionItem> {
+    components_in(project, None)
+}
+
+/// The elements a statement may start with: the built-ins this output
+/// draws, then the project's components. In a deck, a `Presentation` holds
+/// slides — the slide kinds and the components whose body is one — and a
+/// slide holds anything else that draws.
+fn components_in(project: &Project, enclosing: Option<&ComponentRef>) -> Vec<CompletionItem> {
+    let output = project.output_type;
+    let in_presentation =
+        matches!(enclosing, Some(ComponentRef::BuiltIn(n)) if n == "Presentation");
+    let in_slide = enclosing.is_some_and(|c| match c {
+        ComponentRef::BuiltIn(n) => linter::is_slide(n),
+        ComponentRef::UserDefined(n) => {
+            find_component(project, n).is_some_and(|c| linter::renders_slides(&c.body))
+        }
+        ComponentRef::SubComponent(..) => false,
+    });
+    let slides = output == OutputType::Slides;
     let mut items: Vec<CompletionItem> = registry::components()
-        .map(|c| CompletionItem {
-            label: c.name.to_string(),
-            kind: Some(CompletionItemKind::CLASS),
-            detail: Some(format!("{} — {}", c.group, c.summary)),
-            insert_text: Some(builtin_snippet(c)),
-            insert_text_format: Some(InsertTextFormat::SNIPPET),
-            sort_text: Some(format!("1{}", c.name)),
-            ..Default::default()
+        .filter(|c| linter::offered_in(output, c.name))
+        .filter(|c| {
+            if !slides {
+                return true;
+            }
+            let slide = linter::is_slide(c.name);
+            if in_presentation {
+                slide
+            } else if in_slide || enclosing.is_some() {
+                !slide && c.name != "Presentation"
+            } else {
+                !slide
+            }
+        })
+        .map(|c| {
+            // On a web page the paper-only elements come last.
+            let paper_only =
+                !paged(project) && matches!(c.group, "PDF" | "Slides") && c.name != "Section";
+            let detail = if paper_only {
+                format!("{} — {} (drawn in a PDF or a deck)", c.group, c.summary)
+            } else {
+                format!("{} — {}", c.group, c.summary)
+            };
+            CompletionItem {
+                label: c.name.to_string(),
+                kind: Some(CompletionItemKind::CLASS),
+                detail: Some(detail),
+                insert_text: Some(builtin_snippet(c)),
+                insert_text_format: Some(InsertTextFormat::SNIPPET),
+                sort_text: Some(format!("{}{}", if paper_only { 3 } else { 1 }, c.name)),
+                ..Default::default()
+            }
         })
         .collect();
     for (ix, decl) in project.program.declarations.iter().enumerate() {
         if let Declaration::Component(c) = decl {
+            if slides && in_presentation != linter::renders_slides(&c.body) {
+                continue;
+            }
             let call = if c.props.is_empty() {
                 c.name.clone()
             } else {

@@ -1,0 +1,20 @@
+{
+  "name": "webfluent-deck",
+  "version": "1.0.0",
+  "author": "Monzer Omer",
+  "theme": { "name": "Day", "builtin": "structural" },
+  "build": {
+    "output": "./build",
+    "output_type": "slides",
+    "slides": {
+      "size": "16:9",
+      "margin": 0,
+      "default_font": "Inter",
+      "default_font_size": 16,
+      "output_filename": "webfluent-5.2.pdf",
+      "fonts": ["../../documents/fonts"],
+      "system_fonts": false
+    }
+  },
+  "meta": { "lang": "en", "title": "WebFluent — a language for websites" }
+}

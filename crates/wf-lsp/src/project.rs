@@ -20,7 +20,7 @@ use std::time::SystemTime;
 
 use dashmap::DashMap;
 use tower_lsp::lsp_types::Url;
-use webfluent::config::project::{ProjectConfig, ThemeConfig};
+use webfluent::config::project::{OutputType, ProjectConfig, ThemeConfig};
 use webfluent::error::WebFluentError;
 use webfluent::parser::{Declaration, Program};
 
@@ -77,6 +77,11 @@ pub struct Project {
     /// The `env` names a page may read: the public ones the config, `.env`
     /// and the shell supply.
     pub env_names: Vec<String>,
+    /// The project's config, its `env` resolved, when it has one.
+    pub config: Option<ProjectConfig>,
+    /// What the build writes — a site, a PDF, a deck — which decides what
+    /// may be drawn, so what the editor offers.
+    pub output_type: OutputType,
 }
 
 /// Parsed disk files, keyed by path, reused while the file is unchanged.
@@ -134,6 +139,7 @@ impl Project {
         let mut library_globals: Vec<String> = Vec::new();
         let mut messages: Vec<String> = Vec::new();
         let mut env_names: Vec<String> = Vec::new();
+        let mut project_config: Option<ProjectConfig> = None;
         let (theme, paths, stylesheets) = match &root {
             Some(root) if path.starts_with(root.join("src")) => {
                 let config = ProjectConfig::load(root).ok().map(|mut c| {
@@ -162,7 +168,11 @@ impl Project {
                     .flat_map(|c| c.meta.scripts.iter().flat_map(|s| s.names()))
                     .map(str::to_string)
                     .collect();
-                let theme = config.map(|config| config.theme).unwrap_or_default();
+                let theme = config
+                    .as_ref()
+                    .map(|config| config.theme.clone())
+                    .unwrap_or_default();
+                project_config = config;
                 let src = root.join("src");
                 let mut paths = source_files(&src);
                 if !paths.iter().any(|p| p == &path) {
@@ -317,6 +327,11 @@ impl Project {
             stylesheet_files,
             messages,
             env_names,
+            output_type: project_config
+                .as_ref()
+                .map(|c| c.build.output_type)
+                .unwrap_or_default(),
+            config: project_config,
         }
     }
 
@@ -358,6 +373,8 @@ impl Project {
             stylesheet_files: Vec::new(),
             messages: Vec::new(),
             env_names: Vec::new(),
+            config: None,
+            output_type: OutputType::default(),
         }
     }
 

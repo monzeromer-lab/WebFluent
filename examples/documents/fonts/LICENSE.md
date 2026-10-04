@@ -1,5 +1,6 @@
 Fonts used by the reference documents, each under the SIL Open Font License 1.1.
 
+- inter: Copyright 2020 The Inter Project Authors (https://github.com/rsms/inter)
 - fraunces: Copyright 2018 The Fraunces Project Authors (https://github.com/undercasetype/Fraunces)
 - jetbrainsmono: Copyright 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono)
 - manrope: Copyright 2018 The Manrope Project Authors (https://github.com/googlefonts/manrope)

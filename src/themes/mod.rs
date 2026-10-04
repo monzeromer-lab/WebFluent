@@ -48,9 +48,9 @@ macro_rules! paged_rules {
 .wf-image-slide { align-items: center; justify-content: center; }
 .wf-slide__image { max-width: 100%; max-height: 85%; object-fit: contain; }
 .wf-slide__caption { color: var(--color-text-muted); font-size: 0.75em; }
-.wf-slide h1, .wf-two-column h1 { font-size: 2em; }
-.wf-slide h2, .wf-two-column h2 { font-size: 1.6em; }
-.wf-slide h3, .wf-two-column h3 { font-size: 1.3em; }
+.wf-slide :where(h1), .wf-two-column :where(h1) { font-size: 2em; }
+.wf-slide :where(h2), .wf-two-column :where(h2) { font-size: 1.6em; }
+.wf-slide :where(h3), .wf-two-column :where(h3) { font-size: 1.3em; }
 "#
     };
 }
