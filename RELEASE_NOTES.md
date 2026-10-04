@@ -1,3 +1,21 @@
+# WebFluent v5.1.1 Release Notes
+
+The language server says which version it is.
+
+## New
+
+- **`wf-lsp --version`** (and `-V`) prints the version; `--help` says what
+  the binary is and how an editor runs it. An editor runs the `wf-lsp` on
+  your `PATH` before a downloaded release, and `cargo install` leaves an
+  old one there when `wf` is updated — so an editor could report findings
+  the compiler dropped long ago (an unknown `Host`) while `wf check` found
+  nothing. Comparing `wf-lsp --version` with `wf --version` now shows it.
+
+## Documentation
+
+- **Troubleshooting** names that symptom and its fix, and the CLI guide
+  says to keep `wf-lsp` at the version of `wf`.
+
 # WebFluent v5.1.0 Release Notes
 
 The language server catches up with the language. Everything the compiler
