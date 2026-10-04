@@ -8,6 +8,7 @@
   "Actions",
   "Media",
   "Typography",
+  "Data Display",
   "PDF",
   "Slides",
   "Routing"
@@ -2829,26 +2830,89 @@
    "cssClass": "wf-blockquote"
   },
   {
-   "name": "Document",
-   "slug": "document",
-   "group": "PDF",
-   "summary": "Root of a PDF document.",
-   "plain": "Root of a PDF document.",
-   "signature": "Document(page_size: \u2026) { \u2026 }",
-   "block": true,
+   "name": "Chart",
+   "slug": "chart",
+   "group": "Data Display",
+   "summary": "A chart drawn as vector graphics when the page is built: bars, lines, areas, a pie or a donut over a list of records.",
+   "plain": "A chart drawn as vector graphics when the page is built: bars, lines, areas, a pie or a donut over a list of records.",
+   "signature": "Chart(kind: \u2026, data: \u2026, x: \u2026)",
+   "block": false,
    "props": [
     {
-     "name": "page_size:",
-     "type": ".A4 .A3 .A5 .Letter .Legal",
-     "meaning": "Paper size"
+     "name": "kind:",
+     "type": ".bar .line .area .pie .donut",
+     "meaning": "What it draws"
+    },
+    {
+     "name": "data:",
+     "type": "Any",
+     "meaning": "The rows: a list of records, or of numbers"
+    },
+    {
+     "name": "x:",
+     "type": "String",
+     "meaning": "The key of each row's label"
+    },
+    {
+     "name": "y:",
+     "type": "Any",
+     "meaning": "The key of each row's value, or a list of keys for several series"
+    },
+    {
+     "name": "colors:",
+     "type": "Any",
+     "meaning": "The series' colours, in order"
+    },
+    {
+     "name": "width:",
+     "type": "Number",
+     "meaning": "Its width in user units (it scales to its box)"
+    },
+    {
+     "name": "height:",
+     "type": "Number",
+     "meaning": "Its height in user units"
+    },
+    {
+     "name": "ink:",
+     "type": "String",
+     "meaning": "The colour of its labels"
+    },
+    {
+     "name": "grid:",
+     "type": "String",
+     "meaning": "The colour of its grid lines"
+    },
+    {
+     "name": "legend:",
+     "type": "Bool",
+     "meaning": "Name the series"
+    },
+    {
+     "name": "stacked:",
+     "type": "Bool",
+     "meaning": "Stack a bar chart's series"
+    },
+    {
+     "name": "labels:",
+     "type": "Bool",
+     "meaning": "Write each bar's or slice's value on it"
+    },
+    {
+     "name": "unit:",
+     "type": "String",
+     "meaning": "A unit after each value on the axis: `ms`, `%`"
     }
    ],
    "flags": [
-    ".A4",
-    ".A3",
-    ".A5",
-    ".Letter",
-    ".Legal"
+    ".bar",
+    ".line",
+    ".area",
+    ".pie",
+    ".donut",
+    ".legend",
+    ".stacked",
+    ".labels"
    ],
    "events": [],
    "parts": [],
@@ -2858,10 +2922,162 @@
     "data"
    ],
    "nearby": [
+    "QrCode"
+   ],
+   "example": "",
+   "cssClass": "wf-chart"
+  },
+  {
+   "name": "QrCode",
+   "slug": "qrcode",
+   "group": "Data Display",
+   "summary": "A QR code for a URL or any text, drawn as vector graphics when the page is built.",
+   "plain": "A QR code for a URL or any text, drawn as vector graphics when the page is built.",
+   "signature": "QrCode(value, color: \u2026, background: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "value",
+     "type": "String  (positional)",
+     "meaning": "What it encodes"
+    },
+    {
+     "name": "color:",
+     "type": "String",
+     "meaning": "The colour of the dark modules"
+    },
+    {
+     "name": "background:",
+     "type": "String",
+     "meaning": "The colour behind them"
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Chart"
+   ],
+   "example": "",
+   "cssClass": "wf-qr"
+  },
+  {
+   "name": "TableOfContents",
+   "slug": "tableofcontents",
+   "group": "PDF",
+   "summary": "The document's headings with the page each lands on, each a link to it.",
+   "plain": "The document's headings with the page each lands on, each a link to it.",
+   "signature": "TableOfContents(levels: \u2026, title: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "levels:",
+     "type": "Number",
+     "meaning": "How deep it lists: 1 is the `h1`s only (default 3)"
+    },
+    {
+     "name": "title:",
+     "type": "String",
+     "meaning": "A heading above the list"
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Document",
     "Section",
     "Paragraph",
-    "Header",
-    "Footer"
+    "Header"
+   ],
+   "example": "",
+   "cssClass": "wf-toc"
+  },
+  {
+   "name": "Document",
+   "slug": "document",
+   "group": "PDF",
+   "summary": "Root of a PDF document: the paper, the margins and what the file says about itself.",
+   "plain": "Root of a PDF document: the paper, the margins and what the file says about itself.",
+   "signature": "Document(page_size: \u2026, size: \u2026, landscape: \u2026) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "page_size:",
+     "type": ".A4 .A3 .A5 .Letter .Legal",
+     "meaning": "Paper size (also `size:`)"
+    },
+    {
+     "name": "size:",
+     "type": "String",
+     "meaning": "Paper size: `A4`, `Letter`, `Tabloid`, or two lengths, `210mm 297mm`"
+    },
+    {
+     "name": "landscape:",
+     "type": "Bool",
+     "meaning": "Turn the paper on its side"
+    },
+    {
+     "name": "margin:",
+     "type": "Any",
+     "meaning": "The page margins: one length, or top right bottom left (`72`, `20mm 25mm`)"
+    },
+    {
+     "name": "title:",
+     "type": "String",
+     "meaning": "The file's title, shown by a reader in place of its name"
+    },
+    {
+     "name": "author:",
+     "type": "String",
+     "meaning": "The file's author; several separated by commas"
+    },
+    {
+     "name": "subject:",
+     "type": "String",
+     "meaning": "What the document is about"
+    },
+    {
+     "name": "keywords:",
+     "type": "String",
+     "meaning": "Comma-separated keywords"
+    },
+    {
+     "name": "lang:",
+     "type": "String",
+     "meaning": "The document's language, for screen readers and hyphenation"
+    }
+   ],
+   "flags": [
+    ".A4",
+    ".A3",
+    ".A5",
+    ".Letter",
+    ".Legal",
+    ".landscape"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "TableOfContents",
+    "Section",
+    "Paragraph",
+    "Header"
    ],
    "example": "Document(page_size: \"A4\") {\n    Section { Heading(\"Report\").h1  Paragraph(\"Revenue grew.\") }\n}",
    "cssClass": "wf-document"
@@ -2884,10 +3100,10 @@
     "data"
    ],
    "nearby": [
+    "TableOfContents",
     "Document",
     "Paragraph",
-    "Header",
-    "Footer"
+    "Header"
    ],
    "example": "Section {\n    Heading(\"Terms\").h2\n    Text(\"Payment within 30 days.\")\n}",
    "cssClass": "wf-section"
@@ -2982,10 +3198,10 @@
     "data"
    ],
    "nearby": [
+    "TableOfContents",
     "Document",
     "Section",
-    "Header",
-    "Footer"
+    "Header"
    ],
    "example": "Paragraph(\"A block of prose, with the spacing a paragraph has.\")",
    "cssClass": "wf-text"
@@ -2994,12 +3210,24 @@
    "name": "Header",
    "slug": "header",
    "group": "PDF",
-   "summary": "Repeated at the top of every PDF page; a `<header>` on the web.",
-   "plain": "Repeated at the top of every PDF page; a <header> on the web.",
-   "signature": "Header { \u2026 }",
+   "summary": "Repeated at the top of every PDF page (or those `on:` names), where `page` and `pages` are the page's number and the count; a `<header>` on the web.",
+   "plain": "Repeated at the top of every PDF page (or those on: names), where page and pages are the page's number and the count; a <header> on the web.",
+   "signature": "Header(on: \u2026) { \u2026 }",
    "block": true,
-   "props": [],
-   "flags": [],
+   "props": [
+    {
+     "name": "on:",
+     "type": ".all .first .rest .odd .even",
+     "meaning": "Which pages it is drawn on"
+    }
+   ],
+   "flags": [
+    ".all",
+    ".first",
+    ".rest",
+    ".odd",
+    ".even"
+   ],
    "events": [],
    "parts": [],
    "attributes": [
@@ -3008,10 +3236,10 @@
     "data"
    ],
    "nearby": [
+    "TableOfContents",
     "Document",
     "Section",
-    "Paragraph",
-    "Footer"
+    "Paragraph"
    ],
    "example": "Header { Text(\"Company Inc.\").muted.sm }",
    "cssClass": "wf-header"
@@ -3020,12 +3248,24 @@
    "name": "Footer",
    "slug": "footer",
    "group": "PDF",
-   "summary": "Repeated at the bottom of every PDF page; a `<footer>` on the web.",
-   "plain": "Repeated at the bottom of every PDF page; a <footer> on the web.",
-   "signature": "Footer { \u2026 }",
+   "summary": "Repeated at the bottom of every PDF page (or those `on:` names), where `page` and `pages` are the page's number and the count; a `<footer>` on the web.",
+   "plain": "Repeated at the bottom of every PDF page (or those on: names), where page and pages are the page's number and the count; a <footer> on the web.",
+   "signature": "Footer(on: \u2026) { \u2026 }",
    "block": true,
-   "props": [],
-   "flags": [],
+   "props": [
+    {
+     "name": "on:",
+     "type": ".all .first .rest .odd .even",
+     "meaning": "Which pages it is drawn on"
+    }
+   ],
+   "flags": [
+    ".all",
+    ".first",
+    ".rest",
+    ".odd",
+    ".even"
+   ],
    "events": [],
    "parts": [],
    "attributes": [
@@ -3034,13 +3274,94 @@
     "data"
    ],
    "nearby": [
+    "TableOfContents",
     "Document",
     "Section",
-    "Paragraph",
-    "Header"
+    "Paragraph"
    ],
    "example": "Footer { Text(\"\u00a9 Company Inc.\").muted.sm }",
    "cssClass": "wf-footer"
+  },
+  {
+   "name": "Background",
+   "slug": "background",
+   "group": "PDF",
+   "summary": "Drawn behind each PDF page's content, the size of the page: a cover, a band, a full-bleed picture.",
+   "plain": "Drawn behind each PDF page's content, the size of the page: a cover, a band, a full-bleed picture.",
+   "signature": "Background(on: \u2026) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "on:",
+     "type": ".all .first .rest .odd .even",
+     "meaning": "Which pages it is drawn on"
+    }
+   ],
+   "flags": [
+    ".all",
+    ".first",
+    ".rest",
+    ".odd",
+    ".even"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "TableOfContents",
+    "Document",
+    "Section",
+    "Paragraph"
+   ],
+   "example": "",
+   "cssClass": "wf-background"
+  },
+  {
+   "name": "Watermark",
+   "slug": "watermark",
+   "group": "PDF",
+   "summary": "Large, faint, rotated text behind each PDF page's content.",
+   "plain": "Large, faint, rotated text behind each PDF page's content.",
+   "signature": "Watermark(text, on: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "The text"
+    },
+    {
+     "name": "on:",
+     "type": ".all .first .rest .odd .even",
+     "meaning": "Which pages it is drawn on"
+    }
+   ],
+   "flags": [
+    ".all",
+    ".first",
+    ".rest",
+    ".odd",
+    ".even"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "TableOfContents",
+    "Document",
+    "Section",
+    "Paragraph"
+   ],
+   "example": "",
+   "cssClass": "wf-watermark"
   },
   {
    "name": "PageBreak",
@@ -3060,13 +3381,13 @@
     "data"
    ],
    "nearby": [
+    "TableOfContents",
     "Document",
     "Section",
-    "Paragraph",
-    "Header"
+    "Paragraph"
    ],
    "example": "Text(\"End of chapter one.\")\nPageBreak\nHeading(\"Chapter two\").h2",
-   "cssClass": ""
+   "cssClass": "wf-page-break"
   },
   {
    "name": "Presentation",
@@ -3092,7 +3413,7 @@
     "TwoColumn"
    ],
    "example": "Presentation {\n    TitleSlide(\"Q1 review\", subtitle: \"March 2026\")\n    Slide { Heading(\"Highlights\").h1 }\n}",
-   "cssClass": ""
+   "cssClass": "wf-presentation"
   },
   {
    "name": "Slide",
@@ -3118,7 +3439,7 @@
     "TwoColumn"
    ],
    "example": "Presentation {\n    Slide {\n        Heading(\"Revenue\").h1\n        Text(\"Up 18% on last quarter.\")\n    }\n}",
-   "cssClass": ""
+   "cssClass": "wf-slide"
   },
   {
    "name": "TitleSlide",
@@ -3155,7 +3476,7 @@
     "TwoColumn"
    ],
    "example": "Presentation { TitleSlide(\"Q1 review\", subtitle: \"Acme, March 2026\") }",
-   "cssClass": ""
+   "cssClass": "wf-title-slide"
   },
   {
    "name": "SectionSlide",
@@ -3198,7 +3519,7 @@
     "TwoColumn"
    ],
    "example": "Presentation { SectionSlide(\"Numbers\").primary }",
-   "cssClass": ""
+   "cssClass": "wf-section-slide"
   },
   {
    "name": "TwoColumn",
@@ -3224,7 +3545,7 @@
     "SectionSlide"
    ],
    "example": "Presentation {\n    TwoColumn {\n        Container { Heading(\"Wins\").h3 }\n        Container { Heading(\"Risks\").h3 }\n    }\n}",
-   "cssClass": ""
+   "cssClass": "wf-two-column"
   },
   {
    "name": "ImageSlide",
@@ -3261,7 +3582,7 @@
     "SectionSlide"
    ],
    "example": "Presentation { ImageSlide(src: \"chart.png\", caption: \"Revenue by month\") }",
-   "cssClass": ""
+   "cssClass": "wf-image-slide"
   },
   {
    "name": "Router",
@@ -3631,5 +3952,5 @@
   "sun",
   "moon"
  ],
- "count": 67
+ "count": 72
 }

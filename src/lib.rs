@@ -184,12 +184,12 @@ pub mod error;
 
 pub mod linter;
 
+pub mod paged;
 /// Template engine — render `.wf` templates with JSON data.
 ///
 /// The [`Template`] struct is the primary public API for using WebFluent as a library.
 /// It supports rendering to HTML documents, HTML fragments, and PDF files.
 pub mod template;
-pub mod paged;
 
 pub mod edit;
 
@@ -207,4 +207,4 @@ pub use studio::{
     CompiledPage, CompiledSite, Diagnostic as StudioDiagnostic, ThemeInfo, compile_studio,
 };
 pub use syntax::{Dialect, detect_dialect, parse_source};
-pub use template::Template;
+pub use template::{PdfReport, Template};

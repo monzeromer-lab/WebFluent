@@ -23,10 +23,13 @@ exclude = [
     "/tests",
     "/.github",
     "/.claude",
+    # The reference documents and the fonts they are set in: tests and
+    # examples, not the compiler.
+    "/examples/documents",
 ]
 keywords = ["web", "language", "compiler", "template-engine", "pdf"]
 categories = ["compilers", "template-engine", "web-programming"]
-rust-version = "1.85"
+rust-version = "1.92"
 
 [package.metadata.deb]
 maintainer = "Monzer Omer"

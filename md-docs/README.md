@@ -63,7 +63,7 @@ suite, so what you read is what the compiler accepts.
 | 30 | [Environments](30-environments.md) | Values fixed per build — an API address, a feature switch, a public key — from the config, a .env file or the shell, and which of them a page may read. |
 | 31 | [Performance](31-performance.md) | What a build already does to be fast, how to see what it weighs, budgets that warn, and the few things that make a site slow. |
 | 32 | [JavaScript interop](32-javascript-interop.md) | Write plain JavaScript beside your pages and call it by name; load a library from a CDN; hand an element to a script and get it back; place custom elements; publish your components for any framework. |
-| 33 | [PDF and slides](33-pdf-and-slides.md) | The same language, compiled to a paginated PDF document or a slide deck — invoices, reports and talks. |
+| 33 | [PDF and slides](33-pdf-and-slides.md) | The same language, compiled to a paginated PDF document or a slide deck — invoices, reports and talks, laid out like the web. |
 | 34 | [Server rendering](34-server-rendering.md) | Render a .wf template with JSON on a server — an email, an invoice, a report, an HTML fragment — from the CLI, Rust or Node. |
 | 35 | [Cookbook](35-recipes.md) | Three complete applications you can paste into a fresh project, and recipes for the things every site needs. |
 | | **Reference** | |

@@ -2464,6 +2464,38 @@ warning[V10]: `Host` makes no `video`, so it is a `div`
 
 **Fix:** Make it one of the tags `Host` makes, or use the element the
 built-ins offer for it (`Video`, `Audio`, `Image`).
+
+
+### V11 — A component named like a built-in
+
+A call of a built-in's name draws the built-in, so a component declared
+with that name is never drawn: its body, its props, its slots go unused, and
+what the page shows is the built-in instead. It happens to a component
+written before WebFluent gained an element of the same name — a `Footer`
+from WebFluent 2, a `Chart` from before 5.2.
+
+```wf expect V11
+component Chart(_ title: String) {
+    Text(title)
+}
+
+page P(path: "/", title: "T", description: "D") {
+    Heading("Sales").h1
+    Chart(kind: .bar, data: [3, 5, 2])
+}
+```
+
+```text
+warning[V11]: `Chart` is a built-in component, so a call of that name draws the built-in, never this one
+ --> src/App.wf:1:1
+  |
+1 | component Chart(_ title: String) {
+  | ^^^^^^^^^
+  = help: Rename it — `MyChart`, `ReportChart` — and its call sites
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v11-a-component-named-like-a-built-in
+```
+
+**Fix:** Rename the component and its call sites.
 ## Next
 
 [Built-ins](40-built-ins.md).

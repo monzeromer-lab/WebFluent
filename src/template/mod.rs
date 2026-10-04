@@ -16,6 +16,18 @@ use std::fs;
 use std::path::Path;
 use std::sync::Arc;
 
+/// What a PDF render drew.
+#[derive(Debug, Clone)]
+pub struct PdfReport {
+    /// The PDF file.
+    pub bytes: Vec<u8>,
+    pub pages: usize,
+    /// The text of each page, a line at a time, in reading order.
+    pub text: Vec<Vec<String>>,
+    /// A character no font had; a font taken from this machine.
+    pub notes: Vec<String>,
+}
+
 /// A compiled WebFluent template ready for rendering with JSON data.
 ///
 /// `Template` is the primary public API for using WebFluent as a library.
@@ -552,13 +564,49 @@ impl Template {
     /// [`render_pdf`](Template::render_pdf), with what the reader of the
     /// render should know: a character no font had, a font taken from this
     /// machine rather than the template's.
-    pub fn render_pdf_with_notes<T: Serialize + ?Sized>(&self, data: &T) -> Result<(Vec<u8>, Vec<String>)> {
+    pub fn render_pdf_with_notes<T: Serialize + ?Sized>(
+        &self,
+        data: &T,
+    ) -> Result<(Vec<u8>, Vec<String>)> {
+        let report = self.render_pdf_report(data)?;
+        Ok((report.bytes, report.notes))
+    }
+
+    /// Render to PDF and report what was drawn: the bytes, the page count,
+    /// the text of each page a line at a time in reading order, and the
+    /// notes — for a test that holds a document to what it should say, or
+    /// a server that logs what it sent.
+    pub fn render_pdf_report<T: Serialize + ?Sized>(&self, data: &T) -> Result<PdfReport> {
         let data = to_value(data)?;
         let html = self.paged_document(&data)?;
         let read = crate::paged::reader(self.root.clone());
         let options = crate::paged::Options::from_pdf(&self.pdf, &read, self.root.as_deref());
-        let out = crate::paged::render(&html, "", &options).map_err(WebFluentError::CodegenError)?;
-        Ok((out.bytes, out.notes))
+        let out =
+            crate::paged::render(&html, "", &options).map_err(WebFluentError::CodegenError)?;
+        Ok(PdfReport {
+            bytes: out.bytes,
+            pages: out.pages,
+            text: out.text,
+            notes: out.notes,
+        })
+    }
+
+    /// [`render_slides`](Template::render_slides), reported as
+    /// [`render_pdf_report`](Template::render_pdf_report) reports a document.
+    pub fn render_slides_report<T: Serialize + ?Sized>(&self, data: &T) -> Result<PdfReport> {
+        let data = to_value(data)?;
+        let html = self.paged_document(&data)?;
+        let read = crate::paged::reader(self.root.clone());
+        let (options, chrome) =
+            crate::paged::Options::from_slides(&self.slides, &read, self.root.as_deref());
+        let out = crate::paged::render_slides(&html, "", &options, &chrome)
+            .map_err(WebFluentError::CodegenError)?;
+        Ok(PdfReport {
+            bytes: out.bytes,
+            pages: out.pages,
+            text: out.text,
+            notes: out.notes,
+        })
     }
 
     /// Render to a PDF slide deck as raw bytes.
@@ -573,8 +621,10 @@ impl Template {
         let data = to_value(data)?;
         let html = self.paged_document(&data)?;
         let read = crate::paged::reader(self.root.clone());
-        let (options, chrome) = crate::paged::Options::from_slides(&self.slides, &read, self.root.as_deref());
-        let out = crate::paged::render_slides(&html, "", &options, &chrome).map_err(WebFluentError::CodegenError)?;
+        let (options, chrome) =
+            crate::paged::Options::from_slides(&self.slides, &read, self.root.as_deref());
+        let out = crate::paged::render_slides(&html, "", &options, &chrome)
+            .map_err(WebFluentError::CodegenError)?;
         Ok(out.bytes)
     }
 
@@ -585,10 +635,15 @@ impl Template {
         let css = self.stylesheet()?;
         let title = html_escape(&self.title(data));
         let lang = html_escape(&self.lang);
-        let dir = if is_rtl(&self.lang) { " dir=\"rtl\"" } else { "" };
-        Ok(format!("<!DOCTYPE html><html lang=\"{lang}\"{dir}><head><title>{title}</title><style>{css}</style></head><body>{fragment}</body></html>"))
+        let dir = if is_rtl(&self.lang) {
+            " dir=\"rtl\""
+        } else {
+            ""
+        };
+        Ok(format!(
+            "<!DOCTYPE html><html lang=\"{lang}\"{dir}><head><title>{title}</title><style>{css}</style></head><body>{fragment}</body></html>"
+        ))
     }
-
 }
 
 /// `data` as the JSON value the renderers read.
@@ -1754,7 +1809,10 @@ fn extra_classes(ui: &UIElement, ctx: &RenderContext) -> Vec<String> {
 
 /// Whether a language is written right to left.
 pub fn is_rtl(lang: &str) -> bool {
-    matches!(lang.split(['-', '_']).next(), Some("ar" | "he" | "fa" | "ur" | "ps" | "yi" | "dv" | "ku"))
+    matches!(
+        lang.split(['-', '_']).next(),
+        Some("ar" | "he" | "fa" | "ur" | "ps" | "yi" | "dv" | "ku")
+    )
 }
 
 /// A local only a paged render sets: inside a running element, `page` and
@@ -1763,52 +1821,26 @@ const PAGED: &str = "\u{0}paged";
 
 /// A `Chart`'s arguments, read from the data.
 fn chart_of(ui: &UIElement, ctx: &mut RenderContext) -> crate::codegen::charts::Chart {
-    use crate::codegen::charts::{Chart, Kind};
-    let mut c = Chart::default();
-    for arg in &ui.args {
-        let Arg::Named(key, expr) = arg else { continue };
-        let v = ctx.eval_expr(expr);
-        let text = || value_to_string(&v).trim_start_matches('.').to_string();
-        match key.as_str() {
-            "kind" | "type" => c.kind = Kind::parse(&text()),
-            "data" => c.data = match &v { Value::Array(a) => a.clone(), _ => Vec::new() },
-            "x" => c.x = Some(text()),
-            "y" => {
-                c.y = match &v {
-                    Value::Array(a) => a.iter().map(value_to_string).collect(),
-                    _ => vec![text()],
-                }
-            }
-            "colors" => {
-                if let Value::Array(a) = &v {
-                    c.colors = a.iter().map(value_to_string).collect();
-                }
-            }
-            "width" => c.width = v.as_f64().unwrap_or(c.width),
-            "height" => c.height = v.as_f64().unwrap_or(c.height),
-            "ink" => c.ink = text(),
-            "grid" => c.grid = text(),
-            "legend" => c.legend = is_truthy(&v),
-            "stacked" => c.stacked = is_truthy(&v),
-            "labels" => c.labels = is_truthy(&v),
-            "unit" => c.unit = text(),
-            _ => {}
-        }
-    }
-    for m in &ui.modifiers {
-        match m.as_str() {
-            "bar" | "line" | "area" | "pie" | "donut" => c.kind = Kind::parse(m),
-            "stacked" => c.stacked = true,
-            "labels" => c.labels = true,
-            _ => {}
-        }
-    }
-    c
+    let named: Vec<(String, Value)> = ui
+        .args
+        .iter()
+        .filter_map(|a| match a {
+            Arg::Named(k, e) => Some((k.clone(), ctx.eval_expr(e))),
+            _ => None,
+        })
+        .collect();
+    crate::codegen::charts::chart_from(&named, &ui.modifiers)
 }
 
 /// The paged and slide elements: their markup, with what the engine reads
 /// from it as attributes. `None` for any other element.
-fn render_paged(name: &str, ui: &UIElement, ctx: &mut RenderContext, class_str: &str, style_attr: &str) -> Option<String> {
+fn render_paged(
+    name: &str,
+    ui: &UIElement,
+    ctx: &mut RenderContext,
+    class_str: &str,
+    style_attr: &str,
+) -> Option<String> {
     let named = |ctx: &mut RenderContext, key: &str| -> Option<String> {
         ui.args.iter().find_map(|a| match a {
             Arg::Named(k, v) if k == key => {
@@ -1895,8 +1927,10 @@ fn render_paged(name: &str, ui: &UIElement, ctx: &mut RenderContext, class_str: 
             let paged = ctx.locals.contains_key(PAGED);
             let saved = paged.then(|| {
                 (
-                    ctx.locals.insert("page".to_string(), Value::String('\u{F8F0}'.to_string())),
-                    ctx.locals.insert("pages".to_string(), Value::String('\u{F8F1}'.to_string())),
+                    ctx.locals
+                        .insert("page".to_string(), Value::String('\u{F8F0}'.to_string())),
+                    ctx.locals
+                        .insert("pages".to_string(), Value::String('\u{F8F1}'.to_string())),
                 )
             });
             let mut out = open(ctx, tag, attrs);
@@ -1918,9 +1952,15 @@ fn render_paged(name: &str, ui: &UIElement, ctx: &mut RenderContext, class_str: 
                 attrs.push(("data-on".to_string(), case(on)));
             }
             let text = positional(ctx).unwrap_or_default();
-            Some(format!("{}{}</div>\n", open(ctx, "div", attrs).trim_end_matches('\n'), html_escape(&text)))
+            Some(format!(
+                "{}{}</div>\n",
+                open(ctx, "div", attrs).trim_end_matches('\n'),
+                html_escape(&text)
+            ))
         }
-        "PageBreak" => Some(format!("{indent}<div class=\"wf-page-break\"{style_attr}></div>\n")),
+        "PageBreak" => Some(format!(
+            "{indent}<div class=\"wf-page-break\"{style_attr}></div>\n"
+        )),
         "Chart" => {
             let chart = chart_of(ui, ctx);
             let mut out = open(ctx, "figure", Vec::new());
@@ -1929,7 +1969,9 @@ fn render_paged(name: &str, ui: &UIElement, ctx: &mut RenderContext, class_str: 
             Some(out)
         }
         "QrCode" => {
-            let value = positional(ctx).or_else(|| named(ctx, "value")).unwrap_or_default();
+            let value = positional(ctx)
+                .or_else(|| named(ctx, "value"))
+                .unwrap_or_default();
             let dark = named(ctx, "color").unwrap_or_else(|| "#000000".to_string());
             let light = named(ctx, "background").unwrap_or_else(|| "#ffffff".to_string());
             let svg = crate::codegen::charts::qr_svg(&value, &dark, &light).unwrap_or_default();
@@ -1945,7 +1987,10 @@ fn render_paged(name: &str, ui: &UIElement, ctx: &mut RenderContext, class_str: 
             let title = named(ctx, "title");
             let mut out = open(ctx, "nav", vec![("data-levels".to_string(), levels)]);
             if let Some(t) = title {
-                out.push_str(&format!("{indent}  <h2 class=\"wf-toc__title\">{}</h2>\n", html_escape(&t)));
+                out.push_str(&format!(
+                    "{indent}  <h2 class=\"wf-toc__title\">{}</h2>\n",
+                    html_escape(&t)
+                ));
             }
             out.push_str(&format!("{indent}</nav>\n"));
             Some(out)
@@ -1956,7 +2001,11 @@ fn render_paged(name: &str, ui: &UIElement, ctx: &mut RenderContext, class_str: 
             if let Some(src) = named(ctx, "src") {
                 let alt = named(ctx, "alt").unwrap_or_default();
                 let src = crate::codegen::url::guard(&src).to_string();
-                out.push_str(&format!("{indent}  <img src=\"{}\" alt=\"{}\">\n", html_escape(&src), html_escape(&alt)));
+                out.push_str(&format!(
+                    "{indent}  <img src=\"{}\" alt=\"{}\">\n",
+                    html_escape(&src),
+                    html_escape(&alt)
+                ));
             } else {
                 out.push_str(&format!("{indent}  {}\n", html_escape(&initials)));
             }
@@ -1975,7 +2024,12 @@ fn render_paged(name: &str, ui: &UIElement, ctx: &mut RenderContext, class_str: 
                 if is_item || html.trim().is_empty() {
                     out.push_str(&html);
                 } else {
-                    out.push_str(&format!("{}<li class=\"wf-list__item\">\n{}{}</li>\n", ctx.indent_str(), html, ctx.indent_str()));
+                    out.push_str(&format!(
+                        "{}<li class=\"wf-list__item\">\n{}{}</li>\n",
+                        ctx.indent_str(),
+                        html,
+                        ctx.indent_str()
+                    ));
                 }
             }
             ctx.indent -= 1;
@@ -1998,9 +2052,15 @@ fn render_paged(name: &str, ui: &UIElement, ctx: &mut RenderContext, class_str: 
             let title = positional(ctx).unwrap_or_default();
             let subtitle = named(ctx, "subtitle");
             let mut out = open(ctx, "section", Vec::new());
-            out.push_str(&format!("{indent}  <h1 class=\"wf-slide__title\">{}</h1>\n", html_escape(&title)));
+            out.push_str(&format!(
+                "{indent}  <h1 class=\"wf-slide__title\">{}</h1>\n",
+                html_escape(&title)
+            ));
             if let Some(sub) = subtitle {
-                out.push_str(&format!("{indent}  <p class=\"wf-slide__subtitle\">{}</p>\n", html_escape(&sub)));
+                out.push_str(&format!(
+                    "{indent}  <p class=\"wf-slide__subtitle\">{}</p>\n",
+                    html_escape(&sub)
+                ));
             }
             out.push_str(&format!("{indent}</section>\n"));
             Some(out)
@@ -2008,17 +2068,29 @@ fn render_paged(name: &str, ui: &UIElement, ctx: &mut RenderContext, class_str: 
         "SectionSlide" => {
             let label = positional(ctx).unwrap_or_default();
             let mut out = open(ctx, "section", Vec::new());
-            out.push_str(&format!("{indent}  <h2 class=\"wf-slide__label\">{}</h2>\n", html_escape(&label)));
+            out.push_str(&format!(
+                "{indent}  <h2 class=\"wf-slide__label\">{}</h2>\n",
+                html_escape(&label)
+            ));
             out.push_str(&format!("{indent}</section>\n"));
             Some(out)
         }
         "ImageSlide" => {
-            let src = named(ctx, "src").map(|s| crate::codegen::url::guard(&s).to_string()).unwrap_or_default();
+            let src = named(ctx, "src")
+                .map(|s| crate::codegen::url::guard(&s).to_string())
+                .unwrap_or_default();
             let caption = named(ctx, "caption");
             let mut out = open(ctx, "section", Vec::new());
-            out.push_str(&format!("{indent}  <img class=\"wf-slide__image\" src=\"{}\" alt=\"{}\">\n", html_escape(&src), html_escape(caption.as_deref().unwrap_or(""))));
+            out.push_str(&format!(
+                "{indent}  <img class=\"wf-slide__image\" src=\"{}\" alt=\"{}\">\n",
+                html_escape(&src),
+                html_escape(caption.as_deref().unwrap_or(""))
+            ));
             if let Some(c) = caption {
-                out.push_str(&format!("{indent}  <p class=\"wf-slide__caption\">{}</p>\n", html_escape(&c)));
+                out.push_str(&format!(
+                    "{indent}  <p class=\"wf-slide__caption\">{}</p>\n",
+                    html_escape(&c)
+                ));
             }
             out.push_str(&format!("{indent}</section>\n"));
             Some(out)

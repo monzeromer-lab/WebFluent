@@ -186,7 +186,9 @@ fn parse_block_contents(css: &str, sheet: &mut Sheet) {
         let body = &css[brace + 1..close.min(css.len())];
         i = close + 1;
         if let Some(at) = prelude.strip_prefix('@') {
-            let (name, condition) = at.split_once(|c: char| c.is_whitespace()).unwrap_or((at, ""));
+            let (name, condition) = at
+                .split_once(|c: char| c.is_whitespace())
+                .unwrap_or((at, ""));
             match name.to_ascii_lowercase().as_str() {
                 "media" => {
                     if media_applies_to_print(condition) {
@@ -243,7 +245,10 @@ fn media_applies_to_print(condition: &str) -> bool {
 fn font_face(body: &str) -> Option<FontFace> {
     let decls = parse_declarations(body);
     let get = |n: &str| decls.iter().find(|d| d.name == n).map(|d| d.value.clone());
-    let family = get("font-family")?.trim().trim_matches(['"', '\'']).to_string();
+    let family = get("font-family")?
+        .trim()
+        .trim_matches(['"', '\''])
+        .to_string();
     let sources = get("src")
         .map(|src| {
             split_top_level(&src, b',')
@@ -252,7 +257,12 @@ fn font_face(body: &str) -> Option<FontFace> {
                     let part = part.trim();
                     let start = part.find("url(")? + 4;
                     let end = part[start..].find(')')? + start;
-                    Some(part[start..end].trim().trim_matches(['"', '\'']).to_string())
+                    Some(
+                        part[start..end]
+                            .trim()
+                            .trim_matches(['"', '\''])
+                            .to_string(),
+                    )
                 })
                 .collect()
         })
@@ -405,7 +415,11 @@ pub fn parse_selector(s: &str) -> Option<Selector> {
         }
         let (compound, used) = parse_compound(rest)?;
         rest = &rest[used..];
-        let join = if parts.is_empty() { None } else { pending.take().or(Some(Combinator::Descendant)) };
+        let join = if parts.is_empty() {
+            None
+        } else {
+            pending.take().or(Some(Combinator::Descendant))
+        };
         parts.push((compound, join));
     }
     if parts.is_empty() {

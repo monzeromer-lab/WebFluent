@@ -171,6 +171,24 @@ fn check_one_meaning(
         });
     report_clashes(types, file_of, diags);
 
+    // A component named like a built-in would never be drawn: a call of that
+    // name is the built-in's. It used to be accepted and quietly shadowed.
+    for (index, decl) in program.declarations.iter().enumerate() {
+        if let Declaration::Component(c) = decl {
+            if crate::registry::component(&c.name).is_some() {
+                diags.push(
+                    diag(
+                        "V11",
+                        format!("`{}` is a built-in component, so a call of that name draws the built-in, never this one", c.name),
+                        &file_of(index),
+                        c.header_span,
+                    )
+                    .with_hint(format!("Rename it — `My{0}`, `Report{0}` — and its call sites", c.name)),
+                );
+            }
+        }
+    }
+
     for (index, decl) in program.declarations.iter().enumerate() {
         let (props, prop_kind, body): (&[crate::parser::ast::PropDecl], _, &[Statement]) =
             match decl {

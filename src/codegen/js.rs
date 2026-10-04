@@ -91,6 +91,9 @@ pub struct JsCodegen {
     stores: Vec<String>,
     /// The program's `const` names: plain values, read as written.
     consts: Vec<String>,
+    /// The program's constants as build-time values, for what is drawn when
+    /// the page is built (a chart, a QR code).
+    static_scope: Option<crate::codegen::static_eval::Scope>,
     /// `env.NAME` values from the project's config, emitted once.
     env: std::collections::BTreeMap<String, serde_json::Value>,
     /// Track current component/page prop names (not signals)
@@ -210,6 +213,7 @@ impl JsCodegen {
             shapes: Default::default(),
             offline: None,
             consts: Vec::new(),
+            static_scope: None,
             env: Default::default(),
             output: String::new(),
             full_runtime: false,
@@ -510,7 +514,32 @@ impl JsCodegen {
         }
     }
 
+    /// A `Chart`'s or a `QrCode`'s SVG, when every argument is known at build
+    /// time (a literal, a `const`, a `data` file).
+    fn static_graphic(&self, name: &str, ui: &UIElement) -> Option<String> {
+        let scope = self.static_scope.as_ref()?;
+        let mut named = Vec::new();
+        let mut positional = None;
+        for arg in &ui.args {
+            match arg {
+                Arg::Named(k, e) => {
+                    let v = crate::codegen::static_eval::eval(e, scope)?;
+                    named.push((k.clone(), v.to_json()));
+                }
+                Arg::Positional(e) => {
+                    positional = Some(crate::codegen::static_eval::eval(e, scope)?.to_json())
+                }
+            }
+        }
+        crate::codegen::charts::graphic(name, positional.as_ref(), &named, &ui.modifiers)
+    }
+
     pub fn generate(&mut self, program: &Program) -> String {
+        self.static_scope = Some(crate::codegen::static_eval::Scope::from_program_with_env(
+            program,
+            &[],
+            &self.env,
+        ));
         if self.split_pages {
             self.page_sheets = crate::codegen::scoped_css::split_rules(program)
                 .pages
@@ -2073,6 +2102,17 @@ impl JsCodegen {
                     "Element" => {
                         self.emit_custom_element(&var, ui, parent);
                         return;
+                    }
+                    // A chart or a QR code is drawn when the page is built,
+                    // from values known then, and inserted as its SVG.
+                    "Chart" | "QrCode" => {
+                        if let Some(svg) = self.static_graphic(name, ui) {
+                            let (_, class) = builtin_to_html(name);
+                            let svg = serde_json::to_string(&svg).unwrap_or_default();
+                            self.emit_line(&format!("const {var} = WF.el(\"figure\", {{ className: \"{class}\", html: {svg} }});"));
+                            self.emit_line(&format!("{parent}.appendChild({var});"));
+                            return;
+                        }
                     }
                     _ => {}
                 }

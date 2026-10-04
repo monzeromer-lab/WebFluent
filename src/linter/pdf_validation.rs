@@ -6,31 +6,71 @@ use crate::parser::{ComponentRef, Declaration, Program, Statement, StatementKind
 /// below holds every registry entry to one side of the line.
 pub(crate) const PAGED_DRAWN: &[&str] = &[
     // Layout
-    "Container", "Row", "Column", "Grid", "Stack", "Spacer", "Divider", "Section",
+    "Container",
+    "Row",
+    "Column",
+    "Grid",
+    "Stack",
+    "Spacer",
+    "Divider",
+    "Section",
     // Typography
-    "Text", "Heading", "Paragraph", "Code", "Blockquote", "Markdown", "Unsafe",
+    "Text",
+    "Heading",
+    "Paragraph",
+    "Code",
+    "Blockquote",
+    "Markdown",
+    "Unsafe",
     // Data display
-    "Card", "Table", "List", "Badge", "Tag", "Avatar", "Progress", "Alert",
+    "Card",
+    "Table",
+    "List",
+    "Badge",
+    "Tag",
+    "Avatar",
+    "Progress",
+    "Alert",
     // The parts a table and unsafe markup lower to.
-    "Thead", "Tbody", "Trow", "Tcell", "UnsafeHtml",
+    "Thead",
+    "Tbody",
+    "Trow",
+    "Tcell",
+    "UnsafeHtml",
     // Media and graphics
-    "Image", "Icon", "Chart", "QrCode", "TableOfContents",
+    "Image",
+    "Icon",
+    "Chart",
+    "QrCode",
+    "TableOfContents",
     // A link is a link in a PDF too; a trail of them is a breadcrumb.
-    "Link", "Breadcrumb",
+    "Link",
+    "Breadcrumb",
     // The document's own
-    "Document", "Header", "Footer", "PageBreak", "Background", "Watermark",
+    "Document",
+    "Header",
+    "Footer",
+    "PageBreak",
+    "Background",
+    "Watermark",
     // A deck's (where they may go is the slides check's to say)
-    "Presentation", "Slide", "TitleSlide", "SectionSlide", "TwoColumn", "ImageSlide",
+    "Presentation",
+    "Slide",
+    "TitleSlide",
+    "SectionSlide",
+    "TwoColumn",
+    "ImageSlide",
 ];
 
 /// Why an element a paged output does not draw is refused.
 fn refusal(name: &str) -> &'static str {
     match name {
-        "Button" | "IconButton" | "ButtonGroup" | "Input" | "Select" | "Option" | "Checkbox" | "Radio"
-        | "Switch" | "Slider" | "DatePicker" | "FileUpload" | "Form" | "Dropdown" | "Textarea" => {
-            "interactive elements are not supported in PDF"
+        "Button" | "IconButton" | "ButtonGroup" | "Input" | "Select" | "Option" | "Checkbox"
+        | "Radio" | "Switch" | "Slider" | "DatePicker" | "FileUpload" | "Form" | "Dropdown"
+        | "Textarea" => "interactive elements are not supported in PDF",
+        "Router" | "Route" | "Navbar" | "Sidebar" | "Menu" | "Tabs" | "TabPage" => {
+            "navigation components are web-only"
         }
-        "Router" | "Route" | "Navbar" | "Sidebar" | "Menu" | "Tabs" | "TabPage" => "navigation components are web-only",
         "Host" | "Element" => "a script draws it in a browser, and a PDF runs no script",
         "Video" | "Audio" | "Carousel" => "a PDF cannot play or animate it",
         _ => "this component is not supported in PDF output",
@@ -200,10 +240,39 @@ mod tests {
     #[test]
     fn every_builtin_is_drawn_or_refused_on_purpose() {
         let refused_on_purpose: &[&str] = &[
-            "Button", "IconButton", "ButtonGroup", "Input", "Select", "Checkbox", "Radio", "Switch",
-            "Slider", "DatePicker", "FileUpload", "Form", "Dropdown", "Textarea", "Modal", "Dialog",
-            "Toast", "Spinner", "Skeleton", "Router", "Navbar", "Sidebar", "Menu", "Tabs", "Tooltip",
-            "Video", "Audio", "Carousel", "Host", "Element",
+            "Button",
+            "IconButton",
+            "ButtonGroup",
+            "Input",
+            "Select",
+            "Checkbox",
+            "Radio",
+            "Switch",
+            "Slider",
+            "DatePicker",
+            "FileUpload",
+            "Form",
+            "Dropdown",
+            "Textarea",
+            "Modal",
+            "Dialog",
+            "Toast",
+            "Spinner",
+            "Skeleton",
+            "Router",
+            "Navbar",
+            "Sidebar",
+            "Menu",
+            "Tabs",
+            "Tooltip",
+            "Video",
+            "Audio",
+            "Carousel",
+            "Host",
+            "Element",
+            "TabPage",
+            "Option",
+            "Route",
         ];
         let mut unclassified = Vec::new();
         for sig in crate::registry::components() {
@@ -214,6 +283,9 @@ mod tests {
                 unclassified.push(sig.name);
             }
         }
-        assert!(unclassified.is_empty(), "decide whether a PDF draws: {unclassified:?}");
+        assert!(
+            unclassified.is_empty(),
+            "decide whether a PDF draws: {unclassified:?}"
+        );
     }
 }

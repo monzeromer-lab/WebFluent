@@ -6,36 +6,55 @@ const LINES: [Line] = [
 ]
 page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
     derived total = LINES.reduce((sum, l) => sum + l.qty * l.price, 0)
-    Document(page_size: "A4") {
-        Header { Text("Acme Studio").muted.sm.right }
-        Footer { Text("Page footer — thank you for your business").muted.sm.center }
-        Section {
-            Heading("Invoice #2026-014").h1
-            Text("Issued {format("2026-09-01", .date, "long")}")
-            Spacer
-            Table {
-                Table.Head {
-                    Table.Row { Table.Cell("Item")  Table.Cell("Qty")  Table.Cell("Price")  Table.Cell("Amount") }
-                }
-                Table.Body {
-                    for l in LINES {
-                        Table.Row {
-                            Table.Cell(l.item)
-                            Table.Cell("{l.qty}")
-                            Table.Cell(format(l.price, .currency))
-                            Table.Cell(format(l.qty * l.price, .currency))
-                        }
+    Document(size: "A4", title: "Invoice 2026-014", author: "Acme Studio") {
+        Header(on: .rest) { Text("Acme Studio · invoice 2026-014").muted.sm.right }
+        Footer { Text("Page {page} of {pages}").muted.sm.center }
+        Watermark("PAID")
+
+        Row(justify: .between, align: .start) {
+            Heading("Invoice").h1
+            Stack(gap: .xs) {
+                Text("No. 2026-014").bold
+                Text("Issued {format("2026-09-01", .date, "long")}").muted
+            }
+        }
+        Table {
+            Table.Head {
+                Table.Row { Table.Cell("Item")  Table.Cell("Qty")  Table.Cell("Price")  Table.Cell("Amount") }
+            }
+            Table.Body {
+                for l in LINES {
+                    Table.Row {
+                        Table.Cell(l.item)
+                        Table.Cell("{l.qty}")
+                        Table.Cell(format(l.price, .currency))
+                        Table.Cell(format(l.qty * l.price, .currency))
                     }
                 }
             }
-            Divider
+        }
+        Card {
+            style { break-inside: avoid; margin-top: 12pt }
             Text("Total: {format(total, .currency)}").bold.lg
         }
         PageBreak
-        Section {
-            Heading("Terms").h2
-            Paragraph { Text("Payment within 30 days.") }
-        }
+        Heading("Terms").h2
+        Paragraph { Text("Payment within 30 days.") }
+    }
+}
+
+// md-docs/33-pdf-and-slides.md
+const SALES = [
+    { month: "Jan", web: 41, store: 22 },
+    { month: "Feb", web: 48, store: 25 },
+    { month: "Mar", web: 55, store: 21 },
+]
+page Report(path: "/", title: "Sales", description: "The quarter.") {
+    Document {
+        Heading("Sales by channel").h1
+        Chart(kind: .bar, data: SALES, x: "month", y: ["web", "store"], unit: "k")
+        Chart(kind: .donut, data: SALES, x: "month", y: "web", labels: true)
+        QrCode("https://example.com/report/q1")
     }
 }
 
@@ -64,7 +83,7 @@ page Deck(path: "/", title: "Q4 review", description: "The quarter in slides.") 
         }
         ImageSlide(src: "chart.png", caption: "Monthly recurring revenue")
         Slide {
-            style { background: linear-gradient(135deg, #1E3A8A, #0F172A) }
+            style { background: linear-gradient(135deg, #1E3A8A, #0F172A); color: #fff }
             Heading("Thank you").h1
         }
     }

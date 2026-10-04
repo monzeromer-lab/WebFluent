@@ -417,7 +417,81 @@ pub fn output_checks(
                 ));
             }
         }
-        _ => {}
+        // A page draws a chart or a QR code when it is built: what it reads
+        // must be known then.
+        _ => {
+            let scope = crate::codegen::static_eval::Scope::from_program_with_env(
+                lowered,
+                &[],
+                &config.env,
+            );
+            for (decl, span, name, arg) in unknown_graphic_args(lowered, &scope) {
+                out.push(
+                    Diagnostic::coded(
+                        "E109",
+                        format!("`{name}` on a page is drawn when the page is built, and `{arg}` reads a value known only in the browser"),
+                        file_of(decl),
+                        span.line.max(1) as usize,
+                        span.col.max(1) as usize,
+                    )
+                    .with_hint("Give it a literal, a `const` or a `data` file; a PDF or a template render draws it from any value".to_string()),
+                );
+            }
+        }
+    }
+    out
+}
+
+/// Every `Chart` and `QrCode` argument a build cannot work out: the
+/// declaration, the element's place, its name and the argument's.
+fn unknown_graphic_args(
+    program: &Program,
+    scope: &crate::codegen::static_eval::Scope,
+) -> Vec<(usize, crate::parser::ast::Span, String, String)> {
+    use crate::parser::{Arg, ComponentRef, Declaration, Statement, StatementKind};
+    fn walk(
+        stmts: &[Statement],
+        decl: usize,
+        scope: &crate::codegen::static_eval::Scope,
+        out: &mut Vec<(usize, crate::parser::ast::Span, String, String)>,
+    ) {
+        for stmt in stmts {
+            if let StatementKind::UIElement(ui) = &stmt.kind {
+                if let ComponentRef::BuiltIn(name) = &ui.component {
+                    if name == "Chart" || name == "QrCode" {
+                        for arg in &ui.args {
+                            let (label, e) = match arg {
+                                Arg::Named(k, e) => (k.clone(), e),
+                                Arg::Positional(e) => ("value".to_string(), e),
+                            };
+                            if crate::codegen::static_eval::eval(e, scope).is_none() {
+                                out.push((decl, ui.span, name.clone(), label));
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            if let StatementKind::UIElement(ui) = &stmt.kind {
+                walk(&ui.children, decl, scope, out);
+                for fill in &ui.slot_fills {
+                    walk(&fill.body, decl, scope, out);
+                }
+            }
+            for body in stmt.kind.bodies() {
+                walk(body, decl, scope, out);
+            }
+        }
+    }
+    let mut out = Vec::new();
+    for (i, d) in program.declarations.iter().enumerate() {
+        let body: &[Statement] = match d {
+            Declaration::Page(p) => &p.body,
+            Declaration::Component(c) => &c.body,
+            Declaration::App(a) => &a.body,
+            _ => continue,
+        };
+        walk(body, i, scope, &mut out);
     }
     out
 }

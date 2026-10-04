@@ -50,8 +50,83 @@ pub struct Chart {
     pub unit: String,
 }
 
+/// A chart from its arguments, as values: what the template engine and the
+/// web build both read.
+pub fn chart_from(named: &[(String, Value)], modifiers: &[String]) -> Chart {
+    let mut c = Chart::default();
+    let text = |v: &Value| label(v).trim_start_matches('.').to_string();
+    let truthy = |v: &Value| match v {
+        Value::Bool(b) => *b,
+        Value::Null => false,
+        Value::String(s) => !s.is_empty(),
+        Value::Number(n) => n.as_f64().unwrap_or(0.0) != 0.0,
+        _ => true,
+    };
+    for (key, v) in named {
+        match key.as_str() {
+            "kind" | "type" => c.kind = Kind::parse(&text(v)),
+            "data" => c.data = v.as_array().cloned().unwrap_or_default(),
+            "x" => c.x = Some(text(v)),
+            "y" => {
+                c.y = match v {
+                    Value::Array(a) => a.iter().map(label).collect(),
+                    other => vec![text(other)],
+                }
+            }
+            "colors" => {
+                if let Value::Array(a) = v {
+                    c.colors = a.iter().map(label).collect();
+                }
+            }
+            "width" => c.width = v.as_f64().unwrap_or(c.width),
+            "height" => c.height = v.as_f64().unwrap_or(c.height),
+            "ink" => c.ink = text(v),
+            "grid" => c.grid = text(v),
+            "legend" => c.legend = truthy(v),
+            "stacked" => c.stacked = truthy(v),
+            "labels" => c.labels = truthy(v),
+            "unit" => c.unit = text(v),
+            _ => {}
+        }
+    }
+    for m in modifiers {
+        match m.as_str() {
+            "bar" | "line" | "area" | "pie" | "donut" => c.kind = Kind::parse(m),
+            "stacked" => c.stacked = true,
+            "labels" => c.labels = true,
+            "legend" => c.legend = true,
+            _ => {}
+        }
+    }
+    c
+}
+
+/// A `Chart` or a `QrCode`'s SVG from its arguments.
+pub fn graphic(
+    name: &str,
+    positional: Option<&Value>,
+    named: &[(String, Value)],
+    modifiers: &[String],
+) -> Option<String> {
+    match name {
+        "Chart" => Some(chart_from(named, modifiers).svg()),
+        "QrCode" => {
+            let get = |k: &str| named.iter().find(|(n, _)| n == k).map(|(_, v)| label(v));
+            let value = positional.map(label).or_else(|| get("value"))?;
+            qr_svg(
+                &value,
+                &get("color").unwrap_or_else(|| "#000000".into()),
+                &get("background").unwrap_or_else(|| "#ffffff".into()),
+            )
+        }
+        _ => None,
+    }
+}
+
 /// The palette a chart uses when it is given none.
-pub const PALETTE: &[&str] = &["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#06B6D4", "#EC4899", "#84CC16"];
+pub const PALETTE: &[&str] = &[
+    "#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#06B6D4", "#EC4899", "#84CC16",
+];
 
 impl Default for Chart {
     fn default() -> Self {
@@ -74,7 +149,10 @@ impl Default for Chart {
 }
 
 fn esc(s: &str) -> String {
-    s.replace('&', "&amp;").replace('<', "&lt;").replace('>', "&gt;").replace('"', "&quot;")
+    s.replace('&', "&amp;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+        .replace('"', "&quot;")
 }
 
 fn num(v: &Value) -> f64 {
@@ -92,7 +170,11 @@ fn label(v: &Value) -> String {
         Value::Null => String::new(),
         Value::Number(n) => {
             let f = n.as_f64().unwrap_or(0.0);
-            if f.fract() == 0.0 { format!("{}", f as i64) } else { format!("{f}") }
+            if f.fract() == 0.0 {
+                format!("{}", f as i64)
+            } else {
+                format!("{f}")
+            }
         }
         other => other.to_string(),
     }
@@ -123,7 +205,17 @@ fn nice_step(max: f64) -> f64 {
     let rough = max / 5.0;
     let mag = 10f64.powf(rough.log10().floor());
     let r = rough / mag;
-    let nice = if r <= 1.0 { 1.0 } else if r <= 2.0 { 2.0 } else if r <= 2.5 { 2.5 } else if r <= 5.0 { 5.0 } else { 10.0 };
+    let nice = if r <= 1.0 {
+        1.0
+    } else if r <= 2.0 {
+        2.0
+    } else if r <= 2.5 {
+        2.5
+    } else if r <= 5.0 {
+        5.0
+    } else {
+        10.0
+    };
     nice * mag
 }
 
@@ -136,7 +228,11 @@ impl Chart {
     }
 
     fn series(&self) -> Vec<String> {
-        if self.y.is_empty() { vec![String::new()] } else { self.y.clone() }
+        if self.y.is_empty() {
+            vec![String::new()]
+        } else {
+            self.y.clone()
+        }
     }
 
     fn value(&self, row: &Value, key: &str) -> f64 {
@@ -152,7 +248,11 @@ impl Chart {
     fn row_label(&self, row: &Value, i: usize) -> String {
         match (&self.x, row) {
             (Some(k), Value::Object(m)) => m.get(k).map(label).unwrap_or_default(),
-            (None, Value::Object(m)) => m.values().find(|v| v.is_string()).map(label).unwrap_or_else(|| format!("{}", i + 1)),
+            (None, Value::Object(m)) => m
+                .values()
+                .find(|v| v.is_string())
+                .map(label)
+                .unwrap_or_else(|| format!("{}", i + 1)),
             _ => format!("{}", i + 1),
         }
     }
@@ -194,15 +294,34 @@ impl Chart {
         let (w, h) = (self.width, self.height);
         let series = self.series();
         let n = self.data.len();
-        let legend_h = if self.legend && series.len() > 1 { 22.0 } else { 0.0 };
-        let values: Vec<Vec<f64>> = self.data.iter().map(|r| series.iter().map(|k| self.value(r, k)).collect()).collect();
+        let legend_h = if self.legend && series.len() > 1 {
+            22.0
+        } else {
+            0.0
+        };
+        let values: Vec<Vec<f64>> = self
+            .data
+            .iter()
+            .map(|r| series.iter().map(|k| self.value(r, k)).collect())
+            .collect();
         let max = values
             .iter()
-            .map(|vs| if self.stacked { vs.iter().sum() } else { vs.iter().cloned().fold(0.0, f64::max) })
+            .map(|vs| {
+                if self.stacked {
+                    vs.iter().sum()
+                } else {
+                    vs.iter().cloned().fold(0.0, f64::max)
+                }
+            })
             .fold(0.0f64, f64::max);
         let step = nice_step(max);
         let top = (max / step).ceil().max(1.0) * step;
-        let axis_w = (0..=((top / step) as usize)).map(|t| short(t as f64 * step).len() + self.unit.len()).max().unwrap_or(1) as f64 * 6.5 + 8.0;
+        let axis_w = (0..=((top / step) as usize))
+            .map(|t| short(t as f64 * step).len() + self.unit.len())
+            .max()
+            .unwrap_or(1) as f64
+            * 6.5
+            + 8.0;
         let (left, right, plot_top, bottom) = (axis_w, w - 6.0, legend_h + 8.0, h - 22.0);
         let (pw, ph) = (right - left, bottom - plot_top);
         self.legend(out, &series, 12.0);
@@ -247,7 +366,10 @@ impl Chart {
                 for (i, vs) in values.iter().enumerate() {
                     let mut stack = 0.0;
                     for (s, v) in vs.iter().enumerate() {
-                        let x = left + band * i as f64 + gap / 2.0 + if self.stacked { 0.0 } else { bw * s as f64 };
+                        let x = left
+                            + band * i as f64
+                            + gap / 2.0
+                            + if self.stacked { 0.0 } else { bw * s as f64 };
                         let base = if self.stacked { stack } else { 0.0 };
                         let y0 = bottom - (base + v) / top * ph;
                         let bh = v / top * ph;
@@ -280,7 +402,9 @@ impl Chart {
                     let path: String = points
                         .iter()
                         .enumerate()
-                        .map(|(i, (x, y))| format!("{}{x:.2} {y:.2}", if i == 0 { "M" } else { " L" }))
+                        .map(|(i, (x, y))| {
+                            format!("{}{x:.2} {y:.2}", if i == 0 { "M" } else { " L" })
+                        })
                         .collect();
                     let color = self.color(s);
                     if self.kind == Kind::Area {
@@ -295,7 +419,9 @@ impl Chart {
                     ));
                     if points.len() <= 24 {
                         for (x, y) in &points {
-                            out.push_str(&format!(r#"<circle cx="{x:.2}" cy="{y:.2}" r="2.5" fill="{color}"/>"#));
+                            out.push_str(&format!(
+                                r#"<circle cx="{x:.2}" cy="{y:.2}" r="2.5" fill="{color}"/>"#
+                            ));
                         }
                     }
                 }
@@ -307,12 +433,24 @@ impl Chart {
     fn pie(&self, out: &mut String) {
         let (w, h) = (self.width, self.height);
         let key = self.series().into_iter().next().unwrap_or_default();
-        let values: Vec<f64> = self.data.iter().map(|r| self.value(r, &key).max(0.0)).collect();
+        let values: Vec<f64> = self
+            .data
+            .iter()
+            .map(|r| self.value(r, &key).max(0.0))
+            .collect();
         let total: f64 = values.iter().sum();
-        let legend_w = if self.legend { (w * 0.42).min(220.0) } else { 0.0 };
+        let legend_w = if self.legend {
+            (w * 0.42).min(220.0)
+        } else {
+            0.0
+        };
         let r = ((h - 8.0) / 2.0).min((w - legend_w - 8.0) / 2.0).max(4.0);
         let (cx, cy) = (r + 4.0, h / 2.0);
-        let inner = if self.kind == Kind::Donut { r * 0.58 } else { 0.0 };
+        let inner = if self.kind == Kind::Donut {
+            r * 0.58
+        } else {
+            0.0
+        };
         let mut angle = -std::f64::consts::FRAC_PI_2;
         for (i, v) in values.iter().enumerate() {
             if total <= 0.0 {
@@ -327,7 +465,9 @@ impl Chart {
                         cx - r, cx + r, cx - r, cx - inner, cx + inner, cx - inner
                     ));
                 } else {
-                    out.push_str(&format!(r#"<circle cx="{cx}" cy="{cy}" r="{r}" fill="{color}"/>"#));
+                    out.push_str(&format!(
+                        r#"<circle cx="{cx}" cy="{cy}" r="{r}" fill="{color}"/>"#
+                    ));
                 }
             } else if sweep > 0.0 {
                 let end = angle + sweep;
@@ -348,7 +488,11 @@ impl Chart {
                 }
                 if self.labels && sweep > 0.3 {
                     let mid = angle + sweep / 2.0;
-                    let lr = if inner > 0.0 { (r + inner) / 2.0 } else { r * 0.62 };
+                    let lr = if inner > 0.0 {
+                        (r + inner) / 2.0
+                    } else {
+                        r * 0.62
+                    };
                     out.push_str(&format!(
                         r##"<text x="{:.2}" y="{:.2}" text-anchor="middle" fill="#fff" font-weight="bold">{}%</text>"##,
                         cx + lr * mid.cos(),
@@ -383,7 +527,8 @@ impl Chart {
 /// A QR code as an SVG document: one path of dark modules on a light
 /// ground, with the quiet zone the standard asks for.
 pub fn qr_svg(value: &str, dark: &str, light: &str) -> Option<String> {
-    let code = qrcode::QrCode::with_error_correction_level(value.as_bytes(), qrcode::EcLevel::M).ok()?;
+    let code =
+        qrcode::QrCode::with_error_correction_level(value.as_bytes(), qrcode::EcLevel::M).ok()?;
     let width = code.width();
     let quiet = 4;
     let size = width + quiet * 2;
@@ -397,7 +542,13 @@ pub fn qr_svg(value: &str, dark: &str, light: &str) -> Option<String> {
                 while x < width && colors[y * width + x] == qrcode::Color::Dark {
                     x += 1;
                 }
-                path.push_str(&format!("M{} {}h{}v1h-{}z", start + quiet, y + quiet, x - start, x - start));
+                path.push_str(&format!(
+                    "M{} {}h{}v1h-{}z",
+                    start + quiet,
+                    y + quiet,
+                    x - start,
+                    x - start
+                ));
             } else {
                 x += 1;
             }
@@ -416,7 +567,11 @@ mod tests {
     #[test]
     fn a_bar_chart_draws_a_bar_per_value_on_a_round_axis() {
         let c = Chart {
-            data: vec![json!({"m": "Jan", "v": 12}), json!({"m": "Feb", "v": 30}), json!({"m": "Mar", "v": 18})],
+            data: vec![
+                json!({"m": "Jan", "v": 12}),
+                json!({"m": "Feb", "v": 30}),
+                json!({"m": "Mar", "v": 18}),
+            ],
             x: Some("m".into()),
             y: vec!["v".into()],
             ..Chart::default()
@@ -424,20 +579,38 @@ mod tests {
         let svg = c.svg();
         assert_eq!(svg.matches("<rect").count(), 3);
         assert!(svg.contains(">Feb<"));
-        // 30 rounds the axis to 30 in steps of 5.
-        assert!(svg.contains(">30<") && svg.contains(">5<"), "{svg}");
+        // 30 tops an axis of 0, 10, 20, 30.
+        assert!(
+            svg.contains(">30<") && svg.contains(">10<") && svg.contains(">20<"),
+            "{svg}"
+        );
         assert!(usvg::Tree::from_str(&svg, &usvg::Options::default()).is_ok());
     }
 
     #[test]
     fn lines_pies_and_series() {
-        let rows = vec![json!({"d": "Mon", "p50": 20, "p95": 60}), json!({"d": "Tue", "p50": 25, "p95": 70})];
-        let line = Chart { kind: Kind::Line, data: rows.clone(), x: Some("d".into()), y: vec!["p50".into(), "p95".into()], ..Chart::default() };
+        let rows = vec![
+            json!({"d": "Mon", "p50": 20, "p95": 60}),
+            json!({"d": "Tue", "p50": 25, "p95": 70}),
+        ];
+        let line = Chart {
+            kind: Kind::Line,
+            data: rows.clone(),
+            x: Some("d".into()),
+            y: vec!["p50".into(), "p95".into()],
+            ..Chart::default()
+        };
         let svg = line.svg();
         assert_eq!(svg.matches("stroke-width=\"2\"").count(), 2);
         // Two series: a legend.
         assert!(svg.contains(">p95<"));
-        let pie = Chart { kind: Kind::Donut, data: rows, x: Some("d".into()), y: vec!["p95".into()], ..Chart::default() };
+        let pie = Chart {
+            kind: Kind::Donut,
+            data: rows,
+            x: Some("d".into()),
+            y: vec!["p95".into()],
+            ..Chart::default()
+        };
         let svg = pie.svg();
         assert_eq!(svg.matches("<path").count(), 2);
         assert!(svg.contains("Mon — 60"));

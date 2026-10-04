@@ -2241,7 +2241,8 @@ impl<'a, 'p> Checker<'a, 'p> {
         }
         // Inside a paged document's running element, `page` and `pages`
         // are the number of the page it is drawn on and the count.
-        let running = matches!(&el.component, ComponentRef::BuiltIn(n) if n == "Header" || n == "Footer");
+        let running =
+            matches!(&el.component, ComponentRef::BuiltIn(n) if n == "Header" || n == "Footer");
         self.in_running += running as usize;
         self.statements(&el.children, Body::Page);
         self.in_running -= running as usize;

@@ -641,7 +641,8 @@
       ],
       "name": "sanitize",
       "triggers": [
-        "markup:"
+        "markup:",
+        "html:"
       ]
     },
     {

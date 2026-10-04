@@ -5,8 +5,8 @@ use std::collections::HashMap;
 use std::rc::Rc;
 
 use super::css::{
-    AttrOp, AttrTest, Combinator, Compound, Declaration, Pseudo, Selector, Sheet, parse_declarations,
-    split_spaces, split_top_level,
+    AttrOp, AttrTest, Combinator, Compound, Declaration, Pseudo, Selector, Sheet,
+    parse_declarations, split_spaces, split_top_level,
 };
 use super::html::{Dom, Element, NodeKind};
 use super::style::*;
@@ -54,6 +54,10 @@ a { color: inherit }
 [dir="rtl"] { direction: rtl }
 [dir="ltr"] { direction: ltr }
 "#;
+
+/// A declaration that reaches an element, with what orders it in the
+/// cascade: important, origin, specificity, source order.
+type Hit<'a> = (bool, u8, (u32, u32, u32), usize, &'a Declaration);
 
 /// The sheets of a page, indexed for matching.
 pub struct Styler {
@@ -137,14 +141,20 @@ impl Styler {
         candidates.sort_unstable();
         candidates.dedup();
         // (important, origin, specificity, order) — later wins.
-        let mut hits: Vec<(bool, u8, (u32, u32, u32), usize, &Declaration)> = Vec::new();
+        let mut hits: Vec<Hit> = Vec::new();
         for ix in candidates {
             let rule = &self.rules[ix];
             if !matches(dom, node, &rule.selector, pseudo.as_ref()) {
                 continue;
             }
             for d in rule.declarations.iter() {
-                hits.push((d.important, rule.origin, rule.selector.specificity, rule.order, d));
+                hits.push((
+                    d.important,
+                    rule.origin,
+                    rule.selector.specificity,
+                    rule.order,
+                    d,
+                ));
             }
         }
         // The `style` attribute: above every sheet.
@@ -156,7 +166,7 @@ impl Styler {
         for d in &inline {
             hits.push((d.important, 2, (1000, 0, 0), usize::MAX, d));
         }
-        hits.sort_by(|a, b| (a.0, a.1, a.2, a.3).cmp(&(b.0, b.1, b.2, b.3)));
+        hits.sort_by_key(|a| (a.0, a.1, a.2, a.3));
         hits.into_iter().map(|h| h.4.clone()).collect()
     }
 
@@ -168,8 +178,18 @@ impl Styler {
 
     /// The style of a `::before`/`::after` box, or `None` when no rule gives
     /// it content.
-    pub fn compute_pseudo(&self, dom: &Dom, node: usize, parent: &Style, before: bool) -> Option<Style> {
-        let pseudo = if before { Pseudo::Before } else { Pseudo::After };
+    pub fn compute_pseudo(
+        &self,
+        dom: &Dom,
+        node: usize,
+        parent: &Style,
+        before: bool,
+    ) -> Option<Style> {
+        let pseudo = if before {
+            Pseudo::Before
+        } else {
+            Pseudo::After
+        };
         let decls = self.matched(dom, node, Some(pseudo));
         if decls.is_empty() {
             return None;
@@ -193,7 +213,10 @@ impl Styler {
             style.vars = Rc::new(v);
         }
         // The font size next: `em` everywhere else means it.
-        for d in decls.iter().filter(|d| d.name == "font-size" || d.name == "font") {
+        for d in decls
+            .iter()
+            .filter(|d| d.name == "font-size" || d.name == "font")
+        {
             let value = substitute_vars(&d.value, &style.vars);
             self.apply(&mut style, parent, &d.name, &value);
         }
@@ -235,7 +258,10 @@ impl Styler {
             }
             "font-family" => s.font_family = Rc::new(parse_family_list(value)),
             "font-size" => {
-                let pu = Units { em: parent.font_size, ..self.units };
+                let pu = Units {
+                    em: parent.font_size,
+                    ..self.units
+                };
                 let size = match value {
                     "xx-small" => Some(Length::Pt(7.0)),
                     "x-small" => Some(Length::Pt(7.5)),
@@ -275,10 +301,18 @@ impl Styler {
                 }
             }
             "letter-spacing" => {
-                s.letter_spacing = if value == "normal" { 0.0 } else { length_pt(value, &u).unwrap_or(0.0) }
+                s.letter_spacing = if value == "normal" {
+                    0.0
+                } else {
+                    length_pt(value, &u).unwrap_or(0.0)
+                }
             }
             "word-spacing" => {
-                s.word_spacing = if value == "normal" { 0.0 } else { length_pt(value, &u).unwrap_or(0.0) }
+                s.word_spacing = if value == "normal" {
+                    0.0
+                } else {
+                    length_pt(value, &u).unwrap_or(0.0)
+                }
             }
             "text-align" => {
                 s.text_align = match value {
@@ -320,7 +354,13 @@ impl Styler {
                     _ => WhiteSpace::Normal,
                 }
             }
-            "direction" => s.direction = if value == "rtl" { Direction::Rtl } else { Direction::Ltr },
+            "direction" => {
+                s.direction = if value == "rtl" {
+                    Direction::Rtl
+                } else {
+                    Direction::Ltr
+                }
+            }
             "list-style" | "list-style-type" => {
                 for w in split_spaces(value) {
                     if let Some(ls) = list_style(w) {
@@ -384,7 +424,12 @@ impl Styler {
             "box-sizing" => s.border_box = value == "border-box",
             "aspect-ratio" => {
                 s.aspect_ratio = match value.split_once('/') {
-                    Some((a, b)) => a.trim().parse::<f32>().ok().zip(b.trim().parse::<f32>().ok()).map(|(a, b)| a / b),
+                    Some((a, b)) => a
+                        .trim()
+                        .parse::<f32>()
+                        .ok()
+                        .zip(b.trim().parse::<f32>().ok())
+                        .map(|(a, b)| a / b),
                     None => value.parse().ok(),
                 }
             }
@@ -414,8 +459,16 @@ impl Styler {
                     [a, b] => (*a, *b),
                     _ => return,
                 };
-                let sides = if name.ends_with("block") { (0, 2) } else { (3, 1) };
-                let target = if name.starts_with("margin") { &mut s.margin } else { &mut s.padding };
+                let sides = if name.ends_with("block") {
+                    (0, 2)
+                } else {
+                    (3, 1)
+                };
+                let target = if name.starts_with("margin") {
+                    &mut s.margin
+                } else {
+                    &mut s.padding
+                };
                 target[sides.0] = a;
                 target[sides.1] = b;
             }
@@ -451,46 +504,65 @@ impl Styler {
             "border-inline-start" => s.border[3] = border_side(value, &u),
             "border-inline-end" => s.border[1] = border_side(value, &u),
             "border-width" => {
-                let v: Vec<f32> = split_spaces(value).iter().filter_map(|w| border_width(w, &u)).collect();
+                let v: Vec<f32> = split_spaces(value)
+                    .iter()
+                    .filter_map(|w| border_width(w, &u))
+                    .collect();
                 if let Some(f) = four(&v) {
-                    for i in 0..4 {
-                        s.border[i].width = f[i];
+                    for (side, value) in s.border.iter_mut().zip(f) {
+                        side.width = value;
                     }
                 }
             }
             "border-style" => {
-                let v: Vec<BorderStyle> = split_spaces(value).iter().map(|w| border_style(w)).collect();
+                let v: Vec<BorderStyle> = split_spaces(value)
+                    .iter()
+                    .map(|w| border_style(w))
+                    .collect();
                 if let Some(f) = four(&v) {
-                    for i in 0..4 {
-                        s.border[i].style = f[i];
+                    for (side, value) in s.border.iter_mut().zip(f) {
+                        side.style = value;
                     }
                 }
             }
             "border-color" => {
-                let v: Vec<Option<Rgba>> = split_spaces(value).iter().filter_map(|w| col(w)).collect();
+                let v: Vec<Option<Rgba>> =
+                    split_spaces(value).iter().filter_map(|w| col(w)).collect();
                 if let Some(f) = four(&v) {
-                    for i in 0..4 {
-                        s.border[i].color = f[i];
+                    for (side, value) in s.border.iter_mut().zip(f) {
+                        side.color = value;
                     }
                 }
             }
-            "border-top-color" | "border-right-color" | "border-bottom-color" | "border-left-color" => {
+            "border-top-color"
+            | "border-right-color"
+            | "border-bottom-color"
+            | "border-left-color" => {
                 if let Some(c) = col(value) {
                     s.border[side_index(name)].color = c;
                 }
             }
-            "border-top-width" | "border-right-width" | "border-bottom-width" | "border-left-width" => {
+            "border-top-width"
+            | "border-right-width"
+            | "border-bottom-width"
+            | "border-left-width" => {
                 if let Some(w) = border_width(value, &u) {
                     s.border[side_index(name)].width = w;
                 }
             }
-            "border-top-style" | "border-right-style" | "border-bottom-style" | "border-left-style" => {
+            "border-top-style"
+            | "border-right-style"
+            | "border-bottom-style"
+            | "border-left-style" => {
                 s.border[side_index(name)].style = border_style(value);
             }
             "border-radius" => {
                 // `a b c d / e f` — the vertical radii are ignored.
                 let horizontal = value.split('/').next().unwrap_or(value);
-                let v: Vec<Length> = split_spaces(horizontal).iter().filter_map(|w| len(w)).collect();
+                let v: Vec<Length> = split_spaces(horizontal)
+                    .iter()
+                    .filter_map(|w| len(w))
+                    .collect();
                 if let Some(f) = four(&v) {
                     s.radius = f;
                 }
@@ -531,7 +603,10 @@ impl Styler {
                 }
             }
             "background-image" => {
-                s.background_images = split_top_level(value, b',').iter().filter_map(|l| image(l)).collect();
+                s.background_images = split_top_level(value, b',')
+                    .iter()
+                    .filter_map(|l| image(l))
+                    .collect();
             }
             "background-size" => s.background_size_cover = value.contains("cover"),
             "box-shadow" => s.shadows = shadows(value, &u),
@@ -546,7 +621,9 @@ impl Styler {
             // On paper nothing scrolls: `auto` and `scroll` show everything,
             // as the box grows to hold it; only `hidden` and `clip` clip.
             "overflow" | "overflow-x" | "overflow-y" => {
-                s.clip = split_spaces(value).iter().all(|w| matches!(*w, "hidden" | "clip"))
+                s.clip = split_spaces(value)
+                    .iter()
+                    .all(|w| matches!(*w, "hidden" | "clip"))
             }
             "transform" => {
                 s.rotate = 0.0;
@@ -554,18 +631,43 @@ impl Styler {
                 s.translate = (Length::Pt(0.0), Length::Pt(0.0));
                 for part in split_spaces(value) {
                     let lower = part.to_ascii_lowercase();
-                    if let Some(a) = lower.strip_prefix("rotate(").and_then(|x| x.strip_suffix(')')) {
+                    if let Some(a) = lower
+                        .strip_prefix("rotate(")
+                        .and_then(|x| x.strip_suffix(')'))
+                    {
                         s.rotate = angle(a).unwrap_or(0.0);
-                    } else if let Some(a) = lower.strip_prefix("scale(").and_then(|x| x.strip_suffix(')')) {
-                        s.scale = a.split(',').next().and_then(|n| n.trim().parse().ok()).unwrap_or(1.0);
-                    } else if let Some(a) = lower.strip_prefix("translate(").and_then(|x| x.strip_suffix(')')) {
+                    } else if let Some(a) = lower
+                        .strip_prefix("scale(")
+                        .and_then(|x| x.strip_suffix(')'))
+                    {
+                        s.scale = a
+                            .split(',')
+                            .next()
+                            .and_then(|n| n.trim().parse().ok())
+                            .unwrap_or(1.0);
+                    } else if let Some(a) = lower
+                        .strip_prefix("translate(")
+                        .and_then(|x| x.strip_suffix(')'))
+                    {
                         let mut it = a.split(',');
-                        let x = it.next().and_then(|v| len(v.trim())).unwrap_or(Length::Pt(0.0));
-                        let y = it.next().and_then(|v| len(v.trim())).unwrap_or(Length::Pt(0.0));
+                        let x = it
+                            .next()
+                            .and_then(|v| len(v.trim()))
+                            .unwrap_or(Length::Pt(0.0));
+                        let y = it
+                            .next()
+                            .and_then(|v| len(v.trim()))
+                            .unwrap_or(Length::Pt(0.0));
                         s.translate = (x, y);
-                    } else if let Some(a) = lower.strip_prefix("translatey(").and_then(|x| x.strip_suffix(')')) {
+                    } else if let Some(a) = lower
+                        .strip_prefix("translatey(")
+                        .and_then(|x| x.strip_suffix(')'))
+                    {
                         s.translate.1 = len(a).unwrap_or(Length::Pt(0.0));
-                    } else if let Some(a) = lower.strip_prefix("translatex(").and_then(|x| x.strip_suffix(')')) {
+                    } else if let Some(a) = lower
+                        .strip_prefix("translatex(")
+                        .and_then(|x| x.strip_suffix(')'))
+                    {
                         s.translate.0 = len(a).unwrap_or(Length::Pt(0.0));
                     }
                 }
@@ -583,7 +685,16 @@ impl Styler {
             "flex-wrap" => s.flex_wrap = value.starts_with("wrap"),
             "flex-flow" => {
                 for w in split_spaces(value) {
-                    self.apply(s, parent, if w.contains("wrap") { "flex-wrap" } else { "flex-direction" }, w);
+                    self.apply(
+                        s,
+                        parent,
+                        if w.contains("wrap") {
+                            "flex-wrap"
+                        } else {
+                            "flex-direction"
+                        },
+                        w,
+                    );
                 }
             }
             "justify-content" => s.justify_content = align(value),
@@ -658,7 +769,9 @@ impl Styler {
                 }
             }
             "row-gap" | "grid-row-gap" => s.row_gap = len(value).unwrap_or(Length::Pt(0.0)),
-            "column-gap" | "grid-column-gap" => s.column_gap = len(value).unwrap_or(Length::Pt(0.0)),
+            "column-gap" | "grid-column-gap" => {
+                s.column_gap = len(value).unwrap_or(Length::Pt(0.0))
+            }
             "grid-template-columns" => s.grid_columns = tracks(value, &u),
             "grid-template-rows" => s.grid_rows = tracks(value, &u),
             "grid-auto-rows" => s.grid_auto_rows = tracks(value, &u),
@@ -708,8 +821,15 @@ impl Styler {
         let words = split_spaces(value);
         let Some(size_ix) = words.iter().position(|w| {
             let size = w.split('/').next().unwrap_or(w);
-            length(size, &self.units).is_some() && size.chars().next().is_some_and(|c| c.is_ascii_digit() || c == '.')
-                && !matches!(*w, "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900")
+            length(size, &self.units).is_some()
+                && size
+                    .chars()
+                    .next()
+                    .is_some_and(|c| c.is_ascii_digit() || c == '.')
+                && !matches!(
+                    *w,
+                    "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900"
+                )
         }) else {
             return;
         };
@@ -801,7 +921,19 @@ fn border_side(value: &str, u: &Units) -> BorderSide {
     for w in split_spaces(value) {
         if let Some(width) = border_width(w, u) {
             side.width = width;
-        } else if matches!(w, "solid" | "dashed" | "dotted" | "double" | "groove" | "ridge" | "inset" | "outset" | "none" | "hidden") {
+        } else if matches!(
+            w,
+            "solid"
+                | "dashed"
+                | "dotted"
+                | "double"
+                | "groove"
+                | "ridge"
+                | "inset"
+                | "outset"
+                | "none"
+                | "hidden"
+        ) {
             side.style = border_style(w);
         } else if w.eq_ignore_ascii_case("currentcolor") {
             side.color = None;
@@ -853,7 +985,9 @@ fn content_string(v: &str) -> String {
     let mut out = String::new();
     for part in split_spaces(v) {
         let p = part.trim();
-        if (p.starts_with('"') && p.ends_with('"') && p.len() >= 2) || (p.starts_with('\'') && p.ends_with('\'') && p.len() >= 2) {
+        if (p.starts_with('"') && p.ends_with('"') && p.len() >= 2)
+            || (p.starts_with('\'') && p.ends_with('\'') && p.len() >= 2)
+        {
             let inner = &p[1..p.len() - 1];
             // `\2014` escapes.
             let mut chars = inner.chars().peekable();
@@ -876,7 +1010,9 @@ fn content_string(v: &str) -> String {
                         if chars.peek() == Some(&' ') {
                             chars.next();
                         }
-                        if let Some(ch) = u32::from_str_radix(&hex, 16).ok().and_then(char::from_u32) {
+                        if let Some(ch) =
+                            u32::from_str_radix(&hex, 16).ok().and_then(char::from_u32)
+                        {
                             out.push(ch);
                         }
                     }
@@ -896,7 +1032,11 @@ fn matches(dom: &Dom, node: usize, sel: &Selector, pseudo: Option<&Pseudo>) -> b
     let last = parts.len() - 1;
     // The pseudo-element is on the rightmost compound; a selector with one
     // matches only that generated box, and one without never does.
-    let wants = parts[last].0.pseudos.iter().find(|p| matches!(p, Pseudo::Before | Pseudo::After));
+    let wants = parts[last]
+        .0
+        .pseudos
+        .iter()
+        .find(|p| matches!(p, Pseudo::Before | Pseudo::After));
     match (wants, pseudo) {
         (None, None) => {}
         (Some(a), Some(b)) if a == b => {}
@@ -913,7 +1053,9 @@ fn match_from(dom: &Dom, node: usize, parts: &[(Compound, Option<Combinator>)], 
         return true;
     }
     match parts[ix].1.unwrap_or(Combinator::Descendant) {
-        Combinator::Child => parent_element(dom, node).is_some_and(|p| match_from(dom, p, parts, ix - 1)),
+        Combinator::Child => {
+            parent_element(dom, node).is_some_and(|p| match_from(dom, p, parts, ix - 1))
+        }
         Combinator::Descendant => {
             let mut cur = parent_element(dom, node);
             while let Some(p) = cur {
@@ -1009,16 +1151,25 @@ fn nth(a: i32, b: i32, pos: i32) -> bool {
 fn pseudo_matches(dom: &Dom, node: usize, el: &Element, p: &Pseudo) -> bool {
     match p {
         Pseudo::Before | Pseudo::After => true,
-        Pseudo::Root => dom.nodes[node].parent.is_some_and(|p| matches!(dom.nodes[p].kind, NodeKind::Root)),
-        Pseudo::Empty => dom.nodes[node].children.iter().all(|&c| match &dom.nodes[c].kind {
-            NodeKind::Text(t) => t.is_empty(),
-            _ => false,
-        }),
+        Pseudo::Root => dom.nodes[node]
+            .parent
+            .is_some_and(|p| matches!(dom.nodes[p].kind, NodeKind::Root)),
+        Pseudo::Empty => dom.nodes[node]
+            .children
+            .iter()
+            .all(|&c| match &dom.nodes[c].kind {
+                NodeKind::Text(t) => t.is_empty(),
+                _ => false,
+            }),
         Pseudo::Not(inner) => !inner.iter().any(|c| compound_matches(dom, node, c)),
         _ => {
             let sibs = siblings(dom, node);
             let pos = sibs.iter().position(|&s| s == node).unwrap_or(0);
-            let same: Vec<usize> = sibs.iter().copied().filter(|&s| dom.tag(s) == Some(el.tag.as_str())).collect();
+            let same: Vec<usize> = sibs
+                .iter()
+                .copied()
+                .filter(|&s| dom.tag(s) == Some(el.tag.as_str()))
+                .collect();
             let type_pos = same.iter().position(|&s| s == node).unwrap_or(0);
             match p {
                 Pseudo::FirstChild => pos == 0,
@@ -1042,7 +1193,12 @@ mod tests {
         Styler::new(
             &Sheet::parse(UA_SHEET),
             &Sheet::parse(css),
-            Units { em: 12.0, rem: 12.0, vw: 600.0, vh: 800.0 },
+            Units {
+                em: 12.0,
+                rem: 12.0,
+                vw: 600.0,
+                vh: 800.0,
+            },
         )
     }
 
@@ -1076,9 +1232,17 @@ mod tests {
         assert_eq!(s.color, Rgba::rgb(0.0, 0.0, 1.0));
         assert_eq!(s.font_weight, 700);
         // `!important` beats everything; the style attribute beats sheets.
-        let s = style_of(".a { color: #0f0 !important }", r#"<p class="a" style="color: #f00">x</p>"#, "p");
+        let s = style_of(
+            ".a { color: #0f0 !important }",
+            r#"<p class="a" style="color: #f00">x</p>"#,
+            "p",
+        );
         assert_eq!(s.color, Rgba::rgb(0.0, 1.0, 0.0));
-        let s = style_of(".a { color: #0f0 }", r#"<p class="a" style="color: #f00">x</p>"#, "p");
+        let s = style_of(
+            ".a { color: #0f0 }",
+            r#"<p class="a" style="color: #f00">x</p>"#,
+            "p",
+        );
         assert_eq!(s.color, Rgba::rgb(1.0, 0.0, 0.0));
     }
 
@@ -1091,7 +1255,11 @@ mod tests {
         assert_eq!(s.padding[0], Length::Pt(12.0));
         assert!((s.color.r - 1.0).abs() < 0.01 && (s.color.g - 0.416).abs() < 0.01);
         // A custom property set on an element reaches its descendants.
-        let s = style_of(".x { --gap: 20px } .y { margin-top: var(--gap) }", r#"<div class="x"><span class="y">a</span></div>"#, "span");
+        let s = style_of(
+            ".x { --gap: 20px } .y { margin-top: var(--gap) }",
+            r#"<div class="x"><span class="y">a</span></div>"#,
+            "span",
+        );
         assert_eq!(s.margin[0], Length::Pt(15.0));
     }
 
@@ -1101,7 +1269,11 @@ mod tests {
         let html = r#"<ul class="list"><li>a</li><li id="b">b</li><li id="c">c</li></ul>"#;
         let dom = Dom::parse(html);
         let s = styler(css);
-        let lis: Vec<usize> = dom.descendants(0).into_iter().filter(|&n| dom.tag(n) == Some("li")).collect();
+        let lis: Vec<usize> = dom
+            .descendants(0)
+            .into_iter()
+            .filter(|&n| dom.tag(n) == Some("li"))
+            .collect();
         let root = Style::root(12.0, "serif");
         let ul = s.compute(&dom, dom.find_tag("ul").unwrap(), &root);
         let st: Vec<Style> = lis.iter().map(|&l| s.compute(&dom, l, &ul)).collect();
@@ -1119,7 +1291,15 @@ mod tests {
         let s = style_of(css, r#"<div class="b">x</div>"#, "div");
         assert_eq!(s.border[0].width, 0.75);
         assert_eq!(s.border[2].width, 2.25);
-        assert_eq!(s.padding, [Length::Pt(3.0), Length::Pt(6.0), Length::Pt(3.0), Length::Pt(6.0)]);
+        assert_eq!(
+            s.padding,
+            [
+                Length::Pt(3.0),
+                Length::Pt(6.0),
+                Length::Pt(3.0),
+                Length::Pt(6.0)
+            ]
+        );
         assert_eq!(s.margin[1], Length::Auto);
         assert_eq!(s.radius[0], Length::Pct(50.0));
         assert_eq!((s.flex_grow, s.flex_basis), (1.0, Length::Pct(0.0)));
@@ -1139,7 +1319,10 @@ mod tests {
         let root = Style::root(12.0, "serif");
         let p = dom.find_tag("p").unwrap();
         let ps = s.compute(&dom, p, &root);
-        assert_eq!(s.compute_pseudo(&dom, p, &ps, true).and_then(|s| s.content), Some("—".into()));
+        assert_eq!(
+            s.compute_pseudo(&dom, p, &ps, true).and_then(|s| s.content),
+            Some("—".into())
+        );
         assert!(s.compute_pseudo(&dom, p, &ps, false).is_none());
     }
 }

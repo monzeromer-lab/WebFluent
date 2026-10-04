@@ -1,6 +1,7 @@
 /// Returns CSS for all built-in component styles.
 pub fn component_css() -> &'static str {
-    concat!(r#"
+    concat!(
+        r#"
 /* ─── Reset ─────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
@@ -602,5 +603,7 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
 }
 .wf-skip-link:focus { transform: none; }
 
-"#, crate::paged_rules!())
+"#,
+        crate::paged_rules!()
+    )
 }

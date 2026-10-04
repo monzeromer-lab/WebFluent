@@ -59,7 +59,9 @@ absent unless you add them.
       "margins": { "top": 72.0, "bottom": 72.0, "left": 72.0, "right": 72.0 },
       "default_font": "Helvetica",
       "default_font_size": 12.0,
-      "output_filename": null
+      "output_filename": null,
+      "fonts": [],
+      "system_fonts": true
     },
     "slides": {
       "size": "16:9",
@@ -72,7 +74,9 @@ absent unless you add them.
       "footer_text": null,
       "background_color": null,
       "chrome_color": null,
-      "output_filename": null
+      "output_filename": null,
+      "fonts": [],
+      "system_fonts": true
     }
   },
   "dev": { "port": 3000, "hot_reload": true },
@@ -140,11 +144,13 @@ absent unless you add them.
 
 | Key | Default | Meaning |
 |---|---|---|
-| `page_size` | `"A4"` | `A4`, `A3`, `A5`, `Letter` or `Legal`. |
-| `margins` | `72` each | `top`, `bottom`, `left`, `right`, in points (72 to the inch). |
-| `default_font` | `"Helvetica"` | `Helvetica`, `Times-Roman` or `Courier`, or their `-Bold` forms — standard PDF fonts, which need no embedding. |
-| `default_font_size` | `12` | In points. |
+| `page_size` | `"A4"` | `A4`, `A3`, `A5`, `A6`, `Letter`, `Legal`, `Tabloid`, `Executive`, or two lengths (`"210mm 297mm"`). A `Document(size:)` overrides it. |
+| `margins` | `72` each | `top`, `bottom`, `left`, `right`, in points (72 to the inch); the header and footer are drawn in them. |
+| `default_font` | `"Helvetica"` | The document's family when its sheets name none: a standard name (`Helvetica`, `Times`, `Courier` — Liberation, built in) or a family under `fonts/`. |
+| `default_font_size` | `12` | In points; `rem` in a style is this size. |
 | `output_filename` | the project's name | The file written. |
+| `fonts` | `[]` | Font files or directories beside the project's `fonts/`, `src/fonts/` and `public/fonts/`, which are always read. |
+| `system_fonts` | `true` | Whether this machine's fonts may stand in for a family or a character nothing in the project has; the build names each one used. |
 
 ### `build.slides`
 
@@ -159,6 +165,7 @@ absent unless you add them.
 | `background_color` | `null` | A full-bleed colour for every slide. |
 | `chrome_color` | `null` | The colour of the numbers and footer; unset, it flips between dark and light on the slide's background. |
 | `output_filename` | the project's name | The file written. |
+| `fonts`, `system_fonts` | `[]`, `true` | As for `build.pdf`. |
 
 ## `dev`
 

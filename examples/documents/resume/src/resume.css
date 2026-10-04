@@ -33,3 +33,5 @@ body { font-family: var(--font-family); color: var(--color-text); }
 .pub { margin-bottom: 6pt; }
 .pub-title { font-weight: 700; }
 .jp { font-family: "Noto Sans CJK JP", sans-serif; direction: ltr; text-align: right; color: var(--color-text-muted); font-size: 8.5pt; }
+.job .wf-list { list-style: disc; padding-right: 14pt; }
+.job .wf-list__item { display: list-item; border: 0; padding: 0; gap: 0; }

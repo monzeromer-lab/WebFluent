@@ -27,7 +27,12 @@ fn level(dom: &Dom, n: usize) -> Option<u8> {
 fn excluded(dom: &Dom, mut n: usize) -> bool {
     while let Some(p) = dom.nodes[n].parent {
         if let Some(e) = dom.element(p) {
-            if e.has_class("wf-toc") || e.has_class("wf-header") || e.has_class("wf-footer") || e.has_class("wf-background") || e.has_class("wf-watermark") {
+            if e.has_class("wf-toc")
+                || e.has_class("wf-header")
+                || e.has_class("wf-footer")
+                || e.has_class("wf-background")
+                || e.has_class("wf-watermark")
+            {
                 return true;
             }
         }
@@ -61,30 +66,66 @@ pub fn insert(dom: &mut Dom) -> Option<Vec<Entry>> {
     }
     let mut entries = Vec::new();
     for toc in tocs {
-        let levels: u8 = dom.element(toc).and_then(|e| e.attr("data-levels")).and_then(|v| v.parse().ok()).unwrap_or(3);
+        let levels: u8 = dom
+            .element(toc)
+            .and_then(|e| e.attr("data-levels"))
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(3);
         // The shallowest level listed reads as level 1.
-        let top = headings.iter().filter(|(_, l)| *l <= levels).map(|(_, l)| *l).min().unwrap_or(1);
+        let top = headings
+            .iter()
+            .filter(|(_, l)| *l <= levels)
+            .map(|(_, l)| *l)
+            .min()
+            .unwrap_or(1);
         for &(n, l) in &headings {
             if l > levels {
                 continue;
             }
-            let id = dom.element(n).and_then(|e| e.attr("id")).unwrap_or("").to_string();
-            let text = dom.text_content(n).split_whitespace().collect::<Vec<_>>().join(" ");
+            let id = dom
+                .element(n)
+                .and_then(|e| e.attr("id"))
+                .unwrap_or("")
+                .to_string();
+            let text = dom
+                .text_content(n)
+                .split_whitespace()
+                .collect::<Vec<_>>()
+                .join(" ");
             let depth = (l - top + 1).min(3);
             let a = dom.append_element(
                 toc,
                 "a",
                 vec![
-                    ("class".to_string(), format!("wf-toc__entry wf-toc__entry--{depth}")),
+                    (
+                        "class".to_string(),
+                        format!("wf-toc__entry wf-toc__entry--{depth}"),
+                    ),
                     ("href".to_string(), format!("#{id}")),
                 ],
             );
-            let label = dom.append_element(a, "span", vec![("class".to_string(), "wf-toc__label".to_string())]);
+            let label = dom.append_element(
+                a,
+                "span",
+                vec![("class".to_string(), "wf-toc__label".to_string())],
+            );
             dom.append_text(label, &text);
-            dom.append_element(a, "span", vec![("class".to_string(), "wf-toc__leader".to_string())]);
-            let page = dom.append_element(a, "span", vec![("class".to_string(), "wf-toc__page".to_string())]);
+            dom.append_element(
+                a,
+                "span",
+                vec![("class".to_string(), "wf-toc__leader".to_string())],
+            );
+            let page = dom.append_element(
+                a,
+                "span",
+                vec![("class".to_string(), "wf-toc__page".to_string())],
+            );
             let page_text = dom.append_text(page, PLACEHOLDER);
-            entries.push(Entry { heading: n, page_text, page: None });
+            entries.push(Entry {
+                heading: n,
+                page_text,
+                page: None,
+            });
         }
     }
     Some(entries)

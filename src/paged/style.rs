@@ -32,7 +32,10 @@ impl Rgba {
         self.a > 0.001
     }
     pub fn with_alpha(self, a: f32) -> Rgba {
-        Rgba { a: self.a * a, ..self }
+        Rgba {
+            a: self.a * a,
+            ..self
+        }
     }
     fn mix(self, other: Rgba, t: f32) -> Rgba {
         Rgba {
@@ -183,8 +186,13 @@ pub struct GradientStop {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Image {
-    Linear { angle: f32, stops: Vec<GradientStop> },
-    Radial { stops: Vec<GradientStop> },
+    Linear {
+        angle: f32,
+        stops: Vec<GradientStop>,
+    },
+    Radial {
+        stops: Vec<GradientStop>,
+    },
     Url(String),
 }
 
@@ -510,14 +518,13 @@ pub fn substitute_vars(value: &str, vars: &HashMap<String, String>) -> String {
         let inner = &out[start + 4..end];
         let (name, fallback) = match split_top_level(inner, b',').as_slice() {
             [name] => (name.trim().to_string(), None),
-            [name, rest @ ..] => (name.trim().to_string(), Some(rest.join(",").trim().to_string())),
+            [name, rest @ ..] => (
+                name.trim().to_string(),
+                Some(rest.join(",").trim().to_string()),
+            ),
             [] => break,
         };
-        let replacement = vars
-            .get(&name)
-            .cloned()
-            .or(fallback)
-            .unwrap_or_default();
+        let replacement = vars.get(&name).cloned().or(fallback).unwrap_or_default();
         out = format!("{}{}{}", &out[..start], replacement, &out[end + 1..]);
     }
     out
@@ -544,7 +551,8 @@ fn matching_paren(s: &str, open: usize) -> Option<usize> {
 /// `clamp(1rem, 2vw, 2rem)` (its maximum: paper is a wide screen).
 pub fn length(value: &str, u: &Units) -> Option<Length> {
     let v = value.trim().to_ascii_lowercase();
-    if v == "auto" || v == "none" || v == "fit-content" || v == "max-content" || v == "min-content" {
+    if v == "auto" || v == "none" || v == "fit-content" || v == "max-content" || v == "min-content"
+    {
         return Some(Length::Auto);
     }
     if let Some(inner) = v.strip_prefix("calc(").and_then(|s| s.strip_suffix(')')) {
@@ -659,7 +667,11 @@ pub fn color(value: &str) -> Option<Rgba> {
         let digit = |i: usize, len: usize| -> Option<f32> {
             let s = &hex[i..i + len];
             let n = u8::from_str_radix(s, 16).ok()? as f32;
-            Some(if len == 1 { n * 17.0 / 255.0 } else { n / 255.0 })
+            Some(if len == 1 {
+                n * 17.0 / 255.0
+            } else {
+                n / 255.0
+            })
         };
         return match hex.len() {
             3 => Some(Rgba::rgb(digit(0, 1)?, digit(1, 1)?, digit(2, 1)?)),
@@ -683,8 +695,12 @@ pub fn color(value: &str) -> Option<Rgba> {
         return Some(Rgba::TRANSPARENT);
     }
     let func = |name: &str| -> Option<Vec<String>> {
-        let inner = v.strip_prefix(name)?.trim_start().strip_prefix('(')?.strip_suffix(')')?;
-        let inner = inner.replace('/', " ").replace(',', " ");
+        let inner = v
+            .strip_prefix(name)?
+            .trim_start()
+            .strip_prefix('(')?
+            .strip_suffix(')')?;
+        let inner = inner.replace(['/', ','], " ");
         Some(inner.split_whitespace().map(|s| s.to_string()).collect())
     };
     let channel = |s: &str, scale: f32| -> Option<f32> {
@@ -744,7 +760,11 @@ fn hsl_to_rgb(h: f32, s: f32, l: f32) -> (f32, f32, f32) {
     if s == 0.0 {
         return (l, l, l);
     }
-    let q = if l < 0.5 { l * (1.0 + s) } else { l + s - l * s };
+    let q = if l < 0.5 {
+        l * (1.0 + s)
+    } else {
+        l + s - l * s
+    };
     let p = 2.0 * l - q;
     let hue = |mut t: f32| {
         if t < 0.0 {
@@ -851,34 +871,37 @@ pub fn font_weight(value: &str, parent: u16) -> Option<u16> {
 pub fn image(value: &str) -> Option<Image> {
     let v = value.trim();
     let lower = v.to_ascii_lowercase();
-    if let Some(inner) = lower
-        .strip_prefix("url(")
-        .and_then(|s| s.strip_suffix(')'))
-    {
+    if let Some(inner) = lower.strip_prefix("url(").and_then(|s| s.strip_suffix(')')) {
         let original = &v[4..4 + inner.len()];
-        return Some(Image::Url(original.trim().trim_matches(['"', '\'']).to_string()));
+        return Some(Image::Url(
+            original.trim().trim_matches(['"', '\'']).to_string(),
+        ));
     }
     let (radial, inner) = if let Some(i) = lower
         .strip_prefix("linear-gradient(")
         .or_else(|| lower.strip_prefix("repeating-linear-gradient("))
     {
         (false, i)
-    } else if let Some(i) = lower
-        .strip_prefix("radial-gradient(")
-        .or_else(|| lower.strip_prefix("repeating-radial-gradient("))
-    {
-        (true, i)
     } else {
-        return None;
+        let i = lower
+        .strip_prefix("radial-gradient(")
+        .or_else(|| lower.strip_prefix("repeating-radial-gradient("))?;
+        (true, i)
     };
     let inner = inner.strip_suffix(')')?;
-    let mut parts: Vec<&str> = split_top_level(inner, b',').into_iter().map(str::trim).collect();
+    let mut parts: Vec<&str> = split_top_level(inner, b',')
+        .into_iter()
+        .map(str::trim)
+        .collect();
     let mut angle = 180.0f32;
     if let Some(first) = parts.first() {
         let first = *first;
         let directional = if radial {
-            first.starts_with("circle") || first.starts_with("ellipse") || first.starts_with("at ")
-                || first.starts_with("closest") || first.starts_with("farthest")
+            first.starts_with("circle")
+                || first.starts_with("ellipse")
+                || first.starts_with("at ")
+                || first.starts_with("closest")
+                || first.starts_with("farthest")
         } else if let Some(deg) = first.strip_suffix("deg") {
             angle = deg.trim().parse().ok()?;
             true
@@ -911,11 +934,22 @@ pub fn image(value: &str) -> Option<Image> {
         let Some(c) = words.first().and_then(|w| color(w)) else {
             continue;
         };
-        let at = words.get(1).and_then(|w| w.strip_suffix('%')).and_then(|n| n.parse::<f32>().ok()).map(|n| n / 100.0);
+        let at = words
+            .get(1)
+            .and_then(|w| w.strip_suffix('%'))
+            .and_then(|n| n.parse::<f32>().ok())
+            .map(|n| n / 100.0);
         stops.push(GradientStop { color: c, at });
         // `red 20% 40%`: a second position starts a hard stop.
-        if let Some(second) = words.get(2).and_then(|w| w.strip_suffix('%')).and_then(|n| n.parse::<f32>().ok()) {
-            stops.push(GradientStop { color: c, at: Some(second / 100.0) });
+        if let Some(second) = words
+            .get(2)
+            .and_then(|w| w.strip_suffix('%'))
+            .and_then(|n| n.parse::<f32>().ok())
+        {
+            stops.push(GradientStop {
+                color: c,
+                at: Some(second / 100.0),
+            });
         }
     }
     if stops.len() < 2 {
@@ -968,7 +1002,10 @@ pub fn tracks(value: &str, u: &Units) -> Vec<Track> {
     let mut out = Vec::new();
     for word in split_spaces(value) {
         let lower = word.to_ascii_lowercase();
-        if let Some(inner) = lower.strip_prefix("repeat(").and_then(|s| s.strip_suffix(')')) {
+        if let Some(inner) = lower
+            .strip_prefix("repeat(")
+            .and_then(|s| s.strip_suffix(')'))
+        {
             if let Some((count, pattern)) = inner.split_once(',') {
                 // `auto-fill`/`auto-fit` cannot be counted before layout:
                 // one repetition stands for them.
@@ -991,7 +1028,10 @@ fn track(word: &str, u: &Units) -> Option<Track> {
     if let Some(fr) = word.strip_suffix("fr") {
         return fr.parse().ok().map(Track::Fr);
     }
-    if let Some(inner) = word.strip_prefix("minmax(").and_then(|s| s.strip_suffix(')')) {
+    if let Some(inner) = word
+        .strip_prefix("minmax(")
+        .and_then(|s| s.strip_suffix(')'))
+    {
         let (a, b) = inner.split_once(',')?;
         return Some(Track::MinMax(
             Box::new(track(a.trim(), u)?),
@@ -1071,7 +1111,10 @@ mod tests {
         assert_eq!(length("25.4mm", &U), Some(Length::Pt(72.0)));
         assert_eq!(length("auto", &U), Some(Length::Auto));
         // A clamp is its maximum: paper is a wide screen.
-        assert_eq!(length("clamp(1rem, 1rem + 1vw, 2rem)", &U), Some(Length::Pt(24.0)));
+        assert_eq!(
+            length("clamp(1rem, 1rem + 1vw, 2rem)", &U),
+            Some(Length::Pt(24.0))
+        );
         assert_eq!(length("calc(8px * 2)", &U), Some(Length::Pt(12.0)));
         assert_eq!(length("calc(100%)", &U), Some(Length::Pct(100.0)));
         assert_eq!(length("bogus", &U), None);
@@ -1098,7 +1141,10 @@ mod tests {
         let mut vars = HashMap::new();
         vars.insert("--brand".to_string(), "#ff6a2b".to_string());
         vars.insert("--edge".to_string(), "var(--brand)".to_string());
-        assert_eq!(substitute_vars("1px solid var(--edge)", &vars), "1px solid #ff6a2b");
+        assert_eq!(
+            substitute_vars("1px solid var(--edge)", &vars),
+            "1px solid #ff6a2b"
+        );
         assert_eq!(substitute_vars("var(--nope, 4px)", &vars), "4px");
     }
 
@@ -1111,15 +1157,27 @@ mod tests {
         };
         assert_eq!(angle, 90.0);
         assert_eq!(stops.len(), 2);
-        assert!(matches!(image("radial-gradient(circle at top, red, blue)"), Some(Image::Radial { .. })));
+        assert!(matches!(
+            image("radial-gradient(circle at top, red, blue)"),
+            Some(Image::Radial { .. })
+        ));
         assert_eq!(image("url(\"/a.png\")"), Some(Image::Url("/a.png".into())));
         let s = shadows("0 4px 6px -1px rgba(0,0,0,0.1), inset 0 1px 0 #fff", &U);
         assert_eq!(s.len(), 2);
         assert_eq!(s[0].y, 3.0);
         assert!(s[1].inset);
         assert_eq!(tracks("repeat(3, 1fr)", &U), vec![Track::Fr(1.0); 3]);
-        assert_eq!(tracks("200px auto", &U), vec![Track::Pt(150.0), Track::Auto]);
-        assert_eq!(grid_placement("span 2"), (GridLine::Span(2), GridLine::Auto));
-        assert_eq!(grid_placement("1 / -1"), (GridLine::Line(1), GridLine::Line(-1)));
+        assert_eq!(
+            tracks("200px auto", &U),
+            vec![Track::Pt(150.0), Track::Auto]
+        );
+        assert_eq!(
+            grid_placement("span 2"),
+            (GridLine::Span(2), GridLine::Auto)
+        );
+        assert_eq!(
+            grid_placement("1 / -1"),
+            (GridLine::Line(1), GridLine::Line(-1))
+        );
     }
 }

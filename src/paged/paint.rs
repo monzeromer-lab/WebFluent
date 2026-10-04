@@ -10,7 +10,9 @@ use std::collections::HashMap;
 use krilla::color::rgb;
 use krilla::geom::{Path, PathBuilder, Point, Rect, Size, Transform};
 use krilla::num::NormalizedF32;
-use krilla::paint::{Fill, FillRule, LineCap, LinearGradient, RadialGradient, SpreadMethod, Stop, Stroke, StrokeDash};
+use krilla::paint::{
+    Fill, FillRule, LineCap, LinearGradient, RadialGradient, SpreadMethod, Stop, Stroke, StrokeDash,
+};
 use krilla::surface::Surface;
 use krilla::text::{Font, GlyphId, KrillaGlyph};
 use krilla_svg::{SurfaceExt, SvgSettings};
@@ -18,7 +20,9 @@ use krilla_svg::{SurfaceExt, SvgSettings};
 use super::boxes::{Asset, Kind, Tree};
 use super::fonts::{FontDb, Pick};
 use super::layout::Frag;
-use super::style::{BorderStyle, GradientStop, Image as BgImage, Length, ObjectFit, Position, Rgba, Style};
+use super::style::{
+    BorderStyle, GradientStop, Image as BgImage, Length, ObjectFit, Position, Rgba, Style,
+};
 use super::text::{Item, Line};
 
 /// A link drawn on a page: where, and to what.
@@ -40,6 +44,9 @@ pub struct Painter<'a> {
     pub dy: f32,
     /// The part of the strip the current page shows.
     pub band: (f32, f32),
+    /// The text drawn on the current page, a line at a time, in reading
+    /// order: what a test or a reader of the build can check.
+    pub text: Vec<String>,
 }
 
 fn rgb_of(c: Rgba) -> rgb::Color {
@@ -59,7 +66,11 @@ fn opacity(a: f32) -> NormalizedF32 {
 }
 
 fn fill(c: Rgba) -> Fill {
-    Fill { paint: paint(c), opacity: opacity(c.a), rule: FillRule::NonZero }
+    Fill {
+        paint: paint(c),
+        opacity: opacity(c.a),
+        rule: FillRule::NonZero,
+    }
 }
 
 /// A rectangle with each corner rounded: top-left, top-right, bottom-right,
@@ -78,11 +89,32 @@ pub fn rounded(x: f32, y: f32, w: f32, h: f32, r: [f32; 4]) -> Option<Path> {
     const K: f32 = 0.552_284_8;
     pb.move_to(x + r[0], y);
     pb.line_to(x + w - r[1], y);
-    pb.cubic_to(x + w - r[1] + r[1] * K, y, x + w, y + r[1] - r[1] * K, x + w, y + r[1]);
+    pb.cubic_to(
+        x + w - r[1] + r[1] * K,
+        y,
+        x + w,
+        y + r[1] - r[1] * K,
+        x + w,
+        y + r[1],
+    );
     pb.line_to(x + w, y + h - r[2]);
-    pb.cubic_to(x + w, y + h - r[2] + r[2] * K, x + w - r[2] + r[2] * K, y + h, x + w - r[2], y + h);
+    pb.cubic_to(
+        x + w,
+        y + h - r[2] + r[2] * K,
+        x + w - r[2] + r[2] * K,
+        y + h,
+        x + w - r[2],
+        y + h,
+    );
     pb.line_to(x + r[3], y + h);
-    pb.cubic_to(x + r[3] - r[3] * K, y + h, x, y + h - r[3] + r[3] * K, x, y + h - r[3]);
+    pb.cubic_to(
+        x + r[3] - r[3] * K,
+        y + h,
+        x,
+        y + h - r[3] + r[3] * K,
+        x,
+        y + h - r[3],
+    );
     pb.line_to(x, y + r[0]);
     pb.cubic_to(x, y + r[0] - r[0] * K, x + r[0] - r[0] * K, y, x + r[0], y);
     pb.close();
@@ -157,6 +189,7 @@ impl<'a> Painter<'a> {
             dx: 0.0,
             dy: 0.0,
             band: (f32::MIN, f32::MAX),
+            text: Vec::new(),
         }
     }
 
@@ -168,7 +201,11 @@ impl<'a> Painter<'a> {
                 let face = &db.faces[pick.face];
                 let data: krilla::Data = face.data.clone().into();
                 if face.variable {
-                    Font::new_variable(data, face.index, &[(krilla::text::Tag::new(b"wght"), pick.weight as f32)])
+                    Font::new_variable(
+                        data,
+                        face.index,
+                        &[(krilla::text::Tag::new(b"wght"), pick.weight as f32)],
+                    )
                 } else {
                     Font::new(data, face.index)
                 }
@@ -245,10 +282,18 @@ impl<'a> Painter<'a> {
             self.lines(s, f, ix);
         }
         // Positioned children paint above the rest.
-        for c in f.children.iter().filter(|c| tree.boxes[c.boxed].style.position == Position::Static) {
+        for c in f
+            .children
+            .iter()
+            .filter(|c| tree.boxes[c.boxed].style.position == Position::Static)
+        {
             self.frag(s, c);
         }
-        for c in f.children.iter().filter(|c| tree.boxes[c.boxed].style.position != Position::Static) {
+        for c in f
+            .children
+            .iter()
+            .filter(|c| tree.boxes[c.boxed].style.position != Position::Static)
+        {
             self.frag(s, c);
         }
         for a in &f.atoms {
@@ -262,15 +307,33 @@ impl<'a> Painter<'a> {
     /// Shadows, background and border.
     fn decoration(&mut self, s: &mut Surface, f: &Frag, style: &Style) {
         let r = radii(style, f.w, f.h);
-        for sh in style.shadows.iter().rev().filter(|sh| !sh.inset && sh.color.a > 0.0) {
+        for sh in style
+            .shadows
+            .iter()
+            .rev()
+            .filter(|sh| !sh.inset && sh.color.a > 0.0)
+        {
             let steps = (sh.blur / 1.5).clamp(1.0, 10.0) as usize;
             for i in 0..steps {
                 let t = (i as f32 + 0.5) / steps as f32;
                 let grow = sh.spread - sh.blur / 2.0 + sh.blur * t;
-                let alpha = if steps == 1 { sh.color.a } else { sh.color.a * 2.0 * (1.0 - t) / steps as f32 };
-                if let Some(p) = rounded(f.x + sh.x - grow, f.y + sh.y - grow, f.w + 2.0 * grow, f.h + 2.0 * grow, r.map(|v| (v + grow).max(0.0))) {
+                let alpha = if steps == 1 {
+                    sh.color.a
+                } else {
+                    sh.color.a * 2.0 * (1.0 - t) / steps as f32
+                };
+                if let Some(p) = rounded(
+                    f.x + sh.x - grow,
+                    f.y + sh.y - grow,
+                    f.w + 2.0 * grow,
+                    f.h + 2.0 * grow,
+                    r.map(|v| (v + grow).max(0.0)),
+                ) {
                     s.set_stroke(None);
-                    s.set_fill(Some(fill(Rgba { a: alpha, ..sh.color })));
+                    s.set_fill(Some(fill(Rgba {
+                        a: alpha,
+                        ..sh.color
+                    })));
                     s.draw_path(&p);
                 }
             }
@@ -301,7 +364,11 @@ impl<'a> Painter<'a> {
                         anti_alias: true,
                     };
                     s.set_stroke(None);
-                    s.set_fill(Some(Fill { paint: g.into(), opacity: NormalizedF32::ONE, rule: FillRule::NonZero }));
+                    s.set_fill(Some(Fill {
+                        paint: g.into(),
+                        opacity: NormalizedF32::ONE,
+                        rule: FillRule::NonZero,
+                    }));
                     s.draw_path(&path);
                 }
                 BgImage::Radial { stops: st } => {
@@ -320,7 +387,11 @@ impl<'a> Painter<'a> {
                         anti_alias: true,
                     };
                     s.set_stroke(None);
-                    s.set_fill(Some(Fill { paint: g.into(), opacity: NormalizedF32::ONE, rule: FillRule::NonZero }));
+                    s.set_fill(Some(Fill {
+                        paint: g.into(),
+                        opacity: NormalizedF32::ONE,
+                        rule: FillRule::NonZero,
+                    }));
                     s.draw_path(&path);
                 }
                 BgImage::Url(_) => {}
@@ -334,15 +405,29 @@ impl<'a> Painter<'a> {
         if !b.iter().any(|side| side.visible()) {
             return;
         }
-        let uniform = b.iter().all(|side| side.width == b[0].width && side.style == b[0].style && side.color == b[0].color) && b[0].visible();
+        let uniform = b.iter().all(|side| {
+            side.width == b[0].width && side.style == b[0].style && side.color == b[0].color
+        }) && b[0].visible();
         let dash = |side: &super::style::BorderSide| match side.style {
-            BorderStyle::Dashed => Some(StrokeDash { array: vec![side.width * 3.0, side.width * 2.0], offset: 0.0 }),
-            BorderStyle::Dotted => Some(StrokeDash { array: vec![0.0, side.width * 2.0], offset: 0.0 }),
+            BorderStyle::Dashed => Some(StrokeDash {
+                array: vec![side.width * 3.0, side.width * 2.0],
+                offset: 0.0,
+            }),
+            BorderStyle::Dotted => Some(StrokeDash {
+                array: vec![0.0, side.width * 2.0],
+                offset: 0.0,
+            }),
             _ => None,
         };
         if uniform {
             let w = b[0].width;
-            let Some(p) = rounded(f.x + w / 2.0, f.y + w / 2.0, f.w - w, f.h - w, r.map(|v| (v - w / 2.0).max(0.0))) else {
+            let Some(p) = rounded(
+                f.x + w / 2.0,
+                f.y + w / 2.0,
+                f.w - w,
+                f.h - w,
+                r.map(|v| (v - w / 2.0).max(0.0)),
+            ) else {
                 return;
             };
             s.set_fill(None);
@@ -350,7 +435,11 @@ impl<'a> Painter<'a> {
                 paint: paint(style.border_color(0)),
                 width: w,
                 opacity: opacity(style.border_color(0).a),
-                line_cap: if b[0].style == BorderStyle::Dotted { LineCap::Round } else { LineCap::Butt },
+                line_cap: if b[0].style == BorderStyle::Dotted {
+                    LineCap::Round
+                } else {
+                    LineCap::Butt
+                },
                 dash: dash(&b[0]),
                 ..Default::default()
             }));
@@ -360,10 +449,30 @@ impl<'a> Painter<'a> {
         }
         // Each side on its own: a line down the middle of its width.
         let sides = [
-            (f.x, f.y + b[0].width / 2.0, f.x + f.w, f.y + b[0].width / 2.0),
-            (f.x + f.w - b[1].width / 2.0, f.y, f.x + f.w - b[1].width / 2.0, f.y + f.h),
-            (f.x, f.y + f.h - b[2].width / 2.0, f.x + f.w, f.y + f.h - b[2].width / 2.0),
-            (f.x + b[3].width / 2.0, f.y, f.x + b[3].width / 2.0, f.y + f.h),
+            (
+                f.x,
+                f.y + b[0].width / 2.0,
+                f.x + f.w,
+                f.y + b[0].width / 2.0,
+            ),
+            (
+                f.x + f.w - b[1].width / 2.0,
+                f.y,
+                f.x + f.w - b[1].width / 2.0,
+                f.y + f.h,
+            ),
+            (
+                f.x,
+                f.y + f.h - b[2].width / 2.0,
+                f.x + f.w,
+                f.y + f.h - b[2].width / 2.0,
+            ),
+            (
+                f.x + b[3].width / 2.0,
+                f.y,
+                f.x + b[3].width / 2.0,
+                f.y + f.h,
+            ),
         ];
         for (i, (x1, y1, x2, y2)) in sides.into_iter().enumerate() {
             if !b[i].visible() {
@@ -375,7 +484,11 @@ impl<'a> Painter<'a> {
                     paint: paint(style.border_color(i)),
                     width: b[i].width,
                     opacity: opacity(style.border_color(i).a),
-                    line_cap: if b[i].style == BorderStyle::Dotted { LineCap::Round } else { LineCap::Butt },
+                    line_cap: if b[i].style == BorderStyle::Dotted {
+                        LineCap::Round
+                    } else {
+                        LineCap::Butt
+                    },
                     dash: dash(&b[i]),
                     ..Default::default()
                 }));
@@ -386,11 +499,36 @@ impl<'a> Painter<'a> {
     }
 
     fn content_box(f: &Frag, style: &Style) -> (f32, f32, f32, f32) {
-        let pl = style.padding[3].or_zero(f.w) + if style.border[3].visible() { style.border[3].width } else { 0.0 };
-        let pr = style.padding[1].or_zero(f.w) + if style.border[1].visible() { style.border[1].width } else { 0.0 };
-        let pt = style.padding[0].or_zero(f.w) + if style.border[0].visible() { style.border[0].width } else { 0.0 };
-        let pb = style.padding[2].or_zero(f.w) + if style.border[2].visible() { style.border[2].width } else { 0.0 };
-        (f.x + pl, f.y + pt, (f.w - pl - pr).max(0.0), (f.h - pt - pb).max(0.0))
+        let pl = style.padding[3].or_zero(f.w)
+            + if style.border[3].visible() {
+                style.border[3].width
+            } else {
+                0.0
+            };
+        let pr = style.padding[1].or_zero(f.w)
+            + if style.border[1].visible() {
+                style.border[1].width
+            } else {
+                0.0
+            };
+        let pt = style.padding[0].or_zero(f.w)
+            + if style.border[0].visible() {
+                style.border[0].width
+            } else {
+                0.0
+            };
+        let pb = style.padding[2].or_zero(f.w)
+            + if style.border[2].visible() {
+                style.border[2].width
+            } else {
+                0.0
+            };
+        (
+            f.x + pl,
+            f.y + pt,
+            (f.w - pl - pr).max(0.0),
+            (f.h - pt - pb).max(0.0),
+        )
     }
 
     fn picture(&mut self, s: &mut Surface, f: &Frag, asset: Option<usize>, style: &Style) {
@@ -447,7 +585,11 @@ impl<'a> Painter<'a> {
 
     fn progress(&mut self, s: &mut Surface, f: &Frag, frac: f32, style: &Style) {
         let r = f.h / 2.0;
-        let track = if style.background_color.is_visible() { style.background_color } else { Rgba::rgb(0.9, 0.91, 0.93) };
+        let track = if style.background_color.is_visible() {
+            style.background_color
+        } else {
+            Rgba::rgb(0.9, 0.91, 0.93)
+        };
         let bar = style
             .vars
             .get("--color-primary")
@@ -475,7 +617,10 @@ impl<'a> Painter<'a> {
         };
         let style = &self.tree.boxes[f.boxed].style;
         let (cx, cy, _, _) = Self::content_box(f, style);
-        let baseline = f.first_baseline().map(|b| f.y + b).unwrap_or(cy + line.baseline);
+        let baseline = f
+            .first_baseline()
+            .map(|b| f.y + b)
+            .unwrap_or(cy + line.baseline);
         // Outside the item, on the side its text starts from.
         let (_, _, cw, _) = Self::content_box(f, style);
         let x = if style.direction == super::style::Direction::Rtl {
@@ -495,11 +640,35 @@ impl<'a> Painter<'a> {
             }
             self.spans(s, shaped, line, f.x, top);
             self.runs(s, shaped, line, f.x, top);
+            let start = line
+                .runs
+                .iter()
+                .flat_map(|r| r.glyphs.iter().map(|g| g.range.start))
+                .min();
+            let end = line
+                .runs
+                .iter()
+                .flat_map(|r| r.glyphs.iter().map(|g| g.range.end))
+                .max();
+            if let (Some(a), Some(b)) = (start, end) {
+                let t = shaped.text[a..b].replace(super::text::ATOM, " ");
+                let t = t.split_whitespace().collect::<Vec<_>>().join(" ");
+                if !t.is_empty() {
+                    self.text.push(t);
+                }
+            }
         }
     }
 
     /// Inline elements' backgrounds and borders, and their links.
-    fn spans(&mut self, s: &mut Surface, shaped: &super::text::Shaped, line: &Line, x0: f32, top: f32) {
+    fn spans(
+        &mut self,
+        s: &mut Surface,
+        shaped: &super::text::Shaped,
+        line: &Line,
+        x0: f32,
+        top: f32,
+    ) {
         for ext in &line.spans {
             let span = &self.tree.spans[ext.span];
             let st = &span.style;
@@ -509,7 +678,12 @@ impl<'a> Painter<'a> {
             let pt = st.padding[0].or_zero(0.0);
             let pb = st.padding[2].or_zero(0.0);
             let base = top + line.baseline;
-            let (x, y, w, h) = (x0 + ext.x - pl, base - fs * 0.9 - pt, ext.width + pl + pr, fs * 1.15 + pt + pb);
+            let (x, y, w, h) = (
+                x0 + ext.x - pl,
+                base - fs * 0.9 - pt,
+                ext.width + pl + pr,
+                fs * 1.15 + pt + pb,
+            );
             if st.background_color.is_visible() {
                 if let Some(p) = rounded(x, y, w, h, radii(st, w, h)) {
                     s.set_stroke(None);
@@ -518,17 +692,37 @@ impl<'a> Painter<'a> {
                 }
             }
             if st.border.iter().any(|b| b.visible()) {
-                let fr = Frag { boxed: 0, x, y, w, h, children: Vec::new(), lines: Vec::new(), atoms: Vec::new(), extent: (y, y + h) };
+                let fr = Frag {
+                    boxed: 0,
+                    x,
+                    y,
+                    w,
+                    h,
+                    children: Vec::new(),
+                    lines: Vec::new(),
+                    atoms: Vec::new(),
+                    extent: (y, y + h),
+                };
                 self.border(s, &fr, st, radii(st, w, h));
             }
             if let Some(href) = &span.href {
-                self.links.push(LinkBox { rect: (x0 + ext.x + self.dx, top + self.dy, ext.width, line.height), href: href.clone() });
+                self.links.push(LinkBox {
+                    rect: (x0 + ext.x + self.dx, top + self.dy, ext.width, line.height),
+                    href: href.clone(),
+                });
             }
         }
         let _ = shaped;
     }
 
-    fn runs(&mut self, s: &mut Surface, shaped: &super::text::Shaped, line: &Line, x0: f32, top: f32) {
+    fn runs(
+        &mut self,
+        s: &mut Surface,
+        shaped: &super::text::Shaped,
+        line: &Line,
+        x0: f32,
+        top: f32,
+    ) {
         for run in &line.runs {
             let style = shaped.style_of(run.item).clone();
             if !style.visible {
@@ -540,7 +734,12 @@ impl<'a> Painter<'a> {
             let Some(start) = run.glyphs.iter().map(|g| g.range.start).min() else {
                 continue;
             };
-            let end = run.glyphs.iter().map(|g| g.range.end).max().unwrap_or(start);
+            let end = run
+                .glyphs
+                .iter()
+                .map(|g| g.range.end)
+                .max()
+                .unwrap_or(start);
             let text = &shaped.text[start..end];
             let size = run.size;
             let glyphs: Vec<KrillaGlyph> = run
@@ -569,11 +768,23 @@ impl<'a> Painter<'a> {
             }
             s.set_fill(Some(fill(style.color)));
             s.set_stroke(if run.pick.synthetic_bold {
-                Some(Stroke { paint: paint(style.color), width: size * 0.035, opacity: opacity(style.color.a), ..Default::default() })
+                Some(Stroke {
+                    paint: paint(style.color),
+                    width: size * 0.035,
+                    opacity: opacity(style.color.a),
+                    ..Default::default()
+                })
             } else {
                 None
             });
-            s.draw_glyphs(Point::from_xy(x, baseline), &glyphs, font, text, size, false);
+            s.draw_glyphs(
+                Point::from_xy(x, baseline),
+                &glyphs,
+                font,
+                text,
+                size,
+                false,
+            );
             s.set_stroke(None);
             for _ in 0..pushed {
                 s.pop();
@@ -584,7 +795,12 @@ impl<'a> Painter<'a> {
             let mut deco_line = |y: f32| {
                 if let Some(p) = line_path(x, y, x + run.width, y) {
                     s.set_fill(None);
-                    s.set_stroke(Some(Stroke { paint: paint(deco), width: thick, opacity: opacity(deco.a), ..Default::default() }));
+                    s.set_stroke(Some(Stroke {
+                        paint: paint(deco),
+                        width: thick,
+                        opacity: opacity(deco.a),
+                        ..Default::default()
+                    }));
                     s.draw_path(&p);
                     s.set_stroke(None);
                 }
@@ -598,7 +814,9 @@ impl<'a> Painter<'a> {
             if style.overline {
                 deco_line(baseline - size * 0.9);
             }
-            let _ = Item::Break { style: style.clone() };
+            let _ = Item::Break {
+                style: style.clone(),
+            };
         }
     }
 }

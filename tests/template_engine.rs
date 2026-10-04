@@ -232,27 +232,11 @@ fn a_directory_is_one_template_with_its_data_files() {
     let _ = std::fs::remove_dir_all(&dir);
 }
 
-/// The text a PDF draws: each `<hex> Tj` string of its content streams.
-fn pdf_text(pdf: &[u8]) -> String {
-    let raw = String::from_utf8_lossy(pdf);
-    let mut out = String::new();
-    for chunk in raw.split('<').skip(1) {
-        let Some((hex, rest)) = chunk.split_once('>') else {
-            continue;
-        };
-        if !rest.trim_start().starts_with("Tj") || hex.len() % 2 != 0 {
-            continue;
-        }
-        let bytes: Option<Vec<u8>> = (0..hex.len())
-            .step_by(2)
-            .map(|i| u8::from_str_radix(&hex[i..i + 2], 16).ok())
-            .collect();
-        if let Some(bytes) = bytes {
-            out.push_str(&String::from_utf8_lossy(&bytes));
-            out.push('\n');
-        }
-    }
-    out
+/// The text a PDF draws, every page, a line at a time.
+fn pdf_text(tpl: &Template, data: &serde_json::Value) -> String {
+    let report = tpl.render_pdf_report(data).unwrap();
+    assert!(report.bytes.starts_with(b"%PDF-"), "a PDF");
+    report.text.concat().join("\n")
 }
 
 #[test]
@@ -262,10 +246,10 @@ fn a_pdf_draws_what_the_components_draw() {
         ("doc.wf", "page Doc(path: \"/\") {\n    for l in lines { LineItem(l.label, amount: l.amount) }\n    Boxed { Text(note.toUpperCase()) }\n}"),
     ])
     .unwrap();
-    let pdf = tpl
-        .render_pdf(&json!({ "lines": [{ "label": "Design", "amount": 1200 }], "note": "thanks" }))
-        .unwrap();
-    let text = pdf_text(&pdf);
+    let text = pdf_text(
+        &tpl,
+        &json!({ "lines": [{ "label": "Design", "amount": 1200 }], "note": "thanks" }),
+    );
     assert!(
         text.contains("Design") && text.contains("$1,200.00"),
         "{text}"
@@ -287,5 +271,5 @@ fn constants_and_data_files_are_in_scope() {
         html.contains("limit 3") && html.contains(">a<") && html.contains(">b<"),
         "{html}"
     );
-    assert!(pdf_text(&tpl.render_pdf(&json!({})).unwrap()).contains("limit 3"));
+    assert!(pdf_text(&tpl, &json!({})).contains("limit 3"));
 }

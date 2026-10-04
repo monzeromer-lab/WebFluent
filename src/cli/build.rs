@@ -1,6 +1,4 @@
-use crate::codegen::{
-    JsCodegen, dark_css, generate_css_for, generate_html,
-};
+use crate::codegen::{JsCodegen, dark_css, generate_css_for, generate_html};
 use crate::config::ProjectConfig;
 use crate::config::project::OutputType;
 use crate::diagnostics::format::Format;
@@ -245,7 +243,10 @@ fn build(project_dir: &Path, options: Options) -> Result<()> {
     // A PDF document or a slide deck: the page's markup and the site's
     // stylesheet, laid out on paper by the paged engine — so the document
     // draws what the page draws.
-    if matches!(config.build.output_type, OutputType::Pdf | OutputType::Slides) {
+    if matches!(
+        config.build.output_type,
+        OutputType::Pdf | OutputType::Slides
+    ) {
         let deck = config.build.output_type == OutputType::Slides;
         let mut tokens = crate::themes::resolve_tokens(&program, &config.theme)?;
         crate::themes::apply_motion(&mut tokens, &config.motion);
@@ -253,9 +254,17 @@ fn build(project_dir: &Path, options: Options) -> Result<()> {
         css.push_str(&project_css);
         css.push_str(&crate::codegen::scoped_css::scoped_rules(&program));
         let fragment = crate::template::render_program_paged(&program, &serde_json::json!({}))?;
-        let lang = if config.meta.lang.is_empty() { "en".to_string() } else { config.meta.lang.clone() };
+        let lang = if config.meta.lang.is_empty() {
+            "en".to_string()
+        } else {
+            config.meta.lang.clone()
+        };
         let title = crate::codegen::markdown::escape(&config.name);
-        let dir = if crate::template::is_rtl(&lang) { " dir=\"rtl\"" } else { "" };
+        let dir = if crate::template::is_rtl(&lang) {
+            " dir=\"rtl\""
+        } else {
+            ""
+        };
         let html = format!(
             "<!DOCTYPE html><html lang=\"{lang}\"{dir}><head><title>{title}</title><style>{css}</style></head><body>{fragment}</body></html>"
         );
@@ -265,15 +274,21 @@ fn build(project_dir: &Path, options: Options) -> Result<()> {
         let built = output_dir.clone();
         let read = move |src: &str| {
             project_read(src).or_else(|| {
-                let rel = src.split(['?', '#']).next().unwrap_or(src).trim_start_matches('/');
+                let rel = src
+                    .split(['?', '#'])
+                    .next()
+                    .unwrap_or(src)
+                    .trim_start_matches('/');
                 fs::read(built.join(rel)).ok()
             })
         };
         let rendered = if deck {
-            let (options, chrome) = crate::paged::Options::from_slides(&config.build.slides, &read, Some(project_dir));
+            let (options, chrome) =
+                crate::paged::Options::from_slides(&config.build.slides, &read, Some(project_dir));
             crate::paged::render_slides(&html, "", &options, &chrome)
         } else {
-            let options = crate::paged::Options::from_pdf(&config.build.pdf, &read, Some(project_dir));
+            let options =
+                crate::paged::Options::from_pdf(&config.build.pdf, &read, Some(project_dir));
             crate::paged::render(&html, "", &options)
         }
         .map_err(WebFluentError::CodegenError)?;

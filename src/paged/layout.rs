@@ -12,13 +12,16 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 
 use taffy::prelude::*;
-use taffy::{CompactLength, LayoutInput, LayoutOutput, MaxTrackSizingFunction, MinTrackSizingFunction, Overflow};
+use taffy::{
+    CompactLength, LayoutInput, LayoutOutput, MaxTrackSizingFunction, MinTrackSizingFunction,
+    Overflow,
+};
 
 use super::boxes::{Asset, Kind, Tree};
 use super::fonts::FontDb;
 use super::style::{
-    Align as A, Display as D, FlexDirection as FD, GridLine, Length as L, Position as P, Style as S, Track,
-    VerticalAlign,
+    Align as A, Display as D, FlexDirection as FD, GridLine, Length as L, Position as P,
+    Style as S, Track, VerticalAlign,
 };
 use super::text::Line;
 
@@ -88,15 +91,23 @@ enum Leaf {
     Text(usize),
     /// A picture's natural size, and whether a percentage sizes it (then
     /// its narrowest is nothing, as CSS's compressible replaced elements).
-    Image { w: f32, h: f32, compressible: bool },
+    Image {
+        w: f32,
+        h: f32,
+        compressible: bool,
+    },
     Empty,
 }
 
 pub struct Layout<'a> {
     pub tree: &'a Tree,
     pub db: &'a FontDb,
-    atom_cache: RefCell<HashMap<(usize, u32), (f32, f32, f32)>>,
+    /// An inline-block's size at an available width, once worked out.
+    atom_cache: RefCell<HashMap<(usize, u32), AtomSize>>,
 }
+
+/// Width, height, and the baseline from the top.
+type AtomSize = (f32, f32, f32);
 
 fn dim(l: L) -> Dimension {
     match l {
@@ -170,7 +181,10 @@ fn max_track(t: &Track) -> MaxTrackSizingFunction {
 }
 
 fn track(t: &Track) -> TrackSizingFunction {
-    taffy::MinMax { min: min_track(t), max: max_track(t) }
+    taffy::MinMax {
+        min: min_track(t),
+        max: max_track(t),
+    }
 }
 
 fn placement(p: (GridLine, GridLine)) -> taffy::Line<GridPlacement> {
@@ -179,18 +193,32 @@ fn placement(p: (GridLine, GridLine)) -> taffy::Line<GridPlacement> {
         GridLine::Line(n) => GridPlacement::from_line_index(n),
         GridLine::Span(n) => GridPlacement::from_span(n),
     };
-    taffy::Line { start: one(p.0), end: one(p.1) }
+    taffy::Line {
+        start: one(p.0),
+        end: one(p.1),
+    }
 }
 
 impl<'a> Layout<'a> {
     pub fn new(tree: &'a Tree, db: &'a FontDb) -> Layout<'a> {
-        Layout { tree, db, atom_cache: RefCell::new(HashMap::new()) }
+        Layout {
+            tree,
+            db,
+            atom_cache: RefCell::new(HashMap::new()),
+        }
     }
 
     /// Lay out a box at a definite width (its own `width` may narrow it),
     /// with its top-left at the origin.
     pub fn layout(&self, root: usize, width: f32) -> Frag {
-        self.layout_with(root, Size { width: AvailableSpace::Definite(width), height: AvailableSpace::MaxContent }, None)
+        self.layout_with(
+            root,
+            Size {
+                width: AvailableSpace::Definite(width),
+                height: AvailableSpace::MaxContent,
+            },
+            None,
+        )
     }
 
     /// Lay out a box at exactly the page's size: a full-bleed background.
@@ -199,18 +227,40 @@ impl<'a> Layout<'a> {
         taffy.disable_rounding();
         let node = self.build(&mut taffy, root, true);
         let mut st = taffy.style(node).cloned().unwrap_or_default();
-        st.size = Size { width: Dimension::length(width), height: Dimension::length(height) };
+        st.size = Size {
+            width: Dimension::length(width),
+            height: Dimension::length(height),
+        };
         let _ = taffy.set_style(node, st);
-        let _ = taffy.compute_layout_with_measure(node, Size { width: AvailableSpace::Definite(width), height: AvailableSpace::Definite(height) }, |inputs, _id, ctx, style| self.measure(inputs, ctx, style));
+        let _ = taffy.compute_layout_with_measure(
+            node,
+            Size {
+                width: AvailableSpace::Definite(width),
+                height: AvailableSpace::Definite(height),
+            },
+            |inputs, _id, ctx, style| self.measure(inputs, ctx, style),
+        );
         self.collect(&taffy, node, root, 0.0, 0.0)
     }
 
     /// Lay out a box as wide as its content: a watermark.
     pub fn layout_natural(&self, root: usize) -> Frag {
-        self.layout_with(root, Size { width: AvailableSpace::MaxContent, height: AvailableSpace::MaxContent }, None)
+        self.layout_with(
+            root,
+            Size {
+                width: AvailableSpace::MaxContent,
+                height: AvailableSpace::MaxContent,
+            },
+            None,
+        )
     }
 
-    fn layout_with(&self, root: usize, available: Size<AvailableSpace>, force_width: Option<f32>) -> Frag {
+    fn layout_with(
+        &self,
+        root: usize,
+        available: Size<AvailableSpace>,
+        force_width: Option<f32>,
+    ) -> Frag {
         let mut taffy: TaffyTree<Leaf> = TaffyTree::new();
         taffy.disable_rounding();
         let node = self.build(&mut taffy, root, true);
@@ -219,7 +269,9 @@ impl<'a> Layout<'a> {
             st.size.width = Dimension::length(w);
             let _ = taffy.set_style(node, st);
         }
-        let _ = taffy.compute_layout_with_measure(node, available, |inputs, _id, ctx, style| self.measure(inputs, ctx, style));
+        let _ = taffy.compute_layout_with_measure(node, available, |inputs, _id, ctx, style| {
+            self.measure(inputs, ctx, style)
+        });
         self.collect(&taffy, node, root, 0.0, 0.0)
     }
 
@@ -233,37 +285,106 @@ impl<'a> Layout<'a> {
                 D::Grid | D::InlineGrid | D::Table => Display::Grid,
                 _ => Display::Block,
             },
-            box_sizing: if s.border_box { BoxSizing::BorderBox } else { BoxSizing::ContentBox },
+            box_sizing: if s.border_box {
+                BoxSizing::BorderBox
+            } else {
+                BoxSizing::ContentBox
+            },
             position: match s.position {
                 P::Absolute | P::Fixed => Position::Absolute,
                 _ => Position::Relative,
             },
             inset: taffy::Rect {
-                top: if s.position == P::Static { LengthPercentageAuto::auto() } else { lpa(s.inset[0]) },
-                right: if s.position == P::Static { LengthPercentageAuto::auto() } else { lpa(s.inset[1]) },
-                bottom: if s.position == P::Static { LengthPercentageAuto::auto() } else { lpa(s.inset[2]) },
-                left: if s.position == P::Static { LengthPercentageAuto::auto() } else { lpa(s.inset[3]) },
+                top: if s.position == P::Static {
+                    LengthPercentageAuto::auto()
+                } else {
+                    lpa(s.inset[0])
+                },
+                right: if s.position == P::Static {
+                    LengthPercentageAuto::auto()
+                } else {
+                    lpa(s.inset[1])
+                },
+                bottom: if s.position == P::Static {
+                    LengthPercentageAuto::auto()
+                } else {
+                    lpa(s.inset[2])
+                },
+                left: if s.position == P::Static {
+                    LengthPercentageAuto::auto()
+                } else {
+                    lpa(s.inset[3])
+                },
             },
-            size: Size { width: dim(s.width), height: dim(s.height) },
-            min_size: Size { width: lpa(s.min_width), height: lpa(s.min_height) },
-            max_size: Size { width: lpa(s.max_width), height: lpa(s.max_height) },
+            size: Size {
+                width: dim(s.width),
+                height: dim(s.height),
+            },
+            min_size: Size {
+                width: lpa(s.min_width),
+                height: lpa(s.min_height),
+            },
+            max_size: Size {
+                width: lpa(s.max_width),
+                height: lpa(s.max_height),
+            },
             aspect_ratio: s.aspect_ratio,
-            margin: taffy::Rect { top: lpa(s.margin[0]), right: lpa(s.margin[1]), bottom: lpa(s.margin[2]), left: lpa(s.margin[3]) },
-            padding: taffy::Rect { top: lp(s.padding[0]), right: lp(s.padding[1]), bottom: lp(s.padding[2]), left: lp(s.padding[3]) },
-            border: taffy::Rect {
-                top: LengthPercentage::length(if s.border[0].visible() { s.border[0].width } else { 0.0 }),
-                right: LengthPercentage::length(if s.border[1].visible() { s.border[1].width } else { 0.0 }),
-                bottom: LengthPercentage::length(if s.border[2].visible() { s.border[2].width } else { 0.0 }),
-                left: LengthPercentage::length(if s.border[3].visible() { s.border[3].width } else { 0.0 }),
+            margin: taffy::Rect {
+                top: lpa(s.margin[0]),
+                right: lpa(s.margin[1]),
+                bottom: lpa(s.margin[2]),
+                left: lpa(s.margin[3]),
             },
-            overflow: if s.clip { taffy::Point { x: Overflow::Hidden, y: Overflow::Hidden } } else { taffy::Point { x: Overflow::Visible, y: Overflow::Visible } },
+            padding: taffy::Rect {
+                top: lp(s.padding[0]),
+                right: lp(s.padding[1]),
+                bottom: lp(s.padding[2]),
+                left: lp(s.padding[3]),
+            },
+            border: taffy::Rect {
+                top: LengthPercentage::length(if s.border[0].visible() {
+                    s.border[0].width
+                } else {
+                    0.0
+                }),
+                right: LengthPercentage::length(if s.border[1].visible() {
+                    s.border[1].width
+                } else {
+                    0.0
+                }),
+                bottom: LengthPercentage::length(if s.border[2].visible() {
+                    s.border[2].width
+                } else {
+                    0.0
+                }),
+                left: LengthPercentage::length(if s.border[3].visible() {
+                    s.border[3].width
+                } else {
+                    0.0
+                }),
+            },
+            overflow: if s.clip {
+                taffy::Point {
+                    x: Overflow::Hidden,
+                    y: Overflow::Hidden,
+                }
+            } else {
+                taffy::Point {
+                    x: Overflow::Visible,
+                    y: Overflow::Visible,
+                }
+            },
             flex_direction: match s.flex_direction {
                 FD::Row => FlexDirection::Row,
                 FD::RowReverse => FlexDirection::RowReverse,
                 FD::Column => FlexDirection::Column,
                 FD::ColumnReverse => FlexDirection::ColumnReverse,
             },
-            flex_wrap: if s.flex_wrap { FlexWrap::Wrap } else { FlexWrap::NoWrap },
+            flex_wrap: if s.flex_wrap {
+                FlexWrap::Wrap
+            } else {
+                FlexWrap::NoWrap
+            },
             justify_content: align_content(s.justify_content),
             align_items: align_items(s.align_items),
             align_self: align_items(s.align_self),
@@ -272,9 +393,20 @@ impl<'a> Layout<'a> {
             flex_grow: s.flex_grow,
             flex_shrink: s.flex_shrink,
             flex_basis: dim(s.flex_basis),
-            gap: Size { width: lp(s.column_gap), height: lp(s.row_gap) },
-            grid_template_columns: s.grid_columns.iter().map(|t| GridTemplateComponent::Single(track(t))).collect(),
-            grid_template_rows: s.grid_rows.iter().map(|t| GridTemplateComponent::Single(track(t))).collect(),
+            gap: Size {
+                width: lp(s.column_gap),
+                height: lp(s.row_gap),
+            },
+            grid_template_columns: s
+                .grid_columns
+                .iter()
+                .map(|t| GridTemplateComponent::Single(track(t)))
+                .collect(),
+            grid_template_rows: s
+                .grid_rows
+                .iter()
+                .map(|t| GridTemplateComponent::Single(track(t)))
+                .collect(),
             grid_auto_rows: s.grid_auto_rows.iter().map(track).collect(),
             grid_column: placement(s.grid_column),
             grid_row: placement(s.grid_row),
@@ -293,24 +425,53 @@ impl<'a> Layout<'a> {
         // A box laid out on its own is placed where it is asked to be.
         if root {
             st.position = Position::Relative;
-            st.inset = taffy::Rect { top: LengthPercentageAuto::auto(), right: LengthPercentageAuto::auto(), bottom: LengthPercentageAuto::auto(), left: LengthPercentageAuto::auto() };
-            st.margin = taffy::Rect { top: LengthPercentageAuto::length(0.0), right: LengthPercentageAuto::length(0.0), bottom: LengthPercentageAuto::length(0.0), left: LengthPercentageAuto::length(0.0) };
+            st.inset = taffy::Rect {
+                top: LengthPercentageAuto::auto(),
+                right: LengthPercentageAuto::auto(),
+                bottom: LengthPercentageAuto::auto(),
+                left: LengthPercentageAuto::auto(),
+            };
+            st.margin = taffy::Rect {
+                top: LengthPercentageAuto::length(0.0),
+                right: LengthPercentageAuto::length(0.0),
+                bottom: LengthPercentageAuto::length(0.0),
+                left: LengthPercentageAuto::length(0.0),
+            };
         }
         match &lb.kind {
             Kind::Table { columns, .. } => {
                 st.display = Display::Grid;
                 st.grid_template_columns = (0..*columns)
-                    .map(|_| GridTemplateComponent::Single(taffy::MinMax { min: MinTrackSizingFunction::auto(), max: MaxTrackSizingFunction::auto() }))
+                    .map(|_| {
+                        GridTemplateComponent::Single(taffy::MinMax {
+                            min: MinTrackSizingFunction::auto(),
+                            max: MaxTrackSizingFunction::auto(),
+                        })
+                    })
                     .collect();
-                st.gap = Size { width: LengthPercentage::length(0.0), height: LengthPercentage::length(0.0) };
+                st.gap = Size {
+                    width: LengthPercentage::length(0.0),
+                    height: LengthPercentage::length(0.0),
+                };
                 // A table is as wide as its content unless it says otherwise.
                 if s.width == L::Auto && !root {
                     st.size.width = Dimension::auto();
                 }
             }
-            Kind::Cell { row, col, colspan, rowspan } => {
-                st.grid_row = taffy::Line { start: GridPlacement::from_line_index(*row as i16 + 1), end: GridPlacement::from_span(*rowspan as u16) };
-                st.grid_column = taffy::Line { start: GridPlacement::from_line_index(*col as i16 + 1), end: GridPlacement::from_span(*colspan as u16) };
+            Kind::Cell {
+                row,
+                col,
+                colspan,
+                rowspan,
+            } => {
+                st.grid_row = taffy::Line {
+                    start: GridPlacement::from_line_index(*row as i16 + 1),
+                    end: GridPlacement::from_span(*rowspan as u16),
+                };
+                st.grid_column = taffy::Line {
+                    start: GridPlacement::from_line_index(*col as i16 + 1),
+                    end: GridPlacement::from_span(*colspan as u16),
+                };
                 // A cell fills its row, and centres its content in it.
                 st.display = Display::Flex;
                 st.flex_direction = FlexDirection::Column;
@@ -321,11 +482,20 @@ impl<'a> Layout<'a> {
                     _ => AlignContent::FLEX_START,
                 });
             }
-            Kind::Image { .. } | Kind::Progress(_) => {
+            Kind::Image { .. } => {
+                // A picture keeps its own size: it is not stretched as a
+                // block's child is.
+                st.display = Display::Block;
+                st.item_is_replaced = true;
+            }
+            Kind::Progress(_) => {
                 st.display = Display::Block;
             }
             Kind::PageBreak => {
-                st.size = Size { width: Dimension::percent(1.0), height: Dimension::length(0.0) };
+                st.size = Size {
+                    width: Dimension::percent(1.0),
+                    height: Dimension::length(0.0),
+                };
             }
             _ => {}
         }
@@ -339,14 +509,19 @@ impl<'a> Layout<'a> {
             Kind::Inline(ix) => Some(Leaf::Text(*ix)),
             Kind::Image { asset, .. } => {
                 let (w, h) = match asset.map(|a| &self.tree.assets[a]) {
-                    Some(Asset::Raster { width, height, .. }) => (*width as f32 * 0.75, *height as f32 * 0.75),
-                    Some(Asset::Svg { tree }) => (tree.size().width() * 0.75, tree.size().height() * 0.75),
+                    Some(Asset::Raster { width, height, .. }) => {
+                        (*width as f32 * 0.75, *height as f32 * 0.75)
+                    }
+                    Some(Asset::Svg { tree }) => {
+                        (tree.size().width() * 0.75, tree.size().height() * 0.75)
+                    }
                     None => (0.0, 0.0),
                 };
                 if style.aspect_ratio.is_none() && w > 0.0 && h > 0.0 {
                     style.aspect_ratio = Some(w / h);
                 }
-                let compressible = matches!(lb.style.width, L::Pct(_)) || matches!(lb.style.max_width, L::Pct(_));
+                let compressible =
+                    matches!(lb.style.width, L::Pct(_)) || matches!(lb.style.max_width, L::Pct(_));
                 Some(Leaf::Image { w, h, compressible })
             }
             Kind::Progress(_) | Kind::PageBreak => Some(Leaf::Empty),
@@ -371,41 +546,70 @@ impl<'a> Layout<'a> {
 
     fn measure(&self, inputs: LayoutInput, ctx: Option<&mut Leaf>, style: &Style) -> LayoutOutput {
         let leaf = ctx.copied().unwrap_or(Leaf::Empty);
-        taffy::compute_leaf_layout(inputs, style, |_, _| 0.0, |known, avail| match leaf {
-            Leaf::Empty => Size { width: known.width.unwrap_or(0.0), height: known.height.unwrap_or(0.0) },
-            Leaf::Image { w, h, compressible } => {
-                let ratio = if h > 0.0 { w / h } else { 1.0 };
-                if compressible && known.width.is_none() && avail.width == AvailableSpace::MinContent {
-                    return Size { width: 0.0, height: 0.0 };
-                }
-                match (known.width, known.height) {
-                    (Some(kw), Some(kh)) => Size { width: kw, height: kh },
-                    (Some(kw), None) => Size { width: kw, height: kw / ratio },
-                    (None, Some(kh)) => Size { width: kh * ratio, height: kh },
-                    (None, None) => {
-                        // A picture never overflows the space it is given.
-                        let max = match avail.width {
-                            AvailableSpace::Definite(a) => a,
-                            _ => f32::INFINITY,
+        taffy::compute_leaf_layout(
+            inputs,
+            style,
+            |_, _| 0.0,
+            |known, avail| match leaf {
+                Leaf::Empty => Size {
+                    width: known.width.unwrap_or(0.0),
+                    height: known.height.unwrap_or(0.0),
+                },
+                Leaf::Image { w, h, compressible } => {
+                    let ratio = if h > 0.0 { w / h } else { 1.0 };
+                    if compressible
+                        && known.width.is_none()
+                        && avail.width == AvailableSpace::MinContent
+                    {
+                        return Size {
+                            width: 0.0,
+                            height: 0.0,
                         };
-                        let width = w.min(max);
-                        Size { width, height: width / ratio }
+                    }
+                    match (known.width, known.height) {
+                        (Some(kw), Some(kh)) => Size {
+                            width: kw,
+                            height: kh,
+                        },
+                        (Some(kw), None) => Size {
+                            width: kw,
+                            height: kw / ratio,
+                        },
+                        (None, Some(kh)) => Size {
+                            width: kh * ratio,
+                            height: kh,
+                        },
+                        (None, None) => {
+                            // A picture never overflows the space it is given.
+                            let max = match avail.width {
+                                AvailableSpace::Definite(a) => a,
+                                _ => f32::INFINITY,
+                            };
+                            let width = w.min(max);
+                            Size {
+                                width,
+                                height: width / ratio,
+                            }
+                        }
                     }
                 }
-            }
-            Leaf::Text(ix) => {
-                let shaped = &self.tree.shaped[ix];
-                let mut sizer = |b: usize, a: f32| self.atom_size(b, a);
-                let width = known.width.unwrap_or_else(|| match avail.width {
-                    AvailableSpace::Definite(w) => shaped.max_content(&mut sizer).min(w),
-                    AvailableSpace::MinContent => shaped.min_content(&mut sizer),
-                    AvailableSpace::MaxContent => shaped.max_content(&mut sizer),
-                });
-                let lines = shaped.lines(width.max(0.0) + 0.001, &mut sizer);
-                let height: f32 = lines.iter().map(|l| l.height).sum();
-                Size { width, height: known.height.unwrap_or(height) }
-            }
-        })
+                Leaf::Text(ix) => {
+                    let shaped = &self.tree.shaped[ix];
+                    let mut sizer = |b: usize, a: f32| self.atom_size(b, a);
+                    let width = known.width.unwrap_or_else(|| match avail.width {
+                        AvailableSpace::Definite(w) => shaped.max_content(&mut sizer).min(w),
+                        AvailableSpace::MinContent => shaped.min_content(&mut sizer),
+                        AvailableSpace::MaxContent => shaped.max_content(&mut sizer),
+                    });
+                    let lines = shaped.lines(width.max(0.0) + 0.001, &mut sizer);
+                    let height: f32 = lines.iter().map(|l| l.height).sum();
+                    Size {
+                        width,
+                        height: known.height.unwrap_or(height),
+                    }
+                }
+            },
+        )
     }
 
     /// An inline-block's size at an available width: as wide as its content,
@@ -415,9 +619,23 @@ impl<'a> Layout<'a> {
         if let Some(v) = self.atom_cache.borrow().get(&key) {
             return *v;
         }
-        let natural = self.layout_with(b, Size { width: AvailableSpace::MaxContent, height: AvailableSpace::MaxContent }, None);
+        let natural = self.layout_with(
+            b,
+            Size {
+                width: AvailableSpace::MaxContent,
+                height: AvailableSpace::MaxContent,
+            },
+            None,
+        );
         let frag = if avail.is_finite() && natural.w > avail && avail > 0.0 {
-            self.layout_with(b, Size { width: AvailableSpace::Definite(avail), height: AvailableSpace::MaxContent }, None)
+            self.layout_with(
+                b,
+                Size {
+                    width: AvailableSpace::Definite(avail),
+                    height: AvailableSpace::MaxContent,
+                },
+                None,
+            )
         } else {
             natural
         };
@@ -434,18 +652,39 @@ impl<'a> Layout<'a> {
         let x = ox + l.location.x;
         let y = oy + l.location.y;
         let lb = &self.tree.boxes[b];
-        let mut frag = Frag { boxed: b, x, y, w: l.size.width, h: l.size.height, children: Vec::new(), lines: Vec::new(), atoms: Vec::new(), extent: (y, y + l.size.height) };
+        let mut frag = Frag {
+            boxed: b,
+            x,
+            y,
+            w: l.size.width,
+            h: l.size.height,
+            children: Vec::new(),
+            lines: Vec::new(),
+            atoms: Vec::new(),
+            extent: (y, y + l.size.height),
+        };
         match &lb.kind {
             Kind::Inline(ix) => {
                 let shaped = &self.tree.shaped[*ix];
                 let mut sizer = |bb: usize, a: f32| self.atom_size(bb, a);
-                let content_w = l.size.width - l.padding.left - l.padding.right - l.border.left - l.border.right;
+                let content_w = l.size.width
+                    - l.padding.left
+                    - l.padding.right
+                    - l.border.left
+                    - l.border.right;
                 frag.lines = shaped.lines(content_w.max(0.0) + 0.001, &mut sizer);
                 for line in &frag.lines {
                     for a in &line.atoms {
                         let s = &self.tree.boxes[a.boxed].style;
                         let ml = s.margin[3].or_zero(content_w);
-                        let mut af = self.layout_with(a.boxed, Size { width: AvailableSpace::Definite(a.width), height: AvailableSpace::MaxContent }, Some(a.width - ml - s.margin[1].or_zero(content_w)));
+                        let mut af = self.layout_with(
+                            a.boxed,
+                            Size {
+                                width: AvailableSpace::Definite(a.width),
+                                height: AvailableSpace::MaxContent,
+                            },
+                            Some(a.width - ml - s.margin[1].or_zero(content_w)),
+                        );
                         af.shift(x + a.x + ml, y + line.top + a.y);
                         frag.atoms.push(af);
                     }
@@ -459,7 +698,35 @@ impl<'a> Layout<'a> {
                     if self.tree.boxes[child_box].style.display == D::None {
                         continue;
                     }
-                    frag.children.push(self.collect(taffy, child_node, child_box, x, y));
+                    frag.children
+                        .push(self.collect(taffy, child_node, child_box, x, y));
+                }
+            }
+        }
+        // Right to left, a block's children and a column's sit against its
+        // right edge: taffy places them from the left, so they are mirrored
+        // in the content box. (A grid mirrors itself; a row was reversed.)
+        let s = &lb.style;
+        let column = matches!(s.display, D::Flex | D::InlineFlex)
+            && matches!(s.flex_direction, FD::Column | FD::ColumnReverse);
+        let block = matches!(s.display, D::Block | D::ListItem | D::InlineBlock)
+            || matches!(lb.kind, Kind::Cell { .. });
+        if s.direction == super::style::Direction::Rtl
+            && (block || column)
+            && !frag.children.is_empty()
+        {
+            let left = x + l.border.left + l.padding.left;
+            let width =
+                l.size.width - l.border.left - l.border.right - l.padding.left - l.padding.right;
+            for c in &mut frag.children {
+                let pos = self.tree.boxes[c.boxed].style.position;
+                if matches!(pos, P::Absolute | P::Fixed) {
+                    continue;
+                }
+                let mirrored = left + width - (c.x - left) - c.w;
+                let dx = mirrored - c.x;
+                if dx.abs() > 0.01 {
+                    c.shift(dx, 0.0);
                 }
             }
         }
@@ -486,7 +753,16 @@ mod tests {
 
     fn lay(html: &str, css: &str, width: f32) -> (Tree, Frag) {
         let dom = Dom::parse(html);
-        let styler = Styler::new(&Sheet::parse(UA_SHEET), &Sheet::parse(css), Units { em: 12.0, rem: 12.0, vw: width, vh: 800.0 });
+        let styler = Styler::new(
+            &Sheet::parse(UA_SHEET),
+            &Sheet::parse(css),
+            Units {
+                em: 12.0,
+                rem: 12.0,
+                vw: width,
+                vh: 800.0,
+            },
+        );
         let mut db = FontDb::new(false);
         let read = |_: &str| -> Option<Vec<u8>> { None };
         let tree = Builder::new(&dom, &styler, &mut db, &read).build(&S::root(12.0, "sans-serif"));
@@ -536,7 +812,12 @@ mod tests {
         let p = &f.children[0];
         let text = &p.children[0];
         assert!(text.lines.len() >= 3);
-        assert!((text.h - text.lines.len() as f32 * 18.0).abs() < 0.5, "{} lines, {}", text.lines.len(), text.h);
+        assert!(
+            (text.h - text.lines.len() as f32 * 18.0).abs() < 0.5,
+            "{} lines, {}",
+            text.lines.len(),
+            text.h
+        );
         assert!((p.h - text.h).abs() < 0.01);
     }
 

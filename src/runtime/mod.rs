@@ -106,7 +106,7 @@ pub const MODULES: &[Module] = &[
     module!("pages", exports: [same("page"), same("loadPage"), same("loadSheet")],
         deps: [], triggers: []),
     module!("host", exports: [same("attach")], deps: [], triggers: []),
-    module!("sanitize", exports: [same("sanitize")], deps: [], triggers: ["markup:"]),
+    module!("sanitize", exports: [same("sanitize")], deps: [], triggers: ["markup:", "html:"]),
     module!("keep", exports: [same("persist")], deps: [], triggers: []),
     module!("store", exports: [
         same("store"), same("dropRouteStores"), same("watchStores"), same("storeSnapshot"),

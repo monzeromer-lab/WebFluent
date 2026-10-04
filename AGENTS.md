@@ -2704,6 +2704,7 @@ paint alike.
 | `V08` | An icon the runtime does not draw |
 | `V09` | A handler for an event the element does not fire |
 | `V10` | A `Host(tag: …)` it does not make — it makes `div`, `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul`, `table`; any other is a `div` |
+| `V11` | A component named like a built-in (`Footer`, `Chart`): a call of that name draws the built-in, so the component is never drawn |
 
 The heading-outline rules (`A11`, `A12`) do not apply to `Presentation` or
 `Document` output, where an `h1` per slide or per section is correct.

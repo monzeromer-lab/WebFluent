@@ -762,6 +762,12 @@ pub static CODES: &[CodeInfo] = &[
         "A `Host` tag it does not make",
         "A `Host` is made of one of a few elements — `div`, `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul`, `table`; any other tag is a `div`.",
     ),
+    code(
+        "V11",
+        Warning,
+        "A component named like a built-in",
+        "A call of a built-in's name draws the built-in, so a component of that name is never drawn — the case of a component written before WebFluent gained an element of its name (`Footer`, `Chart`).",
+    ),
 ];
 
 /// The errors a project may lower with `lints`: each is a mistake, and none

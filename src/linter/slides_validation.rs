@@ -215,7 +215,7 @@ fn validate_inside_slide(
                         });
                         continue;
                     }
-                    if !drawn_in_pdf(&name) {
+                    if !drawn_in_pdf(name) {
                         errors.push(SlidesValidationError {
                             decl,
                             span: ui.span,

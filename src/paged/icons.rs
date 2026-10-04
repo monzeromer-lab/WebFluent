@@ -47,7 +47,10 @@ mod tests {
     fn every_icon_the_registry_names_is_drawn() {
         for name in crate::registry::ICONS {
             let markup = super::svg(name, "#000").unwrap_or_else(|| panic!("no icon {name}"));
-            assert!(usvg::Tree::from_str(&markup, &usvg::Options::default()).is_ok(), "{name}");
+            assert!(
+                usvg::Tree::from_str(&markup, &usvg::Options::default()).is_ok(),
+                "{name}"
+            );
         }
     }
 }

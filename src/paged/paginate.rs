@@ -30,11 +30,20 @@ struct State<'a> {
 }
 
 pub fn paginate(root: &mut Frag, tree: &Tree, page_height: f32) -> Pages {
-    let mut st = State { tree, h: page_height.max(10.0), off: 0.0, force: false, extra: Vec::new() };
+    let mut st = State {
+        tree,
+        h: page_height.max(10.0),
+        off: 0.0,
+        force: false,
+        extra: Vec::new(),
+    };
     st.process(root);
     let bottom = root.y + root.h;
     let count = ((bottom - EPS) / st.h).ceil().max(1.0) as usize;
-    Pages { count, extra: st.extra }
+    Pages {
+        count,
+        extra: st.extra,
+    }
 }
 
 impl State<'_> {
@@ -86,7 +95,9 @@ impl State<'_> {
             Kind::Table { .. } => true,
             // A box as tall as its content breaks between what it holds;
             // one given a height is a unit, unless it cannot fit a page.
-            Kind::Container => !f.children.is_empty() && (s.height == super::style::Length::Auto || tall),
+            Kind::Container => {
+                !f.children.is_empty() && (s.height == super::style::Length::Auto || tall)
+            }
             _ => false,
         }
     }
@@ -115,7 +126,12 @@ impl State<'_> {
             let before = self.off;
             f.y += self.off;
             // How far the first content sits below the box's top.
-            let gap = f.children.iter().map(|c| c.y + before).fold(f32::MAX, f32::min) - f.y;
+            let gap = f
+                .children
+                .iter()
+                .map(|c| c.y + before)
+                .fold(f32::MAX, f32::min)
+                - f.y;
             match &lb.kind {
                 Kind::Inline(_) => self.lines(f),
                 Kind::Table { header_rows, .. } => self.table(f, *header_rows),
@@ -147,7 +163,12 @@ impl State<'_> {
         let mut row_bottom = f32::MIN;
         let order: Vec<usize> = {
             let mut o: Vec<usize> = (0..f.children.len()).collect();
-            o.sort_by(|&a, &b| f.children[a].y.partial_cmp(&f.children[b].y).unwrap_or(std::cmp::Ordering::Equal));
+            o.sort_by(|&a, &b| {
+                f.children[a]
+                    .y
+                    .partial_cmp(&f.children[b].y)
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            });
             o
         };
         for i in order {
@@ -191,8 +212,14 @@ impl State<'_> {
                 }
                 continue;
             }
-            let top = row.iter().map(|&i| f.children[i].y).fold(f32::MAX, f32::min);
-            let bottom = row.iter().map(|&i| f.children[i].y + f.children[i].h).fold(f32::MIN, f32::max);
+            let top = row
+                .iter()
+                .map(|&i| f.children[i].y)
+                .fold(f32::MAX, f32::min);
+            let bottom = row
+                .iter()
+                .map(|&i| f.children[i].y + f.children[i].h)
+                .fold(f32::MIN, f32::max);
             let height = bottom - top;
             let any_breakable = row.iter().any(|&i| self.breakable(&f.children[i]));
             if height <= self.h || !any_breakable {
@@ -253,12 +280,15 @@ impl State<'_> {
             let top = f.y + f.lines[i].top;
             let height = f.lines[i].height;
             let page = self.page_top(top + EPS);
-            let straddles = top + height > page + self.h + EPS && height <= self.h && !self.at_top(top);
+            let straddles =
+                top + height > page + self.h + EPS && height <= self.h && !self.at_top(top);
             if !straddles {
                 i += 1;
                 continue;
             }
-            let on_page = (0..i).filter(|&j| f.y + f.lines[j].top >= page - EPS).count();
+            let on_page = (0..i)
+                .filter(|&j| f.y + f.lines[j].top >= page - EPS)
+                .count();
             let mut break_at = i;
             if on_page < orphans && on_page == i && !self.at_top(f.y) {
                 // Too few lines would stay behind: the paragraph moves whole.
@@ -303,21 +333,40 @@ impl State<'_> {
             Kind::Cell { row, .. } => row,
             _ => 0,
         };
-        let rows = f.children.iter().map(row_of).max().map(|r| r + 1).unwrap_or(0);
+        let rows = f
+            .children
+            .iter()
+            .map(row_of)
+            .max()
+            .map(|r| r + 1)
+            .unwrap_or(0);
         // The header as it stands, before anything moves.
-        let header: Vec<Frag> = f.children.iter().filter(|c| row_of(c) < header_rows).cloned().collect();
+        let header: Vec<Frag> = f
+            .children
+            .iter()
+            .filter(|c| row_of(c) < header_rows)
+            .cloned()
+            .collect();
         let header_top = header.iter().map(|c| c.y).fold(f32::MAX, f32::min);
         let header_h = header.iter().map(|c| c.y + c.h).fold(f32::MIN, f32::max) - header_top;
         for r in 0..rows {
-            let idx: Vec<usize> = (0..f.children.len()).filter(|&i| row_of(&f.children[i]) == r).collect();
+            let idx: Vec<usize> = (0..f.children.len())
+                .filter(|&i| row_of(&f.children[i]) == r)
+                .collect();
             if idx.is_empty() {
                 continue;
             }
             for &i in &idx {
                 f.children[i].shift(0.0, self.off);
             }
-            let top = idx.iter().map(|&i| f.children[i].y).fold(f32::MAX, f32::min);
-            let bottom = idx.iter().map(|&i| f.children[i].y + f.children[i].h).fold(f32::MIN, f32::max);
+            let top = idx
+                .iter()
+                .map(|&i| f.children[i].y)
+                .fold(f32::MAX, f32::min);
+            let bottom = idx
+                .iter()
+                .map(|&i| f.children[i].y + f.children[i].h)
+                .fold(f32::MIN, f32::max);
             let end = self.page_top(top + EPS) + self.h;
             let height = bottom - top;
             let repeat = header_rows > 0 && r >= header_rows && !header.is_empty();
@@ -353,10 +402,20 @@ mod tests {
 
     fn pages(html: &str, css: &str, page_h: f32) -> (Tree, Frag, Pages) {
         let dom = Dom::parse(html);
-        let styler = Styler::new(&Sheet::parse(UA_SHEET), &Sheet::parse(css), Units { em: 12.0, rem: 12.0, vw: 300.0, vh: page_h });
+        let styler = Styler::new(
+            &Sheet::parse(UA_SHEET),
+            &Sheet::parse(css),
+            Units {
+                em: 12.0,
+                rem: 12.0,
+                vw: 300.0,
+                vh: page_h,
+            },
+        );
         let mut db = FontDb::new(false);
         let read = |_: &str| -> Option<Vec<u8>> { None };
-        let tree = Builder::new(&dom, &styler, &mut db, &read).build(&Style::root(12.0, "sans-serif"));
+        let tree =
+            Builder::new(&dom, &styler, &mut db, &read).build(&Style::root(12.0, "sans-serif"));
         let mut frag = Layout::new(&tree, &db).layout(tree.flow, 300.0);
         let p = paginate(&mut frag, &tree, page_h);
         (tree, frag, p)
@@ -367,7 +426,11 @@ mod tests {
         for l in &f.lines {
             let top = f.y + l.top;
             let page_end = ((top + EPS) / h).floor() * h + h;
-            assert!(top + l.height <= page_end + EPS, "a line straddles a page: {top}..{} past {page_end}", top + l.height);
+            assert!(
+                top + l.height <= page_end + EPS,
+                "a line straddles a page: {top}..{} past {page_end}",
+                top + l.height
+            );
         }
         for c in &f.children {
             assert_no_straddle(c, h);
@@ -377,7 +440,11 @@ mod tests {
     #[test]
     fn paragraphs_break_between_lines() {
         let para = "word ".repeat(400);
-        let (_, f, p) = pages(&format!("<body><p>{para}</p></body>"), "p { margin: 0; line-height: 15pt }", 200.0);
+        let (_, f, p) = pages(
+            &format!("<body><p>{para}</p></body>"),
+            "p { margin: 0; line-height: 15pt }",
+            200.0,
+        );
         assert!(p.count >= 3, "{} pages", p.count);
         assert_no_straddle(&f, 200.0);
     }
@@ -398,7 +465,9 @@ mod tests {
     fn a_row_of_cards_moves_together() {
         let filler = "<p>x</p>".repeat(9);
         let (_, f, _) = pages(
-            &format!(r#"<body>{filler}<div class="row"><div class="c">A</div><div class="c">B</div></div></body>"#),
+            &format!(
+                r#"<body>{filler}<div class="row"><div class="c">A</div><div class="c">B</div></div></body>"#
+            ),
             "p { margin: 0; height: 20pt } .row { display: flex } .c { height: 40pt; flex: 1 }",
             200.0,
         );
@@ -410,9 +479,13 @@ mod tests {
 
     #[test]
     fn a_table_repeats_its_header_on_every_page() {
-        let rows: String = (0..40).map(|i| format!("<tr><td>{i}</td><td>row {i}</td></tr>")).collect();
+        let rows: String = (0..40)
+            .map(|i| format!("<tr><td>{i}</td><td>row {i}</td></tr>"))
+            .collect();
         let (_, f, p) = pages(
-            &format!("<body><table><thead><tr><th>#</th><th>Item</th></tr></thead><tbody>{rows}</tbody></table></body>"),
+            &format!(
+                "<body><table><thead><tr><th>#</th><th>Item</th></tr></thead><tbody>{rows}</tbody></table></body>"
+            ),
             "td, th { padding: 2pt; height: 20pt }",
             200.0,
         );

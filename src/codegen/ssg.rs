@@ -1090,6 +1090,39 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                 markup
             );
         }
+        // A chart or a QR code over values known at build time: its SVG,
+        // the same the live page inserts.
+        "Chart" | "QrCode" => {
+            let mut named = Vec::new();
+            let mut positional = None;
+            let mut all = true;
+            for arg in &ui.args {
+                match arg {
+                    Arg::Named(k, e) => match crate::codegen::static_eval::eval(e, &ctx.scope) {
+                        Some(v) => named.push((k.clone(), v.to_json())),
+                        None => all = false,
+                    },
+                    Arg::Positional(e) => match crate::codegen::static_eval::eval(e, &ctx.scope) {
+                        Some(v) => positional = Some(v.to_json()),
+                        None => all = false,
+                    },
+                }
+            }
+            let svg = if all {
+                crate::codegen::charts::graphic(name, positional.as_ref(), &named, &ui.modifiers)
+                    .unwrap_or_default()
+            } else {
+                String::new()
+            };
+            return format!(
+                "{}<figure class=\"{}\"{}{}>{}</figure>\n",
+                ctx.indent_str(),
+                class_str,
+                wf,
+                inline_style,
+                svg
+            );
+        }
         // Markdown known at build time is painted as HTML; the runtime
         // repaints it the same way.
         "Markdown" => {

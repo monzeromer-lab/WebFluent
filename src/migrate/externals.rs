@@ -116,10 +116,12 @@ fn string_of(t: &Token) -> Option<String> {
     }
 }
 
+/// A name: an identifier, or a word that has since become a built-in's
+/// (`external Chart` predates the `Chart` element).
 fn ident_of(t: &Token) -> Option<&str> {
     match &t.token_type {
         TokenType::Identifier(w) => Some(w.as_str()),
-        _ => None,
+        other => crate::lexer::token::component_name(other),
     }
 }
 

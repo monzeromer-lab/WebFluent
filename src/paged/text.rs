@@ -126,7 +126,10 @@ pub type AtomSizer<'a> = dyn FnMut(usize, f32) -> (f32, f32, f32) + 'a;
 // ─── Whitespace ─────────────────────────────────────────────────────
 
 fn collapses(ws: WhiteSpace) -> bool {
-    matches!(ws, WhiteSpace::Normal | WhiteSpace::NoWrap | WhiteSpace::PreLine)
+    matches!(
+        ws,
+        WhiteSpace::Normal | WhiteSpace::NoWrap | WhiteSpace::PreLine
+    )
 }
 
 fn transform(text: &str, t: TextTransform, at_word_start: &mut bool) -> String {
@@ -195,7 +198,11 @@ pub fn normalise(items: Vec<Item>) -> Vec<Item> {
                 }
                 let t = transform(&t, style.text_transform, &mut word_start);
                 if !t.is_empty() {
-                    out.push(Item::Text { text: t, style, span });
+                    out.push(Item::Text {
+                        text: t,
+                        style,
+                        span,
+                    });
                 }
             }
             Item::Atom { .. } => {
@@ -291,7 +298,9 @@ impl Shaped {
                     });
                     if ch == '\n' || is_default_ignorable(ch) || db.covers(primary.face, ch) {
                         Some(primary)
-                    } else if let Some(f) = other_family_covering(db, &style.font_family, primary, ch, style) {
+                    } else if let Some(f) =
+                        other_family_covering(db, &style.font_family, primary, ch, style)
+                    {
                         Some(f)
                     } else if let Some(f) = db.fallback(ch, style.font_weight, style.italic) {
                         Some(f)
@@ -356,7 +365,16 @@ impl Shaped {
                 }),
                 Item::Text { style, .. } => {
                     let pick = pick.expect("text has a face");
-                    shape_run(db, &text, start..end, pick, style, level, item, &mut clusters);
+                    shape_run(
+                        db,
+                        &text,
+                        start..end,
+                        pick,
+                        style,
+                        level,
+                        item,
+                        &mut clusters,
+                    );
                 }
             }
             i = j;
@@ -365,7 +383,9 @@ impl Shaped {
         // Break flags, and the metrics of the faces.
         for c in &mut clusters {
             c.break_after = allowed.get(c.range.end).copied().unwrap_or(false);
-            if mandatory.get(c.range.end).copied().unwrap_or(false) || text[c.range.clone()].ends_with('\n') {
+            if mandatory.get(c.range.end).copied().unwrap_or(false)
+                || text[c.range.clone()].ends_with('\n')
+            {
                 c.mandatory_after = true;
             }
             if let Some(p) = c.pick {
@@ -376,7 +396,12 @@ impl Shaped {
             }
         }
         // An atom may break on either side, as a word does.
-        let atom_positions: Vec<usize> = clusters.iter().enumerate().filter(|(_, c)| c.atom.is_some()).map(|(i, _)| i).collect();
+        let atom_positions: Vec<usize> = clusters
+            .iter()
+            .enumerate()
+            .filter(|(_, c)| c.atom.is_some())
+            .map(|(i, _)| i)
+            .collect();
         for i in atom_positions {
             clusters[i].break_after = true;
             if i > 0 {
@@ -412,7 +437,11 @@ impl Shaped {
         let mut best = 0.0f32;
         let mut cur = 0.0f32;
         for c in &self.clusters {
-            let w = if let Some(a) = c.atom { atoms(a, 0.0).0 } else { c.width };
+            let w = if let Some(a) = c.atom {
+                atoms(a, 0.0).0
+            } else {
+                c.width
+            };
             if !c.space {
                 cur += w;
             }
@@ -429,7 +458,11 @@ impl Shaped {
         let mut best = 0.0f32;
         let mut cur = 0.0f32;
         for c in &self.clusters {
-            cur += if let Some(a) = c.atom { atoms(a, f32::INFINITY).0 } else { c.width };
+            cur += if let Some(a) = c.atom {
+                atoms(a, f32::INFINITY).0
+            } else {
+                c.width
+            };
             if c.mandatory_after {
                 best = best.max(cur);
                 cur = 0.0;
@@ -444,7 +477,13 @@ impl Shaped {
         let widths: Vec<f32> = self
             .clusters
             .iter()
-            .map(|c| if let Some(a) = c.atom { atoms(a, width).0 } else { c.width })
+            .map(|c| {
+                if let Some(a) = c.atom {
+                    atoms(a, width).0
+                } else {
+                    c.width
+                }
+            })
             .collect();
         let mut ranges: Vec<(usize, usize)> = Vec::new();
         let mut start = 0;
@@ -524,7 +563,12 @@ impl Shaped {
     ) -> Line {
         // Trailing spaces hang outside the line.
         let mut content_end = b;
-        while content_end > a && (self.clusters[content_end - 1].space || self.clusters[content_end - 1].mandatory_after && self.clusters[content_end - 1].glyphs.is_empty() && self.clusters[content_end - 1].atom.is_none()) {
+        while content_end > a
+            && (self.clusters[content_end - 1].space
+                || self.clusters[content_end - 1].mandatory_after
+                    && self.clusters[content_end - 1].glyphs.is_empty()
+                    && self.clusters[content_end - 1].atom.is_none())
+        {
             content_end -= 1;
         }
         let logical: Vec<usize> = (a..content_end).collect();
@@ -533,7 +577,11 @@ impl Shaped {
         // Visual order: reverse every maximal run at or above each level,
         // from the highest down to the lowest odd one (UAX #9, L2).
         let mut order = logical.clone();
-        let max_level = order.iter().map(|&i| self.clusters[i].level).max().unwrap_or(0);
+        let max_level = order
+            .iter()
+            .map(|&i| self.clusters[i].level)
+            .max()
+            .unwrap_or(0);
         let min_odd = order
             .iter()
             .map(|&i| self.clusters[i].level)
@@ -573,14 +621,23 @@ impl Shaped {
             }
         };
         let free = (width - used).max(0.0);
-        let justify = self.block.text_align == TextAlign::Justify && !last && free > 0.0 && width.is_finite();
+        let justify =
+            self.block.text_align == TextAlign::Justify && !last && free > 0.0 && width.is_finite();
         let spaces = if justify {
             order.iter().filter(|&&i| self.clusters[i].space).count()
         } else {
             0
         };
-        let extra_per_space = if spaces > 0 { free / spaces as f32 } else { 0.0 };
-        let mut x = if justify && spaces > 0 || !width.is_finite() { 0.0 } else { free * align };
+        let extra_per_space = if spaces > 0 {
+            free / spaces as f32
+        } else {
+            0.0
+        };
+        let mut x = if justify && spaces > 0 || !width.is_finite() {
+            0.0
+        } else {
+            free * align
+        };
 
         // Vertical metrics: the strut, then every piece on the line.
         let strut_lh = self.block.line_height_pt();
@@ -623,7 +680,12 @@ impl Shaped {
                 let hl = (lh - (c.ascent + c.descent)) / 2.0;
                 above = above.max(c.ascent + hl + rise);
                 below = below.max(c.descent + hl - rise);
-                let same = runs.last().is_some_and(|r| r.pick == pick && r.item == c.item && (r.x + r.width - x).abs() < 0.01 && r.size == c.size);
+                let same = runs.last().is_some_and(|r| {
+                    r.pick == pick
+                        && r.item == c.item
+                        && (r.x + r.width - x).abs() < 0.01
+                        && r.size == c.size
+                });
                 if !same {
                     runs.push(Run {
                         pick,
@@ -646,10 +708,17 @@ impl Shaped {
                 run.glyphs.extend(glyphs);
                 run.width += w;
             }
-            if let Item::Text { span: Some(span), .. } = &self.items[c.item] {
+            if let Item::Text {
+                span: Some(span), ..
+            } = &self.items[c.item]
+            {
                 match spans.last_mut() {
                     Some(s) if s.span == *span && (s.x + s.width - x).abs() < 0.01 => s.width += w,
-                    _ => spans.push(SpanExtent { span: *span, x, width: w }),
+                    _ => spans.push(SpanExtent {
+                        span: *span,
+                        x,
+                        width: w,
+                    }),
                 }
             }
             x += w;
@@ -694,7 +763,13 @@ impl Shaped {
 }
 
 /// A later family in the list that has the character, at the style's weight.
-fn other_family_covering(db: &mut FontDb, families: &[String], primary: Pick, ch: char, style: &Style) -> Option<Pick> {
+fn other_family_covering(
+    db: &mut FontDb,
+    families: &[String],
+    primary: Pick,
+    ch: char,
+    style: &Style,
+) -> Option<Pick> {
     for (i, _) in families.iter().enumerate().skip(1) {
         let p = db.pick(&families[i..], style.font_weight, style.italic);
         if p.face != primary.face && db.covers(p.face, ch) {
@@ -764,9 +839,15 @@ fn shape_run(
     groups.sort_by_key(|(c, _)| *c);
     for (n, (cluster, mut glyphs)) in groups.iter().cloned().enumerate() {
         let start = range.start + cluster;
-        let end = groups.get(n + 1).map(|(c, _)| range.start + c).unwrap_or(range.end);
+        let end = groups
+            .get(n + 1)
+            .map(|(c, _)| range.start + c)
+            .unwrap_or(range.end);
         let piece = &text[start..end];
-        let space = piece.chars().all(|c| c == ' ' || c == '\u{a0}' || c == '\n') && !piece.is_empty();
+        let space = piece
+            .chars()
+            .all(|c| c == ' ' || c == '\u{a0}' || c == '\n')
+            && !piece.is_empty();
         let mut width: f32 = glyphs.iter().map(|g| g.advance).sum();
         let chars = piece.chars().count() as f32;
         width += style.letter_spacing * chars;
@@ -775,7 +856,8 @@ fn shape_run(
         }
         // The glyphs carry the spacing, so what is drawn is what is measured.
         if let Some(g) = glyphs.last_mut() {
-            g.advance += style.letter_spacing * chars + if space { style.word_spacing } else { 0.0 };
+            g.advance +=
+                style.letter_spacing * chars + if space { style.word_spacing } else { 0.0 };
         }
         for g in &mut glyphs {
             g.range = start..end;
@@ -807,7 +889,11 @@ mod tests {
     }
 
     fn text(t: &str) -> Item {
-        Item::Text { text: t.to_string(), style: style(), span: None }
+        Item::Text {
+            text: t.to_string(),
+            style: style(),
+            span: None,
+        }
     }
 
     fn no_atoms() -> impl FnMut(usize, f32) -> (f32, f32, f32) {
@@ -836,17 +922,24 @@ mod tests {
     #[test]
     fn whitespace_collapses_across_items() {
         let items = normalise(vec![text("  Hello   "), text("  world \n"), text("!")]);
-        let joined: Vec<String> = items.iter().map(|i| match i {
-            Item::Text { text, .. } => text.clone(),
-            _ => String::new(),
-        }).collect();
+        let joined: Vec<String> = items
+            .iter()
+            .map(|i| match i {
+                Item::Text { text, .. } => text.clone(),
+                _ => String::new(),
+            })
+            .collect();
         assert_eq!(joined.concat(), "Hello world !");
     }
 
     #[test]
     fn breaks_at_spaces_and_measures_what_it_draws() {
         let mut db = FontDb::new(false);
-        let s = Shaped::new(vec![text("The quick brown fox jumps over the lazy dog")], style(), &mut db);
+        let s = Shaped::new(
+            vec![text("The quick brown fox jumps over the lazy dog")],
+            style(),
+            &mut db,
+        );
         let mut atoms = no_atoms();
         let one = s.lines(10_000.0, &mut atoms);
         assert_eq!(one.len(), 1);
@@ -867,11 +960,21 @@ mod tests {
     #[test]
     fn a_word_too_long_for_the_line_is_cut_not_overflowed() {
         let mut db = FontDb::new(false);
-        let s = Shaped::new(vec![text("https://example.com/a/very/long/path/that/never/breaks")], style(), &mut db);
+        let s = Shaped::new(
+            vec![text(
+                "https://example.com/a/very/long/path/that/never/breaks",
+            )],
+            style(),
+            &mut db,
+        );
         let mut atoms = no_atoms();
         let lines = s.lines(80.0, &mut atoms);
         assert!(lines.len() > 2);
-        assert!(lines.iter().all(|l| l.width <= 80.01), "{:?}", lines.iter().map(|l| l.width).collect::<Vec<_>>());
+        assert!(
+            lines.iter().all(|l| l.width <= 80.01),
+            "{:?}",
+            lines.iter().map(|l| l.width).collect::<Vec<_>>()
+        );
     }
 
     #[test]
@@ -884,7 +987,11 @@ mod tests {
         let l = &s.lines(200.0, &mut atoms)[0];
         assert!((l.runs[0].x + l.width - 200.0).abs() < 0.5);
         st.text_align = TextAlign::Justify;
-        let s = Shaped::new(vec![text("aa bb cc dd ee ff gg hh ii jj kk ll mm nn")], Rc::new(st), &mut db);
+        let s = Shaped::new(
+            vec![text("aa bb cc dd ee ff gg hh ii jj kk ll mm nn")],
+            Rc::new(st),
+            &mut db,
+        );
         let lines = s.lines(100.0, &mut atoms);
         // Every line but the last fills the width.
         let first = &lines[0];
@@ -899,7 +1006,10 @@ mod tests {
             text("one"),
             Item::Break { style: style() },
             text("two "),
-            Item::Atom { boxed: 7, style: style() },
+            Item::Atom {
+                boxed: 7,
+                style: style(),
+            },
             text(" three"),
         ];
         let s = Shaped::new(items, style(), &mut db);

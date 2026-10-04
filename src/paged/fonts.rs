@@ -73,18 +73,78 @@ macro_rules! bundled {
 
 /// The bundled faces: (family, weight, italic, compressed bytes).
 static BUNDLED: &[(&str, u16, bool, &[u8])] = &[
-    ("Liberation Sans", 400, false, bundled!("LiberationSans-Regular")),
-    ("Liberation Sans", 700, false, bundled!("LiberationSans-Bold")),
-    ("Liberation Sans", 400, true, bundled!("LiberationSans-Italic")),
-    ("Liberation Sans", 700, true, bundled!("LiberationSans-BoldItalic")),
-    ("Liberation Serif", 400, false, bundled!("LiberationSerif-Regular")),
-    ("Liberation Serif", 700, false, bundled!("LiberationSerif-Bold")),
-    ("Liberation Serif", 400, true, bundled!("LiberationSerif-Italic")),
-    ("Liberation Serif", 700, true, bundled!("LiberationSerif-BoldItalic")),
-    ("Liberation Mono", 400, false, bundled!("LiberationMono-Regular")),
-    ("Liberation Mono", 700, false, bundled!("LiberationMono-Bold")),
-    ("Liberation Mono", 400, true, bundled!("LiberationMono-Italic")),
-    ("Liberation Mono", 700, true, bundled!("LiberationMono-BoldItalic")),
+    (
+        "Liberation Sans",
+        400,
+        false,
+        bundled!("LiberationSans-Regular"),
+    ),
+    (
+        "Liberation Sans",
+        700,
+        false,
+        bundled!("LiberationSans-Bold"),
+    ),
+    (
+        "Liberation Sans",
+        400,
+        true,
+        bundled!("LiberationSans-Italic"),
+    ),
+    (
+        "Liberation Sans",
+        700,
+        true,
+        bundled!("LiberationSans-BoldItalic"),
+    ),
+    (
+        "Liberation Serif",
+        400,
+        false,
+        bundled!("LiberationSerif-Regular"),
+    ),
+    (
+        "Liberation Serif",
+        700,
+        false,
+        bundled!("LiberationSerif-Bold"),
+    ),
+    (
+        "Liberation Serif",
+        400,
+        true,
+        bundled!("LiberationSerif-Italic"),
+    ),
+    (
+        "Liberation Serif",
+        700,
+        true,
+        bundled!("LiberationSerif-BoldItalic"),
+    ),
+    (
+        "Liberation Mono",
+        400,
+        false,
+        bundled!("LiberationMono-Regular"),
+    ),
+    (
+        "Liberation Mono",
+        700,
+        false,
+        bundled!("LiberationMono-Bold"),
+    ),
+    (
+        "Liberation Mono",
+        400,
+        true,
+        bundled!("LiberationMono-Italic"),
+    ),
+    (
+        "Liberation Mono",
+        700,
+        true,
+        bundled!("LiberationMono-BoldItalic"),
+    ),
 ];
 
 /// The bundled faces, inflated once per process.
@@ -127,8 +187,10 @@ pub fn svg_fontdb() -> Arc<fontdb::Database> {
 pub fn alias(family: &str) -> Option<&'static str> {
     Some(match family.to_ascii_lowercase().as_str() {
         "sans-serif" | "system-ui" | "-apple-system" | "blinkmacsystemfont" | "segoe ui"
-        | "roboto" | "helvetica" | "helvetica neue" | "arial" | "ui-sans-serif" | "liberation sans"
-        | "arimo" | "noto sans" | "ubuntu" | "cantarell" | "open sans" => "Liberation Sans",
+        | "roboto" | "helvetica" | "helvetica neue" | "arial" | "ui-sans-serif"
+        | "liberation sans" | "arimo" | "noto sans" | "ubuntu" | "cantarell" | "open sans" => {
+            "Liberation Sans"
+        }
         "serif" | "times" | "times new roman" | "ui-serif" | "liberation serif" | "tinos"
         | "georgia" => "Liberation Serif",
         "monospace" | "ui-monospace" | "sfmono-regular" | "sf mono" | "menlo" | "consolas"
@@ -217,12 +279,18 @@ impl FontDb {
         let count = ttf_parser::fonts_in_collection(&data).unwrap_or(1);
         let mut added = 0;
         for index in 0..count {
-            if let Some(mut face) = read_face(data.clone(), index, Source::Project(path.to_path_buf())) {
+            if let Some(mut face) =
+                read_face(data.clone(), index, Source::Project(path.to_path_buf()))
+            {
                 if let Some(f) = family {
                     face.family = f.to_string();
                 }
                 // A family registered twice from the same file is one face.
-                if self.faces.iter().any(|f| f.source == face.source && f.index == index && f.family == face.family) {
+                if self
+                    .faces
+                    .iter()
+                    .any(|f| f.source == face.source && f.index == index && f.family == face.family)
+                {
                     continue;
                 }
                 self.add(face);
@@ -258,7 +326,8 @@ impl FontDb {
         for face in db.faces() {
             if let fontdb::Source::File(path) = &face.source {
                 for (family, _) in &face.families {
-                    self.system_paths.push((family.to_ascii_lowercase(), path.clone(), face.index));
+                    self.system_paths
+                        .push((family.to_ascii_lowercase(), path.clone(), face.index));
                 }
             }
         }
@@ -276,18 +345,29 @@ impl FontDb {
             .collect();
         let mut out = Vec::new();
         for (path, index) in paths {
-            if let Some(existing) = self.faces.iter().position(|f| f.source == Source::System(path.clone()) && f.index == index) {
+            if let Some(existing) = self
+                .faces
+                .iter()
+                .position(|f| f.source == Source::System(path.clone()) && f.index == index)
+            {
                 out.push(existing);
                 continue;
             }
-            let Ok(bytes) = std::fs::read(&path) else { continue };
+            let Ok(bytes) = std::fs::read(&path) else {
+                continue;
+            };
             if let Some(face) = read_face(Arc::new(bytes), index, Source::System(path.clone())) {
                 let mut face = face;
                 face.family = family.to_string();
                 out.push(self.add(face));
             }
         }
-        if !out.is_empty() && !self.system_used.iter().any(|f| f.eq_ignore_ascii_case(family)) {
+        if !out.is_empty()
+            && !self
+                .system_used
+                .iter()
+                .any(|f| f.eq_ignore_ascii_case(family))
+        {
             self.system_used.push(family.to_string());
         }
         out
@@ -320,8 +400,16 @@ impl FontDb {
     }
 
     fn best_of(&self, candidates: &[usize], weight: u16, italic: bool) -> Pick {
-        let slanted: Vec<usize> = candidates.iter().copied().filter(|&c| self.faces[c].italic == italic).collect();
-        let pool = if slanted.is_empty() { candidates.to_vec() } else { slanted.clone() };
+        let slanted: Vec<usize> = candidates
+            .iter()
+            .copied()
+            .filter(|&c| self.faces[c].italic == italic)
+            .collect();
+        let pool = if slanted.is_empty() {
+            candidates.to_vec()
+        } else {
+            slanted.clone()
+        };
         let distance = |c: usize| -> i32 {
             let (lo, hi) = self.faces[c].weights;
             let w = weight as i32;
@@ -335,7 +423,11 @@ impl FontDb {
                 (w - hi as i32) * if weight >= 500 { 2 } else { 1 }
             }
         };
-        let face = pool.iter().copied().min_by_key(|&c| distance(c)).unwrap_or(0);
+        let face = pool
+            .iter()
+            .copied()
+            .min_by_key(|&c| distance(c))
+            .unwrap_or(0);
         let f = &self.faces[face];
         let drawn = weight.clamp(f.weights.0, f.weights.1);
         Pick {
@@ -366,9 +458,24 @@ impl FontDb {
             }
         }?;
         let family = self.faces[face].family.to_ascii_lowercase();
-        let siblings = self.by_family.get(&family).cloned().unwrap_or_else(|| vec![face]);
-        let covering: Vec<usize> = siblings.into_iter().filter(|&s| self.covers(s, ch)).collect();
-        Some(self.best_of(if covering.is_empty() { std::slice::from_ref(&face) } else { &covering }, weight, italic))
+        let siblings = self
+            .by_family
+            .get(&family)
+            .cloned()
+            .unwrap_or_else(|| vec![face]);
+        let covering: Vec<usize> = siblings
+            .into_iter()
+            .filter(|&s| self.covers(s, ch))
+            .collect();
+        Some(self.best_of(
+            if covering.is_empty() {
+                std::slice::from_ref(&face)
+            } else {
+                &covering
+            },
+            weight,
+            italic,
+        ))
     }
 
     fn find_covering(&mut self, ch: char) -> Option<usize> {
@@ -387,8 +494,12 @@ impl FontDb {
             if tried.contains(&family) {
                 continue;
             }
-            let Ok(bytes) = std::fs::read(&path) else { continue };
-            let Ok(ttf) = TtfFace::parse(&bytes, index) else { continue };
+            let Ok(bytes) = std::fs::read(&path) else {
+                continue;
+            };
+            let Ok(ttf) = TtfFace::parse(&bytes, index) else {
+                continue;
+            };
             if ttf.glyph_index(ch).is_none() {
                 continue;
             }
@@ -396,7 +507,10 @@ impl FontDb {
             let name = ttf
                 .names()
                 .into_iter()
-                .filter(|n| (n.name_id == name_id::TYPOGRAPHIC_FAMILY || n.name_id == name_id::FAMILY) && n.is_unicode())
+                .filter(|n| {
+                    (n.name_id == name_id::TYPOGRAPHIC_FAMILY || n.name_id == name_id::FAMILY)
+                        && n.is_unicode()
+                })
                 .find_map(|n| n.to_string())
                 .unwrap_or(family.clone());
             let faces = self.system_family(&name);
@@ -417,9 +531,15 @@ fn fallback_rank(family: &str) -> u32 {
     let f = family.to_ascii_lowercase();
     let mut rank = if f.starts_with("noto sans") {
         0
-    } else if f.starts_with("noto naskh") || f.starts_with("noto serif") || f.starts_with("noto kufi") {
+    } else if f.starts_with("noto naskh")
+        || f.starts_with("noto serif")
+        || f.starts_with("noto kufi")
+    {
         2
-    } else if f.starts_with("dejavu sans") || f.starts_with("freesans") || f.starts_with("liberation") {
+    } else if f.starts_with("dejavu sans")
+        || f.starts_with("freesans")
+        || f.starts_with("liberation")
+    {
         3
     } else {
         5
@@ -446,7 +566,10 @@ fn fallback_rank(family: &str) -> u32 {
 
 pub fn is_font_file(path: &Path) -> bool {
     matches!(
-        path.extension().and_then(|e| e.to_str()).map(|e| e.to_ascii_lowercase()).as_deref(),
+        path.extension()
+            .and_then(|e| e.to_str())
+            .map(|e| e.to_ascii_lowercase())
+            .as_deref(),
         Some("ttf" | "otf" | "ttc" | "otc")
     )
 }

@@ -81,7 +81,10 @@ impl Dom {
             let opens = rest.starts_with("<!")
                 || rest.starts_with("<?")
                 || rest.starts_with("</")
-                || rest.as_bytes().get(1).is_some_and(|c| c.is_ascii_alphabetic());
+                || rest
+                    .as_bytes()
+                    .get(1)
+                    .is_some_and(|c| c.is_ascii_alphabetic());
             if !opens {
                 i += 1;
                 continue;
@@ -110,7 +113,10 @@ impl Dom {
                 let end = rest.find('>').map(|e| i + e + 1).unwrap_or(bytes.len());
                 // Close the nearest open element of that name, and whatever
                 // was left open inside it; an end tag nothing opened is noise.
-                if let Some(pos) = stack.iter().rposition(|&n| dom.tag(n) == Some(name.as_str())) {
+                if let Some(pos) = stack
+                    .iter()
+                    .rposition(|&n| dom.tag(n) == Some(name.as_str()))
+                {
                     stack.truncate(pos.max(1));
                 }
                 i = end;
@@ -139,7 +145,10 @@ impl Dom {
                     let text = html[i..end].to_string();
                     dom.push(id, NodeKind::Text(text));
                 }
-                i = html[end..].find('>').map(|e| end + e + 1).unwrap_or(bytes.len());
+                i = html[end..]
+                    .find('>')
+                    .map(|e| end + e + 1)
+                    .unwrap_or(bytes.len());
                 text_start = i;
             } else if !self_closing && !VOID.contains(&tag.as_str()) {
                 stack.push(id);
@@ -170,8 +179,19 @@ impl Dom {
     }
 
     /// Append an element to a node; its id.
-    pub fn append_element(&mut self, parent: usize, tag: &str, attrs: Vec<(String, String)>) -> usize {
-        self.push(parent, NodeKind::Element(Element { tag: tag.to_string(), attrs }))
+    pub fn append_element(
+        &mut self,
+        parent: usize,
+        tag: &str,
+        attrs: Vec<(String, String)>,
+    ) -> usize {
+        self.push(
+            parent,
+            NodeKind::Element(Element {
+                tag: tag.to_string(),
+                attrs,
+            }),
+        )
     }
 
     /// Append a run of text to a node.
@@ -533,9 +553,8 @@ mod tests {
 
     #[test]
     fn keeps_an_svg_as_written() {
-        let dom = Dom::parse(
-            r#"<svg viewBox="0 0 24 24"><path d="M3 12h18" stroke-width="2"/></svg>"#,
-        );
+        let dom =
+            Dom::parse(r#"<svg viewBox="0 0 24 24"><path d="M3 12h18" stroke-width="2"/></svg>"#);
         let svg = dom.find_tag("svg").unwrap();
         assert_eq!(dom.element(svg).unwrap().attr("viewBox"), Some("0 0 24 24"));
         assert_eq!(
@@ -554,6 +573,9 @@ mod tests {
 
     #[test]
     fn decodes_entities() {
-        assert_eq!(decode_entities("a&nbsp;b &#8212; &#x41;&copy; &bogus; &"), "a\u{a0}b — A© &bogus; &");
+        assert_eq!(
+            decode_entities("a&nbsp;b &#8212; &#x41;&copy; &bogus; &"),
+            "a\u{a0}b — A© &bogus; &"
+        );
     }
 }

@@ -78,8 +78,16 @@ pub fn paper_size(name: &str) -> Option<(f32, f32)> {
     if named.is_some() {
         return named;
     }
-    let units = Units { em: 12.0, rem: 12.0, vw: 0.0, vh: 0.0 };
-    let parts: Vec<&str> = n.split(|c: char| c == 'x' || c == '×' || c.is_whitespace()).filter(|p| !p.is_empty()).collect();
+    let units = Units {
+        em: 12.0,
+        rem: 12.0,
+        vw: 0.0,
+        vh: 0.0,
+    };
+    let parts: Vec<&str> = n
+        .split(|c: char| c == 'x' || c == '×' || c.is_whitespace())
+        .filter(|p| !p.is_empty())
+        .collect();
     if let [w, h] = parts.as_slice() {
         let w = style::length_pt(w, &units)?;
         let h = style::length_pt(h, &units)?;
@@ -105,6 +113,8 @@ pub struct Options<'a> {
 pub struct Output {
     pub bytes: Vec<u8>,
     pub pages: usize,
+    /// The text each page draws, a line at a time in reading order.
+    pub text: Vec<Vec<String>>,
     /// What the reader of the build should know: characters no font had, a
     /// family taken from this machine.
     pub notes: Vec<String>,
@@ -130,7 +140,9 @@ fn sheets(dom: &Dom, extra: &str) -> Sheet {
 fn root_style(opts: &Options) -> Style {
     let family = match opts.font_family.as_str() {
         "" => "sans-serif".to_string(),
-        f => fonts::alias(f).map(|a| a.to_string()).unwrap_or_else(|| f.to_string()),
+        f => fonts::alias(f)
+            .map(|a| a.to_string())
+            .unwrap_or_else(|| f.to_string()),
     };
     Style::root(opts.font_size, &family)
 }
@@ -142,7 +154,11 @@ fn document_paper(dom: &Dom, doc: Option<usize>, base: Paper) -> Paper {
         return base;
     };
     let mut paper = base;
-    if let Some((w, h)) = el.attr("data-size").or_else(|| el.attr("data-page-size")).and_then(paper_size) {
+    if let Some((w, h)) = el
+        .attr("data-size")
+        .or_else(|| el.attr("data-page-size"))
+        .and_then(paper_size)
+    {
         paper.width = w;
         paper.height = h;
     }
@@ -150,8 +166,16 @@ fn document_paper(dom: &Dom, doc: Option<usize>, base: Paper) -> Paper {
         std::mem::swap(&mut paper.width, &mut paper.height);
     }
     if let Some(m) = el.attr("data-margin") {
-        let units = Units { em: 12.0, rem: 12.0, vw: paper.width, vh: paper.height };
-        let v: Vec<f32> = m.split_whitespace().filter_map(|p| style::length_pt(p, &units)).collect();
+        let units = Units {
+            em: 12.0,
+            rem: 12.0,
+            vw: paper.width,
+            vh: paper.height,
+        };
+        let v: Vec<f32> = m
+            .split_whitespace()
+            .filter_map(|p| style::length_pt(p, &units))
+            .collect();
         if let Some(f) = style::four(&v) {
             paper.margin = f;
         }
@@ -161,9 +185,17 @@ fn document_paper(dom: &Dom, doc: Option<usize>, base: Paper) -> Paper {
 
 fn metadata(dom: &Dom, doc: Option<usize>) -> krilla::metadata::Metadata {
     let el = doc.and_then(|d| dom.element(d));
-    let get = |name: &str| el.and_then(|e| e.attr(name)).map(|s| s.to_string()).filter(|s| !s.is_empty());
+    let get = |name: &str| {
+        el.and_then(|e| e.attr(name))
+            .map(|s| s.to_string())
+            .filter(|s| !s.is_empty())
+    };
     let mut m = krilla::metadata::Metadata::new().creator("WebFluent".to_string());
-    let title = get("data-title").or_else(|| dom.find_tag("title").map(|t| dom.text_content(t).trim().to_string()).filter(|t| !t.is_empty()));
+    let title = get("data-title").or_else(|| {
+        dom.find_tag("title")
+            .map(|t| dom.text_content(t).trim().to_string())
+            .filter(|t| !t.is_empty())
+    });
     if let Some(t) = title {
         m = m.title(t);
     }
@@ -176,7 +208,12 @@ fn metadata(dom: &Dom, doc: Option<usize>) -> krilla::metadata::Metadata {
     if let Some(k) = get("data-keywords") {
         m = m.keywords(k.split(',').map(|s| s.trim().to_string()).collect());
     }
-    let lang = get("data-lang").or_else(|| dom.find_tag("html").and_then(|h| dom.element(h)).and_then(|e| e.attr("lang")).map(|s| s.to_string()));
+    let lang = get("data-lang").or_else(|| {
+        dom.find_tag("html")
+            .and_then(|h| dom.element(h))
+            .and_then(|e| e.attr("lang"))
+            .map(|s| s.to_string())
+    });
     if let Some(l) = lang {
         m = m.language(l);
     }
@@ -206,26 +243,59 @@ pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
         let mut found = false;
         for src in &face.sources {
             if let Some(bytes) = (opts.assets)(src) {
-                let tmp = std::env::temp_dir().join(format!("wf-font-{}-{}", std::process::id(), face.family.replace(' ', "_")));
-                if std::fs::write(&tmp, &bytes).is_ok() && db.add_file(&tmp, Some(&face.family)) > 0 {
+                let tmp = std::env::temp_dir().join(format!(
+                    "wf-font-{}-{}",
+                    std::process::id(),
+                    face.family.replace(' ', "_")
+                ));
+                if std::fs::write(&tmp, &bytes).is_ok() && db.add_file(&tmp, Some(&face.family)) > 0
+                {
                     found = true;
                     break;
                 }
             }
         }
         if !found && !face.sources.is_empty() {
-            font_notes.push(format!("the font `{}` could not be read from {}", face.family, face.sources.join(", ")));
+            font_notes.push(format!(
+                "the font `{}` could not be read from {}",
+                face.family,
+                face.sources.join(", ")
+            ));
         }
     }
 
     let ua = Sheet::parse(UA_SHEET);
     let base = root_style(opts);
     // `rem` is the root element's font size: work it out, then style for real.
-    let first = Styler::new(&ua, &author, Units { em: opts.font_size, rem: opts.font_size, vw: opts.paper.width, vh: opts.paper.height });
-    let rem = dom.find_tag("html").map(|h| first.compute(&dom, h, &base).font_size).unwrap_or(opts.font_size);
-    let doc = dom.descendants(0).into_iter().find(|&n| dom.element(n).is_some_and(|e| e.has_class("wf-document")));
+    let first = Styler::new(
+        &ua,
+        &author,
+        Units {
+            em: opts.font_size,
+            rem: opts.font_size,
+            vw: opts.paper.width,
+            vh: opts.paper.height,
+        },
+    );
+    let rem = dom
+        .find_tag("html")
+        .map(|h| first.compute(&dom, h, &base).font_size)
+        .unwrap_or(opts.font_size);
+    let doc = dom
+        .descendants(0)
+        .into_iter()
+        .find(|&n| dom.element(n).is_some_and(|e| e.has_class("wf-document")));
     let paper = document_paper(&dom, doc, opts.paper);
-    let styler = Styler::new(&ua, &author, Units { em: rem, rem, vw: paper.width, vh: paper.height });
+    let styler = Styler::new(
+        &ua,
+        &author,
+        Units {
+            em: rem,
+            rem,
+            vw: paper.width,
+            vh: paper.height,
+        },
+    );
     let (cw, ch) = (paper.content_width(), paper.content_height());
 
     // A table of contents: entries with a placeholder for each page, laid
@@ -283,7 +353,8 @@ pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
                 if !on.applies(page) {
                     continue;
                 }
-                let rt = Builder::new(&dom, &styler, &mut db, opts.assets).build_running(*node, page, count);
+                let rt = Builder::new(&dom, &styler, &mut db, opts.assets)
+                    .build_running(*node, page, count);
                 let mut frag = {
                     let layout = Layout::new(&rt, &db);
                     match kind {
@@ -297,11 +368,20 @@ pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
                     0 => (0.0, 0.0),
                     1 => ((paper.width - frag.w) / 2.0, (paper.height - frag.h) / 2.0),
                     2 => (paper.margin[3], ((paper.margin[0] - frag.h) / 2.0).max(0.0)),
-                    _ => (paper.margin[3], paper.height - paper.margin[2] + ((paper.margin[2] - frag.h) / 2.0).max(0.0)),
+                    _ => (
+                        paper.margin[3],
+                        paper.height - paper.margin[2]
+                            + ((paper.margin[2] - frag.h) / 2.0).max(0.0),
+                    ),
                 };
                 frag.shift(x - frag.x, y - frag.y);
                 frag.measure_extent();
-                running.push(RunningFrag { page, kind, tree: rt, frag });
+                running.push(RunningFrag {
+                    page,
+                    kind,
+                    tree: rt,
+                    frag,
+                });
             }
         }
     }
@@ -309,7 +389,9 @@ pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
     // The canvas: the root's or the body's background fills every page —
     // and the body's box does not paint it again over a page's background.
     let canvas = {
-        let html_bg = dom.find_tag("html").map(|h| styler.compute(&dom, h, &base).background_color);
+        let html_bg = dom
+            .find_tag("html")
+            .map(|h| styler.compute(&dom, h, &base).background_color);
         let body_bg = tree.boxes[tree.flow].style.background_color;
         html_bg.filter(|c| c.is_visible()).unwrap_or(body_bg)
     };
@@ -325,8 +407,11 @@ pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
     let mut box_pos = std::collections::HashMap::new();
     positions(&flow, &mut box_pos);
     let mut painter = Painter::new(&tree, &db);
+    let mut page_text: Vec<Vec<String>> = Vec::new();
     for page_ix in 0..count {
-        let settings = PageSettings::from_wh(paper.width, paper.height).ok_or("a page with no size")?;
+        painter.text.clear();
+        let settings =
+            PageSettings::from_wh(paper.width, paper.height).ok_or("a page with no size")?;
         let mut page = document.start_page_with(settings);
         let mut links = Vec::new();
         {
@@ -334,20 +419,40 @@ pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
             if canvas.is_visible() {
                 if let Some(p) = paint::rounded(0.0, 0.0, paper.width, paper.height, [0.0; 4]) {
                     s.set_stroke(None);
-                    s.set_fill(Some(krilla::paint::Fill { paint: krilla::color::rgb::Color::new((canvas.r * 255.0) as u8, (canvas.g * 255.0) as u8, (canvas.b * 255.0) as u8).into(), opacity: krilla::num::NormalizedF32::ONE, rule: Default::default() }));
+                    s.set_fill(Some(krilla::paint::Fill {
+                        paint: krilla::color::rgb::Color::new(
+                            (canvas.r * 255.0) as u8,
+                            (canvas.g * 255.0) as u8,
+                            (canvas.b * 255.0) as u8,
+                        )
+                        .into(),
+                        opacity: krilla::num::NormalizedF32::ONE,
+                        rule: Default::default(),
+                    }));
                     s.draw_path(&p);
                 }
             }
             // Backgrounds and watermarks, behind the content.
-            for r in running.iter().filter(|r| r.page == page_ix + 1 && r.kind <= 1) {
+            for r in running
+                .iter()
+                .filter(|r| r.page == page_ix + 1 && r.kind <= 1)
+            {
                 painter.tree = &r.tree;
                 painter.band = (f32::MIN, f32::MAX);
                 painter.dx = 0.0;
                 painter.dy = 0.0;
                 if r.kind == 1 {
                     let style = &r.tree.boxes[r.tree.flow].style;
-                    let angle = if style.rotate.abs() > 0.01 { 0.0 } else { -45.0 };
-                    s.push_transform(&Transform::from_rotate_at(angle, paper.width / 2.0, paper.height / 2.0));
+                    let angle = if style.rotate.abs() > 0.01 {
+                        0.0
+                    } else {
+                        -45.0
+                    };
+                    s.push_transform(&Transform::from_rotate_at(
+                        angle,
+                        paper.width / 2.0,
+                        paper.height / 2.0,
+                    ));
                     painter.frag(&mut s, &r.frag);
                     s.pop();
                 } else {
@@ -363,7 +468,10 @@ pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
             painter.dy = paper.margin[0] - top;
             if let Some(clip) = paint::rounded(0.0, paper.margin[0], paper.width, ch, [0.0; 4]) {
                 s.push_clip_path(&clip, &krilla::paint::FillRule::NonZero);
-                s.push_transform(&Transform::from_translate(paper.margin[3], paper.margin[0] - top));
+                s.push_transform(&Transform::from_translate(
+                    paper.margin[3],
+                    paper.margin[0] - top,
+                ));
                 painter.frag(&mut s, &flow);
                 for e in extra.iter().filter(|e| e.y >= top - 0.5 && e.y < top + ch) {
                     painter.frag(&mut s, e);
@@ -373,7 +481,10 @@ pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
             }
             links.append(&mut painter.links);
             // Headers and footers, in the margins.
-            for r in running.iter().filter(|r| r.page == page_ix + 1 && r.kind >= 2) {
+            for r in running
+                .iter()
+                .filter(|r| r.page == page_ix + 1 && r.kind >= 2)
+            {
                 painter.tree = &r.tree;
                 painter.band = (f32::MIN, f32::MAX);
                 painter.dx = 0.0;
@@ -383,9 +494,12 @@ pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
             }
             s.finish();
         }
+        page_text.push(std::mem::take(&mut painter.text));
         for l in links {
             let (x, y, w, h) = l.rect;
-            let Some(rect) = Rect::from_xywh(x, y, w.max(1.0), h.max(1.0)) else { continue };
+            let Some(rect) = Rect::from_xywh(x, y, w.max(1.0), h.max(1.0)) else {
+                continue;
+            };
             let target = if let Some(id) = l.href.strip_prefix('#') {
                 // A link within the document: the page and place of the
                 // element with that id.
@@ -397,14 +511,21 @@ pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
                     .and_then(|b| box_pos.get(&b).copied());
                 let Some((bx, by)) = found else { continue };
                 let p = ((by / ch).floor() as usize).min(count - 1);
-                krilla::annotation::Target::Destination(krilla::destination::Destination::Xyz(krilla::destination::XyzDestination::new(
-                    p,
-                    Point::from_xy(bx + paper.margin[3], by - p as f32 * ch + paper.margin[0]),
-                )))
+                krilla::annotation::Target::Destination(krilla::destination::Destination::Xyz(
+                    krilla::destination::XyzDestination::new(
+                        p,
+                        Point::from_xy(bx + paper.margin[3], by - p as f32 * ch + paper.margin[0]),
+                    ),
+                ))
             } else {
-                krilla::annotation::Target::Action(krilla::action::Action::Link(krilla::action::LinkAction::new(l.href.clone())))
+                krilla::annotation::Target::Action(krilla::action::Action::Link(
+                    krilla::action::LinkAction::new(l.href.clone()),
+                ))
             };
-            page.add_annotation(krilla::annotation::Annotation::new_link(krilla::annotation::LinkAnnotation::new(rect, target), Some(l.href)));
+            page.add_annotation(krilla::annotation::Annotation::new_link(
+                krilla::annotation::LinkAnnotation::new(rect, target),
+                Some(l.href),
+            ));
         }
         page.finish();
     }
@@ -412,7 +533,9 @@ pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
     // The outline: the headings, nested by level.
     let mut outline = krilla::outline::Outline::new();
     let mut stack: Vec<(u8, krilla::outline::OutlineNode)> = Vec::new();
-    let finish = |stack: &mut Vec<(u8, krilla::outline::OutlineNode)>, outline: &mut krilla::outline::Outline, level: u8| {
+    let finish = |stack: &mut Vec<(u8, krilla::outline::OutlineNode)>,
+                  outline: &mut krilla::outline::Outline,
+                  level: u8| {
         while stack.last().is_some_and(|(l, _)| *l >= level) {
             let (_, node) = stack.pop().unwrap();
             match stack.last_mut() {
@@ -422,30 +545,50 @@ pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
         }
     };
     for &(b, level) in &tree.headings {
-        let Some(&(x, y)) = box_pos.get(&b) else { continue };
-        let Some(node) = tree.boxes[b].node else { continue };
-        let text = dom.text_content(node).split_whitespace().collect::<Vec<_>>().join(" ");
+        let Some(&(x, y)) = box_pos.get(&b) else {
+            continue;
+        };
+        let Some(node) = tree.boxes[b].node else {
+            continue;
+        };
+        let text = dom
+            .text_content(node)
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            .join(" ");
         if text.is_empty() {
             continue;
         }
         finish(&mut stack, &mut outline, level);
         let p = ((y / ch).floor() as usize).min(count - 1);
-        let dest = krilla::destination::XyzDestination::new(p, Point::from_xy(x + paper.margin[3], y - p as f32 * ch + paper.margin[0]));
+        let dest = krilla::destination::XyzDestination::new(
+            p,
+            Point::from_xy(x + paper.margin[3], y - p as f32 * ch + paper.margin[0]),
+        );
         stack.push((level, krilla::outline::OutlineNode::new(text, dest)));
     }
     finish(&mut stack, &mut outline, 0);
     document.set_outline(outline);
 
-    let bytes = document.finish().map_err(|e| format!("the PDF could not be written: {e:?}"))?;
+    let bytes = document
+        .finish()
+        .map_err(|e| format!("the PDF could not be written: {e:?}"))?;
     let mut notes = font_notes;
     for (ch, _) in &tree.missing {
-        notes.push(format!("no font has `{ch}` (U+{:04X}); put one that does under fonts/", *ch as u32));
+        notes.push(format!(
+            "no font has `{ch}` (U+{:04X}); put one that does under fonts/",
+            *ch as u32
+        ));
     }
     for family in &db.system_used {
         notes.push(format!("the font `{family}` came from this machine; put it under fonts/ so the document is the same everywhere"));
     }
-    let _ = Rgba::BLACK;
-    Ok(Output { bytes, pages: count, notes })
+    Ok(Output {
+        bytes,
+        pages: count,
+        text: page_text,
+        notes,
+    })
 }
 
 // ─── Configuration ──────────────────────────────────────────────────
@@ -459,13 +602,24 @@ pub fn reader(root: Option<PathBuf>) -> impl Fn(&str) -> Option<Vec<u8>> {
             return None;
         }
         let root = root.as_ref()?;
-        let rel = src.split(['?', '#']).next().unwrap_or(src).trim_start_matches('/');
+        let rel = src
+            .split(['?', '#'])
+            .next()
+            .unwrap_or(src)
+            .trim_start_matches('/');
         let rel = rel.trim_start_matches("./");
-        let mut candidates = vec![root.join(rel), root.join("public").join(rel), root.join("src").join(rel)];
+        let mut candidates = vec![
+            root.join(rel),
+            root.join("public").join(rel),
+            root.join("src").join(rel),
+        ];
         if let Some(parent) = root.parent() {
             candidates.push(parent.join("public").join(rel));
         }
-        candidates.into_iter().find(|p| p.is_file()).and_then(|p| std::fs::read(p).ok())
+        candidates
+            .into_iter()
+            .find(|p| p.is_file())
+            .and_then(|p| std::fs::read(p).ok())
     }
 }
 
@@ -493,11 +647,19 @@ pub fn font_dirs(root: Option<&std::path::Path>, extra: &[String]) -> Vec<PathBu
 }
 
 impl<'a> Options<'a> {
-    pub fn from_pdf(config: &crate::config::project::PdfConfig, assets: &'a AssetReader<'a>, root: Option<&std::path::Path>) -> Options<'a> {
+    pub fn from_pdf(
+        config: &crate::config::project::PdfConfig,
+        assets: &'a AssetReader<'a>,
+        root: Option<&std::path::Path>,
+    ) -> Options<'a> {
         let (width, height) = paper_size(&config.page_size).unwrap_or((595.28, 841.89));
         let m = &config.margins;
         Options {
-            paper: Paper { width, height, margin: [m.top as f32, m.right as f32, m.bottom as f32, m.left as f32] },
+            paper: Paper {
+                width,
+                height,
+                margin: [m.top as f32, m.right as f32, m.bottom as f32, m.left as f32],
+            },
             font_size: config.default_font_size as f32,
             font_family: config.default_font.clone(),
             assets,
@@ -506,7 +668,11 @@ impl<'a> Options<'a> {
         }
     }
 
-    pub fn from_slides(config: &crate::config::project::SlidesConfig, assets: &'a AssetReader<'a>, root: Option<&std::path::Path>) -> (Options<'a>, SlideChrome) {
+    pub fn from_slides(
+        config: &crate::config::project::SlidesConfig,
+        assets: &'a AssetReader<'a>,
+        root: Option<&std::path::Path>,
+    ) -> (Options<'a>, SlideChrome) {
         let (mut width, mut height) = match config.size.as_str() {
             "16:9" => (960.0, 540.0),
             "4:3" => (720.0, 540.0),
@@ -520,7 +686,11 @@ impl<'a> Options<'a> {
             height = h as f32;
         }
         let options = Options {
-            paper: Paper { width, height, margin: [0.0; 4] },
+            paper: Paper {
+                width,
+                height,
+                margin: [0.0; 4],
+            },
             font_size: config.default_font_size as f32,
             font_family: config.default_font.clone(),
             assets,
@@ -555,7 +725,12 @@ fn luminance(c: Rgba) -> f32 {
 
 /// Render a deck: every slide of the page's `Presentation` on a page of its
 /// own, the slide's size, its content clipped at the edge.
-pub fn render_slides(html: &str, css: &str, opts: &Options, chrome: &SlideChrome) -> Result<Output, String> {
+pub fn render_slides(
+    html: &str,
+    css: &str,
+    opts: &Options,
+    chrome: &SlideChrome,
+) -> Result<Output, String> {
     let dom = Dom::parse(html);
     let m = chrome.margin;
     // A slide is the page: its margin is its padding.
@@ -570,11 +745,25 @@ pub fn render_slides(html: &str, css: &str, opts: &Options, chrome: &SlideChrome
     let ua = Sheet::parse(UA_SHEET);
     let base = root_style(opts);
     let paper = opts.paper;
-    let styler = Styler::new(&ua, &author, Units { em: opts.font_size, rem: opts.font_size, vw: paper.width, vh: paper.height });
+    let styler = Styler::new(
+        &ua,
+        &author,
+        Units {
+            em: opts.font_size,
+            rem: opts.font_size,
+            vw: paper.width,
+            vh: paper.height,
+        },
+    );
     let tree = Builder::new(&dom, &styler, &mut db, opts.assets).build(&base);
     // The slides: the boxes whose element is a child of the presentation.
-    let presentation = dom.descendants(0).into_iter().find(|&n| dom.element(n).is_some_and(|e| e.has_class("wf-presentation")));
-    let slide_nodes: Vec<usize> = presentation.map(|p| dom.element_children(p).collect()).unwrap_or_default();
+    let presentation = dom.descendants(0).into_iter().find(|&n| {
+        dom.element(n)
+            .is_some_and(|e| e.has_class("wf-presentation"))
+    });
+    let slide_nodes: Vec<usize> = presentation
+        .map(|p| dom.element_children(p).collect())
+        .unwrap_or_default();
     let slides: Vec<usize> = slide_nodes
         .iter()
         .filter_map(|n| tree.boxes.iter().position(|b| b.node == Some(*n)))
@@ -586,7 +775,10 @@ pub fn render_slides(html: &str, css: &str, opts: &Options, chrome: &SlideChrome
         for (i, &b) in slides.iter().enumerate() {
             let natural = layout.layout(b, paper.width);
             if natural.h > paper.height + 0.5 {
-                notes.push(format!("slide {} is taller than the slide; what overflows is clipped", i + 1));
+                notes.push(format!(
+                    "slide {} is taller than the slide; what overflows is clipped",
+                    i + 1
+                ));
             }
             let mut f = layout.layout_page(b, paper.width, paper.height);
             f.measure_extent();
@@ -598,9 +790,22 @@ pub fn render_slides(html: &str, css: &str, opts: &Options, chrome: &SlideChrome
     let mut chrome_trees: Vec<(usize, Tree, Frag)> = Vec::new();
     for (i, f) in frags.iter().enumerate() {
         let bg = tree.boxes[f.boxed].style.background_color;
-        let bg = if bg.is_visible() { bg } else { chrome.background.unwrap_or(Rgba::rgb(1.0, 1.0, 1.0)) };
-        let ink = chrome.color.unwrap_or(if luminance(bg) < 0.5 { Rgba::rgb(0.75, 0.75, 0.75) } else { Rgba::rgb(0.45, 0.45, 0.45) });
-        let hex = format!("#{:02x}{:02x}{:02x}", (ink.r * 255.0) as u8, (ink.g * 255.0) as u8, (ink.b * 255.0) as u8);
+        let bg = if bg.is_visible() {
+            bg
+        } else {
+            chrome.background.unwrap_or(Rgba::rgb(1.0, 1.0, 1.0))
+        };
+        let ink = chrome.color.unwrap_or(if luminance(bg) < 0.5 {
+            Rgba::rgb(0.75, 0.75, 0.75)
+        } else {
+            Rgba::rgb(0.45, 0.45, 0.45)
+        });
+        let hex = format!(
+            "#{:02x}{:02x}{:02x}",
+            (ink.r * 255.0) as u8,
+            (ink.g * 255.0) as u8,
+            (ink.b * 255.0) as u8
+        );
         let mut pieces = Vec::new();
         if let Some(text) = &chrome.footer {
             pieces.push((0u8, text.clone()));
@@ -609,9 +814,21 @@ pub fn render_slides(html: &str, css: &str, opts: &Options, chrome: &SlideChrome
             pieces.push((1u8, format!("{} / {}", i + 1, total)));
         }
         for (side, text) in pieces {
-            let snippet = format!("<html><body><p style=\"font-size: 11pt; color: {hex}; margin: 0\">{}</p></body></html>", text.replace('&', "&amp;").replace('<', "&lt;"));
+            let snippet = format!(
+                "<html><body><p style=\"font-size: 11pt; color: {hex}; margin: 0\">{}</p></body></html>",
+                text.replace('&', "&amp;").replace('<', "&lt;")
+            );
             let sdom = Dom::parse(&snippet);
-            let sstyler = Styler::new(&ua, &Sheet::default(), Units { em: 11.0, rem: 11.0, vw: paper.width, vh: paper.height });
+            let sstyler = Styler::new(
+                &ua,
+                &Sheet::default(),
+                Units {
+                    em: 11.0,
+                    rem: 11.0,
+                    vw: paper.width,
+                    vh: paper.height,
+                },
+            );
             let st = Builder::new(&sdom, &sstyler, &mut db, opts.assets).build(&base);
             let mut sf = Layout::new(&st, &db).layout_natural(st.flow);
             let x = if side == 0 { m } else { paper.width - m - sf.w };
@@ -624,15 +841,27 @@ pub fn render_slides(html: &str, css: &str, opts: &Options, chrome: &SlideChrome
     let mut document = Document::new_with(SerializeSettings::default());
     document.set_metadata(metadata(&dom, None));
     let mut painter = Painter::new(&tree, &db);
+    let mut slide_text: Vec<Vec<String>> = Vec::new();
     for (i, f) in frags.iter().enumerate() {
-        let settings = PageSettings::from_wh(paper.width, paper.height).ok_or("a slide with no size")?;
+        painter.text.clear();
+        let settings =
+            PageSettings::from_wh(paper.width, paper.height).ok_or("a slide with no size")?;
         let mut page = document.start_page_with(settings);
         let mut links = Vec::new();
         {
             let mut s = page.surface();
             if let Some(bg) = chrome.background {
                 if let Some(p) = paint::rounded(0.0, 0.0, paper.width, paper.height, [0.0; 4]) {
-                    s.set_fill(Some(krilla::paint::Fill { paint: krilla::color::rgb::Color::new((bg.r * 255.0) as u8, (bg.g * 255.0) as u8, (bg.b * 255.0) as u8).into(), opacity: krilla::num::NormalizedF32::ONE, rule: Default::default() }));
+                    s.set_fill(Some(krilla::paint::Fill {
+                        paint: krilla::color::rgb::Color::new(
+                            (bg.r * 255.0) as u8,
+                            (bg.g * 255.0) as u8,
+                            (bg.b * 255.0) as u8,
+                        )
+                        .into(),
+                        opacity: krilla::num::NormalizedF32::ONE,
+                        rule: Default::default(),
+                    }));
                     s.draw_path(&p);
                 }
             }
@@ -648,29 +877,48 @@ pub fn render_slides(html: &str, css: &str, opts: &Options, chrome: &SlideChrome
             }
             s.finish();
         }
+        slide_text.push(std::mem::take(&mut painter.text));
         for l in links {
             let (x, y, w, h) = l.rect;
             if l.href.starts_with('#') {
                 continue;
             }
-            let Some(rect) = Rect::from_xywh(x, y, w.max(1.0), h.max(1.0)) else { continue };
-            let target = krilla::annotation::Target::Action(krilla::action::Action::Link(krilla::action::LinkAction::new(l.href.clone())));
-            page.add_annotation(krilla::annotation::Annotation::new_link(krilla::annotation::LinkAnnotation::new(rect, target), Some(l.href)));
+            let Some(rect) = Rect::from_xywh(x, y, w.max(1.0), h.max(1.0)) else {
+                continue;
+            };
+            let target = krilla::annotation::Target::Action(krilla::action::Action::Link(
+                krilla::action::LinkAction::new(l.href.clone()),
+            ));
+            page.add_annotation(krilla::annotation::Annotation::new_link(
+                krilla::annotation::LinkAnnotation::new(rect, target),
+                Some(l.href),
+            ));
         }
         page.finish();
     }
     if total == 0 {
         // A deck with no slides is still a document: one empty slide.
-        let settings = PageSettings::from_wh(paper.width, paper.height).ok_or("a slide with no size")?;
+        let settings =
+            PageSettings::from_wh(paper.width, paper.height).ok_or("a slide with no size")?;
         let page = document.start_page_with(settings);
         page.finish();
     }
-    let bytes = document.finish().map_err(|e| format!("the PDF could not be written: {e:?}"))?;
+    let bytes = document
+        .finish()
+        .map_err(|e| format!("the PDF could not be written: {e:?}"))?;
     for (ch, _) in &tree.missing {
-        notes.push(format!("no font has `{ch}` (U+{:04X}); put one that does under fonts/", *ch as u32));
+        notes.push(format!(
+            "no font has `{ch}` (U+{:04X}); put one that does under fonts/",
+            *ch as u32
+        ));
     }
     for family in &db.system_used {
         notes.push(format!("the font `{family}` came from this machine; put it under fonts/ so the document is the same everywhere"));
     }
-    Ok(Output { bytes, pages: total.max(1), notes })
+    Ok(Output {
+        bytes,
+        pages: total.max(1),
+        text: slide_text,
+        notes,
+    })
 }
