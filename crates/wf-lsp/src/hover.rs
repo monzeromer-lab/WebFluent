@@ -187,6 +187,21 @@ fn hover_text(
             return Some(binding_doc(store_file, &member, Some(&store.name), ty));
         }
 
+        // After a dot: an endpoint, a field, a method — or, with nothing
+        // before the dot that owns it, a case of an enum.
+        if matches!(before, Some(TokenType::Dot | TokenType::OptionalChain))
+            || source[..offset.min(source.len())]
+                .trim_end_matches(|c: char| c.is_alphanumeric() || c == '_')
+                .ends_with('.')
+        {
+            if let Some(doc) = member_hover(project, file_ix, offset, word) {
+                return Some(doc);
+            }
+            if let Some(doc) = case_hover(project, word) {
+                return Some(doc);
+            }
+        }
+
         if let Some(binding) = analysis::scope_at(decl, offset)
             .into_iter()
             .find(|b| b.name == word)
@@ -224,6 +239,9 @@ fn hover_text(
     if let Some(decl) = find_declaration(project, word) {
         return Some(declaration_doc(project, decl));
     }
+    if let Some(doc) = builtin_hover(word) {
+        return Some(doc);
+    }
     if let Some(keyword) = reference::keyword(word) {
         return Some(format!(
             "**{}**\n\n{}\n\n```wf\n{}\n```",
@@ -231,6 +249,170 @@ fn hover_text(
         ));
     }
     None
+}
+
+/// What every element takes beside its own props, read from the
+/// registry's universal props — so it cannot fall behind them.
+fn universal_line() -> String {
+    let names: Vec<String> = registry::UNIVERSAL_PROPS
+        .iter()
+        .map(|p| format!("`{}:`", p.name))
+        .collect();
+    format!(
+        "\nEvery element also takes {}, `aria-*`, `data-*` and the global attributes (`id`, `role`, `title`, …).\n",
+        names.join(", ")
+    )
+}
+
+/// A function the language gives a program, or a value it reads from the
+/// browser: how it is written, what it does, and — for a value — what it
+/// holds.
+fn builtin_hover(name: &str) -> Option<String> {
+    let (_, usage, doc) = reference::builtin(name)?;
+    let mut out = format!("**{name}** — built in\n\n```wf\n{usage}\n```\n\n{doc}");
+    if let Some(ty) = webfluent::sema::types::browser_value_type(name) {
+        let members: Vec<String> = webfluent::sema::types::members(&ty)
+            .into_iter()
+            .map(|m| format!("`.{}`", m.name))
+            .collect();
+        out.push_str(&format!("\n\nType `{ty}`"));
+        if !members.is_empty() && members.len() <= 12 {
+            out.push_str(&format!(": {}", members.join(", ")));
+        }
+        out.push('.');
+    }
+    Some(out)
+}
+
+/// The word after a dot: an endpoint of a service, a field of a record, or
+/// what the checker says the value before the dot has — with its type.
+fn member_hover(project: &Project, file_ix: usize, offset: usize, word: &str) -> Option<String> {
+    use webfluent::sema::types::{self as types, Type};
+    let source: &str = &project.files[file_ix].source;
+    let (_, range) = word_at(source, offset)?;
+    let before = source[..range.start].trim_end().strip_suffix('.')?;
+    let before = before.strip_suffix('?').unwrap_or(before).trim_end();
+    let owner: String = before
+        .chars()
+        .rev()
+        .take_while(|c| c.is_alphanumeric() || *c == '_')
+        .collect::<String>()
+        .chars()
+        .rev()
+        .collect();
+    if owner.is_empty() {
+        return None;
+    }
+    // `Backend.users`: the endpoint.
+    if let Some(api) = project.program.declarations.iter().find_map(|d| match d {
+        Declaration::Api(a) if a.name == owner => Some(a),
+        _ => None,
+    }) && let Some(e) = api.endpoints.iter().find(|e| e.name == word)
+    {
+        let params: Vec<String> = e
+            .params
+            .iter()
+            .map(|p| format!("{}: {}", p.name, type_name(&p.prop_type)))
+            .collect();
+        let returns = e
+            .returns
+            .as_ref()
+            .map(|t| format!(" -> {}", type_name(t)))
+            .unwrap_or_default();
+        let doc = e
+            .doc
+            .as_ref()
+            .map(|d| format!("\n\n{d}"))
+            .unwrap_or_default();
+        return Some(format!(
+            "**{word}** — endpoint of `{owner}`\n\n```wf\n{} {}({}) at \"{}\"{returns}\n```{doc}\n\nCalled `{owner}.{word}(…)`: typed, cached, deduplicated and cancellable.",
+            e.method,
+            e.name,
+            params.join(", "),
+            e.path
+        ));
+    }
+    // The type of the value before the dot.
+    let ty: Type = analysis::declaration_at(project, file_ix, offset)
+        .and_then(|decl_ix| {
+            let binding = analysis::scope_at(&project.program.declarations[decl_ix], offset)
+                .into_iter()
+                .find(|b| b.name == owner)?;
+            if binding.kind == BindingKind::FormHandle {
+                return Some(types::form_type());
+            }
+            type_of_binding(project, decl_ix, &binding)
+        })
+        .or_else(|| types::browser_value_type(&owner))
+        .or_else(|| {
+            let ix = project.program.declarations.iter().position(|d| match d {
+                Declaration::Const(c) => c.name == owner,
+                Declaration::Data(d) => d.name == owner,
+                _ => false,
+            })?;
+            let info = types::check(&project.program, &|_| String::new());
+            info.bindings
+                .iter()
+                .find(|t| t.decl == ix && t.name == owner)
+                .map(|t| t.ty.clone())
+        })?;
+    let record = match &ty {
+        Type::Record(r) => Some(r.clone()),
+        Type::Optional(inner) => match inner.as_ref() {
+            Type::Record(r) => Some(r.clone()),
+            _ => None,
+        },
+        _ => None,
+    };
+    if let Some(record) = record
+        && let Some(t) = find_type(project, &record)
+        && let Some(f) = t
+            .all_fields(&|name| find_type(project, name))
+            .into_iter()
+            .find(|f| f.name == word)
+    {
+        let doc = f
+            .doc
+            .as_ref()
+            .map(|d| format!("\n\n{d}"))
+            .unwrap_or_default();
+        return Some(format!(
+            "**{word}** — field of `{record}`\n\nType `{}`.{doc}",
+            type_name(&f.ty)
+        ));
+    }
+    let member = types::members(&ty).into_iter().find(|m| m.name == word)?;
+    let what = if member.method { "method" } else { "field" };
+    let gives = member
+        .ty
+        .map(|t| format!("\n\nGives `{t}`."))
+        .unwrap_or_default();
+    Some(format!("**{word}** — {what} of a `{ty}`{gives}"))
+}
+
+/// `.calm`: the case, and the enum it belongs to.
+fn case_hover(project: &Project, word: &str) -> Option<String> {
+    let e = project.program.declarations.iter().find_map(|d| match d {
+        Declaration::Enum(e) if e.cases.iter().any(|c| c.name == word) => Some(e),
+        _ => None,
+    })?;
+    let case = e.cases.iter().find(|c| c.name == word)?;
+    let payload = if case.fields.is_empty() {
+        String::new()
+    } else {
+        let fields: Vec<String> = case
+            .fields
+            .iter()
+            .map(|f| format!("{}: {}", f.name, type_name(&f.ty)))
+            .collect();
+        format!(", carrying `({})`", fields.join(", "))
+    };
+    let all: Vec<String> = e.cases.iter().map(|c| format!("`.{}`", c.name)).collect();
+    Some(format!(
+        "**.{word}** — case of `{}`{payload}\n\nIts cases: {}.",
+        e.name,
+        all.join(", ")
+    ))
 }
 
 /// A name a project script declares: how a call reads, what its doc
@@ -410,7 +592,7 @@ fn builtin_doc(sig: &'static ComponentSig) -> String {
     if !sig.events.is_empty() {
         out.push_str(&format!("\n**Events**: `{}`\n", sig.events.join("`, `")));
     }
-    out.push_str("\nEvery element also takes `class:`, the motion props (`animate:`, `exit:`, `delay:`, `stagger:`), `aria-*` and `data-*`.\n");
+    out.push_str(&universal_line());
 
     if let registry::Ir::BuiltIn(ir) = sig.ir {
         let (tag, class) = builtin_to_html(ir);
@@ -659,6 +841,10 @@ fn declaration_doc(project: &Project, decl: &Declaration) -> String {
                 endpoints.join("\n")
             )
         }
+        Declaration::Data(d) if d.is_image => format!(
+            "**{}** — image from `{}`{declared}\n\nRead at build time and written again at every width a page asks for. `Image({}, alt: …)` draws it; it holds `.src`, `.width`, `.height`, `.color`, `.placeholder`, `.srcset` and `.sources`.",
+            d.name, d.file, d.name
+        ),
         Declaration::Data(d) => format!(
             "**{}** — data from `{}`{}{}{declared}\n\nRead at build time; a constant everywhere.",
             d.name,

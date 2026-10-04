@@ -2706,7 +2706,7 @@
     {
      "name": "tag:",
      "type": "String",
-     "meaning": "The element to make, `div` by default"
+     "meaning": "The element to make: `div` (the default), `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul` or `table`"
     }
    ],
    "flags": [],

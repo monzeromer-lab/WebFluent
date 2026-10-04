@@ -1699,7 +1699,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[special(
             "tag",
             PropType::Str,
-            "The element to make, `div` by default",
+            "The element to make: `div` (the default), `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul` or `table`",
         )],
         &[],
         G,

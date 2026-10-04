@@ -412,7 +412,8 @@ pub fn host_tag(named: Option<&str>) -> &'static str {
         .unwrap_or("div")
 }
 
-/// The elements a `Host` may be made of. A tag outside it is a `V10`.
+/// The elements a `Host` may be made of. A tag outside it is a `V10`; the
+/// registry's description of `tag:` names each (a test holds the two).
 pub const HOST_TAGS: &[&str] = &[
     "div", "span", "canvas", "svg", "section", "figure", "pre", "p", "ul", "table",
 ];
@@ -490,6 +491,19 @@ pub fn is_void(tag: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
+
+    #[test]
+    fn the_registry_names_every_tag_a_host_makes() {
+        let host = crate::registry::component("Host").unwrap();
+        let tag = host.props.iter().find(|p| p.name == "tag").unwrap();
+        for t in HOST_TAGS {
+            assert!(
+                tag.summary.contains(&format!("`{t}`")),
+                "`tag:` does not name `{t}`"
+            );
+        }
+    }
+
     use super::*;
 
     /// The registry exists so the renderers cannot disagree. Everything below is

@@ -1337,3 +1337,106 @@ fn a_theme_s_own_tokens_are_offered_after_a_dollar() {
         &["viz-1", "color-primary", "surface"],
     );
 }
+
+// ─── Hover: what each thing is ────────────────────────────────────────────
+
+#[test]
+fn hover_on_host_names_its_lifetime_props_and_its_tags() {
+    let src = format!("{HEAD}    Host(tag: \"canvas\", mount: (n) => n)\n}}\n");
+    let host = hover_text(&src, "Host").unwrap();
+    for prop in [
+        "`mount:`",
+        "`update:`",
+        "`cleanup:`",
+        "`ref:`",
+        "`class:`",
+        "`shared:`",
+    ] {
+        assert!(host.contains(prop), "{prop} in:\n{host}");
+    }
+    let tag = hover_text(&src, "tag:").unwrap();
+    assert!(tag.contains("`canvas`") && tag.contains("`table`"), "{tag}");
+}
+
+#[test]
+fn hover_on_a_function_or_a_value_the_language_gives() {
+    let src = format!(
+        "{HEAD}    state d = @2026-01-01\n    Text(\"{{ago(d)}} {{viewport.md}}\")\n    Text(format(3, .currency))\n}}\n"
+    );
+    let format = hover_text(&src, "format").unwrap();
+    assert!(
+        format.contains("format(value, .style, option)") && format.contains("locale"),
+        "{format}"
+    );
+    let viewport = hover_text(&src, "viewport").unwrap();
+    assert!(
+        viewport.contains("`.md`") && viewport.contains("`.width`"),
+        "{viewport}"
+    );
+    assert!(hover_text(&src, "ago").unwrap().contains("ago"));
+}
+
+#[test]
+fn hover_on_a_member_says_what_it_is_and_what_it_gives() {
+    let src = "type User { id: String, /// Shown everywhere.\nname: String }\napi Backend(base: \"/api\") {\n    /// Everyone.\n    get users(page: Number = 1) -> [User]\n}\nenum Tone { calm, loud, failed(reason: String) }\nimage hero = \"h.jpg\"\npage P(path: \"/\") {\n    state u: User = User(id: \"1\", name: \"Ada\")\n    state d: Date = @2026-01-01\n    state t: Tone = .loud\n    resource r = Backend.users(page: 1)\n    Text(u.name)\n    Text(d.plus(days: 1))\n    Image(hero, alt: \"a\")\n}\n";
+    let endpoint = hover_text(src, "users(page: 1)").unwrap();
+    assert!(
+        endpoint.contains("endpoint of `Backend`")
+            && endpoint.contains("-> [User]")
+            && endpoint.contains("Everyone."),
+        "{endpoint}"
+    );
+    let field = hover_text(src, "name)").unwrap();
+    assert!(
+        field.contains("field of `User`") && field.contains("`String`"),
+        "{field}"
+    );
+    let method = hover_text(src, "plus(").unwrap();
+    assert!(
+        method.contains("method of a `Date`") && method.contains("Gives `Date`"),
+        "{method}"
+    );
+    let case = hover_text(src, "loud\n").unwrap();
+    assert!(
+        case.contains("case of `Tone`") && case.contains("`.failed`"),
+        "{case}"
+    );
+    let image = hover_text(src, "hero, alt").unwrap();
+    assert!(
+        image.contains("image from `h.jpg`") && image.contains("`.width`"),
+        "{image}"
+    );
+}
+
+#[test]
+fn hover_on_every_keyword_explains_it() {
+    for (src, word) in [
+        (
+            format!(
+                "{HEAD}    state e = \"\"\n    validate e {{ required }}\n    Input(bind: e, label: \"E\")\n}}\n"
+            ),
+            "validate",
+        ),
+        (
+            format!("{HEAD}    socket s = ws(\"wss://x\")\n}}\n"),
+            "socket",
+        ),
+        (format!("{HEAD}    every(1000) {{ log(1) }}\n}}\n"), "every"),
+        (
+            format!("{HEAD}    head {{ meta(name: \"a\", content: \"b\") }}\n}}\n"),
+            "head",
+        ),
+        ("data posts = \"p.json\"\n".to_string(), "data"),
+        (
+            "api B(base: \"/x\") {\n    get a() -> Map\n}\n".to_string(),
+            "api",
+        ),
+        (
+            "test \"t\" {\n    Text(\"a\")\n    expect \"a\"\n}\n".to_string(),
+            "test",
+        ),
+    ] {
+        let doc = hover_text(&src, word).unwrap_or_else(|| panic!("no hover on `{word}`"));
+        assert!(doc.contains(&format!("**{word}**")), "{word}: {doc}");
+    }
+}
