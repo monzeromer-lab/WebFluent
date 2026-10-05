@@ -1,5 +1,5 @@
 /// The site's top bar as the design draws it: the mark, the three places to
-/// read, then — on a docs page — search, and everywhere the theme, GitHub and
+/// read and the gallery, then — on a docs page — search, and everywhere the theme, GitHub and
 /// the locale. Written for a phone first: there the places to read and the
 /// search fold behind a menu button; from `md` up the search sits in the
 /// bar, and from `lg` up the places to read do too.
@@ -95,6 +95,7 @@ component SiteHeader(docs: Bool = false) {
                 Link(t("nav.guide"), to: "/docs/guide", active: .prefix)
                 Link(t("nav.reference"), to: "/docs/reference", active: .prefix)
                 Link(t("nav.tutorials"), to: "/docs/tutorials", active: .prefix)
+                Link(t("nav.showcase"), to: "/showcase")
             }
         }
 
@@ -231,6 +232,7 @@ component SiteHeader(docs: Bool = false) {
             Link(t("nav.guide"), to: "/docs/guide", active: .prefix) { on click { menu = false } }
             Link(t("nav.reference"), to: "/docs/reference", active: .prefix) { on click { menu = false } }
             Link(t("nav.tutorials"), to: "/docs/tutorials", active: .prefix) { on click { menu = false } }
+            Link(t("nav.showcase"), to: "/showcase") { on click { menu = false } }
             Link(t("nav.source"), href: REPO)
         }
     }

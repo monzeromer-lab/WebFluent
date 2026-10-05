@@ -193,5 +193,21 @@
   "consent.body": "This site uses Google Analytics to count visits. It sets cookies only if you allow it; you can change your mind under Cookie settings at the bottom of any page.",
   "consent.decline": "Decline",
   "consent.allow": "Allow analytics",
-  "consent.settings": "Cookie settings"
+  "consent.settings": "Cookie settings",
+  "nav.showcase": "See it",
+  "showcase.eyebrow": "See it",
+  "showcase.title": "Real files, built from real source",
+  "showcase.lede": "Every file below is what `wf build` wrote from a folder in the repository, rebuilt on each release. Open one; the source that made it is one tap away.",
+  "showcase.documents": "Documents",
+  "showcase.decks": "Slide decks",
+  "showcase.videos": "Videos",
+  "showcase.open": "Open PDF",
+  "showcase.watch": "Watch",
+  "showcase.source": "View source",
+  "showcase.pages.one": "{count} page",
+  "showcase.pages.other": "{count} pages",
+  "showcase.slides.one": "{count} slide",
+  "showcase.slides.other": "{count} slides",
+  "showcase.more": "Each one is a folder under [`examples/`](https://github.com/monzeromer-lab/WebFluent/tree/master/examples) that builds with `wf build`. [PDF and slides](/docs/guide/pdf-and-slides) in the guide says how to write your own.",
+  "outputs.see": "See the PDFs and decks it writes"
 }
