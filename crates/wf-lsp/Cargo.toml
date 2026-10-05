@@ -4,7 +4,7 @@ version = "5.3.1"
 edition = "2024"
 description = "Language Server Protocol implementation for WebFluent"
 authors = ["Monzer Omer <monzer.a.omer@gmail.com>"]
-license = "GPL-3.0"
+license = "MPL-2.0"
 
 [lib]
 name = "wf_lsp"

@@ -2,7 +2,7 @@
 // design system. `wf build` here writes build/webfluent-5.2.pdf.
 
 const TOTAL = 16
-const SITE = "https://monzeromer-lab.github.io/WebFluent/"
+const SITE = "https://webfluent.monzeromer.dev/"
 
 /// What every content slide carries along its foot.
 component Chrome(_ section: String, n: Number) {
@@ -171,7 +171,7 @@ page Deck(path: "/", title: "WebFluent — a language for websites", description
                 }
             }
             Row(class: "cover__foot") {
-                Text("monzeromer-lab.github.io/WebFluent")
+                Text("webfluent.monzeromer.dev")
                 Text("This deck is a .wf file", class: "mono")
             }
         }
@@ -513,7 +513,7 @@ page Deck(path: "/", title: "WebFluent — a language for websites", description
                 }
                 Stack {
                     QrCode(SITE, color: "#17191C", class: "qr")
-                    Text("monzeromer-lab.github.io/WebFluent", class: "closing__link")
+                    Text("webfluent.monzeromer.dev", class: "closing__link")
                 }
             }
         }

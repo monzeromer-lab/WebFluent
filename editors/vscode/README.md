@@ -37,4 +37,4 @@ from a clone and point `webfluent.server.path` at it.
 
 - [WebFluent](https://github.com/monzeromer-lab/WebFluent) — the language,
   and where to report a problem with this extension.
-- [Documentation](https://monzeromer-lab.github.io/WebFluent)
+- [Documentation](https://webfluent.monzeromer.dev)

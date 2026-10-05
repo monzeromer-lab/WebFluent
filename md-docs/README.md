@@ -8,7 +8,7 @@ deck, with the accessibility, search and performance work done for you.
 This guide is the documentation: it takes you from installing `wf` to a
 deployed application, and it is the reference once you are there. The same
 chapters are published at
-[monzeromer-lab.github.io/WebFluent](https://monzeromer-lab.github.io/WebFluent).
+[webfluent.monzeromer.dev](https://webfluent.monzeromer.dev).
 
 Every `wf` code block in it is parsed, type-checked and compiled by the test
 suite, so what you read is what the compiler accepts.

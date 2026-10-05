@@ -7,7 +7,7 @@
 //!  5 |     Heading(user.nmae).h1
 //!    |                  ^^^^
 //!    = help: its fields are `id`, `name`, `email`
-//!    = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t05-a-field-or-method-that-does-not-exist
+//!    = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t05-a-field-or-method-that-does-not-exist
 //! ```
 //!
 //! The place comes first on its own line in the `file:line:col` form every
@@ -169,7 +169,7 @@ mod tests {
         let out = diagnostic(&d, Some(src), false);
         assert_eq!(
             out,
-            "error[T05]: `User` has no field `nmae`\n --> src/P.wf:2:13\n  |\n2 |     Heading(user.nmae).h1\n  |             ^^^^^^^^^\n  = help: its fields are `id`, `name`\n  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t05-a-field-or-method-that-does-not-exist"
+            "error[T05]: `User` has no field `nmae`\n --> src/P.wf:2:13\n  |\n2 |     Heading(user.nmae).h1\n  |             ^^^^^^^^^\n  = help: its fields are `id`, `name`\n  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t05-a-field-or-method-that-does-not-exist"
         );
     }
 

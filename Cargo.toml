@@ -2,11 +2,11 @@
 name = "webfluent"
 version = "5.3.1"
 edition = "2024"
-description = "The Web-First Language — compiles to HTML, CSS, JavaScript, and PDF. 50+ built-in components, reactivity, routing, i18n, SSG, and template engine."
+description = "A language for websites, PDFs and slide decks. One binary, no Node: HTML, CSS and JavaScript, PDFs from its own layout engine, and a template engine for Rust."
 authors = ["Monzer Omer <monzer.a.omer@gmail.com>"]
-license = "GPL-3.0"
+license = "MPL-2.0"
 repository = "https://github.com/monzeromer-lab/WebFluent"
-homepage = "https://monzeromer-lab.github.io/WebFluent"
+homepage = "https://webfluent.monzeromer.dev"
 documentation = "https://docs.rs/webfluent"
 readme = "README.md"
 
@@ -53,7 +53,7 @@ required-features = ["cli"]
 
 # `cli` is the `wf` command: its argument parser and the dev server. A
 # program that only renders templates leaves it out —
-# `webfluent = { version = "4", default-features = false }` — and builds
+# `webfluent = { version = "5", default-features = false }` — and builds
 # the compiler and the template engine alone.
 [features]
 default = ["cli"]

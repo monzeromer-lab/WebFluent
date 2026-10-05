@@ -34,7 +34,7 @@ component SiteFooter {
                         }
                         Text("WebFluent") { style { margin: 0; font-size: 15px; font-weight: 600 } }
                     }
-                    Text(t("footer.built")) { style { margin: 0; font-size: 12px; line-height: 18px; color: $ink-subtle } }
+                    Text(t("footer.built", { version: VERSION })) { style { margin: 0; font-size: 12px; line-height: 18px; color: $ink-subtle } }
                 }
 
                 Row(gap: .xl, align: .start, class: "footer-columns") {
@@ -77,7 +77,7 @@ component SiteFooter {
 
             Row(justify: .between, align: .center, gap: .md) {
                 style { flex-wrap: wrap; padding-top: 16px; border-top: 1px solid $color-border; & p { margin: 0; font-size: 12px; line-height: 18px; color: $ink-subtle } }
-                Text(t("footer.licence"))
+                Text(t("footer.licence", { version: VERSION }))
                 Text(t("footer.copyright"))
             }
         }

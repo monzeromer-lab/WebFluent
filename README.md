@@ -2,9 +2,14 @@
 
 # WebFluent
 
-**One binary in, a website out.** Write `.wf`, get HTML, CSS and JavaScript — no framework, no `node_modules`, no build config. The same source also compiles to PDF documents and slide decks.
+**One binary. Websites, PDFs and slide decks from one language.** No Node, no framework, no build config — and no browser for your PDFs.
 
-**[Docs](https://monzeromer-lab.github.io/WebFluent)** · **[Tutorial](https://monzeromer-lab.github.io/WebFluent/docs/guide/tutorial)** · **[Components](https://monzeromer-lab.github.io/WebFluent/docs/reference)** · **[Guide source](md-docs/)**
+**[See it](https://webfluent.monzeromer.dev/showcase)** · **[Docs](https://webfluent.monzeromer.dev)** · **[Tutorial](https://webfluent.monzeromer.dev/docs/guide/tutorial)** · **[Components](https://webfluent.monzeromer.dev/docs/reference)** · **[Guide source](md-docs/)**
+
+<!-- hero: one file, three outputs -->
+<p align="center"><img src="site/art/hero.png" alt="One WebFluent file rendered three ways: a web page, a PDF page and a slide" width="900"></p>
+
+WebFluent compiles `.wf` files to a website (HTML, CSS and a small JavaScript runtime), to PDF documents with real page layout, and to slide decks. The same file can be all three. The PDFs come from WebFluent's own layout engine — flexbox and grid, shaped text, Arabic and right-to-left, embedded font subsets — built into `wf`, a 10 MB download.
 
 ```wf
 store Todos {
@@ -64,6 +69,7 @@ wf serve              # http://localhost:3000, rebuilds on save
 - **A compiler that actually checks your work** — types, props, flags, slots and events, plus lints for accessibility, SEO and dead code. A typo is an error with a line number, never a silent no-op.
 - **Ships small** — the build keeps only the runtime modules your program reaches, splits a chunk per page, and precompresses everything. A page of static text ships under 4 kB of script, gzipped.
 - **Four targets, one language** — SPA, pre-rendered static site, PDF, or a slide deck, by one config flag.
+- **PDFs without a browser** — a paged layout engine in the binary: the same CSS cascade, flexbox and grid as the page, text shaped with kerning and ligatures, Arabic and right-to-left, tables that break between rows with their header repeated, a table of contents with page numbers, fonts embedded as searchable subsets. [Invoices, reports and résumés]({H}/showcase) in the gallery are real output.
 - **Batteries included** — routing, stores, forms and validation, `fetch` as a typed `api`, i18n with automatic RTL, animations, dark mode.
 - **A template engine for Rust and Node** — render a `.wf` template with your own data to HTML, a fragment or a PDF: `Template::from_dir("templates")?.page("Invoice")?.render_pdf(&invoice)` with any `Serialize` struct, or `npm install webfluent`. Untrusted data is escaped, and a URL that would run script is dropped.
 - **Your own JavaScript, by name** — a plain `.js` file under `src/` is linked as written, and `.wf` code calls its functions directly, checked against their JSDoc. Libraries load from a CDN through `meta.scripts`; any element can be handed to a script with `mount:` and `cleanup:`.
@@ -162,7 +168,7 @@ page Deck(path: "/", title: "Q1 Review") {
 }
 ```
 
-Set `"output_type": "slides"` (or `"pdf"`) and `wf build` writes the PDF. Raw PDF 1.7 bytes, no external dependencies — and interactive components are rejected at compile time rather than silently dropped.
+Set `"output_type": "slides"` (or `"pdf"`) and `wf build` writes the PDF, laid out by WebFluent's own paged engine — no browser, no external tool. Interactive components are rejected at compile time rather than silently dropped.
 </details>
 
 ## CLI
@@ -181,13 +187,15 @@ wf docs [-d DIR] [-o OUT]                   Write a component gallery
 wf render <tpl|dir> [--data f.json] [-f pdf] [--page P]   Use WebFluent as a template engine
 wf audit [path] [--json]                    What the project trusts
 wf registry|types [--json]                  The registry, and what a project declares
-wf migrate [path] [--check] [--wfx]         WebFluent 2, 3 or 4.1 → 4.2
+wf migrate [path] [--check] [--wfx]         Bring an older project up to date (WebFluent 2 onward)
 ```
 
 ## Documentation
 
-- **[The documentation](https://monzeromer-lab.github.io/WebFluent)** — built with WebFluent itself: getting started, a tutorial that ends in a deployed site, the language, and deploying
-- **[Reference](https://monzeromer-lab.github.io/WebFluent/docs/reference)** — every component, [CLI command](md-docs/37-cli.md), [config key](md-docs/38-configuration.md), [diagnostic](md-docs/39-diagnostics.md) and [keyword](md-docs/43-grammar.md)
+- **[See it](https://webfluent.monzeromer.dev/showcase)** — real PDFs and decks rendered from the examples, opened straight in your browser
+- **[The documentation](https://webfluent.monzeromer.dev)** — built with WebFluent itself: getting started, a tutorial that ends in a deployed site, the language, and deploying
+- **[Reference](https://webfluent.monzeromer.dev/docs/reference)** — every component, [CLI command](md-docs/37-cli.md), [config key](md-docs/38-configuration.md), [diagnostic](md-docs/39-diagnostics.md) and [keyword](md-docs/43-grammar.md)
+- **[PDF benchmark](bench/pdf/RESULTS.md)** — WebFluent against headless Chrome on the same invoice: method, machine and results, reproducible with `just bench-pdf`
 - **[Troubleshooting](md-docs/44-troubleshooting.md)** and **[upgrading](md-docs/45-upgrading.md)**
 - **[The guide's source](md-docs/)** — the same chapters as Markdown; every code block in them is compiled by the test suite
 
@@ -195,10 +203,20 @@ wf migrate [path] [--check] [--wfx]         WebFluent 2, 3 or 4.1 → 4.2
 
 ```
 .wf source → Lexer → Parser → Type checker → Linters → Code generator → HTML + CSS + JS
-                                                     → PDF validator   → PDF 1.7
+                                                     → Static HTML + CSS → Paged engine → PDF
 ```
 
-The compiler is Rust. The generated JavaScript is a small signal-based runtime with no dependencies. PDF output is written byte by byte with Base14 font metrics.
+The compiler is Rust. The generated JavaScript is a small signal-based runtime with no dependencies, and the build keeps only the parts a program reaches.
+
+A PDF or a deck is the page, printed: the program is rendered to the static HTML and CSS a template renders, and the paged engine lays that out on paper — the cascade, block, flex and grid layout, pagination, then text and paint. It stands on excellent crates: [taffy](https://github.com/DioxusLabs/taffy) for flexbox and grid, [rustybuzz](https://github.com/harfbuzz/rustybuzz) for text shaping, [ttf-parser](https://github.com/harfbuzz/ttf-parser) and [fontdb](https://github.com/RazrFalcon/fontdb) for fonts, [unicode-bidi](https://github.com/servo/unicode-bidi) and [unicode-linebreak](https://github.com/axelf4/unicode-linebreak) for text direction and line breaking, [usvg](https://github.com/linebender/resvg) for SVG, and [krilla](https://github.com/LaurenzV/krilla) — the PDF writer Typst's PDF export also uses — for the file itself.
+
+## How it's built
+
+WebFluent is AI-written and human-directed: the language, its design and every decision are mine; most of the code is written with AI under that direction. What keeps it honest is checked, not promised — every code block in the guide is parsed, type-checked and compiled by the test suite, CI builds every `wf init` template and the documentation site, and each release is gated on it.
+
+## Stability
+
+**5.x is the stable line.** From the first launch video until four weeks after it, releases are patch-only and batched at most weekly — no syntax changes and no breaking changes — so the code in the videos keeps compiling on the latest release.
 
 To build the compiler from a clone — for an unreleased change, or to work on it:
 
@@ -211,4 +229,6 @@ Contributions welcome — see [the spec](spec/SPEC.md) for what the language pro
 
 ## License
 
-[GPL-3.0](LICENSE)
+[MPL-2.0](LICENSE). Changes to WebFluent's own files stay open; using it in a closed product is fine.
+
+The sites, PDFs and slide decks you build with WebFluent are yours, under any license you choose. The runtime WebFluent writes into a site is MPL-2.0, which lets it ship inside closed code.

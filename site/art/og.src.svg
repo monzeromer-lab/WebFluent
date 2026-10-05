@@ -24,15 +24,15 @@
   <!-- the claim -->
   <text x="72" y="208" font-family="JetBrains Mono" font-weight="500" font-size="19" letter-spacing="2.5" fill="#6FD3E6">ONE BINARY · ONE LANGUAGE</text>
   <text font-family="Lato" font-weight="900" font-size="76" letter-spacing="-2" fill="#FFFFFF">
-    <tspan x="68" y="292">A language</tspan>
-    <tspan x="68" y="374">for websites.</tspan>
+    <tspan x="68" y="292">Websites, PDFs</tspan>
+    <tspan x="68" y="374">and slides.</tspan>
   </text>
   <text font-family="Lato" font-weight="400" font-size="27" fill="#A9B0B6">
-    <tspan x="72" y="438">One file says what a page shows. The</tspan>
-    <tspan x="72" y="474">compiler makes it a site, an app, a PDF</tspan>
-    <tspan x="72" y="510">or a slide deck.</tspan>
+    <tspan x="72" y="438">One language, one binary. No Node, and</tspan>
+    <tspan x="72" y="474">no browser for your PDFs: its own</tspan>
+    <tspan x="72" y="510">layout engine is built in.</tspan>
   </text>
-  <text x="72" y="570" font-family="JetBrains Mono" font-weight="500" font-size="20" fill="#7D848B">monzeromer-lab.github.io/WebFluent</text>
+  <text x="72" y="570" font-family="JetBrains Mono" font-weight="500" font-size="20" fill="#7D848B">webfluent.monzeromer.dev</text>
 
   <!-- a page, as it is written -->
   <g transform="translate(652 150)">

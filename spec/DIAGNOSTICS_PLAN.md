@@ -175,7 +175,7 @@ error[T05]: `User` has no field `nmae`
    |                  ^^^^ did you mean `name`?
    |
    = help: its fields are `id`, `name`, `email`
-   = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t05
+   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t05
 ```
 
 - The location comes first, so editors' and CI's problem matchers read it.

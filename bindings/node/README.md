@@ -1,6 +1,6 @@
 # webfluent
 
-Render [WebFluent](https://monzeromer-lab.github.io/WebFluent/) templates to
+Render [WebFluent](https://webfluent.monzeromer.dev/) templates to
 HTML and PDF from Node.js: an invoice per order, an email, a fragment for a
 page you already serve.
 
@@ -70,7 +70,7 @@ page Invoice(path: "/", title: "Invoice") {
 A template uses the static part of the language — layout, typography, data
 display, `for`, `if`, `format`, `style { }`, themes, types and components —
 since there is no browser to run state or handlers in. See
-[Server rendering](https://monzeromer-lab.github.io/WebFluent/docs/guide/server-rendering)
+[Server rendering](https://webfluent.monzeromer.dev/docs/guide/server-rendering)
 in the guide.
 
 The package's version is the compiler's it was released with; a newer `wf`

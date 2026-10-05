@@ -2,7 +2,7 @@
 /// scripts/site-from-guide.py; edit the guide, not this file.
 page IntroductionGuide(path: "/docs/guide/introduction", title: "Introduction", description: "What WebFluent is, the five ideas behind it, when to use it and when not to, and a map of the guide.", layout: DocsShell("Introduction", chapter: t("guide.chapter", { n: "1" }), blurb: "What WebFluent is, what it does for you, where it fits and where it does not, and how to read this guide.", source: "md-docs/01-introduction.md", sections: [Anchor(id: "what-you-get", label: "What you get"), Anchor(id: "the-five-ideas", label: "The five ideas"), Anchor(id: "when-to-use-it-and-when-not", label: "When to use it — and when not"), Anchor(id: "how-to-read-this-guide", label: "How to read this guide"), Anchor(id: "versions", label: "Versions")], nextTo: "/docs/guide/getting-started", nextLabel: "2. {t("ch.02")}")) {
     Stack(gap: .lg) {
-        Markdown("WebFluent is a programming language for websites. You write `.wf` files that say what each page shows, the state behind it, and what happens when the reader acts; the compiler, `wf`, turns them into a finished site — HTML, CSS and a small JavaScript runtime — or into a PDF or a slide deck from the same source.")
+        Markdown("WebFluent is a programming language for websites, PDFs and slide decks. You write `.wf` files that say what each page shows, the state behind it, and what happens when the reader acts; the compiler, `wf`, turns them into a finished site — HTML, CSS and a small JavaScript runtime — or into a PDF or a slide deck from the same source.")
 
         CodeBlock(#"page Home(path: "/", title: "Hello", description: "A first WebFluent page.") {
     state count = 0
@@ -77,6 +77,6 @@ page IntroductionGuide(path: "/docs/guide/introduction", title: "Introduction", 
 
         Heading("Versions", id: "versions").h2
 
-        Markdown("This guide describes WebFluent 4. Features marked **4.1** are in the next release; `wf --version` tells you which one you have, and [Upgrading](/docs/guide/upgrading) lists what changed in each release.")
+        Markdown("This guide describes WebFluent 5, the stable line. `wf --version` tells you which release you have, and [Upgrading](/docs/guide/upgrading) lists what changed in each one.")
     }
 }

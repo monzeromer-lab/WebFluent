@@ -2603,7 +2603,7 @@ error[T05]: `User` has no field `nmae`
 3 |     Heading(user.nmae).h1
   |                  ^^^^
   = help: Its fields are `id`, `name`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t05-a-field-or-method-that-does-not-exist
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t05-a-field-or-method-that-does-not-exist
 ```
 
 The place comes first in the `file:line:col` form problem matchers read;

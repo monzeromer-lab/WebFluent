@@ -30,7 +30,7 @@
   "scripts": {
     "test": "node --test test.js"
   },
-  "homepage": "https://monzeromer-lab.github.io/WebFluent/docs/guide/server-rendering",
+  "homepage": "https://webfluent.monzeromer.dev/docs/guide/server-rendering",
   "bugs": {
     "url": "https://github.com/monzeromer-lab/WebFluent/issues"
   }

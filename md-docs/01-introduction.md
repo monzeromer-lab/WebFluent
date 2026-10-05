@@ -7,7 +7,7 @@ blurb: What WebFluent is, what it does for you, where it fits and where it does 
 description: What WebFluent is, the five ideas behind it, when to use it and when not to, and a map of the guide.
 -->
 
-WebFluent is a programming language for websites. You write `.wf` files that
+WebFluent is a programming language for websites, PDFs and slide decks. You write `.wf` files that
 say what each page shows, the state behind it, and what happens when the
 reader acts; the compiler, `wf`, turns them into a finished site — HTML, CSS
 and a small JavaScript runtime — or into a PDF or a slide deck from the same
@@ -121,9 +121,9 @@ leaves something out says so with a `…`.
 
 ## Versions
 
-This guide describes WebFluent 4. Features marked **4.1** are in the next
-release; `wf --version` tells you which one you have, and
-[Upgrading](45-upgrading.md) lists what changed in each release.
+This guide describes WebFluent 5, the stable line. `wf --version` tells
+you which release you have, and [Upgrading](45-upgrading.md) lists what
+changed in each one.
 
 ## Next
 

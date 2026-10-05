@@ -74,7 +74,7 @@ own dependencies (its argument parser and dev server):
 
 ```toml
 [dependencies]
-webfluent = { version = "4", default-features = false }
+webfluent = { version = "5", default-features = false }
 serde = { version = "1", features = ["derive"] }
 ```
 

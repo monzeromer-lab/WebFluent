@@ -23,8 +23,8 @@
     "hot_reload": true
   },
   "meta": {
-    "title": "WebFluent — a language for websites",
-    "description": "A file describes what a page shows — its elements, the state behind them, what happens when the reader acts. The compiler turns it into a static site, a single-page app, a PDF or a slide deck.",
+    "title": "WebFluent — websites, PDFs and slides from one language",
+    "description": "One language, one binary: a static site, a single-page app, a PDF or a slide deck from the same file. No Node, and no browser for your PDFs.",
     "lang": "en",
     "favicon": "/favicon.svg",
     "touch_icon": "/apple-touch-icon.png",

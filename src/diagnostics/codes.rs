@@ -801,7 +801,7 @@ pub fn docs_url(code: &str) -> String {
         Some(c) => slug(&format!("{} — {}", c.code, c.title)),
         None => code.to_lowercase(),
     };
-    format!("https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#{anchor}")
+    format!("https://webfluent.monzeromer.dev/docs/guide/diagnostics#{anchor}")
 }
 
 /// A heading's anchor, as the site writes it (`scripts/site-from-guide.py`):
@@ -863,7 +863,7 @@ mod tests {
         }
         assert_eq!(
             docs_url("T05"),
-            "https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t05-a-field-or-method-that-does-not-exist"
+            "https://webfluent.monzeromer.dev/docs/guide/diagnostics#t05-a-field-or-method-that-does-not-exist"
         );
     }
 }
