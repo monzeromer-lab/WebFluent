@@ -60,8 +60,8 @@
     "kind": "deck",
     "lang": "ar",
     "pages": 8,
-    "bytes": 98941,
-    "size": "99 kB",
+    "bytes": 98470,
+    "size": "98 kB",
     "file": "/showcase/arabic-interfaces.pdf",
     "previews": [
       "/showcase/arabic-interfaces-1.webp",
@@ -91,13 +91,13 @@
   },
   {
     "slug": "webfluent",
-    "title": "WebFluent — a language for websites",
-    "description": "WebFluent 5.2 in sixteen slides, written in WebFluent.",
+    "title": "WebFluent — websites, PDFs and slides from one language",
+    "description": "WebFluent 5 in sixteen slides, written in WebFluent.",
     "kind": "deck",
     "lang": "en",
     "pages": 16,
-    "bytes": 396983,
-    "size": "397 kB",
+    "bytes": 396414,
+    "size": "396 kB",
     "file": "/showcase/webfluent-5.2.pdf",
     "previews": [
       "/showcase/webfluent-5.2-1.webp",
@@ -106,5 +106,22 @@
     "width": 640,
     "height": 360,
     "source": "https://github.com/monzeromer-lab/WebFluent/tree/master/examples/decks/webfluent"
+  },
+  {
+    "slug": "arabic-invoice",
+    "title": "فاتورة 2026-0417 — استوديو نخلة",
+    "description": "فاتورة أعمال التصميم والتطوير.",
+    "kind": "document",
+    "lang": "ar",
+    "pages": 1,
+    "bytes": 46385,
+    "size": "46 kB",
+    "file": "/showcase/invoice-ar.pdf",
+    "previews": [
+      "/showcase/invoice-ar-1.webp"
+    ],
+    "width": 640,
+    "height": 906,
+    "source": "https://github.com/monzeromer-lab/WebFluent/tree/master/examples/videos/arabic-invoice"
   }
 ]

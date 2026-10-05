@@ -42,7 +42,10 @@ OUT = ROOT / "site" / "public" / "showcase"
 DATA = ROOT / "site" / "src" / "showcase.json"
 TREE = "https://github.com/monzeromer-lab/WebFluent/tree/master/"
 # The groups, in the order the gallery shows them, and what each one holds.
-GROUPS = [("documents", "document"), ("decks", "deck"), ("videos", "video")]
+# examples/videos/ holds the projects the launch videos are recorded from:
+# each is a document or a deck by its own output, and one that only writes a
+# web page (the counter) or repeats an example already shown is left out.
+GROUPS = [("documents", "document"), ("decks", "deck"), ("videos", None)]
 VIDEO = (".mp4", ".webm", ".mov")
 PREVIEW_WIDTH = 640
 
@@ -175,11 +178,15 @@ def image_size(path):
     return int(w), int(h)
 
 
-def build(wf, project):
-    """Build one copied project; what it wrote and how many pages it says."""
+def build(wf, project, must_build=True):
+    """Build one copied project; what it wrote and how many pages it says.
+    A launch-video project may be meant not to build (the typo video): then
+    it is `(None, None)`, and any other example that fails stops the run."""
     done = subprocess.run([wf, "build", "-d", str(project)], capture_output=True, text=True)
     said = done.stdout + done.stderr
     if done.returncode != 0:
+        if not must_build:
+            return None, "fails"
         sys.exit(f"showcase: {project.name} did not build:\n{said}")
     pages = None
     m = re.search(r"(?:PDF|Slides): \d+ bytes, (\d+) (?:page|slide)", said)
@@ -195,7 +202,7 @@ def build(wf, project):
         # A build that writes something else (a video): the newest file it made.
         made = [p for p in (project / "build").rglob("*") if p.suffix in (".pdf",) + VIDEO]
         if not made:
-            sys.exit(f"showcase: {project.name} built, but wrote no PDF or video")
+            return None, None
         output = max(made, key=lambda p: p.stat().st_mtime)
     return output, pages
 
@@ -214,7 +221,17 @@ def main():
         for group, kind, project in projects():
             rel = project.relative_to(ROOT).as_posix()
             config = json.loads((project / "webfluent.app.json").read_text())
-            output, pages = build(wf, work / group / project.name)
+            output, pages = build(wf, work / group / project.name, must_build=kind is not None)
+            if output is None and pages == "fails":
+                print(f"  skipped   {rel:<38} it is meant not to build")
+                continue
+            if output is None:
+                if kind is None:
+                    print(f"  skipped   {rel:<38} it writes a web page, not a PDF")
+                    continue
+                sys.exit(f"showcase: {project.name} built, but wrote no PDF or video")
+            if kind is None:
+                kind = "deck" if config.get("build", {}).get("output_type") == "slides" else "document"
             published = OUT / output.name
             if published.exists():
                 published = OUT / f"{project.name}-{output.name}"
@@ -247,6 +264,12 @@ def main():
                 "height": height,
                 "source": TREE + rel,
             }
+            if any(e["title"] == entry["title"] for e in entries):
+                print(f"  skipped   {rel:<38} the same as an example already shown")
+                published.unlink()
+                for p in previews:
+                    p.unlink()
+                continue
             entries.append(entry)
             print(f"  {kind:<9} {rel:<38} {entry['pages']:>3} pages  {entry['size']:>7}  {entry['title']}")
         DATA.write_text(json.dumps(entries, ensure_ascii=False, indent=2) + "\n")

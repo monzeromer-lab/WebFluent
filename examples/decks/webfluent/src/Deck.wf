@@ -129,7 +129,7 @@ page Deck(path: "/", title: "WebFluent") {
     }
 }"#
 
-page Deck(path: "/", title: "WebFluent — a language for websites", description: "WebFluent 5.2 in sixteen slides, written in WebFluent.") {
+page Deck(path: "/", title: "WebFluent — websites, PDFs and slides from one language", description: "WebFluent 5 in sixteen slides, written in WebFluent.") {
     Presentation {
 
         // 1 · The cover
