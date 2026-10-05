@@ -657,6 +657,15 @@ pub struct MetaConfig {
     /// read a remote file, so each is `Any`.
     #[serde(default)]
     pub scripts: Vec<ScriptEntry>,
+
+    /// Origins the pages may send requests to besides their own — an API on
+    /// another domain, an analytics endpoint — as the policy's
+    /// `connect-src`: `"https://api.example.com"`, or
+    /// `"https://*.google-analytics.com"` for its subdomains. Unset, a page
+    /// may only fetch from its own origin. An origin with a path, or a
+    /// keyword (`'unsafe-inline'`), is `E111`.
+    #[serde(default)]
+    pub connect: Vec<String>,
 }
 
 /// One entry of `meta.scripts`.
@@ -801,7 +810,48 @@ pub fn csp_policy(config: &ProjectConfig) -> String {
             &format!("script-src 'self' {};", origins.join(" ")),
         );
     }
+    // Where a page may send requests: its own origin, and those the config
+    // names. Without the directive `default-src 'self'` governs, which is the
+    // same rule, so nothing is written until there is something to add.
+    let mut connect: Vec<String> = meta
+        .connect
+        .iter()
+        .filter_map(|o| connect_origin(o))
+        .collect();
+    connect.dedup();
+    if !connect.is_empty() {
+        policy = policy.replace(
+            "img-src ",
+            &format!("connect-src 'self' {}; img-src ", connect.join(" ")),
+        );
+    }
     policy
+}
+
+/// A `meta.connect` entry as the policy writes it — a scheme and a host,
+/// the host perhaps `*.` for its subdomains — or `None` for one that is not
+/// an origin (`E111`).
+pub fn connect_origin(entry: &str) -> Option<String> {
+    let entry = entry.trim().trim_end_matches('/');
+    let (scheme, host) = entry.split_once("://")?;
+    if !matches!(scheme, "https" | "wss" | "http" | "ws") {
+        return None;
+    }
+    let name = host.strip_prefix("*.").unwrap_or(host);
+    // A port is part of an origin; the name before it is what is checked.
+    let name = match name.rsplit_once(':') {
+        Some((n, p)) if !p.is_empty() && p.chars().all(|c| c.is_ascii_digit()) => n,
+        _ => name,
+    };
+    let label_ok = |l: &str| {
+        !l.is_empty()
+            && !l.starts_with('-')
+            && l.chars().all(|c| c.is_ascii_alphanumeric() || c == '-')
+    };
+    if name.is_empty() || !name.split('.').all(label_ok) {
+        return None;
+    }
+    Some(format!("{scheme}://{host}"))
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -907,6 +957,7 @@ impl Default for MetaConfig {
             preload: Vec::new(),
             stylesheets: Vec::new(),
             scripts: Vec::new(),
+            connect: Vec::new(),
         }
     }
 }
@@ -1225,6 +1276,34 @@ mod head_asset_tests {
             ..MetaConfig::default()
         };
         config
+    }
+
+    #[test]
+    fn connect_origins_join_the_policy_as_connect_src() {
+        let mut config = meta(&[], &[]);
+        config.meta.connect = vec![
+            "https://*.google-analytics.com".to_string(),
+            "https://api.example.com/".to_string(),
+        ];
+        let policy = csp_policy(&config);
+        assert!(
+            policy.contains(
+                "connect-src 'self' https://*.google-analytics.com https://api.example.com; img-src"
+            ),
+            "{policy}"
+        );
+    }
+
+    #[test]
+    fn a_connect_entry_is_an_origin_or_nothing() {
+        assert_eq!(
+            connect_origin("wss://live.example.com:8443").as_deref(),
+            Some("wss://live.example.com:8443")
+        );
+        assert_eq!(connect_origin("https://api.example.com/v1"), None);
+        assert_eq!(connect_origin("'unsafe-inline'"), None);
+        assert_eq!(connect_origin("ftp://files.example.com"), None);
+        assert_eq!(connect_origin("https://"), None);
     }
 
     #[test]

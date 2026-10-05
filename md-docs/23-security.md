@@ -183,6 +183,25 @@ declared font or library is never blocked by the policy shipped beside it.
 The project's own scripts under `src/` are served from the site itself, so
 they need nothing added.
 
+Where a page may *send* requests is the same rule: its own origin, unless
+`meta.connect` names others — an API on another domain, an analytics
+endpoint. Each is an origin, `https://api.example.com`, or
+`https://*.example.com` for its subdomains, and joins `connect-src`:
+
+```json
+{
+  "meta": {
+    "scripts": ["https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX"],
+    "connect": ["https://*.google-analytics.com", "https://*.analytics.google.com",
+                "https://www.googletagmanager.com"]
+  }
+}
+```
+
+A tag manager's own set-up — the `dataLayer` and the `gtag('config', …)`
+call a vendor pastes as an inline `<script>` — is a plain script under
+`src/`, which the policy already allows.
+
 **The build checks its own output against it.** Every HTML file is read
 back and held to the policy it carries: an inline `<script>`, a `<style>`,
 a `style=` attribute, an `on*` attribute, or a script or stylesheet from an

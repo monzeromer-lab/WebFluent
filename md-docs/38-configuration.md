@@ -99,7 +99,8 @@ absent unless you add them.
     "fonts": [],
     "preload": [],
     "stylesheets": [],
-    "scripts": []
+    "scripts": [],
+    "connect": []
   },
   "motion": { "duration": null, "easing": null },
   "env": {},
@@ -209,6 +210,7 @@ absent unless you add them.
 | `preload` | `[]` | Files on this site to fetch with the page, ahead of the stylesheets: a font a project `.css` file's `@font-face` names, the first screen's picture. `as` comes from the extension (a font is also `crossorigin`); a file on another origin is `E111` ([chapter 27](27-content.md#fonts-served-from-the-site)). |
 | `stylesheets` | `[]` | Extra stylesheets to link ahead of `styles.css`: a file in `public/` or a URL. |
 | `scripts` | `[]` | Libraries to load before the project's own scripts: a URL or a file in `public/`, or `{ "src", "module": true, "as": "Name" }` for an ES module, or `{ "src", "globals": ["Chart"] }` to call a library's names from `.wf`. Their origins join the policy ([JavaScript interop](32-javascript-interop.md#a-library-from-a-cdn)). |
+| `connect` | `[]` | Origins a page may send requests to besides its own — an API elsewhere, an analytics endpoint — as the policy's `connect-src`: `"https://api.example.com"`, `"https://*.google-analytics.com"`. An entry with a path or a keyword is `E111` ([chapter 23](23-security.md)). |
 | `integrity` | `{}` | Subresource-integrity hashes of external assets, by URL. |
 
 ## `theme`

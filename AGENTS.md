@@ -2244,7 +2244,11 @@ read one. `frame-ancestors` is only in `_headers`, because a browser
 ignores it in a meta tag. The policy is widened by exactly the origins
 `meta.fonts`, `meta.stylesheets` and `meta.scripts` declare, so a declared
 font or library is never blocked by the policy that ships beside it; the
-project's own scripts are same-origin and need nothing.
+project's own scripts are same-origin and need nothing. `meta.connect` names
+the origins a page may send requests to besides its own — an API elsewhere,
+an analytics endpoint (`https://*.google-analytics.com`) — as `connect-src`;
+an entry with a path, or a keyword, is `E111`. A vendor's inline set-up
+snippet (`dataLayer`, `gtag('config', …)`) is a plain script under `src/`.
 
 **The build reads its own output back and holds it to that policy**: an
 inline `<script>` or `<style>`, a `style=` attribute, an `on*` attribute,
@@ -2902,6 +2906,7 @@ now ships on every page.
         "preload": [],
         "stylesheets": [],
         "scripts": [],
+        "connect": [],
         "integrity": {}
     },
     "env": {},

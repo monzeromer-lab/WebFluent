@@ -391,6 +391,23 @@ pub fn config_checks(dir: &Path, config: &ProjectConfig, program: &Program) -> V
         }
     }
 
+    // A `connect-src` source is an origin, not a path or a keyword: a
+    // path is no narrower in a policy than its host, and `'unsafe-…'` has no
+    // place in a list of where requests may go.
+    for entry in &config.meta.connect {
+        if crate::config::project::connect_origin(entry).is_none() {
+            out.push(
+                config_finding(
+                    "E111",
+                    format!("`meta.connect` names `{entry}`, which is not an origin"),
+                    &text,
+                    entry,
+                )
+                .with_hint("Write a scheme and a host — `https://api.example.com`, or `https://*.example.com` for its subdomains"),
+            );
+        }
+    }
+
     // The owner node's identity, and what other settings write into it,
     // come from those settings; `owner_details` only adds to it.
     for key in config.meta.owner_details.keys() {
@@ -694,6 +711,22 @@ mod tests {
         assert_eq!(e111.len(), 2, "{e111:?}");
         assert!(e111[0].contains("another origin"), "{e111:?}");
         assert!(e111[1].contains("/notes.txt"), "{e111:?}");
+    }
+
+    #[test]
+    fn a_connect_entry_that_is_not_an_origin_is_refused() {
+        let found = config_findings(
+            r#"{"name":"t","meta":{"connect":["https://*.google-analytics.com","https://api.example.com/v1"]}}"#,
+        );
+        let e111: Vec<&str> = found
+            .iter()
+            .filter(|d| d.code == "E111")
+            .map(|d| d.message.as_str())
+            .collect();
+        assert_eq!(
+            e111,
+            ["`meta.connect` names `https://api.example.com/v1`, which is not an origin"]
+        );
     }
 
     #[test]
