@@ -1,0 +1,11 @@
+type User { name: String, role: String, email: String }
+
+page Profile(path: "/", title: "Profile", description: "Who you are.") {
+    state user = User(name: "Ada Lovelace", role: "Analyst", email: "ada@example.com")
+
+    Card.elevated {
+        Heading(user.nmae).h1
+        Text(user.role).muted
+        Link(user.email, to: "mailto:{user.email}")
+    }
+}

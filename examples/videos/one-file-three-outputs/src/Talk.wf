@@ -1,0 +1,75 @@
+// One file: the content, once, and three ways to show it.
+
+const TALK = { title: "Ship small, ship often", speaker: "Monzer Omer", event: "WebFluent launch · October 2026" }
+
+const POINTS = [
+    { n: "01", title: "One source", body: "Write the content once, as data every output reads." },
+    { n: "02", title: "Three shapes", body: "A page for the web, a handout for paper, a deck for the room." },
+    { n: "03", title: "No drift", body: "Change a word here and every output says it on the next build." },
+]
+
+theme Talk {
+    color-primary: #C2410C
+    color-text: #1C1917
+    color-text-muted: #78716C
+    font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif
+}
+
+/// One point of the talk, the same in all three outputs.
+component Point(_ n: String, title: String, body: String) {
+    Stack(gap: .sm) {
+        style { border-top: 3px solid $color-primary; padding-top: 12px }
+        Text(n).bold.primary
+        Heading(title).h2
+        Text(body).muted
+    }
+}
+
+/// The web page.
+page Site(path: "/", title: "{TALK.title}", description: "The talk, as a page.") {
+    Container {
+        style { padding: 64px 16px }
+        Text(TALK.event).muted.uppercase.sm
+        Heading(TALK.title).h1
+        Text("by {TALK.speaker}").muted
+        Spacer.lg
+        Grid(columns: 3, gap: .lg) {
+            for p in POINTS { Point(p.n, title: p.title, body: p.body) }
+        }
+    }
+}
+
+/// The handout: the same points, on paper — the title in a band edge to edge.
+page Handout(path: "/handout", title: "{TALK.title} — handout", description: "The talk, printed.") {
+    Document(size: "A4", margin: "0", title: TALK.title, author: TALK.speaker) {
+        Stack(gap: .sm) {
+            style { background: $color-primary; color: #FFFFFF; padding: 56px 64px 40px }
+            Text(TALK.event).uppercase.sm
+            Heading(TALK.title).h1
+            Text("by {TALK.speaker}")
+        }
+        Stack(gap: .xl) {
+            style { padding: 48px 64px }
+            for p in POINTS { Point(p.n, title: p.title, body: p.body) }
+            Row(gap: .md, align: .center) {
+                QrCode("https://example.com/ship-small") { style { width: 96px } }
+                Text("Scan for the page, and the slides.").muted
+            }
+        }
+    }
+}
+
+/// The deck: a title slide, then a slide per point.
+page Deck(path: "/deck", title: "{TALK.title} — slides", description: "The talk, as slides.") {
+    Presentation {
+        TitleSlide(TALK.title, subtitle: "{TALK.speaker} · {TALK.event}") {
+            style { background: #FFF7ED }
+        }
+        for p in POINTS {
+            Slide {
+                style { justify-content: center }
+                Point(p.n, title: p.title, body: p.body)
+            }
+        }
+    }
+}

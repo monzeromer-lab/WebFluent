@@ -1,0 +1,14 @@
+{
+  "number": "2026-0417",
+  "issued": "Sep 30, 2026",
+  "due": "Oct 30, 2026",
+  "lines": [
+    { "item": "Discovery workshop", "detail": "Two days on site, one day of synthesis", "qty": 3, "unit": "day", "price": 1450 },
+    { "item": "Information architecture", "detail": "Catalogue, search and checkout", "qty": 4, "unit": "day", "price": 1250 },
+    { "item": "Design system tokens", "detail": "Colour, type and spacing, light and dark", "qty": 2, "unit": "day", "price": 1300 },
+    { "item": "Front-end build, product pages", "detail": "Sprint 4", "qty": 8, "unit": "day", "price": 1180 },
+    { "item": "Usability test round", "detail": "Five participants each, with report", "qty": 2, "unit": "round", "price": 2400 },
+    { "item": "Accessibility audit (WCAG 2.2 AA)", "detail": "Sprint 6", "qty": 12, "unit": "page", "price": 95 },
+    { "item": "Copy editing", "detail": "Product descriptions and error messages", "qty": 6, "unit": "hour", "price": 85 }
+  ]
+}

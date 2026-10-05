@@ -1,0 +1,108 @@
+data inv = "invoice.json"
+
+const STUDIO = "Meridian Studio"
+
+page Invoice(path: "/", title: "Invoice {inv.number}", description: "Invoice for design and build work.") {
+    derived subtotal = inv.lines.map(l => l.qty * l.price).sum()
+    derived discount = subtotal * 0.05
+    derived tax = (subtotal - discount) * 0.0875
+    derived total = subtotal - discount + tax
+
+    Document(size: "Letter", title: "Invoice {inv.number} — {STUDIO}", author: STUDIO) {
+        Background(on: .first) { Stack(class: "band") { } }
+        Footer {
+            Row(class: "foot") {
+                Text("{STUDIO} · 1180 Harbor Row, Portland OR 97209 · billing@meridian.example")
+                Text("Invoice {inv.number}")
+            }
+        }
+
+        Row(class: "letterhead") {
+            Row(class: "brand") {
+                Image(src: "/logo.svg", alt: "")
+                Stack(gap: .xs) {
+                    Text(STUDIO, class: "brand-name")
+                    Text("Product design and engineering", class: "brand-tag")
+                }
+            }
+            Stack(class: "title") {
+                Heading("Invoice").h1
+                Text("No. {inv.number}", class: "number")
+            }
+        }
+
+        Grid(class: "parties") {
+            Stack(class: "party") {
+                Text("From", class: "label")
+                Text(STUDIO, class: "strong")
+                Text("1180 Harbor Row, Suite 4")
+                Text("Portland, OR 97209")
+                Text("EIN 84-1209337")
+            }
+            Stack(class: "party") {
+                Text("Bill to", class: "label")
+                Text("Northwind Outfitters, Inc.", class: "strong")
+                Text("Attn. Accounts Payable")
+                Text("88 Mercer Street, 6th floor")
+                Text("New York, NY 10012")
+            }
+            Stack(class: "meta") {
+                Row(class: "meta-row") { Text("Issued")  Text(inv.issued) }
+                Row(class: "meta-row") { Text("Terms")  Text("Net 30") }
+                Row(class: "meta-row") { Text("PO")  Text("NW-55102", class: "mono") }
+                Row(class: "meta-row") { Text("Due")  Text(inv.due, class: "due") }
+            }
+        }
+
+        Table(class: "items") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("#", class: "num")
+                    Table.Cell("Description")
+                    Table.Cell("Qty", class: "num")
+                    Table.Cell("Unit")
+                    Table.Cell("Rate", class: "num")
+                    Table.Cell("Amount", class: "num")
+                }
+            }
+            Table.Body {
+                for l, i in inv.lines {
+                    Table.Row {
+                        Table.Cell("{i + 1}", class: "num")
+                        Table.Cell {
+                            Text(l.item, class: "strong")
+                            Text(l.detail, class: "muted")
+                        }
+                        Table.Cell("{l.qty}", class: "num")
+                        Table.Cell(l.unit)
+                        Table.Cell(format(l.price, .currency), class: "num")
+                        Table.Cell(format(l.qty * l.price, .currency), class: "num")
+                    }
+                }
+            }
+        }
+
+        Row(class: "summary") {
+            Row(class: "pay") {
+                Stack(class: "qr") { QrCode("https://pay.meridian.example/i/{inv.number}") }
+                Stack(gap: .sm) {
+                    Text("Pay online or by transfer", class: "label")
+                    Grid(class: "bank") {
+                        Text("Bank")  Text("First Columbia Trust")
+                        Text("Account")  Text("4402 1187 9930", class: "mono")
+                        Text("Routing")  Text("123 000 220", class: "mono")
+                        Text("Reference")  Text(inv.number, class: "mono")
+                    }
+                }
+            }
+            Stack(class: "totals") {
+                Row(class: "totals-row") { Text("Subtotal")  Text(format(subtotal, .currency)) }
+                Row(class: "totals-row") { Text("Returning-client discount (5%)")  Text("−{format(discount, .currency)}") }
+                Row(class: "totals-row") { Text("Sales tax (8.75%)")  Text(format(tax, .currency)) }
+                Row(class: ["totals-row", "grand"]) { Text("Total due")  Text(format(total, .currency)) }
+            }
+        }
+
+        Text("Thank you for a third season together. Payment within 30 days of issue; scan the code to pay by card or ACH, or transfer with the invoice number as the reference.", class: "notes")
+    }
+}

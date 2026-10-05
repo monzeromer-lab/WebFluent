@@ -1,0 +1,19 @@
+{
+  "name": "report-contents",
+  "version": "1.0.0",
+  "theme": { "name": "FluantInk", "builtin": "structural" },
+  "build": {
+    "output": "./build",
+    "output_type": "pdf",
+    "pdf": {
+      "page_size": "A4",
+      "margins": { "top": 64, "bottom": 60, "left": 48, "right": 48 },
+      "default_font": "Manrope",
+      "default_font_size": 9.5,
+      "output_filename": "report.pdf",
+      "fonts": ["../../documents/fonts"],
+      "system_fonts": false
+    }
+  },
+  "meta": { "lang": "en" }
+}

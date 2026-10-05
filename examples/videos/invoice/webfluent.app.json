@@ -1,0 +1,18 @@
+{
+  "name": "invoice",
+  "version": "1.0.0",
+  "theme": { "name": "Ledger" },
+  "build": {
+    "output": "./build",
+    "output_type": "pdf",
+    "pdf": {
+      "page_size": "Letter",
+      "margins": { "top": 54, "bottom": 64, "left": 54, "right": 54 },
+      "default_font": "Manrope",
+      "default_font_size": 9,
+      "output_filename": "invoice.pdf",
+      "fonts": ["../../documents/fonts"],
+      "system_fonts": false
+    }
+  }
+}

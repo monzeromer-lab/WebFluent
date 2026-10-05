@@ -1,0 +1,7 @@
+{
+  "name": "counter",
+  "version": "1.0.0",
+  "theme": { "name": "Studio" },
+  "build": { "output": "./build", "ssg": true },
+  "meta": { "lang": "en" }
+}
