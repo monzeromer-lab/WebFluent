@@ -697,13 +697,21 @@ fn lint_ui_element(
                 // argument, exactly as `Button("Save")` does, and renders it as
                 // the anchor's text. Ignoring that spelling made this warning
                 // fire on the documented form.
-                let has_children = ui
-                    .children
-                    .iter()
-                    .any(|s| matches!(&s.kind, StatementKind::UIElement(_)));
-                if !has_children
-                    && !has_positional_arg(&ui.args)
-                    && !has_named_arg(&ui.args, "label")
+                // Whatever draws inside it can be its text: an element, or an
+                // `if`, `for`, `show` or `match` that draws one. And an
+                // `aria-label` is a name as `label:` is (`IconButton`'s A02
+                // and `Button`'s A05 already read it so).
+                let has_children = ui.children.iter().any(|s| {
+                    matches!(
+                        &s.kind,
+                        StatementKind::UIElement(_)
+                            | StatementKind::If(_)
+                            | StatementKind::For(_)
+                            | StatementKind::Show(_)
+                            | StatementKind::Match(_)
+                    )
+                });
+                if !has_children && !has_positional_arg(&ui.args) && !has_accessible_name(&ui.args)
                 {
                     warnings.push(A11yWarning::new(
                         "A06",
@@ -1259,6 +1267,28 @@ mod naming_tests {
             .into_iter()
             .map(|w| w.rule_id)
             .collect()
+    }
+
+    #[test]
+    fn a_link_whose_text_a_loop_or_a_branch_draws_has_text() {
+        let src = r#"page P(path: "/", title: "t", description: "d") {
+            state items = ["a", "b"]
+            state open = true
+            Heading("h").h1
+            Link(href: "/a.pdf") { for it in items { Text(it) } }
+            Link(href: "/b.pdf") { if open { Text("Open") } else { Text("Closed") } }
+            Link(href: "/c.pdf", aria-label: "Open the invoice PDF") { Image(src: "/c.webp", alt: "") }
+        }"#;
+        assert!(!rules(src).contains(&"A06".to_string()), "{:?}", rules(src));
+    }
+
+    #[test]
+    fn a_link_with_nothing_in_it_still_has_no_text() {
+        let src = r#"page P(path: "/", title: "t", description: "d") {
+            Heading("h").h1
+            Link(href: "/a.pdf") { on click { log("x") } }
+        }"#;
+        assert!(rules(src).contains(&"A06".to_string()), "{:?}", rules(src));
     }
 
     #[test]
