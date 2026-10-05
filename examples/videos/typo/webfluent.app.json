@@ -1,0 +1,6 @@
+{
+  "name": "typo",
+  "version": "1.0.0",
+  "build": { "output": "./build" },
+  "meta": { "lang": "en" }
+}

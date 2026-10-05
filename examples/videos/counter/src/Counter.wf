@@ -1,0 +1,12 @@
+page Counter(path: "/", title: "Counter", description: "A number and two buttons.") {
+    state count = 0
+
+    Stack(align: .center, gap: .lg, class: "stage") {
+        Text("Clicks", class: "eyebrow")
+        Heading("{count}", class: "count").h1
+        Row(gap: .sm) {
+            Button("−1").outlined.lg { on click { count = count - 1 } }
+            Button("+1").primary.lg { on click { count = count + 1 } }
+        }
+    }
+}

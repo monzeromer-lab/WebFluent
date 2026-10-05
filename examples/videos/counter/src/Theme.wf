@@ -1,0 +1,9 @@
+theme Studio {
+    color-primary: #C2410C
+    color-background: #0B0C0E
+    color-surface: #131519
+    color-text: #F4F1EC
+    color-text-muted: #949BA7
+    color-border: #2A2F37
+    font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif
+}

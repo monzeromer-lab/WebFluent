@@ -145,6 +145,11 @@ zip-windows:
 test:
     cargo test
 
+# Build every launch-video project under examples/videos, as CI does
+# (`typo` must fail `wf check`, with the T05 its video shows)
+examples: release
+    scripts/video-examples.sh target/release/wf
+
 # Formatting, clippy and the build, one by one, as CI runs them
 # (`just check --fix` formats first; `just check --test` runs the tests too)
 check *args:
