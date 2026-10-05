@@ -1,3 +1,60 @@
+# WebFluent v5.3.0 Release Notes
+
+What a search engine and a link preview read, said in full by the build —
+so a site needs no step after `wf build` to be found, shared and fast.
+
+## Who the site belongs to
+
+- **`meta.owner: "person"`** publishes the site under a `Person` instead of
+  an `Organization`: the `WebSite`'s `publisher`, and on a personal site
+  every `WebPage`'s `about`. `job_title` is the person's `jobTitle`;
+  `same_as` lists their profiles elsewhere.
+- **`meta.owner_details`** adds any other schema.org property to that node
+  as written — `alternateName`, `email`, `worksFor`, `alumniOf`,
+  `knowsAbout`, `logo`. What the node is (`@type`, `@id`, `name`, `url`) and
+  what other settings write (`jobTitle`, `sameAs`) are refused (`E111`).
+  Values are escaped for the `<script>` block they sit in.
+
+## The sharing card
+
+- **`og:image:width` and `og:image:height`** are read from the image when
+  it is in `public/`.
+- **`og:image:alt` and `twitter:image:alt`** from a page's `image_alt:` or
+  `meta.image_alt`.
+- **`og:locale`** is written as Open Graph reads it (`en` → `en_US`,
+  `en-GB` → `en_GB`), with an `og:locale:alternate` for each other locale.
+
+## Addresses that do not redirect
+
+- **`build.clean_urls`**. A static build writes `/contact` as
+  `contact/index.html`, and a host such as GitHub Pages answers `/contact`
+  with a `301`. `"file"` also writes `contact.html`; `"directory"` names
+  every route `/contact/` — canonical, `og:url`, sitemap, breadcrumbs and
+  every link to a page — so the canonical address is never one that
+  redirects.
+
+## Files asked for early
+
+- **`meta.preload`** lists files on the site to fetch with the page: each
+  is a `<link rel="preload">` in every head, ahead of the stylesheets, `as`
+  from its extension, and `crossorigin` for a font. A font a project `.css`
+  file's `@font-face` names no longer waits for `styles.css` to arrive. A
+  path on another origin is `E111`.
+
+## Where a page may send requests
+
+- **`meta.connect`** names the origins a page may send requests to besides
+  its own — an API on another domain, an analytics endpoint — as the
+  policy's `connect-src`: `https://api.example.com`, or
+  `https://*.google-analytics.com` for a domain's subdomains. Until now the
+  policy left a page only its own origin, with no way to widen it. An entry
+  with a path, or a keyword, is `E111`.
+
+## The documentation site
+
+- Moves to **webfluent.monzeromer.dev**. It was still built for the
+  `/WebFluent` base path, so its internal links and search index 404'd.
+
 # WebFluent v5.2.0 Release Notes
 
 A PDF is the page, printed. The PDF and slide writers are replaced by one

@@ -44,7 +44,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.2</p>
+                            <p class="wf-text wf-s859a58d7">5.3</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -422,6 +422,60 @@ Then `wf init my-site`.</code>
                             </div>
                             <div class="wf-markdown">
 <p>The JSON-LD then holds a <code>Person</code> (<code>@id</code> <code>…/#person</code>) with <code>jobTitle</code> and <code>sameAs</code>; the <code>WebSite</code>'s <code>publisher</code> and every <code>WebPage</code>'s <code>about</code> point at it. An organisation's <code>WebSite</code> names it as <code>publisher</code> too, and takes <code>same_as</code> for its profiles.</p>
+<p>Anything else schema.org says about a person or an organisation goes in <code>meta.owner_details</code>, merged into the node as written:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{
+  &quot;meta&quot;: {
+    &quot;owner_details&quot;: {
+      &quot;alternateName&quot;: &quot;Augusta Ada King&quot;,
+      &quot;worksFor&quot;: [{ &quot;@type&quot;: &quot;Organization&quot;, &quot;name&quot;: &quot;Analytical Engines&quot; }],
+      &quot;alumniOf&quot;: { &quot;@type&quot;: &quot;CollegeOrUniversity&quot;, &quot;name&quot;: &quot;University of London&quot; },
+      &quot;knowsAbout&quot;: [&quot;Mathematics&quot;, &quot;Computing&quot;],
+      &quot;knowsLanguage&quot;: [&quot;en&quot;, &quot;fr&quot;]
+    }
+  }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>What the node is — <code>@type</code>, <code>@id</code>, <code>name</code>, <code>url</code> — and what <code>job_title</code> and <code>same_as</code> write come from those settings; setting one here is <code>E111</code>. Structured data has to agree with what the pages show, and the build cannot check that: state here only what the site says too.</p>
+                            </div>
+                            <h3 class="wf-heading" id="fonts-served-from-the-site">Fonts served from the site</h3>
+                            <div class="wf-markdown">
+<p>A font named by a <code>@font-face</code> in a project <code>.css</code> file is only found once <code>styles.css</code> has arrived and been read. <code>meta.preload</code> asks for it with the page instead:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{ &quot;meta&quot;: { &quot;preload&quot;: [&quot;/fonts/inter-latin.woff2&quot;] } }</code>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">css</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">/* src/fonts.css */
+@font-face {
+  font-family: &quot;Inter&quot;;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url(&quot;/fonts/inter-latin.woff2&quot;) format(&quot;woff2&quot;);
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Each path becomes a <code>&lt;link rel=&quot;preload&quot;&gt;</code> in every page's head, ahead of the stylesheets, with <code>as</code> from its extension — <code>font</code> (and <code>crossorigin</code>, which a font preload needs or the browser fetches it twice), <code>style</code>, <code>script</code> or <code>image</code>. Serving the files from <code>public/</code> rather than a font service also takes a third-party stylesheet and two connections out of the way of the first paint. A path on another origin is <code>E111</code>: the policy the build ships would refuse it.</p>
                             </div>
                             <h3 class="wf-heading" id="addresses-that-do-not-redirect">Addresses that do not redirect</h3>
                             <div class="wf-markdown">
@@ -482,7 +536,8 @@ page PostPage(path: &quot;/posts/:slug&quot;, slug: String, type: &quot;article&
 <li>One <code>h1</code> per page, headings in order (<code>A11</code>, <code>A12</code>).</li>
 <li>An <code>image:</code> per page that is shared, or <code>meta.image</code> for the site — 1200 × 630 pixels suits most previews — in <code>public/</code>, so its size is in the card, with an <code>image_alt:</code> (or <code>meta.image_alt</code>) saying what it shows.</li>
 <li>On GitHub Pages and hosts like it, <code>build.clean_urls</code>, so the canonical address is never one that redirects.</li>
-<li>A personal site: <code>meta.owner: &quot;person&quot;</code>, with <code>job_title</code> and <code>same_as</code>.</li>
+<li>A personal site: <code>meta.owner: &quot;person&quot;</code>, with <code>job_title</code>, <code>same_as</code> and, for the rest of who they are, <code>owner_details</code>.</li>
+<li>Web fonts from <code>public/</code>, named in <code>meta.preload</code>, rather than a font service's stylesheet.</li>
 <li><code>noindex: true</code> on pages that should not be found: sign-in, thanks, drafts.</li>
 <li>Check the result: view a built page's source, and paste a URL into a link-preview debugger.</li>
 </ul>
