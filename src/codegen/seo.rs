@@ -437,6 +437,20 @@ pub fn head_tags(page: &PageDecl, config: &ProjectConfig, program: &Program) -> 
     out
 }
 
+/// The owner node's keys that come from settings of their own, which
+/// `meta.owner_details` may not set.
+const OWNER_KEYS: [&str; 7] = [
+    "@context", "@type", "@id", "name", "url", "jobTitle", "sameAs",
+];
+
+/// A JSON value for a `<script>` block: `<` written as `\u003c`, so no
+/// string in it can close the block (`</script>`) or open a comment.
+fn json_value(value: &serde_json::Value) -> String {
+    serde_json::to_string(value)
+        .unwrap_or_else(|_| "null".to_string())
+        .replace('<', "\\u003c")
+}
+
 /// JSON-LD describing the page and the site.
 ///
 /// Google recommends JSON-LD over microdata because it does not interleave with
@@ -487,6 +501,14 @@ fn structured_data(page: &PageDecl, config: &ProjectConfig, program: &Program) -
         .collect();
     if !same_as.is_empty() {
         owner.push_str(&format!(r#","sameAs":[{}]"#, same_as.join(",")));
+    }
+    // More of who the owner is, as written. What the node is and what other
+    // settings say are theirs (`E111` refuses them here), so they are skipped.
+    for (key, value) in &config.meta.owner_details {
+        if OWNER_KEYS.contains(&key.as_str()) {
+            continue;
+        }
+        owner.push_str(&format!(r#","{}":{}"#, json_str(key), json_value(value)));
     }
     owner.push('}');
     graph.push(owner);
@@ -1210,6 +1232,57 @@ page Guide(path: "/docs/getting-started", title: "Getting Started") { Text("x") 
         let org = node(&g, "Organization");
         assert_eq!(org["sameAs"][0], "https://github.com/l");
         assert!(org.get("jobTitle").is_none(), "{out}");
+    }
+
+    #[test]
+    fn owner_details_are_merged_into_the_owner_node() {
+        let out = head(
+            r#"page P(path: "/", title: "Home") { Text("x") }"#,
+            r#"{"name":"Ada Lovelace","meta":{"site_url":"https://ada.example","owner":"person",
+                "job_title":"Analyst",
+                "owner_details":{"alternateName":"Augusta Ada King",
+                    "worksFor":[{"@type":"Organization","name":"Analytical Engines"}],
+                    "knowsLanguage":["en","fr"]}}}"#,
+        );
+        let g = graph(&out);
+        let person = node(&g, "Person");
+        assert_eq!(person["alternateName"], "Augusta Ada King");
+        assert_eq!(person["worksFor"][0]["name"], "Analytical Engines");
+        assert_eq!(person["knowsLanguage"][1], "fr");
+        assert_eq!(person["jobTitle"], "Analyst");
+    }
+
+    #[test]
+    fn owner_details_cannot_replace_what_the_node_is() {
+        let out = head(
+            r#"page P(path: "/", title: "Home") { Text("x") }"#,
+            r#"{"name":"Ada","meta":{"site_url":"https://ada.example","owner":"person",
+                "owner_details":{"@type":"Organization","name":"Someone else","url":"https://x.example/"}}}"#,
+        );
+        let g = graph(&out);
+        let person = node(&g, "Person");
+        assert_eq!(person["name"], "Ada");
+        assert_eq!(person["url"], "https://ada.example/");
+        assert_eq!(
+            out.matches(r#""name":"#).count(),
+            3,
+            "website, person, page: {out}"
+        );
+    }
+
+    #[test]
+    fn owner_details_cannot_close_the_script_block() {
+        let out = head(
+            r#"page P(path: "/", title: "Home") { Text("x") }"#,
+            r#"{"name":"Ada","meta":{"site_url":"https://ada.example",
+                "owner_details":{"description":"</script><script>alert(1)</script>"}}}"#,
+        );
+        assert!(!out.contains("</script><script>"), "{out}");
+        let g = graph(&out);
+        assert_eq!(
+            node(&g, "Organization")["description"],
+            "</script><script>alert(1)</script>"
+        );
     }
 
     // ─── The sharing image ──────────────────────────────

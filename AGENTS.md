@@ -2165,8 +2165,16 @@ Every page then carries:
 - JSON-LD (`WebSite`, the owner, `WebPage`/`Article`, and a `BreadcrumbList`
   derived from the route). The owner is `site_name` as an `Organization`, or a
   `Person` with `"owner": "person"` (and `job_title`); `same_as` lists its other
-  profiles; `WebSite.publisher` names it, and on a personal site every page is
-  `about` it
+  profiles; `owner_details` adds any other schema.org property as written
+  (`alternateName`, `worksFor`, `alumniOf`, `knowsAbout`, … — not the node's
+  `@type`, `@id`, `name`, `url`, `jobTitle` or `sameAs`, which are `E111`);
+  `WebSite.publisher` names it, and on a personal site every page is `about` it
+
+`meta.preload` lists files on the site to fetch with the page — a font a
+project `.css` file's `@font-face` names, the first screen's picture — as a
+`<link rel="preload">` in every head, ahead of the stylesheets, `as` taken
+from the extension (a font is also `crossorigin`). One on another origin is
+`E111`.
 
 A static build writes `/contact` as `contact/index.html`, and a host such as
 GitHub Pages answers `/contact` with a `301` to `/contact/`. `build.clean_urls`
@@ -2891,6 +2899,7 @@ now ships on every page.
         "image_alt": "",
         "sitemap": true,
         "fonts": [],
+        "preload": [],
         "stylesheets": [],
         "scripts": [],
         "integrity": {}

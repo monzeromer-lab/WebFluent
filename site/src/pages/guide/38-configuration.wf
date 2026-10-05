@@ -84,6 +84,7 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
     "image_alt": "",
     "sitemap": true,
     "fonts": [],
+    "preload": [],
     "stylesheets": [],
     "scripts": []
   },
@@ -450,6 +451,11 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
                     Table.Cell { Markdown("A person's `jobTitle`.") }
                 }
                 Table.Row {
+                    Table.Cell { Markdown("`owner_details`") }
+                    Table.Cell { Markdown("`\{\}`") }
+                    Table.Cell { Markdown("More of the owner, as schema.org properties merged into its node as written: `alternateName`, `email`, `worksFor`, `alumniOf`, `knowsAbout`, `logo`… The node's `@type`, `@id`, `name`, `url`, `jobTitle` and `sameAs` come from the settings above (`E111`).") }
+                }
+                Table.Row {
                     Table.Cell { Markdown("`image`") }
                     Table.Cell { Markdown("`\"\"`") }
                     Table.Cell { Markdown("The sharing image for pages that set none; one in `public/` has its size read into `og:image:width`/`height`.") }
@@ -478,6 +484,11 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
                     Table.Cell { Markdown("`fonts`") }
                     Table.Cell { Markdown("`[]`") }
                     Table.Cell { Markdown("Web-font stylesheet URLs to link, each with a `preconnect`; their origins join the policy.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`preload`") }
+                    Table.Cell { Markdown("`[]`") }
+                    Table.Cell { Markdown("Files on this site to fetch with the page, ahead of the stylesheets: a font a project `.css` file's `@font-face` names, the first screen's picture. `as` comes from the extension (a font is also `crossorigin`); a file on another origin is `E111` ([chapter 27](/docs/guide/content#fonts-served-from-the-site)).") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`stylesheets`") }

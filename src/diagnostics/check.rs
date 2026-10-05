@@ -265,6 +265,30 @@ fn config_finding(code: &'static str, message: String, text: &str, needle: &str)
     }
 }
 
+/// [`config_finding`] at the first `needle` after `anchor` — a key inside
+/// one object, rather than one of the same name elsewhere in the file.
+fn config_finding_after(
+    code: &'static str,
+    message: String,
+    text: &str,
+    anchor: &str,
+    needle: &str,
+) -> Diagnostic {
+    let start = text.find(anchor).unwrap_or(0);
+    let Some(at) = text[start..].find(needle).map(|i| start + i) else {
+        return config_finding(code, message, text, anchor);
+    };
+    match (
+        super::line_col(text, at),
+        super::line_col(text, at + needle.len()),
+    ) {
+        (Some((line, col)), Some((end_line, end_col))) => {
+            Diagnostic::coded(code, message, CONFIG, line, col).with_end(end_line, end_col)
+        }
+        _ => config_finding(code, message, text, anchor),
+    }
+}
+
 const CONFIG: &str = "webfluent.app.json";
 
 /// What the configuration asks for that cannot work, or that nothing reads.
@@ -338,6 +362,57 @@ pub fn config_checks(dir: &Path, config: &ProjectConfig, program: &Program) -> V
                     &spec.src,
                 )
                 .with_hint("Add `\"as\": \"Name\"`: its exports are put on `window.Name`"),
+            );
+        }
+    }
+
+    // A preload is a file on this site, of a kind a preload can name. One
+    // from another origin would be refused by the policy the build ships;
+    // that origin's font or script is declared in `fonts` or `scripts`.
+    for path in &config.meta.preload {
+        let elsewhere = path.contains("://") || path.starts_with("//");
+        let problem = if elsewhere {
+            Some((
+                format!("`meta.preload` names `{path}`, on another origin"),
+                "Serve the file from this site (`public/`), or declare a font stylesheet in `meta.fonts` and a script in `meta.scripts`",
+            ))
+        } else if crate::codegen::html::preload_kind(path).is_none() {
+            Some((
+                format!(
+                    "`meta.preload` names `{path}`, which is no kind of file a preload can name"
+                ),
+                "A preload is a font (`woff2`, `woff`, `ttf`, `otf`), a stylesheet, a script or a picture",
+            ))
+        } else {
+            None
+        };
+        if let Some((message, hint)) = problem {
+            out.push(config_finding("E111", message, &text, path).with_hint(hint));
+        }
+    }
+
+    // The owner node's identity, and what other settings write into it,
+    // come from those settings; `owner_details` only adds to it.
+    for key in config.meta.owner_details.keys() {
+        let from = match key.as_str() {
+            "@type" => Some("`meta.owner`"),
+            "@id" | "url" => Some("`meta.site_url`"),
+            "name" => Some("`meta.site_name`"),
+            "jobTitle" => Some("`meta.job_title`"),
+            "sameAs" => Some("`meta.same_as`"),
+            "@context" => Some("the page's structured data"),
+            _ => None,
+        };
+        if let Some(from) = from {
+            out.push(
+                config_finding_after(
+                    "E111",
+                    format!("`meta.owner_details` sets `{key}`, which comes from {from}"),
+                    &text,
+                    "\"owner_details\"",
+                    &format!("\"{key}\""),
+                )
+                .with_hint(format!("Remove it here and set {from}")),
             );
         }
     }
@@ -587,6 +662,55 @@ mod tests {
             incomplete: false,
         })
         .diagnostics
+    }
+
+    /// What `config_checks` says about this `webfluent.app.json`.
+    fn config_findings(json: &str) -> Vec<Diagnostic> {
+        let dir = std::env::temp_dir().join(format!(
+            "wf-config-check-{}-{}",
+            std::process::id(),
+            json.len()
+        ));
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join(CONFIG), json).unwrap();
+        let config: ProjectConfig = serde_json::from_str(json).unwrap();
+        let program =
+            crate::syntax::parse_source("page P(path: \"/\") { Text(\"x\") }", "t.wf").unwrap();
+        let out = config_checks(&dir, &config, &program);
+        let _ = std::fs::remove_dir_all(&dir);
+        out
+    }
+
+    #[test]
+    fn a_preload_from_another_origin_or_of_no_kind_is_refused() {
+        let found = config_findings(
+            r#"{"name":"t","meta":{"preload":["https://cdn.example/a.woff2","/notes.txt","/fonts/a.woff2"]}}"#,
+        );
+        let e111: Vec<&str> = found
+            .iter()
+            .filter(|d| d.code == "E111")
+            .map(|d| d.message.as_str())
+            .collect();
+        assert_eq!(e111.len(), 2, "{e111:?}");
+        assert!(e111[0].contains("another origin"), "{e111:?}");
+        assert!(e111[1].contains("/notes.txt"), "{e111:?}");
+    }
+
+    #[test]
+    fn owner_details_may_not_set_what_other_settings_do() {
+        let json = "{\n  \"name\": \"t\",\n  \"meta\": {\n    \"owner_details\": {\n      \"name\": \"x\",\n      \"email\": \"mailto:a@b.c\"\n    }\n  }\n}";
+        let found = config_findings(json);
+        let e111: Vec<&Diagnostic> = found.iter().filter(|d| d.code == "E111").collect();
+        assert_eq!(e111.len(), 1, "{found:?}");
+        assert!(
+            e111[0].message.contains("`meta.site_name`"),
+            "{}",
+            e111[0].message
+        );
+        assert_eq!(
+            e111[0].line, 5,
+            "the key inside owner_details, not the project's name"
+        );
     }
 
     #[test]

@@ -97,6 +97,7 @@ absent unless you add them.
     "image_alt": "",
     "sitemap": true,
     "fonts": [],
+    "preload": [],
     "stylesheets": [],
     "scripts": []
   },
@@ -198,12 +199,14 @@ absent unless you add them.
 | `owner` | `"organization"` | Whether the owner is an `"organization"` or a `"person"` — the JSON-LD node the site is published by ([chapter 27](27-content.md#who-the-site-belongs-to)). |
 | `same_as` | `[]` | The owner's profiles elsewhere, as its `sameAs`. |
 | `job_title` | `""` | A person's `jobTitle`. |
+| `owner_details` | `{}` | More of the owner, as schema.org properties merged into its node as written: `alternateName`, `email`, `worksFor`, `alumniOf`, `knowsAbout`, `logo`… The node's `@type`, `@id`, `name`, `url`, `jobTitle` and `sameAs` come from the settings above (`E111`). |
 | `image` | `""` | The sharing image for pages that set none; one in `public/` has its size read into `og:image:width`/`height`. |
 | `image_alt` | `""` | What that image shows: `og:image:alt` and `twitter:image:alt`. A page's `image_alt:` wins. |
 | `favicon` | `""` | The icon a tab shows: a file in `public/` — an SVG scales to every size — or a URL. |
 | `touch_icon` | `""` | The icon a phone puts on its home screen: a 180×180 PNG in `public/`. iOS reads this, not an SVG `favicon`. |
 | `sitemap` | `true` | Write `sitemap.xml` and `robots.txt`. |
 | `fonts` | `[]` | Web-font stylesheet URLs to link, each with a `preconnect`; their origins join the policy. |
+| `preload` | `[]` | Files on this site to fetch with the page, ahead of the stylesheets: a font a project `.css` file's `@font-face` names, the first screen's picture. `as` comes from the extension (a font is also `crossorigin`); a file on another origin is `E111` ([chapter 27](27-content.md#fonts-served-from-the-site)). |
 | `stylesheets` | `[]` | Extra stylesheets to link ahead of `styles.css`: a file in `public/` or a URL. |
 | `scripts` | `[]` | Libraries to load before the project's own scripts: a URL or a file in `public/`, or `{ "src", "module": true, "as": "Name" }` for an ES module, or `{ "src", "globals": ["Chart"] }` to call a library's names from `.wf`. Their origins join the policy ([JavaScript interop](32-javascript-interop.md#a-library-from-a-cdn)). |
 | `integrity` | `{}` | Subresource-integrity hashes of external assets, by URL. |

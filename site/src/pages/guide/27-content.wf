@@ -94,7 +94,37 @@ Then `wf init my-site`."#, title: "markdown")
   }
 }"#, title: "json")
 
-        Markdown("The JSON-LD then holds a `Person` (`@id` `…/#person`) with `jobTitle` and `sameAs`; the `WebSite`'s `publisher` and every `WebPage`'s `about` point at it. An organisation's `WebSite` names it as `publisher` too, and takes `same_as` for its profiles.")
+        Markdown("The JSON-LD then holds a `Person` (`@id` `…/#person`) with `jobTitle` and `sameAs`; the `WebSite`'s `publisher` and every `WebPage`'s `about` point at it. An organisation's `WebSite` names it as `publisher` too, and takes `same_as` for its profiles.\n\nAnything else schema.org says about a person or an organisation goes in `meta.owner_details`, merged into the node as written:")
+
+        CodeBlock(#"{
+  "meta": {
+    "owner_details": {
+      "alternateName": "Augusta Ada King",
+      "worksFor": [{ "@type": "Organization", "name": "Analytical Engines" }],
+      "alumniOf": { "@type": "CollegeOrUniversity", "name": "University of London" },
+      "knowsAbout": ["Mathematics", "Computing"],
+      "knowsLanguage": ["en", "fr"]
+    }
+  }
+}"#, title: "json")
+
+        Markdown("What the node is — `@type`, `@id`, `name`, `url` — and what `job_title` and `same_as` write come from those settings; setting one here is `E111`. Structured data has to agree with what the pages show, and the build cannot check that: state here only what the site says too.")
+
+        Heading("Fonts served from the site", id: "fonts-served-from-the-site").h3
+
+        Markdown("A font named by a `@font-face` in a project `.css` file is only found once `styles.css` has arrived and been read. `meta.preload` asks for it with the page instead:")
+
+        CodeBlock(#"{ "meta": { "preload": ["/fonts/inter-latin.woff2"] } }"#, title: "json")
+
+        CodeBlock(#"/* src/fonts.css */
+@font-face {
+  font-family: "Inter";
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("/fonts/inter-latin.woff2") format("woff2");
+}"#, title: "css")
+
+        Markdown("Each path becomes a `<link rel=\"preload\">` in every page's head, ahead of the stylesheets, with `as` from its extension — `font` (and `crossorigin`, which a font preload needs or the browser fetches it twice), `style`, `script` or `image`. Serving the files from `public/` rather than a font service also takes a third-party stylesheet and two connections out of the way of the first paint. A path on another origin is `E111`: the policy the build ships would refuse it.")
 
         Heading("Addresses that do not redirect", id: "addresses-that-do-not-redirect").h3
 
@@ -127,7 +157,7 @@ page PostPage(path: "/posts/:slug", slug: String, type: "article", paths: posts.
 
         Heading("A checklist for being found", id: "a-checklist-for-being-found").h2
 
-        Markdown("- Set `meta.site_url` — without it there are no canonical links, no sitemap and no absolute sharing URLs.\n- Give every page a `title:` and a `description:` of about 150 characters (`S01`–`S03` warn when they are missing or too long).\n- Pre-render: `build.ssg: true`, so the text is in the HTML.\n- One `h1` per page, headings in order (`A11`, `A12`).\n- An `image:` per page that is shared, or `meta.image` for the site — 1200 × 630 pixels suits most previews — in `public/`, so its size is in the card, with an `image_alt:` (or `meta.image_alt`) saying what it shows.\n- On GitHub Pages and hosts like it, `build.clean_urls`, so the canonical address is never one that redirects.\n- A personal site: `meta.owner: \"person\"`, with `job_title` and `same_as`.\n- `noindex: true` on pages that should not be found: sign-in, thanks, drafts.\n- Check the result: view a built page's source, and paste a URL into a link-preview debugger.")
+        Markdown("- Set `meta.site_url` — without it there are no canonical links, no sitemap and no absolute sharing URLs.\n- Give every page a `title:` and a `description:` of about 150 characters (`S01`–`S03` warn when they are missing or too long).\n- Pre-render: `build.ssg: true`, so the text is in the HTML.\n- One `h1` per page, headings in order (`A11`, `A12`).\n- An `image:` per page that is shared, or `meta.image` for the site — 1200 × 630 pixels suits most previews — in `public/`, so its size is in the card, with an `image_alt:` (or `meta.image_alt`) saying what it shows.\n- On GitHub Pages and hosts like it, `build.clean_urls`, so the canonical address is never one that redirects.\n- A personal site: `meta.owner: \"person\"`, with `job_title`, `same_as` and, for the rest of who they are, `owner_details`.\n- Web fonts from `public/`, named in `meta.preload`, rather than a font service's stylesheet.\n- `noindex: true` on pages that should not be found: sign-in, thanks, drafts.\n- Check the result: view a built page's source, and paste a URL into a link-preview debugger.")
 
         Heading("Code on the page", id: "code-on-the-page").h2
 

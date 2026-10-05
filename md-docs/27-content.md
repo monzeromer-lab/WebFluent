@@ -160,6 +160,56 @@ The JSON-LD then holds a `Person` (`@id` `…/#person`) with `jobTitle` and
 at it. An organisation's `WebSite` names it as `publisher` too, and takes
 `same_as` for its profiles.
 
+Anything else schema.org says about a person or an organisation goes in
+`meta.owner_details`, merged into the node as written:
+
+```json
+{
+  "meta": {
+    "owner_details": {
+      "alternateName": "Augusta Ada King",
+      "worksFor": [{ "@type": "Organization", "name": "Analytical Engines" }],
+      "alumniOf": { "@type": "CollegeOrUniversity", "name": "University of London" },
+      "knowsAbout": ["Mathematics", "Computing"],
+      "knowsLanguage": ["en", "fr"]
+    }
+  }
+}
+```
+
+What the node is — `@type`, `@id`, `name`, `url` — and what `job_title`
+and `same_as` write come from those settings; setting one here is `E111`.
+Structured data has to agree with what the pages show, and the build cannot
+check that: state here only what the site says too.
+
+### Fonts served from the site
+
+A font named by a `@font-face` in a project `.css` file is only found once
+`styles.css` has arrived and been read. `meta.preload` asks for it with the
+page instead:
+
+```json
+{ "meta": { "preload": ["/fonts/inter-latin.woff2"] } }
+```
+
+```css
+/* src/fonts.css */
+@font-face {
+  font-family: "Inter";
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("/fonts/inter-latin.woff2") format("woff2");
+}
+```
+
+Each path becomes a `<link rel="preload">` in every page's head, ahead of
+the stylesheets, with `as` from its extension — `font` (and `crossorigin`,
+which a font preload needs or the browser fetches it twice), `style`,
+`script` or `image`. Serving the files from `public/` rather than a font
+service also takes a third-party stylesheet and two connections out of the
+way of the first paint. A path on another origin is `E111`: the policy the
+build ships would refuse it.
+
 ### Addresses that do not redirect
 
 A static build writes `/contact` as `contact/index.html`. Most static hosts
@@ -233,7 +283,10 @@ runtime keeps those tags current as the parameter changes.
   with an `image_alt:` (or `meta.image_alt`) saying what it shows.
 - On GitHub Pages and hosts like it, `build.clean_urls`, so the canonical
   address is never one that redirects.
-- A personal site: `meta.owner: "person"`, with `job_title` and `same_as`.
+- A personal site: `meta.owner: "person"`, with `job_title`, `same_as` and,
+  for the rest of who they are, `owner_details`.
+- Web fonts from `public/`, named in `meta.preload`, rather than a font
+  service's stylesheet.
 - `noindex: true` on pages that should not be found: sign-in, thanks, drafts.
 - Check the result: view a built page's source, and paste a URL into a
   link-preview debugger.

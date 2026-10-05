@@ -587,6 +587,16 @@ pub struct MetaConfig {
     #[serde(default)]
     pub job_title: String,
 
+    /// More of what the owner is, as schema.org properties merged into the
+    /// owner node as written: `"alternateName"`, `"email"`, `"worksFor"`,
+    /// `"alumniOf"`, `"knowsAbout"`, `"logo"`, … The node's identity
+    /// (`@type`, `@id`, `name`, `url`) and what other settings write
+    /// (`jobTitle`, `sameAs`) are refused (`E111`). Structured data has to
+    /// match what the site shows; the build cannot check that, so state here
+    /// only what the pages say too.
+    #[serde(default, skip_serializing_if = "serde_json::Map::is_empty")]
+    pub owner_details: serde_json::Map<String, serde_json::Value>,
+
     /// A default sharing image for pages that do not name their own.
     #[serde(default)]
     pub image: String,
@@ -616,6 +626,18 @@ pub struct MetaConfig {
     /// system fonts on purpose; a theme that names a web font lists it here.
     #[serde(default)]
     pub fonts: Vec<String>,
+
+    /// Files on this site to start fetching with the page, before anything
+    /// that names them is read — a font a stylesheet's `@font-face` points
+    /// at, the picture the first screen shows. Site-relative paths; each is
+    /// a `<link rel="preload">` in every page's head, ahead of the
+    /// stylesheets, with `as` from its extension (`woff2` · `woff` · `ttf` ·
+    /// `otf` → font, `css` → style, `js` · `mjs` → script, a picture →
+    /// image). A file elsewhere is `E111`: the policy would block it, and a
+    /// font or script from another origin is declared in `fonts` or
+    /// `scripts`.
+    #[serde(default)]
+    pub preload: Vec<String>,
 
     /// Extra stylesheets to link before `styles.css`, by URL or site-relative
     /// path (a file in `public/`) — a sheet the build does not own. A sheet
@@ -876,11 +898,13 @@ impl Default for MetaConfig {
             owner: Owner::Organization,
             same_as: Vec::new(),
             job_title: String::new(),
+            owner_details: serde_json::Map::new(),
             image: String::new(),
             image_alt: String::new(),
             image_sizes: HashMap::new(),
             sitemap: true,
             fonts: Vec::new(),
+            preload: Vec::new(),
             stylesheets: Vec::new(),
             scripts: Vec::new(),
         }

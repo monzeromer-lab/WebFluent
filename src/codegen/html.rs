@@ -159,6 +159,36 @@ pub fn script_tags(config: &ProjectConfig, root: &str) -> String {
 /// is the difference between the font arriving with the page and a second
 /// round trip after it. `base` is the relative prefix a site-relative path
 /// needs from this page's depth (`"."` at the root, `".."` one level down).
+/// What a `meta.preload` file is, to the browser: its `as`, and the type
+/// that lets a browser skip a format it cannot use.
+pub struct PreloadKind {
+    pub r#as: &'static str,
+    pub mime: Option<&'static str>,
+}
+
+/// The kind of a file `meta.preload` names, by its extension — or `None`
+/// for one no preload can say (`E111`).
+pub fn preload_kind(path: &str) -> Option<PreloadKind> {
+    let path = path.split(['?', '#']).next().unwrap_or(path);
+    let ext = path.rsplit_once('.')?.1.to_ascii_lowercase();
+    let (r#as, mime) = match ext.as_str() {
+        "woff2" => ("font", Some("font/woff2")),
+        "woff" => ("font", Some("font/woff")),
+        "ttf" => ("font", Some("font/ttf")),
+        "otf" => ("font", Some("font/otf")),
+        "css" => ("style", None),
+        "js" | "mjs" => ("script", None),
+        "png" => ("image", Some("image/png")),
+        "jpg" | "jpeg" => ("image", Some("image/jpeg")),
+        "webp" => ("image", Some("image/webp")),
+        "avif" => ("image", Some("image/avif")),
+        "gif" => ("image", Some("image/gif")),
+        "svg" => ("image", Some("image/svg+xml")),
+        _ => return None,
+    };
+    Some(PreloadKind { r#as, mime })
+}
+
 pub fn head_links(config: &ProjectConfig, base: &str) -> String {
     use crate::config::project::url_origin;
     let mut out = String::new();
@@ -192,6 +222,27 @@ pub fn head_links(config: &ProjectConfig, base: &str) -> String {
             "    <link rel=\"apple-touch-icon\" href=\"{}\">\n",
             icon_href(&config.meta.touch_icon)
         ));
+    }
+    // Files the page will want, asked for now rather than when whatever
+    // names them is read: a font is only found once the stylesheet that
+    // declares it has arrived. A font preload must be `crossorigin`, or the
+    // browser fetches it a second time for the stylesheet.
+    for path in &config.meta.preload {
+        if let Some(kind) = preload_kind(path) {
+            out.push_str(&format!(
+                "    <link rel=\"preload\" href=\"{}\" as=\"{}\"{}{}>\n",
+                icon_href(path),
+                kind.r#as,
+                kind.mime
+                    .map(|m| format!(" type=\"{m}\""))
+                    .unwrap_or_default(),
+                if kind.r#as == "font" {
+                    " crossorigin"
+                } else {
+                    ""
+                }
+            ));
+        }
     }
     let mut preconnected: Vec<String> = Vec::new();
     let mut preconnect = |origin: String, out: &mut String| {
@@ -286,6 +337,44 @@ mod head_link_tests {
             ..MetaConfig::default()
         };
         config
+    }
+
+    #[test]
+    fn a_preload_is_asked_for_ahead_of_the_stylesheets() {
+        let mut cfg = config(&[], &["/base.css"]);
+        cfg.meta.preload = vec!["/fonts/inter.woff2".to_string(), "/hero.webp".to_string()];
+        let links = head_links(&cfg, "../..");
+        assert!(
+            links.contains(r#"<link rel="preload" href="/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>"#),
+            "{links}"
+        );
+        assert!(
+            links
+                .contains(r#"<link rel="preload" href="/hero.webp" as="image" type="image/webp">"#),
+            "{links}"
+        );
+        assert!(
+            links.find("rel=\"preload\"") < links.find("rel=\"stylesheet\""),
+            "a preload comes before the sheets: {links}"
+        );
+    }
+
+    #[test]
+    fn a_preload_is_under_the_base_path() {
+        let mut cfg = config(&[], &[]);
+        cfg.build.base_path = "/site".to_string();
+        cfg.meta.preload = vec!["/fonts/inter.woff2".to_string()];
+        assert!(head_links(&cfg, "..").contains(r#"href="/site/fonts/inter.woff2""#));
+    }
+
+    #[test]
+    fn a_preload_kind_comes_from_the_extension() {
+        assert_eq!(preload_kind("/a.woff2?v=2").unwrap().r#as, "font");
+        assert_eq!(preload_kind("/a.css").unwrap().r#as, "style");
+        assert_eq!(preload_kind("/a.mjs").unwrap().r#as, "script");
+        assert_eq!(preload_kind("/a.JPG").unwrap().mime, Some("image/jpeg"));
+        assert!(preload_kind("/a.txt").is_none());
+        assert!(preload_kind("/fonts").is_none());
     }
 
     #[test]
