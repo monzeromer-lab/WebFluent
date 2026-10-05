@@ -1,3 +1,23 @@
+# WebFluent v5.3.1 Release Notes
+
+A script nothing waits for no longer holds up the page.
+
+## `async` for `meta.scripts`
+
+- **`{ "src": "…", "async": true }`** loads a library with `<script async>`
+  instead of `defer`. Deferred scripts run in order, and every
+  `meta.scripts` entry is linked ahead of the compiled code — so a large
+  library nothing on the page uses, such as Google's 175 KB `gtag.js`, held
+  the page's code, and the first full paint, until it had arrived. On a
+  slow phone that was over a second of largest-contentful-paint. An `async`
+  script runs whenever it arrives, as the vendors' own snippets load it.
+- A module, or a script whose `globals` `.wf` code calls, cannot be `async`
+  — the one is imported by the page's loader, the other might arrive after
+  the code that calls it — and is `E111`.
+- The security chapter's tag-manager example loads `gtag.js` this way.
+- For the Rust API: `ScriptSpec` gains a public `is_async` field, so code
+  that builds one with a struct literal adds `is_async: false`.
+
 # WebFluent v5.3.0 Release Notes
 
 What a search engine and a link preview read, said in full by the build —

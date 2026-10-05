@@ -1371,7 +1371,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Libraries to load before the project's own scripts: a URL or a file in <code>public/</code>, or <code>{ &quot;src&quot;, &quot;module&quot;: true, &quot;as&quot;: &quot;Name&quot; }</code> for an ES module, or <code>{ &quot;src&quot;, &quot;globals&quot;: [&quot;Chart&quot;] }</code> to call a library's names from <code>.wf</code>. Their origins join the policy (<a href="/docs/guide/interop#a-library-from-a-cdn">JavaScript interop</a>).</p>
+<p>Libraries to load before the project's own scripts: a URL or a file in <code>public/</code>, or <code>{ &quot;src&quot;, &quot;module&quot;: true, &quot;as&quot;: &quot;Name&quot; }</code> for an ES module, or <code>{ &quot;src&quot;, &quot;globals&quot;: [&quot;Chart&quot;] }</code> to call a library's names from <code>.wf</code>. <code>&quot;async&quot;: true</code> loads one nothing waits for — analytics — without holding up the page's code. Their origins join the policy (<a href="/docs/guide/interop#a-library-from-a-cdn">JavaScript interop</a>).</p>
                                             </div>
                                         </td>
                                     </tr>

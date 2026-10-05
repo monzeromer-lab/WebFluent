@@ -601,6 +601,7 @@ function drawSales(canvas, values) {
                             <div class="wf-markdown">
 <ul>
 <li><strong>Order.</strong> Each entry is linked with <code>&lt;script defer&gt;</code> in the order listed, before your own scripts and the compiled code, so a library is there when the code that uses it runs.</li>
+<li><strong>Out of order.</strong> <code>{ &quot;src&quot;: &quot;…&quot;, &quot;async&quot;: true }</code> loads a script nothing on the page waits for — analytics, a tag manager — with <code>&lt;script async&gt;</code>. Deferred scripts run in order, so a large one listed plainly would hold the compiled code, and the page's first full paint, until it had arrived; an <code>async</code> one runs whenever it arrives instead. A module, or a script whose <code>globals</code> <code>.wf</code> calls, cannot be <code>async</code> (<code>E111</code>).</li>
 <li><strong>Integrity.</strong> <code>meta.integrity</code> pins the file; a library from another origin without a hash draws a warning.</li>
 <li><strong>The policy.</strong> The Content-Security-Policy is widened by exactly the origins listed, so a declared library is never blocked by the policy that ships beside it.</li>
 <li><strong>A module.</strong> <code>{ &quot;src&quot;: &quot;https://…/confetti.mjs&quot;, &quot;module&quot;: true, &quot;as&quot;: &quot;Confetti&quot; }</code> imports an ES module and puts its exports on <code>window.Confetti</code>. Most CDNs also serve a plain build, which needs neither.</li>
