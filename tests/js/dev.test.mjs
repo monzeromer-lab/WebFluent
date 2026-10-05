@@ -31,7 +31,7 @@ function load({ dev = false, fetchImpl = async () => { throw new Error("no fetch
     window, document, Node, Element, DocumentFragment, setTimeout, clearTimeout,
     fetchImpl, { onLine: true }, globalThis.AbortController, console,
   );
-  return { WF, document, said };
+  return { WF, document, window, said };
 }
 
 const settle = () => new Promise((done) => globalThis.setTimeout(done, 0));
@@ -59,6 +59,33 @@ for (const dev of [true, false]) {
     assert.equal(said.error.length, 1, said.error.join("\n"));
   });
 }
+
+for (const [address, route] of [["/showcase.html", "/showcase"], ["/docs/index.html", "/docs/"], ["/index.html", "/"]]) {
+  test(`${address}, the file a clean URL is served from, shows ${route}`, () => {
+    const { WF, document, window, said } = load({ dev: true });
+    window.location.pathname = address;
+    window.location.search = "?ref=ig";
+    const container = document.createElement("main");
+    WF.router([
+      { path: "/", render: () => WF.el("p", {}, ["home"]) },
+      { path: "/showcase", render: () => WF.el("p", {}, ["showcase"]) },
+      { path: "/docs", render: () => WF.el("p", {}, ["docs"]) },
+    ], container);
+    assert.equal(window.location.pathname, route);
+    assert.equal(window.location.search, "?ref=ig", "the query is kept");
+    assert.doesNotMatch(container.textContent, /404/);
+    assert.equal(said.warn.length, 0, said.warn.join("\n"));
+  });
+}
+
+test("a route that really ends in .html keeps its address", () => {
+  const { WF, document, window } = load({ dev: true });
+  window.location.pathname = "/feed.html";
+  const container = document.createElement("main");
+  WF.router([{ path: "/feed.html", render: () => WF.el("p", {}, ["feed"]) }], container);
+  assert.equal(window.location.pathname, "/feed.html");
+  assert.equal(container.textContent, "feed");
+});
 
 test("a route nothing answers says so under wf serve", () => {
   const { WF, document, said } = load({ dev: true });

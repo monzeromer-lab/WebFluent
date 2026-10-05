@@ -75,6 +75,17 @@
       window.history.replaceState(null, "", _basePath + redirectPath);
     }
 
+    // A page written to `contact.html` beside `contact/index.html`
+    // (`build.clean_urls: "file"`) can be opened by either file's address.
+    // No route says `.html`, so such an address is named by the route it
+    // stands for, and the address bar is put back to that route — unless a
+    // route really does match it as written.
+    const asWritten = _stripBase(window.location.pathname);
+    if (/\.html$/.test(asWritten) && !routes.some(r => r.path !== "*" && matchPath(r.path, asWritten) !== null)) {
+      const route = asWritten.replace(/\/index\.html$/, "/").replace(/\.html$/, "") || "/";
+      window.history.replaceState(null, "", _basePath + route + window.location.search + window.location.hash);
+    }
+
     const initialPath = _stripBase(window.location.pathname);
     const currentPath = pathSignal();
     currentPath.set(initialPath);
