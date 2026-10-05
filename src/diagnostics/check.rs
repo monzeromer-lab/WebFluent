@@ -366,6 +366,38 @@ pub fn config_checks(dir: &Path, config: &ProjectConfig, program: &Program) -> V
         }
     }
 
+    // An `async` script runs whenever it arrives: a module is imported by
+    // the loader rather than linked, so it cannot be one, and `.wf` code
+    // could call its globals before they exist.
+    for entry in &config.meta.scripts {
+        if let crate::config::project::ScriptEntry::Spec(spec) = entry
+            && spec.is_async
+        {
+            let problem = if spec.module {
+                Some((
+                    format!(
+                        "`meta.scripts` loads `{}` `async`, but it is a module",
+                        spec.src
+                    ),
+                    "A module is imported by the page's loader; drop `async`",
+                ))
+            } else if !spec.globals.is_empty() {
+                Some((
+                    format!(
+                        "`meta.scripts` loads `{}` `async`, but `.wf` code calls its globals",
+                        spec.src
+                    ),
+                    "An `async` script may arrive after the page's code runs: drop `async`, or call it from a project script that waits for it",
+                ))
+            } else {
+                None
+            };
+            if let Some((message, hint)) = problem {
+                out.push(config_finding("E111", message, &text, &spec.src).with_hint(hint));
+            }
+        }
+    }
+
     // A preload is a file on this site, of a kind a preload can name. One
     // from another origin would be refused by the policy the build ships;
     // that origin's font or script is declared in `fonts` or `scripts`.
@@ -726,6 +758,30 @@ mod tests {
         assert_eq!(
             e111,
             ["`meta.connect` names `https://api.example.com/v1`, which is not an origin"]
+        );
+    }
+
+    #[test]
+    fn an_async_script_may_not_be_a_module_or_have_globals() {
+        let found = config_findings(
+            r#"{"name":"t","meta":{"scripts":[
+                {"src":"https://a.example/a.js","async":true},
+                {"src":"https://b.example/b.mjs","async":true,"module":true,"as":"B"},
+                {"src":"https://c.example/c.js","async":true,"globals":["C"]}]}}"#,
+        );
+        let e111: Vec<&str> = found
+            .iter()
+            .filter(|d| d.code == "E111")
+            .map(|d| d.message.as_str())
+            .collect();
+        assert_eq!(e111.len(), 2, "{e111:?}");
+        assert!(
+            e111[0].contains("b.mjs") && e111[0].contains("module"),
+            "{e111:?}"
+        );
+        assert!(
+            e111[1].contains("c.js") && e111[1].contains("globals"),
+            "{e111:?}"
         );
     }
 

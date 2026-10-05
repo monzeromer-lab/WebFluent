@@ -1279,7 +1279,8 @@ in the config, used from your own scripts:
     "scripts": [
       "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js",
       { "src": "https://esm.example.com/confetti.mjs", "module": true, "as": "Confetti" },
-      { "src": "https://cdn.example.com/lib.js", "globals": ["Lib"] }
+      { "src": "https://cdn.example.com/lib.js", "globals": ["Lib"] },
+      { "src": "https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX", "async": true }
     ],
     "integrity": { "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js": "sha384-…" }
 } }
@@ -1288,8 +1289,11 @@ in the config, used from your own scripts:
 Each is linked `defer` in the order listed, before the project's scripts; a
 module is imported by a generated `externals.js` and its exports put on
 `window.<as>`; `globals` are names `.wf` may call directly, each `Any`, and a
-class among them is constructed when called. Their origins join
-`script-src`, and one without an integrity hash draws a warning.
+class among them is constructed when called. `"async": true` loads one
+nothing waits for (analytics, a tag manager) with `<script async>`, so it
+never holds up the page's code; it cannot be a module or have `globals`
+(`E111`). Their origins join `script-src`, and one without an integrity
+hash draws a warning.
 
 ### Somebody else's custom element
 

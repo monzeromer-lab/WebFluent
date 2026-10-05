@@ -185,6 +185,12 @@ page Sales(path: "/sales", title: "Sales", description: "How it is going.") {
 - **Order.** Each entry is linked with `<script defer>` in the order
   listed, before your own scripts and the compiled code, so a library is
   there when the code that uses it runs.
+- **Out of order.** `{ "src": "…", "async": true }` loads a script nothing
+  on the page waits for — analytics, a tag manager — with `<script async>`.
+  Deferred scripts run in order, so a large one listed plainly would hold
+  the compiled code, and the page's first full paint, until it had
+  arrived; an `async` one runs whenever it arrives instead. A module, or a
+  script whose `globals` `.wf` calls, cannot be `async` (`E111`).
 - **Integrity.** `meta.integrity` pins the file; a library from another
   origin without a hash draws a warning.
 - **The policy.** The Content-Security-Policy is widened by exactly the

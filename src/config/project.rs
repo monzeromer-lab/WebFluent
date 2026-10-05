@@ -689,6 +689,13 @@ pub struct ScriptSpec {
     /// The globals a plain script defines that `.wf` code calls directly.
     #[serde(default)]
     pub globals: Vec<String>,
+    /// Load it `async`, out of order with everything else: for a script
+    /// nothing on the page waits for — analytics, a tag manager — so a large
+    /// one never holds up the page's own code, which `defer` runs in order
+    /// after it. Nothing may call its `globals`, and a module cannot be
+    /// (`E111`).
+    #[serde(default, rename = "async")]
+    pub is_async: bool,
 }
 
 impl ScriptEntry {
@@ -701,6 +708,11 @@ impl ScriptEntry {
 
     pub fn is_module(&self) -> bool {
         matches!(self, ScriptEntry::Spec(spec) if spec.module)
+    }
+
+    /// Whether it loads `async` rather than `defer`.
+    pub fn is_async(&self) -> bool {
+        matches!(self, ScriptEntry::Spec(spec) if spec.is_async)
     }
 
     /// Every name `.wf` code may read from it: its `globals`, and a

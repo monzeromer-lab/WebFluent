@@ -107,6 +107,8 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
 /// `meta.scripts` names, the loader for its modules, and the project's own
 /// scripts in path order — so a library is there for the scripts that use
 /// it, and a name a script declares is there when the page's code runs.
+/// A library marked `async` keeps no place in that order: it runs when it
+/// arrives, and nothing waits for it.
 pub fn script_tags(config: &ProjectConfig, root: &str) -> String {
     let mut out = String::new();
     let mut linked: Vec<&str> = Vec::new();
@@ -118,8 +120,9 @@ pub fn script_tags(config: &ProjectConfig, root: &str) -> String {
         }
         linked.push(entry.src());
         out.push_str(&format!(
-            "    <script src=\"{}\" defer{}></script>\n",
+            "    <script src=\"{}\" {}{}></script>\n",
             href_from(entry.src(), root),
+            if entry.is_async() { "async" } else { "defer" },
             integrity_attrs(config, entry.src())
         ));
     }
@@ -337,6 +340,25 @@ mod head_link_tests {
             ..MetaConfig::default()
         };
         config
+    }
+
+    #[test]
+    fn an_async_script_is_async_and_the_rest_keep_their_order() {
+        let config: ProjectConfig = serde_json::from_str(
+            r#"{"name":"t","meta":{"scripts":[
+                {"src":"https://tags.example/t.js","async":true},
+                "https://cdn.example/lib.js"]}}"#,
+        )
+        .unwrap();
+        let tags = script_tags(&config, ".");
+        assert!(
+            tags.contains(r#"<script src="https://tags.example/t.js" async></script>"#),
+            "{tags}"
+        );
+        assert!(
+            tags.contains(r#"<script src="https://cdn.example/lib.js" defer></script>"#),
+            "{tags}"
+        );
     }
 
     #[test]
