@@ -57,6 +57,14 @@ site-build:
     cargo build --release
     target/release/wf build -d site
 
+# PDFs and previews go to site/public/showcase/, the list to
+# site/src/showcase.json; needs pdftoppm, pdfinfo and magick. `--hero` also
+# redraws the README's site/art/hero.png, which needs Chrome.
+# Render every example for the docs site's gallery (/showcase)
+showcase *args:
+    cargo build --release
+    python3 scripts/showcase.py {{args}}
+
 # ── Release ──────────────────────────────────────────
 
 # Then write the release notes' section, and `just preflight vVERSION`.

@@ -1,0 +1,53 @@
+/// The gallery: every example document and deck, as the PDF `wf build`
+/// wrote from it, beside the folder of source that made it. The list is
+/// `showcase.json`, which scripts/showcase.py writes on each release.
+page Showcase(path: "/showcase", title: "See it — WebFluent", description: "Invoices, reports, a résumé in Arabic and slide decks, each a PDF WebFluent built from a folder of source. Open one on your phone, then read what made it.") {
+    derived documents = showcase.filter(e => e.kind == "document")
+    derived decks = showcase.filter(e => e.kind == "deck")
+    derived videos = showcase.filter(e => e.kind == "video")
+
+    SiteHeader
+
+    Stack(class: "showcase") {
+        style {
+            gap: 32px
+            max-width: 1280px
+            margin: 0 auto
+            padding: 32px 16px 48px
+            @md { gap: 48px; padding: 56px 24px 64px }
+            @lg { padding: 72px 40px 96px }
+        }
+
+        Stack(gap: .sm) {
+            style { gap: 12px; max-width: 720px }
+            Text(t("showcase.eyebrow"), class: "overline accent")
+            Heading(t("showcase.title")).h1 {
+                style { margin: 0; font-size: 32px; line-height: 38px; font-weight: 800; letter-spacing: -0.02em; @md { font-size: 44px; line-height: 48px } }
+            }
+            Markdown(t("showcase.lede")) { style { & p { margin: 0; font-size: 16px; line-height: 25px; color: $color-text-muted } } }
+        }
+
+        ShowcaseGroup(t("showcase.documents"), items: documents)
+        ShowcaseGroup(t("showcase.decks"), items: decks)
+        if videos.length > 0 {
+            ShowcaseGroup(t("showcase.videos"), items: videos)
+        }
+
+        Markdown(t("showcase.more")) { style { max-width: 720px; & p { margin: 0; font-size: 14px; line-height: 22px; color: $color-text-muted } } }
+    }
+}
+
+/// One kind of output in the gallery: a heading, then a card per example —
+/// one column on a phone, two from `sm`, three from `lg`.
+component ShowcaseGroup(_ title: String, items: [Example]) {
+    Stack(gap: .md) {
+        style { gap: 16px }
+        Heading(title).h2 { style { margin: 0; font-size: 22px; line-height: 28px; font-weight: 700; letter-spacing: -0.012em; @md { font-size: 26px; line-height: 32px } } }
+        Grid(columns: { base: 1, sm: 2, lg: 3 }, gap: .lg) {
+            style { gap: 16px; @md { gap: 24px } }
+            for item in items by item.slug {
+                ShowcaseCard(item)
+            }
+        }
+    }
+}

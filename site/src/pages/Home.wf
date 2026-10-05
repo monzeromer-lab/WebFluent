@@ -167,6 +167,9 @@ page Home(path: "/", title: "WebFluent — a language for websites", description
             OutputCard(t("output.pdf.title"), value: "\"pdf\"", body: t("output.pdf.body"))
             OutputCard(t("output.slides.title"), value: "\"slides\"", body: t("output.slides.body"))
         }
+        Link("{t("outputs.see")} →", to: "/showcase") {
+            style { align-self: flex-start; display: inline-flex; align-items: center; min-height: 32px; font-size: 14px; line-height: 20px; font-weight: 600; color: $brand-ink; text-decoration: none; &:hover { text-decoration: underline } }
+        }
     }
 
     // ----------------------------------------------------------- two layouts
