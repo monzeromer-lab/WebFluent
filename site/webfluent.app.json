@@ -34,6 +34,17 @@
     "sitemap": true,
     "fonts": [
       "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+    ],
+    "scripts": [
+      {
+        "src": "https://www.googletagmanager.com/gtag/js?id=G-FV6VK6N6VM",
+        "async": true
+      }
+    ],
+    "connect": [
+      "https://*.google-analytics.com",
+      "https://*.analytics.google.com",
+      "https://www.googletagmanager.com"
     ]
   },
   "i18n": {
@@ -43,5 +54,8 @@
       "ar"
     ],
     "dir": "src/translations"
+  },
+  "lints": {
+    "D05": "off"
   }
 }

@@ -1,0 +1,17 @@
+/// The analytics question, at the foot of the screen until it is answered.
+/// It floats, so it never moves the page, and it is only drawn in the
+/// browser, where there is an answer to read.
+component ConsentBanner {
+    after(0) { Consent.check() }
+
+    if Consent.asking {
+        Stack(role: "region", aria-label: t("consent.label"), class: "consent") {
+            Text(t("consent.title"), class: "consent-title")
+            Text(t("consent.body"), class: "consent-text")
+            Row(class: "consent-actions") {
+                Button(t("consent.decline"), class: "site-button site-button-outlined") { on click { Consent.choose(false) } }
+                Button(t("consent.allow"), class: "site-button site-button-primary") { on click { Consent.choose(true) } }
+            }
+        }
+    }
+}

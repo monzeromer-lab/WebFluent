@@ -127,3 +127,17 @@ pre.wf-code, .wf-code--block { white-space: pre; }
 @media (min-width: 1024px) {
   .docs-article .wf-table, .props-table.wf-table { display: table; overflow-x: visible; }
 }
+
+/* The analytics question: a card at the foot of the screen. It floats, so
+   it never moves the page, and it is an overlay, so it carries the overlay
+   surface and shadow. */
+.consent { position: fixed; z-index: 300; inset-inline: 16px; bottom: 16px; gap: 8px; padding: 16px; border-radius: 10px; background: var(--surface-overlay); border: 1px solid var(--color-border); box-shadow: var(--shadow-lg); }
+.consent-title { margin: 0; font-size: 15px; line-height: 20px; font-weight: 600; color: var(--color-text); }
+.consent-text { margin: 0; font-size: 13px; line-height: 20px; color: var(--color-text-muted); }
+.consent-actions { justify-content: flex-end; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
+@media (min-width: 640px) { .consent { inset-inline-start: auto; inset-inline-end: 24px; bottom: 24px; width: 400px; } }
+
+/* A button that reads as a footer link: "Cookie settings". */
+.link-button.wf-btn { all: unset; cursor: pointer; font-size: 12px; line-height: 18px; color: var(--ink-subtle); }
+.link-button.wf-btn:hover { color: var(--color-text); }
+.link-button.wf-btn:focus-visible { outline: 2px solid var(--brand-ring); outline-offset: 2px; border-radius: 2px; }

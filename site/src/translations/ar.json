@@ -187,5 +187,11 @@
   "bat.js.title": "جافاسكربت الخاصة بك، بالاسم",
   "bat.js.body": "ملف `.js` عادي داخل `src/` يُربط كما كُتب، وتُستدعى دواله مباشرة من `.wf`، ويُتحقق منها وفق تعليقات JSDoc.",
   "bat.templates.title": "محرك قوالب لـ Rust وNode",
-  "bat.templates.body": "اعرض قالباً ببياناتك إلى HTML أو PDF — `Template::from_dir(\"templates\")` مع أي بنية `Serialize`، أو `npm install webfluent`."
+  "bat.templates.body": "اعرض قالباً ببياناتك إلى HTML أو PDF — `Template::from_dir(\"templates\")` مع أي بنية `Serialize`، أو `npm install webfluent`.",
+  "consent.label": "الموافقة على ملفات تعريف الارتباط",
+  "consent.title": "التحليلات",
+  "consent.body": "يستخدم هذا الموقع Google Analytics لإحصاء الزيارات، ولا يضع ملفات تعريف الارتباط إلا إذا سمحت بذلك. يمكنك تغيير رأيك من «إعدادات ملفات تعريف الارتباط» أسفل أي صفحة.",
+  "consent.decline": "رفض",
+  "consent.allow": "السماح بالتحليلات",
+  "consent.settings": "إعدادات ملفات تعريف الارتباط"
 }

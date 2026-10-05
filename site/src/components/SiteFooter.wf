@@ -78,7 +78,10 @@ component SiteFooter {
             Row(justify: .between, align: .center, gap: .md) {
                 style { flex-wrap: wrap; padding-top: 16px; border-top: 1px solid $color-border; & p { margin: 0; font-size: 12px; line-height: 18px; color: $ink-subtle } }
                 Text(t("footer.licence", { version: VERSION }))
-                Text(t("footer.copyright"))
+                Row(align: .center, gap: .md) {
+                    Button(t("consent.settings"), class: "link-button") { on click { Consent.reopen() } }
+                    Text(t("footer.copyright"))
+                }
             }
         }
     }

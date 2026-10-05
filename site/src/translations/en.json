@@ -187,5 +187,11 @@
   "ch.45": "Upgrading",
   "ch.46": "Browser support",
   "ch.47": "Glossary",
-  "ch.48": "Contributing"
+  "ch.48": "Contributing",
+  "consent.label": "Cookie consent",
+  "consent.title": "Analytics",
+  "consent.body": "This site uses Google Analytics to count visits. It sets cookies only if you allow it; you can change your mind under Cookie settings at the bottom of any page.",
+  "consent.decline": "Decline",
+  "consent.allow": "Allow analytics",
+  "consent.settings": "Cookie settings"
 }
