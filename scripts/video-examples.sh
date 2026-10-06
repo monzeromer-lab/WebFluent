@@ -34,9 +34,9 @@ for dir in examples/videos/*/; do
       # drawn by `wf render`, which needs no data for this one.
       if (cd "$dir" \
         && "$wf" check --deny-warnings \
-        && echo '{}' | "$wf" render src/Talk.wf --page Site -o build/talk.html \
-        && echo '{}' | "$wf" render src/Talk.wf --page Handout --format pdf -o build/handout.pdf \
-        && echo '{}' | "$wf" render src/Talk.wf --page Deck --format slides -o build/deck.pdf \
+        && "$wf" render src/Talk.wf --page Site -o build/talk.html \
+        && "$wf" render src/Talk.wf --page Handout --format pdf -o build/handout.pdf \
+        && "$wf" render src/Talk.wf --page Deck --format slides -o build/deck.pdf \
         && test -s build/talk.html && test -s build/handout.pdf && test -s build/deck.pdf); then
         ok "$name renders a page, a PDF and a deck"
       else
