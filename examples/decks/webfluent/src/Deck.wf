@@ -1,5 +1,6 @@
-// WebFluent, in sixteen slides — written in WebFluent, in the docs site's
-// design system. `wf build` here writes build/webfluent-5.2.pdf.
+// Rethinking the web layout — a sixteen-slide talk on why the next project
+// should be compiled, written in WebFluent, in the docs site's design
+// system. `wf build` here writes build/rethinking-the-web-layout.pdf.
 
 const TOTAL = 16
 const SITE = "https://monzeromer-lab.github.io/WebFluent/"
@@ -46,6 +47,32 @@ component Opener(_ title: String, num: String, line: String) {
     }
 }
 
+/// One point beside a console: a short mark, a claim, and what it means.
+component Fact(_ mark: String, claim: String, note: String) {
+    Row(class: "fact") {
+        Text(mark, class: "fact__dot") { style { width: 44px } }
+        Stack(class: "fact__text") {
+            Text(claim)
+            Text(note)
+        }
+    }
+}
+
+// ── Act 1 · the friction ─────────────────────────────────────
+
+const SETUP = [
+    { line: "$ ls -a my-site", kind: "" },
+    { line: "  package.json        package-lock.json", kind: "dim" },
+    { line: "  tsconfig.json       vite.config.ts", kind: "dim" },
+    { line: "  postcss.config.js   tailwind.config.js", kind: "dim" },
+    { line: "  eslint.config.js    .prettierrc", kind: "dim" },
+    { line: "  node_modules/       … hundreds of packages", kind: "dim" },
+    { line: "$ ls src/", kind: "" },
+    { line: "  six configs in, not one line of layout", kind: "err" },
+]
+
+// ── Act 2 · the method ───────────────────────────────────────
+
 const COUNTER = #"page Home(path: "/", title: "Home") {
     state count = 0
     derived doubled = count * 2
@@ -61,26 +88,23 @@ const COUNTER = #"page Home(path: "/", title: "Home") {
 
 const GRAMMAR = [
     { form: "page · component · store", means: "**A declaration** — a lowercase keyword names what is being made" },
-    { form: "Button · Card · Table", means: "**An element** — capitalised, drawn from one registry" },
+    { form: "Row · Card · Image", means: "**An element** — text, boxes and media, capitalised, from one registry" },
     { form: ".primary  .lg  .h1", means: "**A flag** — a boolean prop, or one case of an enum prop" },
-    { form: "label: \"Name\"", means: "**A prop** — passed by name; one positional may lead" },
-    { form: "Card { … }", means: "**A block** — the element's children" },
+    { form: "gap: .md", means: "**A prop** — passed by name; one positional may lead" },
+    { form: "Card { … }", means: "**A block** — the element's children: the layout is the nesting" },
     { form: "on click { … }", means: "**A handler** — what happens when the reader acts" },
     { form: "style { padding: $md }", means: "**Raw CSS** — with design tokens and live `\{values\}`" },
 ]
 
-const TYPES = [
-    { name: "Date", lit: "@2026-03-14", can: ".plus(days: 3)" },
-    { name: "Time", lit: "@09:30", can: ".plus(minutes: 30)" },
-    { name: "DateTime", lit: "@2026-03-14T09:30Z", can: ".inZone(\"Europe/Berlin\")" },
-    { name: "Duration", lit: "90.minutes", can: ".hours()" },
-    { name: "Money", lit: "€12.99", can: ".convert(rate, \"USD\")" },
-    { name: "Url", lit: "\"https://…\"", can: ".with(query: …)" },
-    { name: "Email", lit: "\"ada@example.com\"", can: ".domain()" },
-    { name: "Color", lit: "#0F766E", can: ".mix(other, 0.2)" },
-    { name: "Uuid", lit: "uuid()", can: "a string's methods" },
-    { name: "File", lit: "FileUpload", can: ".preview()" },
-    { name: "Number(1..=30)", lit: "state nights = 12", can: "a condition, checked" },
+const BUILD = [
+    { job: "Pre-render", what: "Every page written as HTML, so the first paint needs no script" },
+    { job: "Prune", what: "One stylesheet: only the components and tokens the site uses" },
+    { job: "Cut", what: "Of 37 runtime modules, only those the program reaches ship" },
+    { job: "Resize", what: "Every image at each width, with its size, so nothing shifts" },
+    { job: "Check", what: "Types, props, routes, translations and accessibility — every build" },
+    { job: "Secure", what: "A Content-Security-Policy the build holds its own output to" },
+    { job: "Index", what: "Sitemap, canonical links, Open Graph and JSON-LD for every page" },
+    { job: "Compress", what: "A `.gz` beside every text file, ready for the host to serve" },
 ]
 
 const ERROR = #"error[T05]: `User` has no field `nmae`
@@ -91,27 +115,28 @@ const ERROR = #"error[T05]: `User` has no field `nmae`
   = help: Its fields are `id`, `name`
   = fix:  nmae → name"#
 
-// gzipped app.js, measured: the runtime only holds what a program reaches.
-const WEIGHT = [
-    { step: "Static text", kb: 4.6 },
-    { step: "+ a keyed list", kb: 8.4 },
-    { step: "+ two routes", kb: 10.4 },
-    { step: "+ a typed fetch", kb: 15.2 },
-]
+// ── Act 3 · beyond the screen ────────────────────────────────
+
+const THREE = #"component Point(_ title: String, body: String) {
+    Card { Heading(title).h3  Text(body) }
+}
+page Site(path: "/", title: "Talk") {
+    Container { for p in POINTS { Point(p.title, body: p.body) } }
+}
+page Handout(path: "/handout", title: "Handout") {
+    Document(size: "A4") {
+        Footer { Text("Page {page} of {pages}") }
+        for p in POINTS { Point(p.title, body: p.body) }
+    }
+}
+page Talk(path: "/talk", title: "Talk") {
+    Presentation {
+        for p in POINTS { Slide { Point(p.title, body: p.body) } }
+    }
+}"#
 
 const CONFIG = #"{ "build": { "output_type": "slides",
              "slides": { "size": "16:9" } } }"#
-
-const TOOLS = [
-    { cmd: "wf check", what: "Every finding, with a code, a place and a fix; nothing written" },
-    { cmd: "wf test", what: "`test \"…\" { }` blocks — snapshots, and clicks in a real Chrome" },
-    { cmd: "wf verify", what: "Every route loaded in a headless browser: errors, paint, bytes" },
-    { cmd: "wf audit", what: "What the project trusts: markup, origins, storage, env" },
-    { cmd: "wf fmt", what: "One layout for every file — `.wf` braces or `.wfx` indents" },
-    { cmd: "wf docs", what: "A gallery of every built-in and the project's own components" },
-    { cmd: "wf serve", what: "Rebuild on save; a failed build drawn over the page" },
-    { cmd: "wf-lsp", what: "Completion, hover, rename, quick fixes — for this output" },
-]
 
 const SOURCE = #"component Opener(_ title: String, num: String, line: String) {
     Slide(class: "section") {
@@ -121,15 +146,29 @@ const SOURCE = #"component Opener(_ title: String, num: String, line: String) {
     }
 }
 
-page Deck(path: "/", title: "WebFluent") {
+page Deck(path: "/", title: "Rethinking the web layout") {
     Presentation {
-        Opener("The language", num: "01",
-               line: "One lexeme, one meaning.")
-        for t in TOPICS { Topic(t) }
+        Opener("A new method", num: "01",
+               line: "Write it once. Compile it.")
+        Slide {
+            Head("Seven shapes.", over: "One unified syntax")
+            for g in GRAMMAR { Row { Text(g.form)  Markdown(g.means) } }
+        }
     }
 }"#
 
-page Deck(path: "/", title: "WebFluent — a language for websites", description: "WebFluent 5.2 in sixteen slides, written in WebFluent.") {
+// ── Act 4 · the invitation ───────────────────────────────────
+
+const CHALLENGE = [
+    { form: "wf init try-it -t static", means: "**Start** — one command, one folder, nothing to install after the binary" },
+    { form: "src/pages/Home.wf", means: "**Rebuild one page you have** — layout, state and style in a single file" },
+    { form: "wf serve", means: "**Watch it** — a save rebuilds and reloads; a mistake is drawn over the page" },
+    { form: "wf check", means: "**Count what it caught** — every finding with a code, a place and a fix" },
+    { form: "wf build --stats", means: "**Weigh it** — every file gzipped, and each runtime module that shipped" },
+    { form: "wf verify", means: "**Time it** — every route loaded in a real browser: errors, paint, bytes" },
+]
+
+page Deck(path: "/", title: "Rethinking the web layout", description: "Why your next project should use a compiled language — WebFluent in sixteen slides, written in WebFluent.") {
     Presentation {
 
         // 1 · The cover
@@ -140,9 +179,9 @@ page Deck(path: "/", title: "WebFluent — a language for websites", description
                         Image(src: "/mark.svg", alt: "")
                         Text("WebFluent")
                     }
-                    Text("Version 5.2 · October 2026", class: "overline")
-                    Heading("A language for websites — and the paper they print on.", class: "cover__title").h1
-                    Text("A file describes what a page shows: its elements, the state behind them, what happens when the reader acts. The compiler turns it into a static site, an app, a PDF or a deck.", class: "cover__lede")
+                    Text("A talk for people who build for the web", class: "overline")
+                    Heading("Rethinking the web layout.", class: "cover__title").h1
+                    Text("Why your next project should use a compiled language: one syntax for text, boxes, media, state and style — and a compiler that does the heavy lifting before the page ever reaches a browser.", class: "cover__lede")
                 }
                 Stack(class: "cover__side") {
                     Stack(class: "console") {
@@ -151,22 +190,22 @@ page Deck(path: "/", title: "WebFluent — a language for websites", description
                             Text("terminal", class: "console__title")
                         }
                         Stack(class: "term-body") {
-                            Text("$ wf init hello --template spa", class: "term-line")
+                            Text("$ wf init hello --template static", class: "term-line")
                             Text("  Created hello/ with AGENTS.md", class: "term-line dim")
                             Text("$ wf build", class: "term-line")
-                            Text("  Building hello…", class: "term-line dim")
-                            Text("  app.js     4.6 kB gzipped", class: "term-line dim")
-                            Text("  0 errors, 0 warnings", class: "term-line ok")
+                            Text("  3 pages, 0 errors, 0 warnings", class: "term-line ok")
+                            Text("$ wf build -d report", class: "term-line")
+                            Text("  PDF: 9 page(s)", class: "term-line kw")
                             Text("$ wf build -d deck", class: "term-line")
                             Text("  Slides: 16 slide(s)", class: "term-line kw")
                         }
                     }
                     Row(class: "chips") {
-                        Text("static site", class: "chip brand")
-                        Text("SPA", class: "chip brand")
+                        Text("one syntax", class: "chip brand")
+                        Text("one binary", class: "chip brand")
+                        Text("web", class: "chip")
                         Text("PDF", class: "chip accent")
                         Text("slides", class: "chip accent")
-                        Text("custom elements", class: "chip")
                     }
                 }
             }
@@ -176,9 +215,73 @@ page Deck(path: "/", title: "WebFluent — a language for websites", description
             }
         }
 
-        // 2 · What you write, what the reader gets
+        // 2 · The hook: what a new project costs before its first box
         Slide {
-            Head("One file is the page.", over: "The idea")
+            Head("Six files before the first box.", over: "The friction")
+            Row(class: "panes") {
+                Stack(class: "pane") {
+                    style { flex: 1.2 1 0 }
+                    Stack(class: "console big") {
+                        Row(class: "console__bar") {
+                            Row(class: "console__dots") { Text("")  Text("")  Text("") }
+                            Text("a new project, today", class: "console__title")
+                        }
+                        Stack(class: "term-body") {
+                            for s in SETUP {
+                                Text(s.line, class: ["term-line", if s.kind != "" { s.kind }])
+                            }
+                        }
+                    }
+                }
+                Stack(class: "pane facts") {
+                    Fact("01", claim: "Configuration before content", note: "A bundler, a CSS pipeline, a type checker and a linter each want a file before anything is laid out.")
+                    Fact("02", claim: "Dependencies nobody chose", note: "One install brings a tree of packages to audit, update and keep from breaking.")
+                    Fact("03", claim: "Tools that cannot see each other", note: "The type checker cannot read the CSS, the linter cannot read the routes — so the browser finds the mistakes.")
+                }
+            }
+            Chrome("The friction", n: 2)
+        }
+
+        // 3 · The hook: where the work lands
+        Slide {
+            Head("And the reader's browser finishes the job.", over: "The friction", lede: "A typical stack ships a framework with the page, and the layout is assembled on the reader's device — on every visit, on every phone.")
+            Row(class: "flow") {
+                Stack(class: "card flow__node") {
+                    Text("download", class: "node__kind")
+                    Text("framework + app bundle", class: "node__code")
+                    Text("The runtime has to arrive before the content can show.", class: "node__note")
+                }
+                Text("→", class: "flow__arrow")
+                Stack(class: "card flow__node") {
+                    Text("execute", class: "node__kind")
+                    Text("render(<App />)", class: "node__code")
+                    Text("The text, the boxes and the media are built in the browser, from scratch.", class: "node__note")
+                }
+                Text("→", class: "flow__arrow")
+                Stack(class: "card flow__node") {
+                    Text("hydrate", class: "node__kind")
+                    Text("attach every listener", class: "node__code")
+                    Text("HTML that was already sent is walked again to make it interactive.", class: "node__note")
+                }
+            }
+            Row(class: "chips") {
+                style { margin-top: 32px }
+                Text("configure", class: "chip")
+                Text("transpile", class: "chip")
+                Text("bundle", class: "chip")
+                Text("polyfill", class: "chip")
+                Text("ship a runtime", class: "chip")
+                Text("re-render", class: "chip")
+            }
+            Chrome("The friction", n: 3)
+        }
+
+        // 4 · The paradigm shift
+        Opener("A new method", num: "01", line: "Describe the layout in one language a compiler understands, and do the heavy lifting once, at build time — not on every reader's device.")
+
+        // 5 · One file
+        Slide {
+            Head("One syntax for layout, state and behaviour.", over: "The method")
             Row(class: "panes") {
                 Stack(class: "pane") {
                     Row(class: "pane__label") {
@@ -204,20 +307,17 @@ page Deck(path: "/", title: "WebFluent — a language for websites", description
                                 Text("3", class: "counter__n")
                                 Text("+1", class: "button")
                             }
-                            Text("The text repaints when the state changes — no virtual DOM, no hooks, no build config.", class: "muted")
+                            Text("No config file, no package to install, no virtual DOM: the one text node that reads count repaints when it changes.", class: "muted")
                         }
                     }
                 }
             }
-            Chrome("The idea", n: 2)
+            Chrome("The method", n: 5)
         }
 
-        // 3 · The language
-        Opener("The language", num: "01", line: "Declarations are lowercase, elements capitalised, and anything that resolves to nothing is an error — never a silent no-op.")
-
-        // 4 · One lexeme, one meaning
+        // 6 · The grammar
         Slide {
-            Head("One lexeme, one meaning.", over: "Grammar", lede: "Seven shapes cover everything a page says. The compiler, the linters and the editor read one registry of what each element takes.")
+            Head("Seven shapes. That is the whole grammar.", over: "One unified syntax", lede: "Text, boxes and media are written the same way as state and style. The compiler, the linters and the editor read one registry of what each element takes.")
             Stack(class: "grammar") {
                 Row(class: "grammar__row head") {
                     Text("Written", class: "grammar__form")
@@ -230,64 +330,68 @@ page Deck(path: "/", title: "WebFluent — a language for websites", description
                     }
                 }
             }
-            Chrome("The language", n: 4)
+            Chrome("The method", n: 6)
         }
 
-        // 5 · Reactivity
+        // 7 · What moves to the compiler
         Slide {
-            Head("State is the only thing that moves.", over: "Reactivity", lede: "What reads a state repaints when it changes. A derived value follows the values it reads; an effect runs when they do.")
-            Row(class: "flow") {
-                Stack(class: "card flow__node") {
-                    Text("state", class: "node__kind")
-                    Text("count = 3", class: "node__code")
-                    Text("A signal. Assigning it is the only way anything changes.", class: "node__note")
-                }
-                Text("→", class: "flow__arrow")
-                Stack(class: "card flow__node") {
-                    Text("derived", class: "node__kind")
-                    Text("doubled = count * 2", class: "node__code")
-                    Text("Recomputed when count changes, and never otherwise.", class: "node__note")
-                }
-                Text("→", class: "flow__arrow")
-                Stack(class: "card flow__node") {
-                    Text("element", class: "node__kind")
-                    Text("Text(\"\{doubled\}\")", class: "node__code")
-                    Text("One text node, updated in place. Nothing else is touched.", class: "node__note")
-                }
-            }
-            Row(class: "chips") {
-                style { margin-top: 32px }
-                Text("persist theme = \"light\"", class: "chip")
-                Text("every(1000) { … }", class: "chip")
-                Text("resource users: [User] = fetch(…)", class: "chip")
-                Text("socket chat = ws(…)", class: "chip")
-            }
-            Chrome("The language", n: 5)
-        }
-
-        // 6 · Types
-        Slide {
-            Head("The types a page needs, built in.", over: "Types", lede: "Each is a plain JSON value at run time, so it crosses a fetch, storage and the static paint unchanged.")
-            Grid(class: "types") {
-                for t in TYPES {
-                    Stack(class: "type") {
-                        Text(t.name, class: "type__name")
-                        Text(t.lit, class: "type__lit")
-                        Text(t.can, class: "type__can")
+            Head("The heavy lifting happens before anyone visits.", over: "Build time, not run time")
+            Grid(class: "tools") {
+                for b in BUILD {
+                    Row(class: "tool") {
+                        Text(b.job, class: "tool__cmd")
+                        Markdown(b.what, class: "tool__what")
                     }
                 }
-                Stack(class: "type secret") {
-                    Text("Secret", class: "type__name")
-                    Text("T12 if it escapes", class: "type__lit")
-                    Text("never shown, logged or kept", class: "type__can")
-                }
             }
-            Chrome("The language", n: 6)
+            Chrome("The method", n: 7)
         }
 
-        // 7 · Diagnostics
+        // 8 · Measured
         Slide {
-            Head("A mistake is found where it is written.", over: "Diagnostics")
+            Head("And the compile step is fast.", over: "Measured", lede: "wf is one native binary. Wall-clock time of wf build on the projects in the repository's examples and tests.")
+            Grid(class: "numbers") {
+                Stack(class: "number") {
+                    Text("17 ms", class: "number__n")
+                    Text("a three-page marketing site, start to finish", class: "number__what")
+                }
+                Stack(class: "number") {
+                    Text("19 ms", class: "number__n")
+                    Text("a three-page dashboard with a store and a keyed table", class: "number__what")
+                }
+                Stack(class: "number") {
+                    Text("0.21 s", class: "number__n")
+                    Text("a nine-page PDF report: charts, tables, fonts embedded", class: "number__what")
+                }
+                Stack(class: "number") {
+                    Text("0.16 s", class: "number__n")
+                    Text("this deck: sixteen slides, five pictures, two QR codes", class: "number__what")
+                }
+            }
+            Grid(class: "numbers small") {
+                Stack(class: "number") {
+                    Text("1", class: "number__n")
+                    Text("binary: compiler, server, formatter, tests", class: "number__what")
+                }
+                Stack(class: "number") {
+                    Text("0", class: "number__n")
+                    Text("node_modules, bundler configs or plugins", class: "number__what")
+                }
+                Stack(class: "number") {
+                    Text("3.7 kB", class: "number__n")
+                    Text("gzipped app.js for a page of static text", class: "number__what")
+                }
+                Stack(class: "number") {
+                    Text("0", class: "number__n")
+                    Text("headless browsers launched to make a PDF", class: "number__what")
+                }
+            }
+            Chrome("The method", n: 8)
+        }
+
+        // 9 · Diagnostics
+        Slide {
+            Head("A mistake stops at the compiler, not in production.", over: "Checked")
             Row(class: "panes") {
                 Stack(class: "pane") {
                     style { flex: 1.4 1 0 }
@@ -300,36 +404,34 @@ page Deck(path: "/", title: "WebFluent — a language for websites", description
                     }
                 }
                 Stack(class: "pane facts") {
-                    Row(class: "fact") {
-                        Text("116", class: "fact__dot") { style { width: 44px } }
-                        Stack(class: "fact__text") {
-                            Text("codes, one registry")
-                            Text("The build, the editor, wf explain and the guide read the same list.")
-                        }
-                    }
-                    Row(class: "fact") {
-                        Text("fix", class: "fact__dot") { style { width: 44px } }
-                        Stack(class: "fact__text") {
-                            Text("A fix where one is known")
-                            Text("The nearest name, a ?., the missing props — applied by the editor.")
-                        }
-                    }
-                    Row(class: "fact") {
-                        Text("1×", class: "fact__dot") { style { width: 44px } }
-                        Stack(class: "fact__text") {
-                            Text("Every mistake, once")
-                            Text("Every file is read even when another does not parse.")
-                        }
-                    }
+                    Fact("116", claim: "codes, one registry", note: "The build, the editor, wf explain and the guide read the same list.")
+                    Fact("fix", claim: "A fix where one is known", note: "The nearest name, a ?., the missing props — applied by the editor.")
+                    Fact("1×", claim: "Every mistake, once", note: "Every file is read even when another does not parse.")
                 }
             }
-            Chrome("The language", n: 7)
+            Chrome("The method", n: 9)
         }
 
-        // 8 · What it builds
-        Opener("What it builds", num: "02", line: "One program; five outputs. The same elements are a page in a browser and a page on paper.")
+        // 10 · The 'aha'
+        Opener("Beyond the screen", num: "02", line: "The same layout compiles to a PDF document and a slide deck — laid out by the compiler itself. No headless browser to spin up.")
 
-        // 9 · Outputs
+        // 11 · One component, three surfaces
+        Slide {
+            Head("One component. Three surfaces.", over: "The same layout logic")
+            Row(class: "meta") {
+                Stack(class: "meta__code") {
+                    Console(THREE, title: "src/Talk.wf", small: true)
+                }
+                Stack(class: "pane facts") {
+                    Fact("web", claim: "On screen", note: "wf build: the HTML, the CSS, and a runtime cut to what the page reaches.")
+                    Fact("pdf", claim: "On paper", note: "-f pdf: A4 pages with a numbered footer, each Card in its own CSS.")
+                    Fact("deck", claim: "On stage", note: "-f slides: a 16:9 slide for every point, from the same loop.")
+                }
+            }
+            Chrome("Beyond the screen", n: 11)
+        }
+
+        // 12 · Outputs
         Slide {
             Head("Pick the output in one line of config.", over: "build.output_type")
             Grid(class: "outputs") {
@@ -368,35 +470,12 @@ page Deck(path: "/", title: "WebFluent — a language for websites", description
                 Console(CONFIG, title: "webfluent.app.json", small: true)
                 Text("The program does not change. A PDF is refused what only a browser can do — a button, a handler, a route — where it is written, and the editor offers only what the output draws.", class: "config-strip__note")
             }
-            Chrome("What it builds", n: 9)
+            Chrome("Beyond the screen", n: 12)
         }
 
-        // 10 · What it weighs
+        // 13 · Paper
         Slide {
-            Head("The runtime holds only what a program reaches.", over: "What it weighs")
-            Row(class: "weigh") {
-                Stack(class: "weigh__chart card") {
-                    Text("app.js, gzipped (kB)", class: "overline")
-                    Chart(kind: .bar, data: WEIGHT, x: "step", y: "kb", colors: ["#2B5178"], labels: true, grid: "#E2E5E8", ink: "#5A5F64", width: 560, height: 300)
-                }
-                Stack(class: "weigh__side") {
-                    for w in WEIGHT {
-                        Row(class: "step") {
-                            Text(w.step, class: "step__what")
-                            Text("{w.kb} kB", class: "step__kb")
-                        }
-                    }
-                    Text("Measured on four programs built with wf build. A for brings the keyed-list module, a second page the router, a resource the network engine.", class: "muted") {
-                        style { font-size: 14px; line-height: 21px; margin-top: 6px }
-                    }
-                }
-            }
-            Chrome("What it builds", n: 10)
-        }
-
-        // 11 · Paper
-        Slide {
-            Head("The same CSS, on paper.", over: "PDF", lede: "No browser, no external tool: the compiler lays out the page's HTML and CSS itself — the cascade, flex and grid, shaped Arabic, tables that repeat their header.")
+            Head("Paper, without a headless browser.", over: "PDF", lede: "The compiler's own paged engine lays out the page's HTML and CSS — the cascade, flex and grid, shaped Arabic, tables that repeat their header. Nothing to install, nothing to launch.")
             Row(class: "paper-row") {
                 Stack(class: "sheet") {
                     Image(src: "/report-1.png", alt: "The cover of the Halyard platform report")
@@ -419,91 +498,50 @@ page Deck(path: "/", title: "WebFluent — a language for websites", description
                     Text("Arabic, right to left, from the same engine", class: "sheet__cap")
                 }
             }
-            Chrome("What it builds", n: 11)
+            Chrome("Beyond the screen", n: 13)
         }
 
-        // 12 · Tooling
-        Opener("The tools", num: "03", line: "One binary: a compiler, a formatter, a test runner, a browser check, an audit — and a language server that knows what you are building.")
-
-        // 13 · The commands
+        // 14 · This deck
         Slide {
-            Head("Everything a project needs is a subcommand.", over: "Tooling")
-            Grid(class: "tools") {
-                for t in TOOLS {
-                    Row(class: "tool") {
-                        Text(t.cmd, class: "tool__cmd")
-                        Markdown(t.what, class: "tool__what")
-                    }
-                }
-            }
-            Chrome("The tools", n: 13)
-        }
-
-        // 14 · In numbers
-        Slide {
-            Head("In numbers.", over: "WebFluent 5.2")
-            Grid(class: "numbers") {
-                Stack(class: "number") {
-                    Text("79", class: "number__n")
-                    Text("built-in elements, from Button to TableOfContents", class: "number__what")
-                }
-                Stack(class: "number") {
-                    Text("116", class: "number__n")
-                    Text("diagnostic codes, each with a page in the guide", class: "number__what")
-                }
-                Stack(class: "number") {
-                    Text("37", class: "number__n")
-                    Text("runtime modules, shipped only when reached", class: "number__what")
-                }
-                Stack(class: "number") {
-                    Text("48", class: "number__n")
-                    Text("chapters of the guide, every example built by the tests", class: "number__what")
-                }
-            }
-            Grid(class: "numbers small") {
-                Stack(class: "number") {
-                    Text("5", class: "number__n")
-                    Text("outputs from one program", class: "number__what")
-                }
-                Stack(class: "number") {
-                    Text("11", class: "number__n")
-                    Text("types the language brings: Date to Secret", class: "number__what")
-                }
-                Stack(class: "number") {
-                    Text("32", class: "number__n")
-                    Text("icons, drawn inline, on screen and paper", class: "number__what")
-                }
-                Stack(class: "number") {
-                    Text("1", class: "number__n")
-                    Text("binary: compiler, formatter, tests, server", class: "number__what")
-                }
-            }
-            Chrome("The tools", n: 14)
-        }
-
-        // 15 · This deck
-        Slide {
-            Head("This deck is a .wf file.", over: "Meta")
+            Head("You are looking at a .wf file.", over: "Slides")
             Row(class: "meta") {
                 Stack(class: "meta__code") {
                     Console(SOURCE, title: "examples/decks/webfluent/src/Deck.wf", small: true)
                 }
                 Stack(class: "meta__side") {
-                    Text("Slides are components: an opener, a heading, a console frame — written once, placed sixteen times. A for makes a slide from each item of a list.", class: "muted")
-                    Text("The fonts are files beside it; the colours are the docs site's tokens; wf build writes the PDF.", class: "muted")
+                    Text("Every slide here is a component — an opener, a heading, a console frame — written once and placed sixteen times. A for makes a row, or a slide, from each item of a list.", class: "muted")
+                    Text("The fonts are files beside it, the colours the docs site's tokens; wf build writes the PDF, and nothing else runs.", class: "muted")
                     QrCode("https://github.com/monzeromer-lab/WebFluent/tree/master/examples/decks", color: "#17191C", class: "qr")
                     Text("The source of every deck", class: "overline")
                 }
             }
-            Chrome("The tools", n: 15)
+            Chrome("Beyond the screen", n: 14)
+        }
+
+        // 15 · The challenge
+        Slide {
+            Head("Try it on one page you already have.", over: "The challenge", lede: "Rebuild it in WebFluent, then measure the difference yourself — every number on these slides is one command away.")
+            Stack(class: "grammar") {
+                Row(class: "grammar__row head") {
+                    Text("Run", class: "grammar__form")
+                    Text("What you will see", class: "grammar__means")
+                }
+                for c in CHALLENGE {
+                    Row(class: "grammar__row") {
+                        Text(c.form, class: "grammar__form")
+                        Markdown(c.means, class: "grammar__means")
+                    }
+                }
+            }
+            Chrome("Your move", n: 15)
         }
 
         // 16 · Start
         Slide(class: "closing") {
             Stack {
-                Text("Get started", class: "overline")
-                Heading("Write the page.", class: "closing__title").h1
-                Text("Let the compiler do the rest.", class: "closing__title closing__accent")
+                Text("Your move", class: "overline")
+                Heading("Spin up a layout.", class: "closing__title").h1
+                Text("See how much cleaner it gets.", class: "closing__title closing__accent")
             }
             Row(class: "closing__row") {
                 Stack(class: "closing__steps") {

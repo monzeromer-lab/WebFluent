@@ -1,0 +1,18 @@
+/* The deck, right to left. The design is deck.css, byte for byte the English
+   deck's; this sheet says only which runs keep reading left to right inside
+   an Arabic page — code, commands, paths and measurements — and keeps them
+   on the start (right) side where they stand in a column. */
+
+.console,
+.chip,
+.pill,
+.browser__url,
+.chrome__page,
+.mono,
+.fact__dot,
+.closing__cmd,
+.closing__link { direction: ltr; }
+
+.grammar__form,
+.node__code,
+.number__n { direction: ltr; text-align: right; }

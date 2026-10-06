@@ -1,5 +1,5 @@
 {
-  "name": "webfluent-deck",
+  "name": "webfluent-deck-ar",
   "version": "1.0.0",
   "author": "Monzer Omer",
   "theme": { "name": "Day", "builtin": "structural" },
@@ -11,10 +11,10 @@
       "margin": 0,
       "default_font": "Inter",
       "default_font_size": 16,
-      "output_filename": "rethinking-the-web-layout.pdf",
+      "output_filename": "rethinking-the-web-layout-ar.pdf",
       "fonts": ["../../documents/fonts"],
       "system_fonts": false
     }
   },
-  "meta": { "lang": "en", "title": "Rethinking the web layout" }
+  "meta": { "lang": "ar", "title": "إعادة التفكير في تخطيط الويب" }
 }

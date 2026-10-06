@@ -1,0 +1,560 @@
+// إعادة التفكير في تخطيط الويب — the Arabic copy of examples/decks/webfluent:
+// the same sixteen slides, the same design system, laid out right to left.
+// Code, commands and compiler output stay as a terminal shows them.
+// `wf build` here writes build/rethinking-the-web-layout-ar.pdf.
+
+const TOTAL = 16
+const SITE = "https://monzeromer-lab.github.io/WebFluent/"
+
+/// What every content slide carries along its foot.
+component Chrome(_ section: String, n: Number) {
+    Row(class: "chrome") {
+        Row(class: "chrome__brand") {
+            Image(src: "/mark.svg", alt: "")
+            Text("WebFluent")
+            Text("· {section}", class: "muted")
+        }
+        Text("{n} / {TOTAL}", class: "chrome__page")
+    }
+}
+
+/// A slide's heading: the overline that says where we are, then the claim.
+component Head(_ title: String, over: String, lede: String = "") {
+    Text(over, class: "overline accent")
+    Heading(title, class: "title").h2
+    if lede != "" {
+        Text(lede, class: "lede")
+    }
+}
+
+/// A console frame around a block of code, as the guide draws one.
+component Console(_ code: String, title: String = "wf", small: Bool = false) {
+    Stack(class: ["console", if small { "small" }]) {
+        Row(class: "console__bar") {
+            Row(class: "console__dots") { Text("")  Text("")  Text("") }
+            Text(title, class: "console__title")
+        }
+        Code(code, language: "wf").block
+    }
+}
+
+/// A section opener: the brand fill, a numeral and the line under it.
+component Opener(_ title: String, num: String, line: String) {
+    Slide(class: "section") {
+        Text(num, class: "section__num")
+        Text(title, class: "section__title")
+        Text(line, class: "section__line")
+        Stack(class: "section__rule") { }
+    }
+}
+
+/// One point beside a console: a short mark, a claim, and what it means.
+component Fact(_ mark: String, claim: String, note: String) {
+    Row(class: "fact") {
+        Text(mark, class: "fact__dot") { style { width: 44px } }
+        Stack(class: "fact__text") {
+            Text(claim)
+            Text(note)
+        }
+    }
+}
+
+// ── الفصل الأول · العقبة ─────────────────────────────────────
+
+const SETUP = [
+    { line: "$ ls -a my-site", kind: "" },
+    { line: "  package.json        package-lock.json", kind: "dim" },
+    { line: "  tsconfig.json       vite.config.ts", kind: "dim" },
+    { line: "  postcss.config.js   tailwind.config.js", kind: "dim" },
+    { line: "  eslint.config.js    .prettierrc", kind: "dim" },
+    { line: "  node_modules/       … hundreds of packages", kind: "dim" },
+    { line: "$ ls src/", kind: "" },
+    { line: "ستة ملفات إعداد، ولا سطر واحد من التخطيط", kind: "err" },
+]
+
+// ── الفصل الثاني · الطريقة ───────────────────────────────────
+
+const COUNTER = #"page Home(path: "/", title: "الرئيسية") {
+    state count = 0
+    derived doubled = count * 2
+
+    Container {
+        Heading("أهلاً").h1
+        Text("العدد: {count} · ضعفه {doubled}")
+        Button("+1").primary {
+            on click { count = count + 1 }
+        }
+    }
+}"#
+
+const GRAMMAR = [
+    { form: "page · component · store", means: "**تصريح** — كلمة مفتاحية بأحرف صغيرة تسمّي ما يُصنع" },
+    { form: "Row · Card · Image", means: "**عنصر** — نص أو صندوق أو وسائط، يبدأ بحرف كبير، من سجل واحد" },
+    { form: ".primary  .lg  .h1", means: "**علَم** — خاصية منطقية، أو حالة واحدة من خاصية تعدادية" },
+    { form: "gap: .md", means: "**خاصية** — تُمرَّر بالاسم، وقد تتقدّمها قيمة موضعية واحدة" },
+    { form: "Card { … }", means: "**كتلة** — أبناء العنصر: التخطيط هو التداخل" },
+    { form: "on click { … }", means: "**معالج حدث** — ما يحدث حين يتفاعل القارئ" },
+    { form: "style { padding: $md }", means: "**CSS خام** — مع رموز التصميم وقيم حيّة `\{values\}`" },
+]
+
+const BUILD = [
+    { job: "تصيير مسبق", what: "كل صفحة تُكتب HTML، فلا يحتاج أول رسم إلى أي سكربت" },
+    { job: "تقليم", what: "ورقة أنماط واحدة: المكوّنات والرموز التي يستخدمها الموقع فقط" },
+    { job: "اقتطاع", what: "من 37 وحدة في بيئة التشغيل، لا يُشحن إلا ما يصل إليه البرنامج" },
+    { job: "تحجيم", what: "كل صورة بكل عرض، مع أبعادها، فلا يتزحزح شيء أثناء التحميل" },
+    { job: "تدقيق", what: "الأنواع والخصائص والمسارات والترجمات وإمكانية الوصول — في كل بناء" },
+    { job: "تأمين", what: "سياسة أمان محتوى (CSP) يُلزم البناء مخرجاته بها" },
+    { job: "فهرسة", what: "خريطة الموقع والروابط القانونية و Open Graph و JSON-LD لكل صفحة" },
+    { job: "ضغط", what: "ملف `.gz` بجانب كل ملف نصي، جاهز ليقدّمه المضيف" },
+]
+
+const ERROR = #"error[T05]: `User` has no field `nmae`
+ --> src/pages/Profile.wf:3:18
+  |
+3 |     Heading(user.nmae).h1
+  |                  ^^^^
+  = help: Its fields are `id`, `name`
+  = fix:  nmae → name"#
+
+// ── الفصل الثالث · ما بعد الشاشة ─────────────────────────────
+
+const THREE = #"component Point(_ title: String, body: String) {
+    Card { Heading(title).h3  Text(body) }
+}
+page Site(path: "/", title: "Talk") {
+    Container { for p in POINTS { Point(p.title, body: p.body) } }
+}
+page Handout(path: "/handout", title: "Handout") {
+    Document(size: "A4") {
+        Footer { Text("Page {page} of {pages}") }
+        for p in POINTS { Point(p.title, body: p.body) }
+    }
+}
+page Talk(path: "/talk", title: "Talk") {
+    Presentation {
+        for p in POINTS { Slide { Point(p.title, body: p.body) } }
+    }
+}"#
+
+const CONFIG = #"{ "build": { "output_type": "slides",
+             "slides": { "size": "16:9" } } }"#
+
+const SOURCE = #"component Opener(_ title: String, num: String, line: String) {
+    Slide(class: "section") {
+        Text(num, class: "section__num")
+        Text(title, class: "section__title")
+        Text(line, class: "section__line")
+    }
+}
+
+page Deck(path: "/", title: "إعادة التفكير في تخطيط الويب") {
+    Presentation {
+        Opener("طريقة جديدة", num: "01",
+               line: "اكتبه مرة، ثم ترجمه.")
+        Slide {
+            Head("سبعة أشكال.", over: "صياغة موحّدة")
+            for g in GRAMMAR { Row { Text(g.form)  Markdown(g.means) } }
+        }
+    }
+}"#
+
+// ── الفصل الرابع · الدعوة ────────────────────────────────────
+
+const CHALLENGE = [
+    { form: "wf init try-it -t static", means: "**ابدأ** — أمر واحد ومجلد واحد، ولا شيء لتثبيته بعد الملف التنفيذي" },
+    { form: "src/pages/Home.wf", means: "**أعد بناء صفحة لديك** — التخطيط والحالة والأنماط في ملف واحد" },
+    { form: "wf serve", means: "**راقبه** — الحفظ يعيد البناء والتحميل، والخطأ يُرسم فوق الصفحة" },
+    { form: "wf check", means: "**عُدّ ما التقطه** — كل ملاحظة برمزها ومكانها وإصلاحها" },
+    { form: "wf build --stats", means: "**زِنه** — كل ملف مضغوطاً، وكل وحدة تشغيل شُحنت" },
+    { form: "wf verify", means: "**وقّته** — كل مسار يُحمَّل في متصفح حقيقي: الأخطاء والرسم والبايتات" },
+]
+
+page Deck(path: "/", title: "إعادة التفكير في تخطيط الويب", description: "لماذا يجب أن يُكتب مشروعك القادم بلغة مُترجَمة — WebFluent في ست عشرة شريحة، مكتوبة بـ WebFluent.") {
+    Presentation {
+
+        // 1 · الغلاف
+        Slide(class: "cover") {
+            Row(class: "cover__grid") {
+                Stack(class: "cover__copy") {
+                    Row(class: "cover__brand") {
+                        Image(src: "/mark.svg", alt: "")
+                        Text("WebFluent")
+                    }
+                    Text("محاضرة لكل من يبني للويب", class: "overline")
+                    Heading("إعادة التفكير في تخطيط الويب.", class: "cover__title").h1
+                    Text("لماذا يجب أن يُكتب مشروعك القادم بلغة مُترجَمة: صياغة واحدة للنصوص والصناديق والوسائط والحالة والأنماط — ومُترجِم يتولّى العمل الثقيل قبل أن تصل الصفحة إلى أي متصفح.", class: "cover__lede")
+                }
+                Stack(class: "cover__side") {
+                    Stack(class: "console") {
+                        Row(class: "console__bar") {
+                            Row(class: "console__dots") { Text("")  Text("")  Text("") }
+                            Text("terminal", class: "console__title")
+                        }
+                        Stack(class: "term-body") {
+                            Text("$ wf init hello --template static", class: "term-line")
+                            Text("  Created hello/ with AGENTS.md", class: "term-line dim")
+                            Text("$ wf build", class: "term-line")
+                            Text("  3 pages, 0 errors, 0 warnings", class: "term-line ok")
+                            Text("$ wf build -d report", class: "term-line")
+                            Text("  PDF: 9 page(s)", class: "term-line kw")
+                            Text("$ wf build -d deck", class: "term-line")
+                            Text("  Slides: 16 slide(s)", class: "term-line kw")
+                        }
+                    }
+                    Row(class: "chips") {
+                        Text("صياغة واحدة", class: "chip brand")
+                        Text("أداة واحدة", class: "chip brand")
+                        Text("الويب", class: "chip")
+                        Text("PDF", class: "chip accent")
+                        Text("شرائح", class: "chip accent")
+                    }
+                }
+            }
+            Row(class: "cover__foot") {
+                Text("monzeromer-lab.github.io/WebFluent", class: "mono")
+                Text("هذا العرض مكتوب بـ WebFluent")
+            }
+        }
+
+        // 2 · المدخل: ما يكلّفه مشروع جديد قبل أول صندوق
+        Slide {
+            Head("ستة ملفات قبل أول صندوق.", over: "العقبة")
+            Row(class: "panes") {
+                Stack(class: "pane") {
+                    style { flex: 1.2 1 0 }
+                    Stack(class: "console big") {
+                        Row(class: "console__bar") {
+                            Row(class: "console__dots") { Text("")  Text("")  Text("") }
+                            Text("مشروع جديد، اليوم", class: "console__title")
+                        }
+                        Stack(class: "term-body") {
+                            for s in SETUP {
+                                Text(s.line, class: ["term-line", if s.kind != "" { s.kind }])
+                            }
+                        }
+                    }
+                }
+                Stack(class: "pane facts") {
+                    Fact("01", claim: "الإعداد قبل المحتوى", note: "مُجمِّع، وخط لمعالجة الـ CSS، ومدقّق أنواع، ومدقّق شيفرة — كلٌّ يريد ملفه قبل أن يُرسم أي شيء.")
+                    Fact("02", claim: "اعتماديات لم يخترها أحد", note: "تثبيت واحد يجلب شجرة من الحزم عليك أن تدقّقها وتحدّثها وتحميها من الانكسار.")
+                    Fact("03", claim: "أدوات لا يرى بعضها بعضاً", note: "مدقّق الأنواع لا يقرأ الـ CSS، ومدقّق الشيفرة لا يقرأ المسارات — فيكتشف المتصفح الأخطاء.")
+                }
+            }
+            Chrome("العقبة", n: 2)
+        }
+
+        // 3 · المدخل: أين يقع العمل
+        Slide {
+            Head("ثم يُكمل متصفح القارئ المهمة.", over: "العقبة", lede: "الحزمة المعتادة تشحن إطار عمل مع الصفحة، ويُبنى التخطيط على جهاز القارئ — في كل زيارة، وعلى كل هاتف.")
+            Row(class: "flow") {
+                Stack(class: "card flow__node") {
+                    Text("التنزيل", class: "node__kind")
+                    Text("إطار العمل + حزمة التطبيق", class: "node__code")
+                    Text("لا بد أن تصل بيئة التشغيل قبل أن يظهر المحتوى.", class: "node__note")
+                }
+                Text("←", class: "flow__arrow")
+                Stack(class: "card flow__node") {
+                    Text("التنفيذ", class: "node__kind")
+                    Text("render(<App />)", class: "node__code")
+                    Text("النصوص والصناديق والوسائط تُبنى في المتصفح من الصفر.", class: "node__note")
+                }
+                Text("←", class: "flow__arrow")
+                Stack(class: "card flow__node") {
+                    Text("الإحياء", class: "node__kind")
+                    Text("ربط كل مستمع أحداث", class: "node__code")
+                    Text("الـ HTML الذي أُرسل من قبل يُمشى عليه مرة أخرى ليصير تفاعلياً.", class: "node__note")
+                }
+            }
+            Row(class: "chips") {
+                style { margin-top: 32px }
+                Text("configure", class: "chip")
+                Text("transpile", class: "chip")
+                Text("bundle", class: "chip")
+                Text("polyfill", class: "chip")
+                Text("ship a runtime", class: "chip")
+                Text("re-render", class: "chip")
+            }
+            Chrome("العقبة", n: 3)
+        }
+
+        // 4 · التحوّل
+        Opener("طريقة جديدة", num: "01", line: "صِف التخطيط بلغة واحدة يفهمها المُترجِم، وأنجز العمل الثقيل مرة واحدة وقت البناء — لا على جهاز كل قارئ.")
+
+        // 5 · ملف واحد
+        Slide {
+            Head("صياغة واحدة للتخطيط والحالة والسلوك.", over: "الطريقة")
+            Row(class: "panes") {
+                Stack(class: "pane") {
+                    Row(class: "pane__label") {
+                        Text("ما تكتبه", class: "overline")
+                        Text("Home.wf", class: "pill")
+                    }
+                    Console(COUNTER, title: "src/pages/Home.wf")
+                }
+                Stack(class: "pane") {
+                    Row(class: "pane__label") {
+                        Text("ما يصل إلى القارئ", class: "overline")
+                        Text("index.html · app.js", class: "pill")
+                    }
+                    Stack(class: "browser") {
+                        Row(class: "browser__bar") {
+                            Row(class: "console__dots") { Text("")  Text("")  Text("") }
+                            Text("localhost:3000/", class: "browser__url")
+                        }
+                        Stack(class: "browser__page") {
+                            Heading("أهلاً").h2
+                            Text("العدد: 3 · ضعفه 6", class: "muted")
+                            Row(class: "counter") {
+                                Text("3", class: "counter__n")
+                                Text("+1", class: "button")
+                            }
+                            Text("لا ملف إعداد، ولا حزمة لتثبيتها، ولا DOM افتراضي: عقدة النص الوحيدة التي تقرأ count تُرسم من جديد حين تتغير.", class: "muted")
+                        }
+                    }
+                }
+            }
+            Chrome("الطريقة", n: 5)
+        }
+
+        // 6 · القواعد
+        Slide {
+            Head("سبعة أشكال. هذه هي القواعد كلها.", over: "صياغة موحّدة", lede: "النصوص والصناديق والوسائط تُكتب كما تُكتب الحالة والأنماط. المُترجِم والمدقّقات والمحرّر تقرأ سجلاً واحداً لما يأخذه كل عنصر.")
+            Stack(class: "grammar") {
+                Row(class: "grammar__row head") {
+                    Text("المكتوب", class: "grammar__form")
+                    Text("ما هو", class: "grammar__means")
+                }
+                for g in GRAMMAR {
+                    Row(class: "grammar__row") {
+                        Text(g.form, class: "grammar__form")
+                        Markdown(g.means, class: "grammar__means")
+                    }
+                }
+            }
+            Chrome("الطريقة", n: 6)
+        }
+
+        // 7 · ما ينتقل إلى المُترجِم
+        Slide {
+            Head("العمل الثقيل يُنجز قبل أن يزورك أحد.", over: "وقت البناء، لا وقت التشغيل")
+            Grid(class: "tools") {
+                for b in BUILD {
+                    Row(class: "tool") {
+                        Text(b.job, class: "tool__cmd")
+                        Markdown(b.what, class: "tool__what")
+                    }
+                }
+            }
+            Chrome("الطريقة", n: 7)
+        }
+
+        // 8 · بالقياس
+        Slide {
+            Head("وخطوة البناء سريعة.", over: "بالقياس", lede: "wf ملف تنفيذي أصلي واحد. هذه هي المدة الفعلية لأمر wf build على مشاريع الأمثلة والاختبارات في المستودع.")
+            Grid(class: "numbers") {
+                Stack(class: "number") {
+                    Text("17 ms", class: "number__n")
+                    Text("موقع تسويقي من ثلاث صفحات، من البداية إلى النهاية", class: "number__what")
+                }
+                Stack(class: "number") {
+                    Text("19 ms", class: "number__n")
+                    Text("لوحة تحكم من ثلاث صفحات، بمخزن حالة وجدول بمفاتيح", class: "number__what")
+                }
+                Stack(class: "number") {
+                    Text("0.21 s", class: "number__n")
+                    Text("تقرير PDF من تسع صفحات: رسوم بيانية وجداول وخطوط مضمّنة", class: "number__what")
+                }
+                Stack(class: "number") {
+                    Text("0.24 s", class: "number__n")
+                    Text("هذا العرض: ست عشرة شريحة وخمس صور ورمزا QR", class: "number__what")
+                }
+            }
+            Grid(class: "numbers small") {
+                Stack(class: "number") {
+                    Text("1", class: "number__n")
+                    Text("ملف تنفيذي: مُترجِم وخادم ومنسّق واختبارات", class: "number__what")
+                }
+                Stack(class: "number") {
+                    Text("0", class: "number__n")
+                    Text("مجلد node_modules أو إعدادات مُجمِّع أو إضافات", class: "number__what")
+                }
+                Stack(class: "number") {
+                    Text("3.7 kB", class: "number__n")
+                    Text("حجم app.js مضغوطاً لصفحة نص ثابت", class: "number__what")
+                }
+                Stack(class: "number") {
+                    Text("0", class: "number__n")
+                    Text("متصفح بلا واجهة يُشغَّل لصنع ملف PDF", class: "number__what")
+                }
+            }
+            Chrome("الطريقة", n: 8)
+        }
+
+        // 9 · التشخيص
+        Slide {
+            Head("الخطأ يتوقف عند المُترجِم، لا في بيئة الإنتاج.", over: "مُدقَّق")
+            Row(class: "panes") {
+                Stack(class: "pane") {
+                    style { flex: 1.4 1 0 }
+                    Stack(class: "console big") {
+                        Row(class: "console__bar") {
+                            Row(class: "console__dots") { Text("")  Text("")  Text("") }
+                            Text("wf check", class: "console__title")
+                        }
+                        Code(ERROR).block { style { color: #E6E9EC } }
+                    }
+                }
+                Stack(class: "pane facts") {
+                    Fact("116", claim: "رمز تشخيص في سجل واحد", note: "البناء والمحرّر و wf explain والدليل كلها تقرأ القائمة نفسها.")
+                    Fact("fix", claim: "إصلاح حيث يُعرف الإصلاح", note: "أقرب اسم صحيح، أو الخصائص الناقصة — ويطبّقه المحرّر.")
+                    Fact("1×", claim: "كل خطأ، مرة واحدة", note: "يُقرأ كل ملف حتى لو تعذّر تحليل ملف آخر.")
+                }
+            }
+            Chrome("الطريقة", n: 9)
+        }
+
+        // 10 · لحظة الإدراك
+        Opener("ما بعد الشاشة", num: "02", line: "التخطيط نفسه يُترجَم إلى مستند PDF وعرض شرائح — يرصفه المُترجِم بنفسه، دون تشغيل متصفح بلا واجهة.")
+
+        // 11 · مكوّن واحد، ثلاثة أسطح
+        Slide {
+            Head("مكوّن واحد. ثلاثة أسطح.", over: "منطق التخطيط نفسه")
+            Row(class: "meta") {
+                Stack(class: "meta__code") {
+                    Console(THREE, title: "src/Talk.wf", small: true)
+                }
+                Stack(class: "pane facts") {
+                    Fact("web", claim: "على الشاشة", note: "wf build يكتب الـ HTML والـ CSS وبيئة تشغيل مقتطعة إلى ما تصل إليه الصفحة.")
+                    Fact("pdf", claim: "على الورق", note: "صفحات A4 بتذييل مرقّم، وكل Card بأنماطه نفسها، بالصيغة pdf.")
+                    Fact("deck", claim: "على المنصّة", note: "شريحة 16:9 لكل نقطة، من الحلقة نفسها، بالصيغة slides.")
+                }
+            }
+            Chrome("ما بعد الشاشة", n: 11)
+        }
+
+        // 12 · المخرجات
+        Slide {
+            Head("اختر المُخرَج بسطر إعداد واحد.", over: "build.output_type")
+            Grid(class: "outputs") {
+                Stack(class: "card output") {
+                    Stack(class: "output__icon") { Icon("home") }
+                    Heading("موقع ثابت").h3
+                    Text("كل صفحة مُصيَّرة مسبقاً ثم تُحيا. خريطة موقع ورابط قانوني و Open Graph.")
+                    Text("\"ssg\": true", class: "chip")
+                }
+                Stack(class: "card output") {
+                    Stack(class: "output__icon") { Icon("arrow-left") }
+                    Heading("تطبيق صفحة واحدة").h3
+                    Text("جزء لكل صفحة يُحمَّل حين يظهر مساره، وعامل خدمة عند الطلب.")
+                    Text("\"spa\"", class: "chip")
+                }
+                Stack(class: "card output paper") {
+                    Stack(class: "output__icon") { Icon("download") }
+                    Heading("PDF").h3
+                    Text("أنماط الصفحة نفسها مرصوفة على الورق: ترويسات متكررة وفهرس ورسوم بيانية.")
+                    Text("\"pdf\"", class: "chip")
+                }
+                Stack(class: "card output paper") {
+                    Stack(class: "output__icon") { Icon("eye") }
+                    Heading("عرض شرائح").h3
+                    Text("شريحة لكل صفحة، من المكوّنات والبيانات — مثل هذا العرض.")
+                    Text("\"slides\"", class: "chip")
+                }
+                Stack(class: "card output") {
+                    Stack(class: "output__icon") { Icon("link") }
+                    Heading("عناصر مخصّصة").h3
+                    Text("المكوّنات وسوماً تضعها في React أو Vue أو Rails أو صفحة عادية.")
+                    Text("\"elements\"", class: "chip")
+                }
+            }
+            Row(class: "config-strip") {
+                Console(CONFIG, title: "webfluent.app.json", small: true)
+                Text("البرنامج لا يتغير. ما لا يقدر عليه إلا المتصفح — زر أو معالج حدث أو مسار — يُرفض في الـ PDF حيث كُتب، ولا يقترح المحرّر إلا ما يرسمه المُخرَج.", class: "config-strip__note")
+            }
+            Chrome("ما بعد الشاشة", n: 12)
+        }
+
+        // 13 · الورق
+        Slide {
+            Head("الورق، دون تشغيل أي متصفح.", over: "PDF", lede: "محرّك الصفحات الخاص بالمُترجِم يرصف HTML الصفحة و CSS الخاص بها — التتالي، و flex و grid، والعربية المتصلة، والجداول التي تكرّر ترويستها. لا شيء لتثبيته، ولا شيء لتشغيله.")
+            Row(class: "paper-row") {
+                Stack(class: "sheet") {
+                    Image(src: "/report-1.png", alt: "غلاف تقرير منصة Halyard")
+                    Text("غلاف تقرير — توهّج شعاعي وبطاقات أرقام", class: "sheet__cap")
+                }
+                Stack(class: "sheet") {
+                    Image(src: "/report-3.png", alt: "رسوم بيانية وجدول للمناطق")
+                    Text("رسوم بيانية متجاورة، وجدول بقدر محتواه", class: "sheet__cap")
+                }
+                Stack(class: "sheet") {
+                    Image(src: "/report-5.png", alt: "جدول عمليات نشر يمتد على عدة صفحات")
+                    Text("64 صفاً، والترويسة في كل صفحة", class: "sheet__cap")
+                }
+                Stack(class: "sheet") {
+                    Image(src: "/invoice-1.png", alt: "فاتورة عليها علامة مائية")
+                    Text("فاتورة: شريط وعلامة مائية ومجاميع لا تنقسم", class: "sheet__cap")
+                }
+                Stack(class: "sheet") {
+                    Image(src: "/resume-1.png", alt: "سيرة ذاتية عربية من اليمين إلى اليسار")
+                    Text("العربية من اليمين إلى اليسار، بالمحرّك نفسه", class: "sheet__cap")
+                }
+            }
+            Chrome("ما بعد الشاشة", n: 13)
+        }
+
+        // 14 · هذا العرض
+        Slide {
+            Head("هذا العرض ملف WebFluent.", over: "الشرائح")
+            Row(class: "meta") {
+                Stack(class: "meta__code") {
+                    Console(SOURCE, title: "examples/decks/webfluent-ar/src/Deck.wf", small: true)
+                }
+                Stack(class: "meta__side") {
+                    Text("كل شريحة هنا مكوّن — افتتاحية، وعنوان، وإطار طرفية — يُكتب مرة ويوضع ست عشرة مرة. وحلقة for تصنع صفاً، أو شريحة، من كل عنصر في قائمة.", class: "muted")
+                    Text("وهو العرض الإنجليزي نفسه بالتصميم نفسه، من اليمين إلى اليسار. الخطوط ملفات بجانبه، و wf build يكتب الـ PDF، ولا شيء غيره يعمل.", class: "muted")
+                    QrCode("https://github.com/monzeromer-lab/WebFluent/tree/master/examples/decks", color: "#17191C", class: "qr")
+                    Text("مصدر كل العروض", class: "overline")
+                }
+            }
+            Chrome("ما بعد الشاشة", n: 14)
+        }
+
+        // 15 · التحدي
+        Slide {
+            Head("جرّبه على صفحة بنيتها من قبل.", over: "التحدي", lede: "أعد بناءها بـ WebFluent، ثم قِس الفرق بنفسك — كل رقم في هذه الشرائح على بُعد أمر واحد.")
+            Stack(class: "grammar") {
+                Row(class: "grammar__row head") {
+                    Text("شغّل", class: "grammar__form")
+                    Text("ما ستراه", class: "grammar__means")
+                }
+                for c in CHALLENGE {
+                    Row(class: "grammar__row") {
+                        Text(c.form, class: "grammar__form")
+                        Markdown(c.means, class: "grammar__means")
+                    }
+                }
+            }
+            Chrome("دورك", n: 15)
+        }
+
+        // 16 · ابدأ
+        Slide(class: "closing") {
+            Stack {
+                Text("دورك", class: "overline")
+                Heading("ابنِ تخطيطاً.", class: "closing__title").h1
+                Text("وانظر كم يصبح أنظف.", class: "closing__title closing__accent")
+            }
+            Row(class: "closing__row") {
+                Stack(class: "closing__steps") {
+                    Row(class: "closing__cmd") { Text("$")  Text("curl -sSL …/install.sh | bash") }
+                    Row(class: "closing__cmd") { Text("$")  Text("wf init my-site --template static") }
+                    Row(class: "closing__cmd") { Text("$")  Text("wf serve") }
+                }
+                Stack {
+                    QrCode(SITE, color: "#17191C", class: "qr")
+                    Text("monzeromer-lab.github.io/WebFluent", class: "closing__link")
+                }
+            }
+        }
+    }
+}

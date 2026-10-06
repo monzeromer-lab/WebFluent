@@ -278,6 +278,18 @@ fn the_webfluent_deck_builds_whole_with_its_own_fonts() {
 }
 
 #[test]
+fn the_arabic_webfluent_deck_builds_whole_right_to_left() {
+    let (out, tmp) = build_example("decks", "webfluent-ar");
+    assert!(
+        !out.contains("note:"),
+        "nothing clipped, nothing missing: {out}"
+    );
+    assert!(!out.contains("warning"), "{out}");
+    assert_eq!(slides_in(&out), 16, "{out}");
+    let _ = std::fs::remove_dir_all(tmp);
+}
+
+#[test]
 fn the_halyard_review_deck_makes_a_slide_per_incident() {
     let (out, tmp) = build_example("decks", "halyard-review");
     assert!(!out.contains("note:"), "{out}");

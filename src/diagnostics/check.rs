@@ -440,6 +440,22 @@ pub fn config_checks(dir: &Path, config: &ProjectConfig, program: &Program) -> V
         }
     }
 
+    // An `img-src` source is likewise an origin, and one a picture can be
+    // fetched from.
+    for entry in &config.meta.img {
+        if crate::config::project::img_origin(entry).is_none() {
+            out.push(
+                config_finding(
+                    "E111",
+                    format!("`meta.img` names `{entry}`, which is not an origin images load from"),
+                    &text,
+                    entry,
+                )
+                .with_hint("Write `https://` and a host — `https://images.example.com`, or `https://*.example.com` for its subdomains"),
+            );
+        }
+    }
+
     // The owner node's identity, and what other settings write into it,
     // come from those settings; `owner_details` only adds to it.
     for key in config.meta.owner_details.keys() {
@@ -782,6 +798,22 @@ mod tests {
         assert!(
             e111[1].contains("c.js") && e111[1].contains("globals"),
             "{e111:?}"
+        );
+    }
+
+    #[test]
+    fn an_img_entry_that_is_not_an_origin_is_refused() {
+        let found = config_findings(
+            r#"{"name":"t","meta":{"img":["https://www.googletagmanager.com","https://cdn.example.com/a.png"]}}"#,
+        );
+        let e111: Vec<&str> = found
+            .iter()
+            .filter(|d| d.code == "E111")
+            .map(|d| d.message.as_str())
+            .collect();
+        assert_eq!(
+            e111,
+            ["`meta.img` names `https://cdn.example.com/a.png`, which is not an origin images load from"]
         );
     }
 
