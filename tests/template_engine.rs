@@ -297,3 +297,29 @@ fn a_page_s_state_and_derived_values_are_their_values_in_a_render() {
     // Data handed to the render wins over the state's first value.
     assert!(html.contains("final") && !html.contains("draft"), "{html}");
 }
+
+#[test]
+fn a_responsive_layout_carries_the_class_its_rules_are_written_under() {
+    // The page's CSS held `@media (min-width: 768px) { .wf-r… { … } }`, but the
+    // element was written without `wf-r…`, so a rendered grid stayed one column.
+    let tpl = Template::from_str(
+        r#"page P(path: "/", title: "Grid") { Grid(columns: { base: 1, md: 3 }) { Text("a") Text("b") Text("c") } }"#,
+    )
+    .unwrap();
+    let html = tpl.render_html(&json!({})).unwrap();
+    let class = html
+        .split("@media (min-width: 768px) { .wf-r")
+        .nth(1)
+        .and_then(|rest| rest.split(|c: char| !c.is_ascii_alphanumeric()).next())
+        .map(|hash| format!("wf-r{hash}"))
+        .expect("a responsive rule in the page's CSS");
+    let grid = html
+        .split("class=\"wf-grid")
+        .nth(1)
+        .and_then(|rest| rest.split('"').next())
+        .expect("the grid element");
+    assert!(
+        grid.contains(&class),
+        "the grid carries {class}: wf-grid{grid}"
+    );
+}

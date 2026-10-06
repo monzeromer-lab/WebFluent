@@ -1892,8 +1892,9 @@ fn render_labelled_input(
 }
 
 /// The classes an element carries beyond its base and modifier classes: the
-/// one its style block's rules live under, and the ones its `class:`
-/// argument names.
+/// one its style block's rules live under, the ones a responsive prop's
+/// rules live under (`columns: { base: 1, md: 3 }`), and the ones its
+/// `class:` argument names.
 fn extra_classes(ui: &UIElement, ctx: &RenderContext) -> Vec<String> {
     let mut classes: Vec<String> = ui
         .style_block
@@ -1901,6 +1902,9 @@ fn extra_classes(ui: &UIElement, ctx: &RenderContext) -> Vec<String> {
         .and_then(crate::codegen::scoped_css::scoped_class)
         .into_iter()
         .collect();
+    // The rules were written into the page's CSS; without the class that
+    // names them, a responsive layout stayed at its narrowest.
+    classes.extend(crate::codegen::scoped_css::responsive_classes(ui));
     if let Some(Arg::Named(_, value)) = ui
         .args
         .iter()
