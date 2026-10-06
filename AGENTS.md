@@ -1412,7 +1412,7 @@ file would change; a `.wfx` file is normalised through its braced spelling.
 | `Column` | `Column(span: 6) { ... }` — 12-column grid child |
 | `Grid` | `Grid(columns: 3, gap: md) { ... }` — CSS grid; takes the same `gap`/`align`/`justify` as `Row` |
 | `Stack` | `Stack(gap: md) { ... }` — vertical flex; takes the same `gap`/`align`/`justify` as `Row` |
-| `Spacer` | `Spacer()` or `Spacer(sm)` `Spacer(xl)` — vertical space |
+| `Spacer` | `Spacer` or `Spacer.sm` `Spacer.xl` — vertical space (the size is a flag) |
 | `Divider` | `Divider()` — horizontal line |
 
 ### Navigation
@@ -2311,6 +2311,11 @@ English rule (one for exactly one); the live page by the locale's.
 `format` and `ago` speak the locale too.
 
 RTL locales (automatic `dir="rtl"`): `ar`, `he`, `fa`, `ur`
+
+A Latin code or figure inside Arabic text (`2026-0417`) can come out with
+its parts reordered; give it its own left-to-right run:
+`Text("2026-0417", class: "ltr")` with `.ltr { direction: ltr;
+unicode-bidi: isolate; }` in the project's CSS.
 
 ## SSG (Static Site Generation)
 

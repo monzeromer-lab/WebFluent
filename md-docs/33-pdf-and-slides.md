@@ -226,6 +226,14 @@ out right to left — text, flex rows, grids, table columns, list markers —
 and a run of the other direction inside it is ordered by the Unicode
 bidirectional algorithm.
 
+A code or a figure written in Latin characters inside Arabic text — an
+invoice number like `2026-0417`, a product code — can come out with its
+parts in the wrong order, because the bidirectional algorithm reads the
+hyphen as part of the right-to-left text around it. Give it a run of its own
+that says it is left to right: `Text("2026-0417", class: "ltr")` with
+`.ltr { direction: ltr; unicode-bidi: isolate; }` in the project's CSS, on
+a page and in a PDF alike.
+
 ### What a PDF does not draw
 
 Everything static draws. What only means something in a browser is refused
