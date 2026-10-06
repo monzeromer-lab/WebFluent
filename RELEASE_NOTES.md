@@ -1,3 +1,46 @@
+# WebFluent v5.3.3 Release Notes
+
+Fixes found getting ready for launch, and the project's new terms.
+
+**5.x is the stable line.** From the first launch video until four weeks
+after it, releases are patch-only and batched at most weekly — no syntax
+changes and no breaking changes.
+
+## License
+
+- **WebFluent is MPL-2.0**, no longer GPL-3.0. Changes to WebFluent's own
+  files stay open; using it in a closed product is fine. The sites, PDFs and
+  slide decks you build with it are yours, under any license you choose.
+
+## Fixes
+
+- **No empty second page.** A PDF shorter than one page came out as two:
+  the baseline's `body { min-height: 100vh }` was measured against the paper
+  while the engine laid out inside the margins. The body is the flow that
+  runs across pages, so a minimum height no longer applies to it.
+- **`wf render` with no data renders with none.** Without `--data` it read
+  standard input regardless, so it waited on the keyboard, and an empty pipe
+  was "Invalid JSON data". Nothing piped in, or an empty pipe, is now `{}`.
+- **A responsive layout in a template.** `wf render` and the `Template` API
+  wrote a responsive prop's rules (`Grid(columns: { base: 1, md: 3 })`) but
+  not the class that applies them, so the layout stayed at its narrowest.
+- **A page's `.html` address.** With `build.clean_urls: "file"`, opening
+  `contact.html` (or `contact/index.html`) by its own address drew the 404
+  page once the router loaded. It now shows the page, and the address bar
+  reads `/contact`.
+- **A06** ("Link has no text content") counts text a `for`, `if`, `show` or
+  `match` draws inside the link, and an `aria-label`.
+
+## The project
+
+- One home: every link points at https://webfluent.monzeromer.dev.
+- A gallery of real outputs at /showcase, rebuilt on every release.
+- `examples/videos/`, the projects the launch videos are recorded from,
+  built in CI.
+- A PDF benchmark against headless Chrome, `bench/pdf/RESULTS.md`, run with
+  `just bench-pdf`.
+- A test that fails if the previous major version is named as current.
+
 # WebFluent v5.3.2 Release Notes
 
 An image from another origin can be allowed by the policy the build ships.

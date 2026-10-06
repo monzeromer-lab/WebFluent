@@ -1,6 +1,6 @@
 [package]
 name = "webfluent"
-version = "5.3.2"
+version = "5.3.3"
 edition = "2024"
 description = "A language for websites, PDFs and slide decks. One binary, no Node: HTML, CSS and JavaScript, PDFs from its own layout engine, and a template engine for Rust."
 authors = ["Monzer Omer <monzer.a.omer@gmail.com>"]
