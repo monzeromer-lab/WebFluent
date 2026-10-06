@@ -2,4 +2,5 @@ app {
     Router(transition: .fade, duration: "160ms")
 
     SiteFooter
+    ConsentBanner
 }

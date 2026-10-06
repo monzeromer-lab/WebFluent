@@ -57,6 +57,14 @@ site-build:
     cargo build --release
     target/release/wf build -d site
 
+# PDFs and previews go to site/public/showcase/, the list to
+# site/src/showcase.json; needs pdftoppm, pdfinfo and magick. `--hero` also
+# redraws the README's site/art/hero.png, which needs Chrome.
+# Render every example for the docs site's gallery (/showcase)
+showcase *args:
+    cargo build --release
+    python3 scripts/showcase.py {{args}}
+
 # ── Release ──────────────────────────────────────────
 
 # Then write the release notes' section, and `just preflight vVERSION`.
@@ -136,6 +144,21 @@ zip-windows:
 # Run all tests
 test:
     cargo test
+
+# `typo` must fail `wf check`, with the T05 its video shows.
+# Build every launch-video project under examples/videos, as CI does
+examples: release
+    scripts/video-examples.sh target/release/wf
+
+# One invoice through `wf` and through Puppeteer (headless Chrome), cold and
+# warm, timed and weighed. The first run downloads Puppeteer's browsers
+# (~300 MB) into bench/pdf/.cache.
+# PDF benchmark against headless Chrome; rewrites bench/pdf/RESULTS.md
+bench-pdf:
+    cargo build --release --locked --bin wf
+    cargo build --release --locked --manifest-path bench/pdf/rust/Cargo.toml
+    cd bench/pdf && npm ci --no-audit --no-fund
+    node bench/pdf/run.mjs
 
 # Formatting, clippy and the build, one by one, as CI runs them
 # (`just check --fix` formats first; `just check --test` runs the tests too)

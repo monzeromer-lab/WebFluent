@@ -219,9 +219,9 @@ page Workshop(path: "/", title: "واجهات عربية من ملف واحد", 
                 Stack {
                     style { gap: 4px }
                     Text("الأمثلة كلها في المستودع، وكل شريحة هنا ملف .wf واحد.", class: "muted")
-                    Text("monzeromer-lab.github.io/WebFluent", class: "latin muted")
+                    Text("webfluent.monzeromer.dev", class: "latin muted")
                 }
-                QrCode("https://monzeromer-lab.github.io/WebFluent/", color: "#0F2B3D", class: "close__qr")
+                QrCode("https://webfluent.monzeromer.dev/", color: "#0F2B3D", class: "close__qr")
             }
         }
     }

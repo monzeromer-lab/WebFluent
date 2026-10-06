@@ -1,0 +1,11 @@
+theme Ledger {
+    color-primary: #0F766E
+    color-text: #0F172A
+    color-text-muted: #64748B
+    color-border: #E2E8F0
+    color-surface: #F8FAFC
+    font-family: Noto Sans Arabic, Manrope, sans-serif
+    ink-soft: #334155
+    teal-50: #F0FDFA
+    teal-100: #CCFBF1
+}

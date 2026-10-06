@@ -1,0 +1,3 @@
+.stage { min-height: 100vh; justify-content: center; }
+.eyebrow { font-size: 0.8rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-text-muted); }
+h1.count { font-size: clamp(6rem, 20vw, 12rem); font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }

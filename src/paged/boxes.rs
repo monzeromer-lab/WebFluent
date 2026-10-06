@@ -234,6 +234,12 @@ impl<'a> Builder<'a> {
         let start = body.unwrap_or(0);
         if let Some(b) = body {
             style = self.styler.compute(dom, b, &style);
+            // The body is the flow that runs from page to page; the pages
+            // are its boxes. A screen's `min-height: 100vh` (the baseline
+            // sets one) would ask it to fill a whole sheet, measured against
+            // the paper rather than the area inside the margins, and every
+            // document shorter than a page grew an empty second one.
+            style.min_height = super::style::Length::Auto;
         }
         // The flow is the body's content; a `wf-document` inside it is where
         // the paged elements live.

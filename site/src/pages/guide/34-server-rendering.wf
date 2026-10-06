@@ -49,7 +49,7 @@ page ServerRenderingGuide(path: "/docs/guide/server-rendering", title: "Server r
         Markdown("The template engine is the `webfluent` crate. Without the `wf` command's own dependencies (its argument parser and dev server):")
 
         CodeBlock(#"[dependencies]
-webfluent = { version = "4", default-features = false }
+webfluent = { version = "5", default-features = false }
 serde = { version = "1", features = ["derive"] }"#, title: "toml")
 
         Markdown("Load the templates once, at start-up; render on every request:")

@@ -3,7 +3,7 @@
 Write the version's section at the top of `RELEASE_NOTES.md`, then:
 
 ```bash
-just ship 4.2.1
+just ship 5.3.2
 ```
 
 It does every step below, in order, and asks before it pushes anything:
@@ -11,11 +11,11 @@ CI and the checks on the commit being released, the Zed pin, the bump, the
 docs site, the preflight, the commit, the push and the tag. By hand:
 
 ```bash
-just bump 4.0.2            # both crates and the lock file
-# write `# WebFluent v4.0.2 Release Notes` at the top of RELEASE_NOTES.md
-just preflight v4.0.2      # what the release workflow checks first
-git commit -am "Release 4.0.2" && git push
-git tag -a v4.0.2 -m "WebFluent 4.0.2" && git push origin v4.0.2
+just bump 5.3.2            # both crates and the lock file
+# write `# WebFluent v5.3.2 Release Notes` at the top of RELEASE_NOTES.md
+just preflight v5.3.2      # what the release workflow checks first
+git commit -am "Release 5.3.2" && git push
+git tag -a v5.3.2 -m "WebFluent 5.3.2" && git push origin v5.3.2
 ```
 
 The tag does the rest (`.github/workflows/release.yml`): the preflight

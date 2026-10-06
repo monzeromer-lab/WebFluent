@@ -24,13 +24,15 @@
     <meta name="twitter:description" content="Every WebFluent error and warning — structural errors and codes T, A, S, P, U and V — each with a program that draws it and the fix.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/diagnostics#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/diagnostics","name":"Diagnostics","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Every WebFluent error and warning — structural errors and codes T, A, S, P, U and V — each with a program that draws it and the fix."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/diagnostics#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Diagnostics","item":"https://webfluent.monzeromer.dev/docs/guide/diagnostics"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self' https://fonts.googleapis.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
     <link rel="stylesheet" href="/styles.css">
+    <script src="https://www.googletagmanager.com/gtag/js?id=G-FV6VK6N6VM" async></script>
+    <script src="/js/analytics.js" defer></script>
     <script src="/app.js" defer></script>
     <script src="/pages/DiagnosticsGuide.js" data-wf-page="DiagnosticsGuide" defer></script>
 </head>
@@ -51,6 +53,7 @@
                         <a class="wf-link active" href="/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/docs/reference">Components</a>
                         <a class="wf-link" href="/docs/tutorials">Tutorials</a>
+                        <a class="wf-link" href="/showcase">See it</a>
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
@@ -294,7 +297,7 @@
 3 |     Heading(user.nmae).h1
   |                  ^^^^
   = help: Its fields are `id`, `name`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t05-a-field-or-method-that-does-not-exist</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t05-a-field-or-method-that-does-not-exist</code>
                             </div>
                             <div class="wf-markdown">
 <ul>
@@ -453,7 +456,7 @@
   |
 2 |     Heading(&quot;Hello).h1
   |             ^
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e001-text-the-compiler-cannot-read</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e001-text-the-compiler-cannot-read</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Close the string, comment or splice the message names. A character that begins nothing (<code>|</code> alone, a stray <code>@</code>) is usually a typo for the one beside it on the keyboard.</p>
@@ -483,7 +486,7 @@
   |
 3 |     Text(&quot;a&quot; Text(&quot;b&quot;)
   |              ^^^^
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e002-a-syntax-error</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e002-a-syntax-error</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> The message names what was expected and what was found, at the place the parser stopped. One file can report several: after an error the parser picks up again at the next declaration.</p>
@@ -532,7 +535,7 @@
 1 | Page Home (path: &quot;/&quot;) {
   | ^^^^
   = help: Run `wf migrate` to convert the project to the current grammar
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e004-a-file-in-the-webfluent-2-grammar</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e004-a-file-in-the-webfluent-2-grammar</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Run <code>wf migrate</code> once; it rewrites the project in place.</p>
@@ -567,7 +570,7 @@
 3 |     Buton(&quot;Save&quot;)
   |     ^^^^^
   = help: did you mean `Button`? Or declare `component Buton { … }`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e101-a-component-nothing-declares</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e101-a-component-nothing-declares</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Check the spelling, or declare it with <code>component Buton { … }</code>.</p>
@@ -600,7 +603,7 @@
   |     ^^^^^^^
   = help: A name means one thing — rename one of the two `count`s
   = note: `count` is first declared here at src/App.wf:2:5
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e102-a-name-declared-twice</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e102-a-name-declared-twice</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Rename one of the two. The finding points at the second and names where the first is.</p>
@@ -631,7 +634,7 @@
 3 |     Button(&quot;Save&quot;).huge
   |                   ^^^^^
   = help: Its flags are .bounce, .button, .collapse, .danger, .disabled, .expand, .fadeIn, .fadeOut, .fast, .full, .info, .lg, .md, .normal, .outlined, .pill, .primary, .pulse, .reset, .rounded, .scaleIn, .scaleOut, .secondary, .shake, .slideDown, .slideLeft, .slideRight, .slideUp, .slow, .sm, .spin, .submit, .success, .warning
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e103-a-flag-case-part-event-or-slot-the-component-does-not-have</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e103-a-flag-case-part-event-or-slot-the-component-does-not-have</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Use one the message lists — it names every flag, case, event or slot the component takes.</p>
@@ -662,7 +665,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;, la
 2 | page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;, layout: Shell) {
   |                                                         ^^^^^
   = help: Add `slot` to the component and place `children` where the page belongs
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e104-a-layout-with-nowhere-to-put-the-page</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e104-a-layout-with-nowhere-to-put-the-page</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Add <code>slot</code> to the component and place <code>children</code> where the page belongs.</p>
@@ -694,7 +697,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;, la
 4 |     n = n + 1
   |     ^
   = help: Code that does something goes in `on click { … }`, an `action` or an `effect`; an element&#x27;s name is capitalised
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e105-a-statement-a-render-block-cannot-hold</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e105-a-statement-a-render-block-cannot-hold</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Put it in <code>on click { }</code>, an <code>action</code> or an <code>effect</code>.</p>
@@ -725,7 +728,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;, la
 3 |     Button(&quot;Save&quot;, onclick: &quot;save()&quot;)
   |                    ^^^^^^^
   = help: Write the handler instead: `Button(…) { on click { … } }`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e106-script-in-an-attribute</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e106-script-in-an-attribute</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> <code>Button(&quot;Save&quot;) { on click { save() } }</code>.</p>
@@ -756,7 +759,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;, la
 3 |     Link(&quot;Go&quot;, to: &quot;javascript:alert(1)&quot;)
   |                ^^
   = help: A URL here may be relative, or name http, https, mailto, tel, sms or ftp
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e107-a-url-a-browser-would-run</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e107-a-url-a-browser-would-run</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> A relative URL, or <code>http</code>, <code>https</code>, <code>mailto</code>, <code>tel</code>, <code>sms</code>, <code>ftp</code>.</p>
@@ -808,7 +811,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 4 |     Card(&quot;Laptop&quot;, 999)
   |                    ^^^
   = help: Name the others: `Button(&quot;Save&quot;, tone: .primary)`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e113-an-argument-that-cannot-be-positional</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e113-an-argument-that-cannot-be-positional</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Name the others: <code>Card(&quot;Laptop&quot;, price: 999)</code>.</p>
@@ -838,7 +841,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
   |
 3 |     Button(&quot;Save&quot;) { on click { emit saved() } }
   |                                 ^^^^
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e114-emit-outside-a-component</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e114-emit-outside-a-component</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Fire the event from the component that declares it; a page calls an action instead.</p>
@@ -873,7 +876,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     Element(&quot;pricingtable&quot;)
   |     ^^^^^^^
   = help: A custom element&#x27;s tag is lower case with a hyphen: `Element(&quot;stripe-pricing-table&quot;, …)`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e116-a-tag-that-cannot-be-a-custom-element-s</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e116-a-tag-that-cannot-be-a-custom-element-s</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> A custom element's tag is lower case with a hyphen: <code>Element(&quot;pricing-table&quot;)</code>.</p>
@@ -912,7 +915,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 2 |     on key(&quot;ctrl+shfit+k&quot;) { log(&quot;search&quot;) }
   |            ^
   = help: Modifiers `ctrl`, `shift`, `alt`, `meta` (`cmd`), then one key: a letter, a digit, or a name like `Enter`, `Escape`, `ArrowDown`, `Tab`, `F2`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e117-a-key-combination-no-keyboard-sends</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e117-a-key-combination-no-keyboard-sends</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Modifiers <code>ctrl</code>, <code>shift</code>, <code>alt</code>, <code>meta</code> (or <code>cmd</code>), then one key: a letter, a digit, or a name — <code>Enter</code>, <code>Escape</code>, <code>ArrowDown</code>, <code>Tab</code>, <code>F2</code>.</p>
@@ -945,7 +948,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     state todo = Todo(title: &quot;Write the docs&quot;)
   |                  ^^^^
   = help: Give it, or declare a default in the type: `field: Type = value`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#c01-a-required-prop-or-field-left-out</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#c01-a-required-prop-or-field-left-out</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Give it, or declare a default in the type (<code>id: String = &quot;&quot;</code>) or on the prop.</p>
@@ -977,7 +980,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 4 |     Badge2(&quot;New&quot;, colour: &quot;red&quot;)
   |                   ^^^^^^
   = help: It is passed anyway, but nothing in the component reads it
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#c02-a-prop-the-component-does-not-declare</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#c02-a-prop-the-component-does-not-declare</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Correct the spelling, or declare the prop on the component.</p>
@@ -1008,7 +1011,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     Select.Option(&quot;Pro&quot;, value: &quot;pro&quot;)
   |     ^^^^^^^^^^^^^
   = help: Place it in a `Select { … }`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#c03-a-part-outside-the-component-it-belongs-to</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#c03-a-part-outside-the-component-it-belongs-to</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Place the part inside its owner: <code>Select(bind: plan) { Select.Option(…) }</code>.</p>
@@ -1042,7 +1045,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     Button(&quot;Save&quot;, colour: &quot;red&quot;)
   |                    ^^^^^^
   = help: A typo here does nothing on screen; check the component&#x27;s props
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#c04-an-attribute-a-built-in-does-not-declare</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#c04-an-attribute-a-built-in-does-not-declare</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Check the prop's spelling — <code>wf registry</code> lists what the built-in takes. <code>aria-*</code>, <code>data-*</code> and the global attributes (<code>id</code>, <code>role</code>, <code>title</code>, …) are expected and draw nothing.</p>
@@ -1076,7 +1079,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     Divider(&quot;thin&quot;)
   |             ^
   = help: Name it: the registry lists the props it takes
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#c05-a-positional-argument-a-built-in-does-not-take</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#c05-a-positional-argument-a-built-in-does-not-take</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Name it, with one of the props the built-in takes.</p>
@@ -1111,7 +1114,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 4 |     Tag2(&quot;new&quot;)
   |          ^
   = help: Mark the prop: `component Tag2(_ label: …)`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#c06-a-positional-argument-bound-by-order</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#c06-a-positional-argument-bound-by-order</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Mark the prop the call means: <code>component Tag2(_ label: String)</code>.</p>
@@ -1144,7 +1147,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 4 |     Button(&quot;More&quot;) { on click { LIMIT = 4 } }
   |                                 ^^^^^
   = help: Declare it `state` if it changes; a constant is the same on every page
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#x01-an-assignment-to-something-that-cannot-change</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#x01-an-assignment-to-something-that-cannot-change</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Hold what changes in a <code>state</code>. A <code>derived</code> value changes when what it reads does; a prop is its caller's (<code>emit</code> an event so the caller changes it); a route parameter is the address's (<code>navigate</code>); a loop variable is one pass's copy (change the item through its list).</p>
@@ -1176,7 +1179,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     effect { visits = visits + 1 }
   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   = help: Work the value out with `derived` instead, or write it from the action that changes what it reads
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#x02-an-effect-that-feeds-itself</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#x02-an-effect-that-feeds-itself</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Work a value out with <code>derived</code>; change state from the action or handler that changes what it depends on.</p>
@@ -1212,7 +1215,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 7 |     derived ticket = next()
   |     ^^^^^^^^^^^^^^^^^^^^^^^
   = help: A derived value only reads; call the action from a handler, and derive from what it sets
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#x04-a-derived-value-that-changes-something</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#x04-a-derived-value-that-changes-something</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Call the action from a handler; derive from the state it sets.</p>
@@ -1244,7 +1247,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     use Carts
   |     ^^^
   = help: The stores are `Cart`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#x05-use-of-a-store-nothing-declares</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#x05-use-of-a-store-nothing-declares</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Name a store that exists — here <code>Cart</code>.</p>
@@ -1278,7 +1281,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 5 |     Input(bind: name, label: &quot;Name&quot;)
   |           ^^^^^^^^^^
   = help: Bind a `state` (or a store&#x27;s state, or a field of a loop&#x27;s item); show a value with `value:`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#f01-a-bind-to-something-that-cannot-be-written</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#f01-a-bind-to-something-that-cannot-be-written</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Bind the state the reader edits (<code>bind: first</code>); show a value that is worked out with <code>value:</code>.</p>
@@ -1310,7 +1313,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 4 |     Input(bind: qty, label: &quot;Quantity&quot;)
   |           ^^^^^^^^^
   = help: A number field is `Input(…).number`, which holds a number
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#f02-a-bind-to-a-state-the-control-cannot-hold</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#f02-a-bind-to-a-state-the-control-cannot-hold</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> A number field is <code>Input(…).number</code>; a text field holds a <code>String</code>.</p>
@@ -1343,7 +1346,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     validate email { required  email }
   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   = help: Bind it to the control the reader fills in: `Input(bind: email, …)`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#f03-a-validate-block-no-control-can-satisfy</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#f03-a-validate-block-no-control-can-satisfy</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Bind the state to the control the reader fills in: <code>Input(bind: email, label: &quot;Email&quot;).email</code>.</p>
@@ -1378,7 +1381,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 4 |     Checkbox(checked: agree, label: &quot;I agree&quot;)
   |     ^^^^^^^^
   = help: Write `bind:` to keep the box and the state together, or handle `on change`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#f04-a-checkbox-that-shows-a-state-and-never-changes-it</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#f04-a-checkbox-that-shows-a-state-and-never-changes-it</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> <code>Checkbox(bind: agree, label: &quot;I agree&quot;)</code>.</p>
@@ -1416,7 +1419,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 4 |     Select(bind: plan, label: &quot;Plan&quot;) {
   |     ^^^^^^
   = help: Start it as one of them (`free`, `pro`), so what is shown is what is held
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#f05-a-select-whose-value-is-none-of-its-options</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#f05-a-select-whose-value-is-none-of-its-options</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Start the state as one of the options' values.</p>
@@ -1451,7 +1454,7 @@ page About(path: &quot;/about&quot;, title: &quot;About&quot;, description: &quo
 3 |     Link(&quot;About us&quot;, to: &quot;/abuot&quot;)
   |     ^^^^
   = help: The nearest is `/about`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#r01-a-route-to-nothing</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#r01-a-route-to-nothing</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Link to a route a page has; the message names the nearest. A spliced link is checked by its shape — <code>&quot;/team/{t.slug}&quot;</code> must match a route like <code>/team/:slug</code> — a link with no leading <code>/</code> is refused (where it leads would depend on the page it is on), and a link to a file (<code>/report.pdf</code>) or another site is left alone.</p>
@@ -1481,7 +1484,7 @@ page About(path: &quot;/about&quot;, title: &quot;About&quot;, description: &quo
 1 | page Profile(path: &quot;/u/:id&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
   | ^^^^
   = help: Declare it: `page Profile(path: &quot;/u/:id&quot;, id: String)`, then read `id`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#r02-a-route-parameter-and-a-page-parameter-that-do-not-match</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#r02-a-route-parameter-and-a-page-parameter-that-do-not-match</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Declare the parameter the route names — <code>page Profile(path: &quot;/u/:id&quot;, id: String)</code> — and read it by name; a declared parameter the route has no <code>:name</code> for is never filled.</p>
@@ -1514,7 +1517,7 @@ page Home(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;)
 2 |     Navbar { Navbar.Brand { Text(&quot;Ledger&quot;) } }
   |     ^^^^^^
   = help: Put `Router` where the current page belongs: `app { Navbar { … } Router }`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#r03-an-app-with-no-router-or-with-two</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#r03-an-app-with-no-router-or-with-two</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Place <code>Router</code> where the page belongs: <code>app { Navbar { … } Router }</code>. (A program with no <code>app</code> at all routes its pages by itself.)</p>
@@ -1548,7 +1551,7 @@ page Home(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;)
 3 |     Image(src: &quot;images/cover.png&quot;, alt: &quot;&quot;)
   |     ^^^^^
   = help: Write it from the site&#x27;s root: `&quot;/images/cover.png&quot;`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#r04-a-relative-url-on-a-nested-route</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#r04-a-relative-url-on-a-nested-route</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Write it from the site's root: <code>&quot;/images/cover.png&quot;</code>.</p>
@@ -1584,7 +1587,7 @@ page Home(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;)
 2 |     persist pick = (x) =&gt; x + 1
   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
   = help: Keep what it is made from — a name, an id, the data — and build it again when it is read
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#d02-a-persisted-value-storage-cannot-keep</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#d02-a-persisted-value-storage-cannot-keep</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Keep what it is made from — a name, an id, the data — and build the rest when it is read.</p>
@@ -1623,7 +1626,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 2 |     persist open = false
   |     ^^^^^^^
   = help: Give each its own: `persist open = false { key: id }`, with `id` a prop that tells them apart
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#d03-a-persisted-value-every-instance-shares</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#d03-a-persisted-value-every-instance-shares</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Give each instance its own key: <code>persist open = false { key: title }</code>, with a prop that tells them apart.</p>
@@ -1667,7 +1670,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 4 |     Button(&quot;Reset&quot;) { on click { count = &quot;zero&quot; } }
   |                                  ^^^^^^^^^^^^^^
   = help: Convert it: `Number(value)`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t01-a-value-of-the-wrong-type</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t01-a-value-of-the-wrong-type</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Give the state a value of its type, or convert: <code>Number(text)</code>, <code>&quot;{n}&quot;</code>. If the state really holds either, declare it <code>Any</code>.</p>
@@ -1699,7 +1702,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     state tone: Tone = .quiet
   |                 ^^^^
   = help: `Tone` takes .calm, .loud
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t02-a-case-the-enum-does-not-have</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t02-a-case-the-enum-does-not-have</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Use one of the cases the message lists, or add the case to the <code>enum</code>.</p>
@@ -1732,7 +1735,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 5 |     Text(user.email.toUpperCase())
   |          ^^^^^^^^^^
   = help: Unwrap it first: `if let x = value { … }`, `value ?? fallback`, `value?.{method}()`, or a check for `!= null`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t04-a-value-that-may-be-null-read-as-if-it-were-not</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t04-a-value-that-may-be-null-read-as-if-it-were-not</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Unwrap it: <code>if let e = user.email { e.toUpperCase() }</code>, <code>user.email?.toUpperCase()</code>, or <code>(user.email ?? &quot;&quot;).toUpperCase()</code>.</p>
@@ -1764,7 +1767,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 4 |     Heading(user.nmae).h1
   |                  ^^^^
   = help: Did you mean `name`? Its fields are `name`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t05-a-field-or-method-that-does-not-exist</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t05-a-field-or-method-that-does-not-exist</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Correct the spelling to one of the fields listed, or add the field to the <code>type</code>.</p>
@@ -1796,7 +1799,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 4 |     Heading(&quot;{Cart.count} items&quot;).h1
   |               ^^^^
   = help: Its members are `items`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t06-a-member-a-store-or-service-does-not-have</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t06-a-member-a-store-or-service-does-not-have</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Use a member the store declares, or declare it: <code>derived count = items.length</code>. For a service, the endpoint must be declared in its <code>api</code>.</p>
@@ -1828,7 +1831,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 4 |     if items { Text(&quot;There are items&quot;) }
   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   = help: Ask about its length: `items.length &gt; 0`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t07-a-condition-that-is-always-true</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t07-a-condition-that-is-always-true</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Ask the question you mean: <code>items.length &gt; 0</code>, <code>user != null</code>.</p>
@@ -1860,7 +1863,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 4 |     for n in total { Text(&quot;{n}&quot;) }
   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   = help: Give it a list, or `.split(…)` a string first
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t08-a-loop-over-something-that-is-not-a-list</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t08-a-loop-over-something-that-is-not-a-list</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Loop over a list — <code>for n in 1..=total</code> for a range of numbers.</p>
@@ -1891,7 +1894,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     Button(&quot;+&quot;) { on click { emit change(1, 2) } }
   |                              ^^^^^^^^^^^^^^^^^
   = help: `event change(value: Number)`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t09-an-emit-that-does-not-match-its-event</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t09-an-emit-that-does-not-match-its-event</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Pass what the <code>event</code> declares, in order, or change the declaration.</p>
@@ -1923,7 +1926,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
   |
 5 |     Button(&quot;+&quot;) { on click { add(1, 2) } }
   |                              ^^^
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t10-a-call-with-the-wrong-arguments</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t10-a-call-with-the-wrong-arguments</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Pass the arguments the action, endpoint or function takes.</p>
@@ -1958,7 +1961,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 4 |     match n {
   |     ^^^^^^^^^
   = help: Use `if` for a condition; `match` chooses among a resource&#x27;s states or an enum&#x27;s cases
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t11-a-match-on-something-that-cannot-be-matched</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t11-a-match-on-something-that-cannot-be-matched</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Use <code>if</code> for a condition; <code>match</code> takes a resource, a connection or an enum.</p>
@@ -1990,7 +1993,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 4 |     Text(token)
   |          ^^^^^
   = help: A secret must not reach the page; send it as a value, or show one field of what it unlocks
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t12-a-secret-where-it-would-escape</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t12-a-secret-where-it-would-escape</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Do not show, splice, log or persist a <code>Secret</code>. Send it in a request — or keep it on the server.</p>
@@ -2022,7 +2025,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 4 |     Button(&quot;+&quot;) { on click { cuont = count + 1 } }
   |                              ^^^^^
   = help: Did you mean `count`? Declare it — a `state`, a `const`, an `action`, a prop — or check the spelling. In the browser it would be a ReferenceError
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t13-a-name-nothing-declares</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t13-a-name-nothing-declares</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Correct the spelling, or declare the name. The browser's own globals (<code>window</code>, <code>navigator</code>, <code>Math</code> …) and the language's values (<code>viewport</code>, <code>query</code>, <code>now</code> …) need no declaration; a call to a function nothing declares — <code>uid()</code> for <code>uuid()</code> — is reported the same way. A template rendered with data (<code>wf render</code>) reads its data's keys by name, so it is not held to this.</p>
@@ -2054,7 +2057,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 4 |     if count == &quot;0&quot; { Text(&quot;Nothing yet&quot;) }
   |        ^^^^^
   = help: Convert one side: `Number(text) == n`, or `&quot;{n}&quot; == text`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t14-a-comparison-that-is-always-the-same</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t14-a-comparison-that-is-always-the-same</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Compare values of one type: <code>count == 0</code>, or convert one side (<code>Number(text) == n</code>). Against an enum, use a case it has.</p>
@@ -2090,7 +2093,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 5 |     match status {
   |     ^^^^^
   = help: Add an arm for each, or `else { … }` for the rest
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t15-a-match-that-misses-a-case-or-has-one-twice</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t15-a-match-that-misses-a-case-or-has-one-twice</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Give every case its arm, or add <code>else { … }</code> for the rest. A <code>match</code> expression that covers every case needs no <code>else</code>: <code>derived label = match status { .draft { &quot;Draft&quot; } .review { &quot;In review&quot; } .live { &quot;Live&quot; } }</code>.</p>
@@ -2122,7 +2125,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 4 |     Text(names.joined(&quot;, &quot;))
   |                ^^^^^^
   = help: Did you mean `join`?
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t16-a-method-a-number-a-string-or-a-list-does-not-have</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t16-a-method-a-number-a-string-or-a-list-does-not-have</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> The method the message suggests — here <code>join</code>.</p>
@@ -2155,7 +2158,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 5 |     Button(&quot;Save&quot;, disabled: save.pending) { on click { save() } }
   |                              ^^^^
   = help: `.pending` is true while a call of an async action runs; an action that awaits nothing finishes before the page repaints
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t17-an-async-result-used-before-it-is-awaited</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t17-an-async-result-used-before-it-is-awaited</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> <code>.pending</code> is for an action that awaits — drop it here. An async action's result is read with <code>await</code> inside an action or a handler; a value that arrives over the network is a <code>resource</code>, which <code>derived</code> values and elements can read.</p>
@@ -2186,7 +2189,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     Heading(&quot;Total {price * 2}&quot;).h1
   |                           ^
   = help: Convert it: `Number(value)`; `+` joins text when one side is a string
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t18-arithmetic-on-something-that-is-not-a-number</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t18-arithmetic-on-something-that-is-not-a-number</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Hold numbers as numbers (<code>state price = 12</code>), or convert: <code>Number(price) * 2</code>.</p>
@@ -2222,7 +2225,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 5 |     Text(&quot;Also known as {user.nickname}&quot;)
   |                          ^^^^^^^^^^^^^
   = help: Say what to show instead: `{user.nickname ?? &quot;&quot;}`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t19-a-value-that-may-be-null-shown-as-text</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t19-a-value-that-may-be-null-shown-as-text</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Say what to show instead: <code>{user.nickname ?? &quot;nothing yet&quot;}</code>, or show the line only when there is one: <code>if let n = user.nickname { … }</code>.</p>
@@ -2260,7 +2263,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 4 |     match users {
   |     ^^^^^
   = help: Add `error(e) { Alert(e.message).danger }`, or `else { … }`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t21-a-resource-match-with-no-error-arm</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t21-a-resource-match-with-no-error-arm</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> <code>error(e) { Alert(e.message).danger }</code>, or an <code>else</code>.</p>
@@ -2295,7 +2298,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 4 |     Text(&quot;Tagged {tags}&quot;)
   |                   ^^^^
   = help: Show a field of it, or `.join(&quot;, &quot;)` a list of text
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t20-a-list-or-a-record-shown-as-text</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t20-a-list-or-a-record-shown-as-text</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> <code>{tags.join(&quot;, &quot;)}</code> for a list of text; a field of a record.</p>
@@ -2350,7 +2353,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     Image(src: &quot;/team.jpg&quot;)
   |     ^^^^^
   = help: Add alt text: Image(src: &quot;...&quot;, alt: &quot;Description of image&quot;)
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a01-an-image-with-no-alt-text</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a01-an-image-with-no-alt-text</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> <code>Image(src: &quot;/team.jpg&quot;, alt: &quot;The team at the launch&quot;)</code>. A purely decorative image takes <code>alt: &quot;&quot;</code>.</p>
@@ -2381,7 +2384,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     IconButton(icon: &quot;close&quot;)
   |     ^^^^^^^^^^
   = help: Add a label: IconButton(icon: &quot;close&quot;, label: &quot;Close dialog&quot;)
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a02-an-icon-button-with-no-name</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a02-an-icon-button-with-no-name</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> <code>IconButton(icon: &quot;close&quot;, label: &quot;Close&quot;)</code> — the label is read aloud, never shown.</p>
@@ -2413,7 +2416,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 4 |     Input(bind: name).text
   |     ^^^^^
   = help: Add a label: Input(label: &quot;Username&quot;).text
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a03-an-input-with-no-label</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a03-an-input-with-no-label</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> <code>Input(bind: name, label: &quot;Name&quot;)</code>. A placeholder alone disappears as the reader types.</p>
@@ -2445,7 +2448,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 4 |     Checkbox(bind: agree)
   |     ^^^^^^^^
   = help: Add a label: Checkbox(bind: value, label: &quot;Description&quot;)
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a04-a-control-with-no-label</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a04-a-control-with-no-label</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> <code>Checkbox(bind: agree, label: &quot;I agree to the terms&quot;)</code>.</p>
@@ -2476,7 +2479,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     Button { Icon(&quot;check&quot;) }
   |     ^^^^^^
   = help: Add text: Button(&quot;Save&quot;).primary
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a05-a-button-with-no-text</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a05-a-button-with-no-text</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Give it text, or an <code>aria-label:</code> when it shows only an icon.</p>
@@ -2507,7 +2510,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     Link(to: &quot;/about&quot;)
   |     ^^^^
   = help: Add text: Link(&quot;About&quot;, to: &quot;/about&quot;)
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a06-a-link-with-no-text</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a06-a-link-with-no-text</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Give it text that names where it goes — not &quot;click here&quot;.</p>
@@ -2538,7 +2541,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     Heading(&quot;&quot;).h2
   |     ^^^^^^^
   = help: Headings should have meaningful text
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a07-an-empty-heading</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a07-an-empty-heading</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Give the heading text, or remove it; style text with <code>style { }</code> rather than an empty heading.</p>
@@ -2570,7 +2573,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 4 |     Modal(visible: open) { Text(&quot;Hello&quot;) }
   |     ^^^^^
   = help: Add a title: Modal(visible: state, title: &quot;Dialog Title&quot;)
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a08-a-dialog-with-no-title</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a08-a-dialog-with-no-title</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> <code>Modal(visible: open, title: &quot;Delete this?&quot;)</code> — the title is its accessible name.</p>
@@ -2601,7 +2604,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     Video(src: &quot;/demo.mp4&quot;).controls
   |     ^^^^^
   = help: Add captions: Video(src: &quot;...&quot;, captions: &quot;/captions.en.vtt&quot;)
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a09-media-nobody-can-follow-without-sound</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a09-media-nobody-can-follow-without-sound</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> <code>Video(src: …, captions: &quot;/demo.en.vtt&quot;).controls</code>; an <code>Audio</code> takes <code>transcript:</code>.</p>
@@ -2632,7 +2635,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     Table(caption: &quot;Prices&quot;) { Table.Body { Table.Row { Table.Cell(&quot;Pen&quot;)  Table.Cell(&quot;2&quot;) } } }
   |     ^^^^^
   = help: Add one: `Table { Table.Head { Table.Row { Table.Cell(&quot;Name&quot;) } } … }`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a10-a-table-with-no-header-row</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a10-a-table-with-no-header-row</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Put the first row in <code>Table.Head</code>, so its cells are <code>&lt;th scope=&quot;col&quot;&gt;</code>.</p>
@@ -2663,7 +2666,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     Heading(&quot;Deep&quot;).h4
   |     ^^^^^^^
   = help: Use h2 instead, or add the missing intermediate headings
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a11-a-skipped-heading-level</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a11-a-skipped-heading-level</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Use the next level down (<code>h2</code> after <code>h1</code>). Size text with <code>style { font-size }</code>, not with the heading level.</p>
@@ -2693,7 +2696,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 1 | page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
   | ^^^^
   = help: Add a main heading: Heading(&quot;Page Title&quot;).h1
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a12-a-page-without-exactly-one-h1</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a12-a-page-without-exactly-one-h1</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> One <code>Heading(…).h1</code> per page, naming what the page is. A layout's <code>h1</code> counts for the page it frames.</p>
@@ -2727,7 +2730,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 2 |     color-text: #BBBBBB
   | ^
   = help: Darken --color-text or lighten --color-surface until they clear 4.5:1
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a13-colours-without-enough-contrast</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a13-colours-without-enough-contrast</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Darken the text or lighten the background until the ratio clears 4.5:1 (3:1 for large text).</p>
@@ -2761,7 +2764,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     Row(role: &quot;tablist&quot;) {
   |     ^^^
   = help: Give each child role: &quot;tab&quot;, or use the built-in that owns this structure
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a14-a-role-whose-children-are-the-wrong-kind</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a14-a-role-whose-children-are-the-wrong-kind</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Give each child the role the parent requires (<code>role: &quot;tab&quot;</code>), or use the built-in that owns the structure — <code>Tabs</code>.</p>
@@ -2792,7 +2795,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     Button(&quot;Save&quot;, aria-label: &quot;Submit the form&quot;)
   |     ^^^^^^
   = help: Start the aria-label with the visible text, so what a user says matches what they see
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a15-an-aria-label-that-does-not-contain-the-visible-text</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a15-an-aria-label-that-does-not-contain-the-visible-text</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Start the <code>aria-label</code> with the visible words: <code>aria-label: &quot;Save the draft&quot;</code>.</p>
@@ -2827,7 +2830,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 4 |     for r in rows by r { Text(r, id: &quot;row&quot;) }
   |                          ^^^^
   = help: Make it unique — `id: &quot;row-{item.id}&quot;` — or drop it; a label&#x27;s `for` and `aria-*` find one element by id
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a16-one-id-on-several-elements</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a16-one-id-on-several-elements</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Make it unique — <code>id: &quot;row-{r}&quot;</code> — or drop it.</p>
@@ -2861,7 +2864,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 1 | page P(path: &quot;/&quot;, description: &quot;D&quot;) {
   | ^^^^
   = help: Add one: page Name(path: &quot;/&quot;, title: &quot;What this page is&quot;)
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#s01-a-page-with-no-title</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#s01-a-page-with-no-title</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> <code>page P(path: &quot;/&quot;, title: &quot;What this page is&quot;)</code>.</p>
@@ -2891,7 +2894,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 1 | page P(path: &quot;/&quot;, title: &quot;T&quot;) {
   | ^^^^
   = help: Add one: page Name(path: &quot;/&quot;, title: &quot;…&quot;, description: &quot;A sentence a search result can show&quot;)
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#s02-a-page-with-no-description</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#s02-a-page-with-no-description</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Add a <code>description:</code> of about 150 characters: what a reader gets from the page.</p>
@@ -2921,7 +2924,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 1 | page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;A description that goes on for far longer than any search result will ever show, because it keeps adding clauses, qualifications and asides until the snippet is cut mid-sentence.&quot;) {
   | ^^^^
   = help: Shorten it, or accept that it will be cut mid-sentence
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#s03-a-description-too-long-for-a-search-result</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#s03-a-description-too-long-for-a-search-result</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Shorten it to about 160 characters.</p>
@@ -2950,7 +2953,7 @@ page B(path: &quot;/about&quot;, title: &quot;B&quot;, description: &quot;D&quot
 2 | page B(path: &quot;/about&quot;, title: &quot;B&quot;, description: &quot;D&quot;) { Heading(&quot;B&quot;).h1 }
   | ^^^^
   = help: Give each page its own path
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#s04-two-pages-on-one-route</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#s04-two-pages-on-one-route</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Give each page its own <code>path:</code>. Only one of them would ever render.</p>
@@ -2986,7 +2989,7 @@ page B(path: &quot;/about&quot;, title: &quot;B&quot;, description: &quot;D&quot
 2 |     persist items: [String] = [] {
   |     ^^^^^^^
   = help: A reader who last visited then loses what they had. Add `migrate 1 -&gt; 2`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#p01-a-persisted-value-with-no-way-forward</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#p01-a-persisted-value-with-no-way-forward</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Add a step for each older version: <code>migrate 1 -&gt; 2 { old.map(…) }</code>.</p>
@@ -3019,7 +3022,7 @@ page B(path: &quot;/about&quot;, title: &quot;B&quot;, description: &quot;D&quot
 2 |     persist items: [String] = [] {
   |     ^^^^^^^
   = help: A step above `version:` never runs; raise the version or drop the step
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#p02-a-migration-that-never-runs</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#p02-a-migration-that-never-runs</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Raise <code>version:</code> to the step's target, or drop the step.</p>
@@ -3049,7 +3052,7 @@ page B(path: &quot;/about&quot;, title: &quot;B&quot;, description: &quot;D&quot
 2 |     persist query = &quot;&quot;
   |     ^^^^^^^
   = help: The route change drops the store and the next read builds it again from storage, so the value comes straight back. Use `state` for what the route owns, or widen the scope for what outlives it
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#p03-a-persisted-value-in-a-route-scoped-store</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#p03-a-persisted-value-in-a-route-scoped-store</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Keep route-scoped data in <code>state</code>, or move the value to a store with a wider scope.</p>
@@ -3084,7 +3087,7 @@ page B(path: &quot;/about&quot;, title: &quot;B&quot;, description: &quot;D&quot
 2 |     state unused = 0
   |     ^^^^^
   = help: Nothing reads the state; remove it, or name it `_unused` to keep it
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u01-a-state-nothing-reads</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#u01-a-state-nothing-reads</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Remove it, read it, or name it <code>_unused</code> to keep it on purpose.</p>
@@ -3116,7 +3119,7 @@ page B(path: &quot;/about&quot;, title: &quot;B&quot;, description: &quot;D&quot
 3 |     derived doubled = n * 2
   |     ^^^^^^^
   = help: Nothing reads the derived value; remove it, or name it `_doubled` to keep it
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u02-a-derived-value-nothing-reads</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#u02-a-derived-value-nothing-reads</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Remove it or read it; a leading <code>_</code> keeps it.</p>
@@ -3147,7 +3150,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 1 | component Orphan { Text(&quot;Nobody places me&quot;) }
   | ^^^^^^^^^
   = help: Place it in a page, name it as a layout, or remove it
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u03-a-component-nothing-places</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#u03-a-component-nothing-places</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Place it, name it as a <code>layout:</code>, publish it in <code>build.elements</code>, or remove it.</p>
@@ -3182,7 +3185,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     state coupon = &quot;&quot;
   |     ^^^^^
   = help: Nothing reads the state, inside the store or as `Cart.coupon`; remove it, or name it `_coupon` to keep it
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u04-a-store-member-nothing-reads</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#u04-a-store-member-nothing-reads</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Remove the member, or name it with a leading <code>_</code>.</p>
@@ -3214,7 +3217,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     action reset() { n = 0 }
   |     ^^^^^^
   = help: Nothing reads the action; remove it, or name it `_reset` to keep it
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u05-an-action-nothing-calls</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#u05-an-action-nothing-calls</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Call it, remove it, or name it <code>_reset</code>.</p>
@@ -3251,7 +3254,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 6 |         log(&quot;reset&quot;)
   |         ^^^^^^^^^^^^
   = help: Remove it, or move it above the `return`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u06-code-after-return</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#u06-code-after-return</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Remove it, or move it above the <code>return</code>.</p>
@@ -3286,7 +3289,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 2 |     // wf-allow(U01)
   |     ^^^^^^^^^^^^^^^^
   = help: Remove it — what it was written for is gone
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u07-an-allow-that-allows-nothing</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#u07-an-allow-that-allows-nothing</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Remove the allow — what it was written for is gone.</p>
@@ -3317,7 +3320,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     if false { Text(&quot;Coming soon&quot;) }
   |        ^^^^^
   = help: Use the value that decides, or remove the branch that cannot run
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u08-a-condition-that-is-always-the-same</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#u08-a-condition-that-is-always-the-same</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Use the value that decides, or remove the branch that cannot run.</p>
@@ -3352,7 +3355,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 4 |     for r in rows { Input(bind: r.name, label: &quot;Name&quot;) }
   |     ^^^
   = help: Key it: `for r in … by r.id`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u09-an-unkeyed-loop-whose-items-hold-state</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#u09-an-unkeyed-loop-whose-items-hold-state</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Key it: <code>for r in rows by r.id</code>.</p>
@@ -3389,7 +3392,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 5 |     match tone {
   |     ^^^^^
   = help: Remove the `else`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u10-an-else-no-value-reaches</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#u10-an-else-no-value-reaches</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Remove the <code>else</code>.</p>
@@ -3423,7 +3426,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
   |
 3 |     Button(primary)
   |            ^^^^^^^
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v01-a-bare-word-that-means-nothing</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v01-a-bare-word-that-means-nothing</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Write the flag with its dot — <code>Button(&quot;Save&quot;).primary</code> — or declare the name. The word is also a name nothing declares, so the build stops on it as <code>T13</code>; the editor shows both.</p>
@@ -3455,7 +3458,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 4 |     Unsafe.Html(body)
   |     ^^^^^^^^^^^
   = help: Anything the project did not write itself belongs in `sanitize(…)` first
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v03-markup-put-in-as-markup</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v03-markup-put-in-as-markup</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Wrap markup from outside the project in <code>sanitize(…)</code>: <code>Unsafe.Html(sanitize(body))</code>.</p>
@@ -3490,7 +3493,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     Card(class: &quot;wf-btn&quot;) { Text(&quot;x&quot;) }
   |     ^^^^
   = help: `wf-` classes are the built-ins&#x27;: one added here brings another built-in&#x27;s rules with it. Name a class of your own, or use the flag that sets the look
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v04-a-class-that-is-the-engine-s</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v04-a-class-that-is-the-engine-s</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Name a class of your own and style it in a <code>.css</code> file under <code>src/</code>, or use the flag that sets the look you wanted (<code>.primary</code>, <code>.elevated</code>).</p>
@@ -3525,7 +3528,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |         style { colr: red }
   |                 ^^^^
   = help: Did you mean `color`?
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v05-a-css-property-no-browser-knows</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v05-a-css-property-no-browser-knows</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> The property the message suggests — here <code>color</code>. A custom property is written <code>--name</code>.</p>
@@ -3557,7 +3560,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |         style { color: $brnad }
   |                 ^^^^^
   = help: Declare it in your `theme { … }`, or use one the theme has
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v06-a-design-token-the-theme-does-not-declare</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v06-a-design-token-the-theme-does-not-declare</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> A token the theme has — a short name resolves through the property (<code>padding: $lg</code>, <code>border: 1px solid $border</code>) — or declare it in your <code>theme { … }</code>.</p>
@@ -3592,7 +3595,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 4 |     Card { style { width: {pct} } }
   |                    ^^^^^^^^^^^^
   = help: Give it one: `width: {pct}px` (or `%`, `rem`)
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v07-a-number-where-css-wants-a-length</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v07-a-number-where-css-wants-a-length</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Give it a unit: <code>width: {pct}%</code>.</p>
@@ -3623,7 +3626,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     Icon(&quot;rocket&quot;)
   |          ^
   = help: The icons: close, menu, search, home, user, settings, check, plus, minus, edit, trash, star, heart, mail, bell, download, upload, eye, link, calendar, filter, chevron-down, chevron-right, chevron-left, info, warning, arrow-left, arrow-right, logout, copy, sun, moon
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v08-an-icon-the-runtime-does-not-draw</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v08-an-icon-the-runtime-does-not-draw</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Use one of the built-in icons the message lists.</p>
@@ -3654,7 +3657,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     Button(&quot;Save&quot;) { on clik { log(&quot;saved&quot;) } }
   |                      ^^
   = help: A handler names a DOM event (`click`, `input`, `change`, `submit`, `keydown`, `pointerdown`, `scroll`, …) or an event the element declares
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v09-an-event-the-element-does-not-fire</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v09-an-event-the-element-does-not-fire</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Name a DOM event (<code>click</code>, <code>input</code>, <code>change</code>, <code>submit</code>, <code>keydown</code>, …) or one the component declares.</p>
@@ -3688,7 +3691,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 3 |     Host(tag: &quot;video&quot;, mount: (n) =&gt; n)
   |          ^^^
   = help: It makes `div`, `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul`, `table`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v10-a-host-tag-it-does-not-make</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v10-a-host-tag-it-does-not-make</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Make it one of the tags <code>Host</code> makes, or use the element the built-ins offer for it (<code>Video</code>, <code>Audio</code>, <code>Image</code>).</p>
@@ -3726,7 +3729,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 1 | component Chart(_ title: String) {
   | ^^^^^^^^^
   = help: Rename it — `MyChart`, `ReportChart` — and its call sites
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v11-a-component-named-like-a-built-in</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v11-a-component-named-like-a-built-in</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Rename the component and its call sites.</p>
@@ -3787,7 +3790,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 4, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.3, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -3814,8 +3817,11 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 4 — GPL-3.0</p>
-                    <p class="wf-text">© 2026 Monzer Omer</p>
+                    <p class="wf-text">WebFluent 5.3 — MPL-2.0</p>
+                    <div class="wf-row wf-align--center wf-gap--md">
+                        <button class="wf-btn link-button" type="button">Cookie settings</button>
+                        <p class="wf-text">© 2026 Monzer Omer</p>
+                    </div>
                 </div>
             </div>
         </footer>

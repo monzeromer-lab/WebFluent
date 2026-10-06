@@ -58,7 +58,7 @@ ran it in had already read.
 
 Both installers read two environment variables: `WF_INSTALL_DIR` puts the
 binary somewhere other than `~/.webfluent/bin`, and `WF_VERSION` pins a
-release (`WF_VERSION=v5.3.1`) rather than taking the latest. Running the
+release (`WF_VERSION=v5.3.3`) rather than taking the latest. Running the
 installer again upgrades in place.
 
 To build from a clone instead — for an unreleased change, or to work on the

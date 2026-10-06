@@ -465,9 +465,7 @@ fn explain_shows_a_code_s_entry() {
         "{out}"
     );
     assert!(
-        out.contains(
-            "In the guide: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t05-"
-        ),
+        out.contains("In the guide: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t05-"),
         "{out}"
     );
     let (code, _, err) = wf(&dir, &["explain", "T5"]);

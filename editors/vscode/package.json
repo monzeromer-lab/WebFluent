@@ -4,7 +4,7 @@
   "description": "WebFluent for VS Code: highlighting for .wf and .wfx, and the wf-lsp language server — diagnostics, completion, hover, go to definition, rename and quick fixes.",
   "version": "0.4.0",
   "publisher": "monzeromer-lab",
-  "license": "GPL-3.0",
+  "license": "MPL-2.0",
   "icon": "icon.png",
   "repository": {
     "type": "git",
@@ -80,7 +80,7 @@
     "static site",
     "pdf"
   ],
-  "homepage": "https://monzeromer-lab.github.io/WebFluent",
+  "homepage": "https://webfluent.monzeromer.dev",
   "bugs": {
     "url": "https://github.com/monzeromer-lab/WebFluent/issues"
   },

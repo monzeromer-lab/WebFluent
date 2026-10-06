@@ -152,7 +152,7 @@ pub fn sarif(diagnostics: &[Diagnostic]) -> String {
             "tool": { "driver": {
                 "name": "wf",
                 "version": env!("CARGO_PKG_VERSION"),
-                "informationUri": "https://monzeromer-lab.github.io/WebFluent/",
+                "informationUri": "https://webfluent.monzeromer.dev/",
                 "rules": rules,
             }},
             "results": results,

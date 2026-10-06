@@ -1,7 +1,7 @@
 use crate::error::{Result, WebFluentError};
 use crate::template::Template;
 use std::fs;
-use std::io::{self, Read};
+use std::io::{self, IsTerminal, Read};
 use std::path::Path;
 
 /// How `wf render` renders: what it writes, where, and with what settings.
@@ -47,13 +47,21 @@ pub fn run_render(
         fs::read_to_string(dp).map_err(|e| {
             WebFluentError::IoError(format!("Failed to read data '{}': {}", dp.display(), e))
         })?
+    } else if io::stdin().is_terminal() {
+        // Nothing piped in: a template that needs no data renders with
+        // none, rather than waiting on the keyboard for JSON.
+        "{}".to_string()
     } else {
-        // Read from stdin
         let mut buf = String::new();
         io::stdin()
             .read_to_string(&mut buf)
             .map_err(|e| WebFluentError::IoError(format!("Failed to read stdin: {}", e)))?;
-        buf
+        // An empty pipe (`< /dev/null`, a script's unset variable) is no data.
+        if buf.trim().is_empty() {
+            "{}".to_string()
+        } else {
+            buf
+        }
     };
 
     let data: serde_json::Value = serde_json::from_str(&json_str)

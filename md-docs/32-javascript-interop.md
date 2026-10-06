@@ -310,7 +310,7 @@ Two things to know:
 
 ## Coming from `external`
 
-WebFluent 4.1 described JavaScript with `external` declarations; 4.2
+Before 4.2, JavaScript was described with `external` declarations; 4.2
 removed them. `wf migrate` rewrites a project: a remote module becomes a
 `meta.scripts` entry (its calls keep working, typed `Any`), a local module
 becomes a plain script under `src/` with its signatures as JSDoc and

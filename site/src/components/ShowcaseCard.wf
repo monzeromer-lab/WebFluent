@@ -1,0 +1,34 @@
+/// One example in the gallery: its first pages as pictures, what it is, and
+/// two ways on — the file itself, which a phone opens in its own viewer, and
+/// the folder that made it. The picture is a link to the file too, so on a
+/// phone the whole card is one tap from the PDF.
+component ShowcaseCard(_ item: Example) {
+    derived count = if item.kind == "deck" { t("showcase.slides", { count: item.pages }) } else { t("showcase.pages", { count: item.pages }) }
+    derived open = if item.kind == "video" { t("showcase.watch") } else { t("showcase.open") }
+
+    Stack(class: ["showcase-card", "showcase-{item.kind}"]) {
+        Link(href: item.file, class: "showcase-preview", aria-label: "{open}: {item.title}") {
+            Image(src: item.previews[0] ?? "", alt: "", width: item.width, height: item.height)
+            if item.previews.length > 1 {
+                Image(src: item.previews[1] ?? "", alt: "", width: item.width, height: item.height)
+            }
+        }
+        Stack(class: "showcase-body") {
+            Row(align: .center, class: "showcase-tags") {
+                Text(count, class: "pill pill-brand")
+                Text(item.size, class: "pill pill-brand")
+                if item.lang == "ar" {
+                    Text("العربية", lang: "ar", class: "pill pill-accent")
+                }
+            }
+            Heading(item.title, lang: item.lang, dir: "auto").h3
+            if item.description != "" {
+                Text(item.description, lang: item.lang, dir: "auto", class: "showcase-description")
+            }
+            Row(class: "showcase-actions") {
+                Link(open, href: item.file, class: "site-button site-button-primary")
+                Link(t("showcase.source"), href: item.source, class: "site-button site-button-outlined")
+            }
+        }
+    }
+}

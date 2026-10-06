@@ -37,3 +37,26 @@ data registry: Map = "registry.json"
 /// header's search: `public/search-index.json`, fetched the first time the
 /// search box is used rather than carried by every page.
 const SEARCH_INDEX = "/search-index.json"
+
+/// One example in the gallery: what `wf build` wrote from a folder under
+/// `examples/`, with its first two pages as pictures. Written by
+/// scripts/showcase.py.
+type Example {
+    slug: String,
+    title: String,
+    description: String = "",
+    kind: String,
+    lang: String = "en",
+    pages: Number,
+    bytes: Number,
+    size: String,
+    file: String,
+    previews: [String],
+    width: Number,
+    height: Number,
+    source: String
+}
+
+/// The gallery's examples, rendered on each release by scripts/showcase.py:
+/// the files sit in `public/showcase/`, this list says what each one is.
+data showcase: [Example] = "showcase.json"

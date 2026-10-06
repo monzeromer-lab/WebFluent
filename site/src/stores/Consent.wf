@@ -1,0 +1,20 @@
+/// Whether the reader is being asked about analytics. The answer itself is
+/// kept by `src/analytics.js`, which has to read it before Analytics starts.
+store Consent {
+    state asking = false
+
+    /// Ask, unless the reader has already answered.
+    action check() {
+        asking = consentChoice() == ""
+    }
+
+    action choose(granted: Bool) {
+        setConsent(granted)
+        asking = false
+    }
+
+    /// Ask again: the footer's "Cookie settings".
+    action reopen() {
+        asking = true
+    }
+}

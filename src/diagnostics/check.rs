@@ -813,7 +813,9 @@ mod tests {
             .collect();
         assert_eq!(
             e111,
-            ["`meta.img` names `https://cdn.example.com/a.png`, which is not an origin images load from"]
+            [
+                "`meta.img` names `https://cdn.example.com/a.png`, which is not an origin images load from"
+            ]
         );
     }
 

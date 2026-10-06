@@ -1,0 +1,24 @@
+# The in-process side of the PDF benchmark: WebFluent's Rust template API,
+# one Template built once and rendered many times.
+#
+# Its own workspace (the empty [workspace] table below) rather than a member
+# of the repository's: `cargo build`, `cargo test` and `cargo clippy
+# --workspace` at the root never compile it, so the benchmark adds nothing to
+# the main build or CI, and its lock file and target directory are its own.
+# It depends on the compiler by path, so it measures this checkout.
+[package]
+name = "wf-pdf-bench"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+# The template engine alone, as a server would use it: no CLI, no dev server.
+webfluent = { path = "../../..", default-features = false }
+serde_json = "1"
+
+[workspace]
+
+# The same profile `wf` itself is released with (Cargo's default release
+# profile), so the two WebFluent rows measure the same code the same way.
+[profile.release]

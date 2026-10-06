@@ -18,7 +18,7 @@ installer added `~/.webfluent/bin` to your shell's startup file, which the
 open session read before. Or run it by its full path, `~/.webfluent/bin/wf`.
 
 **The installer says it cannot find the latest version.** GitHub's API
-limits unauthenticated requests. Pin one: `WF_VERSION=v5.3.1`.
+limits unauthenticated requests. Pin one: `WF_VERSION=v5.3.3`.
 
 **Linux on ARM (a Raspberry Pi, an ARM server).** There is no prebuilt
 binary yet: `cargo install webfluent`.

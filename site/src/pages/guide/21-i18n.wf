@@ -121,6 +121,6 @@ app {
 
         Heading("Checklist", id: "checklist").h2
 
-        Markdown("- Every visible string goes through `t`, including `label:`, `placeholder:` and `aria-label:` values.\n- Never build a sentence from parts (`t(\"x\") + name`); use a placeholder so a translator can reorder it.\n- Give every count a plural key pair, even in English.\n- Test with an RTL locale once: alignment, icons that imply direction (arrows), and any `left`/`right` in your own CSS.")
+        Markdown("- Every visible string goes through `t`, including `label:`, `placeholder:` and `aria-label:` values.\n- Never build a sentence from parts (`t(\"x\") + name`); use a placeholder so a translator can reorder it.\n- Give every count a plural key pair, even in English.\n- Test with an RTL locale once: alignment, icons that imply direction, and a Latin code or figure inside Arabic text, which needs a left-to-right run of its own (`direction: ltr; unicode-bidi: isolate`) to keep its parts in order (arrows), and any `left`/`right` in your own CSS.")
     }
 }

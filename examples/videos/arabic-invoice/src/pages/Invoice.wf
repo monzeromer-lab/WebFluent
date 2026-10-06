@@ -1,0 +1,110 @@
+data inv = "invoice.json"
+
+const STUDIO = "استوديو نخلة"
+
+/// An amount in riyals: the figure, then the currency, as a Saudi invoice writes it.
+component Sar(_ amount: Number) {
+    Text("{format(amount, .decimal, 2)} ر.س", class: "sar")
+}
+
+page Invoice(path: "/", title: "فاتورة {inv.number}", description: "فاتورة أعمال التصميم والتطوير.") {
+    derived subtotal = inv.lines.map(l => l.qty * l.price).sum()
+    derived discount = subtotal * 0.05
+    derived vat = (subtotal - discount) * 0.15
+    derived total = subtotal - discount + vat
+
+    Document(size: "A4", lang: "ar", title: "فاتورة {inv.number} — {STUDIO}", author: STUDIO) {
+        Background(on: .first) { Stack(class: "band") { } }
+        Footer {
+            Row(class: "foot") {
+                Text("{STUDIO} · طريق الملك فهد، الرياض 12271 · billing@nakhla.example")
+                Row(class: "foot-ref") { Text("فاتورة")  Text(inv.number, class: "mono") }
+            }
+        }
+
+        Row(class: "letterhead") {
+            Row(class: "brand") {
+                Image(src: "/logo.svg", alt: "")
+                Stack(gap: .xs) {
+                    Text(STUDIO, class: "brand-name")
+                    Text("تصميم المنتجات الرقمية وهندستها", class: "brand-tag")
+                }
+            }
+            Stack(class: "title") {
+                Heading("فاتورة ضريبية").h1
+                Text(inv.number, class: ["number", "mono"])
+            }
+        }
+
+        Grid(class: "parties") {
+            Stack(class: "party") {
+                Text("من", class: "label")
+                Text(STUDIO, class: "strong")
+                Text("طريق الملك فهد، حي العليا")
+                Text("الرياض 12271")
+                Row(class: "vat-id") { Text("الرقم الضريبي")  Text("310122344000003", class: "mono") }
+            }
+            Stack(class: "party") {
+                Text("إلى", class: "label")
+                Text("شركة الواحة للتجزئة", class: "strong")
+                Text("إدارة الحسابات الدائنة")
+                Text("شارع التحلية، الطابق السادس")
+                Text("جدة 23434")
+            }
+            Stack(class: "meta") {
+                Row(class: "meta-row") { Text("تاريخ الإصدار")  Text(inv.issued) }
+                Row(class: "meta-row") { Text("شروط الدفع")  Text("30 يوماً") }
+                Row(class: "meta-row") { Text("أمر الشراء")  Text("WH-55102", class: "mono") }
+                Row(class: "meta-row") { Text("تاريخ الاستحقاق")  Text(inv.due, class: "due") }
+            }
+        }
+
+        Table(class: "items") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("#", class: "num")
+                    Table.Cell("البيان")
+                    Table.Cell("الكمية", class: "num")
+                    Table.Cell("الوحدة")
+                    Table.Cell("السعر", class: "num")
+                    Table.Cell("المبلغ", class: "num")
+                }
+            }
+            Table.Body {
+                for l, i in inv.lines {
+                    Table.Row {
+                        Table.Cell("{i + 1}", class: "num")
+                        Table.Cell {
+                            Text(l.item, class: "strong")
+                            Text(l.detail, class: "muted")
+                        }
+                        Table.Cell("{l.qty}", class: "num")
+                        Table.Cell(l.unit)
+                        Table.Cell(class: "num") { Sar(l.price) }
+                        Table.Cell(class: "num") { Sar(l.qty * l.price) }
+                    }
+                }
+            }
+        }
+
+        Row(class: "summary") {
+            Row(class: "pay") {
+                Stack(class: "qr") { QrCode("https://pay.nakhla.example/i/{inv.number}") }
+                Stack(gap: .sm) {
+                    Text("الدفع إلكترونياً أو بالتحويل", class: "label")
+                    Text("مصرف الإنماء")
+                    Text("SA44 0500 0068 2011 2334 4000", class: ["mono", "iban"])
+                    Row(class: "ref") { Text("المرجع")  Text(inv.number, class: "mono") }
+                }
+            }
+            Stack(class: "totals") {
+                Row(class: "totals-row") { Text("المجموع الفرعي")  Sar(subtotal) }
+                Row(class: "totals-row") { Text("خصم العميل الدائم (5٪)")  Sar(discount) }
+                Row(class: "totals-row") { Text("ضريبة القيمة المضافة (15٪)")  Sar(vat) }
+                Row(class: ["totals-row", "grand"]) { Text("الإجمالي المستحق")  Sar(total) }
+            }
+        }
+
+        Text("شكراً لموسم ثالث من العمل معاً. يُستحق الدفع خلال 30 يوماً من تاريخ الإصدار؛ امسح الرمز للدفع بالبطاقة، أو حوّل المبلغ مع ذكر رقم الفاتورة مرجعاً.", class: "notes")
+    }
+}

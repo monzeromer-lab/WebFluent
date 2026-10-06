@@ -1,0 +1,11 @@
+{
+  "name": "wf-pdf-benchmark",
+  "private": true,
+  "description": "The Puppeteer side of the WebFluent PDF benchmark.",
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "dependencies": {
+    "puppeteer": "25.12.0",
+    "qrcode": "1.5.4"
+  }
+}

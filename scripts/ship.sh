@@ -12,7 +12,8 @@
 #
 # What it does: checks the tree, the tag and CI on the commit being
 # released; runs scripts/check.sh; re-pins the Zed grammar when it changed;
-# bumps both crates and the Node binding; rebuilds the docs site; runs the
+# bumps both crates and the Node binding; rebuilds the docs site and its
+# gallery of rendered examples (scripts/showcase.py); runs the
 # release preflight; then commits, pushes, tags and pushes the tag — which
 # is what starts the release workflow. Saying no at the prompt puts every
 # file back as it was.
@@ -108,7 +109,7 @@ scripts/check.sh
 
 restore() {
     git restore --staged --worktree -- . ':!RELEASE_NOTES.md' 2>/dev/null || true
-    git clean -fdq -- docs
+    git clean -fdq -- docs site/public/showcase
 }
 
 step "The Zed extension's grammar"
@@ -131,6 +132,9 @@ sed -i -E "s/WF_VERSION=v[0-9]+\.[0-9]+\.[0-9]+/WF_VERSION=v$version/g" md-docs/
 cargo build --release --quiet
 python3 scripts/site-from-guide.py >/dev/null
 python3 scripts/site-data.py >/dev/null
+# The gallery (/showcase): every example rendered by this compiler, with
+# previews. Needs pdftoppm and pdfinfo (poppler-utils) and magick.
+python3 scripts/showcase.py | tail -n1
 target/release/wf build -d site | tail -n1
 
 step "Release preflight"

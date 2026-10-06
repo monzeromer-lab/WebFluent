@@ -199,6 +199,11 @@ jobs:
               || { echo "::error::the $template scaffold does not build clean"; exit 1; }
           done
 
+      # The launch videos' projects: each builds clean, and `typo` fails with
+      # the diagnostic its video shows. Same script as `just examples`.
+      - name: Video examples build clean
+        run: scripts/video-examples.sh "$GITHUB_WORKSPACE/target/release/wf"
+
       # The documentation site is a real WebFluent project; if the compiler
       # breaks it, the compiler is broken.
       - name: Documentation site builds

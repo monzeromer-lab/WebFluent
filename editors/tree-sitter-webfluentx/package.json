@@ -12,6 +12,6 @@
     "parser",
     "webfluent"
   ],
-  "license": "GPL-3.0",
+  "license": "MPL-2.0",
   "private": true
 }

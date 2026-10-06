@@ -3,7 +3,7 @@ name = "zed_webfluent"
 version = "3.0.0"
 edition = "2021"
 publish = false
-license = "GPL-3.0"
+license = "MPL-2.0"
 
 # Zed builds this crate on its own (`cargo build --target wasm32-wasip2`),
 # outside the WebFluent workspace, so it must not be a workspace member.
