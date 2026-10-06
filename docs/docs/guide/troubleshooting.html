@@ -287,7 +287,7 @@
                             <h2 class="wf-heading" id="installing">Installing</h2>
                             <div class="wf-markdown">
 <p><strong><code>wf: command not found</code> after installing.</strong> Open a new terminal: the installer added <code>~/.webfluent/bin</code> to your shell's startup file, which the open session read before. Or run it by its full path, <code>~/.webfluent/bin/wf</code>.</p>
-<p><strong>The installer says it cannot find the latest version.</strong> GitHub's API limits unauthenticated requests. Pin one: <code>WF_VERSION=v5.3.1</code>.</p>
+<p><strong>The installer says it cannot find the latest version.</strong> GitHub's API limits unauthenticated requests. Pin one: <code>WF_VERSION=v5.3.2</code>.</p>
 <p><strong>Linux on ARM (a Raspberry Pi, an ARM server).</strong> There is no prebuilt binary yet: <code>cargo install webfluent</code>.</p>
 <p><strong><code>wf-lsp</code> not found by the editor.</strong> It is a separate binary; see <a href="/docs/guide/getting-started#set-up-your-editor">Getting started</a>.</p>
 <p><strong>The editor reports what <code>wf build</code> does not</strong> — an element it calls unknown (<code>Host</code>), a message <code>wf check</code> never prints. The editor is running an older <code>wf-lsp</code> than the <code>wf</code> you build with: one on your <code>PATH</code> is used before a downloaded release, and <code>cargo install</code> does not update it when <code>wf</code> is updated. Compare <code>wf-lsp --version</code> with <code>wf --version</code> (the editor's language server log names the version it started, too), install the matching one, and restart the language server.</p>

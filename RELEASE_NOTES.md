@@ -1,3 +1,20 @@
+# WebFluent v5.3.2 Release Notes
+
+An image from another origin can be allowed by the policy the build ships.
+
+## `meta.img`, the origins a page may load images from
+
+- **`"img": ["https://www.googletagmanager.com"]`** adds those origins to the
+  policy's `img-src`. The policy allowed images only from the site itself
+  and `data:` URIs, and no setting could widen it: a CDN's pictures, or the
+  tracking pixels a tag requests (`googletagmanager.com/a`, `/td`), were
+  blocked, and Google's Tag Assistant reported each one.
+- An entry is an origin: `https://images.example.com`, or
+  `https://*.example.com` for its subdomains. One with a path, a keyword
+  or a scheme a picture is not fetched over (`wss:`) is `E111`.
+- The security chapter's tag-manager example adds Google Analytics' image
+  origins beside its `connect` ones.
+
 # WebFluent v5.3.1 Release Notes
 
 A script nothing waits for no longer holds up the page.
