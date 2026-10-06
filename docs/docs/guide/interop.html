@@ -31,7 +31,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
     <link rel="stylesheet" href="/styles.css">
-    <script src="https://www.googletagmanager.com/gtag/js?id=G-HPDHSJ9S4G" async></script>
     <script src="/js/analytics.js" defer></script>
     <script src="/app.js" defer></script>
     <script src="/pages/InteropGuide.js" data-wf-page="InteropGuide" defer></script>
@@ -605,6 +604,7 @@ function drawSales(canvas, values) {
 <ul>
 <li><strong>Order.</strong> Each entry is linked with <code>&lt;script defer&gt;</code> in the order listed, before your own scripts and the compiled code, so a library is there when the code that uses it runs.</li>
 <li><strong>Out of order.</strong> <code>{ &quot;src&quot;: &quot;…&quot;, &quot;async&quot;: true }</code> loads a script nothing on the page waits for — analytics, a tag manager — with <code>&lt;script async&gt;</code>. Deferred scripts run in order, so a large one listed plainly would hold the compiled code, and the page's first full paint, until it had arrived; an <code>async</code> one runs whenever it arrives instead. A module, or a script whose <code>globals</code> <code>.wf</code> calls, cannot be <code>async</code> (<code>E111</code>).</li>
+<li><strong>After the page.</strong> <code>{ &quot;src&quot;: &quot;…&quot;, &quot;load&quot;: &quot;after&quot; }</code> has no tag in the HTML at all: the runtime asks for it once the page has loaded and drawn its first frame. A browser fetches everything a page names while it loads, and a page's speed is measured against what it asked for before it first painted — so a large analytics tag named in the HTML costs a phone's Largest Contentful Paint more than a second even with <code>async</code>. Its origin still joins the policy. A reader who leaves within the first second is not counted; the same rules as <code>async</code> apply (<code>E111</code>).</li>
 <li><strong>Integrity.</strong> <code>meta.integrity</code> pins the file; a library from another origin without a hash draws a warning.</li>
 <li><strong>The policy.</strong> The Content-Security-Policy is widened by exactly the origins listed, so a declared library is never blocked by the policy that ships beside it.</li>
 <li><strong>A module.</strong> <code>{ &quot;src&quot;: &quot;https://…/confetti.mjs&quot;, &quot;module&quot;: true, &quot;as&quot;: &quot;Confetti&quot; }</code> imports an ES module and puts its exports on <code>window.Confetti</code>. Most CDNs also serve a plain build, which needs neither.</li>

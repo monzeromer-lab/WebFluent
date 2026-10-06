@@ -31,7 +31,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
     <link rel="stylesheet" href="/styles.css">
-    <script src="https://www.googletagmanager.com/gtag/js?id=G-HPDHSJ9S4G" async></script>
     <script src="/js/analytics.js" defer></script>
     <script src="/app.js" defer></script>
     <script src="/pages/ConfigGuide.js" data-wf-page="ConfigGuide" defer></script>
@@ -1375,7 +1374,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Libraries to load before the project's own scripts: a URL or a file in <code>public/</code>, or <code>{ &quot;src&quot;, &quot;module&quot;: true, &quot;as&quot;: &quot;Name&quot; }</code> for an ES module, or <code>{ &quot;src&quot;, &quot;globals&quot;: [&quot;Chart&quot;] }</code> to call a library's names from <code>.wf</code>. <code>&quot;async&quot;: true</code> loads one nothing waits for — analytics — without holding up the page's code. Their origins join the policy (<a href="/docs/guide/interop#a-library-from-a-cdn">JavaScript interop</a>).</p>
+<p>Libraries to load before the project's own scripts: a URL or a file in <code>public/</code>, or <code>{ &quot;src&quot;, &quot;module&quot;: true, &quot;as&quot;: &quot;Name&quot; }</code> for an ES module, or <code>{ &quot;src&quot;, &quot;globals&quot;: [&quot;Chart&quot;] }</code> to call a library's names from <code>.wf</code>. <code>&quot;async&quot;: true</code> loads one nothing waits for — analytics — without holding up the page's code, and <code>&quot;load&quot;: &quot;after&quot;</code> asks for it only once the page has loaded and painted. Their origins join the policy (<a href="/docs/guide/interop#a-library-from-a-cdn">JavaScript interop</a>).</p>
                                             </div>
                                         </td>
                                     </tr>
