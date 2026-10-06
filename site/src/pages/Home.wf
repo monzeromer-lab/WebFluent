@@ -47,7 +47,7 @@ page Home(path: "/", title: "WebFluent — websites, PDFs and slides from one la
                 }
                 Text("$") { style { font-family: $font-family-mono; font-size: 13px; line-height: 20px; color: $term-dim } }
                 Text(INSTALL) { style { flex-grow: 1; min-width: 0; font-family: $font-family-mono; font-size: 13px; line-height: 20px; color: $term-ink; white-space: nowrap; overflow: hidden; text-overflow: ellipsis } }
-                Button(if copied { t("code.copied") } else { t("code.copy") }, aria-label: t("hero.copy")) {
+                Button(if copied { t("code.copied") } else { t("code.copy") }, aria-label: t("hero.copy"), data-track: "copy_install", data-track-method: "curl") {
                     style {
                         height: 28px
                         padding: 0 10px
@@ -67,7 +67,7 @@ page Home(path: "/", title: "WebFluent — websites, PDFs and slides from one la
 
             Row(align: .center, gap: .sm) {
                 style { flex-direction: column; align-items: stretch; gap: 8px; flex-wrap: wrap; @sm { flex-direction: row; align-items: center } }
-                Link(t("hero.cta"), to: "/docs/guide/getting-started", class: "site-button site-button-primary")
+                Link(t("hero.cta"), to: "/docs/guide/getting-started", class: "site-button site-button-primary", data-track: "select_content", data-track-content-type: "cta", data-track-item-id: "start_guide")
                 Link(t("hero.reference"), to: "/docs/reference", class: "site-button site-button-outlined")
             }
 

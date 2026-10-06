@@ -38,7 +38,7 @@ component CodeBlock(_ code: String, title: String = "wf", note: String = "") {
                     Text(note) { style { font-size: 12px; line-height: 18px; color: $ink-subtle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis } }
                 }
             }
-            Button(if copied { t("code.copied") } else { t("code.copy") }, aria-label: t("code.copy")) {
+            Button(if copied { t("code.copied") } else { t("code.copy") }, aria-label: t("code.copy"), data-track: "copy_code", data-track-item-id: title) {
                 style {
                     flex-shrink: 0
                     height: 30px

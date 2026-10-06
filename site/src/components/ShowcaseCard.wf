@@ -26,8 +26,8 @@ component ShowcaseCard(_ item: Example) {
                 Text(item.description, lang: item.lang, dir: "auto", class: "showcase-description")
             }
             Row(class: "showcase-actions") {
-                Link(open, href: item.file, class: "site-button site-button-primary")
-                Link(t("showcase.source"), href: item.source, class: "site-button site-button-outlined")
+                Link(open, href: item.file, class: "site-button site-button-primary", data-track: "select_content", data-track-content-type: "showcase", data-track-item-id: item.slug)
+                Link(t("showcase.source"), href: item.source, class: "site-button site-button-outlined", data-track: "select_content", data-track-content-type: "showcase_source", data-track-item-id: item.slug)
             }
         }
     }
