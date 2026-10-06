@@ -38,7 +38,7 @@
     "scripts": [
       {
         "src": "https://www.googletagmanager.com/gtag/js?id=G-HPDHSJ9S4G",
-        "async": true
+        "load": "after"
       }
     ],
     "connect": [

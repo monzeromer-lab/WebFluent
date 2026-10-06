@@ -1462,3 +1462,20 @@ test("what an if or a keyed list drew is the painted node, and is taken away and
   entry.set(null);
   assert.equal(container.querySelector("h1"), null, "a branch that closes takes the painted heading with it");
 });
+
+test("a script loaded after the page is asked for once the page has loaded, not before", () => {
+  const { WF, document, window } = loadRuntime();
+  WF.loadAfter([
+    { src: "https://tags.example/t.js", integrity: "sha384-abc" },
+    { src: "/widget.js" },
+  ]);
+  const scripts = () => document.head.childNodes.filter((n) => n.tagName === "SCRIPT");
+  assert.equal(scripts().length, 0, "nothing is fetched while the page loads");
+  window._fire("load", {});
+  const [tag, widget] = scripts();
+  assert.equal(tag.src, "https://tags.example/t.js");
+  assert.equal(tag.integrity, "sha384-abc");
+  assert.equal(tag.crossOrigin, "anonymous");
+  assert.equal(tag.async, true);
+  assert.equal(widget.src, "/widget.js", "a site-relative one is the site's");
+});

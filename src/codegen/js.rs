@@ -76,6 +76,9 @@ pub struct JsCodegen {
     /// `Some(sync)` when the config names `offline`: the service worker is
     /// registered at boot, and `sync` keeps writes made offline.
     offline: Option<bool>,
+    /// `meta.scripts` entries loaded `"after"` the page, with their
+    /// integrity hashes: asked for by the runtime once the page has painted.
+    later: Vec<(String, Option<String>)>,
     /// Ship every runtime module rather than the ones the program reaches
     /// (`build.runtime: "full"`).
     full_runtime: bool,
@@ -215,6 +218,7 @@ impl JsCodegen {
             dev: false,
             shapes: Default::default(),
             offline: None,
+            later: Vec::new(),
             consts: Vec::new(),
             static_scope: None,
             env: Default::default(),
@@ -372,6 +376,12 @@ impl JsCodegen {
     /// whether writes made offline are kept (`sync`).
     pub fn set_offline(&mut self, sync: bool) {
         self.offline = Some(sync);
+    }
+
+    /// The scripts `meta.scripts` loads `"after"` the page, each with its
+    /// `meta.integrity` hash when it has one.
+    pub fn set_later_scripts(&mut self, scripts: Vec<(String, Option<String>)>) {
+        self.later = scripts;
     }
 
     pub fn set_env(&mut self, env: std::collections::BTreeMap<String, serde_json::Value>) {
@@ -674,6 +684,25 @@ impl JsCodegen {
         }
         if self.ssg_mode {
             self.emit_line("WF.setSsgMode(true);");
+        }
+        // Scripts nothing on the page waits for, asked for once it has
+        // painted.
+        if !self.later.is_empty() {
+            let list: Vec<String> = self
+                .later
+                .iter()
+                .map(|(src, integrity)| {
+                    let src = serde_json::to_string(src).unwrap_or_default();
+                    match integrity {
+                        Some(hash) => format!(
+                            "{{ src: {src}, integrity: {} }}",
+                            serde_json::to_string(hash).unwrap_or_default()
+                        ),
+                        None => format!("{{ src: {src} }}"),
+                    }
+                })
+                .collect();
+            self.emit_line(&format!("WF.loadAfter([{}]);", list.join(", ")));
         }
 
         // Emit i18n setup if configured
@@ -7190,6 +7219,29 @@ mod tests {
         let mut codegen = JsCodegen::new();
         codegen.set_ssg(true);
         codegen.generate(&crate::sema::lower(program))
+    }
+
+    #[test]
+    fn a_script_loaded_after_the_page_is_asked_for_by_the_runtime() {
+        let program = crate::syntax::parse_source("page P(path: \"/\") { Text(\"x\") }", "<t>")
+            .expect("parse");
+        let mut codegen = JsCodegen::new();
+        codegen.set_later_scripts(vec![
+            (
+                "https://tags.example/t.js".to_string(),
+                Some("sha384-abc".to_string()),
+            ),
+            ("/widget.js".to_string(), None),
+        ]);
+        let out = codegen.generate(&crate::sema::lower(program));
+        assert!(
+            out.contains(r#"WF.loadAfter([{ src: "https://tags.example/t.js", integrity: "sha384-abc" }, { src: "/widget.js" }]);"#),
+            "{out}"
+        );
+        assert!(
+            out.contains("function loadAfter("),
+            "the runtime module comes with it"
+        );
     }
 
     /// A static build draws its app beside the pre-rendered one and takes

@@ -909,6 +909,17 @@
     },
     {
       "deps": [],
+      "exports": [
+        [
+          "loadAfter",
+          "loadAfter"
+        ]
+      ],
+      "name": "later",
+      "triggers": []
+    },
+    {
+      "deps": [],
       "exports": [],
       "name": "icons",
       "triggers": [

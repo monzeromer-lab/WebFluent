@@ -136,6 +136,7 @@ pub const MODULES: &[Module] = &[
     module!("hydrate", exports: [same("hydrate"), same("hydrating")], deps: [], triggers: []),
     module!("i18n", exports: [same("locales")], deps: ["format"], triggers: []),
     module!("picture", exports: [same("picture")], deps: [], triggers: []),
+    module!("later", exports: [same("loadAfter")], deps: [], triggers: []),
     module!("icons", exports: [], deps: [], triggers: ["\"data-icon\""]),
     module!("debug", exports: [same("__debug"), same("__reg")], deps: [], triggers: []),
 ];

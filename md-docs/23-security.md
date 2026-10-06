@@ -191,7 +191,7 @@ endpoint. Each is an origin, `https://api.example.com`, or
 ```json
 {
   "meta": {
-    "scripts": [{ "src": "https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX", "async": true }],
+    "scripts": [{ "src": "https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX", "load": "after" }],
     "connect": ["https://*.google-analytics.com", "https://*.analytics.google.com",
                 "https://www.googletagmanager.com"],
     "img": ["https://*.google-analytics.com", "https://www.googletagmanager.com"]

@@ -108,11 +108,17 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
 /// scripts in path order — so a library is there for the scripts that use
 /// it, and a name a script declares is there when the page's code runs.
 /// A library marked `async` keeps no place in that order: it runs when it
-/// arrives, and nothing waits for it.
+/// arrives, and nothing waits for it. One marked `"load": "after"` has no
+/// tag at all: the runtime asks for it once the page has painted.
 pub fn script_tags(config: &ProjectConfig, root: &str) -> String {
     let mut out = String::new();
     let mut linked: Vec<&str> = Vec::new();
-    for entry in config.meta.scripts.iter().filter(|s| !s.is_module()) {
+    for entry in config
+        .meta
+        .scripts
+        .iter()
+        .filter(|s| !s.is_module() && !s.loads_after())
+    {
         // One library listed twice — once plain, once for its globals — is
         // loaded once.
         if linked.contains(&entry.src()) {
@@ -358,6 +364,28 @@ mod head_link_tests {
         assert!(
             tags.contains(r#"<script src="https://cdn.example/lib.js" defer></script>"#),
             "{tags}"
+        );
+    }
+
+    #[test]
+    fn a_script_loaded_after_the_page_has_no_tag() {
+        let config: ProjectConfig = serde_json::from_str(
+            r#"{"name":"t","meta":{"scripts":[
+                {"src":"https://tags.example/t.js","load":"after"},
+                "https://cdn.example/lib.js"]}}"#,
+        )
+        .unwrap();
+        let tags = script_tags(&config, ".");
+        assert!(!tags.contains("tags.example"), "{tags}");
+        assert!(
+            tags.contains(r#"<script src="https://cdn.example/lib.js" defer></script>"#),
+            "{tags}"
+        );
+        // Its origin is still the policy's, for the runtime to load it from.
+        assert!(
+            crate::config::project::csp_policy(&config).contains("https://tags.example"),
+            "{}",
+            crate::config::project::csp_policy(&config)
         );
     }
 

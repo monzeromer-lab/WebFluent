@@ -704,6 +704,24 @@ pub struct ScriptSpec {
     /// (`E111`).
     #[serde(default, rename = "async")]
     pub is_async: bool,
+    /// When the page asks for it: `"page"` (the default) while the page
+    /// loads, or `"after"` — once the page has loaded and its first frame is
+    /// drawn. For a script nothing on the page waits for (analytics, a chat
+    /// widget), so fetching it never counts against how soon the page is
+    /// ready. Nothing may call its `globals`, and a module cannot be (`E111`).
+    #[serde(default)]
+    pub load: ScriptLoad,
+}
+
+/// When a `meta.scripts` entry is asked for.
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum ScriptLoad {
+    /// While the page loads: a tag in the HTML.
+    #[default]
+    Page,
+    /// Once the page has loaded and painted, by the runtime.
+    After,
 }
 
 impl ScriptEntry {
@@ -721,6 +739,12 @@ impl ScriptEntry {
     /// Whether it loads `async` rather than `defer`.
     pub fn is_async(&self) -> bool {
         matches!(self, ScriptEntry::Spec(spec) if spec.is_async)
+    }
+
+    /// Whether it is asked for once the page has loaded and painted
+    /// (`"load": "after"`), rather than by a tag in the HTML.
+    pub fn loads_after(&self) -> bool {
+        matches!(self, ScriptEntry::Spec(spec) if spec.load == ScriptLoad::After)
     }
 
     /// Every name `.wf` code may read from it: its `globals`, and a

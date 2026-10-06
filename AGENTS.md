@@ -1280,7 +1280,7 @@ in the config, used from your own scripts:
       "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js",
       { "src": "https://esm.example.com/confetti.mjs", "module": true, "as": "Confetti" },
       { "src": "https://cdn.example.com/lib.js", "globals": ["Lib"] },
-      { "src": "https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX", "async": true }
+      { "src": "https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX", "load": "after" }
     ],
     "integrity": { "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js": "sha384-…" }
 } }
@@ -1291,9 +1291,11 @@ module is imported by a generated `externals.js` and its exports put on
 `window.<as>`; `globals` are names `.wf` may call directly, each `Any`, and a
 class among them is constructed when called. `"async": true` loads one
 nothing waits for (analytics, a tag manager) with `<script async>`, so it
-never holds up the page's code; it cannot be a module or have `globals`
-(`E111`). Their origins join `script-src`, and one without an integrity
-hash draws a warning.
+never holds up the page's code; `"load": "after"` goes further and has no
+tag at all — the runtime asks for it once the page has loaded and drawn its
+first frame, so it never counts against how soon the page is ready. Neither
+can be a module or have `globals` (`E111`). Their origins join
+`script-src`, and one without an integrity hash draws a warning.
 
 ### Somebody else's custom element
 

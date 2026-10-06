@@ -364,6 +364,19 @@ fn build(project_dir: &Path, options: Options) -> Result<()> {
     js_codegen.set_split_pages(config.build.split);
     js_codegen.set_full_runtime(config.build.runtime == crate::config::RuntimeMode::Full);
     js_codegen.set_env(config.public_env_values());
+    js_codegen.set_later_scripts(
+        config
+            .meta
+            .scripts
+            .iter()
+            .filter(|s| s.loads_after())
+            .map(|s| {
+                let src = s.src().to_string();
+                let integrity = config.meta.integrity.get(&src).cloned();
+                (src, integrity)
+            })
+            .collect(),
+    );
     if let Some(offline) = &config.offline {
         js_codegen.set_offline(offline.sync);
     }

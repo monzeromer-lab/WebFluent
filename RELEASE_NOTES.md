@@ -1,3 +1,20 @@
+# WebFluent v5.3.5 Release Notes
+
+A script nothing waits for no longer counts against how soon a page is ready.
+
+## Additions
+
+- **`"load": "after"` on a `meta.scripts` entry.** An analytics tag listed
+  in the HTML is fetched while the page is, even with `async`, and a
+  page's speed is measured against everything it asked for before it first
+  painted: Google's 174 KB tag added more than a second to a phone's
+  Largest Contentful Paint on a page that was otherwise ready. A script
+  marked `"load": "after"` has no tag in the HTML; the runtime asks for it
+  once the page has loaded and drawn its first frame, with its
+  `meta.integrity` hash when it has one. Its origin stays in the policy. A
+  module, or a script whose `globals` `.wf` calls, cannot load after the
+  page (`E111`).
+
 # WebFluent v5.3.4 Release Notes
 
 A static page is no longer painted twice.

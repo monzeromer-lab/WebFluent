@@ -191,6 +191,14 @@ page Sales(path: "/sales", title: "Sales", description: "How it is going.") {
   the compiled code, and the page's first full paint, until it had
   arrived; an `async` one runs whenever it arrives instead. A module, or a
   script whose `globals` `.wf` calls, cannot be `async` (`E111`).
+- **After the page.** `{ "src": "…", "load": "after" }` has no tag in the
+  HTML at all: the runtime asks for it once the page has loaded and drawn
+  its first frame. A browser fetches everything a page names while it
+  loads, and a page's speed is measured against what it asked for before it
+  first painted — so a large analytics tag named in the HTML costs a phone's
+  Largest Contentful Paint more than a second even with `async`. Its origin
+  still joins the policy. A reader who leaves within the first second is
+  not counted; the same rules as `async` apply (`E111`).
 - **Integrity.** `meta.integrity` pins the file; a library from another
   origin without a hash draws a warning.
 - **The policy.** The Content-Security-Policy is widened by exactly the

@@ -500,7 +500,7 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
                 Table.Row {
                     Table.Cell { Markdown("`scripts`") }
                     Table.Cell { Markdown("`[]`") }
-                    Table.Cell { Markdown("Libraries to load before the project's own scripts: a URL or a file in `public/`, or `\{ \"src\", \"module\": true, \"as\": \"Name\" \}` for an ES module, or `\{ \"src\", \"globals\": [\"Chart\"] \}` to call a library's names from `.wf`. `\"async\": true` loads one nothing waits for — analytics — without holding up the page's code. Their origins join the policy ([JavaScript interop](/docs/guide/interop#a-library-from-a-cdn)).") }
+                    Table.Cell { Markdown("Libraries to load before the project's own scripts: a URL or a file in `public/`, or `\{ \"src\", \"module\": true, \"as\": \"Name\" \}` for an ES module, or `\{ \"src\", \"globals\": [\"Chart\"] \}` to call a library's names from `.wf`. `\"async\": true` loads one nothing waits for — analytics — without holding up the page's code, and `\"load\": \"after\"` asks for it only once the page has loaded and painted. Their origins join the policy ([JavaScript interop](/docs/guide/interop#a-library-from-a-cdn)).") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`connect`") }

@@ -1418,6 +1418,7 @@ fn with_module() -> webfluent::config::ProjectConfig {
             as_name: Some("Confetti".to_string()),
             globals: Vec::new(),
             is_async: false,
+            load: Default::default(),
         }),
     ];
     config.meta.integrity.insert(
