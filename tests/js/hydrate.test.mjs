@@ -1282,3 +1282,183 @@ test("a persisted value with a key is one stored value per instance, across a re
   assert.equal(again.WF.persist("Panel.open:South", false)(), false);
   assert.equal(south(), false);
 });
+
+// ─── Taking over a pre-rendered page in place ─────────────
+
+/// What a static build hands the browser: markup, painted before any script.
+function paint(document, parent, spec) {
+  for (const [tag, attrs, kids] of spec) {
+    if (tag === "#text") { parent.appendChild(document.createTextNode(attrs)); continue; }
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) el.setAttribute(k, v);
+    paint(document, el, kids || []);
+    parent.appendChild(el);
+  }
+  return parent;
+}
+
+test("a painted page is kept: what nothing holds stays, what a handler holds stands in its place", () => {
+  const { WF, document } = loadRuntime();
+  const container = document.createElement("main");
+  document.body.appendChild(container);
+  paint(document, container, [["div", { class: "page" }, [
+    ["p", { class: "lead" }, [["#text", "Building systems."]]],
+    ["button", { class: "wf-btn" }, [["#text", "Add"]]],
+  ]]]);
+  const page = container.children[0];
+  const lead = page.children[0];
+  const paintedButton = page.children[1];
+
+  let clicks = 0;
+  WF.hydrate(() => {
+    const b = WF.el("button", { className: "wf-btn" }, ["Add"]);
+    b.addEventListener("click", () => clicks++);
+    return WF.el("div", { className: "page" }, [WF.el("p", { className: "lead" }, ["Building systems."]), b]);
+  }, container);
+
+  assert.equal(container.children[0], page, "the painted page is the page");
+  assert.equal(page.children[0], lead, "its paragraph was never moved or replaced");
+  assert.notEqual(page.children[1], paintedButton, "the button a handler holds is the drawn one");
+  page.children[1].click();
+  assert.equal(clicks, 1, "and it answers");
+});
+
+test("text a signal keeps current changes inside the painted element", () => {
+  const { WF, document } = loadRuntime();
+  const container = document.createElement("main");
+  paint(document, container, [["p", { class: "count" }, [["#text", "Count: 0"]]]]);
+  const p = container.children[0];
+  const count = WF.signal(0);
+  WF.hydrate(() => WF.el("p", { className: "count" }, ["Count: ", () => String(count())]), container);
+  assert.equal(container.children[0], p, "the paragraph is the painted one");
+  assert.equal(p.textContent, "Count: 0");
+  count.set(3);
+  assert.equal(p.textContent, "Count: 3", "and what it says follows the signal");
+});
+
+test("an if and a list draw into the painted parent after the takeover", () => {
+  const { WF, document } = loadRuntime();
+  const container = document.createElement("main");
+  paint(document, container, [["ul", { class: "list" }, [
+    ["li", {}, [["#text", "a"]]],
+    ["li", {}, [["#text", "b"]]],
+  ]], ["p", { class: "note" }, [["#text", "open"]]]]);
+  const ul = container.children[0];
+  const items = WF.signal(["a", "b"]);
+  const open = WF.signal(true);
+  WF.hydrate(() => {
+    const frag = document.createDocumentFragment();
+    const list = WF.el("ul", { className: "list" });
+    WF.each(list, () => items(), (it) => WF.el("li", {}, [it]), { key: (it) => it });
+    frag.appendChild(list);
+    WF.when(frag, () => open(), () => WF.el("p", { className: "note" }, ["open"]));
+    return frag;
+  }, container);
+  assert.equal(container.children[0], ul, "the painted list is kept");
+  assert.equal(ul.children.length, 2, "with as many items as the drawing");
+  items.set(["a", "b", "c"]);
+  assert.deepEqual(ul.children.map((li) => li.textContent), ["a", "b", "c"], "an item added lands in it");
+  open.set(false);
+  assert.equal(container.querySelector("p"), null, "a branch closed leaves the painted parent");
+  open.set(true);
+  assert.equal(container.querySelector("p").textContent, "open", "and one opened comes back to it");
+});
+
+test("the router draws the first page into the painted main, and the app around it is kept", () => {
+  const { WF, document } = loadRuntime();
+  const host = document.createElement("div");
+  host.id = "app";
+  document.body.appendChild(host);
+  paint(document, host, [
+    ["header", { class: "site" }, [["a", { href: "/", class: "brand" }, [["#text", "Home"]]]]],
+    ["main", { id: "wf-main" }, [["h1", { class: "wf-heading" }, [["#text", "Welcome"]]]]],
+  ]);
+  const [header, main] = host.children;
+  const heading = main.children[0];
+  WF.setSsgMode(true);
+  const app = WF.hydrating(host);
+  assert.notEqual(app, host, "a painted page is drawn beside itself");
+  app.appendChild(WF.el("header", { className: "site" }, [WF.el("a", { href: "/", className: "brand" }, ["Home"])]));
+  const routerEl = document.createElement("main");
+  routerEl.id = "wf-main";
+  app.appendChild(routerEl);
+  WF.router([{ path: "/", title: "Home", render: () => WF.el("h1", { className: "wf-heading" }, ["Welcome"]) }], routerEl);
+  assert.deepEqual(host.children, [header, main], "the painted header and main are the page's");
+  assert.equal(main.children[0], heading, "the painted heading was kept");
+});
+
+test("a painted page that differs from the drawing ends up as the drawing", () => {
+  const { WF, document } = loadRuntime();
+  const container = document.createElement("main");
+  paint(document, container, [
+    ["div", { class: "a" }, []],
+    ["aside", { class: "stale" }, []],
+    ["p", { class: "b old-order" }, [["#text", "old"]]],
+  ]);
+  WF.hydrate(() => {
+    const frag = document.createDocumentFragment();
+    frag.appendChild(WF.el("div", { className: "a" }));
+    frag.appendChild(WF.el("p", { className: "old-order b" }, ["new"]));
+    frag.appendChild(WF.el("span", { className: "c" }, ["added"]));
+    return frag;
+  }, container);
+  const tags = container.children.map((n) => n.tagName.toLowerCase());
+  assert.deepEqual(tags, ["div", "p", "span"], "the extra element went, the missing one came");
+  assert.equal(container.children[1].textContent, "new", "text the drawing has wins");
+  assert.equal(container.children[2].textContent, "added");
+});
+
+test("an element the paint lacks, of the same tag as the next one, does not take that one's place", () => {
+  const { WF, document } = loadRuntime();
+  const container = document.createElement("main");
+  // A drawer draws a scrim and a toggle the static paint has no use for;
+  // the scrim is a div, as is the article after it.
+  paint(document, container, [["div", { class: "row" }, [
+    ["aside", { class: "wf-sidebar" }, []],
+    ["div", { class: "wf-stack docs-main" }, [["h1", {}, [["#text", "State"]]]]],
+    ["div", { class: "wf-stack rail" }, []],
+  ]]]);
+  const row = container.children[0];
+  const [aside, article, rail] = row.children;
+  const heading = article.children[0];
+  WF.hydrate(() => WF.el("div", { className: "row" }, [
+    WF.el("aside", { className: "wf-sidebar" }),
+    WF.el("div", { className: "wf-sidebar__scrim" }),
+    WF.el("button", { className: "wf-sidebar__toggle" }),
+    WF.el("div", { className: "wf-stack docs-main" }, [WF.el("h1", {}, ["State"])]),
+    WF.el("div", { className: "wf-stack rail" }),
+  ]), container);
+  assert.deepEqual(row.children.map((n) => n.className), ["wf-sidebar", "wf-sidebar__scrim", "wf-sidebar__toggle", "wf-stack docs-main", "wf-stack rail"]);
+  assert.equal(row.children[0], aside);
+  assert.equal(row.children[3], article, "the article is the painted one");
+  assert.equal(article.children[0], heading, "and so is its heading");
+  assert.equal(row.children[4], rail);
+});
+
+test("what an if or a keyed list drew is the painted node, and is taken away and moved as one", () => {
+  const { WF, document } = loadRuntime();
+  const container = document.createElement("main");
+  paint(document, container, [
+    ["h1", { class: "title" }, [["#text", "Button"]]],
+    ["ul", {}, [["li", {}, [["#text", "a"]]], ["li", {}, [["#text", "b"]]], ["li", {}, [["#text", "c"]]]]],
+  ]);
+  const title = container.children[0];
+  const ul = container.children[1];
+  const [a, b, c] = ul.children;
+  const entry = WF.signal({ name: "Button" });
+  const items = WF.signal(["a", "b", "c"]);
+  WF.hydrate(() => {
+    const frag = document.createDocumentFragment();
+    WF.when(frag, () => entry(), () => WF.el("h1", { className: "title" }, [entry().name]));
+    const list = WF.el("ul", {});
+    WF.each(list, () => items(), (it) => WF.el("li", {}, [it]), { key: (it) => it });
+    frag.appendChild(list);
+    return frag;
+  }, container);
+  assert.equal(container.querySelector("h1"), title, "the heading an `if let` drew is the painted one");
+  assert.deepEqual(ul.children, [a, b, c], "so are the list's items");
+  items.set(["c", "a"]);
+  assert.deepEqual(ul.children, [c, a], "a keyed change moves and takes away the painted items");
+  entry.set(null);
+  assert.equal(container.querySelector("h1"), null, "a branch that closes takes the painted heading with it");
+});

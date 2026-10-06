@@ -29,9 +29,19 @@ more than a first paint — or when your host cannot serve a file per route.
 ## Hydration
 
 A static page is readable before any script runs. When `app.js` arrives it
-**hydrates** the page: it walks the HTML that is already there, attaches
-handlers and subscriptions to it, and only replaces what the live values say
-differently. The reader never sees the page flash or re-draw.
+**hydrates** the page: it draws the page beside the one already there, then
+takes the painted one over in place. An element nothing holds on to stays
+exactly as it was painted — its attributes brought up to date, never moved
+or drawn again — and an element a handler, an effect, a `ref` or a widget
+holds is put where the painted one stood, inside the painted parent. Text a
+signal keeps current changes inside the painted element. The reader never
+sees the page flash or re-draw, and keeps their scroll, focus and anything
+they had selected. The page's largest paint stays the first one, which is
+what a search engine's speed score measures.
+
+Under `wf serve`, the runtime compares the page it took over with the one
+it drew and says so in the console when they differ — a WebFluent bug, never
+yours.
 
 ## What the static paint knows
 

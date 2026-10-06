@@ -249,6 +249,7 @@
   /// CSS cannot animate to `height: auto`; this measures what auto would
   /// be and animates to that number, then hands the height back.
   function expand(el, open, duration, easing) {
+    live(el);
     if (!el) return Promise.resolve();
     // The box ends up open or closed **now**, whatever happens next: the
     // animation is how it gets there, not whether. A page that is not
@@ -283,6 +284,7 @@
   /// `format` is how the value is written — the same `format` the page
   /// uses — so a currency counts as a currency.
   function countTo(node, from, to, duration, format) {
+    live(node);
     const show = (n) => {
       node.textContent = format ? format(n) : String(Math.round(n));
     };
@@ -321,6 +323,7 @@
   /// counting up from nothing — and every value after it is counted to
   /// from the one before.
   function counted(node, valueFn, duration, format) {
+    live(node);
     const write = (n) => {
       node.textContent = format ? format(n) : String(Math.round(n));
     };
@@ -341,6 +344,7 @@
 
   /// Play `name` on `el` when it first scrolls into view, and not again.
   function onEnterView(el, name, duration, delay, easing) {
+    live(el);
     if (!el || typeof IntersectionObserver !== "function") {
       return play(el, name, duration, delay, easing);
     }
@@ -362,6 +366,7 @@
   /// The name this element is known by across a route change, so the
   /// browser can carry it from one page to the next.
   function shared(el, name) {
+    live(el);
     if (el && el.style) el.style.viewTransitionName = String(name).replace(/[^\w-]/g, "-");
   }
 
@@ -377,7 +382,8 @@
       const attr = (name) => el.getAttribute(name) || "";
       plays.push(animateOut(el, attr("data-wf-exit"), attr("data-wf-duration"), attr("data-wf-delay"), attr("data-wf-easing")));
     };
-    for (const n of nodes) {
+    for (const drawn of nodes) {
+      const n = inPage(drawn);
       if (!(n instanceof Element)) continue;
       if (config && config.exit) plays.push(animateOut(n, config.exit, config.duration, "", config.easing));
       else marked(n);

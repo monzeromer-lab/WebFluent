@@ -1,4 +1,5 @@
   function tooltip(root, tip) {
+    live(root, tip);
     if (!root || !tip) return;
     const focusable = root.querySelector(
       "button, a[href], input, select, textarea, summary, [tabindex]",

@@ -34,9 +34,16 @@
       if (source.width && source.height) {
         img.style.aspectRatio = `${source.width} / ${source.height}`;
       }
-      const clear = () => { img.style.background = ""; };
-      img.addEventListener("load", clear);
-      img.addEventListener("error", clear);
+      // On the image the reader sees: a pre-rendered page keeps its own
+      // (often the page's largest paint), which may have arrived already.
+      const wire = (shown) => {
+        const clear = () => { shown.style.background = ""; };
+        if (shown.complete && shown.naturalWidth) return clear();
+        shown.addEventListener("load", clear);
+        shown.addEventListener("error", clear);
+      };
+      if (typeof placedAs === "function") placedAs(img, wire);
+      else wire(img);
     }
 
     const sources = source.sources || [];

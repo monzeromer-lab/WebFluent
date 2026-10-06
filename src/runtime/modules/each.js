@@ -38,9 +38,9 @@
     const depart = (nodes) => {
       const plays = leave(nodes, config);
       if (!plays.length) { removeNodes(nodes); return; }
-      for (const n of nodes) exiting.add(n);
+      for (const n of nodes) exiting.add(inPage(n));
       Promise.all(plays).then(() => {
-        for (const n of nodes) exiting.delete(n);
+        for (const n of nodes) exiting.delete(inPage(n));
         removeNodes(nodes);
       });
     };
@@ -50,7 +50,8 @@
       const seen = new Map();
       if (reducedMotion() || typeof requestAnimationFrame !== "function") return seen;
       for (const entry of entries.values()) {
-        for (const n of entry.nodes) {
+        for (const drawn of entry.nodes) {
+          const n = inPage(drawn);
           if (n instanceof Element && typeof n.getBoundingClientRect === "function") {
             const r = n.getBoundingClientRect();
             seen.set(n, { x: r.left, y: r.top });
@@ -78,9 +79,11 @@
       }
     };
     // Put `nodes` right after `after`, moving only what is out of place; a
-    // node on its way out does not count as a neighbour.
+    // node on its way out does not count as a neighbour. A node drawn over
+    // a pre-rendered page may stand for the painted one (hydrate).
     const place = (host, nodes, after) => {
-      for (const n of nodes) {
+      for (const drawn of nodes) {
+        const n = inPage(drawn);
         let next = after.nextSibling;
         while (next && exiting.has(next)) next = next.nextSibling;
         if (next !== n) host.insertBefore(n, next);

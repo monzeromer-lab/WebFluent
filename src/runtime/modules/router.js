@@ -28,6 +28,7 @@
     const target = _routeOf(href).replace(/\/$/, "") || "/";
     const search = String(href).split("#")[0].split("?")[1] || "";
     const wanted = query && search ? [...new URLSearchParams(search)] : [];
+    live(el);
     if (!_queryLinkCount) _queryLinkCount = signal(0);
     if (wanted.length) {
       const entry = { target, wanted };
@@ -68,6 +69,9 @@
       ? { name: options.transition, duration: options.duration }
       : null;
     const ways = { fade: ["fadeOut", "fadeIn"], slide: ["slideLeft", "slideRight"] };
+    // The node the route is drawn into: the painted one, once a
+    // pre-rendered page has been taken over (hydrate).
+    const into = () => inPage(container);
     // Check for SPA redirect from 404.html (?p=/path)
     const urlParams = new URLSearchParams(window.location.search);
     const redirectPath = urlParams.get("p");
@@ -130,7 +134,7 @@
       const path = currentPath(); // Only subscribe to path changes
       const match = matchRoute(path);
       if (!match) {
-        container.innerHTML = "";
+        into().innerHTML = "";
         // No page's route matches, and no `*` page catches it. A reader
         // sees an empty page; under `wf serve` the developer sees why.
         console.warn("WF: no page has the route " + path + "; a `page NotFound(path: \"*\")` catches what nothing else does");
@@ -139,8 +143,10 @@
           box.className = "wf-route-missing";
           box.setAttribute("role", "alert");
           box.textContent = "404 — no page has the route " + path + ". Declare one, or a page with path: \"*\" for every address nothing else answers.";
-          container.appendChild(box);
+          into().appendChild(box);
         }
+        // Nothing to draw: the app around the route is whole all the same.
+        if (_hyd && typeof takeOver === "function") takeOver();
         return;
       }
 
@@ -162,7 +168,7 @@
       }
       const paint = (renderFn) => {
         if (disposePage) { disposePage(); disposePage = null; }
-        container.innerHTML = "";
+        into().innerHTML = "";
         _newPage();
         // A `store X(scope: .route)` belongs to the page that read it: the
         // route it was for has gone, so what it held goes with it. The
@@ -191,7 +197,7 @@
             ? match.route.layout((params) => _content(renderFn(params)), match.params)
             : renderFn(match.params));
           disposePage = dispose;
-          if (el instanceof Node) container.appendChild(el);
+          if (el instanceof Node) into().appendChild(el);
         } finally {
           currentEffect = prev;
         }
@@ -205,10 +211,11 @@
         // (or the main landmark when it has none), the viewport returns to the
         // top, and the title is announced.
         if (rendered) {
-          settleOnNewPage(container, !fromHistory);
-        } else {
+          settleOnNewPage(into(), !fromHistory);
+        } else if (!_tookOver) {
           // The first paint replaced a pre-rendered page, and with it the
-          // browser's jump to the address's `#fragment`.
+          // browser's jump to the address's `#fragment`. A page taken over
+          // in place kept it, and kept wherever the reader has scrolled.
           landOnHash();
         }
         rendered = true;
@@ -284,11 +291,11 @@
           }
           return;
         }
-        const leaving = [...container.children];
+        const leaving = [...into().children];
         Promise.all(leaving.map((n) => animateOut(n, out, motion.duration))).then(() => {
           if (currentPath() !== path) return;
           paint(renderFn);
-          const arriving = [...container.children];
+          const arriving = [...into().children];
           Promise.all(arriving.map((n) => animateIn(n, back, motion.duration))).then(settle);
         });
       };

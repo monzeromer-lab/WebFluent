@@ -10,6 +10,8 @@
 
   function field(control, opts) {
     const wrapper = el("div", { className: "wf-field" });
+    // The field keeps its control and its message current (hydrate).
+    live(control, wrapper);
     if (!control.id) control.id = "wf-field-" + (++fieldSeq);
     const described = [];
     const existing = control.getAttribute("aria-describedby");

@@ -1,6 +1,9 @@
   // ─── Show/Hide ───────────────────────────────────────
   function show(parent, condFn, contentFn, animConfig) {
     const wrapper = document.createElement("div");
+    // The wrapper in the page: a painted one, once a pre-rendered page has
+    // been taken over (hydrate).
+    const box = () => inPage(wrapper);
     wrapper.style.display = "contents";
     const nodes = [].concat(contentFn()).flat();
     for (const n of nodes) {
@@ -22,27 +25,28 @@
           wrapper.style.height = open ? "" : "0px";
           return;
         }
-        expand(wrapper, open, animConfig.duration, animConfig.easing);
+        expand(box(), open, animConfig.duration, animConfig.easing);
       });
       return;
     }
 
     if (animConfig) {
       effect(() => {
+        const shown = box();
         if (condFn()) {
-          wrapper.style.display = "contents";
+          shown.style.display = "contents";
           if (animConfig.enter) {
-            for (const n of wrapper.children) animateIn(n, animConfig.enter, animConfig.duration, animConfig.delay, animConfig.easing);
+            for (const n of shown.children) animateIn(n, animConfig.enter, animConfig.duration, animConfig.delay, animConfig.easing);
           }
         } else {
-          const plays = leave([...wrapper.children], animConfig);
-          if (plays.length) Promise.all(plays).then(() => { wrapper.style.display = "none"; });
-          else wrapper.style.display = "none";
+          const plays = leave([...shown.children], animConfig);
+          if (plays.length) Promise.all(plays).then(() => { shown.style.display = "none"; });
+          else shown.style.display = "none";
         }
       });
     } else {
       effect(() => {
-        wrapper.style.display = condFn() ? "contents" : "none";
+        box().style.display = condFn() ? "contents" : "none";
       });
     }
   }

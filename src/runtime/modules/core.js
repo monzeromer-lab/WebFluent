@@ -105,6 +105,7 @@
 
   // A listener that leaves with its scope.
   function listen(target, event, fn, options) {
+    live(target);
     target.addEventListener(event, fn, options);
     onCleanup(() => target.removeEventListener(event, fn, options));
   }
@@ -232,6 +233,10 @@
     let iconName;
     if (attrs) {
       for (const [k, v] of Object.entries(attrs)) {
+        // What keeps the element current, or hands it out, holds it: a
+        // pre-rendered page keeps its own element in this one's place
+        // only when nothing does (hydrate).
+        if (_hyd && (typeof v === "function" || k === "ref" || k === "checked" || k === "value")) _hyd.live.add(el);
         if (k === "ref" && v && typeof v === "object") {
           v.current = el;
         } else if (attrHooks[k]) {
@@ -391,7 +396,10 @@
   function onRoot(frag, event, handler) {
     const isFragment = frag.nodeType === 11 || frag.tagName === "#DOCUMENT-FRAGMENT";
     const root = isFragment ? [...frag.childNodes].find((n) => n.nodeType === 1) : frag;
-    if (root) root.addEventListener(event, handler);
+    if (root) {
+      live(root);
+      root.addEventListener(event, handler);
+    }
   }
 
   // The style property each timing marker sets.
@@ -424,6 +432,7 @@
     const root = isFragment ? [...frag.childNodes].find((n) => n.nodeType === 1) : frag;
     if (!root) return;
     for (const [k, v] of Object.entries(attrs)) {
+      if (k === "class" || typeof v === "function") live(root);
       // `class:` adds to the root's own classes, as on a built-in.
       if (k === "class") {
         classes(root, typeof v === "function" ? v : () => v);
@@ -452,7 +461,7 @@
   }
 
   function reactiveText(parent, fn) {
-    const node = document.createTextNode("");
+    const node = live(document.createTextNode(""));
     parent.appendChild(node);
     effect(() => { node.textContent = String(fn()); });
     return node;
@@ -460,7 +469,7 @@
 
   function text(fn) {
     if (typeof fn === "function") {
-      const node = document.createTextNode("");
+      const node = live(document.createTextNode(""));
       effect(() => { node.textContent = String(fn()); });
       return node;
     }
@@ -481,8 +490,11 @@
   }
 
   // ─── Conditional rendering ───────────────────────────
+  // A node drawn over a pre-rendered page may have been matched to the
+  // painted one, which is the one in the page (hydrate).
   function removeNodes(nodes) {
-    for (const n of nodes) {
+    for (const drawn of nodes) {
+      const n = inPage(drawn);
       if (n && n.parentNode) n.parentNode.removeChild(n);
     }
   }
@@ -514,6 +526,31 @@
 
   let _ssgMode = false;
   function setSsgMode(enabled) { _ssgMode = enabled; }
+
+  // ─── A pre-rendered page, taken over ────────────────
+  //
+  // The session the hydrate module opens while a pre-rendered page is
+  // drawn again (null otherwise), and whether a page was taken over rather
+  // than replaced.
+  let _hyd = null;
+  let _tookOver = false;
+
+  /// Something keeps hold of `node` — an effect, a listener, a widget, a
+  /// list — so it is the node the reader must end up with, not the painted
+  /// one in its place. Outside a takeover it does nothing.
+  function live(node, ...more) {
+    if (_hyd) {
+      if (node && typeof node === "object") _hyd.live.add(node);
+      for (const n of more) if (n && typeof n === "object") _hyd.live.add(n);
+    }
+    return node;
+  }
+
+  /// The node in the page for `node`: the painted one it was matched to,
+  /// when a pre-rendered page was taken over, or `node` itself.
+  function inPage(node) {
+    return (node && node.__wfAt) || node;
+  }
   function setBasePath(path) {
     _basePath = path.replace(/\/$/, "");
     // A link created before the base path was known compared against the
@@ -564,6 +601,7 @@
   }
 
   function classes(el, get) {
+    live(el);
     let prev = [];
     effect(() => {
       const next = classNames(get());
@@ -641,6 +679,9 @@
   // load's mount and its router's paint are one event, not two.
   let renderPending = null;
   function drawn(detail) {
+    // A page drawn over a pre-rendered one takes it over now that it is
+    // whole: its route, and the app around it.
+    if (_hyd && typeof takeOver === "function") takeOver();
     if (typeof document === "undefined" || typeof CustomEvent !== "function") return;
     const first = renderPending === null;
     renderPending = detail;

@@ -11,6 +11,7 @@
   // dialog itself (Escape, the backdrop) so the state follows; a
   // `visible:` that is a condition has no write, and stays as it is.
   function dialog(el, read, write) {
+    live(el);
     if (write === undefined && typeof read.set === "function") {
       const signal = read;
       write = (v) => signal.set(v);
@@ -35,6 +36,7 @@
   /// A keyboard user who opens a menu must be able to leave it without tabbing
   /// through every item, and must land back where they were.
   function popup(root, trigger, openSignal) {
+    live(root, trigger);
     document.addEventListener("click", (e) => {
       if (!root.contains(e.target)) openSignal.set(false);
     });
@@ -55,6 +57,7 @@
   /// keyboard puts focus on the first item; a pointer keeps focus on the
   /// button. `popup` supplies the outside click and Escape.
   function menu(root, trigger, list, openSignal) {
+    live(root, trigger, list);
     popup(root, trigger, openSignal);
     const items = () =>
       Array.from(list.children).filter((el) => {
@@ -109,6 +112,7 @@
   /// between tabs with the arrow keys, so Tab leaves the widget rather than
   /// walking through every tab in it.
   function tabs(nav, activeSignal) {
+    live(nav);
     nav.addEventListener("keydown", (e) => {
       const tabs = nav.querySelectorAll("button");
       if (!tabs.length) return;

@@ -127,6 +127,10 @@
         [
           "mainOf",
           "mainOf"
+        ],
+        [
+          "live",
+          "live"
         ]
       ],
       "name": "core",
@@ -870,6 +874,10 @@
         [
           "hydrate",
           "hydrate"
+        ],
+        [
+          "hydrating",
+          "hydrating"
         ]
       ],
       "name": "hydrate",

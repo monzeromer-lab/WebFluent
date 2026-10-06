@@ -158,8 +158,8 @@ The list and string helpers (`sortBy`, `groupBy`, `unique`, `take`,
 | `head` | `head(tags)` — a page's own head tags |
 | `host` | `attach(node, mount, update, cleanup)` — what `mount:`, `update:` and `cleanup:` compile to, on `Host` or any element; a component's fragment is attached at its root element |
 | `picture` | `picture(…)` — an `image`'s `<picture>` |
-| `hydrate` | `hydrate(fn, container)` — takes over a pre-rendered page |
-| `core` | `mount(fn, container)`, `mainOf(root)` — boot |
+| `hydrate` | `hydrate(fn, container)`, `hydrating(root)` — draw beside a pre-rendered page and take it over in place |
+| `core` | `mount(fn, container)`, `mainOf(root)` — boot; `live(node)` — something holds `node`, so a takeover keeps the drawn one rather than the painted one |
 | `debug` | `__debug`, `__reg` — for WebFluent Studio |
 
 ## Next

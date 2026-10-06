@@ -2129,7 +2129,7 @@ may too. Its surface:
 | Safety | `safeUrl(url)` → the URL where a browser may follow it, `""` where it may not; `sanitize(html)` → the allow-listed markup. Both have a build-time twin, pinned by a shared case table |
 | Text | `markdown(text)` → HTML; `highlight(code, lang)` → HTML with `wf-tok-*` spans (`wf`, `json`, `bash`, `css`), the twin of `codegen::highlight` |
 | Interop | `attach(node, mount, update, cleanup)` — what `mount:`/`update:`/`cleanup:` compile to on any element (a component's fragment is attached at its root); `wf:render` on `document` after each drawing; `jsonAttr(raw)` — an attribute holding JSON, as the prop it stands for |
-| Boot | `mount(fn, container)`; `hydrate(fn, container)`; `mainOf(root)`; `setBasePath`; `setSsgMode`; `__debug`, `__reg` (the studio's) |
+| Boot | `mount(fn, container)`; `hydrate(fn, container)` and `hydrating(root)` — draw beside a pre-rendered page and take it over in place; `live(node)` — something holds `node`, so the takeover keeps the drawn one; `mainOf(root)`; `setBasePath`; `setSsgMode`; `__debug`, `__reg` (the studio's) |
 | Scopes | `onCleanup(fn)` — run when what owns it leaves; `attempt(fn)` — an action that rolls itself back on a throw |
 | Keys | `onKey(node, combination, fn)`; `keyIs(event, combination)` — what `on key("ctrl+k")` compiles to |
 | Values | `caseOf(v)`, `payload(v)` read an enum case and its payload; `dateOf`, `timeOf`, `urlWith`, `urlQuery` are the scalar helpers behind `.date()`, `.time()`, `.with()` and `.query()` |
@@ -2326,8 +2326,10 @@ unicode-bidi: isolate; }` in the project's CSS.
 ```
 
 - Pre-renders each page to its own `index.html`
-- JavaScript hydrates for interactivity
 - Static content visible immediately (no blank screen)
+- JavaScript hydrates for interactivity: it takes the painted page over in
+  place — an element nothing holds stays as painted, never moved or drawn
+  again, so the first paint stays the page's largest
 - Dynamic content (state, if/for, fetch) handled by JS after hydration
 
 ## PDF Output

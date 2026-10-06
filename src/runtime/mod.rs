@@ -62,7 +62,7 @@ pub const MODULES: &[Module] = &[
         same("ref"), same("safeUrl"), same("jsonAttr"), same("el"), same("bound"), same("text"), same("props"),
         same("onRoot"), same("mark"), same("rootAttrs"), same("classes"), same("caseOf"), same("payload"),
         same("emit"), same("navigate"), same("setSsgMode"), same("setBasePath"),
-        same("theme"), same("setTheme"), same("mount"), same("mainOf"),
+        same("theme"), same("setTheme"), same("mount"), same("mainOf"), same("live"),
     ], deps: [], triggers: []),
     module!("motion", exports: [
         same("animate"), same("replay"), same("animateIn"), same("animateOut"),
@@ -133,7 +133,7 @@ pub const MODULES: &[Module] = &[
     module!("carousel", exports: [same("carousel")], deps: ["field"], triggers: []),
     module!("drawer", exports: [same("drawer")], deps: [], triggers: []),
     module!("head", exports: [same("head")], deps: [], triggers: []),
-    module!("hydrate", exports: [same("hydrate")], deps: [], triggers: []),
+    module!("hydrate", exports: [same("hydrate"), same("hydrating")], deps: [], triggers: []),
     module!("i18n", exports: [same("locales")], deps: ["format"], triggers: []),
     module!("picture", exports: [same("picture")], deps: [], triggers: []),
     module!("icons", exports: [], deps: [], triggers: ["\"data-icon\""]),

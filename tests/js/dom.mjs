@@ -121,6 +121,14 @@ class TextNode extends Node_ {
   set textContent(v) { this._text = String(v); }
 }
 
+// A comment: what `if`, `for` and `match` mark their place with. It shows
+// nothing.
+class Comment_ extends Node_ {
+  constructor(text) { super(); this.nodeType = 8; this._text = String(text); }
+  get textContent() { return ""; }
+  set textContent(v) { this._text = String(v); }
+}
+
 class Element extends Node_ {
   constructor(tag) {
     super();
@@ -181,7 +189,10 @@ class Element extends Node_ {
     if (k === "class") { const c = this.classList.toString(); return c === "" ? null : c; }
     return this.attributes.has(k) ? this.attributes.get(k) : null;
   }
-  hasAttribute(k) { return this.attributes.has(k); }
+  hasAttribute(k) { return k === "class" ? this.classList._set.size > 0 : this.attributes.has(k); }
+  getAttributeNames() {
+    return [...(this.classList._set.size ? ["class"] : []), ...this.attributes.keys()];
+  }
   removeAttribute(k) { this.attributes.delete(k); }
   addEventListener(type, fn) {
     if (!this._listeners.has(type)) this._listeners.set(type, []);
@@ -272,7 +283,7 @@ export function makeDom() {
     get activeElement() { return focused; },
     createElement: (t) => new Element(t),
     createTextNode: (t) => new TextNode(t),
-    createComment: () => new TextNode(""),
+    createComment: (t) => new Comment_(t || ""),
     createDocumentFragment: () => new DocumentFragment(),
     body: new Element("body"),
     head: new Element("head"),

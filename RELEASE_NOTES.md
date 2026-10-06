@@ -1,3 +1,25 @@
+# WebFluent v5.3.4 Release Notes
+
+A static page is no longer painted twice.
+
+## Fixes
+
+- **A pre-rendered page is taken over in place.** When a static build's
+  script arrived it drew the whole page again and replaced the one already on
+  screen. The reader saw nothing change, but the browser painted the page a
+  second time — and once a web font had arrived, the second paint of the
+  largest paragraph or image was larger than the first, so it became the
+  page's Largest Contentful Paint. On a phone a page that was readable in
+  under a second scored an LCP of 3.6 s. The script now draws beside the
+  painted page and takes it over: an element nothing holds stays exactly as
+  painted, its attributes brought up to date; one a handler, an effect, a
+  `ref`, a widget or a list holds is put where the painted one stood. The
+  first paint stays the largest, and the reader keeps their scroll, focus and
+  selection. A page that cannot be matched is drawn again whole, as before.
+- **Under `wf serve`, a takeover is checked.** The runtime compares the page
+  it took over with the one it drew, and says so in the console when they
+  differ.
+
 # WebFluent v5.3.3 Release Notes
 
 Fixes found getting ready for launch, and the project's new terms.

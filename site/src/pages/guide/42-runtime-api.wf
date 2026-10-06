@@ -374,11 +374,11 @@ WF.storeSnapshot("Cart");"#, title: "js")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`hydrate`") }
-                    Table.Cell { Markdown("`hydrate(fn, container)` — takes over a pre-rendered page") }
+                    Table.Cell { Markdown("`hydrate(fn, container)`, `hydrating(root)` — draw beside a pre-rendered page and take it over in place") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`core`") }
-                    Table.Cell { Markdown("`mount(fn, container)`, `mainOf(root)` — boot") }
+                    Table.Cell { Markdown("`mount(fn, container)`, `mainOf(root)` — boot; `live(node)` — something holds `node`, so a takeover keeps the drawn one rather than the painted one") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`debug`") }

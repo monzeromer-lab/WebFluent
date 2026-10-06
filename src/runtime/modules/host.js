@@ -20,6 +20,8 @@
       node = [...node.childNodes].find((n) => n.nodeType === 1);
       if (!node) return undefined;
     }
+    // Somebody else's code holds the node from here on (hydrate).
+    live(node);
     let handle;
     try {
       handle = typeof mount === "function" ? mount(node) : undefined;

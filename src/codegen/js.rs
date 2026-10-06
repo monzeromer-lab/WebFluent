@@ -782,7 +782,13 @@ impl JsCodegen {
                 }
                 self.indent -= 1;
                 self.emit_line("];");
-                self.emit_line("const container = WF.mainOf(document.getElementById('app'));");
+                if self.ssg_mode {
+                    self.emit_line(
+                        "const container = WF.mainOf(WF.hydrating(document.getElementById('app')));",
+                    );
+                } else {
+                    self.emit_line("const container = WF.mainOf(document.getElementById('app'));");
+                }
                 self.emit_line("WF.router(routes, container);");
                 self.indent -= 1;
                 self.emit_line("})();");
@@ -1599,6 +1605,7 @@ impl JsCodegen {
         // that builds its content, so `children` (and a named slot) can be
         // placed anywhere in the body — including inside a conditional or a
         // loop, whose closures see the parameter.
+        let start = self.output.len();
         self.emit_line(&format!(
             "function Component_{}(_p, _slots) {{",
             js_component(&comp.name)
@@ -1632,6 +1639,7 @@ impl JsCodegen {
             }
         }
 
+        self.emit_held_elements(start);
         self.emit_line("return _frag;");
         self.indent -= 1;
         self.emit_line("}");
@@ -1642,6 +1650,7 @@ impl JsCodegen {
     // ─── Page ────────────────────────────────────────
 
     fn emit_page(&mut self, page: &PageDecl) {
+        let start = self.output.len();
         self.emit_line(&format!("function Page_{}(params) {{", page.name));
         self.indent += 1;
         self.page_params = page.params.iter().map(|p| p.name.clone()).collect();
@@ -1712,6 +1721,7 @@ impl JsCodegen {
             self.emit_line(&format!("WF.head([{}]);", tags.join(", ")));
         }
 
+        self.emit_held_elements(start);
         self.emit_line("return _root;");
         self.indent -= 1;
         self.emit_line("}");
@@ -1722,10 +1732,17 @@ impl JsCodegen {
     // ─── App ─────────────────────────────────────────
 
     fn emit_app(&mut self, app: &AppDecl) {
+        let start = self.output.len();
         self.emit_line("(function() {");
         self.indent += 1;
-        self.emit_line("const _app = document.getElementById('app');");
-        self.emit_line("_app.innerHTML = '';");
+        if self.ssg_mode {
+            // A pre-rendered page is drawn again beside itself, then taken
+            // over in place (runtime/modules/hydrate.js).
+            self.emit_line("const _app = WF.hydrating(document.getElementById('app'));");
+        } else {
+            self.emit_line("const _app = document.getElementById('app');");
+            self.emit_line("_app.innerHTML = '';");
+        }
 
         // The app's own state, declared before anything reads it — as a
         // page's is. An `app { state chosen = "en" … }` compiled every read
@@ -1803,6 +1820,7 @@ impl JsCodegen {
                     parts
                 })
                 .unwrap_or_default();
+            self.emit_held_elements(start);
             if options.is_empty() {
                 self.emit_line("WF.router(_routes, _routerEl);");
             } else {
@@ -6106,6 +6124,20 @@ impl JsCodegen {
 
     // ─── Helpers ─────────────────────────────────────
 
+    /// `WF.live(…)` for the elements the function begun at `start` hands to
+    /// a closure of its own, so a pre-rendered page taken over in place
+    /// keeps those as drawn (see `capture`). Only a static build takes a
+    /// page over.
+    fn emit_held_elements(&mut self, start: usize) {
+        if !self.ssg_mode {
+            return;
+        }
+        let held = crate::codegen::capture::captured_elements(&self.output[start..]);
+        if !held.is_empty() {
+            self.emit_line(&format!("WF.live({});", held.join(", ")));
+        }
+    }
+
     fn emit_line(&mut self, text: &str) {
         let indent = "  ".repeat(self.indent);
         self.output.push_str(&format!("{}{}\n", indent, text));
@@ -7151,6 +7183,49 @@ mod tests {
     fn compile(src: &str) -> String {
         let program = crate::syntax::parse_source(src, "<t>").expect("parse");
         JsCodegen::new().generate(&crate::sema::lower(program))
+    }
+
+    fn compile_ssg(src: &str) -> String {
+        let program = crate::syntax::parse_source(src, "<t>").expect("parse");
+        let mut codegen = JsCodegen::new();
+        codegen.set_ssg(true);
+        codegen.generate(&crate::sema::lower(program))
+    }
+
+    /// A static build draws its app beside the pre-rendered one and takes
+    /// that over (runtime/modules/hydrate.js); a single-page build still
+    /// clears the root.
+    #[test]
+    fn a_static_build_draws_beside_the_painted_page_and_names_what_its_closures_hold() {
+        let src = concat!(
+            "app { Router }\n",
+            "page P(path: \"/\") {\n",
+            "  state pct = 30\n",
+            "  Heading(\"Kept\").h1\n",
+            "  Stack { style { width: {pct}% } }\n",
+            "  Tabs { Tabs.Page(\"One\") { Text(\"1\") } Tabs.Page(\"Two\") { Text(\"2\") } }\n",
+            "}",
+        );
+        let ssg = compile_ssg(src);
+        assert!(
+            ssg.contains("const _app = WF.hydrating(document.getElementById('app'));"),
+            "{ssg}"
+        );
+        assert!(!ssg.contains("_app.innerHTML = ''"), "{ssg}");
+        let live = ssg
+            .lines()
+            .find(|l| l.trim_start().starts_with("WF.live("))
+            .expect("a WF.live line");
+        // The bar whose width follows `pct`, and the tab pages an effect shows.
+        let held = live.matches("_e").count();
+        assert!(held >= 3, "{live}");
+        let spa = compile(src);
+        assert!(spa.contains("_app.innerHTML = '';"), "{spa}");
+        assert!(
+            !spa.contains("WF.live("),
+            "a single-page build takes nothing over: {spa}"
+        );
+        assert!(!spa.contains("WF.hydrating("), "{spa}");
     }
 
     #[test]

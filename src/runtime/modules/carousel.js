@@ -1,4 +1,5 @@
   function carousel(root, options) {
+    live(root);
     const opts = options || {};
     const track = root.querySelector(".wf-carousel__track");
     if (!track) return null;

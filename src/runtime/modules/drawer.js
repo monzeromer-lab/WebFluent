@@ -1,4 +1,5 @@
   function drawer(panel, toggle, scrim) {
+    live(panel, toggle, scrim);
     if (!panel || !toggle) return;
     let open = false;
 

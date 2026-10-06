@@ -12,6 +12,7 @@
 //! what a `Card` or a `Heading` is.
 
 pub mod builtin;
+pub mod capture;
 pub mod charts;
 pub mod csp;
 pub mod css;
