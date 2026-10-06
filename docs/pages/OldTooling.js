@@ -1,2 +1,2 @@
-function Page_OldTooling(params){const _root=document.createDocumentFragment();const _e438=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("ch.37"));_root.appendChild(_e438);const _e439=WF.el("a",{className:"wf-link",href:WF._basePath+"/docs/guide/cli"},()=>WF.i18n.t("ch.37"));WF.activeLink(_e439,"/docs/guide/cli",false);_root.appendChild(_e439);return _root;}
+function Page_OldTooling(params){const _root=document.createDocumentFragment();const _e472=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("ch.37"));_root.appendChild(_e472);const _e473=WF.el("a",{className:"wf-link",href:WF._basePath+"/docs/guide/cli"},()=>WF.i18n.t("ch.37"));WF.activeLink(_e473,"/docs/guide/cli",false);_root.appendChild(_e473);return _root;}
 WF.page("OldTooling",Page_OldTooling);
