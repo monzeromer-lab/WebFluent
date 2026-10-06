@@ -145,14 +145,15 @@ zip-windows:
 test:
     cargo test
 
+# `typo` must fail `wf check`, with the T05 its video shows.
 # Build every launch-video project under examples/videos, as CI does
-# (`typo` must fail `wf check`, with the T05 its video shows)
 examples: release
     scripts/video-examples.sh target/release/wf
 
-# PDF benchmark: one invoice through `wf` and through Puppeteer (headless
-# Chrome), cold and warm, timed and weighed; rewrites bench/pdf/RESULTS.md.
-# The first run downloads Puppeteer's browsers (~300 MB) into bench/pdf/.cache.
+# One invoice through `wf` and through Puppeteer (headless Chrome), cold and
+# warm, timed and weighed. The first run downloads Puppeteer's browsers
+# (~300 MB) into bench/pdf/.cache.
+# PDF benchmark against headless Chrome; rewrites bench/pdf/RESULTS.md
 bench-pdf:
     cargo build --release --locked --bin wf
     cargo build --release --locked --manifest-path bench/pdf/rust/Cargo.toml
