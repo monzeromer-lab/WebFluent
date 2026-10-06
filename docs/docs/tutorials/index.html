@@ -62,9 +62,9 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <button class="wf-icon-btn site-icon-button" type="button"></button>
+                    <button class="wf-icon-btn site-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
-                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
+                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" data-track="select_content" data-track-content-type="language" type="button"></button>
                     <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
@@ -363,7 +363,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
@@ -380,7 +380,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
@@ -392,7 +392,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{
   &quot;name&quot;: &quot;todos&quot;,
@@ -416,7 +416,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/types.wf
 /// One thing to do.
@@ -438,7 +438,7 @@ enum Filter { all, open, done }</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/stores/Todos.wf
 /// The list, kept in the browser between visits.
@@ -468,7 +468,7 @@ store Todos {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/components/TodoRow.wf
 /// One row of the list: a box to tick, the title, and buttons to rename and
@@ -515,7 +515,7 @@ component TodoRow(_ todo: Todo) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/pages/Home.wf
 page Home(path: &quot;/&quot;, title: &quot;Todos&quot;, description: &quot;A small list of things to do, kept in your browser.&quot;) {
@@ -559,7 +559,7 @@ page Home(path: &quot;/&quot;, title: &quot;Todos&quot;, description: &quot;A sm
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/pages/Home.wf
         Row(class: &quot;filters&quot;, gap: .xs, align: .center) {
@@ -593,7 +593,7 @@ page Home(path: &quot;/&quot;, title: &quot;Todos&quot;, description: &quot;A sm
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/App.wf
 // The frame every page sits in: a narrow column, centred.
@@ -609,7 +609,7 @@ app {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/theme.wf
 /// Warm paper and ink, with one teal for what you can act on.
@@ -632,7 +632,7 @@ theme Paper {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">css</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="css" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">.todo { flex-wrap: nowrap; padding: 0.6rem 0.25rem; border-top: 1px solid var(--color-border); }
 .todo__title { flex: 1; }
@@ -645,7 +645,7 @@ theme Paper {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// tests/todos.wf
 test &quot;adding a todo puts it in the list&quot; {
@@ -672,7 +672,7 @@ test &quot;adding a todo puts it in the list&quot; {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
@@ -689,7 +689,7 @@ test &quot;adding a todo puts it in the list&quot; {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
@@ -698,7 +698,7 @@ test &quot;adding a todo puts it in the list&quot; {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{
   &quot;name&quot;: &quot;field-notes&quot;,
@@ -730,7 +730,7 @@ test &quot;adding a todo puts it in the list&quot; {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/theme.wf
 /// The dark theme: only the tokens that change.
@@ -756,7 +756,7 @@ theme Dusk {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/types.wf
 /// One note in the notebook.
@@ -782,7 +782,7 @@ data notes: [Note] = &quot;notes.json&quot;</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/App.wf
 app {
@@ -818,7 +818,7 @@ app {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/components/Sheet.wf
 /// The column a page is set in, and the frame every page names with
@@ -839,7 +839,7 @@ component Sheet(wide: Bool = false) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/components/NoteCard.wf
 /// A note at a glance: when it was written, its title, a summary, its tags
@@ -873,7 +873,7 @@ component NoteCard(
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/components/NoteFinder.wf
     state q = &quot;&quot;
@@ -896,7 +896,7 @@ component NoteCard(
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/components/NoteFinder.wf
             // Every note is drawn, and the ones that do not match are hidden.
@@ -915,7 +915,7 @@ component NoteCard(
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/pages/Home.wf
         // `query.tag` is the URL&#x27;s `?tag=…`; it is missing when the URL has
@@ -928,7 +928,7 @@ component NoteCard(
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/pages/NotePage.wf
 page NotePage(path: &quot;/notes/:slug&quot;, slug: String,
@@ -948,7 +948,7 @@ page NotePage(path: &quot;/notes/:slug&quot;, slug: String,
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/pages/NotePage.wf
             Markdown(n.body)</code>
@@ -962,7 +962,7 @@ page NotePage(path: &quot;/notes/:slug&quot;, slug: String,
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/pages/Tags.wf
         Grid(columns: { base: 1, md: 2 }, gap: .md, align: .start) {
@@ -978,7 +978,7 @@ page NotePage(path: &quot;/notes/:slug&quot;, slug: String,
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">markdown</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="markdown" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">---
 path: /about
@@ -994,7 +994,7 @@ layout: Sheet
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/stores/Saved.wf
 /// The notes this reader has saved for later, kept in their browser.
@@ -1011,7 +1011,7 @@ store Saved {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/components/SaveButton.wf
 /// Saves a note for later, or takes it off the saved list.
@@ -1035,7 +1035,7 @@ component SaveButton(_ slug: String, title: String) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// tests/NoteFinder.wf
 test &quot;a search that matches nothing says so, and clears&quot; {
@@ -1056,7 +1056,7 @@ test &quot;a search that matches nothing says so, and clears&quot; {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
@@ -1073,7 +1073,7 @@ test &quot;a search that matches nothing says so, and clears&quot; {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{
   &quot;name&quot;: &quot;pocket&quot;,
@@ -1110,7 +1110,7 @@ test &quot;a search that matches nothing says so, and clears&quot; {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/types.wf
 /// Which way the money went.
@@ -1143,7 +1143,7 @@ type Entry {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/types.wf
 /// Nothing yet: the starting point every sum adds to.
@@ -1158,7 +1158,7 @@ const ONE: Money = $1.00</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/stores/Ledger.wf
     derived today = now.date()
@@ -1182,7 +1182,7 @@ const ONE: Money = $1.00</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/stores/Ledger.wf
     // The money in a list of entries, added up.
@@ -1196,7 +1196,7 @@ const ONE: Money = $1.00</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/stores/Ledger.wf
     // Version 1 of Pocket kept an amount as a plain, signed number of
@@ -1233,7 +1233,7 @@ const ONE: Money = $1.00</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/App.wf
             if Ui.menuOpen {
@@ -1254,7 +1254,7 @@ const ONE: Money = $1.00</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/components/MonthChart.wf
 /// Six months of money in and money out, as pairs of bars.
@@ -1285,7 +1285,7 @@ component MonthChart(months: [MonthTotal], top: Number) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/pages/Dashboard.wf
     Grid(columns: { base: 2, xl: 4 }, gap: .md) {
@@ -1305,7 +1305,7 @@ component MonthChart(months: [MonthTotal], top: Number) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/pages/Entries.wf
     // The filters live in the address — `/entries?month=2026-09&amp;category=dining` —
@@ -1323,7 +1323,7 @@ component MonthChart(months: [MonthTotal], top: Number) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/components/EntryForm.wf
 /// The form for a new entry — or, given one, for changing it. It checks what
@@ -1358,7 +1358,7 @@ component EntryForm(entry: Entry? = null) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/components/EntryForm.wf
         Row(justify: .end, gap: .sm) {
@@ -1374,7 +1374,7 @@ component EntryForm(entry: Entry? = null) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/App.wf
     // `n` opens a new entry from anywhere. A key with no modifier is left to
@@ -1390,7 +1390,7 @@ component EntryForm(entry: Entry? = null) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/App.wf
     Modal(visible: Ui.composing, title: t(&quot;compose.title&quot;)) {
@@ -1410,7 +1410,7 @@ component EntryForm(entry: Entry? = null) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{
   &quot;entries.zero&quot;: &quot;No entries&quot;,
@@ -1427,7 +1427,7 @@ component EntryForm(entry: Entry? = null) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/pages/Settings.wf
     action exportCsv() {
@@ -1443,7 +1443,7 @@ component EntryForm(entry: Entry? = null) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// src/pages/Settings.wf
         let added = Ledger.merge(parsed)
@@ -1458,7 +1458,7 @@ component EntryForm(entry: Entry? = null) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// tests/pocket.wf
 test &quot;an entry added through the form moves the balance&quot; {
@@ -1480,7 +1480,7 @@ test &quot;an entry added through the form moves the balance&quot; {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
@@ -1497,7 +1497,7 @@ test &quot;an entry added through the form moves the balance&quot; {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Search(path: &quot;/&quot;) {
     state typed = &quot;&quot;
@@ -1525,7 +1525,7 @@ test &quot;an entry added through the form moves the balance&quot; {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Rows(path: &quot;/&quot;) {
     state page = 1
@@ -1551,7 +1551,7 @@ test &quot;an entry added through the form moves the balance&quot; {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Item { id: String, liked: Bool }
 
@@ -1580,7 +1580,7 @@ page Likes(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">component Confirm(_ title: String, visible: Bool, danger: Bool = false) {
     event confirm()
@@ -1613,7 +1613,7 @@ page Use(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Nav(path: &quot;/&quot;) {
     state open = false
@@ -1641,7 +1641,7 @@ page Use(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Signup(path: &quot;/&quot;) {
     state email = &quot;&quot;
@@ -1670,7 +1670,7 @@ page Use(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Account(path: &quot;/account&quot;) {
     derived tab = if hash != &quot;&quot; { hash } else { &quot;profile&quot; }
@@ -1691,7 +1691,7 @@ page Use(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Cart { state count = 0 }
 
@@ -1710,7 +1710,7 @@ page Shop(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Countdown(path: &quot;/&quot;) {
     state left = 10
@@ -1725,7 +1725,7 @@ page Shop(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type User { id: String, name: String }
 
@@ -1792,7 +1792,7 @@ page Account(path: &quot;/account&quot;, title: &quot;Your account&quot;, descri
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Item { id: String, name: String }
 
@@ -1816,7 +1816,7 @@ page Items(path: &quot;/items&quot;, title: &quot;Items&quot;, description: &quo
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Products(path: &quot;/products&quot;, title: &quot;Products&quot;, description: &quot;Everything we sell.&quot;) {
     derived sort = query.sort ?? &quot;name&quot;
@@ -1837,7 +1837,7 @@ page Items(path: &quot;/items&quot;, title: &quot;Items&quot;, description: &quo
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Settings(path: &quot;/settings&quot;, title: &quot;Settings&quot;, description: &quot;How the site looks.&quot;) {
     Heading(&quot;Settings&quot;).h1
@@ -1857,7 +1857,7 @@ page Items(path: &quot;/items&quot;, title: &quot;Items&quot;, description: &quo
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Share(path: &quot;/share&quot;, title: &quot;Share&quot;, description: &quot;Copy the link.&quot;) {
     state copied = false

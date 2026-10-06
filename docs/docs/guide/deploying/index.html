@@ -62,9 +62,9 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <button class="wf-icon-btn site-icon-button" type="button"></button>
+                    <button class="wf-icon-btn site-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
-                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
+                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" data-track="select_content" data-track-content-type="language" type="button"></button>
                     <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
@@ -299,7 +299,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
@@ -315,7 +315,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">yaml</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="yaml" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">name: Deploy
 on:
@@ -353,7 +353,7 @@ jobs:
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">toml</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="toml" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">[build]
   command = &quot;curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash &amp;&amp; ~/.webfluent/bin/wf build&quot;
@@ -375,7 +375,7 @@ jobs:
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{
   &quot;buildCommand&quot;: &quot;curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash &amp;&amp; ~/.webfluent/bin/wf build&quot;,
@@ -401,7 +401,7 @@ jobs:
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">nginx</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="nginx" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">server {
     listen 443 ssl http2;
@@ -437,7 +437,7 @@ jobs:
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">apache</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="apache" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Options -MultiViews
 RewriteEngine On
@@ -457,7 +457,7 @@ Header always set X-Frame-Options &quot;DENY&quot;</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">example.com {
     root * /var/www/site
@@ -475,7 +475,7 @@ Header always set X-Frame-Options &quot;DENY&quot;</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">dockerfile</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="dockerfile" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">FROM debian:stable-slim AS build
 RUN apt-get update &amp;&amp; apt-get install -y curl ca-certificates
@@ -571,7 +571,7 @@ COPY --from=build /site/build /usr/share/nginx/html</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">nginx</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="nginx" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">location /api/ {
     proxy_pass http://127.0.0.1:8080/;

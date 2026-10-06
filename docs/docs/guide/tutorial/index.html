@@ -62,9 +62,9 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <button class="wf-icon-btn site-icon-button" type="button"></button>
+                    <button class="wf-icon-btn site-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
-                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
+                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" data-track="select_content" data-track-content-type="language" type="button"></button>
                     <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
@@ -292,7 +292,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
@@ -304,7 +304,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{
   &quot;name&quot;: &quot;shelf&quot;,
@@ -329,7 +329,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">[
   { &quot;slug&quot;: &quot;notes-on-the-analytical-engine&quot;, &quot;title&quot;: &quot;Notes on the Analytical Engine&quot;,
@@ -354,7 +354,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">/// One book on the list.
 type Book {
@@ -381,7 +381,7 @@ data books: [Book] = &quot;books.json&quot;</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// … reads what the other steps declare
 /// A book at a glance, with the button that puts it on the shelf.
@@ -419,7 +419,7 @@ component BookCard(_ book: Book) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">/// The books the reader wants to read, kept across visits.
 store Shelf {
@@ -447,7 +447,7 @@ store Shelf {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// … reads what the other steps declare
 app {
@@ -471,7 +471,7 @@ app {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// … reads what the other steps declare
 page Home(path: &quot;/&quot;, title: &quot;Shelf&quot;, description: &quot;Books worth reading, and the ones you want to.&quot;) {
@@ -506,7 +506,7 @@ page Home(path: &quot;/&quot;, title: &quot;Shelf&quot;, description: &quot;Book
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// … reads what the other steps declare
 page BookPage(path: &quot;/books/:slug&quot;, slug: String, title: &quot;Book&quot;, description: &quot;One book on the shelf.&quot;, type: &quot;article&quot;, paths: books.map(b =&gt; b.slug)) {
@@ -544,7 +544,7 @@ page BookPage(path: &quot;/books/:slug&quot;, slug: String, title: &quot;Book&qu
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// … reads what the other steps declare
 page ShelfPage(path: &quot;/shelf&quot;, title: &quot;Your shelf&quot;, description: &quot;The books you want to read.&quot;) {
@@ -571,7 +571,7 @@ page ShelfPage(path: &quot;/shelf&quot;, title: &quot;Your shelf&quot;, descript
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page NotFound(path: &quot;*&quot;, title: &quot;Not found&quot;, description: &quot;Nothing lives at this address.&quot;, noindex: true) {
     Container {
@@ -592,7 +592,7 @@ page ShelfPage(path: &quot;/shelf&quot;, title: &quot;Your shelf&quot;, descript
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Suggest(path: &quot;/suggest&quot;, title: &quot;Suggest a book&quot;, description: &quot;Tell us what belongs on the shelf.&quot;) {
     state title = &quot;&quot;
@@ -631,7 +631,7 @@ page ShelfPage(path: &quot;/shelf&quot;, title: &quot;Your shelf&quot;, descript
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">api Suggestions(base: env.PUBLIC_API ?? &quot;/api&quot;) {
     post suggest(body: Map)
@@ -655,7 +655,7 @@ on submit {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">theme Paper {
     color-primary: #6D28D9
@@ -683,7 +683,7 @@ theme Ink {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">// … reads what the other steps declare
 test &quot;a card shows who wrote the book, and when&quot; {
@@ -705,7 +705,7 @@ test &quot;a book goes on the shelf, and comes off again&quot; {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
@@ -718,7 +718,7 @@ test &quot;a book goes on the shelf, and comes off again&quot; {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
@@ -734,7 +734,7 @@ test &quot;a book goes on the shelf, and comes off again&quot; {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{
   &quot;build&quot;: { &quot;ssg&quot;: true, &quot;csp&quot;: true, &quot;base_path&quot;: &quot;/shelf&quot; },
@@ -749,7 +749,7 @@ test &quot;a book goes on the shelf, and comes off again&quot; {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">yaml</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="yaml" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">name: Deploy
 on:
@@ -787,7 +787,7 @@ jobs:
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Book {
     slug: String

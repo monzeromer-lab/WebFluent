@@ -62,9 +62,9 @@
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s8947c952">/</p>
                     </div>
-                    <button class="wf-icon-btn site-icon-button" type="button"></button>
+                    <button class="wf-icon-btn site-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
-                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
+                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" data-track="select_content" data-track-content-type="language" type="button"></button>
                     <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
@@ -418,7 +418,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Typed(path: &quot;/&quot;) {
     state name: String = &quot;&quot;
@@ -611,7 +611,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Booking {
     id: Uuid
@@ -746,7 +746,7 @@ page Stay(path: &quot;/&quot;, title: &quot;Stay&quot;, description: &quot;One b
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">state site: Url = &quot;https://example.com&quot;     // fine
 state bad: Url = &quot;example&quot;                  // T01: A URL has a scheme</code>
@@ -760,7 +760,7 @@ state bad: Url = &quot;example&quot;                  // T01: A URL has a scheme
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Feed(path: &quot;/&quot;, title: &quot;Feed&quot;, description: &quot;What just happened.&quot;) {
     state posted: DateTime = @2026-03-14T09:30:00Z
@@ -778,7 +778,7 @@ state bad: Url = &quot;example&quot;                  // T01: A URL has a scheme
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">state nights: Number(1..=30) = 12
 state pass: String(minLength: 8) = &quot;correcthorse&quot;
@@ -796,7 +796,7 @@ state start: Date(after: @2026-01-01) = @2026-03-14</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">state token: Secret = &quot;&quot;
 Text(token)                     // shown
@@ -817,7 +817,7 @@ log(token)                      // in the console, and often in a log service</c
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">enum Tone { neutral, info, danger }
 
@@ -861,7 +861,7 @@ page Records(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">enum Size { sm, md, lg }
 enum Status { idle, running(job: String), failed(reason: String), done(count: Number) }
@@ -896,7 +896,7 @@ page Enums(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Shapes(path: &quot;/&quot;) {
     state form = { name: &quot;&quot;, age: 0, tags: [&quot;new&quot;] }
@@ -922,7 +922,7 @@ page Enums(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Row { id: Number, label: String, score: Number? }
 
@@ -956,7 +956,7 @@ page Infer(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Todo { id: String, title: String, note: String? }
 
@@ -984,7 +984,7 @@ page Narrow(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Deploy { id: String, status: String, startedAt: String }
 
