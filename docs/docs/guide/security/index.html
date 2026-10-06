@@ -423,11 +423,13 @@ store Session {
   &quot;meta&quot;: {
     &quot;scripts&quot;: [{ &quot;src&quot;: &quot;https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX&quot;, &quot;async&quot;: true }],
     &quot;connect&quot;: [&quot;https://*.google-analytics.com&quot;, &quot;https://*.analytics.google.com&quot;,
-                &quot;https://www.googletagmanager.com&quot;]
+                &quot;https://www.googletagmanager.com&quot;],
+    &quot;img&quot;: [&quot;https://*.google-analytics.com&quot;, &quot;https://www.googletagmanager.com&quot;]
   }
 }</code>
                             </div>
                             <div class="wf-markdown">
+<p>Images follow the same rule: a page's own origin and <code>data:</code>, unless <code>meta.img</code> names others, which join <code>img-src</code> — a CDN, or the pixels a tag requests (<code>https://www.googletagmanager.com/a</code>, <code>/td</code>), which a tag assistant otherwise reports as blocked.</p>
 <p>A tag manager's own set-up — the <code>dataLayer</code> and the <code>gtag('config', …)</code> call a vendor pastes as an inline <code>&lt;script&gt;</code> — is a plain script under <code>src/</code>, which the policy already allows.</p>
 <p><strong>The build checks its own output against it.</strong> Every HTML file is read back and held to the policy it carries: an inline <code>&lt;script&gt;</code>, a <code>&lt;style&gt;</code>, a <code>style=</code> attribute, an <code>on*</code> attribute, or a script or stylesheet from an origin the policy never named stops the build. A policy is a promise about what a page contains, and this is how the promise is kept — the browser would enforce it and show a blank page. A page's own <code>head { script(src: …) }</code> or stylesheet <code>link</code> is added on the live page, after the HTML is written, so it is held to the policy where it is written instead: one from an origin the config does not declare is an <code>E902</code> on that line.</p>
 <p>One thing is allowed rather than refused: a <code>style { }</code> value that <strong>reads state</strong> is written on the element, because there is nowhere else for it to go. Where a build emits one, <code>style-src</code> gains <code>'unsafe-inline'</code> and the build names the pages that caused it, so the stricter policy is one edit away. A literal in a <code>style { }</code> block is already a shared class and costs nothing.</p>
