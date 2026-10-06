@@ -150,6 +150,15 @@ test:
 examples: release
     scripts/video-examples.sh target/release/wf
 
+# PDF benchmark: one invoice through `wf` and through Puppeteer (headless
+# Chrome), cold and warm, timed and weighed; rewrites bench/pdf/RESULTS.md.
+# The first run downloads Puppeteer's browsers (~300 MB) into bench/pdf/.cache.
+bench-pdf:
+    cargo build --release --locked --bin wf
+    cargo build --release --locked --manifest-path bench/pdf/rust/Cargo.toml
+    cd bench/pdf && npm ci --no-audit --no-fund
+    node bench/pdf/run.mjs
+
 # Formatting, clippy and the build, one by one, as CI runs them
 # (`just check --fix` formats first; `just check --test` runs the tests too)
 check *args:

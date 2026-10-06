@@ -1,0 +1,206 @@
+// The benchmark invoice, as a WebFluent template.
+//
+// Its twin is chrome/template.mjs + chrome/invoice.css: the same layout,
+// the same fonts (fonts/, beside this file) and the same data
+// (invoice.json). Both are styled explicitly rather than leaning on either
+// engine's defaults, so the two documents come out alike.
+
+theme Ledger {
+    color-primary: #0F766E
+    color-text: #0F172A
+    color-text-muted: #64748B
+    color-border: #E2E8F0
+    font-family: Manrope, sans-serif
+}
+
+/// A small upper-case caption over a block.
+component Label(_ text: String) {
+    Text(text) {
+        style {
+            font-size: 7pt
+            font-weight: 700
+            letter-spacing: 0.12em
+            text-transform: uppercase
+            color: #64748B
+            margin: 0 0 4pt 0
+        }
+    }
+}
+
+/// One line of the issued / terms / PO / due box.
+component MetaRow(_ label: String, value: String, mono: Bool = false, due: Bool = false) {
+    Row(justify: .between) {
+        style { padding: 2pt 0 }
+        Text(label) { style { color: #64748B; margin: 0 } }
+        if mono {
+            Text(value) { style { font-family: "JetBrains Mono", monospace; margin: 0 } }
+        } else if due {
+            Text(value) { style { font-weight: 800; color: #0F766E; margin: 0 } }
+        } else {
+            Text(value) { style { margin: 0 } }
+        }
+    }
+}
+
+/// One line of the totals box.
+component TotalRow(_ label: String, value: String) {
+    Row(justify: .between) {
+        style { padding: 6pt 12pt; border-bottom: 0.5pt solid #E2E8F0 }
+        Text(label) { style { margin: 0 } }
+        Text(value) { style { font-family: "JetBrains Mono", monospace; margin: 0 } }
+    }
+}
+
+/// A plain line of text with no spacing of its own.
+component Line(_ text: String, strong: Bool = false) {
+    if strong {
+        Text(text) { style { margin: 0; font-weight: 700 } }
+    } else {
+        Text(text) { style { margin: 0 } }
+    }
+}
+
+page Invoice(path: "/", title: "Invoice {number}") {
+    Document(size: "Letter", margin: "54pt 54pt 64pt 54pt", title: "Invoice {number} — {studio.name}", author: studio.name) {
+        style { font-size: 9pt; line-height: 1.5; color: #0F172A }
+
+        Watermark("PAID") {
+            style { color: rgba(15, 118, 110, 0.10); font-size: 120pt; font-weight: 700; letter-spacing: 0.05em }
+        }
+        Footer {
+            Row(justify: .between) {
+                style { font-size: 7pt; color: #64748B; border-top: 0.5pt solid #E2E8F0; padding-top: 6pt }
+                Text("{studio.name} · {studio.street} · {studio.city} · {studio.email}") { style { margin: 0 } }
+                Text("Invoice {number} · page {page} of {pages}") { style { margin: 0 } }
+            }
+        }
+
+        // Letterhead
+        Row(justify: .between, align: .start) {
+            style { padding-bottom: 18pt; border-bottom: 1pt solid #E2E8F0 }
+            Row(align: .center) {
+                style { gap: 10pt }
+                Image(src: "/logo.svg", alt: "") { style { width: 34pt; height: 34pt } }
+                Stack {
+                    style { gap: 2pt }
+                    Text(studio.name) { style { margin: 0; font-size: 15pt; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2 } }
+                    Text(studio.tagline) { style { margin: 0; color: #64748B; font-size: 8pt } }
+                }
+            }
+            Stack {
+                style { text-align: right; gap: 4pt }
+                Heading("Invoice").h1 {
+                    style { margin: 0; font-size: 26pt; font-weight: 800; letter-spacing: -0.03em; color: #0F766E; line-height: 1 }
+                }
+                Text("No. {number}") { style { margin: 0; font-family: "JetBrains Mono", monospace; color: #64748B } }
+            }
+        }
+
+        // From, bill to, and the dates
+        Grid {
+            style { grid-template-columns: 1fr 1fr 0.9fr; gap: 18pt; margin: 18pt 0 }
+            Stack {
+                style { gap: 0 }
+                Label("From")
+                Line(studio.name).strong
+                Line(studio.street)
+                Line(studio.city)
+                Line(studio.ein)
+            }
+            Stack {
+                style { gap: 0 }
+                Label("Bill to")
+                Line(client.name).strong
+                Line(client.attn)
+                Line(client.street)
+                Line(client.city)
+            }
+            Stack {
+                style { gap: 0; background: #F0FDFA; border: 1pt solid #CCFBF1; border-radius: 6pt; padding: 10pt 12pt }
+                MetaRow("Issued", value: issued)
+                MetaRow("Terms", value: terms)
+                MetaRow("PO", value: po).mono
+                MetaRow("Due", value: due).due
+            }
+        }
+
+        // The lines
+        Table {
+            style { width: 100%; border-collapse: collapse; margin: 4pt 0 0 0 }
+            Table.Head {
+                Table.Row {
+                    Table.Cell("#") { style { background: #0F172A; color: #F8FAFC; font-size: 7pt; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 7pt 8pt; text-align: right; border: none } }
+                    Table.Cell("Description") { style { background: #0F172A; color: #F8FAFC; font-size: 7pt; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 7pt 8pt; text-align: left; border: none } }
+                    Table.Cell("Qty") { style { background: #0F172A; color: #F8FAFC; font-size: 7pt; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 7pt 8pt; text-align: right; border: none } }
+                    Table.Cell("Unit") { style { background: #0F172A; color: #F8FAFC; font-size: 7pt; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 7pt 8pt; text-align: left; border: none } }
+                    Table.Cell("Rate") { style { background: #0F172A; color: #F8FAFC; font-size: 7pt; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 7pt 8pt; text-align: right; border: none } }
+                    Table.Cell("Amount") { style { background: #0F172A; color: #F8FAFC; font-size: 7pt; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 7pt 8pt; text-align: right; border: none } }
+                }
+            }
+            Table.Body {
+                for l in lines {
+                    Table.Row {
+                        Table.Cell("{l.n}") { style { padding: 6pt 8pt; border: none; border-bottom: 0.5pt solid #E2E8F0; vertical-align: top; text-align: right; font-family: "JetBrains Mono", monospace } }
+                        Table.Cell {
+                            style { padding: 6pt 8pt; border: none; border-bottom: 0.5pt solid #E2E8F0; vertical-align: top }
+                            Text(l.item) { style { margin: 0; font-weight: 700 } }
+                            Text(l.detail) { style { margin: 0; color: #64748B; font-size: 7.5pt } }
+                        }
+                        Table.Cell("{l.qty}") { style { padding: 6pt 8pt; border: none; border-bottom: 0.5pt solid #E2E8F0; vertical-align: top; text-align: right; font-family: "JetBrains Mono", monospace } }
+                        Table.Cell(l.unit) { style { padding: 6pt 8pt; border: none; border-bottom: 0.5pt solid #E2E8F0; vertical-align: top } }
+                        Table.Cell(format(l.price, .currency)) { style { padding: 6pt 8pt; border: none; border-bottom: 0.5pt solid #E2E8F0; vertical-align: top; text-align: right; font-family: "JetBrains Mono", monospace } }
+                        Table.Cell(format(l.amount, .currency)) { style { padding: 6pt 8pt; border: none; border-bottom: 0.5pt solid #E2E8F0; vertical-align: top; text-align: right; font-family: "JetBrains Mono", monospace } }
+                    }
+                }
+            }
+        }
+
+        // Notes and totals
+        Row(justify: .between) {
+            style { gap: 24pt; margin-top: 16pt; break-inside: avoid }
+            Stack {
+                style { flex: 1; color: #334155; gap: 4pt }
+                Label("Notes")
+                for note in notes {
+                    Text(note) { style { margin: 0 } }
+                }
+            }
+            Stack {
+                style { width: 220pt; flex: none; gap: 0; border: 1pt solid #E2E8F0; border-radius: 6pt; overflow: hidden }
+                TotalRow("Subtotal", value: format(subtotal, .currency))
+                TotalRow("Discount (5%)", value: "−{format(discount, .currency)}")
+                TotalRow("Sales tax (8.75%)", value: format(tax, .currency))
+                Row(justify: .between) {
+                    style { padding: 6pt 12pt; background: #0F766E; color: #FFFFFF; font-weight: 800; font-size: 11pt }
+                    Text("Total due") { style { margin: 0 } }
+                    Text(format(total, .currency)) { style { margin: 0; font-family: "JetBrains Mono", monospace } }
+                }
+            }
+        }
+
+        // How to pay
+        Row(align: .center) {
+            style { gap: 16pt; margin-top: 18pt; padding: 14pt; border: 1pt dashed #94A3B8; border-radius: 8pt; break-inside: avoid }
+            Stack {
+                style { width: 84pt; flex: none }
+                QrCode(pay_url)
+            }
+            Stack {
+                style { flex: 1; gap: 6pt }
+                Label("Pay online or by transfer")
+                Text("Scan to pay by card or ACH, or transfer to the account below with the invoice number as the reference.") { style { margin: 0 } }
+                Grid {
+                    style { grid-template-columns: auto 1fr; column-gap: 12pt; row-gap: 2pt }
+                    Text("Bank") { style { margin: 0; color: #64748B } }
+                    Text(bank.name) { style { margin: 0 } }
+                    Text("Account") { style { margin: 0; color: #64748B } }
+                    Text(bank.account) { style { margin: 0; font-family: "JetBrains Mono", monospace } }
+                    Text("Routing") { style { margin: 0; color: #64748B } }
+                    Text(bank.routing) { style { margin: 0; font-family: "JetBrains Mono", monospace } }
+                    Text("Reference") { style { margin: 0; color: #64748B } }
+                    Text(number) { style { margin: 0; font-family: "JetBrains Mono", monospace } }
+                }
+            }
+        }
+    }
+}
