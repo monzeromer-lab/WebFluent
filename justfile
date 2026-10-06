@@ -137,6 +137,16 @@ zip-windows:
 test:
     cargo test
 
+# The first run downloads Puppeteer's browsers (~300 MB) into bench/pdf/.cache.
+# One invoice through `wf` and through Puppeteer (headless Chrome), cold and
+# warm, timed and weighed, then bench/pdf/RESULTS.md rewritten.
+# PDF benchmark: wf vs. Puppeteer; rewrites bench/pdf/RESULTS.md
+bench-pdf:
+    cargo build --release --locked --bin wf
+    cargo build --release --locked --manifest-path bench/pdf/rust/Cargo.toml
+    cd bench/pdf && npm ci --no-audit --no-fund
+    node bench/pdf/run.mjs
+
 # Formatting, clippy and the build, one by one, as CI runs them
 # (`just check --fix` formats first; `just check --test` runs the tests too)
 check *args:

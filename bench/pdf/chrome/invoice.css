@@ -1,0 +1,88 @@
+/* The benchmark invoice, for Chrome: the twin of ../invoice.wf.
+   template.mjs adds the @font-face rules (the same files in ../fonts that
+   the WebFluent side embeds) and the footer's text, which is data. */
+
+@page {
+  size: Letter;
+  margin: 54pt 54pt 64pt 54pt;
+  @bottom-left {
+    font: 7pt/1.5 Manrope, sans-serif;
+    color: #64748B;
+    border-top: 0.5pt solid #E2E8F0;
+    padding-top: 6pt;
+    /* WebFluent centres the footer in the bottom margin: 23.5pt down. */
+    margin-top: 23.5pt;
+    vertical-align: top;
+  }
+  @bottom-right {
+    font: 7pt/1.5 Manrope, sans-serif;
+    color: #64748B;
+    text-align: right;
+    border-top: 0.5pt solid #E2E8F0;
+    padding-top: 6pt;
+    /* WebFluent centres the footer in the bottom margin: 23.5pt down. */
+    margin-top: 23.5pt;
+    vertical-align: top;
+  }
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { font: 9pt/1.5 Manrope, sans-serif; color: #0F172A; }
+p, h1 { margin: 0; }
+.mono { font-family: "JetBrains Mono", monospace; }
+.muted { color: #64748B; }
+
+.watermark {
+  position: fixed;
+  /* The page area is 5pt higher than the paper's middle (the bottom margin
+     is 10pt deeper than the top), and WebFluent centres on the paper. */
+  top: calc(50% + 5pt);
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  font-size: 120pt;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: rgba(15, 118, 110, 0.10);
+  white-space: nowrap;
+  z-index: -1;
+}
+
+.letterhead { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 18pt; border-bottom: 1pt solid #E2E8F0; }
+.brand { display: flex; gap: 10pt; align-items: center; }
+.brand img { width: 34pt; height: 34pt; display: block; }
+.brand-text { display: flex; flex-direction: column; gap: 2pt; }
+.brand-name { font-size: 15pt; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; }
+.brand-tag { color: #64748B; font-size: 8pt; }
+.title { display: flex; flex-direction: column; gap: 4pt; text-align: right; }
+.title h1 { font-size: 26pt; font-weight: 800; letter-spacing: -0.03em; color: #0F766E; line-height: 1; }
+
+.label { font-size: 7pt; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #64748B; margin: 0 0 4pt 0; }
+.strong { font-weight: 700; }
+
+.parties { display: grid; grid-template-columns: 1fr 1fr 0.9fr; gap: 18pt; margin: 18pt 0; }
+.party { display: flex; flex-direction: column; }
+.meta { display: flex; flex-direction: column; background: #F0FDFA; border: 1pt solid #CCFBF1; border-radius: 6pt; padding: 10pt 12pt; }
+.meta-row { display: flex; justify-content: space-between; padding: 2pt 0; }
+.due { font-weight: 800; color: #0F766E; }
+
+.items { width: 100%; border-collapse: collapse; margin: 4pt 0 0 0; }
+.items th { background: #0F172A; color: #F8FAFC; font-size: 7pt; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 7pt 8pt; text-align: left; }
+.items td { padding: 6pt 8pt; border-bottom: 0.5pt solid #E2E8F0; vertical-align: top; }
+.items tr { break-inside: avoid; }
+.items .num { text-align: right; }
+.items td.num { font-family: "JetBrains Mono", monospace; }
+.items .detail { color: #64748B; font-size: 7.5pt; }
+
+.summary { display: flex; justify-content: space-between; gap: 24pt; margin-top: 16pt; break-inside: avoid; }
+.notes { flex: 1; display: flex; flex-direction: column; gap: 4pt; color: #334155; }
+.totals { width: 220pt; flex: none; display: flex; flex-direction: column; border: 1pt solid #E2E8F0; border-radius: 6pt; overflow: hidden; }
+.totals-row { display: flex; justify-content: space-between; padding: 6pt 12pt; border-bottom: 0.5pt solid #E2E8F0; }
+.totals-row span:last-child { font-family: "JetBrains Mono", monospace; }
+.grand { background: #0F766E; color: #FFFFFF; font-weight: 800; font-size: 11pt; border-bottom: none; }
+
+.pay { display: flex; gap: 16pt; align-items: center; margin-top: 18pt; padding: 14pt; border: 1pt dashed #94A3B8; border-radius: 8pt; break-inside: avoid; }
+.pay .qr { width: 84pt; flex: none; }
+.pay .qr svg { display: block; width: 100%; height: auto; }
+.pay-text { flex: 1; display: flex; flex-direction: column; gap: 6pt; }
+.bank { display: grid; grid-template-columns: auto 1fr; column-gap: 12pt; row-gap: 2pt; }
