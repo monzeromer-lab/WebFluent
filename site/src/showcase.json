@@ -91,21 +91,39 @@
   },
   {
     "slug": "webfluent",
-    "title": "WebFluent — websites, PDFs and slides from one language",
-    "description": "WebFluent 5 in sixteen slides, written in WebFluent.",
+    "title": "Rethinking the web layout",
+    "description": "Why your next project should use a compiled language — WebFluent in sixteen slides, written in WebFluent.",
     "kind": "deck",
     "lang": "en",
     "pages": 16,
-    "bytes": 396414,
-    "size": "396 kB",
-    "file": "/showcase/webfluent-5.2.pdf",
+    "bytes": 391033,
+    "size": "391 kB",
+    "file": "/showcase/rethinking-the-web-layout.pdf",
     "previews": [
-      "/showcase/webfluent-5.2-1.webp",
-      "/showcase/webfluent-5.2-2.webp"
+      "/showcase/rethinking-the-web-layout-1.webp",
+      "/showcase/rethinking-the-web-layout-2.webp"
     ],
     "width": 640,
     "height": 360,
     "source": "https://github.com/monzeromer-lab/WebFluent/tree/master/examples/decks/webfluent"
+  },
+  {
+    "slug": "webfluent-ar",
+    "title": "إعادة التفكير في تخطيط الويب",
+    "description": "لماذا يجب أن يُكتب مشروعك القادم بلغة مُترجَمة — WebFluent في ست عشرة شريحة، مكتوبة بـ WebFluent.",
+    "kind": "deck",
+    "lang": "ar",
+    "pages": 16,
+    "bytes": 471817,
+    "size": "472 kB",
+    "file": "/showcase/rethinking-the-web-layout-ar.pdf",
+    "previews": [
+      "/showcase/rethinking-the-web-layout-ar-1.webp",
+      "/showcase/rethinking-the-web-layout-ar-2.webp"
+    ],
+    "width": 640,
+    "height": 360,
+    "source": "https://github.com/monzeromer-lab/WebFluent/tree/master/examples/decks/webfluent-ar"
   },
   {
     "slug": "arabic-invoice",
