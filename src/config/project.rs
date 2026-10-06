@@ -666,6 +666,14 @@ pub struct MetaConfig {
     /// keyword (`'unsafe-inline'`), is `E111`.
     #[serde(default)]
     pub connect: Vec<String>,
+
+    /// Origins the pages may load images from besides their own — a CDN,
+    /// the pixel an analytics tag requests — as the policy's `img-src`:
+    /// `"https://images.example.com"`, or `"https://*.googletagmanager.com"`
+    /// for its subdomains. Unset, an image comes from the page's own origin
+    /// or a `data:` URI. An origin with a path, or a keyword, is `E111`.
+    #[serde(default)]
+    pub img: Vec<String>,
 }
 
 /// One entry of `meta.scripts`.
@@ -837,7 +845,23 @@ pub fn csp_policy(config: &ProjectConfig) -> String {
             &format!("connect-src 'self' {}; img-src ", connect.join(" ")),
         );
     }
+    // Where a page may load images from: its own origin and `data:`, and
+    // those the config names.
+    let mut img: Vec<String> = meta.img.iter().filter_map(|o| img_origin(o)).collect();
+    img.dedup();
+    if !img.is_empty() {
+        policy = policy.replace(
+            "img-src 'self' data:;",
+            &format!("img-src 'self' data: {};", img.join(" ")),
+        );
+    }
     policy
+}
+
+/// A `meta.img` entry as the policy writes it: an origin a picture can be
+/// fetched from, so `http` or `https` — or `None` (`E111`).
+pub fn img_origin(entry: &str) -> Option<String> {
+    connect_origin(entry).filter(|o| o.starts_with("https://") || o.starts_with("http://"))
 }
 
 /// A `meta.connect` entry as the policy writes it — a scheme and a host,
@@ -970,6 +994,7 @@ impl Default for MetaConfig {
             stylesheets: Vec::new(),
             scripts: Vec::new(),
             connect: Vec::new(),
+            img: Vec::new(),
         }
     }
 }
@@ -1304,6 +1329,34 @@ mod head_asset_tests {
             ),
             "{policy}"
         );
+    }
+
+    #[test]
+    fn img_origins_join_the_policy_as_img_src() {
+        let mut config = meta(&[], &[]);
+        config.meta.img = vec![
+            "https://www.googletagmanager.com".to_string(),
+            "https://*.google-analytics.com/".to_string(),
+        ];
+        let policy = csp_policy(&config);
+        assert!(
+            policy.contains(
+                "img-src 'self' data: https://www.googletagmanager.com https://*.google-analytics.com; font-src"
+            ),
+            "{policy}"
+        );
+        assert!(!policy.contains("connect-src"), "{policy}");
+    }
+
+    #[test]
+    fn an_img_entry_is_an_http_origin_or_nothing() {
+        assert_eq!(
+            img_origin("https://*.example.com").as_deref(),
+            Some("https://*.example.com")
+        );
+        assert_eq!(img_origin("https://cdn.example.com/pics"), None);
+        assert_eq!(img_origin("wss://live.example.com"), None);
+        assert_eq!(img_origin("data:"), None);
     }
 
     #[test]

@@ -193,10 +193,16 @@ endpoint. Each is an origin, `https://api.example.com`, or
   "meta": {
     "scripts": [{ "src": "https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX", "async": true }],
     "connect": ["https://*.google-analytics.com", "https://*.analytics.google.com",
-                "https://www.googletagmanager.com"]
+                "https://www.googletagmanager.com"],
+    "img": ["https://*.google-analytics.com", "https://www.googletagmanager.com"]
   }
 }
 ```
+
+Images follow the same rule: a page's own origin and `data:`, unless
+`meta.img` names others, which join `img-src` — a CDN, or the pixels a tag
+requests (`https://www.googletagmanager.com/a`, `/td`), which a tag
+assistant otherwise reports as blocked.
 
 A tag manager's own set-up — the `dataLayer` and the `gtag('config', …)`
 call a vendor pastes as an inline `<script>` — is a plain script under
