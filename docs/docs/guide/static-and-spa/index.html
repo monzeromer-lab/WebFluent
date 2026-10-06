@@ -356,7 +356,8 @@
                             </div>
                             <h2 class="wf-heading" id="hydration">Hydration</h2>
                             <div class="wf-markdown">
-<p>A static page is readable before any script runs. When <code>app.js</code> arrives it <strong>hydrates</strong> the page: it walks the HTML that is already there, attaches handlers and subscriptions to it, and only replaces what the live values say differently. The reader never sees the page flash or re-draw.</p>
+<p>A static page is readable before any script runs. When <code>app.js</code> arrives it <strong>hydrates</strong> the page: it draws the page beside the one already there, then takes the painted one over in place. An element nothing holds on to stays exactly as it was painted — its attributes brought up to date, never moved or drawn again — and an element a handler, an effect, a <code>ref</code> or a widget holds is put where the painted one stood, inside the painted parent. Text a signal keeps current changes inside the painted element. The reader never sees the page flash or re-draw, and keeps their scroll, focus and anything they had selected. The page's largest paint stays the first one, which is what a search engine's speed score measures.</p>
+<p>Under <code>wf serve</code>, the runtime compares the page it took over with the one it drew and says so in the console when they differ — a WebFluent bug, never yours.</p>
                             </div>
                             <h2 class="wf-heading" id="what-the-static-paint-knows">What the static paint knows</h2>
                             <div class="wf-markdown">

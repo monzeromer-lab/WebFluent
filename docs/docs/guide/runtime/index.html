@@ -1002,7 +1002,7 @@ WF.storeSnapshot(&quot;Cart&quot;);</code>
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>hydrate(fn, container)</code> — takes over a pre-rendered page</p>
+<p><code>hydrate(fn, container)</code>, <code>hydrating(root)</code> — draw beside a pre-rendered page and take it over in place</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -1014,7 +1014,7 @@ WF.storeSnapshot(&quot;Cart&quot;);</code>
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>mount(fn, container)</code>, <code>mainOf(root)</code> — boot</p>
+<p><code>mount(fn, container)</code>, <code>mainOf(root)</code> — boot; <code>live(node)</code> — something holds <code>node</code>, so a takeover keeps the drawn one rather than the painted one</p>
                                             </div>
                                         </td>
                                     </tr>
