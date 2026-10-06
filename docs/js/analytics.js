@@ -21,7 +21,7 @@
 // (filter it in Admin → Data filters), `?ga_internal=0` undoes it, and
 // `?ga_debug=1` sends this tab's hits to DebugView.
 
-const GA_ID = "G-FV6VK6N6VM";
+const GA_ID = "G-HPDHSJ9S4G";
 const GA_HOST = "webfluent.monzeromer.dev";
 const GA_CONSENT_KEY = "wf:analytics-consent";
 const GA_INTERNAL_KEY = "wf:analytics-internal";
