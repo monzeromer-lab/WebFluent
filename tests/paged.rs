@@ -17,6 +17,19 @@ fn page_text(r: &webfluent::PdfReport, page: usize) -> String {
 }
 
 #[test]
+fn a_document_shorter_than_a_page_is_one_page() {
+    // The baseline gives `body` `min-height: 100vh`, and the engine took
+    // 100vh as the paper's height while laying out inside the margins, so
+    // every short document grew an empty second page.
+    let r = report(
+        r#"page P(path: "/", title: "One page") { Document { Heading("Invoice").h1  Text("Total: $40") } }"#,
+    );
+    assert_eq!(r.pages, 1, "{:?}", r.text);
+    let r = report(r#"page P(path: "/", title: "Bare") { Heading("Invoice").h1 }"#);
+    assert_eq!(r.pages, 1, "{:?}", r.text);
+}
+
+#[test]
 fn a_footer_numbers_every_page_and_a_header_keeps_to_its_pages() {
     let filler: String = (0..120)
         .map(|i| {
