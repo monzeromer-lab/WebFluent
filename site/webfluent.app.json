@@ -45,6 +45,10 @@
       "https://*.google-analytics.com",
       "https://*.analytics.google.com",
       "https://www.googletagmanager.com"
+    ],
+    "img": [
+      "https://*.google-analytics.com",
+      "https://www.googletagmanager.com"
     ]
   },
   "i18n": {
