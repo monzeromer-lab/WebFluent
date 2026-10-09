@@ -1,2 +1,2 @@
-function Page_OldCookbook(params){const _root=document.createDocumentFragment();const _e474=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("ch.35"));_root.appendChild(_e474);const _e475=WF.el("a",{className:"wf-link",href:WF._basePath+"/docs/tutorials"},()=>WF.i18n.t("ch.35"));WF.activeLink(_e475,"/docs/tutorials",false);_root.appendChild(_e475);return _root;}
+function Page_OldCookbook(params){const _root=document.createDocumentFragment();const _e479=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("ch.35"));_root.appendChild(_e479);const _e480=WF.el("a",{className:"wf-link",href:WF._basePath+"/docs/tutorials"},()=>WF.i18n.t("ch.35"));WF.activeLink(_e480,"/docs/tutorials",false);_root.appendChild(_e480);return _root;}
 WF.page("OldCookbook",Page_OldCookbook);

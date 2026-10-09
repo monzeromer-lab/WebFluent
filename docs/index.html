@@ -24,15 +24,15 @@
     <meta name="twitter:description" content="One language, one binary: a static site, a single-page app, a PDF or a slide deck from the same file. No Node, and no browser for your PDFs.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/#webpage","url":"https://webfluent.monzeromer.dev/","name":"WebFluent — websites, PDFs and slides from one language","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"One language, one binary: a static site, a single-page app, a PDF or a slide deck from the same file. No Node, and no browser for your PDFs."}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self' https://fonts.googleapis.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube-nocookie.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="./styles.css">
     <link rel="stylesheet" href="./pages/Home.css" data-wf-page-css="Home">
     <script src="./js/analytics.js" defer></script>
+    <script src="./js/video.js" defer></script>
     <script src="./app.js" defer></script>
     <script src="./pages/Home.js" data-wf-page="Home" defer></script>
 </head>
@@ -60,7 +60,7 @@
                     <button class="wf-icon-btn site-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <a class="wf-link wf-sed841ce0 site-button site-button-primary" href="/docs/guide/getting-started" data-track="select_content" data-track-content-type="cta" data-track-item-id="read_guide">Read the guide</a>
-                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" data-track="select_content" data-track-content-type="language" type="button"></button>
+                    <button class="wf-btn site-button site-button-outlined" data-track="select_content" data-track-content-type="language" type="button"></button>
                     <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
@@ -101,11 +101,18 @@
         }
     }
 }</code>
-                    <div class="wf-stack wf-gap--xs wf-sb5bc822d">
+                    <div class="wf-stack wf-gap--xs wf-s1aad57d0">
                         <p class="wf-text wf-s95559eb4">✓ build succeeded — 1 page, 3 components</p>
                         <p class="wf-text wf-s680f37c2">watching src/ — reload on save</p>
                     </div>
                 </div>
+            </div>
+            <div class="wf-stack wf-gap--lg wf-s439d65f2 landing-section" id="video">
+                <div class="wf-stack wf-gap--xs wf-s3df5f255">
+                    <p class="wf-text overline">See it in action</p>
+                    <h2 class="wf-heading wf-s9201e08b">Rethinking the web layout</h2>
+                </div>
+                <div class="wf-host wf-s4c725de2"></div>
             </div>
             <div class="wf-stack wf-gap--lg wf-s439d65f2 landing-section">
                 <div class="wf-stack wf-gap--xs wf-s3df5f255">
@@ -113,14 +120,14 @@
                     <h2 class="wf-heading wf-s9201e08b">Everything else follows from these</h2>
                 </div>
                 <div class="wf-grid wf-gap--lg wf-s5804ae86 wf-r4f2ac013 ideas-grid">
-                    <div class="wf-stack wf-gap--sm wf-s9d8936ab idea-card">
+                    <div class="wf-stack wf-gap--sm wf-s0f7373a0 idea-card">
                         <p class="wf-text wf-se6051429">01</p>
                         <h3 class="wf-heading">A file is a list of declarations</h3>
                         <div class="wf-markdown">
 <p>Fourteen kinds — <code>page</code>, <code>component</code>, <code>store</code>, <code>theme</code>, <code>app</code>, <code>type</code>, <code>enum</code>, <code>api</code>, <code>external</code>, <code>const</code>, <code>data</code>, <code>image</code>, <code>animation</code>, <code>test</code>. Pages own their routes; there is no separate route table.</p>
                         </div>
                     </div>
-                    <div class="wf-stack wf-gap--sm wf-s9d8936ab idea-card">
+                    <div class="wf-stack wf-gap--sm wf-s0f7373a0 idea-card">
                         <p class="wf-text wf-se6051429">02</p>
                         <h3 class="wf-heading">An element is a typed call</h3>
                         <div class="wf-markdown">
@@ -128,33 +135,33 @@
                         </div>
                         <code class="wf-code wf-code--block wf-s632d2bef"><span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Save&quot;</span>, <span class="wf-tok-prop">tone</span>: .primary).lg</code>
                     </div>
-                    <div class="wf-stack wf-gap--sm wf-s9d8936ab idea-card">
+                    <div class="wf-stack wf-gap--sm wf-s0f7373a0 idea-card">
                         <p class="wf-text wf-se6051429">03</p>
                         <h3 class="wf-heading">State is a signal</h3>
                         <div class="wf-markdown">
 <p><code>state count = 0</code> — anything that reads it follows it. Derived values recompute, effects re-run, the DOM updates. No dependency arrays.</p>
                         </div>
                     </div>
-                    <div class="wf-stack wf-gap--sm wf-s9d8936ab idea-card">
+                    <div class="wf-stack wf-gap--sm wf-s0f7373a0 idea-card">
                         <p class="wf-text wf-se6051429">04</p>
                         <h3 class="wf-heading">Styles are CSS, written where the element is</h3>
                         <div class="wf-markdown">
 <p>Raw values, design tokens with <code>$</code>, nested rules as CSS nesting spells them. One sheet, pruned to what you used.</p>
                         </div>
                     </div>
-                    <div class="wf-stack wf-gap--sm wf-s9d8936ab idea-card">
+                    <div class="wf-stack wf-gap--sm wf-s0f7373a0 idea-card">
                         <p class="wf-text wf-se6051429">05</p>
                         <h3 class="wf-heading">The build is the whole site</h3>
                         <div class="wf-markdown">
 <p>HTML pre-rendered per page, a small runtime, a sitemap, Open Graph tags, content-security headers — from <code>wf build</code>, with nothing to configure.</p>
                         </div>
                     </div>
-                    <div class="wf-stack wf-gap--sm wf-s9d8936ab idea-card idea-card-highlight">
+                    <div class="wf-stack wf-gap--sm wf-s0f7373a0 idea-card idea-card-highlight">
                         <h3 class="wf-heading">Coming from React, Vue or Svelte?</h3>
                         <div class="wf-markdown">
 <p>Start with the map from what you know: state is a signal, components are declared and typed, stores replace context, and the compiler checks what you write against what the components declare.</p>
                         </div>
-                        <a class="wf-link" href="/docs/guide/coming-from">Take the shortcut →</a>
+                        <a class="wf-link" href="/docs/guide/coming-from" aria-label="Take the shortcut: Coming from React, Vue or Svelte?">Take the shortcut</a>
                     </div>
                 </div>
             </div>
@@ -164,61 +171,61 @@
                     <h2 class="wf-heading wf-s9201e08b">What a real site needs, in the language</h2>
                 </div>
                 <div class="wf-grid wf-gap--lg wf-s5804ae86 wf-r47379574 ideas-grid">
-                    <div class="wf-stack wf-gap--sm wf-s9d8936ab idea-card">
+                    <div class="wf-stack wf-gap--sm wf-s0f7373a0 idea-card">
                         <h3 class="wf-heading">A service, described once</h3>
                         <div class="wf-markdown">
 <p><code>api Backend { get users() -&gt; [User] }</code> — every call typed, cached, retried and cancellable; or read the whole surface from an OpenAPI file.</p>
                         </div>
-                        <a class="wf-link" href="/docs/guide/data">Read the chapter →</a>
+                        <a class="wf-link" href="/docs/guide/data" aria-label="Read the chapter: A service, described once">Read the chapter</a>
                     </div>
-                    <div class="wf-stack wf-gap--sm wf-s9d8936ab idea-card">
+                    <div class="wf-stack wf-gap--sm wf-s0f7373a0 idea-card">
                         <h3 class="wf-heading">Forms that validate themselves</h3>
                         <div class="wf-markdown">
 <p><code>validate email { required  email }</code> beside the state; the field shows its message accessibly, and a failed submit focuses the problem.</p>
                         </div>
-                        <a class="wf-link" href="/docs/guide/forms">Read the chapter →</a>
+                        <a class="wf-link" href="/docs/guide/forms" aria-label="Read the chapter: Forms that validate themselves">Read the chapter</a>
                     </div>
-                    <div class="wf-stack wf-gap--sm wf-s9d8936ab idea-card">
+                    <div class="wf-stack wf-gap--sm wf-s0f7373a0 idea-card">
                         <h3 class="wf-heading">Sockets, streams and peers</h3>
                         <div class="wf-markdown">
 <p>WebSockets that reconnect, server-sent events, a channel every tab hears, and WebRTC straight to another page — each closed when its page leaves.</p>
                         </div>
-                        <a class="wf-link" href="/docs/guide/realtime">Read the chapter →</a>
+                        <a class="wf-link" href="/docs/guide/realtime" aria-label="Read the chapter: Sockets, streams and peers">Read the chapter</a>
                     </div>
-                    <div class="wf-stack wf-gap--sm wf-s9d8936ab idea-card">
+                    <div class="wf-stack wf-gap--sm wf-s0f7373a0 idea-card">
                         <h3 class="wf-heading">Works offline</h3>
                         <div class="wf-markdown">
 <p>Name <code>offline</code> in the config: a service worker stores the site, writes wait for the connection, and a new version is offered, not forced.</p>
                         </div>
-                        <a class="wf-link" href="/docs/guide/offline">Read the chapter →</a>
+                        <a class="wf-link" href="/docs/guide/offline" aria-label="Read the chapter: Works offline">Read the chapter</a>
                     </div>
-                    <div class="wf-stack wf-gap--sm wf-s9d8936ab idea-card">
+                    <div class="wf-stack wf-gap--sm wf-s0f7373a0 idea-card">
                         <h3 class="wf-heading">Tests that click</h3>
                         <div class="wf-markdown">
 <p><code>click &quot;Save&quot;</code> then <code>expect &quot;Saved&quot;</code> runs in headless Chrome, and <code>wf verify</code> loads every page of the build.</p>
                         </div>
-                        <a class="wf-link" href="/docs/guide/testing">Read the chapter →</a>
+                        <a class="wf-link" href="/docs/guide/testing" aria-label="Read the chapter: Tests that click">Read the chapter</a>
                     </div>
-                    <div class="wf-stack wf-gap--sm wf-s9d8936ab idea-card">
+                    <div class="wf-stack wf-gap--sm wf-s0f7373a0 idea-card">
                         <h3 class="wf-heading">Safe by construction</h3>
                         <div class="wf-markdown">
 <p>Text is always text, no inline handlers, no <code>javascript:</code> URLs, private <code>env</code> names kept out of the bundle, and a CSP the build holds itself to.</p>
                         </div>
-                        <a class="wf-link" href="/docs/guide/security">Read the chapter →</a>
+                        <a class="wf-link" href="/docs/guide/security" aria-label="Read the chapter: Safe by construction">Read the chapter</a>
                     </div>
-                    <div class="wf-stack wf-gap--sm wf-s9d8936ab idea-card">
+                    <div class="wf-stack wf-gap--sm wf-s0f7373a0 idea-card">
                         <h3 class="wf-heading">Your own JavaScript, by name</h3>
                         <div class="wf-markdown">
 <p>A plain <code>.js</code> file under <code>src/</code> is linked as written, and its functions are called straight from <code>.wf</code>, checked against their JSDoc.</p>
                         </div>
-                        <a class="wf-link" href="/docs/guide/interop">Read the chapter →</a>
+                        <a class="wf-link" href="/docs/guide/interop" aria-label="Read the chapter: Your own JavaScript, by name">Read the chapter</a>
                     </div>
-                    <div class="wf-stack wf-gap--sm wf-s9d8936ab idea-card">
+                    <div class="wf-stack wf-gap--sm wf-s0f7373a0 idea-card">
                         <h3 class="wf-heading">A template engine for Rust and Node</h3>
                         <div class="wf-markdown">
 <p>Render a template with your own data to HTML or a PDF — <code>Template::from_dir(&quot;templates&quot;)</code> with any <code>Serialize</code> struct, or <code>npm install webfluent</code>.</p>
                         </div>
-                        <a class="wf-link" href="/docs/guide/server-rendering">Read the chapter →</a>
+                        <a class="wf-link" href="/docs/guide/server-rendering" aria-label="Read the chapter: A template engine for Rust and Node">Read the chapter</a>
                     </div>
                 </div>
             </div>

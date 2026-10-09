@@ -32,8 +32,9 @@
     "site_url": "https://webfluent.monzeromer.dev",
     "site_name": "WebFluent",
     "sitemap": true,
-    "fonts": [
-      "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+    "preload": [
+      "/fonts/inter-latin.woff2",
+      "/fonts/jetbrains-mono-latin.woff2"
     ],
     "scripts": [
       {
@@ -49,6 +50,9 @@
     "img": [
       "https://*.google-analytics.com",
       "https://www.googletagmanager.com"
+    ],
+    "frame": [
+      "https://www.youtube-nocookie.com"
     ]
   },
   "i18n": {
