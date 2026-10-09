@@ -11,7 +11,7 @@
     "output": "../docs",
     "ssg": true,
     "split": true,
-    "minify": true,
+    "minify": true, 
     "compress": true,
     "csp": true,
     "base_path": "",
