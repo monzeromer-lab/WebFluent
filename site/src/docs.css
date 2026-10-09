@@ -2,6 +2,12 @@
    repeats — overlines, the two button shapes, chips, pills — and the
    guide's prose rendered from Markdown. Colours are the theme's tokens. */
 
+/* The faces are served from the site (variable, Latin), not from Google
+   Fonts: a stylesheet on another origin held up every page's first paint by
+   about a second on a phone. `meta.preload` fetches both with the page. */
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 400 800; font-display: swap; src: url("/fonts/inter-latin.woff2") format("woff2"); }
+@font-face { font-family: "JetBrains Mono"; font-style: normal; font-weight: 400 600; font-display: swap; src: url("/fonts/jetbrains-mono-latin.woff2") format("woff2"); }
+
 body { font-family: var(--font-family); }
 
 .overline { margin: 0; font-size: 12px; line-height: 18px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-subtle); }

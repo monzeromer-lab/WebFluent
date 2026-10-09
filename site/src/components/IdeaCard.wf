@@ -16,6 +16,7 @@ component IdeaCard(_ title: String, number: String = "", body: String = "", code
             &.idea-card-highlight .wf-markdown p { color: $color-text }
             & .wf-markdown code { font-size: 12px; color: $brand-ink }
             & a { display: inline-flex; align-items: center; font-size: 13px; line-height: 20px; font-weight: 600; color: $brand-ink; text-decoration: none }
+            & a::after { content: " →"; white-space: pre }
         }
         if number != "" {
             Text(number) { style { margin: 0; font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $accent-ink } }
@@ -27,6 +28,7 @@ component IdeaCard(_ title: String, number: String = "", body: String = "", code
                 style { margin: 4px 0 0; padding: 10px 12px; background: $term-bg; border-radius: 6px; font-size: 12px; line-height: 18px; white-space: pre-wrap; color: $syntax-punct }
             }
         }
-        if link != "" { Link("{link} →", to: linkTo) }
+        // Every card's link reads the same, so its name says which chapter.
+        if link != "" { Link(link, to: linkTo, aria-label: "{link}: {title}") }
     }
 }

@@ -173,7 +173,7 @@ component SiteHeader(docs: Bool = false) {
                 }
             }
 
-            Button(otherLocale, aria-label: t("nav.locale"), class: "site-button site-button-outlined", data-track: "select_content", data-track-content-type: "language", data-track-item-id: if locale == "ar" { "en" } else { "ar" }) {
+            Button(otherLocale, aria-label: "{otherLocale} — {t("nav.locale")}", class: "site-button site-button-outlined", data-track: "select_content", data-track-content-type: "language", data-track-item-id: if locale == "ar" { "en" } else { "ar" }) {
                 on click { setLocale(if locale == "ar" { "en" } else { "ar" }) }
             }
 
