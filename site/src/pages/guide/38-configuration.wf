@@ -88,7 +88,8 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
     "stylesheets": [],
     "scripts": [],
     "connect": [],
-    "img": []
+    "img": [],
+    "frame": []
   },
   "motion": { "duration": null, "easing": null },
   "env": {},
@@ -511,6 +512,11 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
                     Table.Cell { Markdown("`img`") }
                     Table.Cell { Markdown("`[]`") }
                     Table.Cell { Markdown("Origins a page may load images from besides its own and `data:` — a CDN, a tag's tracking pixel — as the policy's `img-src`: `\"https://images.example.com\"`, `\"https://www.googletagmanager.com\"`. An entry with a path or a keyword is `E111` ([chapter 23](/docs/guide/security)).") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`frame`") }
+                    Table.Cell { Markdown("`[]`") }
+                    Table.Cell { Markdown("Origins a page may embed in a frame besides its own — a video player, a map — as the policy's `frame-src`: `\"https://www.youtube-nocookie.com\"`. An entry with a path or a keyword is `E111` ([chapter 23](/docs/guide/security)).") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`integrity`") }

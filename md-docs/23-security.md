@@ -202,7 +202,9 @@ endpoint. Each is an origin, `https://api.example.com`, or
 Images follow the same rule: a page's own origin and `data:`, unless
 `meta.img` names others, which join `img-src` — a CDN, or the pixels a tag
 requests (`https://www.googletagmanager.com/a`, `/td`), which a tag
-assistant otherwise reports as blocked.
+assistant otherwise reports as blocked. A frame is the same again:
+`meta.frame` names the origins a page may embed — a video player
+(`https://www.youtube-nocookie.com`), a map — and they join `frame-src`.
 
 A tag manager's own set-up — the `dataLayer` and the `gtag('config', …)`
 call a vendor pastes as an inline `<script>` — is a plain script under

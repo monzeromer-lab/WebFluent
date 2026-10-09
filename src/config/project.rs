@@ -674,6 +674,13 @@ pub struct MetaConfig {
     /// or a `data:` URI. An origin with a path, or a keyword, is `E111`.
     #[serde(default)]
     pub img: Vec<String>,
+
+    /// Origins the pages may embed in a frame — a video player, a map — as
+    /// the policy's `frame-src`: `"https://www.youtube-nocookie.com"`.
+    /// Unset, a page may only frame its own origin. An origin with a path,
+    /// or a keyword, is `E111`.
+    #[serde(default)]
+    pub frame: Vec<String>,
 }
 
 /// One entry of `meta.scripts`.
@@ -879,6 +886,15 @@ pub fn csp_policy(config: &ProjectConfig) -> String {
             &format!("img-src 'self' data: {};", img.join(" ")),
         );
     }
+    // What a page may frame: its own origin, and those the config names.
+    let mut frame: Vec<String> = meta.frame.iter().filter_map(|o| img_origin(o)).collect();
+    frame.dedup();
+    if !frame.is_empty() {
+        policy = policy.replace(
+            "object-src ",
+            &format!("frame-src 'self' {}; object-src ", frame.join(" ")),
+        );
+    }
     policy
 }
 
@@ -1019,6 +1035,7 @@ impl Default for MetaConfig {
             scripts: Vec::new(),
             connect: Vec::new(),
             img: Vec::new(),
+            frame: Vec::new(),
         }
     }
 }
@@ -1370,6 +1387,18 @@ mod head_asset_tests {
             "{policy}"
         );
         assert!(!policy.contains("connect-src"), "{policy}");
+    }
+
+    #[test]
+    fn frame_origins_join_the_policy_as_frame_src() {
+        let mut config = meta(&[], &[]);
+        config.meta.frame = vec!["https://www.youtube-nocookie.com/".to_string()];
+        let policy = csp_policy(&config);
+        assert!(
+            policy.contains("frame-src 'self' https://www.youtube-nocookie.com; object-src"),
+            "{policy}"
+        );
+        assert!(!csp_policy(&meta(&[], &[])).contains("frame-src"));
     }
 
     #[test]

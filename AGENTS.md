@@ -2923,6 +2923,7 @@ now ships on every page.
         "scripts": [],
         "connect": [],
         "img": [],
+        "frame": [],
         "integrity": {}
     },
     "env": {},

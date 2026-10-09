@@ -484,6 +484,23 @@ pub fn config_checks(dir: &Path, config: &ProjectConfig, program: &Program) -> V
         }
     }
 
+    // A `frame-src` source is an origin a page can be framed from.
+    for entry in &config.meta.frame {
+        if crate::config::project::img_origin(entry).is_none() {
+            out.push(
+                config_finding(
+                    "E111",
+                    format!(
+                        "`meta.frame` names `{entry}`, which is not an origin a frame loads from"
+                    ),
+                    &text,
+                    entry,
+                )
+                .with_hint("Write `https://` and a host — `https://www.youtube-nocookie.com`"),
+            );
+        }
+    }
+
     // The owner node's identity, and what other settings write into it,
     // come from those settings; `owner_details` only adds to it.
     for key in config.meta.owner_details.keys() {
