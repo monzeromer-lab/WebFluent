@@ -24,7 +24,7 @@
     <meta name="twitter:description" content="The threat model, what WebFluent enforces, markup from outside, sessions, env and secrets, uploads, CSP and headers, audits and a checklist.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/security#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/security","name":"Security","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"The threat model, what WebFluent enforces, markup from outside, sessions, env and secrets, uploads, CSP and headers, audits and a checklist."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/security#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Security","item":"https://webfluent.monzeromer.dev/docs/guide/security"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube-nocookie.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.3</p>
+                            <p class="wf-text wf-s859a58d7">5.4</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -431,7 +431,7 @@ store Session {
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Images follow the same rule: a page's own origin and <code>data:</code>, unless <code>meta.img</code> names others, which join <code>img-src</code> — a CDN, or the pixels a tag requests (<code>https://www.googletagmanager.com/a</code>, <code>/td</code>), which a tag assistant otherwise reports as blocked.</p>
+<p>Images follow the same rule: a page's own origin and <code>data:</code>, unless <code>meta.img</code> names others, which join <code>img-src</code> — a CDN, or the pixels a tag requests (<code>https://www.googletagmanager.com/a</code>, <code>/td</code>), which a tag assistant otherwise reports as blocked. A frame is the same again: <code>meta.frame</code> names the origins a page may embed — a video player (<code>https://www.youtube-nocookie.com</code>), a map — and they join <code>frame-src</code>.</p>
 <p>A tag manager's own set-up — the <code>dataLayer</code> and the <code>gtag('config', …)</code> call a vendor pastes as an inline <code>&lt;script&gt;</code> — is a plain script under <code>src/</code>, which the policy already allows.</p>
 <p><strong>The build checks its own output against it.</strong> Every HTML file is read back and held to the policy it carries: an inline <code>&lt;script&gt;</code>, a <code>&lt;style&gt;</code>, a <code>style=</code> attribute, an <code>on*</code> attribute, or a script or stylesheet from an origin the policy never named stops the build. A policy is a promise about what a page contains, and this is how the promise is kept — the browser would enforce it and show a blank page. A page's own <code>head { script(src: …) }</code> or stylesheet <code>link</code> is added on the live page, after the HTML is written, so it is held to the policy where it is written instead: one from an origin the config does not declare is an <code>E902</code> on that line.</p>
 <p>One thing is allowed rather than refused: a <code>style { }</code> value that <strong>reads state</strong> is written on the element, because there is nowhere else for it to go. Where a build emits one, <code>style-src</code> gains <code>'unsafe-inline'</code> and the build names the pages that caused it, so the stricter policy is one edit away. A literal in a <code>style { }</code> block is already a shared class and costs nothing.</p>
@@ -545,7 +545,7 @@ store Session {
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.3, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.4, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -572,7 +572,7 @@ store Session {
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.3 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.4 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>
