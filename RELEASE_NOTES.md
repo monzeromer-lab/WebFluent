@@ -1,3 +1,27 @@
+# WebFluent v5.4.0 Release Notes
+
+A page may embed a frame from another site — a video player, a map — and
+the policy that ships beside it says so.
+
+## Additions
+
+- **`meta.frame`.** With `"build": { "csp": true }` the policy is
+  `default-src 'self'`, so a frame from anywhere else — a YouTube or Vimeo
+  player, a map — was blocked by the page that held it. `meta.frame` names
+  the origins a page may embed, as `meta.img` does for images, and they
+  join `frame-src` in the meta tag and in `_headers`:
+  `"frame": ["https://www.youtube-nocookie.com"]`. An entry with a path or a
+  keyword is `E111`.
+
+## The site
+
+- The landing page has a video: *Rethinking the web layout*.
+- The fonts are served from the site rather than from Google Fonts, and
+  preloaded with the page: a stylesheet on another origin held up every
+  page's first paint by about a second on a phone.
+- The "Read the chapter" links on the landing page's cards, and the language
+  switch, carry an accessible name that says where they go.
+
 # WebFluent v5.3.5 Release Notes
 
 A script nothing waits for no longer counts against how soon a page is ready.
