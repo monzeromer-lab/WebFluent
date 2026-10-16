@@ -6,7 +6,10 @@
 //! questions for every route a project serves.
 
 use std::io::{BufRead, BufReader};
+use std::path::{Path, PathBuf};
 use std::process::{Child, Command, Stdio};
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::time::{Duration, Instant};
 
 use serde_json::{Value, json};
 
@@ -86,6 +89,30 @@ pub struct Browser {
     /// reads past whatever the page was saying at the time — and what it
     /// was saying is exactly what a test needs to hear.
     heard: Vec<Value>,
+    /// The profile Chrome was started with: a directory of this browser's
+    /// own, removed with it. A profile is ~150 MB, and where `/tmp` is
+    /// memory, one left behind per run fills it and then the swap.
+    profile: PathBuf,
+}
+
+/// Browsers this process has started, so each has a profile of its own and
+/// removing one never pulls another's from under it.
+static STARTED: AtomicU64 = AtomicU64::new(0);
+
+/// Stop a browser that will not be used, and remove its profile once
+/// nothing writes to it.
+fn abandon(child: &mut Child, profile: &Path) {
+    let _ = child.kill();
+    let _ = child.wait();
+    // A helper process can outlive the browser by a moment and write a
+    // file or two back; remove the profile until it stays removed.
+    for _ in 0..20 {
+        let _ = std::fs::remove_dir_all(profile);
+        std::thread::sleep(Duration::from_millis(50));
+        if !profile.exists() {
+            break;
+        }
+    }
 }
 
 impl Browser {
@@ -97,7 +124,11 @@ impl Browser {
                     .to_string(),
             )
         })?;
-        let profile = std::env::temp_dir().join(format!("wf-chrome-{}", std::process::id()));
+        let profile = std::env::temp_dir().join(format!(
+            "wf-chrome-{}-{}",
+            std::process::id(),
+            STARTED.fetch_add(1, Ordering::Relaxed)
+        ));
         let mut child = Command::new(binary)
             .args([
                 "--headless=new",
@@ -109,6 +140,13 @@ impl Browser {
                 "--no-default-browser-check",
                 "--disable-extensions",
                 "--hide-scrollbars",
+                // Nothing in the background: no component downloads (the
+                // optimisation models made each profile ~150 MB), no sync,
+                // no default apps — a page's numbers are the page's own.
+                "--disable-background-networking",
+                "--disable-component-update",
+                "--disable-default-apps",
+                "--disable-sync",
                 &format!("--user-data-dir={}", profile.display()),
                 "about:blank",
             ])
@@ -128,18 +166,26 @@ impl Browser {
                 break;
             }
         }
-        let endpoint = endpoint.ok_or_else(|| {
-            let _ = child.kill();
-            WebFluentError::IoError("the browser started but never said where to talk to it".into())
-        })?;
-        let socket = Socket::connect(&endpoint)?;
-        socket.deadline(30)?;
+        let Some(endpoint) = endpoint else {
+            abandon(&mut child, &profile);
+            return Err(WebFluentError::IoError(
+                "the browser started but never said where to talk to it".into(),
+            ));
+        };
+        let socket = match Socket::connect(&endpoint).and_then(|s| s.deadline(30).map(|()| s)) {
+            Ok(socket) => socket,
+            Err(e) => {
+                abandon(&mut child, &profile);
+                return Err(e);
+            }
+        };
         Ok(Browser {
             before_each: None,
             child,
             socket,
             next: 1,
             heard: Vec::new(),
+            profile,
         })
     }
 
@@ -389,8 +435,17 @@ impl Browser {
 
 impl Drop for Browser {
     fn drop(&mut self) {
-        let _ = self.child.kill();
-        let _ = self.child.wait();
+        // Asked to close, Chrome stops its helpers and removes its own
+        // temporary files; killed, it leaves both behind. It gets a few
+        // seconds to go by itself.
+        let close = json!({ "id": self.next, "method": "Browser.close" });
+        if self.socket.send(&close.to_string()).is_ok() {
+            let until = Instant::now() + Duration::from_secs(5);
+            while Instant::now() < until && !matches!(self.child.try_wait(), Ok(Some(_))) {
+                std::thread::sleep(Duration::from_millis(50));
+            }
+        }
+        abandon(&mut self.child, &self.profile);
     }
 }
 

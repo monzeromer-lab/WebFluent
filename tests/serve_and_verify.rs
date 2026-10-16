@@ -249,3 +249,46 @@ fn verify_fails_a_fetch_the_build_has_no_file_for() {
     assert_ne!(code, 0, "{out}");
     assert!(out.contains("404") && out.contains("/api/rows"), "{out}");
 }
+
+#[test]
+fn verify_leaves_no_browser_profile_behind() {
+    let dir = project(
+        "verify-profile",
+        r#"{ "name": "v" }"#,
+        "app { Router }\npage Home(path: \"/\", title: \"H\", description: \"D\") { Heading(\"Home\").h1 }\n",
+    );
+    let (code, _, err) = wf(&dir, &["build"]);
+    assert_eq!(code, 0, "{err}");
+    // The browser's profile goes in the temporary directory; this run gets
+    // one of its own, so what is left in it is what this run left. Where
+    // `/tmp` is memory, 66 profiles of ~150 MB each once filled it and the
+    // swap behind it.
+    let tmp = dir.join("tmp");
+    std::fs::create_dir_all(&tmp).unwrap();
+    let out = Command::new(env!("CARGO_BIN_EXE_wf"))
+        .arg("verify")
+        .current_dir(&dir)
+        .env("TMPDIR", &tmp)
+        .output()
+        .expect("wf runs");
+    let err = String::from_utf8_lossy(&out.stderr);
+    if err.contains("no Chrome or Chromium") {
+        assert!(
+            std::env::var_os("WF_REQUIRE_CHROME").is_none(),
+            "WF_REQUIRE_CHROME is set and there is no browser: {err}"
+        );
+        eprintln!("\n  SKIPPED: no Chrome or Chromium for `wf verify`.\n");
+        return;
+    }
+    assert!(out.status.success(), "{err}");
+    let left: Vec<String> = std::fs::read_dir(&tmp)
+        .unwrap()
+        .filter_map(|e| e.ok())
+        .map(|e| e.file_name().to_string_lossy().to_string())
+        .filter(|name| name.starts_with("wf-chrome"))
+        .collect();
+    assert!(
+        left.is_empty(),
+        "the browser's profile was left behind: {left:?}"
+    );
+}
