@@ -1,3 +1,66 @@
+# WebFluent v5.5.0 Release Notes
+
+A service read from its OpenAPI document is typed as well as one written by
+hand, and a browser run leaves nothing behind.
+
+## Additions
+
+- **A string with cases is an `enum`.** `{"type": "string", "enum": ["prod",
+  "test"]}` — what utoipa writes for a Rust enum — was imported as an empty
+  record, so `Text("{e.env}")` showed `[object Object]` and drew `T20`. It is
+  now `enum Env { prod, test }`, whose cases are the strings the server sends.
+  When a case cannot be written as a name (`"operate.flags"`, a digit first,
+  `true`), the schema is a `String` wherever it is named.
+- **A value that may be null is `T?`, however the document says so.**
+  OpenAPI 3.1's `"type": ["string", "null"]` was `Any?`; it is `String?`, and
+  the same holds for numbers, booleans and lists. A `oneOf` (or `anyOf`) of
+  `{ "type": "null" }` and a `$ref` is that type's `?`, 3.0's
+  `"nullable": true` counts beside a `type`, an `allOf` or a `$ref`, and a
+  record or an enum whose own schema allows null is `T?` wherever it is named.
+- **`allOf` is a record that extends another.** `[{ "$ref": "…/EnvSummary" },
+  { "properties": … }]` is `type ServerDetail = EnvSummary { … }`; a second
+  record it names and every part written in place are fields of its own, and
+  what the schema around a part requires, the part's fields answer to.
+- **A string's `format` is the language's type for what the server sends.**
+  `date-time` is a `DateTime`, `date` a `Date`, `uuid` a `Uuid`, `email` an
+  `Email`, `uri` a `Url` — in a response, and in every record only responses
+  reach. What the program sends (a parameter, a request body, and every
+  record one reaches, but for its `readOnly` fields) keeps `String`, so a
+  route parameter or an input's text can still be sent. `time` stays a
+  `String`: JSON Schema's carries an offset `Time` does not read.
+- **Shared parameters and request bodies are read.** A parameter or a body
+  that is a `$ref` into `components` was dropped, so a call passing it was
+  `T10`; it is what its `$ref` names, and a body is required when the document
+  says so.
+- **Anything else a schema names is the type it reads as.** A named `oneOf`,
+  an alias of another schema, or a plain string or number declares nothing,
+  instead of an empty record whose every field read was `T05`.
+
+## Fixes
+
+- **`if let` and a case's payload are names in their whole block.** `if let
+  why = e.reason { Row { Pill(why) } }` drew `V01` ("nothing in scope declares
+  `why`"), and so did `.failed(why) { … }` in a `match`; both are now in scope
+  however deep the element that reads them.
+- **A button named by the `Text` in its block draws no `A05`.** `Button {
+  Icon("link")  Text("Continue") }` — and a `Text` in a branch, or in a
+  component the block places — names the button. A `Tooltip`'s words, a
+  custom element's tag and a lone `Badge` still do not.
+- **`wf verify` and `wf test` leave no browser profile behind.** Each run
+  that started Chrome left its ~150 MB profile in the temporary directory;
+  where `/tmp` is memory, a day of test runs filled it and the swap behind it.
+  Chrome is now started with its background downloads off, asked to close
+  before it is stopped, and its profile is removed; each browser has a
+  profile of its own.
+
+## Upgrading
+
+A specification's nullable values are now `T?`, so a read that ignored null
+— `Text(e.reason.toUpperCase())` — is a `T04` where it compiled before;
+`?.`, `??` or `if let` says what to do instead. A response field with a
+`format` is now a `DateTime`, `Url` and so on, and a `String` assigned to one
+is `T01`.
+
 # WebFluent v5.4.0 Release Notes
 
 A page may embed a frame from another site — a video player, a map — and

@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.4</p>
+                            <p class="wf-text wf-s859a58d7">5.5</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -2481,7 +2481,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a05-a-button-with-no-text</code>
                             </div>
                             <div class="wf-markdown">
-<p><strong>Fix:</strong> Give it text, or an <code>aria-label:</code> when it shows only an icon.</p>
+<p><strong>Fix:</strong> Give it text — <code>Button(&quot;Save&quot;)</code>, or a <code>Text</code> in its block beside the icon, <code>Button { Icon(&quot;check&quot;)  Text(&quot;Save&quot;) }</code> — or an <code>aria-label:</code> when it shows only an icon. A <code>Text</code> anywhere in the block names it — in a branch, in a component the block places, or reading state; a <code>Tooltip</code>'s words, which show only on hover, do not.</p>
                             </div>
                             <h3 class="wf-heading" id="a06-a-link-with-no-text">A06 — A link with no text</h3>
                             <div class="wf-stack wf-sba64d8a9 code-block">
@@ -3429,6 +3429,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Write the flag with its dot — <code>Button(&quot;Save&quot;).primary</code> — or declare the name. The word is also a name nothing declares, so the build stops on it as <code>T13</code>; the editor shows both.</p>
+<p>A name a branch binds is declared through the whole of its block, however deep the element that reads it: <code>if let why = e.reason { Row { Pill(why) } }</code>, and a case's payload, <code>.failed(why) { … }</code>, draw nothing.</p>
                             </div>
                             <h3 class="wf-heading" id="v03-markup-put-in-as-markup">V03 — Markup put in as markup</h3>
                             <div class="wf-stack wf-sba64d8a9 code-block">
@@ -3789,7 +3790,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.4, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.5, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -3816,7 +3817,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.4 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.5 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

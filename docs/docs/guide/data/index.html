@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.4</p>
+                            <p class="wf-text wf-s859a58d7">5.5</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -605,7 +605,84 @@ api Backend(base: env.PUBLIC_API ?? &quot;/api/v1&quot;) {
                                 <code class="wf-code wf-code--block wf-sa8223565">api Backend from &quot;openapi.json&quot; (base: env.PUBLIC_API)</code>
                             </div>
                             <div class="wf-markdown">
-<p>Every endpoint, parameter, response type and error shape is read from the file at build time, and each named schema becomes a <code>type</code> the program can name. The day the server changes its contract, the build says so.</p>
+<p>Every endpoint, parameter, response type and error shape is read from the file at build time, and each named schema becomes something the program can name. The day the server changes its contract, the build says so.</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">From a specification</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">The schema</th>
+                                        <th scope="col">What the program gets</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>An object: <code>{ &quot;type&quot;: &quot;object&quot;, &quot;properties&quot;: … }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A <code>type</code> with those fields; a field the schema does not <code>require</code> is <code>T?</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>An <code>allOf</code>: <code>[{ &quot;$ref&quot;: &quot;…/EnvSummary&quot; }, { &quot;properties&quot;: … }]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>type ServerDetail = EnvSummary { … }</code>: it extends the first record it names, and every other part is fields of its own</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A string with cases: <code>{ &quot;type&quot;: &quot;string&quot;, &quot;enum&quot;: [&quot;prod&quot;, &quot;test&quot;] }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>enum Env { prod, test }</code>, whose cases are the strings the server sends</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A string with a case no name can spell: <code>&quot;operate.flags&quot;</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>String</code>, wherever the schema is named</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Anything else: a string, a number, a list, another schema's <code>$ref</code>, a <code>oneOf</code> of one type and <code>null</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>That type, wherever the schema is named; a <code>oneOf</code> of several types is <code>Any</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>A value that may be null is its type made optional, however the document says so: OpenAPI 3.1's <code>&quot;type&quot;: [&quot;string&quot;, &quot;null&quot;]</code> is <code>String?</code>, a <code>oneOf</code> of <code>{ &quot;type&quot;: &quot;null&quot; }</code> and a <code>$ref</code> is that type's <code>?</code>, 3.0's <code>&quot;nullable&quot;: true</code> is the same beside a <code>type</code>, an <code>allOf</code> or a <code>$ref</code>, and a record or an enum whose own schema allows null is <code>T?</code> wherever it is named.</p>
+<p>A string's <code>format</code> is the language's type for what the server sends: <code>date-time</code> is a <code>DateTime</code>, <code>date</code> a <code>Date</code>, <code>uuid</code> a <code>Uuid</code>, <code>email</code> an <code>Email</code> and <code>uri</code> a <code>Url</code>, in a response and in every record only responses reach. What the program sends — a parameter, a request body, and every record one of them reaches, but for the fields it marks <code>readOnly</code> — keeps <code>String</code>, so a value it holds as a <code>String</code>, a route parameter or what an input holds, can still be sent. A <code>time</code> stays a <code>String</code> everywhere, since JSON Schema's carries an offset (<code>09:30:00Z</code>) that <code>Time</code> does not read.</p>
+<p>A parameter or a request body may be a <code>$ref</code> into <code>components</code>, as a shared <code>limit</code> often is; a body is required when the document says so.</p>
+<p>A <code>type</code> or an <code>enum</code> the program declares itself wins over the specification's of the same name.</p>
                             </div>
                             <h3 class="wf-heading" id="settings">Settings</h3>
                             <div class="wf-markdown">
@@ -1049,7 +1126,7 @@ page PostPage(path: &quot;/posts/:slug&quot;, slug: String, title: &quot;Post&qu
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.4, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.5, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -1076,7 +1153,7 @@ page PostPage(path: &quot;/posts/:slug&quot;, slug: String, title: &quot;Post&qu
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.4 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.5 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>
