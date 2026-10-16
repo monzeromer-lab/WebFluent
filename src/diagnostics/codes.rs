@@ -537,7 +537,7 @@ pub static CODES: &[CodeInfo] = &[
         "A05",
         Warning,
         "A button with no text",
-        "A `Button` with no text.",
+        "A `Button` with no text: no label, no `aria-label:`, and no `Text` in its block.",
     ),
     code(
         "A06",

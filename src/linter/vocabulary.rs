@@ -158,7 +158,8 @@ fn global_names(program: &Program) -> HashSet<String> {
 }
 
 /// Collect every name `stmts` (recursively) can bind: state, derived, actions,
-/// action params, fetch variables, loop variables. Over-inclusive on purpose —
+/// action params, fetch variables, loop variables, `if let` and `match`
+/// bindings. Over-inclusive on purpose —
 /// this suppresses warnings, never creates them.
 fn hoist_names(stmts: &[Statement], names: &mut HashSet<String>) {
     for stmt in stmts {
@@ -202,6 +203,11 @@ fn hoist_names(stmts: &[Statement], names: &mut HashSet<String>) {
                 hoist_names(&f.body, names);
             }
             StatementKind::If(i) => {
+                // `if let why = e.reason { … }`: a name everywhere in the
+                // branch, however deep the element that reads it.
+                if let Some(b) = &i.binding {
+                    names.insert(b.clone());
+                }
                 hoist_names(&i.then_body, names);
                 for (_, body) in &i.else_if_branches {
                     hoist_names(body, names);
@@ -220,6 +226,8 @@ fn hoist_names(stmts: &[Statement], names: &mut HashSet<String>) {
                     if let Some(b) = &arm.binding {
                         names.insert(b.clone());
                     }
+                    // `.failed(why) { … }`: the case's payload.
+                    names.extend(arm.bindings.iter().cloned());
                     hoist_names(&arm.body, names);
                 }
             }

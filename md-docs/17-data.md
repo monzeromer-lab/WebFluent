@@ -204,8 +204,38 @@ api Backend from "openapi.json" (base: env.PUBLIC_API)
 ```
 
 Every endpoint, parameter, response type and error shape is read from the
-file at build time, and each named schema becomes a `type` the program can
+file at build time, and each named schema becomes something the program can
 name. The day the server changes its contract, the build says so.
+
+| The schema | What the program gets |
+|---|---|
+| An object: `{ "type": "object", "properties": … }` | A `type` with those fields; a field the schema does not `require` is `T?` |
+| An `allOf`: `[{ "$ref": "…/EnvSummary" }, { "properties": … }]` | `type ServerDetail = EnvSummary { … }`: it extends the first record it names, and every other part is fields of its own |
+| A string with cases: `{ "type": "string", "enum": ["prod", "test"] }` | `enum Env { prod, test }`, whose cases are the strings the server sends |
+| A string with a case no name can spell: `"operate.flags"` | `String`, wherever the schema is named |
+| Anything else: a string, a number, a list, another schema's `$ref`, a `oneOf` of one type and `null` | That type, wherever the schema is named; a `oneOf` of several types is `Any` |
+
+A value that may be null is its type made optional, however the document
+says so: OpenAPI 3.1's `"type": ["string", "null"]` is `String?`, a `oneOf`
+of `{ "type": "null" }` and a `$ref` is that type's `?`, 3.0's
+`"nullable": true` is the same beside a `type`, an `allOf` or a `$ref`, and
+a record or an enum whose own schema allows null is `T?` wherever it is
+named.
+
+A string's `format` is the language's type for what the server sends:
+`date-time` is a `DateTime`, `date` a `Date`, `uuid` a `Uuid`, `email` an
+`Email` and `uri` a `Url`, in a response and in every record only responses
+reach. What the program sends — a parameter, a request body, and every
+record one of them reaches, but for the fields it marks `readOnly` — keeps
+`String`, so a value it holds as a `String`, a route parameter or what an
+input holds, can still be sent. A `time` stays a `String` everywhere, since
+JSON Schema's carries an offset (`09:30:00Z`) that `Time` does not read.
+
+A parameter or a request body may be a `$ref` into `components`, as a
+shared `limit` often is; a body is required when the document says so.
+
+A `type` or an `enum` the program declares itself wins over the
+specification's of the same name.
 
 ### Settings
 

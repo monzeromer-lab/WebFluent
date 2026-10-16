@@ -382,7 +382,7 @@ page Deploys(path: "/") {
     }
 }"#, title: "wf")
 
-        Markdown("The checker trusts the annotation: it cannot see what a URL will return. When the server publishes an OpenAPI specification, let the compiler read it instead — `api Backend from \"openapi.json\"` types every endpoint, parameter, response and error from the file, and turns each named schema into a `type` ([Data and APIs](/docs/guide/data#from-a-specification)). An `api` written by hand types its calls the same way: `get users() -> [User]`.")
+        Markdown("The checker trusts the annotation: it cannot see what a URL will return. When the server publishes an OpenAPI specification, let the compiler read it instead — `api Backend from \"openapi.json\"` types every endpoint, parameter, response and error from the file, and turns each named schema into a `type`, or an `enum` for a string with cases ([Data and APIs](/docs/guide/data#from-a-specification)). An `api` written by hand types its calls the same way: `get users() -> [User]`.")
 
         Heading("The checks", id: "the-checks").h2
 

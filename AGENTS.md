@@ -1022,7 +1022,20 @@ api Backend from "openapi.json" (base: env.PUBLIC_API)
 ```
 
 Every endpoint, parameter, response type and error shape comes from the
-spec, and each named schema becomes a `type` the program can name.
+spec, and each named schema becomes something the program can name: an
+object a `type`; an `allOf` a `type ServerDetail = EnvSummary { … }` that
+extends the first record it names; a string with cases (`"enum": ["prod",
+"test"]`) an `enum Env { prod, test }`, or `String` when a case is not a name
+(`"operate.flags"`); anything else (another `$ref`, a `oneOf` of one type and
+null, a string) the type it reads as, and a `oneOf` of several types `Any`.
+A value that may be null — 3.1's `"type": ["string", "null"]`, a `oneOf` of
+`{ "type": "null" }` and a `$ref`, 3.0's `nullable: true` beside anything —
+is `T?`. A string's `format` is the language's type in what the server sends
+— `date-time` → `DateTime`, `date` → `Date`, `uuid` → `Uuid`, `email` →
+`Email`, `uri` → `Url` — and stays `String` in what the program sends (a
+parameter, a body, a record one reaches, but for its `readOnly` fields) and
+for `time`. Shared parameters and bodies (`$ref`s into `components`) are read
+too. A `type` or `enum` the program declares wins over the spec's.
 
 An endpoint is called like anything else, and a `resource` over one is
 typed by what it returns:
@@ -2757,7 +2770,7 @@ paint alike.
 | `A02` | An `IconButton` with no accessible name — `label:` is its name, never visible text |
 | `A03` | An `Input` with neither `label:` nor `placeholder:` |
 | `A04` | A `Checkbox`, `Radio`, `Switch`, `Slider` or `Textarea` with no `label:` |
-| `A05` | A `Button` with no text |
+| `A05` | A `Button` with no text — no label, no `aria-label:`, and no `Text` in its block (a branch or a component it places counts) |
 | `A06` | A `Link` with no text |
 | `A07` | A `Heading` with no text |
 | `A08` | A `Modal` or `Dialog` with no `title:`, which is its accessible name |
@@ -2774,7 +2787,7 @@ paint alike.
 | `P01` | A `persist` at `version: n` with nothing to bring an older version forward, so what a returning reader had is discarded |
 | `P02` | A `migrate` step above the declared `version:`, which never runs |
 | `P03` | A `persist` inside a `store(scope: .route)`: the route change drops the store, and the next read builds it again from storage, so the value comes straight back |
-| `V01` | A bare word in an argument that nothing in scope declares — a name misspelled, or a flag written without its dot (`did you mean `.center`?`) |
+| `V01` | A bare word in an argument that nothing in scope declares — a name misspelled, or a flag written without its dot (`did you mean `.center`?`); an `if let` binding or a case's payload is declared through its whole block |
 | `V02` | A flag whose class no stylesheet — the engine's or one of the project's `.css` files — defines; the registry keeps this from happening for the built-ins |
 | `V03` | An `Unsafe.Html`, and whether what it puts in went through `sanitize` |
 | `V04` | A `class:` naming one of the built-ins' `wf-*` classes, which brings that built-in's rules with it |

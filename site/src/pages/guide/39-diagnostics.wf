@@ -1280,7 +1280,7 @@ page P(path: "/", title: "T", description: "D") {
   = help: Add text: Button("Save").primary
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a05-a-button-with-no-text"#, title: "text")
 
-        Markdown("**Fix:** Give it text, or an `aria-label:` when it shows only an icon.")
+        Markdown("**Fix:** Give it text — `Button(\"Save\")`, or a `Text` in its block beside the icon, `Button \{ Icon(\"check\")  Text(\"Save\") \}` — or an `aria-label:` when it shows only an icon. A `Text` anywhere in the block names it — in a branch, in a component the block places, or reading state; a `Tooltip`'s words, which show only on hover, do not.")
 
         Heading("A06 — A link with no text", id: "a06-a-link-with-no-text").h3
 
@@ -1818,7 +1818,7 @@ page P(path: "/", title: "T", description: "D") {
   |            ^^^^^^^
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v01-a-bare-word-that-means-nothing"#, title: "text")
 
-        Markdown("**Fix:** Write the flag with its dot — `Button(\"Save\").primary` — or declare the name. The word is also a name nothing declares, so the build stops on it as `T13`; the editor shows both.")
+        Markdown("**Fix:** Write the flag with its dot — `Button(\"Save\").primary` — or declare the name. The word is also a name nothing declares, so the build stops on it as `T13`; the editor shows both.\n\nA name a branch binds is declared through the whole of its block, however deep the element that reads it: `if let why = e.reason \{ Row \{ Pill(why) \} \}`, and a case's payload, `.failed(why) \{ … \}`, draw nothing.")
 
         Heading("V03 — Markup put in as markup", id: "v03-markup-put-in-as-markup").h3
 

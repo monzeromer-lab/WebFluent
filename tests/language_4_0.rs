@@ -572,6 +572,609 @@ fn a_service_read_from_a_specification_is_checked_like_one_written_by_hand() {
     assert!(errors.is_empty(), "{errors:?}");
 }
 
+/// A specification shaped as utoipa writes one for a Rust service: an enum
+/// is a string schema with its cases, and an `Option<T>` is OpenAPI 3.1's
+/// `"type": [T, "null"]`, or a `oneOf` with a null beside a `$ref`.
+const OPS_SPEC: &str = r##"{
+    "openapi": "3.1.0",
+    "components": { "schemas": {
+        "Env": { "type": "string", "description": "An environment.", "enum": ["prod", "test"] },
+        "Permission": { "type": "string", "enum": ["view", "operate.flags"] },
+        "Workers": { "type": "object", "required": ["total"],
+            "properties": { "total": { "type": "integer" } } },
+        "EnvSummary": { "type": "object", "required": ["env", "permissions", "reason", "workers"],
+            "properties": {
+                "env": { "$ref": "#/components/schemas/Env" },
+                "permissions": { "type": "array", "items": { "$ref": "#/components/schemas/Permission" } },
+                "reason": { "type": ["string", "null"] },
+                "latencyMs": { "type": ["integer", "null"], "format": "int64" },
+                "dirty": { "type": ["boolean", "null"] },
+                "regions": { "type": ["array", "null"], "items": { "type": "string" } },
+                "workers": { "oneOf": [{ "type": "null" }, { "$ref": "#/components/schemas/Workers" }] },
+                "note": { "type": "string", "nullable": true },
+                "home": { "allOf": [{ "$ref": "#/components/schemas/Env" }], "description": "Where it lives." }
+            } },
+        "Stamps": { "type": "object", "required": ["when", "day", "id", "owner", "site", "at", "count"],
+            "properties": {
+                "when": { "type": "string", "format": "date-time" },
+                "until": { "type": ["string", "null"], "format": "date-time" },
+                "day": { "type": "string", "format": "date" },
+                "id": { "type": "string", "format": "uuid" },
+                "owner": { "type": "string", "format": "email" },
+                "site": { "type": "string", "format": "uri" },
+                "at": { "type": "string", "format": "time" },
+                "count": { "type": "integer", "format": "int64" }
+            } },
+        "NewStamp": { "type": "object", "required": ["when", "owner"],
+            "properties": {
+                "when": { "type": "string", "format": "date-time" },
+                "owner": { "type": "string", "format": "email" }
+            } },
+        "ServerDetail": { "description": "The summary and the droplet's numbers.",
+            "allOf": [
+                { "$ref": "#/components/schemas/EnvSummary" },
+                { "type": "object", "required": ["loops"], "properties": {
+                    "host": { "type": ["string", "null"] },
+                    "loops": { "type": "array", "items": { "type": "string" } },
+                    "lastBackupAt": { "type": ["string", "null"], "format": "date-time" }
+                } }
+            ] },
+        "Audit": { "allOf": [
+            { "$ref": "#/components/schemas/Workers" },
+            { "$ref": "#/components/schemas/Stamps" },
+            { "type": "object", "required": ["by"], "properties": { "by": { "type": "string" } } }
+        ] }
+    } },
+    "paths": {
+        "/servers/{env}": { "get": { "operationId": "server",
+            "parameters": [{ "name": "env", "in": "path", "required": true,
+                "schema": { "$ref": "#/components/schemas/Env" } }],
+            "responses": { "200": { "content": { "application/json":
+                { "schema": { "$ref": "#/components/schemas/EnvSummary" } } } } } } },
+        "/servers/{env}/detail": { "get": { "operationId": "detail",
+            "parameters": [{ "name": "env", "in": "path", "required": true,
+                "schema": { "$ref": "#/components/schemas/Env" } }],
+            "responses": { "200": { "content": { "application/json":
+                { "schema": { "$ref": "#/components/schemas/ServerDetail" } } } } } } },
+        "/stamps": { "get": { "operationId": "stamps",
+            "responses": { "200": { "content": { "application/json":
+                { "schema": { "$ref": "#/components/schemas/Stamps" } } } } } } },
+        "/stamps/{id}": { "post": { "operationId": "stamp",
+            "parameters": [{ "name": "id", "in": "path", "required": true,
+                "schema": { "type": "string", "format": "uuid" } }],
+            "requestBody": { "required": true, "content": { "application/json":
+                { "schema": { "$ref": "#/components/schemas/NewStamp" } } } },
+            "responses": { "200": { "content": { "application/json":
+                { "schema": { "$ref": "#/components/schemas/Stamps" } } } } } } }
+    }
+}"##;
+
+/// `body` on a page beside `api Ops from "ops.json"`, read with [`OPS_SPEC`].
+fn with_ops_spec(body: &str) -> webfluent::parser::Program {
+    with_spec(OPS_SPEC, body)
+}
+
+/// `body` on a page beside `api Ops from "ops.json"`, read with `spec`.
+fn with_spec(spec: &str, body: &str) -> webfluent::parser::Program {
+    let src = format!("api Ops from \"ops.json\" (base: \"/api\")\n{}", page(body));
+    let mut program = parse_source(&src, "t.wf").unwrap();
+    webfluent::openapi::expand(&mut program, &|_| Some(spec.to_string())).unwrap();
+    program
+}
+
+/// What the whole pipeline finds in `program`, as `CODE: message` lines.
+fn findings_of(program: &webfluent::parser::Program) -> Vec<String> {
+    webfluent::diagnostics::check::check_project(&webfluent::diagnostics::check::Project {
+        program,
+        file_of: &|_| "t.wf".to_string(),
+        source_of: &|_| None,
+        dir: None,
+        config: None,
+        declaration_files: &[],
+        scripts: &[],
+        stylesheets: "",
+        incomplete: false,
+    })
+    .diagnostics
+    .iter()
+    .map(|d| format!("{}: {}", d.code, d.message))
+    .collect()
+}
+
+fn record<'a>(
+    program: &'a webfluent::parser::Program,
+    name: &str,
+) -> &'a webfluent::parser::TypeDecl {
+    program
+        .declarations
+        .iter()
+        .find_map(|d| match d {
+            webfluent::parser::Declaration::Type(t) if t.name == name => Some(t),
+            _ => None,
+        })
+        .unwrap_or_else(|| panic!("no `type {name}`"))
+}
+
+fn field(ty: &webfluent::parser::TypeDecl, name: &str) -> webfluent::parser::TypeRef {
+    ty.fields
+        .iter()
+        .find(|f| f.name == name)
+        .unwrap_or_else(|| panic!("`{}` has no field `{name}`", ty.name))
+        .ty
+        .clone()
+}
+
+#[test]
+fn a_string_schema_with_cases_is_an_enum_and_one_with_unwritable_cases_is_a_string() {
+    use webfluent::parser::{Declaration, TypeRef};
+    let program = with_ops_spec(
+        "Heading(\"Ops\").h1\n    \
+         resource one = Ops.server(env: .prod)\n    \
+         match one {\n        \
+             ready(e) {\n            \
+                 Text(\"{e.env}\")\n            \
+                 if e.env == .test { Text(\"Test\") }\n            \
+                 Text(e.permissions.join(\", \"))\n        \
+             }\n        \
+             else { Spinner }\n    \
+         }",
+    );
+
+    // `Env` is the enum its cases say, not an empty record.
+    let env = program.declarations.iter().find_map(|d| match d {
+        Declaration::Enum(e) if e.name == "Env" => Some(e),
+        _ => None,
+    });
+    let env = env.expect("`enum Env`");
+    assert_eq!(env.case_names(), ["prod", "test"]);
+    assert_eq!(env.doc.as_deref(), Some("An environment."));
+    assert!(
+        !program.declarations.iter().any(
+            |d| matches!(d, Declaration::Type(t) if t.name == "Env" || t.name == "Permission")
+        ),
+        "a string schema is never a record"
+    );
+
+    // `operate.flags` cannot be written as a case, so `Permission` is the
+    // string the server sends, wherever it is named.
+    assert!(
+        !program
+            .declarations
+            .iter()
+            .any(|d| matches!(d, Declaration::Enum(e) if e.name == "Permission")),
+    );
+    let summary = record(&program, "EnvSummary");
+    assert_eq!(field(summary, "env"), TypeRef::Named("Env".into()));
+    assert_eq!(
+        field(summary, "permissions"),
+        TypeRef::List(Box::new(TypeRef::String))
+    );
+
+    // A case shows as its name: no T20, and nothing else to say.
+    let found = findings_of(&program);
+    assert!(found.is_empty(), "{found:#?}");
+}
+
+#[test]
+fn a_value_that_may_be_null_is_its_type_made_optional() {
+    use webfluent::parser::TypeRef;
+    let program = with_ops_spec(
+        "resource one = Ops.server(env: .prod)\n    \
+         match one {\n        \
+             ready(e) {\n            \
+                 Text(e.reason.toUpperCase())\n            \
+                 Text(\"{e.workers?.totl}\")\n        \
+             }\n        \
+             else { Spinner }\n    \
+         }",
+    );
+    let summary = record(&program, "EnvSummary");
+    let optional = |t: TypeRef| TypeRef::Optional(Box::new(t));
+    // Required and nullable, and not required and nullable, are both `T?` —
+    // never `T??`, and never `Any?`.
+    assert_eq!(field(summary, "reason"), optional(TypeRef::String));
+    assert_eq!(field(summary, "latencyMs"), optional(TypeRef::Number));
+    assert_eq!(field(summary, "dirty"), optional(TypeRef::Bool));
+    assert_eq!(
+        field(summary, "regions"),
+        optional(TypeRef::List(Box::new(TypeRef::String)))
+    );
+    assert_eq!(
+        field(summary, "workers"),
+        optional(TypeRef::Named("Workers".into()))
+    );
+    // OpenAPI 3.0 spells it `nullable: true`.
+    assert_eq!(field(summary, "note"), optional(TypeRef::String));
+
+    // And the checker holds every reader to it.
+    let found = findings_of(&program);
+    assert!(
+        found
+            .iter()
+            .any(|f| f.starts_with("T04:") && f.contains("e.reason")),
+        "a `String?` read as a `String`: {found:#?}"
+    );
+    assert!(
+        found
+            .iter()
+            .any(|f| f.starts_with("T05:") && f.contains("`Workers` has no field `totl`")),
+        "the record behind the null: {found:#?}"
+    );
+}
+
+#[test]
+fn an_all_of_is_a_record_that_extends_the_one_it_names() {
+    use webfluent::parser::TypeRef;
+    let program = with_ops_spec(
+        "Heading(\"Ops\").h1\n    \
+         resource one = Ops.detail(env: .prod)\n    \
+         match one {\n        \
+             ready(d) {\n            \
+                 Text(d.reason ?? \"\")\n            \
+                 Text(d.host ?? \"—\")\n            \
+                 Text(d.loops.join(\", \"))\n            \
+                 Text(d.hots)\n        \
+             }\n        \
+             else { Spinner }\n    \
+         }",
+    );
+    let optional = |t: TypeRef| TypeRef::Optional(Box::new(t));
+
+    // The `$ref` it is made from is the record it extends, and the part
+    // written beside it is its own fields.
+    let detail = record(&program, "ServerDetail");
+    assert_eq!(detail.extends.as_deref(), Some("EnvSummary"));
+    assert_eq!(
+        detail.doc.as_deref(),
+        Some("The summary and the droplet's numbers.")
+    );
+    assert_eq!(field(detail, "host"), optional(TypeRef::String));
+    assert_eq!(
+        field(detail, "loops"),
+        TypeRef::List(Box::new(TypeRef::String))
+    );
+    assert!(
+        detail.fields.iter().all(|f| f.name != "reason"),
+        "what it extends is not copied in"
+    );
+
+    // A record extends one record; a second one it names is fields of its
+    // own, as is every part written in place.
+    let audit = record(&program, "Audit");
+    assert_eq!(audit.extends.as_deref(), Some("Workers"));
+    assert_eq!(field(audit, "day"), TypeRef::Named("Date".into()));
+    assert_eq!(field(audit, "by"), TypeRef::String);
+
+    // `allOf` around one `$ref` is how a field with its own description
+    // names a type.
+    let summary = record(&program, "EnvSummary");
+    assert_eq!(
+        field(summary, "home"),
+        optional(TypeRef::Named("Env".into()))
+    );
+
+    // The checker reads the extended record's fields through it.
+    let found = findings_of(&program);
+    assert!(
+        found
+            .iter()
+            .any(|f| f.starts_with("T05:") && f.contains("`ServerDetail` has no field `hots`")),
+        "{found:#?}"
+    );
+    assert_eq!(
+        found.iter().filter(|f| f.starts_with("T05:")).count(),
+        1,
+        "{found:#?}"
+    );
+}
+
+#[test]
+fn a_string_format_is_the_type_the_language_has_for_it() {
+    use webfluent::parser::TypeRef;
+    let program = with_ops_spec(
+        "Heading(\"Ops\").h1\n    \
+         state typed = \"\"\n    \
+         resource made = Ops.stamp(id: typed, body: { when: typed, owner: \"ada\" })\n    \
+         resource one = Ops.stamps()\n    \
+         match one {\n        \
+             ready(s) {\n            \
+                 Text(\"{s.day.plus(days: 3)} · {s.when.date()} · {s.owner.domain()}\")\n            \
+                 Text(s.id.domain())\n        \
+             }\n        \
+             else { Spinner }\n    \
+         }",
+    );
+    let stamps = record(&program, "Stamps");
+    let named = |n: &str| TypeRef::Named(n.into());
+    assert_eq!(field(stamps, "when"), named("DateTime"));
+    assert_eq!(
+        field(stamps, "until"),
+        TypeRef::Optional(Box::new(named("DateTime")))
+    );
+    assert_eq!(field(stamps, "day"), named("Date"));
+    assert_eq!(field(stamps, "id"), named("Uuid"));
+    assert_eq!(field(stamps, "owner"), named("Email"));
+    assert_eq!(field(stamps, "site"), named("Url"));
+    // A JSON Schema time carries an offset (`09:30:00Z`) that `Time` does
+    // not read, and a number's format is its size.
+    assert_eq!(field(stamps, "at"), TypeRef::String);
+    assert_eq!(field(stamps, "count"), TypeRef::Number);
+
+    // What the program sends keeps `String`: a parameter, a body, and the
+    // record a body names — so a value held as a `String` may be sent.
+    let api = program
+        .declarations
+        .iter()
+        .find_map(|d| match d {
+            webfluent::parser::Declaration::Api(a) => Some(a),
+            _ => None,
+        })
+        .expect("the service");
+    let stamp = api.endpoints.iter().find(|e| e.name == "stamp").unwrap();
+    assert_eq!(stamp.params[0].prop_type, TypeRef::String);
+    let new_stamp = record(&program, "NewStamp");
+    assert_eq!(field(new_stamp, "when"), TypeRef::String);
+    assert_eq!(field(new_stamp, "owner"), TypeRef::String);
+
+    // Each is held to what its type has, and nothing the program sends is
+    // refused.
+    let found = findings_of(&program);
+    assert!(!found.iter().any(|f| f.starts_with("T01:")), "{found:#?}");
+    assert!(
+        found
+            .iter()
+            .any(|f| f.contains("`domain`") && f.contains("Uuid")),
+        "{found:#?}"
+    );
+    assert_eq!(
+        found.iter().filter(|f| f.contains("`domain`")).count(),
+        1,
+        "an `Email` has a domain: {found:#?}"
+    );
+
+    // A specification that declares a schema of the same name means that
+    // one, so a format no longer names the language's type: it is a string.
+    let program = with_spec(
+        r##"{ "openapi": "3.1.0", "components": { "schemas": {
+            "Url": { "type": "object", "properties": { "href": { "type": "string" } } },
+            "Link": { "type": "object", "required": ["to"],
+                "properties": { "to": { "type": "string", "format": "uri" } } }
+        } }, "paths": {} }"##,
+        "Heading(\"Ops\").h1",
+    );
+    assert_eq!(field(record(&program, "Link"), "to"), TypeRef::String);
+}
+
+#[test]
+fn the_rest_of_a_specification_s_shapes_import_as_they_read() {
+    use webfluent::parser::{Declaration, TypeRef};
+    let spec = r##"{ "openapi": "3.1.0", "components": { "schemas": {
+        "Env": { "type": "string", "enum": ["prod", "test"] },
+        "Slug": { "type": "string" },
+        "Tier": { "type": ["string", "null"], "enum": ["free", "paid", null] },
+        "Factor": { "type": "string", "enum": ["2fa", "sms"] },
+        "Answer": { "type": "string", "enum": ["true", "false"] },
+        "Node": { "allOf": [
+            { "$ref": "#/components/schemas/Node" },
+            { "type": "object", "properties": { "label": { "type": "string" } } }
+        ] },
+        "Held": { "required": ["a"], "allOf": [
+            { "type": "object", "properties": { "a": { "type": "string" }, "b": { "type": "string" } } }
+        ] },
+        "Both": { "required": ["b"], "allOf": [
+            { "$ref": "#/components/schemas/Node" },
+            { "$ref": "#/components/schemas/Held" }
+        ] },
+        "MaybeNode": { "oneOf": [{ "$ref": "#/components/schemas/Node" }, { "type": "null" }] },
+        "Pet": { "oneOf": [{ "$ref": "#/components/schemas/Node" }, { "$ref": "#/components/schemas/Held" }] },
+        "Alias": { "$ref": "#/components/schemas/Node" },
+        "EnvOnly": { "allOf": [{ "$ref": "#/components/schemas/Env" }] },
+        "Loose": { "enum": ["a.b", "c"] },
+        "Short": { "type": "string", "allOf": [{ "minLength": 1 }] },
+        "Odd": { "type": "string", "enum": ["m²", "ok"] },
+        "Proto": { "type": "string", "enum": ["__proto__", "x"] },
+        "Row": { "type": "object", "required": ["slug", "tier", "factor", "answer", "env",
+                "maybe", "pet", "alias", "envOnly", "loose", "short", "odd", "proto", "bag", "near", "also"],
+            "properties": {
+                "maybe": { "$ref": "#/components/schemas/MaybeNode" },
+                "pet": { "$ref": "#/components/schemas/Pet" },
+                "alias": { "$ref": "#/components/schemas/Alias" },
+                "envOnly": { "$ref": "#/components/schemas/EnvOnly" },
+                "loose": { "$ref": "#/components/schemas/Loose" },
+                "short": { "$ref": "#/components/schemas/Short" },
+                "odd": { "$ref": "#/components/schemas/Odd" },
+                "proto": { "$ref": "#/components/schemas/Proto" },
+                "bag": { "type": "object", "oneOf": [{ "$ref": "#/components/schemas/Node" }] },
+                "near": { "allOf": [{ "$ref": "#/components/schemas/Node" }], "nullable": true },
+                "also": { "$ref": "#/components/schemas/Node", "nullable": true },
+                "slug": { "$ref": "#/components/schemas/Slug" },
+                "tier": { "$ref": "#/components/schemas/Tier" },
+                "factor": { "$ref": "#/components/schemas/Factor" },
+                "answer": { "$ref": "#/components/schemas/Answer" },
+                "env": { "$ref": "#/components/schemas/Env" },
+                "parent": { "anyOf": [{ "$ref": "#/components/schemas/Node" }, { "type": "null" }] },
+                "grade": { "type": "string", "enum": ["a", "b", null] },
+                "state": { "oneOf": [{ "$ref": "#/components/schemas/Env" }, { "$ref": "#/components/schemas/NullOnly" }] }
+            } },
+        "NullOnly": { "enum": [null] },
+        "Draft": { "type": "object", "required": ["when", "made"],
+            "properties": {
+                "when": { "type": "string", "format": "date-time" },
+                "made": { "type": "string", "format": "date-time", "readOnly": true }
+            } },
+        "Shown": { "type": "object", "required": ["at"],
+            "properties": { "at": { "type": "string", "format": "date-time" } } }
+    },
+    "parameters": { "Limit": { "name": "limit", "in": "query", "schema": { "type": "integer" } } },
+    "requestBodies": { "NewDraft": { "required": true, "content": { "application/json": {
+        "schema": { "$ref": "#/components/schemas/Draft" },
+        "examples": { "one": { "$ref": "#/components/examples/Shown" } } } } } },
+    "examples": { "Shown": { "value": { "at": "2026-10-16T05:00:00Z" } } } },
+    "paths": {
+        "/rows": { "get": { "operationId": "rows",
+            "parameters": [
+                { "name": "after", "in": "query", "schema": { "type": ["string", "null"] } },
+                { "name": "before", "in": "query", "required": true, "schema": { "type": ["string", "null"] } }
+            ],
+            "responses": { "200": { "content": { "application/json":
+                { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Row" } } } } } } } },
+        "/drafts": { "post": { "operationId": "draft",
+            "parameters": [{ "$ref": "#/components/parameters/Limit" }],
+            "requestBody": { "$ref": "#/components/requestBodies/NewDraft" },
+            "responses": { "200": { "content": { "application/json":
+                { "schema": { "$ref": "#/components/schemas/Shown" } } } } } } }
+    }
+}"##;
+    // The program's own `Env` has a case the specification's does not.
+    let src = format!(
+        "enum Env {{ prod, staging }}\napi Ops from \"ops.json\" (base: \"/api\")\n{}",
+        page("Heading(\"Rows\").h1")
+    );
+    let mut program = parse_source(&src, "t.wf").unwrap();
+    webfluent::openapi::expand(&mut program, &|_| Some(spec.to_string())).unwrap();
+
+    let row = record(&program, "Row");
+    // A named string is a string where it is named, and declares nothing.
+    assert_eq!(field(row, "slug"), TypeRef::String);
+    // A null among the cases says the value may be null; the cases are the
+    // enum.
+    assert_eq!(
+        field(row, "tier"),
+        TypeRef::Optional(Box::new(TypeRef::Named("Tier".into())))
+    );
+    let tier = program.declarations.iter().find_map(|d| match d {
+        Declaration::Enum(e) if e.name == "Tier" => Some(e),
+        _ => None,
+    });
+    assert_eq!(tier.expect("`enum Tier`").case_names(), ["free", "paid"]);
+    // A case no name can spell — a digit first, a literal word, a letter
+    // outside ASCII, `__proto__` — is a string, with a `type` or without.
+    for name in ["factor", "answer", "odd", "proto", "loose"] {
+        assert_eq!(field(row, name), TypeRef::String, "{name}");
+    }
+    assert!(!program.declarations.iter().any(|d| matches!(
+        d,
+        Declaration::Enum(e) if ["Slug", "Factor", "Answer"].contains(&e.name.as_str())
+    )));
+    // A schema that is a `oneOf`, another name or an `allOf` of a non-record
+    // declares nothing: it is what it reads as, wherever it is named.
+    let node = || TypeRef::Named("Node".into());
+    assert_eq!(field(row, "maybe"), TypeRef::Optional(Box::new(node())));
+    assert_eq!(field(row, "pet"), TypeRef::Any);
+    assert_eq!(field(row, "alias"), node());
+    assert_eq!(field(row, "envOnly"), TypeRef::Named("Env".into()));
+    for name in ["MaybeNode", "Pet", "Alias", "EnvOnly", "Loose", "Short"] {
+        assert!(
+            !program.declarations.iter().any(|d| matches!(
+                d,
+                Declaration::Type(t) if t.name == name
+            )),
+            "`{name}` declares nothing"
+        );
+    }
+    // Beside a `type`, a composition only narrows it.
+    assert_eq!(field(row, "short"), TypeRef::String);
+    assert_eq!(field(row, "bag"), TypeRef::Map);
+    // 3.0's `nullable: true` counts beside an `allOf` or a `$ref` too.
+    assert_eq!(field(row, "near"), TypeRef::Optional(Box::new(node())));
+    assert_eq!(field(row, "also"), TypeRef::Optional(Box::new(node())));
+
+    // A `null` among an inline enum's cases, and a `oneOf` part that is only
+    // `null`, each say "or nothing".
+    assert_eq!(
+        field(row, "grade"),
+        TypeRef::Optional(Box::new(TypeRef::String))
+    );
+    assert_eq!(
+        field(row, "state"),
+        TypeRef::Optional(Box::new(TypeRef::Named("Env".into())))
+    );
+
+    // `anyOf` says "or nothing" as `oneOf` does.
+    assert_eq!(
+        field(row, "parent"),
+        TypeRef::Optional(Box::new(TypeRef::Named("Node".into())))
+    );
+
+    // The program's own `Env` wins, and is the only one.
+    let envs: Vec<_> = program
+        .declarations
+        .iter()
+        .filter_map(|d| match d {
+            Declaration::Enum(e) if e.name == "Env" => Some(e.case_names()),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(envs, [["prod", "staging"]]);
+
+    // A record that names itself is read once, and extends nothing.
+    let node = record(&program, "Node");
+    assert_eq!(node.extends, None);
+    assert_eq!(
+        field(node, "label"),
+        TypeRef::Optional(Box::new(TypeRef::String))
+    );
+
+    // What the schema around a part requires, the part's properties answer to
+    // — an object written in place, and a second record named.
+    let held = record(&program, "Held");
+    assert_eq!(field(held, "a"), TypeRef::String);
+    assert_eq!(
+        field(held, "b"),
+        TypeRef::Optional(Box::new(TypeRef::String))
+    );
+    let both = record(&program, "Both");
+    assert_eq!(both.extends.as_deref(), Some("Node"));
+    assert_eq!(field(both, "a"), TypeRef::String);
+    assert_eq!(field(both, "b"), TypeRef::String);
+
+    // A parameter that may be left out and may be null is `String?`, once.
+    let api = program
+        .declarations
+        .iter()
+        .find_map(|d| match d {
+            Declaration::Api(a) => Some(a),
+            _ => None,
+        })
+        .expect("the service");
+    let rows = api.endpoints.iter().find(|e| e.name == "rows").unwrap();
+    let after = &rows.params[0];
+    assert_eq!(after.name, "after");
+    assert_eq!(
+        after.prop_type,
+        TypeRef::Optional(Box::new(TypeRef::String))
+    );
+    assert!(after.optional);
+    // Required and nullable: it must be passed, and may be null.
+    let before = &rows.params[1];
+    assert_eq!(
+        before.prop_type,
+        TypeRef::Optional(Box::new(TypeRef::String))
+    );
+    assert!(!before.optional);
+
+    // A shared parameter and a shared request body are what their `$ref`s
+    // name; a body is required when it says so.
+    let draft = api.endpoints.iter().find(|e| e.name == "draft").unwrap();
+    let names: Vec<&str> = draft.params.iter().map(|p| p.name.as_str()).collect();
+    assert_eq!(names, ["limit", "body"]);
+    assert_eq!(
+        draft.params[0].prop_type,
+        TypeRef::Optional(Box::new(TypeRef::Number))
+    );
+    assert_eq!(draft.params[1].prop_type, TypeRef::Named("Draft".into()));
+    assert!(!draft.params[1].optional);
+    // The record the body sends keeps `String`, but for a field only the
+    // server writes.
+    let sent = record(&program, "Draft");
+    assert_eq!(field(sent, "when"), TypeRef::String);
+    assert_eq!(field(sent, "made"), TypeRef::Named("DateTime".into()));
+    // An example that names a schema sends nothing: `Shown` is only
+    // received.
+    let shown = record(&program, "Shown");
+    assert_eq!(field(shown, "at"), TypeRef::Named("DateTime".into()));
+}
+
 // ─── Validation the compiler knows about ─────────────────
 
 #[test]

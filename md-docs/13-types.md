@@ -371,7 +371,8 @@ page Deploys(path: "/") {
 The checker trusts the annotation: it cannot see what a URL will return.
 When the server publishes an OpenAPI specification, let the compiler read it
 instead — `api Backend from "openapi.json"` types every endpoint, parameter,
-response and error from the file, and turns each named schema into a `type`
+response and error from the file, and turns each named schema into a `type`,
+or an `enum` for a string with cases
 ([Data and APIs](17-data.md#from-a-specification)). An `api` written by hand
 types its calls the same way: `get users() -> [User]`.
 

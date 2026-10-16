@@ -674,3 +674,83 @@ fn an_image_is_the_asset_the_build_makes_of_it() {
     assert_eq!(found.len(), 1, "{found:?}");
     assert!(found[0].contains("widht"), "{found:?}");
 }
+
+// ─── Found building an app ───────────────────────────────────────────
+
+#[test]
+fn an_if_let_binding_is_a_name_in_the_whole_of_its_branch() {
+    let src = format!(
+        "type E {{ reason: String? }}\n\
+         component Pill(_ text: String) {{ Badge(text) }}\n\
+         component Tile(e: E) {{\n    \
+             Stack {{\n        \
+                 if let why = e.reason {{\n            \
+                     Pill(why)\n            \
+                     Row {{ Stack {{ Pill(why) }} }}\n        \
+                 }}\n    \
+             }}\n\
+         }}\n{}",
+        page(
+            "    resource r: E = fetch(\"/e\")\n    \
+             Tile(e: E(reason: null))\n    \
+             match r {\n        \
+                 ready(e) {\n            \
+                     if let why = e.reason { Row { Pill(why) } }\n            \
+                     Pill(nope)\n        \
+                 }\n        \
+                 else { Spinner }\n    \
+             }"
+        )
+    );
+    let found = with(&src, "V01");
+    // The one word nothing declares, and none of the bindings.
+    assert_eq!(found.len(), 1, "{found:?}");
+    assert!(found[0].contains("`nope`"), "{found:?}");
+}
+
+#[test]
+fn a_case_s_payload_is_a_name_in_its_arm() {
+    let src = format!(
+        "enum Status {{ idle, failed(reason: String) }}\n\
+         component Pill(_ text: String) {{ Badge(text) }}\n{}",
+        page(
+            "    state s: Status = .idle\n    \
+             match s {\n        \
+                 .failed(why) { Row { Pill(why) } }\n        \
+                 else { Text(\"Fine\") }\n    \
+             }"
+        )
+    );
+    let found = with(&src, "V01");
+    assert!(found.is_empty(), "{found:?}");
+}
+
+#[test]
+fn a05_a_button_whose_block_shows_text_has_a_label() {
+    let src = format!(
+        "component Glyph(_ name: String) {{ Host(tag: \"span\", class: \"ic\") }}\n\
+         component Caption(_ text: String) {{ Text(text) }}\n\
+         component Brand {{ Text(\"GitHub\") }}\n{}",
+        page(
+            "    state who = \"Ada\"\n    \
+             Button(class: \"go\") {\n        \
+                 on click { log(1) }\n        \
+                 Glyph(\"link\")\n        \
+                 Text(\"Continue with GitHub\")\n    \
+             }\n    \
+             Button { Row { Icon(\"user\")  Text(who) } }\n    \
+             Button { Caption(\"Save\") }\n    \
+             Button { Glyph(\"link\")  Brand }\n    \
+             Button(class: \"icon-only\") { Glyph(\"link\") }\n    \
+             Button { Text(\"\") }\n    \
+             Button { if who == \"\" { Text(\"Sign in\") } else { Text(who) } }\n    \
+             Button { Tooltip(\"Delete\") { Icon(\"trash\") } }\n    \
+             Button { Element(\"sl-icon\", name: \"gear\") }"
+        )
+    );
+    let found = with(&src, "A05");
+    // An icon alone, an empty text, a tooltip's hidden words and a custom
+    // element's tag still name nothing.
+    let lines: Vec<&str> = found.iter().map(|f| f.split(':').next().unwrap()).collect();
+    assert_eq!(lines, ["15", "16", "18", "19"], "{found:?}");
+}

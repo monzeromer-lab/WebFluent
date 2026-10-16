@@ -1609,7 +1609,11 @@ warning[A05]: Button has no text content
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a05-a-button-with-no-text
 ```
 
-**Fix:** Give it text, or an `aria-label:` when it shows only an icon.
+**Fix:** Give it text — `Button("Save")`, or a `Text` in its block beside
+the icon, `Button { Icon("check")  Text("Save") }` — or an `aria-label:`
+when it shows only an icon. A `Text` anywhere in the block names it — in a
+branch, in a component the block places, or reading state; a `Tooltip`'s
+words, which show only on hover, do not.
 
 ### A06 — A link with no text
 
@@ -2269,6 +2273,10 @@ warning[V01]: nothing in scope declares `primary`, so it reads as nothing — a 
 ```
 
 **Fix:** Write the flag with its dot — `Button("Save").primary` — or declare the name. The word is also a name nothing declares, so the build stops on it as `T13`; the editor shows both.
+
+A name a branch binds is declared through the whole of its block, however
+deep the element that reads it: `if let why = e.reason { Row { Pill(why) } }`,
+and a case's payload, `.failed(why) { … }`, draw nothing.
 
 ### V03 — Markup put in as markup
 

@@ -679,7 +679,12 @@ fn lint_ui_element(
 
             // A05: Button has no text content
             "Button" => {
-                if !has_positional_arg(&ui.args) && !has_accessible_name(&ui.args) {
+                // A block holds what the button shows, so `Button { Glyph("link")
+                // Text("Continue") }` is named by the text in it.
+                if !has_positional_arg(&ui.args)
+                    && !has_accessible_name(&ui.args)
+                    && !shows_text(&ui.children, heading_tracker)
+                {
                     warnings.push(A11yWarning::new(
                         "A05",
                         "Button has no text content",
@@ -1150,6 +1155,45 @@ fn visible_text(
             }
         }
     }
+}
+
+/// Whether a control's block shows text a reader sees, which then names it:
+/// a `Text` with something in it, whatever it reads — in an element's
+/// block, a branch, a loop, an arm, or the body of a component it places.
+/// Only a `Text` counts: a `Tooltip`'s words are hidden until hovered, an
+/// `Element`'s first argument is its tag, and a `Badge` alone is a count,
+/// not a name.
+fn shows_text(body: &[Statement], tracker: &HeadingTracker) -> bool {
+    draws_text(body, tracker, 0)
+}
+
+fn draws_text(body: &[Statement], tracker: &HeadingTracker, depth: usize) -> bool {
+    if depth > 8 {
+        return false;
+    }
+    let within = |body: &[Statement]| draws_text(body, tracker, depth + 1);
+    body.iter().any(|stmt| match &stmt.kind {
+        StatementKind::UIElement(el) => match &el.component {
+            ComponentRef::BuiltIn(n) if n == "Text" => el.args.iter().any(|a| match a {
+                Arg::Positional(Expr::StringLiteral(s)) => !s.trim().is_empty(),
+                Arg::Positional(_) => true,
+                Arg::Named(..) => false,
+            }),
+            ComponentRef::UserDefined(name) => {
+                tracker.component(name).is_some_and(|c| within(&c.body)) || within(&el.children)
+            }
+            _ => within(&el.children),
+        },
+        StatementKind::If(i) => {
+            within(&i.then_body)
+                || i.else_if_branches.iter().any(|(_, b)| within(b))
+                || i.else_body.as_deref().is_some_and(within)
+        }
+        StatementKind::For(f) => within(&f.body),
+        StatementKind::Show(s) => within(&s.body),
+        StatementKind::Match(m) => m.arms.iter().any(|a| within(&a.body)),
+        _ => false,
+    })
 }
 
 /// The first element a body renders — a component's root, when the body
