@@ -7,12 +7,10 @@
   // value changed is rebuilt in place; one whose body reads its index is
   // rebuilt when its position changes. Without a key the list is rebuilt.
   function each(parent, listFn, itemFn, config, keyFn) {
-    const marker = document.createComment("wf-for");
-    parent.appendChild(marker);
+    const start = region(parent, "wf-for");
     const key = (config && config.key) || keyFn || null;
     const byIndex = !!(config && config.index);
     let entries = new Map();
-    let currentNodes = [];
     const exiting = new Set();
     // What each item's body created, disposed of when the item leaves.
     let disposers = [];
@@ -50,7 +48,7 @@
       const seen = new Map();
       if (reducedMotion() || typeof requestAnimationFrame !== "function") return seen;
       for (const entry of entries.values()) {
-        for (const drawn of entry.nodes) {
+        for (const drawn of nodesNow(entry.nodes)) {
           const n = inPage(drawn);
           if (n instanceof Element && typeof n.getBoundingClientRect === "function") {
             const r = n.getBoundingClientRect();
@@ -139,28 +137,29 @@
       if (!key) {
         // Rebuilt whole.
         for (const d of disposers.splice(0)) d();
-        depart(currentNodes);
-        currentNodes = [];
+        // What the list holds now, what its items' own branches drew since
+        // included; what is already on its way out is not taken twice.
+        depart(between(start).filter((n) => !exiting.has(n)));
         untracked(() => {
           const frag = document.createDocumentFragment();
           items.forEach((item, index) => {
             const [made, dispose] = scoped(() => drawItem(itemFn, item, index));
             disposers.push(dispose);
             const nodes = toNodes(made);
-            for (const n of nodes) { frag.appendChild(n); currentNodes.push(n); }
+            for (const n of nodes) frag.appendChild(n);
             enter(nodes, index);
           });
-          if (marker.parentNode) marker.parentNode.insertBefore(frag, marker.nextSibling);
+          if (start.parentNode) start.parentNode.insertBefore(frag, start.nextSibling);
         });
         return;
       }
       untracked(() => {
-        const host = marker.parentNode;
+        const host = start.parentNode;
         if (!host) return;
         const before = positions();
         const next = new Map();
         const seen = new Map();
-        let cursor = marker;
+        let cursor = start;
         items.forEach((item, index) => {
           let k = key(item, index);
           if (next.has(k)) {
@@ -178,16 +177,20 @@
             entry.index = index;
           } else {
             const [made, dispose] = scoped(() => drawItem(itemFn, item, index));
-            entry = { item, index, nodes: toNodes(made), dispose };
-            if (old) { if (old.dispose) old.dispose(); removeNodes(old.nodes); }
+            // An item's nodes, with a branch or a list of its own kept by
+            // its marker: they are read as they are now each time the item
+            // is moved or taken away.
+            entry = { item, index, nodes: keepNodes(toNodes(made)), dispose };
+            if (old) { if (old.dispose) old.dispose(); removeNodes(nodesNow(old.nodes)); }
           }
           entries.delete(k);
-          cursor = place(host, entry.nodes, cursor);
-          if (!old) enter(entry.nodes, index);
+          const nodes = nodesNow(entry.nodes);
+          cursor = place(host, nodes, cursor);
+          if (!old) enter(nodes, index);
           next.set(k, entry);
         });
         // What is left never came back.
-        for (const gone of entries.values()) { if (gone.dispose) gone.dispose(); depart(gone.nodes); }
+        for (const gone of entries.values()) { if (gone.dispose) gone.dispose(); depart(nodesNow(gone.nodes)); }
         entries = next;
         slide(before);
       });

@@ -1235,6 +1235,214 @@ test("what an if branch, a match arm or a list item made goes when what owns it 
   assert.equal(gone.length, 5);
 });
 
+// ─── A branch inside a branch ────────────────────────────────────────────
+//
+// An `if`, a `match` or a `for` at the top of a branch body is drawn into
+// the branch's fragment, so its marker — and what it draws beside the
+// marker later — lands in the same parent as the branch's own nodes. The
+// branch used to remember the nodes it drew once, when it drew them, and
+// to take only those away; what the inner one drew since stayed on the
+// page after the branch had gone.
+
+/// A branch body, as the compiler writes one: a fragment the body draws into.
+function body(document, draw) {
+  const f = document.createDocumentFragment();
+  draw(f);
+  return f;
+}
+
+const texts = (parent, sel) => parent.querySelectorAll(sel).map((n) => n.textContent);
+
+test("an if inside an if-let that drew again goes when the outer branch does", () => {
+  const { WF, document } = loadRuntime();
+  const parent = document.createElement("div");
+  const picked = WF.signal(null);
+  const act = WF.signal(null);
+  // if let m = picked { if act == null { Stack(class: "sheet") { … } } }
+  WF.when(parent, () => picked() != null, () => body(document, (f) => {
+    const m = picked();
+    WF.when(f, () => act() == null, () => body(document, (g) => {
+      g.appendChild(WF.el("div", { className: "sheet" }, [`member ${m.id}`]));
+    }), null, null);
+  }), null, null);
+
+  picked.set({ id: 1 });
+  assert.deepEqual(texts(parent, ".sheet"), ["member 1"]);
+  act.set("remove");
+  assert.deepEqual(texts(parent, ".sheet"), [], "the inner branch closed");
+  act.set(null);
+  assert.deepEqual(texts(parent, ".sheet"), ["member 1"], "and opened again, drawing a new sheet");
+  picked.set(null);
+  assert.deepEqual(texts(parent, ".sheet"), [], "the outer branch takes the inner one's new sheet with it");
+  picked.set({ id: 2 });
+  assert.deepEqual(texts(parent, ".sheet"), ["member 2"], "one sheet, not the old one beside the new");
+});
+
+test("a match whose list drew again goes when the tab it sits in closes", () => {
+  const { WF, document } = loadRuntime();
+  const parent = document.createElement("div");
+  const tab = WF.signal("a");
+  const state = WF.signal("ready");
+  const rows = WF.signal(["one", "two"]);
+  // if tab == "a" { match res { ready(xs) { for x in xs { … } } } } else { … }
+  WF.when(parent, () => tab() === "a", () => body(document, (f) => {
+    WF.match(f, () => state(), () => rows(), {
+      loading: () => WF.el("p", { className: "spinner" }, ["…"]),
+      ready: (xs) => body(document, (g) => {
+        WF.each(g, () => rows(), (x) => WF.el("li", { className: "a" }, [x]), { key: (x) => x });
+      }),
+    });
+  }), () => body(document, (f) => {
+    f.appendChild(WF.el("li", { className: "b" }, ["tab b"]));
+  }), null);
+
+  assert.deepEqual(texts(parent, "li"), ["one", "two"]);
+  // The resource fetches again when the window takes the focus: the arm is
+  // drawn again, and so is the list it holds.
+  state.set("loading");
+  rows.set(["one", "two", "three"]);
+  state.set("ready");
+  assert.deepEqual(texts(parent, "li"), ["one", "two", "three"]);
+  rows.set(["three", "four"]);
+  assert.deepEqual(texts(parent, "li"), ["three", "four"]);
+  tab.set("b");
+  assert.deepEqual(texts(parent, "li"), ["tab b"], "tab a's list goes with tab a");
+  tab.set("a");
+  assert.deepEqual(texts(parent, "li"), ["three", "four"], "and comes back once");
+});
+
+test("an else-if chain shows one arm, whichever drew last", () => {
+  const { WF, document } = loadRuntime();
+  const parent = document.createElement("div");
+  const a = WF.signal(false);
+  const b = WF.signal(true);
+  // if a { A } else if b { B } else { C } — the else is another `when`.
+  WF.when(parent, () => a(), () => body(document, (f) => f.appendChild(WF.el("p", {}, ["A"]))),
+    () => body(document, (f) => {
+      WF.when(f, () => b(), () => body(document, (g) => g.appendChild(WF.el("p", {}, ["B"]))),
+        () => body(document, (g) => g.appendChild(WF.el("p", {}, ["C"]))), null);
+    }), null);
+  assert.deepEqual(texts(parent, "p"), ["B"]);
+  b.set(false);
+  assert.deepEqual(texts(parent, "p"), ["C"]);
+  a.set(true);
+  assert.deepEqual(texts(parent, "p"), ["A"], "the else arm's latest drawing went with it");
+  a.set(false);
+  assert.deepEqual(texts(parent, "p"), ["C"]);
+});
+
+test("a keyed item whose own if drew again is moved and taken away whole", () => {
+  const { WF, document } = loadRuntime();
+  const parent = document.createElement("ul");
+  const items = WF.signal([{ id: 1, open: WF.signal(false) }, { id: 2, open: WF.signal(false) }]);
+  WF.each(parent, () => items(), (item) => body(document, (f) => {
+    f.appendChild(WF.el("li", { className: "row" }, [`row ${item.id}`]));
+    WF.when(f, () => item.open(), () => body(document, (g) => {
+      g.appendChild(WF.el("li", { className: "detail" }, [`detail ${item.id}`]));
+    }), null, null);
+  }), { key: (item) => item.id });
+  const [one, two] = items();
+  one.open.set(true);
+  assert.deepEqual(texts(parent, "li"), ["row 1", "detail 1", "row 2"]);
+  items.set([two, one]);
+  assert.deepEqual(texts(parent, "li"), ["row 2", "row 1", "detail 1"], "the detail moves with its row");
+  items.set([two]);
+  assert.deepEqual(texts(parent, "li"), ["row 2"], "and goes with it");
+});
+
+test("a list inside a list item that drew again goes with the item, and an unkeyed rebuild leaves nothing", () => {
+  const { WF, document } = loadRuntime();
+  for (const key of [(g) => g, undefined]) {
+    const parent = document.createElement("div");
+    const inner = WF.signal(["x"]);
+    const groups = WF.signal(["g1"]);
+    WF.each(parent, () => groups(), (g) => body(document, (f) => {
+      f.appendChild(WF.el("h3", {}, [g]));
+      WF.each(f, () => inner(), (x) => WF.el("p", {}, [`${g}/${x}`]), { key: (x) => x });
+    }), key ? { key } : undefined);
+    inner.set(["x", "y"]);
+    assert.deepEqual(texts(parent, "p"), ["g1/x", "g1/y"]);
+    groups.set(["g2"]);
+    assert.deepEqual(texts(parent, "p"), ["g2/x", "g2/y"], `the old group's items went (${key ? "keyed" : "unkeyed"})`);
+    groups.set([]);
+    assert.deepEqual(texts(parent, "p"), []);
+    assert.deepEqual(texts(parent, "h3"), []);
+  }
+});
+
+test("a scoped slot whose fill holds an if that drew again is drawn again cleanly", () => {
+  const { WF, document } = loadRuntime();
+  const parent = document.createElement("div");
+  const selected = WF.signal("a");
+  const open = WF.signal(false);
+  WF.slot(parent, () => ({ item: selected() }), (_s) => body(document, (f) => {
+    WF.when(f, () => open(), () => body(document, (g) => g.appendChild(WF.el("p", {}, [_s.item]))), null, null);
+  }));
+  open.set(true);
+  assert.deepEqual(texts(parent, "p"), ["a"]);
+  selected.set("b");
+  assert.deepEqual(texts(parent, "p"), ["b"], "the fill's inner branch went with the old fill");
+});
+
+test("a branch with an exit takes what its inner branch drew since, after the exit and at once on a return", async () => {
+  const { WF, document } = loadRuntime();
+  const parent = document.createElement("div");
+  const outer = WF.signal(true);
+  const inner = WF.signal(true);
+  WF.when(parent, () => outer(), () => body(document, (f) => {
+    f.appendChild(WF.el("h2", {}, ["panel"]));
+    WF.when(f, () => inner(), () => body(document, (g) => g.appendChild(WF.el("p", {}, ["on"]))),
+      () => body(document, (g) => g.appendChild(WF.el("p", {}, ["off"]))), null);
+  }), null, { exit: "fadeOut" });
+  inner.set(false);
+  assert.deepEqual(texts(parent, "p"), ["off"]);
+  outer.set(false);
+  assert.deepEqual(texts(parent, "p"), ["off"], "still there while the exit plays");
+  await new Promise((r) => setImmediate(r));
+  assert.deepEqual(texts(parent, "p"), [], "gone once it has played");
+  assert.deepEqual(texts(parent, "h2"), []);
+
+  // Back before the exit is over: the leaving nodes go at once.
+  outer.set(true);
+  inner.set(false);
+  inner.set(true);
+  outer.set(false);
+  outer.set(true);
+  assert.deepEqual(texts(parent, "p"), ["on"]);
+  assert.deepEqual(texts(parent, "h2"), ["panel"]);
+  await new Promise((r) => setImmediate(r));
+  assert.deepEqual(texts(parent, "p"), ["on"], "the cancelled exit removes nothing that is showing");
+});
+
+test("a painted page taken over keeps a branch inside a branch whole", () => {
+  const { WF, document } = loadRuntime();
+  WF.setSsgMode(true);
+  const container = document.createElement("main");
+  paint(document, container, [
+    ["section", { class: "panel" }, [["#text", "Panel"]]],
+    ["p", { class: "note" }, [["#text", "open"]]],
+    ["footer", {}, [["#text", "end"]]],
+  ]);
+  const section = container.children[0];
+  const outer = WF.signal(true);
+  const inner = WF.signal(true);
+  WF.hydrate(() => body(document, (frag) => {
+    WF.when(frag, () => outer(), () => body(document, (f) => {
+      f.appendChild(WF.el("section", { className: "panel" }, ["Panel"]));
+      WF.when(f, () => inner(), () => body(document, (g) => g.appendChild(WF.el("p", { className: "note" }, ["open"]))),
+        () => body(document, (g) => g.appendChild(WF.el("p", { className: "note" }, ["closed"]))), null);
+    }), null, null);
+    frag.appendChild(WF.el("footer", {}, ["end"]));
+  }), container);
+  assert.equal(container.children[0], section, "the painted section is kept");
+  inner.set(false);
+  assert.deepEqual(container.children.map((n) => n.textContent), ["Panel", "closed", "end"]);
+  outer.set(false);
+  assert.deepEqual(container.children.map((n) => n.textContent), ["end"], "the painted section and the redrawn note go together");
+  outer.set(true);
+  assert.deepEqual(container.children.map((n) => n.textContent), ["Panel", "closed", "end"], "and come back before the footer");
+});
+
 test("a lifetime on a component's call belongs to its root element", () => {
   const { WF, document } = loadRuntime();
   const frag = document.createDocumentFragment();

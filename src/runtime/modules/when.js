@@ -1,7 +1,5 @@
   function when(parent, condFn, thenFn, elseFn, animConfig) {
-    const marker = document.createComment("wf-if");
-    parent.appendChild(marker);
-    let currentNodes = [];
+    const start = region(parent, "wf-if");
     let lastShow = undefined;
     let pendingRemoval = null; // Track in-progress exit animations
     // What the branch's body created, disposed of when the branch leaves.
@@ -25,9 +23,10 @@
         pendingRemoval = null;
       }
 
-      // Remove old nodes, once what asked for an exit has played it.
-      const toRemove = [...currentNodes];
-      currentNodes = [];
+      // Remove what the branch holds now — what a branch inside it drew
+      // since included — once what asked for an exit has played it. Its
+      // body is disposed of, so nothing in it draws again while it leaves.
+      const toRemove = between(start);
       const pending = leaveThenRemove(toRemove, animConfig, () => { pendingRemoval = null; });
       if (pending) pendingRemoval = { nodes: toRemove, pending };
 
@@ -46,10 +45,9 @@
           } else {
             nodes = [].concat(result).flat().filter(n => n instanceof Node);
           }
-          currentNodes = nodes.slice();
           const frag = document.createDocumentFragment();
           for (const n of nodes) frag.appendChild(n);
-          if (marker.parentNode) marker.parentNode.insertBefore(frag, marker.nextSibling);
+          if (start.parentNode) start.parentNode.insertBefore(frag, start.nextSibling);
           if (animConfig && animConfig.enter) {
             nodes.forEach(n => { if (n instanceof Element) animateIn(n, animConfig.enter, animConfig.duration, animConfig.delay, animConfig.easing); });
           }

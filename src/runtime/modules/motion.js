@@ -370,6 +370,60 @@
     if (el && el.style) el.style.viewTransitionName = String(name).replace(/[^\w-]/g, "-");
   }
 
+  // ─── Regions ─────────────────────────────────────────
+  // An `if`, a `match`, a slot and a list each draw between two markers of
+  // their own, and what one holds is what lies between them — read from
+  // the page when it is needed, never remembered from when it was drawn.
+  // One at the top of another's body draws into the same parent, between
+  // the outer one's markers, so what it drew since goes with the rest. (A
+  // branch used to keep the list of nodes it drew; what a branch inside it
+  // drew later stayed on the page after both had gone.)
+  function region(parent, name) {
+    const start = document.createComment(name);
+    const end = document.createComment("/" + name);
+    start.__wfEnd = end;
+    parent.appendChild(start);
+    parent.appendChild(end);
+    return start;
+  }
+
+  /// What lies between a region's markers now. An end that is not after
+  /// the start takes nothing, rather than everything that follows.
+  function between(start) {
+    const out = [];
+    for (let n = start.nextSibling; n; n = n.nextSibling) {
+      if (n === start.__wfEnd) return out;
+      out.push(n);
+    }
+    return [];
+  }
+
+  /// What a drawing made, kept to be read again later: a region among the
+  /// nodes is kept by its first marker alone, since what lies between its
+  /// markers changes.
+  function keepNodes(nodes) {
+    const out = [];
+    for (let i = 0; i < nodes.length; i++) {
+      out.push(nodes[i]);
+      const end = nodes[i] && nodes[i].__wfEnd;
+      const j = end ? nodes.indexOf(end, i + 1) : -1;
+      if (j > i) i = j;
+    }
+    return out;
+  }
+
+  /// The nodes `keepNodes` kept, as they are in the page now: a region's
+  /// first marker stands for both its markers and everything between them.
+  function nodesNow(nodes) {
+    const out = [];
+    for (const drawn of nodes) {
+      const n = inPage(drawn);
+      out.push(n);
+      if (n && n.__wfEnd) out.push(...between(n), n.__wfEnd);
+    }
+    return out;
+  }
+
   // ─── Leaving ─────────────────────────────────────────
   // Every exit the nodes on their way out asked for: the branch's own, on
   // each root, and the one any element beneath carries as `data-wf-exit`.

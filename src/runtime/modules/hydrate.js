@@ -22,8 +22,9 @@
   // What holds a node says so with `live(node)` (core); a listener added
   // while the page is drawn says so by itself, and the compiler marks the
   // elements its own closures reach. A container that a `when`, `each`,
-  // `match` or `slot` draws into is not held: those insert beside a marker,
-  // and the marker is moved into the painted parent. The router reaches its
+  // `match` or `slot` draws into is not held: those draw between two
+  // markers, and the markers are moved into the painted parent, around the
+  // painted nodes matched to what they drew. The router reaches its
   // container through `inPage()`, which names the painted node once it is
   // kept.
 
