@@ -319,7 +319,7 @@ page Deploys(path: &quot;/&quot;, title: &quot;Deploys&quot;, description: &quot
 <ul>
 <li><code>resource name = fetch(url)</code> starts the request when the page renders. The annotation (<code>: [Deploy]</code>) types the value; without it the value is <code>Any</code>.</li>
 <li><code>match</code> over a resource has three arms — <code>loading</code>, <code>error(e)</code>, <code>ready(v)</code> — and <code>else</code>. The static paint renders the <code>loading</code> arm.</li>
-<li><code>name.reload()</code> makes the request again; <code>name.state</code> is <code>&quot;loading&quot;</code>, <code>&quot;ready&quot;</code> or <code>&quot;error&quot;</code>; <code>name.data</code> the last value (<code>T?</code>), <code>name.error</code> the last error.</li>
+<li><code>name.reload()</code> makes the request again; <code>name.state</code> is <code>&quot;loading&quot;</code>, <code>&quot;ready&quot;</code> or <code>&quot;error&quot;</code>; <code>name.data</code> the last value (<code>T?</code>), <code>name.error</code> the last error. Each is live wherever it is read — a label, a splice, an attribute — so <code>Button(if plan.data != null { &quot;Request approval&quot; } else { &quot;Deploy&quot; })</code> changes when the plan arrives, with no <code>derived</code> in between.</li>
 <li>A failed response (<code>!ok</code>) is an error with <code>e.message</code> of <code>HTTP 500</code>.</li>
 </ul>
                             </div>

@@ -1,3 +1,28 @@
+# WebFluent v5.6.1 Release Notes
+
+Two things that compiled and then did not work in the browser.
+
+## Fixes
+
+- **A resource read in a label follows the resource.** Whether text or an
+  attribute is drawn live was decided by the reads a state compiles to, and
+  a resource's or a connection's values are read through its handle, so a
+  label that read only one was worked out once, while it was loading:
+  `Button(if plan.data != null { "Request approval" } else { "Deploy" })`
+  stayed "Deploy" after the plan arrived, and `Text("{rows.state}")` stayed
+  "loading". `name.state`, `.data`, `.error` and a connection's `.messages`
+  are now live in text, a splice and an attribute alike.
+- **A list's key may read the index.** `for e, n in list by n` threw before
+  the list drew (`_n is not defined`), and `wf check` passed: the key was
+  compiled with the item alone. It is given the item and the index, so `by
+  n` works and so does `by "{e.id}-{n}"` — though a key of the index alone
+  moves with the position, and keeps nothing across an insert.
+
+## Upgrading
+
+Nothing to change. A `derived` value written only to make a resource's
+label live can go back into the label.
+
 # WebFluent v5.6.0 Release Notes
 
 A name the language has is not a program's to declare.

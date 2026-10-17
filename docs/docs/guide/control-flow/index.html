@@ -357,7 +357,7 @@ page List(path: &quot;/&quot;) {
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>by expr</code> names the key: with it, an item that stays in the list keeps its nodes — focus, scroll and animation state survive an insert, a removal or a move, and moves slide. Without a key the list is rebuilt when it changes. Keys must be unique; the runtime warns once when two items share one. Looping over something that is not a list is an error (<code>T08</code>).</p>
+<p><code>by expr</code> names the key: with it, an item that stays in the list keeps its nodes — focus, scroll and animation state survive an insert, a removal or a move, and moves slide. Without a key the list is rebuilt when it changes. Keys must be unique; the runtime warns once when two items share one. A key may read the index as well as the item (<code>for t, i in rows by &quot;{t.id}-{i}&quot;</code>), but a key of the index alone moves with the position, not the item: after an insert every item has another's key, and nothing is kept. Key by what identifies the item. Looping over something that is not a list is an error (<code>T08</code>).</p>
                             </div>
                             <h2 class="wf-heading" id="show">show</h2>
                             <div class="wf-markdown">
