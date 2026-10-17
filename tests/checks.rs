@@ -921,3 +921,29 @@ fn a_build_refuses_a_name_the_language_has_where_it_is_written() {
         assert!(!out.contains("E901"), "{name}: {out}");
     }
 }
+
+#[test]
+fn e118_is_reported_in_every_file_that_declares_the_name() {
+    // The same declaration at the same line and column of two files is two
+    // findings. One was taken for the other, so the second file's `state
+    // query` went unreported until the first was renamed.
+    let store = |name: &str| format!("store {name} {{\n    state query = \"\"\n}}\n");
+    let project = Project::new(
+        "e118-two-files",
+        &[
+            ("webfluent.app.json", r#"{ "name": "t" }"#),
+            ("src/stores/a.wf", &store("A")),
+            ("src/stores/b.wf", &store("B")),
+            (
+                "src/App.wf",
+                "page P(path: \"/\", title: \"T\", description: \"D\") {\n    use A\n    use B\n    Heading(\"{A.query}{B.query}\").h1\n}\n",
+            ),
+        ],
+    );
+    let (ok, stdout, stderr) = project.wf("check", &["-d"]);
+    let out = stdout + &stderr;
+    assert!(!ok, "{out}");
+    assert_eq!(out.matches("error[E118]").count(), 2, "{out}");
+    assert!(out.contains("src/stores/a.wf:2:5"), "{out}");
+    assert!(out.contains("src/stores/b.wf:2:5"), "{out}");
+}

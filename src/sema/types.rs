@@ -880,10 +880,12 @@ impl<'a, 'p> Checker<'a, 'p> {
         // A name bound twice at one place is reported once. What is
         // already reported is asked, not remembered apart: a `derived`
         // value is inferred once quietly, its findings dropped, before it
-        // is checked.
+        // is checked. The place is a file's: one program's findings share
+        // this list, and `state query` on line 12 of two stores is two.
         let message = format!("`{name}` is a name the language already has: {what}");
         if self.info.findings.errors.iter().any(|d| {
             d.code == "E118"
+                && d.file == self.file
                 && d.line == span.line as usize
                 && d.column == span.col as usize
                 && d.message == message
