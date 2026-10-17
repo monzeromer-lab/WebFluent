@@ -1,0 +1,22 @@
+test "a resource read only in a label follows the resource" {
+    // The page's own script: a request the test's server answers, whose
+    // body is not JSON, so the resource leaves `loading` for `error`.
+    resource script = fetch("/app.js")
+    Button(if script.state == "loading" { "Loading" } else { "Arrived" })
+    Text("Script{if script.state != "loading" { " · done" } else { "" }}")
+    Text("state is {script.state}")
+    Button("Wait")
+    click "Wait"
+    expect "Arrived"
+    expect "Script · done"
+    expect not "state is loading"
+}
+test "a list keyed by its index draws, and follows the list" {
+    state items = ["a", "b"]
+    for item, n in items by n { Text("row {n}: {item}") }
+    Button("Prepend") { on click { items = ["z", ...items] } }
+    expect "row 0: a"
+    click "Prepend"
+    expect "row 0: z"
+    expect "row 2: b"
+}

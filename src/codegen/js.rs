@@ -4996,10 +4996,21 @@ impl JsCodegen {
         // case an item is rebuilt when its position changes.
         let mut parts = Self::animate_config_parts(&for_stmt.animate);
         if let Some(key) = &for_stmt.key {
+            // The runtime calls the key with the item and its index, so a key
+            // may read either. It was given the item alone, and `by n` read
+            // a `_n()` nothing declared: the page threw before the list drew.
+            let bound = self.loop_bindings.len();
             self.loop_bindings.push(for_stmt.item.clone());
+            let params = match &for_stmt.index {
+                Some(index) => {
+                    self.loop_bindings.push(index.clone());
+                    format!("{}, {index}", for_stmt.item)
+                }
+                None => for_stmt.item.clone(),
+            };
             let key_js = self.emit_expr(key);
-            self.loop_bindings.pop();
-            parts.push(format!("key: ({}) => {}", for_stmt.item, key_js));
+            self.loop_bindings.truncate(bound);
+            parts.push(format!("key: ({params}) => {key_js}"));
             if for_stmt.index.is_some() {
                 parts.push("index: true".to_string());
             }
@@ -6575,6 +6586,14 @@ impl JsCodegen {
 
     fn is_reactive(&self, expr_str: &str) -> bool {
         is_reactive_expr(expr_str)
+            // What a resource or a connection holds is a signal on its
+            // handle — `_rows.data()`, `_chat.messages()` — which the
+            // `_name()` pattern does not see. A label that read only a
+            // resource was worked out once, while it was loading.
+            || self
+                .resources
+                .iter()
+                .any(|r| reads_handle(expr_str, &format!("_{r}.")))
             || expr_str.contains("_p.")
             || self
                 .form_handles
@@ -6585,6 +6604,17 @@ impl JsCodegen {
                 .iter()
                 .any(|s| expr_str.contains(&format!("{s}.")))
     }
+}
+
+/// Whether `js` reads through `handle` (`_rows.`), as a name of its own and
+/// not the end of a longer one (`max_rows.`).
+fn reads_handle(js: &str, handle: &str) -> bool {
+    js.match_indices(handle).any(|(at, _)| {
+        js[..at]
+            .chars()
+            .next_back()
+            .is_none_or(|c| !(c.is_alphanumeric() || c == '_' || c == '$' || c == '.'))
+    })
 }
 
 fn is_reactive_expr(expr_str: &str) -> bool {

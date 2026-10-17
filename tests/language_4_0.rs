@@ -2219,7 +2219,7 @@ fn a_state_named_like_a_generated_binding_is_still_the_state() {
     let js = spa_generated(&page(
         "state n = 0\n    for item, i in [1, 2] by item { Text(\"{i}\") }\n    Button(\"go\") { on click(e) { n = e.x } }",
     ));
-    assert!(js.contains("key: (item) => item"), "{js}");
+    assert!(js.contains("key: (item, i) => item"), "{js}");
     assert!(js.contains("(e) => { _n.set(e.x); }"), "{js}");
 }
 
@@ -2396,6 +2396,66 @@ fn an_escape_inside_a_splices_own_string_is_that_strings() {
         js.contains(r#"?? "none""#) || js.contains(r#"??"none""#),
         "{js}"
     );
+}
+
+/// What a resource or a connection holds, read in text or an attribute, is
+/// drawn live. The check that decides whether a value follows what it reads
+/// knew a state's `_name()` and not a handle's `_name.data()`, so a label
+/// that read only a resource — `if r.data != null { … } else { "Open" }` —
+/// was worked out once, while the resource was loading, and never again.
+#[test]
+fn a_resource_or_a_connection_read_in_text_or_an_attribute_follows_it() {
+    let head = "type Alarm { id: String }\ntype Alarms { open: [Alarm] }\n";
+    for (body, live) in [
+        (
+            "Text(if r.data != null { \"Open · {r.data?.open.length ?? 0}\" } else { \"Open\" })",
+            "() => ((_r.data() != null) ? `Open · ",
+        ),
+        (
+            "Button(if r.data != null { \"Request approval\" } else { \"Deploy\" })",
+            "() => ((_r.data() != null) ? \"Request approval\"",
+        ),
+        (
+            "Text(\"Open{if r.data != null { \\\" · x\\\" } else { \\\"\\\" }}\")",
+            "() => `Open${",
+        ),
+        (
+            "Text(\"state is {r.state}\")",
+            "() => `state is ${_r.state()}`",
+        ),
+        (
+            "Button(\"Go\", disabled: r.data == null)",
+            "() => (_r.data() == null)",
+        ),
+        (
+            "Text(\"{ticks.messages.length} ticks\")",
+            "() => `${_ticks.messages().length} ticks`",
+        ),
+    ] {
+        let js = spa_generated(&format!(
+            "{head}{}",
+            page(&format!(
+                "resource r: Alarms = fetch(\"/api/alarms\")\n    stream ticks = sse(\"/events\")\n    {body}"
+            ))
+        ));
+        assert!(js.contains(live), "`{body}` should follow the handle: {js}");
+    }
+}
+
+/// A list keyed by its index hands the key function the index. The key was
+/// compiled with the item alone, so `by n` read a `_n()` nothing declared and
+/// the page threw before the list drew.
+#[test]
+fn a_list_keyed_by_its_index_hands_the_key_function_the_index() {
+    let js = spa_generated(&page(
+        "state items = [\"a\", \"b\"]\n    for item, n in items by n { Text(\"{n}: {item}\") }",
+    ));
+    assert!(js.contains("key: (item, n) => n"), "{js}");
+    assert!(!js.contains("_n()"), "{js}");
+    let js = spa_generated(&page(
+        "state items = [\"a\", \"b\"]\n    for item, n in items by \"{item}-{n}\" { Text(item) }",
+    ));
+    assert!(js.contains("key: (item, n) => `${item}-${n}`"), "{js}");
 }
 
 /// A browser value read in text is drawn live. Only conditions were: the
