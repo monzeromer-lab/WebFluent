@@ -49,7 +49,9 @@ page Deploys(path: "/", title: "Deploys", description: "Recent deploys.") {
   — and `else`. The static paint renders the `loading` arm.
 - `name.reload()` makes the request again; `name.state` is `"loading"`,
   `"ready"` or `"error"`; `name.data` the last value (`T?`), `name.error`
-  the last error.
+  the last error. Each is live wherever it is read — a label, a splice, an
+  attribute — so `Button(if plan.data != null { "Request approval" } else {
+  "Deploy" })` changes when the plan arrives, with no `derived` in between.
 - A failed response (`!ok`) is an error with `e.message` of `HTTP 500`.
 
 ### Options

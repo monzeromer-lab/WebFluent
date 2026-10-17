@@ -387,7 +387,9 @@ page Doc(path: "/") {
         Text(user.name)
     }
 
-    // Loop, keyed: an item keeps its nodes across inserts, removals and moves
+    // Loop, keyed: an item keeps its nodes across inserts, removals and moves.
+    // The key may read the index too (`by "{item.id}-{i}"`); the index alone
+    // moves with the position, so key by what identifies the item
     for item in items by item.id {
         Card { Text(item.name) }
     }

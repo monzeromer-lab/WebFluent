@@ -932,7 +932,9 @@ if let user = session.user {
     Text(user.name)
 }
 
-// Loop, keyed: an item keeps its nodes across inserts, removals and moves
+// Loop, keyed: an item keeps its nodes across inserts, removals and moves.
+// The key may read the index too (`by "{item.id}-{i}"`); the index alone
+// moves with the position, so key by what identifies the item
 for item in items by item.id {
     Card { Text(item.name) }
 }
@@ -972,7 +974,10 @@ match users {
 A resource declares its type — `resource users: [User] = fetch(…)` — and
 the `ready` arm's binding has it. Options: `fetch(url, method: "POST",
 body: { key: value }, headers: { "Authorization": token })`. The request
-repeats when a URL that reads state changes.
+repeats when a URL that reads state changes. `users.state`, `users.data` and
+`users.error` (and a connection's `.messages`) are live wherever they are
+read — `Button(if plan.data != null { "Request approval" } else { "Deploy"
+})` changes when the plan arrives, with no `derived` in between.
 
 Map literals support **quoted string keys** for headers and special field names:
 

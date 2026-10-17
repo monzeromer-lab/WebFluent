@@ -78,7 +78,11 @@ page List(path: "/") {
 `by expr` names the key: with it, an item that stays in the list keeps its
 nodes — focus, scroll and animation state survive an insert, a removal or a
 move, and moves slide. Without a key the list is rebuilt when it changes.
-Keys must be unique; the runtime warns once when two items share one.
+Keys must be unique; the runtime warns once when two items share one. A key
+may read the index as well as the item (`for t, i in rows by "{t.id}-{i}"`),
+but a key of the index alone moves with the position, not the item: after
+an insert every item has another's key, and nothing is kept. Key by what
+identifies the item.
 Looping over something that is not a list is an error (`T08`).
 
 ## `show`
