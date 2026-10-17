@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.5</p>
+                            <p class="wf-text wf-s859a58d7">5.6</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -285,6 +285,10 @@
 <p>Run the installer again — it replaces the binary in place — or <code>cargo install webfluent --force</code>. <code>wf --version</code> says what you have. Update <code>wf-lsp</code> and the editor extension with it: the language server is built from the same compiler.</p>
 <p>The full notes for every release are in <a href="https://github.com/monzeromer-lab/WebFluent/blob/master/RELEASE_NOTES.md"><code>RELEASE_NOTES.md</code></a>; what follows is what an upgrade asks of you.</p>
                             </div>
+                            <h2 class="wf-heading" id="5-6">5.6</h2>
+                            <div class="wf-markdown">
+<p>5.6 refuses a name the language already has as a program's own (<a href="/docs/guide/diagnostics#e118-a-name-the-language-already-has"><code>E118</code></a>): a <code>state env</code>, a loop's <code>t</code>, a <code>persist theme</code>, an action named <code>update</code>. Each compiled before and read the language's value where the program meant its own — a page's <code>state env</code> showed <code>[object Object]</code>. Run <code>wf check</code>: the message names the declaration and suggests a name of your own, and renaming it and its reads is the whole change.</p>
+                            </div>
                             <h2 class="wf-heading" id="5-0">5.0</h2>
                             <div class="wf-markdown">
 <p>5.0 makes the compiler refuse much more of what used to compile and then fail in the browser. A project that built under 4.x may stop on errors it always had. Start with a check, which writes nothing:</p>
@@ -417,6 +421,7 @@
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
                         <a class="wf-link wf-s3e136ca4" href="#installing-a-newer-version">Installing a newer version</a>
+                        <a class="wf-link wf-s3e136ca4" href="#5-6">5.6</a>
                         <a class="wf-link wf-s3e136ca4" href="#5-0">5.0</a>
                         <a class="wf-link wf-s3e136ca4" href="#4-2">4.2</a>
                         <a class="wf-link wf-s3e136ca4" href="#4-1">4.1</a>
@@ -450,7 +455,7 @@
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.5, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.6, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -477,7 +482,7 @@
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.5 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.6 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

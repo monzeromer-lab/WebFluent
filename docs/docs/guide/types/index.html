@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.5</p>
+                            <p class="wf-text wf-s859a58d7">5.6</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -836,10 +836,10 @@ page Records(path: &quot;/&quot;) {
         Todo(id: &quot;2&quot;, title: &quot;Ship&quot;, done: true, tone: .info, note: &quot;Friday&quot;),
     ]
     state special: Admin = Admin(id: &quot;3&quot;, title: &quot;Review&quot;, owner: &quot;sam&quot;)
-    for t in todos by t.id {
+    for todo in todos by todo.id {
         Row(gap: .sm) {
-            Text(t.title)
-            if let n = t.note { Badge(n).info }
+            Text(todo.title)
+            if let n = todo.note { Badge(n).info }
         }
     }
     Text(&quot;{special.owner} owns {special.title}&quot;)
@@ -906,7 +906,7 @@ page Enums(path: &quot;/&quot;) {
                             <h2 class="wf-heading" id="where-types-come-from">Where types come from</h2>
                             <div class="wf-markdown">
 <p><strong>Declared</strong> — annotations, a <code>type</code>'s fields, an <code>enum</code>'s cases, a page's route parameters, an event's parameters, a component's props.</p>
-<p><strong>Inferred</strong> — a literal; a list of literals (<code>[1, 2]</code> is <code>[Number]</code>, <code>[]</code> is <code>[Any]</code>); a record construction; a <code>derived</code> from its expression; a <code>state</code> from its initial value (one that starts as <code>null</code> is <code>Any?</code>); a <code>for</code> binding from the list's element type; a <code>match</code> arm's binding; an <code>if let</code> binding; a lambda's parameters from what the method expects (<code>items.filter(t =&gt; …)</code> gives <code>t</code> the item type).</p>
+<p><strong>Inferred</strong> — a literal; a list of literals (<code>[1, 2]</code> is <code>[Number]</code>, <code>[]</code> is <code>[Any]</code>); a record construction; a <code>derived</code> from its expression; a <code>state</code> from its initial value (one that starts as <code>null</code> is <code>Any?</code>); a <code>for</code> binding from the list's element type; a <code>match</code> arm's binding; an <code>if let</code> binding; a lambda's parameters from what the method expects (<code>items.filter(item =&gt; …)</code> gives <code>item</code> the item type).</p>
 <p><strong>From the registry</strong> — the type of every built-in prop; what a <code>bind:</code> needs (<code>Checkbox</code> and <code>Switch</code> a <code>Bool</code>, <code>Slider</code> a <code>Number</code>, <code>Input</code> a <code>String</code> or a <code>Number</code> by its type).</p>
 <p><strong>From the method tables</strong> — on a <code>String</code>: <code>trim</code>, <code>toLowerCase</code>, <code>toUpperCase</code>, <code>replace</code>, <code>slice</code>, <code>padStart</code>, <code>repeat</code>, <code>capitalize</code>, <code>truncate(n)</code> → <code>String</code>; <code>length</code>, <code>indexOf</code> → <code>Number</code>; <code>includes</code>, <code>startsWith</code>, <code>endsWith</code> → <code>Bool</code>; <code>split</code> → <code>[String]</code>. On a list: <code>map</code> → <code>[U]</code> from the lambda; <code>filter</code>, <code>slice</code>, <code>concat</code>, <code>sort</code>, <code>sortBy</code>, <code>unique</code>, <code>take</code>, <code>flatMap</code> → <code>[T]</code>; <code>find</code>, <code>first</code>, <code>last</code> → <code>T?</code>; <code>some</code>, <code>every</code>, <code>includes</code> → <code>Bool</code>; <code>length</code>, <code>sum</code>, <code>indexOf</code>, <code>findIndex</code> → <code>Number</code>; <code>join</code> → <code>String</code>; <code>groupBy</code> → <code>Map</code>; <code>reduce</code> → the initial value's type. On a <code>Number</code>: <code>toFixed</code>, <code>toString</code> → <code>String</code>. Anything else is <code>Any</code>. The full lists are in <a href="/docs/guide/built-ins">Built-ins</a>.</p>
 <p><strong>From stores</strong> — <code>Todos.items</code> has the type of the store's state, <code>Todos.add</code> the signature of its action.</p>
@@ -961,14 +961,14 @@ page Infer(path: &quot;/&quot;) {
 
 page Narrow(path: &quot;/&quot;) {
     state sel: Todo? = null
-    state t: Todo = Todo(id: &quot;1&quot;, title: &quot;x&quot;)
-    if let n = t.note { Text(&quot;{n.length} chars&quot;) }
+    state todo: Todo = Todo(id: &quot;1&quot;, title: &quot;x&quot;)
+    if let n = todo.note { Text(&quot;{n.length} chars&quot;) }
     if sel != null { Text(sel.title) }
     if sel { Text(sel.title) }
     derived label = if sel != null { sel.title } else { &quot;none&quot; }
-    Text(t.note ?? &quot;no note&quot;)
+    Text(todo.note ?? &quot;no note&quot;)
     Text(sel?.title ?? &quot;nothing selected&quot;)
-    Button(&quot;Pick&quot;) { on click { sel = t } }
+    Button(&quot;Pick&quot;) { on click { sel = todo } }
 }</code>
                             </div>
                             <div class="wf-markdown">
@@ -1195,7 +1195,7 @@ page Deploys(path: &quot;/&quot;) {
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.5, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.6, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -1222,7 +1222,7 @@ page Deploys(path: &quot;/&quot;) {
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.5 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.6 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

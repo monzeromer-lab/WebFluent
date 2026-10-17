@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.5</p>
+                            <p class="wf-text wf-s859a58d7">5.6</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -350,6 +350,7 @@ page Rows(path: &quot;/&quot;, title: &quot;Rows&quot;, description: &quot;Rows 
                             <div class="wf-markdown">
 <p><code>env.PUBLIC_API</code> and <code>env.ANALYTICS_ID</code> may be read from a page; <code>env.STRIPE_SECRET</code> read from one is a <strong>compile error</strong>, naming the file and the line. A private value is still there for <a href="/docs/guide/server-rendering">server rendering</a>, which runs where a secret stays secret — and it never reaches the bundle: the build writes only public values into it.</p>
 <p>A secret a third party needs belongs in a request your server makes, not in a page (<a href="/docs/guide/security#sessions-and-tokens">Security</a>).</p>
+<p><code>env</code> is the language's name for these settings, and only theirs: nothing a program declares may be called <code>env</code> — not a <code>state</code>, a prop, a route parameter, a loop item, nor a top-level <code>const</code> (<a href="/docs/guide/diagnostics#e118-a-name-the-language-already-has"><code>E118</code></a>). A value that says which stage a page is about is a <code>target</code> or a <code>stage</code>.</p>
                             </div>
                             <h2 class="wf-heading" id="a-build-per-environment">A build per environment</h2>
                             <div class="wf-markdown">
@@ -449,7 +450,7 @@ page Rows(path: &quot;/&quot;, title: &quot;Rows&quot;, description: &quot;Rows 
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.5, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.6, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -476,7 +477,7 @@ page Rows(path: &quot;/&quot;, title: &quot;Rows&quot;, description: &quot;Rows 
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.5 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.6 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

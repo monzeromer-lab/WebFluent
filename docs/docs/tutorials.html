@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.5</p>
+                            <p class="wf-text wf-s859a58d7">5.6</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -444,8 +444,8 @@ enum Filter { all, open, done }</code>
 store Todos {
     persist items: [Todo] = []
 
-    derived open = items.filter(t =&gt; !t.done)
-    derived done = items.filter(t =&gt; t.done)
+    derived open = items.filter(todo =&gt; !todo.done)
+    derived done = items.filter(todo =&gt; todo.done)
 
     action add(title: String) {
         let text = title.trim()
@@ -454,11 +454,11 @@ store Todos {
     }
 
     action toggle(id: Uuid) {
-        items = items.map(t =&gt; if t.id == id { { ...t, done: !t.done } } else { t })
+        items = items.map(todo =&gt; if todo.id == id { { ...todo, done: !todo.done } } else { todo })
     }</code>
                             </div>
                             <div class="wf-markdown">
-<p>A store is state any page or component can read (<a href="/docs/guide/stores">Stores</a>). <code>persist</code> is <code>state</code> that is kept in the browser's storage: the list is there after a reload, and a second tab follows the first, with no storage code written. <code>derived</code> values follow what they read — <code>open</code> is always the todos not done. An action is the only place state changes; <code>{ ...t, done: !t.done }</code> is the todo with one field changed.</p>
+<p>A store is state any page or component can read (<a href="/docs/guide/stores">Stores</a>). <code>persist</code> is <code>state</code> that is kept in the browser's storage: the list is there after a reload, and a second tab follows the first, with no storage code written. <code>derived</code> values follow what they read — <code>open</code> is always the todos not done. An action is the only place state changes; <code>{ ...todo, done: !todo.done }</code> is the todo with one field changed.</p>
 <p>The rest of the store renames, removes and clears in the same way — see the <a href="https://github.com/monzeromer-lab/WebFluent/blob/master/examples/tutorials/easy-todos/src/stores/Todos.wf">whole file</a>.</p>
                             </div>
                             <h3 class="wf-heading" id="step-4-one-row">Step 4: one row</h3>
@@ -652,7 +652,7 @@ test &quot;adding a todo puts it in the list&quot; {
     state draft = &quot;&quot;
     Input(bind: draft, aria-label: &quot;New todo&quot;)
     Button(&quot;Add&quot;) { on click { Todos.add(draft)  draft = &quot;&quot; } }
-    for t in Todos.items by t.id { TodoRow(t) }
+    for todo in Todos.items by todo.id { TodoRow(todo) }
     Text(&quot;{Todos.open.length} left&quot;)
 
     expect &quot;0 left&quot;
@@ -1929,7 +1929,7 @@ page Items(path: &quot;/items&quot;, title: &quot;Items&quot;, description: &quo
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.5, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.6, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -1956,7 +1956,7 @@ page Items(path: &quot;/items&quot;, title: &quot;Items&quot;, description: &quo
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.5 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.6 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

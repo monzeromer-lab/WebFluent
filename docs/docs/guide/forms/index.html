@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.5</p>
+                            <p class="wf-text wf-s859a58d7">5.6</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -330,11 +330,11 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">for t in todos by t.id {
-    Input(bind: t.title, label: &quot;Title&quot;)
-    Checkbox(bind: t.done, label: &quot;Done&quot;)
+                                <code class="wf-code wf-code--block wf-sa8223565">for todo in todos by todo.id {
+    Input(bind: todo.title, label: &quot;Title&quot;)
+    Checkbox(bind: todo.done, label: &quot;Done&quot;)
 }
-Text(&quot;{todos.filter(t =&gt; !t.done).length} left&quot;)</code>
+Text(&quot;{todos.filter(todo =&gt; !todo.done).length} left&quot;)</code>
                             </div>
                             <div class="wf-markdown">
 <p>The item is written and the list is told it changed, so everything that reads <code>todos</code> follows. In a keyed loop that happens as the reader types; in a loop with no <code>by</code>, which redraws every item when its list changes, the list hears of it when the field is left, so the row is not redrawn under the cursor.</p>
@@ -842,7 +842,7 @@ page Save(path: &quot;/&quot;) {
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.5, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.6, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -869,7 +869,7 @@ page Save(path: &quot;/&quot;) {
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.5 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.6 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

@@ -1,3 +1,40 @@
+# WebFluent v5.6.0 Release Notes
+
+A name the language has is not a program's to declare.
+
+## Changes
+
+- **A name the language already has is `E118`, where it is declared.** A
+  page's `state env` compiled every read to the build's settings and every
+  write to the state: `"{env}"` showed `[object Object]`, `env == "prod"`
+  was never true, and `wf check` said nothing. A loop's `t` hid the
+  translation function inside the loop the same way. Such a name is now
+  refused as a `state`, `derived`, `persist` or `let`, a prop, a route or
+  action parameter, a loop item, a lambda's parameter, a binding of `if
+  let`, `match` or a slot, and as a top-level `const`, `data`, `image`,
+  store or `api`. The names are `env`, `params`, `locale` and `dir`; the
+  values the browser keeps current (`now`, `viewport`, `query`, `hash`,
+  `theme`, `network`, `update`); the language's functions (`t`, `format`,
+  `ago`, `log`, `navigate`, `fetch`, `uuid`, `every`, `after`, …); the
+  words a statement is written with (`state`, `action`, `let`, `if`,
+  `show`, `match`, `style`, `on`, …); and, at the top level, the runtime's
+  `WF`. The message suggests a name of your own where there is a usual one
+  — `target` for `env`, `search` for `query`, `scheme` for `theme`.
+  `event`, `e`, `value`, `key` and the browser's globals stay yours, and so
+  does any name as a field, a map key or an enum case.
+- **A top-level `const env` is refused where it is written.** It was
+  refused only when the build read its own bundle back, as "a bug in
+  WebFluent" (`E901`).
+
+## Upgrading
+
+A program that declares one of these names stops at `E118`, on the line
+that declares it; rename it and its reads. The usual ones are a loop's or a
+lambda's `t` (`for t in todos`, `items.filter(t => …)` — `todo`, `item`),
+`state query` (`search`), `persist theme` (`scheme`), a route parameter or
+`state env` (`target`, `stage`) and an action named `update` (`edit`). The
+guide, the examples and the site were renamed the same way.
+
 # WebFluent v5.5.0 Release Notes
 
 A service read from its OpenAPI document is typed as well as one written by

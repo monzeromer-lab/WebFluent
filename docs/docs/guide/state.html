@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.5</p>
+                            <p class="wf-text wf-s859a58d7">5.6</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -344,15 +344,15 @@
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Watch(path: &quot;/&quot;) {
-    state query = &quot;&quot;
+    state search = &quot;&quot;
     effect {
-        log(&quot;query is now {query}&quot;)
+        log(&quot;search is now {search}&quot;)
     }
     effect {
-        document.title = &quot;Search: {query}&quot;
+        document.title = &quot;Search: {search}&quot;
         cleanup { document.title = &quot;Search&quot; }
     }
-    Input(bind: query, placeholder: &quot;Search&quot;)
+    Input(bind: search, placeholder: &quot;Search&quot;)
 }</code>
                             </div>
                             <div class="wf-markdown">
@@ -417,9 +417,9 @@
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Prefs(path: &quot;/&quot;) {
-    persist theme = &quot;light&quot;
+    persist scheme = &quot;light&quot;
     persist perPage = 20
-    Select(bind: theme, label: &quot;Theme&quot;) {
+    Select(bind: scheme, label: &quot;Theme&quot;) {
         Select.Option(&quot;Light&quot;, value: &quot;light&quot;)
         Select.Option(&quot;Dark&quot;, value: &quot;dark&quot;)
     }
@@ -446,7 +446,7 @@
     every(1000) { seconds = seconds + 1 }
     after(3000) { toast = null }
     Text(&quot;{seconds}s on this page&quot;)
-    if let t = toast { Alert(t).info }
+    if let message = toast { Alert(message).info }
 }</code>
                             </div>
                             <h2 class="wf-heading" id="automatic-clean-up">Automatic clean-up</h2>
@@ -701,7 +701,7 @@
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.5, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.6, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -728,7 +728,7 @@
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.5 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.6 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

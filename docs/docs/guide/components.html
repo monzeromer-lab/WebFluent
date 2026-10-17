@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.5</p>
+                            <p class="wf-text wf-s859a58d7">5.6</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -370,12 +370,12 @@ component TodoRow(_ todo: Todo) {
 page Todos(path: &quot;/&quot;) {
     state todos: [Todo] = [Todo(id: &quot;1&quot;, title: &quot;Milk&quot;), Todo(id: &quot;2&quot;, title: &quot;Eggs&quot;)]
     action toggle(id: String) {
-        todos = todos.map(t =&gt; if t.id == id { Todo(id: t.id, title: t.title, done: !t.done) } else { t })
+        todos = todos.map(todo =&gt; if todo.id == id { Todo(id: todo.id, title: todo.title, done: !todo.done) } else { todo })
     }
-    for t in todos by t.id {
-        TodoRow(t) {
+    for todo in todos by todo.id {
+        TodoRow(todo) {
             on toggle(id) { toggle(id) }
-            on remove(id) { todos = todos.filter(t =&gt; t.id != id) }
+            on remove(id) { todos = todos.filter(todo =&gt; todo.id != id) }
         }
     }
 }</code>
@@ -443,7 +443,7 @@ component TodoList(items: [Todo]) {
 page Use(path: &quot;/&quot;) {
     state todos: [Todo] = [Todo(id: &quot;1&quot;, title: &quot;Milk&quot;)]
     TodoList(items: todos) {
-        row(t, i) { Text(&quot;{i + 1}. {t.title}&quot;) }
+        row(todo, i) { Text(&quot;{i + 1}. {todo.title}&quot;) }
         empty { Text(&quot;Nothing to do.&quot;).muted }
     }
 }</code>
@@ -495,7 +495,7 @@ page Parts(path: &quot;/&quot;) {
     event change(value: Number)
     state n = start
     derived even = n % 2 == 0
-    action move(by: Number) { n = n + by  emit change(n) }
+    action move(delta: Number) { n = n + delta  emit change(n) }
     Row(gap: .sm, align: .center) {
         Button(&quot;−&quot;).sm { on click { move(-step) } }
         Text(&quot;{n}&quot;).bold
@@ -703,7 +703,7 @@ page Chips(path: &quot;/&quot;, title: &quot;Chips&quot;, description: &quot;Sty
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.5, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.6, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -730,7 +730,7 @@ page Chips(path: &quot;/&quot;, title: &quot;Chips&quot;, description: &quot;Sty
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.5 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.6 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

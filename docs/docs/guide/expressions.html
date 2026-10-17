@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.5</p>
+                            <p class="wf-text wf-s859a58d7">5.6</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -499,9 +499,9 @@ page Choose(path: &quot;/&quot;) {
 page Calls(path: &quot;/&quot;) {
     state todos: [Todo] = [Todo(id: &quot;1&quot;, title: &quot;milk&quot;), Todo(id: &quot;2&quot;, title: &quot;eggs&quot;, done: true)]
     state q = &quot;M&quot;
-    derived open = todos.filter(t =&gt; !t.done)
-    derived titles = todos.map(t =&gt; t.title.capitalize())
-    derived hits = todos.filter(t =&gt; t.title.toLowerCase().includes(q.toLowerCase()))
+    derived open = todos.filter(todo =&gt; !todo.done)
+    derived titles = todos.map(todo =&gt; todo.title.capitalize())
+    derived hits = todos.filter(todo =&gt; todo.title.toLowerCase().includes(q.toLowerCase()))
     derived first = todos.first()
     derived count = todos.length
     derived summary = titles.join(&quot;, &quot;)
@@ -868,7 +868,7 @@ page Consts(path: &quot;/&quot;) {
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.5, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.6, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -895,7 +895,7 @@ page Consts(path: &quot;/&quot;) {
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.5 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.6 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.5</p>
+                            <p class="wf-text wf-s859a58d7">5.6</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -918,6 +918,45 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Modifiers <code>ctrl</code>, <code>shift</code>, <code>alt</code>, <code>meta</code> (or <code>cmd</code>), then one key: a letter, a digit, or a name — <code>Enter</code>, <code>Escape</code>, <code>ArrowDown</code>, <code>Tab</code>, <code>F2</code>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="e118-a-name-the-language-already-has">E118 — A name the language already has</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws E118</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws E118" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Deploy(path: &quot;/&quot;, title: &quot;Deploy&quot;, description: &quot;Pick a target.&quot;) {
+    state env = &quot;staging&quot;
+    Heading(&quot;Deploy to {env}&quot;).h1
+}</code>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">error[E118]: `env` is a name the language already has: the build&#x27;s settings, read as `env.PUBLIC_API`
+ --&gt; src/App.wf:2:5
+  |
+2 |     state env = &quot;staging&quot;
+  |     ^^^^^^^^^^^^^^^^^^^^^
+  = help: Name it something of your own — `target` or `stage`: inside its scope every `env` would mean this, and the language&#x27;s would have no name
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e118-a-name-the-language-already-has</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A name the language gives a meaning is not a program's to declare — not as a <code>state</code>, <code>derived</code>, <code>persist</code> or <code>let</code>, a prop, a route or action parameter, a loop item, a lambda's parameter, a binding of <code>if let</code>, <code>match</code> or a slot, nor a top-level <code>const</code>, <code>data</code>, <code>image</code>, store or <code>api</code>. Declared, it would hide what the language means by it for as far as its scope reaches: a <code>state env</code> hid the build's settings in its page, and a loop's <code>t</code> hid the translation function inside the loop. The names are:</p>
+<ul>
+<li><code>env</code>, the build's settings; <code>params</code>, the route's; <code>locale</code> and <code>dir</code>, the reader's language;</li>
+<li>the values the browser keeps current: <code>now</code>, <code>viewport</code>, <code>query</code>, <code>hash</code>, <code>theme</code>, <code>network</code>, <code>update</code>;</li>
+<li>the language's functions: <code>t</code>, <code>format</code>, <code>ago</code>, <code>log</code>, <code>navigate</code>, <code>fetch</code>, <code>uuid</code>, <code>sanitize</code>, <code>setLocale</code>, <code>setTheme</code>, <code>optimistic</code>, <code>beacon</code>, <code>animate</code>, <code>replayAnimation</code>, <code>every</code>, <code>after</code>, <code>ws</code>, <code>sse</code>, <code>broadcast</code>, <code>rtc</code>;</li>
+<li>the words a statement is written with: <code>state</code>, <code>persist</code>, <code>derived</code>, <code>effect</code>, <code>action</code>, <code>use</code>, <code>resource</code>, <code>validate</code>, <code>socket</code>, <code>stream</code>, <code>channel</code>, <code>peer</code>, <code>head</code>, <code>slot</code>, <code>part</code>, <code>if</code>, <code>else</code>, <code>for</code>, <code>in</code>, <code>by</code>, <code>show</code>, <code>match</code>, <code>children</code>, <code>emit</code>, <code>sequence</code>, <code>on</code>, <code>style</code>, <code>transition</code>, <code>let</code>, <code>return</code>, <code>await</code>, <code>try</code>, <code>catch</code>;</li>
+<li>and, at the top level, <code>WF</code>, the runtime the compiled pages call.</li>
+</ul>
+<p>The names a handler brings with it — <code>event</code>, <code>e</code>, <code>value</code>, <code>key</code> — and the browser's globals (<code>window</code>, <code>history</code>, …) are a program's to use, and so is any name as a field, a map key or an enum case: <code>type Box { env: String }</code> and <code>.env</code> are fine. <strong>Fix:</strong> Name it something of your own — <code>state target = &quot;staging&quot;</code> — and its reads with it. The message suggests one where there is a usual choice: <code>target</code> or <code>stage</code> for <code>env</code>, <code>search</code> for <code>query</code>, <code>scheme</code> for <code>theme</code>, <code>item</code> or a word for what it holds for <code>t</code>.</p>
                             </div>
                             <h2 class="wf-heading" id="components">Components</h2>
                             <h3 class="wf-heading" id="c01-a-required-prop-or-field-left-out">C01 — A required prop or field left out</h3>
@@ -3035,7 +3074,7 @@ page B(path: &quot;/about&quot;, title: &quot;B&quot;, description: &quot;D&quot
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws P03" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Filters(scope: .route) {
-    persist query = &quot;&quot;
+    persist search = &quot;&quot;
 }</code>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
@@ -3045,10 +3084,10 @@ page B(path: &quot;/about&quot;, title: &quot;B&quot;, description: &quot;D&quot
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">warning[P03]: `query` is persisted in a store scoped to the route
+                                <code class="wf-code wf-code--block wf-sa8223565">warning[P03]: `search` is persisted in a store scoped to the route
  --&gt; src/App.wf:2:5
   |
-2 |     persist query = &quot;&quot;
+2 |     persist search = &quot;&quot;
   |     ^^^^^^^
   = help: The route change drops the store and the next read builds it again from storage, so the value comes straight back. Use `state` for what the route owns, or widen the scope for what outlives it
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#p03-a-persisted-value-in-a-route-scoped-store</code>
@@ -3790,7 +3829,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.5, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.6, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -3817,7 +3856,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.5 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.6 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>
