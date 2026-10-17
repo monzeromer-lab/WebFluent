@@ -38,13 +38,13 @@ page Styled(path: "/") {
 
 // md-docs/15-styling.md
 page Fade(path: "/") {
-    state on = false
+    state active = false
     Card {
-        style { opacity: {if on { 1 } else { 0.4 }}; transform: {if on { "none" } else { "scale(0.98)" }} }
+        style { opacity: {if active { 1 } else { 0.4 }}; transform: {if active { "none" } else { "scale(0.98)" }} }
         transition { opacity: $fast; transform: 200ms ease-out }
         Text("Fades")
     }
-    Button("Toggle") { on click { on = !on } }
+    Button("Toggle") { on click { active = !active } }
 }
 
 // md-docs/15-styling.md

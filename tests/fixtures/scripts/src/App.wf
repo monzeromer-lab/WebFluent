@@ -1,7 +1,7 @@
 app { Router }
 
 page Home(path: "/", title: "Scripts", description: "The project's own JavaScript, in a real browser.") {
-    state show = true
+    state shown = true
     state max = 10
     state visible = false
     state ready = false
@@ -10,11 +10,11 @@ page Home(path: "/", title: "Scripts", description: "The project's own JavaScrip
 
     Heading("Scripts").h1
     Text(money(12), id: "money")
-    if show {
-        Card(id: "tilt", class: { "is-on": show, "is-max": max > 10 },
+    if shown {
+        Card(id: "tilt", class: { "is-on": shown, "is-max": max > 10 },
             mount: (n) => initTilt(n, max),
-            update: (t) => t.setMax(max),
-            cleanup: (t) => t.destroy()) {
+            update: (tilt) => tilt.setMax(max),
+            cleanup: (tilt) => tilt.destroy()) {
             Text("Lean")
         }
     }
@@ -23,7 +23,7 @@ page Home(path: "/", title: "Scripts", description: "The project's own JavaScrip
     }
     Element("x-badge", id: "badge", label: label) { on ready { ready = true } }
     Text(if ready { "badge ready" } else { "badge waiting" }, id: "ready")
-    Button("Toggle") { on click { show = !show } }
+    Button("Toggle") { on click { shown = !shown } }
     Button("More") { on click { max = max + 5 } }
     Button("Relabel") { on click { label = "two" } }
     Link("Away", to: "/away")

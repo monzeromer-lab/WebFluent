@@ -108,7 +108,7 @@ fn x01_a_null_check_does_not_make_a_derived_value_writable() {
 #[test]
 fn x01_leaves_states_lets_and_parameters_alone() {
     clean(&page(
-        "    state n = 0\n    persist k = 1\n    action go(v: Number) { let t = v  t = t + 1  v = 2  n = t  k = n }\n    Button(\"x\") { on click { go(1) } }",
+        "    state n = 0\n    persist k = 1\n    action go(v: Number) { let next = v  next = next + 1  v = 2  n = next  k = n }\n    Button(\"x\") { on click { go(1) } }",
     ));
 }
 
@@ -270,7 +270,7 @@ fn an_item_at_a_fixed_index_may_not_be_there_unless_a_condition_says_so() {
     let src = page("    state todos = [{ title: \"a\" }]\n    Text(todos[0].title)");
     assert_eq!(with(&src, "T04").len(), 1);
     clean(&page(
-        "    state todos = [{ title: \"a\" }]\n    if todos.length > 0 { Text(todos[0].title) }\n    for t, i in todos { Text(todos[i].title) }",
+        "    state todos = [{ title: \"a\" }]\n    if todos.length > 0 { Text(todos[0].title) }\n    for todo, i in todos { Text(todos[i].title) }",
     ));
 }
 
@@ -753,4 +753,171 @@ fn a05_a_button_whose_block_shows_text_has_a_label() {
     // element's tag still name nothing.
     let lines: Vec<&str> = found.iter().map(|f| f.split(':').next().unwrap()).collect();
     assert_eq!(lines, ["15", "16", "18", "19"], "{found:?}");
+}
+
+// ─── E118: a name the language already has ───────────────────────────
+
+#[test]
+fn e118_nothing_at_the_top_level_takes_a_name_the_language_has() {
+    // The bundle declares `env` (the build's settings) and `WF` (the
+    // runtime) before the program's own values, so a top-level value of
+    // either name was a second declaration — refused only by the read-back,
+    // as "a bug in WebFluent" (E901). Any other the language has would be
+    // hidden on every page.
+    for decl in [
+        "const env = \"x\"",
+        "data env = \"posts.json\"",
+        "image env = \"hero.png\"",
+        "store env { state a = 1 }",
+        "api env(base: \"/api\") { get users() -> Map }",
+    ] {
+        let found = with(&format!("{decl}\n{}", page("    Text(\"x\")")), "E118");
+        assert_eq!(found.len(), 1, "{decl}: {found:?}");
+        assert!(
+            found[0]
+                .starts_with("1: `env` is a name the language already has: the build's settings"),
+            "{decl}: {found:?}"
+        );
+    }
+    let found = with(&format!("const WF = 1\n{}", page("")), "E118");
+    assert_eq!(found.len(), 1, "{found:?}");
+    assert!(
+        found[0].contains("the runtime the compiled pages call"),
+        "{found:?}"
+    );
+    let found = with(&format!("const format = 1\n{}", page("")), "E118");
+    assert!(found[0].contains("`format(…)`"), "{found:?}");
+}
+
+#[test]
+fn e118_no_name_a_body_declares_takes_one_the_language_has() {
+    // A `state env` compiled every read to the build's settings and every
+    // write to the state, so the page showed `[object Object]` and `env ==
+    // "prod"` was never true; a loop's `t` hid the translation function
+    // inside the loop. Every way a body declares a name is refused, where
+    // it is declared, once.
+    let src = format!(
+        "component Tag(env: String) {{ Text(env) }}\n{}",
+        page(concat!(
+            "    state env = \"a\"\n",
+            "    derived query = env + \"?\"\n",
+            "    persist theme = \"dark\"\n",
+            "    state items = [1, 2]\n",
+            "    derived open = items.filter(t => t > 1)\n",
+            "    action pick(locale: String) { log(locale) }\n",
+            "    for now in items { Text(\"{now}\") }\n",
+            "    if let style = items.first() { Text(\"{style}\") }\n",
+            "    Button(\"b\") { on click {\n        let params = 1\n        log(params)\n    } }\n",
+            "    Text(\"{env} {query} {theme} {open.length}\")\n",
+            "    Tag(env: \"b\")",
+        ))
+    );
+    let found = with(&src, "E118");
+    let names: Vec<&str> = found.iter().map(|f| f.split('`').nth(1).unwrap()).collect();
+    assert_eq!(
+        names,
+        [
+            "env", "env", "query", "theme", "t", "locale", "now", "style", "params"
+        ],
+        "{found:?}"
+    );
+    // What a program may name its own: the names a handler brings, the
+    // browser's globals, words that only open a top-level declaration, and
+    // any name as a field, a map key, an enum case or an endpoint's
+    // parameter. A name that only begins like one is a name like any other.
+    clean(&format!(
+        "enum Stage {{ env, query, t }}\ntype Box {{ env: String, t: Number }}\n\
+         api Backend(base: \"/api\") {{ get users(page: Number = 1, query: String?) -> [Map] }}\n\
+         const envy = 1\n{}",
+        page(concat!(
+            "    state value = 1\n",
+            "    state key = \"k\"\n",
+            "    state history: [Number] = []\n",
+            "    state page = 1\n",
+            "    state data = { env: \"a\", t: 2 }\n",
+            "    state box = Box(env: \"e\", t: 1)\n",
+            "    state stage: Stage = .env\n",
+            "    Button(\"go\") { on click(e) { value = value + e.detail } }\n",
+            "    Text(\"{value} {key} {history.length} {page} {data.env} {box.t} {stage} {envy} {env.PUBLIC_API}\")",
+        ))
+    ));
+}
+
+/// A temporary project with `files` (paths under it), removed when the
+/// guard goes.
+struct Project(std::path::PathBuf);
+
+impl Project {
+    fn new(name: &str, files: &[(&str, &str)]) -> Self {
+        let dir = std::env::temp_dir().join(format!("wf-checks-{name}-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        for (path, text) in files {
+            let path = dir.join(path);
+            std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+            std::fs::write(path, text).unwrap();
+        }
+        Project(dir)
+    }
+
+    /// `wf <command> <args…> -d <dir>`: its success, and what it printed.
+    fn wf(&self, command: &str, args: &[&str]) -> (bool, String, String) {
+        let out = std::process::Command::new(env!("CARGO_BIN_EXE_wf"))
+            .arg(command)
+            .args(args)
+            .arg(&self.0)
+            .output()
+            .expect("run wf");
+        (
+            out.status.success(),
+            String::from_utf8_lossy(&out.stdout).into_owned(),
+            String::from_utf8_lossy(&out.stderr).into_owned(),
+        )
+    }
+}
+
+impl Drop for Project {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_dir_all(&self.0);
+    }
+}
+
+#[test]
+fn a_build_refuses_a_name_the_language_has_where_it_is_written() {
+    // A top-level `env` was refused only as "a bug in WebFluent" (E901);
+    // a page's `state env` built, and showed `[object Object]`.
+    let page = "page P(path: \"/\", title: \"T\", description: \"D\") {\n";
+    for (name, src, at) in [
+        (
+            "const",
+            format!("const env = \"staging\"\n{page}    Heading(\"Deploy to {{env}}\").h1\n}}\n"),
+            "src/App.wf:1:1",
+        ),
+        (
+            "data",
+            format!("data env = \"posts.json\"\n{page}    Heading(\"Deploy to {{env}}\").h1\n}}\n"),
+            "src/App.wf:1:1",
+        ),
+        (
+            "state",
+            format!(
+                "{page}    state env = \"staging\"\n    Heading(\"Deploy to {{env}}\").h1\n}}\n"
+            ),
+            "src/App.wf:2:5",
+        ),
+    ] {
+        let project = Project::new(
+            &format!("e118-{name}"),
+            &[
+                ("webfluent.app.json", r#"{ "name": "t" }"#),
+                ("posts.json", "[1, 2]"),
+                ("src/App.wf", &src),
+            ],
+        );
+        let (ok, stdout, stderr) = project.wf("build", &["-d"]);
+        let out = stdout + &stderr;
+        assert!(!ok, "{name}: {out}");
+        assert!(out.contains("error[E118]"), "{name}: {out}");
+        assert!(out.contains(at), "{name}: {out}");
+        assert!(!out.contains("E901"), "{name}: {out}");
+    }
 }

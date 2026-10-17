@@ -8,8 +8,8 @@ type Todo { id: Number, title: String, done: Bool = false, createdAt: String }
 store Todos {
     persist items: [Todo] = []
     persist nextId = 1
-    derived open = items.filter(t => !t.done)
-    derived done = items.filter(t => t.done)
+    derived open = items.filter(todo => !todo.done)
+    derived done = items.filter(todo => todo.done)
     derived count = items.length
 
     action add(title: String) {
@@ -19,13 +19,13 @@ store Todos {
         nextId = nextId + 1
     }
     action toggle(id: Number) {
-        items = items.map(t => if t.id == id { Todo(id: t.id, title: t.title, done: !t.done, createdAt: t.createdAt) } else { t })
+        items = items.map(todo => if todo.id == id { Todo(id: todo.id, title: todo.title, done: !todo.done, createdAt: todo.createdAt) } else { todo })
     }
     action rename(id: Number, title: String) {
-        items = items.map(t => if t.id == id { Todo(id: t.id, title: title, done: t.done, createdAt: t.createdAt) } else { t })
+        items = items.map(todo => if todo.id == id { Todo(id: todo.id, title: title, done: todo.done, createdAt: todo.createdAt) } else { todo })
     }
-    action remove(id: Number) { items = items.filter(t => t.id != id) }
-    action clearDone() { items = items.filter(t => !t.done) }
+    action remove(id: Number) { items = items.filter(todo => todo.id != id) }
+    action clearDone() { items = items.filter(todo => !todo.done) }
 }
 
 component TodoRow(_ todo: Todo) {

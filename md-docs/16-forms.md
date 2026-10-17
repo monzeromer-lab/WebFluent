@@ -60,11 +60,11 @@ number `2`, not the string `"2"`.
 (`bind: Cart.note`), or a field of a loop's item:
 
 ```wf
-for t in todos by t.id {
-    Input(bind: t.title, label: "Title")
-    Checkbox(bind: t.done, label: "Done")
+for todo in todos by todo.id {
+    Input(bind: todo.title, label: "Title")
+    Checkbox(bind: todo.done, label: "Done")
 }
-Text("{todos.filter(t => !t.done).length} left")
+Text("{todos.filter(todo => !todo.done).length} left")
 ```
 
 The item is written and the list is told it changed, so everything that

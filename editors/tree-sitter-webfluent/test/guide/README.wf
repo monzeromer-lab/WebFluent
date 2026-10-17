@@ -16,8 +16,8 @@ page Home(path: "/", title: "Todos") {
             Input(bind: draft, placeholder: "What needs doing?").text
             Button("Add").primary { on click { Todos.add(draft)  draft = "" } }
         }
-        for t in Todos.items by t.id {
-            Card { Text(t.title) }
+        for todo in Todos.items by todo.id {
+            Card { Text(todo.title) }
         }
     }
 }

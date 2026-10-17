@@ -54,6 +54,7 @@ pub fn validate_semantics_in(
     check_duplicate_names(program, file_of, &mut diags);
     check_one_meaning(program, file_of, &mut diags);
     check_script_names(program, file_of, &mut diags);
+    check_build_names(program, file_of, &mut diags);
 
     for (index, decl) in program.declarations.iter().enumerate() {
         let body = match decl {
@@ -340,6 +341,49 @@ fn check_script_names(
                 seen.insert(name, script.path.clone());
             }
         }
+    }
+}
+
+/// `E118` at the top level: a `const`, `data`, `image`, store or `api` may
+/// not take a name the language has. The bundle declares `env` (the
+/// build's settings) and `WF` (the runtime) before the program's own
+/// values, so one of either name was a second declaration of it, which the
+/// read-back refused as a compiler bug (E901); any other would hide what
+/// the language means by it on every page. A name declared inside a body
+/// is the type checker's to refuse, where it is bound.
+fn check_build_names(
+    program: &Program,
+    file_of: &dyn Fn(usize) -> String,
+    diags: &mut Vec<Diagnostic>,
+) {
+    // The build lowers `data` and `image` to constants before this runs,
+    // so the message names no kind: the place says which it was.
+    for (index, decl) in program.declarations.iter().enumerate() {
+        let (name, span) = match decl {
+            Declaration::Const(c) => (&c.name, c.span),
+            Declaration::Data(d) => (&d.name, d.span),
+            Declaration::Store(s) => (&s.name, s.header_span),
+            Declaration::Api(a) => (&a.name, a.span),
+            _ => continue,
+        };
+        let what = if name == "WF" {
+            "the runtime the compiled pages call".to_string()
+        } else if let Some(what) = crate::sema::types::language_name(name) {
+            what
+        } else {
+            continue;
+        };
+        diags.push(
+            diag(
+                "E118",
+                format!("`{name}` is a name the language already has: {what}"),
+                &file_of(index),
+                span,
+            )
+            .with_hint(
+                "Name it something of your own: a top-level value is every page's, and the language's would have no name anywhere",
+            ),
+        );
     }
 }
 

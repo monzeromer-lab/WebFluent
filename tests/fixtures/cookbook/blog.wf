@@ -77,7 +77,7 @@ page Home(path: "/", title: "Paper & Ink", description: "Notes on making things.
 
 page PostPage(path: "/posts/:slug", slug: String, title: "Paper & Ink", description: "A post.", type: "article", layout: Shell(crumb: "Post"), paths: posts.map(p => p.slug)) {
     derived post = posts.find(p => p.slug == slug)
-    derived related = posts.filter(p => p.slug != slug && p.tags.some(t => post?.tags.includes(t) ?? false)).take(3)
+    derived related = posts.filter(p => p.slug != slug && p.tags.some(tag => post?.tags.includes(tag) ?? false)).take(3)
     head {
         meta(property: "og:title", content: post?.title ?? "Post")
         meta(property: "og:description", content: post?.summary ?? "")

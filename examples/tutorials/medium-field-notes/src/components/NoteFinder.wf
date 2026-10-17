@@ -23,8 +23,8 @@ component NoteFinder(
             Input(bind: q, label: "Search the notes", placeholder: "Tomatoes, bread, Portugal…").search
             Row(gap: .xs, align: .center, class: "tag-filter", role: "navigation", aria-label: "Filter by tag") {
                 Link("All", to: "/", class: { "is-current": tag == "" })
-                for t in allTags by t {
-                    Link(t, to: "/?tag={t}", class: { "is-current": tag == t })
+                for name in allTags by name {
+                    Link(name, to: "/?tag={name}", class: { "is-current": tag == name })
                 }
             }
         }

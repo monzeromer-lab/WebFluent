@@ -6,7 +6,7 @@
 component SiteHeader(docs: Bool = false) {
     state q = ""
     state menu = false
-    derived query = q.trim().toLowerCase()
+    derived term = q.trim().toLowerCase()
     // A heading that matches comes first; a section whose text mentions the
     // term after it.
     state guideIndex: [SearchRow] = []
@@ -18,8 +18,8 @@ component SiteHeader(docs: Bool = false) {
         asked = true
         try { guideIndex = await fetch(SEARCH_INDEX) } catch e { asked = false }
     }
-    derived named = guideIndex.filter(r => query != "" && "{r.title} {r.section}".toLowerCase().includes(query))
-    derived mentioned = guideIndex.filter(r => query != "" && !"{r.title} {r.section}".toLowerCase().includes(query) && r.words.includes(query))
+    derived named = guideIndex.filter(r => term != "" && "{r.title} {r.section}".toLowerCase().includes(term))
+    derived mentioned = guideIndex.filter(r => term != "" && !"{r.title} {r.section}".toLowerCase().includes(term) && r.words.includes(term))
     derived hits = [...named, ...mentioned].take(10)
     // The theme on show: the reader's choice, or the system's when they
     // have not made one.

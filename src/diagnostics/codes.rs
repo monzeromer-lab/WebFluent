@@ -202,6 +202,12 @@ pub static CODES: &[CodeInfo] = &[
         "`on key(…)` names modifiers (`ctrl`, `shift`, `alt`, `meta`) and one key; a modifier it does not know, no key, or a key no keyboard has would never match.",
     ),
     code(
+        "E118",
+        Error,
+        "A name the language already has",
+        "A name the language gives a meaning cannot be a program's own — not a `state`, `derived`, `persist` or `let`, a prop, a route or action parameter, a loop item, a lambda's parameter, a binding of `if let`, `match` or a slot, nor a top-level `const`, `data`, `image`, store or `api`. They are `env`, the build's settings; `params`, the route's; `locale` and `dir`, the reader's language; the values the browser keeps current, `now`, `viewport`, `query`, `hash`, `theme`, `network` and `update`; the language's functions (`t`, `format`, `ago`, `log`, `navigate`, `fetch`, `uuid`, `sanitize`, `every`, `after`, …); the words a statement is written with (`state`, `action`, `let`, `if`, `show`, `match`, `style`, `on`, …); and, at the top level, the runtime's `WF`. Declared, one would hide what the language means by it for as far as its scope reaches. The names a handler brings (`event`, `e`, `value`, `key`) and the browser's globals are a program's to use.",
+    ),
+    code(
         "E901",
         Error,
         "The compiler wrote JavaScript a browser would refuse",

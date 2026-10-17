@@ -99,8 +99,8 @@ wanted.
 store Todos {
     persist items: [Todo] = []
 
-    derived open = items.filter(t => !t.done)
-    derived done = items.filter(t => t.done)
+    derived open = items.filter(todo => !todo.done)
+    derived done = items.filter(todo => todo.done)
 
     action add(title: String) {
         let text = title.trim()
@@ -109,7 +109,7 @@ store Todos {
     }
 
     action toggle(id: Uuid) {
-        items = items.map(t => if t.id == id { { ...t, done: !t.done } } else { t })
+        items = items.map(todo => if todo.id == id { { ...todo, done: !todo.done } } else { todo })
     }
 ```
 
@@ -117,8 +117,8 @@ A store is state any page or component can read ([Stores](12-stores.md)).
 `persist` is `state` that is kept in the browser's storage: the list is
 there after a reload, and a second tab follows the first, with no storage
 code written. `derived` values follow what they read — `open` is always the
-todos not done. An action is the only place state changes; `{ ...t, done:
-!t.done }` is the todo with one field changed.
+todos not done. An action is the only place state changes; `{ ...todo, done:
+!todo.done }` is the todo with one field changed.
 
 The rest of the store renames, removes and clears in the same way — see
 the [whole file](https://github.com/monzeromer-lab/WebFluent/blob/master/examples/tutorials/easy-todos/src/stores/Todos.wf).
@@ -299,7 +299,7 @@ test "adding a todo puts it in the list" {
     state draft = ""
     Input(bind: draft, aria-label: "New todo")
     Button("Add") { on click { Todos.add(draft)  draft = "" } }
-    for t in Todos.items by t.id { TodoRow(t) }
+    for todo in Todos.items by todo.id { TodoRow(todo) }
     Text("{Todos.open.length} left")
 
     expect "0 left"

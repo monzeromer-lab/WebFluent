@@ -197,10 +197,10 @@ page Records(path: "/") {
         Todo(id: "2", title: "Ship", done: true, tone: .info, note: "Friday"),
     ]
     state special: Admin = Admin(id: "3", title: "Review", owner: "sam")
-    for t in todos by t.id {
+    for todo in todos by todo.id {
         Row(gap: .sm) {
-            Text(t.title)
-            if let n = t.note { Badge(n).info }
+            Text(todo.title)
+            if let n = todo.note { Badge(n).info }
         }
     }
     Text("{special.owner} owns {special.title}")
@@ -271,7 +271,7 @@ is `[Any]`); a record construction; a `derived` from its expression; a
 `state` from its initial value (one that starts as `null` is `Any?`); a
 `for` binding from the list's element type; a `match` arm's binding; an
 `if let` binding; a lambda's parameters from what the method expects
-(`items.filter(t => …)` gives `t` the item type).
+(`items.filter(item => …)` gives `item` the item type).
 
 **From the registry** — the type of every built-in prop; what a `bind:`
 needs (`Checkbox` and `Switch` a `Bool`, `Slider` a `Number`, `Input` a
@@ -333,14 +333,14 @@ type Todo { id: String, title: String, note: String? }
 
 page Narrow(path: "/") {
     state sel: Todo? = null
-    state t: Todo = Todo(id: "1", title: "x")
-    if let n = t.note { Text("{n.length} chars") }
+    state todo: Todo = Todo(id: "1", title: "x")
+    if let n = todo.note { Text("{n.length} chars") }
     if sel != null { Text(sel.title) }
     if sel { Text(sel.title) }
     derived label = if sel != null { sel.title } else { "none" }
-    Text(t.note ?? "no note")
+    Text(todo.note ?? "no note")
     Text(sel?.title ?? "nothing selected")
-    Button("Pick") { on click { sel = t } }
+    Button("Pick") { on click { sel = todo } }
 }
 ```
 

@@ -115,7 +115,7 @@ page Login(path: "/login", title: "Sign in", description: "Sign in.") {
         Markdown("`persist` keeps a member in the browser's storage, keyed by the store's name. It works the same way at the top of a page or a component.")
 
         CodeBlock(#"store Prefs {
-    persist theme = "system"
+    persist scheme = "system"
     persist density = "comfortable"
     persist recent: [String] = []
     action visited(path: String) {

@@ -2,7 +2,7 @@ page Settings(path: "/settings", description: "Preferences, appearance and accou
     state username = "demo_user"
     state email = "user@example.com"
     state notifications = true
-    state theme = "light"
+    state scheme = "light"
     state fontSize = 16
     state language = "en"
     state autoSave = false
@@ -41,8 +41,8 @@ page Settings(path: "/settings", description: "Preferences, appearance and accou
 
                     Spacer
 
-                    Radio(bind: theme, value: "light", label: "Light Theme")
-                    Radio(bind: theme, value: "dark", label: "Dark Theme")
+                    Radio(bind: scheme, value: "light", label: "Light Theme")
+                    Radio(bind: scheme, value: "dark", label: "Dark Theme")
 
                     Spacer
 
@@ -65,7 +65,7 @@ page Settings(path: "/settings", description: "Preferences, appearance and accou
                         Heading("Account Info").h2
                         Text("Username: {username}")
                         Text("Email: {email}")
-                        Text("Theme: {theme}")
+                        Text("Theme: {scheme}")
                         Text("Font Size: {fontSize}px")
                         Spacer
                         Text("Notifications: {notifications}").muted

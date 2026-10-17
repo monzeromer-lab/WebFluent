@@ -68,15 +68,15 @@ the effect lives in) leaves:
 
 ```wf
 page Watch(path: "/") {
-    state query = ""
+    state search = ""
     effect {
-        log("query is now {query}")
+        log("search is now {search}")
     }
     effect {
-        document.title = "Search: {query}"
+        document.title = "Search: {search}"
         cleanup { document.title = "Search" }
     }
-    Input(bind: query, placeholder: "Search")
+    Input(bind: search, placeholder: "Search")
 }
 ```
 
@@ -136,9 +136,9 @@ read back on the next visit and written on every change:
 
 ```wf
 page Prefs(path: "/") {
-    persist theme = "light"
+    persist scheme = "light"
     persist perPage = 20
-    Select(bind: theme, label: "Theme") {
+    Select(bind: scheme, label: "Theme") {
         Select.Option("Light", value: "light")
         Select.Option("Dark", value: "dark")
     }
@@ -167,7 +167,7 @@ page Clock(path: "/") {
     every(1000) { seconds = seconds + 1 }
     after(3000) { toast = null }
     Text("{seconds}s on this page")
-    if let t = toast { Alert(t).info }
+    if let message = toast { Alert(message).info }
 }
 ```
 

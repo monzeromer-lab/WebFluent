@@ -42,15 +42,15 @@ page StateGuide(path: "/docs/guide/state", title: "State and reactivity", descri
         Markdown("An effect runs once, and again whenever a state it read changes. Its `cleanup \{ \}` block runs before the next run and when the page (or the branch the effect lives in) leaves:")
 
         CodeBlock(#"page Watch(path: "/") {
-    state query = ""
+    state search = ""
     effect {
-        log("query is now {query}")
+        log("search is now {search}")
     }
     effect {
-        document.title = "Search: {query}"
+        document.title = "Search: {search}"
         cleanup { document.title = "Search" }
     }
-    Input(bind: query, placeholder: "Search")
+    Input(bind: search, placeholder: "Search")
 }"#, title: "wf")
 
         Markdown("Use effects for the world outside the page — the document title, a third-party widget, a subscription. Keep computation in `derived`.")
@@ -94,9 +94,9 @@ page StateGuide(path: "/docs/guide/state", title: "State and reactivity", descri
         Markdown("`persist` is a `state` kept in the browser's storage across visits. It is read back on the next visit and written on every change:")
 
         CodeBlock(#"page Prefs(path: "/") {
-    persist theme = "light"
+    persist scheme = "light"
     persist perPage = 20
-    Select(bind: theme, label: "Theme") {
+    Select(bind: scheme, label: "Theme") {
         Select.Option("Light", value: "light")
         Select.Option("Dark", value: "dark")
     }
@@ -115,7 +115,7 @@ page StateGuide(path: "/docs/guide/state", title: "State and reactivity", descri
     every(1000) { seconds = seconds + 1 }
     after(3000) { toast = null }
     Text("{seconds}s on this page")
-    if let t = toast { Alert(t).info }
+    if let message = toast { Alert(message).info }
 }"#, title: "wf")
 
         Heading("Automatic clean-up", id: "automatic-clean-up").h2

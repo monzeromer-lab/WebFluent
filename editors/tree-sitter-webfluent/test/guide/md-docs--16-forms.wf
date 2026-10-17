@@ -24,11 +24,11 @@ page Signup(path: "/") {
 
 // md-docs/16-forms.md
 page Doc(path: "/") {
-    for t in todos by t.id {
-        Input(bind: t.title, label: "Title")
-        Checkbox(bind: t.done, label: "Done")
+    for todo in todos by todo.id {
+        Input(bind: todo.title, label: "Title")
+        Checkbox(bind: todo.done, label: "Done")
     }
-    Text("{todos.filter(t => !t.done).length} left")
+    Text("{todos.filter(todo => !todo.done).length} left")
 }
 
 // md-docs/16-forms.md

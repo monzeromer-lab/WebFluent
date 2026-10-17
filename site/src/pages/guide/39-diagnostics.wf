@@ -367,6 +367,23 @@ page P(path: "/", title: "T", description: "D") {
 
         Markdown("**Fix:** Modifiers `ctrl`, `shift`, `alt`, `meta` (or `cmd`), then one key: a letter, a digit, or a name — `Enter`, `Escape`, `ArrowDown`, `Tab`, `F2`.")
 
+        Heading("E118 — A name the language already has", id: "e118-a-name-the-language-already-has").h3
+
+        CodeBlock(#"page Deploy(path: "/", title: "Deploy", description: "Pick a target.") {
+    state env = "staging"
+    Heading("Deploy to {env}").h1
+}"#, title: "wf · draws E118")
+
+        CodeBlock(#"error[E118]: `env` is a name the language already has: the build's settings, read as `env.PUBLIC_API`
+ --> src/App.wf:2:5
+  |
+2 |     state env = "staging"
+  |     ^^^^^^^^^^^^^^^^^^^^^
+  = help: Name it something of your own — `target` or `stage`: inside its scope every `env` would mean this, and the language's would have no name
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e118-a-name-the-language-already-has"#, title: "text")
+
+        Markdown("A name the language gives a meaning is not a program's to declare — not as a `state`, `derived`, `persist` or `let`, a prop, a route or action parameter, a loop item, a lambda's parameter, a binding of `if let`, `match` or a slot, nor a top-level `const`, `data`, `image`, store or `api`. Declared, it would hide what the language means by it for as far as its scope reaches: a `state env` hid the build's settings in its page, and a loop's `t` hid the translation function inside the loop. The names are:\n\n- `env`, the build's settings; `params`, the route's; `locale` and `dir`, the reader's language;\n- the values the browser keeps current: `now`, `viewport`, `query`, `hash`, `theme`, `network`, `update`;\n- the language's functions: `t`, `format`, `ago`, `log`, `navigate`, `fetch`, `uuid`, `sanitize`, `setLocale`, `setTheme`, `optimistic`, `beacon`, `animate`, `replayAnimation`, `every`, `after`, `ws`, `sse`, `broadcast`, `rtc`;\n- the words a statement is written with: `state`, `persist`, `derived`, `effect`, `action`, `use`, `resource`, `validate`, `socket`, `stream`, `channel`, `peer`, `head`, `slot`, `part`, `if`, `else`, `for`, `in`, `by`, `show`, `match`, `children`, `emit`, `sequence`, `on`, `style`, `transition`, `let`, `return`, `await`, `try`, `catch`;\n- and, at the top level, `WF`, the runtime the compiled pages call.\n\nThe names a handler brings with it — `event`, `e`, `value`, `key` — and the browser's globals (`window`, `history`, …) are a program's to use, and so is any name as a field, a map key or an enum case: `type Box \{ env: String \}` and `.env` are fine. **Fix:** Name it something of your own — `state target = \"staging\"` — and its reads with it. The message suggests one where there is a usual choice: `target` or `stage` for `env`, `search` for `query`, `scheme` for `theme`, `item` or a word for what it holds for `t`.")
+
         Heading("Components", id: "components").h2
 
         Heading("C01 — A required prop or field left out", id: "c01-a-required-prop-or-field-left-out").h3
@@ -1589,13 +1606,13 @@ page B(path: "/about", title: "B", description: "D") { Heading("B").h1 }"#, titl
         Heading("P03 — A persisted value in a route-scoped store", id: "p03-a-persisted-value-in-a-route-scoped-store").h3
 
         CodeBlock(#"store Filters(scope: .route) {
-    persist query = ""
+    persist search = ""
 }"#, title: "wf · draws P03")
 
-        CodeBlock(#"warning[P03]: `query` is persisted in a store scoped to the route
+        CodeBlock(#"warning[P03]: `search` is persisted in a store scoped to the route
  --> src/App.wf:2:5
   |
-2 |     persist query = ""
+2 |     persist search = ""
   |     ^^^^^^^
   = help: The route change drops the store and the next read builds it again from storage, so the value comes straight back. Use `state` for what the route owns, or widen the scope for what outlives it
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#p03-a-persisted-value-in-a-route-scoped-store"#, title: "text")

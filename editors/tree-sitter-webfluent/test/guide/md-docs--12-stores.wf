@@ -82,7 +82,7 @@ page Login(path: "/login", title: "Sign in", description: "Sign in.") {
 
 // md-docs/12-stores.md
 store Prefs {
-    persist theme = "system"
+    persist scheme = "system"
     persist density = "comfortable"
     persist recent: [String] = []
     action visited(path: String) {

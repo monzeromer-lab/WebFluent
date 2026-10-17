@@ -80,7 +80,7 @@ fn a_class_map_written_out_in_full_is_a_fixed_list() {
 #[test]
 fn a_class_value_on_an_icon_button_joins_its_classes_rather_than_replacing_them() {
     let js = spa_generated(&page(
-        "    state on = true\n    IconButton(icon: \"close\", label: \"Close\", class: { \"is-on\": on })",
+        "    state lit = true\n    IconButton(icon: \"close\", label: \"Close\", class: { \"is-on\": lit })",
     ));
     assert!(js.contains("WF.classes("), "{js}");
     assert!(
@@ -130,7 +130,7 @@ fn a_bare_condition_or_number_is_not_a_class() {
 fn a_class_map_keyed_by_breakpoint_names_is_still_classes() {
     // `md` is a class here, not a width: `class:` is never responsive.
     let text = errors_of(&page(
-        "    state on = true\n    Card(class: { md: on }) { Text(\"x\") }",
+        "    state lit = true\n    Card(class: { md: lit }) { Text(\"x\") }",
     ));
     assert!(text.is_empty(), "{text}");
 }
@@ -141,7 +141,7 @@ fn a_class_map_keyed_by_breakpoint_names_is_still_classes() {
 fn naming_an_engine_class_draws_a_warning() {
     let w = warnings_of(
         &page(
-            "    state on = true\n    Card(class: [\"mine\", { \"wf-btn\": on }]) { Text(\"x\") }",
+            "    state lit = true\n    Card(class: [\"mine\", { \"wf-btn\": lit }]) { Text(\"x\") }",
         ),
         "V04",
     );

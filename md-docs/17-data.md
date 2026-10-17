@@ -369,8 +369,8 @@ page Todos(path: "/") {
     }
 
     action toggle(id: String) {
-        let t = todos.find(x => x.id == id)
-        if let todo = t {
+        let found = todos.find(x => x.id == id)
+        if let todo = found {
             let updated: Todo = await fetch("/api/todos/{id}", { method: "PATCH", body: { done: !todo.done } })
             todos = todos.map(x => if x.id == id { updated } else { x })
         }
@@ -380,8 +380,8 @@ page Todos(path: "/") {
     Input(bind: draft, label: "New todo") { on key("Enter") { add() } }
     Button("Add", disabled: add.pending).primary { on click { add() } }
     if error != "" { Alert(error).danger }
-    for t in todos by t.id {
-        Checkbox(checked: t.done, label: t.title) { on change { toggle(t.id) } }
+    for todo in todos by todo.id {
+        Checkbox(checked: todo.done, label: todo.title) { on change { toggle(todo.id) } }
     }
 }
 ```

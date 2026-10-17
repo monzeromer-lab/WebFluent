@@ -68,8 +68,8 @@ function initTilt(node, max = 15) {
     Heading("Gallery").h1
     Card(class: "tilt",
          mount: (n) => initTilt(n, max),
-         update: (t) => t.setMax(max),
-         cleanup: (t) => t.destroy()) {
+         update: (tilt) => tilt.setMax(max),
+         cleanup: (tilt) => tilt.destroy()) {
         Text("Move the pointer over me.")
     }
     Slider(bind: max, min: 0, max: 45, label: "How far")

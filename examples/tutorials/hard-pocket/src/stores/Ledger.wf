@@ -88,7 +88,7 @@ store Ledger {
         entries = [...entries, Entry(id: uuid(), date: date, amount: amount, kind: kind, category: category, note: note)]
     }
 
-    action update(id: Uuid, kind: Kind, amount: Money, date: Date, category: String, note: String) {
+    action edit(id: Uuid, kind: Kind, amount: Money, date: Date, category: String, note: String) {
         entries = entries.map(e => if e.id == id { Entry(id: id, date: date, amount: amount, kind: kind, category: category, note: note) } else { e })
     }
 

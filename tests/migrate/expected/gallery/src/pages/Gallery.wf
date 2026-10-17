@@ -1,7 +1,7 @@
 // Every built-in component the language has, written the way the docs show them.
 // If a component regresses, this page is where it shows up first.
 page Gallery(path: "/", description: "Every built-in component, rendered once.", title: "Component Gallery") {
-    state query = ""
+    state search = ""
     state agreed = false
     state plan = "pro"
     state volume = 40
@@ -90,7 +90,7 @@ page Gallery(path: "/", description: "Every built-in component, rendered once.",
         // ── Data input ──────────────────────────────
         Heading("Data input").h2
         Form {
-            Input(bind: query, placeholder: "Search the gallery").text
+            Input(bind: search, placeholder: "Search the gallery").text
             Input(placeholder: "you@example.com").email
             Input(placeholder: "Password").password
             Input(placeholder: "When").datetime

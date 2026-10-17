@@ -71,8 +71,8 @@ removing the node:
 ```wf
 page Exit(path: "/") {
     state toast: String? = "Saved"
-    if let t = toast {
-        Alert(t, animate: .slideDown, exit: .fadeOut).success {
+    if let message = toast {
+        Alert(message, animate: .slideDown, exit: .fadeOut).success {
             Button("Dismiss").sm { on click { toast = null } }
         }
     }

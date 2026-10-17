@@ -1,10 +1,10 @@
 test "a bound field of a keyed loop item writes back to the list" {
     state todos = [{ id: "1", title: "Milk", done: false }, { id: "2", title: "Eggs", done: false }]
-    derived titles = todos.map(t => t.title).join("+")
-    derived left = todos.filter(t => !t.done).length
-    for t in todos by t.id {
-        Input(bind: t.title, label: "Title {t.id}")
-        Checkbox(bind: t.done, label: "Done {t.id}")
+    derived titles = todos.map(todo => todo.title).join("+")
+    derived left = todos.filter(todo => !todo.done).length
+    for todo in todos by todo.id {
+        Input(bind: todo.title, label: "Title {todo.id}")
+        Checkbox(bind: todo.done, label: "Done {todo.id}")
     }
     Text("titles {titles} left {left}")
     expect "titles Milk+Eggs left 2"

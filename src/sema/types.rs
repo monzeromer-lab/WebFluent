@@ -853,6 +853,7 @@ impl<'a, 'p> Checker<'a, 'p> {
     }
 
     fn bind(&mut self, name: &str, ty: Type, span: Span) {
+        self.refuse_language_name(name, span);
         if let Some(scope) = self.scopes.last_mut() {
             scope.insert(name.to_string(), ty.clone());
         }
@@ -865,6 +866,42 @@ impl<'a, 'p> Checker<'a, 'p> {
             span,
             ty,
         });
+    }
+
+    /// `E118`: a program's own name may not be one the language has. A
+    /// `state env` hid the build's settings in its page, and the compiled
+    /// page read the one where it wrote the other; a loop's `t` hid the
+    /// translation function inside the loop. Each read as the program
+    /// meant only by luck, so none is a name of the program's own.
+    fn refuse_language_name(&mut self, name: &str, span: Span) {
+        let Some(what) = language_name(name) else {
+            return;
+        };
+        // A name bound twice at one place is reported once. What is
+        // already reported is asked, not remembered apart: a `derived`
+        // value is inferred once quietly, its findings dropped, before it
+        // is checked.
+        let message = format!("`{name}` is a name the language already has: {what}");
+        if self.info.findings.errors.iter().any(|d| {
+            d.code == "E118"
+                && d.line == span.line as usize
+                && d.column == span.col as usize
+                && d.message == message
+        }) {
+            return;
+        }
+        let hint = match own_name_for(name) {
+            _ if GRAMMAR_WORDS.contains(&name) => format!(
+                "Name it something of your own: `{name}` is how a statement is written, and a line that used the name would read as one"
+            ),
+            Some(own) => format!(
+                "Name it something of your own — {own}: inside its scope every `{name}` would mean this, and the language's would have no name"
+            ),
+            None => format!(
+                "Name it something of your own: inside its scope every `{name}` would mean this, and the language's would have no name"
+            ),
+        };
+        self.error(span, "E118", message, &hint);
     }
 
     /// Narrow a name within the current scope, without recording a binding.
@@ -3205,6 +3242,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                 };
                 self.push_scope();
                 for (name, ty) in names.iter().zip(&param_types) {
+                    self.refuse_language_name(name, self.current_span);
                     self.narrow(name, ty.clone());
                 }
                 let ret = self.infer(body, None);
@@ -5296,6 +5334,91 @@ pub(crate) const BUILT_IN_FUNCTIONS: &[&str] = &[
     "Money",
 ];
 
+/// The words of the grammar a program's own name may not be: those a
+/// statement in a body or an imperative block is written with.
+const GRAMMAR_WORDS: &[&str] = &[
+    "state",
+    "persist",
+    "derived",
+    "effect",
+    "action",
+    "use",
+    "resource",
+    "validate",
+    "socket",
+    "stream",
+    "channel",
+    "peer",
+    "head",
+    "slot",
+    "part",
+    "if",
+    "else",
+    "for",
+    "in",
+    "by",
+    "show",
+    "match",
+    "children",
+    "emit",
+    "sequence",
+    "on",
+    "style",
+    "transition",
+    "let",
+    "return",
+    "await",
+    "try",
+    "catch",
+];
+
+/// What the language already means by `name`, when a program's own value of
+/// that name would hide it: the build's settings, a value the browser keeps
+/// current, one of the language's functions, or a word of its grammar. A
+/// declaration of any of them is `E118`.
+///
+/// The names a handler brings with it (`event`, `e`, `value`, `key`) and the
+/// browser's globals are not among them: those a program may name its own.
+pub fn language_name(name: &str) -> Option<String> {
+    let what = match name {
+        "env" => "the build's settings, read as `env.PUBLIC_API`",
+        "params" => "the route's parameters, read as `params.id`",
+        "locale" => "the reader's language, which `setLocale` changes",
+        "dir" => "the direction of the reader's language, `ltr` or `rtl`",
+        "query" => "the address's query, read as `query.tab`",
+        "hash" => "the address's `#fragment`",
+        "theme" => "the reader's light or dark choice, which `setTheme` changes",
+        "now" => "the current time, which the language keeps current",
+        "viewport" => "the window's size, read as `viewport.md`",
+        "network" => "the connection's state, read as `network.online`",
+        "update" => "a new version of the site, read as `update.available`",
+        "t" => "the translation function, `t(\"key\")`",
+        _ if BUILT_IN_FUNCTIONS.contains(&name) && name.starts_with(char::is_lowercase) => {
+            return Some(format!("one of its functions, `{name}(…)`"));
+        }
+        _ if GRAMMAR_WORDS.contains(&name) => "a word of its grammar",
+        _ => return None,
+    };
+    Some(what.to_string())
+}
+
+/// A name of a program's own for a value `name` would have meant, when one
+/// is usual.
+fn own_name_for(name: &str) -> Option<&'static str> {
+    Some(match name {
+        "env" => "`target` or `stage`",
+        "params" => "`args`",
+        "locale" => "`language`",
+        "dir" => "`direction`",
+        "query" => "`search` or `q`",
+        "hash" => "`fragment`",
+        "theme" => "`scheme`",
+        "now" => "`at` or `moment`",
+        "t" => "`item`, or a word for what it holds",
+        _ => return None,
+    })
+}
+
 fn global_type(name: &str) -> Type {
     match name {
         "event" | "params" | "window" | "document" | "console" | "localStorage"
@@ -6288,10 +6411,10 @@ mod tests {
         let src = r#"
             store S {
                 state n = 2
-                derived after = twice(n)
+                derived doubled = twice(n)
                 action twice(v: Number) { return v * 2 }
             }
-            page P(path: "/") { use S  Text("{S.after}") }
+            page P(path: "/") { use S  Text("{S.doubled}") }
         "#;
         assert_eq!(errors(src), Vec::<String>::new());
     }
@@ -6325,7 +6448,7 @@ mod tests {
     #[test]
     fn declared_and_inferred_types_of_names() {
         let src = format!(
-            "{TODOS}store Todos {{\n  state items: [Todo] = []\n  state draft = \"\"\n  state n = 0\n  state sel = null\n  derived remaining = items.filter(t => !t.done).length\n  derived titles = items.map(t => t.title)\n  derived first = items.find(t => t.done)\n  action add(title: String) {{ items = items.concat([Todo(id: \"1\", title: title)]) }}\n  action count() {{ return items.length }}\n}}\npage P(path: \"/\", id: String) {{\n  use Todos\n  resource rows: [Todo] = fetch(\"/x\")\n  state t = Todo(id: \"a\", title: \"b\")\n  for todo in Todos.items by todo.id {{ Text(todo.title) }}\n  match rows {{ ready(list) {{ for r in list {{ Text(r.title) }} }} else {{ }} }}\n}}"
+            "{TODOS}store Todos {{\n  state items: [Todo] = []\n  state draft = \"\"\n  state n = 0\n  state sel = null\n  derived remaining = items.filter(item => !item.done).length\n  derived titles = items.map(item => item.title)\n  derived first = items.find(item => item.done)\n  action add(title: String) {{ items = items.concat([Todo(id: \"1\", title: title)]) }}\n  action count() {{ return items.length }}\n}}\npage P(path: \"/\", id: String) {{\n  use Todos\n  resource rows: [Todo] = fetch(\"/x\")\n  state item = Todo(id: \"a\", title: \"b\")\n  for todo in Todos.items by todo.id {{ Text(todo.title) }}\n  match rows {{ ready(list) {{ for r in list {{ Text(r.title) }} }} else {{ }} }}\n}}"
         );
         assert_eq!(type_of(&src, "items"), "[Todo]");
         assert_eq!(type_of(&src, "draft"), "String");
@@ -6338,7 +6461,7 @@ mod tests {
         assert_eq!(type_of(&src, "count"), "action() -> Number");
         assert_eq!(type_of(&src, "id"), "String");
         assert_eq!(type_of(&src, "rows"), "resource<[Todo]>");
-        assert_eq!(type_of(&src, "t"), "Todo");
+        assert_eq!(type_of(&src, "item"), "Todo");
         assert_eq!(type_of(&src, "todo"), "Todo");
         assert_eq!(type_of(&src, "list"), "[Todo]");
         assert_eq!(type_of(&src, "r"), "Todo");
@@ -6389,15 +6512,15 @@ mod tests {
             "{TODOS}component C(tone: Tone) {{ Text(\"x\") }}\npage P(path: \"/\") {{ C(tone: .angry) }}"
         ));
         has(
-            &format!("{TODOS}page P(path: \"/\") {{ state t: Tone = .angry }}"),
+            &format!("{TODOS}page P(path: \"/\") {{ state item: Tone = .angry }}"),
             "[T02] `Tone` has no case `.angry`",
         );
         clean(&format!(
-            "{TODOS}component C(tone: Tone = .calm) {{ Text(\"x\") }}\npage P(path: \"/\") {{ C(tone: .loud)\n state t: Tone = .calm\n match t {{ .calm {{ Text(\"a\") }} else {{ Text(\"b\") }} }} }}"
+            "{TODOS}component C(tone: Tone = .calm) {{ Text(\"x\") }}\npage P(path: \"/\") {{ C(tone: .loud)\n state item: Tone = .calm\n match item {{ .calm {{ Text(\"a\") }} else {{ Text(\"b\") }} }} }}"
         ));
         has(
             &format!(
-                "{TODOS}page P(path: \"/\") {{ state t: Tone = .calm\n match t {{ .angry {{ Text(\"a\") }} else {{ }} }} }}"
+                "{TODOS}page P(path: \"/\") {{ state item: Tone = .calm\n match item {{ .angry {{ Text(\"a\") }} else {{ }} }} }}"
             ),
             "[T02] `Tone` has no case `.angry`",
         );
@@ -6407,7 +6530,7 @@ mod tests {
     fn fields_members_and_methods_that_do_not_exist() {
         has(
             &format!(
-                "{TODOS}page P(path: \"/\") {{ state t = Todo(id: \"a\", title: \"b\")\n Text(t.name) }}"
+                "{TODOS}page P(path: \"/\") {{ state item = Todo(id: \"a\", title: \"b\")\n Text(item.name) }}"
             ),
             "[T05] `Todo` has no field `name`",
         );
@@ -6460,12 +6583,12 @@ mod tests {
     fn a_value_that_may_be_null_must_be_unwrapped() {
         has(
             &format!(
-                "{TODOS}page P(path: \"/\") {{ state t = Todo(id: \"a\", title: \"b\")\n Text(t.note.length) }}"
+                "{TODOS}page P(path: \"/\") {{ state item = Todo(id: \"a\", title: \"b\")\n Text(item.note.length) }}"
             ),
-            "[T04] `t.note` may be null",
+            "[T04] `item.note` may be null",
         );
         clean(&format!(
-            "{TODOS}page P(path: \"/\") {{ state t = Todo(id: \"a\", title: \"b\")\n state sel: Todo? = null\n if let n = t.note {{ Text(n.length) }}\n Text(t.note ?? \"none\")\n if sel != null {{ Text(sel.title) }}\n if sel {{ Text(sel.title) }}\n if sel && t.done {{ Text(sel.title) }} }}"
+            "{TODOS}page P(path: \"/\") {{ state item = Todo(id: \"a\", title: \"b\")\n state sel: Todo? = null\n if let n = item.note {{ Text(n.length) }}\n Text(item.note ?? \"none\")\n if sel != null {{ Text(sel.title) }}\n if sel {{ Text(sel.title) }}\n if sel && item.done {{ Text(sel.title) }} }}"
         ));
         has(
             &format!("{TODOS}page P(path: \"/\") {{ state sel: Todo? = null\n Text(sel.title) }}"),
@@ -6513,11 +6636,11 @@ mod tests {
             "[F02] `bind:` on `Checkbox` holds a `Bool`, but `name` is `String`",
         );
         has(
-            "page P(path: \"/\") { state on = true\n Slider(bind: on) }",
-            "[F02] `bind:` on `Slider` holds a `Number`, but `on` is `Bool`",
+            "page P(path: \"/\") { state flag = true\n Slider(bind: flag) }",
+            "[F02] `bind:` on `Slider` holds a `Number`, but `flag` is `Bool`",
         );
         clean(
-            "page P(path: \"/\") { state on = true\n state n = 0\n state s = \"\"\n Checkbox(bind: on, label: \"x\")\n Slider(bind: n)\n Input(bind: s, label: \"y\")\n Switch(bind: on, label: \"z\") }",
+            "page P(path: \"/\") { state flag = true\n state n = 0\n state s = \"\"\n Checkbox(bind: flag, label: \"x\")\n Slider(bind: n)\n Input(bind: s, label: \"y\")\n Switch(bind: flag, label: \"z\") }",
         );
     }
 
@@ -6565,11 +6688,11 @@ mod tests {
     #[test]
     fn a_loop_in_an_action_binds_the_item_and_the_index() {
         clean(&format!(
-            "{TODOS}page P(path: \"/\") {{ state items: [Todo] = []\n state n = 0\n action all() {{ for t in items {{ n = n + t.title.length }}\n for t, i in items {{ n = n + i }} }} }}"
+            "{TODOS}page P(path: \"/\") {{ state items: [Todo] = []\n state n = 0\n action all() {{ for item in items {{ n = n + item.title.length }}\n for item, i in items {{ n = n + i }} }} }}"
         ));
         has(
             &format!(
-                "{TODOS}page P(path: \"/\") {{ state items: [Todo] = []\n action all() {{ for t in items {{ t.nam = 1 }} }} }}"
+                "{TODOS}page P(path: \"/\") {{ state items: [Todo] = []\n action all() {{ for item in items {{ item.nam = 1 }} }} }}"
             ),
             "[T05] `Todo` has no field `nam`",
         );
@@ -6582,11 +6705,11 @@ mod tests {
     #[test]
     fn optional_chaining_reads_through_null_and_its_result_may_be_null() {
         clean(&format!(
-            "{TODOS}page P(path: \"/\") {{ state sel: Todo? = null\n derived t = sel?.title\n derived n = sel?.title?.length ?? 0\n Text(t ?? \"none\") }}"
+            "{TODOS}page P(path: \"/\") {{ state sel: Todo? = null\n derived title = sel?.title\n derived n = sel?.title?.length ?? 0\n Text(title ?? \"none\") }}"
         ));
         has(
             &format!(
-                "{TODOS}page P(path: \"/\") {{ state sel: Todo? = null\n derived t = sel?.nam\n Text(t ?? \"\") }}"
+                "{TODOS}page P(path: \"/\") {{ state sel: Todo? = null\n derived title = sel?.nam\n Text(title ?? \"\") }}"
             ),
             "[T05] `Todo` has no field `nam`",
         );
@@ -6656,7 +6779,7 @@ mod tests {
         // Two shapes join on the fields they share.
         assert_eq!(
             type_of(
-                "page P(path: \"/\") { state on = true\n derived v = if on { { a: 1, b: \"\" } } else { { a: 2, c: true } }\n Text(\"x\") }",
+                "page P(path: \"/\") { state flag = true\n derived v = if flag { { a: 1, b: \"\" } } else { { a: 2, c: true } }\n Text(\"x\") }",
                 "v"
             ),
             "{ a: Number, b: String?, c: Bool? }"
@@ -6742,9 +6865,10 @@ mod tests {
             "page P(path: \"/\") { state n = 1\n Text(format()) }",
             "[T10] `format` takes 1 to 3 arguments, but 0 are given",
         );
-        // A page's own `format` action is its own.
-        clean(
+        // A page's own `format` would hide the language's: `E118`.
+        has(
             "page P(path: \"/\") { state n = 1\n action format(x: Number) { return \"{x}!\" }\n Text(format(n)) }",
+            "[E118] `format` is a name the language already has",
         );
     }
 
@@ -6781,7 +6905,7 @@ mod tests {
     #[test]
     fn a_scoped_slot_types_its_values_and_a_fills_names() {
         clean(&format!(
-            "{TODOS}component Rows(items: [Todo]) {{ slot row(item: Todo, index: Number)  for it, i in items {{ row(item: it, index: i) }} }}\npage P(path: \"/\") {{ state todos: [Todo] = []\n  Rows(items: todos) {{ row(t, i) {{ Text(\"{{i}}: {{t.title}}\") }} }} }}"
+            "{TODOS}component Rows(items: [Todo]) {{ slot row(item: Todo, index: Number)  for it, i in items {{ row(item: it, index: i) }} }}\npage P(path: \"/\") {{ state todos: [Todo] = []\n  Rows(items: todos) {{ row(item, i) {{ Text(\"{{i}}: {{item.title}}\") }} }} }}"
         ));
         has(
             &format!(
@@ -6791,7 +6915,7 @@ mod tests {
         );
         has(
             &format!(
-                "{TODOS}component Rows(items: [Todo]) {{ slot row(item: Todo)  for it in items {{ row(item: it) }} }}\npage P(path: \"/\") {{ state todos: [Todo] = []\n  Rows(items: todos) {{ row(t) {{ Text(t.nam) }} }} }}"
+                "{TODOS}component Rows(items: [Todo]) {{ slot row(item: Todo)  for it in items {{ row(item: it) }} }}\npage P(path: \"/\") {{ state todos: [Todo] = []\n  Rows(items: todos) {{ row(item) {{ Text(item.nam) }} }} }}"
             ),
             "[T05] `Todo` has no field `nam`",
         );

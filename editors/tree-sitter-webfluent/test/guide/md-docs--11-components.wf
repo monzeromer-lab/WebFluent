@@ -44,12 +44,12 @@ component TodoRow(_ todo: Todo) {
 page Todos(path: "/") {
     state todos: [Todo] = [Todo(id: "1", title: "Milk"), Todo(id: "2", title: "Eggs")]
     action toggle(id: String) {
-        todos = todos.map(t => if t.id == id { Todo(id: t.id, title: t.title, done: !t.done) } else { t })
+        todos = todos.map(todo => if todo.id == id { Todo(id: todo.id, title: todo.title, done: !todo.done) } else { todo })
     }
-    for t in todos by t.id {
-        TodoRow(t) {
+    for todo in todos by todo.id {
+        TodoRow(todo) {
             on toggle(id) { toggle(id) }
-            on remove(id) { todos = todos.filter(t => t.id != id) }
+            on remove(id) { todos = todos.filter(todo => todo.id != id) }
         }
     }
 }
@@ -88,7 +88,7 @@ component TodoList(items: [Todo]) {
 page Use(path: "/") {
     state todos: [Todo] = [Todo(id: "1", title: "Milk")]
     TodoList(items: todos) {
-        row(t, i) { Text("{i + 1}. {t.title}") }
+        row(todo, i) { Text("{i + 1}. {todo.title}") }
         empty { Text("Nothing to do.").muted }
     }
 }
@@ -113,7 +113,7 @@ component Stepper(_ start: Number, step: Number = 1) {
     event change(value: Number)
     state n = start
     derived even = n % 2 == 0
-    action move(by: Number) { n = n + by  emit change(n) }
+    action move(delta: Number) { n = n + delta  emit change(n) }
     Row(gap: .sm, align: .center) {
         Button("−").sm { on click { move(-step) } }
         Text("{n}").bold

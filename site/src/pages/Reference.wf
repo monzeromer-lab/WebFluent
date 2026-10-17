@@ -214,19 +214,19 @@ page ReferenceEntry(path: "/docs/reference/:slug", slug: String, title: "{regist
             if tab == "parts" {
                 Stack(gap: .lg, role: "tabpanel", id: "parts") {
                     style { gap: 24px }
-                    for part in c.parts by part.name {
+                    for piece in c.parts by piece.name {
                         Stack(gap: .sm) {
                             style { gap: 10px }
-                            Heading(part.name).h2 { style { margin: 0; font-family: $font-family-mono; font-size: 18px; line-height: 24px; font-weight: 500 } }
-                            Markdown(part.summary) { style { max-width: 680px; & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
-                            Code(part.signature, language: "wf").block {
+                            Heading(piece.name).h2 { style { margin: 0; font-family: $font-family-mono; font-size: 18px; line-height: 24px; font-weight: 500 } }
+                            Markdown(piece.summary) { style { max-width: 680px; & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
+                            Code(piece.signature, language: "wf").block {
                                 style { margin: 0; padding: 12px 14px; background: $term-bg; border: 1px solid $color-border; border-radius: 6px; font-size: 13px; line-height: 22px; color: $syntax-punct; white-space: pre; overflow-x: auto }
                             }
-                            if part.props.length > 0 { PropsTable(rows: part.props, caption: "Props of {part.name}") }
-                            if part.flags.length > 0 {
+                            if piece.props.length > 0 { PropsTable(rows: piece.props, caption: "Props of {piece.name}") }
+                            if piece.flags.length > 0 {
                                 Row(gap: .sm) {
                                     style { gap: 8px; flex-wrap: wrap }
-                                    for flag in part.flags by flag { Text(flag, class: "chip") }
+                                    for flag in piece.flags by flag { Text(flag, class: "chip") }
                                 }
                             }
                         }

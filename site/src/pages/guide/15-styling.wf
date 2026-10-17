@@ -53,13 +53,13 @@ page StylingGuide(path: "/docs/guide/styling", title: "Styling", description: "T
         Heading("transition \{ \}", id: "transition").h2
 
         CodeBlock(#"page Fade(path: "/") {
-    state on = false
+    state active = false
     Card {
-        style { opacity: {if on { 1 } else { 0.4 }}; transform: {if on { "none" } else { "scale(0.98)" }} }
+        style { opacity: {if active { 1 } else { 0.4 }}; transform: {if active { "none" } else { "scale(0.98)" }} }
         transition { opacity: $fast; transform: 200ms ease-out }
         Text("Fades")
     }
-    Button("Toggle") { on click { on = !on } }
+    Button("Toggle") { on click { active = !active } }
 }"#, title: "wf")
 
         Markdown("`transition \{ prop: duration easing \}` sets CSS transitions for the element; a `$fast/$normal/$slow` token or a raw value. Reduced-motion readers get none ([chapter 20](/docs/guide/motion)).")

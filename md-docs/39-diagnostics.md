@@ -463,6 +463,57 @@ error[E117]: `on key("ctrl+shfit+k")` names `shfit`, which is not a modifier
 **Fix:** Modifiers `ctrl`, `shift`, `alt`, `meta` (or `cmd`), then one key:
 a letter, a digit, or a name — `Enter`, `Escape`, `ArrowDown`, `Tab`, `F2`.
 
+### E118 — A name the language already has
+
+```wf expect E118
+page Deploy(path: "/", title: "Deploy", description: "Pick a target.") {
+    state env = "staging"
+    Heading("Deploy to {env}").h1
+}
+```
+
+```text
+error[E118]: `env` is a name the language already has: the build's settings, read as `env.PUBLIC_API`
+ --> src/App.wf:2:5
+  |
+2 |     state env = "staging"
+  |     ^^^^^^^^^^^^^^^^^^^^^
+  = help: Name it something of your own — `target` or `stage`: inside its scope every `env` would mean this, and the language's would have no name
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e118-a-name-the-language-already-has
+```
+
+A name the language gives a meaning is not a program's to declare — not as
+a `state`, `derived`, `persist` or `let`, a prop, a route or action
+parameter, a loop item, a lambda's parameter, a binding of `if let`, `match`
+or a slot, nor a top-level `const`, `data`, `image`, store or `api`.
+Declared, it would hide what the language means by it for as far as its
+scope reaches: a `state env` hid the build's settings in its page, and a
+loop's `t` hid the translation function inside the loop. The names are:
+
+- `env`, the build's settings; `params`, the route's; `locale` and `dir`,
+  the reader's language;
+- the values the browser keeps current: `now`, `viewport`, `query`, `hash`,
+  `theme`, `network`, `update`;
+- the language's functions: `t`, `format`, `ago`, `log`, `navigate`,
+  `fetch`, `uuid`, `sanitize`, `setLocale`, `setTheme`, `optimistic`,
+  `beacon`, `animate`, `replayAnimation`, `every`, `after`, `ws`, `sse`,
+  `broadcast`, `rtc`;
+- the words a statement is written with: `state`, `persist`, `derived`,
+  `effect`, `action`, `use`, `resource`, `validate`, `socket`, `stream`,
+  `channel`, `peer`, `head`, `slot`, `part`, `if`, `else`, `for`, `in`, `by`,
+  `show`, `match`, `children`, `emit`, `sequence`, `on`, `style`,
+  `transition`, `let`, `return`, `await`, `try`, `catch`;
+- and, at the top level, `WF`, the runtime the compiled pages call.
+
+The names a handler brings with it — `event`, `e`, `value`, `key` — and the
+browser's globals (`window`, `history`, …) are a program's to use, and so is
+any name as a field, a map key or an enum case: `type Box { env: String }`
+and `.env` are fine.
+**Fix:** Name it something of your own — `state target = "staging"` — and
+its reads with it. The message suggests one where there is a usual choice:
+`target` or `stage` for `env`, `search` for `query`, `scheme` for `theme`,
+`item` or a word for what it holds for `t`.
+
 ## Components
 
 ### C01 — A required prop or field left out
@@ -1991,15 +2042,15 @@ warning[P02]: `migrate 1 -> 2` on `items` is past the declared version
 
 ```wf expect P03
 store Filters(scope: .route) {
-    persist query = ""
+    persist search = ""
 }
 ```
 
 ```text
-warning[P03]: `query` is persisted in a store scoped to the route
+warning[P03]: `search` is persisted in a store scoped to the route
  --> src/App.wf:2:5
   |
-2 |     persist query = ""
+2 |     persist search = ""
   |     ^^^^^^^
   = help: The route change drops the store and the next read builds it again from storage, so the value comes straight back. Use `state` for what the route owns, or widen the scope for what outlives it
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#p03-a-persisted-value-in-a-route-scoped-store

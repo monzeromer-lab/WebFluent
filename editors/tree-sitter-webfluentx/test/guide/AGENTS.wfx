@@ -24,6 +24,6 @@ page Home(path: "/", title: "Todos")
     if Todos.items.length == 0
         Text("Nothing yet").muted
     else
-        for t in Todos.items by t.id
-            TodoRow(t.title, todo: t)
+        for todo in Todos.items by todo.id
+            TodoRow(todo.title, todo: todo)
     Button("Add").primary { on click { Todos.add(draft) } }

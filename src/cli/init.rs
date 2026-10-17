@@ -302,7 +302,7 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
     state username = "demo_user"
     state email = "user@example.com"
     state notifications = true
-    state theme = "light"
+    state scheme = "light"
     state fontSize = 16
     state language = "en"
     state autoSave = false
@@ -341,8 +341,8 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
 
                     Spacer
 
-                    Radio(bind: theme, value: "light", label: "Light Theme")
-                    Radio(bind: theme, value: "dark", label: "Dark Theme")
+                    Radio(bind: scheme, value: "light", label: "Light Theme")
+                    Radio(bind: scheme, value: "dark", label: "Dark Theme")
 
                     Spacer
 
@@ -365,7 +365,7 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
                         Heading("Account Info").h2
                         Text("Username: {username}")
                         Text("Email: {email}")
-                        Text("Theme: {theme}")
+                        Text("Theme: {scheme}")
                         Text("Font Size: {fontSize}px")
                         Spacer
                         Text("Notifications: {notifications}").muted
@@ -532,14 +532,14 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
     ]
     state filter = "all"
 
-    derived remaining = tasks.filter(t => !t.done).length
-    derived completed = tasks.filter(t => t.done).length
+    derived remaining = tasks.filter(item => !item.done).length
+    derived completed = tasks.filter(item => item.done).length
     derived filtered = if filter == "all" {
         tasks
     } else if filter == "active" {
-        tasks.filter(t => !t.done)
+        tasks.filter(item => !item.done)
     } else {
-        tasks.filter(t => t.done)
+        tasks.filter(item => item.done)
     }
 
     action add(title: String) {
@@ -547,11 +547,11 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
     }
 
     action toggle(id: Number) {
-        tasks = tasks.map(t => if t.id == id { { ...t, done: !t.done } } else { t })
+        tasks = tasks.map(item => if item.id == id { { ...item, done: !item.done } } else { item })
     }
 
     action remove(id: Number) {
-        tasks = tasks.filter(t => t.id != id)
+        tasks = tasks.filter(item => item.id != id)
     }
 
     action setFilter(value: String) {

@@ -6,14 +6,14 @@ Store TaskStore {
     ]
     state filter = "all"
 
-    derived remaining = tasks.filter(t => !t.done).length
-    derived completed = tasks.filter(t => t.done).length
+    derived remaining = tasks.filter(item => !item.done).length
+    derived completed = tasks.filter(item => item.done).length
     derived filtered = if filter == "all" {
         tasks
     } else if filter == "active" {
-        tasks.filter(t => !t.done)
+        tasks.filter(item => !item.done)
     } else {
-        tasks.filter(t => t.done)
+        tasks.filter(item => item.done)
     }
 
     action add(title: String) {
@@ -21,14 +21,14 @@ Store TaskStore {
     }
 
     action toggle(id: Number) {
-        state task = tasks.filter(t => t.id == id)[0]
+        state task = tasks.filter(item => item.id == id)[0]
         if task != null {
             task.done = !task.done
         }
     }
 
     action remove(id: Number) {
-        tasks = tasks.filter(t => t.id != id)
+        tasks = tasks.filter(item => item.id != id)
     }
 
     action setFilter(value: String) {

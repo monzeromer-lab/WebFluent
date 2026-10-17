@@ -553,17 +553,17 @@ fn the_static_paint_draws_what_the_live_page_draws() {
         "store S { state b: [String] = [] }\n\
          component C {\n\
          \x20   use S\n\
-         \x20   derived on = S.b.includes(\"x\")\n\
-         \x20   Button(if on { \"Yes\" } else { \"No\" }, class: \"cbtn\")\n\
+         \x20   derived picked = S.b.includes(\"x\")\n\
+         \x20   Button(if picked { \"Yes\" } else { \"No\" }, class: \"cbtn\")\n\
          }\n\
          page Home(path: \"/\", title: \"H\", description: \"D.\") {\n\
          \x20   derived tag = query.tag ?? \"\"\n\
-         \x20   state theme = \"dark\"\n\
+         \x20   state scheme = \"dark\"\n\
          \x20   Heading(\"Home\").h1\n\
          \x20   C(aria-label: \"A component\")\n\
          \x20   Text(\"chip text\", class: [\"chip\", { \"is-current\": tag == \"\" }])\n\
          \x20   Text(\"hidden text\", hidden: true)\n\
-         \x20   Button(\"Light\", outlined: theme != \"light\")\n\
+         \x20   Button(\"Light\", outlined: scheme != \"light\")\n\
          \x20   Host(tag: \"div\", title: \"a tip\")\n\
          }\n",
     );

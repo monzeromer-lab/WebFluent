@@ -16,7 +16,7 @@ test "adding a todo puts it in the list" {
     state draft = ""
     Input(bind: draft, aria-label: "New todo")
     Button("Add") { on click { Todos.add(draft)  draft = "" } }
-    for t in Todos.items by t.id { TodoRow(t) }
+    for todo in Todos.items by todo.id { TodoRow(todo) }
     Text("{Todos.open.length} left")
 
     expect "0 left"
@@ -44,7 +44,7 @@ test "ticking a todo and clearing done empties the list" {
     Input(bind: draft, aria-label: "New todo")
     Button("Add") { on click { Todos.add(draft)  draft = "" } }
     Button("Clear done") { on click { Todos.clearDone() } }
-    for t in Todos.items by t.id { TodoRow(t) }
+    for todo in Todos.items by todo.id { TodoRow(todo) }
     Text("{Todos.items.length} in all")
 
     type "Call the bank" into "New todo"
@@ -60,7 +60,7 @@ test "renaming a todo keeps one row for each" {
     state draft = ""
     Input(bind: draft, aria-label: "New todo")
     Button("Add") { on click { Todos.add(draft)  draft = "" } }
-    for t in Todos.items by t.id { TodoRow(t) }
+    for todo in Todos.items by todo.id { TodoRow(todo) }
     Text("{Todos.items.length} in all")
 
     type "Water the plants" into "New todo"

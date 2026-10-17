@@ -159,7 +159,7 @@ name. It works the same way at the top of a page or a component.
 
 ```wf
 store Prefs {
-    persist theme = "system"
+    persist scheme = "system"
     persist density = "comfortable"
     persist recent: [String] = []
     action visited(path: String) {

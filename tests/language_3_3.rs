@@ -277,8 +277,8 @@ fn a_store_action_wins_over_a_list_method_of_the_same_name() {
         "type Todo { id: Number, title: String }\n\
          store Todos {\n\
          \x20   state items: [Todo] = []\n\
-         \x20   action remove(id: Number) { items = items.filter(t => t.id != id) }\n\
-         \x20   action take(id: Number) { items = items.filter(t => t.id == id) }\n\
+         \x20   action remove(id: Number) { items = items.filter(todo => todo.id != id) }\n\
+         \x20   action take(id: Number) { items = items.filter(todo => todo.id == id) }\n\
          }\n\
          app { Router }\n\
          page Home(path: \"/\", title: \"Home\", description: \"d\") {\n\

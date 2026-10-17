@@ -18,6 +18,16 @@ The full notes for every release are in
 [`RELEASE_NOTES.md`](../RELEASE_NOTES.md); what follows is what an upgrade
 asks of you.
 
+## 5.6
+
+5.6 refuses a name the language already has as a program's own
+([`E118`](39-diagnostics.md#e118-a-name-the-language-already-has)): a
+`state env`, a loop's `t`, a `persist theme`, an action named `update`. Each
+compiled before and read the language's value where the program meant its
+own — a page's `state env` showed `[object Object]`. Run `wf check`: the
+message names the declaration and suggests a name of your own, and renaming
+it and its reads is the whole change.
+
 ## 5.0
 
 5.0 makes the compiler refuse much more of what used to compile and then

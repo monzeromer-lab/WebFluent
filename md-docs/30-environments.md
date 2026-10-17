@@ -88,6 +88,12 @@ the build writes only public values into it.
 A secret a third party needs belongs in a request your server makes, not in a
 page ([Security](23-security.md#sessions-and-tokens)).
 
+`env` is the language's name for these settings, and only theirs: nothing a
+program declares may be called `env` — not a `state`, a prop, a route
+parameter, a loop item, nor a top-level `const`
+([`E118`](39-diagnostics.md#e118-a-name-the-language-already-has)). A value
+that says which stage a page is about is a `target` or a `stage`.
+
 ## A build per environment
 
 The same source, different values:

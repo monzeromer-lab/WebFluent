@@ -72,9 +72,9 @@ type Todo { id: String, title: String, done: Bool = false }
 page Calls(path: "/") {
     state todos: [Todo] = [Todo(id: "1", title: "milk"), Todo(id: "2", title: "eggs", done: true)]
     state q = "M"
-    derived open = todos.filter(t => !t.done)
-    derived titles = todos.map(t => t.title.capitalize())
-    derived hits = todos.filter(t => t.title.toLowerCase().includes(q.toLowerCase()))
+    derived open = todos.filter(todo => !todo.done)
+    derived titles = todos.map(todo => todo.title.capitalize())
+    derived hits = todos.filter(todo => todo.title.toLowerCase().includes(q.toLowerCase()))
     derived first = todos.first()
     derived count = todos.length
     derived summary = titles.join(", ")

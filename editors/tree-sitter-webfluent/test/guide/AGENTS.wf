@@ -526,8 +526,8 @@ page Gallery(path: "/gallery", title: "Gallery", description: "Cards that lean."
     Heading("Gallery").h1
     Card(class: "tilt",
          mount: (n) => initTilt(n, max),      // each time the element is made
-         update: (t) => t.setMax(max),        // again when what it reads changes
-         cleanup: (t) => t.destroy()) {       // when its page, branch or item leaves
+         update: (tilt) => tilt.setMax(max),  // again when what it reads changes
+         cleanup: (tilt) => tilt.destroy()) { // when its page, branch or item leaves
         Text("Lean on me.")
     }
 }
@@ -569,8 +569,8 @@ page Home(path: "/", title: "Todos") {
     if Todos.items.length == 0 {
         Text("Nothing yet").muted
     } else {
-        for t in Todos.items by t.id {
-            TodoRow(t.title, todo: t)
+        for todo in Todos.items by todo.id {
+            TodoRow(todo.title, todo: todo)
         }
     }
     Button("Add").primary { on click { Todos.add(draft) } }

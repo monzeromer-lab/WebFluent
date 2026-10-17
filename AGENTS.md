@@ -455,7 +455,9 @@ Text(env.PUBLIC_APP_NAME)
 shell's variables and a `.env` file, fixed at build time. A page, a
 component, a store or an `api` may only read a name that begins `PUBLIC_`
 or that `public_env` lists — everything it reads is in the bundle, so any
-other name there is a compile error.
+other name there is a compile error. `env` is the language's name for
+these settings and nothing else's: a `state`, prop, parameter, loop item or
+`const` called `env` is `E118` (call it `target` or `stage`).
 
 ### Images the build processes
 
@@ -675,7 +677,7 @@ effect { log(count) }                // Side effect — runs on change
   code, run once when it renders
 
 ```wf
-persist theme = "light"               // kept in the browser across visits (page, component or store)
+persist scheme = "light"              // kept in the browser across visits (page, component or store)
 persist items: [Item] = [] {          // and what a value says about itself
     in: .local                        // .local (default) · .session (this tab)
     version: 2                        // the version of the shape this build writes
@@ -1249,8 +1251,8 @@ page Gallery(path: "/gallery", title: "Gallery", description: "Cards that lean."
     Heading("Gallery").h1
     Card(class: "tilt",
          mount: (n) => initTilt(n, max),      // each time the element is made
-         update: (t) => t.setMax(max),        // again when what it reads changes
-         cleanup: (t) => t.destroy()) {       // when its page, branch or item leaves
+         update: (tilt) => tilt.setMax(max),  // again when what it reads changes
+         cleanup: (tilt) => tilt.destroy()) { // when its page, branch or item leaves
         Text("Lean on me.")
     }
 }
@@ -1384,8 +1386,8 @@ page Home(path: "/", title: "Todos")
     if Todos.items.length == 0
         Text("Nothing yet").muted
     else
-        for t in Todos.items by t.id
-            TodoRow(t.title, todo: t)
+        for todo in Todos.items by todo.id
+            TodoRow(todo.title, todo: todo)
     Button("Add").primary { on click { Todos.add(draft) } }
 ```
 
@@ -2693,6 +2695,7 @@ an `_` for `U01`–`U05`.
 | `E113` | An argument that cannot be positional |
 | `E114` | `emit` outside a component |
 | `E116` | `Element`'s tag is not a custom element's |
+| `E118` | A name the language already has, declared as the program's own — `state env`, `for t in …`, a prop `query`, a `const format` |
 | `E901` | The compiler wrote JavaScript a browser would refuse (it reads back every script it writes — a WebFluent bug) |
 | `E902` | A page the content security policy shipped beside it would block |
 | `C02` | A prop your component does not declare |
@@ -3092,7 +3095,7 @@ page Invoice(path: "/", title: "Invoice") {
 15. **Browser globals are not prefixed**: `localStorage`, `window`, `console`, `JSON`, `Math`, `Date`, `setTimeout`, `fetch`, `Promise`, etc. compile as-is
 16. **Both `!=` and `!==`**: both inequality operators are supported (both compile to `!==` in JS); against a `null` literal, `==` and `!=` compile to JavaScript's loose `== null`, so an absent value — a query key the address lacks — counts as null
 17. **Quoted map keys**: `{ "Content-Type": "application/json" }` — use for HTTP headers and hyphenated keys
-18. **Reserved words as map keys**: `{ action: "approve", token: tok }` — all keywords work as map keys
+18. **Reserved words as map keys, not as names**: `{ action: "approve", token: tok }` — all keywords work as map keys, fields and enum cases; a name the language has is never a program's own (`E118`): `env`, `params`, `locale`, `dir`, `now`, `viewport`, `query`, `hash`, `theme`, `network`, `update`, the built-in functions (`t`, `format`, `ago`, `log`, `navigate`, `fetch`, `uuid`, `every`, `after`, …) and the words a statement is written with (`state`, `action`, `let`, `if`, `show`, `match`, `style`, `on`, …) cannot be a state, prop, parameter, loop item, lambda parameter or `const`. `event`, `e`, `value`, `key` and the browser's globals can
 19. **`public/` copies to build root**: files in `public/` land at the root of the output directory, not nested
 20. **Slides need a Presentation wrapper**: `Page X { Presentation { Slide { ... } } }` — slide elements outside `Presentation` are a compile error
 21. **One Slide = one PDF page**: slides do not flow across pages; overflow is clipped with a note

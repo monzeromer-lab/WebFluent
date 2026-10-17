@@ -27,7 +27,7 @@ component EntryForm(entry: Entry? = null) {
             if let d = date {
                 let money = ONE.times(a)
                 if let e = entry {
-                    Ledger.update(e.id, kind, money, d, category, note.trim())
+                    Ledger.edit(e.id, kind, money, d, category, note.trim())
                 } else {
                     Ledger.add(kind, money, d, category, note.trim())
                     amount = null

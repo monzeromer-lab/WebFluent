@@ -2,8 +2,8 @@
 store Todos {
     persist items: [Todo] = []
 
-    derived open = items.filter(t => !t.done)
-    derived done = items.filter(t => t.done)
+    derived open = items.filter(todo => !todo.done)
+    derived done = items.filter(todo => todo.done)
 
     action add(title: String) {
         let text = title.trim()
@@ -12,20 +12,20 @@ store Todos {
     }
 
     action toggle(id: Uuid) {
-        items = items.map(t => if t.id == id { { ...t, done: !t.done } } else { t })
+        items = items.map(todo => if todo.id == id { { ...todo, done: !todo.done } } else { todo })
     }
 
     action rename(id: Uuid, title: String) {
         let text = title.trim()
         if text == "" { return }
-        items = items.map(t => if t.id == id { { ...t, title: text } } else { t })
+        items = items.map(todo => if todo.id == id { { ...todo, title: text } } else { todo })
     }
 
     action remove(id: Uuid) {
-        items = items.filter(t => t.id != id)
+        items = items.filter(todo => todo.id != id)
     }
 
     action clearDone() {
-        items = items.filter(t => !t.done)
+        items = items.filter(todo => !todo.done)
     }
 }

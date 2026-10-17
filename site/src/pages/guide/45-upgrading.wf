@@ -1,10 +1,14 @@
 /// Chapter 45 of the guide, written from md-docs/45-upgrading.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page UpgradingGuide(path: "/docs/guide/upgrading", title: "Upgrading", description: "Installing a new version, what changed in 5.0, 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.", layout: DocsShell("Upgrading", chapter: t("guide.chapter", { n: "45" }), blurb: "What changed in each release, what to do when you upgrade, and how wf migrate carries an older project forward.", source: "md-docs/45-upgrading.md", sections: [Anchor(id: "installing-a-newer-version", label: "Installing a newer version"), Anchor(id: "5-0", label: "5.0"), Anchor(id: "4-2", label: "4.2"), Anchor(id: "4-1", label: "4.1"), Anchor(id: "4-0", label: "4.0"), Anchor(id: "3-x", label: "3.x"), Anchor(id: "from-webfluent-2", label: "From WebFluent 2")], prevTo: "/docs/guide/troubleshooting", prevLabel: "44. {t("ch.44")}", nextTo: "/docs/guide/browser-support", nextLabel: "46. {t("ch.46")}")) {
+page UpgradingGuide(path: "/docs/guide/upgrading", title: "Upgrading", description: "Installing a new version, what changed in 5.0, 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.", layout: DocsShell("Upgrading", chapter: t("guide.chapter", { n: "45" }), blurb: "What changed in each release, what to do when you upgrade, and how wf migrate carries an older project forward.", source: "md-docs/45-upgrading.md", sections: [Anchor(id: "installing-a-newer-version", label: "Installing a newer version"), Anchor(id: "5-6", label: "5.6"), Anchor(id: "5-0", label: "5.0"), Anchor(id: "4-2", label: "4.2"), Anchor(id: "4-1", label: "4.1"), Anchor(id: "4-0", label: "4.0"), Anchor(id: "3-x", label: "3.x"), Anchor(id: "from-webfluent-2", label: "From WebFluent 2")], prevTo: "/docs/guide/troubleshooting", prevLabel: "44. {t("ch.44")}", nextTo: "/docs/guide/browser-support", nextLabel: "46. {t("ch.46")}")) {
     Stack(gap: .lg) {
         Heading("Installing a newer version", id: "installing-a-newer-version").h2
 
         Markdown("Run the installer again — it replaces the binary in place — or `cargo install webfluent --force`. `wf --version` says what you have. Update `wf-lsp` and the editor extension with it: the language server is built from the same compiler.\n\nThe full notes for every release are in [`RELEASE_NOTES.md`](https://github.com/monzeromer-lab/WebFluent/blob/master/RELEASE_NOTES.md); what follows is what an upgrade asks of you.")
+
+        Heading("5.6", id: "5-6").h2
+
+        Markdown("5.6 refuses a name the language already has as a program's own ([`E118`](/docs/guide/diagnostics#e118-a-name-the-language-already-has)): a `state env`, a loop's `t`, a `persist theme`, an action named `update`. Each compiled before and read the language's value where the program meant its own — a page's `state env` showed `[object Object]`. Run `wf check`: the message names the declaration and suggests a name of your own, and renaming it and its reads is the whole change.")
 
         Heading("5.0", id: "5-0").h2
 

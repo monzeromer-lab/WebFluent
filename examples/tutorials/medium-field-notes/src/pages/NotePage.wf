@@ -6,7 +6,7 @@ page NotePage(path: "/notes/:slug", slug: String,
     paths: notes.map(n => n.slug)) {
 
     derived note = notes.find(n => n.slug == slug)
-    derived alike = notes.filter(n => n.slug != slug && n.tags.some(t => note?.tags.includes(t) ?? false))
+    derived alike = notes.filter(n => n.slug != slug && n.tags.some(tag => note?.tags.includes(tag) ?? false))
     derived related = alike.sortBy(n => n.date).reverse().take(3)
 
     // When the note was written, for a link preview that shows it.

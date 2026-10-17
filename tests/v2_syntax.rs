@@ -216,7 +216,7 @@ fn components_props_children_and_stores() {
         r#"Store Counter {
             state n = 0
             derived double = n * 2
-            action bump(by: Number) { n = n + by }
+            action bump(step: Number) { n = n + step }
         }
         Component Panel (title: String, tone: String = "info") {
             Card { Heading(title, h3) children }
@@ -230,7 +230,7 @@ fn components_props_children_and_stores() {
         r#"store Counter {
             state n = 0
             derived double = n * 2
-            action bump(by: Number) { n = n + by }
+            action bump(step: Number) { n = n + step }
         }
         component Panel(title: String, tone: String = "info") {
             Card { Heading(title).h3 children }
