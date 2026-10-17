@@ -1,3 +1,31 @@
+# WebFluent v5.6.2 Release Notes
+
+What a branch inside a branch drew goes when the outer one does.
+
+## Fixes
+
+- **A branch takes everything it holds when it goes.** An `if`, `if let`,
+  `match` or `for` at the top of another's body — directly in it, not
+  inside an element — draws into the same parent as the outer one. The
+  outer one remembered the nodes it drew when it drew them and took only
+  those away, so what the inner one drew later stayed on the page:
+  `if let m = picked { if act == null { Sheet(m) } }` left the sheet
+  showing once `act` went back to null and then `picked` did, and a tab
+  whose `match` over a resource drew again on a refetch left its list
+  beside the next tab's. The same held for `if … else if … else` (the arm
+  drawn last stayed beside the first), for a keyed list item with an `if`
+  of its own (moved, and taken away, without what the `if` drew since),
+  for a list inside a list item, and for a scoped slot's fill. Each now
+  draws between two markers of its own and takes what lies between them,
+  as it is when it changes. Exit animations, and a pre-rendered page taken
+  over in place, work as they did.
+
+## Upgrading
+
+Nothing to change. A wrapper written only to keep a nested branch apart —
+a `Stack` styled `display: contents` around a tab's `match`, or a branch
+flattened into one `if let` over a `derived` value — can go.
+
 # WebFluent v5.6.1 Release Notes
 
 Two things that compiled and then did not work in the browser.
