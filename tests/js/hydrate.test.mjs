@@ -793,22 +793,271 @@ test("a resource loads, exposes its state, ignores a stale answer, and reloads",
     assert.equal(r.state(), "ready");
     assert.deepEqual(r.data(), [1, 2]);
 
+    // A reload of what is shown is a refresh: it stays "ready", with the
+    // data, while it runs.
     r.reload();
-    assert.equal(r.state(), "loading");
+    assert.equal(r.state(), "ready");
+    assert.equal(r.refreshing(), true);
+    assert.equal(r.pending(), true);
     r.reload();
     // The first reload's answer arrives after the second was asked: ignored.
     pending[1].resolve(ok(["stale"]));
     pending[2].resolve(ok(null, 500));
     await new Promise((res) => setTimeout(res, 0));
     await new Promise((res) => setTimeout(res, 0));
-    assert.equal(r.state(), "error");
+    // A refresh that fails keeps what arrived, and says why.
+    assert.equal(r.state(), "ready");
+    assert.equal(r.refreshing(), false);
+    assert.equal(r.pending(), false);
     assert.equal(r.error().message, "HTTP 500");
     assert.equal(r.error().kind, "status", "and it says what kind of failure it was");
     assert.equal(r.error().status, 500);
     assert.deepEqual(r.data(), [1, 2], "a stale answer never landed");
+
+    // The next answer clears the error.
+    r.reload();
+    pending[3].resolve(ok([1, 2, 3]));
+    await new Promise((res) => setTimeout(res, 0));
+    await new Promise((res) => setTimeout(res, 0));
+    assert.equal(r.error(), null);
+    assert.deepEqual(r.data(), [1, 2, 3]);
   } finally {
     globalThis.fetch = realFetch;
   }
+});
+
+/// A server the test answers by hand: `asked` is each request in order,
+/// and `answer(i, body)` resolves the i-th.
+function heldServer() {
+  const asked = [];
+  const fetch = (url) => new Promise((resolve) => asked.push({ url, resolve }));
+  const answer = async (i, body, status = 200) => {
+    // A fresh parse, as a browser's would be.
+    asked[i].resolve(ok(body === undefined ? body : JSON.parse(JSON.stringify(body)), status));
+    await new Promise((res) => setTimeout(res, 0));
+    await new Promise((res) => setTimeout(res, 0));
+  };
+  return { asked, fetch, answer };
+}
+
+test("a first load that fails is the error state, and a reload of it is a first load again", async () => {
+  const { WF } = loadRuntime();
+  const server = heldServer();
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = server.fetch;
+  try {
+    const r = WF.resource("/api/rows", null);
+    assert.equal(r.pending(), true);
+    assert.equal(r.refreshing(), false, "nothing is shown, so nothing is being refreshed");
+    await server.answer(0, null, 500);
+    assert.equal(r.state(), "error");
+    r.reload();
+    assert.equal(r.state(), "loading", "nothing has arrived: it shows loading");
+    assert.equal(r.error(), null);
+    await server.answer(1, [1]);
+    assert.equal(r.state(), "ready");
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+});
+
+test("an address that reads state asks again in loading when it changes, and refreshes in ready when it does not", async () => {
+  const { WF } = loadRuntime();
+  const server = heldServer();
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = server.fetch;
+  try {
+    const stage = WF.signal("test");
+    const seen = [];
+    const r = WF.resource(() => `/api/servers?env=${stage()}`, null);
+    WF.effect(() => { seen.push(r.state()); });
+    await server.answer(0, ["t1"]);
+    r.reload();
+    await server.answer(1, ["t1"]);
+    assert.deepEqual(seen, ["loading", "ready"], "the refresh never left ready");
+    stage.set("prod");
+    assert.equal(r.state(), "loading", "another request: what is shown would be wrong");
+    assert.equal(server.asked[2].url, "/api/servers?env=prod");
+    await server.answer(2, ["p1"]);
+    assert.deepEqual(r.data(), ["p1"]);
+    assert.deepEqual(seen, ["loading", "ready", "loading", "ready"]);
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+});
+
+test("an endpoint's argument that changes is another request; the page `paginate` moves is not", async () => {
+  const { WF } = loadRuntime();
+  const calls = [];
+  const endpoint = (args) => new Promise((resolve) => calls.push({ args, resolve }));
+  const kind = WF.signal("deploy");
+  const page = WF.signal(1);
+  const r = WF.resource(endpoint, {
+    call: true,
+    args: () => ({ kind: kind(), page: page() }),
+    paginate: { by: "page", set: (v) => page.set(v) },
+  });
+  const tick = () => new Promise((res) => setTimeout(res, 0));
+  calls[0].resolve(["a", "b"]);
+  await tick();
+  assert.equal(r.state(), "ready");
+  r.loadMore();
+  assert.equal(calls[1].args.page, 2);
+  assert.equal(r.state(), "ready", "the next page is asked for with the first still shown");
+  assert.equal(r.refreshing(), true);
+  r.loadMore();
+  assert.equal(calls.length, 2, "a page in flight is not asked for twice");
+  calls[1].resolve(["c"]);
+  await tick();
+  assert.deepEqual(r.items(), ["a", "b", "c"]);
+  kind.set("audit");
+  assert.equal(r.state(), "loading", "another kind is another request");
+});
+
+test("a refresh hands back what did not change as the object it was", async () => {
+  const { WF } = loadRuntime();
+  const server = heldServer();
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = server.fetch;
+  try {
+    const r = WF.resource("/api/board", null);
+    const board = {
+      count: 2,
+      meta: { region: "eu", tags: ["a", "b"] },
+      rows: [{ id: 1, name: "a" }, { id: 2, name: "b" }],
+      plain: [{ k: "x" }, { k: "y" }],
+    };
+    await server.answer(0, board);
+    const first = r.data();
+    let changes = 0;
+    WF.effect(() => { r.data(); changes++; });
+
+    r.reload();
+    await server.answer(1, board);
+    assert.equal(r.data(), first, "an answer that changed nothing is what was there");
+    assert.equal(changes, 1, "and nothing that reads it runs again");
+
+    r.reload();
+    await server.answer(2, {
+      ...board,
+      count: 3,
+      rows: [{ id: 3, name: "c" }, { id: 2, name: "b" }, { id: 1, name: "A" }],
+      plain: [{ k: "y" }, { k: "z" }],
+    });
+    const next = r.data();
+    assert.notEqual(next, first);
+    assert.equal(next.count, 3);
+    assert.equal(next.meta, first.meta, "an unchanged part is the same object");
+    assert.equal(next.rows[1], first.rows[1], "a row is matched by its id, wherever it moved");
+    assert.notEqual(next.rows[2], first.rows[0], "a row that changed is a new object");
+    assert.equal(next.rows[2].name, "A");
+    assert.equal(next.plain[0], first.plain[1], "an item with no id is matched by its value");
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+});
+
+test("a live keyed list keeps an item's nodes under its key and tells it its new value and place", () => {
+  const { WF, document } = loadRuntime();
+  const parent = document.createElement("ul");
+  const items = WF.signal([{ id: 1, t: "a" }, { id: 2, t: "b" }]);
+  let built = 0;
+  // for item, i in items by item.id { Text("{i}: {item.t}") }, as compiled.
+  WF.each(parent, () => items(), ($$item, $$index, $item, $i) => {
+    built++;
+    return WF.el("li", {}, [() => `${$i()}: ${$item().t}`]);
+  }, { key: (item) => item.id, index: true, live: true });
+  const lis = () => parent.children;
+  const [a, b] = lis();
+  assert.deepEqual(lis().map((n) => n.textContent), ["0: a", "1: b"]);
+
+  // New objects, as a refreshed response's are; one changed, one moved in front.
+  items.set([{ id: 3, t: "c" }, { id: 2, t: "B" }, { id: 1, t: "a" }]);
+  assert.deepEqual(lis().map((n) => n.textContent), ["0: c", "1: B", "2: a"]);
+  assert.equal(built, 3, "only the new item is built");
+  assert.equal(lis()[1], b, "a changed value under the same key keeps its node");
+  assert.equal(lis()[2], a, "a moved item keeps its node and is told its index");
+
+  // The same list again draws nothing.
+  const list = items();
+  items.set([...list]);
+  assert.equal(built, 3);
+});
+
+test("a match arm reads its value live, and is drawn again only when the arm changes", () => {
+  const { WF, document } = loadRuntime();
+  const parent = document.createElement("div");
+  const state = WF.signal("loading");
+  const data = WF.signal(null);
+  const error = WF.signal(null);
+  let built = 0;
+  let readOnLeaving = [];
+  WF.match(parent, () => state(), () => (state() === "error" ? error() : data()), {
+    loading: () => WF.el("p", {}, ["…"]),
+    // ready(d) { Text("{d.n} rows") }, as compiled.
+    ready: ($$value, $d) => {
+      built++;
+      WF.effect(() => { readOnLeaving.push($d()); });
+      return WF.el("p", {}, [() => `${$d().n} rows`]);
+    },
+    error: ($$value, $e) => WF.el("p", { className: "e" }, [() => $e().message]),
+  });
+  data.set({ n: 1 });
+  state.set("ready");
+  const p = parent.querySelector("p");
+  assert.equal(p.textContent, "1 rows");
+  data.set({ n: 2 });
+  assert.equal(parent.querySelector("p"), p, "the same arm, the same node");
+  assert.equal(p.textContent, "2 rows");
+  assert.equal(built, 1);
+
+  // Leaving for the error arm: what the ready arm reads is still data.
+  readOnLeaving = [];
+  error.set({ message: "down" });
+  state.set("error");
+  assert.ok(readOnLeaving.every((v) => v && v.n === 2), "an arm on its way out never sees the next arm's value");
+  assert.equal(parent.querySelector("p.e").textContent, "down");
+  error.set({ message: "still down" });
+  assert.equal(parent.querySelector("p.e").textContent, "still down");
+});
+
+test("an else arm stands for every key it answers, and is not drawn again between them", () => {
+  const { WF, document } = loadRuntime();
+  const parent = document.createElement("div");
+  const key = WF.signal("loading");
+  let built = 0;
+  WF.match(parent, () => key(), null, {
+    ready: () => WF.el("p", {}, ["ready"]),
+    else: () => { built++; return WF.el("p", {}, ["waiting"]); },
+  });
+  key.set("error");
+  assert.equal(built, 1);
+  key.set("ready");
+  key.set("loading");
+  assert.equal(built, 2);
+});
+
+test("an `if let` reads its value live, and keeps the last one while it leaves", () => {
+  const { WF, document } = loadRuntime();
+  const parent = document.createElement("div");
+  const picked = WF.signal({ name: "Ada" });
+  let built = 0;
+  const reads = [];
+  // if let p = picked { Text(p.name) }, as compiled.
+  WF.when(parent, () => picked() != null, () => {
+    built++;
+    const $p = WF.held(() => picked());
+    WF.effect(() => { reads.push($p()); });
+    return WF.el("p", {}, [() => $p().name]);
+  }, null, null);
+  const p = parent.querySelector("p");
+  picked.set({ name: "Bo" });
+  assert.equal(parent.querySelector("p"), p);
+  assert.equal(p.textContent, "Bo");
+  picked.set(null);
+  assert.equal(parent.querySelector("p"), null);
+  assert.ok(reads.every((v) => v != null), "never null inside the branch");
+  assert.equal(built, 1);
 });
 
 test("request answers with the parsed body, sends a map body as JSON, and throws on a failed response", async () => {

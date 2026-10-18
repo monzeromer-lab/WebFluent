@@ -49,10 +49,58 @@ page Deploys(path: "/", title: "Deploys", description: "Recent deploys.") {
   — and `else`. The static paint renders the `loading` arm.
 - `name.reload()` makes the request again; `name.state` is `"loading"`,
   `"ready"` or `"error"`; `name.data` the last value (`T?`), `name.error`
-  the last error. Each is live wherever it is read — a label, a splice, an
-  attribute — so `Button(if plan.data != null { "Request approval" } else {
-  "Deploy" })` changes when the plan arrives, with no `derived` in between.
+  the last error; `name.refreshing` and `name.pending` say a request is
+  running ([Asking again](#asking-again)). Each is live wherever it is
+  read — a label, a splice, an attribute — so `Button(if plan.data != null
+  { "Request approval" } else { "Deploy" })` changes when the plan arrives,
+  with no `derived` in between.
 - A failed response (`!ok`) is an error with `e.message` of `HTTP 500`.
+
+### Asking again
+
+`on: .focus`, `.reconnect` or `.interval(30.seconds)` — an option of
+`fetch(…)` or of an endpoint's call — `name.reload()` and
+`name.invalidate()` ask again. Asking again for the request already shown
+is a **refresh**, and the page stays as it is while it runs: the state stays
+`"ready"`, the data stays, and the answer is drawn in place.
+
+- The `ready` arm's binding is live. Text, attributes, `if`, `if let`, a
+  keyed `for … by` and component props inside the arm follow the new data,
+  and the arm is drawn again only when the arm changes — loading, ready,
+  error. A row whose key is still in the list keeps its nodes, its focus and
+  its components' state; an input keeps what was typed.
+- The parts of an answer equal to what was shown are kept as the same
+  objects — an item is matched by its `id`, by its value, or by its place —
+  so an answer that changed nothing redraws nothing.
+- `name.refreshing` is true while a refresh runs; `name.pending` while any
+  request of the resource runs, the first load included.
+- A refresh that fails keeps the data and `"ready"`, and sets `name.error`
+  until the next answer, so the arm can say the data is stale. A first load
+  that fails is `"error"`, and its `reload()` is a first load again.
+- A request that changed — an address or an argument that reads state now
+  names something else: another environment, another page — is a first load
+  again, shown as `loading`, because the data on screen would be the wrong
+  data. With `paginate:` the next page is a refresh.
+
+```wf
+type Server { id: String, name: String, status: String }
+
+page Servers(path: "/servers", title: "Servers", description: "Every server, kept current.") {
+    state stage = "test"
+    resource servers: [Server] = fetch("/api/servers?env={stage}", on: .interval(30.seconds))
+    Heading("Servers").h1
+    Button("Production") { on click { stage = "prod" } }
+    match servers {
+        loading { Skeleton(height: "20px") }
+        error(e) { Alert(e.message).danger }
+        ready(list) {
+            if servers.error != null { Alert("Could not refresh; this is what was there.").warning }
+            if servers.refreshing { Spinner.sm }
+            for s in list by s.id { Text("{s.name}: {s.status}") }
+        }
+    }
+}
+```
 
 ### Options
 

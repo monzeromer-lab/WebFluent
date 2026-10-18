@@ -297,11 +297,11 @@ fn a_store_action_wins_over_a_list_method_of_the_same_name() {
     // A store is an object of state and actions, not a list: mapping these
     // onto `splice`/`WF.take` left the handler calling what was never there.
     assert!(
-        js.contains("Todos.remove(todo.id)"),
+        js.contains("Todos.remove($todo().id)"),
         "the store's own `remove` action is called, not a list's: {js}"
     );
     assert!(
-        js.contains("Todos.take(todo.id)"),
+        js.contains("Todos.take($todo().id)"),
         "the store's own `take` action is called, not the runtime helper: {js}"
     );
     assert!(

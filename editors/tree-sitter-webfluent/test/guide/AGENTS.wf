@@ -382,14 +382,18 @@ page Doc(path: "/") {
         Button("Log In") { on click { navigate("/login") } }
     }
 
-    // A value that may be null, bound when it is not
+    // A value that may be null, bound when it is not. The binding follows the
+    // value: another user is drawn in place, and the branch is drawn again only
+    // when the value goes to null and back
     if let user = session.user {
         Text(user.name)
     }
 
-    // Loop, keyed: an item keeps its nodes across inserts, removals and moves.
-    // The key may read the index too (`by "{item.id}-{i}"`); the index alone
-    // moves with the position, so key by what identifies the item
+    // Loop, keyed: an item keeps its nodes for as long as its key is in the
+    // list — across inserts, removals, moves, and a new value under the same
+    // key, which its body reads live. The key may read the index too
+    // (`by "{item.id}-{i}"`); the index alone moves with the position, so key
+    // by what identifies the item
     for item in items by item.id {
         Card { Text(item.name) }
     }
@@ -404,7 +408,8 @@ page Doc(path: "/") {
         Modal { Text("Content") }
     }
 
-    // One arm by a value: a resource's states, or an enum's cases
+    // One arm by a value: a resource's states, or an enum's cases. An arm is
+    // drawn again when the arm changes; its binding follows the value in place
     match tone {
         .calm { Text("Calm") }
         else { Text("Loud") }
@@ -421,6 +426,24 @@ page Doc(path: "/") {
             for user in users by user.id {
                 Text(user.name)
             }
+        }
+    }
+}
+
+// AGENTS.md
+type Server { id: String, name: String, status: String }
+page Servers(path: "/servers", title: "Servers", description: "Every server, kept current.") {
+    state stage = "test"
+    resource servers: [Server] = fetch("/api/servers?env={stage}", on: .interval(30.seconds))
+    Heading("Servers").h1
+    Button("Production") { on click { stage = "prod" } }
+    match servers {
+        loading { Skeleton(height: "20px") }
+        error(e) { Alert(e.message).danger }
+        ready(list) {
+            if servers.error != null { Alert("Could not refresh; this is what was there.").warning }
+            if servers.refreshing { Spinner.sm }
+            for s in list by s.id { Text("{s.name}: {s.status}") }
         }
     }
 }

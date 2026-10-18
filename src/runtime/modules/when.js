@@ -57,3 +57,16 @@
       }
     });
   }
+
+  // `if let x = v { … }`: the branch is drawn while `v` is not null, and
+  // reads `x` through this — `v` as it is now, so a new value of it reaches
+  // what the branch drew in place; or, while the branch is on its way out
+  // because `v` went null, the last value it had.
+  function held(read) {
+    let last;
+    return () => {
+      const v = read();
+      if (v != null) last = v;
+      return last;
+    };
+  }

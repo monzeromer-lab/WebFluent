@@ -1,0 +1,27 @@
+/// Open or closed: the component's own, so it closes if it is drawn again.
+component Fold(_ label: String) {
+    state open = false
+    Button(if open { "Close {label}" } else { "Open {label}" }) { on click { open = !open } }
+    if open { Text("{label} is open") }
+}
+test "a resource asked again keeps what its ready arm drew" {
+    // The test's own page, as text: a request the test's server answers.
+    resource shell = fetch("/index.html", as: .text)
+    match shell {
+        loading { Text("Loading the shell") }
+        error(e) { Text("Failed: {e.message}") }
+        ready(html) {
+            Text("The shell is {html.length > 0}")
+            Fold("details")
+            Button("Refresh") { on click { shell.reload() } }
+        }
+    }
+    Button("Wait")
+    click "Wait"
+    expect "The shell is true"
+    click "Open details"
+    expect "details is open"
+    click "Refresh"
+    expect not "Loading the shell"
+    expect "details is open"
+}

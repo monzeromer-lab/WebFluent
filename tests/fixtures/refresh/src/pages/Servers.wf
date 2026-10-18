@@ -1,0 +1,15 @@
+type Server { id: String, name: String }
+
+page Servers(path: "/servers", title: "Servers", description: "The servers of one environment.") {
+    state stage = "test"
+    resource servers: [Server] = fetch("/api/servers?env={stage}", on: .focus)
+    Heading("Servers").h1
+    Button("Production") { on click { stage = "prod" } }
+    match servers {
+        loading { Text("Loading servers", class: "loading") }
+        error(e) { Alert(e.message).danger }
+        ready(list) {
+            for s in list by s.id { Text(s.name, class: "server") }
+        }
+    }
+}

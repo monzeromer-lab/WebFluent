@@ -1,0 +1,12 @@
+type Row { id: String, name: String, status: String }
+
+/// One row of the board, with a fold of its own. Whether it is open is the
+/// component's, so drawing the row again would close it.
+component RowCard(row: Row) {
+    state open = false
+    Stack(class: "row") {
+        Text("{row.name} · {row.status}", class: "row-label")
+        Button(if open { "Less about {row.name}" } else { "More about {row.name}" }) { on click { open = !open } }
+        if open { Text("Details of {row.name}", class: "row-details") }
+    }
+}

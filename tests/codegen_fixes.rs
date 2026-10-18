@@ -120,12 +120,14 @@ fn a_bound_loop_field_writes_the_item_and_tells_the_list() {
         "    state todos = [{ id: \"1\", title: \"Milk\", done: false }]\n    \
          for t in todos by t.id {\n        Input(bind: t.title, label: \"Title\")\n        Checkbox(bind: t.done, label: \"Done\")\n    }",
     ));
+    // A keyed item is read through its accessor, `$t()`: it follows a new
+    // value under the same key.
     assert!(
-        keyed.contains("t.title = WF.bound(e.target); _todos.set(_todos().slice())"),
+        keyed.contains("$t().title = WF.bound(e.target); _todos.set(_todos().slice())"),
         "{keyed}"
     );
     assert!(
-        keyed.contains("t.done = !t.done; _todos.set(_todos().slice())"),
+        keyed.contains("$t().done = !$t().done; _todos.set(_todos().slice())"),
         "{keyed}"
     );
 

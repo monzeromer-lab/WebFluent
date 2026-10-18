@@ -20,6 +20,24 @@ page Deploys(path: "/", title: "Deploys", description: "Recent deploys.") {
 }
 
 // md-docs/17-data.md
+type Server { id: String, name: String, status: String }
+page Servers(path: "/servers", title: "Servers", description: "Every server, kept current.") {
+    state stage = "test"
+    resource servers: [Server] = fetch("/api/servers?env={stage}", on: .interval(30.seconds))
+    Heading("Servers").h1
+    Button("Production") { on click { stage = "prod" } }
+    match servers {
+        loading { Skeleton(height: "20px") }
+        error(e) { Alert(e.message).danger }
+        ready(list) {
+            if servers.error != null { Alert("Could not refresh; this is what was there.").warning }
+            if servers.refreshing { Spinner.sm }
+            for s in list by s.id { Text("{s.name}: {s.status}") }
+        }
+    }
+}
+
+// md-docs/17-data.md
 page Search(path: "/") {
     state q = ""
     state token = "abc"

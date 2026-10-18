@@ -131,3 +131,26 @@ fn dev_mode_runtime_tests_pass() {
         String::from_utf8_lossy(&out.stderr)
     );
 }
+
+/// A resource asked again for what it shows keeps it on the page: the
+/// `refresh` fixture's pages, compiled, refreshed by a server the test
+/// answers (`tests/js/refresh.test.mjs`).
+#[test]
+fn a_refreshed_resource_redraws_in_place() {
+    if !node_available() {
+        eprintln!("\n  SKIPPED: `node` is not on PATH; tests/js/refresh.test.mjs did not run.\n");
+        return;
+    }
+    build_fixture("refresh");
+    let out = Command::new("node")
+        .args(["--test", "tests/js/refresh.test.mjs"])
+        .current_dir(repo_root())
+        .output()
+        .expect("running node --test");
+    assert!(
+        out.status.success(),
+        "a refreshed resource did not redraw in place:\n{}\n{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
+}

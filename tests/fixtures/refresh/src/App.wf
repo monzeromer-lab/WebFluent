@@ -1,0 +1,3 @@
+// Pages whose data is asked for again while they show it: a refresh must
+// leave what did not change where it is (`tests/js/refresh.test.mjs`).
+app { Router }

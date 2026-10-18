@@ -1,0 +1,14 @@
+enum Phase { idle, failed(reason: String), done(count: Number, label: String) }
+
+page PhasePage(path: "/phase", title: "Phase", description: "One arm per case, its payload kept current.") {
+    state phase: Phase = .idle
+    Heading("Phase").h1
+    match phase {
+        .idle { Text("Idle", class: "idle") }
+        .failed(r) { Text("Failed: {r}", class: "failed") }
+        .done(n, l) { Text("{n} {l}", class: "done") }
+    }
+    Button("Time out") { on click { phase = .failed("timed out") } }
+    Button("Refuse") { on click { phase = .failed("refused") } }
+    Button("Finish") { on click { phase = .done(3, "rows") } }
+}

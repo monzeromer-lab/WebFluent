@@ -927,14 +927,18 @@ if isLoggedIn {
     Button("Log In") { on click { navigate("/login") } }
 }
 
-// A value that may be null, bound when it is not
+// A value that may be null, bound when it is not. The binding follows the
+// value: another user is drawn in place, and the branch is drawn again only
+// when the value goes to null and back
 if let user = session.user {
     Text(user.name)
 }
 
-// Loop, keyed: an item keeps its nodes across inserts, removals and moves.
-// The key may read the index too (`by "{item.id}-{i}"`); the index alone
-// moves with the position, so key by what identifies the item
+// Loop, keyed: an item keeps its nodes for as long as its key is in the
+// list — across inserts, removals, moves, and a new value under the same
+// key, which its body reads live. The key may read the index too
+// (`by "{item.id}-{i}"`); the index alone moves with the position, so key
+// by what identifies the item
 for item in items by item.id {
     Card { Text(item.name) }
 }
@@ -949,7 +953,8 @@ show isVisible {
     Modal { Text("Content") }
 }
 
-// One arm by a value: a resource's states, or an enum's cases
+// One arm by a value: a resource's states, or an enum's cases. An arm is
+// drawn again when the arm changes; its binding follows the value in place
 match tone {
     .calm { Text("Calm") }
     else { Text("Loud") }
@@ -974,10 +979,53 @@ match users {
 A resource declares its type — `resource users: [User] = fetch(…)` — and
 the `ready` arm's binding has it. Options: `fetch(url, method: "POST",
 body: { key: value }, headers: { "Authorization": token })`. The request
-repeats when a URL that reads state changes. `users.state`, `users.data` and
-`users.error` (and a connection's `.messages`) are live wherever they are
-read — `Button(if plan.data != null { "Request approval" } else { "Deploy"
-})` changes when the plan arrives, with no `derived` in between.
+repeats when a URL that reads state changes. `users.state`, `users.data`,
+`users.error`, `users.refreshing` and `users.pending` (and a connection's
+`.messages`) are live wherever they are read — `Button(if plan.data != null
+{ "Request approval" } else { "Deploy" })` changes when the plan arrives,
+with no `derived` in between.
+
+**Asking again.** `on: .focus`, `.reconnect` or `.interval(30.seconds)` (an
+option of `fetch(…)`, or of an endpoint's call), `users.reload()` and
+`users.invalidate()` ask again. Asking again for the request already shown
+is a **refresh**, and the page stays as it is while it runs: `users.state`
+stays `"ready"`, the data stays, and the answer is drawn in place. The
+`ready` arm's binding is live — text, attributes, `if`, `if let`, a keyed
+`for … by` and component props inside the arm follow the new data; a row
+whose key is still there keeps its nodes, its focus and its components'
+state; and the parts of the answer equal to what was shown are kept as the
+same objects, so an answer that changed nothing redraws nothing. The arm is
+drawn again only when the arm changes — loading, ready, error.
+
+- `users.refreshing` is true while a refresh runs, with the data shown;
+  `users.pending` while any request of it runs, the first load included.
+- A refresh that fails keeps the data and `"ready"`, and sets `users.error`
+  until the next answer arrives, so the arm can say the data is stale. A
+  first load that fails is `"error"`.
+- A request that changed — an address or an argument that reads state now
+  names something else: another environment, another page — is a first load
+  again, `"loading"`, since the data on screen would be the wrong data. With
+  `paginate:`, the next page is a refresh.
+
+```wf
+type Server { id: String, name: String, status: String }
+
+page Servers(path: "/servers", title: "Servers", description: "Every server, kept current.") {
+    state stage = "test"
+    resource servers: [Server] = fetch("/api/servers?env={stage}", on: .interval(30.seconds))
+    Heading("Servers").h1
+    Button("Production") { on click { stage = "prod" } }
+    match servers {
+        loading { Skeleton(height: "20px") }
+        error(e) { Alert(e.message).danger }
+        ready(list) {
+            if servers.error != null { Alert("Could not refresh; this is what was there.").warning }
+            if servers.refreshing { Spinner.sm }
+            for s in list by s.id { Text("{s.name}: {s.status}") }
+        }
+    }
+}
+```
 
 Map literals support **quoted string keys** for headers and special field names:
 
@@ -1073,7 +1121,7 @@ What comes with it, at every call site:
 | Retry | exponential backoff with jitter, per error kind, honouring `Retry-After` |
 | Cache | `.swr(60.seconds)`, `.none`, `.forever` — keyed by method, address and body, with `ETag`/`If-None-Match` revalidation and `304` served from what is held |
 | Dedupe | two readers of one address make one request |
-| Refetch | `on: .focus`, `.reconnect`, `.interval(30.seconds)` |
+| Refetch | `on: .focus`, `.reconnect`, `.interval(30.seconds)` — a refresh: the data stays on the page while it runs, and the answer is drawn in place (see Data Fetching) |
 | Pagination | `paginate: .page` gives `.items`, `.loadMore()`, `.hasMore` |
 | Progress | a `File` parameter makes `Backend.avatar.progress` a `Number` signal |
 | Bodies | JSON, text, a `File` (sent as a form), `FormData`, `Blob`, `ArrayBuffer`, `URLSearchParams` |
@@ -2142,10 +2190,10 @@ may too. Its surface:
 |---|---|
 | State | `signal(v)` → getter with `.set`/`.update`/`.subscribe`; `effect(fn)`; `computed(fn)` |
 | Elements | `el(tag, attrs, …children)` — a thunk attribute or child follows state; `text(v)`; `props(given, defaults)`; `onRoot(node, event, fn)`; `classes(node, fn)`; `bound(control)` — what a bound control holds, typed |
-| Bodies | `when(parent, cond, then, else, anim)`; `each(parent, list, item, {key, index, enter, exit, …})` — keyed items keep their nodes across inserts, removals and moves; `show(parent, cond, body, anim)`; `match(parent, key, arg, arms)` |
+| Bodies | `when(parent, cond, then, else, anim)`, and `held(read)` — what an `if let` binding reads: the value now, or the last one while the branch leaves; `each(parent, list, item, {key, index, live, enter, exit, …})` — keyed items keep their nodes across inserts, removals and moves, and with `live` across a new value too, handed to `item(value, index, itemOf, indexOf)` as accessors; `show(parent, cond, body, anim)`; `match(parent, key, arg, arms)` — an arm is called with the value and an accessor of it, and drawn again when the arm changes |
 | Motion | `animate(target, name, duration)` → a handle with `play`/`cancel`/`finished`, playing when it is made; `replay(node, name)`; `animateIn`/`animateOut(node, name, duration, delay, easing)`; `expand(node, open, duration, easing)` to the measured height; `countTo(node, from, to, duration, format)` and `counted(node, valueFn, duration, format)`; `onEnterView(node, name, …)`; `shared(node, name)`; `mark(node, attrs)` puts `data-wf-exit`/`data-wf-delay`/`data-wf-duration`/`data-wf-animate` on a component's root — what `when`, `each`, `show` and `match` play before removing an element, and what times its enter animation |
 | Routing | `router(routes, container, {transition, duration})` — `fade` or `slide` plays the old page out and the new one in; `navigate(path)`; `params()`; `activeLink(a, href, prefix)`; `page(name, fn)`; `loadPage`; `loadSheet` |
-| Data | `resource(url, options)` → `{state, data, error, reload}`; `request(url, options)` → the parsed body (`await fetch(…)` in an action compiles to it); `fetch(url, options)`; `store(name, define, options)` — a proxy that builds `define()` on first read; `dropRouteStores()`; `emit(props, event, …args)`; `locales(default, tables)` → `WF.i18n` |
+| Data | `resource(url, options)` → `{state, data, error, refreshing, pending, reload, invalidate, cancel}`; `request(url, options)` → the parsed body (`await fetch(…)` in an action compiles to it); `fetch(url, options)`; `store(name, define, options)` — a proxy that builds `define()` on first read; `dropRouteStores()`; `emit(props, event, …args)`; `locales(default, tables)` → `WF.i18n` |
 | Stores, seen | `watchStores(fn)` → every action with the state on each side of it, and the function that stops it; `storeSnapshot(name?)`; `restoreStore(name, values)`. Nothing is recorded while nothing is watching |
 | Widgets | `toast(message, tone, ms)`; `dialog(el, read, write)`; `popup`; `tabs`; `drawer`; `announce(text)`; `carousel`; `tooltip`; `menu`; `field` |
 | Safety | `safeUrl(url)` → the URL where a browser may follow it, `""` where it may not; `sanitize(html)` → the allow-listed markup. Both have a build-time twin, pinned by a shared case table |

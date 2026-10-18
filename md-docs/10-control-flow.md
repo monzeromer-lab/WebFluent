@@ -54,6 +54,9 @@ page Profile(path: "/") {
 
 `if let x { }` (no `=`) is the same for a name already in scope. The narrowing
 holds inside the branch only; `x != null` and `x && …` narrow the same way.
+The binding follows the value: when `user` becomes another user, the branch
+shows the new one in place; it is drawn again only when the value goes to
+`null` and back.
 
 ## `for`
 
@@ -77,7 +80,10 @@ page List(path: "/") {
 
 `by expr` names the key: with it, an item that stays in the list keeps its
 nodes — focus, scroll and animation state survive an insert, a removal or a
-move, and moves slide. Without a key the list is rebuilt when it changes.
+move, and moves slide. An item keeps them under a new value too (a refreshed
+response's rows are all new objects): its body reads the item and the index
+live, so a changed row changes in place, its components' state with it.
+Without a key the list is rebuilt when it changes.
 Keys must be unique; the runtime warns once when two items share one. A key
 may read the index as well as the item (`for t, i in rows by "{t.id}-{i}"`),
 but a key of the index alone moves with the position, not the item: after
@@ -123,7 +129,10 @@ page Job(path: "/") {
 
 Over a **resource** it chooses by the request's state — [chapter 17](17-data.md).
 
-An arm binds one name per part of the payload; `else` covers the rest. Every
+An arm binds one name per part of the payload; `else` covers the rest. An
+arm is drawn again when the arm changes, not when its value does: a new
+payload of the same case — `.failed("refused")` after `.failed("timed
+out")` — reaches what the arm drew in place. Every
 case of an enum has to be handled or covered by `else` only in a match
 *expression* (which needs an `else` to have a value); a `match` statement may
 list only the arms it shows.

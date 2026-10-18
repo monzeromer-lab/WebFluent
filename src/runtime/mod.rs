@@ -92,7 +92,7 @@ pub const MODULES: &[Module] = &[
     module!("form", exports: [same("form"), same("validate")], deps: ["announce"], triggers: []),
     module!("text", exports: [same("markdown"), same("highlight")],
         deps: [], triggers: ["markdown: ", "highlight: { code:"]),
-    module!("when", exports: [same("when")], deps: ["motion"], triggers: []),
+    module!("when", exports: [same("when"), same("held")], deps: ["motion"], triggers: []),
     module!("match", exports: [same("match")], deps: ["motion"], triggers: []),
     module!("slot", exports: [same("slot")], deps: ["motion"], triggers: []),
     module!("each", exports: [same("each")], deps: ["motion"], triggers: []),

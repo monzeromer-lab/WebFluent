@@ -42,7 +42,7 @@ fn a_scoped_slot_hands_the_fill_its_values() {
     assert!(html.contains(">none<"), "the other slot: {html}");
     let js = raw_output(Backend::Spa, &src);
     assert!(
-        js.contains("WF.slot(") && js.contains("({ item: it, index: i })"),
+        js.contains("WF.slot(") && js.contains("({ item: $it(), index: $i() })"),
         "{js}"
     );
     assert!(

@@ -84,7 +84,9 @@
   // A request declared once and read anywhere. `state()` is "loading",
   // "ready" or "error"; `data()` and `error()` hold what arrived; `reload()`
   // asks again. A URL that reads state is followed: the request is made again
-  // when it changes, and an answer to an older request is ignored.
+  // when it changes, and an answer to an older request is ignored. Asking
+  // again for what is already shown is a refresh: it keeps "ready" and the
+  // data while it runs, and `refreshing()` says it is running.
   // `let r = await fetch(url, opts)` in an action or a handler: the parsed
   // JSON body, or a thrown `Error` on a failed response — the request a
   // `resource` makes, made once. The browser's own is `window.fetch`.
@@ -160,6 +162,65 @@
     return opts;
   }
 
+  /// What arrived, sharing what it has in common with what was there.
+  ///
+  /// A part of `next` equal to the part of `prev` it stands for is that
+  /// part, the same object: an answer that changed nothing is `prev`
+  /// itself, which a signal does not pass on, and one that changed a row is
+  /// a new list whose other rows are the rows that were drawn — so a keyed
+  /// list keeps their nodes and a branch over them does not draw again. An
+  /// item of a list stands for the item with the same `id`, or for an equal
+  /// one, or else for the one in its place. Only plain JSON is shared; a
+  /// `Blob`, a `File` or a class instance is taken as it came.
+  function reconcile(prev, next) {
+    if (prev === next || !plainJson(prev) || !plainJson(next)) return next;
+    if (Array.isArray(prev) !== Array.isArray(next)) return next;
+    let same;
+    let out;
+    if (Array.isArray(next)) {
+      same = prev.length === next.length;
+      const byId = new Map();
+      let byValue = null;
+      for (const p of prev) if (hasId(p)) byId.set(p.id, p);
+      out = next.map((n, i) => {
+        let was;
+        if (hasId(n)) {
+          was = byId.get(n.id);
+        } else if (plainJson(n)) {
+          if (!byValue) {
+            byValue = new Map();
+            for (const p of prev) if (plainJson(p) && !hasId(p)) byValue.set(JSON.stringify(p), p);
+          }
+          was = byValue.get(JSON.stringify(n));
+        }
+        if (was === undefined) was = prev[i];
+        const r = was === undefined ? n : reconcile(was, n);
+        if (r !== prev[i]) same = false;
+        return r;
+      });
+    } else {
+      const keys = Object.keys(next);
+      same = keys.length === Object.keys(prev).length;
+      out = {};
+      for (const k of keys) {
+        const had = Object.prototype.hasOwnProperty.call(prev, k);
+        const r = had ? reconcile(prev[k], next[k]) : next[k];
+        if (!had || r !== prev[k]) same = false;
+        out[k] = r;
+      }
+    }
+    return same ? prev : out;
+  }
+  function plainJson(v) {
+    if (v === null || typeof v !== "object") return false;
+    if (Array.isArray(v)) return true;
+    const proto = Object.getPrototypeOf(v);
+    return proto === Object.prototype || proto === null;
+  }
+  function hasId(v) {
+    return plainJson(v) && !Array.isArray(v) && v.id != null;
+  }
+
   /// `resource rows = fetch("/api/rows")`, and `resource rows =
   /// Backend.rows(page: n)`.
   ///
@@ -168,10 +229,24 @@
   /// `api` endpoint is. Either way the request is abandoned when the scope
   /// leaves or the address changes, so a superseded answer never lands and
   /// a page that is gone is never waited for.
+  ///
+  /// A request is a first load, or a refresh. A first load — nothing has
+  /// arrived yet, or the request changed (an address or an argument that
+  /// reads state now names something else, so what is shown would be
+  /// wrong) — is "loading" until it answers, and "error" if it fails. A
+  /// refresh — the same request asked again, by `reload()`, `invalidate()`,
+  /// `on:` or the next page of `paginate` — keeps "ready" and the data
+  /// while it runs, with `refreshing()` true; what it brings replaces the
+  /// data in place, sharing what did not change (`reconcile`). A refresh
+  /// that fails keeps the data and "ready", and sets `error()` — until the
+  /// next answer clears it — so a page can say the data is stale.
+  /// `pending()` is true while any request of it runs, either kind.
   function resource(url, options) {
     const state = signal("loading");
     const data = signal(null);
     const error = signal(null);
+    const refreshing = signal(false);
+    const pending = signal(false);
     const opts = requestOptions(options);
     const argsOf =
       options && typeof options.args === "function"
@@ -186,19 +261,45 @@
     const items = signal([]);
     const hasMore = signal(true);
     let extraPage = null;
+    // A next page asked for and not yet answered: another is not asked for
+    // on top of it, which would abandon it.
+    let gathering = false;
     const pageArgs = () => {
       const args = argsOf();
       if (paging && extraPage != null) args[paging.by] = extraPage;
       return args;
     };
+    // Which request this is, the page `paginate` moves left out: what has
+    // arrived for it may stay on the page while it is asked for again.
+    const requestOf = () => {
+      if (options && options.call) {
+        const args = { ...argsOf() };
+        if (paging) delete args[paging.by];
+        try { return JSON.stringify(args); } catch (e) { return String(Math.random()); }
+      }
+      const address = typeof url === "function" ? url() : url;
+      return (opts.method || "GET").toUpperCase() + " " + address;
+    };
+    // The request whose answer `data` holds, once one has arrived.
+    let shown;
+    let arrived = false;
+    const settle = () => { refreshing.set(false); pending.set(false); gathering = false; };
 
     const load = () => {
       const gen = ++generation;
       if (controller) controller.abort();
       controller = typeof AbortController !== "undefined" ? new AbortController() : null;
       const signalOf = controller ? controller.signal : undefined;
-      state.set("loading");
-      error.set(null);
+      const request = requestOf();
+      const again = arrived && request === shown;
+      if (again) {
+        refreshing.set(true);
+      } else {
+        refreshing.set(false);
+        state.set("loading");
+        error.set(null);
+      }
+      pending.set(true);
       // An endpoint is a call; an address is a request.
       const args = options && options.call ? pageArgs() : null;
       const made = options && options.call
@@ -207,19 +308,27 @@
       made.then(
         (value) => {
           if (gen !== generation) return;
-          data.set(value);
+          arrived = true;
+          shown = request;
+          data.set(reconcile(data(), value));
           if (paging) {
             const page = Number(args && args[paging.by]) || 1;
             const got = Array.isArray(value) ? value : (value && Array.isArray(value.items) ? value.items : []);
-            items.set(page <= 1 ? got : [...items(), ...got]);
+            items.set(page <= 1 ? reconcile(items(), got) : [...items(), ...got]);
             hasMore.set(got.length > 0);
           }
+          error.set(null);
+          settle();
           state.set("ready");
         },
         (e) => {
-          if (gen !== generation || (e && e.kind === "aborted")) return;
+          if (gen !== generation) return;
+          settle();
+          // Not asked (a path parameter with no value yet) or abandoned:
+          // nothing to say, and a first load stays "loading".
+          if (e && e.kind === "aborted") return;
           error.set(e && e.kind ? e : netError("network", String((e && e.message) || e)));
-          state.set("error");
+          if (!again) state.set("error");
         },
       );
     };
@@ -248,12 +357,15 @@
       state,
       data,
       error,
+      refreshing,
+      pending,
       items,
       hasMore,
       /// The next page, gathered onto `items`.
       loadMore() {
-        if (!paging || !hasMore() || state() === "loading") return;
+        if (!paging || !hasMore() || state() === "loading" || gathering) return;
         const next = (Number(pageArgs()[paging.by]) || 1) + 1;
+        gathering = true;
         if (paging.set) paging.set(next);
         else { extraPage = next; load(); }
       },
@@ -267,6 +379,7 @@
       cancel() {
         generation += 1;
         if (controller) controller.abort();
+        settle();
       },
     };
   }

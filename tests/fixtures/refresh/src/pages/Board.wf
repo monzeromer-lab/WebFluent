@@ -1,0 +1,20 @@
+type Board { count: Number, lead: Row?, rows: [Row] }
+
+page Board(path: "/", title: "Board", description: "What is open, kept current.") {
+    state note = ""
+    resource board: Board = fetch("/api/board", on: .focus)
+    Heading("Board").h1
+    match board {
+        loading { Text("Loading the board", class: "loading") }
+        error(e) { Alert("Could not load: {e.message}").danger }
+        ready(b) {
+            Text("{b.count} open", class: "count")
+            if board.refreshing { Text("Refreshing", class: "refreshing") }
+            if board.error != null { Alert("Could not refresh").warning }
+            if let lead = b.lead { Text("Lead: {lead.name}", class: "lead") }
+            Input(bind: note, label: "Note")
+            for row in b.rows by row.id { RowCard(row: row) }
+            Button("Refresh") { on click { board.reload() } }
+        }
+    }
+}

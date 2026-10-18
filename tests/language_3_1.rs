@@ -244,7 +244,8 @@ fn enum_cases_carry_payloads_that_match_binds() {
     let js = raw_output(Backend::Spa, &src);
     assert!(js.contains("[\"failed\", \"boom\"]"), "{js}");
     assert!(js.contains("() => WF.caseOf(_s())"), "{js}");
-    assert!(js.contains("const r = _v[1];"), "{js}");
+    // A payload's part is read live, through the arm's accessor.
+    assert!(js.contains("const $r = () => $$arm()[1];"), "{js}");
     assert!(js.contains("WF.payload(_s(), \"failed\")"), "{js}");
     assert!(js.contains("(WF.caseOf(_s()) === \"done\")"), "{js}");
     let html = templated(body, json!({ "s": ["failed", "nope"] }));

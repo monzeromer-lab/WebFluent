@@ -6,10 +6,18 @@
   // scroll and animation state of the others survive a change. An item whose
   // value changed is rebuilt in place; one whose body reads its index is
   // rebuilt when its position changes. Without a key the list is rebuilt.
+  //
+  // `live` — what the compiler asks for a keyed `for` — keeps an item's
+  // nodes for as long as its key is in the list: the body is also handed
+  // the item and its index as accessors, `itemFn(item, index, itemOf,
+  // indexOf)`, reads them through those, and a new value or a new position
+  // under the same key reaches what it drew in place. A refreshed list whose
+  // rows are new objects with the same ids redraws nothing but what changed.
   function each(parent, listFn, itemFn, config, keyFn) {
     const start = region(parent, "wf-for");
     const key = (config && config.key) || keyFn || null;
     const byIndex = !!(config && config.index);
+    const live = !!(key && config && config.live);
     let entries = new Map();
     const exiting = new Set();
     // What each item's body created, disposed of when the item leaves.
@@ -92,9 +100,9 @@
     // One item that throws is one item: the rest of the list still draws.
     // Under `wf serve` it shows where it is, with what it threw; on a
     // deployed site it leaves a gap, and the console says why.
-    const drawItem = (itemFn, item, index) => {
+    const drawItem = (itemFn, item, index, itemOf, indexOf) => {
       try {
-        return itemFn(item, index);
+        return itemFn(item, index, itemOf, indexOf);
       } catch (e) {
         console.error("WF: item " + index + " of a list could not be drawn:", e);
         if (!devMode()) return document.createComment("wf: item " + index + " failed");
@@ -118,6 +126,10 @@
     // them twice.
     let drawing = false;
     let again = false;
+    // The list drawn last. Asked again for the same list — the same array,
+    // because what it was read from changed somewhere else (a refreshed
+    // response whose rows did not change) — there is nothing to draw.
+    let lastList;
     effect(() => {
       const items = listFn() || [];
       if (drawing) { again = true; return; }
@@ -134,6 +146,8 @@
     });
 
     function draw(items) {
+      if (items === lastList) return;
+      lastList = items;
       if (!key) {
         // Rebuilt whole.
         for (const d of disposers.splice(0)) d();
@@ -172,15 +186,23 @@
           }
           const old = entries.get(k);
           let entry;
-          if (old && old.item === item && (!byIndex || old.index === index)) {
+          if (old && live) {
+            // The same key: the same nodes, told what the item and its
+            // position are now.
+            entry = old;
+            if (entry.item !== item) { entry.item = item; entry.itemOf.set(item); }
+            if (entry.index !== index) { entry.index = index; entry.indexOf.set(index); }
+          } else if (old && old.item === item && (!byIndex || old.index === index)) {
             entry = old;
             entry.index = index;
           } else {
-            const [made, dispose] = scoped(() => drawItem(itemFn, item, index));
+            const itemOf = live ? signal(item) : null;
+            const indexOf = live ? signal(index) : null;
+            const [made, dispose] = scoped(() => drawItem(itemFn, item, index, itemOf, indexOf));
             // An item's nodes, with a branch or a list of its own kept by
             // its marker: they are read as they are now each time the item
             // is moved or taken away.
-            entry = { item, index, nodes: keepNodes(toNodes(made)), dispose };
+            entry = { item, index, itemOf, indexOf, nodes: keepNodes(toNodes(made)), dispose };
             if (old) { if (old.dispose) old.dispose(); removeNodes(nodesNow(old.nodes)); }
           }
           entries.delete(k);

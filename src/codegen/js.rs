@@ -128,6 +128,14 @@ pub struct JsCodegen {
     /// `_item()` against a binding named `item` — a `ReferenceError` the moment
     /// a non-empty list rendered.
     loop_bindings: Vec<String>,
+    /// The positions in `loop_bindings` of the names bound live: a `match`
+    /// arm's binding, an `if let`'s and a keyed `for`'s item and index. Each
+    /// is handed to its body as an accessor `$name`, and read as `$name()`,
+    /// so what reads it is drawn as what reads state is — and follows a
+    /// refreshed response, a new payload or a changed row in place. A
+    /// program's names cannot hold a `$`, so the accessor never stands in
+    /// for a state's `_name`, a component's `_p` or an element's `_e3`.
+    live_at: Vec<usize>,
     /// The `for` loops being emitted, innermost last: the item's name, the
     /// list it comes from and whether the loop is keyed — so `bind:
     /// t.title` writes the item and tells the list it changed.
@@ -239,6 +247,7 @@ impl JsCodegen {
             current_body: Vec::new(),
             own_names: Vec::new(),
             loop_bindings: Vec::new(),
+            live_at: Vec::new(),
             loop_sources: Vec::new(),
             lambda_params: std::cell::RefCell::new(Vec::new()),
             store_locals: std::cell::RefCell::new(Vec::new()),
@@ -4883,15 +4892,18 @@ impl JsCodegen {
             "const {} = document.createDocumentFragment();",
             then_var
         ));
+        // `if let x = v`: the branch reads `x` as `v` is now — a new value
+        // reaches what it drew in place — and the branch is drawn again
+        // only when `v` goes to null and back.
         let bound = self.loop_bindings.len();
         if let Some(name) = &if_stmt.binding {
-            self.emit_line(&format!("const {} = {};", name, value));
-            self.loop_bindings.push(name.clone());
+            self.emit_line(&format!("const ${name} = WF.held(() => {value});"));
+            self.bind_live(name);
         }
         for stmt in &if_stmt.then_body {
             self.emit_statement_dom(stmt, &then_var);
         }
-        self.loop_bindings.truncate(bound);
+        self.unbind(bound);
         self.emit_line(&format!("return {};", then_var));
         self.indent -= 1;
         self.emit_line("},");
@@ -4953,23 +4965,40 @@ impl JsCodegen {
         self.indent += 1;
         self.emit_line(&format!("() => {},", list));
 
-        let index_param = if let Some(idx) = &for_stmt.index {
-            format!(", {}", idx)
-        } else {
-            ", _idx".to_string()
-        };
-
-        self.emit_line(&format!("({}{}) => {{", for_stmt.item, index_param));
-        self.indent += 1;
-
-        // The item and index are ordinary parameters of this callback for as
-        // long as we are inside it, not signals. Pushed as a stack so a nested
-        // loop's binding does not erase the outer one's.
+        // A keyed loop's item keeps its nodes for as long as its key is in
+        // the list: its body is handed the item and the index as accessors
+        // too, and reads them through those, so a changed row or a moved
+        // one is told so in place. An unkeyed loop is drawn again whole, and
+        // its item and index are plain parameters. Pushed as a stack so a
+        // nested loop's binding does not erase the outer one's.
+        let keyed = for_stmt.key.is_some();
         let bound = self.loop_bindings.len();
-        self.loop_bindings.push(for_stmt.item.clone());
-        if let Some(idx) = &for_stmt.index {
-            self.loop_bindings.push(idx.clone());
+        if keyed {
+            let index_of = match &for_stmt.index {
+                Some(idx) => format!(", ${idx}"),
+                None => String::new(),
+            };
+            self.emit_line(&format!(
+                "($$item, $$index, ${}{index_of}) => {{",
+                for_stmt.item
+            ));
+            self.bind_live(&for_stmt.item);
+            if let Some(idx) = &for_stmt.index {
+                self.bind_live(idx);
+            }
+        } else {
+            let index_param = if let Some(idx) = &for_stmt.index {
+                format!(", {}", idx)
+            } else {
+                ", _idx".to_string()
+            };
+            self.emit_line(&format!("({}{}) => {{", for_stmt.item, index_param));
+            self.loop_bindings.push(for_stmt.item.clone());
+            if let Some(idx) = &for_stmt.index {
+                self.loop_bindings.push(idx.clone());
+            }
         }
+        self.indent += 1;
         self.loop_sources.push((
             for_stmt.item.clone(),
             for_stmt.iterable.clone(),
@@ -4987,7 +5016,7 @@ impl JsCodegen {
         self.emit_line(&format!("return {};", item_var));
 
         self.loop_sources.pop();
-        self.loop_bindings.truncate(bound);
+        self.unbind(bound);
         self.indent -= 1;
         self.emit_line("},");
 
@@ -5014,6 +5043,7 @@ impl JsCodegen {
             if for_stmt.index.is_some() {
                 parts.push("index: true".to_string());
             }
+            parts.push("live: true".to_string());
         }
         if parts.is_empty() {
             self.emit_line("null");
@@ -5163,10 +5193,20 @@ impl JsCodegen {
         } else {
             url
         };
+        // `on:` and `cache:` are policies, read as an endpoint's are: `on:
+        // .focus` was handed over as the word "focus", which has no `focus`,
+        // so an address's resource never looked again.
         let mut opts: Vec<String> = r
             .options
             .iter()
-            .map(|opt| format!("{}: {}", opt.key, self.emit_expr(&opt.value)))
+            .map(|opt| {
+                let value = match opt.key.trim_matches('"') {
+                    "on" => self.refetch_policy(&opt.value),
+                    "cache" => self.cache_policy(&opt.value),
+                    _ => self.emit_expr(&opt.value),
+                };
+                format!("{}: {value}", opt.key)
+            })
             .collect();
         if self.dev
             && let Some(ty) = &r.ty
@@ -5501,16 +5541,24 @@ impl JsCodegen {
                 ArmPattern::State(s) => s.clone(),
                 ArmPattern::Else => "else".to_string(),
             };
-            let param = arm.binding.clone().unwrap_or_else(|| "_v".to_string());
-            self.emit_line(&format!("{}: ({}) => {{", name, param));
+            // The arm is handed the value and an accessor of it, and reads
+            // its binding through the accessor: what it drew follows a
+            // refresh of the data, or a new payload of the same case, in
+            // place. So does each name a `.case(a, b)` arm binds to a part
+            // of the payload.
+            let bound = self.loop_bindings.len();
+            let live = match &arm.binding {
+                Some(binding) => {
+                    self.bind_live(binding);
+                    format!("${binding}")
+                }
+                None => "$$arm".to_string(),
+            };
+            self.emit_line(&format!("{name}: ($$value, {live}) => {{"));
             self.indent += 1;
-            // The bound name is a plain parameter inside the arm, as is each
-            // name a `.case(a, b)` arm binds to the payload.
-            self.loop_bindings.push(param.clone());
-            let bound = arm.bindings.len();
             for (i, bound_name) in arm.bindings.iter().enumerate() {
-                self.emit_line(&format!("const {} = {}[{}];", bound_name, param, i + 1));
-                self.loop_bindings.push(bound_name.clone());
+                self.emit_line(&format!("const ${bound_name} = () => {live}()[{}];", i + 1));
+                self.bind_live(bound_name);
             }
             let var = self.fresh_var();
             self.emit_line(&format!(
@@ -5521,10 +5569,7 @@ impl JsCodegen {
                 self.emit_statement_dom(stmt, &var);
             }
             self.emit_line(&format!("return {};", var));
-            for _ in 0..bound {
-                self.loop_bindings.pop();
-            }
-            self.loop_bindings.pop();
+            self.unbind(bound);
             self.indent -= 1;
             self.emit_line("},");
         }
@@ -5819,6 +5864,11 @@ impl JsCodegen {
             Expr::BoolLiteral(b) => format!("{}", b),
             Expr::Null => "null".to_string(),
             Expr::Identifier(name) => {
+                // A live binding — an arm's, an `if let`'s, a keyed loop's —
+                // is read through its accessor, wherever it is read.
+                if self.is_live(name) {
+                    return format!("${name}()");
+                }
                 // i18n: locale and dir are reactive i18n signals
                 if self.has_i18n() && (name == "locale" || name == "dir") {
                     return format!("WF.i18n.{}()", name);
@@ -5895,15 +5945,24 @@ impl JsCodegen {
                 }
             }
             // What a resource or a connection holds — `rows.state`,
-            // `rows.data`, `rows.error`, a paged resource's `rows.items` and
-            // `rows.hasMore`, a socket's `chat.messages` and `chat.closure` —
+            // `rows.data`, `rows.error`, `rows.refreshing`, `rows.pending`, a
+            // paged resource's `rows.items` and `rows.hasMore`, a socket's
+            // `chat.messages` and `chat.closure` —
             // is a signal on the handle. It is read where it is written, so
             // `Text("{rows.state}")` shows the state and follows it; it used to
             // show the signal's own source, once.
             Expr::PropertyAccess(base, prop)
                 if matches!(
                     prop.as_str(),
-                    "state" | "data" | "error" | "items" | "hasMore" | "messages" | "closure"
+                    "state"
+                        | "data"
+                        | "error"
+                        | "refreshing"
+                        | "pending"
+                        | "items"
+                        | "hasMore"
+                        | "messages"
+                        | "closure"
                 ) && matches!(base.as_ref(), Expr::Identifier(n)
                     if self.resources.contains(n)
                         && !self.lambda_params.borrow().contains(n)
@@ -6347,8 +6406,26 @@ struct BindTarget {
 }
 
 impl BindTarget {
+    /// `$V` alone, not the start of a live binding's accessor (`$Vendor()`).
     fn write(&self, value: &str) -> String {
-        self.write.replace("$V", value)
+        let mut out = String::with_capacity(self.write.len() + value.len());
+        let mut rest = self.write.as_str();
+        while let Some(at) = rest.find("$V") {
+            let after = &rest[at + 2..];
+            out.push_str(&rest[..at]);
+            if after
+                .chars()
+                .next()
+                .is_some_and(|c| c.is_alphanumeric() || c == '_')
+            {
+                out.push_str("$V");
+            } else {
+                out.push_str(value);
+            }
+            rest = after;
+        }
+        out.push_str(rest);
+        out
     }
 }
 
@@ -6403,7 +6480,8 @@ impl JsCodegen {
             .rev()
             .find(|(item, _, _)| item == name)?;
         let path = self.path_js(&steps, &emit);
-        let replace = format!("(__x) => __x === {name} ? WF.setIn(__x, {path}, {value}) : __x");
+        let item = self.binding_js(name);
+        let replace = format!("(__x) => __x === {item} ? WF.setIn(__x, {path}, {value}) : __x");
         match list {
             Expr::Identifier(l) if self.is_state_signal(list) => {
                 Some(format!("_{l}.set(_{l}().map({replace}));"))
@@ -6467,6 +6545,12 @@ impl JsCodegen {
         if self.loop_bindings.iter().any(|b| b == owner) {
             return None;
         }
+        // A live item is read through its accessor, `$t().choice`.
+        if let Some(name) = owner.strip_prefix('$').and_then(|o| o.strip_suffix("()"))
+            && self.is_live(name)
+        {
+            return None;
+        }
         Some(
             read.trim_start_matches('_')
                 .trim_end_matches("()")
@@ -6514,16 +6598,17 @@ impl JsCodegen {
                     }
                     _ => None,
                 };
-                let read = format!("{owner}.{field}");
+                let item = self.binding_js(owner);
+                let read = format!("{item}.{field}");
                 Some(match (touch, keyed) {
                     (Some(t), true) => BindTarget {
                         read,
-                        write: format!("{owner}.{field} = $V; {t}"),
+                        write: format!("{item}.{field} = $V; {t}"),
                         commit: None,
                     },
                     (touch, _) => BindTarget {
                         read,
-                        write: format!("{owner}.{field} = $V"),
+                        write: format!("{item}.{field} = $V"),
                         commit: touch,
                     },
                 })
@@ -6557,8 +6642,47 @@ impl JsCodegen {
         let Expr::Identifier(name) = expr else {
             return false;
         };
+        // A live binding reads the same way, and is not one to write.
+        if self.is_live(name) {
+            return false;
+        }
         let emitted = self.emit_expr(expr);
         emitted == format!("_{name}()")
+    }
+
+    /// Bind `name` live for the body about to be emitted: it is read as
+    /// `$name()`, the accessor the body is handed. Undone by
+    /// [`Self::unbind`] with the length `loop_bindings` had before.
+    fn bind_live(&mut self, name: &str) {
+        self.live_at.push(self.loop_bindings.len());
+        self.loop_bindings.push(name.to_string());
+    }
+
+    /// Back to the bindings there were at `bound`, live ones included.
+    fn unbind(&mut self, bound: usize) {
+        self.loop_bindings.truncate(bound);
+        self.live_at.retain(|&at| at < bound);
+    }
+
+    /// Whether `name`, where it is read, is the innermost binding of that
+    /// name and a live one. A lambda's parameter of the same name is nearer.
+    fn is_live(&self, name: &str) -> bool {
+        !self.lambda_params.borrow().iter().any(|p| p == name)
+            && self
+                .loop_bindings
+                .iter()
+                .rposition(|b| b == name)
+                .is_some_and(|at| self.live_at.contains(&at))
+    }
+
+    /// A binding as the code that reads it: `$t()` for a live one, `t`
+    /// for a plain one.
+    fn binding_js(&self, name: &str) -> String {
+        if self.is_live(name) {
+            format!("${name}()")
+        } else {
+            name.to_string()
+        }
     }
 
     /// Whether `expr` reaches a store's state: `Cart.items` from a page, or
@@ -6606,6 +6730,29 @@ impl JsCodegen {
     }
 }
 
+/// Whether `js` calls a live binding's accessor — `$d()`, `$item()` — that
+/// is, `$`, a name, and `()`, the `$` not the end of a longer name.
+fn reads_live_binding(js: &str) -> bool {
+    let bytes = js.as_bytes();
+    let word = |b: u8| b.is_ascii_alphanumeric() || b == b'_';
+    let mut i = 0;
+    while i < bytes.len() {
+        if bytes[i] == b'$' && (i == 0 || !(word(bytes[i - 1]) || bytes[i - 1] == b'$')) {
+            let mut j = i + 1;
+            while j < bytes.len() && word(bytes[j]) {
+                j += 1;
+            }
+            if j > i + 1 && bytes[j..].starts_with(b"()") {
+                return true;
+            }
+            i = j.max(i + 1);
+        } else {
+            i += 1;
+        }
+    }
+    false
+}
+
 /// Whether `js` reads through `handle` (`_rows.`), as a name of its own and
 /// not the end of a longer one (`max_rows.`).
 fn reads_handle(js: &str, handle: &str) -> bool {
@@ -6618,6 +6765,10 @@ fn reads_handle(js: &str, handle: &str) -> bool {
 }
 
 fn is_reactive_expr(expr_str: &str) -> bool {
+    // A live binding's accessor: `$name()` (see `JsCodegen::live_at`).
+    if reads_live_binding(expr_str) {
+        return true;
+    }
     // Check for signal access pattern: _identifier()
     let bytes = expr_str.as_bytes();
     for i in 0..bytes.len() {
@@ -7485,13 +7636,15 @@ mod tests {
             "{out}"
         );
         assert!(out.contains("WF.match(_root, () => _rows.state(), () => _rows.state() === \"error\" ? _rows.error() : _rows.data(), {"), "{out}");
-        assert!(out.contains("loading: (_v) => {"), "{out}");
+        assert!(out.contains("loading: ($$value, $$arm) => {"), "{out}");
+        // An arm is handed its value and an accessor of it, and reads its
+        // binding through the accessor, so what it drew follows a refresh.
         assert!(
-            out.contains("error: (e) => {") && out.contains("e.message"),
+            out.contains("error: ($$value, $e) => {") && out.contains("() => $e().message"),
             "{out}"
         );
         assert!(
-            out.contains("ready: (list) => {") && out.contains("list.length"),
+            out.contains("ready: ($$value, $list) => {") && out.contains("() => $list().length"),
             "{out}"
         );
         // A reference to the resource is the object, not a signal read.
@@ -7541,7 +7694,8 @@ mod tests {
             "{out}"
         );
         assert!(
-            out.contains("danger: (_v) => {") && out.contains("else: (_v) => {"),
+            out.contains("danger: ($$value, $$arm) => {")
+                && out.contains("else: ($$value, $$arm) => {"),
             "{out}"
         );
     }
@@ -7764,13 +7918,17 @@ mod tests {
                 })),
             ],
         )]);
+        assert!(out.contains("() => _hint() != null"), "{out}");
+        // The binding follows the value: a new hint reaches the branch.
+        assert!(out.contains("const $h = WF.held(() => _hint());"), "{out}");
+        assert!(out.contains("() => $h()"), "{out}");
         assert!(
-            out.contains("() => _hint() != null") || out.contains("const h = _hint();"),
-            "{out}"
+            out.contains("{ key: (it) => it.id, live: true }"),
+            "the key function is in the list's options: {out}"
         );
         assert!(
-            out.contains("{ key: (it) => it.id }"),
-            "the key function is in the list's options: {out}"
+            out.contains("($$item, $$index, $it) => {") && out.contains("() => $it()"),
+            "a keyed item is read live: {out}"
         );
         assert!(
             out.contains("async function load()") && out.contains("(await WF.request(\"/x\"))"),
@@ -8529,11 +8687,75 @@ mod tests {
             "page P(path: \"/\") { state names = [\"a\"]\n Sidebar { for n in names by n { Sidebar.Item(to: \"/x/{n}\") { Text(n) } } } }",
         );
         assert!(
-            out.contains("WF.el(\"a\", { className: \"wf-sidebar__item\", href: `/x/${n}`"),
+            out.contains(
+                "WF.el(\"a\", { className: \"wf-sidebar__item\", href: () => `/x/${$n()}`"
+            ),
             "{out}"
         );
-        assert!(out.contains("WF.navigate(`/x/${n}`)"), "{out}");
+        assert!(out.contains("WF.navigate(`/x/${$n()}`)"), "{out}");
         assert!(out.contains("WF.activeLink("), "{out}");
-        assert!(!out.contains("to: `/x/${n}`"), "{out}");
+        assert!(!out.contains("to: `/x/${"), "{out}");
+    }
+
+    #[test]
+    fn an_arm_binding_named_like_its_resource_is_the_data_not_the_handle() {
+        // The guide's own example. `users` inside the arm read the
+        // resource's handle — `_users.length`, a list of nothing — because a
+        // resource's name was looked up before the arm's binding.
+        let out = compile(
+            "page P(path: \"/\") {\n resource users = fetch(\"/api/users\")\n match users {\n  loading { Text(\"…\") }\n  error(e) { Text(e.message) }\n  ready(users) { Text(\"{users.length} users\")  for user in users by user.id { Text(user.name) } }\n }\n}",
+        );
+        assert!(out.contains("ready: ($$value, $users) => {"), "{out}");
+        assert!(out.contains("() => `${$users().length} users`"), "{out}");
+        assert!(out.contains("() => $users(),"), "{out}");
+        assert!(!out.contains("_users.length"), "{out}");
+    }
+
+    #[test]
+    fn a_live_binding_never_stands_in_for_a_name_the_compiler_uses() {
+        // A component's props are `_p`, a page's root `_root`: a binding
+        // spelled `_p` would hide them inside its body.
+        let out = compile(
+            "type Post { id: String, title: String }\ncomponent List(posts: [Post], heading: String) {\n Text(heading)\n for p in posts by p.id { Text(\"{p.title} in {heading}\") }\n}\npage P(path: \"/\") { List(posts: [], heading: \"All\") }",
+        );
+        assert!(out.contains("($$item, $$index, $p) => {"), "{out}");
+        assert!(out.contains("`${$p().title} in ${_p.heading}`"), "{out}");
+    }
+
+    #[test]
+    fn an_address_resource_takes_on_and_cache_as_policies() {
+        // `on: .focus` was handed over as the word "focus", so a resource
+        // over an address never looked again.
+        let out = compile(
+            "page P(path: \"/\") {\n resource rows = fetch(\"/api/rows\", on: .focus, cache: .swr(60000))\n resource ticks = fetch(\"/api/ticks\", on: [.focus, .interval(30000)])\n Text(\"{rows.state} {ticks.state}\")\n}",
+        );
+        assert!(
+            out.contains("WF.resource(\"/api/rows\", { on: { focus: true }, cache: { kind: \"swr\", ttl: 60000 } })"),
+            "{out}"
+        );
+        assert!(
+            out.contains("WF.resource(\"/api/ticks\", { on: { focus: true, interval: 30000 } })"),
+            "{out}"
+        );
+    }
+
+    #[test]
+    fn whether_a_resource_is_refreshing_is_read_live() {
+        let out = compile(
+            "page P(path: \"/\") {\n resource rows = fetch(\"/api/rows\")\n if rows.refreshing { Text(\"Refreshing\") }\n Button(\"Reload\", disabled: rows.pending) { on click { rows.reload() } }\n}",
+        );
+        assert!(out.contains("() => _rows.refreshing()"), "{out}");
+        assert!(out.contains("disabled: () => _rows.pending()"), "{out}");
+    }
+
+    #[test]
+    fn a_bound_field_of_a_live_item_spelled_like_the_placeholder_is_written() {
+        let out = compile(
+            "page P(path: \"/\") {\n state rows = [{ id: \"1\", name: \"a\" }]\n for Vendor in rows by Vendor.id { Input(bind: Vendor.name, label: \"Name\") }\n}",
+        );
+        assert!(
+            out.contains("$Vendor().name = WF.bound(e.target); _rows.set(_rows().slice())"),
+            "{out}"
+        );
     }
 }
