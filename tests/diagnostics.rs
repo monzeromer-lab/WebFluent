@@ -843,6 +843,12 @@ fn more_fixes_applied_make_their_findings_go() {
             "enum Tone { calm, loud }\ncomponent Chip(tone: Tone) { Text(\"chip\") }\nPAGE    Heading(\"Hi\").h1\n    Chip()\n}\n",
             "Chip(tone: .calm)",
         ),
+        // A state that copies a live value, and nothing changes, follows it.
+        (
+            "X06",
+            "PAGE    state clock = now(every: 1.seconds)\n    Heading(\"Updated {ago(clock)}\").h1\n}\n",
+            "derived clock = now(every: 1.seconds)",
+        ),
     ];
     for (i, (code, src, expect)) in cases.iter().enumerate() {
         let src = src.replace("PAGE", PAGE);

@@ -244,6 +244,12 @@ first paint.
 - **Expecting a component to re-run.** A component's body runs once. A value
   that should follow a prop or a state is a `derived`, or an expression
   written where it is shown.
+- **Copying a browser value into a `state`.** `state clock = now(every:
+  1.seconds)` takes the time once, when the page opens, and keeps it —
+  every "… ago" worked out from it stays where it started. `derived clock
+  = now(every: 1.seconds)` ticks. The same holds for `viewport`, `query`,
+  `hash`, `theme`, `network` and `update`; the compiler says so (`X06`)
+  for a state nothing changes.
 
 ## Where values come from, in order
 

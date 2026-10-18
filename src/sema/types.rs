@@ -347,6 +347,9 @@ struct World<'p> {
     store_fixed: HashMap<&'p str, HashMap<String, &'static str>>,
     /// Each store's actions, by name, for what they write.
     store_actions: HashMap<&'p str, HashMap<String, &'p [Statement]>>,
+    /// Each store's state the program writes, from anywhere, as
+    /// `Store.member`.
+    store_written: HashSet<String>,
 }
 
 impl<'p> World<'p> {
@@ -457,6 +460,7 @@ pub fn check_in(
         fixed: HashMap::new(),
         store_fixed: HashMap::new(),
         store_actions: HashMap::new(),
+        store_written: HashSet::new(),
     };
     for decl in &program.declarations {
         match decl {
@@ -520,6 +524,27 @@ pub fn check_in(
             _ => {}
         }
     }
+    // What the program writes of each store's state: its own code by the
+    // bare name, everything else as `Store.member`.
+    for decl in &program.declarations {
+        let (store, bodies): (Option<&str>, Vec<&[Statement]>) = match decl {
+            Declaration::Store(s) => (Some(s.name.as_str()), vec![&s.body]),
+            Declaration::Page(p) => (None, vec![&p.body]),
+            Declaration::Component(c) => (None, vec![&c.body]),
+            Declaration::App(a) => (None, vec![&a.body]),
+            Declaration::Api(a) => (None, a.hooks.iter().map(|h| h.body.as_slice()).collect()),
+            _ => continue,
+        };
+        for body in bodies {
+            for name in written_names(body) {
+                if name.contains('.') {
+                    world.store_written.insert(name);
+                } else if let Some(store) = store {
+                    world.store_written.insert(format!("{store}.{name}"));
+                }
+            }
+        }
+    }
     let mut info = TypeInfo::default();
 
     // Constants first: plain values, read everywhere. A `data` declaration
@@ -573,6 +598,12 @@ pub fn check_in(
             let file = file_of(index);
             let source = source_of(index);
             let mut cx = Checker::new(&world, &file, index, &mut info, source);
+            cx.written = world
+                .store_written
+                .iter()
+                .filter_map(|w| w.strip_prefix(s.name.as_str())?.strip_prefix('.'))
+                .map(str::to_string)
+                .collect();
             cx.push_scope();
             cx.declare_hoisted(&s.body);
             let members = cx.scopes.last().cloned().unwrap_or_default();
@@ -598,6 +629,7 @@ pub fn check_in(
                     cx.layout(layout);
                 }
                 cx.bound = bound_names(&p.body);
+                cx.written = written_names(&p.body);
                 cx.declare_hoisted(&p.body);
                 cx.statements(&p.body, Body::Page);
                 cx.pop_scope();
@@ -623,12 +655,14 @@ pub fn check_in(
                 }
                 cx.component = Some(c);
                 cx.bound = bound_names(&c.body);
+                cx.written = written_names(&c.body);
                 cx.declare_hoisted(&c.body);
                 cx.statements(&c.body, Body::Component);
                 cx.pop_scope();
             }
             Declaration::App(a) => {
                 cx.push_scope();
+                cx.written = written_names(&a.body);
                 cx.declare_hoisted(&a.body);
                 cx.statements(&a.body, Body::Page);
                 cx.pop_scope();
@@ -787,6 +821,9 @@ struct Checker<'a, 'p> {
     /// The names some control in the body binds, which a `validate` block
     /// guards.
     bound: HashSet<String>,
+    /// The names the body writes — and, for a store, its state anything in
+    /// the program writes: a state among them changes on purpose.
+    written: HashSet<String>,
     /// The body's own actions, by name, for what they write.
     own_actions: HashMap<String, Vec<Statement>>,
 }
@@ -818,6 +855,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             non_empty: Vec::new(),
             in_chain: false,
             bound: HashSet::new(),
+            written: HashSet::new(),
             own_actions: HashMap::new(),
             source,
         }
@@ -1277,6 +1315,8 @@ impl<'a, 'p> Checker<'a, 'p> {
                 if body == Body::Imperative {
                     // A local: bound here, in order.
                     self.bind(&s.name, declared.unwrap_or(given), span);
+                } else if !s.persist {
+                    self.copies_live_value(&s.name, &s.value, span, body);
                 }
             }
             StatementKind::Derived(d) => {
@@ -2455,6 +2495,90 @@ impl<'a, 'p> Checker<'a, 'p> {
                 return;
             }
         }
+    }
+
+    /// X06: a `state` whose initial value reads a value the browser keeps
+    /// current, and that nothing assigns, binds or changes in place. A
+    /// state takes its value once, so it holds what that value was when it
+    /// was made: `state clock = now(every: 1.seconds)` stops at the moment
+    /// the page opened, and every "… ago" worked out from it with it. A
+    /// `derived` value follows what it reads, and since nothing writes the
+    /// state, making it one is the fix. A state the program does write
+    /// starts from the live value on purpose — a tab seeded from the
+    /// address, then changed by a click — and is left alone.
+    fn copies_live_value(&mut self, name: &str, value: &Expr, span: Span, body: Body) {
+        if self.written.contains(name) {
+            return;
+        }
+        let Some(live) = self.live_value(value) else {
+            return;
+        };
+        let when = match body {
+            Body::Store => "when the store is built",
+            _ if self.component.is_some() => "when the component is drawn",
+            _ => "when the page opens",
+        };
+        let d = Diagnostic::coded(
+            "X06",
+            format!("`{name}` copies `{live}` once, {when}, and never follows it"),
+            self.file,
+            span.line as usize,
+            span.col as usize,
+        )
+        .with_span(span, self.source.as_deref())
+        .with_hint(format!(
+            "Nothing assigns `{name}`: declare it `derived`, which is worked out again whenever `{live}` changes"
+        ))
+        .with_plan(
+            format!("Change to `derived {name}`"),
+            crate::diagnostics::fixes::Plan::Rename {
+                from: "state".to_string(),
+                to: "derived".to_string(),
+            },
+        );
+        self.info.findings.warnings.push(d);
+    }
+
+    /// The value the browser keeps current that `value` reads where it is
+    /// worked out — not one read inside a lambda, which reads it each time
+    /// it is called.
+    fn live_value(&self, value: &Expr) -> Option<&'static str> {
+        match value {
+            Expr::Lambda(..) => None,
+            // `if let x = v { a } else { b }` is `v.__iflet(x => a, b)`, and
+            // that lambda is worked out on the spot.
+            Expr::MethodCall(subject, method, args) if method == "__iflet" => {
+                self.live_value(subject).or_else(|| {
+                    args.iter().find_map(|a| match a {
+                        Expr::Lambda(_, body) => self.live_value(body),
+                        other => self.live_value(other),
+                    })
+                })
+            }
+            Expr::Identifier(name) => self.browser_value(name),
+            Expr::FunctionCall(name, args) => {
+                let called = if name == "now" {
+                    self.browser_value(name)
+                } else {
+                    None
+                };
+                called.or_else(|| args.iter().find_map(|a| self.live_value(a)))
+            }
+            other => other
+                .children()
+                .into_iter()
+                .find_map(|c| self.live_value(c)),
+        }
+    }
+
+    /// `name` as one of the values the browser keeps current, when the
+    /// program has nothing of its own by that name.
+    fn browser_value(&self, name: &str) -> Option<&'static str> {
+        let live = crate::codegen::js::BROWSER_VALUES
+            .iter()
+            .copied()
+            .find(|v| *v == name)?;
+        (self.lookup(name).is_none() && !self.world.consts.contains_key(name)).then_some(live)
     }
 
     /// F01: `bind:` writes what the control holds back to what it names,
@@ -5189,6 +5313,97 @@ fn bound_names(stmts: &[Statement]) -> HashSet<String> {
                 for fill in &ui.slot_fills {
                     walk(&fill.body, out);
                 }
+            }
+            for body in stmt.kind.bodies() {
+                walk(body, out);
+            }
+        }
+    }
+    let mut out = HashSet::new();
+    walk(stmts, &mut out);
+    out
+}
+
+/// The names `stmts`, at any depth, write: an assignment's target, what a
+/// `bind:` names, a value a method is called on as a statement
+/// (`items.push(x)`, which the compiler makes a write), and the holder
+/// `optimistic` changes. A place inside a value is written through its
+/// root — `form.name = v` writes `form`, and `t.done = v` on a loop's item
+/// the list it came from — and a store's state is named both as the store
+/// and as `Store.member`.
+fn written_names(stmts: &[Statement]) -> HashSet<String> {
+    fn target(e: &Expr, out: &mut HashSet<String>) {
+        let mut member = None;
+        let mut at = e;
+        loop {
+            match at {
+                Expr::PropertyAccess(base, m) | Expr::OptionalProperty(base, m) => {
+                    member = Some(m);
+                    at = base;
+                }
+                Expr::IndexAccess(base, _)
+                | Expr::OptionalIndex(base, _)
+                | Expr::MethodCall(base, _, _)
+                | Expr::OptionalMethod(base, _, _) => {
+                    member = None;
+                    at = base;
+                }
+                Expr::Identifier(n) => {
+                    if let Some(m) = member {
+                        out.insert(format!("{n}.{m}"));
+                    }
+                    out.insert(n.clone());
+                    return;
+                }
+                _ => return,
+            }
+        }
+    }
+    fn call(e: &Expr, out: &mut HashSet<String>) {
+        match e {
+            Expr::Await(inner) => call(inner, out),
+            Expr::MethodCall(obj, _, _) | Expr::OptionalMethod(obj, _, _) => target(obj, out),
+            Expr::FunctionCall(name, args) if name == "optimistic" => {
+                if let Some(holder) = args.first() {
+                    target(holder, out);
+                }
+            }
+            _ => {}
+        }
+    }
+    fn walk(stmts: &[Statement], out: &mut HashSet<String>) {
+        for stmt in stmts {
+            match &stmt.kind {
+                StatementKind::Assignment(a) => target(&a.target, out),
+                StatementKind::MethodCall(m) => target(&m.object, out),
+                StatementKind::ExprStatement(e) => call(e, out),
+                StatementKind::UIElement(ui) => {
+                    for arg in &ui.args {
+                        if let Arg::Named(k, value) = arg
+                            && k == "bind"
+                        {
+                            target(value, out);
+                        }
+                    }
+                    for handler in &ui.events {
+                        walk(&handler.body, out);
+                    }
+                    for fill in &ui.slot_fills {
+                        walk(&fill.body, out);
+                    }
+                    walk(&ui.children, out);
+                }
+                // A write to an item is a write to its list.
+                StatementKind::For(f) => {
+                    let mut inner = HashSet::new();
+                    walk(&f.body, &mut inner);
+                    if inner.contains(&f.item) {
+                        target(&f.iterable, out);
+                    }
+                    out.extend(inner);
+                    continue;
+                }
+                _ => {}
             }
             for body in stmt.kind.bodies() {
                 walk(body, out);

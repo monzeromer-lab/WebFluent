@@ -391,7 +391,9 @@ A `type` the program declares wins over the name — a project with its own
 
 `now` joins `viewport`, `query`, `hash` and `theme` as a browser value: a
 `DateTime` that keeps itself current, every minute by default, or as often
-as a page asks — `now(every: 1.seconds)`.
+as a page asks — `now(every: 1.seconds)`. Read it where it is shown or in a
+`derived` value: a `state` takes it once, so `state clock = now(every:
+1.seconds)` stays at the moment the page opened (`X06`).
 
 **A condition on a type.** Any type may say what its values must be, and
 the checker holds every value it can read to it:
@@ -2712,7 +2714,7 @@ prints a code's entry. Where the fix is known it is part of the finding —
 the editor's quick fix and the JSON's `fixes`: the nearest name for `T05`,
 `T06`, `T16`, `T13`, `E101`, `E103`; `?.` for `T04`; the missing props for
 `C01`; the missing arms for `T15`; the flag for `V01`; `alt: ""` for `A01`;
-an `_` for `U01`–`U05`.
+`derived` for `X06`; an `_` for `U01`–`U05`.
 
 | Family | What |
 |---|---|
@@ -2879,6 +2881,7 @@ paint alike.
 | `V09` | A handler for an event the element does not fire |
 | `V10` | A `Host(tag: …)` it does not make — it makes `div`, `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul`, `table`; any other is a `div` |
 | `V11` | A component named like a built-in (`Footer`, `Chart`): a call of that name draws the built-in, so the component is never drawn |
+| `X06` | A `state` whose initial value reads `now`, `viewport`, `query`, `hash`, `theme`, `network` or `update` (outside a lambda) and that nothing assigns, binds or changes in place: it holds the value it started with, so `state clock = now(every: 1.seconds)` never ticks. The fix makes it `derived` |
 
 The heading-outline rules (`A11`, `A12`) do not apply to `Presentation` or
 `Document` output, where an `h1` per slide or per section is correct.

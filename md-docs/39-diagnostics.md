@@ -45,8 +45,9 @@ name for a misspelled field, member, method, variable, component or flag
 (`T05`, `T06`, `T16`, `T13`, `E101`, `E103`), `?.` for a read of a value
 that may be null (`T04`), the missing props with a value of their type
 (`C01`), the missing arms of a `match` (`T15`), a bare word written as the
-flag it means (`V01`), `alt: ""` for an image (`A01`), and an `_` before a
-name nothing reads (`U01`–`U05`).
+flag it means (`V01`), `alt: ""` for an image (`A01`), `derived` for a
+state that copies a live value nothing changes (`X06`), and an `_` before
+a name nothing reads (`U01`–`U05`).
 
 **Allowing one finding.** A `// wf-allow(CODE)` comment accepts a finding
 on purpose: on a line of its own it covers the next line of code, at the
@@ -752,6 +753,36 @@ error[X05]: `use Carts` names a store nothing declares
 ```
 
 **Fix:** Name a store that exists — here `Cart`.
+
+### X06 — A state that copies a live value once
+
+```wf expect X06
+page P(path: "/", title: "T", description: "D") {
+    state posted = @2026-03-14T09:30:00Z
+    state clock = now(every: 1.seconds)
+    derived age = posted.until(clock)
+    Heading("Posted {age.minutes()} minutes ago").h1
+}
+```
+
+```text
+warning[X06]: `clock` copies `now` once, when the page opens, and never follows it
+ --> src/App.wf:3:5
+  |
+3 |     state clock = now(every: 1.seconds)
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  = help: Nothing assigns `clock`: declare it `derived`, which is worked out again whenever `now` changes
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#x06-a-state-that-copies-a-live-value-once
+```
+
+**Fix:** Declare it `derived` — the quick fix does. `derived clock =
+now(every: 1.seconds)` is worked out again on every tick, and so is
+everything that reads it. `now`, `viewport`, `query`, `hash`, `theme`,
+`network` and `update` all keep themselves current; a `state` only takes
+the value it starts with. A state the program assigns, binds or
+changes in place is a starting value on purpose — `state tab = query.tab
+?? "all"` that a click then changes — and draws nothing. Neither does a
+live value read inside a lambda, which reads it each time it is called.
 
 ## Forms and bindings
 

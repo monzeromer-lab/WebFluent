@@ -427,6 +427,12 @@ pub static CODES: &[CodeInfo] = &[
         "`use` of a store nothing declares",
         "`use` names a store the page depends on; one that is not declared is a misspelling, and every read of it is nothing.",
     ),
+    code(
+        "X06",
+        Warning,
+        "A state that copies a live value once",
+        "`now`, `viewport`, `query`, `hash`, `theme`, `network` and `update` keep themselves current, but a `state` takes its initial value once: `state clock = now(every: 1.seconds)` holds the moment the page opened, and everything worked out from it stays there. A `derived` value follows what it reads. A state the program goes on to assign or bind starts from the live value on purpose, and draws nothing.",
+    ),
     // ── F: forms and bindings ────────────────────────────────────────
     code(
         "F01",

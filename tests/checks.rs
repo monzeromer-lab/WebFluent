@@ -510,6 +510,79 @@ fn x05_use_of_a_store_nothing_declares() {
     assert!(with(&src, "X05")[0].contains("`use Carts`"));
 }
 
+#[test]
+fn x06_a_state_that_copies_a_live_value_nothing_changes() {
+    let src = String::from(
+        "store Clock {\n    state started = now\n}\ncomponent Wide {\n    state wide = viewport.md\n    Text(if wide { \"w\" } else { \"n\" })\n}\n",
+    ) + &page(
+        "    state clock = now(every: 1.seconds)\n    state tab = if let t = hash { t } else { \"a\" }\n    state dark = theme == \"dark\"\n    state online = !network.online\n    state fresh = update.available\n    state q = query.q ?? \"\"\n    Text(\"{ago(clock)} {tab} {dark} {online} {fresh} {q} {Clock.started}\")\n    Wide",
+    );
+    let found = with(&src, "X06");
+    assert_eq!(
+        found,
+        vec![
+            "2: `started` copies `now` once, when the store is built, and never follows it",
+            "5: `wide` copies `viewport` once, when the component is drawn, and never follows it",
+            "10: `clock` copies `now` once, when the page opens, and never follows it",
+            "11: `tab` copies `hash` once, when the page opens, and never follows it",
+            "12: `dark` copies `theme` once, when the page opens, and never follows it",
+            "13: `online` copies `network` once, when the page opens, and never follows it",
+            "14: `fresh` copies `update` once, when the page opens, and never follows it",
+            "15: `q` copies `query` once, when the page opens, and never follows it",
+        ]
+    );
+    assert!(findings(&src).iter().all(|d| !d.is_error()));
+}
+
+#[test]
+fn x06_leaves_a_live_value_that_is_followed_or_a_state_that_changes() {
+    // Worked out again whenever it changes: a derived value, and a lambda
+    // that reads it when it is called.
+    clean(&page(
+        "    derived clock = now(every: 1.seconds)\n    state late = (d) => d.isBefore(now)\n    Text(\"{clock} {late(clock)}\")",
+    ));
+    // A starting value the page then changes: assigned, bound, changed in
+    // place. A `persist` keeps what it was; an action's local is read once.
+    let written = page(
+        "    state tab = query.tab ?? \"a\"\n    state q = query.q ?? \"\"\n    state seen = [now]\n    persist first = now\n    action stamp() {\n        let at = now\n        seen.push(at)\n    }\n    Input(bind: q, label: \"Search\")\n    Button(\"B\") { on click { tab = \"b\"  stamp() } }\n    Text(\"{tab} {seen.length} {first}\")",
+    );
+    assert!(
+        with(&written, "X06").is_empty(),
+        "{:?}",
+        with(&written, "X06")
+    );
+    // A write to a loop's item is a write to its list.
+    let item = page(
+        "    state tags = query.tags.split(\",\").map(t => { name: t, on: true })\n    for t in tags {\n        Button(t.name) { on click { t.on = !t.on } }\n    }",
+    );
+    assert!(with(&item, "X06").is_empty(), "{:?}", with(&item, "X06"));
+    // A store's state written by its own action, or from a page.
+    let store = String::from(
+        "store Clock {\n    state last = now\n    state opened = now\n    action touch() { last = now }\n}\n",
+    ) + &page(
+        "    Text(\"{Clock.last} {Clock.opened}\")\n    Button(\"x\") { on click { Clock.touch()  Clock.opened = now } }",
+    );
+    assert!(with(&store, "X06").is_empty(), "{:?}", with(&store, "X06"));
+}
+
+#[test]
+fn x06_offers_derived_and_the_page_it_gives_is_clean() {
+    let src = page("    state clock = now(every: 1.seconds)\n    Text(\"Updated {ago(clock)}\")");
+    let finding = findings(&src)
+        .into_iter()
+        .find(|d| d.code == "X06")
+        .expect("X06");
+    assert_eq!(finding.fixes.len(), 1, "{finding:?}");
+    assert_eq!(finding.fixes[0].title, "Change to `derived clock`");
+    let fixed = webfluent::diagnostics::fixes::apply(&src, &finding.fixes[0]);
+    assert!(
+        fixed.contains("    derived clock = now(every: 1.seconds)\n"),
+        "{fixed}"
+    );
+    clean(&fixed);
+    assert!(with(&fixed, "X06").is_empty());
+}
+
 // ─── C8: forms ───────────────────────────────────────────────────────
 
 #[test]
