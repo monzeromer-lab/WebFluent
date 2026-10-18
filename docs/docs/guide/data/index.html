@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.6</p>
+                            <p class="wf-text wf-s859a58d7">5.7</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -319,9 +319,45 @@ page Deploys(path: &quot;/&quot;, title: &quot;Deploys&quot;, description: &quot
 <ul>
 <li><code>resource name = fetch(url)</code> starts the request when the page renders. The annotation (<code>: [Deploy]</code>) types the value; without it the value is <code>Any</code>.</li>
 <li><code>match</code> over a resource has three arms — <code>loading</code>, <code>error(e)</code>, <code>ready(v)</code> — and <code>else</code>. The static paint renders the <code>loading</code> arm.</li>
-<li><code>name.reload()</code> makes the request again; <code>name.state</code> is <code>&quot;loading&quot;</code>, <code>&quot;ready&quot;</code> or <code>&quot;error&quot;</code>; <code>name.data</code> the last value (<code>T?</code>), <code>name.error</code> the last error. Each is live wherever it is read — a label, a splice, an attribute — so <code>Button(if plan.data != null { &quot;Request approval&quot; } else { &quot;Deploy&quot; })</code> changes when the plan arrives, with no <code>derived</code> in between.</li>
+<li><code>name.reload()</code> makes the request again; <code>name.state</code> is <code>&quot;loading&quot;</code>, <code>&quot;ready&quot;</code> or <code>&quot;error&quot;</code>; <code>name.data</code> the last value (<code>T?</code>), <code>name.error</code> the last error; <code>name.refreshing</code> and <code>name.pending</code> say a request is running (<a href="#asking-again">Asking again</a>). Each is live wherever it is read — a label, a splice, an attribute — so <code>Button(if plan.data != null { &quot;Request approval&quot; } else { &quot;Deploy&quot; })</code> changes when the plan arrives, with no <code>derived</code> in between.</li>
 <li>A failed response (<code>!ok</code>) is an error with <code>e.message</code> of <code>HTTP 500</code>.</li>
 </ul>
+                            </div>
+                            <h3 class="wf-heading" id="asking-again">Asking again</h3>
+                            <div class="wf-markdown">
+<p><code>on: .focus</code>, <code>.reconnect</code> or <code>.interval(30.seconds)</code> — an option of <code>fetch(…)</code> or of an endpoint's call — <code>name.reload()</code> and <code>name.invalidate()</code> ask again. Asking again for the request already shown is a <strong>refresh</strong>, and the page stays as it is while it runs: the state stays <code>&quot;ready&quot;</code>, the data stays, and the answer is drawn in place.</p>
+<ul>
+<li>The <code>ready</code> arm's binding is live. Text, attributes, <code>if</code>, <code>if let</code>, a keyed <code>for … by</code> and component props inside the arm follow the new data, and the arm is drawn again only when the arm changes — loading, ready, error. A row whose key is still in the list keeps its nodes, its focus and its components' state; an input keeps what was typed.</li>
+<li>The parts of an answer equal to what was shown are kept as the same objects — an item is matched by its <code>id</code>, by its value, or by its place — so an answer that changed nothing redraws nothing.</li>
+<li><code>name.refreshing</code> is true while a refresh runs; <code>name.pending</code> while any request of the resource runs, the first load included.</li>
+<li>A refresh that fails keeps the data and <code>&quot;ready&quot;</code>, and sets <code>name.error</code> until the next answer, so the arm can say the data is stale. A first load that fails is <code>&quot;error&quot;</code>, and its <code>reload()</code> is a first load again.</li>
+<li>A request that changed — an address or an argument that reads state now names something else: another environment, another page — is a first load again, shown as <code>loading</code>, because the data on screen would be the wrong data. With <code>paginate:</code> the next page is a refresh.</li>
+</ul>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">type Server { id: String, name: String, status: String }
+
+page Servers(path: &quot;/servers&quot;, title: &quot;Servers&quot;, description: &quot;Every server, kept current.&quot;) {
+    state stage = &quot;test&quot;
+    resource servers: [Server] = fetch(&quot;/api/servers?env={stage}&quot;, on: .interval(30.seconds))
+    Heading(&quot;Servers&quot;).h1
+    Button(&quot;Production&quot;) { on click { stage = &quot;prod&quot; } }
+    match servers {
+        loading { Skeleton(height: &quot;20px&quot;) }
+        error(e) { Alert(e.message).danger }
+        ready(list) {
+            if servers.error != null { Alert(&quot;Could not refresh; this is what was there.&quot;).warning }
+            if servers.refreshing { Spinner.sm }
+            for s in list by s.id { Text(&quot;{s.name}: {s.status}&quot;) }
+        }
+    }
+}</code>
                             </div>
                             <h3 class="wf-heading" id="options">Options</h3>
                             <div class="wf-stack wf-sba64d8a9 code-block">
@@ -1126,7 +1162,7 @@ page PostPage(path: &quot;/posts/:slug&quot;, slug: String, title: &quot;Post&qu
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.6, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.7, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -1153,7 +1189,7 @@ page PostPage(path: &quot;/posts/:slug&quot;, slug: String, title: &quot;Post&qu
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.6 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.7 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

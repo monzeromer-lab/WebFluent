@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.6</p>
+                            <p class="wf-text wf-s859a58d7">5.7</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -330,7 +330,7 @@ page Profile(path: &quot;/&quot;) {
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>if let x { }</code> (no <code>=</code>) is the same for a name already in scope. The narrowing holds inside the branch only; <code>x != null</code> and <code>x &amp;&amp; …</code> narrow the same way.</p>
+<p><code>if let x { }</code> (no <code>=</code>) is the same for a name already in scope. The narrowing holds inside the branch only; <code>x != null</code> and <code>x &amp;&amp; …</code> narrow the same way. The binding follows the value: when <code>user</code> becomes another user, the branch shows the new one in place; it is drawn again only when the value goes to <code>null</code> and back.</p>
                             </div>
                             <h2 class="wf-heading" id="for">for</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
@@ -357,7 +357,7 @@ page List(path: &quot;/&quot;) {
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>by expr</code> names the key: with it, an item that stays in the list keeps its nodes — focus, scroll and animation state survive an insert, a removal or a move, and moves slide. Without a key the list is rebuilt when it changes. Keys must be unique; the runtime warns once when two items share one. A key may read the index as well as the item (<code>for t, i in rows by &quot;{t.id}-{i}&quot;</code>), but a key of the index alone moves with the position, not the item: after an insert every item has another's key, and nothing is kept. Key by what identifies the item. Looping over something that is not a list is an error (<code>T08</code>).</p>
+<p><code>by expr</code> names the key: with it, an item that stays in the list keeps its nodes — focus, scroll and animation state survive an insert, a removal or a move, and moves slide. An item keeps them under a new value too (a refreshed response's rows are all new objects): its body reads the item and the index live, so a changed row changes in place, its components' state with it. Without a key the list is rebuilt when it changes. Keys must be unique; the runtime warns once when two items share one. A key may read the index as well as the item (<code>for t, i in rows by &quot;{t.id}-{i}&quot;</code>), but a key of the index alone moves with the position, not the item: after an insert every item has another's key, and nothing is kept. Key by what identifies the item. Looping over something that is not a list is an error (<code>T08</code>).</p>
                             </div>
                             <h2 class="wf-heading" id="show">show</h2>
                             <div class="wf-markdown">
@@ -404,7 +404,7 @@ page Job(path: &quot;/&quot;) {
                             </div>
                             <div class="wf-markdown">
 <p>Over a <strong>resource</strong> it chooses by the request's state — <a href="/docs/guide/data">chapter 17</a>.</p>
-<p>An arm binds one name per part of the payload; <code>else</code> covers the rest. Every case of an enum has to be handled or covered by <code>else</code> only in a match <em>expression</em> (which needs an <code>else</code> to have a value); a <code>match</code> statement may list only the arms it shows.</p>
+<p>An arm binds one name per part of the payload; <code>else</code> covers the rest. An arm is drawn again when the arm changes, not when its value does: a new payload of the same case — <code>.failed(&quot;refused&quot;)</code> after <code>.failed(&quot;timed out&quot;)</code> — reaches what the arm drew in place. Every case of an enum has to be handled or covered by <code>else</code> only in a match <em>expression</em> (which needs an <code>else</code> to have a value); a <code>match</code> statement may list only the arms it shows.</p>
                             </div>
                             <h2 class="wf-heading" id="expressions-that-choose">Expressions that choose</h2>
                             <div class="wf-markdown">
@@ -507,7 +507,7 @@ page Job(path: &quot;/&quot;) {
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.6, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.7, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -534,7 +534,7 @@ page Job(path: &quot;/&quot;) {
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.6 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.7 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

@@ -1,3 +1,75 @@
+# WebFluent v5.7.0 Release Notes
+
+A resource asked again for what it shows keeps it on the page.
+
+## Changes
+
+- **A refresh keeps the page.** Every time a resource was asked again —
+  `on: .focus`, `on: .interval(…)`, `reload()`, `invalidate()` — it went
+  back to `loading`, so a `match` over it took the page down to its loading
+  arm and built the ready arm again: a skeleton flash, the scroll lost, the
+  focus and an open sheet gone, every row and every component in it new.
+  Asking again for the same request is now a refresh: the resource stays
+  `ready` and keeps its data while it runs, and the answer is drawn in
+  place. `loading` is for a first load — nothing has arrived yet — and for
+  a request that changed: an address or an argument that reads state now
+  names something else (another environment, another page number), where
+  what is on screen would be the wrong data.
+- **A refresh that fails keeps the data.** The resource stays `ready` and
+  sets `name.error`, which the next answer clears, so the ready arm can say
+  the data is stale (`if rows.error != null { Alert(…).warning }`). A first
+  load that fails is `error`, as it was.
+- **A `match` arm's binding is live.** `ready(d)` and `error(e)` were
+  handed their value once, when the arm was drawn. A read of the binding
+  now follows the resource: text, attributes, `if`, `if let`, a keyed `for
+  … by` and a component's props inside the arm change in place when a
+  refresh lands, and the arm is drawn again only when the arm itself
+  changes — loading, ready, error. An enum's arm follows a new payload of
+  the same case the same way (`.failed(r)` kept showing the first reason it
+  was drawn with), and `else` is one arm, whichever keys it stands for.
+- **An `if let` binding is live.** `if let u = selected { Sheet(u) }`
+  showed the value it was drawn with until `selected` went to null and
+  back; another value now reaches the branch in place.
+- **A keyed list keeps an item for as long as its key is in it.** An item
+  whose value changed under the same key — every row of a refreshed
+  response, which is all new objects — was built again, its focus and its
+  components' state with it. It now keeps its nodes, and its body reads the
+  item and the index live. A row a refresh did not change is not even
+  visited: what an answer has in common with the data shown is kept as the
+  same objects (an item matched by its `id`, or by its value, or by its
+  place), so an answer that changed nothing redraws nothing.
+
+## Additions
+
+- **`name.refreshing` and `name.pending`.** `refreshing` is true while a
+  refresh runs with the data still shown; `pending` is true while any
+  request of the resource runs, the first load included. Both are `Bool`s,
+  live wherever they are read. With `paginate:`, the next page is a
+  refresh: `loadMore()` keeps the gathered items on the page, and another
+  `loadMore()` while a page is on its way is ignored.
+
+## Fixes
+
+- **`ready(users)` over `resource users` reads the data.** An arm's binding
+  named like its resource — the guide's own example — compiled to the
+  resource's handle, so `users.length` was undefined and `for user in
+  users` drew nothing.
+- **`on:` and `cache:` on a resource over an address are policies.**
+  `fetch("/api/rows", on: .focus)` handed the runtime the word `"focus"`,
+  so such a resource never looked again — on focus, on reconnect or on an
+  interval — and its `cache:` was not read as a policy either. They are
+  read as an endpoint's are.
+
+## Upgrading
+
+Nothing to change. What a page did to live through a refresh can go: a
+sheet or a form kept outside the `match` with a snapshot of the data, a
+`derived` copy held so the arm would not draw again. A page that wants a
+spinner on every refresh shows one for `name.refreshing`. A hand-written
+`WF.match` arm is handed its value as before, and an accessor of it as a
+second argument; `WF.each` keeps a keyed item's nodes under a new value
+with `live: true`, which is what a compiled `for … by` asks for.
+
 # WebFluent v5.6.2 Release Notes
 
 What a branch inside a branch drew goes when the outer one does.
