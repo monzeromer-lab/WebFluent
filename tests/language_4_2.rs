@@ -309,6 +309,54 @@ fn a_scripts_names_are_in_scope_and_a_class_is_constructed() {
 }
 
 #[test]
+fn a_scripts_values_are_read_as_themselves_not_as_signals() {
+    let (said, dir) = build(
+        "values",
+        r#"{ "name": "s", "build": { "split": false, "minify": false } }"#,
+        &[
+            (
+                "src/App.wf",
+                &format!(
+                    "{}component Own {{\n    state LABEL = \"mine\"\n    Text(LABEL)\n}}\n",
+                    page_using(
+                        "    derived shown = \"v{VERSION}\"\n    Text(VERSION)\n    Text(\"v {VERSION}\")\n    Text(shown)\n    if READY { Text(\"ready\") }\n    if !READY { Text(\"not yet\") }\n    show READY { Text(\"shown\") }\n    if FLAG { Text(LABEL) }\n    Button(\"Go\", disabled: !READY) { on click { log(VERSION) } }\n    Own",
+                    )
+                ),
+            ),
+            (
+                "src/v.js",
+                "const VERSION = \"1\";\nconst READY = true;\nvar LABEL = \"x\";\nwindow.FLAG = true;\n",
+            ),
+        ],
+    );
+    assert!(
+        said.contains("Build complete") && !said.contains("T13"),
+        "{said}"
+    );
+    let js = std::fs::read_to_string(dir.join("build/app.js")).unwrap();
+    for read in [
+        "WF.el(\"p\", { className: \"wf-text\" }, VERSION)",
+        "`v ${VERSION}`",
+        "WF.computed(() => `v${VERSION}`)",
+        "() => READY,",
+        "() => !READY,",
+        "() => FLAG,",
+        "disabled: !READY",
+        "console.log(VERSION)",
+    ] {
+        assert!(js.contains(read), "a script's value is its global: {read}");
+    }
+    for signal in ["_VERSION(", "_READY(", "_FLAG("] {
+        assert!(!js.contains(signal), "nothing declares {signal}");
+    }
+    assert!(
+        js.contains("_LABEL()"),
+        "a state the body declares wins over the script's name"
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
 fn a_call_is_held_to_the_scripts_parameters_and_its_doc_comment() {
     let (said, dir) = build(
         "calls",

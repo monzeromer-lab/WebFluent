@@ -195,6 +195,9 @@ pub struct JsCodegen {
     /// The classes the project's scripts declare: a call to one is a
     /// construction, `new C(…)`, since the language has no `new`.
     script_classes: std::collections::HashSet<String>,
+    /// Every name the project's scripts declare at their top level —
+    /// function, class or value: the script's own global, read as itself.
+    script_names: std::collections::HashSet<String>,
     /// Each user component's declared prop names.
     component_props: HashMap<String, Vec<String>>,
     /// The names of what each component's scoped slots hand over, by
@@ -268,6 +271,7 @@ impl JsCodegen {
             component_positional: HashMap::new(),
             component_events: HashMap::new(),
             script_classes: std::collections::HashSet::new(),
+            script_names: std::collections::HashSet::new(),
             component_props: HashMap::new(),
             component_slot_params: HashMap::new(),
             page_params: Vec::new(),
@@ -596,6 +600,7 @@ impl JsCodegen {
                         if matches!(n.kind, crate::project_js::scan::NameKind::Class { .. }) {
                             self.script_classes.insert(n.name.clone());
                         }
+                        self.script_names.insert(n.name.clone());
                     }
                 }
                 Declaration::Component(c) => {
@@ -5921,6 +5926,11 @@ impl JsCodegen {
                 if self.own_actions.contains(name) && !self.lambda_params.borrow().contains(name) {
                     return name.to_string();
                 }
+                // A name a project script declares — `const VERSION = "1"`,
+                // `window.ready = …`, a function handed on as a value — is
+                // the script's global, unless the body declares it too. It
+                // was read as a signal, `_VERSION()`, which nothing
+                // declares, so the page threw as it drew.
                 if self.stores.contains(name)
                     || self.consts.contains(name)
                     || self.refs.contains(name)
@@ -5928,6 +5938,7 @@ impl JsCodegen {
                     || self.loop_bindings.contains(name)
                     || self.lambda_params.borrow().contains(name)
                     || (IMPLICIT.contains(&name.as_str()) && !self.own_names.contains(name))
+                    || (self.script_names.contains(name) && !self.own_names.contains(name))
                     || name.starts_with("_")
                 {
                     name.to_string()
