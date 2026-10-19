@@ -18,9 +18,9 @@ suite, so what you read is what the compiler accepts.
 - **New to WebFluent:** [Introduction](01-introduction.md), then
   [Getting started](02-getting-started.md) and the [tutorial](03-tutorial.md).
 - **Coming from a framework:** [Coming from React, Vue or Svelte](04-coming-from.md).
-- **Looking something up:** the Reference part — [components](36-components-reference.md),
-  [CLI](37-cli.md), [configuration](38-configuration.md), [diagnostics](39-diagnostics.md).
-- **Something is wrong:** [Troubleshooting](44-troubleshooting.md).
+- **Looking something up:** the Reference part — [components](37-components-reference.md),
+  [CLI](38-cli.md), [configuration](39-configuration.md), [diagnostics](40-diagnostics.md).
+- **Something is wrong:** [Troubleshooting](45-troubleshooting.md).
 
 ## Contents
 
@@ -63,22 +63,23 @@ suite, so what you read is what the compiler accepts.
 | 30 | [Environments](30-environments.md) | Values fixed per build — an API address, a feature switch, a public key — from the config, a .env file or the shell, and which of them a page may read. |
 | 31 | [Performance](31-performance.md) | What a build already does to be fast, how to see what it weighs, budgets that warn, and the few things that make a site slow. |
 | 32 | [JavaScript interop](32-javascript-interop.md) | Write plain JavaScript beside your pages and call it by name; load a library from a CDN; hand an element to a script and get it back; place custom elements; publish your components for any framework. |
-| 33 | [PDF and slides](33-pdf-and-slides.md) | The same language, compiled to a paginated PDF document or a slide deck — invoices, reports and talks, laid out like the web. |
-| 34 | [Server rendering](34-server-rendering.md) | Render a .wf template with JSON on a server — an email, an invoice, a report, an HTML fragment — from the CLI, Rust or Node. |
-| 35 | [Tutorials](35-tutorials.md) | Three projects built step by step — a todo app, a statically built notes site, a budget tracker — none needing a server. |
+| 33 | [Desktop apps](33-desktop-apps.md) | The build is a folder a desktop shell can show. Here is how to make a Tauri or an Electron app of a project, call the native side from a page, and ship it. |
+| 34 | [PDF and slides](34-pdf-and-slides.md) | The same language, compiled to a paginated PDF document or a slide deck — invoices, reports and talks, laid out like the web. |
+| 35 | [Server rendering](35-server-rendering.md) | Render a .wf template with JSON on a server — an email, an invoice, a report, an HTML fragment — from the CLI, Rust or Node. |
+| 36 | [Tutorials](36-tutorials.md) | Three projects built step by step — a todo app, a statically built notes site, a budget tracker — none needing a server. |
 | | **Reference** | |
-| 36 | [Components reference](36-components-reference.md) | Every built-in with its props, cases, flags, events, slots and parts — generated from the compiler's own registry. |
-| 37 | [Command line and editors](37-cli.md) | Every wf command and flag, the dev server, and the language server in each editor. |
-| 38 | [Configuration](38-configuration.md) | Every key of webfluent.app.json, its default, and what it changes. |
-| 39 | [Diagnostics](39-diagnostics.md) | Every error and warning the compiler reports — what it means, a program that draws it, the message, and the fix. |
-| 40 | [Built-ins](40-built-ins.md) | Every function, browser value, method and global the language gives a program, in one place. |
-| 41 | [Design tokens](41-design-tokens.md) | Every token of the baseline theme, with its value: the colours, type, spacing, radii, shadows, motion and breakpoints every built-in is drawn with. |
-| 42 | [Runtime API](42-runtime-api.md) | window.WF — the runtime every compiled page calls, usable from a script of your own, the console or a library's callback. |
-| 43 | [Grammar](43-grammar.md) | Every keyword and where it may appear, the shapes of declarations, statements and expressions, operators and precedence, and the literals. |
+| 37 | [Components reference](37-components-reference.md) | Every built-in with its props, cases, flags, events, slots and parts — generated from the compiler's own registry. |
+| 38 | [Command line and editors](38-cli.md) | Every wf command and flag, the dev server, and the language server in each editor. |
+| 39 | [Configuration](39-configuration.md) | Every key of webfluent.app.json, its default, and what it changes. |
+| 40 | [Diagnostics](40-diagnostics.md) | Every error and warning the compiler reports — what it means, a program that draws it, the message, and the fix. |
+| 41 | [Built-ins](41-built-ins.md) | Every function, browser value, method and global the language gives a program, in one place. |
+| 42 | [Design tokens](42-design-tokens.md) | Every token of the baseline theme, with its value: the colours, type, spacing, radii, shadows, motion and breakpoints every built-in is drawn with. |
+| 43 | [Runtime API](43-runtime-api.md) | window.WF — the runtime every compiled page calls, usable from a script of your own, the console or a library's callback. |
+| 44 | [Grammar](44-grammar.md) | Every keyword and where it may appear, the shapes of declarations, statements and expressions, operators and precedence, and the literals. |
 | | **Help** | |
-| 44 | [Troubleshooting](44-troubleshooting.md) | The problems people meet, what causes each, and the fix — from installing to deploying, plus the questions that come up most. |
-| 45 | [Upgrading](45-upgrading.md) | What changed in each release, what to do when you upgrade, and how wf migrate carries an older project forward. |
-| 46 | [Browser support](46-browser-support.md) | Which browsers a WebFluent site targets, and what each newer platform feature falls back to where it is missing. |
-| 47 | [Glossary](47-glossary.md) | The words this guide uses, each in a sentence, with where to read more. |
-| 48 | [Contributing](48-contributing.md) | How the compiler is put together, how to build and test it, and how to change the language, a built-in or this guide. |
+| 45 | [Troubleshooting](45-troubleshooting.md) | The problems people meet, what causes each, and the fix — from installing to deploying, plus the questions that come up most. |
+| 46 | [Upgrading](46-upgrading.md) | What changed in each release, what to do when you upgrade, and how wf migrate carries an older project forward. |
+| 47 | [Browser support](47-browser-support.md) | Which browsers a WebFluent site targets, and what each newer platform feature falls back to where it is missing. |
+| 48 | [Glossary](48-glossary.md) | The words this guide uses, each in a sentence, with where to read more. |
+| 49 | [Contributing](49-contributing.md) | How the compiler is put together, how to build and test it, and how to change the language, a built-in or this guide. |
 <!-- /contents -->

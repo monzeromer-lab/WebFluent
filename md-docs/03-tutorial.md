@@ -44,7 +44,7 @@ write every file yourself. Replace `webfluent.app.json` with:
 
 `ssg` pre-renders; `csp` ships a Content-Security-Policy and makes the build
 check its own output against it; `theme` names the themes you will declare in
-step 7. [Configuration](38-configuration.md) lists every key.
+step 7. [Configuration](39-configuration.md) lists every key.
 
 ## Step 2: the data
 

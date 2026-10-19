@@ -6,7 +6,7 @@ page ProjectStructureGuide(path: "/docs/guide/project-structure", title: "Projec
 
         CodeBlock(#"my-site/
 ├── AGENTS.md               the language reference, for a coding agent (`wf init` writes it)
-├── webfluent.app.json      the config (chapter 38)
+├── webfluent.app.json      the config (chapter 39)
 ├── .env                    build-time values, not committed (chapter 30)
 ├── src/
 │   ├── App.wf              the app shell and the Router

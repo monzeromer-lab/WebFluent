@@ -94,7 +94,7 @@ cargo install --path crates/wf-lsp
   downloaded from the latest release). Install it with
   *zed: install dev extension* pointed at that folder.
 - **Neovim, Helix, Emacs, anything else with LSP** — run `wf-lsp` over stdio
-  for the `webfluent` file type (`*.wf`, `*.wfx`). [Editors](37-cli.md#editors)
+  for the `webfluent` file type (`*.wf`, `*.wfx`). [Editors](38-cli.md#editors)
   has configuration for each.
 
 ## A first project
@@ -179,7 +179,7 @@ Read it top to bottom:
   positional argument, `.primary` is a flag (a case of the button's `tone`
   prop), and the block holds the click handler.
 - `Container`, `Heading`, `Text`, `Paragraph`, `Navbar` and `Link` are
-  built-ins; the [components reference](36-components-reference.md) lists
+  built-ins; the [components reference](37-components-reference.md) lists
   all of them.
 
 Save, and the dev server shows the change. Run `wf build` to write the
@@ -233,7 +233,7 @@ Every `.wf` or `.wfx` file under `src/` is read and merged into one program:
 a page in one file uses a component from another without importing it. The
 folders are convention, not rules. [Project structure](25-project-structure.md)
 covers naming, organisation and the config; the
-[configuration reference](38-configuration.md) lists every key.
+[configuration reference](39-configuration.md) lists every key.
 
 The config needs only a name:
 

@@ -89,7 +89,7 @@ each one:
 | `shared:` | A name the element keeps across a route change | [20](20-motion.md#the-same-element-across-a-route-change) |
 | `count:` | A number in its text counts to its new value | [20](20-motion.md#a-number-that-counts) |
 
-The [components reference](36-components-reference.md) lists every element's
+The [components reference](37-components-reference.md) lists every element's
 own props.
 
 ## Attributes
@@ -194,7 +194,7 @@ reader and a search engine can follow.
 | Actions | `Button`, `IconButton`, `ButtonGroup`, `Dropdown` |
 | Media | `Image`, `Video`, `Audio`, `Icon`, `Carousel` ([Media](28-media.md)) |
 | Typography | `Text`, `Heading`, `Paragraph`, `Code`, `Blockquote`, `Markdown`, `Unsafe.Html` |
-| Documents and decks | `Document`, `PageBreak`, `Presentation`, `Slide`, `TitleSlide`, `SectionSlide`, `TwoColumn`, `ImageSlide` ([PDF and slides](33-pdf-and-slides.md)) |
+| Documents and decks | `Document`, `PageBreak`, `Presentation`, `Slide`, `TitleSlide`, `SectionSlide`, `TwoColumn`, `ImageSlide` ([PDF and slides](34-pdf-and-slides.md)) |
 | Routing | `Router` ([Pages](06-pages-and-routing.md#the-app-shell)) |
 
 ## What an element renders
@@ -217,7 +217,7 @@ reference names each element's class.
 - Handlers name a DOM event or one of the component's declared events.
 - Slot fills name a declared slot.
 - An `Icon("name")` or `icon:` names one of the icons the runtime draws
-  ([the list](36-components-reference.md#icons)); any other name shows as
+  ([the list](37-components-reference.md#icons)); any other name shows as
   the word.
 - Accessibility: an `Image` has `alt:`, an `IconButton` has `label:`, a control
   has a label, a `Modal` a title, a `Table` a `Table.Head` (`A01`–`A10`).

@@ -1,0 +1,67 @@
+// md-docs/33-desktop-apps.md
+page Hello(path: "/", title: "Hello", description: "Says hello from Rust.") {
+    state name = ""
+    state reply = ""
+
+    action ask() {
+        try {
+            reply = await greet(name)
+        } catch e {
+            reply = e.message
+        }
+    }
+
+    Heading("Hello").h1
+    if !inApp() {
+        Alert("Open this in the app to talk to Rust.").info
+    }
+    Input(bind: name, label: "Your name")
+    Button("Greet").primary { on click { ask() } }
+    Text(reply)
+}
+
+// md-docs/33-desktop-apps.md
+page Sync(path: "/sync", title: "Sync", description: "How far the sync has got.") {
+    state done = 0
+    state problem = ""
+
+    action setDone(n: Number) { done = n }
+    action start() {
+        try {
+            await startSync()
+        } catch e {
+            problem = e.message
+        }
+    }
+
+    Stack(gap: .md,
+          mount: (n) => onEvent("sync-progress", setDone),
+          cleanup: (stop) => stop()) {
+        Heading("Sync").h1
+        Progress(value: done, max: 100)
+        Text("{done}%")
+        Button("Sync now") { on click { start() } }
+        Text(problem)
+    }
+}
+
+// md-docs/33-desktop-apps.md
+page Library(path: "/library", title: "Library", description: "Where the notes are kept.") {
+    state folder = ""
+
+    action choose() {
+        let picked = await pickFolder()
+        if picked != null {
+            folder = picked
+        }
+    }
+
+    Heading("Library").h1
+    Button("Choose a folder") { on click { choose() } }
+    if folder != "" {
+        Text("Notes are kept in {folder}.")
+    } else {
+        Text("No folder yet.").muted
+    }
+}
+

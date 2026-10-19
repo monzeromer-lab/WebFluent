@@ -7,7 +7,7 @@ HTML, and the one thing a reader can change (the notes they save for later)
 is kept in their own browser.
 
 It is the finished project of the second tutorial in the guide's
-[Tutorials chapter](../../../md-docs/35-tutorials.md#medium-field-notes),
+[Tutorials chapter](../../../md-docs/36-tutorials.md#medium-field-notes),
 which builds it step by step.
 
 ## What it teaches

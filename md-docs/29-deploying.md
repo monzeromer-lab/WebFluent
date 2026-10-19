@@ -12,6 +12,9 @@ description: Deploying a build to GitHub Pages, Netlify, Vercel, Cloudflare Page
 the whole site. Any host that serves static files can serve it; there is no
 server process to run.
 
+The same folder is also what a desktop shell shows: [Desktop apps](33-desktop-apps.md)
+makes a Tauri or an Electron app of it.
+
 Before the first deploy:
 
 1. Set `meta.site_url` to the address the site will have, and

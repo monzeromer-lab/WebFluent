@@ -123,7 +123,7 @@ is `Unsafe.Html(…)`, which the build flags every time. Inline handlers and
 - **Server components / SSR per request.** Not here: a WebFluent site is
   static files plus a browser runtime, served by any host, talking to your
   API. For HTML generated on a server — emails, invoices, fragments — see
-  [Server rendering](34-server-rendering.md).
+  [Server rendering](35-server-rendering.md).
 - **Using WebFluent inside an existing React or Vue app.** Publish components
   as custom elements and place the tags:
   [Custom elements](32-javascript-interop.md#publishing-your-components-as-custom-elements).

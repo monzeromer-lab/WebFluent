@@ -111,7 +111,7 @@ takes a name first (`derived ratio = 0.256`, then `{ratio:.percent(1)}`).
 `==` compares values; two records with the same fields are not `==` unless
 they are the same object, so compare ids. Precedence, strongest first: `!`
 and unary `-`, then `* / %`, `+ -`, comparisons, equality, `&&`, `||`, `??`,
-and ranges last ([Grammar](43-grammar.md#expressions)).
+and ranges last ([Grammar](44-grammar.md#expressions)).
 
 ```wf
 page Ops(path: "/") {
@@ -341,7 +341,7 @@ The browser's own globals need no prefix and compile to themselves:
 `Infinity`, `NaN`, `undefined`, `encodeURIComponent`, `decodeURIComponent`,
 `encodeURI`, `decodeURI`, `atob`, `btoa`, `fetch`, `alert`, `confirm`,
 `prompt`, `requestAnimationFrame`, `cancelAnimationFrame`, `navigator`,
-`location` and the other platform names [Built-ins](40-built-ins.md#browser-globals)
+`location` and the other platform names [Built-ins](41-built-ins.md#browser-globals)
 lists.
 
 ## Next

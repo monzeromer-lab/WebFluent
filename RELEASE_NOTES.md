@@ -666,7 +666,7 @@ browser, says so with one kind of finding everywhere — the build, `wf
 check`, the editor, a CI annotation — and offers the fix where it knows
 it. This is a major release because a project that built under 4.x may
 stop on errors it always had: start with `wf check`, and read
-[Upgrading](md-docs/45-upgrading.md#5-0).
+[Upgrading](md-docs/46-upgrading.md#5-0).
 
 ## One finding, everywhere
 
@@ -700,7 +700,7 @@ run), what cannot change (`X01`), components (`C01`–`C06`), routes (`R01`–
 storage (`D01`–`D05`), translations (`I01`–`I04`), dates, money and key
 combinations, styles (`V05`–`V07`), dead code (`U06`–`U10`), and a page's
 `head` script from an origin the policy does not name (`E902`). Every code
-is in the [Diagnostics](md-docs/39-diagnostics.md) chapter with a program
+is in the [Diagnostics](md-docs/40-diagnostics.md) chapter with a program
 that draws it and the output the compiler prints for it.
 
 ## What the compiler writes for you

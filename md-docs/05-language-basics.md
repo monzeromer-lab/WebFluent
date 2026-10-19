@@ -49,7 +49,7 @@ functions are in scope by name ([32](32-javascript-interop.md)).
 
 Inside a body there are more statements — `state`, `derived`, `effect`,
 `action`, `persist`, `resource`, `validate`, `socket`, `if`, `for`, `match` and
-the rest. [Grammar](43-grammar.md) lists every keyword and where it may appear.
+the rest. [Grammar](44-grammar.md) lists every keyword and where it may appear.
 
 All the files under `src/` merge into one program, so a component declared in
 `components/Chip.wf` is usable from every page. `App.wf` is read first; the

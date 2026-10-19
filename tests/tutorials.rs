@@ -112,7 +112,7 @@ fn file_blocks(markdown: &str) -> Vec<(usize, String, String)> {
 
 #[test]
 fn the_chapter_shows_the_projects_as_they_are() {
-    let chapter = std::fs::read_to_string(root().join("md-docs/35-tutorials.md")).unwrap();
+    let chapter = std::fs::read_to_string(root().join("md-docs/36-tutorials.md")).unwrap();
     let blocks = file_blocks(&chapter);
     assert!(
         blocks.len() >= 12,
@@ -125,7 +125,7 @@ fn the_chapter_shows_the_projects_as_they_are() {
             .iter()
             .any(|p| std::fs::read_to_string(p.join(&path)).is_ok_and(|file| file.contains(&body)));
         if !found {
-            stale.push(format!("35-tutorials.md:{line} — {path}"));
+            stale.push(format!("36-tutorials.md:{line} — {path}"));
         }
     }
     assert!(

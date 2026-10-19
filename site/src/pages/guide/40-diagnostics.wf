@@ -1,0 +1,2032 @@
+/// Chapter 40 of the guide, written from md-docs/40-diagnostics.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page DiagnosticsGuide(path: "/docs/guide/diagnostics", title: "Diagnostics", description: "Every WebFluent error and warning — structural errors and codes T, A, S, P, U and V — each with a program that draws it and the fix.", layout: DocsShell("Diagnostics", chapter: t("guide.chapter", { n: "40" }), blurb: "Every error and warning the compiler reports — what it means, a program that draws it, the message, and the fix.", source: "md-docs/40-diagnostics.md", sections: [Anchor(id: "syntax-and-structure", label: "Syntax and structure"), Anchor(id: "components", label: "Components"), Anchor(id: "state-and-reactivity", label: "State and reactivity"), Anchor(id: "forms-and-bindings", label: "Forms and bindings"), Anchor(id: "routes", label: "Routes"), Anchor(id: "data-and-assets", label: "Data and assets"), Anchor(id: "types", label: "Types"), Anchor(id: "translations", label: "Translations"), Anchor(id: "accessibility", label: "Accessibility"), Anchor(id: "search-and-sharing", label: "Search and sharing"), Anchor(id: "what-is-kept-in-the-browser", label: "What is kept in the browser"), Anchor(id: "declared-and-never-read", label: "Declared and never read"), Anchor(id: "vocabulary", label: "Vocabulary")], prevTo: "/docs/guide/config", prevLabel: "39. {t("ch.39")}", nextTo: "/docs/guide/built-ins", nextLabel: "41. {t("ch.41")}")) {
+    Stack(gap: .lg) {
+        Markdown("`wf build`, `wf check`, `wf serve` and your editor report the same findings, from one pipeline. Each starts with its code and what is wrong, then the place in the `file:line:col` form editors and CI read, the line of source with the part that is wrong underlined, what to do about it, and a link to its entry here:")
+
+        CodeBlock(#"error[T05]: `User` has no field `nmae`
+ --> src/pages/Profile.wf:3:18
+  |
+3 |     Heading(user.nmae).h1
+  |                  ^^^^
+  = help: Its fields are `id`, `name`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t05-a-field-or-method-that-does-not-exist"#, title: "text")
+
+        Markdown("- **Errors** stop the build: the program cannot mean what it says.\n- **Warnings** print and the build goes on: it means something, probably not what you wanted. Nothing is a warning that the compiler could have decided for itself.\n\nEvery stage runs whatever the one before it found, and every file is read even when another does not parse, so one build shows every mistake once — then one line sums them up: `error: the build stopped: 2 errors, 5 warnings`. A build that stops on its findings exits with `1`; one that could not run at all — a file it could not read, a config it could not load — with `2`.\n\n`wf check --format json`, `sarif` or `github` writes the same findings for a tool ([Command line](/docs/guide/cli#wf-check)), and `wf explain T05` prints a code's entry below in the terminal.\n\n**Fixes.** Where the compiler knows the fix, it says so as edits, which your editor offers as a quick fix and `--format json` carries: the nearest name for a misspelled field, member, method, variable, component or flag (`T05`, `T06`, `T16`, `T13`, `E101`, `E103`), `?.` for a read of a value that may be null (`T04`), the missing props with a value of their type (`C01`), the missing arms of a `match` (`T15`), a bare word written as the flag it means (`V01`), `alt: \"\"` for an image (`A01`), `derived` for a state that copies a live value nothing changes (`X06`), and an `_` before a name nothing reads (`U01`–`U05`).\n\n**Allowing one finding.** A `// wf-allow(CODE)` comment accepts a finding on purpose: on a line of its own it covers the next line of code, at the end of a line that line. It names codes or families, comma-separated — `// wf-allow(U01, A)`. Only what [`lints`](/docs/guide/config#lints) could lower may be allowed, and an allow that covers nothing is itself reported (`U07`), so allows do not outlive what they were for. `lints` says the same for a whole project.\n\nThe code — `T05` — is the thing to search this page for. The families:")
+
+        Table(caption: "Diagnostics") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("").header
+                    Table.Cell("").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`E`") }
+                    Table.Cell("syntax and structure: what cannot be read, or refers to nothing")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T`") }
+                    Table.Cell("types")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`C`") }
+                    Table.Cell("components and their props")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`R`") }
+                    Table.Cell("routes and navigation")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`X`") }
+                    Table.Cell("state and reactivity")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`I`") }
+                    Table.Cell("translations")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`F`") }
+                    Table.Cell("forms and bindings")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`D`") }
+                    Table.Cell("data, assets and what is kept in the browser")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`A`") }
+                    Table.Cell("accessibility")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`S`") }
+                    Table.Cell("search and sharing")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`P`") }
+                    Table.Cell("persisted values")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`U`") }
+                    Table.Cell("declared and never used")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`V`") }
+                    Table.Cell("vocabulary")
+                }
+            }
+        }
+
+        Markdown("Every example below is compiled by the test suite, draws exactly the code it is filed under, and shows what the compiler prints for it.")
+
+        Heading("Syntax and structure", id: "syntax-and-structure").h2
+
+        Markdown("Errors, except where an entry says otherwise.")
+
+        Heading("E001 — Text the compiler cannot read", id: "e001-text-the-compiler-cannot-read").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Hello).h1
+}"#, title: "wf · draws E001")
+
+        CodeBlock(#"error[E001]: Unterminated string literal
+ --> src/App.wf:2:13
+  |
+2 |     Heading("Hello).h1
+  |             ^
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e001-text-the-compiler-cannot-read"#, title: "text")
+
+        Markdown("**Fix:** Close the string, comment or splice the message names. A character that begins nothing (`|` alone, a stray `@`) is usually a typo for the one beside it on the keyboard.")
+
+        Heading("E002 — A syntax error", id: "e002-a-syntax-error").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Hello").h1
+    Text("a" Text("b")
+}"#, title: "wf · draws E002")
+
+        CodeBlock(#"error[E002]: Expected `,` between arguments, got `Text`
+ --> src/App.wf:3:14
+  |
+3 |     Text("a" Text("b")
+  |              ^^^^
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e002-a-syntax-error"#, title: "text")
+
+        Markdown("**Fix:** The message names what was expected and what was found, at the place the parser stopped. One file can report several: after an error the parser picks up again at the next declaration.")
+
+        Heading("E003 — Indentation that lines up with no block", id: "e003-indentation-that-lines-up-with-no-block").h3
+
+        Markdown("In a `.wfx` file, a line that comes back out to an indentation no enclosing block has:")
+
+        CodeBlock(#"page Home(path: "/")
+    Row
+        Text("a")
+      Text("b")"#, title: "text")
+
+        Markdown("**Fix:** Line the line up with the block it belongs to.")
+
+        Heading("E004 — A file in the WebFluent 2 grammar", id: "e004-a-file-in-the-webfluent-2-grammar").h3
+
+        CodeBlock(#"Page Home (path: "/") {
+    Text("Hi")
+}"#, title: "wf · draws E004")
+
+        CodeBlock(#"error[E004]: `Page` is a WebFluent 2 declaration; this is WebFluent 3
+ --> src/App.wf:1:1
+  |
+1 | Page Home (path: "/") {
+  | ^^^^
+  = help: Run `wf migrate` to convert the project to the current grammar
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e004-a-file-in-the-webfluent-2-grammar"#, title: "text")
+
+        Markdown("**Fix:** Run `wf migrate` once; it rewrites the project in place.")
+
+        Heading("E005 — A file the formatter will not change", id: "e005-a-file-the-formatter-will-not-change").h3
+
+        Markdown("`wf fmt` checks that its result has the same tokens as the file. When it would not — something only the formatter's reading of the file would change — the file is left as it is and named. **Fix:** format the lines it names by hand; please report the file, since it is a bug in `wf fmt`.")
+
+        Heading("E101 — A component nothing declares", id: "e101-a-component-nothing-declares").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Save").h1
+    Buton("Save")
+}"#, title: "wf · draws E101")
+
+        CodeBlock(#"error[E101]: unknown component `Buton`: no `component Buton` is declared
+ --> src/App.wf:3:5
+  |
+3 |     Buton("Save")
+  |     ^^^^^
+  = help: did you mean `Button`? Or declare `component Buton { … }`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e101-a-component-nothing-declares"#, title: "text")
+
+        Markdown("**Fix:** Check the spelling, or declare it with `component Buton \{ … \}`.")
+
+        Heading("E102 — A name declared twice", id: "e102-a-name-declared-twice").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state count = 0
+    derived count = 1
+    Heading("Count {count}").h1
+}"#, title: "wf · draws E102")
+
+        CodeBlock(#"error[E102]: `count` is declared twice: as a state at line 2, and as a `derived` here
+ --> src/App.wf:3:5
+  |
+3 |     derived count = 1
+  |     ^^^^^^^
+  = help: A name means one thing — rename one of the two `count`s
+  = note: `count` is first declared here at src/App.wf:2:5
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e102-a-name-declared-twice"#, title: "text")
+
+        Markdown("**Fix:** Rename one of the two. The finding points at the second and names where the first is.")
+
+        Heading("E103 — A flag, case, part, event or slot the component does not have", id: "e103-a-flag-case-part-event-or-slot-the-component-does-not-have").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Save").h1
+    Button("Save").huge
+}"#, title: "wf · draws E103")
+
+        CodeBlock(#"error[E103]: Button has no flag or enum case `huge`
+ --> src/App.wf:3:19
+  |
+3 |     Button("Save").huge
+  |                   ^^^^^
+  = help: Its flags are .bounce, .button, .collapse, .danger, .disabled, .expand, .fadeIn, .fadeOut, .fast, .full, .info, .lg, .md, .normal, .outlined, .pill, .primary, .pulse, .reset, .rounded, .scaleIn, .scaleOut, .secondary, .shake, .slideDown, .slideLeft, .slideRight, .slideUp, .slow, .sm, .spin, .submit, .success, .warning
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e103-a-flag-case-part-event-or-slot-the-component-does-not-have"#, title: "text")
+
+        Markdown("**Fix:** Use one the message lists — it names every flag, case, event or slot the component takes.")
+
+        Heading("E104 — A layout with nowhere to put the page", id: "e104-a-layout-with-nowhere-to-put-the-page").h3
+
+        CodeBlock(#"component Shell { Text("frame") }
+page P(path: "/", title: "T", description: "D", layout: Shell) {
+    Heading("Home").h1
+}"#, title: "wf · draws E104")
+
+        CodeBlock(#"error[E104]: `Shell` declares no default slot, so the page has nowhere to go
+ --> src/App.wf:2:57
+  |
+2 | page P(path: "/", title: "T", description: "D", layout: Shell) {
+  |                                                         ^^^^^
+  = help: Add `slot` to the component and place `children` where the page belongs
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e104-a-layout-with-nowhere-to-put-the-page"#, title: "text")
+
+        Markdown("**Fix:** Add `slot` to the component and place `children` where the page belongs.")
+
+        Heading("E105 — A statement a render block cannot hold", id: "e105-a-statement-a-render-block-cannot-hold").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state n = 0
+    Heading("Count").h1
+    n = n + 1
+}"#, title: "wf · draws E105")
+
+        CodeBlock(#"error[E105]: `n` is not an element or a statement a render block can hold
+ --> src/App.wf:4:5
+  |
+4 |     n = n + 1
+  |     ^
+  = help: Code that does something goes in `on click { … }`, an `action` or an `effect`; an element's name is capitalised
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e105-a-statement-a-render-block-cannot-hold"#, title: "text")
+
+        Markdown("**Fix:** Put it in `on click \{ \}`, an `action` or an `effect`.")
+
+        Heading("E106 — Script in an attribute", id: "e106-script-in-an-attribute").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Save").h1
+    Button("Save", onclick: "save()")
+}"#, title: "wf · draws E106")
+
+        CodeBlock(#"error[E106]: `onclick` on Button would put script in an attribute
+ --> src/App.wf:3:20
+  |
+3 |     Button("Save", onclick: "save()")
+  |                    ^^^^^^^
+  = help: Write the handler instead: `Button(…) { on click { … } }`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e106-script-in-an-attribute"#, title: "text")
+
+        Markdown("**Fix:** `Button(\"Save\") \{ on click \{ save() \} \}`.")
+
+        Heading("E107 — A URL a browser would run", id: "e107-a-url-a-browser-would-run").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Go").h1
+    Link("Go", to: "javascript:alert(1)")
+}"#, title: "wf · draws E107")
+
+        CodeBlock(#"error[E107]: `to` on Link names the `javascript` scheme, which a browser runs
+ --> src/App.wf:3:16
+  |
+3 |     Link("Go", to: "javascript:alert(1)")
+  |                ^^
+  = help: A URL here may be relative, or name http, https, mailto, tel, sms or ftp
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e107-a-url-a-browser-would-run"#, title: "text")
+
+        Markdown("**Fix:** A relative URL, or `http`, `https`, `mailto`, `tel`, `sms`, `ftp`.")
+
+        Heading("E108 — An env name that is not public", id: "e108-an-env-name-that-is-not-public").h3
+
+        Markdown("`env.STRIPE_SECRET` read in a page: `env.STRIPE_SECRET is not public, and a page reads what is in the bundle`. **Fix:** rename it `PUBLIC_…` or list it in `public_env` — only if anyone may read it ([chapter 30](/docs/guide/environments)).")
+
+        Heading("E109 — An element this output cannot draw", id: "e109-an-element-this-output-cannot-draw").h3
+
+        Markdown("A `Button`, an `Input`, a handler or a `Router` in a project whose `output_type` is `pdf` or `slides`. **Fix:** draw it as text, or build the page as a site.")
+
+        Heading("E110 — A project script that cannot be a plain script", id: "e110-a-project-script-that-cannot-be-a-plain-script").h3
+
+        Markdown("A `.js` file under `src/` with an `import` or `export`, one a file in `public/` at the same address would replace, or one declaring a name the program, the language or the browser already has. **Fix:** take off the `import`/`export` (a top-level `function` is global as it is), keep one of the two files, or rename the clashing name.")
+
+        Heading("E111 — A setting that cannot work", id: "e111-a-setting-that-cannot-work").h3
+
+        Markdown("A `meta.scripts` module with no `as`, a `build.elements` naming a component that does not exist, an `offline.fallback` no page has, an `openapi.json` that is not there. **Fix:** what the message says; it names the setting.")
+
+        Heading("E112 — A setting nothing reads", id: "e112-a-setting-nothing-reads").h3
+
+        Markdown("Warning. A key in `webfluent.app.json` that is not a setting, with the nearest one that is: `` `build.minfy` is not a setting, and nothing reads it — did you mean `minify`? `` **Fix:** correct the key.")
+
+        Heading("E113 — An argument that cannot be positional", id: "e113-an-argument-that-cannot-be-positional").h3
+
+        CodeBlock(#"component Card(_ name: String, price: Number = 0) { Text(name) }
+page P(path: "/", title: "T", description: "D") {
+    Heading("Shop").h1
+    Card("Laptop", 999)
+}"#, title: "wf · draws E113")
+
+        CodeBlock(#"error[E113]: Only the first argument may be positional
+ --> src/App.wf:4:20
+  |
+4 |     Card("Laptop", 999)
+  |                    ^^^
+  = help: Name the others: `Button("Save", tone: .primary)`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e113-an-argument-that-cannot-be-positional"#, title: "text")
+
+        Markdown("**Fix:** Name the others: `Card(\"Laptop\", price: 999)`.")
+
+        Heading("E114 — emit outside a component", id: "e114-emit-outside-a-component").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Save").h1
+    Button("Save") { on click { emit saved() } }
+}"#, title: "wf · draws E114")
+
+        CodeBlock(#"error[E114]: `emit` fires a component's event; a page has none
+ --> src/App.wf:3:33
+  |
+3 |     Button("Save") { on click { emit saved() } }
+  |                                 ^^^^
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e114-emit-outside-a-component"#, title: "text")
+
+        Markdown("**Fix:** Fire the event from the component that declares it; a page calls an action instead.")
+
+        Heading("E115 — A project script the compiler could not read", id: "e115-a-project-script-the-compiler-could-not-read").h3
+
+        Markdown("Warning. A `.js` file under `src/` the compiler's scanner could not read — a string that never closes, say. The file is still linked, but its names are not in scope for the program. **Fix:** what the message says, at the line it names.")
+
+        Heading("E116 — A tag that cannot be a custom element's", id: "e116-a-tag-that-cannot-be-a-custom-element-s").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Pricing").h1
+    Element("pricingtable")
+}"#, title: "wf · draws E116")
+
+        CodeBlock(#"error[E116]: `pricingtable` is not a custom element's tag
+ --> src/App.wf:3:5
+  |
+3 |     Element("pricingtable")
+  |     ^^^^^^^
+  = help: A custom element's tag is lower case with a hyphen: `Element("stripe-pricing-table", …)`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e116-a-tag-that-cannot-be-a-custom-element-s"#, title: "text")
+
+        Markdown("**Fix:** A custom element's tag is lower case with a hyphen: `Element(\"pricing-table\")`.")
+
+        Heading("E901 — The compiler wrote JavaScript a browser would refuse", id: "e901-the-compiler-wrote-javascript-a-browser-would-refuse").h3
+
+        Markdown("The build reads back every script it writes; this one would not run. It is a bug in WebFluent, not in your program. **Fix:** please report it, with the source that produced it.")
+
+        Heading("E902 — Output its own security policy refuses", id: "e902-output-its-own-security-policy-refuses").h3
+
+        Markdown("The build holds every page it writes to the content security policy it ships beside it; something on this page — an inline script, a `style=`, a script from an origin the policy never named — would be blocked. A page's own `head \{ script(src: …) \}` or `head \{ link(rel: \"stylesheet\", href: …) \}` is held to it too, where it is written: the tag is added on the live page, and the browser would refuse it there without a word. **Fix:** what the message says; a library's origin goes in `meta.scripts`, a stylesheet's in `meta.stylesheets`.")
+
+        Heading("E117 — A key combination no keyboard sends", id: "e117-a-key-combination-no-keyboard-sends").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    on key("ctrl+shfit+k") { log("search") }
+    Heading("Search").h1
+}"#, title: "wf · draws E117")
+
+        CodeBlock(#"error[E117]: `on key("ctrl+shfit+k")` names `shfit`, which is not a modifier
+ --> src/App.wf:2:12
+  |
+2 |     on key("ctrl+shfit+k") { log("search") }
+  |            ^
+  = help: Modifiers `ctrl`, `shift`, `alt`, `meta` (`cmd`), then one key: a letter, a digit, or a name like `Enter`, `Escape`, `ArrowDown`, `Tab`, `F2`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e117-a-key-combination-no-keyboard-sends"#, title: "text")
+
+        Markdown("**Fix:** Modifiers `ctrl`, `shift`, `alt`, `meta` (or `cmd`), then one key: a letter, a digit, or a name — `Enter`, `Escape`, `ArrowDown`, `Tab`, `F2`.")
+
+        Heading("E118 — A name the language already has", id: "e118-a-name-the-language-already-has").h3
+
+        CodeBlock(#"page Deploy(path: "/", title: "Deploy", description: "Pick a target.") {
+    state env = "staging"
+    Heading("Deploy to {env}").h1
+}"#, title: "wf · draws E118")
+
+        CodeBlock(#"error[E118]: `env` is a name the language already has: the build's settings, read as `env.PUBLIC_API`
+ --> src/App.wf:2:5
+  |
+2 |     state env = "staging"
+  |     ^^^^^^^^^^^^^^^^^^^^^
+  = help: Name it something of your own — `target` or `stage`: inside its scope every `env` would mean this, and the language's would have no name
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e118-a-name-the-language-already-has"#, title: "text")
+
+        Markdown("A name the language gives a meaning is not a program's to declare — not as a `state`, `derived`, `persist` or `let`, a prop, a route or action parameter, a loop item, a lambda's parameter, a binding of `if let`, `match` or a slot, nor a top-level `const`, `data`, `image`, store or `api`. Declared, it would hide what the language means by it for as far as its scope reaches: a `state env` hid the build's settings in its page, and a loop's `t` hid the translation function inside the loop. The names are:\n\n- `env`, the build's settings; `params`, the route's; `locale` and `dir`, the reader's language;\n- the values the browser keeps current: `now`, `viewport`, `query`, `hash`, `theme`, `network`, `update`;\n- the language's functions: `t`, `format`, `ago`, `log`, `navigate`, `fetch`, `uuid`, `sanitize`, `setLocale`, `setTheme`, `optimistic`, `beacon`, `animate`, `replayAnimation`, `every`, `after`, `ws`, `sse`, `broadcast`, `rtc`;\n- the words a statement is written with: `state`, `persist`, `derived`, `effect`, `action`, `use`, `resource`, `validate`, `socket`, `stream`, `channel`, `peer`, `head`, `slot`, `part`, `if`, `else`, `for`, `in`, `by`, `show`, `match`, `children`, `emit`, `sequence`, `on`, `style`, `transition`, `let`, `return`, `await`, `try`, `catch`;\n- and, at the top level, `WF`, the runtime the compiled pages call.\n\nThe names a handler brings with it — `event`, `e`, `value`, `key` — and the browser's globals (`window`, `history`, …) are a program's to use, and so is any name as a field, a map key or an enum case: `type Box \{ env: String \}` and `.env` are fine. **Fix:** Name it something of your own — `state target = \"staging\"` — and its reads with it. The message suggests one where there is a usual choice: `target` or `stage` for `env`, `search` for `query`, `scheme` for `theme`, `item` or a word for what it holds for `t`.")
+
+        Heading("Components", id: "components").h2
+
+        Heading("C01 — A required prop or field left out", id: "c01-a-required-prop-or-field-left-out").h3
+
+        CodeBlock(#"type Todo { id: String, title: String, done: Bool = false }
+page P(path: "/", title: "T", description: "D") {
+    state todo = Todo(title: "Write the docs")
+    Heading(todo.title).h1
+}"#, title: "wf · draws C01")
+
+        CodeBlock(#"error[C01]: `Todo(…)` leaves out `id` of `Todo`, which has no default
+ --> src/App.wf:3:18
+  |
+3 |     state todo = Todo(title: "Write the docs")
+  |                  ^^^^
+  = help: Give it, or declare a default in the type: `field: Type = value`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#c01-a-required-prop-or-field-left-out"#, title: "text")
+
+        Markdown("**Fix:** Give it, or declare a default in the type (`id: String = \"\"`) or on the prop.")
+
+        Heading("C02 — A prop the component does not declare", id: "c02-a-prop-the-component-does-not-declare").h3
+
+        CodeBlock(#"component Badge2(_ label: String) { Text(label) }
+page P(path: "/", title: "T", description: "D") {
+    Heading("Badges").h1
+    Badge2("New", colour: "red")
+}"#, title: "wf · draws C02")
+
+        CodeBlock(#"error[C02]: `Badge2` declares no prop `colour`
+ --> src/App.wf:4:19
+  |
+4 |     Badge2("New", colour: "red")
+  |                   ^^^^^^
+  = help: It is passed anyway, but nothing in the component reads it
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#c02-a-prop-the-component-does-not-declare"#, title: "text")
+
+        Markdown("**Fix:** Correct the spelling, or declare the prop on the component.")
+
+        Heading("C03 — A part outside the component it belongs to", id: "c03-a-part-outside-the-component-it-belongs-to").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Plans").h1
+    Select.Option("Pro", value: "pro")
+}"#, title: "wf · draws C03")
+
+        CodeBlock(#"error[C03]: `Select.Option` is a part of `Select`, and it is not inside one
+ --> src/App.wf:3:5
+  |
+3 |     Select.Option("Pro", value: "pro")
+  |     ^^^^^^^^^^^^^
+  = help: Place it in a `Select { … }`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#c03-a-part-outside-the-component-it-belongs-to"#, title: "text")
+
+        Markdown("**Fix:** Place the part inside its owner: `Select(bind: plan) \{ Select.Option(…) \}`.")
+
+        Heading("C04 — An attribute a built-in does not declare", id: "c04-an-attribute-a-built-in-does-not-declare").h3
+
+        Markdown("Warning.")
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Save").h1
+    Button("Save", colour: "red")
+}"#, title: "wf · draws C04")
+
+        CodeBlock(#"warning[C04]: Button has no prop `colour`; it is written to the element as an attribute
+ --> src/App.wf:3:20
+  |
+3 |     Button("Save", colour: "red")
+  |                    ^^^^^^
+  = help: A typo here does nothing on screen; check the component's props
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#c04-an-attribute-a-built-in-does-not-declare"#, title: "text")
+
+        Markdown("**Fix:** Check the prop's spelling — `wf registry` lists what the built-in takes. `aria-*`, `data-*` and the global attributes (`id`, `role`, `title`, …) are expected and draw nothing.")
+
+        Heading("C05 — A positional argument a built-in does not take", id: "c05-a-positional-argument-a-built-in-does-not-take").h3
+
+        Markdown("Warning.")
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Rule").h1
+    Divider("thin")
+}"#, title: "wf · draws C05")
+
+        CodeBlock(#"warning[C05]: Divider takes no positional argument
+ --> src/App.wf:3:13
+  |
+3 |     Divider("thin")
+  |             ^
+  = help: Name it: the registry lists the props it takes
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#c05-a-positional-argument-a-built-in-does-not-take"#, title: "text")
+
+        Markdown("**Fix:** Name it, with one of the props the built-in takes.")
+
+        Heading("C06 — A positional argument bound by order", id: "c06-a-positional-argument-bound-by-order").h3
+
+        Markdown("Warning.")
+
+        CodeBlock(#"component Tag2(label: String) { Text(label) }
+page P(path: "/", title: "T", description: "D") {
+    Heading("Tags").h1
+    Tag2("new")
+}"#, title: "wf · draws C06")
+
+        CodeBlock(#"warning[C06]: `Tag2` declares no positional prop; the argument binds to `label`
+ --> src/App.wf:4:10
+  |
+4 |     Tag2("new")
+  |          ^
+  = help: Mark the prop: `component Tag2(_ label: …)`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#c06-a-positional-argument-bound-by-order"#, title: "text")
+
+        Markdown("**Fix:** Mark the prop the call means: `component Tag2(_ label: String)`.")
+
+        Heading("State and reactivity", id: "state-and-reactivity").h2
+
+        Heading("X01 — An assignment to something that cannot change", id: "x01-an-assignment-to-something-that-cannot-change").h3
+
+        CodeBlock(#"const LIMIT = 3
+page P(path: "/", title: "T", description: "D") {
+    Heading("Limit {LIMIT}").h1
+    Button("More") { on click { LIMIT = 4 } }
+}"#, title: "wf · draws X01")
+
+        CodeBlock(#"error[X01]: `LIMIT` is a `const`, and nothing may assign to it
+ --> src/App.wf:4:33
+  |
+4 |     Button("More") { on click { LIMIT = 4 } }
+  |                                 ^^^^^
+  = help: Declare it `state` if it changes; a constant is the same on every page
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#x01-an-assignment-to-something-that-cannot-change"#, title: "text")
+
+        Markdown("**Fix:** Hold what changes in a `state`. A `derived` value changes when what it reads does; a prop is its caller's (`emit` an event so the caller changes it); a route parameter is the address's (`navigate`); a loop variable is one pass's copy (change the item through its list).")
+
+        Heading("X02 — An effect that feeds itself", id: "x02-an-effect-that-feeds-itself").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state visits = 0
+    effect { visits = visits + 1 }
+    Heading("Visits {visits}").h1
+}"#, title: "wf · draws X02")
+
+        CodeBlock(#"error[X02]: this effect writes `visits`, which it also reads, so each run starts the next and the page never settles
+ --> src/App.wf:3:5
+  |
+3 |     effect { visits = visits + 1 }
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  = help: Work the value out with `derived` instead, or write it from the action that changes what it reads
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#x02-an-effect-that-feeds-itself"#, title: "text")
+
+        Markdown("**Fix:** Work a value out with `derived`; change state from the action or handler that changes what it depends on.")
+
+        Heading("X04 — A derived value that changes something", id: "x04-a-derived-value-that-changes-something").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state count = 0
+    action next() {
+        count = count + 1
+        return count
+    }
+    derived ticket = next()
+    Heading("Ticket {ticket}").h1
+}"#, title: "wf · draws X04")
+
+        CodeBlock(#"error[X04]: `ticket` is worked out by calling `next(…)`, which assigns `count`
+ --> src/App.wf:7:5
+  |
+7 |     derived ticket = next()
+  |     ^^^^^^^^^^^^^^^^^^^^^^^
+  = help: A derived value only reads; call the action from a handler, and derive from what it sets
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#x04-a-derived-value-that-changes-something"#, title: "text")
+
+        Markdown("**Fix:** Call the action from a handler; derive from the state it sets.")
+
+        Heading("X05 — use of a store nothing declares", id: "x05-use-of-a-store-nothing-declares").h3
+
+        CodeBlock(#"store Cart { state items = [] }
+page P(path: "/", title: "T", description: "D") {
+    use Carts
+    Heading("Cart").h1
+}"#, title: "wf · draws X05")
+
+        CodeBlock(#"error[X05]: `use Carts` names a store nothing declares
+ --> src/App.wf:3:5
+  |
+3 |     use Carts
+  |     ^^^
+  = help: The stores are `Cart`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#x05-use-of-a-store-nothing-declares"#, title: "text")
+
+        Markdown("**Fix:** Name a store that exists — here `Cart`.")
+
+        Heading("X06 — A state that copies a live value once", id: "x06-a-state-that-copies-a-live-value-once").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state posted = @2026-03-14T09:30:00Z
+    state clock = now(every: 1.seconds)
+    derived age = posted.until(clock)
+    Heading("Posted {age.minutes()} minutes ago").h1
+}"#, title: "wf · draws X06")
+
+        CodeBlock(#"warning[X06]: `clock` copies `now` once, when the page opens, and never follows it
+ --> src/App.wf:3:5
+  |
+3 |     state clock = now(every: 1.seconds)
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  = help: Nothing assigns `clock`: declare it `derived`, which is worked out again whenever `now` changes
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#x06-a-state-that-copies-a-live-value-once"#, title: "text")
+
+        Markdown("**Fix:** Declare it `derived` — the quick fix does. `derived clock = now(every: 1.seconds)` is worked out again on every tick, and so is everything that reads it. `now`, `viewport`, `query`, `hash`, `theme`, `network` and `update` all keep themselves current; a `state` only takes the value it starts with. A state the program assigns, binds or changes in place is a starting value on purpose — `state tab = query.tab ?? \"all\"` that a click then changes — and draws nothing. Neither does a live value read inside a lambda, which reads it each time it is called.")
+
+        Heading("Forms and bindings", id: "forms-and-bindings").h2
+
+        Heading("F01 — A bind: to something that cannot be written", id: "f01-a-bind-to-something-that-cannot-be-written").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state first = "Ada"
+    derived name = first.toUpperCase()
+    Heading("Name").h1
+    Input(bind: name, label: "Name")
+}"#, title: "wf · draws F01")
+
+        CodeBlock(#"error[F01]: `bind:` on `Input` writes back to what it names, and `name` is a `derived` value
+ --> src/App.wf:5:11
+  |
+5 |     Input(bind: name, label: "Name")
+  |           ^^^^^^^^^^
+  = help: Bind a `state` (or a store's state, or a field of a loop's item); show a value with `value:`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#f01-a-bind-to-something-that-cannot-be-written"#, title: "text")
+
+        Markdown("**Fix:** Bind the state the reader edits (`bind: first`); show a value that is worked out with `value:`.")
+
+        Heading("F02 — A bind: to a state the control cannot hold", id: "f02-a-bind-to-a-state-the-control-cannot-hold").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state qty = 1
+    Heading("Order").h1
+    Input(bind: qty, label: "Quantity")
+}"#, title: "wf · draws F02")
+
+        CodeBlock(#"error[F02]: `bind:` on `Input` holds a `String`, but `qty` is `Number`
+ --> src/App.wf:4:11
+  |
+4 |     Input(bind: qty, label: "Quantity")
+  |           ^^^^^^^^^
+  = help: A number field is `Input(…).number`, which holds a number
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#f02-a-bind-to-a-state-the-control-cannot-hold"#, title: "text")
+
+        Markdown("**Fix:** A number field is `Input(…).number`; a text field holds a `String`.")
+
+        Heading("F03 — A validate block no control can satisfy", id: "f03-a-validate-block-no-control-can-satisfy").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state email = ""
+    validate email { required  email }
+    Heading("Join").h1
+    Form { Button("Join", type: .submit) }
+}"#, title: "wf · draws F03")
+
+        CodeBlock(#"error[F03]: `validate email` guards a state no control binds, so its rules can never be met
+ --> src/App.wf:3:5
+  |
+3 |     validate email { required  email }
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  = help: Bind it to the control the reader fills in: `Input(bind: email, …)`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#f03-a-validate-block-no-control-can-satisfy"#, title: "text")
+
+        Markdown("**Fix:** Bind the state to the control the reader fills in: `Input(bind: email, label: \"Email\").email`.")
+
+        Heading("F04 — A checkbox that shows a state and never changes it", id: "f04-a-checkbox-that-shows-a-state-and-never-changes-it").h3
+
+        Markdown("Warning.")
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state agree = false
+    Heading("Terms").h1
+    Checkbox(checked: agree, label: "I agree")
+}"#, title: "wf · draws F04")
+
+        CodeBlock(#"warning[F04]: this `Checkbox` shows `checked:` but nothing changes it, so a click toggles the box and not the state
+ --> src/App.wf:4:5
+  |
+4 |     Checkbox(checked: agree, label: "I agree")
+  |     ^^^^^^^^
+  = help: Write `bind:` to keep the box and the state together, or handle `on change`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#f04-a-checkbox-that-shows-a-state-and-never-changes-it"#, title: "text")
+
+        Markdown("**Fix:** `Checkbox(bind: agree, label: \"I agree\")`.")
+
+        Heading("F05 — A select whose value is none of its options", id: "f05-a-select-whose-value-is-none-of-its-options").h3
+
+        Markdown("Warning.")
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state plan = "basic"
+    Heading("Plan").h1
+    Select(bind: plan, label: "Plan") {
+        Select.Option("Free", value: "free")
+        Select.Option("Pro", value: "pro")
+    }
+}"#, title: "wf · draws F05")
+
+        CodeBlock(#"warning[F05]: `plan` starts as `basic`, which is none of this select's options
+ --> src/App.wf:4:5
+  |
+4 |     Select(bind: plan, label: "Plan") {
+  |     ^^^^^^
+  = help: Start it as one of them (`free`, `pro`), so what is shown is what is held
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#f05-a-select-whose-value-is-none-of-its-options"#, title: "text")
+
+        Markdown("**Fix:** Start the state as one of the options' values.")
+
+        Heading("Routes", id: "routes").h2
+
+        Heading("R01 — A route to nothing", id: "r01-a-route-to-nothing").h3
+
+        CodeBlock(#"page Home(path: "/", title: "T", description: "D") {
+    Heading("Home").h1
+    Link("About us", to: "/abuot")
+}
+page About(path: "/about", title: "About", description: "D") {
+    Heading("About").h1
+}"#, title: "wf · draws R01")
+
+        CodeBlock(#"error[R01]: `/abuot` is not a route: no page's `path` matches it
+ --> src/App.wf:3:5
+  |
+3 |     Link("About us", to: "/abuot")
+  |     ^^^^
+  = help: The nearest is `/about`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#r01-a-route-to-nothing"#, title: "text")
+
+        Markdown("**Fix:** Link to a route a page has; the message names the nearest. A spliced link is checked by its shape — `\"/team/\{t.slug\}\"` must match a route like `/team/:slug` — a link with no leading `/` is refused (where it leads would depend on the page it is on), and a link to a file (`/report.pdf`) or another site is left alone.")
+
+        Heading("R02 — A route parameter and a page parameter that do not match", id: "r02-a-route-parameter-and-a-page-parameter-that-do-not-match").h3
+
+        CodeBlock(#"page Profile(path: "/u/:id", title: "T", description: "D") {
+    Heading("Profile").h1
+}"#, title: "wf · draws R02")
+
+        CodeBlock(#"error[R02]: the route `/u/:id` names `:id`, and the page declares no parameter `id`
+ --> src/App.wf:1:1
+  |
+1 | page Profile(path: "/u/:id", title: "T", description: "D") {
+  | ^^^^
+  = help: Declare it: `page Profile(path: "/u/:id", id: String)`, then read `id`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#r02-a-route-parameter-and-a-page-parameter-that-do-not-match"#, title: "text")
+
+        Markdown("**Fix:** Declare the parameter the route names — `page Profile(path: \"/u/:id\", id: String)` — and read it by name; a declared parameter the route has no `:name` for is never filled.")
+
+        Heading("R03 — An app with no Router, or with two", id: "r03-an-app-with-no-router-or-with-two").h3
+
+        CodeBlock(#"app {
+    Navbar { Navbar.Brand { Text("Ledger") } }
+}
+page Home(path: "/", title: "T", description: "D") {
+    Heading("Home").h1
+}"#, title: "wf · draws R03")
+
+        CodeBlock(#"error[R03]: `app` places no `Router`, so no page is ever drawn
+ --> src/App.wf:2:5
+  |
+2 |     Navbar { Navbar.Brand { Text("Ledger") } }
+  |     ^^^^^^
+  = help: Put `Router` where the current page belongs: `app { Navbar { … } Router }`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#r03-an-app-with-no-router-or-with-two"#, title: "text")
+
+        Markdown("**Fix:** Place `Router` where the page belongs: `app \{ Navbar \{ … \} Router \}`. (A program with no `app` at all routes its pages by itself.)")
+
+        Heading("R04 — A relative URL on a nested route", id: "r04-a-relative-url-on-a-nested-route").h3
+
+        Markdown("Warning.")
+
+        CodeBlock(#"page Post(path: "/blog/first", title: "T", description: "D") {
+    Heading("First post").h1
+    Image(src: "images/cover.png", alt: "")
+}"#, title: "wf · draws R04")
+
+        CodeBlock(#"warning[R04]: `src: "images/cover.png"` is relative, so on `/blog/first` it is fetched from `/blog/images/cover.png`
+ --> src/App.wf:3:5
+  |
+3 |     Image(src: "images/cover.png", alt: "")
+  |     ^^^^^
+  = help: Write it from the site's root: `"/images/cover.png"`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#r04-a-relative-url-on-a-nested-route"#, title: "text")
+
+        Markdown("**Fix:** Write it from the site's root: `\"/images/cover.png\"`.")
+
+        Heading("Data and assets", id: "data-and-assets").h2
+
+        Heading("D01 — A file the project does not have", id: "d01-a-file-the-project-does-not-have").h3
+
+        Markdown("Warning. `Image(src: \"/img/hero.png\")` when `public/img/hero.png` does not exist (also `poster:`, `captions:`, `transcript:`): the page asks for it and gets a 404. **Fix:** put the file in `public/`, or correct the path.")
+
+        Heading("D02 — A persisted value storage cannot keep", id: "d02-a-persisted-value-storage-cannot-keep").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    persist pick = (x) => x + 1
+    Heading("Pick").h1
+}"#, title: "wf · draws D02")
+
+        CodeBlock(#"error[D02]: `persist pick` keeps a function, which cannot be written to the browser's storage
+ --> src/App.wf:2:5
+  |
+2 |     persist pick = (x) => x + 1
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  = help: Keep what it is made from — a name, an id, the data — and build it again when it is read
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#d02-a-persisted-value-storage-cannot-keep"#, title: "text")
+
+        Markdown("**Fix:** Keep what it is made from — a name, an id, the data — and build the rest when it is read.")
+
+        Heading("D03 — A persisted value every instance shares", id: "d03-a-persisted-value-every-instance-shares").h3
+
+        Markdown("Warning.")
+
+        CodeBlock(#"component Panel(_ title: String) {
+    persist open = false
+    Card { Text(title) }
+}
+page P(path: "/", title: "T", description: "D") {
+    Heading("Panels").h1
+    Panel("One")
+    Panel("Two")
+}"#, title: "wf · draws D03")
+
+        CodeBlock(#"warning[D03]: `persist open` is in `Panel`, which is placed more than once, so every one of them reads and writes one stored value
+ --> src/App.wf:2:5
+  |
+2 |     persist open = false
+  |     ^^^^^^^
+  = help: Give each its own: `persist open = false { key: id }`, with `id` a prop that tells them apart
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#d03-a-persisted-value-every-instance-shares"#, title: "text")
+
+        Markdown("**Fix:** Give each instance its own key: `persist open = false \{ key: title \}`, with a prop that tells them apart.")
+
+        Heading("D04 — A persisted shape changed with no new version", id: "d04-a-persisted-shape-changed-with-no-new-version").h3
+
+        Markdown("Warning. The build remembers what each `persist` held (in `.wf-cache/persist.json`); when that changes — `persist items = []` becomes `persist items = \{ open: [], done: [] \}` — and `version:` does not, a returning reader's browser hands the old shape to code written for the new one. **Fix:** raise `version:` and add `migrate 1 -> 2 \{ … \}` to bring the old value forward.")
+
+        Heading("D05 — An asset from another origin with no integrity hash", id: "d05-an-asset-from-another-origin-with-no-integrity-hash").h3
+
+        Markdown("Warning. A font, stylesheet or script in `meta.fonts`, `meta.stylesheets` or `meta.scripts` from another origin, with no hash in `meta.integrity`. **Fix:** add its `sha384-…` hash to `meta.integrity` (the CDN usually publishes it). Google Fonts is exempt: its stylesheet differs per browser.")
+
+        Heading("Types", id: "types").h2
+
+        Markdown("Errors. The type checker's findings; a program that declares no types raises none of them, since what it cannot resolve is `Any`.")
+
+        Heading("T01 — A value of the wrong type", id: "t01-a-value-of-the-wrong-type").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state count: Number = 0
+    Heading("Counter").h1
+    Button("Reset") { on click { count = "zero" } }
+}"#, title: "wf · draws T01")
+
+        CodeBlock(#"error[T01]: `count` is `String`, but `Number` is wanted
+ --> src/App.wf:4:34
+  |
+4 |     Button("Reset") { on click { count = "zero" } }
+  |                                  ^^^^^^^^^^^^^^
+  = help: Convert it: `Number(value)`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t01-a-value-of-the-wrong-type"#, title: "text")
+
+        Markdown("**Fix:** Give the state a value of its type, or convert: `Number(text)`, `\"\{n\}\"`. If the state really holds either, declare it `Any`.")
+
+        Heading("T02 — A case the enum does not have", id: "t02-a-case-the-enum-does-not-have").h3
+
+        CodeBlock(#"enum Tone { calm, loud }
+page P(path: "/", title: "T", description: "D") {
+    state tone: Tone = .quiet
+    Heading("Tone").h1
+}"#, title: "wf · draws T02")
+
+        CodeBlock(#"error[T02]: `Tone` has no case `.quiet`
+ --> src/App.wf:3:17
+  |
+3 |     state tone: Tone = .quiet
+  |                 ^^^^
+  = help: `Tone` takes .calm, .loud
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t02-a-case-the-enum-does-not-have"#, title: "text")
+
+        Markdown("**Fix:** Use one of the cases the message lists, or add the case to the `enum`.")
+
+        Heading("T04 — A value that may be null, read as if it were not", id: "t04-a-value-that-may-be-null-read-as-if-it-were-not").h3
+
+        CodeBlock(#"type User { name: String, email: String? }
+page P(path: "/", title: "T", description: "D") {
+    state user = User(name: "Ada", email: null)
+    Heading("Profile").h1
+    Text(user.email.toUpperCase())
+}"#, title: "wf · draws T04")
+
+        CodeBlock(#"error[T04]: `user.email` may be null, so `.toUpperCase()` may fail
+ --> src/App.wf:5:10
+  |
+5 |     Text(user.email.toUpperCase())
+  |          ^^^^^^^^^^
+  = help: Unwrap it first: `if let x = value { … }`, `value ?? fallback`, `value?.{method}()`, or a check for `!= null`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t04-a-value-that-may-be-null-read-as-if-it-were-not"#, title: "text")
+
+        Markdown("**Fix:** Unwrap it: `if let e = user.email \{ e.toUpperCase() \}`, `user.email?.toUpperCase()`, or `(user.email ?? \"\").toUpperCase()`.")
+
+        Heading("T05 — A field or method that does not exist", id: "t05-a-field-or-method-that-does-not-exist").h3
+
+        CodeBlock(#"type User { name: String }
+page P(path: "/", title: "T", description: "D") {
+    state user = User(name: "Ada")
+    Heading(user.nmae).h1
+}"#, title: "wf · draws T05")
+
+        CodeBlock(#"error[T05]: `User` has no field `nmae`
+ --> src/App.wf:4:18
+  |
+4 |     Heading(user.nmae).h1
+  |                  ^^^^
+  = help: Did you mean `name`? Its fields are `name`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t05-a-field-or-method-that-does-not-exist"#, title: "text")
+
+        Markdown("**Fix:** Correct the spelling to one of the fields listed, or add the field to the `type`.")
+
+        Heading("T06 — A member a store or service does not have", id: "t06-a-member-a-store-or-service-does-not-have").h3
+
+        CodeBlock(#"store Cart { state items = [] }
+page P(path: "/", title: "T", description: "D") {
+    use Cart
+    Heading("{Cart.count} items").h1
+}"#, title: "wf · draws T06")
+
+        CodeBlock(#"error[T06]: `Cart` has no member `count`
+ --> src/App.wf:4:15
+  |
+4 |     Heading("{Cart.count} items").h1
+  |               ^^^^
+  = help: Its members are `items`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t06-a-member-a-store-or-service-does-not-have"#, title: "text")
+
+        Markdown("**Fix:** Use a member the store declares, or declare it: `derived count = items.length`. For a service, the endpoint must be declared in its `api`.")
+
+        Heading("T07 — A condition that is always true", id: "t07-a-condition-that-is-always-true").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state items = ["a"]
+    Heading("List").h1
+    if items { Text("There are items") }
+}"#, title: "wf · draws T07")
+
+        CodeBlock(#"error[T07]: `if` reads `items` as a condition, but a list is always true
+ --> src/App.wf:4:5
+  |
+4 |     if items { Text("There are items") }
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  = help: Ask about its length: `items.length > 0`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t07-a-condition-that-is-always-true"#, title: "text")
+
+        Markdown("**Fix:** Ask the question you mean: `items.length > 0`, `user != null`.")
+
+        Heading("T08 — A loop over something that is not a list", id: "t08-a-loop-over-something-that-is-not-a-list").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state total = 3
+    Heading("Loop").h1
+    for n in total { Text("{n}") }
+}"#, title: "wf · draws T08")
+
+        CodeBlock(#"error[T08]: `for` loops over a list, but `total` is `Number`
+ --> src/App.wf:4:5
+  |
+4 |     for n in total { Text("{n}") }
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  = help: Give it a list, or `.split(…)` a string first
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t08-a-loop-over-something-that-is-not-a-list"#, title: "text")
+
+        Markdown("**Fix:** Loop over a list — `for n in 1..=total` for a range of numbers.")
+
+        Heading("T09 — An emit that does not match its event", id: "t09-an-emit-that-does-not-match-its-event").h3
+
+        CodeBlock(#"component Stepper(_ start: Number) {
+    event change(value: Number)
+    Button("+") { on click { emit change(1, 2) } }
+}"#, title: "wf · draws T09")
+
+        CodeBlock(#"error[T09]: `emit change` passes 2 arguments, but the event takes 1
+ --> src/App.wf:3:30
+  |
+3 |     Button("+") { on click { emit change(1, 2) } }
+  |                              ^^^^^^^^^^^^^^^^^
+  = help: `event change(value: Number)`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t09-an-emit-that-does-not-match-its-event"#, title: "text")
+
+        Markdown("**Fix:** Pass what the `event` declares, in order, or change the declaration.")
+
+        Heading("T10 — A call with the wrong arguments", id: "t10-a-call-with-the-wrong-arguments").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state count = 0
+    action add(by: Number) { count = count + by }
+    Heading("Count").h1
+    Button("+") { on click { add(1, 2) } }
+}"#, title: "wf · draws T10")
+
+        CodeBlock(#"error[T10]: `add` takes 1 argument, but 2 are given
+ --> src/App.wf:5:30
+  |
+5 |     Button("+") { on click { add(1, 2) } }
+  |                              ^^^
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t10-a-call-with-the-wrong-arguments"#, title: "text")
+
+        Markdown("**Fix:** Pass the arguments the action, endpoint or function takes.")
+
+        Heading("T11 — A match on something that cannot be matched", id: "t11-a-match-on-something-that-cannot-be-matched").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state n = 1
+    Heading("Match").h1
+    match n {
+        loading { Spinner }
+        else { Text("?") }
+    }
+}"#, title: "wf · draws T11")
+
+        CodeBlock(#"error[T11]: `match` needs a resource or an enum, but `n` is `Number`
+ --> src/App.wf:4:5
+  |
+4 |     match n {
+  |     ^^^^^^^^^
+  = help: Use `if` for a condition; `match` chooses among a resource's states or an enum's cases
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t11-a-match-on-something-that-cannot-be-matched"#, title: "text")
+
+        Markdown("**Fix:** Use `if` for a condition; `match` takes a resource, a connection or an enum.")
+
+        Heading("T12 — A secret where it would escape", id: "t12-a-secret-where-it-would-escape").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state token: Secret = ""
+    Heading("Token").h1
+    Text(token)
+}"#, title: "wf · draws T12")
+
+        CodeBlock(#"error[T12]: `token` is a `Secret`, and `Text` would show it
+ --> src/App.wf:4:10
+  |
+4 |     Text(token)
+  |          ^^^^^
+  = help: A secret must not reach the page; send it as a value, or show one field of what it unlocks
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t12-a-secret-where-it-would-escape"#, title: "text")
+
+        Markdown("**Fix:** Do not show, splice, log or persist a `Secret`. Send it in a request — or keep it on the server.")
+
+        Heading("T13 — A name nothing declares", id: "t13-a-name-nothing-declares").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state count = 0
+    Heading("Counter").h1
+    Button("+") { on click { cuont = count + 1 } }
+}"#, title: "wf · draws T13")
+
+        CodeBlock(#"error[T13]: nothing declares `cuont`
+ --> src/App.wf:4:30
+  |
+4 |     Button("+") { on click { cuont = count + 1 } }
+  |                              ^^^^^
+  = help: Did you mean `count`? Declare it — a `state`, a `const`, an `action`, a prop — or check the spelling. In the browser it would be a ReferenceError
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t13-a-name-nothing-declares"#, title: "text")
+
+        Markdown("**Fix:** Correct the spelling, or declare the name. The browser's own globals (`window`, `navigator`, `Math` …) and the language's values (`viewport`, `query`, `now` …) need no declaration; a call to a function nothing declares — `uid()` for `uuid()` — is reported the same way. A template rendered with data (`wf render`) reads its data's keys by name, so it is not held to this.")
+
+        Heading("T14 — A comparison that is always the same", id: "t14-a-comparison-that-is-always-the-same").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state count = 0
+    Heading("Count").h1
+    if count == "0" { Text("Nothing yet") }
+}"#, title: "wf · draws T14")
+
+        CodeBlock(#"error[T14]: `count` is `Number` and `"0"` is `String`, which are never equal, so this is always false
+ --> src/App.wf:4:8
+  |
+4 |     if count == "0" { Text("Nothing yet") }
+  |        ^^^^^
+  = help: Convert one side: `Number(text) == n`, or `"{n}" == text`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t14-a-comparison-that-is-always-the-same"#, title: "text")
+
+        Markdown("**Fix:** Compare values of one type: `count == 0`, or convert one side (`Number(text) == n`). Against an enum, use a case it has.")
+
+        Heading("T15 — A match that misses a case, or has one twice", id: "t15-a-match-that-misses-a-case-or-has-one-twice").h3
+
+        CodeBlock(#"enum Status { draft, review, live }
+page P(path: "/", title: "T", description: "D") {
+    state status: Status = .draft
+    Heading("Status").h1
+    match status {
+        .draft { Text("Draft") }
+        .live { Text("Live") }
+    }
+}"#, title: "wf · draws T15")
+
+        CodeBlock(#"error[T15]: this `match` on `status` has no arm for `.review`, and no `else`
+ --> src/App.wf:5:5
+  |
+5 |     match status {
+  |     ^^^^^
+  = help: Add an arm for each, or `else { … }` for the rest
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t15-a-match-that-misses-a-case-or-has-one-twice"#, title: "text")
+
+        Markdown("**Fix:** Give every case its arm, or add `else \{ … \}` for the rest. A `match` expression that covers every case needs no `else`: `derived label = match status \{ .draft \{ \"Draft\" \} .review \{ \"In review\" \} .live \{ \"Live\" \} \}`.")
+
+        Heading("T16 — A method a number, a string or a list does not have", id: "t16-a-method-a-number-a-string-or-a-list-does-not-have").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state names = ["Ada", "Grace"]
+    Heading("People").h1
+    Text(names.joined(", "))
+}"#, title: "wf · draws T16")
+
+        CodeBlock(#"error[T16]: a `[String]` has no method `joined`
+ --> src/App.wf:4:16
+  |
+4 |     Text(names.joined(", "))
+  |                ^^^^^^
+  = help: Did you mean `join`?
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t16-a-method-a-number-a-string-or-a-list-does-not-have"#, title: "text")
+
+        Markdown("**Fix:** The method the message suggests — here `join`.")
+
+        Heading("T17 — An async result used before it is awaited", id: "t17-an-async-result-used-before-it-is-awaited").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state saved = false
+    action save() { saved = true }
+    Heading("Save").h1
+    Button("Save", disabled: save.pending) { on click { save() } }
+}"#, title: "wf · draws T17")
+
+        CodeBlock(#"error[T17]: `save` awaits nothing, so `.pending` is always false
+ --> src/App.wf:5:30
+  |
+5 |     Button("Save", disabled: save.pending) { on click { save() } }
+  |                              ^^^^
+  = help: `.pending` is true while a call of an async action runs; an action that awaits nothing finishes before the page repaints
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t17-an-async-result-used-before-it-is-awaited"#, title: "text")
+
+        Markdown("**Fix:** `.pending` is for an action that awaits — drop it here. An async action's result is read with `await` inside an action or a handler; a value that arrives over the network is a `resource`, which `derived` values and elements can read.")
+
+        Heading("T18 — Arithmetic on something that is not a number", id: "t18-arithmetic-on-something-that-is-not-a-number").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state price = "12"
+    Heading("Total {price * 2}").h1
+}"#, title: "wf · draws T18")
+
+        CodeBlock(#"error[T18]: `*` takes numbers, but `price` is `String`
+ --> src/App.wf:3:27
+  |
+3 |     Heading("Total {price * 2}").h1
+  |                           ^
+  = help: Convert it: `Number(value)`; `+` joins text when one side is a string
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t18-arithmetic-on-something-that-is-not-a-number"#, title: "text")
+
+        Markdown("**Fix:** Hold numbers as numbers (`state price = 12`), or convert: `Number(price) * 2`.")
+
+        Heading("T19 — A value that may be null, shown as text", id: "t19-a-value-that-may-be-null-shown-as-text").h3
+
+        Markdown("Warning.")
+
+        CodeBlock(#"type User { name: String, nickname: String? }
+page P(path: "/", title: "T", description: "D") {
+    state user = User(name: "Ada", nickname: null)
+    Heading("Hello").h1
+    Text("Also known as {user.nickname}")
+}"#, title: "wf · draws T19")
+
+        CodeBlock(#"warning[T19]: `user.nickname` may be null, and in text it would show as `null`
+ --> src/App.wf:5:26
+  |
+5 |     Text("Also known as {user.nickname}")
+  |                          ^^^^^^^^^^^^^
+  = help: Say what to show instead: `{user.nickname ?? ""}`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t19-a-value-that-may-be-null-shown-as-text"#, title: "text")
+
+        Markdown("**Fix:** Say what to show instead: `\{user.nickname ?? \"nothing yet\"\}`, or show the line only when there is one: `if let n = user.nickname \{ … \}`.")
+
+        Heading("T21 — A resource match with no error arm", id: "t21-a-resource-match-with-no-error-arm").h3
+
+        Markdown("Warning.")
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    resource users = fetch("/api/users")
+    Heading("Users").h1
+    match users {
+        loading { Spinner }
+        ready(list) { Text("{list.length} users") }
+    }
+}"#, title: "wf · draws T21")
+
+        CodeBlock(#"warning[T21]: this `match` on `users` has no `error` arm, so a failed request shows nothing
+ --> src/App.wf:4:5
+  |
+4 |     match users {
+  |     ^^^^^
+  = help: Add `error(e) { Alert(e.message).danger }`, or `else { … }`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t21-a-resource-match-with-no-error-arm"#, title: "text")
+
+        Markdown("**Fix:** `error(e) \{ Alert(e.message).danger \}`, or an `else`.")
+
+        Heading("T20 — A list or a record shown as text", id: "t20-a-list-or-a-record-shown-as-text").h3
+
+        Markdown("Warning.")
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state tags = ["a", "b"]
+    Heading("Tags").h1
+    Text("Tagged {tags}")
+}"#, title: "wf · draws T20")
+
+        CodeBlock(#"warning[T20]: `tags` is `[String]`, and in text it shows as its items run together with commas
+ --> src/App.wf:4:19
+  |
+4 |     Text("Tagged {tags}")
+  |                   ^^^^
+  = help: Show a field of it, or `.join(", ")` a list of text
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t20-a-list-or-a-record-shown-as-text"#, title: "text")
+
+        Markdown("**Fix:** `\{tags.join(\", \")\}` for a list of text; a field of a record.")
+
+        Heading("Translations", id: "translations").h2
+
+        Markdown("These need the project's translation files, so the examples are described rather than run.")
+
+        Heading("I01 — A message no translation has", id: "i01-a-message-no-translation-has").h3
+
+        Markdown("`t(\"nav.blgo\")` when no locale's file holds `nav.blgo`: the page shows `nav.blgo`. **Fix:** the key the message suggests, or add it to the files.")
+
+        Heading("I02 — A message and its call that disagree", id: "i02-a-message-and-its-call-that-disagree").h3
+
+        Markdown("`t(\"greeting\", \{ nme: user.name \})` against `\"greeting\": \"Hello, \{name\}!\"`: `nme` is not used, and `\{name\}` shows as written. **Fix:** pass what the message shows, by the name it shows it.")
+
+        Heading("I03 — A message one locale has and another does not", id: "i03-a-message-one-locale-has-and-another-does-not").h3
+
+        Markdown("Warning. `nav.blog` in `en.json` and not in `ar.json`: a reader in Arabic sees `nav.blog`. **Fix:** translate it, or remove it from the others.")
+
+        Heading("I04 — A locale the project does not have", id: "i04-a-locale-the-project-does-not-have").h3
+
+        Markdown("`setLocale(\"fr\")` when `i18n.locales` is `[\"en\", \"ar\"]`. **Fix:** add the locale and its file, or name one that exists.")
+
+        Heading("Accessibility", id: "accessibility").h2
+
+        Markdown("Warnings. What makes a page unusable with a screen reader, a keyboard or a voice.")
+
+        Heading("A01 — An image with no alt text", id: "a01-an-image-with-no-alt-text").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Photo").h1
+    Image(src: "/team.jpg")
+}"#, title: "wf · draws A01")
+
+        CodeBlock(#"warning[A01]: Image missing "alt" attribute
+ --> src/App.wf:3:5
+  |
+3 |     Image(src: "/team.jpg")
+  |     ^^^^^
+  = help: Add alt text: Image(src: "...", alt: "Description of image")
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a01-an-image-with-no-alt-text"#, title: "text")
+
+        Markdown("**Fix:** `Image(src: \"/team.jpg\", alt: \"The team at the launch\")`. A purely decorative image takes `alt: \"\"`.")
+
+        Heading("A02 — An icon button with no name", id: "a02-an-icon-button-with-no-name").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Close").h1
+    IconButton(icon: "close")
+}"#, title: "wf · draws A02")
+
+        CodeBlock(#"warning[A02]: IconButton missing accessible label
+ --> src/App.wf:3:5
+  |
+3 |     IconButton(icon: "close")
+  |     ^^^^^^^^^^
+  = help: Add a label: IconButton(icon: "close", label: "Close dialog")
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a02-an-icon-button-with-no-name"#, title: "text")
+
+        Markdown("**Fix:** `IconButton(icon: \"close\", label: \"Close\")` — the label is read aloud, never shown.")
+
+        Heading("A03 — An input with no label", id: "a03-an-input-with-no-label").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state name = ""
+    Heading("Name").h1
+    Input(bind: name).text
+}"#, title: "wf · draws A03")
+
+        CodeBlock(#"warning[A03]: Input missing "label" or "placeholder" attribute
+ --> src/App.wf:4:5
+  |
+4 |     Input(bind: name).text
+  |     ^^^^^
+  = help: Add a label: Input(label: "Username").text
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a03-an-input-with-no-label"#, title: "text")
+
+        Markdown("**Fix:** `Input(bind: name, label: \"Name\")`. A placeholder alone disappears as the reader types.")
+
+        Heading("A04 — A control with no label", id: "a04-a-control-with-no-label").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state agree = false
+    Heading("Terms").h1
+    Checkbox(bind: agree)
+}"#, title: "wf · draws A04")
+
+        CodeBlock(#"warning[A04]: Checkbox missing "label" attribute
+ --> src/App.wf:4:5
+  |
+4 |     Checkbox(bind: agree)
+  |     ^^^^^^^^
+  = help: Add a label: Checkbox(bind: value, label: "Description")
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a04-a-control-with-no-label"#, title: "text")
+
+        Markdown("**Fix:** `Checkbox(bind: agree, label: \"I agree to the terms\")`.")
+
+        Heading("A05 — A button with no text", id: "a05-a-button-with-no-text").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Actions").h1
+    Button { Icon("check") }
+}"#, title: "wf · draws A05")
+
+        CodeBlock(#"warning[A05]: Button has no text content
+ --> src/App.wf:3:5
+  |
+3 |     Button { Icon("check") }
+  |     ^^^^^^
+  = help: Add text: Button("Save").primary
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a05-a-button-with-no-text"#, title: "text")
+
+        Markdown("**Fix:** Give it text — `Button(\"Save\")`, or a `Text` in its block beside the icon, `Button \{ Icon(\"check\")  Text(\"Save\") \}` — or an `aria-label:` when it shows only an icon. A `Text` anywhere in the block names it — in a branch, in a component the block places, or reading state; a `Tooltip`'s words, which show only on hover, do not.")
+
+        Heading("A06 — A link with no text", id: "a06-a-link-with-no-text").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Links").h1
+    Link(to: "/about")
+}"#, title: "wf · draws A06")
+
+        CodeBlock(#"warning[A06]: Link has no text content
+ --> src/App.wf:3:5
+  |
+3 |     Link(to: "/about")
+  |     ^^^^
+  = help: Add text: Link("About", to: "/about")
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a06-a-link-with-no-text"#, title: "text")
+
+        Markdown("**Fix:** Give it text that names where it goes — not \"click here\".")
+
+        Heading("A07 — An empty heading", id: "a07-an-empty-heading").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Title").h1
+    Heading("").h2
+}"#, title: "wf · draws A07")
+
+        CodeBlock(#"warning[A07]: Heading has empty text content
+ --> src/App.wf:3:5
+  |
+3 |     Heading("").h2
+  |     ^^^^^^^
+  = help: Headings should have meaningful text
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a07-an-empty-heading"#, title: "text")
+
+        Markdown("**Fix:** Give the heading text, or remove it; style text with `style \{ \}` rather than an empty heading.")
+
+        Heading("A08 — A dialog with no title", id: "a08-a-dialog-with-no-title").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state open = false
+    Heading("Modal").h1
+    Modal(visible: open) { Text("Hello") }
+}"#, title: "wf · draws A08")
+
+        CodeBlock(#"warning[A08]: Modal missing "title" attribute
+ --> src/App.wf:4:5
+  |
+4 |     Modal(visible: open) { Text("Hello") }
+  |     ^^^^^
+  = help: Add a title: Modal(visible: state, title: "Dialog Title")
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a08-a-dialog-with-no-title"#, title: "text")
+
+        Markdown("**Fix:** `Modal(visible: open, title: \"Delete this?\")` — the title is its accessible name.")
+
+        Heading("A09 — Media nobody can follow without sound", id: "a09-media-nobody-can-follow-without-sound").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Demo").h1
+    Video(src: "/demo.mp4").controls
+}"#, title: "wf · draws A09")
+
+        CodeBlock(#"warning[A09]: Video missing "captions"
+ --> src/App.wf:3:5
+  |
+3 |     Video(src: "/demo.mp4").controls
+  |     ^^^^^
+  = help: Add captions: Video(src: "...", captions: "/captions.en.vtt")
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a09-media-nobody-can-follow-without-sound"#, title: "text")
+
+        Markdown("**Fix:** `Video(src: …, captions: \"/demo.en.vtt\").controls`; an `Audio` takes `transcript:`.")
+
+        Heading("A10 — A table with no header row", id: "a10-a-table-with-no-header-row").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Table").h1
+    Table(caption: "Prices") { Table.Body { Table.Row { Table.Cell("Pen")  Table.Cell("2") } } }
+}"#, title: "wf · draws A10")
+
+        CodeBlock(#"warning[A10]: Table has no header row (`Table.Head`)
+ --> src/App.wf:3:5
+  |
+3 |     Table(caption: "Prices") { Table.Body { Table.Row { Table.Cell("Pen")  Table.Cell("2") } } }
+  |     ^^^^^
+  = help: Add one: `Table { Table.Head { Table.Row { Table.Cell("Name") } } … }`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a10-a-table-with-no-header-row"#, title: "text")
+
+        Markdown("**Fix:** Put the first row in `Table.Head`, so its cells are `<th scope=\"col\">`.")
+
+        Heading("A11 — A skipped heading level", id: "a11-a-skipped-heading-level").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Title").h1
+    Heading("Deep").h4
+}"#, title: "wf · draws A11")
+
+        CodeBlock(#"warning[A11]: Heading level skips from h1 to h4
+ --> src/App.wf:3:5
+  |
+3 |     Heading("Deep").h4
+  |     ^^^^^^^
+  = help: Use h2 instead, or add the missing intermediate headings
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a11-a-skipped-heading-level"#, title: "text")
+
+        Markdown("**Fix:** Use the next level down (`h2` after `h1`). Size text with `style \{ font-size \}`, not with the heading level.")
+
+        Heading("A12 — A page without exactly one h1", id: "a12-a-page-without-exactly-one-h1").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Section").h2
+}"#, title: "wf · draws A12")
+
+        CodeBlock(#"warning[A12]: Page has no h1 heading
+ --> src/App.wf:1:1
+  |
+1 | page P(path: "/", title: "T", description: "D") {
+  | ^^^^
+  = help: Add a main heading: Heading("Page Title").h1
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a12-a-page-without-exactly-one-h1"#, title: "text")
+
+        Markdown("**Fix:** One `Heading(…).h1` per page, naming what the page is. A layout's `h1` counts for the page it frames.")
+
+        Heading("A13 — Colours without enough contrast", id: "a13-colours-without-enough-contrast").h3
+
+        CodeBlock(#"theme Faint {
+    color-text: #BBBBBB
+    color-background: #FFFFFF
+}
+page P(path: "/", title: "T", description: "D") {
+    Heading("Contrast").h1
+}"#, title: "wf · draws A13")
+
+        CodeBlock(#"warning[A13]: text on a card or surface has a contrast ratio of 1.83:1, below the 4.5:1 WCAG AA minimum
+ --> src/App.wf:2:1
+  |
+2 |     color-text: #BBBBBB
+  | ^
+  = help: Darken --color-text or lighten --color-surface until they clear 4.5:1
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a13-colours-without-enough-contrast"#, title: "text")
+
+        Markdown("**Fix:** Darken the text or lighten the background until the ratio clears 4.5:1 (3:1 for large text).")
+
+        Heading("A14 — A role whose children are the wrong kind", id: "a14-a-role-whose-children-are-the-wrong-kind").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Tabs").h1
+    Row(role: "tablist") {
+        Button("One")
+        Button("Two")
+    }
+}"#, title: "wf · draws A14")
+
+        CodeBlock(#"warning[A14]: role "tablist" requires children with role "tab", but holds a Button
+ --> src/App.wf:3:5
+  |
+3 |     Row(role: "tablist") {
+  |     ^^^
+  = help: Give each child role: "tab", or use the built-in that owns this structure
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a14-a-role-whose-children-are-the-wrong-kind"#, title: "text")
+
+        Markdown("**Fix:** Give each child the role the parent requires (`role: \"tab\"`), or use the built-in that owns the structure — `Tabs`.")
+
+        Heading("A15 — An aria-label that does not contain the visible text", id: "a15-an-aria-label-that-does-not-contain-the-visible-text").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Save").h1
+    Button("Save", aria-label: "Submit the form")
+}"#, title: "wf · draws A15")
+
+        CodeBlock(#"warning[A15]: Button shows "save" but its aria-label says "Submit the form"
+ --> src/App.wf:3:5
+  |
+3 |     Button("Save", aria-label: "Submit the form")
+  |     ^^^^^^
+  = help: Start the aria-label with the visible text, so what a user says matches what they see
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a15-an-aria-label-that-does-not-contain-the-visible-text"#, title: "text")
+
+        Markdown("**Fix:** Start the `aria-label` with the visible words: `aria-label: \"Save the draft\"`.")
+
+        Heading("A16 — One id on several elements", id: "a16-one-id-on-several-elements").h3
+
+        Markdown("Warning.")
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state rows = ["a", "b"]
+    Heading("Rows").h1
+    for r in rows by r { Text(r, id: "row") }
+}"#, title: "wf · draws A16")
+
+        CodeBlock(#"warning[A16]: `id: "row"` is inside a `for`, so the page has several elements with one id
+ --> src/App.wf:4:26
+  |
+4 |     for r in rows by r { Text(r, id: "row") }
+  |                          ^^^^
+  = help: Make it unique — `id: "row-{item.id}"` — or drop it; a label's `for` and `aria-*` find one element by id
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a16-one-id-on-several-elements"#, title: "text")
+
+        Markdown("**Fix:** Make it unique — `id: \"row-\{r\}\"` — or drop it.")
+
+        Heading("Search and sharing", id: "search-and-sharing").h2
+
+        Markdown("Warnings. What a search engine or a link preview would act on.")
+
+        Heading("S01 — A page with no title", id: "s01-a-page-with-no-title").h3
+
+        CodeBlock(#"page P(path: "/", description: "D") {
+    Heading("No title").h1
+}"#, title: "wf · draws S01")
+
+        CodeBlock(#"warning[S01]: Page P has no title
+ --> src/App.wf:1:1
+  |
+1 | page P(path: "/", description: "D") {
+  | ^^^^
+  = help: Add one: page Name(path: "/", title: "What this page is")
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#s01-a-page-with-no-title"#, title: "text")
+
+        Markdown("**Fix:** `page P(path: \"/\", title: \"What this page is\")`.")
+
+        Heading("S02 — A page with no description", id: "s02-a-page-with-no-description").h3
+
+        CodeBlock(#"page P(path: "/", title: "T") {
+    Heading("No description").h1
+}"#, title: "wf · draws S02")
+
+        CodeBlock(#"warning[S02]: Page P has no description
+ --> src/App.wf:1:1
+  |
+1 | page P(path: "/", title: "T") {
+  | ^^^^
+  = help: Add one: page Name(path: "/", title: "…", description: "A sentence a search result can show")
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#s02-a-page-with-no-description"#, title: "text")
+
+        Markdown("**Fix:** Add a `description:` of about 150 characters: what a reader gets from the page.")
+
+        Heading("S03 — A description too long for a search result", id: "s03-a-description-too-long-for-a-search-result").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "A description that goes on for far longer than any search result will ever show, because it keeps adding clauses, qualifications and asides until the snippet is cut mid-sentence.") {
+    Heading("Long").h1
+}"#, title: "wf · draws S03")
+
+        CodeBlock(#"warning[S03]: Page P's description is 178 characters; a search result shows about 160
+ --> src/App.wf:1:1
+  |
+1 | page P(path: "/", title: "T", description: "A description that goes on for far longer than any search result will ever show, because it keeps adding clauses, qualifications and asides until the snippet is cut mid-sentence.") {
+  | ^^^^
+  = help: Shorten it, or accept that it will be cut mid-sentence
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#s03-a-description-too-long-for-a-search-result"#, title: "text")
+
+        Markdown("**Fix:** Shorten it to about 160 characters.")
+
+        Heading("S04 — Two pages on one route", id: "s04-two-pages-on-one-route").h3
+
+        CodeBlock(#"page A(path: "/about", title: "A", description: "D") { Heading("A").h1 }
+page B(path: "/about", title: "B", description: "D") { Heading("B").h1 }"#, title: "wf · draws S04")
+
+        CodeBlock(#"error[S04]: Pages A and B both claim the route /about
+ --> src/App.wf:2:1
+  |
+2 | page B(path: "/about", title: "B", description: "D") { Heading("B").h1 }
+  | ^^^^
+  = help: Give each page its own path
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#s04-two-pages-on-one-route"#, title: "text")
+
+        Markdown("**Fix:** Give each page its own `path:`. Only one of them would ever render.")
+
+        Heading("What is kept in the browser", id: "what-is-kept-in-the-browser").h2
+
+        Markdown("Warnings. `persist` values across releases.")
+
+        Heading("P01 — A persisted value with no way forward", id: "p01-a-persisted-value-with-no-way-forward").h3
+
+        CodeBlock(#"store Cart {
+    persist items: [String] = [] {
+        version: 2
+    }
+}"#, title: "wf · draws P01")
+
+        CodeBlock(#"warning[P01]: `items` is at version 2, and nothing brings version 1 forward
+ --> src/App.wf:2:5
+  |
+2 |     persist items: [String] = [] {
+  |     ^^^^^^^
+  = help: A reader who last visited then loses what they had. Add `migrate 1 -> 2`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#p01-a-persisted-value-with-no-way-forward"#, title: "text")
+
+        Markdown("**Fix:** Add a step for each older version: `migrate 1 -> 2 \{ old.map(…) \}`.")
+
+        Heading("P02 — A migration that never runs", id: "p02-a-migration-that-never-runs").h3
+
+        CodeBlock(#"store Cart {
+    persist items: [String] = [] {
+        version: 1
+        migrate 1 -> 2 { old }
+    }
+}"#, title: "wf · draws P02")
+
+        CodeBlock(#"warning[P02]: `migrate 1 -> 2` on `items` is past the declared version
+ --> src/App.wf:2:5
+  |
+2 |     persist items: [String] = [] {
+  |     ^^^^^^^
+  = help: A step above `version:` never runs; raise the version or drop the step
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#p02-a-migration-that-never-runs"#, title: "text")
+
+        Markdown("**Fix:** Raise `version:` to the step's target, or drop the step.")
+
+        Heading("P03 — A persisted value in a route-scoped store", id: "p03-a-persisted-value-in-a-route-scoped-store").h3
+
+        CodeBlock(#"store Filters(scope: .route) {
+    persist search = ""
+}"#, title: "wf · draws P03")
+
+        CodeBlock(#"warning[P03]: `search` is persisted in a store scoped to the route
+ --> src/App.wf:2:5
+  |
+2 |     persist search = ""
+  |     ^^^^^^^
+  = help: The route change drops the store and the next read builds it again from storage, so the value comes straight back. Use `state` for what the route owns, or widen the scope for what outlives it
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#p03-a-persisted-value-in-a-route-scoped-store"#, title: "text")
+
+        Markdown("**Fix:** Keep route-scoped data in `state`, or move the value to a store with a wider scope.")
+
+        Heading("Declared and never read", id: "declared-and-never-read").h2
+
+        Markdown("Warnings. A name beginning `_` is taken as unused on purpose.")
+
+        Heading("U01 — A state nothing reads", id: "u01-a-state-nothing-reads").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state unused = 0
+    Heading("Unused").h1
+}"#, title: "wf · draws U01")
+
+        CodeBlock(#"warning[U01]: `unused` is declared but never read
+ --> src/App.wf:2:5
+  |
+2 |     state unused = 0
+  |     ^^^^^
+  = help: Nothing reads the state; remove it, or name it `_unused` to keep it
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#u01-a-state-nothing-reads"#, title: "text")
+
+        Markdown("**Fix:** Remove it, read it, or name it `_unused` to keep it on purpose.")
+
+        Heading("U02 — A derived value nothing reads", id: "u02-a-derived-value-nothing-reads").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state n = 1
+    derived doubled = n * 2
+    Heading("{n}").h1
+}"#, title: "wf · draws U02")
+
+        CodeBlock(#"warning[U02]: `doubled` is declared but never read
+ --> src/App.wf:3:5
+  |
+3 |     derived doubled = n * 2
+  |     ^^^^^^^
+  = help: Nothing reads the derived value; remove it, or name it `_doubled` to keep it
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#u02-a-derived-value-nothing-reads"#, title: "text")
+
+        Markdown("**Fix:** Remove it or read it; a leading `_` keeps it.")
+
+        Heading("U03 — A component nothing places", id: "u03-a-component-nothing-places").h3
+
+        CodeBlock(#"component Orphan { Text("Nobody places me") }
+page P(path: "/", title: "T", description: "D") {
+    Heading("Home").h1
+}"#, title: "wf · draws U03")
+
+        CodeBlock(#"warning[U03]: `Orphan` is declared but never placed
+ --> src/App.wf:1:1
+  |
+1 | component Orphan { Text("Nobody places me") }
+  | ^^^^^^^^^
+  = help: Place it in a page, name it as a layout, or remove it
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#u03-a-component-nothing-places"#, title: "text")
+
+        Markdown("**Fix:** Place it, name it as a `layout:`, publish it in `build.elements`, or remove it.")
+
+        Heading("U04 — A store member nothing reads", id: "u04-a-store-member-nothing-reads").h3
+
+        CodeBlock(#"store Cart {
+    state items = []
+    state coupon = ""
+}
+page P(path: "/", title: "T", description: "D") {
+    use Cart
+    Heading("{Cart.items.length}").h1
+}"#, title: "wf · draws U04")
+
+        CodeBlock(#"warning[U04]: `Cart.coupon` is declared but never read
+ --> src/App.wf:3:5
+  |
+3 |     state coupon = ""
+  |     ^^^^^
+  = help: Nothing reads the state, inside the store or as `Cart.coupon`; remove it, or name it `_coupon` to keep it
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#u04-a-store-member-nothing-reads"#, title: "text")
+
+        Markdown("**Fix:** Remove the member, or name it with a leading `_`.")
+
+        Heading("U05 — An action nothing calls", id: "u05-an-action-nothing-calls").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state n = 0
+    action reset() { n = 0 }
+    Heading("{n}").h1
+}"#, title: "wf · draws U05")
+
+        CodeBlock(#"warning[U05]: `reset` is declared but never read
+ --> src/App.wf:3:5
+  |
+3 |     action reset() { n = 0 }
+  |     ^^^^^^
+  = help: Nothing reads the action; remove it, or name it `_reset` to keep it
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#u05-an-action-nothing-calls"#, title: "text")
+
+        Markdown("**Fix:** Call it, remove it, or name it `_reset`.")
+
+        Heading("U06 — Code after return", id: "u06-code-after-return").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state n = 0
+    action reset() {
+        n = 0
+        return n
+        log("reset")
+    }
+    Heading("Count {n}").h1
+    Button("Reset") { on click { reset() } }
+}"#, title: "wf · draws U06")
+
+        CodeBlock(#"warning[U06]: this never runs: the `return` above leaves first
+ --> src/App.wf:6:9
+  |
+6 |         log("reset")
+  |         ^^^^^^^^^^^^
+  = help: Remove it, or move it above the `return`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#u06-code-after-return"#, title: "text")
+
+        Markdown("**Fix:** Remove it, or move it above the `return`.")
+
+        Heading("U07 — An allow that allows nothing", id: "u07-an-allow-that-allows-nothing").h3
+
+        Markdown("A `// wf-allow(CODE)` comment accepts one finding on purpose: on a line of its own it covers the next line of code, and at the end of a line it covers that line. It names codes (`U01`) or families (`U`), comma-separated, and only what `lints` could lower — a warning, or an error that ships no broken page. An allow that covers nothing it names is reported, so allows cannot outlive what they were written for.")
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    // wf-allow(U01)
+    state shown = 0
+    Heading("Count {shown}").h1
+}"#, title: "wf · draws U07")
+
+        CodeBlock(#"warning[U07]: `wf-allow(U01)` allows nothing: no `U01` is reported on the line it covers
+ --> src/App.wf:2:5
+  |
+2 |     // wf-allow(U01)
+  |     ^^^^^^^^^^^^^^^^
+  = help: Remove it — what it was written for is gone
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#u07-an-allow-that-allows-nothing"#, title: "text")
+
+        Markdown("**Fix:** Remove the allow — what it was written for is gone.")
+
+        Heading("U08 — A condition that is always the same", id: "u08-a-condition-that-is-always-the-same").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Beta").h1
+    if false { Text("Coming soon") }
+}"#, title: "wf · draws U08")
+
+        CodeBlock(#"warning[U08]: `false` is always false, so one branch never runs
+ --> src/App.wf:3:8
+  |
+3 |     if false { Text("Coming soon") }
+  |        ^^^^^
+  = help: Use the value that decides, or remove the branch that cannot run
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#u08-a-condition-that-is-always-the-same"#, title: "text")
+
+        Markdown("**Fix:** Use the value that decides, or remove the branch that cannot run.")
+
+        Heading("U09 — An unkeyed loop whose items hold state", id: "u09-an-unkeyed-loop-whose-items-hold-state").h3
+
+        Markdown("Warning.")
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state rows = [{ id: 1, name: "a" }]
+    Heading("Rows").h1
+    for r in rows { Input(bind: r.name, label: "Name") }
+}"#, title: "wf · draws U09")
+
+        CodeBlock(#"warning[U09]: this `for` has no `by`, and each item holds a `Input`, which starts again whenever the list changes
+ --> src/App.wf:4:5
+  |
+4 |     for r in rows { Input(bind: r.name, label: "Name") }
+  |     ^^^
+  = help: Key it: `for r in … by r.id`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#u09-an-unkeyed-loop-whose-items-hold-state"#, title: "text")
+
+        Markdown("**Fix:** Key it: `for r in rows by r.id`.")
+
+        Heading("U10 — An else no value reaches", id: "u10-an-else-no-value-reaches").h3
+
+        CodeBlock(#"enum Tone { calm, loud }
+page P(path: "/", title: "T", description: "D") {
+    state tone: Tone = .calm
+    Heading("Tone").h1
+    match tone {
+        .calm { Text("Calm") }
+        .loud { Text("Loud") }
+        else { Text("?") }
+    }
+}"#, title: "wf · draws U10")
+
+        CodeBlock(#"warning[U10]: every case of `Tone` has its own arm, so this `match`'s `else` is never reached
+ --> src/App.wf:5:5
+  |
+5 |     match tone {
+  |     ^^^^^
+  = help: Remove the `else`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#u10-an-else-no-value-reaches"#, title: "text")
+
+        Markdown("**Fix:** Remove the `else`.")
+
+        Heading("Vocabulary", id: "vocabulary").h2
+
+        Markdown("Warnings.")
+
+        Heading("V01 — A bare word that means nothing", id: "v01-a-bare-word-that-means-nothing").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Save").h1
+    Button(primary)
+}"#, title: "wf · draws V01")
+
+        CodeBlock(#"warning[V01]: nothing in scope declares `primary`, so it reads as nothing — a flag is written `.primary`
+ --> src/App.wf:3:12
+  |
+3 |     Button(primary)
+  |            ^^^^^^^
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v01-a-bare-word-that-means-nothing"#, title: "text")
+
+        Markdown("**Fix:** Write the flag with its dot — `Button(\"Save\").primary` — or declare the name. The word is also a name nothing declares, so the build stops on it as `T13`; the editor shows both.\n\nA name a branch binds is declared through the whole of its block, however deep the element that reads it: `if let why = e.reason \{ Row \{ Pill(why) \} \}`, and a case's payload, `.failed(why) \{ … \}`, draw nothing.")
+
+        Heading("V03 — Markup put in as markup", id: "v03-markup-put-in-as-markup").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state body = "<b>Hi</b>"
+    Heading("Markup").h1
+    Unsafe.Html(body)
+}"#, title: "wf · draws V03")
+
+        CodeBlock(#"warning[V03]: `Unsafe.Html` puts markup in as markup
+ --> src/App.wf:4:5
+  |
+4 |     Unsafe.Html(body)
+  |     ^^^^^^^^^^^
+  = help: Anything the project did not write itself belongs in `sanitize(…)` first
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v03-markup-put-in-as-markup"#, title: "text")
+
+        Markdown("**Fix:** Wrap markup from outside the project in `sanitize(…)`: `Unsafe.Html(sanitize(body))`.")
+
+        Heading("V02 — A flag no stylesheet styles", id: "v02-a-flag-no-stylesheet-styles").h3
+
+        Markdown("A flag on one of your components whose class no stylesheet — the engine's or one of the project's `.css` files — defines, so it changes nothing on screen. The built-ins cannot draw it: the registry and the engine's stylesheet are held to each other. **Fix:** define the class in a `.css` file under `src/`, or drop the flag.")
+
+        Heading("V04 — A class that is the engine's", id: "v04-a-class-that-is-the-engine-s").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Classes").h1
+    Card(class: "wf-btn") { Text("x") }
+}"#, title: "wf · draws V04")
+
+        CodeBlock(#"warning[V04]: `class:` names `wf-btn`, one of the engine's own classes
+ --> src/App.wf:3:5
+  |
+3 |     Card(class: "wf-btn") { Text("x") }
+  |     ^^^^
+  = help: `wf-` classes are the built-ins': one added here brings another built-in's rules with it. Name a class of your own, or use the flag that sets the look
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v04-a-class-that-is-the-engine-s"#, title: "text")
+
+        Markdown("**Fix:** Name a class of your own and style it in a `.css` file under `src/`, or use the flag that sets the look you wanted (`.primary`, `.elevated`).")
+
+        Heading("V05 — A CSS property no browser knows", id: "v05-a-css-property-no-browser-knows").h3
+
+        Markdown("Warning.")
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Hello") {
+        style { colr: red }
+    }
+}"#, title: "wf · draws V05")
+
+        CodeBlock(#"warning[V05]: `colr` is not a CSS property, so the browser ignores it
+ --> src/App.wf:3:17
+  |
+3 |         style { colr: red }
+  |                 ^^^^
+  = help: Did you mean `color`?
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v05-a-css-property-no-browser-knows"#, title: "text")
+
+        Markdown("**Fix:** The property the message suggests — here `color`. A custom property is written `--name`.")
+
+        Heading("V06 — A design token the theme does not declare", id: "v06-a-design-token-the-theme-does-not-declare").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Hello") {
+        style { color: $brnad }
+    }
+}"#, title: "wf · draws V06")
+
+        CodeBlock(#"error[V06]: `$brnad` is no token the theme declares, so it is never set
+ --> src/App.wf:3:17
+  |
+3 |         style { color: $brnad }
+  |                 ^^^^^
+  = help: Declare it in your `theme { … }`, or use one the theme has
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v06-a-design-token-the-theme-does-not-declare"#, title: "text")
+
+        Markdown("**Fix:** A token the theme has — a short name resolves through the property (`padding: $lg`, `border: 1px solid $border`) — or declare it in your `theme \{ … \}`.")
+
+        Heading("V07 — A number where CSS wants a length", id: "v07-a-number-where-css-wants-a-length").h3
+
+        Markdown("Warning.")
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state pct = 40
+    Heading("Progress").h1
+    Card { style { width: {pct} } }
+}"#, title: "wf · draws V07")
+
+        CodeBlock(#"warning[V07]: `width: {pct}` is a number with no unit, which the browser drops
+ --> src/App.wf:4:20
+  |
+4 |     Card { style { width: {pct} } }
+  |                    ^^^^^^^^^^^^
+  = help: Give it one: `width: {pct}px` (or `%`, `rem`)
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v07-a-number-where-css-wants-a-length"#, title: "text")
+
+        Markdown("**Fix:** Give it a unit: `width: \{pct\}%`.")
+
+        Heading("V08 — An icon the runtime does not draw", id: "v08-an-icon-the-runtime-does-not-draw").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Launch").h1
+    Icon("rocket")
+}"#, title: "wf · draws V08")
+
+        CodeBlock(#"warning[V08]: `rocket` is not an icon the runtime draws; it will show as the word
+ --> src/App.wf:3:10
+  |
+3 |     Icon("rocket")
+  |          ^
+  = help: The icons: close, menu, search, home, user, settings, check, plus, minus, edit, trash, star, heart, mail, bell, download, upload, eye, link, calendar, filter, chevron-down, chevron-right, chevron-left, info, warning, arrow-left, arrow-right, logout, copy, sun, moon
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v08-an-icon-the-runtime-does-not-draw"#, title: "text")
+
+        Markdown("**Fix:** Use one of the built-in icons the message lists.")
+
+        Heading("V09 — An event the element does not fire", id: "v09-an-event-the-element-does-not-fire").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Save").h1
+    Button("Save") { on clik { log("saved") } }
+}"#, title: "wf · draws V09")
+
+        CodeBlock(#"warning[V09]: `clik` is not an event Button fires
+ --> src/App.wf:3:22
+  |
+3 |     Button("Save") { on clik { log("saved") } }
+  |                      ^^
+  = help: A handler names a DOM event (`click`, `input`, `change`, `submit`, `keydown`, `pointerdown`, `scroll`, …) or an event the element declares
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v09-an-event-the-element-does-not-fire"#, title: "text")
+
+        Markdown("**Fix:** Name a DOM event (`click`, `input`, `change`, `submit`, `keydown`, …) or one the component declares.")
+
+        Heading("V10 — A Host tag it does not make", id: "v10-a-host-tag-it-does-not-make").h3
+
+        Markdown("A `Host` is made of one of a few elements: `div`, `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul` or `table` — the tag is written into the document, so it is an allow-list rather than whatever the string says. Any other tag is a `div`.")
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Chart").h1
+    Host(tag: "video", mount: (n) => n)
+}"#, title: "wf · draws V10")
+
+        CodeBlock(#"warning[V10]: `Host` makes no `video`, so it is a `div`
+ --> src/App.wf:3:10
+  |
+3 |     Host(tag: "video", mount: (n) => n)
+  |          ^^^
+  = help: It makes `div`, `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul`, `table`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v10-a-host-tag-it-does-not-make"#, title: "text")
+
+        Markdown("**Fix:** Make it one of the tags `Host` makes, or use the element the built-ins offer for it (`Video`, `Audio`, `Image`).")
+
+        Heading("V11 — A component named like a built-in", id: "v11-a-component-named-like-a-built-in").h3
+
+        Markdown("A call of a built-in's name draws the built-in, so a component declared with that name is never drawn: its body, its props, its slots go unused, and what the page shows is the built-in instead. It happens to a component written before WebFluent gained an element of the same name — a `Footer` from WebFluent 2, a `Chart` from before 5.2.")
+
+        CodeBlock(#"component Chart(_ title: String) {
+    Text(title)
+}
+
+page P(path: "/", title: "T", description: "D") {
+    Heading("Sales").h1
+    Chart(kind: .bar, data: [3, 5, 2])
+}"#, title: "wf · draws V11")
+
+        CodeBlock(#"warning[V11]: `Chart` is a built-in component, so a call of that name draws the built-in, never this one
+ --> src/App.wf:1:1
+  |
+1 | component Chart(_ title: String) {
+  | ^^^^^^^^^
+  = help: Rename it — `MyChart`, `ReportChart` — and its call sites
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v11-a-component-named-like-a-built-in"#, title: "text")
+
+        Markdown("**Fix:** Rename the component and its call sites.")
+    }
+}

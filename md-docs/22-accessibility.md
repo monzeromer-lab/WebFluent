@@ -42,7 +42,7 @@ checks every page on every build.
 
 ## What the compiler checks
 
-Warnings on every build and in the editor ([Diagnostics](39-diagnostics.md#accessibility)):
+Warnings on every build and in the editor ([Diagnostics](40-diagnostics.md#accessibility)):
 
 | Code | Checks |
 |---|---|

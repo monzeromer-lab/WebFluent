@@ -8,7 +8,7 @@ use crate::error::{Result, WebFluentError};
 
 /// The diagnostics chapter, which holds an entry for every code (the docs
 /// test sees to it).
-const CHAPTER: &str = include_str!("../../md-docs/39-diagnostics.md");
+const CHAPTER: &str = include_str!("../../md-docs/40-diagnostics.md");
 
 pub fn run_explain(code: Option<&str>) -> Result<()> {
     match code {

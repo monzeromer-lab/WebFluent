@@ -88,7 +88,7 @@ Reach for something else when:
   but you write the binding yourself);
 - you need server-side rendering on every request with per-user data — a
   WebFluent site is static files plus a browser runtime; your server stays
-  your server (though [server rendering](34-server-rendering.md) of templates
+  your server (though [server rendering](35-server-rendering.md) of templates
   covers emails, invoices and fragments);
 - you need a native mobile app.
 
@@ -110,10 +110,10 @@ The guide is in six parts:
   order. Every example in them builds.
 - **Coming from a framework:** read [Coming from React, Vue or Svelte](04-coming-from.md)
   first; it maps what you know to what is here.
-- **Looking something up:** the [reference](36-components-reference.md)
+- **Looking something up:** the [reference](37-components-reference.md)
   chapters are generated from, or checked against, the compiler itself.
-- **Something is wrong:** start at [Troubleshooting](44-troubleshooting.md);
-  every diagnostic code has an entry in [Diagnostics](39-diagnostics.md).
+- **Something is wrong:** start at [Troubleshooting](45-troubleshooting.md);
+  every diagnostic code has an entry in [Diagnostics](40-diagnostics.md).
 
 Every `wf` code block in this guide is parsed, type-checked and compiled by
 the test suite, so what you read is what the compiler accepts. A block that
@@ -122,7 +122,7 @@ leaves something out says so with a `…`.
 ## Versions
 
 This guide describes WebFluent 5, the stable line. `wf --version` tells
-you which release you have, and [Upgrading](45-upgrading.md) lists what
+you which release you have, and [Upgrading](46-upgrading.md) lists what
 changed in each one.
 
 ## Next

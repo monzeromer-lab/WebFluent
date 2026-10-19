@@ -8,13 +8,13 @@ page ReferenceIndexPage(path: "/docs/reference", title: "Components reference", 
     ReferenceShell {
 
         Row(align: .center, gap: .xs, class: "crumbs") {
-            Text(t("guide.chapter", { n: "36" }))
+            Text(t("guide.chapter", { n: "37" }))
             Text("/")
-            Text(t("ch.36")) { style { color: $color-text-muted } }
+            Text(t("ch.37")) { style { color: $color-text-muted } }
         }
         Stack(gap: .sm) {
             style { gap: 12px; max-width: 680px }
-            Heading(t("ch.36")).h1 { style { margin: 0; font-size: 28px; line-height: 34px; font-weight: 700; letter-spacing: -0.016em; @md { font-size: 34px; line-height: 38px } } }
+            Heading(t("ch.37")).h1 { style { margin: 0; font-size: 28px; line-height: 34px; font-weight: 700; letter-spacing: -0.016em; @md { font-size: 34px; line-height: 38px } } }
             Markdown(t("ref.intro", { count: registry.count })) { style { & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
         }
 
@@ -121,7 +121,7 @@ page ReferenceEntry(path: "/docs/reference/:slug", slug: String, title: "{regist
             Stack(gap: .sm) {
                 style { gap: 10px }
                 Row(align: .center, gap: .xs, class: "crumbs") {
-                    Link(t("guide.chapter", { n: "36" }), to: "/docs/reference")
+                    Link(t("guide.chapter", { n: "37" }), to: "/docs/reference")
                     Text("/")
                     Link(c.group, to: "/docs/reference#{c.group.toLowerCase().replace(" ", "-")}")
                 }
@@ -236,7 +236,7 @@ page ReferenceEntry(path: "/docs/reference/:slug", slug: String, title: "{regist
 
         } else {
             Heading(t("notfound.title")).h2
-            Link(t("ch.36"), to: "/docs/reference")
+            Link(t("ch.37"), to: "/docs/reference")
         }
     }
 }

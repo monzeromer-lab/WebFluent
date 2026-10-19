@@ -18,17 +18,17 @@ page OldEventsAndForms(path: "/docs/guide/events-and-forms", title: "Events", de
 }
 
 page OldOutputs(path: "/docs/guide/outputs", title: "PDF and slides", description: "This chapter moved.", guard: false, redirect: "/docs/guide/pdf-and-slides", noindex: true) {
-    Heading(t("ch.33")).h1
-    Link(t("ch.33"), to: "/docs/guide/pdf-and-slides")
+    Heading(t("ch.34")).h1
+    Link(t("ch.34"), to: "/docs/guide/pdf-and-slides")
 }
 
 page OldTooling(path: "/docs/guide/tooling", title: "Command line and editors", description: "This chapter moved.", guard: false, redirect: "/docs/guide/cli", noindex: true) {
-    Heading(t("ch.37")).h1
-    Link(t("ch.37"), to: "/docs/guide/cli")
+    Heading(t("ch.38")).h1
+    Link(t("ch.38"), to: "/docs/guide/cli")
 }
 
 /// The cookbook became the tutorials: three projects built step by step.
 page OldCookbook(path: "/docs/cookbook", title: "Tutorials", description: "This chapter moved.", guard: false, redirect: "/docs/tutorials", noindex: true) {
-    Heading(t("ch.35")).h1
-    Link(t("ch.35"), to: "/docs/tutorials")
+    Heading(t("ch.36")).h1
+    Link(t("ch.36"), to: "/docs/tutorials")
 }

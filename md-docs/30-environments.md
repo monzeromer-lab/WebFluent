@@ -81,7 +81,7 @@ it is public:
 
 `env.PUBLIC_API` and `env.ANALYTICS_ID` may be read from a page;
 `env.STRIPE_SECRET` read from one is a **compile error**, naming the file and
-the line. A private value is still there for [server rendering](34-server-rendering.md),
+the line. A private value is still there for [server rendering](35-server-rendering.md),
 which runs where a secret stays secret — and it never reaches the bundle:
 the build writes only public values into it.
 
@@ -91,7 +91,7 @@ page ([Security](23-security.md#sessions-and-tokens)).
 `env` is the language's name for these settings, and only theirs: nothing a
 program declares may be called `env` — not a `state`, a prop, a route
 parameter, a loop item, nor a top-level `const`
-([`E118`](39-diagnostics.md#e118-a-name-the-language-already-has)). A value
+([`E118`](40-diagnostics.md#e118-a-name-the-language-already-has)). A value
 that says which stage a page is about is a `target` or a `stage`.
 
 ## A build per environment

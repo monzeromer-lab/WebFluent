@@ -1,0 +1,91 @@
+// md-docs/34-pdf-and-slides.md
+type Line { item: String, qty: Number, price: Number }
+const LINES: [Line] = [
+    Line(item: "Design", qty: 12, price: 90),
+    Line(item: "Build", qty: 40, price: 110),
+]
+page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
+    derived total = LINES.reduce((sum, l) => sum + l.qty * l.price, 0)
+    Document(size: "A4", title: "Invoice 2026-014", author: "Acme Studio") {
+        Header(on: .rest) { Text("Acme Studio · invoice 2026-014").muted.sm.right }
+        Footer { Text("Page {page} of {pages}").muted.sm.center }
+        Watermark("PAID")
+
+        Row(justify: .between, align: .start) {
+            Heading("Invoice").h1
+            Stack(gap: .xs) {
+                Text("No. 2026-014").bold
+                Text("Issued {format("2026-09-01", .date, "long")}").muted
+            }
+        }
+        Table {
+            Table.Head {
+                Table.Row { Table.Cell("Item")  Table.Cell("Qty")  Table.Cell("Price")  Table.Cell("Amount") }
+            }
+            Table.Body {
+                for l in LINES {
+                    Table.Row {
+                        Table.Cell(l.item)
+                        Table.Cell("{l.qty}")
+                        Table.Cell(format(l.price, .currency))
+                        Table.Cell(format(l.qty * l.price, .currency))
+                    }
+                }
+            }
+        }
+        Card {
+            style { break-inside: avoid; margin-top: 12pt }
+            Text("Total: {format(total, .currency)}").bold.lg
+        }
+        PageBreak
+        Heading("Terms").h2
+        Paragraph { Text("Payment within 30 days.") }
+    }
+}
+
+// md-docs/34-pdf-and-slides.md
+const SALES = [
+    { month: "Jan", web: 41, store: 22 },
+    { month: "Feb", web: 48, store: 25 },
+    { month: "Mar", web: 55, store: 21 },
+]
+page Report(path: "/", title: "Sales", description: "The quarter.") {
+    Document {
+        Heading("Sales by channel").h1
+        Chart(kind: .bar, data: SALES, x: "month", y: ["web", "store"], unit: "k")
+        Chart(kind: .donut, data: SALES, x: "month", y: "web", labels: true)
+        QrCode("https://example.com/report/q1")
+    }
+}
+
+// md-docs/34-pdf-and-slides.md
+page Deck(path: "/", title: "Q4 review", description: "The quarter in slides.") {
+    Presentation {
+        TitleSlide("Q4 review", subtitle: "Acme Studio, October 2026")
+        SectionSlide("Numbers").primary
+        Slide {
+            Heading("Revenue").h2
+            List {
+                List.Item { Text("Up 18% on Q3") }
+                List.Item { Text("Three new enterprise accounts") }
+                List.Item { Text("Churn at 1.2%") }
+            }
+        }
+        TwoColumn {
+            Container {
+                Heading("What worked").h3
+                Text("Self-serve onboarding.")
+            }
+            Container {
+                Heading("What did not").h3
+                Text("The March pricing test.")
+            }
+        }
+        ImageSlide(src: "chart.png", caption: "Monthly recurring revenue")
+        Slide {
+            style { background: linear-gradient(135deg, #1E3A8A, #0F172A); color: #fff }
+            Heading("Thank you").h1
+        }
+    }
+}
+

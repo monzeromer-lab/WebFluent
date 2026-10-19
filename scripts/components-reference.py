@@ -140,6 +140,6 @@ out.append("The names `Icon(…)`, `IconButton(icon:)` and `Sidebar.Item(icon:)`
 out.append(" ".join(f"`{i}`" for i in data["icons"]) + "\n")
 
 out.append("## Next\n")
-out.append("[CLI](37-cli.md).\n")
+out.append("[CLI](38-cli.md).\n")
 TARGET.write_text("\n".join(out))
 print(f"wrote {TARGET.relative_to(ROOT)}")

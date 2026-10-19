@@ -1,6 +1,6 @@
 # WebFluent Template Engine Specification
 
-> **Status: a design note, kept for its reasoning.** The current, tested description is the guide — [`md-docs/`](../md-docs/README.md), here 34-server-rendering.md. Where the two differ, the guide is right.
+> **Status: a design note, kept for its reasoning.** The current, tested description is the guide — [`md-docs/`](../md-docs/README.md), here 35-server-rendering.md. Where the two differ, the guide is right.
 
 ## Overview
 

@@ -40,7 +40,7 @@ A project with one theme uses it; with several, `webfluent.app.json` chooses:
 The baseline carries 71 tokens in groups — colour, font, spacing, radius,
 shadow, motion, easing, breakpoints, code and layout — every one a CSS custom
 property on `:root`, readable from a style block as `$name` and from a
-stylesheet as `var(--name)`. [Design tokens](41-design-tokens.md) lists each
+stylesheet as `var(--name)`. [Design tokens](42-design-tokens.md) lists each
 with its baseline value. Moving a breakpoint moves every media query the
 build writes with it.
 

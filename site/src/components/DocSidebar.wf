@@ -63,25 +63,26 @@ component DocSidebar {
         Sidebar.Item(to: "/docs/guide/environments") { Text("30", class: "num")  Text(t("ch.30")) }
         Sidebar.Item(to: "/docs/guide/performance") { Text("31", class: "num")  Text(t("ch.31")) }
         Sidebar.Item(to: "/docs/guide/interop") { Text("32", class: "num")  Text(t("ch.32")) }
-        Sidebar.Item(to: "/docs/guide/pdf-and-slides") { Text("33", class: "num")  Text(t("ch.33")) }
-        Sidebar.Item(to: "/docs/guide/server-rendering") { Text("34", class: "num")  Text(t("ch.34")) }
-        Sidebar.Item(to: "/docs/tutorials") { Text("35", class: "num")  Text(t("ch.35")) }
+        Sidebar.Item(to: "/docs/guide/desktop") { Text("33", class: "num")  Text(t("ch.33")) }
+        Sidebar.Item(to: "/docs/guide/pdf-and-slides") { Text("34", class: "num")  Text(t("ch.34")) }
+        Sidebar.Item(to: "/docs/guide/server-rendering") { Text("35", class: "num")  Text(t("ch.35")) }
+        Sidebar.Item(to: "/docs/tutorials") { Text("36", class: "num")  Text(t("ch.36")) }
 
         Text(t("nav.group.reference"), class: "group-label")
-        Sidebar.Item(to: "/docs/reference", active: .prefix) { Text("36", class: "num")  Text(t("ch.36")) }
-        Sidebar.Item(to: "/docs/guide/cli") { Text("37", class: "num")  Text(t("ch.37")) }
-        Sidebar.Item(to: "/docs/guide/config") { Text("38", class: "num")  Text(t("ch.38")) }
-        Sidebar.Item(to: "/docs/guide/diagnostics") { Text("39", class: "num")  Text(t("ch.39")) }
-        Sidebar.Item(to: "/docs/guide/built-ins") { Text("40", class: "num")  Text(t("ch.40")) }
-        Sidebar.Item(to: "/docs/guide/tokens") { Text("41", class: "num")  Text(t("ch.41")) }
-        Sidebar.Item(to: "/docs/guide/runtime") { Text("42", class: "num")  Text(t("ch.42")) }
-        Sidebar.Item(to: "/docs/guide/grammar") { Text("43", class: "num")  Text(t("ch.43")) }
+        Sidebar.Item(to: "/docs/reference", active: .prefix) { Text("37", class: "num")  Text(t("ch.37")) }
+        Sidebar.Item(to: "/docs/guide/cli") { Text("38", class: "num")  Text(t("ch.38")) }
+        Sidebar.Item(to: "/docs/guide/config") { Text("39", class: "num")  Text(t("ch.39")) }
+        Sidebar.Item(to: "/docs/guide/diagnostics") { Text("40", class: "num")  Text(t("ch.40")) }
+        Sidebar.Item(to: "/docs/guide/built-ins") { Text("41", class: "num")  Text(t("ch.41")) }
+        Sidebar.Item(to: "/docs/guide/tokens") { Text("42", class: "num")  Text(t("ch.42")) }
+        Sidebar.Item(to: "/docs/guide/runtime") { Text("43", class: "num")  Text(t("ch.43")) }
+        Sidebar.Item(to: "/docs/guide/grammar") { Text("44", class: "num")  Text(t("ch.44")) }
 
         Text(t("nav.group.help"), class: "group-label")
-        Sidebar.Item(to: "/docs/guide/troubleshooting") { Text("44", class: "num")  Text(t("ch.44")) }
-        Sidebar.Item(to: "/docs/guide/upgrading") { Text("45", class: "num")  Text(t("ch.45")) }
-        Sidebar.Item(to: "/docs/guide/browser-support") { Text("46", class: "num")  Text(t("ch.46")) }
-        Sidebar.Item(to: "/docs/guide/glossary") { Text("47", class: "num")  Text(t("ch.47")) }
-        Sidebar.Item(to: "/docs/guide/contributing") { Text("48", class: "num")  Text(t("ch.48")) }
+        Sidebar.Item(to: "/docs/guide/troubleshooting") { Text("45", class: "num")  Text(t("ch.45")) }
+        Sidebar.Item(to: "/docs/guide/upgrading") { Text("46", class: "num")  Text(t("ch.46")) }
+        Sidebar.Item(to: "/docs/guide/browser-support") { Text("47", class: "num")  Text(t("ch.47")) }
+        Sidebar.Item(to: "/docs/guide/glossary") { Text("48", class: "num")  Text(t("ch.48")) }
+        Sidebar.Item(to: "/docs/guide/contributing") { Text("49", class: "num")  Text(t("ch.49")) }
     }
 }

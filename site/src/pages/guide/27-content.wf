@@ -53,7 +53,7 @@ Then `wf init my-site`."#, title: "markdown")
     }
 }"#, title: "wf")
 
-        Markdown("A docs site is a folder of `.md` files, one layout, and a `.wf` for the `app`. (`wf docs` is something else: a gallery of every component the project can use — [chapter 37](/docs/guide/cli#wf-docs-wf-registry-wf-types).)")
+        Markdown("A docs site is a folder of `.md` files, one layout, and a `.wf` for the `app`. (`wf docs` is something else: a gallery of every component the project can use — [chapter 38](/docs/guide/cli#wf-docs-wf-registry-wf-types).)")
 
         Heading("Search and sharing", id: "search-and-sharing").h2
 

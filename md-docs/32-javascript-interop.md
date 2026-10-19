@@ -306,7 +306,7 @@ platform.**
 The runtime is `window.WF`: a script under `src/`, the console, or a
 library's callback can use it — `WF.navigate("/about")`,
 `WF.toast("Saved", "success")`, `WF.storeSnapshot("Cart")`. The
-[runtime reference](42-runtime-api.md) lists every function.
+[runtime reference](43-runtime-api.md) lists every function.
 
 Two things to know:
 
@@ -327,4 +327,4 @@ becomes a plain script under `src/` with its signatures as JSDoc and
 
 ## Next
 
-[PDF documents and slide decks](33-pdf-and-slides.md).
+[Desktop apps](33-desktop-apps.md): the same pages in a Tauri or an Electron window.

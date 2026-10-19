@@ -82,7 +82,7 @@ component DocsShell {
 
 A docs site is a folder of `.md` files, one layout, and a `.wf` for the
 `app`. (`wf docs` is something else: a gallery of every component the
-project can use — [chapter 37](37-cli.md#wf-docs-wf-registry-wf-types).)
+project can use — [chapter 38](38-cli.md#wf-docs-wf-registry-wf-types).)
 
 ## Search and sharing
 

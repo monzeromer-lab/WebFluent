@@ -1,6 +1,6 @@
 # Tutorials
 
-The finished projects of the guide's [Tutorials chapter](../../md-docs/35-tutorials.md),
+The finished projects of the guide's [Tutorials chapter](../../md-docs/36-tutorials.md),
 each built there step by step. None needs a server.
 
 | Level | Project | What it is |

@@ -32,7 +32,7 @@ A handler may name any DOM event: the common ones are `click`, `input`,
 `mouseleave`, and the rest — `dblclick`, `contextmenu`, `pointerdown`,
 `pointermove`, `touchstart`, `wheel`, `scroll`, `paste`, `drop`,
 `dragover`, `animationend`, `ended` and the others — work the same way. The
-[components reference](36-components-reference.md#on-every-element) lists
+[components reference](37-components-reference.md#on-every-element) lists
 every one. A component's own declared events (chapter 11) join them on its
 calls. A handler's body is an imperative block, so it may assign state,
 call actions, `await`, and `navigate`.

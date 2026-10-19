@@ -449,6 +449,6 @@ page Deploys(path: "/") {
 
         Heading("In the editor", id: "in-the-editor").h2
 
-        Markdown("Hover shows a name's inferred type (`state draft: String`, `derived remaining: Number`, `Todos.add: action(String)`); completion after `.` offers a record's fields, an enum's cases where one is wanted, and the methods of a `String`, a `Number` or a list. A type error is a diagnostic at the argument it belongs to. [Chapter 37](/docs/guide/cli#editors) sets it up.")
+        Markdown("Hover shows a name's inferred type (`state draft: String`, `derived remaining: Number`, `Todos.add: action(String)`); completion after `.` offers a record's fields, an enum's cases where one is wanted, and the methods of a `String`, a `Number` or a list. A type error is a diagnostic at the argument it belongs to. [Chapter 38](/docs/guide/cli#editors) sets it up.")
     }
 }

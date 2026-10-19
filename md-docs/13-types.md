@@ -287,7 +287,7 @@ needs (`Checkbox` and `Switch` a `Bool`, `Slider` a `Number`, `Input` a
 `findIndex` → `Number`; `join` → `String`; `groupBy` → `Map`; `reduce` →
 the initial value's type. On a `Number`: `toFixed`, `toString` → `String`.
 Anything else is `Any`. The full lists are in
-[Built-ins](40-built-ins.md).
+[Built-ins](41-built-ins.md).
 
 **From stores** — `Todos.items` has the type of the store's state,
 `Todos.add` the signature of its action.
@@ -407,7 +407,7 @@ Hover shows a name's inferred type (`state draft: String`, `derived
 remaining: Number`, `Todos.add: action(String)`); completion after `.`
 offers a record's fields, an enum's cases where one is wanted, and the
 methods of a `String`, a `Number` or a list. A type error is a diagnostic
-at the argument it belongs to. [Chapter 37](37-cli.md#editors) sets it up.
+at the argument it belongs to. [Chapter 38](38-cli.md#editors) sets it up.
 
 ## Next
 

@@ -151,7 +151,7 @@ image that did not load, or a page that rendered no text. It prints each
 route's first contentful paint, its size and its requests; `--budget 400`
 fails a route slower than 400 ms to paint, and `--json` is the report for a
 pipeline. It also lists the built-ins no page drew — a fact about coverage,
-not a failure. [CLI](37-cli.md#wf-verify) has the details.
+not a failure. [CLI](38-cli.md#wf-verify) has the details.
 
 ## In CI
 

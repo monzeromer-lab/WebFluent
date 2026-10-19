@@ -863,7 +863,7 @@ mod tests {
     #[test]
     fn every_title_is_its_heading_in_the_guide() {
         // The heading is the anchor `docs_url` links to.
-        let chapter = include_str!("../../md-docs/39-diagnostics.md");
+        let chapter = include_str!("../../md-docs/40-diagnostics.md");
         for c in CODES {
             let heading = format!("### {} — {}\n", c.code, c.title);
             assert!(

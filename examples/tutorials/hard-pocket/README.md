@@ -6,7 +6,7 @@ server, no account — the ledger is `persist`ed, opens on a sample of five
 months of a plausible life, and stays in step across every open tab.
 
 It is the finished project of the third tutorial in the guide's
-[Tutorials chapter](../../../md-docs/35-tutorials.md#hard-pocket), which
+[Tutorials chapter](../../../md-docs/36-tutorials.md#hard-pocket), which
 builds it step by step.
 
 What it teaches:
