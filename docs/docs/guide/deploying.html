@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.7</p>
+                            <p class="wf-text wf-s859a58d7">5.8</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -201,70 +201,74 @@
                         <p class="wf-text num">32</p>
                         <p class="wf-text">JavaScript interop</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/pdf-and-slides">
+                    <a class="wf-sidebar__item" href="/docs/guide/desktop">
                         <p class="wf-text num">33</p>
+                        <p class="wf-text">Desktop apps</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/pdf-and-slides">
+                        <p class="wf-text num">34</p>
                         <p class="wf-text">PDF and slides</p>
                     </a>
                     <a class="wf-sidebar__item" href="/docs/guide/server-rendering">
-                        <p class="wf-text num">34</p>
+                        <p class="wf-text num">35</p>
                         <p class="wf-text">Server rendering</p>
                     </a>
                     <a class="wf-sidebar__item" href="/docs/tutorials">
-                        <p class="wf-text num">35</p>
+                        <p class="wf-text num">36</p>
                         <p class="wf-text">Tutorials</p>
                     </a>
                     <p class="wf-text group-label">Reference</p>
                     <a class="wf-sidebar__item" href="/docs/reference">
-                        <p class="wf-text num">36</p>
+                        <p class="wf-text num">37</p>
                         <p class="wf-text">Components reference</p>
                     </a>
                     <a class="wf-sidebar__item" href="/docs/guide/cli">
-                        <p class="wf-text num">37</p>
+                        <p class="wf-text num">38</p>
                         <p class="wf-text">Command line and editors</p>
                     </a>
                     <a class="wf-sidebar__item" href="/docs/guide/config">
-                        <p class="wf-text num">38</p>
+                        <p class="wf-text num">39</p>
                         <p class="wf-text">Configuration</p>
                     </a>
                     <a class="wf-sidebar__item" href="/docs/guide/diagnostics">
-                        <p class="wf-text num">39</p>
+                        <p class="wf-text num">40</p>
                         <p class="wf-text">Diagnostics</p>
                     </a>
                     <a class="wf-sidebar__item" href="/docs/guide/built-ins">
-                        <p class="wf-text num">40</p>
+                        <p class="wf-text num">41</p>
                         <p class="wf-text">Built-ins</p>
                     </a>
                     <a class="wf-sidebar__item" href="/docs/guide/tokens">
-                        <p class="wf-text num">41</p>
+                        <p class="wf-text num">42</p>
                         <p class="wf-text">Design tokens</p>
                     </a>
                     <a class="wf-sidebar__item" href="/docs/guide/runtime">
-                        <p class="wf-text num">42</p>
+                        <p class="wf-text num">43</p>
                         <p class="wf-text">Runtime API</p>
                     </a>
                     <a class="wf-sidebar__item" href="/docs/guide/grammar">
-                        <p class="wf-text num">43</p>
+                        <p class="wf-text num">44</p>
                         <p class="wf-text">Grammar</p>
                     </a>
                     <p class="wf-text group-label">Help</p>
                     <a class="wf-sidebar__item" href="/docs/guide/troubleshooting">
-                        <p class="wf-text num">44</p>
+                        <p class="wf-text num">45</p>
                         <p class="wf-text">Troubleshooting</p>
                     </a>
                     <a class="wf-sidebar__item" href="/docs/guide/upgrading">
-                        <p class="wf-text num">45</p>
+                        <p class="wf-text num">46</p>
                         <p class="wf-text">Upgrading</p>
                     </a>
                     <a class="wf-sidebar__item" href="/docs/guide/browser-support">
-                        <p class="wf-text num">46</p>
+                        <p class="wf-text num">47</p>
                         <p class="wf-text">Browser support</p>
                     </a>
                     <a class="wf-sidebar__item" href="/docs/guide/glossary">
-                        <p class="wf-text num">47</p>
+                        <p class="wf-text num">48</p>
                         <p class="wf-text">Glossary</p>
                     </a>
                     <a class="wf-sidebar__item" href="/docs/guide/contributing">
-                        <p class="wf-text num">48</p>
+                        <p class="wf-text num">49</p>
                         <p class="wf-text">Contributing</p>
                     </a>
                 </aside>
@@ -282,6 +286,7 @@
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
 <p><code>wf build</code> writes <code>build/</code>: HTML, CSS, JavaScript, images, <code>sitemap.xml</code>, <code>robots.txt</code>, <code>_headers</code>, and a <code>.gz</code> beside every text file. That folder is the whole site. Any host that serves static files can serve it; there is no server process to run.</p>
+<p>The same folder is also what a desktop shell shows: <a href="/docs/guide/desktop">Desktop apps</a> makes a Tauri or an Electron app of it.</p>
 <p>Before the first deploy:</p>
 <ol>
 <li>Set <code>meta.site_url</code> to the address the site will have, and <code>build.base_path</code> if it lives under a sub-path (<code>/docs</code>).</li>
@@ -303,7 +308,7 @@
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
                             <div class="wf-markdown">
-<p>Pin a version so a release cannot change a deploy under you: <code>WF_VERSION=v5.7.0</code>. Or build locally and upload <code>build/</code> — it is only files.</p>
+<p>Pin a version so a release cannot change a deploy under you: <code>WF_VERSION=v5.8.0</code>. Or build locally and upload <code>build/</code> — it is only files.</p>
                             </div>
                             <h2 class="wf-heading" id="github-pages">GitHub Pages</h2>
                             <div class="wf-markdown">
@@ -332,7 +337,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - run: curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v5.7.0 bash
+      - run: curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v5.8.0 bash
       - run: ~/.webfluent/bin/wf build
       - uses: actions/upload-pages-artifact@v3
         with:
@@ -644,7 +649,7 @@ COPY --from=build /site/build /usr/share/nginx/html</code>
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.7, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.8, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -671,7 +676,7 @@ COPY --from=build /site/build /usr/share/nginx/html</code>
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.7 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.8 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

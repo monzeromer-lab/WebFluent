@@ -1,3 +1,46 @@
+# WebFluent v5.8.0 Release Notes
+
+A state that copies a live value says so, a script's values reach a page,
+and the guide shows a project as a desktop app.
+
+## Additions
+
+- **`X06`: a state that copies a live value once.** `state clock =
+  now(every: 1.seconds)` holds the moment the page opened and never ticks
+  again, so every «… ago» built from it freezes; the same holds for
+  `viewport`, `query`, `hash`, `theme`, `network` and `update`. The warning
+  names it where it is written, and when nothing assigns, binds or changes
+  the state, the quick fix declares it `derived`, which follows the live
+  value. A state the program does change — `state tab = query.tab ?? "all"`
+  that a click then sets — is a starting value on purpose and draws
+  nothing.
+- **Desktop apps, in the guide.** [Chapter 33](md-docs/33-desktop-apps.md)
+  shows a project as a Tauri or an Electron app: the build settings a
+  desktop needs, setting up each shell, the dev loop, calling the native
+  side through typed functions in a script under `src/`, events, plugins,
+  the security policy and packaging. The chapters after it move up one,
+  to 34–49.
+
+## Fixes
+
+- **A script's values reach a page.** A value a project script declares at
+  its top level — `const VERSION = "1"`, a `let`, a `var`, `window.ready =
+  …` — compiled to a signal read, `_VERSION()`, wherever a page or a
+  component read it: in text, a splice, a `derived`, an `if` or `show`
+  condition, an attribute, a handler. Nothing declares `_VERSION`, so the
+  page threw as it drew (`_VERSION is not defined`), and `wf check` passed.
+  A call to a script's function was right; a function handed on as a value
+  was not. Every name a script declares is now its own global, read as
+  itself, unless the page or component declares the same name, whose
+  state still wins.
+
+## Upgrading
+
+Nothing to change. A function written only to get a script's value onto a
+page can go back to being the value. A build may now warn `X06` on a
+`state` whose first value reads a live one; making it `derived` is the
+fix.
+
 # WebFluent v5.7.0 Release Notes
 
 A resource asked again for what it shows keeps it on the page.

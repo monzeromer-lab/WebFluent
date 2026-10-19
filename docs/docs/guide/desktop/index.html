@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desktop apps</title>
+    <meta name="description" content="A WebFluent project as a Tauri or Electron desktop app: setting up, the dev loop, calling Rust or Node from a page, events, plugins and packaging.">
+    <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/desktop">
+    <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/desktop?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/desktop?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://webfluent.monzeromer.dev/docs/guide/desktop">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Desktop apps">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="A WebFluent project as a Tauri or Electron desktop app: setting up, the dev loop, calling Rust or Node from a page, events, plugins and packaging.">
+    <meta property="og:url" content="https://webfluent.monzeromer.dev/docs/guide/desktop">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="ar_AR">
+    <meta property="og:image" content="https://webfluent.monzeromer.dev/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Desktop apps">
+    <meta name="twitter:description" content="A WebFluent project as a Tauri or Electron desktop app: setting up, the dev loop, calling Rust or Node from a page, events, plugins and packaging.">
+    <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/desktop#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/desktop","name":"Desktop apps","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"A WebFluent project as a Tauri or Electron desktop app: setting up, the dev loop, calling Rust or Node from a page, events, plugins and packaging."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/desktop#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Desktop apps","item":"https://webfluent.monzeromer.dev/docs/guide/desktop"}]}]}</script>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/js/analytics.js" defer></script>
+    <script src="/js/video.js" defer></script>
+    <script src="/app.js" defer></script>
+    <script src="/pages/DesktopGuide.js" data-wf-page="DesktopGuide" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--lg wf-sbdfa5493">
+                    <a class="wf-link" href="/">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
+                            <p class="wf-text wf-sb993cc9b">wf</p>
+                            <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
+                            <p class="wf-text wf-s859a58d7">5.8</p>
+                        </div>
+                    </a>
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
+                        <a class="wf-link active" href="/docs/guide" aria-current="page">Guide</a>
+                        <a class="wf-link" href="/docs/reference">Components</a>
+                        <a class="wf-link" href="/docs/tutorials">Tutorials</a>
+                        <a class="wf-link" href="/showcase">See it</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-sfe922990 site-search">
+                        <i class="wf-icon" data-icon="search"></i>
+                        <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
+                        <p class="wf-text wf-s8947c952">/</p>
+                    </div>
+                    <button class="wf-icon-btn site-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
+                    <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
+                    <button class="wf-btn site-button site-button-outlined" data-track="select_content" data-track-content-type="language" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
+                </div>
+            </div>
+            <div class="wf-row wf-align--stretch wf-s8fba8729">
+                <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
+                    <p class="wf-text group-label">Start</p>
+                    <a class="wf-sidebar__item" href="/docs/guide/introduction">
+                        <p class="wf-text num">01</p>
+                        <p class="wf-text">Introduction</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/getting-started">
+                        <p class="wf-text num">02</p>
+                        <p class="wf-text">Getting started</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/tutorial">
+                        <p class="wf-text num">03</p>
+                        <p class="wf-text">Tutorial</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/coming-from">
+                        <p class="wf-text num">04</p>
+                        <p class="wf-text">Coming from React, Vue or Svelte</p>
+                    </a>
+                    <p class="wf-text group-label">The basics</p>
+                    <a class="wf-sidebar__item" href="/docs/guide/language-basics">
+                        <p class="wf-text num">05</p>
+                        <p class="wf-text">Language basics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/pages-and-routing">
+                        <p class="wf-text num">06</p>
+                        <p class="wf-text">Pages and routing</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/elements">
+                        <p class="wf-text num">07</p>
+                        <p class="wf-text">Elements</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/state">
+                        <p class="wf-text num">08</p>
+                        <p class="wf-text">State and reactivity</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/events">
+                        <p class="wf-text num">09</p>
+                        <p class="wf-text">Events</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/control-flow">
+                        <p class="wf-text num">10</p>
+                        <p class="wf-text">Control flow</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/components">
+                        <p class="wf-text num">11</p>
+                        <p class="wf-text">Components</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/stores">
+                        <p class="wf-text num">12</p>
+                        <p class="wf-text">Stores</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/types">
+                        <p class="wf-text num">13</p>
+                        <p class="wf-text">Types</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/expressions">
+                        <p class="wf-text num">14</p>
+                        <p class="wf-text">Expressions</p>
+                    </a>
+                    <p class="wf-text group-label">Building</p>
+                    <a class="wf-sidebar__item" href="/docs/guide/styling">
+                        <p class="wf-text num">15</p>
+                        <p class="wf-text">Styling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/forms">
+                        <p class="wf-text num">16</p>
+                        <p class="wf-text">Forms and validation</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/data">
+                        <p class="wf-text num">17</p>
+                        <p class="wf-text">Data</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/realtime">
+                        <p class="wf-text num">18</p>
+                        <p class="wf-text">Real-time</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/offline">
+                        <p class="wf-text num">19</p>
+                        <p class="wf-text">Offline</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/motion">
+                        <p class="wf-text num">20</p>
+                        <p class="wf-text">Motion</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/i18n">
+                        <p class="wf-text num">21</p>
+                        <p class="wf-text">Internationalisation</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/accessibility">
+                        <p class="wf-text num">22</p>
+                        <p class="wf-text">Accessibility</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/security">
+                        <p class="wf-text num">23</p>
+                        <p class="wf-text">Security</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/testing">
+                        <p class="wf-text num">24</p>
+                        <p class="wf-text">Testing</p>
+                    </a>
+                    <p class="wf-text group-label">Shipping</p>
+                    <a class="wf-sidebar__item" href="/docs/guide/project-structure">
+                        <p class="wf-text num">25</p>
+                        <p class="wf-text">Project structure</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/static-and-spa">
+                        <p class="wf-text num">26</p>
+                        <p class="wf-text">Static or single-page</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/content">
+                        <p class="wf-text num">27</p>
+                        <p class="wf-text">Content</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/media">
+                        <p class="wf-text num">28</p>
+                        <p class="wf-text">Media</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/deploying">
+                        <p class="wf-text num">29</p>
+                        <p class="wf-text">Deploying</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/environments">
+                        <p class="wf-text num">30</p>
+                        <p class="wf-text">Environments</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/performance">
+                        <p class="wf-text num">31</p>
+                        <p class="wf-text">Performance</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/interop">
+                        <p class="wf-text num">32</p>
+                        <p class="wf-text">JavaScript interop</p>
+                    </a>
+                    <a class="wf-sidebar__item active" href="/docs/guide/desktop" aria-current="page">
+                        <p class="wf-text num">33</p>
+                        <p class="wf-text">Desktop apps</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/pdf-and-slides">
+                        <p class="wf-text num">34</p>
+                        <p class="wf-text">PDF and slides</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/server-rendering">
+                        <p class="wf-text num">35</p>
+                        <p class="wf-text">Server rendering</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/tutorials">
+                        <p class="wf-text num">36</p>
+                        <p class="wf-text">Tutorials</p>
+                    </a>
+                    <p class="wf-text group-label">Reference</p>
+                    <a class="wf-sidebar__item" href="/docs/reference">
+                        <p class="wf-text num">37</p>
+                        <p class="wf-text">Components reference</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/cli">
+                        <p class="wf-text num">38</p>
+                        <p class="wf-text">Command line and editors</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/config">
+                        <p class="wf-text num">39</p>
+                        <p class="wf-text">Configuration</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/diagnostics">
+                        <p class="wf-text num">40</p>
+                        <p class="wf-text">Diagnostics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/built-ins">
+                        <p class="wf-text num">41</p>
+                        <p class="wf-text">Built-ins</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/tokens">
+                        <p class="wf-text num">42</p>
+                        <p class="wf-text">Design tokens</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/runtime">
+                        <p class="wf-text num">43</p>
+                        <p class="wf-text">Runtime API</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/grammar">
+                        <p class="wf-text num">44</p>
+                        <p class="wf-text">Grammar</p>
+                    </a>
+                    <p class="wf-text group-label">Help</p>
+                    <a class="wf-sidebar__item" href="/docs/guide/troubleshooting">
+                        <p class="wf-text num">45</p>
+                        <p class="wf-text">Troubleshooting</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/upgrading">
+                        <p class="wf-text num">46</p>
+                        <p class="wf-text">Upgrading</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/browser-support">
+                        <p class="wf-text num">47</p>
+                        <p class="wf-text">Browser support</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/glossary">
+                        <p class="wf-text num">48</p>
+                        <p class="wf-text">Glossary</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/contributing">
+                        <p class="wf-text num">49</p>
+                        <p class="wf-text">Contributing</p>
+                    </a>
+                </aside>
+                <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
+                        <a class="wf-link" href="/docs/guide/introduction">Guide</a>
+                        <p class="wf-text">/</p>
+                        <p class="wf-text wf-s8c71c534">Chapter 33</p>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s28a8547f">
+                        <h1 class="wf-heading wf-sa3503382">Desktop apps</h1>
+                        <p class="wf-text wf-sfd35f593">The build is a folder a desktop shell can show. Here is how to make a Tauri or an Electron app of a project, call the native side from a page, and ship it.</p>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
+                            <div class="wf-markdown">
+<p>A desktop shell is a window that shows a web page, and a native side the page can ask for what a browser cannot do: a file on disk, a folder dialog, a notification, a process. <code>wf build</code> writes a folder of static files (<a href="/docs/guide/deploying">chapter 29</a>), and that folder is what a shell shows.</p>
+<p>Nothing in the language changes for a desktop app. A page reaches the native side through a plain script under <code>src/</code> (<a href="/docs/guide/interop">chapter 32</a>), one typed function per thing it asks for, and the shell decides what that script can reach.</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Desktop apps</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col"></th>
+                                        <th scope="col">Tauri</th>
+                                        <th scope="col">Electron</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>The native side is written in</td>
+                                        <td>Rust</td>
+                                        <td>JavaScript, on Node.js</td>
+                                    </tr>
+                                    <tr>
+                                        <td>The window is</td>
+                                        <td>the system&#x27;s own web view</td>
+                                        <td>a Chromium shipped inside the app</td>
+                                    </tr>
+                                    <tr>
+                                        <td>A page reaches the native side through</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>window.__TAURI__</code></p>
+                                            </div>
+                                        </td>
+                                        <td>what your preload script exposes</td>
+                                    </tr>
+                                    <tr>
+                                        <td>You need</td>
+                                        <td>Rust and the Tauri CLI</td>
+                                        <td>Node.js</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>Both run the same pages, the same runtime and the same security policy. Choose by the language you want on the native side.</p>
+                            </div>
+                            <h2 class="wf-heading" id="the-build-for-a-desktop">The build for a desktop</h2>
+                            <div class="wf-markdown">
+<p>The same project builds for the web and for a desktop. Two settings leave out what only a website needs:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{
+    &quot;build&quot;: { &quot;compress&quot;: false },
+    &quot;meta&quot;: { &quot;sitemap&quot;: false }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><strong><code>build.compress: false</code></strong> — the shell packs the folder into the app, so a <code>.gz</code> beside every file would ship every file twice.</li>
+<li><strong><code>meta.sitemap: false</code></strong> — no <code>sitemap.xml</code> or <code>robots.txt</code>; nothing crawls an app. <code>meta.site_url</code> and the link-preview tags can stay unset too.</li>
+<li><strong>Leave <code>offline</code> out</strong> — the files are already on the machine, so there is nothing for a service worker to keep.</li>
+</ul>
+<p>A single-page build and a static one both work (<a href="/docs/guide/static-and-spa">chapter 26</a>), and addresses stay as they are: both shells below answer a path the build has no file for with <code>index.html</code>, so reloading the window on <code>/settings</code> shows the settings page.</p>
+<p>An app is often used with no network. A font named in <code>meta.fonts</code> comes from another origin; for one that is always there, put the file in <code>public/</code> and declare it with <code>@font-face</code> in a <code>.css</code> file under <code>src/</code> (<a href="/docs/guide/styling">chapter 15</a>).</p>
+                            </div>
+                            <h2 class="wf-heading" id="tauri">Tauri</h2>
+                            <h3 class="wf-heading" id="setting-up">Setting up</h3>
+                            <div class="wf-markdown">
+<p>Install the Tauri CLI once — and what Tauri needs on your system, listed in its <a href="https://v2.tauri.app/start/prerequisites/">prerequisites</a>:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Then, in the project's folder:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>That writes <code>src-tauri/</code> beside <code>src/</code>: the Rust side, its <code>Cargo.toml</code> and <code>tauri.conf.json</code>. WebFluent never reads <code>src-tauri/</code>, and Tauri runs the two <code>wf</code> commands in the project's folder. Change two things in <code>src-tauri/tauri.conf.json</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{
+    &quot;identifier&quot;: &quot;com.example.notes&quot;,
+    &quot;app&quot;: { &quot;withGlobalTauri&quot;: true }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><strong><code>identifier</code></strong> — a reverse-domain name of your own. <code>cargo tauri build</code> refuses the default, <code>com.tauri.dev</code>.</li>
+<li><strong><code>withGlobalTauri</code></strong> — puts Tauri's JavaScript API on <code>window.__TAURI__</code>, every plugin's included, so a plain script uses it with no <code>import</code> and no npm.</li>
+</ul>
+<p>Leave <code>app.security.csp</code> at <code>null</code>: every page already carries its policy (<a href="#the-security-policy">below</a>).</p>
+                            </div>
+                            <h3 class="wf-heading" id="working-on-it">Working on it</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>runs <code>wf serve</code> and opens the app's window on it. Saving a <code>.wf</code> file rebuilds and reloads the window, and a build that fails shows its error over the page, as it does in a browser (<a href="/docs/guide/cli">chapter 38</a>). Saving a Rust file rebuilds the app. If <code>dev.port</code> is not <code>3000</code>, change <code>devUrl</code> to match.</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>runs <code>wf build</code>, embeds <code>build/</code> in the binary, and writes the installers under <code>src-tauri/target/release/bundle/</code>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="calling-rust">Calling Rust</h3>
+                            <div class="wf-markdown">
+<p>A command is a Rust function a page may call. Write it in <code>src-tauri/src/lib.rs</code> and list it in <code>run()</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">rust</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="rust" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">use tauri::Emitter;
+
+#[tauri::command]
+fn greet(name: &amp;str) -&gt; String {
+    format!(&quot;Hello, {name}!&quot;)
+}
+
+#[tauri::command]
+fn start_sync(app: tauri::AppHandle) {
+    std::thread::spawn(move || {
+        for done in [25, 50, 75, 100] {
+            // … a quarter of the work …
+            let _ = app.emit(&quot;sync-progress&quot;, done);
+        }
+    });
+}
+
+// in run(), before .run(…):
+//     .invoke_handler(tauri::generate_handler![greet, start_sync])</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A page calls a command through a script that names it: one function per command, typed with JSDoc, so <code>.wf</code> code calls <code>greet(name)</code> like any other function and the checker holds every call to its types:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">js</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="js" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/native.js
+/**
+ * Whether the page is inside the app, rather than a browser tab.
+ * @returns {boolean}
+ */
+function inApp() {
+  return &quot;__TAURI__&quot; in window;
+}
+
+/**
+ * Call a Rust command. What its `Err` holds arrives as an `Error`.
+ * @param {string} command
+ * @param {object} [args]
+ * @returns {Promise&lt;any&gt;}
+ */
+function invoke(command, args) {
+  if (!inApp()) return Promise.reject(new Error(&quot;This needs the desktop app.&quot;));
+  return window.__TAURI__.core.invoke(command, args).catch((err) =&gt; {
+    throw new Error(typeof err === &quot;string&quot; ? err : JSON.stringify(err));
+  });
+}
+
+/**
+ * @param {string} name
+ * @returns {Promise&lt;string&gt;}
+ */
+function greet(name) {
+  return invoke(&quot;greet&quot;, { name });
+}
+
+/** Start syncing; how far it has got arrives as `sync-progress`. */
+function startSync() {
+  return invoke(&quot;start_sync&quot;);
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><strong>Arguments are named.</strong> A command's parameters are the keys of the object, in camelCase: a Rust <code>note_id</code> is <code>{ noteId }</code>.</li>
+<li><strong>A result is a promise.</strong> A command that returns <code>Result&lt;T, E&gt;</code> resolves with the <code>T</code>; its <code>Err</code> rejects, and <code>invoke</code> makes it an <code>Error</code>, so a page's <code>catch e</code> reads <code>e.message</code>.</li>
+<li><strong><code>inApp()</code> is false in a browser tab</strong> — <code>wf serve</code> opened in a browser, <code>wf test</code>, <code>wf verify</code> — where there is no native side. Each function answers there instead of throwing, so every page still loads.</li>
+</ul>
+<p>The page awaits the function in an action:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Hello(path: &quot;/&quot;, title: &quot;Hello&quot;, description: &quot;Says hello from Rust.&quot;) {
+    state name = &quot;&quot;
+    state reply = &quot;&quot;
+
+    action ask() {
+        try {
+            reply = await greet(name)
+        } catch e {
+            reply = e.message
+        }
+    }
+
+    Heading(&quot;Hello&quot;).h1
+    if !inApp() {
+        Alert(&quot;Open this in the app to talk to Rust.&quot;).info
+    }
+    Input(bind: name, label: &quot;Your name&quot;)
+    Button(&quot;Greet&quot;).primary { on click { ask() } }
+    Text(reply)
+}</code>
+                            </div>
+                            <h3 class="wf-heading" id="hearing-from-rust">Hearing from Rust</h3>
+                            <div class="wf-markdown">
+<p><code>start_sync</code> above returns at once and reports as it goes, with <code>app.emit(…)</code>. A page hears an event for as long as it shows, so the listener belongs to the page's lifetime — <code>mount:</code> starts it and <code>cleanup:</code> stops it when the page, branch or item leaves:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">js</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="js" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/events.js
+/**
+ * Hear an event the native side emits, until the function it returns is called.
+ * @param {string} name
+ * @param {(payload: any) =&gt; void} handler
+ * @returns {() =&gt; void}
+ */
+function onEvent(name, handler) {
+  if (!inApp()) return () =&gt; {};
+  const listening = window.__TAURI__.event.listen(name, (e) =&gt; handler(e.payload));
+  return () =&gt; { listening.then((stop) =&gt; stop()); };
+}</code>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Sync(path: &quot;/sync&quot;, title: &quot;Sync&quot;, description: &quot;How far the sync has got.&quot;) {
+    state done = 0
+    state problem = &quot;&quot;
+
+    action setDone(n: Number) { done = n }
+    action start() {
+        try {
+            await startSync()
+        } catch e {
+            problem = e.message
+        }
+    }
+
+    Stack(gap: .md,
+          mount: (n) =&gt; onEvent(&quot;sync-progress&quot;, setDone),
+          cleanup: (stop) =&gt; stop()) {
+        Heading(&quot;Sync&quot;).h1
+        Progress(value: done, max: 100)
+        Text(&quot;{done}%&quot;)
+        Button(&quot;Sync now&quot;) { on click { start() } }
+        Text(problem)
+    }
+}</code>
+                            </div>
+                            <h3 class="wf-heading" id="plugins">Plugins</h3>
+                            <div class="wf-markdown">
+<p>A dialog, the file system, notifications, the clipboard, opening a link in the browser: each is a Tauri plugin. The CLI adds one — the crate, the line in <code>run()</code>, and its default permission in <code>src-tauri/capabilities/default.json</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>With <code>withGlobalTauri</code> on, its API is on <code>window.__TAURI__.dialog</code>. Wrap what a page uses, as with a command:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">js</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="js" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/dialogs.js
+/**
+ * Ask for a folder; `null` when the reader cancels.
+ * @returns {Promise&lt;?string&gt;}
+ */
+function pickFolder() {
+  if (!inApp()) return Promise.resolve(null);
+  return window.__TAURI__.dialog.open({ directory: true });
+}</code>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Library(path: &quot;/library&quot;, title: &quot;Library&quot;, description: &quot;Where the notes are kept.&quot;) {
+    state folder = &quot;&quot;
+
+    action choose() {
+        let picked = await pickFolder()
+        if picked != null {
+            folder = picked
+        }
+    }
+
+    Heading(&quot;Library&quot;).h1
+    Button(&quot;Choose a folder&quot;) { on click { choose() } }
+    if folder != &quot;&quot; {
+        Text(&quot;Notes are kept in {folder}.&quot;)
+    } else {
+        Text(&quot;No folder yet.&quot;).muted
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A plugin's call fails until its permission is granted. <code>cargo tauri add</code> grants the default set; anything beyond it — a path the <code>fs</code> plugin may read, for one — is named in the same capabilities file.</p>
+                            </div>
+                            <h3 class="wf-heading" id="the-security-policy">The security policy</h3>
+                            <div class="wf-markdown">
+<p>With <code>build.csp</code> on — it is for a project <code>wf init</code> makes — every page says where it may send requests (<a href="/docs/guide/security">chapter 23</a>). Tauri sends each call as a request: to <code>http://ipc.localhost</code> on Windows and Android, and to <code>ipc://localhost</code> on macOS, Linux and iOS. Name the first:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{ &quot;meta&quot;: { &quot;connect&quot;: [&quot;http://ipc.localhost&quot;] } }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>meta.connect</code> takes web origins only, so <code>ipc://localhost</code> cannot be named. Where the policy blocks that request, Tauri sends the call over its other channel instead, and logs a warning: <code>IPC custom protocol failed, Tauri will now use the postMessage interface instead</code>. The call works either way.</p>
+                            </div>
+                            <h2 class="wf-heading" id="electron">Electron</h2>
+                            <h3 class="wf-heading" id="setting-up">Setting up</h3>
+                            <div class="wf-markdown">
+<p>In the project's folder:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Electron's two files go in <code>electron/</code>, <strong>not</strong> under <code>src/</code>: every <code>.js</code> file under <code>src/</code> is linked into the pages, and these run in Node, outside them. Point <code>package.json</code> at the first:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{
+    &quot;main&quot;: &quot;electron/main.js&quot;,
+    &quot;scripts&quot;: { &quot;start&quot;: &quot;electron .&quot; }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The main process opens the window and serves the build to it. <code>file://</code> would break the build's absolute addresses (<code>/app.js</code> is the root of the disk there), so the build is served from an <code>app://</code> origin of its own:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">js</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="js" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// electron/main.js
+const { app, BrowserWindow, dialog, ipcMain, net, protocol } = require(&quot;electron&quot;);
+const fs = require(&quot;node:fs&quot;);
+const path = require(&quot;node:path&quot;);
+const { pathToFileURL } = require(&quot;node:url&quot;);
+
+const BUILD = path.join(__dirname, &quot;..&quot;, &quot;build&quot;);
+
+// To the page, app://localhost is an ordinary origin: absolute paths,
+// fetch and its security policy work as they do on a site.
+protocol.registerSchemesAsPrivileged([
+  { scheme: &quot;app&quot;, privileges: { standard: true, secure: true, supportFetchAPI: true } },
+]);
+
+const isFile = (p) =&gt; fs.statSync(p, { throwIfNoEntry: false })?.isFile() ?? false;
+
+// A file of the build; a route the router draws gets index.html.
+function serve(request) {
+  const file = path.join(BUILD, decodeURIComponent(new URL(request.url).pathname));
+  const found =
+    file.startsWith(BUILD + path.sep) &amp;&amp;
+    ([file, path.join(file, &quot;index.html&quot;)].find(isFile) ??
+      (path.extname(file) ? null : path.join(BUILD, &quot;index.html&quot;)));
+  return found
+    ? net.fetch(pathToFileURL(found).href)
+    : new Response(&quot;Not found&quot;, { status: 404 });
+}
+
+function openWindow() {
+  const win = new BrowserWindow({
+    width: 1000,
+    height: 700,
+    webPreferences: { preload: path.join(__dirname, &quot;preload.js&quot;) },
+  });
+  // Packaged, the window shows the build; while you work, `wf serve`.
+  win.loadURL(app.isPackaged ? &quot;app://localhost/&quot; : &quot;http://localhost:3000/&quot;);
+}
+
+app.whenReady().then(() =&gt; {
+  protocol.handle(&quot;app&quot;, serve);
+
+  ipcMain.handle(&quot;greet&quot;, (_event, name) =&gt; `Hello, ${name}!`);
+  ipcMain.handle(&quot;start-sync&quot;, (event) =&gt; {
+    for (const done of [25, 50, 75, 100]) {
+      // … a quarter of the work …
+      event.sender.send(&quot;sync-progress&quot;, done);
+    }
+  });
+  ipcMain.handle(&quot;pick-folder&quot;, async (event) =&gt; {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    const { canceled, filePaths } = await dialog.showOpenDialog(win, {
+      properties: [&quot;openDirectory&quot;],
+    });
+    return canceled ? null : filePaths[0];
+  });
+
+  openWindow();
+  app.on(&quot;activate&quot;, () =&gt; {
+    if (BrowserWindow.getAllWindows().length === 0) openWindow();
+  });
+});
+
+app.on(&quot;window-all-closed&quot;, () =&gt; {
+  if (process.platform !== &quot;darwin&quot;) app.quit();
+});</code>
+                            </div>
+                            <h3 class="wf-heading" id="calling-node">Calling Node</h3>
+                            <div class="wf-markdown">
+<p>A page has no Node in it. The preload script runs beside the page and hands it exactly what it may ask for — one function per channel, never <code>ipcRenderer</code> itself:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">js</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="js" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// electron/preload.js
+const { contextBridge, ipcRenderer } = require(&quot;electron&quot;);
+
+const events = [&quot;sync-progress&quot;];
+
+contextBridge.exposeInMainWorld(&quot;native&quot;, {
+  greet: (name) =&gt; ipcRenderer.invoke(&quot;greet&quot;, name),
+  startSync: () =&gt; ipcRenderer.invoke(&quot;start-sync&quot;),
+  pickFolder: () =&gt; ipcRenderer.invoke(&quot;pick-folder&quot;),
+  onEvent: (name, handler) =&gt; {
+    if (!events.includes(name)) throw new Error(`No event called ${name}`);
+    const listener = (_event, payload) =&gt; handler(payload);
+    ipcRenderer.on(name, listener);
+    return () =&gt; ipcRenderer.removeListener(name, listener);
+  },
+});</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>In an Electron app, one <code>src/native.js</code> takes the place of the three Tauri scripts above. It keeps their names, so the <code>Hello</code>, <code>Sync</code> and <code>Library</code> pages do not change at all:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">js</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="js" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// What electron/preload.js exposed, under the names the pages call.
+/**
+ * Whether the page is inside the app, rather than a browser tab.
+ * @returns {boolean}
+ */
+function inApp() {
+  return &quot;native&quot; in window;
+}
+
+const outside = () =&gt; Promise.reject(new Error(&quot;This needs the desktop app.&quot;));
+
+/**
+ * @param {string} name
+ * @returns {Promise&lt;string&gt;}
+ */
+function greet(name) {
+  return inApp() ? window.native.greet(name) : outside();
+}
+
+/** Start syncing; how far it has got arrives as `sync-progress`. */
+function startSync() {
+  return inApp() ? window.native.startSync() : outside();
+}
+
+/**
+ * Ask for a folder; `null` when the reader cancels.
+ * @returns {Promise&lt;?string&gt;}
+ */
+function pickFolder() {
+  return inApp() ? window.native.pickFolder() : Promise.resolve(null);
+}
+
+/**
+ * Hear an event the native side emits, until the function it returns is called.
+ * @param {string} name
+ * @param {(payload: any) =&gt; void} handler
+ * @returns {() =&gt; void}
+ */
+function onEvent(name, handler) {
+  return inApp() ? window.native.onEvent(name, handler) : () =&gt; {};
+}</code>
+                            </div>
+                            <h3 class="wf-heading" id="working-on-it">Working on it</h3>
+                            <div class="wf-markdown">
+<p>Run the dev server, then the app, in two terminals:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Saving a <code>.wf</code> file rebuilds and reloads the window. A change to <code>electron/</code> needs the app restarted.</p>
+<p>The page's policy needs nothing added: <code>app://localhost</code> is the page's own origin, as <code>http://localhost:3000</code> is while you work.</p>
+                            </div>
+                            <h3 class="wf-heading" id="packaging">Packaging</h3>
+                            <div class="wf-markdown">
+<p>Electron Forge and electron-builder both package an app from <code>package.json</code>. Whichever you use, run <code>wf build</code> first, and make sure the package holds <code>electron/</code> and <code>build/</code> — <code>src/</code> is not needed at run time. With electron-builder (<code>npm install --save-dev electron-builder</code>):</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{
+    &quot;main&quot;: &quot;electron/main.js&quot;,
+    &quot;scripts&quot;: {
+        &quot;start&quot;: &quot;electron .&quot;,
+        &quot;dist&quot;: &quot;wf build &amp;&amp; electron-builder&quot;
+    },
+    &quot;build&quot;: { &quot;files&quot;: [&quot;electron/**&quot;, &quot;build/**&quot;] }
+}</code>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
+                        <a class="wf-link wf-seeb37b6c" href="/docs/guide/interop">
+                            <p class="wf-text wf-s3e0c6c38">Previous</p>
+                            <p class="wf-text wf-s2c78daf6">32. JavaScript interop</p>
+                        </a>
+                        <a class="wf-link wf-sc144b15a" href="/docs/guide/pdf-and-slides">
+                            <p class="wf-text wf-s3e0c6c38">Next</p>
+                            <p class="wf-text wf-s2c78daf6">34. PDF and slides</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-sac91c322" aria-label="On this page">
+                    <div class="wf-stack wf-gap--xs wf-se43b90d0">
+                        <p class="wf-text overline">On this page</p>
+                        <a class="wf-link wf-s3e136ca4" href="#the-build-for-a-desktop">The build for a desktop</a>
+                        <a class="wf-link wf-s3e136ca4" href="#tauri">Tauri</a>
+                        <a class="wf-link wf-s3e136ca4" href="#electron">Electron</a>
+                    </div>
+                    <hr class="wf-divider wf-se3c90f45">
+                    <div class="wf-stack wf-gap--xs wf-s614f8b98">
+                        <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/33-desktop-apps.md">
+                            <i class="wf-icon" data-icon="edit"></i>
+                            <p class="wf-text wf-s5c9c3c02">Edit this page</p>
+                        </a>
+                        <a class="wf-link" href="/docs/reference">
+                            <i class="wf-icon" data-icon="menu"></i>
+                            <p class="wf-text wf-s5c9c3c02">Components reference</p>
+                        </a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-sa5763942">
+                        <p class="wf-text wf-s2880cc3a">Checked by the test suite</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is parsed, checked and type-checked on each release.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s2a0a6f19">
+            <div class="wf-stack wf-gap--lg wf-sc70179bd">
+                <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-seacec3bd">
+                    <div class="wf-stack wf-gap--sm wf-s1f90318e">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s02873871">
+                            <p class="wf-text wf-s7c2fb5e9">wf</p>
+                            <p class="wf-text wf-s312df231">WebFluent</p>
+                        </div>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.8, parsed, type-checked and compiled by the test suite.</p>
+                    </div>
+                    <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
+                        <div class="wf-stack wf-gap--xs wf-sf27948d8">
+                            <p class="wf-text overline">Guide</p>
+                            <a class="wf-link" href="/docs/guide/getting-started">Getting started</a>
+                            <a class="wf-link" href="/docs/guide/tutorial">Tutorial</a>
+                            <a class="wf-link" href="/docs/guide/deploying">Deploying</a>
+                            <a class="wf-link" href="/docs/guide/troubleshooting">Troubleshooting</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-sf27948d8">
+                            <p class="wf-text overline">Reference</p>
+                            <a class="wf-link" href="/docs/reference">Built-in components</a>
+                            <a class="wf-link" href="/docs/guide/cli">Command line and editors</a>
+                            <a class="wf-link" href="/docs/guide/config">Configuration</a>
+                            <a class="wf-link" href="/docs/guide/diagnostics">Diagnostics</a>
+                            <a class="wf-link" href="/docs/tutorials">Tutorials</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-sf27948d8">
+                            <p class="wf-text overline">Project</p>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/releases">Releases</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/issues">Issues</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
+                    <p class="wf-text">WebFluent 5.8 — MPL-2.0</p>
+                    <div class="wf-row wf-align--center wf-gap--md">
+                        <button class="wf-btn link-button" type="button">Cookie settings</button>
+                        <p class="wf-text">© 2026 Monzer Omer</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
