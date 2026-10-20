@@ -157,6 +157,8 @@ pub struct JsCodegen {
     ssg_mode: bool,
     /// Base path for deployment (e.g., "/WebFluent")
     base_path: String,
+    /// The app's own schemes a frame's address may use.
+    app_schemes: Vec<String>,
     /// Each page's title, so the router can set `document.title` when it
     /// shows the page; a SPA otherwise keeps the entry page's title forever.
     page_titles: HashMap<String, String>,
@@ -258,6 +260,7 @@ impl JsCodegen {
             i18n_translations: HashMap::new(),
             ssg_mode: false,
             base_path: String::new(),
+            app_schemes: Vec::new(),
             page_titles: HashMap::new(),
             page_title_fns: HashMap::new(),
             in_thead: false,
@@ -382,6 +385,12 @@ impl JsCodegen {
 
     pub fn set_base_path(&mut self, path: String) {
         self.base_path = path;
+    }
+
+    /// The app's own schemes a frame's address may use
+    /// ([`crate::config::project::app_schemes`]).
+    pub fn set_app_schemes(&mut self, schemes: Vec<String>) {
+        self.app_schemes = schemes;
     }
 
     /// The values `env.NAME` reads, from the project's config.
@@ -691,6 +700,12 @@ impl JsCodegen {
         // Emit base path and SSG mode flag
         if !self.base_path.is_empty() {
             self.emit_line(&format!("WF.setBasePath(\"{}\");", self.base_path));
+        }
+        if !self.app_schemes.is_empty() {
+            self.emit_line(&format!(
+                "WF.allowSchemes({});",
+                serde_json::to_string(&self.app_schemes).unwrap_or_default()
+            ));
         }
         // The service worker, when the config names `offline`.
         if let Some(sync) = self.offline {

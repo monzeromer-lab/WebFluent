@@ -214,7 +214,11 @@ frame the app fills from its own protocol. The web's schemes are refused:
 `javascript:` run whatever a page writes. A page that compiles WebAssembly
 — a parser, an image codec — says so with `meta.wasm: true`, and
 `script-src` gains `'wasm-unsafe-eval'`: WebAssembly compiles, and `eval`
-is still refused.
+is still refused. One whose scripts write `<style>` elements — an editor
+such as CodeMirror, a chart library — says `meta.style_elements: true`, and
+`style-src` gains `'unsafe-inline'`, for styles only. A scheme named in
+`meta.frame` is also one a frame's `src` may use: the address is kept,
+where any other unknown scheme is emptied.
 
 A tag manager's own set-up — the `dataLayer` and the `gtag('config', …)`
 call a vendor pastes as an inline `<script>` — is a plain script under

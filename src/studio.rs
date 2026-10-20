@@ -167,6 +167,7 @@ pub fn compile_studio(
     if !config.build.base_path.is_empty() {
         js_gen.set_base_path(config.build.base_path.clone());
     }
+    js_gen.set_app_schemes(crate::config::project::app_schemes(config));
     js_gen.set_studio(node_map.clone());
     let js = js_gen.generate(program);
 

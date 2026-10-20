@@ -90,7 +90,8 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
     "connect": [],
     "img": [],
     "frame": [],
-    "wasm": false
+    "wasm": false,
+    "style_elements": false
   },
   "motion": { "duration": null, "easing": null },
   "env": {},
@@ -523,6 +524,11 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
                     Table.Cell { Markdown("`wasm`") }
                     Table.Cell { Markdown("`false`") }
                     Table.Cell { Markdown("The pages compile WebAssembly: `script-src` gains `'wasm-unsafe-eval'`, which allows that and not `eval` ([chapter 23](/docs/guide/security)).") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`style_elements`") }
+                    Table.Cell { Markdown("`false`") }
+                    Table.Cell { Markdown("A script on the page writes `<style>` elements (an editor, a chart library): `style-src` gains `'unsafe-inline'`, for styles only ([chapter 23](/docs/guide/security)).") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`integrity`") }

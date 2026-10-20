@@ -661,6 +661,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     if !config.build.base_path.is_empty() {
         js_codegen.set_base_path(config.build.base_path.clone());
     }
+    js_codegen.set_app_schemes(crate::config::project::app_schemes(&config));
     let js = js_codegen.generate(&program);
 
     // The project as custom elements: one file any framework can load, and

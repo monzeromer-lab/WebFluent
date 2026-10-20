@@ -103,7 +103,8 @@ absent unless you add them.
     "connect": [],
     "img": [],
     "frame": [],
-    "wasm": false
+    "wasm": false,
+    "style_elements": false
   },
   "motion": { "duration": null, "easing": null },
   "env": {},
@@ -217,6 +218,7 @@ absent unless you add them.
 | `img` | `[]` | Origins a page may load images from besides its own and `data:` — a CDN, a tag's tracking pixel — as the policy's `img-src`: `"https://images.example.com"`, `"https://www.googletagmanager.com"`. An entry with a path or a keyword is `E111` ([chapter 23](23-security.md)). |
 | `frame` | `[]` | Origins a page may embed in a frame besides its own — a video player, a map — as the policy's `frame-src`: `"https://www.youtube-nocookie.com"`, or an app's own scheme alone, `"wfpreview:"`. An entry with a path or a keyword is `E111` ([chapter 23](23-security.md)). |
 | `wasm` | `false` | The pages compile WebAssembly: `script-src` gains `'wasm-unsafe-eval'`, which allows that and not `eval` ([chapter 23](23-security.md)). |
+| `style_elements` | `false` | A script on the page writes `<style>` elements (an editor, a chart library): `style-src` gains `'unsafe-inline'`, for styles only ([chapter 23](23-security.md)). |
 | `integrity` | `{}` | Subresource-integrity hashes of external assets, by URL. |
 
 ## `theme`

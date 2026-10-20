@@ -2329,7 +2329,8 @@ pixel (`https://www.googletagmanager.com`) — as `img-src`; `meta.frame` the
 origins a page may frame, as `frame-src`; `connect` and `frame` take an
 app's own scheme alone too (`"ipc:"`, `"wfpreview:"`), never the web's
 (`https:`, `data:`, `blob:`); `meta.wasm: true` adds `'wasm-unsafe-eval'`
-for a page that compiles WebAssembly; an entry with a path, or a keyword,
+for a page that compiles WebAssembly, `meta.style_elements: true` adds
+`'unsafe-inline'` to `style-src` for one whose scripts write `<style>`; an entry with a path, or a keyword,
 is `E111`. A vendor's inline set-up
 snippet (`dataLayer`, `gtag('config', …)`) is a plain script under `src/`.
 
@@ -3003,6 +3004,7 @@ now ships on every page.
         "img": [],
         "frame": [],
         "wasm": false,
+        "style_elements": false,
         "integrity": {}
     },
     "env": {},

@@ -80,6 +80,17 @@ pub fn guard(url: &str) -> &str {
     if is_safe(url) { url } else { "" }
 }
 
+/// [`is_safe`], with the app's own schemes allowed as well — those the
+/// config names in `meta.frame` ([`crate::config::project::app_schemes`]).
+pub fn is_safe_with(url: &str, also: &[String]) -> bool {
+    is_safe(url) || scheme_of(url).is_some_and(|s| also.contains(&s))
+}
+
+/// [`guard`], with the app's own schemes allowed as well.
+pub fn guard_with<'a>(url: &'a str, also: &[String]) -> &'a str {
+    if is_safe_with(url, also) { url } else { "" }
+}
+
 /// One piece of an address: text the source wrote, or a value spliced in.
 pub enum AddressPart {
     Text(String),

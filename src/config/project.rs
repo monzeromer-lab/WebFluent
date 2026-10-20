@@ -691,6 +691,13 @@ pub struct MetaConfig {
     /// refuses to compile it.
     #[serde(default)]
     pub wasm: bool,
+
+    /// A script on the page writes `<style>` elements — an editor such as
+    /// CodeMirror, a chart library. The policy's `style-src` then says
+    /// `'unsafe-inline'`, for styles only: what may run is unchanged. Off,
+    /// a browser drops them, and what they style draws unstyled.
+    #[serde(default)]
+    pub style_elements: bool,
 }
 
 /// One entry of `meta.scripts`.
@@ -827,8 +834,9 @@ pub fn csp_policy(config: &ProjectConfig) -> String {
     let meta = &config.meta;
     let mut style: Vec<String> = Vec::new();
     // A style value that reads state is written on the element; a policy
-    // that forbade it would be one the pages break.
-    if config.build.inline_styles {
+    // that forbade it would be one the pages break. So would one that
+    // forbade the `<style>` elements a script on the page writes.
+    if config.build.inline_styles || config.meta.style_elements {
         style.push("'unsafe-inline'".to_string());
     }
     let mut font: Vec<String> = Vec::new();
@@ -945,6 +953,19 @@ pub fn scheme_source(entry: &str) -> Option<String> {
         "file",
     ];
     (first_ok && rest_ok && !refused.contains(&scheme)).then(|| entry.to_string())
+}
+
+/// The schemes the config names as an app's own in `meta.frame` — `wfpreview`
+/// for `"wfpreview:"` — which a frame's address may use as well as the
+/// web's: the page's policy allows them, so its URL guard does too.
+pub fn app_schemes(config: &ProjectConfig) -> Vec<String> {
+    config
+        .meta
+        .frame
+        .iter()
+        .filter_map(|e| scheme_source(e))
+        .map(|s| s.trim_end_matches(':').to_string())
+        .collect()
 }
 
 /// A `meta.connect` entry as the policy writes it: an origin
@@ -1092,6 +1113,7 @@ impl Default for MetaConfig {
             img: Vec::new(),
             frame: Vec::new(),
             wasm: false,
+            style_elements: false,
         }
     }
 }
@@ -1513,6 +1535,38 @@ mod head_asset_tests {
             policy.contains("frame-src 'self' wfpreview: http://wfpreview.localhost;"),
             "{policy}"
         );
+    }
+
+    #[test]
+    fn style_elements_allow_styles_and_nothing_that_runs() {
+        let mut config = meta(&[], &[]);
+        config.meta.style_elements = true;
+        let policy = csp_policy(&config);
+        assert!(
+            policy.contains("style-src 'self' 'unsafe-inline';"),
+            "{policy}"
+        );
+        assert!(policy.contains("script-src 'self';"), "{policy}");
+    }
+
+    #[test]
+    fn a_frames_app_scheme_is_one_its_address_may_use() {
+        let mut config = meta(&[], &[]);
+        config.meta.frame = vec![
+            "wfpreview:".to_string(),
+            "https://www.youtube-nocookie.com".to_string(),
+        ];
+        assert_eq!(app_schemes(&config), ["wfpreview"]);
+        let also = app_schemes(&config);
+        assert!(crate::codegen::url::is_safe_with(
+            "wfpreview://localhost/site/",
+            &also
+        ));
+        assert!(!crate::codegen::url::is_safe_with(
+            "javascript:alert(1)",
+            &also
+        ));
+        assert!(!crate::codegen::url::is_safe("wfpreview://localhost/site/"));
     }
 
     #[test]

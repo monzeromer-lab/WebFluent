@@ -330,7 +330,9 @@ scheme alone, which is how a policy names an app's own:
 
 A protocol of your own (`register_uri_scheme_protocol`) is named the same
 way: `"frame": ["myapp:", "http://myapp.localhost"]` for a frame the app
-fills from it. A page that compiles WebAssembly adds `"wasm": true`.
+fills from it, and a frame's `src` may then use that scheme. A page that
+compiles WebAssembly adds `"wasm": true`; one whose scripts write `<style>`
+elements, `"style_elements": true`.
 
 ## Electron
 

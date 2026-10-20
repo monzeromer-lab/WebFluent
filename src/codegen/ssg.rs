@@ -269,6 +269,7 @@ pub fn render_page_html_studio(
         indent: 2,
         base_path,
         link_base,
+        app_schemes: crate::config::project::app_schemes(config),
         studio,
         node_map: node_map.clone(),
         components: components.clone(),
@@ -474,6 +475,8 @@ struct SsgContext {
     indent: usize,
     base_path: String, // Relative path to root for assets (e.g., ".." for /about)
     link_base: String, // Config base_path for links (e.g., "/WebFluent")
+    /// The app's own schemes a frame's address may use (`meta.frame`).
+    app_schemes: Vec<String>,
     /// Studio mode: stamp `data-wf-node` on element roots.
     studio: bool,
     /// Node ids keyed by element span (empty unless in studio mode). Matches the
@@ -1353,7 +1356,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                             // A value the browser follows goes through the
                             // same scheme check the live page applies.
                             let s = if crate::codegen::url::URL_ATTRS.contains(&key.as_str()) {
-                                crate::codegen::url::guard(&s).to_string()
+                                crate::codegen::url::guard_with(&s, &ctx.app_schemes).to_string()
                             } else {
                                 s
                             };

@@ -187,6 +187,11 @@
   // an allow-list of schemes, so a scheme nobody has thought of is refused
   // by default.
   const WF_SCHEMES = ["http", "https", "mailto", "tel", "sms", "ftp"];
+  // And an app's own, which its config names for frames (`meta.frame`):
+  // the build says which, once, before anything is drawn.
+  function allowSchemes(schemes) {
+    for (const s of schemes) if (!WF_SCHEMES.includes(s)) WF_SCHEMES.push(s);
+  }
 
   /// `url` where a browser may follow it, and "" where it may not.
   ///
