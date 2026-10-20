@@ -8,8 +8,8 @@
 //! to its entry in the guide, its whole range, the other places it
 //! concerns, and an `Unnecessary` tag where it points at code nothing needs.
 
-use std::collections::HashMap;
 use lsp_types::*;
+use std::collections::HashMap;
 use webfluent::diagnostics::{Diagnostic as WfDiagnostic, Severity, Tag};
 
 use crate::line_index::LineIndex;

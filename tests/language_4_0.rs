@@ -1931,7 +1931,10 @@ fn markup_goes_in_through_one_door_and_the_build_says_where() {
     // attribute (`html:`), not a call.
     let js = raw_output(Backend::Spa, &page("Unsafe.Html(\"<p>ours</p>\")"));
     assert!(js.contains("html: \"<p>ours</p>\""), "{js}");
-    assert!(js.contains("attrHook(\"html\""), "the hook that puts it in is shipped");
+    assert!(
+        js.contains("attrHook(\"html\""),
+        "the hook that puts it in is shipped"
+    );
     let bare = parse_source(&page("Unsafe.Html(\"<p>ours</p>\")"), "t.wf").unwrap();
     let text: String = webfluent::linter::lint_accessibility_in(&bare, &|_| "t.wf".to_string())
         .iter()

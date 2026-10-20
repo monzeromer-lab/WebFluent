@@ -14,7 +14,7 @@
 //!
 //! `wf test` prints what this finds; the mobile editor shows it. The
 //! browser a test that acts needs is theirs: Chrome for `wf test`, the
-//! editor's WebView (the [`Browser`] trait).
+//! editor's WebView ([the `Browser` trait](crate::testing::Browser)).
 
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -130,16 +130,13 @@ pub fn collect(path: &Path) -> Result<Tests> {
     let config = crate::config::ProjectConfig::load(&project_dir).ok();
     // The project's translations: a test draws `t("key")` as the site does,
     // in its default locale.
-    let i18n = config
-        .as_ref()
-        .and_then(|c| c.i18n.clone())
-        .and_then(|i| {
-            crate::i18n::load(&project_dir, &i)
-                .ok()
-                .map(|tables| (i, tables))
-        });
-    let scripts = crate::project_js::load(&project_dir, &project_dir.join("src"))
-        .unwrap_or_default();
+    let i18n = config.as_ref().and_then(|c| c.i18n.clone()).and_then(|i| {
+        crate::i18n::load(&project_dir, &i)
+            .ok()
+            .map(|tables| (i, tables))
+    });
+    let scripts =
+        crate::project_js::load(&project_dir, &project_dir.join("src")).unwrap_or_default();
     Ok(Tests {
         shared,
         tests,

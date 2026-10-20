@@ -31,7 +31,9 @@ impl Stage {
 impl crate::testing::Browser for Stage {
     fn open(&mut self, dir: &Path, settle_ms: u64) -> Result<Box<dyn crate::testing::Page + '_>> {
         let server = super::preview::serve_directory(dir.to_path_buf(), "")?;
-        let page = self.browser.open(&format!("{}/", server.origin), settle_ms)?;
+        let page = self
+            .browser
+            .open(&format!("{}/", server.origin), settle_ms)?;
         Ok(Box::new(ChromePage {
             browser: &mut self.browser,
             page: Some(page),
@@ -60,7 +62,10 @@ impl crate::testing::Page for ChromePage<'_> {
     }
 
     fn errors(&self) -> Vec<String> {
-        self.page.as_ref().map(|p| p.errors().to_vec()).unwrap_or_default()
+        self.page
+            .as_ref()
+            .map(|p| p.errors().to_vec())
+            .unwrap_or_default()
     }
 }
 

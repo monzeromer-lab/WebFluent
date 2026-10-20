@@ -74,7 +74,12 @@ pub fn check_project_via(vfs: &dyn Vfs, p: &Project) -> Checked {
         ));
         if let Some(config) = p.config {
             out.extend(config_checks_via(vfs, dir, config, p.program));
-            out.extend(crate::linter::lint_env_via(vfs, dir, config, p.declaration_files));
+            out.extend(crate::linter::lint_env_via(
+                vfs,
+                dir,
+                config,
+                p.declaration_files,
+            ));
             if let Some(i18n) = &config.i18n
                 && let Ok(messages) = crate::i18n::load_via(vfs, dir, i18n)
             {

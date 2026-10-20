@@ -1,13 +1,14 @@
 //! `wf build` and `wf check`, as library calls.
 //!
-//! [`build`] reads a project through a [`Vfs`] — the disk, or the disk with
-//! an editor's unsaved buffers over it — checks it, and writes the site to
-//! its output directory. `wf build` is this function and a loop that prints
-//! what it reports, so the two cannot drift: the report holds every line the
-//! command prints, in order and on its stream, and every finding as the one
-//! [`Diagnostic`] the rest of the compiler uses, so a caller that shows them
-//! its own way has no text to parse. [`check`] is `wf check`: every finding
-//! of a build, with nothing written.
+//! [`build()`](crate::build::build) reads a project through [a
+//! `Vfs`](crate::vfs::Vfs) — the disk, or the disk with an editor's unsaved
+//! buffers over it — checks it, and writes the site to its output directory.
+//! `wf build` is this function and a loop that prints what it reports, so the
+//! two cannot drift: the report holds every line the command prints, in order
+//! and on its stream, and every finding as the one [`Diagnostic`] the rest of
+//! the compiler uses, so a caller that shows them its own way has no text to
+//! parse. [`check()`](crate::build::check) is `wf check`: every finding of a
+//! build, with nothing written.
 
 use crate::codegen::{JsCodegen, dark_css, generate_css_for, generate_html};
 use crate::config::ProjectConfig;
@@ -423,17 +424,20 @@ pub fn analyse_via(
     // Every check, over everything that parsed: the scripts and the config,
     // the structure, the registry's vocabulary, the types, the lints, and
     // what this output can draw. A stage's errors no longer stop the next.
-    let checked = crate::diagnostics::check::check_project_via(vfs, &crate::diagnostics::check::Project {
-        program: &program,
-        file_of: &file_of,
-        source_of: &source_of,
-        dir: Some(project_dir),
-        config: Some(config),
-        declaration_files: &declaration_files,
-        scripts: &scripts,
-        stylesheets: &project_css,
-        incomplete: !parse_errors.is_empty(),
-    });
+    let checked = crate::diagnostics::check::check_project_via(
+        vfs,
+        &crate::diagnostics::check::Project {
+            program: &program,
+            file_of: &file_of,
+            source_of: &source_of,
+            dir: Some(project_dir),
+            config: Some(config),
+            declaration_files: &declaration_files,
+            scripts: &scripts,
+            stylesheets: &project_css,
+            incomplete: !parse_errors.is_empty(),
+        },
+    );
     let mut diagnostics = parse_errors;
     diagnostics.extend(checked.diagnostics);
     crate::diagnostics::dedupe(&mut diagnostics);
@@ -579,7 +583,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
         ));
         out.say(format!("  Output: {}/{}", config.build.output, filename));
         if warning_count == 0 {
-            out.say(format!("Build complete."));
+            out.say("Build complete.");
         } else {
             out.say(format!("Build complete with {} warning(s).", warning_count));
         }
@@ -686,7 +690,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
         out.say(format!("  Elements: {}", tags.join(" ")));
         out.say(format!("  Output: {}/elements.js", config.build.output));
         if warning_count == 0 {
-            out.say(format!("Build complete."));
+            out.say("Build complete.");
         } else {
             out.say(format!("Build complete with {} warning(s).", warning_count));
         }
@@ -772,7 +776,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
                 }
             }
         }
-        out.say(format!("  SSG: pre-rendered static pages"));
+        out.say("  SSG: pre-rendered static pages");
     } else {
         // SPA: single index.html
         let html = generate_html(&config, &program);
@@ -860,9 +864,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
             if loose.len() > 5 {
                 out.say(format!("    … and {} more", loose.len() - 5));
             }
-            out.say(format!(
-                "    A `style {{ }}` value that reads state is set on the element; a literal is a class."
-            ));
+            out.say("    A `style { }` value that reads state is set on the element; a literal is a class.");
         }
         fs::write(output_dir.join("_headers"), headers_file(&config))?;
         // A policy is a promise about what the pages contain. Reading them
@@ -932,17 +934,12 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     if locale_count > 0 {
         out.say(format!(
             "  {} pages, {} components, {} stores, {} locales",
-            page_count,
-            comp_count,
-            store_count,
-            locale_count
+            page_count, comp_count, store_count, locale_count
         ));
     } else {
         out.say(format!(
             "  {} pages, {} components, {} stores",
-            page_count,
-            comp_count,
-            store_count
+            page_count, comp_count, store_count
         ));
     }
     out.say(format!("  Output: {}/", config.build.output));
@@ -965,7 +962,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
         )?;
     }
     if warning_count == 0 {
-        out.say(format!("Build complete."));
+        out.say("Build complete.");
     } else {
         out.say(format!("Build complete with {} warning(s).", warning_count));
     }
@@ -1153,7 +1150,9 @@ fn report_budget(
     let mut over = 0;
     for (name, limit) in budget {
         let Some(max) = parse_size(limit) else {
-            out.stderr(format!("  Warning: budget for '{name}' is not a size: '{limit}'"));
+            out.stderr(format!(
+                "  Warning: budget for '{name}' is not a size: '{limit}'"
+            ));
             over += 1;
             continue;
         };
@@ -1239,7 +1238,7 @@ fn print_stats(
     }
     files.sort_by_key(|f| std::cmp::Reverse(f.1));
     let total: usize = files.iter().map(|f| f.1).sum();
-    out.say(format!("\n  What it weighs"));
+    out.say("\n  What it weighs");
     for (name, bytes, _) in files.iter().take(20) {
         let gz = sizes.get(name).copied().unwrap_or(0);
         // Against the last build in this output directory, when there was one.
@@ -1282,15 +1281,22 @@ fn print_stats(
     let mut by_size: Vec<&crate::runtime::Kept> = modules.iter().collect();
     by_size.sort_by_key(|m| std::cmp::Reverse(m.bytes));
     for m in by_size {
-        out.say(format!("    {:<12} {:>8}  {}", m.name, kb(m.bytes), m.reason));
+        out.say(format!(
+            "    {:<12} {:>8}  {}",
+            m.name,
+            kb(m.bytes),
+            m.reason
+        ));
     }
     if left_out.is_empty() {
-        out.say(format!("    left out: nothing"));
+        out.say("    left out: nothing");
     } else {
         out.say(format!("    left out: {}", left_out.join(" ")));
     }
     if tokens_dropped > 0 {
-        out.say(format!("\n  Tokens: {tokens_dropped} nothing in the output names, left out"));
+        out.say(format!(
+            "\n  Tokens: {tokens_dropped} nothing in the output names, left out"
+        ));
     }
     Ok(())
 }

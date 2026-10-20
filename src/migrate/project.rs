@@ -244,7 +244,7 @@ pub fn four(project_dir: &Path, files: &[(PathBuf, String)]) -> Option<Four> {
 /// under `src/` as a script, and the libraries it loads in the config.
 /// Returns the config's path when it wrote it.
 ///
-/// The files are written as the step left them; [`write`] then writes any
+/// The files are written as the step left them; [`write()`] then writes any
 /// that the rest of the migration changed further.
 pub fn write_four_two(project_dir: &Path, step: &FourTwo) -> Result<Option<PathBuf>> {
     let outcome = &step.outcome;

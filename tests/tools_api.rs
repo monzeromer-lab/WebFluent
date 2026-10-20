@@ -109,7 +109,11 @@ impl Page for FakePage<'_> {
 }
 
 impl Browser for Fake {
-    fn open(&mut self, dir: &Path, _settle_ms: u64) -> webfluent::error::Result<Box<dyn Page + '_>> {
+    fn open(
+        &mut self,
+        dir: &Path,
+        _settle_ms: u64,
+    ) -> webfluent::error::Result<Box<dyn Page + '_>> {
         assert!(dir.join("index.html").is_file() && dir.join("app.js").is_file());
         self.opened = Some(dir.to_path_buf());
         self.shown = "Count 0".to_string();
@@ -132,7 +136,10 @@ fn a_test_that_acts_is_built_as_a_site_and_played_in_any_browser() {
     .unwrap();
     let tests = testing::collect(&dir).unwrap();
     assert_eq!(tests.acting(), 2);
-    let mut fake = Fake { opened: None, shown: String::new() };
+    let mut fake = Fake {
+        opened: None,
+        shown: String::new(),
+    };
     let work = dir.join(".work");
     let (_, adds) = &tests.tests[0];
     assert_eq!(tests.run_acting(&mut fake, adds, &work), Outcome::Passed);
@@ -156,7 +163,10 @@ fn a_migration_is_planned_in_memory_and_then_written() {
     assert!(plan.four.is_some());
     assert!(plan.four_two.is_some());
     // Nothing is written until it is applied.
-    assert_eq!(std::fs::read_to_string(dir.join("src/App.wf")).unwrap(), before);
+    assert_eq!(
+        std::fs::read_to_string(dir.join("src/App.wf")).unwrap(),
+        before
+    );
     let written = webfluent::migrate::project::apply(&plan).unwrap();
     assert!(!written.is_empty());
     // Carried forward, the project has nothing left to migrate.
@@ -174,7 +184,10 @@ fn an_audit_says_what_a_project_trusts() {
     .unwrap();
     let report = webfluent::audit::audit_project(&dir).unwrap();
     assert!(
-        report.persisted.iter().any(|p| p.name == "theme" && p.owner == "Prefs"),
+        report
+            .persisted
+            .iter()
+            .any(|p| p.name == "theme" && p.owner == "Prefs"),
         "{report:?}"
     );
     assert!(!report.dependencies.is_empty());
@@ -206,7 +219,10 @@ fn verify_finds_the_routes_of_a_build_and_what_no_page_drew() {
     build(&dir);
     let config = webfluent::config::ProjectConfig::load(&dir).unwrap();
     let routes = webfluent::verify::routes(&dir.join("build"), &dir, &config).unwrap();
-    assert!(routes.contains(&"/".to_string()) && routes.contains(&"/about".to_string()), "{routes:?}");
+    assert!(
+        routes.contains(&"/".to_string()) && routes.contains(&"/about".to_string()),
+        "{routes:?}"
+    );
     let undrawn = webfluent::verify::undrawn(&Default::default());
     assert!(undrawn.iter().any(|n| n == "Button"));
     let mut visit = webfluent::verify::Visit::default();

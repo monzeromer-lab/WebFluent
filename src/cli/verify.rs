@@ -118,4 +118,3 @@ pub fn run_verify(
     }
     Ok(())
 }
-

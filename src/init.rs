@@ -20,7 +20,12 @@ pub enum Template {
 }
 
 impl Template {
-    pub const ALL: [Template; 4] = [Template::Spa, Template::Static, Template::Pdf, Template::Slides];
+    pub const ALL: [Template; 4] = [
+        Template::Spa,
+        Template::Static,
+        Template::Pdf,
+        Template::Slides,
+    ];
 
     /// The template `wf init --template` names.
     pub fn parse(name: &str) -> Option<Template> {

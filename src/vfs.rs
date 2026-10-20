@@ -2,11 +2,12 @@
 //!
 //! Everything that reads a project — `wf build`, the language server, an
 //! editor that builds what its buffers say before they are saved — reads it
-//! through a [`Vfs`]. [`FsVfs`] is the disk, and what every command uses.
-//! [`OverlayVfs`] is another file system with an editor's open buffers laid
-//! over it: a buffer is read instead of the file it names, a buffer for a
-//! file that is not on disk yet is listed in its directory, and a file can
-//! be hidden as though it were deleted.
+//! through [a `Vfs`](crate::vfs::Vfs). [The `FsVfs`](crate::vfs::FsVfs) is
+//! the disk, and what every command uses. [An
+//! `OverlayVfs`](crate::vfs::OverlayVfs) is another file system with an
+//! editor's open buffers laid over it: a buffer is read instead of the file
+//! it names, a buffer for a file that is not on disk yet is listed in its
+//! directory, and a file can be hidden as though it were deleted.
 //!
 //! What a build *writes* — the output, the image cache, `.wf-sizes.json` —
 //! goes to the disk either way: an overlay changes what the project says,

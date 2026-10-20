@@ -77,7 +77,10 @@ fn print_four(plan: &Plan, check: bool) -> Result<()> {
         }
     }
     if !four.manual.is_empty() {
-        println!("\n  {} thing(s) 4 refuses that 3 allowed:", four.manual.len());
+        println!(
+            "\n  {} thing(s) 4 refuses that 3 allowed:",
+            four.manual.len()
+        );
         for line in &four.manual {
             println!("    {line}");
         }

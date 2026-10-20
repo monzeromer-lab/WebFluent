@@ -9,8 +9,8 @@
 //! output, and it is the reason a component can be in the registry, in
 //! the tests and in the documentation and still be broken in a page.
 //! `wf verify` visits the pages in Chrome; the mobile editor in its
-//! WebView. Both read a page's report with [`PAGE_REPORT`] and judge it
-//! here.
+//! WebView. Both read a page's report with [the `PAGE_REPORT`
+//! script](crate::verify::PAGE_REPORT) and judge it here.
 
 use std::collections::BTreeSet;
 use std::path::Path;
@@ -43,7 +43,11 @@ pub fn judge(visit: &mut Visit, route: &str, budget_ms: Option<u64>) {
 /// `:param` route — at the values its `paths:` names, or, without them, at
 /// a placeholder (`1`), which shows how the page meets a value it may not
 /// know.
-pub fn routes(output_dir: &Path, project_dir: &Path, config: &ProjectConfig) -> Result<Vec<String>> {
+pub fn routes(
+    output_dir: &Path,
+    project_dir: &Path,
+    config: &ProjectConfig,
+) -> Result<Vec<String>> {
     let mut found: BTreeSet<String> = BTreeSet::new();
     let mut walk = vec![output_dir.to_path_buf()];
     while let Some(dir) = walk.pop() {

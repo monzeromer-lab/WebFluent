@@ -167,7 +167,11 @@ fn a_typo_in_a_derived_value_is_one_error() {
         "page Home(path: \"/\", title: \"Home\", description: \"Deploys.\") {\n    use Deploys\n    derived live = Deploys.lve\n    Text(\"{live} live\")\n}\n",
     );
     let failure = build(&BuildOptions::new(&dir, &vfs)).unwrap_err();
-    let t06: Vec<_> = failure.report.errors().filter(|e| e.code == "T06").collect();
+    let t06: Vec<_> = failure
+        .report
+        .errors()
+        .filter(|e| e.code == "T06")
+        .collect();
     assert_eq!(t06.len(), 1, "{:?}", failure.report.diagnostics);
     assert_eq!((t06[0].line, t06[0].column), (3, 20));
     let printed = failure
@@ -241,10 +245,18 @@ fn the_report_is_what_wf_build_prints() {
         printed(Stream::Stderr)
     );
 
-    let warnings: Vec<(&str, &str)> = report.warnings().map(|w| (w.code, w.file.as_str())).collect();
-    assert!(warnings.contains(&("A01", "src/pages/Home.wf")), "{warnings:?}");
+    let warnings: Vec<(&str, &str)> = report
+        .warnings()
+        .map(|w| (w.code, w.file.as_str()))
+        .collect();
     assert!(
-        warnings.iter().any(|(_, file)| *file == "webfluent.app.json"),
+        warnings.contains(&("A01", "src/pages/Home.wf")),
+        "{warnings:?}"
+    );
+    assert!(
+        warnings
+            .iter()
+            .any(|(_, file)| *file == "webfluent.app.json"),
         "{warnings:?}"
     );
     // Every build writes the same output, read from the same text.

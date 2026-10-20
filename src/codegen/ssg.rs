@@ -2446,7 +2446,8 @@ mod program_scope_tests {
                 _ => None,
             })
             .expect("a page");
-        let cfg: ProjectConfig = serde_json::from_str(r#"{"name":"t","env":{"PUBLIC_REGION":"eu"}}"#).unwrap();
+        let cfg: ProjectConfig =
+            serde_json::from_str(r#"{"name":"t","env":{"PUBLIC_REGION":"eu"}}"#).unwrap();
         let components = HashMap::new();
         let with = |program_scope: Option<&Scope>| {
             render_page_html(

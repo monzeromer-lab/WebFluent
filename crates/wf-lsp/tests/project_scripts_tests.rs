@@ -3,8 +3,8 @@
 //! and one jump away; a class a `.css` file defines is offered inside
 //! `class: "…"`.
 
-use std::path::PathBuf;
 use lsp_types::*;
+use std::path::PathBuf;
 use wf_lsp::completion::provide_completions;
 use wf_lsp::definition::find_definition;
 use wf_lsp::diagnostics::project_diagnostics;
