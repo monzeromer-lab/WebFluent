@@ -69,6 +69,40 @@ pub fn missing_assets(
     let mut out = Vec::new();
     for (index, body) in bodies(program) {
         let file = file_of(index);
+        // `worker lang = spawn("/workers/lang.js")`: the script is a file of
+        // `public/` too.
+        walk_statements(body, &mut |stmt| {
+            let StatementKind::Connection(c) = &stmt.kind else {
+                return;
+            };
+            if c.kind != ConnectionKind::Worker {
+                return;
+            }
+            let Some(Expr::StringLiteral(url)) = &c.url else {
+                return;
+            };
+            if !url.starts_with('/') || url.starts_with("//") {
+                return;
+            }
+            let path = url.split(['?', '#']).next().unwrap_or("");
+            if path.len() > 1
+                && !dir
+                    .join("public")
+                    .join(path.trim_start_matches('/'))
+                    .exists()
+            {
+                out.push(
+                    Diagnostic::coded(
+                        "D01",
+                        format!("`spawn(\"{url}\")` names a script `public/` does not have, so the worker never starts"),
+                        &file,
+                        stmt.span.line.max(1) as usize,
+                        stmt.span.col.max(1) as usize,
+                    )
+                    .with_hint(format!("Put the worker at `public{path}`, or correct the path")),
+                );
+            }
+        });
         walk_elements(body, &mut |ui| {
             // A frame's `src` is a page — this site's or another's — not a
             // file of `public/`.
@@ -104,6 +138,21 @@ pub fn missing_assets(
         });
     }
     out
+}
+
+fn walk_statements(stmts: &[Statement], f: &mut dyn FnMut(&Statement)) {
+    for stmt in stmts {
+        f(stmt);
+        if let StatementKind::UIElement(ui) = &stmt.kind {
+            walk_statements(&ui.children, f);
+            for fill in &ui.slot_fills {
+                walk_statements(&fill.body, f);
+            }
+        }
+        for body in stmt.kind.bodies() {
+            walk_statements(body, f);
+        }
+    }
 }
 
 fn walk_elements(stmts: &[Statement], f: &mut dyn FnMut(&UIElement)) {

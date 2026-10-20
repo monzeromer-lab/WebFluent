@@ -1,0 +1,69 @@
+// A worker a store holds: asked, answered, failing, pushing, superseded,
+// timing out, and crashing once before it is started again.
+store Lang {
+    state answer = ""
+    state failed = ""
+    state pushed = ""
+    state restarted = 0
+    state cancelled = ""
+    worker lang = spawn("/workers/lang.js", restart: 1, timeout: 1000) {
+        on message(m) {
+            if m.type == "diagnostics" { pushed = m.items[0].message }
+            if m.type == "cancelled" { cancelled = "{m.id}" }
+        }
+        on restart(e) { restarted = restarted + 1 }
+    }
+    action upper(text: String) {
+        answer = await lang.request("upper", { text: text })
+    }
+    action fail() {
+        try {
+            await lang.request("fail", { text: "x" })
+        } catch e {
+            failed = e.message
+        }
+    }
+    action lint(text: String) { lang.send({ method: "lint", params: { text: text } }) }
+    action slow(n: Number) {
+        try {
+            answer = await lang.request("slow", { n: n }, { supersede: true })
+        } catch e {
+            failed = e.message
+        }
+    }
+    action never() {
+        try {
+            await lang.request("never", null)
+        } catch e {
+            failed = e.message
+        }
+    }
+    action crash() { lang.send({ method: "crash" }) }
+}
+
+page Home(path: "/", title: "Worker", description: "A worker held like a connection.") {
+    // A page's own worker, stopped when the page leaves.
+    state echoed = ""
+    worker echo = spawn("/workers/lang.js")
+    action shout() { echoed = await echo.request("upper", { text: "page" }) }
+    Heading("Worker").h1
+    Button("Shout", id: "shout") { on click { shout() } }
+    Text(echoed, id: "echoed")
+    Text(Lang.cancelled, id: "cancelled")
+    match Lang.lang {
+        open { Text("open", id: "state") }
+        error(e) { Text("error: {e.message}", id: "state") }
+        else { Text("closed", id: "state") }
+    }
+    Text("{Lang.lang.pending}", id: "pending")
+    Text(Lang.answer, id: "answer")
+    Text(Lang.failed, id: "failed")
+    Text(Lang.pushed, id: "pushed")
+    Text("{Lang.restarted}", id: "restarted")
+    Button("Upper", id: "upper") { on click { Lang.upper("halyard") } }
+    Button("Fail", id: "fail") { on click { Lang.fail() } }
+    Button("Lint", id: "lint") { on click { Lang.lint("page Home") } }
+    Button("Slow twice", id: "slow") { on click { Lang.slow(1)  Lang.slow(2) } }
+    Button("Never", id: "never") { on click { Lang.never() } }
+    Button("Crash", id: "crash") { on click { Lang.crash() } }
+}

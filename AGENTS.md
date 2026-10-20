@@ -1195,6 +1195,38 @@ holds what was sent while it was down. A stream resumes where it was.
 Each is a handle, not a signal: `.state` (what a `match` reads),
 `.messages`, `.last(kind)`, `.error`, `.closure` (`.code`, `.reason`),
 `.close()`, and `.send(v)` on a socket or a peer, `.post(v)` on a channel.
+A store may hold any of them too: opened when the store is first read,
+closed with it, read as `Lang.css.state` and in its actions as `css`.
+
+#### A worker
+
+`worker` runs a script of `public/` beside the page — a language service, a
+parser — held like a socket:
+
+```wf
+store Lang {
+    state problems: [Map] = []
+    worker css = spawn("/workers/css.js", restart: 1, timeout: 5000) {
+        on message(m) { if m.type == "diagnostics" { problems = m.items } }
+        on restart(e) { log("css restarted: {e.message}") }
+    }
+    action complete(text: String, at: Number) {
+        return await css.request("complete", { text: text, at: at }, { supersede: true })
+    }
+}
+```
+
+`.request(method, params, { timeout, supersede })` posts `{ id, method,
+params }` and is a promise of the `{ id, result }` the worker posts back
+(or rejects with its `{ id, error }`, a timeout — 10 s unset — or a newer
+request of the method with `supersede: true`, which also posts
+`{ cancel: id }`). `.send(v)` posts and expects nothing. What it posts
+with no `id` is a message: `on message`, `.last(kind)` by its `type` or
+`method`. `.pending` counts what is out; `.state` is `open`, `error` or
+`closed`. A crash fails what was out and starts it again `restart:` times
+(`on restart(e)`), then is `error` (`on error(e)`); `.restart()` starts it
+again by hand. `type: .module` for a module worker. The script is a file of
+the site (under the base path); a missing one is a `D01`.
 
 #### A peer
 
@@ -2902,7 +2934,7 @@ paint alike.
 | `F04` | `Checkbox(checked: x)` with no `bind:` and no `on change`: the box toggles, the state does not |
 | `F05` | A `Select` whose bound state starts as none of its options |
 | `T20` | A list or a record shown as text — a list's items run together, a record shows `[object Object]` |
-| `D01` | A site-relative `src:`, `poster:`, `captions:` or `transcript:` naming a file `public/` does not have |
+| `D01` | A site-relative `src:`, `poster:`, `captions:`, `transcript:` or `spawn(…)` naming a file `public/` does not have |
 | `D03` | A `persist` in a component placed more than once, or in a loop, which every instance shares; `key:` gives each its own (`persist open = false { key: item.id }`) |
 | `D04` | A persisted value's shape changed since the last build with no `version:` raised (the shapes are kept in `.wf-cache/persist.json`) |
 | `I03` | A message one locale has and another does not |

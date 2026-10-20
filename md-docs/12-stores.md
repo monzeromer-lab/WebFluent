@@ -267,6 +267,33 @@ the old shape, which the page would read as the new one.
 `T12` — the whole point of the type is that it does not reach a place any
 script can read.
 
+## A connection a store holds
+
+A store may hold a connection — a `socket`, a `stream`, a `channel`, a
+`peer` or a `worker` ([Real-time](18-realtime.md)) — for every page at
+once. It is opened when the store is first read and closed with the store
+(a `.route` store's when its route leaves); the store's actions and
+handlers name it as it is declared, and a page reads it through the store:
+
+```wf
+store Live {
+    state last = ""
+    socket feed = ws("wss://example.com/feed") {
+        on message(m) { last = m.text }
+    }
+    action say(text: String) { feed.send({ text: text }) }
+}
+
+page Feed(path: "/", title: "Feed", description: "One line for every page.") {
+    Heading("Feed").h1
+    match Live.feed {
+        open { Text(Live.last) }
+        else { Text("Reconnecting…") }
+    }
+    Button("Wave") { on click { Live.say("hello") } }
+}
+```
+
 ## Loading data into a store
 
 A store can own a `resource` too, or fill its state from a fetch in an

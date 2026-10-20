@@ -723,6 +723,70 @@ page Room(path: &quot;/room&quot;, title: &quot;Room&quot;, description: &quot;A
                             <div class="wf-markdown">
 <p>With <code>send</code> and <code>receive</code> declared, <code>chat.send(…)</code> is checked against <code>Outgoing</code> and each message is an <code>Incoming</code>.</p>
                             </div>
+                            <h2 class="wf-heading" id="a-worker">A worker</h2>
+                            <div class="wf-markdown">
+<p>A <strong>worker</strong> runs a script of the site's beside the page — a language service, a parser, anything that would make typing stutter on the page's own thread — and is held like a socket: owned by what opened it, stopped when that leaves. A store holds one for the whole app.</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">store Lang {
+    state problems: [Map] = []
+    state restarts = 0
+    worker css = spawn(&quot;/workers/css.js&quot;, restart: 1, timeout: 5000) {
+        on message(m) { if m.type == &quot;diagnostics&quot; { problems = m.items } }
+        on restart(e) { restarts = restarts + 1 }
+    }
+    action complete(text: String, at: Number) {
+        return await css.request(&quot;complete&quot;, { text: text, at: at }, { supersede: true })
+    }
+    action check(text: String) { css.send({ method: &quot;check&quot;, params: { text: text } }) }
+}
+
+page Editor(path: &quot;/&quot;, title: &quot;Editor&quot;, description: &quot;A worker beside the page.&quot;) {
+    Heading(&quot;Editor&quot;).h1
+    match Lang.css {
+        open     { Text(if Lang.css.pending &gt; 0 { &quot;Checking…&quot; } else { &quot;Checked&quot; }) }
+        error(e) { Alert(&quot;The CSS service stopped: {e.message}&quot;).danger }
+        else     { Text(&quot;Stopped&quot;) }
+    }
+    Text(&quot;{Lang.problems.length} problems, {Lang.restarts} restarts&quot;)
+    Button(&quot;Complete&quot;) { on click { Lang.complete(&quot;a { col&quot;, 7) } }
+    Button(&quot;Check&quot;) { on click { Lang.check(&quot;a { col&quot;) } }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The worker's side is a plain script under <code>public/</code> — the one place besides a project script where hand-written JavaScript belongs:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">js</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="js" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// public/workers/css.js
+self.onmessage = ({ data }) =&gt; {
+  const { id, method, params, cancel } = data;
+  if (cancel !== undefined) return;                       // a newer request took over
+  if (method === &quot;complete&quot;) self.postMessage({ id, result: complete(params) });
+  if (method === &quot;check&quot;) self.postMessage({ type: &quot;diagnostics&quot;, items: check(params.text) });
+};</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><strong><code>.request(method, params)</code></strong> posts <code>{ id, method, params }</code> and is a promise of what the worker posts back as <code>{ id, result }</code>; <code>{ id, error }</code> rejects it, with the error's <code>message</code> and its <code>data</code>. A request not answered in <code>timeout:</code> (10 s unset, or <code>{ timeout }</code> on the request) fails. With <code>{ supersede: true }</code>, a newer request of the same method fails the older one and the worker is posted <code>{ cancel: id }</code>.</li>
+<li><strong><code>.send(value)</code></strong> posts and expects nothing.</li>
+<li>What it posts with <strong>no <code>id</code></strong> is a message: <code>on message(m)</code> hears it, and <code>.last(kind)</code> is the last of a kind — its <code>type</code>, or its <code>method</code>.</li>
+<li><strong><code>.pending</code></strong> is how many requests are out; <strong><code>.state</code></strong> is <code>open</code>, <code>error</code> (a <code>match</code>'s <code>error(e)</code>) or <code>closed</code>.</li>
+<li>A worker that <strong>crashes</strong> — an error nothing in it caught — fails what was out and is started again <code>restart:</code> times (<code>on restart(e)</code>); past that it is <code>error</code> (<code>on error(e)</code>). <code>.restart()</code> starts it again by hand, <code>.close()</code> stops it.</li>
+<li><code>type: .module</code> starts a module worker. The script is a file of the site, so it is asked for under the base path, and a name <code>public/</code> does not have is a <code>D01</code>.</li>
+</ul>
+                            </div>
                             <h2 class="wf-heading" id="a-message-that-must-arrive-beacon">A message that must arrive: beacon</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -768,6 +832,7 @@ page Room(path: &quot;/room&quot;, title: &quot;Room&quot;, description: &quot;A
                         <a class="wf-link wf-s3e136ca4" href="#four-kinds-of-connection">Four kinds of connection</a>
                         <a class="wf-link wf-s3e136ca4" href="#a-peer">A peer</a>
                         <a class="wf-link wf-s3e136ca4" href="#options">Options</a>
+                        <a class="wf-link wf-s3e136ca4" href="#a-worker">A worker</a>
                         <a class="wf-link wf-s3e136ca4" href="#a-message-that-must-arrive-beacon">A message that must arrive: beacon</a>
                         <a class="wf-link wf-s3e136ca4" href="#the-network-as-a-value">The network as a value</a>
                     </div>

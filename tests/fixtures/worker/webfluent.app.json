@@ -1,0 +1,4 @@
+{
+  "name": "worker",
+  "build": { "ssg": true, "csp": true }
+}

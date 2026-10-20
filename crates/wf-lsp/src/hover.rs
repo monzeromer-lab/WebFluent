@@ -969,6 +969,9 @@ fn binding_doc(
         BindingKind::Peer => {
             "A WebRTC data channel to another page. `match` reads its state; `.send(v)`, `.signal(m)`, `.messages`, `.close()`."
         }
+        BindingKind::Worker => {
+            "A Web Worker the page or store holds. `match` reads its state; `.request(method, params)` is a promise of its answer, `.send(v)`, `.last(kind)`, `.pending`, `.error`, `.restart()`, `.close()`."
+        }
         BindingKind::FormHandle => {
             "A handle on the form: `.valid`, `.errors`, `.touched`, `.pending`, `.values`, `.reset()`, `.submit()`, `.apply(errors)`."
         }

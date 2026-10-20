@@ -65,6 +65,9 @@ fn action_names(body: &[Statement]) -> Vec<String> {
         .collect()
 }
 
+/// What a connection's handle holds as signals.
+pub const CONNECTION_SIGNALS: &[&str] = &["state", "error", "pending", "messages", "closure"];
+
 /// The events a runtime recogniser turns the pointer into (`gesture.js`).
 pub const GESTURE_EVENTS: &[&str] = &["longpress", "swipe", "receive", "dragmove"];
 
@@ -126,6 +129,11 @@ pub struct JsCodegen {
     /// The menu lists being drawn, innermost last: a `Menu.Sub` opens
     /// beside the one it is in.
     menu_lists: Vec<String>,
+    /// Every store's connections, as `(store, name)`: `Lang.css.pending`
+    /// is a signal on the handle, as a page's own connection's is.
+    store_connections: Vec<(String, String)>,
+    /// The connections of the store being emitted.
+    own_connections: Vec<String>,
     /// The options of the `VirtualList` whose `for` is drawn next.
     window_opts: Option<Vec<String>>,
     /// The body being emitted, for reading a state's declared condition.
@@ -262,6 +270,8 @@ impl JsCodegen {
             form_handles: Vec::new(),
             validated: Vec::new(),
             menu_lists: Vec::new(),
+            store_connections: Vec::new(),
+            own_connections: Vec::new(),
             window_opts: None,
             current_body: Vec::new(),
             own_names: Vec::new(),
@@ -656,7 +666,15 @@ impl JsCodegen {
                             .collect(),
                     );
                 }
-                Declaration::Store(s) => self.stores.push(s.name.clone()),
+                Declaration::Store(s) => {
+                    self.stores.push(s.name.clone());
+                    for stmt in &s.body {
+                        if let StatementKind::Connection(c) = &stmt.kind {
+                            self.store_connections
+                                .push((s.name.clone(), c.name.clone()));
+                        }
+                    }
+                }
                 // A service is a name in scope like a store's, not a
                 // signal, so it is read as it is written.
                 Declaration::Api(a) => self.stores.push(a.name.clone()),
@@ -1008,6 +1026,15 @@ impl JsCodegen {
                 StatementKind::State(st) => Some(st.name.clone()),
                 StatementKind::Derived(d) => Some(d.name.clone()),
                 StatementKind::Action(a) => Some(a.name.clone()),
+                StatementKind::Connection(c) => Some(c.name.clone()),
+                _ => None,
+            })
+            .collect();
+        self.own_connections = store
+            .body
+            .iter()
+            .filter_map(|s| match &s.kind {
+                StatementKind::Connection(c) => Some(c.name.clone()),
                 _ => None,
             })
             .collect();
@@ -1128,6 +1155,27 @@ impl JsCodegen {
             self.emit_line("},");
         }
 
+        // The connections the store holds open — a socket, a worker — made
+        // when the store is, and closed with it.
+        let connections: Vec<&ConnectionDecl> = store
+            .body
+            .iter()
+            .filter_map(|s| match &s.kind {
+                StatementKind::Connection(c) => Some(c),
+                _ => None,
+            })
+            .collect();
+        if !connections.is_empty() {
+            self.emit_line("connections: {");
+            self.indent += 1;
+            for c in connections {
+                self.emit_store_connection(c, &store_state_names);
+            }
+            self.indent -= 1;
+            self.emit_line("},");
+        }
+        self.own_connections.clear();
+
         self.indent -= 1;
         self.emit_line(&format!("}}), {options});"));
         self.emit_line("");
@@ -1186,6 +1234,14 @@ impl JsCodegen {
                 } else {
                     name.to_string()
                 }
+            }
+            // A connection of this store's: what it holds is a signal.
+            Expr::PropertyAccess(base, prop)
+                if CONNECTION_SIGNALS.contains(&prop.as_str())
+                    && matches!(base.as_ref(), Expr::Identifier(n)
+                        if self.own_connections.contains(n) && store_states.contains(n)) =>
+            {
+                format!("{}.{prop}()", self.emit_store_expr(base, store_states))
             }
             Expr::PropertyAccess(base, prop) if prop == "pending" && self.is_action_ref(base) => {
                 format!("{}.pending()", self.emit_store_expr(base, store_states))
@@ -5999,15 +6055,70 @@ impl JsCodegen {
         ));
     }
 
-    /// `socket chat = ws(…)`, `stream t = sse(…)`, `channel c =
-    /// broadcast(…)`: a connection the scope owns, and closes.
-    fn emit_connection(&mut self, c: &ConnectionDecl) {
-        let opener = match c.kind {
+    /// A store's connection: `name: (store) => WF.ws(…)`, its options and
+    /// handlers read in the store's terms.
+    fn emit_store_connection(&mut self, c: &ConnectionDecl, store_states: &[String]) {
+        let opener = Self::connection_opener(c.kind);
+        let url = c
+            .url
+            .as_ref()
+            .map(|u| self.emit_store_expr(u, store_states));
+        self.emit_line(&format!(
+            "{}: (store) => WF.{opener}({}{{",
+            c.name,
+            url.map(|u| format!("{u}, ")).unwrap_or_default()
+        ));
+        self.indent += 1;
+        for (key, value) in &c.options {
+            let v = self.emit_store_expr(value, store_states);
+            self.emit_line(&format!("{key}: {v},"));
+        }
+        for handler in &c.handlers {
+            let param = handler
+                .param
+                .clone()
+                .unwrap_or_else(|| "message".to_string());
+            self.emit_line(&format!(
+                "on{}: {}({param}) => {{",
+                capitalize_first(&handler.event),
+                if crate::parser::ast::awaits(&handler.body) {
+                    "async "
+                } else {
+                    ""
+                }
+            ));
+            self.indent += 1;
+            self.store_locals.borrow_mut().clear();
+            let visible: Vec<String> = store_states
+                .iter()
+                .filter(|n| **n != param)
+                .cloned()
+                .collect();
+            for stmt in &handler.body {
+                self.emit_store_statement(stmt, &visible, std::slice::from_ref(&param));
+            }
+            self.store_locals.borrow_mut().clear();
+            self.indent -= 1;
+            self.emit_line("},");
+        }
+        self.indent -= 1;
+        self.emit_line("}),");
+    }
+
+    fn connection_opener(kind: ConnectionKind) -> &'static str {
+        match kind {
             ConnectionKind::Socket => "ws",
             ConnectionKind::Stream => "sse",
             ConnectionKind::Channel => "broadcast",
             ConnectionKind::Peer => "rtc",
-        };
+            ConnectionKind::Worker => "worker",
+        }
+    }
+
+    /// `socket chat = ws(…)`, `stream t = sse(…)`, `channel c =
+    /// broadcast(…)`: a connection the scope owns, and closes.
+    fn emit_connection(&mut self, c: &ConnectionDecl) {
+        let opener = Self::connection_opener(c.kind);
         // A peer's only argument is its options; the rest open an address.
         let url_js = c.url.as_ref().map(|url| {
             let url = self.emit_expr(url);
@@ -6509,6 +6620,15 @@ impl JsCodegen {
             // is a signal on the handle. It is read where it is written, so
             // `Text("{rows.state}")` shows the state and follows it; it used to
             // show the signal's own source, once.
+            // A store's connection, `Lang.css.pending`: the same.
+            Expr::PropertyAccess(base, prop)
+                if CONNECTION_SIGNALS.contains(&prop.as_str())
+                    && matches!(base.as_ref(), Expr::PropertyAccess(owner, name)
+                        if matches!(owner.as_ref(), Expr::Identifier(store)
+                            if self.store_connections.iter().any(|(s, c)| s == store && c == name))) =>
+            {
+                format!("{}.{}()", self.emit_expr(base), prop)
+            }
             Expr::PropertyAccess(base, prop)
                 if matches!(
                     prop.as_str(),

@@ -531,6 +531,34 @@ window.wfStorage = {
 <p><strong>A changed shape needs a new version.</strong> The build remembers the shape of every persisted value (in <code>.wf-cache/persist.json</code>) and warns (<code>D04</code>) when it changes with no <code>version:</code> raised: a returning reader's browser holds the old shape, which the page would read as the new one.</p>
 <p><strong>A <code>Secret</code> is never written down.</strong> <code>persist token: Secret = &quot;&quot;</code> is a <code>T12</code> — the whole point of the type is that it does not reach a place any script can read.</p>
                             </div>
+                            <h2 class="wf-heading" id="a-connection-a-store-holds">A connection a store holds</h2>
+                            <div class="wf-markdown">
+<p>A store may hold a connection — a <code>socket</code>, a <code>stream</code>, a <code>channel</code>, a <code>peer</code> or a <code>worker</code> (<a href="/docs/guide/realtime">Real-time</a>) — for every page at once. It is opened when the store is first read and closed with the store (a <code>.route</code> store's when its route leaves); the store's actions and handlers name it as it is declared, and a page reads it through the store:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">store Live {
+    state last = &quot;&quot;
+    socket feed = ws(&quot;wss://example.com/feed&quot;) {
+        on message(m) { last = m.text }
+    }
+    action say(text: String) { feed.send({ text: text }) }
+}
+
+page Feed(path: &quot;/&quot;, title: &quot;Feed&quot;, description: &quot;One line for every page.&quot;) {
+    Heading(&quot;Feed&quot;).h1
+    match Live.feed {
+        open { Text(Live.last) }
+        else { Text(&quot;Reconnecting…&quot;) }
+    }
+    Button(&quot;Wave&quot;) { on click { Live.say(&quot;hello&quot;) } }
+}</code>
+                            </div>
                             <h2 class="wf-heading" id="loading-data-into-a-store">Loading data into a store</h2>
                             <div class="wf-markdown">
 <p>A store can own a <code>resource</code> too, or fill its state from a fetch in an action called at the top of a page:</p>
@@ -618,6 +646,7 @@ page DeploysPage(path: &quot;/deploys&quot;, title: &quot;Deploys&quot;, descrip
                         <a class="wf-link wf-s3e136ca4" href="#using-a-store">Using a store</a>
                         <a class="wf-link wf-s3e136ca4" href="#actions">Actions</a>
                         <a class="wf-link wf-s3e136ca4" href="#keeping-a-value-across-visits">Keeping a value across visits</a>
+                        <a class="wf-link wf-s3e136ca4" href="#a-connection-a-store-holds">A connection a store holds</a>
                         <a class="wf-link wf-s3e136ca4" href="#loading-data-into-a-store">Loading data into a store</a>
                         <a class="wf-link wf-s3e136ca4" href="#stores-in-the-static-paint">Stores in the static paint</a>
                         <a class="wf-link wf-s3e136ca4" href="#looking-at-one-while-it-runs">Looking at one while it runs</a>

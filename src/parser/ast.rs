@@ -695,6 +695,9 @@ pub enum ConnectionKind {
     /// `peer link = rtc(signal: send)` — a WebRTC data channel to another
     /// page, signalled over whatever transport the author already has.
     Peer,
+    /// `worker css = spawn("/workers/css.js")` — a Web Worker the scope
+    /// starts and stops, asked with `request` and heard with `on message`.
+    Worker,
 }
 
 /// A connection the page holds open, closed when the page leaves.

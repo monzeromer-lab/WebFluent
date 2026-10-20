@@ -1346,6 +1346,23 @@ fn value_members(
                 return items;
             }
             BindingKind::Stream => return handle(&connection),
+            BindingKind::Worker => {
+                return handle(&[
+                    ("request", true, "ask it, and await its answer"),
+                    ("send", true, "post a value, expecting nothing back"),
+                    (
+                        "last",
+                        true,
+                        "the latest message, or the latest of one kind",
+                    ),
+                    ("pending", false, "how many requests are out"),
+                    ("state", false, "open, error or closed"),
+                    ("error", false, "why it stopped"),
+                    ("closure", false, "how it was stopped"),
+                    ("restart", true, "start it again"),
+                    ("close", true, "stop it now"),
+                ]);
+            }
             BindingKind::Channel => {
                 return handle(&[
                     ("post", true, "send a value to every tab"),

@@ -526,6 +526,18 @@ page Doc(path: "/") {
 }
 
 // AGENTS.md
+store Lang {
+    state problems: [Map] = []
+    worker css = spawn("/workers/css.js", restart: 1, timeout: 5000) {
+        on message(m) { if m.type == "diagnostics" { problems = m.items } }
+        on restart(e) { log("css restarted: {e.message}") }
+    }
+    action complete(text: String, at: Number) {
+        return await css.request("complete", { text: text, at: at }, { supersede: true })
+    }
+}
+
+// AGENTS.md
 page Home(path: "/", title: "Home", description: "The front page.") {
     if update.available {
         Button("A new version is ready — reload") { on click { update.apply() } }

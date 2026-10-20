@@ -229,6 +229,8 @@ pub enum BindingKind {
     Stream,
     Channel,
     Peer,
+    /// `worker css = spawn(…)`: a Web Worker the page or store holds.
+    Worker,
     /// `Form(bind: form)`: a handle on the form.
     FormHandle,
     /// `page` and `pages` inside a `Header`, `Footer` or `Background`: the
@@ -258,6 +260,7 @@ impl BindingKind {
             BindingKind::Stream => "stream",
             BindingKind::Channel => "channel",
             BindingKind::Peer => "peer",
+            BindingKind::Worker => "worker",
             BindingKind::FormHandle => "form handle",
             BindingKind::PageNumber => "page number",
             BindingKind::ElementHandle => "element handle",
@@ -449,6 +452,7 @@ pub fn hoisted(stmts: &[Statement], scope: &mut Vec<Binding>) {
                     ConnectionKind::Stream => BindingKind::Stream,
                     ConnectionKind::Channel => BindingKind::Channel,
                     ConnectionKind::Peer => BindingKind::Peer,
+                    ConnectionKind::Worker => BindingKind::Worker,
                 },
                 span: stmt.span,
             }),

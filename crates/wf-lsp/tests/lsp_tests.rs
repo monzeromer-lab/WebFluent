@@ -1140,6 +1140,14 @@ fn after_a_dot_a_declaration_or_a_handle_offers_its_members() {
             &["post", "messages"][..],
         ),
         (
+            "worker w = spawn(\"/w.js\")",
+            "w.pending",
+            "w.‸",
+            &[
+                "request", "send", "last", "pending", "state", "restart", "close",
+            ][..],
+        ),
+        (
             "resource r = fetch(\"/x\")",
             "r.data",
             "r.‸",

@@ -127,6 +127,7 @@ pub const MODULES: &[Module] = &[
     module!("overlay", exports: [
         same("dialog"), same("popup"), same("tabs"),
     ], deps: [], triggers: []),
+    module!("worker", exports: [same("worker")], deps: [], triggers: []),
     module!("windowed", exports: [same("windowed")], deps: ["motion"], triggers: []),
     module!("gesture", exports: [
         same("gesture"), same("draggable"), same("dropTarget"), same("splitter"),

@@ -813,6 +813,17 @@
       "triggers": []
     },
     {
+      "deps": [],
+      "exports": [
+        [
+          "worker",
+          "worker"
+        ]
+      ],
+      "name": "worker",
+      "triggers": []
+    },
+    {
       "deps": [
         "motion"
       ],

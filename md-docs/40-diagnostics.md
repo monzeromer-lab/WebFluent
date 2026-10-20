@@ -1012,8 +1012,8 @@ warning[R04]: `src: "images/cover.png"` is relative, so on `/blog/first` it is f
 ### D01 — A file the project does not have
 
 Warning. `Image(src: "/img/hero.png")` when `public/img/hero.png` does not
-exist (also `poster:`, `captions:`, `transcript:`): the page asks for it and
-gets a 404. **Fix:** put the file in `public/`, or correct the path.
+exist (also `poster:`, `captions:`, `transcript:`, and a worker's
+`spawn("/workers/css.js")`): the page asks for it and gets a 404. **Fix:** put the file in `public/`, or correct the path.
 
 ### D02 — A persisted value storage cannot keep
 

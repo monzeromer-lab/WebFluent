@@ -1643,6 +1643,9 @@ impl ParserV2 {
             "peer" if matches!(self.kind_at(2), TokenType::Equals) => {
                 self.parse_connection(ConnectionKind::Peer)
             }
+            "worker" if matches!(self.kind_at(2), TokenType::Equals) => {
+                self.parse_connection(ConnectionKind::Worker)
+            }
             "if" => self.parse_if(false),
             "for" => self.parse_for(false),
             "show" => {
@@ -2305,6 +2308,7 @@ impl ParserV2 {
             ConnectionKind::Stream => "stream",
             ConnectionKind::Channel => "channel",
             ConnectionKind::Peer => "peer",
+            ConnectionKind::Worker => "worker",
         };
         self.expect_word(word)?;
         let name = self.expect_ident("the connection's name")?;
@@ -2314,6 +2318,7 @@ impl ParserV2 {
             ConnectionKind::Stream => "sse",
             ConnectionKind::Channel => "broadcast",
             ConnectionKind::Peer => "rtc",
+            ConnectionKind::Worker => "spawn",
         };
         if !self.is_word(opener) {
             return Err(self.error_with_hint(

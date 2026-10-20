@@ -775,7 +775,7 @@ page Home(path: "/", title: "T", description: "D") {
 
         Heading("D01 — A file the project does not have", id: "d01-a-file-the-project-does-not-have").h3
 
-        Markdown("Warning. `Image(src: \"/img/hero.png\")` when `public/img/hero.png` does not exist (also `poster:`, `captions:`, `transcript:`): the page asks for it and gets a 404. **Fix:** put the file in `public/`, or correct the path.")
+        Markdown("Warning. `Image(src: \"/img/hero.png\")` when `public/img/hero.png` does not exist (also `poster:`, `captions:`, `transcript:`, and a worker's `spawn(\"/workers/css.js\")`): the page asks for it and gets a 404. **Fix:** put the file in `public/`, or correct the path.")
 
         Heading("D02 — A persisted value storage cannot keep", id: "d02-a-persisted-value-storage-cannot-keep").h3
 

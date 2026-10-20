@@ -144,6 +144,25 @@
       }
     }
 
+    // The connections it holds open — a socket, a worker — made now, with
+    // the store's lifetime rather than that of the page that first read
+    // it, and closed when a `.route` store's route leaves.
+    if (definition.connections) {
+      for (const [key, open] of Object.entries(definition.connections)) {
+        const scope = currentScope;
+        currentScope = [];
+        let handle;
+        try {
+          handle = open(store);
+        } finally {
+          const owned = currentScope;
+          currentScope = scope;
+          off.push(() => { for (const f of owned.splice(0)) f(); });
+        }
+        Object.defineProperty(store, key, { value: handle, enumerable: false });
+      }
+    }
+
     builtStores.set(name, { states, store });
     if (storeWatcher) storeWatcher({ store: name, action: null, args: [], before: null, after: snap(states) });
     return store;
