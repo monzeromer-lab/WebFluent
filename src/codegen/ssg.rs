@@ -1169,7 +1169,8 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                         | "trapFocus"
                         | "shared"
                         | "count"
-                ) || key.starts_with("data-wf-")
+                ) || crate::codegen::js::DRAG_PROPS.contains(&key.as_str())
+                    || key.starts_with("data-wf-")
                 {
                     continue;
                 }

@@ -33,6 +33,7 @@ pub fn builtin_to_html(name: &str) -> (&'static str, &'static str) {
         "Stack" => ("div", "wf-stack"),
         "Spacer" => ("div", "wf-spacer"),
         "Divider" => ("hr", "wf-divider"),
+        "Splitter" => ("div", "wf-splitter"),
 
         // ─── Navigation ──────────────────────────────────
         "Navbar" => ("nav", "wf-navbar"),
@@ -234,6 +235,8 @@ pub fn modifier_to_class(base_class: &str, modifier: &str) -> String {
         "bordered" => format!("{}--bordered", base_class),
         // A layer's point toward its anchor.
         "arrow" => format!("{}--arrow", base_class),
+        // A splitter between regions one above the other.
+        "horizontal" => format!("{}--horizontal", base_class),
 
         // ─── Attributes, not classes ─────────────────────
         "text" | "email" | "password" | "number" | "search" | "tel" | "url" | "date" | "time"

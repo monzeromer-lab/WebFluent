@@ -58,6 +58,9 @@ for it ([JavaScript interop](32-javascript-interop.md#wf-render-for-a-script-tha
 | `onKey(node, combination, fn)`, `keyIs(event, combination)` | `on key("mod+k")`, `keyIs(e, "mod+k")` |
 | `keyLabel(combination)`, `keyAria(combination)` | `keyLabel("mod+k")`, and a `shortcut:` drawn and given as `aria-keyshortcuts` |
 | `trapFocus(node, read)` | `trapFocus: open` |
+| `gesture(node, name, fn)` | `on longpress(p)`, `on swipe(s)`, `on receive(d)`, `on dragmove(d)` |
+| `draggable(node, value, options)`, `dropTarget(node, options)` | `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:` |
+| `splitter(node, read, write, options)` | `Splitter(bind:, min:, max:, reset:)` |
 
 ## Motion — `motion`
 

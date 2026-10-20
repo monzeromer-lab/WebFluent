@@ -291,6 +291,80 @@ page Editor(path: "/", title: "Editor", description: "Layers at a control and at
   a press and on Escape. `shortcut:` adds a chip with the keys;
   `placement:` is where it goes (unset, `.top`).
 
+## Gestures: drag, long-press, swipe and the splitter
+
+The runtime turns what the pointer does over time into one event with what
+it means. A mouse, a pen and a finger are the same code; a finger picks a
+drag up with a long press, so a plain swipe still scrolls.
+
+```wf
+page Files(path: "/", title: "Files", description: "Reorder, move and resize.") {
+    state side = 240
+    state tabs = ["App.wf", "Home.wf"]
+    state rows = ["src", "public", "README.md"]
+    state landing = ""
+
+    action moveTab(what: String, near: String, position: String) {
+        let rest = tabs.filter((x) => x != what)
+        let at = rest.indexOf(near)
+        let i = if position == "after" { at + 1 } else { at }
+        tabs = [...rest.slice(0, i), what, ...rest.slice(i)]
+    }
+
+    Heading("Files").h1
+    Row {
+        Stack {
+            style { width: {side}px }
+            for r in rows {
+                Card(drag: r, dragGroup: "tree", dropValue: r, dropInside: r == "src") {
+                    on receive(d) { log("{d.value} goes {d.position} {r}") }
+                    on dragmove(d) { landing = if d.over == null { "" } else { "Goes {d.position} {d.over}" } }
+                    on longpress(p) { log("menu for {r}") }
+                    Text(r)
+                }
+            }
+            Text(landing)
+        }
+        Splitter(bind: side, min: 160, max: 480, reset: 240, label: "Sidebar width")
+        Row {
+            for tab in tabs {
+                Card(drag: tab, dragGroup: "tabs", dropValue: tab, dropAxis: .x) {
+                    on receive(d) { moveTab(d.value, tab, d.position) }
+                    Text(tab)
+                }
+            }
+        }
+    }
+}
+```
+
+- **`drag: value`** picks an element up: a mouse moved a few pixels, or a
+  finger held still for half a second. A ghost follows the pointer, a box
+  near whose edge it passes scrolls, and Escape puts it back. The click a
+  drag ends with is not a click.
+- **`on receive(d)`** takes a drop: `d.value` is what was dropped and
+  `d.position` where — `"before"` or `"after"` along `dropAxis:` (`.y`
+  down the page, the default; `.x` across it, for a tab strip), or
+  `"inside"` on the middle of a target with `dropInside: true` (a folder, a
+  container). The target shows a line where the drop would go, or an
+  outline for inside.
+- **`on dragmove(d)`** on the dragged element hears, as it moves, what it is
+  over — the target's `dropValue:` as `d.over`, null over nothing — and
+  where it would land: enough to say "Goes after Badge, inside Row".
+- **`dragGroup:`** on a drag and its targets keeps tabs and tree rows apart.
+- **`on longpress(p)`** is half a second held still (`p.x`, `p.y`); the
+  click it ends with is not a click. **`on swipe(s)`** is a finger or a pen
+  swept across: `s.direction` is `"left"`, `"right"`, `"up"` or `"down"`.
+- **`Splitter(bind:, min:, max:, reset:)`** sizes the region beside it: it
+  follows the pointer between its bounds, a double-click or Enter resets
+  it, and the arrow keys move it 16 px (64 with Shift). `.horizontal` sits
+  between regions one above the other; `.reverse` sits on the start side of
+  what it sizes — a pane on the right, a panel at the bottom.
+
+A drag has no keyboard of its own: give what it does a menu item or a
+command too (`Move left`, `Move to…`), as the desktop's rule asks of every
+pointer action.
+
 ## Listening outside the page's elements
 
 A handler on an element hears that element. For the window or the document

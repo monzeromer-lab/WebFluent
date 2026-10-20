@@ -127,6 +127,9 @@ pub const MODULES: &[Module] = &[
     module!("overlay", exports: [
         same("dialog"), same("popup"), same("tabs"),
     ], deps: [], triggers: []),
+    module!("gesture", exports: [
+        same("gesture"), same("draggable"), same("dropTarget"), same("splitter"),
+    ], deps: [], triggers: []),
     module!("layer", exports: [
         same("layer"), same("placeAt"), same("menu"), same("submenu"), same("tooltip"),
         same("trapFocus"),

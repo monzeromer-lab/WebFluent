@@ -157,6 +157,46 @@ page Editor(path: "/", title: "Editor", description: "Layers at a control and at
 }
 
 // md-docs/09-events.md
+page Files(path: "/", title: "Files", description: "Reorder, move and resize.") {
+    state side = 240
+    state tabs = ["App.wf", "Home.wf"]
+    state rows = ["src", "public", "README.md"]
+    state landing = ""
+
+    action moveTab(what: String, near: String, position: String) {
+        let rest = tabs.filter((x) => x != what)
+        let at = rest.indexOf(near)
+        let i = if position == "after" { at + 1 } else { at }
+        tabs = [...rest.slice(0, i), what, ...rest.slice(i)]
+    }
+
+    Heading("Files").h1
+    Row {
+        Stack {
+            style { width: {side}px }
+            for r in rows {
+                Card(drag: r, dragGroup: "tree", dropValue: r, dropInside: r == "src") {
+                    on receive(d) { log("{d.value} goes {d.position} {r}") }
+                    on dragmove(d) { landing = if d.over == null { "" } else { "Goes {d.position} {d.over}" } }
+                    on longpress(p) { log("menu for {r}") }
+                    Text(r)
+                }
+            }
+            Text(landing)
+        }
+        Splitter(bind: side, min: 160, max: 480, reset: 240, label: "Sidebar width")
+        Row {
+            for tab in tabs {
+                Card(drag: tab, dragGroup: "tabs", dropValue: tab, dropAxis: .x) {
+                    on receive(d) { moveTab(d.value, tab, d.position) }
+                    Text(tab)
+                }
+            }
+        }
+    }
+}
+
+// md-docs/09-events.md
 page Scrolled(path: "/", title: "Scrolled", description: "How far down the reader is.") {
     state y = 0
     action track() { y = window.scrollY }

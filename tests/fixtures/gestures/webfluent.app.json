@@ -1,0 +1,4 @@
+{
+  "name": "gestures",
+  "build": { "ssg": true, "csp": true }
+}

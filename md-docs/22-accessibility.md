@@ -38,6 +38,9 @@ checks every page on every build.
   submenu and ArrowLeft leaves it, Escape closes the innermost and focus
   goes back to where it was. A check item is a `menuitemcheckbox` with
   `aria-checked`; an item's shortcut is its `aria-keyshortcuts`.
+- **Splitters you can move without a mouse.** A `Splitter` is a
+  `separator` with its size as `aria-valuenow`; it takes focus, the arrow
+  keys move it, Home and End go to its ends, Enter resets it.
 - **Announcements.** A `Toast` is spoken politely; `WF.announce(text)` says
   anything else.
 - **The active link** carries `aria-current="page"`.

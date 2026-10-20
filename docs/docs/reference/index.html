@@ -72,7 +72,7 @@
                 <aside class="wf-sidebar wf-sc879c3a5" aria-label="Components">
                     <div class="wf-row wf-align--center wf-gap--sm wf-sc37bab83 site-search">
                         <i class="wf-icon" data-icon="search"></i>
-                        <input class="wf-input" placeholder="Filter 74 built-ins" aria-label="Filter 74 built-ins" type="search">
+                        <input class="wf-input" placeholder="Filter 75 built-ins" aria-label="Filter 75 built-ins" type="search">
                     </div>
                     <p class="wf-text group-label">Layout</p>
                     <a class="wf-sidebar__item" href="/docs/reference/container">
@@ -92,6 +92,9 @@
                     </a>
                     <a class="wf-sidebar__item" href="/docs/reference/spacer">
                         <p class="wf-text">Spacer</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/reference/splitter">
+                        <p class="wf-text">Splitter</p>
                     </a>
                     <a class="wf-sidebar__item" href="/docs/reference/divider">
                         <p class="wf-text">Divider</p>
@@ -318,7 +321,7 @@
                     <div class="wf-stack wf-gap--sm wf-s82e57ad1">
                         <h1 class="wf-heading wf-s1f2db64f">Components reference</h1>
                         <div class="wf-markdown wf-se4ee4d09">
-<p>74 built-in elements in eleven groups, each with its signature, its props, its flags, its events and its parts — read from the compiler's registry, so what this page lists is exactly what the checker accepts. Every element is written <code>Name(positional, prop: value).flag { block }</code>.</p>
+<p>75 built-in elements in eleven groups, each with its signature, its props, its flags, its events and its parts — read from the compiler's registry, so what this page lists is exactly what the checker accepts. Every element is written <code>Name(positional, prop: value).flag { block }</code>.</p>
                         </div>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s982ede03" id="layout">
@@ -347,6 +350,10 @@
                             <a class="wf-link wf-s6662a90f" href="/docs/reference/spacer">
                                 <p class="wf-text wf-s778fc8aa">Spacer</p>
                                 <p class="wf-text wf-s36513411">Vertical space; md when no size is given.</p>
+                            </a>
+                            <a class="wf-link wf-s6662a90f" href="/docs/reference/splitter">
+                                <p class="wf-text wf-s778fc8aa">Splitter</p>
+                                <p class="wf-text wf-s36513411">A handle that sets the size of a region beside it: dragged, between min: and max:; double-clicked or Enter, back to reset:; the arrow keys move it.</p>
                             </a>
                             <a class="wf-link wf-s6662a90f" href="/docs/reference/divider">
                                 <p class="wf-text wf-s778fc8aa">Divider</p>
@@ -801,6 +808,51 @@
                                     </td>
                                 </tr>
                                 <tr>
+                                    <td>drag:</td>
+                                    <td>Any</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>What it carries when it is picked up — by a mouse moved a few pixels, or a finger held still — and dropped on something with <code>on receive(d)</code></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>dragGroup:</td>
+                                    <td>String</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>Which drops it belongs to: a drag goes only to targets of its own group, so tabs and tree rows stay apart</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>dropValue:</td>
+                                    <td>Any</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>What this target is, as a drag sees it: <code>d.over</code> in the drag's <code>on dragmove(d)</code> and in <code>on receive(d)</code></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>dropAxis:</td>
+                                    <td>.y .x</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>Which way its list runs, for where a drop lands</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>dropInside:</td>
+                                    <td>Bool</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>A drop on its middle lands inside it — a folder, a container — as well as before or after</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
                                     <td>trapFocus:</td>
                                     <td>Bool</td>
                                     <td>
@@ -867,6 +919,22 @@
                             <div class="wf-row wf-align--baseline wf-gap--sm wf-s3839fd5c">
                                 <p class="wf-text wf-s0886b346">on keydown</p>
                                 <p class="wf-text wf-s7de2311d">A key went down; `e.key` names it</p>
+                            </div>
+                            <div class="wf-row wf-align--baseline wf-gap--sm wf-s3839fd5c">
+                                <p class="wf-text wf-s0886b346">on longpress</p>
+                                <p class="wf-text wf-s7de2311d">Held still for half a second; `p.x`, `p.y` say where. The click it ends with is not a click</p>
+                            </div>
+                            <div class="wf-row wf-align--baseline wf-gap--sm wf-s3839fd5c">
+                                <p class="wf-text wf-s0886b346">on swipe</p>
+                                <p class="wf-text wf-s7de2311d">A finger or a pen swept across it; `s.direction` is &quot;left&quot;, &quot;right&quot;, &quot;up&quot; or &quot;down&quot;</p>
+                            </div>
+                            <div class="wf-row wf-align--baseline wf-gap--sm wf-s3839fd5c">
+                                <p class="wf-text wf-s0886b346">on receive</p>
+                                <p class="wf-text wf-s7de2311d">Something with `drag:` was dropped on it; `d.value` is what, `d.position` &quot;before&quot;, &quot;after&quot; or &quot;inside&quot;</p>
+                            </div>
+                            <div class="wf-row wf-align--baseline wf-gap--sm wf-s3839fd5c">
+                                <p class="wf-text wf-s0886b346">on dragmove</p>
+                                <p class="wf-text wf-s7de2311d">On what is dragged, while it moves: `d.over` is the target&#x27;s `dropValue` or null, `d.position` where it would land</p>
                             </div>
                             <div class="wf-row wf-align--baseline wf-gap--sm wf-s3839fd5c">
                                 <p class="wf-text wf-s0886b346">on key</p>

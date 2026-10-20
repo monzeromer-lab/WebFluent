@@ -429,6 +429,45 @@ pub const UNIVERSAL_PROPS: &[PropSig] = &[
         "A handle on the element, usable as the element: `ref: nameInput`, then `nameInput.focus()`",
     ),
     special(
+        "drag",
+        PropType::Any,
+        "What it carries when it is picked up — by a mouse moved a few pixels, or a finger held still — and dropped on something with `on receive(d)`",
+    ),
+    special(
+        "dragGroup",
+        PropType::Str,
+        "Which drops it belongs to: a drag goes only to targets of its own group, so tabs and tree rows stay apart",
+    ),
+    special(
+        "dropValue",
+        PropType::Any,
+        "What this target is, as a drag sees it: `d.over` in the drag's `on dragmove(d)` and in `on receive(d)`",
+    ),
+    PropSig {
+        name: "dropAxis",
+        ty: PropType::Enum(&[
+            case(
+                "y",
+                "",
+                "A list down the page: before is above, after below (the default)",
+            ),
+            case(
+                "x",
+                "",
+                "A list across it, a tab strip: before is to the start, after to the end",
+            ),
+        ]),
+        summary: "Which way its list runs, for where a drop lands",
+        sink: Sink::Special,
+        legacy: Legacy::Attr,
+        shorthand: false,
+    },
+    special(
+        "dropInside",
+        PropType::Bool,
+        "A drop on its middle lands inside it — a folder, a container — as well as before or after",
+    ),
+    special(
         "trapFocus",
         PropType::Bool,
         "While true, focus moves into it and Tab and Shift+Tab stay inside; when it turns false or the element leaves, focus goes back where it was",
@@ -459,6 +498,22 @@ pub const UNIVERSAL_EVENTS: &[(&str, &str)] = &[
     ("focus", "The element received focus"),
     ("blur", "The element lost focus"),
     ("keydown", "A key went down; `e.key` names it"),
+    (
+        "longpress",
+        "Held still for half a second; `p.x`, `p.y` say where. The click it ends with is not a click",
+    ),
+    (
+        "swipe",
+        "A finger or a pen swept across it; `s.direction` is \"left\", \"right\", \"up\" or \"down\"",
+    ),
+    (
+        "receive",
+        "Something with `drag:` was dropped on it; `d.value` is what, `d.position` \"before\", \"after\" or \"inside\"",
+    ),
+    (
+        "dragmove",
+        "On what is dragged, while it moves: `d.over` is the target's `dropValue` or null, `d.position` where it would land",
+    ),
     ("key", "One key, named: `on key(\"ctrl+k\") { }`"),
     ("keyup", "A key came up"),
     ("keypress", "A character key was pressed"),
@@ -676,6 +731,40 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Vertical space; `md` when no size is given.",
         None,
         &[variant("size", SPACES, "How much space")],
+        &[],
+        G,
+        Children::None,
+    ),
+    comp(
+        "Splitter",
+        "Layout",
+        "A handle that sets the size of a region beside it: dragged, between `min:` and `max:`; double-clicked or Enter, back to `reset:`; the arrow keys move it.",
+        None,
+        &[
+            BIND,
+            special("min", PropType::Num, "The smallest size, in px"),
+            special("max", PropType::Num, "The largest size, in px"),
+            special(
+                "reset",
+                PropType::Num,
+                "The size a double-click goes back to",
+            ),
+            special(
+                "label",
+                PropType::Str,
+                "What it resizes, for a screen reader",
+            ),
+            flag(
+                "horizontal",
+                "horizontal",
+                "Between two regions one above the other: it moves up and down",
+            ),
+            flag(
+                "reverse",
+                "reverse",
+                "On the start side of what it sizes — a pane on the right, a panel below — so a drag toward the start grows it",
+            ),
+        ],
         &[],
         G,
         Children::None,

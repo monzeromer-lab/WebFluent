@@ -295,6 +295,7 @@ mod tests {
             "Modal",
             "Dialog",
             "Popover",
+            "Splitter",
             "Toast",
             "Spinner",
             "Skeleton",

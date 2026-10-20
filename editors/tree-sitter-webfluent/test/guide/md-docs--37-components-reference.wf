@@ -47,6 +47,16 @@ page Doc(path: "/") {
 
 // md-docs/37-components-reference.md
 page Doc(path: "/") {
+    state side = 240
+    Row {
+        Container { style { width: {side}px } Text("Files") }
+        Splitter(bind: side, min: 160, max: 480, reset: 240, label: "Sidebar width")
+        Container { Text("Editor") }
+    }
+}
+
+// md-docs/37-components-reference.md
+page Doc(path: "/") {
     Text("Section one")
     Divider
     Text("Section two")

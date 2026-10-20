@@ -226,7 +226,7 @@ error[E103]: Button has no flag or enum case `huge`
   |
 3 |     Button("Save").huge
   |                   ^^^^^
-  = help: Its flags are .bounce, .button, .collapse, .danger, .disabled, .expand, .fadeIn, .fadeOut, .fast, .full, .info, .lg, .md, .normal, .outlined, .pill, .primary, .pulse, .reset, .rounded, .scaleIn, .scaleOut, .secondary, .shake, .slideDown, .slideLeft, .slideRight, .slideUp, .slow, .sm, .spin, .submit, .success, .trapFocus, .warning
+  = help: Its flags are .bounce, .button, .collapse, .danger, .disabled, .dropInside, .expand, .fadeIn, .fadeOut, .fast, .full, .info, .lg, .md, .normal, .outlined, .pill, .primary, .pulse, .reset, .rounded, .scaleIn, .scaleOut, .secondary, .shake, .slideDown, .slideLeft, .slideRight, .slideUp, .slow, .sm, .spin, .submit, .success, .trapFocus, .warning
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e103-a-flag-case-part-event-or-slot-the-component-does-not-have
 ```
 

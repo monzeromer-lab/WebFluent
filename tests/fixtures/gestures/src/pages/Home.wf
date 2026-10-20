@@ -1,0 +1,77 @@
+// Gestures: a splitter sizing a sidebar, tabs reordered by dragging across
+// a strip, rows of a tree moved before, after or into a folder with the
+// landing said as the drag moves, a long press and a swipe.
+page Home(path: "/", title: "Gestures", description: "Drag, long-press, swipe and a splitter.") {
+    state width = 200
+    state tabs = ["App.wf", "Home.wf", "Card.wf"]
+    state rows = ["src", "public", "README.md"]
+    state into = ""
+    state landing = ""
+    state pressed = ""
+    state swiped = ""
+
+    action moveTab(what: String, near: String, position: String) {
+        let rest = tabs.filter((x) => x != what)
+        let at = rest.indexOf(near)
+        let i = if position == "after" { at + 1 } else { at }
+        tabs = [...rest.slice(0, i), what, ...rest.slice(i)]
+    }
+    action moveRow(what: String, near: String, position: String) {
+        if position == "inside" {
+            into = "{what} into {near}"
+            rows = rows.filter((r) => r != what)
+        } else {
+            let rest = rows.filter((r) => r != what)
+            let at = rest.indexOf(near)
+            let i = if position == "after" { at + 1 } else { at }
+            rows = [...rest.slice(0, i), what, ...rest.slice(i)]
+        }
+    }
+
+    Heading("Gestures").h1
+    Row(id: "frame") {
+        Container(id: "side") {
+            style { width: {width}px; flex: none; height: 120px; background: #eef }
+            Text("Sidebar")
+        }
+        Splitter(bind: width, min: 120, max: 400, reset: 200, label: "Sidebar width", id: "split")
+        Container { Text("Editor") }
+    }
+    Text("{width}", id: "width")
+
+    Row(id: "tabs") {
+        for tab in tabs {
+            Card(drag: tab, dragGroup: "tabs", dropValue: tab, dropAxis: .x, id: "tab-{tab}") {
+                on receive(d) { moveTab(d.value, tab, d.position) }
+                Text(tab)
+            }
+        }
+    }
+    Text(tabs.join(","), id: "order")
+
+    Stack(id: "tree") {
+        for r in rows {
+            Card(drag: r, dragGroup: "tree", dropValue: r, dropInside: r == "src" || r == "public", id: "row-{r}") {
+                on receive(d) { moveRow(d.value, r, d.position) }
+                on dragmove(d) { landing = if d.over == null { "" } else { "goes {d.position} {d.over}" } }
+                Text(r)
+            }
+        }
+    }
+    Text(rows.join(","), id: "rows")
+    Text(into, id: "into")
+    Text(landing, id: "landing")
+
+    Card(id: "press") {
+        on longpress(p) { pressed = "held" }
+        on click { pressed = "clicked" }
+        Text("Hold me")
+    }
+    Text(pressed, id: "pressed")
+    Card(id: "swipe") {
+        style { height: 80px }
+        on swipe(s) { swiped = s.direction }
+        Text("Swipe me")
+    }
+    Text(swiped, id: "swiped")
+}

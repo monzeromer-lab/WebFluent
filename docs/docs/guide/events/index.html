@@ -546,6 +546,67 @@ page Use(path: &quot;/&quot;) {
 <li><strong><code>Tooltip</code></strong> waits <code>delay:</code> milliseconds of hover (unset, 500) and shows at once for keyboard focus; it never takes focus, and goes on leaving, on a press and on Escape. <code>shortcut:</code> adds a chip with the keys; <code>placement:</code> is where it goes (unset, <code>.top</code>).</li>
 </ul>
                             </div>
+                            <h2 class="wf-heading" id="gestures-drag-long-press-swipe-and-the-splitter">Gestures: drag, long-press, swipe and the splitter</h2>
+                            <div class="wf-markdown">
+<p>The runtime turns what the pointer does over time into one event with what it means. A mouse, a pen and a finger are the same code; a finger picks a drag up with a long press, so a plain swipe still scrolls.</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Files(path: &quot;/&quot;, title: &quot;Files&quot;, description: &quot;Reorder, move and resize.&quot;) {
+    state side = 240
+    state tabs = [&quot;App.wf&quot;, &quot;Home.wf&quot;]
+    state rows = [&quot;src&quot;, &quot;public&quot;, &quot;README.md&quot;]
+    state landing = &quot;&quot;
+
+    action moveTab(what: String, near: String, position: String) {
+        let rest = tabs.filter((x) =&gt; x != what)
+        let at = rest.indexOf(near)
+        let i = if position == &quot;after&quot; { at + 1 } else { at }
+        tabs = [...rest.slice(0, i), what, ...rest.slice(i)]
+    }
+
+    Heading(&quot;Files&quot;).h1
+    Row {
+        Stack {
+            style { width: {side}px }
+            for r in rows {
+                Card(drag: r, dragGroup: &quot;tree&quot;, dropValue: r, dropInside: r == &quot;src&quot;) {
+                    on receive(d) { log(&quot;{d.value} goes {d.position} {r}&quot;) }
+                    on dragmove(d) { landing = if d.over == null { &quot;&quot; } else { &quot;Goes {d.position} {d.over}&quot; } }
+                    on longpress(p) { log(&quot;menu for {r}&quot;) }
+                    Text(r)
+                }
+            }
+            Text(landing)
+        }
+        Splitter(bind: side, min: 160, max: 480, reset: 240, label: &quot;Sidebar width&quot;)
+        Row {
+            for tab in tabs {
+                Card(drag: tab, dragGroup: &quot;tabs&quot;, dropValue: tab, dropAxis: .x) {
+                    on receive(d) { moveTab(d.value, tab, d.position) }
+                    Text(tab)
+                }
+            }
+        }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><strong><code>drag: value</code></strong> picks an element up: a mouse moved a few pixels, or a finger held still for half a second. A ghost follows the pointer, a box near whose edge it passes scrolls, and Escape puts it back. The click a drag ends with is not a click.</li>
+<li><strong><code>on receive(d)</code></strong> takes a drop: <code>d.value</code> is what was dropped and <code>d.position</code> where — <code>&quot;before&quot;</code> or <code>&quot;after&quot;</code> along <code>dropAxis:</code> (<code>.y</code> down the page, the default; <code>.x</code> across it, for a tab strip), or <code>&quot;inside&quot;</code> on the middle of a target with <code>dropInside: true</code> (a folder, a container). The target shows a line where the drop would go, or an outline for inside.</li>
+<li><strong><code>on dragmove(d)</code></strong> on the dragged element hears, as it moves, what it is over — the target's <code>dropValue:</code> as <code>d.over</code>, null over nothing — and where it would land: enough to say &quot;Goes after Badge, inside Row&quot;.</li>
+<li><strong><code>dragGroup:</code></strong> on a drag and its targets keeps tabs and tree rows apart.</li>
+<li><strong><code>on longpress(p)</code></strong> is half a second held still (<code>p.x</code>, <code>p.y</code>); the click it ends with is not a click. <strong><code>on swipe(s)</code></strong> is a finger or a pen swept across: <code>s.direction</code> is <code>&quot;left&quot;</code>, <code>&quot;right&quot;</code>, <code>&quot;up&quot;</code> or <code>&quot;down&quot;</code>.</li>
+<li><strong><code>Splitter(bind:, min:, max:, reset:)</code></strong> sizes the region beside it: it follows the pointer between its bounds, a double-click or Enter resets it, and the arrow keys move it 16 px (64 with Shift). <code>.horizontal</code> sits between regions one above the other; <code>.reverse</code> sits on the start side of what it sizes — a pane on the right, a panel at the bottom.</li>
+</ul>
+<p>A drag has no keyboard of its own: give what it does a menu item or a command too (<code>Move left</code>, <code>Move to…</code>), as the desktop's rule asks of every pointer action.</p>
+                            </div>
                             <h2 class="wf-heading" id="listening-outside-the-page-s-elements">Listening outside the page&#x27;s elements</h2>
                             <div class="wf-markdown">
 <p>A handler on an element hears that element. For the window or the document — a resize, a scroll of the page, a message from another window — use an <code>effect</code> with a <code>cleanup</code>, which removes the listener when the page leaves. An action named without parentheses is the function itself, so it can be handed to the browser:</p>
@@ -591,6 +652,7 @@ page Use(path: &quot;/&quot;) {
                         <a class="wf-link wf-s3e136ca4" href="#keys">Keys</a>
                         <a class="wf-link wf-s3e136ca4" href="#emitting-events-from-components">Emitting events from components</a>
                         <a class="wf-link wf-s3e136ca4" href="#overlays-modals-dialogs-toasts-and-menus">Overlays: modals, dialogs, toasts and menus</a>
+                        <a class="wf-link wf-s3e136ca4" href="#gestures-drag-long-press-swipe-and-the-splitter">Gestures: drag, long-press, swipe and the splitter</a>
                         <a class="wf-link wf-s3e136ca4" href="#listening-outside-the-page-s-elements">Listening outside the page&#x27;s elements</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">

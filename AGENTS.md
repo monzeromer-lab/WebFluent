@@ -718,13 +718,26 @@ Input(bind: q) {
 ```
 
 DOM events: `click`, `input`, `change`, `submit`, `focus`, `blur`,
-`keydown`, `keyup`, `keypress`, `mouseenter`, `mouseleave`, and every other
+`keydown`, `keyup`, `keypress`, `mouseenter`, `mouseleave`, the gestures
+the runtime recognises — `longpress(p)` (held half a second; its click is not
+a click), `swipe(s)` (a finger or pen, `s.direction` `"left"`/`"right"`/
+`"up"`/`"down"`), `receive(d)` and `dragmove(d)` (below) — and every other
 standard one — `dblclick`, `contextmenu`, `pointerdown`, `pointermove`,
 `touchstart`, `wheel`, `scroll`, `paste`, `drop`, `dragover`, `ended`,
 `animationend`, … (`wf registry --json` lists them). The handler's
 parameter names the DOM event; without one, `event` is in scope. An
 element's block is ordered `style` → `transition` → `on …` → slot fills →
 children.
+
+Drag and drop: `drag: value` on any element picks it up (a mouse moved a
+few pixels, a finger held still) and `on receive(d)` on another takes it:
+`d.value` is what was dropped, `d.position` `"before"`, `"after"` or, with
+`dropInside: true`, `"inside"`; `dropAxis: .x` for a list across the page (a
+tab strip). `dropValue: v` names the target, as `d.over`; the dragged
+element's `on dragmove(d)` hears where it would land as it moves (`d.over`
+null when nowhere). `dragGroup: "tabs"` on both keeps drags apart. The
+runtime draws a ghost and the drop line, scrolls a box near its edge, and
+Escape cancels.
 
 `on key("ctrl+k") { … }` answers to one key: modifiers `mod` (⌘ on a Mac,
 Ctrl elsewhere — the one to use for an app's shortcuts), `ctrl`, `shift`,
@@ -1498,6 +1511,7 @@ file would change; a `.wfx` file is normalised through its braced spelling.
 | `Stack` | `Stack(gap: md) { ... }` — vertical flex; takes the same `gap`/`align`/`justify` as `Row` |
 | `Spacer` | `Spacer` or `Spacer.sm` `Spacer.xl` — vertical space (the size is a flag) |
 | `Divider` | `Divider()` — horizontal line |
+| `Splitter` | `Splitter(bind: side, min: 160, max: 480, reset: 240, label: "Sidebar width")` — a handle that sizes the region beside it: dragged between `min:` and `max:`, double-click or Enter back to `reset:`, arrows ±16 px (Shift ±64), Home/End; `.horizontal` between regions one above the other, `.reverse` on the start side of what it sizes (a pane on the right, a panel below) |
 
 ### Navigation
 
@@ -2220,6 +2234,7 @@ may too. Its surface:
 | Scopes | `onCleanup(fn)` — run when what owns it leaves; `attempt(fn)` — an action that rolls itself back on a throw |
 | Keys | `onKey(node, combination, fn)`; `keyIs(event, combination)`; `keyLabel(combination)`, `keyAria(combination)` — what `on key("mod+k")`, `keyIs` and `keyLabel` compile to |
 | Focus | `trapFocus(node, read)` — what `trapFocus:` compiles to |
+| Gestures | `gesture(node, name, fn)`, `draggable(node, value, options)`, `dropTarget(node, options)`, `splitter(node, read, write, options)` — what `on longpress`, `on swipe`, `drag:`, `on receive` and `Splitter` compile to |
 | Values | `caseOf(v)`, `payload(v)` read an enum case and its payload; `dateOf`, `timeOf`, `urlWith`, `urlQuery` are the scalar helpers behind `.date()`, `.time()`, `.with()` and `.query()` |
 
 ## Search and Sharing

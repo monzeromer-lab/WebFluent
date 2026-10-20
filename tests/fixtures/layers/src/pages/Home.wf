@@ -9,7 +9,7 @@ page Home(path: "/", title: "Layers", description: "Popovers, menus and tooltips
     state said = ""
     Heading("Layers").h1
     Container(id: "clip") {
-        style { overflow: "hidden", height: "60px" }
+        style { overflow: hidden; height: 60px }
         Row {
             Button("Branches", ref: branches, id: "branches") { on click { open = !open } }
             Menu(trigger: "View", id: "view") {

@@ -4650,6 +4650,10 @@
     "named": false
   },
   {
+    "type": "Splitter",
+    "named": false
+  },
+  {
     "type": "Stack",
     "named": false
   },

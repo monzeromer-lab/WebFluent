@@ -4086,6 +4086,10 @@
           },
           {
             "type": "STRING",
+            "value": "Splitter"
+          },
+          {
+            "type": "STRING",
             "value": "Navbar"
           },
           {

@@ -65,6 +65,13 @@ fn action_names(body: &[Statement]) -> Vec<String> {
         .collect()
 }
 
+/// The events a runtime recogniser turns the pointer into (`gesture.js`).
+pub const GESTURE_EVENTS: &[&str] = &["longpress", "swipe", "receive", "dragmove"];
+
+/// The props of a drag and of what takes a drop: the runtime's, not
+/// attributes the element carries.
+pub const DRAG_PROPS: &[&str] = &["drag", "dragGroup", "dropValue", "dropAxis", "dropInside"];
+
 /// JavaScript code generator — compiles the AST to a JS bundle with reactivity and routing.
 pub struct JsCodegen {
     output: String,
@@ -2376,6 +2383,7 @@ impl JsCodegen {
                                 // `mount:`, `update:`, `cleanup:`: a lifetime,
                                 // emitted below, on any element.
                                 "mount" | "update" | "cleanup" | "trapFocus" => {}
+                                k if DRAG_PROPS.contains(&k) => {}
                                 "tag" if name == "Host" => {}
                                 // `maxLength` and `rows` are the textarea's,
                                 // written as HTML writes them.
@@ -2741,6 +2749,10 @@ impl JsCodegen {
                         self.emit_modal_dialog(name, &var, &attrs_str, ui, parent);
                         true
                     }
+                    "Splitter" => {
+                        self.emit_splitter(&var, ui, parent);
+                        true
+                    }
                     "Popover" => {
                         self.emit_popover(&var, ui, parent);
                         true
@@ -2956,13 +2968,8 @@ impl JsCodegen {
                         ));
                         continue;
                     }
-                    self.emit_line(&format!(
-                        "{}.addEventListener(\"{}\", {} => {{ {} }});",
-                        var,
-                        handler.event,
-                        Self::handler_head(handler, "event"),
-                        body
-                    ));
+                    let line = Self::element_listener(&var, handler, &body);
+                    self.emit_line(&line);
                 }
 
                 if let Some(href) = &link_to
@@ -3113,13 +3120,8 @@ impl JsCodegen {
                 }
                 for handler in &ui.events {
                     let body = self.emit_event_body(handler);
-                    self.emit_line(&format!(
-                        "{}.addEventListener(\"{}\", {} => {{ {} }});",
-                        var,
-                        handler.event,
-                        Self::handler_head(handler, "event"),
-                        body
-                    ));
+                    let line = Self::element_listener(&var, handler, &body);
+                    self.emit_line(&line);
                 }
                 // A sub-component used to drop its style block and its
                 // handlers; every other element honours both.
@@ -3144,7 +3146,7 @@ impl JsCodegen {
                 let (lifetime, passed): (Vec<Arg>, Vec<Arg>) =
                     ui.args.iter().cloned().partition(|a| {
                         matches!(a, Arg::Named(k, _)
-                        if matches!(k.as_str(), "mount" | "update" | "cleanup" | "trapFocus") && !own.contains(k))
+                        if (matches!(k.as_str(), "mount" | "update" | "cleanup" | "trapFocus") || DRAG_PROPS.contains(&k.as_str())) && !own.contains(k))
                     });
                 // An attribute the component does not take as a prop —
                 // `aria-label`, `data-*`, `id`, `hidden`, `title` — is its
@@ -3368,7 +3370,8 @@ impl JsCodegen {
             if matches!(
                 key.as_str(),
                 "class" | "ref" | "mount" | "update" | "cleanup" | "trapFocus" | "shared" | "count"
-            ) || key.starts_with("data-wf-")
+            ) || DRAG_PROPS.contains(&key.as_str())
+                || key.starts_with("data-wf-")
             {
                 continue;
             }
@@ -3394,12 +3397,8 @@ impl JsCodegen {
         ));
         for handler in &ui.events {
             let body = self.emit_event_body(handler);
-            self.emit_line(&format!(
-                "{var}.addEventListener(\"{}\", {} => {{ {} }});",
-                handler.event,
-                Self::handler_head(handler, "event"),
-                body
-            ));
+            let line = Self::element_listener(var, handler, &body);
+            self.emit_line(&line);
         }
         self.emit_style_and_transition(var, ui);
         self.emit_motion(var, ui);
@@ -3413,7 +3412,62 @@ impl JsCodegen {
     /// `mount:`, `update:`, `cleanup:` — on `Host` or any other element: the
     /// node handed to somebody else's code, and given back when what owns
     /// it leaves.
+    /// An element's `on …` handler. A gesture the runtime recognises —
+    /// `longpress`, `swipe`, a drop's `receive`, a drag's `dragmove` — is
+    /// set up by `WF.gesture`, and its handler hears what it saw; every
+    /// other event is the element's own.
+    fn element_listener(var: &str, handler: &EventHandler, body: &str) -> String {
+        let head = Self::handler_head(handler, "event");
+        if GESTURE_EVENTS.contains(&handler.event.as_str()) {
+            format!(
+                "WF.gesture({var}, \"{}\", {head} => {{ {body} }});",
+                handler.event
+            )
+        } else {
+            format!(
+                "{var}.addEventListener(\"{}\", {head} => {{ {body} }});",
+                handler.event
+            )
+        }
+    }
+
     fn emit_host(&mut self, var: &str, ui: &UIElement) {
+        // `drag: value` picks the element up; `on receive(d)` (or
+        // `dropValue:`) takes what is dropped on it.
+        let named = |key: &str| {
+            ui.args.iter().find_map(|a| match a {
+                Arg::Named(k, v) if k == key => Some(v.clone()),
+                _ => None,
+            })
+        };
+        let group = named("dragGroup").map(|g| self.emit_expr(&g));
+        if let Some(value) = named("drag") {
+            let value = self.emit_expr(&value);
+            let group = group
+                .as_ref()
+                .map(|g| format!(", {{ group: {g} }}"))
+                .unwrap_or_default();
+            self.emit_line(&format!("WF.draggable({var}, () => {value}{group});"));
+        }
+        let receives = ui.events.iter().any(|h| h.event == "receive");
+        if receives || named("dropValue").is_some() {
+            let mut opts = Vec::new();
+            if let Some(v) = named("dropValue") {
+                let v = self.emit_expr(&v);
+                opts.push(format!("value: () => {v}"));
+            }
+            if let Some(Expr::EnumCase(axis) | Expr::StringLiteral(axis)) = named("dropAxis") {
+                opts.push(format!("axis: \"{axis}\""));
+            }
+            if let Some(inside) = named("dropInside") {
+                let inside = self.emit_expr(&inside);
+                opts.push(format!("inside: {inside}"));
+            }
+            if let Some(g) = &group {
+                opts.push(format!("group: {g}"));
+            }
+            self.emit_line(&format!("WF.dropTarget({var}, {{ {} }});", opts.join(", ")));
+        }
         // `trapFocus: open`: while it holds, Tab stays inside the element.
         if let Some(cond) = ui.args.iter().find_map(|a| match a {
             Arg::Named(k, v) if k == "trapFocus" => Some(v),
@@ -3828,6 +3882,56 @@ impl JsCodegen {
         opts.extend(self.close_handler(ui));
         self.emit_line(&format!(
             "WF.layer({var}, {binding}, {{ {} }});",
+            opts.join(", ")
+        ));
+        self.emit_line(&format!("{}.appendChild({});", parent, var));
+    }
+
+    /// `Splitter(bind: width, min:, max:, reset:)`: a handle `WF.splitter`
+    /// drives — the pointer, a double-click, the keys — writing the size it
+    /// is bound to.
+    fn emit_splitter(&mut self, var: &str, ui: &UIElement, parent: &str) {
+        let label = ui.args.iter().find_map(|a| match a {
+            Arg::Named(k, v) if k == "label" => Some(v.clone()),
+            _ => None,
+        });
+        let labelled = match label {
+            Some(v) => format!(", \"aria-label\": {}", self.emit_expr(&v)),
+            None => String::new(),
+        };
+        let extra = self.passthrough_attrs(ui);
+        self.emit_line(&format!(
+            "const {} = WF.el(\"div\", {{ className: \"{}\"{}{}{} }});",
+            var,
+            self.class_attr("Splitter", ui),
+            labelled,
+            extra,
+            self.wf_node_inline(ui)
+        ));
+        let (read, write) = match self.bind_arg(ui) {
+            Some(target) => (
+                format!("() => {}", target.read),
+                format!("(v) => {{ {} }}", target.write.replace("$V", "v")),
+            ),
+            None => ("() => 0".to_string(), "null".to_string()),
+        };
+        let mut opts = Vec::new();
+        for key in ["min", "max", "reset"] {
+            if let Some(v) = ui.args.iter().find_map(|a| match a {
+                Arg::Named(k, v) if k == key => Some(v.clone()),
+                _ => None,
+            }) {
+                let v = self.emit_expr(&v);
+                opts.push(format!("{key}: () => {v}"));
+            }
+        }
+        for flag in ["horizontal", "reverse"] {
+            if ui.modifiers.iter().any(|m| m == flag) {
+                opts.push(format!("{flag}: true"));
+            }
+        }
+        self.emit_line(&format!(
+            "WF.splitter({var}, {read}, {write}, {{ {} }});",
             opts.join(", ")
         ));
         self.emit_line(&format!("{}.appendChild({});", parent, var));
@@ -4314,13 +4418,8 @@ impl JsCodegen {
         }
         for handler in &ui.events {
             let body = self.emit_event_body(handler);
-            self.emit_line(&format!(
-                "{}.addEventListener(\"{}\", {} => {{ {} }});",
-                var,
-                handler.event,
-                Self::handler_head(handler, "event"),
-                body
-            ));
+            let line = Self::element_listener(var, handler, &body);
+            self.emit_line(&line);
         }
         self.emit_style_and_transition(var, ui);
         self.emit_motion(var, ui);

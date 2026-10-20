@@ -398,6 +398,29 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 /* ─── Frame ─────────────────────────────────────────── */
 .wf-frame { display: block; width: 100%; border: 0; }
 
+/* ─── Splitter ──────────────────────────────────────── */
+.wf-splitter { flex: none; align-self: stretch; position: relative; width: 4px; cursor: col-resize; touch-action: none; background: transparent; transition: background var(--transition-fast); }
+.wf-splitter::before { content: ""; position: absolute; inset: 0 -3px; }
+.wf-splitter--horizontal { width: auto; height: 4px; cursor: row-resize; }
+.wf-splitter--horizontal::before { inset: -3px 0; }
+.wf-splitter:hover, .wf-splitter:focus-visible { background: var(--color-border); }
+.wf-splitter[data-dragging] { background: var(--color-primary); }
+:root[data-wf-resizing] { user-select: none; }
+:root[data-wf-resizing="x"], :root[data-wf-resizing="x"] * { cursor: col-resize !important; }
+:root[data-wf-resizing="y"], :root[data-wf-resizing="y"] * { cursor: row-resize !important; }
+
+/* ─── Drag ──────────────────────────────────────────── */
+[data-wf-drag] { touch-action: pan-y; }
+[data-dragging] { opacity: 0.4; }
+.wf-drag-ghost { position: fixed; left: 0; top: 0; margin: 0; pointer-events: none; z-index: 2147483647; opacity: 0.9; box-shadow: var(--shadow-lg); }
+:root[data-wf-dragging] { user-select: none; }
+:root[data-wf-dragging], :root[data-wf-dragging] * { cursor: grabbing !important; }
+[data-drop="before"] { box-shadow: inset 0 2px 0 var(--color-primary); }
+[data-drop="after"] { box-shadow: inset 0 -2px 0 var(--color-primary); }
+[data-drop-axis="x"][data-drop="before"] { box-shadow: inset 2px 0 0 var(--color-primary); }
+[data-drop-axis="x"][data-drop="after"] { box-shadow: inset -2px 0 0 var(--color-primary); }
+[data-drop="inside"] { outline: 2px solid var(--color-primary); outline-offset: -2px; background: color-mix(in srgb, var(--color-primary) 10%, transparent); }
+
 /* ─── Layer ─────────────────────────────────────────── */
 .wf-layer { position: fixed; inset: auto; margin: 0; }
 .wf-layer:not([data-open]) { display: none; }

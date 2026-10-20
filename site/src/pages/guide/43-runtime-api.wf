@@ -113,6 +113,18 @@ WF.storeSnapshot("Cart");"#, title: "js")
                     Table.Cell { Markdown("`trapFocus(node, read)`") }
                     Table.Cell { Markdown("`trapFocus: open`") }
                 }
+                Table.Row {
+                    Table.Cell { Markdown("`gesture(node, name, fn)`") }
+                    Table.Cell { Markdown("`on longpress(p)`, `on swipe(s)`, `on receive(d)`, `on dragmove(d)`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`draggable(node, value, options)`, `dropTarget(node, options)`") }
+                    Table.Cell { Markdown("`drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`splitter(node, read, write, options)`") }
+                    Table.Cell { Markdown("`Splitter(bind:, min:, max:, reset:)`") }
+                }
             }
         }
 

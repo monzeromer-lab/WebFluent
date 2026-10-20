@@ -1,6 +1,6 @@
 /// Chapter 9 of the guide, written from md-docs/09-events.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page EventsGuide(path: "/docs/guide/events", title: "Events", description: "DOM event handlers, the event object, keyboard shortcuts, component events, modals, dialogs, toasts and menus.", layout: DocsShell("Events", chapter: t("guide.chapter", { n: "9" }), blurb: "Handlers on elements, keyboard shortcuts, the events components fire, and the overlays a page opens.", source: "md-docs/09-events.md", sections: [Anchor(id: "handlers", label: "Handlers"), Anchor(id: "keys", label: "Keys"), Anchor(id: "emitting-events-from-components", label: "Emitting events from components"), Anchor(id: "overlays-modals-dialogs-toasts-and-menus", label: "Overlays: modals, dialogs, toasts and menus"), Anchor(id: "listening-outside-the-page-s-elements", label: "Listening outside the page's elements")], prevTo: "/docs/guide/state", prevLabel: "8. {t("ch.08")}", nextTo: "/docs/guide/control-flow", nextLabel: "10. {t("ch.10")}")) {
+page EventsGuide(path: "/docs/guide/events", title: "Events", description: "DOM event handlers, the event object, keyboard shortcuts, component events, modals, dialogs, toasts and menus.", layout: DocsShell("Events", chapter: t("guide.chapter", { n: "9" }), blurb: "Handlers on elements, keyboard shortcuts, the events components fire, and the overlays a page opens.", source: "md-docs/09-events.md", sections: [Anchor(id: "handlers", label: "Handlers"), Anchor(id: "keys", label: "Keys"), Anchor(id: "emitting-events-from-components", label: "Emitting events from components"), Anchor(id: "overlays-modals-dialogs-toasts-and-menus", label: "Overlays: modals, dialogs, toasts and menus"), Anchor(id: "gestures-drag-long-press-swipe-and-the-splitter", label: "Gestures: drag, long-press, swipe and the splitter"), Anchor(id: "listening-outside-the-page-s-elements", label: "Listening outside the page's elements")], prevTo: "/docs/guide/state", prevLabel: "8. {t("ch.08")}", nextTo: "/docs/guide/control-flow", nextLabel: "10. {t("ch.10")}")) {
     Stack(gap: .lg) {
         Heading("Handlers", id: "handlers").h2
 
@@ -193,6 +193,51 @@ page Use(path: "/") {
 }"#, title: "wf")
 
         Markdown("- **`Popover`** is open while its `visible:` state is true, placed against `anchor:` — an element's `ref:` — on `placement:` (`.bottom`, `.bottomStart`, `.bottomEnd`, `.top…`, `.left…`, `.right…`; unset, `.bottomStart`), `offset:` pixels away. When Escape or a press outside closes it, `visible:` is set back to `false` and `on close(reason)` hears why: `\"escape\"` or `\"outside\"`. `.arrow` draws a point toward the anchor; `label:` is its accessible name.\n- **`Menu`** with `trigger:` is a button and its list. Without one it is a list that state opens: `visible:` at an `anchor:`, or `at:` a point `\{ x, y \}` — where the pointer asked for a context menu. Choosing an item closes it (`on close` hears `\"choose\"`).\n- **`Menu.Item`** takes `shortcut:` — the keys that do the same, drawn at its end and given to assistive technology as `aria-keyshortcuts`; `checked:`, which makes it a check item that follows its state; and `disabled:`, which keeps it in sight but out of reach — the arrow keys skip it and a press does nothing.\n- **`Menu.Sub(label:)`** is an entry with a menu of its own, opened beside it by a hover, ArrowRight or Enter. ArrowLeft and Escape go back to the entry; choosing in it closes the whole menu, and it closes with its menu.\n- **`Tooltip`** waits `delay:` milliseconds of hover (unset, 500) and shows at once for keyboard focus; it never takes focus, and goes on leaving, on a press and on Escape. `shortcut:` adds a chip with the keys; `placement:` is where it goes (unset, `.top`).")
+
+        Heading("Gestures: drag, long-press, swipe and the splitter", id: "gestures-drag-long-press-swipe-and-the-splitter").h2
+
+        Markdown("The runtime turns what the pointer does over time into one event with what it means. A mouse, a pen and a finger are the same code; a finger picks a drag up with a long press, so a plain swipe still scrolls.")
+
+        CodeBlock(#"page Files(path: "/", title: "Files", description: "Reorder, move and resize.") {
+    state side = 240
+    state tabs = ["App.wf", "Home.wf"]
+    state rows = ["src", "public", "README.md"]
+    state landing = ""
+
+    action moveTab(what: String, near: String, position: String) {
+        let rest = tabs.filter((x) => x != what)
+        let at = rest.indexOf(near)
+        let i = if position == "after" { at + 1 } else { at }
+        tabs = [...rest.slice(0, i), what, ...rest.slice(i)]
+    }
+
+    Heading("Files").h1
+    Row {
+        Stack {
+            style { width: {side}px }
+            for r in rows {
+                Card(drag: r, dragGroup: "tree", dropValue: r, dropInside: r == "src") {
+                    on receive(d) { log("{d.value} goes {d.position} {r}") }
+                    on dragmove(d) { landing = if d.over == null { "" } else { "Goes {d.position} {d.over}" } }
+                    on longpress(p) { log("menu for {r}") }
+                    Text(r)
+                }
+            }
+            Text(landing)
+        }
+        Splitter(bind: side, min: 160, max: 480, reset: 240, label: "Sidebar width")
+        Row {
+            for tab in tabs {
+                Card(drag: tab, dragGroup: "tabs", dropValue: tab, dropAxis: .x) {
+                    on receive(d) { moveTab(d.value, tab, d.position) }
+                    Text(tab)
+                }
+            }
+        }
+    }
+}"#, title: "wf")
+
+        Markdown("- **`drag: value`** picks an element up: a mouse moved a few pixels, or a finger held still for half a second. A ghost follows the pointer, a box near whose edge it passes scrolls, and Escape puts it back. The click a drag ends with is not a click.\n- **`on receive(d)`** takes a drop: `d.value` is what was dropped and `d.position` where — `\"before\"` or `\"after\"` along `dropAxis:` (`.y` down the page, the default; `.x` across it, for a tab strip), or `\"inside\"` on the middle of a target with `dropInside: true` (a folder, a container). The target shows a line where the drop would go, or an outline for inside.\n- **`on dragmove(d)`** on the dragged element hears, as it moves, what it is over — the target's `dropValue:` as `d.over`, null over nothing — and where it would land: enough to say \"Goes after Badge, inside Row\".\n- **`dragGroup:`** on a drag and its targets keeps tabs and tree rows apart.\n- **`on longpress(p)`** is half a second held still (`p.x`, `p.y`); the click it ends with is not a click. **`on swipe(s)`** is a finger or a pen swept across: `s.direction` is `\"left\"`, `\"right\"`, `\"up\"` or `\"down\"`.\n- **`Splitter(bind:, min:, max:, reset:)`** sizes the region beside it: it follows the pointer between its bounds, a double-click or Enter resets it, and the arrow keys move it 16 px (64 with Shift). `.horizontal` sits between regions one above the other; `.reverse` sits on the start side of what it sizes — a pane on the right, a panel at the bottom.\n\nA drag has no keyboard of its own: give what it does a menu item or a command too (`Move left`, `Move to…`), as the desktop's rule asks of every pointer action.")
 
         Heading("Listening outside the page's elements", id: "listening-outside-the-page-s-elements").h2
 

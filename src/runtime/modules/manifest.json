@@ -816,6 +816,29 @@
       "deps": [],
       "exports": [
         [
+          "gesture",
+          "gesture"
+        ],
+        [
+          "draggable",
+          "draggable"
+        ],
+        [
+          "dropTarget",
+          "dropTarget"
+        ],
+        [
+          "splitter",
+          "splitter"
+        ]
+      ],
+      "name": "gesture",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
           "layer",
           "layer"
         ],

@@ -31,6 +31,7 @@
    ],
    "flags": [
     ".fluid",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -98,6 +99,7 @@
     ".row",
     ".column",
     ".stacks",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -138,6 +140,7 @@
    ],
    "flags": [
     ".stacks",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -203,6 +206,7 @@
     ".around",
     ".evenly",
     ".stacks",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -257,6 +261,7 @@
     ".between",
     ".around",
     ".evenly",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -296,6 +301,7 @@
     ".md",
     ".lg",
     ".xl",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -315,6 +321,73 @@
    "cssClass": "wf-spacer"
   },
   {
+   "name": "Splitter",
+   "slug": "splitter",
+   "group": "Layout",
+   "summary": "A handle that sets the size of a region beside it: dragged, between `min:` and `max:`; double-clicked or Enter, back to `reset:`; the arrow keys move it.",
+   "plain": "A handle that sets the size of a region beside it: dragged, between min: and max:; double-clicked or Enter, back to reset:; the arrow keys move it.",
+   "signature": "Splitter(bind: \u2026, min: \u2026, max: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State",
+     "meaning": "State variable the control reads and writes (two-way)"
+    },
+    {
+     "name": "min:",
+     "type": "Number",
+     "meaning": "The smallest size, in px"
+    },
+    {
+     "name": "max:",
+     "type": "Number",
+     "meaning": "The largest size, in px"
+    },
+    {
+     "name": "reset:",
+     "type": "Number",
+     "meaning": "The size a double-click goes back to"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "What it resizes, for a screen reader"
+    },
+    {
+     "name": "horizontal:",
+     "type": "Bool",
+     "meaning": "Between two regions one above the other: it moves up and down"
+    },
+    {
+     "name": "reverse:",
+     "type": "Bool",
+     "meaning": "On the start side of what it sizes \u2014 a pane on the right, a panel below \u2014 so a drag toward the start grows it"
+    }
+   ],
+   "flags": [
+    ".horizontal",
+    ".reverse",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Container",
+    "Row",
+    "Column",
+    "Grid"
+   ],
+   "example": "state side = 240\nRow {\n    Container { style { width: {side}px } Text(\"Files\") }\n    Splitter(bind: side, min: 160, max: 480, reset: 240, label: \"Sidebar width\")\n    Container { Text(\"Editor\") }\n}",
+   "cssClass": "wf-splitter"
+  },
+  {
    "name": "Divider",
    "slug": "divider",
    "group": "Layout",
@@ -324,6 +397,7 @@
    "block": false,
    "props": [],
    "flags": [
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -352,6 +426,7 @@
    "block": true,
    "props": [],
    "flags": [
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -362,6 +437,7 @@
      "summary": "The brand area, usually a link home.",
      "props": [],
      "flags": [
+      ".dropInside",
       ".trapFocus"
      ]
     },
@@ -371,6 +447,7 @@
      "summary": "The navigation links; collapses behind a toggle on small screens.",
      "props": [],
      "flags": [
+      ".dropInside",
       ".trapFocus"
      ]
     },
@@ -380,6 +457,7 @@
      "summary": "Buttons at the end of the bar.",
      "props": [],
      "flags": [
+      ".dropInside",
       ".trapFocus"
      ]
     }
@@ -408,6 +486,7 @@
    "block": true,
    "props": [],
    "flags": [
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -418,6 +497,7 @@
      "summary": "The sidebar's heading area.",
      "props": [],
      "flags": [
+      ".dropInside",
       ".trapFocus"
      ]
     },
@@ -444,6 +524,7 @@
      ],
      "flags": [
       ".prefix",
+      ".dropInside",
       ".trapFocus"
      ]
     },
@@ -453,6 +534,7 @@
      "summary": "A rule between groups of items.",
      "props": [],
      "flags": [
+      ".dropInside",
       ".trapFocus"
      ]
     }
@@ -498,6 +580,7 @@
    ],
    "flags": [
     ".prefix",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -527,6 +610,7 @@
    "block": true,
    "props": [],
    "flags": [
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -543,6 +627,7 @@
       }
      ],
      "flags": [
+      ".dropInside",
       ".trapFocus"
      ]
     }
@@ -571,6 +656,7 @@
    "block": true,
    "props": [],
    "flags": [
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -587,6 +673,7 @@
       }
      ],
      "flags": [
+      ".dropInside",
       ".trapFocus"
      ]
     }
@@ -663,6 +750,7 @@
     ".right",
     ".rightStart",
     ".rightEnd",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [
@@ -696,6 +784,7 @@
      "flags": [
       ".checked",
       ".disabled",
+      ".dropInside",
       ".trapFocus"
      ]
     },
@@ -711,6 +800,7 @@
       }
      ],
      "flags": [
+      ".dropInside",
       ".trapFocus"
      ]
     },
@@ -720,6 +810,7 @@
      "summary": "A rule between groups of entries.",
      "props": [],
      "flags": [
+      ".dropInside",
       ".trapFocus"
      ]
     }
@@ -757,6 +848,7 @@
     ".flat",
     ".elevated",
     ".outlined",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -767,6 +859,7 @@
      "summary": "The card's heading area.",
      "props": [],
      "flags": [
+      ".dropInside",
       ".trapFocus"
      ]
     },
@@ -776,6 +869,7 @@
      "summary": "The card's content area.",
      "props": [],
      "flags": [
+      ".dropInside",
       ".trapFocus"
      ]
     },
@@ -785,6 +879,7 @@
      "summary": "The card's action area.",
      "props": [],
      "flags": [
+      ".dropInside",
       ".trapFocus"
      ]
     }
@@ -819,6 +914,7 @@
     }
    ],
    "flags": [
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -829,6 +925,7 @@
      "summary": "Header section; its cells become `<th scope=\"col\">`.",
      "props": [],
      "flags": [
+      ".dropInside",
       ".trapFocus"
      ]
     },
@@ -838,6 +935,7 @@
      "summary": "Body section.",
      "props": [],
      "flags": [
+      ".dropInside",
       ".trapFocus"
      ]
     },
@@ -847,6 +945,7 @@
      "summary": "A row.",
      "props": [],
      "flags": [
+      ".dropInside",
       ".trapFocus"
      ]
     },
@@ -868,6 +967,7 @@
      ],
      "flags": [
       ".header",
+      ".dropInside",
       ".trapFocus"
      ]
     }
@@ -903,6 +1003,7 @@
    ],
    "flags": [
     ".ordered",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -913,6 +1014,7 @@
      "summary": "One entry (`<li>`).",
      "props": [],
      "flags": [
+      ".dropInside",
       ".trapFocus"
      ]
     }
@@ -964,6 +1066,7 @@
     ".warning",
     ".info",
     ".pill",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -998,6 +1101,7 @@
     }
    ],
    "flags": [
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -1056,6 +1160,7 @@
     ".md",
     ".lg",
     ".primary",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -1117,6 +1222,7 @@
     ".right",
     ".rightStart",
     ".rightEnd",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -1239,6 +1345,7 @@
     ".lg",
     ".full",
     ".rounded",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -1306,6 +1413,7 @@
    "flags": [
     ".disabled",
     ".multiple",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -1327,6 +1435,7 @@
       }
      ],
      "flags": [
+      ".dropInside",
       ".trapFocus"
      ]
     }
@@ -1379,6 +1488,7 @@
    "flags": [
     ".checked",
     ".disabled",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -1436,6 +1546,7 @@
    "flags": [
     ".checked",
     ".disabled",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -1488,6 +1599,7 @@
    "flags": [
     ".checked",
     ".disabled",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -1549,6 +1661,7 @@
    ],
    "flags": [
     ".disabled",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -1605,6 +1718,7 @@
    ],
    "flags": [
     ".disabled",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -1657,6 +1771,7 @@
    "flags": [
     ".multiple",
     ".disabled",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -1700,6 +1815,7 @@
     ".onBlur",
     ".onSubmit",
     ".live",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -1777,6 +1893,7 @@
    "flags": [
     ".required",
     ".disabled",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -1821,6 +1938,7 @@
     ".danger",
     ".warning",
     ".info",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -1864,6 +1982,7 @@
     ".danger",
     ".warning",
     ".info",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -1903,6 +2022,7 @@
     }
    ],
    "flags": [
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -1913,6 +2033,7 @@
      "summary": "The modal's action row.",
      "props": [],
      "flags": [
+      ".dropInside",
       ".trapFocus"
      ]
     }
@@ -1990,6 +2111,7 @@
     ".rightStart",
     ".rightEnd",
     ".arrow",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [
@@ -2034,6 +2156,7 @@
     }
    ],
    "flags": [
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -2071,6 +2194,7 @@
     ".sm",
     ".md",
     ".lg",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -2110,6 +2234,7 @@
     }
    ],
    "flags": [
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -2160,6 +2285,7 @@
    ],
    "flags": [
     ".circle",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -2251,6 +2377,7 @@
     ".submit",
     ".reset",
     ".disabled",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -2318,6 +2445,7 @@
     ".submit",
     ".reset",
     ".disabled",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -2345,6 +2473,7 @@
    "block": true,
    "props": [],
    "flags": [
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -2378,6 +2507,7 @@
     }
    ],
    "flags": [
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -2388,6 +2518,7 @@
      "summary": "One entry of the menu.",
      "props": [],
      "flags": [
+      ".dropInside",
       ".trapFocus"
      ]
     },
@@ -2397,6 +2528,7 @@
      "summary": "A rule between groups of entries.",
      "props": [],
      "flags": [
+      ".dropInside",
       ".trapFocus"
      ]
     }
@@ -2477,6 +2609,7 @@
     ".eager",
     ".rounded",
     ".circle",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -2561,6 +2694,7 @@
     ".muted",
     ".loop",
     ".playsinline",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -2619,6 +2753,7 @@
     ".controls",
     ".autoplay",
     ".loop",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -2675,6 +2810,7 @@
    "flags": [
     ".lazy",
     ".eager",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [
@@ -2743,6 +2879,7 @@
     ".warning",
     ".info",
     ".muted",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -2788,6 +2925,7 @@
    ],
    "flags": [
     ".autoplay",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -2798,6 +2936,7 @@
      "summary": "One slide.",
      "props": [],
      "flags": [
+      ".dropInside",
       ".trapFocus"
      ]
     }
@@ -2897,6 +3036,7 @@
     ".italic",
     ".underline",
     ".muted",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -2956,6 +3096,7 @@
     ".center",
     ".right",
     ".muted",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -3001,6 +3142,7 @@
    ],
    "flags": [
     ".block",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -3035,6 +3177,7 @@
     }
    ],
    "flags": [
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -3069,6 +3212,7 @@
     }
    ],
    "flags": [
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -3103,6 +3247,7 @@
     }
    ],
    "flags": [
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -3129,6 +3274,7 @@
    "block": false,
    "props": [],
    "flags": [
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -3145,6 +3291,7 @@
       }
      ],
      "flags": [
+      ".dropInside",
       ".trapFocus"
      ]
     }
@@ -3179,6 +3326,7 @@
     }
    ],
    "flags": [
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -3281,6 +3429,7 @@
     ".legend",
     ".stacked",
     ".labels",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -3322,6 +3471,7 @@
     }
    ],
    "flags": [
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -3358,6 +3508,7 @@
     }
    ],
    "flags": [
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -3438,6 +3589,7 @@
     ".Letter",
     ".Legal",
     ".landscape",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -3466,6 +3618,7 @@
    "block": true,
    "props": [],
    "flags": [
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -3565,6 +3718,7 @@
     ".italic",
     ".underline",
     ".muted",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -3604,6 +3758,7 @@
     ".rest",
     ".odd",
     ".even",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -3643,6 +3798,7 @@
     ".rest",
     ".odd",
     ".even",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -3682,6 +3838,7 @@
     ".rest",
     ".odd",
     ".even",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -3726,6 +3883,7 @@
     ".rest",
     ".odd",
     ".even",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -3754,6 +3912,7 @@
    "block": false,
    "props": [],
    "flags": [
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -3782,6 +3941,7 @@
    "block": true,
    "props": [],
    "flags": [
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -3810,6 +3970,7 @@
    "block": true,
    "props": [],
    "flags": [
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -3849,6 +4010,7 @@
     }
    ],
    "flags": [
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -3893,6 +4055,7 @@
     ".danger",
     ".warning",
     ".info",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -3921,6 +4084,7 @@
    "block": true,
    "props": [],
    "flags": [
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -3960,6 +4124,7 @@
     }
    ],
    "flags": [
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -4002,6 +4167,7 @@
     ".none",
     ".fade",
     ".slide",
+    ".dropInside",
     ".trapFocus"
    ],
    "events": [],
@@ -4079,6 +4245,31 @@
     "meaning": "A handle on the element, usable as the element: `ref: nameInput`, then `nameInput.focus()`"
    },
    {
+    "name": "drag:",
+    "type": "Any",
+    "meaning": "What it carries when it is picked up \u2014 by a mouse moved a few pixels, or a finger held still \u2014 and dropped on something with `on receive(d)`"
+   },
+   {
+    "name": "dragGroup:",
+    "type": "String",
+    "meaning": "Which drops it belongs to: a drag goes only to targets of its own group, so tabs and tree rows stay apart"
+   },
+   {
+    "name": "dropValue:",
+    "type": "Any",
+    "meaning": "What this target is, as a drag sees it: `d.over` in the drag's `on dragmove(d)` and in `on receive(d)`"
+   },
+   {
+    "name": "dropAxis:",
+    "type": ".y .x",
+    "meaning": "Which way its list runs, for where a drop lands"
+   },
+   {
+    "name": "dropInside:",
+    "type": "Bool",
+    "meaning": "A drop on its middle lands inside it \u2014 a folder, a container \u2014 as well as before or after"
+   },
+   {
     "name": "trapFocus:",
     "type": "Bool",
     "meaning": "While true, focus moves into it and Tab and Shift+Tab stay inside; when it turns false or the element leaves, focus goes back where it was"
@@ -4127,6 +4318,22 @@
    {
     "name": "on keydown",
     "meaning": "A key went down; `e.key` names it"
+   },
+   {
+    "name": "on longpress",
+    "meaning": "Held still for half a second; `p.x`, `p.y` say where. The click it ends with is not a click"
+   },
+   {
+    "name": "on swipe",
+    "meaning": "A finger or a pen swept across it; `s.direction` is \"left\", \"right\", \"up\" or \"down\""
+   },
+   {
+    "name": "on receive",
+    "meaning": "Something with `drag:` was dropped on it; `d.value` is what, `d.position` \"before\", \"after\" or \"inside\""
+   },
+   {
+    "name": "on dragmove",
+    "meaning": "On what is dragged, while it moves: `d.over` is the target's `dropValue` or null, `d.position` where it would land"
    },
    {
     "name": "on key",
@@ -4352,5 +4559,5 @@
   "sun",
   "moon"
  ],
- "count": 74
+ "count": 75
 }
