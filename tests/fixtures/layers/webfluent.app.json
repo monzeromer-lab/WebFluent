@@ -1,0 +1,4 @@
+{
+  "name": "layers",
+  "build": { "ssg": true, "csp": true }
+}

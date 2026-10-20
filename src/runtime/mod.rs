@@ -125,11 +125,13 @@ pub const MODULES: &[Module] = &[
         deps: ["http"], triggers: []),
     module!("toast", exports: [same("toast")], deps: [], triggers: []),
     module!("overlay", exports: [
-        same("dialog"), same("popup"), same("tabs"), same("menu"),
+        same("dialog"), same("popup"), same("tabs"),
+    ], deps: [], triggers: []),
+    module!("layer", exports: [
+        same("layer"), same("placeAt"), same("menu"), same("submenu"), same("tooltip"),
     ], deps: [], triggers: []),
     module!("announce", exports: [same("announce")], deps: [], triggers: []),
     module!("field", exports: [same("field")], deps: [], triggers: []),
-    module!("tooltip", exports: [same("tooltip")], deps: [], triggers: []),
     module!("carousel", exports: [same("carousel")], deps: ["field"], triggers: []),
     module!("drawer", exports: [same("drawer")], deps: [], triggers: []),
     module!("head", exports: [same("head")], deps: [], triggers: []),

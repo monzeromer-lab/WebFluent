@@ -79,6 +79,54 @@ page Overlays(path: "/", title: "Overlays", description: "What a page opens.") {
 }
 
 // md-docs/09-events.md
+page Editor(path: "/", title: "Editor", description: "Layers at a control and at the pointer.") {
+    state branches = false
+    state wrap = false
+    state asked = false
+    state point = { x: 0, y: 0 }
+    state said = ""
+    Heading("Editor").h1
+    Row {
+        Button("main", ref: branch) { on click { branches = !branches } }
+        Menu(trigger: "View") {
+            Menu.Item(shortcut: "Ctrl+B") {
+                on click { said = "sidebar" }
+                Text("Toggle sidebar")
+            }
+            Menu.Item(checked: wrap) {
+                on click { wrap = !wrap }
+                Text("Word wrap")
+            }
+            Menu.Item(disabled: true) { Text("Zen mode") }
+            Menu.Divider
+            Menu.Sub(label: "Appearance") {
+                Menu.Item { Text("Light") }
+                Menu.Item { Text("Dark") }
+            }
+        }
+        Tooltip("Save", shortcut: "Ctrl+S", delay: 400) { Button("Save") }
+    }
+    Popover(visible: branches, anchor: branch, placement: .bottomStart, label: "Branches").arrow {
+        on close(reason) { said = "closed by {reason}" }
+        Text("main")
+        Text("feature/layers")
+    }
+    Card {
+        on contextmenu(e) {
+            e.preventDefault()
+            point = { x: e.clientX, y: e.clientY }
+            asked = true
+        }
+        Text("Right-click for the context menu")
+    }
+    Menu(visible: asked, at: point) {
+        Menu.Item(shortcut: "F12") { Text("Go to definition") }
+        Menu.Item { Text("Rename") }
+    }
+    Text(said)
+}
+
+// md-docs/09-events.md
 page Scrolled(path: "/", title: "Scrolled", description: "How far down the reader is.") {
     state y = 0
     action track() { y = window.scrollY }

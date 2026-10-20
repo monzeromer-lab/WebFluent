@@ -81,6 +81,7 @@ pub fn builtin_to_html(name: &str) -> (&'static str, &'static str) {
         // reimplement, and none of which this engine had.
         "Modal" => ("dialog", "wf-modal"),
         "Dialog" => ("dialog", "wf-dialog"),
+        "Popover" => ("div", "wf-popover"),
         "Spinner" => ("div", "wf-spinner"),
         "Progress" => ("progress", "wf-progress"),
         "Skeleton" => ("div", "wf-skeleton"),
@@ -231,6 +232,8 @@ pub fn modifier_to_class(base_class: &str, modifier: &str) -> String {
         "dismissible" => format!("{}--dismissible", base_class),
         "block" => format!("{}--block", base_class),
         "bordered" => format!("{}--bordered", base_class),
+        // A layer's point toward its anchor.
+        "arrow" => format!("{}--arrow", base_class),
 
         // ─── Attributes, not classes ─────────────────────
         "text" | "email" | "password" | "number" | "search" | "tel" | "url" | "date" | "time"

@@ -577,9 +577,9 @@
    "name": "Menu",
    "slug": "menu",
    "group": "Navigation",
-   "summary": "Menu opened by a trigger button.",
-   "plain": "Menu opened by a trigger button.",
-   "signature": "Menu(trigger: \u2026, label: \u2026) { \u2026 }",
+   "summary": "A menu above everything: opened by its `trigger:` button, or by `visible:` at an `anchor:` or a point `at:` \u2014 a context menu. Escape, a press outside or a choice close it, write `false` back to `visible:` and fire `on close`.",
+   "plain": "A menu above everything: opened by its trigger: button, or by visible: at an anchor: or a point at: \u2014 a context menu. Escape, a press outside or a choice close it, write false back to visible: and fire on close.",
+   "signature": "Menu(trigger: \u2026, label: \u2026, visible: \u2026) { \u2026 }",
    "block": true,
    "props": [
     {
@@ -591,16 +591,91 @@
      "name": "label:",
      "type": "String",
      "meaning": "Same as `trigger`"
+    },
+    {
+     "name": "visible:",
+     "type": "State",
+     "meaning": "State flag that opens and closes it"
+    },
+    {
+     "name": "anchor:",
+     "type": "Any",
+     "meaning": "What it is placed against: an element's `ref:`, or a point `{ x: e.clientX, y: e.clientY }`"
+    },
+    {
+     "name": "at:",
+     "type": "Any",
+     "meaning": "A point to place it at, `{ x: e.clientX, y: e.clientY }`: where the pointer asked for a context menu"
+    },
+    {
+     "name": "placement:",
+     "type": ".bottom .bottomStart .bottomEnd .top .topStart .topEnd .left .leftStart .leftEnd .right .rightStart .rightEnd",
+     "meaning": "Where it goes against its anchor; it flips to the other side when there is no room. Unset, `.bottomStart`"
+    },
+    {
+     "name": "offset:",
+     "type": "Number",
+     "meaning": "How far from the anchor, in px"
     }
    ],
-   "flags": [],
-   "events": [],
+   "flags": [
+    ".bottom",
+    ".bottomStart",
+    ".bottomEnd",
+    ".top",
+    ".topStart",
+    ".topEnd",
+    ".left",
+    ".leftStart",
+    ".leftEnd",
+    ".right",
+    ".rightStart",
+    ".rightEnd"
+   ],
+   "events": [
+    {
+     "name": "on close",
+     "meaning": ""
+    }
+   ],
    "parts": [
     {
      "name": "Menu.Item",
-     "signature": "Menu.Item { \u2026 }",
-     "summary": "One entry of the menu.",
-     "props": [],
+     "signature": "Menu.Item(shortcut: \u2026, checked: \u2026, disabled: \u2026) { \u2026 }",
+     "summary": "One entry of the menu; `on click` is what choosing it does.",
+     "props": [
+      {
+       "name": "shortcut:",
+       "type": "String",
+       "meaning": "The keys that do the same, shown at its end"
+      },
+      {
+       "name": "checked:",
+       "type": "Bool",
+       "meaning": "A check mark: the item turns something on and off"
+      },
+      {
+       "name": "disabled:",
+       "type": "Bool",
+       "meaning": "Shown, skipped by the arrow keys, and cannot be chosen"
+      }
+     ],
+     "flags": [
+      ".checked",
+      ".disabled"
+     ]
+    },
+    {
+     "name": "Menu.Sub",
+     "signature": "Menu.Sub(label: \u2026) { \u2026 }",
+     "summary": "An entry that opens a menu of its own beside it.",
+     "props": [
+      {
+       "name": "label:",
+       "type": "String",
+       "meaning": "What the entry says"
+      }
+     ],
      "flags": []
     },
     {
@@ -622,7 +697,7 @@
     "Link",
     "Tabs"
    ],
-   "example": "Menu(trigger: \"Options\") {\n    Menu.Item { Text(\"Rename\") }\n    Menu.Divider\n    Menu.Item { Text(\"Delete\") }\n}",
+   "example": "Menu(trigger: \"Options\") {\n    Menu.Item(shortcut: \"F2\") { Text(\"Rename\") }\n    Menu.Sub(label: \"Move to\") { Menu.Item { Text(\"Archive\") } }\n    Menu.Divider\n    Menu.Item(disabled: true) { Text(\"Delete\") }\n}\nstate asked = false\nstate point = { x: 0, y: 0 }\nMenu(visible: asked, at: point) { Menu.Item { Text(\"Copy\") } }",
    "cssClass": "wf-menu"
   },
   {
@@ -942,18 +1017,46 @@
    "name": "Tooltip",
    "slug": "tooltip",
    "group": "Data display",
-   "summary": "Shows `text` when its child is hovered or focused.",
-   "plain": "Shows text when its child is hovered or focused.",
-   "signature": "Tooltip(text) { \u2026 }",
+   "summary": "Shows `text` above everything when its child is hovered (after `delay:`) or focused from the keyboard.",
+   "plain": "Shows text above everything when its child is hovered (after delay:) or focused from the keyboard.",
+   "signature": "Tooltip(text, shortcut: \u2026, placement: \u2026, delay: \u2026) { \u2026 }",
    "block": true,
    "props": [
     {
      "name": "text",
      "type": "String  (positional)",
      "meaning": "The tooltip text"
+    },
+    {
+     "name": "shortcut:",
+     "type": "String",
+     "meaning": "The keys that do the same, shown as a chip"
+    },
+    {
+     "name": "placement:",
+     "type": ".bottom .bottomStart .bottomEnd .top .topStart .topEnd .left .leftStart .leftEnd .right .rightStart .rightEnd",
+     "meaning": "Where it goes against its anchor; it flips to the other side when there is no room. Unset, `.bottomStart`"
+    },
+    {
+     "name": "delay:",
+     "type": "Number",
+     "meaning": "How long a hover waits before it shows, in ms. Unset, 500"
     }
    ],
-   "flags": [],
+   "flags": [
+    ".bottom",
+    ".bottomStart",
+    ".bottomEnd",
+    ".top",
+    ".topStart",
+    ".topEnd",
+    ".left",
+    ".leftStart",
+    ".leftEnd",
+    ".right",
+    ".rightStart",
+    ".rightEnd"
+   ],
    "events": [],
    "parts": [],
    "attributes": [
@@ -967,7 +1070,7 @@
     "List",
     "Badge"
    ],
-   "example": "Tooltip(\"Copies the link\") { IconButton(icon: \"copy\", label: \"Copy link\") }",
+   "example": "Tooltip(\"Copies the link\") { IconButton(icon: \"copy\", label: \"Copy link\") }\nTooltip(\"Save\", shortcut: \"Ctrl+S\", delay: 400, placement: .bottom) { Button(\"Save\") }",
    "cssClass": "wf-tooltip"
   },
   {
@@ -1655,8 +1758,8 @@
    "nearby": [
     "Toast",
     "Modal",
-    "Dialog",
-    "Spinner"
+    "Popover",
+    "Dialog"
    ],
    "example": "Alert(\"Your changes were saved.\").success\nAlert(\"The server is not answering.\").danger",
    "cssClass": "wf-alert"
@@ -1697,8 +1800,8 @@
    "nearby": [
     "Alert",
     "Modal",
-    "Dialog",
-    "Spinner"
+    "Popover",
+    "Dialog"
    ],
    "example": "state saved = false\nif saved { Toast(\"Saved\").success }",
    "cssClass": "wf-toast"
@@ -1742,11 +1845,92 @@
    "nearby": [
     "Alert",
     "Toast",
-    "Dialog",
-    "Spinner"
+    "Popover",
+    "Dialog"
    ],
    "example": "state open = false\nButton(\"Delete\") { on click { open = true } }\nModal(visible: open, title: \"Delete this?\") {\n    Text(\"This cannot be undone.\")\n    Modal.Footer { Button(\"Cancel\") { on click { open = false } } }\n}",
    "cssClass": "wf-modal"
+  },
+  {
+   "name": "Popover",
+   "slug": "popover",
+   "group": "Feedback",
+   "summary": "A layer at a control: drawn above everything, placed against its `anchor:`, closed by `Escape` or a press outside, which write `false` back to `visible:` and fire `on close`.",
+   "plain": "A layer at a control: drawn above everything, placed against its anchor:, closed by Escape or a press outside, which write false back to visible: and fire on close.",
+   "signature": "Popover(visible: \u2026, anchor: \u2026, at: \u2026) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "visible:",
+     "type": "State",
+     "meaning": "State flag that opens and closes it"
+    },
+    {
+     "name": "anchor:",
+     "type": "Any",
+     "meaning": "What it is placed against: an element's `ref:`, or a point `{ x: e.clientX, y: e.clientY }`"
+    },
+    {
+     "name": "at:",
+     "type": "Any",
+     "meaning": "A point to place it at, `{ x: e.clientX, y: e.clientY }`: where the pointer asked for a context menu"
+    },
+    {
+     "name": "placement:",
+     "type": ".bottom .bottomStart .bottomEnd .top .topStart .topEnd .left .leftStart .leftEnd .right .rightStart .rightEnd",
+     "meaning": "Where it goes against its anchor; it flips to the other side when there is no room. Unset, `.bottomStart`"
+    },
+    {
+     "name": "offset:",
+     "type": "Number",
+     "meaning": "How far from the anchor, in px"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "What it is, for a screen reader: its accessible name"
+    },
+    {
+     "name": "arrow:",
+     "type": "Bool",
+     "meaning": "A point toward the anchor"
+    }
+   ],
+   "flags": [
+    ".bottom",
+    ".bottomStart",
+    ".bottomEnd",
+    ".top",
+    ".topStart",
+    ".topEnd",
+    ".left",
+    ".leftStart",
+    ".leftEnd",
+    ".right",
+    ".rightStart",
+    ".rightEnd",
+    ".arrow"
+   ],
+   "events": [
+    {
+     "name": "on close",
+     "meaning": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Alert",
+    "Toast",
+    "Modal",
+    "Dialog"
+   ],
+   "example": "state open = false\nButton(\"Branches\", ref: branches) { on click { open = !open } }\nPopover(visible: open, anchor: branches, placement: .bottomStart, label: \"Branches\").arrow {\n    on close(reason) { log(reason) }\n    Text(\"main\")\n}",
+   "cssClass": "wf-popover"
   },
   {
    "name": "Dialog",
@@ -1780,7 +1964,7 @@
     "Alert",
     "Toast",
     "Modal",
-    "Spinner"
+    "Popover"
    ],
    "example": "state asking = false\nDialog(visible: asking, title: \"Leave without saving?\") { Text(\"Your draft will be lost.\") }",
    "cssClass": "wf-dialog"
@@ -1816,7 +2000,7 @@
     "Alert",
     "Toast",
     "Modal",
-    "Dialog"
+    "Popover"
    ],
    "example": "Spinner\nSpinner.lg",
    "cssClass": "wf-spinner"
@@ -1853,7 +2037,7 @@
     "Alert",
     "Toast",
     "Modal",
-    "Dialog"
+    "Popover"
    ],
    "example": "Progress(value: 40, max: 100)",
    "cssClass": "wf-progress"
@@ -1902,7 +2086,7 @@
     "Alert",
     "Toast",
     "Modal",
-    "Dialog"
+    "Popover"
    ],
    "example": "Skeleton(height: \"20px\", width: \"200px\")\nSkeleton(size: \"48px\").circle",
    "cssClass": "wf-skeleton"
@@ -4016,5 +4200,5 @@
   "sun",
   "moon"
  ],
- "count": 73
+ "count": 74
 }

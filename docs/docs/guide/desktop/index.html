@@ -656,7 +656,7 @@ function pickFolder() {
                             </div>
                             <h3 class="wf-heading" id="the-security-policy">The security policy</h3>
                             <div class="wf-markdown">
-<p>With <code>build.csp</code> on — it is for a project <code>wf init</code> makes — every page says where it may send requests (<a href="/docs/guide/security">chapter 23</a>). Tauri sends each call as a request: to <code>http://ipc.localhost</code> on Windows and Android, and to <code>ipc://localhost</code> on macOS, Linux and iOS. Name the first:</p>
+<p>With <code>build.csp</code> on — it is for a project <code>wf init</code> makes — every page says where it may send requests (<a href="/docs/guide/security">chapter 23</a>). Tauri sends each call as a request: to <code>http://ipc.localhost</code> on Windows and Android, and to <code>ipc://localhost</code> on macOS, Linux and iOS. Name both — the second as its scheme alone, which is how a policy names an app's own:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -665,10 +665,10 @@ function pickFolder() {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">{ &quot;meta&quot;: { &quot;connect&quot;: [&quot;http://ipc.localhost&quot;] } }</code>
+                                <code class="wf-code wf-code--block wf-sa8223565">{ &quot;meta&quot;: { &quot;connect&quot;: [&quot;ipc:&quot;, &quot;http://ipc.localhost&quot;] } }</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>meta.connect</code> takes web origins only, so <code>ipc://localhost</code> cannot be named. Where the policy blocks that request, Tauri sends the call over its other channel instead, and logs a warning: <code>IPC custom protocol failed, Tauri will now use the postMessage interface instead</code>. The call works either way.</p>
+<p>A protocol of your own (<code>register_uri_scheme_protocol</code>) is named the same way: <code>&quot;frame&quot;: [&quot;myapp:&quot;, &quot;http://myapp.localhost&quot;]</code> for a frame the app fills from it, and a frame's <code>src</code> may then use that scheme. A page that compiles WebAssembly adds <code>&quot;wasm&quot;: true</code>; one whose scripts write <code>&lt;style&gt;</code> elements, <code>&quot;style_elements&quot;: true</code>.</p>
                             </div>
                             <h2 class="wf-heading" id="electron">Electron</h2>
                             <h3 class="wf-heading" id="setting-up">Setting up</h3>

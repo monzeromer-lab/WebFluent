@@ -1496,7 +1496,7 @@ file would change; a `.wfx` file is normalised through its braced spelling.
 | `Link` | `Link(to: "/path") { Text("Label") }` — the link whose `to` matches the current route carries `.active` and `aria-current="page"`; `active: .prefix` also matches routes beneath it; a `to` with a query (`"/?show=open"`) matches only when the address has those values too, and a plain link to the same path then gives way to it |
 | `Tabs` | `Tabs { Tabs.Page("Tab 1") { ... } Tabs.Page("Tab 2") { ... } }` |
 | `Breadcrumb` | `Breadcrumb { Breadcrumb.Item(to: "/") { Text("Home") } Breadcrumb.Item { Text("Current") } }` |
-| `Menu` | `Menu(trigger: "Options") { Menu.Item { ... } }` |
+| `Menu` | `Menu(trigger: "Options") { Menu.Item(shortcut: "F2") { ... } Menu.Divider Menu.Sub(label: "Move to") { ... } }`, or opened by state: `Menu(visible: asked, at: point)` (a context menu, `point = { x: e.clientX, y: e.clientY }`) or `anchor: someRef`; `placement:`, `on close(reason)`. Items take `shortcut:`, `checked:`, `disabled:`. Drawn in the top layer |
 
 ### Data Display
 
@@ -1508,7 +1508,7 @@ file would change; a `.wfx` file is normalised through its braced spelling.
 | `Badge` | `Badge("Label").primary` — tones: `.primary`, `.secondary`, `.success`, `.danger`, `.warning`, `.info`; `.pill` |
 | `Tag` | `Tag("JavaScript")` |
 | `Avatar` | `Avatar(src: "/photo.jpg", alt: "User")` or `Avatar(initials: "MO").primary` — flags: `.sm`, `.lg`, `.primary` |
-| `Tooltip` | `Tooltip("Click to save") { Button("Save").primary }` — wraps children, shows text on hover |
+| `Tooltip` | `Tooltip("Save", shortcut: "Ctrl+S", delay: 400, placement: .bottom) { Button("Save").primary }` — wraps children; shows above everything after `delay:` ms of hover (unset, 500), at once on keyboard focus |
 
 ### Form & Input
 
@@ -1535,6 +1535,7 @@ Input types (a flag): `.text`, `.email`, `.password`, `.number`, `.search`, `.te
 | `Toast` | `Toast("Saved!").success` — temporary notification |
 | `Modal` | `Modal(visible: showModal, title: "Title") { ... Modal.Footer { ... } }` |
 | `Dialog` | `Dialog(visible: show, title: "Confirm") { ... }` |
+| `Popover` | `Popover(visible: open, anchor: button, placement: .bottomStart, label: "Branches").arrow { on close(reason) { ... } ... }` — a layer above everything at `anchor:` (a `ref:`) or `at:` a point; flips and slides to stay on screen; Escape or a press outside sets `visible:` back to `false`, and `on close` hears `"escape"` or `"outside"` |
 | `Spinner` | `Spinner` or `Spinner.lg` |
 | `Progress` | `Progress(value: 75, max: 100)` |
 | `Skeleton` | `Skeleton(height: "20px", width: "200px")` or `Skeleton(size: "48px").circle` — flags: `.circle` |
@@ -1612,10 +1613,11 @@ The last item (without `to:`) renders as the current page (no link).
 
 #### Tooltip
 
-Wraps children, shows text on hover:
+Wraps children, shows text on hover after `delay:` ms (unset, 500) and at
+once on keyboard focus, above everything; `shortcut:` adds a chip:
 
 ```wf
-Tooltip("Click to save") {
+Tooltip("Click to save", shortcut: "Ctrl+S") {
     Button("Save").primary
 }
 ```

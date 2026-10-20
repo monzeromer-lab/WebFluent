@@ -294,6 +294,7 @@ mod tests {
             "Textarea",
             "Modal",
             "Dialog",
+            "Popover",
             "Toast",
             "Spinner",
             "Skeleton",

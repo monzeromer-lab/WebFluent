@@ -1,0 +1,69 @@
+// Every kind of layer, inside a box that clips: a popover at a button, a
+// menu with a shortcut, a checked item, a disabled item and a submenu, a
+// context menu at the pointer, and a tooltip with its shortcut chip.
+page Home(path: "/", title: "Layers", description: "Popovers, menus and tooltips above everything.") {
+    state open = false
+    state wrap = false
+    state ctx = false
+    state point = { x: 0, y: 0 }
+    state said = ""
+    Heading("Layers").h1
+    Container(id: "clip") {
+        style { overflow: "hidden", height: "60px" }
+        Row {
+            Button("Branches", ref: branches, id: "branches") { on click { open = !open } }
+            Menu(trigger: "View", id: "view") {
+                Menu.Item(shortcut: "Ctrl+B", id: "sidebar") {
+                    on click { said = "sidebar" }
+                    Text("Toggle sidebar")
+                }
+                Menu.Item(checked: wrap, id: "wrap") {
+                    on click { wrap = !wrap }
+                    Text("Word wrap")
+                }
+                Menu.Item(disabled: true, id: "zen") {
+                    on click { said = "zen" }
+                    Text("Zen mode")
+                }
+                Menu.Divider()
+                Menu.Sub(label: "Appearance", id: "appearance") {
+                    Menu.Item(id: "light") {
+                        on click { said = "light" }
+                        Text("Light")
+                    }
+                    Menu.Item(id: "dark") {
+                        on click { said = "dark" }
+                        Text("Dark")
+                    }
+                }
+            }
+            Tooltip("Save", shortcut: "Ctrl+S", delay: 200) {
+                Button("Save", id: "save")
+            }
+        }
+    }
+    Popover(visible: open, anchor: branches, placement: .bottomStart, label: "Branches", id: "pop").arrow {
+        on close(reason) { said = "popover {reason}" }
+        Text("main")
+    }
+    Card(id: "area") {
+        on contextmenu(e) {
+            e.preventDefault()
+            point = { x: e.clientX, y: e.clientY }
+            ctx = true
+        }
+        Text("Right-click here")
+    }
+    Menu(visible: ctx, at: point, id: "context") {
+        on close(reason) { said = "context {reason}" }
+        Menu.Item(shortcut: "F12", id: "definition") {
+            on click { said = "definition" }
+            Text("Go to definition")
+        }
+        Menu.Item(id: "rename") {
+            on click { said = "rename" }
+            Text("Rename")
+        }
+    }
+    Text("{said}", id: "said")
+}

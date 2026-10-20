@@ -1194,10 +1194,15 @@ fn lower_key_handler(handler: &mut EventHandler) {
 
 /// The names of the props `el`'s component declares, when it is the
 /// project's own: what a universal prop of the same name gives way to.
-fn own_props<'u>(el: &UIElement, user: &'u HashMap<String, UserSig>) -> &'u [String] {
+fn own_props(el: &UIElement, user: &HashMap<String, UserSig>) -> Vec<String> {
     match &el.component {
-        ComponentRef::UserDefined(name) => user.get(name).map_or(&[], |us| us.props.as_slice()),
-        _ => &[],
+        ComponentRef::UserDefined(name) => user.get(name).map_or(Vec::new(), |us| us.props.clone()),
+        // A built-in's own prop of the same name — a `Tooltip`'s `delay:` —
+        // is its own, not motion.
+        ComponentRef::BuiltIn(name) => crate::registry::component(name).map_or(Vec::new(), |sig| {
+            sig.props.iter().map(|p| p.name.to_string()).collect()
+        }),
+        _ => Vec::new(),
     }
 }
 
@@ -1271,7 +1276,7 @@ fn lift_animation(
         let StatementKind::UIElement(el) = &mut stmt.kind else {
             continue;
         };
-        let own = own_props(el, user).to_vec();
+        let own = own_props(el, user);
         let is_motion_word = |m: &str| {
             !own.iter().any(|p| p == m)
                 && (crate::themes::prune::ANIMATIONS.contains(&m) || matches!(m, "fast" | "slow"))
@@ -1391,7 +1396,7 @@ fn lower_element(el: &mut UIElement, user: &HashMap<String, UserSig>) {
     // leaves or first animates in. A stagger belongs to a list and means
     // nothing here.
     let user_component = matches!(el.component, ComponentRef::UserDefined(_));
-    let own = own_props(el, user).to_vec();
+    let own = own_props(el, user);
     // The Router's `duration` times its route transition, not a marker.
     let router = matches!(&el.component, ComponentRef::BuiltIn(n) if n == "Router");
     for arg in el.args.iter_mut() {

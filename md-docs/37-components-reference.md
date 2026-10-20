@@ -17,7 +17,7 @@ Every component is written `Name(positional, prop: value).flag { block }`. A **p
 - **Navigation**: [`Navbar`](#navbar), [`Sidebar`](#sidebar), [`Link`](#link), [`Tabs`](#tabs), [`Breadcrumb`](#breadcrumb), [`Menu`](#menu)
 - **Data display**: [`Card`](#card), [`Table`](#table), [`List`](#list), [`Badge`](#badge), [`Tag`](#tag), [`Avatar`](#avatar), [`Tooltip`](#tooltip)
 - **Form**: [`Input`](#input), [`Select`](#select), [`Checkbox`](#checkbox), [`Radio`](#radio), [`Switch`](#switch), [`Slider`](#slider), [`DatePicker`](#datepicker), [`FileUpload`](#fileupload), [`Form`](#form), [`Textarea`](#textarea)
-- **Feedback**: [`Alert`](#alert), [`Toast`](#toast), [`Modal`](#modal), [`Dialog`](#dialog), [`Spinner`](#spinner), [`Progress`](#progress), [`Skeleton`](#skeleton)
+- **Feedback**: [`Alert`](#alert), [`Toast`](#toast), [`Modal`](#modal), [`Popover`](#popover), [`Dialog`](#dialog), [`Spinner`](#spinner), [`Progress`](#progress), [`Skeleton`](#skeleton)
 - **Actions**: [`Button`](#button), [`IconButton`](#iconbutton), [`ButtonGroup`](#buttongroup), [`Dropdown`](#dropdown)
 - **Media**: [`Image`](#image), [`Video`](#video), [`Audio`](#audio), [`Frame`](#frame), [`Icon`](#icon), [`Carousel`](#carousel)
 - **Typography**: [`Text`](#text), [`Heading`](#heading), [`Code`](#code), [`Markdown`](#markdown), [`Unsafe`](#unsafe), [`Blockquote`](#blockquote)
@@ -403,18 +403,22 @@ Attribute families: `global`, `aria`, `data`.
 
 ### Menu
 
-Menu opened by a trigger button.
+A menu above everything: opened by its `trigger:` button, or by `visible:` at an `anchor:` or a point `at:` — a context menu. Escape, a press outside or a choice close it, write `false` back to `visible:` and fire `on close`.
 
 ```
-Menu(trigger: …, label: …) { … }
+Menu(trigger: …, label: …, visible: …) { … }
 ```
 
 ```wf
 Menu(trigger: "Options") {
-    Menu.Item { Text("Rename") }
+    Menu.Item(shortcut: "F2") { Text("Rename") }
+    Menu.Sub(label: "Move to") { Menu.Item { Text("Archive") } }
     Menu.Divider
-    Menu.Item { Text("Delete") }
+    Menu.Item(disabled: true) { Text("Delete") }
 }
+state asked = false
+state point = { x: 0, y: 0 }
+Menu(visible: asked, at: point) { Menu.Item { Text("Copy") } }
 ```
 
 Renders with the class `wf-menu`.
@@ -423,10 +427,25 @@ Renders with the class `wf-menu`.
 |---|---|---|
 | `trigger:` | `String` | Label of the button that opens the menu |
 | `label:` | `String` | Same as `trigger` |
+| `visible:` | `State` | State flag that opens and closes it |
+| `anchor:` | `Any` | What it is placed against: an element's `ref:`, or a point `{ x: e.clientX, y: e.clientY }` |
+| `at:` | `Any` | A point to place it at, `{ x: e.clientX, y: e.clientY }`: where the pointer asked for a context menu |
+| `placement:` | `.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd` | Where it goes against its anchor; it flips to the other side when there is no room. Unset, `.bottomStart` |
+| `offset:` | `Number` | How far from the anchor, in px |
+
+**Flags:** `.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd`
+
+**Events of its own:** `on close`
 
 **Parts:**
 
-- `Menu.Item { … }` — One entry of the menu.
+- `Menu.Item(shortcut: …, checked: …, disabled: …) { … }` — One entry of the menu; `on click` is what choosing it does.
+  - `shortcut:` `String` — The keys that do the same, shown at its end
+  - `checked:` `Bool` — A check mark: the item turns something on and off
+  - `disabled:` `Bool` — Shown, skipped by the arrow keys, and cannot be chosen
+  - flags: `.checked` `.disabled`
+- `Menu.Sub(label: …) { … }` — An entry that opens a menu of its own beside it.
+  - `label:` `String` — What the entry says
 - `Menu.Divider` — A rule between groups of entries.
 
 Takes a block of children.
@@ -610,14 +629,15 @@ Attribute families: `global`, `aria`, `data`.
 
 ### Tooltip
 
-Shows `text` when its child is hovered or focused.
+Shows `text` above everything when its child is hovered (after `delay:`) or focused from the keyboard.
 
 ```
-Tooltip(text) { … }
+Tooltip(text, shortcut: …, placement: …, delay: …) { … }
 ```
 
 ```wf
 Tooltip("Copies the link") { IconButton(icon: "copy", label: "Copy link") }
+Tooltip("Save", shortcut: "Ctrl+S", delay: 400, placement: .bottom) { Button("Save") }
 ```
 
 Renders with the class `wf-tooltip`.
@@ -625,6 +645,11 @@ Renders with the class `wf-tooltip`.
 | Prop | Type | Meaning |
 |---|---|---|
 | `text` (positional) | `String` | The tooltip text |
+| `shortcut:` | `String` | The keys that do the same, shown as a chip |
+| `placement:` | `.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd` | Where it goes against its anchor; it flips to the other side when there is no room. Unset, `.bottomStart` |
+| `delay:` | `Number` | How long a hover waits before it shows, in ms. Unset, 500 |
+
+**Flags:** `.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd`
 
 Takes a block of children.
 
@@ -1011,6 +1036,43 @@ Renders with the class `wf-modal`.
 **Parts:**
 
 - `Modal.Footer { … }` — The modal's action row.
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### Popover
+
+A layer at a control: drawn above everything, placed against its `anchor:`, closed by `Escape` or a press outside, which write `false` back to `visible:` and fire `on close`.
+
+```
+Popover(visible: …, anchor: …, at: …) { … }
+```
+
+```wf
+state open = false
+Button("Branches", ref: branches) { on click { open = !open } }
+Popover(visible: open, anchor: branches, placement: .bottomStart, label: "Branches").arrow {
+    on close(reason) { log(reason) }
+    Text("main")
+}
+```
+
+Renders with the class `wf-popover`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `visible:` | `State` | State flag that opens and closes it |
+| `anchor:` | `Any` | What it is placed against: an element's `ref:`, or a point `{ x: e.clientX, y: e.clientY }` |
+| `at:` | `Any` | A point to place it at, `{ x: e.clientX, y: e.clientY }`: where the pointer asked for a context menu |
+| `placement:` | `.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd` | Where it goes against its anchor; it flips to the other side when there is no room. Unset, `.bottomStart` |
+| `offset:` | `Number` | How far from the anchor, in px |
+| `label:` | `String` | What it is, for a screen reader: its accessible name |
+| `arrow:` | `Bool` | A point toward the anchor |
+
+**Flags:** `.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd` `.arrow`
+
+**Events of its own:** `on close`
 
 Takes a block of children.
 

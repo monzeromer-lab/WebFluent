@@ -799,13 +799,36 @@
         [
           "tabs",
           "tabs"
+        ]
+      ],
+      "name": "overlay",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
+          "layer",
+          "layer"
+        ],
+        [
+          "placeAt",
+          "placeAt"
         ],
         [
           "menu",
           "menu"
+        ],
+        [
+          "submenu",
+          "submenu"
+        ],
+        [
+          "tooltip",
+          "tooltip"
         ]
       ],
-      "name": "overlay",
+      "name": "layer",
       "triggers": []
     },
     {
@@ -828,17 +851,6 @@
         ]
       ],
       "name": "field",
-      "triggers": []
-    },
-    {
-      "deps": [],
-      "exports": [
-        [
-          "tooltip",
-          "tooltip"
-        ]
-      ],
-      "name": "tooltip",
       "triggers": []
     },
     {

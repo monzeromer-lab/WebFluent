@@ -4582,6 +4582,10 @@
     "named": false
   },
   {
+    "type": "Popover",
+    "named": false
+  },
+  {
     "type": "Presentation",
     "named": false
   },

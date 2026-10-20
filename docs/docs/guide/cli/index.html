@@ -309,7 +309,7 @@
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>wf build [-d, --dir DIR] [--stats] [--format FORMAT] [--deny-warnings]</code></p>
+<p><code>wf build [-d, --dir DIR] [--stats] [--format FORMAT] [--deny-warnings] [--cache]</code></p>
                                             </div>
                                         </td>
                                         <td>Compiles the project; fails on errors, prints warnings</td>
@@ -447,11 +447,12 @@
                             <div class="wf-markdown">
 <p>Runs the whole pipeline — parse, semantic checks, type checks, linters, code generation — and writes <code>build.output</code> (<code>./build</code>). Errors stop the build with the file, line, column, message and a hint; warnings print and the build goes on. <code>-d DIR</code> builds another directory.</p>
 <p><code>--format</code> says how the findings are written: <code>human</code> (the default, on standard error), <code>json</code> (one document on standard output — every finding with its code, place, hint, related places and fixes, and the counts), <code>sarif</code> (SARIF 2.1.0, for GitHub code scanning and every other SARIF reader) or <code>github</code> (<code>::error file=…</code> annotations on standard output, which a workflow shows on the pull request, with the rendering kept on standard error). With <code>json</code> or <code>sarif</code> the build's progress goes to standard error, so standard output is the document alone. <code>--deny-warnings</code> stops the build on a warning, as on an error — the switch for CI.</p>
+<p><code>--cache</code> reuses what earlier builds pre-rendered, kept in <code>.wf-cache/build/</code>: a page whose inputs are what they were — its own text, every component it reaches, and what every page reads (the shell, the stores, constants and data, every page's title and route, the config, the translations, the compiler) — is taken from the cache, and only the pages an edit changed are rendered again. What it writes is what a build without it writes, byte for byte. A build with nothing to reuse fills the cache; each keeps only what it used.</p>
 <p><code>--stats</code> prints what the build weighs: every text file with its gzipped size and how it moved since the last build, the runtime modules it kept and what reached each, and the design tokens it left out. <a href="/docs/guide/performance">Performance</a> reads it.</p>
                             </div>
                             <h3 class="wf-heading" id="wf-serve">wf serve</h3>
                             <div class="wf-markdown">
-<p>The development loop. It builds once, serves the output on <code>dev.port</code> (3000), watches <code>src/</code>, <code>public/</code> and the config, rebuilds on a change and reloads every open tab. A build that fails leaves the last good page up and draws the error over it — file, line, message and hint — until the next save fixes it. The overlay is served at <code>/__wf/dev.js</code>, the build's state at <code>/__wf/status</code> (JSON).</p>
+<p>The development loop. It builds once, serves the output on <code>dev.port</code> (3000), watches <code>src/</code>, <code>public/</code> and the config, rebuilds on a change and reloads every open tab. Each rebuild is <code>wf build --cache</code>: only the pages the change reached are rendered again. A build that fails leaves the last good page up and draws the error over it — file, line, message and hint — until the next save fixes it. The overlay is served at <code>/__wf/dev.js</code>, the build's state at <code>/__wf/status</code> (JSON).</p>
 <p>Every page it serves also carries a <strong>stores</strong> button: what each store holds, a log of every action with the state on each side of it, and a click to put a store back (<a href="/docs/guide/stores#looking-at-one-while-it-runs">Stores</a>). An offline site's service worker is removed under <code>wf serve</code>, so an edit is never hidden behind its cache.</p>
 <p>A request that is not a page — a <code>fetch</code>, a script, an image — for a file the build did not write gets a <code>404</code>, as a host would send, and a line in the terminal saying which; only a navigation gets the single-page shell. A missing API used to be answered with the shell's HTML, which then failed to parse somewhere far from the cause.</p>
 <p>A build under <code>wf serve</code> is a development build, and the page knows it:</p>

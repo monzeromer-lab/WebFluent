@@ -429,6 +429,73 @@ page Use(path: &quot;/&quot;) {
 <li><strong><code>Tooltip</code></strong> shows its text when its child is hovered or focused, and is linked to it with <code>aria-describedby</code>.</li>
 </ul>
                             </div>
+                            <h3 class="wf-heading" id="layers-popovers-menus-and-tooltips-above-everything">Layers: popovers, menus and tooltips above everything</h3>
+                            <div class="wf-markdown">
+<p>A <code>Popover</code>, a <code>Menu</code>'s list and a <code>Tooltip</code> are drawn in the browser's top layer, above everything else on the page, so a box with <code>overflow: hidden</code> or a stacking context of its own cannot clip or cover them. Each is placed against its anchor: it flips to the other side when there is no room, slides along its side to stay on screen, and follows the anchor while the page scrolls. The open layers are one stack, newest on top: Escape closes the top one only, and a press outside closes every layer it is outside of.</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Editor(path: &quot;/&quot;, title: &quot;Editor&quot;, description: &quot;Layers at a control and at the pointer.&quot;) {
+    state branches = false
+    state wrap = false
+    state asked = false
+    state point = { x: 0, y: 0 }
+    state said = &quot;&quot;
+    Heading(&quot;Editor&quot;).h1
+    Row {
+        Button(&quot;main&quot;, ref: branch) { on click { branches = !branches } }
+        Menu(trigger: &quot;View&quot;) {
+            Menu.Item(shortcut: &quot;Ctrl+B&quot;) {
+                on click { said = &quot;sidebar&quot; }
+                Text(&quot;Toggle sidebar&quot;)
+            }
+            Menu.Item(checked: wrap) {
+                on click { wrap = !wrap }
+                Text(&quot;Word wrap&quot;)
+            }
+            Menu.Item(disabled: true) { Text(&quot;Zen mode&quot;) }
+            Menu.Divider
+            Menu.Sub(label: &quot;Appearance&quot;) {
+                Menu.Item { Text(&quot;Light&quot;) }
+                Menu.Item { Text(&quot;Dark&quot;) }
+            }
+        }
+        Tooltip(&quot;Save&quot;, shortcut: &quot;Ctrl+S&quot;, delay: 400) { Button(&quot;Save&quot;) }
+    }
+    Popover(visible: branches, anchor: branch, placement: .bottomStart, label: &quot;Branches&quot;).arrow {
+        on close(reason) { said = &quot;closed by {reason}&quot; }
+        Text(&quot;main&quot;)
+        Text(&quot;feature/layers&quot;)
+    }
+    Card {
+        on contextmenu(e) {
+            e.preventDefault()
+            point = { x: e.clientX, y: e.clientY }
+            asked = true
+        }
+        Text(&quot;Right-click for the context menu&quot;)
+    }
+    Menu(visible: asked, at: point) {
+        Menu.Item(shortcut: &quot;F12&quot;) { Text(&quot;Go to definition&quot;) }
+        Menu.Item { Text(&quot;Rename&quot;) }
+    }
+    Text(said)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><strong><code>Popover</code></strong> is open while its <code>visible:</code> state is true, placed against <code>anchor:</code> — an element's <code>ref:</code> — on <code>placement:</code> (<code>.bottom</code>, <code>.bottomStart</code>, <code>.bottomEnd</code>, <code>.top…</code>, <code>.left…</code>, <code>.right…</code>; unset, <code>.bottomStart</code>), <code>offset:</code> pixels away. When Escape or a press outside closes it, <code>visible:</code> is set back to <code>false</code> and <code>on close(reason)</code> hears why: <code>&quot;escape&quot;</code> or <code>&quot;outside&quot;</code>. <code>.arrow</code> draws a point toward the anchor; <code>label:</code> is its accessible name.</li>
+<li><strong><code>Menu</code></strong> with <code>trigger:</code> is a button and its list. Without one it is a list that state opens: <code>visible:</code> at an <code>anchor:</code>, or <code>at:</code> a point <code>{ x, y }</code> — where the pointer asked for a context menu. Choosing an item closes it (<code>on close</code> hears <code>&quot;choose&quot;</code>).</li>
+<li><strong><code>Menu.Item</code></strong> takes <code>shortcut:</code> — the keys that do the same, drawn at its end and given to assistive technology as <code>aria-keyshortcuts</code>; <code>checked:</code>, which makes it a check item that follows its state; and <code>disabled:</code>, which keeps it in sight but out of reach — the arrow keys skip it and a press does nothing.</li>
+<li><strong><code>Menu.Sub(label:)</code></strong> is an entry with a menu of its own, opened beside it by a hover, ArrowRight or Enter. ArrowLeft and Escape go back to the entry; choosing in it closes the whole menu, and it closes with its menu.</li>
+<li><strong><code>Tooltip</code></strong> waits <code>delay:</code> milliseconds of hover (unset, 500) and shows at once for keyboard focus; it never takes focus, and goes on leaving, on a press and on Escape. <code>shortcut:</code> adds a chip with the keys; <code>placement:</code> is where it goes (unset, <code>.top</code>).</li>
+</ul>
+                            </div>
                             <h2 class="wf-heading" id="listening-outside-the-page-s-elements">Listening outside the page&#x27;s elements</h2>
                             <div class="wf-markdown">
 <p>A handler on an element hears that element. For the window or the document — a resize, a scroll of the page, a message from another window — use an <code>effect</code> with a <code>cleanup</code>, which removes the listener when the page leaves. An action named without parentheses is the function itself, so it can be handed to the browser:</p>

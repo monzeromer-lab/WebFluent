@@ -2910,6 +2910,40 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Make it unique — <code>id: &quot;row-{r}&quot;</code> — or drop it.</p>
                             </div>
+                            <h3 class="wf-heading" id="a17-a-frame-with-no-title">A17 — A frame with no title</h3>
+                            <div class="wf-markdown">
+<p>Warning.</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws A17</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws A17" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    Heading(&quot;Preview&quot;).h1
+    Frame(src: &quot;https://example.com/&quot;)
+}</code>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">warning[A17]: Frame missing &quot;title&quot; attribute
+ --&gt; src/App.wf:3:5
+  |
+3 |     Frame(src: &quot;https://example.com/&quot;)
+  |     ^^^^^
+  = help: Say what it shows: Frame(src: &quot;/preview/&quot;, title: &quot;Preview&quot;)
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a17-a-frame-with-no-title</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> <code>Frame(src: &quot;https://example.com/&quot;, title: &quot;Example&quot;)</code> — the title is how a screen reader announces it.</p>
+                            </div>
                             <h2 class="wf-heading" id="search-and-sharing">Search and sharing</h2>
                             <div class="wf-markdown">
 <p>Warnings. What a search engine or a link preview would act on.</p>

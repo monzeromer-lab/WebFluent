@@ -336,18 +336,23 @@ test("a carousel does not rotate for a reader who asked for reduced motion", () 
   }
 });
 
-test("a tooltip describes its trigger, is reachable by keyboard and dismissed by Escape", () => {
-  const { WF, document } = loadRuntime();
+test("a tooltip describes its trigger, shows above everything, and is dismissed by Escape", () => {
+  const { WF } = loadRuntime();
   const button = WF.el("button", {}, ["Save"]);
   const tip = WF.el("span", { className: "wf-tooltip__text", role: "tooltip", id: "wf-tip-1" }, ["Saves the draft"]);
   const root = WF.el("div", { className: "wf-tooltip" }, [button, tip]);
-  WF.tooltip(root, tip);
+  WF.tooltip(root, tip, { delay: 0 });
   assert.equal(button.getAttribute("aria-describedby"), "wf-tip-1", "the focusable child is described by the tip");
   assert.equal(root.getAttribute("tabindex"), null, "the wrapper stays out of the tab order");
+  assert.ok(tip.classList.contains("wf-layer"), "the tip is a layer");
+  assert.equal(tip.getAttribute("data-open"), null, "hidden at first");
+  root.dispatchEvent({ type: "pointerenter" });
+  assert.equal(tip.getAttribute("data-open"), "", "a hover shows it");
   root.dispatchEvent({ type: "keydown", key: "Escape", stopPropagation() {} });
-  assert.equal(root.getAttribute("data-dismissed"), "", "Escape hides the tip");
-  root.dispatchEvent({ type: "mouseleave" });
-  assert.equal(root.getAttribute("data-dismissed"), null, "and leaving resets it");
+  assert.equal(tip.getAttribute("data-open"), null, "Escape hides the tip");
+  root.dispatchEvent({ type: "pointerenter" });
+  root.dispatchEvent({ type: "pointerleave" });
+  assert.equal(tip.getAttribute("data-open"), null, "and leaving hides it");
 
   // With nothing focusable inside, the wrapper itself becomes the trigger.
   const tip2 = WF.el("span", { className: "wf-tooltip__text", role: "tooltip", id: "wf-tip-2" }, ["Hint"]);

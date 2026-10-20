@@ -54,7 +54,7 @@ const BUILTIN_COMPONENTS = [
   "Input", "Select", "Option", "Checkbox", "Radio", "Switch", "Slider",
   "DatePicker", "FileUpload", "Form", "Textarea",
   // Feedback
-  "Alert", "Toast", "Modal", "Dialog", "Spinner", "Progress", "Skeleton",
+  "Alert", "Toast", "Modal", "Dialog", "Popover", "Spinner", "Progress", "Skeleton",
   // Actions
   "Button", "IconButton", "ButtonGroup", "Dropdown",
   // Media

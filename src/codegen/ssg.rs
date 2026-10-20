@@ -1326,6 +1326,10 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     if let Some(role) = implicit_role(name, &ui.modifiers) {
         attrs.push(format!("role=\"{}\"", role));
     }
+    // A layer is in the top layer only when shown, and hidden until then.
+    if name == "Popover" {
+        attrs.push("popover=\"manual\" role=\"dialog\"".to_string());
+    }
     if let Some(label) = landmark_label(name) {
         attrs.push(format!("aria-label=\"{}\"", label));
     }

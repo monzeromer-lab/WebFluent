@@ -376,6 +376,30 @@ page Home(path: &quot;/&quot;, title: &quot;Home&quot;, description: &quot;The f
                             <div class="wf-markdown">
 <p>A carousel has named previous and next buttons and a dot per slide; its <code>label:</code> names the region for screen readers. With autoplay there is also a button that stops it; it pauses on its own while the pointer or focus is on it, and does not run at all for a reader who asked for reduced motion.</p>
                             </div>
+                            <h2 class="wf-heading" id="frames">Frames</h2>
+                            <div class="wf-markdown">
+<p><code>Frame</code> shows another page inside this one — a video player, a map, a preview an app builds. Its <code>title:</code> says what it shows: a screen reader announces a frame by its title, and one without it draws an <code>A17</code> warning.</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Talk(path: &quot;/&quot;, title: &quot;The talk&quot;, description: &quot;The launch talk, and what the preview says.&quot;) {
+    state heard = &quot;&quot;
+    Heading(&quot;The talk&quot;).h1
+    Frame(src: &quot;https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ&quot;, title: &quot;The launch talk&quot;, allow: &quot;fullscreen&quot;)
+    Frame(src: &quot;/preview/&quot;, title: &quot;Preview&quot;, sandbox: &quot;allow-scripts&quot;) {
+        on message(m) { heard = m.data }
+    }
+    Text(heard)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>on message(m)</code> hears what the framed page posts with <code>window.parent.postMessage(…)</code> — <code>m.data</code> is what it sent — and nothing another page posts. <code>sandbox:</code> limits what the framed page may do (<code>&quot;allow-scripts allow-forms&quot;</code>; empty, nothing at all), and <code>allow:</code> names the features it may use. A frame from another origin is named in <code>meta.frame</code>, or the page's policy refuses it (<a href="/docs/guide/security">Security</a>).</p>
+                            </div>
                         </div>
                     </div>
                     <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
@@ -396,6 +420,7 @@ page Home(path: &quot;/&quot;, title: &quot;Home&quot;, description: &quot;The f
                         <a class="wf-link wf-s3e136ca4" href="#image-a-picture-the-build-processes">image: a picture the build processes</a>
                         <a class="wf-link wf-s3e136ca4" href="#icons">Icons</a>
                         <a class="wf-link wf-s3e136ca4" href="#carousel">Carousel</a>
+                        <a class="wf-link wf-s3e136ca4" href="#frames">Frames</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-s614f8b98">

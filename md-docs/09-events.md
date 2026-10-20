@@ -153,6 +153,89 @@ page Overlays(path: "/", title: "Overlays", description: "What a page opens.") {
 - **`Tooltip`** shows its text when its child is hovered or focused, and is
   linked to it with `aria-describedby`.
 
+### Layers: popovers, menus and tooltips above everything
+
+A `Popover`, a `Menu`'s list and a `Tooltip` are drawn in the browser's top
+layer, above everything else on the page, so a box with `overflow: hidden`
+or a stacking context of its own cannot clip or cover them. Each is placed
+against its anchor: it flips to the other side when there is no room, slides
+along its side to stay on screen, and follows the anchor while the page
+scrolls. The open layers are one stack, newest on top: Escape closes the
+top one only, and a press outside closes every layer it is outside of.
+
+```wf
+page Editor(path: "/", title: "Editor", description: "Layers at a control and at the pointer.") {
+    state branches = false
+    state wrap = false
+    state asked = false
+    state point = { x: 0, y: 0 }
+    state said = ""
+    Heading("Editor").h1
+    Row {
+        Button("main", ref: branch) { on click { branches = !branches } }
+        Menu(trigger: "View") {
+            Menu.Item(shortcut: "Ctrl+B") {
+                on click { said = "sidebar" }
+                Text("Toggle sidebar")
+            }
+            Menu.Item(checked: wrap) {
+                on click { wrap = !wrap }
+                Text("Word wrap")
+            }
+            Menu.Item(disabled: true) { Text("Zen mode") }
+            Menu.Divider
+            Menu.Sub(label: "Appearance") {
+                Menu.Item { Text("Light") }
+                Menu.Item { Text("Dark") }
+            }
+        }
+        Tooltip("Save", shortcut: "Ctrl+S", delay: 400) { Button("Save") }
+    }
+    Popover(visible: branches, anchor: branch, placement: .bottomStart, label: "Branches").arrow {
+        on close(reason) { said = "closed by {reason}" }
+        Text("main")
+        Text("feature/layers")
+    }
+    Card {
+        on contextmenu(e) {
+            e.preventDefault()
+            point = { x: e.clientX, y: e.clientY }
+            asked = true
+        }
+        Text("Right-click for the context menu")
+    }
+    Menu(visible: asked, at: point) {
+        Menu.Item(shortcut: "F12") { Text("Go to definition") }
+        Menu.Item { Text("Rename") }
+    }
+    Text(said)
+}
+```
+
+- **`Popover`** is open while its `visible:` state is true, placed against
+  `anchor:` — an element's `ref:` — on `placement:` (`.bottom`,
+  `.bottomStart`, `.bottomEnd`, `.top…`, `.left…`, `.right…`; unset,
+  `.bottomStart`), `offset:` pixels away. When Escape or a press outside
+  closes it, `visible:` is set back to `false` and `on close(reason)` hears
+  why: `"escape"` or `"outside"`. `.arrow` draws a point toward the anchor;
+  `label:` is its accessible name.
+- **`Menu`** with `trigger:` is a button and its list. Without one it is a
+  list that state opens: `visible:` at an `anchor:`, or `at:` a point
+  `{ x, y }` — where the pointer asked for a context menu. Choosing an item
+  closes it (`on close` hears `"choose"`).
+- **`Menu.Item`** takes `shortcut:` — the keys that do the same, drawn at
+  its end and given to assistive technology as `aria-keyshortcuts`;
+  `checked:`, which makes it a check item that follows its state; and
+  `disabled:`, which keeps it in sight but out of reach — the arrow keys
+  skip it and a press does nothing.
+- **`Menu.Sub(label:)`** is an entry with a menu of its own, opened beside
+  it by a hover, ArrowRight or Enter. ArrowLeft and Escape go back to the
+  entry; choosing in it closes the whole menu, and it closes with its menu.
+- **`Tooltip`** waits `delay:` milliseconds of hover (unset, 500) and shows
+  at once for keyboard focus; it never takes focus, and goes on leaving, on
+  a press and on Escape. `shortcut:` adds a chip with the keys;
+  `placement:` is where it goes (unset, `.top`).
+
 ## Listening outside the page's elements
 
 A handler on an element hears that element. For the window or the document

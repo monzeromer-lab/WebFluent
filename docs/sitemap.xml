@@ -106,6 +106,9 @@
     <loc>https://webfluent.monzeromer.dev/docs/reference/modal</loc>
   </url>
   <url>
+    <loc>https://webfluent.monzeromer.dev/docs/reference/popover</loc>
+  </url>
+  <url>
     <loc>https://webfluent.monzeromer.dev/docs/reference/dialog</loc>
   </url>
   <url>
@@ -137,6 +140,9 @@
   </url>
   <url>
     <loc>https://webfluent.monzeromer.dev/docs/reference/audio</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/docs/reference/frame</loc>
   </url>
   <url>
     <loc>https://webfluent.monzeromer.dev/docs/reference/icon</loc>

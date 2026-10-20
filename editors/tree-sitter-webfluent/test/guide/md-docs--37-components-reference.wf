@@ -103,10 +103,14 @@ page Doc(path: "/") {
 // md-docs/37-components-reference.md
 page Doc(path: "/") {
     Menu(trigger: "Options") {
-        Menu.Item { Text("Rename") }
+        Menu.Item(shortcut: "F2") { Text("Rename") }
+        Menu.Sub(label: "Move to") { Menu.Item { Text("Archive") } }
         Menu.Divider
-        Menu.Item { Text("Delete") }
+        Menu.Item(disabled: true) { Text("Delete") }
     }
+    state asked = false
+    state point = { x: 0, y: 0 }
+    Menu(visible: asked, at: point) { Menu.Item { Text("Copy") } }
 }
 
 // md-docs/37-components-reference.md
@@ -155,6 +159,7 @@ page Doc(path: "/") {
 // md-docs/37-components-reference.md
 page Doc(path: "/") {
     Tooltip("Copies the link") { IconButton(icon: "copy", label: "Copy link") }
+    Tooltip("Save", shortcut: "Ctrl+S", delay: 400, placement: .bottom) { Button("Save") }
 }
 
 // md-docs/37-components-reference.md
@@ -243,6 +248,16 @@ page Doc(path: "/") {
     Modal(visible: open, title: "Delete this?") {
         Text("This cannot be undone.")
         Modal.Footer { Button("Cancel") { on click { open = false } } }
+    }
+}
+
+// md-docs/37-components-reference.md
+page Doc(path: "/") {
+    state open = false
+    Button("Branches", ref: branches) { on click { open = !open } }
+    Popover(visible: open, anchor: branches, placement: .bottomStart, label: "Branches").arrow {
+        on close(reason) { log(reason) }
+        Text("main")
     }
 }
 

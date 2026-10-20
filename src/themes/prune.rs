@@ -232,6 +232,10 @@ fn keep(title: &str, usage: &Usage) -> bool {
         "Toast" => any(&["Toast"]),
         "Modal" => any(&["Modal"]),
         "Dialog" => any(&["Dialog"]),
+        "Popover" => any(&["Popover"]),
+        "Frame" => any(&["Frame"]),
+        // What puts a box in the top layer at its anchor.
+        "Layer" => any(&["Popover", "Menu", "Dropdown", "Tooltip"]),
         "Spinner" => any(&["Spinner"]),
         "Progress" => any(&["Progress"]),
         "Skeleton" => any(&["Skeleton"]),

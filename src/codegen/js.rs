@@ -116,6 +116,9 @@ pub struct JsCodegen {
     /// The states a `validate` block guards, so the control bound to one
     /// shows its message without being told to.
     validated: Vec<String>,
+    /// The menu lists being drawn, innermost last: a `Menu.Sub` opens
+    /// beside the one it is in.
+    menu_lists: Vec<String>,
     /// The body being emitted, for reading a state's declared condition.
     current_body: Vec<Statement>,
     /// Every name the page, component or store being emitted declares, at
@@ -249,6 +252,7 @@ impl JsCodegen {
             current_form: None,
             form_handles: Vec::new(),
             validated: Vec::new(),
+            menu_lists: Vec::new(),
             current_body: Vec::new(),
             own_names: Vec::new(),
             loop_bindings: Vec::new(),
@@ -2703,6 +2707,10 @@ impl JsCodegen {
                         self.emit_modal_dialog(name, &var, &attrs_str, ui, parent);
                         true
                     }
+                    "Popover" => {
+                        self.emit_popover(&var, ui, parent);
+                        true
+                    }
                     "Tabs" => {
                         self.emit_tabs(&var, ui, parent);
                         true
@@ -2976,6 +2984,21 @@ impl JsCodegen {
                 }
             }
 
+            ComponentRef::SubComponent(parent_name, sub_name)
+                if matches!(parent_name.as_str(), "Menu" | "Dropdown")
+                    && sub_name == "Item"
+                    && !ui
+                        .args
+                        .iter()
+                        .any(|a| matches!(a, Arg::Named(k, _) if k == "to")) =>
+            {
+                self.emit_menu_item(parent_name, &var, ui, parent);
+            }
+            ComponentRef::SubComponent(parent_name, sub_name)
+                if parent_name == "Menu" && sub_name == "Sub" =>
+            {
+                self.emit_menu_sub(parent_name, &var, ui, parent);
+            }
             ComponentRef::SubComponent(parent_name, sub_name) => {
                 let class = format!(
                     "wf-{}__{}",
@@ -3580,30 +3603,7 @@ impl JsCodegen {
             }
         });
 
-        // `visible:` is any expression that reads state: a page's own
-        // (`visible: open`), a store's (`visible: Ui.palette`), or a
-        // condition (`visible: Ui.confirmId != null`). The first two are
-        // written back when the browser closes the dialog itself.
-        let visible = ui.args.iter().find_map(|a| match a {
-            Arg::Named(k, v) if k == "visible" => Some(v),
-            _ => None,
-        });
-        let visible_binding = visible.map(|v| {
-            let read = self.emit_expr(v);
-            let write = match v {
-                Expr::Identifier(_) if self.is_state_signal(v) => {
-                    Some(format!("(v) => {}.set(v)", read.trim_end_matches("()")))
-                }
-                Expr::PropertyAccess(..) if self.is_store_member(v, &read) => {
-                    Some(format!("(v) => {{ {read} = v; }}"))
-                }
-                _ => None,
-            };
-            format!(
-                "() => {read}, {}",
-                write.unwrap_or_else(|| "null".to_string())
-            )
-        });
+        let visible_binding = self.visibility_binding(ui);
 
         // The root carries the modifier classes too; `class` stays the bare base
         // because the sub-part classes (`__content`, `__header`) derive from it.
@@ -3688,6 +3688,106 @@ impl JsCodegen {
             self.emit_line(&format!("WF.dialog({var}, {binding});"));
         }
 
+        self.emit_line(&format!("{}.appendChild({});", parent, var));
+    }
+
+    /// `visible:` as a read, and the write that follows the screen when the
+    /// browser closes a dialog itself, or a layer is dismissed. It is any
+    /// expression that reads state: a page's own (`visible: open`), a
+    /// store's (`visible: Ui.palette`), or a condition (`visible:
+    /// Ui.confirmId != null`); the first two are written back, a condition
+    /// is not.
+    fn visibility_binding(&mut self, ui: &UIElement) -> Option<String> {
+        let (read, write) = self.visibility_parts(ui)?;
+        Some(format!("{read}, {write}"))
+    }
+
+    /// `visible:` as a read function and a write function (`null` when it
+    /// is a condition, which cannot be written).
+    fn visibility_parts(&mut self, ui: &UIElement) -> Option<(String, String)> {
+        let visible = ui.args.iter().find_map(|a| match a {
+            Arg::Named(k, v) if k == "visible" => Some(v),
+            _ => None,
+        })?;
+        let read = self.emit_expr(visible);
+        let write = match visible {
+            Expr::Identifier(_) if self.is_state_signal(visible) => {
+                Some(format!("(v) => {}.set(v)", read.trim_end_matches("()")))
+            }
+            Expr::PropertyAccess(..) if self.is_store_member(visible, &read) => {
+                Some(format!("(v) => {{ {read} = v; }}"))
+            }
+            _ => None,
+        };
+        Some((
+            format!("() => {read}"),
+            write.unwrap_or_else(|| "null".to_string()),
+        ))
+    }
+
+    /// What a layer is placed against, where, and how far: the options
+    /// `WF.layer` takes, from `anchor:`, `at:`, `placement:` and `offset:`.
+    fn layer_options(&mut self, ui: &UIElement) -> Vec<String> {
+        let mut opts = Vec::new();
+        for arg in &ui.args {
+            let Arg::Named(key, value) = arg else {
+                continue;
+            };
+            match key.as_str() {
+                "anchor" | "at" => {
+                    let at = self.emit_expr(value);
+                    opts.push(format!("anchor: () => {at}"));
+                }
+                // `.bottomStart` arrives as `"bottomStart"`; the runtime
+                // reads it as `bottom-start`.
+                "placement" => {
+                    let placement = self.emit_expr(value);
+                    opts.push(format!("placement: {placement}"));
+                }
+                "offset" => {
+                    let offset = self.emit_expr(value);
+                    opts.push(format!("offset: {offset}"));
+                }
+                _ => {}
+            }
+        }
+        opts
+    }
+
+    /// `Popover`: a layer at a control, drawn above everything by
+    /// `WF.layer`, which also places it, follows its anchor, and closes it on
+    /// `Escape` or a press outside — writing `visible:` back and firing
+    /// `on close` with why.
+    fn emit_popover(&mut self, var: &str, ui: &UIElement, parent: &str) {
+        let binding = self
+            .visibility_binding(ui)
+            .unwrap_or_else(|| "() => false, null".to_string());
+        let label = ui.args.iter().find_map(|a| match a {
+            Arg::Named(k, v) if k == "label" => Some(v.clone()),
+            _ => None,
+        });
+        let labelled = match label {
+            Some(v) => format!(", \"aria-label\": {}", self.emit_expr(&v)),
+            None => String::new(),
+        };
+        let extra = self.passthrough_attrs(ui);
+        self.emit_line(&format!(
+            "const {} = WF.el(\"div\", {{ className: \"{}\", role: \"dialog\"{}{}{} }});",
+            var,
+            self.class_attr("Popover", ui),
+            labelled,
+            extra,
+            self.wf_node_inline(ui)
+        ));
+        for child in &ui.children {
+            self.emit_statement_dom(child, var);
+        }
+        let mut opts = self.layer_options(ui);
+        opts.extend(self.close_handler(ui));
+        self.emit_line(&format!(
+            "WF.layer({var}, {binding}, {{ {} }});",
+            opts.join(", ")
+        ));
         self.emit_line(&format!("{}.appendChild({});", parent, var));
     }
 
@@ -3979,25 +4079,61 @@ impl JsCodegen {
         } else {
             "wf-menu"
         };
+        let label = ui.args.iter().find_map(|a| match a {
+            Arg::Named(k, v) if k == "label" || k == "trigger" => Some(self.emit_expr(v)),
+            _ => None,
+        });
+        let visible = self.visibility_parts(ui);
+        let mut opts = self.layer_options(ui);
+        opts.extend(self.close_handler(ui));
+        let opts = format!("{{ {} }}", opts.join(", "));
+        let items_class = format!("{}__items", class);
 
-        let label = ui
-            .args
-            .iter()
-            .find_map(|a| match a {
-                Arg::Named(k, v) if k == "label" || k == "trigger" => Some(self.emit_expr(v)),
-                _ => None,
-            })
-            .unwrap_or_else(|| "\"Menu\"".to_string());
+        // Opened by state alone — a context menu, or a menu a menu bar
+        // opens: the list is the whole of it.
+        if let (None, Some((read, write))) = (&label, &visible) {
+            let classes =
+                crate::codegen::builtin::class_list(&items_class, &ui.modifiers).join(" ");
+            let extra = self.passthrough_attrs(ui);
+            self.emit_line(&format!(
+                "const {} = WF.el(\"ul\", {{ className: \"{}\", role: \"menu\"{}{} }});",
+                var,
+                classes,
+                extra,
+                self.wf_node_inline(ui)
+            ));
+            self.emit_line(&format!(
+                "WF.menu({var}, null, {var}, {read}, {write}, {opts});"
+            ));
+            self.menu_lists.push(var.to_string());
+            for child in &ui.children {
+                self.emit_statement_dom(child, var);
+            }
+            self.menu_lists.pop();
+            self.emit_line(&format!("{}.appendChild({});", parent, var));
+            return;
+        }
 
+        let label = label.unwrap_or_else(|| "\"Menu\"".to_string());
         let root_classes = self.class_attr(name, ui);
-        let open_var = self.fresh_var();
-        self.emit_line(&format!("const {} = WF.signal(false);", open_var));
+        let extra = self.passthrough_attrs(ui);
+        // What says the menu is open: `visible:` when it is given and can
+        // be written, else the menu's own.
+        let (read, write) = match visible {
+            Some((read, write)) if write != "null" => (read, write),
+            _ => {
+                let open_var = self.fresh_var();
+                self.emit_line(&format!("const {} = WF.signal(false);", open_var));
+                (open_var.clone(), format!("(v) => {open_var}.set(v)"))
+            }
+        };
         self.emit_line(&format!(
-            "const {} = WF.el(\"div\", {{ className: () => {}() ? \"{} open\" : \"{}\"{} }});",
+            "const {} = WF.el(\"div\", {{ className: () => ({})() ? \"{} open\" : \"{}\"{}{} }});",
             var,
-            open_var,
+            read,
             root_classes,
             root_classes,
+            extra,
             self.wf_node_inline(ui)
         ));
 
@@ -4006,33 +4142,181 @@ impl JsCodegen {
         let items_id = format!("wf-menu-{}", var.trim_start_matches("_e"));
         let trigger_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = WF.el(\"button\", {{ className: \"wf-btn\", type: \"button\",              \"aria-haspopup\": \"true\", \"aria-controls\": \"{}\",              \"aria-expanded\": () => {}() ? \"true\" : \"false\",              \"on:click\": () => {}.set(!{}()) }}, {});",
-            trigger_var, items_id, open_var, open_var, open_var, label
+            "const {} = WF.el(\"button\", {{ className: \"wf-btn\", type: \"button\", \
+             \"aria-haspopup\": \"menu\", \"aria-controls\": \"{}\", \
+             \"aria-expanded\": () => ({})() ? \"true\" : \"false\", \
+             \"on:click\": () => ({})(!({})()) }}, {});",
+            trigger_var, items_id, read, write, read, label
         ));
         self.emit_line(&format!("{}.appendChild({});", var, trigger_var));
 
-        // The items are `li`s (the generic `Name.Item`), so their container is
-        // a list; `role="menu"` gives it the menu semantics.
+        // The items are `li`s, so their container is a list; `role="menu"`
+        // gives it the menu semantics. It is drawn in the top layer, at the
+        // button, so no `overflow` above it clips it.
         let items_var = self.fresh_var();
-        let items_class = format!("{}__items", class);
         self.emit_line(&format!(
             "const {} = WF.el(\"ul\", {{ className: \"{}\", id: \"{}\", role: \"menu\" }});",
             items_var, items_class, items_id
         ));
-
+        self.emit_line(&format!(
+            "WF.menu({var}, {trigger_var}, {items_var}, {read}, {write}, {opts});"
+        ));
+        self.menu_lists.push(items_var.clone());
         for child in &ui.children {
             self.emit_statement_dom(child, &items_var);
         }
-
+        self.menu_lists.pop();
         self.emit_line(&format!("{}.appendChild({});", var, items_var));
+        self.emit_line(&format!("{}.appendChild({});", parent, var));
+    }
 
-        // Close on click outside and on Escape with focus returned to the
-        // trigger; arrow keys move between the items, which are menuitems.
+    /// `on close(reason)` on a layer, as the `onClose` option.
+    fn close_handler(&mut self, ui: &UIElement) -> Option<String> {
+        let handler = ui.events.iter().find(|h| h.event == "close")?;
+        let body = self.emit_event_body(handler);
+        Some(format!(
+            "onClose: {} => {{ {} }}",
+            Self::handler_head(handler, "reason"),
+            body
+        ))
+    }
+
+    /// The attributes a layer's own emitter passes through to its root:
+    /// `id:` and the hyphenated ones (`aria-…`, `data-…`), as `, key: value`.
+    fn passthrough_attrs(&mut self, ui: &UIElement) -> String {
+        let mut out = String::new();
+        for arg in &ui.args {
+            let Arg::Named(k, v) = arg else { continue };
+            if k != "id" && !k.contains('-') {
+                continue;
+            }
+            let value = self.emit_expr(v);
+            let value = if self.is_reactive(&value) {
+                format!("() => {value}")
+            } else {
+                value
+            };
+            let key = if k.contains('-') {
+                format!("\"{k}\"")
+            } else {
+                k.clone()
+            };
+            out.push_str(&format!(", {key}: {value}"));
+        }
+        out
+    }
+
+    /// A menu's entry: a `menuitem`, or a `menuitemcheckbox` with
+    /// `checked:`; `disabled:` keeps it in sight but out of reach;
+    /// `shortcut:` is drawn at its end.
+    fn emit_menu_item(&mut self, owner: &str, var: &str, ui: &UIElement, parent: &str) {
+        let base = format!("wf-{}__item", owner.to_lowercase());
+        let class = crate::codegen::builtin::class_list(&base, &ui.modifiers).join(" ");
+        let mut attrs = vec![format!("className: \"{class}\"")];
+        let mut shortcut = None;
+        let mut role = "menuitem";
+        for arg in &ui.args {
+            let Arg::Named(k, v) = arg else { continue };
+            let value = self.emit_expr(v);
+            let live = |this: &Self, v: String| {
+                if this.is_reactive(&v) {
+                    format!("() => {v}")
+                } else {
+                    v
+                }
+            };
+            match k.as_str() {
+                "shortcut" => shortcut = Some(value),
+                "checked" => {
+                    role = "menuitemcheckbox";
+                    let read = live(self, format!("(({value}) ? \"true\" : \"false\")"));
+                    attrs.push(format!("\"aria-checked\": {read}"));
+                }
+                "disabled" => {
+                    let read = live(self, format!("(({value}) ? \"true\" : \"false\")"));
+                    attrs.push(format!("\"aria-disabled\": {read}"));
+                }
+                _ => {
+                    let key = if k.contains('-') {
+                        format!("\"{k}\"")
+                    } else {
+                        k.clone()
+                    };
+                    attrs.push(format!("{key}: {}", live(self, value)));
+                }
+            }
+        }
+        attrs.push(format!("role: \"{role}\""));
+        attrs.push("tabindex: \"-1\"".to_string());
+        if let Some(entry) = self.wf_node_entry(ui) {
+            attrs.push(entry);
+        }
         self.emit_line(&format!(
-            "WF.menu({}, {}, {}, {});",
-            var, trigger_var, items_var, open_var
+            "const {} = WF.el(\"li\", {{ {} }});",
+            var,
+            attrs.join(", ")
         ));
+        for child in &ui.children {
+            self.emit_statement_dom(child, var);
+        }
+        if let Some(keys) = shortcut {
+            self.emit_line(&format!(
+                "{var}.appendChild(WF.el(\"kbd\", {{ className: \"wf-menu__shortcut\", \"aria-hidden\": \"true\" }}, {keys}));"
+            ));
+            // Said once, as the item's own shortcut.
+            self.emit_line(&format!(
+                "{var}.setAttribute(\"aria-keyshortcuts\", {keys});"
+            ));
+        }
+        for handler in &ui.events {
+            let body = self.emit_event_body(handler);
+            self.emit_line(&format!(
+                "{}.addEventListener(\"{}\", {} => {{ {} }});",
+                var,
+                handler.event,
+                Self::handler_head(handler, "event"),
+                body
+            ));
+        }
+        self.emit_style_and_transition(var, ui);
+        self.emit_motion(var, ui);
+        self.emit_line(&format!("{}.appendChild({});", parent, var));
+    }
 
+    /// `Menu.Sub(label:)`: an entry with a menu of its own, opened beside
+    /// it by `WF.submenu`.
+    fn emit_menu_sub(&mut self, owner: &str, var: &str, ui: &UIElement, parent: &str) {
+        let label = ui
+            .args
+            .iter()
+            .find_map(|a| match a {
+                Arg::Named(k, v) if k == "label" => Some(self.emit_expr(v)),
+                _ => None,
+            })
+            .unwrap_or_else(|| "\"\"".to_string());
+        let base = format!("wf-{}", owner.to_lowercase());
+        let extra = self.passthrough_attrs(ui);
+        self.emit_line(&format!(
+            "const {} = WF.el(\"li\", {{ className: \"{base}__item {base}__sub\", role: \"menuitem\", tabindex: \"-1\"{}{} }}, WF.el(\"span\", {{}}, {}), WF.el(\"span\", {{ className: \"{base}__chevron\", \"aria-hidden\": \"true\" }}, \"\\u203a\"));",
+            var,
+            extra,
+            self.wf_node_inline(ui),
+            label
+        ));
+        let list_var = self.fresh_var();
+        self.emit_line(&format!(
+            "const {} = WF.el(\"ul\", {{ className: \"{base}__items\", role: \"menu\" }});",
+            list_var
+        ));
+        if let Some(owner_list) = self.menu_lists.last().cloned() {
+            self.emit_line(&format!("WF.submenu({var}, {list_var}, {owner_list});"));
+        }
+        self.menu_lists.push(list_var.clone());
+        for child in &ui.children {
+            self.emit_statement_dom(child, &list_var);
+        }
+        self.menu_lists.pop();
+        self.emit_line(&format!("{}.appendChild({});", var, list_var));
         self.emit_line(&format!("{}.appendChild({});", parent, var));
     }
 
@@ -4227,19 +4511,14 @@ impl JsCodegen {
     }
 
     fn emit_tooltip(&mut self, var: &str, ui: &UIElement, parent: &str) {
+        // `Tooltip("Save")` or `Tooltip(text: "Save")`.
         let text = ui
             .args
             .iter()
-            .find_map(|a| {
-                if let Arg::Named(k, v) = a {
-                    if k == "text" {
-                        Some(self.emit_expr(v))
-                    } else {
-                        None
-                    }
-                } else {
-                    None
-                }
+            .find_map(|a| match a {
+                Arg::Named(k, v) if k == "text" => Some(self.emit_expr(v)),
+                Arg::Positional(v) => Some(self.emit_expr(v)),
+                _ => None,
             })
             .unwrap_or_else(|| "\"\"".to_string());
 
@@ -4261,10 +4540,34 @@ impl JsCodegen {
             "const {} = WF.el(\"span\", {{ className: \"wf-tooltip__text\", role: \"tooltip\", id: \"{}\" }}, {});",
             tip_var, tip_id, text
         ));
+        let mut opts = Vec::new();
+        for arg in &ui.args {
+            let Arg::Named(k, v) = arg else { continue };
+            match k.as_str() {
+                // The keys that do what the control does, as a chip.
+                "shortcut" => {
+                    let keys = self.emit_expr(v);
+                    self.emit_line(&format!(
+                        "{tip_var}.appendChild(WF.el(\"kbd\", {{ className: \"wf-tooltip__shortcut\" }}, {keys}));"
+                    ));
+                }
+                "placement" | "delay" => {
+                    let value = self.emit_expr(v);
+                    opts.push(format!("{k}: {value}"));
+                }
+                _ => {}
+            }
+        }
         self.emit_line(&format!("{}.appendChild({});", var, tip_var));
-        // The runtime points the trigger at the tip and makes it reachable
-        // and dismissible from the keyboard.
-        self.emit_line(&format!("WF.tooltip({}, {});", var, tip_var));
+        // The runtime points the trigger at the tip, shows it above
+        // everything at the trigger, and makes it reachable and dismissible
+        // from the keyboard.
+        self.emit_line(&format!(
+            "WF.tooltip({}, {}, {{ {} }});",
+            var,
+            tip_var,
+            opts.join(", ")
+        ));
         self.emit_line(&format!("{}.appendChild({});", parent, var));
     }
 

@@ -72,7 +72,7 @@
                 <aside class="wf-sidebar wf-sc879c3a5" aria-label="Components">
                     <div class="wf-row wf-align--center wf-gap--sm wf-sc37bab83 site-search">
                         <i class="wf-icon" data-icon="search"></i>
-                        <input class="wf-input" placeholder="Filter 72 built-ins" aria-label="Filter 72 built-ins" type="search">
+                        <input class="wf-input" placeholder="Filter 74 built-ins" aria-label="Filter 74 built-ins" type="search">
                     </div>
                     <p class="wf-text group-label">Layout</p>
                     <a class="wf-sidebar__item" href="/docs/reference/container">
@@ -184,6 +184,9 @@
                     <a class="wf-sidebar__item" href="/docs/reference/modal">
                         <p class="wf-text">Modal</p>
                     </a>
+                    <a class="wf-sidebar__item" href="/docs/reference/popover">
+                        <p class="wf-text">Popover</p>
+                    </a>
                     <a class="wf-sidebar__item" href="/docs/reference/dialog">
                         <p class="wf-text">Dialog</p>
                     </a>
@@ -218,6 +221,9 @@
                     </a>
                     <a class="wf-sidebar__item" href="/docs/reference/audio">
                         <p class="wf-text">Audio</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/reference/frame">
+                        <p class="wf-text">Frame</p>
                     </a>
                     <a class="wf-sidebar__item" href="/docs/reference/icon">
                         <p class="wf-text">Icon</p>
@@ -316,15 +322,19 @@
                             <p class="wf-text pill pill-accent">Takes a block</p>
                         </div>
                         <div class="wf-markdown wf-sa01f76ef">
-<p>Menu opened by a trigger button.</p>
+<p>A menu above everything: opened by its <code>trigger:</code> button, or by <code>visible:</code> at an <code>anchor:</code> or a point <code>at:</code> — a context menu. Escape, a press outside or a choice close it, write <code>false</code> back to <code>visible:</code> and fire <code>on close</code>.</p>
                         </div>
-                        <code class="wf-code wf-code--block wf-s42a9213e"><span class="wf-tok-name">Menu</span>(<span class="wf-tok-prop">trigger</span>: …, <span class="wf-tok-prop">label</span>: …) { … }</code>
+                        <code class="wf-code wf-code--block wf-s42a9213e"><span class="wf-tok-name">Menu</span>(<span class="wf-tok-prop">trigger</span>: …, <span class="wf-tok-prop">label</span>: …, <span class="wf-tok-prop">visible</span>: …) { … }</code>
                         <p class="wf-text wf-s080a8452 overline">Example</p>
                         <code class="wf-code wf-code--block wf-s1235381a"><span class="wf-tok-name">Menu</span>(<span class="wf-tok-prop">trigger</span>: <span class="wf-tok-str">&quot;Options&quot;</span>) {
-    <span class="wf-tok-name">Menu</span>.<span class="wf-tok-name">Item</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Rename&quot;</span>) }
+    <span class="wf-tok-name">Menu</span>.<span class="wf-tok-name">Item</span>(<span class="wf-tok-prop">shortcut</span>: <span class="wf-tok-str">&quot;F2&quot;</span>) { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Rename&quot;</span>) }
+    <span class="wf-tok-name">Menu</span>.<span class="wf-tok-name">Sub</span>(<span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Move to&quot;</span>) { <span class="wf-tok-name">Menu</span>.<span class="wf-tok-name">Item</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Archive&quot;</span>) } }
     <span class="wf-tok-name">Menu</span>.<span class="wf-tok-name">Divider</span>
-    <span class="wf-tok-name">Menu</span>.<span class="wf-tok-name">Item</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Delete&quot;</span>) }
-}</code>
+    <span class="wf-tok-name">Menu</span>.<span class="wf-tok-name">Item</span>(<span class="wf-tok-prop">disabled</span>: <span class="wf-tok-kw">true</span>) { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Delete&quot;</span>) }
+}
+<span class="wf-tok-kw">state</span> asked = <span class="wf-tok-kw">false</span>
+<span class="wf-tok-kw">state</span> point = { <span class="wf-tok-prop">x</span>: <span class="wf-tok-num">0</span>, <span class="wf-tok-prop">y</span>: <span class="wf-tok-num">0</span> }
+<span class="wf-tok-name">Menu</span>(<span class="wf-tok-prop">visible</span>: asked, <span class="wf-tok-prop">at</span>: point) { <span class="wf-tok-name">Menu</span>.<span class="wf-tok-name">Item</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Copy&quot;</span>) } }</code>
                         <div class="wf-markdown wf-s4e367f57">
 <p>Renders with the class <code>wf-menu</code>, stable across releases, so a stylesheet may target it.</p>
                         </div>
@@ -361,6 +371,51 @@
                                     <td>
                                         <div class="wf-markdown">
 <p>Same as <code>trigger</code></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>visible:</td>
+                                    <td>State</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>State flag that opens and closes it</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>anchor:</td>
+                                    <td>Any</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>What it is placed against: an element's <code>ref:</code>, or a point <code>{ x: e.clientX, y: e.clientY }</code></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>at:</td>
+                                    <td>Any</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>A point to place it at, <code>{ x: e.clientX, y: e.clientY }</code>: where the pointer asked for a context menu</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>placement:</td>
+                                    <td>.bottom .bottomStart .bottomEnd .top .topStart .topEnd .left .leftStart .leftEnd .right .rightStart .rightEnd</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>Where it goes against its anchor; it flips to the other side when there is no room. Unset, <code>.bottomStart</code></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>offset:</td>
+                                    <td>Number</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>How far from the anchor, in px</p>
                                         </div>
                                     </td>
                                 </tr>

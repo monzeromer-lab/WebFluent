@@ -447,7 +447,7 @@ test("a dropdown reports whether it is open", () => {
   const { app } = ctx;
   const trigger = app
     .querySelectorAll("button")
-    .find((b) => b.getAttribute("aria-haspopup") === "true");
+    .find((b) => b.getAttribute("aria-haspopup") === "menu");
   assert.ok(trigger, "no popup trigger with aria-haspopup");
   assert.equal(trigger.getAttribute("aria-expanded"), "false", "starts closed");
 

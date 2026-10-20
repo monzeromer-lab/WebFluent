@@ -4226,6 +4226,10 @@
           },
           {
             "type": "STRING",
+            "value": "Popover"
+          },
+          {
+            "type": "STRING",
             "value": "Spinner"
           },
           {

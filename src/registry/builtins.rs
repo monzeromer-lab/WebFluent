@@ -331,6 +331,38 @@ const VISIBLE: PropSig = special(
     "State flag that opens and closes it",
 );
 const TITLE: PropSig = special("title", PropType::Str, "Heading shown at the top");
+/// Where a layer goes against its anchor: a side, and where along it.
+const PLACEMENT: PropSig = special(
+    "placement",
+    PropType::Enum(&[
+        case("bottom", "", "Below, centred"),
+        case("bottomStart", "", "Below, from its start"),
+        case("bottomEnd", "", "Below, to its end"),
+        case("top", "", "Above, centred"),
+        case("topStart", "", "Above, from its start"),
+        case("topEnd", "", "Above, to its end"),
+        case("left", "", "Before it, centred"),
+        case("leftStart", "", "Before it, from its top"),
+        case("leftEnd", "", "Before it, to its bottom"),
+        case("right", "", "After it, centred"),
+        case("rightStart", "", "After it, from its top"),
+        case("rightEnd", "", "After it, to its bottom"),
+    ]),
+    "Where it goes against its anchor; it flips to the other side when there is no room. Unset, `.bottomStart`",
+);
+/// What a layer is placed against.
+const ANCHOR: PropSig = special(
+    "anchor",
+    PropType::Any,
+    "What it is placed against: an element's `ref:`, or a point `{ x: e.clientX, y: e.clientY }`",
+);
+/// A point to place a layer at, such as where a context menu was asked for.
+const AT: PropSig = special(
+    "at",
+    PropType::Any,
+    "A point to place it at, `{ x: e.clientX, y: e.clientY }`: where the pointer asked for a context menu",
+);
+const OFFSET: PropSig = special("offset", PropType::Num, "How far from the anchor, in px");
 const SIZE: PropSig = variant("size", SIZES, "Its size");
 const MUTED: PropSig = flag("muted", "muted", "Dimmed, for secondary text");
 
@@ -798,30 +830,64 @@ pub const COMPONENTS: &[ComponentSig] = &[
         G_ANCHOR,
         Children::Elements,
     ),
-    comp(
+    ComponentSig {
+        events: &["close"],
+        ..comp(
+            "Menu",
+            "Navigation",
+            "A menu above everything: opened by its `trigger:` button, or by `visible:` at an `anchor:` or a point `at:` — a context menu. Escape, a press outside or a choice close it, write `false` back to `visible:` and fire `on close`.",
+            None,
+            &[
+                special(
+                    "trigger",
+                    PropType::Str,
+                    "Label of the button that opens the menu",
+                ),
+                special("label", PropType::Str, "Same as `trigger`"),
+                VISIBLE,
+                ANCHOR,
+                AT,
+                PLACEMENT,
+                OFFSET,
+            ],
+            &["Item", "Divider", "Sub"],
+            G,
+            Children::Elements,
+        )
+    },
+    part(
         "Menu",
-        "Navigation",
-        "Menu opened by a trigger button.",
+        "Item",
+        Ir::Sub("Menu", "Item"),
+        "One entry of the menu; `on click` is what choosing it does.",
         None,
         &[
             special(
-                "trigger",
+                "shortcut",
                 PropType::Str,
-                "Label of the button that opens the menu",
+                "The keys that do the same, shown at its end",
             ),
-            special("label", PropType::Str, "Same as `trigger`"),
+            special(
+                "checked",
+                PropType::Bool,
+                "A check mark: the item turns something on and off",
+            ),
+            special(
+                "disabled",
+                PropType::Bool,
+                "Shown, skipped by the arrow keys, and cannot be chosen",
+            ),
         ],
-        &["Item", "Divider"],
         G,
         Children::Elements,
     ),
     part(
         "Menu",
-        "Item",
-        Ir::Sub("Menu", "Item"),
-        "One entry of the menu.",
+        "Sub",
+        Ir::Sub("Menu", "Sub"),
+        "An entry that opens a menu of its own beside it.",
         None,
-        &[],
+        &[special("label", PropType::Str, "What the entry says")],
         G,
         Children::Elements,
     ),
@@ -1044,9 +1110,21 @@ pub const COMPONENTS: &[ComponentSig] = &[
     comp(
         "Tooltip",
         "Data display",
-        "Shows `text` when its child is hovered or focused.",
+        "Shows `text` above everything when its child is hovered (after `delay:`) or focused from the keyboard.",
         Some(special("text", PropType::Str, "The tooltip text")),
-        &[],
+        &[
+            special(
+                "shortcut",
+                PropType::Str,
+                "The keys that do the same, shown as a chip",
+            ),
+            PLACEMENT,
+            special(
+                "delay",
+                PropType::Num,
+                "How long a hover waits before it shows, in ms. Unset, 500",
+            ),
+        ],
         &[],
         G,
         Children::Elements,
@@ -1344,6 +1422,31 @@ pub const COMPONENTS: &[ComponentSig] = &[
         G,
         Children::Elements,
     ),
+    ComponentSig {
+        events: &["close"],
+        ..comp(
+            "Popover",
+            "Feedback",
+            "A layer at a control: drawn above everything, placed against its `anchor:`, closed by `Escape` or a press outside, which write `false` back to `visible:` and fire `on close`.",
+            None,
+            &[
+                VISIBLE,
+                ANCHOR,
+                AT,
+                PLACEMENT,
+                OFFSET,
+                special(
+                    "label",
+                    PropType::Str,
+                    "What it is, for a screen reader: its accessible name",
+                ),
+                flag("arrow", "arrow", "A point toward the anchor"),
+            ],
+            &[],
+            G,
+            Children::Elements,
+        )
+    },
     comp(
         "Dialog",
         "Feedback",

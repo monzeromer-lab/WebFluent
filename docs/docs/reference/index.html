@@ -72,7 +72,7 @@
                 <aside class="wf-sidebar wf-sc879c3a5" aria-label="Components">
                     <div class="wf-row wf-align--center wf-gap--sm wf-sc37bab83 site-search">
                         <i class="wf-icon" data-icon="search"></i>
-                        <input class="wf-input" placeholder="Filter 72 built-ins" aria-label="Filter 72 built-ins" type="search">
+                        <input class="wf-input" placeholder="Filter 74 built-ins" aria-label="Filter 74 built-ins" type="search">
                     </div>
                     <p class="wf-text group-label">Layout</p>
                     <a class="wf-sidebar__item" href="/docs/reference/container">
@@ -184,6 +184,9 @@
                     <a class="wf-sidebar__item" href="/docs/reference/modal">
                         <p class="wf-text">Modal</p>
                     </a>
+                    <a class="wf-sidebar__item" href="/docs/reference/popover">
+                        <p class="wf-text">Popover</p>
+                    </a>
                     <a class="wf-sidebar__item" href="/docs/reference/dialog">
                         <p class="wf-text">Dialog</p>
                     </a>
@@ -218,6 +221,9 @@
                     </a>
                     <a class="wf-sidebar__item" href="/docs/reference/audio">
                         <p class="wf-text">Audio</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/reference/frame">
+                        <p class="wf-text">Frame</p>
                     </a>
                     <a class="wf-sidebar__item" href="/docs/reference/icon">
                         <p class="wf-text">Icon</p>
@@ -312,7 +318,7 @@
                     <div class="wf-stack wf-gap--sm wf-s82e57ad1">
                         <h1 class="wf-heading wf-s1f2db64f">Components reference</h1>
                         <div class="wf-markdown wf-se4ee4d09">
-<p>72 built-in elements in eleven groups, each with its signature, its props, its flags, its events and its parts — read from the compiler's registry, so what this page lists is exactly what the checker accepts. Every element is written <code>Name(positional, prop: value).flag { block }</code>.</p>
+<p>74 built-in elements in eleven groups, each with its signature, its props, its flags, its events and its parts — read from the compiler's registry, so what this page lists is exactly what the checker accepts. Every element is written <code>Name(positional, prop: value).flag { block }</code>.</p>
                         </div>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s982ede03" id="layout">
@@ -381,7 +387,7 @@
                             </a>
                             <a class="wf-link wf-s6662a90f" href="/docs/reference/menu">
                                 <p class="wf-text wf-s778fc8aa">Menu</p>
-                                <p class="wf-text wf-s36513411">Menu opened by a trigger button.</p>
+                                <p class="wf-text wf-s36513411">A menu above everything: opened by its trigger: button, or by visible: at an anchor: or a point at: — a context menu. Escape, a press outside or a choice close it, write false back to visible: and fire on close.</p>
                             </a>
                         </div>
                     </div>
@@ -414,7 +420,7 @@
                             </a>
                             <a class="wf-link wf-s6662a90f" href="/docs/reference/tooltip">
                                 <p class="wf-text wf-s778fc8aa">Tooltip</p>
-                                <p class="wf-text wf-s36513411">Shows text when its child is hovered or focused.</p>
+                                <p class="wf-text wf-s36513411">Shows text above everything when its child is hovered (after delay:) or focused from the keyboard.</p>
                             </a>
                         </div>
                     </div>
@@ -478,6 +484,10 @@
                                 <p class="wf-text wf-s778fc8aa">Modal</p>
                                 <p class="wf-text wf-s36513411">Modal &lt;dialog&gt;, opened by a state flag; the browser supplies focus trapping and Escape.</p>
                             </a>
+                            <a class="wf-link wf-s6662a90f" href="/docs/reference/popover">
+                                <p class="wf-text wf-s778fc8aa">Popover</p>
+                                <p class="wf-text wf-s36513411">A layer at a control: drawn above everything, placed against its anchor:, closed by Escape or a press outside, which write false back to visible: and fire on close.</p>
+                            </a>
                             <a class="wf-link wf-s6662a90f" href="/docs/reference/dialog">
                                 <p class="wf-text wf-s778fc8aa">Dialog</p>
                                 <p class="wf-text wf-s36513411">Confirmation &lt;dialog&gt;, opened by a state flag.</p>
@@ -531,6 +541,10 @@
                             <a class="wf-link wf-s6662a90f" href="/docs/reference/audio">
                                 <p class="wf-text wf-s778fc8aa">Audio</p>
                                 <p class="wf-text wf-s36513411">Audio player. transcript links what was said, which is what a reader who cannot hear it needs.</p>
+                            </a>
+                            <a class="wf-link wf-s6662a90f" href="/docs/reference/frame">
+                                <p class="wf-text wf-s778fc8aa">Frame</p>
+                                <p class="wf-text wf-s36513411">Another page, shown inside this one: an iframe. on message(m) hears what that page posts to this one (m.data), and nothing any other page posts. Without title: it draws an A17 warning: a frame is announced by its title.</p>
                             </a>
                             <a class="wf-link wf-s6662a90f" href="/docs/reference/icon">
                                 <p class="wf-text wf-s778fc8aa">Icon</p>

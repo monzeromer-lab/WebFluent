@@ -72,7 +72,7 @@
                 <aside class="wf-sidebar wf-sc879c3a5" aria-label="Components">
                     <div class="wf-row wf-align--center wf-gap--sm wf-sc37bab83 site-search">
                         <i class="wf-icon" data-icon="search"></i>
-                        <input class="wf-input" placeholder="Filter 72 built-ins" aria-label="Filter 72 built-ins" type="search">
+                        <input class="wf-input" placeholder="Filter 74 built-ins" aria-label="Filter 74 built-ins" type="search">
                     </div>
                     <p class="wf-text group-label">Layout</p>
                     <a class="wf-sidebar__item" href="/docs/reference/container">
@@ -184,6 +184,9 @@
                     <a class="wf-sidebar__item" href="/docs/reference/modal">
                         <p class="wf-text">Modal</p>
                     </a>
+                    <a class="wf-sidebar__item" href="/docs/reference/popover">
+                        <p class="wf-text">Popover</p>
+                    </a>
                     <a class="wf-sidebar__item" href="/docs/reference/dialog">
                         <p class="wf-text">Dialog</p>
                     </a>
@@ -218,6 +221,9 @@
                     </a>
                     <a class="wf-sidebar__item" href="/docs/reference/audio">
                         <p class="wf-text">Audio</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/reference/frame">
+                        <p class="wf-text">Frame</p>
                     </a>
                     <a class="wf-sidebar__item" href="/docs/reference/icon">
                         <p class="wf-text">Icon</p>
@@ -316,11 +322,12 @@
                             <p class="wf-text pill pill-accent">Takes a block</p>
                         </div>
                         <div class="wf-markdown wf-sa01f76ef">
-<p>Shows <code>text</code> when its child is hovered or focused.</p>
+<p>Shows <code>text</code> above everything when its child is hovered (after <code>delay:</code>) or focused from the keyboard.</p>
                         </div>
-                        <code class="wf-code wf-code--block wf-s42a9213e"><span class="wf-tok-name">Tooltip</span>(text) { … }</code>
+                        <code class="wf-code wf-code--block wf-s42a9213e"><span class="wf-tok-name">Tooltip</span>(text, <span class="wf-tok-prop">shortcut</span>: …, <span class="wf-tok-prop">placement</span>: …, <span class="wf-tok-prop">delay</span>: …) { … }</code>
                         <p class="wf-text wf-s080a8452 overline">Example</p>
-                        <code class="wf-code wf-code--block wf-s1235381a"><span class="wf-tok-name">Tooltip</span>(<span class="wf-tok-str">&quot;Copies the link&quot;</span>) { <span class="wf-tok-name">IconButton</span>(<span class="wf-tok-prop">icon</span>: <span class="wf-tok-str">&quot;copy&quot;</span>, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Copy link&quot;</span>) }</code>
+                        <code class="wf-code wf-code--block wf-s1235381a"><span class="wf-tok-name">Tooltip</span>(<span class="wf-tok-str">&quot;Copies the link&quot;</span>) { <span class="wf-tok-name">IconButton</span>(<span class="wf-tok-prop">icon</span>: <span class="wf-tok-str">&quot;copy&quot;</span>, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Copy link&quot;</span>) }
+<span class="wf-tok-name">Tooltip</span>(<span class="wf-tok-str">&quot;Save&quot;</span>, <span class="wf-tok-prop">shortcut</span>: <span class="wf-tok-str">&quot;Ctrl+S&quot;</span>, <span class="wf-tok-prop">delay</span>: <span class="wf-tok-num">400</span>, <span class="wf-tok-prop">placement</span>: .bottom) { <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Save&quot;</span>) }</code>
                         <div class="wf-markdown wf-s4e367f57">
 <p>Renders with the class <code>wf-tooltip</code>, stable across releases, so a stylesheet may target it.</p>
                         </div>
@@ -347,6 +354,33 @@
                                     <td>
                                         <div class="wf-markdown">
 <p>The tooltip text</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>shortcut:</td>
+                                    <td>String</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>The keys that do the same, shown as a chip</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>placement:</td>
+                                    <td>.bottom .bottomStart .bottomEnd .top .topStart .topEnd .left .leftStart .leftEnd .right .rightStart .rightEnd</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>Where it goes against its anchor; it flips to the other side when there is no room. Unset, <code>.bottomStart</code></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>delay:</td>
+                                    <td>Number</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>How long a hover waits before it shows, in ms. Unset, 500</p>
                                         </div>
                                     </td>
                                 </tr>

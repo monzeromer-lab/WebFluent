@@ -623,7 +623,7 @@ page Doc(path: "/") {
 
 // AGENTS.md
 page Doc(path: "/") {
-    Tooltip("Click to save") {
+    Tooltip("Click to save", shortcut: "Ctrl+S") {
         Button("Save").primary
     }
 }

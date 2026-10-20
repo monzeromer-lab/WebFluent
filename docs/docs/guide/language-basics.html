@@ -470,10 +470,23 @@ test &quot;chip shows its label&quot; { Chip(&quot;Beta&quot;)  expect &quot;Bet
                                             </div>
                                         </td>
                                     </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>test</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A render held to expectations and a snapshot</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="/docs/guide/testing">24</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>Beside them, a <code>.css</code> file under <code>src/</code> is a stylesheet the build bundles, and a <code>.js</code> file under <code>src/</code> is a plain browser script whose top-level functions are in scope by name (<a href="/docs/guide/interop">32</a>). | <code>test</code> | A render held to expectations and a snapshot | <a href="/docs/guide/testing">24</a> |</p>
+<p>Beside them, a <code>.css</code> file under <code>src/</code> is a stylesheet the build bundles, and a <code>.js</code> file under <code>src/</code> is a plain browser script whose top-level functions are in scope by name (<a href="/docs/guide/interop">32</a>).</p>
 <p>Inside a body there are more statements — <code>state</code>, <code>derived</code>, <code>effect</code>, <code>action</code>, <code>persist</code>, <code>resource</code>, <code>validate</code>, <code>socket</code>, <code>if</code>, <code>for</code>, <code>match</code> and the rest. <a href="/docs/guide/grammar">Grammar</a> lists every keyword and where it may appear.</p>
 <p>All the files under <code>src/</code> merge into one program, so a component declared in <code>components/Chip.wf</code> is usable from every page. <code>App.wf</code> is read first; the rest in name order.</p>
                             </div>

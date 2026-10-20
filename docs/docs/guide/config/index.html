@@ -387,7 +387,9 @@
     &quot;scripts&quot;: [],
     &quot;connect&quot;: [],
     &quot;img&quot;: [],
-    &quot;frame&quot;: []
+    &quot;frame&quot;: [],
+    &quot;wasm&quot;: false,
+    &quot;style_elements&quot;: false
   },
   &quot;motion&quot;: { &quot;duration&quot;: null, &quot;easing&quot;: null },
   &quot;env&quot;: {},
@@ -1396,7 +1398,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Origins a page may send requests to besides its own — an API elsewhere, an analytics endpoint — as the policy's <code>connect-src</code>: <code>&quot;https://api.example.com&quot;</code>, <code>&quot;https://*.google-analytics.com&quot;</code>. An entry with a path or a keyword is <code>E111</code> (<a href="/docs/guide/security">chapter 23</a>).</p>
+<p>Origins a page may send requests to besides its own — an API elsewhere, an analytics endpoint — as the policy's <code>connect-src</code>: <code>&quot;https://api.example.com&quot;</code>, <code>&quot;https://*.google-analytics.com&quot;</code>, or an app's own scheme alone, <code>&quot;ipc:&quot;</code>. An entry with a path or a keyword is <code>E111</code> (<a href="/docs/guide/security">chapter 23</a>).</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -1430,7 +1432,41 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Origins a page may embed in a frame besides its own — a video player, a map — as the policy's <code>frame-src</code>: <code>&quot;https://www.youtube-nocookie.com&quot;</code>. An entry with a path or a keyword is <code>E111</code> (<a href="/docs/guide/security">chapter 23</a>).</p>
+<p>Origins a page may embed in a frame besides its own — a video player, a map — as the policy's <code>frame-src</code>: <code>&quot;https://www.youtube-nocookie.com&quot;</code>, or an app's own scheme alone, <code>&quot;wfpreview:&quot;</code>. An entry with a path or a keyword is <code>E111</code> (<a href="/docs/guide/security">chapter 23</a>).</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wasm</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>false</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The pages compile WebAssembly: <code>script-src</code> gains <code>'wasm-unsafe-eval'</code>, which allows that and not <code>eval</code> (<a href="/docs/guide/security">chapter 23</a>).</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>style_elements</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>false</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A script on the page writes <code>&lt;style&gt;</code> elements (an editor, a chart library): <code>style-src</code> gains <code>'unsafe-inline'</code>, for styles only (<a href="/docs/guide/security">chapter 23</a>).</p>
                                             </div>
                                         </td>
                                     </tr>

@@ -30,8 +30,11 @@ checks every page on every build.
 - **Dialogs that trap focus.** `Modal` and `Dialog` are real `<dialog>`
   elements: the rest of the page is inert, Escape closes, and focus returns
   to what opened them.
-- **Menus with the keys people expect.** Arrows move, Home and End jump,
-  Enter and Space choose, Escape closes.
+- **Menus with the keys people expect.** Arrows move and skip a disabled
+  item, Home and End jump, Enter and Space choose, ArrowRight opens a
+  submenu and ArrowLeft leaves it, Escape closes the innermost and focus
+  goes back to where it was. A check item is a `menuitemcheckbox` with
+  `aria-checked`; an item's shortcut is its `aria-keyshortcuts`.
 - **Announcements.** A `Toast` is spoken politely; `WF.announce(text)` says
   anything else.
 - **The active link** carries `aria-current="page"`.
