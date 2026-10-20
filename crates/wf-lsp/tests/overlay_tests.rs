@@ -8,7 +8,7 @@ use lsp_types::*;
 use webfluent::build::{BuildOptions, build};
 use webfluent::vfs::{FsVfs, OverlayVfs};
 use wf_lsp::completion::provide_completions;
-use wf_lsp::diagnostics::project_diagnostics;
+use wf_lsp::diagnostics::{project_diagnostics, project_diagnostics_via};
 use wf_lsp::project::{FileCache, Project};
 
 /// A project on disk: a store `Deploys` with members `live` and `queued`,
@@ -156,5 +156,53 @@ fn a_file_only_the_editor_has_is_part_of_the_project() {
     let file = &project.files[ix];
     let position = file.index.offset_to_position(&file.source, at);
     assert!(provide_completions(&project, ix, position).is_empty());
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn the_checks_that_read_files_read_the_buffers_too() {
+    // A message the page asks for, which only an unsaved translation file
+    // holds: on disk it is missing (I01); through the editor's buffers it
+    // is there.
+    let dir = std::env::temp_dir().join(format!("wf-lsp-overlay-i18n-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(dir.join("src/pages")).unwrap();
+    std::fs::create_dir_all(dir.join("src/translations")).unwrap();
+    std::fs::write(
+        dir.join("webfluent.app.json"),
+        r#"{ "name": "hello", "i18n": { "default_locale": "en", "locales": ["en"] } }"#,
+    )
+    .unwrap();
+    std::fs::write(dir.join("src/translations/en.json"), "{}").unwrap();
+    let page = dir.join("src/pages/Home.wf");
+    std::fs::write(
+        &page,
+        "page Home(path: \"/\", title: \"Home\", description: \"Hello.\") {\n    Heading(t(\"greeting\")).h1\n}\n",
+    )
+    .unwrap();
+    let uri = Url::from_file_path(&page).unwrap();
+    let codes = |found: Vec<Vec<Diagnostic>>, ix: usize| -> Vec<String> {
+        found[ix]
+            .iter()
+            .filter_map(|d| match &d.code {
+                Some(NumberOrString::String(c)) => Some(c.clone()),
+                _ => None,
+            })
+            .collect()
+    };
+
+    let disk = Project::load_with(&uri, &FsVfs, &FileCache::default());
+    let ix = disk.file_index(&uri).unwrap();
+    assert!(codes(project_diagnostics(&disk), ix).contains(&"I01".to_string()));
+
+    let mut vfs = OverlayVfs::over_disk();
+    vfs.set(
+        dir.join("src/translations/en.json"),
+        r#"{ "greeting": "Hello" }"#,
+    );
+    let edited = Project::load_with(&uri, &vfs, &FileCache::default());
+    let ix = edited.file_index(&uri).unwrap();
+    let found = codes(project_diagnostics_via(&edited, &vfs), ix);
+    assert!(!found.contains(&"I01".to_string()), "{found:?}");
     let _ = std::fs::remove_dir_all(&dir);
 }

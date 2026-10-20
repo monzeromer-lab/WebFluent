@@ -17,6 +17,17 @@ use crate::project::Project;
 
 /// Diagnostics for every file in the project, indexed like `project.files`.
 pub fn project_diagnostics(project: &Project) -> Vec<Vec<Diagnostic>> {
+    project_diagnostics_via(project, &webfluent::vfs::FsVfs)
+}
+
+/// [`project_diagnostics`], with the checks that read files of their own —
+/// the config, `.env`, the translations, the scripts — reading through
+/// `vfs`: the one the project was loaded through ([`Project::load_via`]),
+/// so an editor's unsaved config or script is checked as it stands.
+pub fn project_diagnostics_via(
+    project: &Project,
+    vfs: &dyn webfluent::vfs::Vfs,
+) -> Vec<Vec<Diagnostic>> {
     let mut out: Vec<Vec<Diagnostic>> = project.files.iter().map(|_| Vec::new()).collect();
     let labels: Vec<String> = (0..project.files.len())
         .map(|ix| project.label_of(ix))
@@ -60,15 +71,16 @@ pub fn project_diagnostics(project: &Project) -> Vec<Vec<Diagnostic>> {
     let scripts = project
         .root
         .as_ref()
-        .and_then(|root| webfluent::project_js::load(root, &root.join("src")).ok())
+        .and_then(|root| webfluent::project_js::load_via(vfs, root, &root.join("src")).ok())
         .unwrap_or_default();
     let declaration_files: Vec<String> = project
         .decl_file
         .iter()
         .map(|&ix| labels[ix].clone())
         .collect();
-    let checked =
-        webfluent::diagnostics::check::check_project(&webfluent::diagnostics::check::Project {
+    let checked = webfluent::diagnostics::check::check_project_via(
+        vfs,
+        &webfluent::diagnostics::check::Project {
             program: &project.program,
             file_of: &file_of,
             source_of: &source_of,
@@ -78,7 +90,8 @@ pub fn project_diagnostics(project: &Project) -> Vec<Vec<Diagnostic>> {
             scripts: &scripts,
             stylesheets: &project.stylesheets,
             incomplete,
-        });
+        },
+    );
     for finding in checked.diagnostics {
         if let Some(&ix) = by_label.get(finding.file.as_str()) {
             findings.push((ix, finding));

@@ -49,6 +49,10 @@ pub struct Checked {
     pub diagnostics: Vec<Diagnostic>,
     /// The program lowered onto the vocabulary the code generators read.
     pub lowered: Program,
+    /// What the type checker made of the program as written: every
+    /// declared name's type, for an editor's hover and completion, so it
+    /// does not check the program a second time.
+    pub types: crate::sema::types::TypeInfo,
 }
 
 /// The codes a missing declaration could explain.
@@ -89,7 +93,8 @@ pub fn check_project_via(vfs: &dyn Vfs, p: &Project) -> Checked {
             }
         }
     }
-    out.extend(program_checks(p.program, p.file_of, p.source_of));
+    let (program_found, types) = program_checks_typed(p.program, p.file_of, p.source_of);
+    out.extend(program_found);
     out.extend(crate::linter::structure::lint_structure(
         p.program, p.file_of,
     ));
@@ -179,6 +184,7 @@ pub fn check_project_via(vfs: &dyn Vfs, p: &Project) -> Checked {
     Checked {
         diagnostics: out,
         lowered,
+        types,
     }
 }
 
@@ -190,15 +196,24 @@ pub fn program_checks(
     file_of: &dyn Fn(usize) -> String,
     source_of: &dyn Fn(usize) -> Option<String>,
 ) -> Vec<Diagnostic> {
+    program_checks_typed(program, file_of, source_of).0
+}
+
+/// [`program_checks`], and the type checker's view of the program.
+fn program_checks_typed(
+    program: &Program,
+    file_of: &dyn Fn(usize) -> String,
+    source_of: &dyn Fn(usize) -> Option<String>,
+) -> (Vec<Diagnostic>, crate::sema::types::TypeInfo) {
     let mut out = crate::linter::validate_semantics_in(program, file_of);
     let findings = crate::sema::check(program, file_of);
     out.extend(findings.errors);
     out.extend(findings.warnings);
     let typed = crate::sema::types::check_in(program, file_of, source_of);
-    out.extend(typed.findings.errors);
-    out.extend(typed.findings.warnings);
-    out.extend(typed.unresolved);
-    out
+    out.extend(typed.findings.errors.iter().cloned());
+    out.extend(typed.findings.warnings.iter().cloned());
+    out.extend(typed.unresolved.iter().cloned());
+    (out, typed)
 }
 
 /// The project's own scripts: a module cannot be linked as a plain
