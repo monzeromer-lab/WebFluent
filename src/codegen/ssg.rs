@@ -6,7 +6,7 @@ use crate::codegen::node_id::NodeMap;
 use crate::codegen::static_eval::{Scope, Static, case_of, eval};
 use crate::config::ProjectConfig;
 use crate::parser::ast::*;
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 /// Renders a page to static HTML for SSG (export mode — no studio attributes).
 ///
@@ -156,6 +156,10 @@ pub struct SiteContext<'a> {
     /// The program's part of that scope, worked out once for the build
     /// ([`Scope::for_program`]); without it each page works it out again.
     pub program_scope: Option<&'a Scope>,
+    /// The rules only one page reaches, by page, when the build has worked
+    /// them out (`build.split`); without them each page works them out
+    /// again to know whether it has a sheet of its own.
+    pub page_sheets: Option<&'a BTreeMap<String, String>>,
 }
 
 impl SiteContext<'_> {
@@ -182,6 +186,7 @@ impl<'a> SiteContext<'a> {
             components: EMPTY_C.get_or_init(HashMap::new),
             program,
             program_scope: None,
+            page_sheets: None,
         }
     }
 }
@@ -330,6 +335,7 @@ pub fn render_page_html_studio(
     if let Some(app_stmts) = app_body {
         render_app_shell_ssg(app_stmts, page_body, &mut ctx, &mut body_html);
     } else {
+
         // With no shell there is no Router to stand in for `<main>`, so the page
         // body is the main content itself.
         body_html = format!(
@@ -410,11 +416,14 @@ pub fn render_page_html_studio(
     };
     // The rules only this page reaches, in a sheet of its own after the
     // shared one; the router loads it before drawing the page.
-    let page_sheet = if config.build.split
-        && crate::codegen::scoped_css::split_rules(program)
-            .pages
-            .contains_key(&page.name)
-    {
+    let has_sheet = config.build.split
+        && match site.page_sheets {
+            Some(sheets) => sheets.contains_key(&page.name),
+            None => crate::codegen::scoped_css::split_rules(program)
+                .pages
+                .contains_key(&page.name),
+        };
+    let page_sheet = if has_sheet {
         format!(
             "    <link rel=\"stylesheet\" href=\"{}/pages/{}.css\" data-wf-page-css=\"{}\">\n",
             base, page.name, page.name
@@ -2306,6 +2315,7 @@ mod component_expansion_tests {
                 components: &components,
                 program: &program,
                 program_scope: None,
+                page_sheets: None,
             },
         )
     }

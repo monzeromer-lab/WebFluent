@@ -24,6 +24,7 @@
 
 use std::cell::Cell;
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use crate::codegen::format;
 use crate::parser::ast::{
@@ -111,8 +112,13 @@ fn compile_regex(pattern: &str, flags: &str) -> Option<regex::Regex> {
 /// reach.
 #[derive(Debug, Clone, Default)]
 pub struct Scope {
-    frames: Vec<HashMap<String, Static>>,
-    functions: HashMap<String, ActionDecl>,
+    /// Innermost last. Each frame is shared: a nested scope copies the
+    /// pointers and adds its own frame, and a frame is copied only when it
+    /// is written to while shared ([`Arc::make_mut`]). A component call, a
+    /// loop's item and a lambda's argument each make a nested scope, and
+    /// the outermost frame holds every store's values.
+    frames: Vec<Arc<HashMap<String, Static>>>,
+    functions: Arc<HashMap<String, ActionDecl>>,
     depth: u32,
 }
 
@@ -163,8 +169,8 @@ impl Scope {
     /// over data — what the template engine hands over.
     pub fn of(values: impl IntoIterator<Item = (String, Static)>) -> Self {
         Scope {
-            frames: vec![values.into_iter().collect()],
-            functions: HashMap::new(),
+            frames: vec![Arc::new(values.into_iter().collect())],
+            functions: Arc::default(),
             depth: 0,
         }
     }
@@ -220,8 +226,8 @@ impl Scope {
         }
 
         let mut scope = Scope {
-            frames: vec![frame],
-            functions: HashMap::new(),
+            frames: vec![Arc::new(frame)],
+            functions: Arc::default(),
             depth: 0,
         };
         // Constants, in order: one may read another.
@@ -238,7 +244,7 @@ impl Scope {
     /// A scope whose calls reach `actions`.
     fn with_functions(mut self, actions: &[&ActionDecl]) -> Self {
         for action in actions {
-            self.functions
+            Arc::make_mut(&mut self.functions)
                 .insert(action.name.clone(), (*action).clone());
         }
         self
@@ -255,13 +261,13 @@ impl Scope {
                 frame.insert(s.name.clone(), v);
             }
         }
-        self.frames.push(frame);
+        self.frames.push(Arc::new(frame));
         for stmt in stmts {
             if let StatementKind::Derived(d) = &stmt.kind
                 && let Some(v) = eval(&d.value, self)
                 && let Some(frame) = self.frames.last_mut()
             {
-                frame.insert(d.name.clone(), v);
+                Arc::make_mut(frame).insert(d.name.clone(), v);
             }
         }
     }
@@ -271,7 +277,7 @@ impl Scope {
         let mut next = self.clone();
         let mut frame = HashMap::new();
         frame.insert(name.to_string(), value);
-        next.frames.push(frame);
+        next.frames.push(Arc::new(frame));
         next
     }
 
@@ -283,7 +289,7 @@ impl Scope {
     /// default one.
     pub fn with_locale(mut self, locale: &str) -> Self {
         if let Some(frame) = self.frames.first_mut() {
-            frame.insert("__locale".to_string(), Static::Str(locale.to_string()));
+            Arc::make_mut(frame).insert("__locale".to_string(), Static::Str(locale.to_string()));
         }
         self
     }
@@ -296,7 +302,7 @@ impl Scope {
     /// static paint left the element empty until the script ran.
     pub fn with_messages(mut self, messages: &HashMap<String, String>) -> Self {
         if let Some(frame) = self.frames.first_mut() {
-            frame.insert(
+            Arc::make_mut(frame).insert(
                 "__messages".to_string(),
                 Static::Map(
                     messages
@@ -334,12 +340,12 @@ impl Scope {
     fn set(&mut self, name: &str, value: Static) {
         for frame in self.frames.iter_mut().rev() {
             if frame.contains_key(name) {
-                frame.insert(name.to_string(), value);
+                Arc::make_mut(frame).insert(name.to_string(), value);
                 return;
             }
         }
         if let Some(frame) = self.frames.last_mut() {
-            frame.insert(name.to_string(), value);
+            Arc::make_mut(frame).insert(name.to_string(), value);
         }
     }
 }
@@ -376,8 +382,8 @@ fn store_value_with(
         })
         .collect();
     let mut scope = Scope {
-        frames: vec![HashMap::new()],
-        functions: HashMap::new(),
+        frames: vec![Arc::default()],
+        functions: Arc::default(),
         depth: 0,
     }
     .with_functions(&actions);
@@ -757,7 +763,7 @@ fn apply(lambda: &Expr, args: &[Static], scope: &Scope, fuel: &Fuel) -> Option<S
     for (param, arg) in params.split(',').map(str::trim).zip(args) {
         frame.insert(param.to_string(), arg.clone());
     }
-    inner.frames.push(frame);
+    inner.frames.push(Arc::new(frame));
     eval_in(body, &inner, fuel)
 }
 
@@ -1260,7 +1266,7 @@ fn call_action(
     for (param, arg) in action.params.iter().zip(args) {
         frame.insert(param.name.clone(), arg);
     }
-    inner.frames.push(frame);
+    inner.frames.push(Arc::new(frame));
     match run(&action.body, &mut inner, fuel)? {
         Flow::Return(v) => Some(v),
         Flow::Continue => Some(Static::Null),
@@ -1325,7 +1331,7 @@ fn run(stmts: &[Statement], scope: &mut Scope, fuel: &Fuel) -> Option<Flow> {
                     if let Some(index) = &f.index {
                         frame.insert(index.clone(), Static::Num(i as f64));
                     }
-                    scope.frames.push(frame);
+                    scope.frames.push(Arc::new(frame));
                     let flow = run(&f.body, scope, fuel);
                     scope.frames.pop();
                     if let Flow::Return(v) = flow? {

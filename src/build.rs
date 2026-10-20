@@ -735,6 +735,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
                     components: &components,
                     program: &program,
                     program_scope: Some(&program_scope),
+                    page_sheets: Some(&page_sheets),
                 };
                 // A `:param` route is rendered once per value its `paths:`
                 // names, and not at all without them.

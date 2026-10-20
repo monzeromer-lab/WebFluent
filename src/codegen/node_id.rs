@@ -482,6 +482,7 @@ mod tests {
                 components: &Default::default(),
                 program: &p,
                 program_scope: None,
+                page_sheets: None,
             },
             true,
             &map,
