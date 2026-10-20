@@ -53,7 +53,7 @@ test "name"(data: { … }) { render block and test steps }"#, title: "text")
                 }
                 Table.Row {
                     Table.Cell("persisted state")
-                    Table.Cell { Markdown("`persist name: Type = expr \{ in: .local | .session  version: n  sync: Bool  migrate n -> n+1 \{ expr \} \}`") }
+                    Table.Cell { Markdown("`persist name: Type = expr \{ in: .local | .session | .name  key: expr  version: n  sync: Bool  migrate n -> n+1 \{ expr \} \}`") }
                 }
                 Table.Row {
                     Table.Cell("derived")

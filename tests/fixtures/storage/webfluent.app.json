@@ -1,0 +1,4 @@
+{
+  "name": "storage",
+  "build": { "ssg": true, "csp": true }
+}

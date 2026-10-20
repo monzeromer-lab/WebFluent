@@ -350,7 +350,7 @@
                             </div>
                             <div class="wf-markdown">
 <ul>
-<li>A style block holds CSS declarations, one per line or <code>;</code>-separated. No quotes around values — <code>padding: 2rem</code>, not <code>&quot;2rem&quot;</code>.</li>
+<li>A style block holds CSS declarations, one per line or <code>;</code>-separated. No quotes around values — <code>padding: 2rem</code>, not <code>&quot;2rem&quot;</code>. A comma between two declarations (<code>width: 2rem, flex: none</code>) is an error: it is CSS, not a map.</li>
 <li><code>$token</code> names a token. A short name is resolved by the property: <code>padding: $lg</code> is <code>spacing-lg</code>, <code>color: $primary</code> is <code>color-primary</code>, <code>border-radius: $lg</code> is <code>radius-lg</code>, <code>box-shadow: $md</code> is <code>shadow-md</code>, <code>font-size: $xl</code> is <code>font-size-xl</code>, <code>transition: $fast</code>. A full name (<code>$color-primary</code>, <code>$surface-raised</code>) works anywhere. Check a token's spelling: one no theme defines resolves to nothing, and the browser drops the declaration.</li>
 <li><code>{expr}</code> splices a live value; the declaration updates when the value changes. A whole value or a part of one (<code>{n}px</code>).</li>
 <li><code>&amp;:hover</code>, <code>&amp;:focus-visible</code>, <code>&amp;.active</code>, <code>&amp; &gt; p</code>, <code>&amp;[aria-current]</code> nest as CSS nesting does; <code>@media (…) { }</code> nests too.</li>

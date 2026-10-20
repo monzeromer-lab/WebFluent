@@ -351,7 +351,7 @@ test &quot;name&quot;(data: { … }) { render block and test steps }</code>
                                         <td>persisted state</td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>persist name: Type = expr { in: .local | .session  version: n  sync: Bool  migrate n -&gt; n+1 { expr } }</code></p>
+<p><code>persist name: Type = expr { in: .local | .session | .name  key: expr  version: n  sync: Bool  migrate n -&gt; n+1 { expr } }</code></p>
                                             </div>
                                         </td>
                                     </tr>

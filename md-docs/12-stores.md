@@ -177,7 +177,7 @@ The block says otherwise:
 ```wf
 store Cart {
     persist items: [Item] = [] {
-        in: .local          // .local (default, across visits) · .session (this tab)
+        in: .local          // .local (default, across visits) · .session (this tab) · .app (the project's own)
         version: 2          // the version of the shape this build writes
         sync: false         // don't take what another tab wrote
         migrate 1 -> 2 { old.map(i => Item(id: i.id, qty: i.count)) }
@@ -213,6 +213,49 @@ component Panel(_ title: String) {
     Button(title) { on click { open = !open } }
     if open { children }
 }
+```
+
+**A key that follows state.** `key:` is read as state: when what it
+reads changes, the value is the one kept under the new key, and writes go
+there. A desktop app keeps its layout per project this way — a store's key
+may read the store itself, or another store:
+
+```wf
+store Layout {
+    state project = "halyard"
+    persist side = 240 {
+        key: project
+        in: .app
+    }
+}
+```
+
+**Somewhere of the project's own.** `in:` names where the value lives
+beyond the browser's two: `in: .app` reads `window.wfStorage.app`, which a
+script of the project's under `src/` defines — a desktop app's store
+through its native bridge, an extension's storage. It is
+`{ get(name), set(name, text), remove?(name), watch?(name, fn) }`:
+
+- `get` answers at once or with a promise — an IPC call is fine. Until it
+  answers, the value is its declared one; a write made before the answer
+  is not undone by it, and an answer for a key that has since moved on is
+  not taken.
+- `set` is handed the JSON text to keep.
+- `watch(name, fn)`, when it is given, hears another writer — another
+  window — and returns how to stop; `sync: false` turns it off.
+
+A name with no storage behind it is kept in `localStorage`, and `wf serve`
+says so on the console.
+
+```js
+// src/app-store.js — Tauri's IPC, reached when a value is read or written
+const call = (command, args) => window.__TAURI__.core.invoke(command, args);
+window.wfStorage = {
+  app: {
+    get: (name) => call("store_get", { name }),
+    set: (name, text) => call("store_set", { name, text }),
+  },
+};
 ```
 
 **A changed shape needs a new version.** The build remembers the shape of

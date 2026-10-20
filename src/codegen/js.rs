@@ -463,16 +463,13 @@ impl JsCodegen {
             // where it is written, the version of its shape, whether
             // another tab's write is adopted, and how an older value is
             // brought forward.
+            // `key: id` tells one instance's value from another's, and
+            // is followed as state: `key: Project.id` keeps one per project.
             let policy = match &s.policy {
-                Some(_) => format!(", {}", self.persist_policy(s)),
+                Some(_) => format!(", {}", self.persist_policy(s, None)),
                 None => String::new(),
             };
-            // `key: id` tells one instance's value from another's.
-            let key = match s.policy.as_ref().and_then(|p| p.key.as_ref()) {
-                Some(part) => format!("\"{key}:\" + String({})", self.emit_expr(part)),
-                None => format!("\"{key}\""),
-            };
-            let init = format!("WF.persist({key}, {value}{policy})");
+            let init = format!("WF.persist(\"{key}\", {value}{policy})");
             if self.studio {
                 format!("WF.__reg(\"{}\", {init})", s.name)
             } else {
@@ -1043,7 +1040,7 @@ impl JsCodegen {
                 self.emit_line("persist: {");
                 self.indent += 1;
                 for state in persisted {
-                    let policy = self.persist_policy(state);
+                    let policy = self.persist_policy(state, Some(&store_state_names));
                     self.emit_line(&format!("{}: {},", state.name, policy));
                 }
                 self.indent -= 1;
@@ -1135,11 +1132,19 @@ impl JsCodegen {
 
     /// What a `persist` says about where its value lives and how an older
     /// one is brought forward.
-    fn persist_policy(&mut self, state: &StateDecl) -> String {
+    /// `store` is the store's states, when it is a store's: its `key:` is
+    /// then a function of the store.
+    fn persist_policy(&mut self, state: &StateDecl, store: Option<&[String]>) -> String {
         let Some(policy) = &state.policy else {
             return "{}".to_string();
         };
         let mut parts = Vec::new();
+        if let Some(key) = &policy.key {
+            parts.push(match store {
+                Some(states) => format!("key: (store) => {}", self.emit_store_expr(key, states)),
+                None => format!("key: () => {}", self.emit_expr(key)),
+            });
+        }
         if let Some(place) = &policy.storage {
             parts.push(format!("in: \"{place}\""));
         }

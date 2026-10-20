@@ -120,6 +120,10 @@ jobs:
         working-directory: tests/browser
         run: node gestures.mjs
 
+      - name: Storage
+        working-directory: tests/browser
+        run: node storage.mjs
+
       # What the compiler once compiled wrong, clicked and typed into.
       - name: Behaviour
         run: target/release/wf test tests/fixtures/behaviour

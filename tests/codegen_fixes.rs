@@ -306,8 +306,8 @@ fn a_persist_key_names_each_instance_s_storage() {
         "component Panel(_ title: String) {\n    persist open = false { key: title }\n    Button(title) { on click { open = !open } }\n}\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"T\").h1\n    Panel(\"North\")\n    Panel(\"South\")\n}\n",
     );
     assert!(
-        out.contains("WF.persist(\"Panel.open:\" + String("),
-        "the key joins the storage name:\n{out}"
+        out.contains("WF.persist(\"Panel.open\", false, { key: () => "),
+        "the key is followed, and joins the storage name at run time:\n{out}"
     );
     let plain = js(&page("    persist open = false\n    Text(\"{open}\")"));
     assert!(plain.contains("WF.persist(\"P.open\""), "{plain}");

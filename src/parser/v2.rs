@@ -1962,15 +1962,15 @@ impl ParserV2 {
             self.expect(&TokenType::Colon, "`:`")?;
             match key.as_str() {
                 "key" => policy.key = Some(self.parse_expression()?),
+                // `.local`, `.session`, or a storage the project gives
+                // itself as `window.wfStorage.<name>` — `.app` for a
+                // desktop app's store.
                 "in" => {
-                    self.expect(&TokenType::Dot, "`.local` or `.session`")?;
+                    self.expect(
+                        &TokenType::Dot,
+                        "`.local`, `.session`, or the name of a storage of the project's",
+                    )?;
                     let case = self.expect_ident("a case")?;
-                    if !matches!(case.as_str(), "local" | "session") {
-                        return Err(self.error_with_hint(
-                            format!("There is nowhere called `.{case}` to keep it"),
-                            "It is `.local` (across visits) or `.session` (this tab only)",
-                        ));
-                    }
                     policy.storage = Some(case);
                 }
                 "version" => policy.version = Some(self.expect_version("a version")?),

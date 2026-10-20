@@ -83,6 +83,8 @@
         const s = policy
           ? persist(name + "." + key, initial, {
               ...policy,
+              // A store's key may read the store itself.
+              key: typeof policy.key === "function" ? () => policy.key(store) : null,
               in: policy.in || (opts.scope === "session" ? "session" : "local"),
               off,
             })

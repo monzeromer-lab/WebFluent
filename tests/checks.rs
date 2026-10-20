@@ -659,7 +659,7 @@ fn d02_d03_what_persist_cannot_keep_and_what_every_instance_shares() {
     let program = webfluent::parse_source(&keyed, "t.wf").unwrap();
     let js = webfluent::codegen::js::JsCodegen::new().generate(&program);
     assert!(
-        js.contains("WF.persist(\"Panel.open:\" + String(_p.title)"),
+        js.contains("WF.persist(\"Panel.open\", false, { key: () => _p.title })"),
         "{js}"
     );
 }

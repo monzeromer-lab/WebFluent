@@ -63,7 +63,7 @@ A page, a component, the app, a test and every element's children:
 | Statement | Form |
 |---|---|
 | state | `state name: Type = expr` |
-| persisted state | `persist name: Type = expr { in: .local \| .session  version: n  sync: Bool  migrate n -> n+1 { expr } }` |
+| persisted state | `persist name: Type = expr { in: .local \| .session \| .name  key: expr  version: n  sync: Bool  migrate n -> n+1 { expr } }` |
 | derived | `derived name = expr` |
 | effect | `effect { imperative  cleanup { imperative } }` |
 | action | `action name(param: Type, …) { imperative }` |

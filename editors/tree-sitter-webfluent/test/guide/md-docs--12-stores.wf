@@ -93,7 +93,7 @@ store Prefs {
 // md-docs/12-stores.md
 store Cart {
     persist items: [Item] = [] {
-        in: .local          // .local (default, across visits) · .session (this tab)
+        in: .local          // .local (default, across visits) · .session (this tab) · .app (the project's own)
         version: 2          // the version of the shape this build writes
         sync: false         // don't take what another tab wrote
         migrate 1 -> 2 { old.map(i => Item(id: i.id, qty: i.count)) }
@@ -105,6 +105,15 @@ component Panel(_ title: String) {
     persist open = false { key: title }
     Button(title) { on click { open = !open } }
     if open { children }
+}
+
+// md-docs/12-stores.md
+store Layout {
+    state project = "halyard"
+    persist side = 240 {
+        key: project
+        in: .app
+    }
 }
 
 // md-docs/12-stores.md

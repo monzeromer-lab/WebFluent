@@ -458,7 +458,7 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Cart {
     persist items: [Item] = [] {
-        in: .local          // .local (default, across visits) · .session (this tab)
+        in: .local          // .local (default, across visits) · .session (this tab) · .app (the project&#x27;s own)
         version: 2          // the version of the shape this build writes
         sync: false         // don&#x27;t take what another tab wrote
         migrate 1 -&gt; 2 { old.map(i =&gt; Item(id: i.id, qty: i.count)) }
@@ -483,6 +483,49 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
     Button(title) { on click { open = !open } }
     if open { children }
 }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>A key that follows state.</strong> <code>key:</code> is read as state: when what it reads changes, the value is the one kept under the new key, and writes go there. A desktop app keeps its layout per project this way — a store's key may read the store itself, or another store:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">store Layout {
+    state project = &quot;halyard&quot;
+    persist side = 240 {
+        key: project
+        in: .app
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Somewhere of the project's own.</strong> <code>in:</code> names where the value lives beyond the browser's two: <code>in: .app</code> reads <code>window.wfStorage.app</code>, which a script of the project's under <code>src/</code> defines — a desktop app's store through its native bridge, an extension's storage. It is <code>{ get(name), set(name, text), remove?(name), watch?(name, fn) }</code>:</p>
+<ul>
+<li><code>get</code> answers at once or with a promise — an IPC call is fine. Until it answers, the value is its declared one; a write made before the answer is not undone by it, and an answer for a key that has since moved on is not taken.</li>
+<li><code>set</code> is handed the JSON text to keep.</li>
+<li><code>watch(name, fn)</code>, when it is given, hears another writer — another window — and returns how to stop; <code>sync: false</code> turns it off.</li>
+</ul>
+<p>A name with no storage behind it is kept in <code>localStorage</code>, and <code>wf serve</code> says so on the console.</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">js</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="js" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/app-store.js
+const { invoke } = window.__TAURI__.core;
+window.wfStorage = {
+  app: {
+    get: (name) =&gt; invoke(&quot;store_get&quot;, { name }),
+    set: (name, text) =&gt; invoke(&quot;store_set&quot;, { name, text }),
+  },
+};</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>A changed shape needs a new version.</strong> The build remembers the shape of every persisted value (in <code>.wf-cache/persist.json</code>) and warns (<code>D04</code>) when it changes with no <code>version:</code> raised: a returning reader's browser holds the old shape, which the page would read as the new one.</p>

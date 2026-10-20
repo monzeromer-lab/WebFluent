@@ -681,10 +681,10 @@ effect { log(count) }                // Side effect — runs on change
 ```wf
 persist scheme = "light"              // kept in the browser across visits (page, component or store)
 persist items: [Item] = [] {          // and what a value says about itself
-    in: .local                        // .local (default) · .session (this tab)
+    in: .local                        // .local (default) · .session (this tab) · .app: window.wfStorage.app, a project script's { get, set, watch? } (get may return a promise)
     version: 2                        // the version of the shape this build writes
-    sync: false                       // don't adopt what another tab wrote
-    key: listId                       // one stored value per instance (a prop that tells them apart)
+    sync: false                       // don't adopt what another tab or window wrote
+    key: listId                       // one stored value per key, followed as state (key: Project.id keeps one per project; a store's may read the store)
     migrate 1 -> 2 { old.map(i => Item(id: i.id, qty: i.count)) }
 }
 every(1000) { tick = tick + 1 }       // a timer; stops when its page, branch or item leaves

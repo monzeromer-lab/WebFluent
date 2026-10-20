@@ -1,0 +1,20 @@
+// Values kept per project in a storage the project gives itself.
+store Layout {
+    state project = "halyard"
+    persist side = 240 {
+        key: project
+        in: .app
+    }
+}
+
+page Home(path: "/", title: "Storage", description: "Kept per project, where the project says.") {
+    persist mode = "code" {
+        in: .app
+    }
+    Heading("Storage").h1
+    Text("{Layout.side}", id: "side")
+    Text(mode, id: "mode")
+    Button("Wider", id: "wider") { on click { Layout.side = Layout.side + 10 } }
+    Button("Docs", id: "docs") { on click { Layout.project = "docs" } }
+    Button("Halyard", id: "halyard") { on click { Layout.project = "halyard" } }
+}
