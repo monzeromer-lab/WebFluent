@@ -114,6 +114,55 @@ async function scenario(label, ssg, port) {
     const total = await page.$eval("#hits", (el) => el.scrollHeight);
     check("and the measured list is as long as its rows", Math.abs(total - (200 * 40 + 1800 * 22)) < 200 * 40 * 0.05 + 40, String(total));
 
+    // ── options: where each is, focus, a row that changes shape or grows ──
+    const pos = await page.$eval("#o3", (el) => [el.getAttribute("aria-posinset"), el.getAttribute("aria-setsize")]);
+    check("an option says where it is in the whole list", JSON.stringify(pos) === JSON.stringify(["4", "500"]), JSON.stringify(pos));
+    const before = await page.$eval("#o4", (el) => el.getBoundingClientRect().top);
+    await page.click("#flip");
+    await frames(page);
+    const flipped = await page.evaluate(() => {
+      const two = document.getElementById("o2");
+      const box = document.getElementById("opts");
+      return { tag: two && two.tagName, inBox: !!two && box.contains(two), stray: [...document.querySelectorAll("#opts > p#o2")].length, top4: document.getElementById("o4").getBoundingClientRect().top };
+    });
+    check("a row whose `if` flips is drawn as it is now, in its place", flipped.tag === "H2" && flipped.inBox && flipped.stray === 0, JSON.stringify(flipped));
+    check("and the rows after it move down by what it grew", Math.round(flipped.top4 - before) > 20, `${before} → ${flipped.top4}`);
+    await page.$eval("#opts", (el) => { el.scrollTop = 24 * 300; });
+    await frames(page);
+    await page.$eval("#opts", (el) => { el.scrollTop = 0; });
+    await frames(page);
+    const back = await page.evaluate(() => [...document.querySelectorAll("#o2")].map((n) => n.tagName));
+    check("scrolled away and back, it is one row, still a heading", JSON.stringify(back) === JSON.stringify(["H2"]), JSON.stringify(back));
+    const short4 = await page.$eval("#o4", (el) => el.getBoundingClientRect().top);
+    await page.click("#grow");
+    await frames(page);
+    await frames(page);
+    const grown = await page.evaluate(() => ({
+      h2: document.getElementById("o2").getBoundingClientRect().height,
+      h3: document.getElementById("o3").getBoundingClientRect().height,
+      h: document.getElementById("o5").getBoundingClientRect().height,
+    }));
+    // Scrolled past it, a row far down stands where the real heights put
+    // it: a stale height for row three would leave it short by the growth.
+    await page.$eval("#opts", (el) => { el.scrollTop = 24 * 100; });
+    await frames(page);
+    await frames(page);
+    const [index, far] = await page.evaluate(() => {
+      const box = document.getElementById("opts");
+      const rows = [...box.querySelectorAll("[data-wf-index]")];
+      const row = rows[Math.floor(rows.length / 2)];
+      return [Number(row.getAttribute("data-wf-index")), row.offsetTop - box.firstElementChild.offsetTop];
+    });
+    const expected = (index - 2) * grown.h + grown.h2 + grown.h3;
+    check("a row that grows after it is drawn is measured again", grown.h3 > 40 && Math.abs(far - expected) <= 3, JSON.stringify({ far, expected, grown, short4 }));
+    await page.$eval("#opts", (el) => { el.scrollTop = 0; });
+    await frames(page);
+    await page.focus("#o1");
+    await page.$eval("#opts", (el) => { el.scrollTop = 24 * 300; });
+    await frames(page);
+    const focus = await page.evaluate(() => ({ gone: !document.getElementById("o1"), on: document.activeElement && document.activeElement.id }));
+    check("a focused row scrolled away hands focus to the list", focus.gone && focus.on === "opts", JSON.stringify(focus));
+
     check("nothing threw, and the policy refused nothing", problems.length === 0, problems.join(" | "));
   } catch (e) {
     check(`the run (${e.message})`, false);

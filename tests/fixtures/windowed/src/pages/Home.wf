@@ -35,4 +35,24 @@ page Home(path: "/", title: "Windowed", description: "Long lists, a window at a 
     }
     Button("Next match", id: "next") { on click { current = current + 37 } }
     Button("Last match", id: "last") { on click { current = 1999 } }
+
+    // A list of options: each says where it is in the whole, a focused one
+    // scrolled away hands focus to the list, a row that changes its shape
+    // or grows is followed.
+    state flipped = false
+    state long = false
+    VirtualList(estimate: 24, label: "Options", id: "opts") {
+        style { height: 200px }
+        for o in (0..500).map((i) => i) by o {
+            if o == 2 && flipped {
+                Heading("Two, now a heading", id: "o{o}").h2 { style { height: 60px; margin: 0 } }
+            } else {
+                Text(if o == 3 && long { "three and a much longer line that wraps over and over and over and over and over and over and over and over and over again" } else { "option {o}" }, id: "o{o}", role: "option", tabindex: "0") {
+                    style { margin: 0; width: 160px }
+                }
+            }
+        }
+    }
+    Button("Flip two", id: "flip") { on click { flipped = !flipped } }
+    Button("Grow three", id: "grow") { on click { long = !long } }
 }

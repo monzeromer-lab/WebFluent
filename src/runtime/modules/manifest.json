@@ -813,7 +813,9 @@
       "triggers": []
     },
     {
-      "deps": [],
+      "deps": [
+        "motion"
+      ],
       "exports": [
         [
           "windowed",

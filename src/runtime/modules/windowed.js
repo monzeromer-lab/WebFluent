@@ -67,11 +67,25 @@
 
     const nodesOf = (made) =>
       made instanceof DocumentFragment ? [...made.childNodes] : [].concat(made).flat().filter((n) => n instanceof Node);
+    // A row's nodes as they are now: an `if` or a `for` inside it draws
+    // between markers, and what it drew since is the row's too.
+    const nodesNowOf = (row) => nodesNow(row.kept);
     const drop = (k, row) => {
-      for (const n of row.nodes) if (n.parentNode) n.parentNode.removeChild(n);
+      const now = nodesNowOf(row);
+      // The reader's focus in a row scrolled away goes to the list, so the
+      // keys still reach it.
+      if (typeof document !== "undefined" && now.some((n) => n.contains && n.contains(document.activeElement))) {
+        if (!box.hasAttribute("tabindex")) box.setAttribute("tabindex", "-1");
+        if (box.focus) box.focus({ preventScroll: true });
+      }
+      if (resized) for (const n of now) if (n.nodeType === 1) resized.unobserve(n);
+      for (const n of now) if (n.parentNode) n.parentNode.removeChild(n);
       row.dispose();
       rows.delete(k);
     };
+    // A row with no `rowHeight` that grows or shrinks after it is drawn —
+    // text that wraps, a font that arrives — is measured again.
+    let resized = null;
     const untracked = (fn) => {
       const was = currentEffect;
       currentEffect = null;
@@ -110,15 +124,26 @@
             const itemOf = signal(items[i]);
             const indexOf = signal(i);
             const [made, dispose] = scoped(() => itemFn(items[i], i, itemOf, indexOf));
-            row = { nodes: nodesOf(made), dispose, item: items[i], index: i, itemOf, indexOf };
+            row = { kept: keepNodes(nodesOf(made)), dispose, item: items[i], index: i, itemOf, indexOf };
             rows.set(k, row);
+            if (resized) for (const n of nodesNowOf(row)) if (n.nodeType === 1) resized.observe(n);
           }
-          for (const node of row.nodes) {
+          const now = nodesNowOf(row);
+          for (const node of now) {
             if (after.nextSibling !== node) box.insertBefore(node, after.nextSibling);
             after = node;
           }
-          const first = row.nodes.find((x) => x.nodeType === 1);
-          if (first) first.setAttribute("data-wf-index", String(i));
+          const first = now.find((x) => x.nodeType === 1);
+          if (first) {
+            first.setAttribute("data-wf-index", String(i));
+            // Only the window is in the page: a list's or a tree's item
+            // says where it is in the whole.
+            const role = first.getAttribute("role") || (first.tagName === "LI" ? "listitem" : "");
+            if (/^(listitem|treeitem|option|row|menuitem|article)$/.test(role)) {
+              first.setAttribute("aria-posinset", String(i + 1));
+              first.setAttribute("aria-setsize", String(n));
+            }
+          }
         }
       });
       top.style.height = `${offset(start)}px`;
@@ -133,7 +158,7 @@
           const row = rows.get(keys[i]);
           if (!row) continue;
           let h = 0;
-          for (const node of row.nodes) if (node.nodeType === 1 && node.getBoundingClientRect) h += node.getBoundingClientRect().height;
+          for (const node of nodesNowOf(row)) if (node.nodeType === 1 && node.getBoundingClientRect) h += node.getBoundingClientRect().height;
           if (!h) continue;
           const was = heightOf(i);
           if (Math.abs(h - was) > 0.5) {
@@ -190,6 +215,11 @@
       const watcher = new ResizeObserver(soon);
       watcher.observe(box);
       onCleanup(() => watcher.disconnect());
+      if (!fixed) {
+        resized = new ResizeObserver(soon);
+        onCleanup(() => resized.disconnect());
+        for (const row of rows.values()) for (const n of nodesNowOf(row)) if (n.nodeType === 1) resized.observe(n);
+      }
     } else if (typeof window !== "undefined") {
       listen(window, "resize", soon);
     }
