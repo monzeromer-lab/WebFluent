@@ -325,6 +325,14 @@
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
+<p><code>wf fix [-d, --dir DIR] [--code CODE] [--dry-run]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Fixes every finding that has a fix, or every one of a code</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
 <p><code>wf explain [CODE]</code></p>
                                             </div>
                                         </td>
@@ -489,6 +497,19 @@
                             </div>
                             <div class="wf-markdown">
 <p>Runs every check a build runs — the parser, the structure, the types, the lints, the config — and writes nothing, so it is fast enough for a pre-commit hook. It takes <code>--format</code> and <code>--deny-warnings</code> as <code>wf build</code> does, exits <code>1</code> on a finding that stops a build and <code>0</code> otherwise, and says <code>No problems in NAME.</code> when there are none. What only the output can show — the security policy read back over the written pages — is the build's.</p>
+                            </div>
+                            <h3 class="wf-heading" id="wf-fix">wf fix</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Fixes every finding that has a fix, by the fix an editor offers first — or, with <code>--code</code>, every finding of one code — and writes the files. A fix that would overlap another is taken on a second look, as is one that the first fixes make way for, until nothing more changes. It then says what is left: findings with no certain fix, which a person decides (<code>wf check</code> lists them). <code>--dry-run</code> writes nothing and names the files that would change.</p>
                             </div>
                             <h3 class="wf-heading" id="wf-explain">wf explain</h3>
                             <div class="wf-stack wf-sba64d8a9 code-block">

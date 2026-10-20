@@ -206,3 +206,42 @@ fn the_checks_that_read_files_read_the_buffers_too() {
     assert!(!found.contains(&"I01".to_string()), "{found:?}");
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// A fix that edits another file — C06 marks the prop `_` in the
+/// component's own file — is not offered on this document, where its edit
+/// would land in the wrong text; one that edits this file is.
+#[test]
+fn a_fix_that_edits_another_file_is_not_offered_here() {
+    let dir = std::env::temp_dir().join(format!("wf-lsp-c06-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(dir.join("src/pages")).unwrap();
+    std::fs::create_dir_all(dir.join("src/components")).unwrap();
+    std::fs::write(dir.join("webfluent.app.json"), r#"{ "name": "c06" }"#).unwrap();
+    std::fs::write(
+        dir.join("src/components/Panel.wf"),
+        "component Panel(title: String) {\n    Text(title)\n}\n",
+    )
+    .unwrap();
+    let page = dir.join("src/pages/Home.wf");
+    std::fs::write(
+        &page,
+        "page Home(path: \"/\", title: \"Home\", description: \"D\") {\n    Heading(\"H\").h1\n    Panel(\"x\")\n    Button(\"Go\") {\n        on clik { log(1) }\n    }\n}\n",
+    )
+    .unwrap();
+    let uri = Url::from_file_path(&page).unwrap();
+    let project = Project::load_with(&uri, &FsVfs, &FileCache::default());
+    let ix = project.file_index(&uri).unwrap();
+    let found = project_diagnostics(&project).remove(ix);
+    let code = |d: &Diagnostic, c: &str| d.code == Some(NumberOrString::String(c.to_string()));
+    let c06 = found
+        .iter()
+        .find(|d| code(d, "C06"))
+        .expect("C06 on the call");
+    assert!(
+        c06.data.is_none(),
+        "its fix is the declaration's file's: {:?}",
+        c06.data
+    );
+    let v09 = found.iter().find(|d| code(d, "V09")).expect("V09");
+    assert!(v09.data.is_some(), "a fix in this file is offered");
+}

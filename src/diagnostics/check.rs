@@ -162,10 +162,8 @@ pub fn check_project_via(vfs: &dyn Vfs, p: &Project) -> Checked {
     let files: Vec<String> = sources.iter().map(|(f, _)| f.clone()).collect();
     super::allow::apply(&mut out, &files, &text_of);
     for d in out.iter_mut().filter(|d| !d.plans.is_empty()) {
-        match text_of(&d.file) {
-            Some(source) => super::fixes::realise(d, &source),
-            None => d.plans.clear(),
-        }
+        super::fixes::realise_with(d, &text_of);
+        d.plans.clear();
     }
 
     if p.incomplete {

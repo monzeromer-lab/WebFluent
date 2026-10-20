@@ -559,7 +559,9 @@ fn each_fix_applied_makes_its_finding_go() {
         (
             "U01",
             "PAGE    state unused = 1\n    Heading(\"Hi\").h1\n}\n",
-            "state _unused",
+            // Removed first (DIAGNOSTICS §2); keeping it as `_unused` is
+            // the second fix.
+            "description: \"D\") {\n    Heading(\"Hi\").h1\n}",
         ),
         (
             "A01",

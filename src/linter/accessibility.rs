@@ -215,20 +215,33 @@ fn lint_persistence(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec
             // P01: a gap in the chain, so a value from that version is lost.
             for at in 1..version {
                 if !policy.migrations.iter().any(|m| m.from == at) {
-                    warnings.push(A11yWarning::new(
-                        "P01",
-                        format!(
-                            "`{}` is at version {version}, and nothing brings version {at} forward",
-                            state.name
+                    // The step, written where the chain is missing it: it
+                    // hands the old value on as it was, which keeps what the
+                    // reader had until it is said how it changes.
+                    let close = (stmt.span.end as usize).saturating_sub(1);
+                    warnings.push(
+                        A11yWarning::new(
+                            "P01",
+                            format!(
+                                "`{}` is at version {version}, and nothing brings version {at} forward",
+                                state.name
+                            ),
+                            &file,
+                            line,
+                            col,
+                            format!(
+                                "A reader who last visited then loses what they had. Add `migrate {at} -> {}`",
+                                at + 1
+                            ),
+                        )
+                        .with_plan(
+                            format!("Add `migrate {at} -> {}`", at + 1),
+                            crate::diagnostics::fixes::Plan::InsertInBlockClosingAt {
+                                close,
+                                text: format!("migrate {at} -> {} {{ old }}", at + 1),
+                            },
                         ),
-                        &file,
-                        line,
-                        col,
-                        format!(
-                            "A reader who last visited then loses what they had. Add `migrate {at} -> {}`",
-                            at + 1
-                        ),
-                    ));
+                    );
                 }
             }
         }
@@ -631,42 +644,57 @@ fn lint_ui_element(
             // A02: IconButton missing accessible label
             "IconButton" => {
                 if !has_named_arg(&ui.args, "label") && !has_positional_arg(&ui.args) {
-                    warnings.push(A11yWarning::new(
-                        "A02",
-                        "IconButton missing accessible label",
-                        file,
-                        line,
-                        col,
-                        "Add a label: IconButton(icon: \"close\", label: \"Close dialog\")",
-                    ));
+                    // The icon's name is the label's first draft: `close` is
+                    // "Close".
+                    let icon = ui.args.iter().find_map(|a| match a {
+                        Arg::Named(k, Expr::StringLiteral(v)) if k == "icon" => Some(humanize(v)),
+                        _ => None,
+                    });
+                    warnings.push(
+                        A11yWarning::new(
+                            "A02",
+                            "IconButton missing accessible label",
+                            file,
+                            line,
+                            col,
+                            "Add a label: IconButton(icon: \"close\", label: \"Close dialog\")",
+                        )
+                        .with_plans(add_named("label", icon)),
+                    );
                 }
             }
 
             // A03: Input missing label
             "Input" => {
                 if !has_accessible_name(&ui.args) && !has_named_arg(&ui.args, "placeholder") {
-                    warnings.push(A11yWarning::new(
-                        "A03",
-                        "Input missing \"label\" or \"placeholder\" attribute",
-                        file,
-                        line,
-                        col,
-                        "Add a label: Input(label: \"Username\").text",
-                    ));
+                    warnings.push(
+                        A11yWarning::new(
+                            "A03",
+                            "Input missing \"label\" or \"placeholder\" attribute",
+                            file,
+                            line,
+                            col,
+                            "Add a label: Input(label: \"Username\").text",
+                        )
+                        .with_plans(add_named("label", bound_words(&ui.args))),
+                    );
                 }
             }
 
             // A04: Form control missing label
             "Checkbox" | "Radio" | "Switch" | "Slider" | "Textarea" => {
                 if !has_accessible_name(&ui.args) {
-                    warnings.push(A11yWarning::new(
-                        "A04",
-                        format!("{} missing \"label\" attribute", name),
-                        file,
-                        line,
-                        col,
-                        format!("Add a label: {}(bind: value, label: \"Description\")", name),
-                    ));
+                    warnings.push(
+                        A11yWarning::new(
+                            "A04",
+                            format!("{} missing \"label\" attribute", name),
+                            file,
+                            line,
+                            col,
+                            format!("Add a label: {}(bind: value, label: \"Description\")", name),
+                        )
+                        .with_plans(add_named("label", bound_words(&ui.args))),
+                    );
                 }
             }
 
@@ -711,14 +739,29 @@ fn lint_ui_element(
                 });
                 if !has_children && !has_positional_arg(&ui.args) && !has_accessible_name(&ui.args)
                 {
-                    warnings.push(A11yWarning::new(
-                        "A06",
-                        "Link has no text content",
-                        file,
-                        line,
-                        col,
-                        "Add text: Link(\"About\", to: \"/about\")",
-                    ));
+                    // Where it leads is its name's first draft: `/docs/setup`
+                    // is "Setup".
+                    let leads = ui.args.iter().find_map(|a| match a {
+                        Arg::Named(k, Expr::StringLiteral(v)) if k == "to" || k == "href" => v
+                            .trim_end_matches('/')
+                            .rsplit('/')
+                            .next()
+                            .map(|last| last.split(['.', '?', '#']).next().unwrap_or(last))
+                            .filter(|last| !last.is_empty())
+                            .map(humanize),
+                        _ => None,
+                    });
+                    warnings.push(
+                        A11yWarning::new(
+                            "A06",
+                            "Link has no text content",
+                            file,
+                            line,
+                            col,
+                            "Add text: Link(\"About\", to: \"/about\")",
+                        )
+                        .with_plans(add_named("aria-label", leads)),
+                    );
                 }
             }
 
@@ -748,6 +791,7 @@ fn lint_ui_element(
                             let prev_level =
                                 heading_tracker.levels_seen[heading_tracker.levels_seen.len() - 2];
                             if level > prev_level + 1 {
+                                let mended = prev_level + 1;
                                 warnings.push(A11yWarning::new(
                                     "A11",
                                     format!(
@@ -761,6 +805,13 @@ fn lint_ui_element(
                                         "Use h{} instead, or add the missing intermediate headings",
                                         prev_level + 1
                                     ),
+                                )
+                                .with_plan(
+                                    format!("Change to `.h{mended}`"),
+                                    crate::diagnostics::fixes::Plan::Rename {
+                                        from: format!(".h{level}"),
+                                        to: format!(".h{mended}"),
+                                    },
                                 ));
                             }
                         }
@@ -792,17 +843,29 @@ fn lint_ui_element(
             // A08: Modal/Dialog missing title
             "Modal" | "Dialog" => {
                 if !has_named_arg(&ui.args, "title") {
-                    warnings.push(A11yWarning::new(
-                        "A08",
-                        format!("{} missing \"title\" attribute", name),
-                        file,
-                        line,
-                        col,
-                        format!(
-                            "Add a title: {}(visible: state, title: \"Dialog Title\")",
-                            name
-                        ),
-                    ));
+                    // What opens it is its title's first draft:
+                    // `visible: confirmDelete` is "Confirm delete".
+                    let opened_by = ui.args.iter().find_map(|a| match a {
+                        Arg::Named(k, Expr::Identifier(n)) if k == "visible" => Some(humanize(n)),
+                        Arg::Named(k, Expr::PropertyAccess(_, n)) if k == "visible" => {
+                            Some(humanize(n))
+                        }
+                        _ => None,
+                    });
+                    warnings.push(
+                        A11yWarning::new(
+                            "A08",
+                            format!("{} missing \"title\" attribute", name),
+                            file,
+                            line,
+                            col,
+                            format!(
+                                "Add a title: {}(visible: state, title: \"Dialog Title\")",
+                                name
+                            ),
+                        )
+                        .with_plans(add_named("title", opened_by)),
+                    );
                 }
             }
 
@@ -825,14 +888,22 @@ fn lint_ui_element(
                 if !has_named_arg(&ui.args, "controls")
                     && !ui.modifiers.contains(&"controls".to_string())
                 {
-                    warnings.push(A11yWarning::new(
-                        "A09",
-                        "Video missing \"controls\" attribute",
-                        file,
-                        line,
-                        col,
-                        "Add controls: Video(src: \"...\", controls: true)",
-                    ));
+                    warnings.push(
+                        A11yWarning::new(
+                            "A09",
+                            "Video missing \"controls\" attribute",
+                            file,
+                            line,
+                            col,
+                            "Add controls: Video(src: \"...\", controls: true)",
+                        )
+                        .with_plan(
+                            "Add `controls: true`",
+                            crate::diagnostics::fixes::Plan::AddArgument {
+                                text: "controls: true".to_string(),
+                            },
+                        ),
+                    );
                 }
                 // A video nobody can hear is a video nobody can follow.
                 if !has_named_arg(&ui.args, "captions") {
@@ -851,14 +922,22 @@ fn lint_ui_element(
                 if !has_named_arg(&ui.args, "controls")
                     && !ui.modifiers.contains(&"controls".to_string())
                 {
-                    warnings.push(A11yWarning::new(
-                        "A09",
-                        "Audio missing \"controls\" attribute",
-                        file,
-                        line,
-                        col,
-                        "Add controls: Audio(src: \"...\", controls: true)",
-                    ));
+                    warnings.push(
+                        A11yWarning::new(
+                            "A09",
+                            "Audio missing \"controls\" attribute",
+                            file,
+                            line,
+                            col,
+                            "Add controls: Audio(src: \"...\", controls: true)",
+                        )
+                        .with_plan(
+                            "Add `controls: true`",
+                            crate::diagnostics::fixes::Plan::AddArgument {
+                                text: "controls: true".to_string(),
+                            },
+                        ),
+                    );
                 }
                 if !has_named_arg(&ui.args, "transcript") {
                     warnings.push(A11yWarning::new(
@@ -1086,14 +1165,31 @@ fn lint_label_in_name(
     else {
         return;
     };
-    warnings.push(A11yWarning::new(
-        "A15",
-        format!("{name} shows \"{missing}\" but its aria-label says \"{label}\""),
-        file,
-        line,
-        col,
-        "Start the aria-label with the visible text, so what a user says matches what they see",
-    ));
+    // The visible text, as it is written, is the label's start: what a
+    // reader says to choose it is then what they see.
+    let shown = visible
+        .iter()
+        .map(|t| t.trim())
+        .find(|t| t.to_lowercase() == missing)
+        .unwrap_or(missing.as_str())
+        .to_string();
+    warnings.push(
+        A11yWarning::new(
+            "A15",
+            format!("{name} shows \"{missing}\" but its aria-label says \"{label}\""),
+            file,
+            line,
+            col,
+            "Start the aria-label with the visible text, so what a user says matches what they see",
+        )
+        .with_plan(
+            format!("Start it with \"{shown}\""),
+            crate::diagnostics::fixes::Plan::Rename {
+                from: format!("\"{label}\""),
+                to: format!("\"{shown}: {label}\""),
+            },
+        ),
+    );
 }
 
 /// The literal text `body` paints, in order, into `out`. `props` are the
@@ -1232,6 +1328,52 @@ fn positional_literal(args: &[Arg]) -> Option<String> {
 /// the ARIA attributes that name an element from elsewhere (`aria-label`,
 /// `aria-labelledby`), which is how a field labelled by a separate element
 /// says so.
+/// A name in code as words: `emailAddress`, `email-address` and
+/// `email_address` are "Email address".
+fn humanize(name: &str) -> String {
+    let mut words = String::new();
+    for (i, c) in name.chars().enumerate() {
+        if c == '-' || c == '_' || c == '/' {
+            words.push(' ');
+        } else if c.is_uppercase() && i > 0 {
+            words.push(' ');
+            words.extend(c.to_lowercase());
+        } else {
+            words.push(c);
+        }
+    }
+    let words = words.split_whitespace().collect::<Vec<_>>().join(" ");
+    let mut chars = words.chars();
+    match chars.next() {
+        Some(first) => first.to_uppercase().chain(chars).collect(),
+        None => String::new(),
+    }
+}
+
+/// The name a control is bound to, as words — `bind: emailAddress` is
+/// "Email address" — for a label's first draft.
+fn bound_words(args: &[Arg]) -> Option<String> {
+    args.iter().find_map(|a| match a {
+        Arg::Named(k, Expr::Identifier(n)) if k == "bind" => Some(humanize(n)),
+        Arg::Named(k, Expr::PropertyAccess(_, n)) if k == "bind" => Some(humanize(n)),
+        _ => None,
+    })
+}
+
+/// A fix that adds `key: "draft"` to the call, when there is a draft.
+fn add_named(
+    key: &str,
+    draft: Option<String>,
+) -> Option<(String, crate::diagnostics::fixes::Plan)> {
+    let draft = draft.filter(|d| !d.is_empty())?;
+    Some((
+        format!("Add `{key}: \"{draft}\"`"),
+        crate::diagnostics::fixes::Plan::AddArgument {
+            text: format!("{key}: \"{}\"", draft.replace('"', "\\\"")),
+        },
+    ))
+}
+
 fn has_accessible_name(args: &[Arg]) -> bool {
     has_named_arg(args, "label")
         || has_named_arg(args, "aria-label")

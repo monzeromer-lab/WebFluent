@@ -29,6 +29,7 @@ Files in `public/` are copied to the **root** of the build output (not nested un
 wf init <name> -t spa|static|pdf|slides   # Create a project (with this AGENTS.md in it)
 wf build [-d DIR] [--stats] [--cache]     # Compile (--stats: what it weighs; --cache: render only the pages an edit changed)
 wf check [-d DIR] [--format F] [--deny-warnings]  # Every finding, nothing written
+wf fix [-d DIR] [--code C] [--dry-run]            # Apply every finding's fix (or one code's)
 wf explain [CODE]                         # A diagnostic's entry: meaning, example, fix
 wf serve [-d DIR]                         # Dev server (localhost:3000): rebuilds on save, reloads the page, shows a failed build's error over it
 wf generate page|component|store <name>   # Scaffold a file, in the project's layout

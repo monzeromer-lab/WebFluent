@@ -143,15 +143,76 @@ pub fn apply(
                         "Remove it — what it was written for is gone".to_string(),
                     )
                 };
-                findings.push(
+                let mut d =
                     Diagnostic::coded("U07", message, file.clone(), allow.line, allow.column)
                         .with_end(allow.line, allow.end_column)
-                        .with_hint(hint),
-                );
+                        .with_hint(hint);
+                if let Some((title, plan)) = without(&source, &allow, k) {
+                    d = d.with_plan(title, plan);
+                }
+                findings.push(d);
             }
         }
     }
     out.extend(findings);
+}
+
+/// The allow with its `k`th code taken out: the others kept, or — when it
+/// was the only one — the comment gone, with its line when it stands alone.
+fn without(source: &str, allow: &Allow, k: usize) -> Option<(String, super::fixes::Plan)> {
+    let line_start = source
+        .split_inclusive('\n')
+        .take(allow.line.saturating_sub(1))
+        .map(str::len)
+        .sum::<usize>();
+    let line = source[line_start..].split('\n').next()?;
+    let byte = |column: usize| {
+        line.char_indices()
+            .nth(column.saturating_sub(1))
+            .map(|(b, _)| line_start + b)
+            .or_else(|| {
+                (column.saturating_sub(1) == line.chars().count()).then(|| line_start + line.len())
+            })
+    };
+    let (start, end) = (byte(allow.column)?, byte(allow.end_column)?);
+    let code = allow.codes.get(k)?;
+    if allow.codes.len() > 1 {
+        let rest: Vec<&str> = allow
+            .codes
+            .iter()
+            .enumerate()
+            .filter(|(i, _)| *i != k)
+            .map(|(_, c)| c.as_str())
+            .collect();
+        return Some((
+            format!("Take `{code}` out of the allow"),
+            super::fixes::Plan::Replace {
+                start,
+                end,
+                text: format!("// wf-allow({})", rest.join(", ")),
+            },
+        ));
+    }
+    let before = &source[line_start..start];
+    let after = &source[end..line_start + line.len()];
+    let plan = if before.trim().is_empty() && after.trim().is_empty() {
+        // A comment on a line of its own: the line goes.
+        let to = (line_start + line.len() + 1).min(source.len());
+        super::fixes::Plan::Replace {
+            start: line_start,
+            end: to,
+            text: String::new(),
+        }
+    } else {
+        // After code on its line: the comment and the space before it.
+        let from = line_start + before.trim_end().len();
+        super::fixes::Plan::Replace {
+            start: from,
+            end,
+            text: String::new(),
+        }
+    };
+    Some(("Remove the allow".to_string(), plan))
 }
 
 #[cfg(test)]

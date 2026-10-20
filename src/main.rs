@@ -91,6 +91,19 @@ enum Commands {
         #[arg(long)]
         deny_warnings: bool,
     },
+    /// Fix every finding that has a fix — or every one of a code — as
+    /// `wf check` and the editor offer it, and say what is left
+    Fix {
+        /// Project directory (default: current directory)
+        #[arg(short, long, default_value = ".")]
+        dir: PathBuf,
+        /// Only this code's findings: `V01`, `A01`
+        #[arg(long)]
+        code: Option<String>,
+        /// Write nothing; say what would change
+        #[arg(long)]
+        dry_run: bool,
+    },
     /// What a diagnostic code means, a program that draws it, and the fix;
     /// with no code, every code
     Explain {
@@ -276,6 +289,7 @@ fn main() {
                 cache: false,
             },
         ),
+        Commands::Fix { dir, code, dry_run } => cli::fix::run_fix(&dir, code.as_deref(), dry_run),
         Commands::Explain { code } => cli::explain::run_explain(code.as_deref()),
         Commands::Serve { dir } => cli::serve::run_serve(&dir),
         Commands::Generate { kind, name, dir } => cli::generate::run_generate(&kind, &name, &dir),

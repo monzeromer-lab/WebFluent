@@ -210,16 +210,30 @@ pub fn lint_structure(program: &Program, file_of: &dyn Fn(usize) -> String) -> V
                         "Keep one `Router`",
                     )
                 };
-                out.push(
-                    Diagnostic::coded(
-                        "R03",
-                        message,
-                        &file,
-                        span.line.max(1) as usize,
-                        span.col.max(1) as usize,
-                    )
-                    .with_hint(hint),
-                );
+                let mut d = Diagnostic::coded(
+                    "R03",
+                    message,
+                    &file,
+                    span.line.max(1) as usize,
+                    span.col.max(1) as usize,
+                )
+                .with_hint(hint);
+                // None: `Router` after the app's last statement, at its
+                // indentation. Two: which to keep is the author's.
+                if routers == 0
+                    && let Some(last) = body.last()
+                {
+                    let indent = " ".repeat(span.col.saturating_sub(1) as usize);
+                    d = d.with_plan(
+                        "Add `Router`".to_string(),
+                        crate::diagnostics::fixes::Plan::InsertIn {
+                            file: file.clone(),
+                            at: last.span.end as usize,
+                            text: format!("\n{indent}Router"),
+                        },
+                    );
+                }
+                out.push(d);
             }
         }
         let many = match decl {
@@ -469,16 +483,28 @@ fn walk<'a>(
                 if f.key.is_none()
                     && let Some(what) = stateful_item(&f.body, cx.stateful)
                 {
-                    cx.out.push(
-                        Diagnostic::coded(
-                            "U09",
-                            format!("this `for` has no `by`, and each item holds {what}, which starts again whenever the list changes"),
-                            &cx.file,
-                            stmt.span.line.max(1) as usize,
-                            stmt.span.col.max(1) as usize,
-                        )
-                        .with_hint(format!("Key it: `for {} in … by {}.id`", f.item, f.item)),
-                    );
+                    let mut d = Diagnostic::coded(
+                        "U09",
+                        format!("this `for` has no `by`, and each item holds {what}, which starts again whenever the list changes"),
+                        &cx.file,
+                        stmt.span.line.max(1) as usize,
+                        stmt.span.col.max(1) as usize,
+                    )
+                    .with_hint(format!("Key it: `for {} in … by {}.id`", f.item, f.item));
+                    // Keyed by `id` only when the body reads the item's `id`
+                    // itself, so the item certainly has one.
+                    let reads_id = format!("{:?}", f.body)
+                        .contains(&format!("PropertyAccess(Identifier({:?}), \"id\")", f.item));
+                    if reads_id {
+                        d = d.with_plan(
+                            format!("Key it `by {}.id`", f.item),
+                            crate::diagnostics::fixes::Plan::InsertBefore {
+                                anchor: "{".to_string(),
+                                text: format!(" by {}.id", f.item),
+                            },
+                        );
+                    }
+                    cx.out.push(d);
                 }
                 cx.loops += 1;
                 walk(&f.body, cx, ancestors, in_component);
@@ -499,16 +525,26 @@ fn walk<'a>(
                             .join(", ")
                     )
                 };
-                cx.out.push(
-                    Diagnostic::coded(
-                        "X05",
-                        format!("`use {}` names a store nothing declares", u.store_name),
-                        &cx.file,
-                        stmt.span.line.max(1) as usize,
-                        stmt.span.col.max(1) as usize,
-                    )
-                    .with_hint(hint),
-                );
+                let mut d = Diagnostic::coded(
+                    "X05",
+                    format!("`use {}` names a store nothing declares", u.store_name),
+                    &cx.file,
+                    stmt.span.line.max(1) as usize,
+                    stmt.span.col.max(1) as usize,
+                )
+                .with_hint(hint);
+                if let Some(near) =
+                    crate::diagnostics::fixes::nearest(&u.store_name, names.iter().map(|n| **n))
+                {
+                    d = d.with_plan(
+                        format!("Change to `{near}`"),
+                        crate::diagnostics::fixes::Plan::Rename {
+                            from: u.store_name.clone(),
+                            to: near.to_string(),
+                        },
+                    );
+                }
+                cx.out.push(d);
             }
             _ => {
                 for body in stmt.kind.bodies() {
@@ -624,6 +660,10 @@ fn element(ui: &UIElement, cx: &mut Ctx, ancestors: &[&UIElement], in_component:
         _ => "",
     };
     // F04: shows a state, never changes it.
+    let bindable = matches!(
+        named(ui, "checked"),
+        Some(Expr::Identifier(_)) | Some(Expr::PropertyAccess(..))
+    );
     if matches!(name, "Checkbox" | "Switch")
         && named(ui, "bind").is_none()
         && named(ui, "checked").is_some()
@@ -633,16 +673,25 @@ fn element(ui: &UIElement, cx: &mut Ctx, ancestors: &[&UIElement], in_component:
             .any(|h| matches!(h.event.as_str(), "change" | "input" | "click"))
     {
         let (line, col) = at(ui);
-        cx.out.push(
-            Diagnostic::coded(
-                "F04",
-                format!("this `{name}` shows `checked:` but nothing changes it, so a click toggles the box and not the state"),
-                &cx.file,
-                line,
-                col,
-            )
-            .with_hint("Write `bind:` to keep the box and the state together, or handle `on change`"),
-        );
+        let mut d = Diagnostic::coded(
+            "F04",
+            format!("this `{name}` shows `checked:` but nothing changes it, so a click toggles the box and not the state"),
+            &cx.file,
+            line,
+            col,
+        )
+        .with_hint("Write `bind:` to keep the box and the state together, or handle `on change`");
+        // A name can be bound; a condition cannot, and is left to the author.
+        if bindable {
+            d = d.with_plan(
+                "Change to `bind:`".to_string(),
+                crate::diagnostics::fixes::Plan::Rename {
+                    from: "checked:".to_string(),
+                    to: "bind:".to_string(),
+                },
+            );
+        }
+        cx.out.push(d);
     }
     // F05: a select whose value is none of its options.
     if name == "Select"
@@ -715,7 +764,14 @@ fn link(target: &Expr, span: Span, cx: &mut Ctx) {
                 line,
                 col,
             )
-            .with_hint(format!("Write the route from the site's root: `\"/{text}\"`")),
+            .with_hint(format!("Write the route from the site's root: `\"/{text}\"`"))
+            .with_plan(
+                format!("Change to `/{text}`"),
+                crate::diagnostics::fixes::Plan::Rename {
+                    from: format!("\"{text}\""),
+                    to: format!("\"/{text}\""),
+                },
+            ),
         ),
         Some(Ok(segs)) => {
             if cx.routes.iter().any(|(_, r)| route_matches(r, &segs)) {
@@ -737,16 +793,35 @@ fn link(target: &Expr, span: Span, cx: &mut Ctx) {
                 .min()
                 .map(|(_, p)| p.clone())
                 .unwrap_or_default();
-            cx.out.push(
-                Diagnostic::coded(
-                    "R01",
-                    format!("`{shown}` is not a route: no page's `path` matches it"),
-                    &cx.file,
-                    line,
-                    col,
-                )
-                .with_hint(format!("The nearest is `{nearest}`")),
-            );
+            let mut d = Diagnostic::coded(
+                "R01",
+                format!("`{shown}` is not a route: no page's `path` matches it"),
+                &cx.file,
+                line,
+                col,
+            )
+            .with_hint(format!("The nearest is `{nearest}`"));
+            // A link written out in full, to a route that is a slip away
+            // and is itself an address: the fix is certain.
+            let literal = segs.iter().all(|s| matches!(s, LinkSeg::Lit(_)));
+            let routes: Vec<&str> = cx
+                .routes
+                .iter()
+                .map(|(p, _)| p.as_str())
+                .filter(|p| !p.contains(':') && !p.contains('*'))
+                .collect();
+            if literal
+                && let Some(near) = crate::diagnostics::fixes::nearest(&shown, routes.iter().copied())
+            {
+                d = d.with_plan(
+                    format!("Change to `{near}`"),
+                    crate::diagnostics::fixes::Plan::Rename {
+                        from: format!("\"{shown}\""),
+                        to: format!("\"{near}\""),
+                    },
+                );
+            }
+            cx.out.push(d);
         }
     }
 }

@@ -17,7 +17,7 @@ use tower_lsp::lsp_types::*;
 use tower_lsp::{Client, LanguageServer};
 use webfluent::parser::Program;
 
-use crate::code_actions::{extract_component_action, provide_code_actions};
+use crate::code_actions::{extract_component_action, fix_all_actions, provide_code_actions};
 use crate::completion::provide_completions;
 use crate::definition::find_definition;
 use crate::diagnostics::project_diagnostics;
@@ -40,6 +40,9 @@ pub struct Backend {
     hierarchical_symbols: AtomicBool,
     /// Whether the client lets the server ask to hear of file changes.
     watch_files: AtomicBool,
+    /// What was last published for each open file: a family's other
+    /// findings, for "fix all of these in this file".
+    published: DashMap<Url, Vec<Diagnostic>>,
 }
 
 impl Backend {
@@ -50,6 +53,7 @@ impl Backend {
             cache: FileCache::default(),
             hierarchical_symbols: AtomicBool::new(true),
             watch_files: AtomicBool::new(false),
+            published: DashMap::new(),
         }
     }
 
@@ -110,6 +114,7 @@ impl Backend {
         let per_file = project_diagnostics(project);
         for (file, diagnostics) in project.files.iter().zip(per_file) {
             if file.open {
+                self.published.insert(file.uri.clone(), diagnostics.clone());
                 self.client
                     .publish_diagnostics(file.uri.clone(), diagnostics, None)
                     .await;
@@ -442,6 +447,9 @@ impl LanguageServer for Backend {
     async fn code_action(&self, params: CodeActionParams) -> Result<Option<CodeActionResponse>> {
         let uri = params.text_document.uri.clone();
         let mut actions = provide_code_actions(&uri, params.clone());
+        if let Some(all) = self.published.get(&uri) {
+            actions.extend(fix_all_actions(&uri, &params.context.diagnostics, &all));
+        }
         if let Some((project, ix)) = self.locate(&uri) {
             actions.extend(extract_component_action(&project, ix, params.range));
         }

@@ -22,6 +22,7 @@ told otherwise, and exits non-zero on failure, so each is a CI step as it is.
 | `wf init NAME [-t, --template spa\|static\|pdf\|slides]` | Creates a project from a template |
 | `wf build [-d, --dir DIR] [--stats] [--format FORMAT] [--deny-warnings] [--cache]` | Compiles the project; fails on errors, prints warnings |
 | `wf check [-d, --dir DIR] [--format FORMAT] [--deny-warnings]` | Every finding a build would report, with nothing written |
+| `wf fix [-d, --dir DIR] [--code CODE] [--dry-run]` | Fixes every finding that has a fix, or every one of a code |
 | `wf explain [CODE]` | What a diagnostic code means, a program that draws it, and the fix |
 | `wf serve [-d, --dir DIR]` | Builds, serves on `dev.port`, rebuilds and reloads on every save |
 | `wf test [PATH] [--update]` | Runs the project's `test` declarations |
@@ -152,6 +153,22 @@ pre-commit hook. It takes `--format` and `--deny-warnings` as `wf build`
 does, exits `1` on a finding that stops a build and `0` otherwise, and says
 `No problems in NAME.` when there are none. What only the output can show —
 the security policy read back over the written pages — is the build's.
+
+### `wf fix`
+
+```bash
+wf fix
+wf fix --code V07
+wf fix --dry-run
+```
+
+Fixes every finding that has a fix, by the fix an editor offers first —
+or, with `--code`, every finding of one code — and writes the files. A fix
+that would overlap another is taken on a second look, as is one that the
+first fixes make way for, until nothing more changes. It then says what is
+left: findings with no certain fix, which a person decides (`wf check`
+lists them). `--dry-run` writes nothing and names the files that would
+change.
 
 ### `wf explain`
 

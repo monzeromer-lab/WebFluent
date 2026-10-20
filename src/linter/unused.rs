@@ -121,13 +121,19 @@ pub fn lint_unused_in(
         match decl {
             Declaration::Component(c) => {
                 if !placed.contains(&c.name) && !c.name.starts_with('_') {
-                    out.push(warn(
-                        "U03",
-                        format!("`{}` is declared but never placed", c.name),
-                        &file,
-                        c.header_span,
-                        "Place it in a page, name it as a layout, or remove it",
-                    ));
+                    out.push(
+                        warn(
+                            "U03",
+                            format!("`{}` is declared but never placed", c.name),
+                            &file,
+                            c.header_span,
+                            "Place it in a page, name it as a layout, or remove it",
+                        )
+                        .with_plan(
+                            format!("Remove `{}`", c.name),
+                            crate::diagnostics::fixes::Plan::RemoveStatement,
+                        ),
+                    );
                 }
                 local_unused(&c.body, &[], &file, &mut out);
             }
@@ -160,6 +166,7 @@ pub fn lint_unused_in(
                                 s.name
                             ),
                         )
+                        .with_plan(format!("Remove `{}.{name}`", s.name), crate::diagnostics::fixes::Plan::RemoveStatement)
                         .with_plan(format!("Rename to `_{name}`"), keep(name)),
                     );
                 }
@@ -215,6 +222,10 @@ fn local_unused(body: &[Statement], header: &[&Expr], file: &str, out: &mut Vec<
                 file,
                 stmt.span,
                 &format!("Nothing reads the {what}; remove it, or name it `_{name}` to keep it"),
+            )
+            .with_plan(
+                format!("Remove `{name}`"),
+                crate::diagnostics::fixes::Plan::RemoveStatement,
             )
             .with_plan(format!("Rename to `_{name}`"), keep(name)),
         );

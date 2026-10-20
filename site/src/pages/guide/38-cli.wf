@@ -27,6 +27,10 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                     Table.Cell("Every finding a build would report, with nothing written")
                 }
                 Table.Row {
+                    Table.Cell { Markdown("`wf fix [-d, --dir DIR] [--code CODE] [--dry-run]`") }
+                    Table.Cell("Fixes every finding that has a fix, or every one of a code")
+                }
+                Table.Row {
                     Table.Cell { Markdown("`wf explain [CODE]`") }
                     Table.Cell("What a diagnostic code means, a program that draws it, and the fix")
                 }
@@ -116,6 +120,16 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
             ])
 
         Markdown("Runs every check a build runs — the parser, the structure, the types, the lints, the config — and writes nothing, so it is fast enough for a pre-commit hook. It takes `--format` and `--deny-warnings` as `wf build` does, exits `1` on a finding that stops a build and `0` otherwise, and says `No problems in NAME.` when there are none. What only the output can show — the security policy read back over the written pages — is the build's.")
+
+        Heading("wf fix", id: "wf-fix").h3
+
+        Terminal(lines: [
+                Line(command: "wf fix"),
+                Line(command: "wf fix --code V07"),
+                Line(command: "wf fix --dry-run")
+            ])
+
+        Markdown("Fixes every finding that has a fix, by the fix an editor offers first — or, with `--code`, every finding of one code — and writes the files. A fix that would overlap another is taken on a second look, as is one that the first fixes make way for, until nothing more changes. It then says what is left: findings with no certain fix, which a person decides (`wf check` lists them). `--dry-run` writes nothing and names the files that would change.")
 
         Heading("wf explain", id: "wf-explain").h3
 

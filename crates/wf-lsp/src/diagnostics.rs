@@ -193,6 +193,10 @@ fn fixes(finding: &WfDiagnostic, source: &str, index: &LineIndex) -> Option<serd
     let fixes: Vec<serde_json::Value> = finding
         .fixes
         .iter()
+        // A fix that edits another file — `_` marked on a component's
+        // declaration — is not this document's to apply; offering it here
+        // would apply its edits to the wrong text. `wf fix` applies it.
+        .filter(|fix| fix.edits.iter().all(|e| e.file == finding.file))
         .map(|fix| {
             let edits: Vec<TextEdit> = fix
                 .edits

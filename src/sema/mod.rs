@@ -30,6 +30,9 @@ pub struct Findings {
 /// The declared vocabulary of a program: its components, enums and types.
 struct Decls<'a> {
     components: HashMap<&'a str, &'a ComponentDecl>,
+    /// The file each component is declared in, for a fix that edits its
+    /// declaration.
+    component_files: HashMap<&'a str, String>,
     enums: HashMap<&'a str, &'a EnumDecl>,
     /// The animations the program declares: cases `animate:` and `exit:`
     /// take beside the built-in ones.
@@ -37,14 +40,16 @@ struct Decls<'a> {
 }
 
 impl<'a> Decls<'a> {
-    fn of(program: &'a Program) -> Self {
+    fn of(program: &'a Program, file_of: &dyn Fn(usize) -> String) -> Self {
         let mut components = HashMap::new();
+        let mut component_files = HashMap::new();
         let mut enums = HashMap::new();
         let mut animations = Vec::new();
-        for decl in &program.declarations {
+        for (index, decl) in program.declarations.iter().enumerate() {
             match decl {
                 Declaration::Component(c) => {
                     components.insert(c.name.as_str(), c);
+                    component_files.insert(c.name.as_str(), file_of(index));
                 }
                 Declaration::Enum(e) => {
                     enums.insert(e.name.as_str(), e);
@@ -55,6 +60,7 @@ impl<'a> Decls<'a> {
         }
         Self {
             components,
+            component_files,
             enums,
             animations,
         }
@@ -74,7 +80,7 @@ impl<'a> Decls<'a> {
 
 /// Every element, prop, flag, event, slot and part that does not resolve.
 pub fn check(program: &Program, file_of: &dyn Fn(usize) -> String) -> Findings {
-    let decls = Decls::of(program);
+    let decls = Decls::of(program, file_of);
     let mut findings = Findings::default();
     for (index, decl) in program.declarations.iter().enumerate() {
         let file = file_of(index);
@@ -153,6 +159,28 @@ impl Checker<'_, '_> {
         } else {
             d.with_hint(hint)
         });
+    }
+
+    /// A fix for the warning just reported.
+    fn plan_last_warning(&mut self, title: String, plan: crate::diagnostics::fixes::Plan) {
+        if let Some(d) = self.findings.warnings.pop() {
+            self.findings.warnings.push(d.with_plan(title, plan));
+        }
+    }
+
+    /// The nearest of `known` to `wrong`, as a rename fixing the warning
+    /// just reported.
+    fn plan_nearest(&mut self, wrong: &str, known: &[&str]) {
+        if let Some(near) = crate::diagnostics::fixes::nearest(wrong, known.iter().copied()) {
+            let near = near.to_string();
+            self.plan_last_warning(
+                format!("Change to `{near}`"),
+                crate::diagnostics::fixes::Plan::Rename {
+                    from: wrong.to_string(),
+                    to: near,
+                },
+            );
+        }
     }
 
     fn warning(&mut self, span: Span, code: &'static str, message: String, hint: &str) {
@@ -467,6 +495,7 @@ impl Checker<'_, '_> {
                     format!("`{icon}` is not an icon the runtime draws; it will show as the word"),
                     &format!("The icons: {}", registry::ICONS.join(", ")),
                 );
+                self.plan_nearest(icon, registry::ICONS);
             }
             match arg {
                 Arg::Positional(_) => {
@@ -480,6 +509,22 @@ impl Checker<'_, '_> {
                             format!("{name} takes no positional argument"),
                             "Name it: the registry lists the props it takes",
                         );
+                        // Named for it only when the registry leaves one
+                        // choice: the one text prop of its own.
+                        let text_props: Vec<&str> = sig
+                            .props
+                            .iter()
+                            .filter(|p| matches!(p.ty, PropType::Str))
+                            .map(|p| p.name)
+                            .collect();
+                        if let [only] = text_props.as_slice() {
+                            self.plan_last_warning(
+                                format!("Name it `{only}:`"),
+                                crate::diagnostics::fixes::Plan::Insert {
+                                    text: format!("{only}: "),
+                                },
+                            );
+                        }
                     }
                 }
                 Arg::Named(key, value) => {
@@ -524,6 +569,8 @@ impl Checker<'_, '_> {
                                 format!("{name} has no prop `{key}`; it is written to the element as an attribute"),
                                 "A typo here does nothing on screen; check the component's props",
                             );
+                            let known: Vec<&str> = sig.all_props().map(|p| p.name).collect();
+                            self.plan_nearest(key, &known);
                         }
                         continue;
                     };
@@ -642,6 +689,12 @@ impl Checker<'_, '_> {
                     format!("`{}` is not an event {name} fires", handler.event),
                     "A handler names a DOM event (`click`, `input`, `change`, `submit`, `keydown`, `pointerdown`, `scroll`, …) or an event the element declares",
                 );
+                let known: Vec<&str> = registry::UNIVERSAL_EVENTS
+                    .iter()
+                    .map(|(e, _)| *e)
+                    .chain(sig.events.iter().copied())
+                    .collect();
+                self.plan_nearest(&handler.event, &known);
             }
         }
         for fill in &el.slot_fills {
@@ -750,6 +803,16 @@ impl Checker<'_, '_> {
                                 decl.props[0].name
                             ),
                         );
+                        if let Some(file) = self.decls.component_files.get(name.as_str()) {
+                            self.plan_last_warning(
+                                format!("Mark `{}` positional in `{name}`", decl.props[0].name),
+                                crate::diagnostics::fixes::Plan::InsertIn {
+                                    file: file.clone(),
+                                    at: decl.props[0].span.start as usize,
+                                    text: "_ ".to_string(),
+                                },
+                            );
+                        }
                     }
                 }
                 Arg::Named(key, value) => {
@@ -766,6 +829,9 @@ impl Checker<'_, '_> {
                                 format!("`{name}` declares no prop `{key}`"),
                                 "It is passed anyway, but nothing in the component reads it",
                             );
+                            let known: Vec<&str> =
+                                decl.props.iter().map(|p| p.name.as_str()).collect();
+                            self.plan_nearest(key, &known);
                         }
                         continue;
                     };
@@ -877,7 +943,7 @@ impl Checker<'_, '_> {
 /// The program with every new-grammar form rewritten into the vocabulary
 /// the code generators read.
 pub fn lower(mut program: Program) -> Program {
-    let owned = Decls::of(&program);
+    let owned = Decls::of(&program, &|_| String::new());
     // The lowering needs the declarations while it mutates bodies; take the
     // pieces it reads out first.
     let user: HashMap<String, UserSig> = owned

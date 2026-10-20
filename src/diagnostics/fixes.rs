@@ -25,6 +25,40 @@ pub enum Plan {
     /// Arms for the cases a `match` at or after the finding leaves out,
     /// before its closing brace, one a line.
     AddArms { arms: Vec<String> },
+    /// The bytes `start..end` of the finding's file — a span the finder
+    /// holds — become `text`.
+    Replace {
+        start: usize,
+        end: usize,
+        text: String,
+    },
+    /// `text` goes in at the finding's start — `await ` before a call.
+    Insert { text: String },
+    /// `text` goes in just before the first `anchor` at or after the
+    /// finding on its line — ` by t.id` before a `for`'s `{`.
+    InsertBefore { anchor: String, text: String },
+    /// The statement that starts on the finding's line goes, with its
+    /// block, its brackets and its line: an unused state, a dead line.
+    RemoveStatement,
+    /// `text` becomes the last line inside the block whose `{` is the first
+    /// at or after the finding, one level in — a `Router` in an `app`, a
+    /// `migrate` in a `persist` block.
+    InsertInBlock { text: String },
+    /// [`InsertInBlock`](Plan::InsertInBlock) for the block whose closing
+    /// `}` is at byte `close` — a finder that knows the statement's end
+    /// says which block it means, so a `{` in a value before it is never
+    /// mistaken for it.
+    InsertInBlockClosingAt { close: usize, text: String },
+    /// Every one of these, as one fix: a version raised and the step that
+    /// brings the old one forward.
+    All(Vec<Plan>),
+    /// An edit in another file, or another place of this one, the finder
+    /// knows by its byte offset: `text` goes in at `at` of `file`.
+    InsertIn {
+        file: String,
+        at: usize,
+        text: String,
+    },
 }
 
 /// A plan and the words an editor shows for it.
@@ -44,19 +78,112 @@ impl Diagnostic {
         });
         self
     }
+
+    /// The fix, when there is one.
+    pub fn with_plans(self, plan: Option<(String, Plan)>) -> Self {
+        match plan {
+            Some((title, plan)) => self.with_plan(title, plan),
+            None => self,
+        }
+    }
 }
 
 /// Turn every plan of `d` into a fix against `source`, the text of `d.file`.
 pub fn realise(d: &mut Diagnostic, source: &str) {
+    let file = d.file.clone();
+    let own = source.to_string();
+    realise_with(d, &|f: &str| (f == file).then(|| own.clone()));
+}
+
+/// Turn every plan of `d` into a fix, reading each file a plan edits
+/// through `text_of`. A plan whose file cannot be read, or whose text does
+/// not fit it, yields no fix.
+pub fn realise_with(d: &mut Diagnostic, text_of: &dyn Fn(&str) -> Option<String>) {
     let plans = std::mem::take(&mut d.plans);
+    let Some(source) = text_of(&d.file) else {
+        return;
+    };
     for planned in plans {
-        if let Some(edits) = edits(d, source, &planned.plan) {
+        let edits = match &planned.plan {
+            Plan::InsertIn { file, at, text } => text_of(file).and_then(|other| {
+                (*at <= other.len() && other.is_char_boundary(*at)).then(|| {
+                    let (line, column) = place(&other, *at);
+                    vec![Edit {
+                        file: file.clone(),
+                        line,
+                        column,
+                        end_line: line,
+                        end_column: column,
+                        text: text.clone(),
+                    }]
+                })
+            }),
+            Plan::All(plans) => plans
+                .iter()
+                .map(|p| edits(d, &source, p))
+                .collect::<Option<Vec<_>>>()
+                .map(|all| all.concat()),
+            plan => edits(d, &source, plan),
+        };
+        if let Some(edits) = edits {
             d.fixes.push(Fix {
                 title: planned.title,
                 edits,
             });
         }
     }
+}
+
+/// The first fix of each of `diagnostics`, merged into one set of edits:
+/// a fix that would overlap one already taken is left out whole, for the
+/// next round. Returns the edits, in order, and the findings they fix.
+pub fn merge<'a>(
+    diagnostics: impl IntoIterator<Item = &'a Diagnostic>,
+) -> (Vec<Edit>, Vec<&'a Diagnostic>) {
+    let mut taken: Vec<Edit> = Vec::new();
+    let mut fixed = Vec::new();
+    let overlaps = |a: &Edit, b: &Edit| {
+        a.file == b.file
+            && ((a.line, a.column) == (b.line, b.column)
+                || ((a.line, a.column) < (b.end_line, b.end_column)
+                    && (b.line, b.column) < (a.end_line, a.end_column)))
+    };
+    for d in diagnostics {
+        let Some(fix) = d.fixes.first() else {
+            continue;
+        };
+        if fix
+            .edits
+            .iter()
+            .any(|e| taken.iter().any(|t| overlaps(e, t)))
+        {
+            continue;
+        }
+        taken.extend(fix.edits.iter().cloned());
+        fixed.push(d);
+    }
+    taken.sort_by_key(|e| (e.file.clone(), e.line, e.column));
+    (taken, fixed)
+}
+
+/// Every finding of `code` in `file` fixed at once, as one change set: the
+/// first fix of each, its edits merged, a fix that would overlap one
+/// already taken left out whole. `None` when there is nothing to fix.
+pub fn fix_all(diagnostics: &[Diagnostic], code: &str, file: &str) -> Option<Fix> {
+    let (taken, fixed) = merge(
+        diagnostics
+            .iter()
+            .filter(|d| d.code == code && d.file == file),
+    );
+    let count = fixed.len();
+    if count == 0 {
+        return None;
+    }
+    let short = file.rsplit('/').next().unwrap_or(file);
+    Some(Fix {
+        title: format!("Fix all {count} {code} in {short}"),
+        edits: taken,
+    })
 }
 
 /// The nearest of `candidates` to `word` — close enough to be a slip of the
@@ -298,6 +425,89 @@ fn edits(d: &Diagnostic, source: &str, plan: &Plan) -> Option<Vec<Edit>> {
             }
             Some(out)
         }
+        Plan::Replace { start, end, text } => {
+            if *end > source.len()
+                || start > end
+                || !source.is_char_boundary(*start)
+                || !source.is_char_boundary(*end)
+            {
+                return None;
+            }
+            Some(vec![edit(d, source, *start, *end, text.clone())])
+        }
+        Plan::Insert { text } => Some(vec![edit(d, source, start, start, text.clone())]),
+        Plan::InsertBefore { anchor, text } => {
+            let line_end = source[start..]
+                .find('\n')
+                .map_or(source.len(), |n| start + n);
+            let at = start + source[start..line_end].find(anchor.as_str())?;
+            // ` by t.id ` before `{`: no double space where one was.
+            let trimmed = source[..at].trim_end_matches(' ').len();
+            Some(vec![edit(d, source, trimmed, at, format!("{text} "))])
+        }
+        Plan::RemoveStatement => {
+            let line_start = source[..start].rfind('\n').map_or(0, |n| n + 1);
+            // Only a statement that is the whole of its line: whatever is
+            // before the finding is its keyword, never another statement.
+            let before = &source[line_start..start];
+            if before.contains(['{', '}', '(', ')', ';', '"', '=']) {
+                return None;
+            }
+            let mut i = start;
+            let bytes = source.as_bytes();
+            while i < bytes.len() && bytes[i] != b'\n' {
+                match bytes[i] {
+                    b'(' | b'{' | b'[' => i = matching(source, i)?,
+                    b'"' => {
+                        i += 1;
+                        while i < bytes.len() && bytes[i] != b'"' {
+                            if bytes[i] == b'\\' {
+                                i += 1;
+                            }
+                            i += 1;
+                        }
+                        i += 1;
+                    }
+                    b'/' if bytes.get(i + 1) == Some(&b'/') => {
+                        while i < bytes.len() && bytes[i] != b'\n' {
+                            i += 1;
+                        }
+                    }
+                    b'}' | b')' | b']' => return None,
+                    _ => i += 1,
+                }
+            }
+            let end = if i < bytes.len() { i + 1 } else { i };
+            // Its `///` doc comment goes with it: left, it would document
+            // whatever comes next.
+            let mut from = line_start;
+            while from > 0 {
+                let prev_start = source[..from - 1].rfind('\n').map_or(0, |n| n + 1);
+                if source[prev_start..from].trim_start().starts_with("///") {
+                    from = prev_start;
+                } else {
+                    break;
+                }
+            }
+            Some(vec![edit(d, source, from, end, "")])
+        }
+        Plan::InsertInBlockClosingAt { close, text } => {
+            if source.as_bytes().get(*close) != Some(&b'}') {
+                return None;
+            }
+            let open = opening(source, *close)?;
+            insert_in_block(d, source, open, text)
+        }
+        Plan::All(plans) => plans
+            .iter()
+            .map(|p| edits(d, source, p))
+            .collect::<Option<Vec<_>>>()
+            .map(|all| all.concat()),
+        Plan::InsertInBlock { text } => {
+            let open = start + source[start..(start + 4000).min(source.len())].find('{')?;
+            insert_in_block(d, source, open, text)
+        }
+        Plan::InsertIn { .. } => None,
         Plan::AddArms { arms } => {
             let at = find_word(source, start, "match", 400).unwrap_or(start);
             let open = at + source[at..].find('{')?;
@@ -325,6 +535,74 @@ fn edits(d: &Diagnostic, source: &str, plan: &Plan) -> Option<Vec<Edit>> {
             }
         }
     }
+}
+
+/// `text` as the last line(s) inside the block that opens at `open`, one
+/// level in from the line the `{` is on.
+fn insert_in_block(d: &Diagnostic, source: &str, open: usize, text: &str) -> Option<Vec<Edit>> {
+    let end = matching(source, open)?;
+    let close = end - 1;
+    let outer = indent_of(source, open).to_string();
+    let inner = format!("{outer}    ");
+    let line_start = source[..close].rfind('\n').map_or(0, |n| n + 1);
+    let lines: String = text
+        .lines()
+        .map(|l| {
+            if l.is_empty() {
+                "\n".to_string()
+            } else {
+                format!("{inner}{l}\n")
+            }
+        })
+        .collect();
+    if source[line_start..close].trim().is_empty() && line_start > open {
+        Some(vec![edit(d, source, line_start, line_start, lines)])
+    } else {
+        // `{ }` on one line: the block opens out onto lines.
+        let inside = source[open + 1..close].trim();
+        let mut body = String::new();
+        if !inside.is_empty() {
+            body.push_str(&format!("{inner}{inside}\n"));
+        }
+        body.push_str(&lines);
+        Some(vec![edit(
+            d,
+            source,
+            open + 1,
+            close,
+            format!("\n{body}{outer}"),
+        )])
+    }
+}
+
+/// The `{` matching the `}` at `close`, scanning back over strings.
+fn opening(source: &str, close: usize) -> Option<usize> {
+    let bytes = source.as_bytes();
+    let mut depth = 0usize;
+    let mut i = close + 1;
+    let mut in_string = false;
+    while i > 0 {
+        i -= 1;
+        let c = bytes[i];
+        if in_string {
+            if c == b'"' && (i == 0 || bytes[i - 1] != b'\\') {
+                in_string = false;
+            }
+            continue;
+        }
+        match c {
+            b'"' => in_string = true,
+            b'}' => depth += 1,
+            b'{' => {
+                depth -= 1;
+                if depth == 0 {
+                    return Some(i);
+                }
+            }
+            _ => {}
+        }
+    }
+    None
 }
 
 /// An argument list split at its top-level commas.
@@ -505,6 +783,161 @@ mod tests {
             },
         );
         assert_eq!(out, "derived n = match t { .a { 1 } .b { null } }\n");
+    }
+
+    #[test]
+    fn a_statement_goes_with_its_block_and_its_line() {
+        let src = "page P {\n    state unused = 1\n    Text(\"a\")\n}\n";
+        assert_eq!(
+            fixed(src, 2, 5, Plan::RemoveStatement),
+            "page P {\n    Text(\"a\")\n}\n"
+        );
+        let src =
+            "store S {\n    action old(x: Number) {\n        log(x)\n    }\n    state n = 0\n}\n";
+        assert_eq!(
+            fixed(src, 2, 5, Plan::RemoveStatement),
+            "store S {\n    state n = 0\n}\n"
+        );
+        // A list written over lines goes whole.
+        let src = "    state rows = [\n        1,\n        2,\n    ]\n    Text(\"x\")\n";
+        assert_eq!(fixed(src, 1, 5, Plan::RemoveStatement), "    Text(\"x\")\n");
+        // Its doc comment goes with it; a plain comment above is not its.
+        let src = "store S {\n    // the store's\n    /// What was asked.\n    /// Over two lines.\n    state q = \"\"\n    state n = 0\n}\n";
+        assert_eq!(
+            fixed(src, 5, 5, Plan::RemoveStatement),
+            "store S {\n    // the store's\n    state n = 0\n}\n"
+        );
+        // Not a statement of its own line: no fix rather than a wrong one.
+        let src = "    Row { state a = 1 }\n";
+        let mut d =
+            Diagnostic::coded("U01", "x", "a.wf", 1, 15).with_plan("fix", Plan::RemoveStatement);
+        realise(&mut d, src);
+        assert!(d.fixes.is_empty());
+    }
+
+    #[test]
+    fn a_line_goes_into_a_block_one_level_in() {
+        let src = "app {\n    Navbar { Text(\"x\") }\n}\n";
+        assert_eq!(
+            fixed(
+                src,
+                1,
+                1,
+                Plan::InsertInBlock {
+                    text: "Router".into()
+                }
+            ),
+            "app {\n    Navbar { Text(\"x\") }\n    Router\n}\n"
+        );
+        let src = "    persist n = 0 { version: 2 }\n";
+        assert_eq!(
+            fixed(
+                src,
+                1,
+                5,
+                Plan::InsertInBlock {
+                    text: "migrate 1 -> 2 { old }".into()
+                }
+            ),
+            "    persist n = 0 {\n        version: 2\n        migrate 1 -> 2 { old }\n    }\n"
+        );
+    }
+
+    #[test]
+    fn text_goes_in_at_the_finding_or_before_an_anchor() {
+        assert_eq!(
+            fixed(
+                "    x = load()\n",
+                1,
+                9,
+                Plan::Insert {
+                    text: "await ".into()
+                }
+            ),
+            "    x = await load()\n"
+        );
+        assert_eq!(
+            fixed(
+                "    for t in rows {\n",
+                1,
+                5,
+                Plan::InsertBefore {
+                    anchor: "{".into(),
+                    text: " by t.id".into()
+                }
+            ),
+            "    for t in rows by t.id {\n"
+        );
+        assert_eq!(
+            fixed(
+                "    Text(n)\n",
+                1,
+                10,
+                Plan::Replace {
+                    start: 9,
+                    end: 10,
+                    text: "\"{n}\"".into()
+                }
+            ),
+            "    Text(\"{n}\")\n"
+        );
+    }
+
+    #[test]
+    fn an_edit_may_be_in_another_file() {
+        let mut d = Diagnostic::coded("C06", "x", "page.wf", 1, 1).with_plan(
+            "mark it",
+            Plan::InsertIn {
+                file: "panel.wf".into(),
+                at: 16,
+                text: "_ ".into(),
+            },
+        );
+        let panel = "component Panel(title: String) {}\n".to_string();
+        realise_with(&mut d, &|f| match f {
+            "page.wf" => Some("Panel(\"x\")\n".to_string()),
+            "panel.wf" => Some(panel.clone()),
+            _ => None,
+        });
+        assert_eq!(d.fixes.len(), 1);
+        assert_eq!(d.fixes[0].edits[0].file, "panel.wf");
+        assert_eq!(
+            apply(&panel, &d.fixes[0]),
+            "component Panel(_ title: String) {}\n"
+        );
+    }
+
+    #[test]
+    fn a_family_fixed_at_once_is_one_change_set() {
+        let src = "Text(\"a\", center)\nText(\"b\", center)\nText(\"c\")\n";
+        let mut found = Vec::new();
+        for line in [1, 2] {
+            let mut d = Diagnostic::coded("V01", "x", "a.wf", line, 11).with_plan(
+                "flag",
+                Plan::Flag {
+                    word: "center".into(),
+                    flag: "center".into(),
+                },
+            );
+            realise(&mut d, src);
+            found.push(d);
+        }
+        // Another file's and another code's are not this family in this file.
+        found.push(Diagnostic::coded("V01", "x", "b.wf", 1, 1));
+        found.push(Diagnostic::coded("U01", "x", "a.wf", 1, 1));
+        let all = fix_all(&found, "V01", "a.wf").expect("a change set");
+        assert_eq!(all.title, "Fix all 2 V01 in a.wf");
+        assert_eq!(
+            apply(src, &all),
+            "Text(\"a\").center\nText(\"b\").center\nText(\"c\")\n"
+        );
+        assert!(fix_all(&found, "T05", "a.wf").is_none());
+        // Two fixes of one place: the second is left out, not merged into it.
+        let twice = vec![found[0].clone(), found[0].clone()];
+        assert_eq!(
+            fix_all(&twice, "V01", "a.wf").unwrap().title,
+            "Fix all 1 V01 in a.wf"
+        );
     }
 
     #[test]

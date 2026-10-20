@@ -1070,6 +1070,8 @@ impl<'a, 'p> Checker<'a, 'p> {
                         .join(", ")
                 ),
             );
+            let cases = decl.case_names();
+            self.plan_nearest_case(case, &cases);
             return;
         }
         if given.assignable_to(wanted) {
@@ -1246,6 +1248,10 @@ impl<'a, 'p> Checker<'a, 'p> {
                 "U06",
                 "this never runs: the `return` above leaves first".to_string(),
                 "Remove it, or move it above the `return`",
+            );
+            self.plan_last_warning(
+                "Remove what never runs".to_string(),
+                crate::diagnostics::fixes::Plan::RemoveStatement,
             );
         }
         for stmt in stmts {
@@ -1812,6 +1818,12 @@ impl<'a, 'p> Checker<'a, 'p> {
                         ),
                         "Add `error(e) { Alert(e.message).danger }`, or `else { … }`",
                     );
+                    self.plan_last_warning(
+                        "Add an `error` arm".to_string(),
+                        crate::diagnostics::fixes::Plan::AddArms {
+                            arms: vec!["error(e) { Alert(e.message).danger }".to_string()],
+                        },
+                    );
                 }
             }
             _ => {}
@@ -1851,15 +1863,18 @@ impl<'a, 'p> Checker<'a, 'p> {
                     .unwrap_or_default();
                 for arm in &m.arms {
                     match &arm.pattern {
-                        ArmPattern::Case(case) if !cases.contains(case) => self.error(
-                            arm.span,
-                            "T02",
-                            format!("`{name}` has no case `.{case}`"),
-                            &format!(
-                                "`{name}` takes {}",
-                                cases.iter().map(|c| format!(".{c}")).collect::<Vec<_>>().join(", ")
-                            ),
-                        ),
+                        ArmPattern::Case(case) if !cases.contains(case) => {
+                            self.error(
+                                arm.span,
+                                "T02",
+                                format!("`{name}` has no case `.{case}`"),
+                                &format!(
+                                    "`{name}` takes {}",
+                                    cases.iter().map(|c| format!(".{c}")).collect::<Vec<_>>().join(", ")
+                                ),
+                            );
+                            self.plan_nearest_case(case, &cases);
+                        }
                         // `.failed(r)` binds the payload, one name per part.
                         ArmPattern::Case(case) => {
                             let fields = self.payload_of(name, case).unwrap_or_default();
@@ -1938,6 +1953,13 @@ impl<'a, 'p> Checker<'a, 'p> {
                             format!("a request cannot fail with `.{case}`"),
                             "It fails with `.offline`, `.timeout`, `.aborted`, `.parse`, `.network` or `.status(code, body)`",
                         );
+                        let ways: Vec<String> = [
+                            "offline", "timeout", "aborted", "parse", "network", "status",
+                        ]
+                        .iter()
+                        .map(|w| w.to_string())
+                        .collect();
+                        self.plan_nearest_case(case, &ways);
                     }
                     if let Some(name) = &arm.binding {
                         let bound = match &arm.pattern {
@@ -2258,6 +2280,14 @@ impl<'a, 'p> Checker<'a, 'p> {
                             prop.name,
                             expr_text(&prop.value)
                         ),
+                    );
+                    let spliced = format!("{{{}}}", expr_text(&prop.value));
+                    self.plan_last_warning(
+                        "Add `px`".to_string(),
+                        crate::diagnostics::fixes::Plan::Rename {
+                            from: spliced.clone(),
+                            to: format!("{spliced}px"),
+                        },
                     );
                 }
             }
@@ -3005,6 +3035,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                                     .join(", ")
                             ),
                         );
+                        self.plan_nearest_case(case, &cases);
                     } else if let Some(fields) = self.payload_of(&name, case)
                         && !fields.is_empty()
                     {
@@ -3061,6 +3092,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                                             .join(", ")
                                     ),
                                 );
+                                self.plan_nearest_case(case, &cases);
                             }
                         }
                     }
@@ -3409,6 +3441,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                 ),
                 "`await` it inside an action or a handler: `(await load()).field`",
             );
+            self.plan_await(base);
             return Type::Any;
         }
         match base_ty {
@@ -3699,6 +3732,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                                     .join(", ")
                             ),
                         );
+                        self.plan_nearest_case(case, &cases);
                     }
                     fields
                 }
@@ -3864,6 +3898,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                 ),
                 "`await` it inside an action or a handler",
             );
+            self.plan_await(obj);
             return Type::Any;
         }
         match &obj_ty {
@@ -4893,6 +4928,93 @@ impl<'a, 'p> Checker<'a, 'p> {
     fn error_at_current(&mut self, code: &'static str, message: String, hint: &str) {
         let span = self.located(self.current_span, &message);
         self.error(span, code, message, hint);
+    }
+
+    /// A fix for the warning just reported.
+    fn plan_last_warning(&mut self, title: String, plan: crate::diagnostics::fixes::Plan) {
+        if let Some(d) = self.info.findings.warnings.pop() {
+            self.info.findings.warnings.push(d.with_plan(title, plan));
+        }
+    }
+
+    /// The nearest of an enum's `cases` to `.case`, as a fix for the error
+    /// just reported.
+    fn plan_nearest_case(&mut self, case: &str, cases: &[String]) {
+        if let Some(near) =
+            crate::diagnostics::fixes::nearest(case, cases.iter().map(String::as_str))
+        {
+            let near = near.to_string();
+            self.plan_last(
+                format!("Change to `.{near}`"),
+                crate::diagnostics::fixes::Plan::Rename {
+                    from: format!(".{case}"),
+                    to: format!(".{near}"),
+                },
+            );
+        }
+    }
+
+    /// `(await x)` for a promise read as if it were its value — where an
+    /// `await` may be written; elsewhere it would be another T17.
+    fn plan_await(&mut self, promise: &Expr) {
+        if !self.async_ok {
+            return;
+        }
+        let Some(source) = self.source.as_deref() else {
+            return;
+        };
+        // The promise's own text in the statement: `expr_text` shortens a
+        // call's arguments, so the call is found by what comes before its
+        // `(` and taken to its matching `)`.
+        let shown = expr_text(promise);
+        let head = shown.split('(').next().unwrap_or(&shown).to_string();
+        let (from, to) = (
+            self.current_span.start as usize,
+            (self.current_span.end as usize).min(source.len()),
+        );
+        if head.is_empty()
+            || from >= to
+            || !source.is_char_boundary(from)
+            || !source.is_char_boundary(to)
+        {
+            return;
+        }
+        let Some(at) = source[from..to].find(&head).map(|i| from + i) else {
+            return;
+        };
+        let mut end = at + head.len();
+        if shown.contains('(') {
+            if source.as_bytes().get(end) != Some(&b'(') {
+                return;
+            }
+            let mut depth = 0usize;
+            let mut i = end;
+            let bytes = source.as_bytes();
+            loop {
+                match bytes.get(i) {
+                    Some(b'(') => depth += 1,
+                    Some(b')') => {
+                        depth -= 1;
+                        if depth == 0 {
+                            break;
+                        }
+                    }
+                    Some(_) => {}
+                    None => return,
+                }
+                i += 1;
+            }
+            end = i + 1;
+        }
+        let text = format!("(await {})", &source[at..end]);
+        self.plan_last(
+            "Await it".to_string(),
+            crate::diagnostics::fixes::Plan::Replace {
+                start: at,
+                end,
+                text,
+            },
+        );
     }
 
     /// A fix for the error just reported.

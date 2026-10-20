@@ -40,14 +40,42 @@ a tool ([Command line](38-cli.md#wf-check)), and `wf explain T05` prints a
 code's entry below in the terminal.
 
 **Fixes.** Where the compiler knows the fix, it says so as edits, which
-your editor offers as a quick fix and `--format json` carries: the nearest
-name for a misspelled field, member, method, variable, component or flag
-(`T05`, `T06`, `T16`, `T13`, `E101`, `E103`), `?.` for a read of a value
-that may be null (`T04`), the missing props with a value of their type
-(`C01`), the missing arms of a `match` (`T15`), a bare word written as the
-flag it means (`V01`), `alt: ""` for an image (`A01`), `derived` for a
-state that copies a live value nothing changes (`X06`), and an `_` before
-a name nothing reads (`U01`–`U05`).
+your editor offers as a quick fix, `--format json` carries, and
+[`wf fix`](38-cli.md#wf-fix) applies. A fix is offered only where it is
+certain; where it is not, the entry below says what to do instead. Each
+family has its decided fix:
+
+- **The nearest name**, wherever the code names a set: a field, member,
+  method, variable, component, case or flag (`T02`, `T05`, `T06`, `T13`,
+  `T16`, `E101`, `E103`), a prop (`C02`, `C04`), a route (`R01`, which also
+  writes a relative link from the root), a store (`X05`), a locale
+  (`I04`), a file of `public/` (`D01`), a CSS property or token (`V05`,
+  `V06`), an icon (`V08`) and an event (`V09`).
+- **What is missing, written in**: `?.` for a read that may be null
+  (`T04`), `(await …)` for a promise read as its value (`T17`), the missing
+  props (`C01`), the missing arms of a `match` (`T15`) and an `error` arm
+  (`T21`), a `Router` in an `app` with none (`R03`), `bind:` for a box
+  that shows a state and never changes it (`F04`), `px` for a bare number
+  where CSS wants a length (`V07`), `controls: true` (`A09`), and the
+  `migrate` step a version is missing (`P01`) — with the version raised in
+  the same change when a persisted shape changed (`D04`).
+- **A name, drafted from the code**: `alt: ""` for an image (`A01`); a
+  label from what a control binds or an icon is (`A02`–`A04`), a link's
+  from where it leads (`A06`), a dialog's title from what opens it
+  (`A08`); the level that mends the outline (`A11`); the visible text at
+  the start of an `aria-label` (`A15`). With nothing to draft from, there
+  is no fix — an empty name would silence the warning and name nothing.
+- **What is not used, removed** — a state, derived value, action, store
+  member or component (`U01`–`U05`), code after a `return` (`U06`), an
+  allow that allows nothing (`U07`) — with *rename to `_name`* as the
+  second fix, for what is kept on purpose; a loop keyed `by item.id` when
+  its body reads the item's `id` (`U09`).
+- `derived` for a state that copies a live value nothing changes (`X06`),
+  a positional argument named for the one prop it can be (`C05`), and the
+  prop marked `_` in the component's declaration (`C06`).
+
+A family's findings in one file are fixed at once as one change: the
+editor's *Fix all `V07` in this file*, or `wf fix --code V07`.
 
 **Allowing one finding.** A `// wf-allow(CODE)` comment accepts a finding
 on purpose: on a line of its own it covers the next line of code, at the

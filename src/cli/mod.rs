@@ -4,6 +4,7 @@ pub mod build;
 pub mod describe;
 pub mod docs;
 pub mod explain;
+pub mod fix;
 pub mod fmt;
 pub mod generate;
 pub mod init;

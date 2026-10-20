@@ -70,13 +70,37 @@ fn property(
     let name = crate::codegen::style_tokens::canonical_style_prop(&prop.name);
     // V05: a property no browser knows does nothing.
     if !known_property(&name) {
-        let near = CSS_PROPERTIES
+        // Compared as CSS spells it: `backgroundColr` is `background-colr`.
+        let kebab: String = name
+            .chars()
+            .flat_map(|c| {
+                if c.is_uppercase() {
+                    vec!['-', c.to_ascii_lowercase()]
+                } else {
+                    vec![c]
+                }
+            })
+            .collect();
+        let nearest = CSS_PROPERTIES
             .iter()
-            .map(|p| (levenshtein(&name, p), *p))
+            .map(|p| (levenshtein(&kebab, p), *p))
             .filter(|(d, _)| *d <= 2)
             .min()
-            .map(|(_, p)| format!("Did you mean `{p}`?"))
+            .map(|(_, p)| p);
+        let near = nearest
+            .map(|p| format!("Did you mean `{p}`?"))
             .unwrap_or_else(|| "A custom property is written `--name`".to_string());
+        // As CSS spells it — a style block's properties are CSS's.
+        let fix = nearest.map(|p| {
+            let to = p.to_string();
+            (
+                format!("Change to `{to}`"),
+                crate::diagnostics::fixes::Plan::Rename {
+                    from: prop.name.clone(),
+                    to,
+                },
+            )
+        });
         out.push(
             Diagnostic::coded(
                 "V05",
@@ -88,7 +112,8 @@ fn property(
                 line,
                 col,
             )
-            .with_hint(near),
+            .with_hint(near)
+            .with_plans(fix),
         );
     }
     // V06: a token the theme does not declare.
@@ -103,15 +128,27 @@ fn property(
         }
         let mut names: Vec<&String> = tokens.keys().collect();
         names.sort();
-        let near = names
+        let nearest = names
             .iter()
             .map(|n| (levenshtein(&token, n), *n))
             .filter(|(d, _)| *d <= 3)
             .min()
-            .map(|(_, n)| format!("Did you mean `${n}`?"))
+            .map(|(_, n)| n.clone());
+        let near = nearest
+            .as_ref()
+            .map(|n| format!("Did you mean `${n}`?"))
             .unwrap_or_else(|| {
                 "Declare it in your `theme { … }`, or use one the theme has".to_string()
             });
+        let fix = nearest.map(|n| {
+            (
+                format!("Change to `${n}`"),
+                crate::diagnostics::fixes::Plan::Rename {
+                    from: format!("${token}"),
+                    to: format!("${n}"),
+                },
+            )
+        });
         out.push(
             Diagnostic::coded(
                 "V06",
@@ -120,7 +157,8 @@ fn property(
                 line,
                 col,
             )
-            .with_hint(near),
+            .with_hint(near)
+            .with_plans(fix),
         );
     }
 }

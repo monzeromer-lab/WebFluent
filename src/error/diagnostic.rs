@@ -135,6 +135,14 @@ impl A11yWarning {
         }
     }
 
+    /// The fix, when there is one.
+    pub fn with_plans(self, plan: Option<(String, crate::diagnostics::fixes::Plan)>) -> Self {
+        match plan {
+            Some((title, plan)) => self.with_plan(title, plan),
+            None => self,
+        }
+    }
+
     /// A fix this warning offers ([`crate::diagnostics::fixes::Plan`]).
     pub fn with_plan(
         mut self,

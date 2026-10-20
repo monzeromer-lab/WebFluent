@@ -44,9 +44,133 @@ pub fn provide_code_actions(uri: &Url, params: CodeActionParams) -> Vec<CodeActi
     actions
 }
 
+/// The first fix a finding carries, as edits.
+fn first_fix(diag: &Diagnostic) -> Option<Vec<TextEdit>> {
+    let serde_json::Value::Array(fixes) = diag.data.as_ref()? else {
+        return None;
+    };
+    fixes
+        .first()?
+        .get("edits")
+        .and_then(|e| serde_json::from_value::<Vec<TextEdit>>(e.clone()).ok())
+        .filter(|e| !e.is_empty())
+}
+
+/// For each family of the findings in the request that has others in the
+/// file, one action that fixes them all: the first fix of each, as one
+/// edit, a fix that would overlap one taken before it left out.
+pub fn fix_all_actions(
+    uri: &Url,
+    requested: &[Diagnostic],
+    all: &[Diagnostic],
+) -> Vec<CodeActionOrCommand> {
+    let code_of = |d: &Diagnostic| match &d.code {
+        Some(NumberOrString::String(c)) => Some(c.clone()),
+        _ => None,
+    };
+    let mut seen = Vec::new();
+    let mut actions = Vec::new();
+    for diag in requested {
+        let Some(code) = code_of(diag) else {
+            continue;
+        };
+        if seen.contains(&code) || first_fix(diag).is_none() {
+            continue;
+        }
+        seen.push(code.clone());
+        let family: Vec<&Diagnostic> = all
+            .iter()
+            .filter(|d| code_of(d).as_deref() == Some(code.as_str()))
+            .collect();
+        let mut taken: Vec<TextEdit> = Vec::new();
+        let mut fixed = Vec::new();
+        for d in family {
+            let Some(edits) = first_fix(d) else {
+                continue;
+            };
+            let overlaps = edits.iter().any(|e| {
+                taken.iter().any(|t| {
+                    e.range.start == t.range.start
+                        || (e.range.start < t.range.end && t.range.start < e.range.end)
+                })
+            });
+            if overlaps {
+                continue;
+            }
+            taken.extend(edits);
+            fixed.push(d.clone());
+        }
+        if fixed.len() < 2 {
+            continue;
+        }
+        taken.sort_by_key(|e| (e.range.start.line, e.range.start.character));
+        let mut changes = HashMap::new();
+        changes.insert(uri.clone(), taken);
+        actions.push(CodeActionOrCommand::CodeAction(CodeAction {
+            title: format!("Fix all {} {code} in this file", fixed.len()),
+            kind: Some(CodeActionKind::QUICKFIX),
+            diagnostics: Some(fixed),
+            edit: Some(WorkspaceEdit {
+                changes: Some(changes),
+                document_changes: None,
+                change_annotations: None,
+            }),
+            is_preferred: Some(false),
+            disabled: None,
+            data: None,
+            command: None,
+        }));
+    }
+    actions
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn finding(code: &str, line: u32, text: &str) -> Diagnostic {
+        let edit = TextEdit {
+            range: Range::new(Position::new(line, 4), Position::new(line, 8)),
+            new_text: text.into(),
+        };
+        Diagnostic {
+            range: edit.range,
+            code: Some(NumberOrString::String(code.into())),
+            message: "x".into(),
+            data: Some(serde_json::json!([{ "title": "fix", "edits": [edit] }])),
+            ..Default::default()
+        }
+    }
+
+    #[test]
+    fn a_family_in_the_file_is_fixed_by_one_action() {
+        let uri = Url::parse("file:///p/src/App.wf").unwrap();
+        let all = vec![
+            finding("V01", 1, "a"),
+            finding("V01", 3, "b"),
+            finding("V01", 3, "again"),
+            finding("T05", 5, "c"),
+        ];
+        let actions = fix_all_actions(&uri, &all[..1], &all);
+        assert_eq!(actions.len(), 1, "one for V01; T05 was not asked about");
+        let CodeActionOrCommand::CodeAction(action) = &actions[0] else {
+            panic!("not an action");
+        };
+        assert_eq!(
+            action.title, "Fix all 2 V01 in this file",
+            "the overlapping one waits"
+        );
+        let edits = &action.edit.as_ref().unwrap().changes.as_ref().unwrap()[&uri];
+        assert_eq!(
+            edits
+                .iter()
+                .map(|e| e.new_text.as_str())
+                .collect::<Vec<_>>(),
+            ["a", "b"]
+        );
+        // One of a kind is its own quick fix, not a family.
+        assert!(fix_all_actions(&uri, &all[3..], &all).is_empty());
+    }
 
     #[test]
     fn a_fix_in_the_data_is_an_action() {

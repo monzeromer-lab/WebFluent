@@ -67,6 +67,20 @@ pub fn missing_assets(
     file_of: &dyn Fn(usize) -> String,
 ) -> Vec<Diagnostic> {
     let mut out = Vec::new();
+    // What `public/` has, as the site asks for it: `/img/hero.png`.
+    let mut have = Vec::new();
+    list_public(&dir.join("public"), "", &mut have);
+    let nearest_file = |path: &str| {
+        crate::diagnostics::fixes::nearest(path, have.iter().map(String::as_str)).map(|n| {
+            (
+                format!("Change to `{n}`"),
+                crate::diagnostics::fixes::Plan::Rename {
+                    from: path.to_string(),
+                    to: n.to_string(),
+                },
+            )
+        })
+    };
     for (index, body) in bodies(program) {
         let file = file_of(index);
         // `worker lang = spawn("/workers/lang.js")`: the script is a file of
@@ -99,7 +113,8 @@ pub fn missing_assets(
                         stmt.span.line.max(1) as usize,
                         stmt.span.col.max(1) as usize,
                     )
-                    .with_hint(format!("Put the worker at `public{path}`, or correct the path")),
+                    .with_hint(format!("Put the worker at `public{path}`, or correct the path"))
+                    .with_plans(nearest_file(path)),
                 );
             }
         });
@@ -131,13 +146,30 @@ pub fn missing_assets(
                             at.line.max(1) as usize,
                             at.col.max(1) as usize,
                         )
-                        .with_hint(format!("Put the file at `public{path}`, or correct the path")),
+                        .with_hint(format!("Put the file at `public{path}`, or correct the path"))
+                        .with_plans(nearest_file(path)),
                     );
                 }
             }
         });
     }
     out
+}
+
+/// Every file under `dir`, as `/<prefix>/<name>`.
+fn list_public(dir: &Path, prefix: &str, out: &mut Vec<String>) {
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return;
+    };
+    for entry in entries.flatten() {
+        let name = entry.file_name().to_string_lossy().to_string();
+        let path = entry.path();
+        if path.is_dir() {
+            list_public(&path, &format!("{prefix}/{name}"), out);
+        } else {
+            out.push(format!("{prefix}/{name}"));
+        }
+    }
 }
 
 fn walk_statements(stmts: &[Statement], f: &mut dyn FnMut(&Statement)) {
@@ -297,6 +329,11 @@ pub fn translations(
                 ("setLocale", Some(Expr::StringLiteral(locale)))
                     if !config.locales.contains(locale) =>
                 {
+                    let near = crate::diagnostics::fixes::nearest(
+                        locale,
+                        config.locales.iter().map(String::as_str),
+                    )
+                    .map(str::to_string);
                     out.push(
                         Diagnostic::coded(
                             "I04",
@@ -307,6 +344,15 @@ pub fn translations(
                             line,
                             col,
                         )
+                        .with_plans(near.map(|n| {
+                            (
+                                format!("Change to `{n}`"),
+                                crate::diagnostics::fixes::Plan::Rename {
+                                    from: format!("\"{locale}\""),
+                                    to: format!("\"{n}\""),
+                                },
+                            )
+                        }))
                         .with_hint(format!(
                             "The locales are {}; add it to `i18n.locales` with a `{locale}.json`",
                             config
@@ -527,6 +573,40 @@ pub fn persist_changes(
                 && old != new
                 && old_v == new_v
             {
+                // The version raised, and the step that brings the old one
+                // forward, as one change: a version with no way forward is
+                // P01's loss of data.
+                let from = (*new_v).max(1);
+                let to = from + 1;
+                let step = format!("migrate {from} -> {to} {{ old }}");
+                let raise = match st.policy.as_ref() {
+                    Some(policy) if policy.version.is_some() => {
+                        Some(crate::diagnostics::fixes::Plan::All(vec![
+                            crate::diagnostics::fixes::Plan::Rename {
+                                from: format!("version: {new_v}"),
+                                to: format!("version: {to}"),
+                            },
+                            crate::diagnostics::fixes::Plan::InsertInBlockClosingAt {
+                                close: (stmt.span.end as usize).saturating_sub(1),
+                                text: step.clone(),
+                            },
+                        ]))
+                    }
+                    Some(_) => Some(crate::diagnostics::fixes::Plan::InsertInBlockClosingAt {
+                        close: (stmt.span.end as usize).saturating_sub(1),
+                        text: format!("version: {to}\n{step}"),
+                    }),
+                    None => {
+                        let indent = " ".repeat(stmt.span.col.saturating_sub(1) as usize);
+                        Some(crate::diagnostics::fixes::Plan::InsertIn {
+                            file: file_of(index),
+                            at: stmt.span.end as usize,
+                            text: format!(
+                                " {{\n{indent}    version: {to}\n{indent}    {step}\n{indent}}}"
+                            ),
+                        })
+                    }
+                };
                 out.push(
                     Diagnostic::coded(
                         "D04",
@@ -540,7 +620,8 @@ pub fn persist_changes(
                         new_v + 1,
                         new_v,
                         new_v + 1
-                    )),
+                    ))
+                    .with_plans(raise.map(|p| (format!("Raise to version {to}, and bring {from} forward"), p))),
                 );
             }
         }
