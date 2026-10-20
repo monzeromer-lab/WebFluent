@@ -31,6 +31,10 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                     Table.Cell("Fixes every finding that has a fix, or every one of a code")
                 }
                 Table.Row {
+                    Table.Cell { Markdown("`wf config schema [--json]`, `wf config get|set|unset PATH [VALUE] [-d, --dir DIR]`") }
+                    Table.Cell { Markdown("Every setting, and an edit of `webfluent.app.json` that keeps its shape") }
+                }
+                Table.Row {
                     Table.Cell { Markdown("`wf explain [CODE]`") }
                     Table.Cell("What a diagnostic code means, a program that draws it, and the fix")
                 }
@@ -130,6 +134,19 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
             ])
 
         Markdown("Fixes every finding that has a fix, by the fix an editor offers first — or, with `--code`, every finding of one code — and writes the files. A fix that would overlap another is taken on a second look, as is one that the first fixes make way for, until nothing more changes. It then says what is left: findings with no certain fix, which a person decides (`wf check` lists them). `--dry-run` writes nothing and names the files that would change.")
+
+        Heading("wf config", id: "wf-config").h3
+
+        Terminal(lines: [
+                Line(command: "wf config schema"),
+                Line(command: "wf config schema --json"),
+                Line(command: "wf config get build.base_path"),
+                Line(command: "wf config set build.ssg true"),
+                Line(command: "wf config set meta.lang ar"),
+                Line(command: "wf config unset build.ssg")
+            ])
+
+        Markdown("`schema` is every setting of `webfluent.app.json`: its type, the values it takes, its default and one sentence ([Configuration](/docs/guide/config)); `--json` writes it for a tool. `get` says what the project sets at a dotted path, or the default. `set` writes a value — JSON (`true`, `3`, `[\"en\", \"ar\"]`), or a word as a string — held to the setting's type first, and `unset` removes one so its default applies; both keep the file as it was written apart from that value. Under a map, the rest of the path is one key: `build.budget.app.js`.")
 
         Heading("wf explain", id: "wf-explain").h3
 

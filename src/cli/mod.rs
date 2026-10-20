@@ -1,6 +1,7 @@
 pub mod act;
 pub mod audit;
 pub mod build;
+pub mod config;
 pub mod describe;
 pub mod docs;
 pub mod explain;

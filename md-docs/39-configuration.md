@@ -18,6 +18,21 @@ A key the build does not know is reported with a warning — and the key it
 most likely meant, so `"defaultLocale"` says to write `default_locale` —
 rather than silently ignored (**4.1**).
 
+`wf config schema` lists every setting with its type, its default and what
+it does (`--json` for a tool, which is what an editor's settings window is
+built from), and `wf config set`, `get` and `unset` change the file without
+reformatting it: a value is replaced in place, a new key goes at the end of
+its section in the section's own style, and a section an unset leaves
+empty goes with it. A value is held to its setting's type before anything
+is written:
+
+```bash
+wf config set build.base_path /Docs
+wf config set build.budget.app.js "40 kB"
+wf config get dev.port
+wf config unset build.base_path
+```
+
 ## The defaults
 
 This is what a config with only a name means. `i18n` and `offline` are

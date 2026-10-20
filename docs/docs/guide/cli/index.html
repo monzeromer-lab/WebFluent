@@ -333,6 +333,18 @@
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
+<p><code>wf config schema [--json]</code>, <code>wf config get|set|unset PATH [VALUE] [-d, --dir DIR]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Every setting, and an edit of <code>webfluent.app.json</code> that keeps its shape</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
 <p><code>wf explain [CODE]</code></p>
                                             </div>
                                         </td>
@@ -510,6 +522,19 @@
                             </div>
                             <div class="wf-markdown">
 <p>Fixes every finding that has a fix, by the fix an editor offers first — or, with <code>--code</code>, every finding of one code — and writes the files. A fix that would overlap another is taken on a second look, as is one that the first fixes make way for, until nothing more changes. It then says what is left: findings with no certain fix, which a person decides (<code>wf check</code> lists them). <code>--dry-run</code> writes nothing and names the files that would change.</p>
+                            </div>
+                            <h3 class="wf-heading" id="wf-config">wf config</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>schema</code> is every setting of <code>webfluent.app.json</code>: its type, the values it takes, its default and one sentence (<a href="/docs/guide/config">Configuration</a>); <code>--json</code> writes it for a tool. <code>get</code> says what the project sets at a dotted path, or the default. <code>set</code> writes a value — JSON (<code>true</code>, <code>3</code>, <code>[&quot;en&quot;, &quot;ar&quot;]</code>), or a word as a string — held to the setting's type first, and <code>unset</code> removes one so its default applies; both keep the file as it was written apart from that value. Under a map, the rest of the path is one key: <code>build.budget.app.js</code>.</p>
                             </div>
                             <h3 class="wf-heading" id="wf-explain">wf explain</h3>
                             <div class="wf-stack wf-sba64d8a9 code-block">

@@ -23,6 +23,7 @@ told otherwise, and exits non-zero on failure, so each is a CI step as it is.
 | `wf build [-d, --dir DIR] [--stats] [--format FORMAT] [--deny-warnings] [--cache]` | Compiles the project; fails on errors, prints warnings |
 | `wf check [-d, --dir DIR] [--format FORMAT] [--deny-warnings]` | Every finding a build would report, with nothing written |
 | `wf fix [-d, --dir DIR] [--code CODE] [--dry-run]` | Fixes every finding that has a fix, or every one of a code |
+| `wf config schema [--json]`, `wf config get\|set\|unset PATH [VALUE] [-d, --dir DIR]` | Every setting, and an edit of `webfluent.app.json` that keeps its shape |
 | `wf explain [CODE]` | What a diagnostic code means, a program that draws it, and the fix |
 | `wf serve [-d, --dir DIR]` | Builds, serves on `dev.port`, rebuilds and reloads on every save |
 | `wf test [PATH] [--update]` | Runs the project's `test` declarations |
@@ -169,6 +170,26 @@ first fixes make way for, until nothing more changes. It then says what is
 left: findings with no certain fix, which a person decides (`wf check`
 lists them). `--dry-run` writes nothing and names the files that would
 change.
+
+### `wf config`
+
+```bash
+wf config schema
+wf config schema --json
+wf config get build.base_path
+wf config set build.ssg true
+wf config set meta.lang ar
+wf config unset build.ssg
+```
+
+`schema` is every setting of `webfluent.app.json`: its type, the values it
+takes, its default and one sentence ([Configuration](39-configuration.md));
+`--json` writes it for a tool. `get` says what the project sets at a dotted
+path, or the default. `set` writes a value — JSON (`true`, `3`, `["en",
+"ar"]`), or a word as a string — held to the setting's type first, and
+`unset` removes one so its default applies; both keep the file as it was
+written apart from that value. Under a map, the rest of the path is one
+key: `build.budget.app.js`.
 
 ### `wf explain`
 

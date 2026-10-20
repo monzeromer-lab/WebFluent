@@ -91,6 +91,12 @@ enum Commands {
         #[arg(long)]
         deny_warnings: bool,
     },
+    /// Read and change `webfluent.app.json`: every setting, what the
+    /// project sets, and an edit that keeps the file's shape
+    Config {
+        #[command(subcommand)]
+        action: ConfigAction,
+    },
     /// Fix every finding that has a fix — or every one of a code — as
     /// `wf check` and the editor offer it, and say what is left
     Fix {
@@ -249,6 +255,37 @@ enum Commands {
     },
 }
 
+#[derive(clap::Subcommand)]
+enum ConfigAction {
+    /// Every setting: its type, its default and what it does
+    Schema {
+        /// As JSON, for a tool
+        #[arg(long)]
+        json: bool,
+    },
+    /// What the project sets at PATH, or the default
+    Get {
+        /// A dotted path: `build.base_path`, `build.budget.app.js`
+        path: String,
+        #[arg(short, long, default_value = ".")]
+        dir: PathBuf,
+    },
+    /// Set PATH to VALUE — JSON, or a word as a string — keeping the
+    /// file's shape
+    Set {
+        path: String,
+        value: String,
+        #[arg(short, long, default_value = ".")]
+        dir: PathBuf,
+    },
+    /// Remove PATH, so its default applies
+    Unset {
+        path: String,
+        #[arg(short, long, default_value = ".")]
+        dir: PathBuf,
+    },
+}
+
 fn main() {
     let cli = Cli::parse();
 
@@ -289,6 +326,14 @@ fn main() {
                 cache: false,
             },
         ),
+        Commands::Config { action } => match action {
+            ConfigAction::Schema { json } => cli::config::run_schema(json),
+            ConfigAction::Get { path, dir } => cli::config::run_get(&dir, &path),
+            ConfigAction::Set { path, value, dir } => {
+                cli::config::run_set(&dir, &path, Some(&value))
+            }
+            ConfigAction::Unset { path, dir } => cli::config::run_set(&dir, &path, None),
+        },
         Commands::Fix { dir, code, dry_run } => cli::fix::run_fix(&dir, code.as_deref(), dry_run),
         Commands::Explain { code } => cli::explain::run_explain(code.as_deref()),
         Commands::Serve { dir } => cli::serve::run_serve(&dir),
