@@ -19,7 +19,7 @@ Every component is written `Name(positional, prop: value).flag { block }`. A **p
 - **Form**: [`Input`](#input), [`Select`](#select), [`Checkbox`](#checkbox), [`Radio`](#radio), [`Switch`](#switch), [`Slider`](#slider), [`DatePicker`](#datepicker), [`FileUpload`](#fileupload), [`Form`](#form), [`Textarea`](#textarea)
 - **Feedback**: [`Alert`](#alert), [`Toast`](#toast), [`Modal`](#modal), [`Dialog`](#dialog), [`Spinner`](#spinner), [`Progress`](#progress), [`Skeleton`](#skeleton)
 - **Actions**: [`Button`](#button), [`IconButton`](#iconbutton), [`ButtonGroup`](#buttongroup), [`Dropdown`](#dropdown)
-- **Media**: [`Image`](#image), [`Video`](#video), [`Audio`](#audio), [`Icon`](#icon), [`Carousel`](#carousel)
+- **Media**: [`Image`](#image), [`Video`](#video), [`Audio`](#audio), [`Frame`](#frame), [`Icon`](#icon), [`Carousel`](#carousel)
 - **Typography**: [`Text`](#text), [`Heading`](#heading), [`Code`](#code), [`Markdown`](#markdown), [`Unsafe`](#unsafe), [`Blockquote`](#blockquote)
 - **Data Display**: [`Chart`](#chart), [`QrCode`](#qrcode)
 - **PDF**: [`TableOfContents`](#tableofcontents), [`Document`](#document), [`Section`](#section), [`Paragraph`](#paragraph), [`Header`](#header), [`Footer`](#footer), [`Background`](#background), [`Watermark`](#watermark), [`PageBreak`](#pagebreak)
@@ -1316,6 +1316,38 @@ Renders with the class `wf-audio`.
 | `transcript:` | `String` | A link to what was said, shown beneath the player |
 
 **Flags:** `.controls` `.autoplay` `.loop`
+
+Attribute families: `global`, `aria`, `data`.
+
+### Frame
+
+Another page, shown inside this one: an `iframe`. `on message(m)` hears what that page posts to this one (`m.data`), and nothing any other page posts. Without `title:` it draws an `A17` warning: a frame is announced by its title.
+
+```
+Frame(src: …, title: …, sandbox: …)
+```
+
+```wf
+Frame(src: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ", title: "The launch talk", allow: "fullscreen")
+state heard = ""
+Frame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") {
+    on message(m) { heard = m.data }
+}
+```
+
+Renders with the class `wf-frame`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `src:` | `String` | The address of the page it shows |
+| `title:` | `String` | What it shows, in a few words: its accessible name |
+| `sandbox:` | `String` | What the framed page may do: `"allow-scripts allow-forms"`; empty, it may do nothing |
+| `allow:` | `String` | The features it may use: `"fullscreen; clipboard-write"` |
+| `loading:` | `.lazy` `.eager` | Unset, at once |
+
+**Flags:** `.lazy` `.eager`
+
+**Events of its own:** `on message`, `on load`
 
 Attribute families: `global`, `aria`, `data`.
 

@@ -318,6 +318,15 @@ page Doc(path: "/") {
 
 // md-docs/37-components-reference.md
 page Doc(path: "/") {
+    Frame(src: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ", title: "The launch talk", allow: "fullscreen")
+    state heard = ""
+    Frame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") {
+        on message(m) { heard = m.data }
+    }
+}
+
+// md-docs/37-components-reference.md
+page Doc(path: "/") {
     Icon("search")
     Icon("check").lg.success
 }
