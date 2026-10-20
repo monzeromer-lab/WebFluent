@@ -124,3 +124,27 @@ test("a store's key may read the store, and another store", () => {
   Layout.mode = "design";
   assert.equal(window.localStorage.getItem("wf:Layout.mode:240"), "\"design\"");
 });
+
+test("a store's key may read a state declared after it", () => {
+  const { WF, window } = load();
+  const Layout = WF.store("Layout", () => ({
+    state: { side: 240, project: "halyard" },
+    persist: { side: { key: (store) => store.project } },
+  }));
+  Layout.side = 300;
+  assert.equal(window.localStorage.getItem("wf:Layout.side:halyard"), "300");
+  Layout.project = "docs";
+  assert.equal(Layout.side, 240, "it follows the later state");
+});
+
+test("no key yet is nowhere: the value lives in memory, and nothing is written", () => {
+  const { WF, window } = load();
+  const project = WF.signal(null);
+  const side = WF.persist("Layout.side", 240, { key: () => project() });
+  side.set(300);
+  assert.equal(side(), 300, "kept in memory");
+  assert.equal(window.localStorage.length ?? Object.keys(window.localStorage).length, 0, "and not under `null`");
+  assert.equal(window.localStorage.getItem("wf:Layout.side:null"), null);
+  project.set("halyard");
+  assert.equal(side(), 240, "a project opened has its own");
+});

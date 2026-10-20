@@ -49,10 +49,12 @@
     const version = rules.version || 0;
     const store = () => _storage(rules.in);
     const decode = (text) => (text === null || text === undefined ? initial : forward(JSON.parse(text), initial, version, rules.migrate));
+    // No key yet — no project open — is nowhere: the value lives in
+    // memory until there is one, and nothing is read or written.
     const nameFor = () => {
       if (typeof rules.key !== "function") return "wf:" + base;
       const part = rules.key();
-      return "wf:" + base + ":" + String(part);
+      return part === null || part === undefined ? null : "wf:" + base + ":" + String(part);
     };
     const later = (fn) => {
       if (rules.off) rules.off.push(fn);
@@ -69,6 +71,10 @@
 
     const load = (to) => {
       const ticket = ++reading;
+      if (to === null) {
+        set(initial);
+        return;
+      }
       let got;
       try {
         got = store().get(to);
@@ -94,7 +100,7 @@
 
     const watchName = (to) => {
       if (unwatch) { unwatch(); unwatch = null; }
-      if (rules.sync === false) return;
+      if (rules.sync === false || to === null) return;
       const area = store();
       // Another writer — another tab, another window — wrote it: take
       // what it wrote, without writing it back.
@@ -123,15 +129,15 @@
       watchName(to);
     };
 
-    if (typeof rules.key === "function") {
+    const follow = () => {
       // The key is state: follow it. The effect reads only the key. A
       // store's outlives the page that first read it, so it belongs to no
       // page's scope; its undo goes with the store's.
       const scope = currentScope;
       if (rules.off) currentScope = null;
-      let follow;
+      let watcher;
       try {
-        follow = effect(() => {
+        watcher = effect(() => {
           const to = nameFor();
           // Untracked: what loading reads is not the key's.
           const was = currentEffect;
@@ -141,15 +147,19 @@
       } finally {
         currentScope = scope;
       }
-      if (rules.off && follow && follow.dispose) rules.off.push(follow.dispose);
-    } else {
-      moveTo(nameFor());
-    }
+      if (rules.off && watcher && watcher.dispose) rules.off.push(watcher.dispose);
+    };
+    if (typeof rules.key !== "function") moveTo(nameFor());
+    // A store's key may read a state declared after this one: the store
+    // starts following once every state exists.
+    else if (Array.isArray(rules.start)) rules.start.push(follow);
+    else follow();
     later(() => { if (unwatch) unwatch(); });
 
     s.set = (v) => {
       reading++;
       set(v);
+      if (name === null) return;
       try {
         store().set(name, JSON.stringify(version ? { "wf:v": version, "wf:d": s() } : s()));
       } catch (e) { /* full or blocked */ }

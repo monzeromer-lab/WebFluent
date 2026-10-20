@@ -73,6 +73,8 @@
     Object.defineProperty(store, "__off", { value: off, enumerable: false });
 
     const kept = definition.persist || {};
+    // The keys to follow once every state exists.
+    const start = [];
     if (definition.state) {
       for (const [key, val] of Object.entries(definition.state)) {
         const initial = typeof val === "function" ? val() : val;
@@ -85,6 +87,7 @@
               ...policy,
               // A store's key may read the store itself.
               key: typeof policy.key === "function" ? () => policy.key(store) : null,
+              start,
               in: policy.in || (opts.scope === "session" ? "session" : "local"),
               off,
             })
@@ -98,6 +101,9 @@
         });
       }
     }
+    // Every state exists: the persisted values whose key reads the store
+    // start following it.
+    for (const go of start) go();
 
     // Bind actions before the derived values: a computed runs as soon as it
     // is created, and a derived value that calls one of the store's own
