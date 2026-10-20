@@ -143,10 +143,16 @@
     };
   }
   function _stepIs(e, step) {
-    // A letter or digit is also its place on the keyboard: on a Mac,
-    // ⌥⌘P sends `π` as its key and `KeyP` as its code.
-    const code = /^[a-z]$/.test(step.key) ? `key${step.key}` : /^[0-9]$/.test(step.key) ? `digit${step.key}` : null;
-    if ((e.key || "").toLowerCase() !== step.key && !(code && (e.code || "").toLowerCase() === code)) return false;
+    // A letter or digit is also its place on the keyboard, when the
+    // layout gave no Latin letter or digit there: on a Mac ⌥⌘P sends `π`,
+    // and an Arabic layout sends `ح`, with `KeyP` as the code. A layout
+    // that does give one is read by it, so Ctrl+Q on AZERTY (code `KeyA`)
+    // is `mod+q`, never `mod+a` too.
+    const pressed = (e.key || "").toLowerCase();
+    if (pressed !== step.key) {
+      const code = /^[a-z]$/.test(step.key) ? `key${step.key}` : /^[0-9]$/.test(step.key) ? `digit${step.key}` : null;
+      if (!code || /^[a-z0-9]$/.test(pressed) || (e.code || "").toLowerCase() !== code) return false;
+    }
     return !!e.ctrlKey === step.ctrl && !!e.shiftKey === step.shift && !!e.altKey === step.alt && !!e.metaKey === step.meta;
   }
   // The keys that went down, newest last, so a chord's later step can see

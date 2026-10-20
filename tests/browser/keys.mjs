@@ -89,6 +89,10 @@ async function scenario(label, ssg, port) {
     check("a second step too late is no chord: it is the shortcut", (await text("saves")) === "2" && (await text("said")) === "sidebar", `${await text("saves")} ${await text("said")}`);
 
     // ── labels ──
+    if (ssg) {
+      const painted = fs.readFileSync(path.join(dir, "build", "index.html"), "utf8");
+      check("the paint writes a label as most systems do", painted.includes(">Ctrl+Shift+P<"), painted.match(/id="label"[^<]*</)?.[0]);
+    }
     check("keyLabel writes it as this system does", (await text("label")) === "Ctrl+Shift+P", await text("label"));
     const item = await page.$eval("#item", (el) => [el.querySelector("kbd")?.textContent, el.getAttribute("aria-keyshortcuts")]);
     check("a menu item's shortcut too, and its aria-keyshortcuts", item[0] === "Ctrl+Shift+P" && item[1] === "Control+Shift+P", JSON.stringify(item));
@@ -98,6 +102,7 @@ async function scenario(label, ssg, port) {
     check("a trap moves focus in", await until(page, () => document.activeElement?.id === "query"), await focused());
     await page.keyboard.press("Tab");
     await page.keyboard.press("Tab");
+    await page.keyboard.press("Tab");
     check("Tab goes through it", (await focused()) === "close", await focused());
     await page.keyboard.press("Tab");
     check("and round from the last to the first", (await focused()) === "query", await focused());
@@ -105,6 +110,13 @@ async function scenario(label, ssg, port) {
     await page.keyboard.press("Tab");
     await page.keyboard.up("Shift");
     check("Shift+Tab from the first goes to the last", (await focused()) === "close", await focused());
+    await page.focus("#options");
+    await page.keyboard.press("Enter");
+    check("a modal opened over a held trap keeps its focus", await until(page, () => document.activeElement?.id === "word"), await focused());
+    await page.keyboard.press("Tab");
+    check("and the trap does not pull Tab out of it", (await focused()) !== "query" && (await page.evaluate(() => !document.getElementById("panel").contains(document.activeElement))), await focused());
+    await page.keyboard.press("Escape");
+    check("closing the modal gives focus back inside the trap", await until(page, () => document.activeElement?.id === "options"), await focused());
     await page.click("#after");
     check("focus that lands outside is brought back", await until(page, () => document.getElementById("panel")?.contains(document.activeElement)), await focused());
     await page.focus("#close");

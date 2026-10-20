@@ -453,12 +453,26 @@
     if (!el.querySelectorAll) return [];
     return Array.from(el.querySelectorAll(FOCUSABLE)).filter((n) => !n.hidden && n.getAttribute("aria-hidden") !== "true");
   }
+  // The traps that hold, the newest last: only it acts, so a trap opened
+  // inside another's keeps focus, and the outer one waits.
+  const _traps = [];
+  // Focus a modal dialog or an open layer took is theirs, not a trap's to
+  // pull back: a palette opened over a held find bar, a context menu.
+  function _aboveTraps(node) {
+    for (let n = node; n && n.nodeType === 1; n = n.parentNode) {
+      if (n.tagName === "DIALOG" && n.hasAttribute("open")) return true;
+      if (n.classList && n.classList.contains("wf-layer") && n.hasAttribute("data-open")) return true;
+    }
+    return false;
+  }
   function trapFocus(el, read) {
     live(el);
+    const self = {};
+    const mine = () => _traps[_traps.length - 1] === self;
     let before = null;
     let held = false;
     const onKeys = (e) => {
-      if (e.key !== "Tab") return;
+      if (e.key !== "Tab" || !mine() || _aboveTraps(document.activeElement)) return;
       const stops = _stops(el);
       if (!stops.length) {
         if (e.preventDefault) e.preventDefault();
@@ -477,7 +491,7 @@
     };
     // Focus that lands outside — a click on the page — is brought back.
     const onFocus = (e) => {
-      if (held && e.target && !el.contains(e.target)) {
+      if (held && mine() && e.target && !el.contains(e.target) && !_aboveTraps(e.target)) {
         const stops = _stops(el);
         (stops[0] || el).focus();
       }
@@ -485,6 +499,7 @@
     const hold = () => {
       if (held) return;
       held = true;
+      _traps.push(self);
       before = typeof document !== "undefined" ? document.activeElement : null;
       document.addEventListener("keydown", onKeys, true);
       document.addEventListener("focusin", onFocus, true);
@@ -499,6 +514,8 @@
     const release = () => {
       if (!held) return;
       held = false;
+      const at = _traps.indexOf(self);
+      if (at >= 0) _traps.splice(at, 1);
       document.removeEventListener("keydown", onKeys, true);
       document.removeEventListener("focusin", onFocus, true);
       if (before && before.focus && before.isConnected !== false) before.focus();

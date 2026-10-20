@@ -36,6 +36,17 @@ test("a letter is also its place on the keyboard: ⌥⌘P sends π", () => {
   assert.equal(WF.keyIs(key("π", { code: "KeyO", metaKey: true, altKey: true }), "mod+alt+p"), false);
 });
 
+test("a layout that gives a Latin letter is read by it; one that does not, by the key's place", () => {
+  const { WF } = on("Linux x86_64");
+  // AZERTY: the key labelled A sits where QWERTY's Q is.
+  const azertyQ = key("q", { code: "KeyA", ctrlKey: true });
+  assert.equal(WF.keyIs(azertyQ, "mod+q"), true, "Ctrl+Q is mod+q");
+  assert.equal(WF.keyIs(azertyQ, "mod+a"), false, "and not mod+a too");
+  // An Arabic layout sends Arabic letters: the place decides.
+  assert.equal(WF.keyIs(key("ح", { code: "KeyP", ctrlKey: true, shiftKey: true }), "mod+shift+p"), true);
+  assert.equal(WF.keyIs(key("ح", { code: "KeyP", ctrlKey: true }), "mod+b"), false);
+});
+
 test("a combination is written as the system writes it", () => {
   const mac = on("MacIntel").WF;
   const win = on("Win32").WF;

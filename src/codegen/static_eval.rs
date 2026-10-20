@@ -653,6 +653,15 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
                         &params,
                     )))
                 }
+                // `keyLabel("mod+s")`: the build cannot know the reader's
+                // system, so the paint writes it as most do, `Ctrl+S`; on a
+                // Mac the runtime writes `⌘S` when it takes over.
+                "keyLabel" if !scope.functions.contains_key(name) => {
+                    let Some(Static::Str(spelling)) = args.first() else {
+                        return None;
+                    };
+                    Some(Static::Str(key_label_elsewhere(spelling)))
+                }
                 // `sanitize(html)`: the twin of the runtime's, so the
                 // static paint shows exactly what hydration will.
                 "sanitize" if !scope.functions.contains_key(name) => {
@@ -2198,5 +2207,74 @@ mod scalars {
             }
             _ => None,
         }
+    }
+}
+
+/// A key combination as a system other than Apple's writes it —
+/// `mod+shift+p` is `Ctrl+Shift+P` — the twin of the runtime's
+/// `keyLabel` there.
+fn key_label_elsewhere(spelling: &str) -> String {
+    spelling
+        .split_whitespace()
+        .map(|step| {
+            let lower = step.to_lowercase();
+            let mut parts: Vec<&str> = lower.split('+').map(str::trim).collect();
+            let mut key = parts.pop().unwrap_or_default().to_string();
+            // `mod++` names the plus key.
+            if key.is_empty() && parts.last() == Some(&"") {
+                parts.pop();
+                key = "+".to_string();
+            }
+            let has = |m: &str| parts.contains(&m);
+            let shown = match key.as_str() {
+                "esc" | "escape" => "Esc".to_string(),
+                "return" | "enter" => "Enter".to_string(),
+                "space" | " " => "Space".to_string(),
+                "up" | "arrowup" => "↑".to_string(),
+                "down" | "arrowdown" => "↓".to_string(),
+                "left" | "arrowleft" => "←".to_string(),
+                "right" | "arrowright" => "→".to_string(),
+                "plus" => "+".to_string(),
+                "pageup" => "Page Up".to_string(),
+                "pagedown" => "Page Down".to_string(),
+                k if k.chars().count() == 1 => k.to_uppercase(),
+                k => {
+                    let mut c = k.chars();
+                    c.next()
+                        .map(|f| f.to_uppercase().collect::<String>() + c.as_str())
+                        .unwrap_or_default()
+                }
+            };
+            let mut out = Vec::new();
+            if has("ctrl") || has("mod") {
+                out.push("Ctrl".to_string());
+            }
+            if has("alt") {
+                out.push("Alt".to_string());
+            }
+            if has("shift") {
+                out.push("Shift".to_string());
+            }
+            if has("meta") || has("cmd") {
+                out.push("Meta".to_string());
+            }
+            out.push(shown);
+            out.join("+")
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+#[cfg(test)]
+mod key_label_tests {
+    #[test]
+    fn a_combination_is_painted_as_most_systems_write_it() {
+        let label = super::key_label_elsewhere;
+        assert_eq!(label("mod+shift+p"), "Ctrl+Shift+P");
+        assert_eq!(label("mod+k mod+s"), "Ctrl+K Ctrl+S");
+        assert_eq!(label("shift+F12"), "Shift+F12");
+        assert_eq!(label("mod+."), "Ctrl+.");
+        assert_eq!(label("esc"), "Esc");
+        assert_eq!(label("ctrl+alt+down"), "Ctrl+Alt+↓");
     }
 }
