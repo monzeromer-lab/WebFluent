@@ -335,7 +335,6 @@ pub fn render_page_html_studio(
     if let Some(app_stmts) = app_body {
         render_app_shell_ssg(app_stmts, page_body, &mut ctx, &mut body_html);
     } else {
-
         // With no shell there is no Router to stand in for `<main>`, so the page
         // body is the main content itself.
         body_html = format!(
@@ -2469,6 +2468,7 @@ mod program_scope_tests {
                     components: &components,
                     program: &program,
                     program_scope,
+                    page_sheets: None,
                 },
             )
         };

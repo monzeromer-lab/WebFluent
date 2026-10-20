@@ -27,7 +27,7 @@ Files in `public/` are copied to the **root** of the build output (not nested un
 
 ```bash
 wf init <name> -t spa|static|pdf|slides   # Create a project (with this AGENTS.md in it)
-wf build [-d DIR] [--stats]               # Compile (--stats: what it weighs)
+wf build [-d DIR] [--stats] [--cache]     # Compile (--stats: what it weighs; --cache: render only the pages an edit changed)
 wf check [-d DIR] [--format F] [--deny-warnings]  # Every finding, nothing written
 wf explain [CODE]                         # A diagnostic's entry: meaning, example, fix
 wf serve [-d DIR]                         # Dev server (localhost:3000): rebuilds on save, reloads the page, shows a failed build's error over it

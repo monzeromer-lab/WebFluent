@@ -220,6 +220,7 @@ pub fn run_serve(project_dir: &Path) -> Result<()> {
             project_dir,
             crate::cli::build::Options {
                 dev: true,
+                cache: true,
                 ..Default::default()
             },
         ));
@@ -268,6 +269,7 @@ pub fn run_serve(project_dir: &Path) -> Result<()> {
                     &root,
                     crate::cli::build::Options {
                         dev: true,
+                        cache: true,
                         ..Default::default()
                     },
                 );

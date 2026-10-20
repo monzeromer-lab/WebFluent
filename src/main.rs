@@ -72,6 +72,10 @@ enum Commands {
         /// Let a warning stop the build as an error does
         #[arg(long)]
         deny_warnings: bool,
+        /// Reuse what earlier builds rendered, kept in `.wf-cache/build/`:
+        /// only the pages an edit changed are rendered again
+        #[arg(long)]
+        cache: bool,
     },
     /// Check the project — every finding a build would report — and write
     /// nothing
@@ -247,6 +251,7 @@ fn main() {
             stats,
             format,
             deny_warnings,
+            cache,
         } => cli::build::run_build_opts(
             &dir,
             cli::build::Options {
@@ -254,6 +259,7 @@ fn main() {
                 format,
                 deny_warnings,
                 dev: false,
+                cache,
             },
         ),
         Commands::Check {
@@ -267,6 +273,7 @@ fn main() {
                 format,
                 deny_warnings,
                 dev: false,
+                cache: false,
             },
         ),
         Commands::Explain { code } => cli::explain::run_explain(code.as_deref()),

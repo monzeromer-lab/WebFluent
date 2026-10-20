@@ -244,8 +244,7 @@ impl Scope {
     /// A scope whose calls reach `actions`.
     fn with_functions(mut self, actions: &[&ActionDecl]) -> Self {
         for action in actions {
-            Arc::make_mut(&mut self.functions)
-                .insert(action.name.clone(), (*action).clone());
+            Arc::make_mut(&mut self.functions).insert(action.name.clone(), (*action).clone());
         }
         self
     }

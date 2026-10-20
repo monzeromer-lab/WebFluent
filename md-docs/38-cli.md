@@ -20,7 +20,7 @@ told otherwise, and exits non-zero on failure, so each is a CI step as it is.
 | Command | Does |
 |---|---|
 | `wf init NAME [-t, --template spa\|static\|pdf\|slides]` | Creates a project from a template |
-| `wf build [-d, --dir DIR] [--stats] [--format FORMAT] [--deny-warnings]` | Compiles the project; fails on errors, prints warnings |
+| `wf build [-d, --dir DIR] [--stats] [--format FORMAT] [--deny-warnings] [--cache]` | Compiles the project; fails on errors, prints warnings |
 | `wf check [-d, --dir DIR] [--format FORMAT] [--deny-warnings]` | Every finding a build would report, with nothing written |
 | `wf explain [CODE]` | What a diagnostic code means, a program that draws it, and the fix |
 | `wf serve [-d, --dir DIR]` | Builds, serves on `dev.port`, rebuilds and reloads on every save |
@@ -72,6 +72,15 @@ error). With `json` or `sarif` the build's progress goes to standard error,
 so standard output is the document alone. `--deny-warnings` stops the build
 on a warning, as on an error — the switch for CI.
 
+`--cache` reuses what earlier builds pre-rendered, kept in
+`.wf-cache/build/`: a page whose inputs are what they were — its own text,
+every component it reaches, and what every page reads (the shell, the
+stores, constants and data, every page's title and route, the config, the
+translations, the compiler) — is taken from the cache, and only the pages
+an edit changed are rendered again. What it writes is what a build without
+it writes, byte for byte. A build with nothing to reuse fills the cache;
+each keeps only what it used.
+
 `--stats` prints what the build weighs: every text file with its gzipped
 size and how it moved since the last build, the runtime modules it kept and
 what reached each, and the design tokens it left out. [Performance](31-performance.md)
@@ -81,7 +90,8 @@ reads it.
 
 The development loop. It builds once, serves the output on `dev.port`
 (3000), watches `src/`, `public/` and the config, rebuilds on a change and
-reloads every open tab. A build that fails leaves the last good page up and
+reloads every open tab. Each rebuild is `wf build --cache`: only the pages
+the change reached are rendered again. A build that fails leaves the last good page up and
 draws the error over it — file, line, message and hint — until the next save
 fixes it. The overlay is served at `/__wf/dev.js`, the build's state at
 `/__wf/status` (JSON).

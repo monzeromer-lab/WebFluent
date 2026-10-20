@@ -1,6 +1,6 @@
 //! `wf build` and `wf check`: the library's build, printed as it goes.
 
-use crate::build::{BuildFailure, BuildLine, BuildOptions, BuildReport, Stream};
+use crate::build::{BuildCache, BuildFailure, BuildLine, BuildOptions, BuildReport, Stream};
 use crate::diagnostics::format::Format;
 use crate::error::Result;
 use crate::vfs::FsVfs;
@@ -35,6 +35,8 @@ pub struct Options {
     pub deny_warnings: bool,
     /// A build for `wf serve`: responses are held to their declared types.
     pub dev: bool,
+    /// Reuse what earlier builds rendered, kept in `.wf-cache/build/`.
+    pub cache: bool,
 }
 
 /// Build with `options`. With a format for a tool, the findings are written
@@ -58,8 +60,12 @@ fn run(
         Stream::Stdout => println!("{}", line.text),
         Stream::Stderr => eprintln!("{}", line.text),
     };
+    let cache = options
+        .cache
+        .then(|| BuildCache::on_disk(project_dir.join(".wf-cache/build")));
     let build = BuildOptions {
         stats: options.stats,
+        cache: cache.as_ref(),
         format: options.format,
         deny_warnings: options.deny_warnings,
         dev: options.dev,

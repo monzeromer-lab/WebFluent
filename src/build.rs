@@ -10,6 +10,10 @@
 //! parse. [`check()`](crate::build::check) is `wf check`: every finding of a
 //! build, with nothing written.
 
+pub mod cache;
+
+pub use cache::BuildCache;
+
 use crate::codegen::{JsCodegen, dark_css, generate_css_for, generate_html};
 use crate::config::ProjectConfig;
 use crate::config::project::OutputType;
@@ -44,6 +48,9 @@ pub struct BuildOptions<'a> {
     pub dev: bool,
     /// Whether the findings rendered for a person are in colour.
     pub color: bool,
+    /// What earlier builds made, to reuse what this one would make the
+    /// same; `None` builds everything.
+    pub cache: Option<&'a BuildCache>,
     /// Called with each line as the build prints it, before it is kept in
     /// the report: `wf build` prints them as they come, so a build that
     /// spends a while on its images shows where it is.
@@ -62,6 +69,7 @@ impl<'a> BuildOptions<'a> {
             deny_warnings: false,
             dev: false,
             color: false,
+            cache: None,
             on_line: None,
         }
     }
@@ -109,6 +117,10 @@ pub struct BuildReport {
     /// read the config.
     pub output_dir: PathBuf,
     pub duration: Duration,
+    /// Pre-rendered pages this build took from its cache, and those it
+    /// rendered.
+    pub pages_reused: usize,
+    pub pages_rendered: usize,
     /// Every finding the build reported, in the order it reported them.
     /// A build that could not run at all — a config it could not load, a
     /// file it could not read — has none, and its error says why.
@@ -725,6 +737,29 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
         // worked out once rather than twice a page, it was most of what an
         // SSG build of a project with many pages cost.
         let program_scope = crate::codegen::static_eval::Scope::for_program(&program, &config.env);
+        // A page whose inputs are what they were is taken from the cache.
+        let keys = options.cache.map(|_| {
+            let sheets: Vec<&String> = page_sheets.keys().collect();
+            cache::PageKeys::new(&program, &config, &translations, &sheets)
+        });
+        let render = |page: &crate::parser::ast::PageDecl,
+                      route: &str,
+                      params: &dyn std::fmt::Debug,
+                      make: &dyn Fn() -> String|
+         -> String {
+            let (Some(cache), Some(keys)) = (options.cache, &keys) else {
+                out.report.borrow_mut().pages_rendered += 1;
+                return make();
+            };
+            let (html, reused) = cache.page(keys.page(page, route, params), make);
+            let mut report = out.report.borrow_mut();
+            if reused {
+                report.pages_reused += 1;
+            } else {
+                report.pages_rendered += 1;
+            }
+            html
+        };
 
         for decl in &program.declarations {
             if let Declaration::Page(page) = decl {
@@ -743,9 +778,12 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
                     for (route, params) in
                         crate::codegen::ssg::static_routes(page, &program, &config.env)?
                     {
-                        let page_html = crate::codegen::ssg::render_page_html_with_params(
-                            page, &site, &route, &params,
-                        );
+                        let sorted: std::collections::BTreeMap<_, _> = params.iter().collect();
+                        let page_html = render(page, &route, &sorted, &|| {
+                            crate::codegen::ssg::render_page_html_with_params(
+                                page, &site, &route, &params,
+                            )
+                        });
                         let dir = output_dir.join(route.trim_start_matches('/'));
                         fs::create_dir_all(&dir)?;
                         fs::write(dir.join("index.html"), &page_html)?;
@@ -754,7 +792,9 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
                     }
                     continue;
                 }
-                let page_html = crate::codegen::render_page_html(page, &site);
+                let page_html = render(page, &page.path, &(), &|| {
+                    crate::codegen::render_page_html(page, &site)
+                });
 
                 // Determine output path
                 let route = page.path.trim_start_matches('/');
@@ -776,6 +816,9 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
                     write_beside(&config, &dir, &page_html)?;
                 }
             }
+        }
+        if let Some(cache) = options.cache {
+            cache.finish();
         }
         out.say("  SSG: pre-rendered static pages");
     } else {
