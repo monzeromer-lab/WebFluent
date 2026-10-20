@@ -661,8 +661,10 @@ pub struct MetaConfig {
     /// another domain, an analytics endpoint — as the policy's
     /// `connect-src`: `"https://api.example.com"`, or
     /// `"https://*.google-analytics.com"` for its subdomains. Unset, a page
-    /// may only fetch from its own origin. An origin with a path, or a
-    /// keyword (`'unsafe-inline'`), is `E111`.
+    /// may only fetch from its own origin. An app's own scheme is a scheme
+    /// alone — `"ipc:"`, the channel a desktop shell's pages call it on
+    /// ([`scheme_source`]). An origin with a path, or a keyword
+    /// (`'unsafe-inline'`), is `E111`.
     #[serde(default)]
     pub connect: Vec<String>,
 
@@ -676,10 +678,19 @@ pub struct MetaConfig {
 
     /// Origins the pages may embed in a frame — a video player, a map — as
     /// the policy's `frame-src`: `"https://www.youtube-nocookie.com"`.
-    /// Unset, a page may only frame its own origin. An origin with a path,
-    /// or a keyword, is `E111`.
+    /// Unset, a page may only frame its own origin. An app's own scheme is a
+    /// scheme alone — `"wfpreview:"` ([`scheme_source`]). An origin with a
+    /// path, or a keyword, is `E111`.
     #[serde(default)]
     pub frame: Vec<String>,
+
+    /// The pages compile WebAssembly — a script that loads a `.wasm`, such
+    /// as a parser or an image codec. The policy's `script-src` then says
+    /// `'wasm-unsafe-eval'`, which lets a page compile WebAssembly and
+    /// nothing else: `eval` and `new Function` stay refused. Off, a browser
+    /// refuses to compile it.
+    #[serde(default)]
+    pub wasm: bool,
 }
 
 /// One entry of `meta.scripts`.
@@ -860,13 +871,20 @@ pub fn csp_policy(config: &ProjectConfig) -> String {
             &format!("script-src 'self' {};", origins.join(" ")),
         );
     }
+    if meta.wasm {
+        policy = policy.replacen(
+            "script-src 'self'",
+            "script-src 'self' 'wasm-unsafe-eval'",
+            1,
+        );
+    }
     // Where a page may send requests: its own origin, and those the config
     // names. Without the directive `default-src 'self'` governs, which is the
     // same rule, so nothing is written until there is something to add.
     let mut connect: Vec<String> = meta
         .connect
         .iter()
-        .filter_map(|o| connect_origin(o))
+        .filter_map(|o| connect_source(o))
         .collect();
     connect.dedup();
     if !connect.is_empty() {
@@ -886,7 +904,7 @@ pub fn csp_policy(config: &ProjectConfig) -> String {
         );
     }
     // What a page may frame: its own origin, and those the config names.
-    let mut frame: Vec<String> = meta.frame.iter().filter_map(|o| img_origin(o)).collect();
+    let mut frame: Vec<String> = meta.frame.iter().filter_map(|o| frame_source(o)).collect();
     frame.dedup();
     if !frame.is_empty() {
         policy = policy.replace(
@@ -901,6 +919,44 @@ pub fn csp_policy(config: &ProjectConfig) -> String {
 /// fetched from, so `http` or `https` — or `None` (`E111`).
 pub fn img_origin(entry: &str) -> Option<String> {
     connect_origin(entry).filter(|o| o.starts_with("https://") || o.starts_with("http://"))
+}
+
+/// A scheme alone, as a policy names one — `ipc:`, `wfpreview:` — for an
+/// app whose shell serves its own: a desktop shell's pages call it on
+/// `ipc:`, and a preview the app builds may be framed from its scheme. The
+/// web's own schemes are refused: `https:` or `http:` alone would allow
+/// every origin, and `data:`, `blob:`, `javascript:` and `filesystem:` run
+/// whatever a page makes up. `None` for anything else (`E111`).
+pub fn scheme_source(entry: &str) -> Option<String> {
+    let entry = entry.trim();
+    let scheme = entry.strip_suffix(':')?;
+    let mut chars = scheme.chars();
+    let first_ok = chars.next().is_some_and(|c| c.is_ascii_lowercase());
+    let rest_ok = chars.all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || "+.-".contains(c));
+    let refused = [
+        "http",
+        "https",
+        "ws",
+        "wss",
+        "data",
+        "blob",
+        "javascript",
+        "filesystem",
+        "file",
+    ];
+    (first_ok && rest_ok && !refused.contains(&scheme)).then(|| entry.to_string())
+}
+
+/// A `meta.connect` entry as the policy writes it: an origin
+/// ([`connect_origin`]) or an app's own scheme ([`scheme_source`]).
+pub fn connect_source(entry: &str) -> Option<String> {
+    connect_origin(entry).or_else(|| scheme_source(entry))
+}
+
+/// A `meta.frame` entry as the policy writes it: an origin a frame loads
+/// from ([`img_origin`]) or an app's own scheme ([`scheme_source`]).
+pub fn frame_source(entry: &str) -> Option<String> {
+    img_origin(entry).or_else(|| scheme_source(entry))
 }
 
 /// A `meta.connect` entry as the policy writes it — a scheme and a host,
@@ -1035,6 +1091,7 @@ impl Default for MetaConfig {
             connect: Vec::new(),
             img: Vec::new(),
             frame: Vec::new(),
+            wasm: false,
         }
     }
 }
@@ -1420,6 +1477,55 @@ mod head_asset_tests {
             "{policy}"
         );
         assert!(!csp_policy(&meta(&[], &[])).contains("frame-src"));
+    }
+
+    #[test]
+    fn an_apps_own_scheme_is_a_source_and_the_webs_are_not() {
+        assert_eq!(scheme_source("wfpreview:").as_deref(), Some("wfpreview:"));
+        assert_eq!(scheme_source("ipc:").as_deref(), Some("ipc:"));
+        assert_eq!(scheme_source(" tauri: ").as_deref(), Some("tauri:"));
+        for refused in [
+            "https:",
+            "http:",
+            "data:",
+            "blob:",
+            "javascript:",
+            "file:",
+            "ipc",
+            "IPC:",
+            "1x:",
+            "ipc://localhost",
+        ] {
+            assert_eq!(scheme_source(refused), None, "{refused}");
+        }
+        let mut config = meta(&[], &[]);
+        config.meta.connect = vec!["ipc:".to_string(), "http://ipc.localhost".to_string()];
+        config.meta.frame = vec![
+            "wfpreview:".to_string(),
+            "http://wfpreview.localhost".to_string(),
+        ];
+        let policy = csp_policy(&config);
+        assert!(
+            policy.contains("connect-src 'self' ipc: http://ipc.localhost;"),
+            "{policy}"
+        );
+        assert!(
+            policy.contains("frame-src 'self' wfpreview: http://wfpreview.localhost;"),
+            "{policy}"
+        );
+    }
+
+    #[test]
+    fn wasm_lets_a_page_compile_webassembly_and_nothing_else() {
+        let mut config = meta(&[], &[]);
+        assert!(!csp_policy(&config).contains("wasm"));
+        config.meta.wasm = true;
+        let policy = csp_policy(&config);
+        assert!(
+            policy.contains("script-src 'self' 'wasm-unsafe-eval';"),
+            "{policy}"
+        );
+        assert!(!policy.contains("'unsafe-eval'"), "{policy}");
     }
 
     #[test]

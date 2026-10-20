@@ -206,6 +206,16 @@ assistant otherwise reports as blocked. A frame is the same again:
 `meta.frame` names the origins a page may embed — a video player
 (`https://www.youtube-nocookie.com`), a map — and they join `frame-src`.
 
+An app that serves its pages itself — a desktop shell — has schemes of its
+own, and `meta.connect` and `meta.frame` take one as a scheme alone:
+`"ipc:"` for the channel a shell's pages call it on, `"wfpreview:"` for a
+frame the app fills from its own protocol. The web's schemes are refused:
+`https:` alone would allow every origin, and `data:`, `blob:` and
+`javascript:` run whatever a page writes. A page that compiles WebAssembly
+— a parser, an image codec — says so with `meta.wasm: true`, and
+`script-src` gains `'wasm-unsafe-eval'`: WebAssembly compiles, and `eval`
+is still refused.
+
 A tag manager's own set-up — the `dataLayer` and the `gtag('config', …)`
 call a vendor pastes as an inline `<script>` — is a plain script under
 `src/`, which the policy already allows.

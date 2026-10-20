@@ -102,7 +102,8 @@ absent unless you add them.
     "scripts": [],
     "connect": [],
     "img": [],
-    "frame": []
+    "frame": [],
+    "wasm": false
   },
   "motion": { "duration": null, "easing": null },
   "env": {},
@@ -212,9 +213,10 @@ absent unless you add them.
 | `preload` | `[]` | Files on this site to fetch with the page, ahead of the stylesheets: a font a project `.css` file's `@font-face` names, the first screen's picture. `as` comes from the extension (a font is also `crossorigin`); a file on another origin is `E111` ([chapter 27](27-content.md#fonts-served-from-the-site)). |
 | `stylesheets` | `[]` | Extra stylesheets to link ahead of `styles.css`: a file in `public/` or a URL. |
 | `scripts` | `[]` | Libraries to load before the project's own scripts: a URL or a file in `public/`, or `{ "src", "module": true, "as": "Name" }` for an ES module, or `{ "src", "globals": ["Chart"] }` to call a library's names from `.wf`. `"async": true` loads one nothing waits for — analytics — without holding up the page's code, and `"load": "after"` asks for it only once the page has loaded and painted. Their origins join the policy ([JavaScript interop](32-javascript-interop.md#a-library-from-a-cdn)). |
-| `connect` | `[]` | Origins a page may send requests to besides its own — an API elsewhere, an analytics endpoint — as the policy's `connect-src`: `"https://api.example.com"`, `"https://*.google-analytics.com"`. An entry with a path or a keyword is `E111` ([chapter 23](23-security.md)). |
+| `connect` | `[]` | Origins a page may send requests to besides its own — an API elsewhere, an analytics endpoint — as the policy's `connect-src`: `"https://api.example.com"`, `"https://*.google-analytics.com"`, or an app's own scheme alone, `"ipc:"`. An entry with a path or a keyword is `E111` ([chapter 23](23-security.md)). |
 | `img` | `[]` | Origins a page may load images from besides its own and `data:` — a CDN, a tag's tracking pixel — as the policy's `img-src`: `"https://images.example.com"`, `"https://www.googletagmanager.com"`. An entry with a path or a keyword is `E111` ([chapter 23](23-security.md)). |
-| `frame` | `[]` | Origins a page may embed in a frame besides its own — a video player, a map — as the policy's `frame-src`: `"https://www.youtube-nocookie.com"`. An entry with a path or a keyword is `E111` ([chapter 23](23-security.md)). |
+| `frame` | `[]` | Origins a page may embed in a frame besides its own — a video player, a map — as the policy's `frame-src`: `"https://www.youtube-nocookie.com"`, or an app's own scheme alone, `"wfpreview:"`. An entry with a path or a keyword is `E111` ([chapter 23](23-security.md)). |
+| `wasm` | `false` | The pages compile WebAssembly: `script-src` gains `'wasm-unsafe-eval'`, which allows that and not `eval` ([chapter 23](23-security.md)). |
 | `integrity` | `{}` | Subresource-integrity hashes of external assets, by URL. |
 
 ## `theme`

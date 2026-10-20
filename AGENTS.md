@@ -2324,8 +2324,12 @@ project's own scripts are same-origin and need nothing. `meta.connect` names
 the origins a page may send requests to besides its own — an API elsewhere,
 an analytics endpoint (`https://*.google-analytics.com`) — as `connect-src`;
 `meta.img` names those it may load images from — a CDN, a tag's tracking
-pixel (`https://www.googletagmanager.com`) — as `img-src`; an entry with a
-path, or a keyword, is `E111`. A vendor's inline set-up
+pixel (`https://www.googletagmanager.com`) — as `img-src`; `meta.frame` the
+origins a page may frame, as `frame-src`; `connect` and `frame` take an
+app's own scheme alone too (`"ipc:"`, `"wfpreview:"`), never the web's
+(`https:`, `data:`, `blob:`); `meta.wasm: true` adds `'wasm-unsafe-eval'`
+for a page that compiles WebAssembly; an entry with a path, or a keyword,
+is `E111`. A vendor's inline set-up
 snippet (`dataLayer`, `gtag('config', …)`) is a plain script under `src/`.
 
 **The build reads its own output back and holds it to that policy**: an
@@ -2996,6 +3000,7 @@ now ships on every page.
         "connect": [],
         "img": [],
         "frame": [],
+        "wasm": false,
         "integrity": {}
     },
     "env": {},

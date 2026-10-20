@@ -321,17 +321,16 @@ read, for one — is named in the same capabilities file.
 With `build.csp` on — it is for a project `wf init` makes — every page says
 where it may send requests ([chapter 23](23-security.md)). Tauri sends each
 call as a request: to `http://ipc.localhost` on Windows and Android, and to
-`ipc://localhost` on macOS, Linux and iOS. Name the first:
+`ipc://localhost` on macOS, Linux and iOS. Name both — the second as its
+scheme alone, which is how a policy names an app's own:
 
 ```json
-{ "meta": { "connect": ["http://ipc.localhost"] } }
+{ "meta": { "connect": ["ipc:", "http://ipc.localhost"] } }
 ```
 
-`meta.connect` takes web origins only, so `ipc://localhost` cannot be named.
-Where the policy blocks that request, Tauri sends the call over its other
-channel instead, and logs a warning:
-`IPC custom protocol failed, Tauri will now use the postMessage interface instead`.
-The call works either way.
+A protocol of your own (`register_uri_scheme_protocol`) is named the same
+way: `"frame": ["myapp:", "http://myapp.localhost"]` for a frame the app
+fills from it. A page that compiles WebAssembly adds `"wasm": true`.
 
 ## Electron
 

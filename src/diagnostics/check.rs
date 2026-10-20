@@ -498,7 +498,7 @@ pub fn config_checks_via(
     // path is no narrower in a policy than its host, and `'unsafe-…'` has no
     // place in a list of where requests may go.
     for entry in &config.meta.connect {
-        if crate::config::project::connect_origin(entry).is_none() {
+        if crate::config::project::connect_source(entry).is_none() {
             out.push(
                 config_finding(
                     "E111",
@@ -506,7 +506,7 @@ pub fn config_checks_via(
                     &text,
                     entry,
                 )
-                .with_hint("Write a scheme and a host — `https://api.example.com`, or `https://*.example.com` for its subdomains"),
+                .with_hint("Write a scheme and a host — `https://api.example.com`, or `https://*.example.com` for its subdomains — or an app's own scheme alone: `ipc:`"),
             );
         }
     }
@@ -529,7 +529,7 @@ pub fn config_checks_via(
 
     // A `frame-src` source is an origin a page can be framed from.
     for entry in &config.meta.frame {
-        if crate::config::project::img_origin(entry).is_none() {
+        if crate::config::project::frame_source(entry).is_none() {
             out.push(
                 config_finding(
                     "E111",
@@ -539,7 +539,7 @@ pub fn config_checks_via(
                     &text,
                     entry,
                 )
-                .with_hint("Write `https://` and a host — `https://www.youtube-nocookie.com`"),
+                .with_hint("Write `https://` and a host — `https://www.youtube-nocookie.com` — or an app's own scheme alone: `wfpreview:`"),
             );
         }
     }

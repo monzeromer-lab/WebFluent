@@ -89,7 +89,8 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
     "scripts": [],
     "connect": [],
     "img": [],
-    "frame": []
+    "frame": [],
+    "wasm": false
   },
   "motion": { "duration": null, "easing": null },
   "env": {},
@@ -506,7 +507,7 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
                 Table.Row {
                     Table.Cell { Markdown("`connect`") }
                     Table.Cell { Markdown("`[]`") }
-                    Table.Cell { Markdown("Origins a page may send requests to besides its own — an API elsewhere, an analytics endpoint — as the policy's `connect-src`: `\"https://api.example.com\"`, `\"https://*.google-analytics.com\"`. An entry with a path or a keyword is `E111` ([chapter 23](/docs/guide/security)).") }
+                    Table.Cell { Markdown("Origins a page may send requests to besides its own — an API elsewhere, an analytics endpoint — as the policy's `connect-src`: `\"https://api.example.com\"`, `\"https://*.google-analytics.com\"`, or an app's own scheme alone, `\"ipc:\"`. An entry with a path or a keyword is `E111` ([chapter 23](/docs/guide/security)).") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`img`") }
@@ -516,7 +517,12 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
                 Table.Row {
                     Table.Cell { Markdown("`frame`") }
                     Table.Cell { Markdown("`[]`") }
-                    Table.Cell { Markdown("Origins a page may embed in a frame besides its own — a video player, a map — as the policy's `frame-src`: `\"https://www.youtube-nocookie.com\"`. An entry with a path or a keyword is `E111` ([chapter 23](/docs/guide/security)).") }
+                    Table.Cell { Markdown("Origins a page may embed in a frame besides its own — a video player, a map — as the policy's `frame-src`: `\"https://www.youtube-nocookie.com\"`, or an app's own scheme alone, `\"wfpreview:\"`. An entry with a path or a keyword is `E111` ([chapter 23](/docs/guide/security)).") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wasm`") }
+                    Table.Cell { Markdown("`false`") }
+                    Table.Cell { Markdown("The pages compile WebAssembly: `script-src` gains `'wasm-unsafe-eval'`, which allows that and not `eval` ([chapter 23](/docs/guide/security)).") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`integrity`") }
