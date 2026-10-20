@@ -41,11 +41,11 @@ test "chip shows its label" { Chip("Beta")  expect "Beta" }
 | `data` | A JSON file read at build time, as a constant | [17](17-data.md#data-a-file-at-build-time) |
 | `image` | A picture the build resizes and hands to `Image` | [28](28-media.md) |
 | `animation` | Keyframes | [20](20-motion.md#custom-animations) |
+| `test` | A render held to expectations and a snapshot | [24](24-testing.md) |
 
 Beside them, a `.css` file under `src/` is a stylesheet the build bundles,
 and a `.js` file under `src/` is a plain browser script whose top-level
 functions are in scope by name ([32](32-javascript-interop.md)).
-| `test` | A render held to expectations and a snapshot | [24](24-testing.md) |
 
 Inside a body there are more statements — `state`, `derived`, `effect`,
 `action`, `persist`, `resource`, `validate`, `socket`, `if`, `for`, `match` and

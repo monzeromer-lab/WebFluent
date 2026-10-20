@@ -368,6 +368,21 @@ page Doc(path: "/") {
 
 // md-docs/37-components-reference.md
 page Doc(path: "/") {
+    Chart(kind: .bar, data: [{ month: "Jan", web: 12 }, { month: "Feb", web: 18 }], x: "month", y: "web", unit: "k")
+}
+
+// md-docs/37-components-reference.md
+page Doc(path: "/") {
+    QrCode("https://example.com/report/q1")
+}
+
+// md-docs/37-components-reference.md
+page Doc(path: "/") {
+    TableOfContents(levels: 2)
+}
+
+// md-docs/37-components-reference.md
+page Doc(path: "/") {
     Document(page_size: "A4") {
         Section { Heading("Report").h1  Paragraph("Revenue grew.") }
     }
@@ -394,6 +409,16 @@ page Doc(path: "/") {
 // md-docs/37-components-reference.md
 page Doc(path: "/") {
     Footer { Text("© Company Inc.").muted.sm }
+}
+
+// md-docs/37-components-reference.md
+page Doc(path: "/") {
+    Background(on: .first) { Stack { style { height: 100%; background: linear-gradient(160deg, #1d4ed8, #0f172a) } } }
+}
+
+// md-docs/37-components-reference.md
+page Doc(path: "/") {
+    Watermark("DRAFT")
 }
 
 // md-docs/37-components-reference.md

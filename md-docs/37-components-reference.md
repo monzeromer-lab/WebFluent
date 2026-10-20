@@ -21,7 +21,8 @@ Every component is written `Name(positional, prop: value).flag { block }`. A **p
 - **Actions**: [`Button`](#button), [`IconButton`](#iconbutton), [`ButtonGroup`](#buttongroup), [`Dropdown`](#dropdown)
 - **Media**: [`Image`](#image), [`Video`](#video), [`Audio`](#audio), [`Icon`](#icon), [`Carousel`](#carousel)
 - **Typography**: [`Text`](#text), [`Heading`](#heading), [`Code`](#code), [`Markdown`](#markdown), [`Unsafe`](#unsafe), [`Blockquote`](#blockquote)
-- **PDF**: [`Document`](#document), [`Section`](#section), [`Paragraph`](#paragraph), [`Header`](#header), [`Footer`](#footer), [`PageBreak`](#pagebreak)
+- **Data Display**: [`Chart`](#chart), [`QrCode`](#qrcode)
+- **PDF**: [`TableOfContents`](#tableofcontents), [`Document`](#document), [`Section`](#section), [`Paragraph`](#paragraph), [`Header`](#header), [`Footer`](#footer), [`Background`](#background), [`Watermark`](#watermark), [`PageBreak`](#pagebreak)
 - **Slides**: [`Presentation`](#presentation), [`Slide`](#slide), [`TitleSlide`](#titleslide), [`SectionSlide`](#sectionslide), [`TwoColumn`](#twocolumn), [`ImageSlide`](#imageslide)
 - **Routing**: [`Router`](#router)
 
@@ -231,7 +232,7 @@ Renders with the class `wf-host`.
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `tag:` | `String` | The element to make, `div` by default |
+| `tag:` | `String` | The element to make: `div` (the default), `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul` or `table` |
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -1526,14 +1527,93 @@ Takes a block of children.
 
 Attribute families: `global`, `aria`, `data`.
 
+## Data Display
+
+### Chart
+
+A chart drawn as vector graphics when the page is built: bars, lines, areas, a pie or a donut over a list of records.
+
+```
+Chart(kind: …, data: …, x: …)
+```
+
+```wf
+Chart(kind: .bar, data: [{ month: "Jan", web: 12 }, { month: "Feb", web: 18 }], x: "month", y: "web", unit: "k")
+```
+
+Renders with the class `wf-chart`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `kind:` | `.bar` `.line` `.area` `.pie` `.donut` | What it draws |
+| `data:` | `Any` | The rows: a list of records, or of numbers |
+| `x:` | `String` | The key of each row's label |
+| `y:` | `Any` | The key of each row's value, or a list of keys for several series |
+| `colors:` | `Any` | The series' colours, in order |
+| `width:` | `Number` | Its width in user units (it scales to its box) |
+| `height:` | `Number` | Its height in user units |
+| `ink:` | `String` | The colour of its labels |
+| `grid:` | `String` | The colour of its grid lines |
+| `legend:` | `Bool` | Name the series |
+| `stacked:` | `Bool` | Stack a bar chart's series |
+| `labels:` | `Bool` | Write each bar's or slice's value on it |
+| `unit:` | `String` | A unit after each value on the axis: `ms`, `%` |
+
+**Flags:** `.bar` `.line` `.area` `.pie` `.donut` `.legend` `.stacked` `.labels`
+
+Attribute families: `global`, `aria`, `data`.
+
+### QrCode
+
+A QR code for a URL or any text, drawn as vector graphics when the page is built.
+
+```
+QrCode(value, color: …, background: …)
+```
+
+```wf
+QrCode("https://example.com/report/q1")
+```
+
+Renders with the class `wf-qr`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `value` (positional) | `String` | What it encodes |
+| `color:` | `String` | The colour of the dark modules |
+| `background:` | `String` | The colour behind them |
+
+Attribute families: `global`, `aria`, `data`.
+
 ## PDF
+
+### TableOfContents
+
+The document's headings with the page each lands on, each a link to it.
+
+```
+TableOfContents(levels: …, title: …)
+```
+
+```wf
+TableOfContents(levels: 2)
+```
+
+Renders with the class `wf-toc`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `levels:` | `Number` | How deep it lists: 1 is the `h1`s only (default 3) |
+| `title:` | `String` | A heading above the list |
+
+Attribute families: `global`, `aria`, `data`.
 
 ### Document
 
-Root of a PDF document.
+Root of a PDF document: the paper, the margins and what the file says about itself.
 
 ```
-Document(page_size: …) { … }
+Document(page_size: …, size: …, landscape: …) { … }
 ```
 
 ```wf
@@ -1546,9 +1626,17 @@ Renders with the class `wf-document`.
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `page_size:` | `.A4` `.A3` `.A5` `.Letter` `.Legal` | Paper size |
+| `page_size:` | `.A4` `.A3` `.A5` `.Letter` `.Legal` | Paper size (also `size:`) |
+| `size:` | `String` | Paper size: `A4`, `Letter`, `Tabloid`, or two lengths, `210mm 297mm` |
+| `landscape:` | `Bool` | Turn the paper on its side |
+| `margin:` | `Any` | The page margins: one length, or top right bottom left (`72`, `20mm 25mm`) |
+| `title:` | `String` | The file's title, shown by a reader in place of its name |
+| `author:` | `String` | The file's author; several separated by commas |
+| `subject:` | `String` | What the document is about |
+| `keywords:` | `String` | Comma-separated keywords |
+| `lang:` | `String` | The document's language, for screen readers and hyphenation |
 
-**Flags:** `.A4` `.A3` `.A5` `.Letter` `.Legal`
+**Flags:** `.A4` `.A3` `.A5` `.Letter` `.Legal` `.landscape`
 
 Takes a block of children.
 
@@ -1608,10 +1696,10 @@ Attribute families: `global`, `aria`, `data`.
 
 ### Header
 
-Repeated at the top of every PDF page; a `<header>` on the web.
+Repeated at the top of every PDF page (or those `on:` names), where `page` and `pages` are the page's number and the count; a `<header>` on the web.
 
 ```
-Header { … }
+Header(on: …) { … }
 ```
 
 ```wf
@@ -1620,16 +1708,22 @@ Header { Text("Company Inc.").muted.sm }
 
 Renders with the class `wf-header`.
 
+| Prop | Type | Meaning |
+|---|---|---|
+| `on:` | `.all` `.first` `.rest` `.odd` `.even` | Which pages it is drawn on |
+
+**Flags:** `.all` `.first` `.rest` `.odd` `.even`
+
 Takes a block of children.
 
 Attribute families: `global`, `aria`, `data`.
 
 ### Footer
 
-Repeated at the bottom of every PDF page; a `<footer>` on the web.
+Repeated at the bottom of every PDF page (or those `on:` names), where `page` and `pages` are the page's number and the count; a `<footer>` on the web.
 
 ```
-Footer { … }
+Footer(on: …) { … }
 ```
 
 ```wf
@@ -1638,7 +1732,60 @@ Footer { Text("© Company Inc.").muted.sm }
 
 Renders with the class `wf-footer`.
 
+| Prop | Type | Meaning |
+|---|---|---|
+| `on:` | `.all` `.first` `.rest` `.odd` `.even` | Which pages it is drawn on |
+
+**Flags:** `.all` `.first` `.rest` `.odd` `.even`
+
 Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### Background
+
+Drawn behind each PDF page's content, the size of the page: a cover, a band, a full-bleed picture.
+
+```
+Background(on: …) { … }
+```
+
+```wf
+Background(on: .first) { Stack { style { height: 100%; background: linear-gradient(160deg, #1d4ed8, #0f172a) } } }
+```
+
+Renders with the class `wf-background`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `on:` | `.all` `.first` `.rest` `.odd` `.even` | Which pages it is drawn on |
+
+**Flags:** `.all` `.first` `.rest` `.odd` `.even`
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### Watermark
+
+Large, faint, rotated text behind each PDF page's content.
+
+```
+Watermark(text, on: …)
+```
+
+```wf
+Watermark("DRAFT")
+```
+
+Renders with the class `wf-watermark`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `text` (positional) | `String` | The text |
+| `on:` | `.all` `.first` `.rest` `.odd` `.even` | Which pages it is drawn on |
+
+**Flags:** `.all` `.first` `.rest` `.odd` `.even`
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -1655,6 +1802,8 @@ Text("End of chapter one.")
 PageBreak
 Heading("Chapter two").h2
 ```
+
+Renders with the class `wf-page-break`.
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -1674,6 +1823,8 @@ Presentation {
     Slide { Heading("Highlights").h1 }
 }
 ```
+
+Renders with the class `wf-presentation`.
 
 Takes a block of children.
 
@@ -1696,6 +1847,8 @@ Presentation {
 }
 ```
 
+Renders with the class `wf-slide`.
+
 Takes a block of children.
 
 Attribute families: `global`, `aria`, `data`.
@@ -1711,6 +1864,8 @@ TitleSlide(title, subtitle: …)
 ```wf
 Presentation { TitleSlide("Q1 review", subtitle: "Acme, March 2026") }
 ```
+
+Renders with the class `wf-title-slide`.
 
 | Prop | Type | Meaning |
 |---|---|---|
@@ -1730,6 +1885,8 @@ SectionSlide(label, tone: …)
 ```wf
 Presentation { SectionSlide("Numbers").primary }
 ```
+
+Renders with the class `wf-section-slide`.
 
 | Prop | Type | Meaning |
 |---|---|---|
@@ -1757,6 +1914,8 @@ Presentation {
 }
 ```
 
+Renders with the class `wf-two-column`.
+
 Takes a block of children.
 
 Attribute families: `global`, `aria`, `data`.
@@ -1772,6 +1931,8 @@ ImageSlide(src: …, caption: …)
 ```wf
 Presentation { ImageSlide(src: "chart.png", caption: "Revenue by month") }
 ```
+
+Renders with the class `wf-image-slide`.
 
 | Prop | Type | Meaning |
 |---|---|---|

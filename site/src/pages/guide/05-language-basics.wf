@@ -84,10 +84,15 @@ test "chip shows its label" { Chip("Beta")  expect "Beta" }"#, title: "wf")
                     Table.Cell("Keyframes")
                     Table.Cell { Markdown("[20](/docs/guide/motion#custom-animations)") }
                 }
+                Table.Row {
+                    Table.Cell { Markdown("`test`") }
+                    Table.Cell("A render held to expectations and a snapshot")
+                    Table.Cell { Markdown("[24](/docs/guide/testing)") }
+                }
             }
         }
 
-        Markdown("Beside them, a `.css` file under `src/` is a stylesheet the build bundles, and a `.js` file under `src/` is a plain browser script whose top-level functions are in scope by name ([32](/docs/guide/interop)). | `test` | A render held to expectations and a snapshot | [24](/docs/guide/testing) |\n\nInside a body there are more statements — `state`, `derived`, `effect`, `action`, `persist`, `resource`, `validate`, `socket`, `if`, `for`, `match` and the rest. [Grammar](/docs/guide/grammar) lists every keyword and where it may appear.\n\nAll the files under `src/` merge into one program, so a component declared in `components/Chip.wf` is usable from every page. `App.wf` is read first; the rest in name order.")
+        Markdown("Beside them, a `.css` file under `src/` is a stylesheet the build bundles, and a `.js` file under `src/` is a plain browser script whose top-level functions are in scope by name ([32](/docs/guide/interop)).\n\nInside a body there are more statements — `state`, `derived`, `effect`, `action`, `persist`, `resource`, `validate`, `socket`, `if`, `for`, `match` and the rest. [Grammar](/docs/guide/grammar) lists every keyword and where it may appear.\n\nAll the files under `src/` merge into one program, so a component declared in `components/Chip.wf` is usable from every page. `App.wf` is read first; the rest in name order.")
 
         Heading("Naming", id: "naming").h2
 

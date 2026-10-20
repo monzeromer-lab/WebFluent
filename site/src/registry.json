@@ -2924,7 +2924,7 @@
    "nearby": [
     "QrCode"
    ],
-   "example": "",
+   "example": "Chart(kind: .bar, data: [{ month: \"Jan\", web: 12 }, { month: \"Feb\", web: 18 }], x: \"month\", y: \"web\", unit: \"k\")",
    "cssClass": "wf-chart"
   },
   {
@@ -2963,7 +2963,7 @@
    "nearby": [
     "Chart"
    ],
-   "example": "",
+   "example": "QrCode(\"https://example.com/report/q1\")",
    "cssClass": "wf-qr"
   },
   {
@@ -3000,7 +3000,7 @@
     "Paragraph",
     "Header"
    ],
-   "example": "",
+   "example": "TableOfContents(levels: 2)",
    "cssClass": "wf-toc"
   },
   {
@@ -3317,7 +3317,7 @@
     "Section",
     "Paragraph"
    ],
-   "example": "",
+   "example": "Background(on: .first) { Stack { style { height: 100%; background: linear-gradient(160deg, #1d4ed8, #0f172a) } } }",
    "cssClass": "wf-background"
   },
   {
@@ -3360,7 +3360,7 @@
     "Section",
     "Paragraph"
    ],
-   "example": "",
+   "example": "Watermark(\"DRAFT\")",
    "cssClass": "wf-watermark"
   },
   {
