@@ -43,7 +43,7 @@ const PREC = {
 // Every built-in the compiler knows (`lexer::token::ALL_COMPONENT_NAMES`).
 const BUILTIN_COMPONENTS = [
   // Layout
-  "Container", "Row", "Column", "Grid", "Stack", "Spacer", "Divider", "Splitter",
+  "Container", "Row", "Column", "Grid", "Stack", "Spacer", "Divider", "Splitter", "VirtualList",
   // Navigation
   "Navbar", "Sidebar", "Breadcrumb", "Link", "Menu", "Tabs", "TabPage",
   "Router", "Route",

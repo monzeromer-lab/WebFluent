@@ -736,6 +736,37 @@ pub const COMPONENTS: &[ComponentSig] = &[
         Children::None,
     ),
     comp(
+        "VirtualList",
+        "Layout",
+        "A scrolling box that draws only the rows in view of the one keyed `for` inside it — for a tree, search results or a diff of thousands of rows.",
+        None,
+        &[
+            special(
+                "rowHeight",
+                PropType::Num,
+                "Every row's height, in px: the fast path. Unset, each row is measured",
+            ),
+            special(
+                "estimate",
+                PropType::Num,
+                "The height a row not yet drawn stands for, in px. Unset, 32",
+            ),
+            special(
+                "reveal",
+                PropType::Any,
+                "A row's key: when it changes, that row is scrolled into view — the selection, the current match",
+            ),
+            special(
+                "label",
+                PropType::Str,
+                "What the list is, for a screen reader",
+            ),
+        ],
+        &[],
+        G,
+        Children::Elements,
+    ),
+    comp(
         "Splitter",
         "Layout",
         "A handle that sets the size of a region beside it: dragged, between `min:` and `max:`; double-clicked or Enter, back to `reset:`; the arrow keys move it.",

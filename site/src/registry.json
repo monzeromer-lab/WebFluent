@@ -321,6 +321,56 @@
    "cssClass": "wf-spacer"
   },
   {
+   "name": "VirtualList",
+   "slug": "virtuallist",
+   "group": "Layout",
+   "summary": "A scrolling box that draws only the rows in view of the one keyed `for` inside it \u2014 for a tree, search results or a diff of thousands of rows.",
+   "plain": "A scrolling box that draws only the rows in view of the one keyed for inside it \u2014 for a tree, search results or a diff of thousands of rows.",
+   "signature": "VirtualList(rowHeight: \u2026, estimate: \u2026, reveal: \u2026) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "rowHeight:",
+     "type": "Number",
+     "meaning": "Every row's height, in px: the fast path. Unset, each row is measured"
+    },
+    {
+     "name": "estimate:",
+     "type": "Number",
+     "meaning": "The height a row not yet drawn stands for, in px. Unset, 32"
+    },
+    {
+     "name": "reveal:",
+     "type": "Any",
+     "meaning": "A row's key: when it changes, that row is scrolled into view \u2014 the selection, the current match"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "What the list is, for a screen reader"
+    }
+   ],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Container",
+    "Row",
+    "Column",
+    "Grid"
+   ],
+   "example": "state rows = (0..10000).map((i) => \"row {i}\")\nstate picked = \"row 0\"\nVirtualList(rowHeight: 32, reveal: picked, label: \"Rows\") {\n    style { height: 320px }\n    for r in rows by r { Text(r) { style { height: 32px; margin: 0 } } }\n}",
+   "cssClass": "wf-virtual-list"
+  },
+  {
    "name": "Splitter",
    "slug": "splitter",
    "group": "Layout",
@@ -4559,5 +4609,5 @@
   "sun",
   "moon"
  ],
- "count": 75
+ "count": 76
 }

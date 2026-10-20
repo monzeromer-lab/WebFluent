@@ -3844,6 +3844,43 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Rename the component and its call sites.</p>
                             </div>
+                            <h3 class="wf-heading" id="v12-a-long-list-that-is-not-windowed">V12 — A long list that is not windowed</h3>
+                            <div class="wf-markdown">
+<p>A <code>VirtualList</code> draws only the rows in view of the one keyed <code>for</code> that is the whole of its body. With anything else beside the <code>for</code>, or a <code>for</code> with no <code>by</code> — which has no way to keep a row's nodes as it scrolls — it draws every row, as a plain scrolling box does, and the length of the list is what the page pays for.</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws V12</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws V12" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    state rows = [&quot;a&quot;, &quot;b&quot;]
+    Heading(&quot;Files&quot;).h1
+    VirtualList(rowHeight: 32) {
+        for r in rows { Text(r) }
+    }
+}</code>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">warning[V12]: This `VirtualList` draws every row: its body is not one keyed `for`
+ --&gt; src/App.wf:4:5
+  |
+4 |     VirtualList(rowHeight: 32) {
+  |     ^^^^^^^^^^^
+  = help: Make its body one `for` with a `by`: `VirtualList(rowHeight: 32) { for row in rows by row.id { … } }`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v12-a-long-list-that-is-not-windowed</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Give the <code>for</code> a <code>by</code>, and move anything else — a heading, a count — outside the <code>VirtualList</code>.</p>
+                            </div>
                         </div>
                     </div>
                     <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">

@@ -518,12 +518,12 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="js" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">// src/app-store.js
-const { invoke } = window.__TAURI__.core;
+                                <code class="wf-code wf-code--block wf-sa8223565">// src/app-store.js — Tauri&#x27;s IPC, reached when a value is read or written
+const call = (command, args) =&gt; window.__TAURI__.core.invoke(command, args);
 window.wfStorage = {
   app: {
-    get: (name) =&gt; invoke(&quot;store_get&quot;, { name }),
-    set: (name, text) =&gt; invoke(&quot;store_set&quot;, { name, text }),
+    get: (name) =&gt; call(&quot;store_get&quot;, { name }),
+    set: (name, text) =&gt; call(&quot;store_set&quot;, { name, text }),
   },
 };</code>
                             </div>

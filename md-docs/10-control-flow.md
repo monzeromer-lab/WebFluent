@@ -91,6 +91,53 @@ an insert every item has another's key, and nothing is kept. Key by what
 identifies the item.
 Looping over something that is not a list is an error (`T08`).
 
+### Long lists
+
+A list of thousands of rows — a project's files, a search's results, a long
+diff — is drawn a window at a time inside a **`VirtualList`**: the box
+scrolls, only the rows in view and a few either side are drawn, and two
+spacers stand for the rest, so the scrollbar is the whole list's. Its body
+is one keyed `for`.
+
+```wf
+type Hit { id: String, heading: Bool, text: String }
+
+page Search(path: "/", title: "Search", description: "Results, a window at a time.") {
+    state rows = (0..10000).map((i) => "src/file{i}.wf")
+    state hits: [Hit] = []
+    state current = ""
+    Heading("Search").h1
+    VirtualList(rowHeight: 32, label: "Files") {
+        style { height: 400px }
+        for path in rows by path { Text(path) { style { height: 32px; margin: 0 } } }
+    }
+    VirtualList(estimate: 24, reveal: current, label: "Results") {
+        style { height: 400px }
+        for h in hits by h.id {
+            if h.heading { Heading(h.text).h2 } else { Text(h.text) }
+        }
+    }
+}
+```
+
+- **`rowHeight:`** says every row is that tall: the fast path. Without it
+  each row is measured once drawn, and **`estimate:`** stands for the rows
+  not yet drawn; when a row above what is in view turns out taller or
+  shorter, the scroll moves by as much, so what the reader is looking at
+  stays put.
+- **`reveal:`** reads a row's key: when it changes, that row is scrolled
+  into view — the selected file as the arrow keys move, the current match.
+- A row keeps its nodes while it stays in the window and is told in place
+  when its item changes, as a keyed `for`'s are; a row scrolled out of the
+  window is let go. Give rows no vertical margins: a row's height is its
+  box's.
+- A tree is a list of the rows that are showing: flatten it in a `derived`
+  (the open folders' children after each folder) and window that.
+- The pre-rendered page paints the first 60 rows; the runtime draws the
+  window when it takes over.
+- With anything else in its body, or a `for` with no `by`, it draws every
+  row (`V12`).
+
 ## `show`
 
 `show` keeps the elements in the DOM and toggles their visibility, where `if`

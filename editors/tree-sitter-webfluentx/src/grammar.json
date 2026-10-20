@@ -4654,6 +4654,10 @@
           },
           {
             "type": "STRING",
+            "value": "VirtualList"
+          },
+          {
+            "type": "STRING",
             "value": "Navbar"
           },
           {

@@ -562,6 +562,22 @@ impl Checker<'_, '_> {
                 }
             }
         }
+        // `VirtualList { for row in rows by row.id { … } }`: one keyed
+        // `for`, or nothing is windowed.
+        if sig.name == "VirtualList" {
+            let windowed = matches!(
+                el.children.as_slice(),
+                [only] if matches!(&only.kind, StatementKind::For(f) if f.key.is_some())
+            );
+            if !windowed {
+                self.warning(
+                    span,
+                    "V12",
+                    "This `VirtualList` draws every row: its body is not one keyed `for`".to_string(),
+                    "Make its body one `for` with a `by`: `VirtualList(rowHeight: 32) { for row in rows by row.id { … } }`",
+                );
+            }
+        }
         // `Host(tag: "…")`: one of the elements it makes, or it is a `div`.
         if sig.name == "Host"
             && let Some((Expr::StringLiteral(tag), span)) = el

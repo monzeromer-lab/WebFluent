@@ -363,6 +363,46 @@ page List(path: &quot;/&quot;) {
                             <div class="wf-markdown">
 <p><code>by expr</code> names the key: with it, an item that stays in the list keeps its nodes — focus, scroll and animation state survive an insert, a removal or a move, and moves slide. An item keeps them under a new value too (a refreshed response's rows are all new objects): its body reads the item and the index live, so a changed row changes in place, its components' state with it. Without a key the list is rebuilt when it changes. Keys must be unique; the runtime warns once when two items share one. A key may read the index as well as the item (<code>for t, i in rows by &quot;{t.id}-{i}&quot;</code>), but a key of the index alone moves with the position, not the item: after an insert every item has another's key, and nothing is kept. Key by what identifies the item. Looping over something that is not a list is an error (<code>T08</code>).</p>
                             </div>
+                            <h3 class="wf-heading" id="long-lists">Long lists</h3>
+                            <div class="wf-markdown">
+<p>A list of thousands of rows — a project's files, a search's results, a long diff — is drawn a window at a time inside a <strong><code>VirtualList</code></strong>: the box scrolls, only the rows in view and a few either side are drawn, and two spacers stand for the rest, so the scrollbar is the whole list's. Its body is one keyed <code>for</code>.</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">type Hit { id: String, heading: Bool, text: String }
+
+page Search(path: &quot;/&quot;, title: &quot;Search&quot;, description: &quot;Results, a window at a time.&quot;) {
+    state rows = (0..10000).map((i) =&gt; &quot;src/file{i}.wf&quot;)
+    state hits: [Hit] = []
+    state current = &quot;&quot;
+    Heading(&quot;Search&quot;).h1
+    VirtualList(rowHeight: 32, label: &quot;Files&quot;) {
+        style { height: 400px }
+        for path in rows by path { Text(path) { style { height: 32px; margin: 0 } } }
+    }
+    VirtualList(estimate: 24, reveal: current, label: &quot;Results&quot;) {
+        style { height: 400px }
+        for h in hits by h.id {
+            if h.heading { Heading(h.text).h2 } else { Text(h.text) }
+        }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><strong><code>rowHeight:</code></strong> says every row is that tall: the fast path. Without it each row is measured once drawn, and <strong><code>estimate:</code></strong> stands for the rows not yet drawn; when a row above what is in view turns out taller or shorter, the scroll moves by as much, so what the reader is looking at stays put.</li>
+<li><strong><code>reveal:</code></strong> reads a row's key: when it changes, that row is scrolled into view — the selected file as the arrow keys move, the current match.</li>
+<li>A row keeps its nodes while it stays in the window and is told in place when its item changes, as a keyed <code>for</code>'s are; a row scrolled out of the window is let go. Give rows no vertical margins: a row's height is its box's.</li>
+<li>A tree is a list of the rows that are showing: flatten it in a <code>derived</code> (the open folders' children after each folder) and window that.</li>
+<li>The pre-rendered page paints the first 60 rows; the runtime draws the window when it takes over.</li>
+<li>With anything else in its body, or a <code>for</code> with no <code>by</code>, it draws every row (<code>V12</code>).</li>
+</ul>
+                            </div>
                             <h2 class="wf-heading" id="show">show</h2>
                             <div class="wf-markdown">
 <p><code>show</code> keeps the elements in the DOM and toggles their visibility, where <code>if</code> creates and destroys them. Use it for something expensive to rebuild or whose state must survive being hidden:</p>

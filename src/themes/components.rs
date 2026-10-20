@@ -398,6 +398,10 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 /* ─── Frame ─────────────────────────────────────────── */
 .wf-frame { display: block; width: 100%; border: 0; }
 
+/* ─── Virtual List ──────────────────────────────────── */
+.wf-virtual-list { display: block; overflow-y: auto; overflow-anchor: none; contain: content; min-height: 0; }
+.wf-virtual-list__space { flex: none; }
+
 /* ─── Splitter ──────────────────────────────────────── */
 .wf-splitter { flex: none; align-self: stretch; position: relative; width: 4px; cursor: col-resize; touch-action: none; background: transparent; transition: background var(--transition-fast); }
 .wf-splitter::before { content: ""; position: absolute; inset: 0 -3px; }

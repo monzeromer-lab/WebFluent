@@ -34,6 +34,7 @@ pub fn builtin_to_html(name: &str) -> (&'static str, &'static str) {
         "Spacer" => ("div", "wf-spacer"),
         "Divider" => ("hr", "wf-divider"),
         "Splitter" => ("div", "wf-splitter"),
+        "VirtualList" => ("div", "wf-virtual-list"),
 
         // ─── Navigation ──────────────────────────────────
         "Navbar" => ("nav", "wf-navbar"),

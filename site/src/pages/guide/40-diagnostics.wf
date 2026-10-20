@@ -2047,5 +2047,27 @@ page P(path: "/", title: "T", description: "D") {
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v11-a-component-named-like-a-built-in"#, title: "text")
 
         Markdown("**Fix:** Rename the component and its call sites.")
+
+        Heading("V12 — A long list that is not windowed", id: "v12-a-long-list-that-is-not-windowed").h3
+
+        Markdown("A `VirtualList` draws only the rows in view of the one keyed `for` that is the whole of its body. With anything else beside the `for`, or a `for` with no `by` — which has no way to keep a row's nodes as it scrolls — it draws every row, as a plain scrolling box does, and the length of the list is what the page pays for.")
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state rows = ["a", "b"]
+    Heading("Files").h1
+    VirtualList(rowHeight: 32) {
+        for r in rows { Text(r) }
+    }
+}"#, title: "wf · draws V12")
+
+        CodeBlock(#"warning[V12]: This `VirtualList` draws every row: its body is not one keyed `for`
+ --> src/App.wf:4:5
+  |
+4 |     VirtualList(rowHeight: 32) {
+  |     ^^^^^^^^^^^
+  = help: Make its body one `for` with a `by`: `VirtualList(rowHeight: 32) { for row in rows by row.id { … } }`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v12-a-long-list-that-is-not-windowed"#, title: "text")
+
+        Markdown("**Fix:** Give the `for` a `by`, and move anything else — a heading, a count — outside the `VirtualList`.")
     }
 }

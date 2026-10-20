@@ -13,7 +13,7 @@ Every component is written `Name(positional, prop: value).flag { block }`. A **p
 
 ## Contents
 
-- **Layout**: [`Container`](#container), [`Row`](#row), [`Column`](#column), [`Grid`](#grid), [`Stack`](#stack), [`Spacer`](#spacer), [`Splitter`](#splitter), [`Divider`](#divider), [`Host`](#host), [`Element`](#element)
+- **Layout**: [`Container`](#container), [`Row`](#row), [`Column`](#column), [`Grid`](#grid), [`Stack`](#stack), [`Spacer`](#spacer), [`VirtualList`](#virtuallist), [`Splitter`](#splitter), [`Divider`](#divider), [`Host`](#host), [`Element`](#element)
 - **Navigation**: [`Navbar`](#navbar), [`Sidebar`](#sidebar), [`Link`](#link), [`Tabs`](#tabs), [`Breadcrumb`](#breadcrumb), [`Menu`](#menu)
 - **Data display**: [`Card`](#card), [`Table`](#table), [`List`](#list), [`Badge`](#badge), [`Tag`](#tag), [`Avatar`](#avatar), [`Tooltip`](#tooltip)
 - **Form**: [`Input`](#input), [`Select`](#select), [`Checkbox`](#checkbox), [`Radio`](#radio), [`Switch`](#switch), [`Slider`](#slider), [`DatePicker`](#datepicker), [`FileUpload`](#fileupload), [`Form`](#form), [`Textarea`](#textarea)
@@ -195,6 +195,38 @@ Renders with the class `wf-spacer`.
 | `size:` | `.xs` `.sm` `.md` `.lg` `.xl` | How much space |
 
 **Flags:** `.xs` `.sm` `.md` `.lg` `.xl` `.dropInside` `.trapFocus`
+
+Attribute families: `global`, `aria`, `data`.
+
+### VirtualList
+
+A scrolling box that draws only the rows in view of the one keyed `for` inside it — for a tree, search results or a diff of thousands of rows.
+
+```
+VirtualList(rowHeight: …, estimate: …, reveal: …) { … }
+```
+
+```wf
+state rows = (0..10000).map((i) => "row {i}")
+state picked = "row 0"
+VirtualList(rowHeight: 32, reveal: picked, label: "Rows") {
+    style { height: 320px }
+    for r in rows by r { Text(r) { style { height: 32px; margin: 0 } } }
+}
+```
+
+Renders with the class `wf-virtual-list`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `rowHeight:` | `Number` | Every row's height, in px: the fast path. Unset, each row is measured |
+| `estimate:` | `Number` | The height a row not yet drawn stands for, in px. Unset, 32 |
+| `reveal:` | `Any` | A row's key: when it changes, that row is scrolled into view — the selection, the current match |
+| `label:` | `String` | What the list is, for a screen reader |
+
+**Flags:** `.dropInside` `.trapFocus`
+
+Takes a block of children.
 
 Attribute families: `global`, `aria`, `data`.
 

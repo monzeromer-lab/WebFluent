@@ -264,6 +264,7 @@ pub fn render_page_html_studio(
 
     let mut ctx = SsgContext {
         images: 0,
+        row_limit: None,
         fields: 0,
         default_messages,
         indent: 2,
@@ -469,6 +470,9 @@ pub fn render_page_html_studio(
 struct SsgContext {
     /// Images painted so far on this page; the first is fetched eagerly.
     images: usize,
+    /// A `VirtualList`'s `for` paints a screenful, not all of its rows: the
+    /// runtime draws the window once it takes over.
+    row_limit: Option<usize>,
     /// Fields painted so far, for their ids.
     fields: usize,
     default_messages: HashMap<String, String>,
@@ -1145,6 +1149,11 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
             format!(" style=\"{}\"", html_escape(&decls.join("; ")))
         }
     };
+    // The first rows of a long list are its paint; ten thousand of them
+    // were ten thousand rows of HTML.
+    if name == "VirtualList" {
+        ctx.row_limit = Some(VIRTUAL_PAINT_ROWS);
+    }
     match name {
         // A custom element, by its tag: its attributes as far as the build
         // knows them, and its children. The script that defines it upgrades
@@ -2021,14 +2030,21 @@ fn render_if_static(if_stmt: &IfStmt, ctx: &mut SsgContext) -> Option<String> {
 }
 
 /// Paint one copy of the body per item, or `None` to defer to the client.
+/// How many rows of a `VirtualList` the build paints: more than any screen
+/// shows.
+const VIRTUAL_PAINT_ROWS: usize = 60;
+
 fn render_for_static(for_stmt: &ForStmt, ctx: &mut SsgContext) -> Option<String> {
+    // Taken first, so a list the build cannot read leaves no limit behind
+    // for the next one.
+    let limit = ctx.row_limit.take().unwrap_or(usize::MAX);
     let Static::List(items) = eval(&for_stmt.iterable, &ctx.scope)? else {
         return None;
     };
 
     let outer = ctx.scope.clone();
     let mut html = String::new();
-    for (i, item) in items.iter().enumerate() {
+    for (i, item) in items.iter().enumerate().take(limit) {
         ctx.scope = outer.with(&for_stmt.item, item.clone());
         if let Some(index_name) = &for_stmt.index {
             ctx.scope = ctx.scope.with(index_name, Static::Num(i as f64));

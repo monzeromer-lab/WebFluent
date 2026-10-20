@@ -47,6 +47,16 @@ page Doc(path: "/") {
 
 // md-docs/37-components-reference.md
 page Doc(path: "/") {
+    state rows = (0..10000).map((i) => "row {i}")
+    state picked = "row 0"
+    VirtualList(rowHeight: 32, reveal: picked, label: "Rows") {
+        style { height: 320px }
+        for r in rows by r { Text(r) { style { height: 32px; margin: 0 } } }
+    }
+}
+
+// md-docs/37-components-reference.md
+page Doc(path: "/") {
     state side = 240
     Row {
         Container { style { width: {side}px } Text("Files") }

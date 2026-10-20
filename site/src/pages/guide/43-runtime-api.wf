@@ -125,6 +125,10 @@ WF.storeSnapshot("Cart");"#, title: "js")
                     Table.Cell { Markdown("`splitter(node, read, write, options)`") }
                     Table.Cell { Markdown("`Splitter(bind:, min:, max:, reset:)`") }
                 }
+                Table.Row {
+                    Table.Cell { Markdown("`windowed(node, listFn, itemFn, options)`") }
+                    Table.Cell { Markdown("a `VirtualList`'s keyed `for`") }
+                }
             }
         }
 

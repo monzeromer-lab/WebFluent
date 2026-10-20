@@ -124,6 +124,10 @@ jobs:
         working-directory: tests/browser
         run: node storage.mjs
 
+      - name: Long lists
+        working-directory: tests/browser
+        run: node windowed.mjs
+
       # What the compiler once compiled wrong, clicked and typed into.
       - name: Behaviour
         run: target/release/wf test tests/fixtures/behaviour

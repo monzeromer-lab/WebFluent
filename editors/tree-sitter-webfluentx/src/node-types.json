@@ -4734,6 +4734,10 @@
     "named": false
   },
   {
+    "type": "VirtualList",
+    "named": false
+  },
+  {
     "type": "Watermark",
     "named": false
   },

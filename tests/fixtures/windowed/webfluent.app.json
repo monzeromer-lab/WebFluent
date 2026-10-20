@@ -1,0 +1,4 @@
+{
+  "name": "windowed",
+  "build": { "ssg": true, "csp": true }
+}

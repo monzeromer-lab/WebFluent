@@ -40,6 +40,25 @@ page List(path: "/") {
 }
 
 // md-docs/10-control-flow.md
+type Hit { id: String, heading: Bool, text: String }
+page Search(path: "/", title: "Search", description: "Results, a window at a time.") {
+    state rows = (0..10000).map((i) => "src/file{i}.wf")
+    state hits: [Hit] = []
+    state current = ""
+    Heading("Search").h1
+    VirtualList(rowHeight: 32, label: "Files") {
+        style { height: 400px }
+        for path in rows by path { Text(path) { style { height: 32px; margin: 0 } } }
+    }
+    VirtualList(estimate: 24, reveal: current, label: "Results") {
+        style { height: 400px }
+        for h in hits by h.id {
+            if h.heading { Heading(h.text).h2 } else { Text(h.text) }
+        }
+    }
+}
+
+// md-docs/10-control-flow.md
 page Panel(path: "/") {
     state open = true
     Button("Toggle") { on click { open = !open } }

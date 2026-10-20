@@ -2609,6 +2609,38 @@ warning[V11]: `Chart` is a built-in component, so a call of that name draws the 
 ```
 
 **Fix:** Rename the component and its call sites.
+
+
+### V12 — A long list that is not windowed
+
+A `VirtualList` draws only the rows in view of the one keyed `for` that is
+the whole of its body. With anything else beside the `for`, or a `for` with
+no `by` — which has no way to keep a row's nodes as it scrolls — it draws
+every row, as a plain scrolling box does, and the length of the list is
+what the page pays for.
+
+```wf expect V12
+page P(path: "/", title: "T", description: "D") {
+    state rows = ["a", "b"]
+    Heading("Files").h1
+    VirtualList(rowHeight: 32) {
+        for r in rows { Text(r) }
+    }
+}
+```
+
+```text
+warning[V12]: This `VirtualList` draws every row: its body is not one keyed `for`
+ --> src/App.wf:4:5
+  |
+4 |     VirtualList(rowHeight: 32) {
+  |     ^^^^^^^^^^^
+  = help: Make its body one `for` with a `by`: `VirtualList(rowHeight: 32) { for row in rows by row.id { … } }`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v12-a-long-list-that-is-not-windowed
+```
+
+**Fix:** Give the `for` a `by`, and move anything else — a heading, a
+count — outside the `VirtualList`.
 ## Next
 
 [Built-ins](41-built-ins.md).

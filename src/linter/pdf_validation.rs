@@ -296,6 +296,7 @@ mod tests {
             "Dialog",
             "Popover",
             "Splitter",
+            "VirtualList",
             "Toast",
             "Spinner",
             "Skeleton",

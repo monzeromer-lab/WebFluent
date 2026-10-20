@@ -61,6 +61,7 @@ for it ([JavaScript interop](32-javascript-interop.md#wf-render-for-a-script-tha
 | `gesture(node, name, fn)` | `on longpress(p)`, `on swipe(s)`, `on receive(d)`, `on dragmove(d)` |
 | `draggable(node, value, options)`, `dropTarget(node, options)` | `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:` |
 | `splitter(node, read, write, options)` | `Splitter(bind:, min:, max:, reset:)` |
+| `windowed(node, listFn, itemFn, options)` | a `VirtualList`'s keyed `for` |
 
 ## Motion — `motion`
 

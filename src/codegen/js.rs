@@ -126,6 +126,8 @@ pub struct JsCodegen {
     /// The menu lists being drawn, innermost last: a `Menu.Sub` opens
     /// beside the one it is in.
     menu_lists: Vec<String>,
+    /// The options of the `VirtualList` whose `for` is drawn next.
+    window_opts: Option<Vec<String>>,
     /// The body being emitted, for reading a state's declared condition.
     current_body: Vec<Statement>,
     /// Every name the page, component or store being emitted declares, at
@@ -260,6 +262,7 @@ impl JsCodegen {
             form_handles: Vec::new(),
             validated: Vec::new(),
             menu_lists: Vec::new(),
+            window_opts: None,
             current_body: Vec::new(),
             own_names: Vec::new(),
             loop_bindings: Vec::new(),
@@ -2758,6 +2761,10 @@ impl JsCodegen {
                         self.emit_splitter(&var, ui, parent);
                         true
                     }
+                    "VirtualList" => {
+                        self.emit_virtual_list(&var, ui, parent);
+                        true
+                    }
                     "Popover" => {
                         self.emit_popover(&var, ui, parent);
                         true
@@ -3889,6 +3896,62 @@ impl JsCodegen {
             "WF.layer({var}, {binding}, {{ {} }});",
             opts.join(", ")
         ));
+        self.emit_line(&format!("{}.appendChild({});", parent, var));
+    }
+
+    /// `VirtualList(rowHeight:, estimate:, reveal:) { for … by … { } }`: the
+    /// box scrolls, and its one keyed `for` is drawn by `WF.windowed` a
+    /// window at a time. Anything else in it is drawn whole (V12).
+    fn emit_virtual_list(&mut self, var: &str, ui: &UIElement, parent: &str) {
+        let label = ui.args.iter().find_map(|a| match a {
+            Arg::Named(k, v) if k == "label" => Some(v.clone()),
+            _ => None,
+        });
+        let labelled = match label {
+            Some(v) => format!(", \"aria-label\": {}", self.emit_expr(&v)),
+            None => String::new(),
+        };
+        let extra = self.passthrough_attrs(ui);
+        self.emit_line(&format!(
+            "const {} = WF.el(\"div\", {{ className: \"{}\"{}{}{} }});",
+            var,
+            self.class_attr("VirtualList", ui),
+            labelled,
+            extra,
+            self.wf_node_inline(ui)
+        ));
+        self.emit_style_and_transition(var, ui);
+        match ui.children.as_slice() {
+            [only] if matches!(&only.kind, StatementKind::For(f) if f.key.is_some()) => {
+                let StatementKind::For(for_stmt) = &only.kind else {
+                    unreachable!()
+                };
+                let mut opts = Vec::new();
+                for key in ["rowHeight", "estimate"] {
+                    if let Some(v) = ui.args.iter().find_map(|a| match a {
+                        Arg::Named(k, v) if k == key => Some(v.clone()),
+                        _ => None,
+                    }) {
+                        let v = self.emit_expr(&v);
+                        opts.push(format!("{key}: {v}"));
+                    }
+                }
+                if let Some(v) = ui.args.iter().find_map(|a| match a {
+                    Arg::Named(k, v) if k == "reveal" => Some(v.clone()),
+                    _ => None,
+                }) {
+                    let v = self.emit_expr(&v);
+                    opts.push(format!("reveal: () => {v}"));
+                }
+                self.window_opts = Some(opts);
+                self.emit_for_dom(for_stmt, var);
+            }
+            children => {
+                for child in children {
+                    self.emit_statement_dom(child, var);
+                }
+            }
+        }
         self.emit_line(&format!("{}.appendChild({});", parent, var));
     }
 
@@ -5442,8 +5505,11 @@ impl JsCodegen {
 
     fn emit_for_dom(&mut self, for_stmt: &ForStmt, parent: &str) {
         let list = self.emit_expr(&for_stmt.iterable);
+        // A `VirtualList`'s `for` is drawn a window at a time.
+        let window = self.window_opts.take();
+        let draw = if window.is_some() { "windowed" } else { "each" };
 
-        self.emit_line(&format!("WF.each({},", parent));
+        self.emit_line(&format!("WF.{draw}({},", parent));
         self.indent += 1;
         self.emit_line(&format!("() => {},", list));
 
@@ -5527,6 +5593,7 @@ impl JsCodegen {
             }
             parts.push("live: true".to_string());
         }
+        parts.extend(window.unwrap_or_default());
         if parts.is_empty() {
             self.emit_line("null");
         } else {

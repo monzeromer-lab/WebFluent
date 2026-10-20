@@ -1511,6 +1511,7 @@ file would change; a `.wfx` file is normalised through its braced spelling.
 | `Stack` | `Stack(gap: md) { ... }` — vertical flex; takes the same `gap`/`align`/`justify` as `Row` |
 | `Spacer` | `Spacer` or `Spacer.sm` `Spacer.xl` — vertical space (the size is a flag) |
 | `Divider` | `Divider()` — horizontal line |
+| `VirtualList` | `VirtualList(rowHeight: 32, reveal: selected, label: "Files") { for f in files by f.path { … } }` — a scrolling box that draws only the rows in view of its one keyed `for`; without `rowHeight:` rows are measured (`estimate:` for the rest); `reveal:` scrolls the row with that key into view; anything else in its body is a `V12` and draws everything |
 | `Splitter` | `Splitter(bind: side, min: 160, max: 480, reset: 240, label: "Sidebar width")` — a handle that sizes the region beside it: dragged between `min:` and `max:`, double-click or Enter back to `reset:`, arrows ±16 px (Shift ±64), Home/End; `.horizontal` between regions one above the other, `.reverse` on the start side of what it sizes (a pane on the right, a panel below) |
 
 ### Navigation
@@ -2234,6 +2235,7 @@ may too. Its surface:
 | Scopes | `onCleanup(fn)` — run when what owns it leaves; `attempt(fn)` — an action that rolls itself back on a throw |
 | Keys | `onKey(node, combination, fn)`; `keyIs(event, combination)`; `keyLabel(combination)`, `keyAria(combination)` — what `on key("mod+k")`, `keyIs` and `keyLabel` compile to |
 | Focus | `trapFocus(node, read)` — what `trapFocus:` compiles to |
+| Long lists | `windowed(node, listFn, itemFn, options)` — what a `VirtualList`'s `for` compiles to |
 | Gestures | `gesture(node, name, fn)`, `draggable(node, value, options)`, `dropTarget(node, options)`, `splitter(node, read, write, options)` — what `on longpress`, `on swipe`, `drag:`, `on receive` and `Splitter` compile to |
 | Values | `caseOf(v)`, `payload(v)` read an enum case and its payload; `dateOf`, `timeOf`, `urlWith`, `urlQuery` are the scalar helpers behind `.date()`, `.time()`, `.with()` and `.query()` |
 
@@ -2825,6 +2827,7 @@ And what the type checker finds:
 | `R01` | A link or `navigate()` to a path no page's route matches (spliced paths by their shape; a path with no leading `/`) |
 | `R02` | A route's `:param` with no page parameter of that name, or the reverse |
 | `R03` | An `app` with no `Router` (no page is ever drawn), or with two |
+| `V12` | A `VirtualList` whose body is not one keyed `for`: it draws every row |
 | `E117` | An `on key("…")` combination no keyboard sends — an unknown modifier, no key, a key that does not exist, in any step of a chord |
 | `D02` | A `persist` of a value storage cannot keep as JSON — a function, a `File`, a promise |
 | `I01` | A literal `t("key")` that no locale's translations have, so the page shows the key |

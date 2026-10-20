@@ -816,6 +816,17 @@
       "deps": [],
       "exports": [
         [
+          "windowed",
+          "windowed"
+        ]
+      ],
+      "name": "windowed",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
           "gesture",
           "gesture"
         ],

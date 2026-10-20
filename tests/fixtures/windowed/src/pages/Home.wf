@@ -1,0 +1,38 @@
+// Long lists drawn a window at a time: ten thousand rows of one height,
+// and search results whose file headings and lines differ in height, with
+// the current match revealed as it moves.
+type Hit { id: String, heading: Bool, text: String }
+
+page Home(path: "/", title: "Windowed", description: "Long lists, a window at a time.") {
+    state count = 10000
+    state picked = ""
+    state current = 0
+    derived rows = (0..count).map((i) => "row {i}")
+    derived hits: [Hit] = (0..2000).map((i) => Hit(id: "h{i}", heading: i % 10 == 0, text: if i % 10 == 0 { "file {i / 10}.wf" } else { "line {i}" }))
+
+    Heading("Windowed").h1
+    VirtualList(rowHeight: 32, label: "Rows", id: "rows") {
+        style { height: 320px }
+        for r in rows by r {
+            Text(r, id: r) {
+                style { height: 32px; margin: 0 }
+                on click { picked = r }
+            }
+        }
+    }
+    Text(picked, id: "picked")
+    Button("Fewer", id: "fewer") { on click { count = 50 } }
+
+    VirtualList(estimate: 24, reveal: "h{current}", label: "Results", id: "hits") {
+        style { height: 300px }
+        for h in hits by h.id {
+            if h.heading {
+                Heading(h.text, id: h.id).h2 { style { height: 40px; margin: 0 } }
+            } else {
+                Text(h.text, id: h.id) { style { height: 22px; margin: 0 } }
+            }
+        }
+    }
+    Button("Next match", id: "next") { on click { current = current + 37 } }
+    Button("Last match", id: "last") { on click { current = 1999 } }
+}

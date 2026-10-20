@@ -123,6 +123,7 @@ pub enum TokenType {
     Spacer,
     Divider,
     Splitter,
+    VirtualList,
 
     // Navigation components
     Navbar,
@@ -380,6 +381,7 @@ pub const ALL_COMPONENT_NAMES: &[&str] = &[
     "Spacer",
     "Divider",
     "Splitter",
+    "VirtualList",
     // Navigation
     "Navbar",
     "Sidebar",
@@ -487,6 +489,7 @@ pub fn component_name(token: &TokenType) -> Option<&'static str> {
         TokenType::Spacer => "Spacer",
         TokenType::Divider => "Divider",
         TokenType::Splitter => "Splitter",
+        TokenType::VirtualList => "VirtualList",
         // Navigation
         TokenType::Navbar => "Navbar",
         TokenType::Sidebar => "Sidebar",
@@ -627,6 +630,7 @@ pub fn keyword_or_identifier(word: &str) -> TokenType {
         "Spacer" => TokenType::Spacer,
         "Divider" => TokenType::Divider,
         "Splitter" => TokenType::Splitter,
+        "VirtualList" => TokenType::VirtualList,
 
         // Navigation components
         "Navbar" => TokenType::Navbar,

@@ -58,6 +58,31 @@ page List(path: "/") {
 
         Markdown("`by expr` names the key: with it, an item that stays in the list keeps its nodes — focus, scroll and animation state survive an insert, a removal or a move, and moves slide. An item keeps them under a new value too (a refreshed response's rows are all new objects): its body reads the item and the index live, so a changed row changes in place, its components' state with it. Without a key the list is rebuilt when it changes. Keys must be unique; the runtime warns once when two items share one. A key may read the index as well as the item (`for t, i in rows by \"\{t.id\}-\{i\}\"`), but a key of the index alone moves with the position, not the item: after an insert every item has another's key, and nothing is kept. Key by what identifies the item. Looping over something that is not a list is an error (`T08`).")
 
+        Heading("Long lists", id: "long-lists").h3
+
+        Markdown("A list of thousands of rows — a project's files, a search's results, a long diff — is drawn a window at a time inside a **`VirtualList`**: the box scrolls, only the rows in view and a few either side are drawn, and two spacers stand for the rest, so the scrollbar is the whole list's. Its body is one keyed `for`.")
+
+        CodeBlock(#"type Hit { id: String, heading: Bool, text: String }
+
+page Search(path: "/", title: "Search", description: "Results, a window at a time.") {
+    state rows = (0..10000).map((i) => "src/file{i}.wf")
+    state hits: [Hit] = []
+    state current = ""
+    Heading("Search").h1
+    VirtualList(rowHeight: 32, label: "Files") {
+        style { height: 400px }
+        for path in rows by path { Text(path) { style { height: 32px; margin: 0 } } }
+    }
+    VirtualList(estimate: 24, reveal: current, label: "Results") {
+        style { height: 400px }
+        for h in hits by h.id {
+            if h.heading { Heading(h.text).h2 } else { Text(h.text) }
+        }
+    }
+}"#, title: "wf")
+
+        Markdown("- **`rowHeight:`** says every row is that tall: the fast path. Without it each row is measured once drawn, and **`estimate:`** stands for the rows not yet drawn; when a row above what is in view turns out taller or shorter, the scroll moves by as much, so what the reader is looking at stays put.\n- **`reveal:`** reads a row's key: when it changes, that row is scrolled into view — the selected file as the arrow keys move, the current match.\n- A row keeps its nodes while it stays in the window and is told in place when its item changes, as a keyed `for`'s are; a row scrolled out of the window is let go. Give rows no vertical margins: a row's height is its box's.\n- A tree is a list of the rows that are showing: flatten it in a `derived` (the open folders' children after each folder) and window that.\n- The pre-rendered page paints the first 60 rows; the runtime draws the window when it takes over.\n- With anything else in its body, or a `for` with no `by`, it draws every row (`V12`).")
+
         Heading("show", id: "show").h2
 
         Markdown("`show` keeps the elements in the DOM and toggles their visibility, where `if` creates and destroys them. Use it for something expensive to rebuild or whose state must survive being hidden:")

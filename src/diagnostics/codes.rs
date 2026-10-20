@@ -775,6 +775,12 @@ pub static CODES: &[CodeInfo] = &[
         "A handler names neither a DOM event nor one the element declares, so it never runs; often a misspelling (`on clik`).",
     ),
     code(
+        "V12",
+        Warning,
+        "A long list that is not windowed",
+        "A `VirtualList` draws only the rows in view of one keyed `for` — `for row in rows by row.id { … }` — that is the whole of its body; with anything else in it, or a `for` with no `by`, it draws everything, as a plain scrolling box does.",
+    ),
+    code(
         "V10",
         Warning,
         "A `Host` tag it does not make",

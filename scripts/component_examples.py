@@ -13,6 +13,7 @@ EXAMPLES = {
     "Stack": 'Stack(gap: .sm) {\n    Text("First")\n    Text("Second")\n}',
     "Spacer": 'Text("Above")\nSpacer.lg\nText("Below")',
     "Divider": 'Text("Section one")\nDivider\nText("Section two")',
+    "VirtualList": 'state rows = (0..10000).map((i) => "row {i}")\nstate picked = "row 0"\nVirtualList(rowHeight: 32, reveal: picked, label: "Rows") {\n    style { height: 320px }\n    for r in rows by r { Text(r) { style { height: 32px; margin: 0 } } }\n}',
     "Splitter": 'state side = 240\nRow {\n    Container { style { width: {side}px } Text("Files") }\n    Splitter(bind: side, min: 160, max: 480, reset: 240, label: "Sidebar width")\n    Container { Text("Editor") }\n}',
     "Host": 'Host(tag: "canvas", mount: (node) => node.getContext("2d"), cleanup: (ctx) => log("gone"))',
     "Element": 'Element("relative-time", datetime: "2026-03-14T09:30:00Z") { Text("March 14") }\nElement("stripe-pricing-table", publishableKey: "pk_test_…") { on ready { log("prices shown") } }',
