@@ -37,6 +37,16 @@ pub fn parse_v2(source: &str, file: &str) -> Result<Program> {
 /// What is wrong with a key combination the runtime would never match:
 /// a modifier it does not know, no key, or a key no keyboard has.
 fn key_problem(spelling: &str) -> Option<String> {
+    // A chord is its steps, a space between: `mod+k mod+s`.
+    let steps: Vec<&str> = spelling.split_whitespace().collect();
+    if steps.len() > 1 {
+        return steps.iter().find_map(|step| key_step_problem(step));
+    }
+    key_step_problem(spelling.trim())
+}
+
+/// What is wrong with one step of a key combination.
+fn key_step_problem(spelling: &str) -> Option<String> {
     let parts: Vec<String> = spelling
         .to_ascii_lowercase()
         .split('+')
@@ -1605,8 +1615,9 @@ impl ParserV2 {
                 }))
             }
             // `on key("ctrl+k") { … }` on the page itself: the document
-            // listens.
-            "on" if matches!(self.kind_at(1), TokenType::Identifier(w) if w == "key") => {
+            // listens; `on keydown(e) { … }` too, for a page that matches
+            // keys against data of its own, and the window's events.
+            "on" if matches!(self.kind_at(1), TokenType::Identifier(w) if PAGE_EVENTS.contains(&w.as_str())) => {
                 Ok(StatementKind::EventHandler(self.parse_handler()?))
             }
             "action" => self.parse_action(),
@@ -1661,7 +1672,7 @@ impl ParserV2 {
             "else" => Err(self.error("`else` without an `if`".into())),
             "on" | "style" | "transition" => Err(self.error_with_hint(
                 format!("`{word}` belongs inside an element's block"),
-                "Write `Button(\"x\") { on click { … } }`",
+                "Write `Button(\"x\") { on click { … } }`; outside an element, a page listens for `key`, `keydown`, `keyup`, and the window's `resize`, `scroll`, `hashchange`, `popstate`, `online`, `offline`, `message`, `storage` and `visibilitychange`",
             )),
             _ => {
                 // A slot use: a bare lowercase word in a component's body, or
@@ -2817,7 +2828,7 @@ impl ParserV2 {
                             return Err(self
                                 .error_with_hint(
                                     format!("`on key(\"{text}\")` {problem}"),
-                                    "Modifiers `ctrl`, `shift`, `alt`, `meta` (`cmd`), then one key: a letter, a digit, or a name like `Enter`, `Escape`, `ArrowDown`, `Tab`, `F2`",
+                                    "Modifiers `mod` (⌘ on a Mac, Ctrl elsewhere), `ctrl`, `shift`, `alt`, `meta` (`cmd`), then one key: a letter, a digit, or a name like `Enter`, `Escape`, `ArrowDown`, `Tab`, `F2`; a chord is its steps with a space between, `mod+k mod+s`",
                                 )
                                 .with_code("E117"));
                         }
@@ -4040,7 +4051,25 @@ pub const KEY_NAMES: &[&str] = &[
 ];
 
 /// The modifiers a key combination may hold, before its key.
-pub const KEY_MODIFIERS: &[&str] = &["ctrl", "shift", "alt", "meta", "cmd"];
+/// The events a page, a component or the app may handle itself, outside
+/// any element: the document's keys, and what only the window says.
+pub const PAGE_EVENTS: &[&str] = &[
+    "key",
+    "keydown",
+    "keyup",
+    "resize",
+    "scroll",
+    "hashchange",
+    "popstate",
+    "online",
+    "offline",
+    "message",
+    "storage",
+    "visibilitychange",
+];
+
+/// `mod` is `meta` (⌘) on Apple's systems and `ctrl` everywhere else.
+pub const KEY_MODIFIERS: &[&str] = &["mod", "ctrl", "shift", "alt", "meta", "cmd"];
 
 /// The milliseconds one of the units a number may carry is worth.
 fn duration_unit(name: &str) -> Option<f64> {

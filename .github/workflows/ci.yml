@@ -112,6 +112,10 @@ jobs:
         working-directory: tests/browser
         run: node layers.mjs
 
+      - name: Keys
+        working-directory: tests/browser
+        run: node keys.mjs
+
       # What the compiler once compiled wrong, clicked and typed into.
       - name: Behaviour
         run: target/release/wf test tests/fixtures/behaviour

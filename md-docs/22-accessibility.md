@@ -29,7 +29,10 @@ checks every page on every build.
   the first field with an error and announces it.
 - **Dialogs that trap focus.** `Modal` and `Dialog` are real `<dialog>`
   elements: the rest of the page is inert, Escape closes, and focus returns
-  to what opened them.
+  to what opened them. Anything else holds focus with `trapFocus: open` — a
+  find bar, a panel: focus moves in, Tab and Shift+Tab go round inside it,
+  a click outside brings it back, and when `open` turns false focus returns
+  to where it was.
 - **Menus with the keys people expect.** Arrows move and skip a disabled
   item, Home and End jump, Enter and Space choose, ArrowRight opens a
   submenu and ArrowLeft leaves it, Escape closes the innermost and focus

@@ -1161,7 +1161,14 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                 };
                 if matches!(
                     key.as_str(),
-                    "class" | "ref" | "mount" | "update" | "cleanup" | "shared" | "count"
+                    "class"
+                        | "ref"
+                        | "mount"
+                        | "update"
+                        | "cleanup"
+                        | "trapFocus"
+                        | "shared"
+                        | "count"
                 ) || key.starts_with("data-wf-")
                 {
                     continue;

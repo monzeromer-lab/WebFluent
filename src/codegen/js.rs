@@ -1324,7 +1324,15 @@ impl JsCodegen {
                     name.as_str(),
                     // The same set a page reaches: a store's action is where
                     // `optimistic` belongs, and `uuid` where an id is made.
-                    "format" | "ago" | "setTheme" | "beacon" | "optimistic" | "sanitize" | "uuid"
+                    "format"
+                        | "ago"
+                        | "setTheme"
+                        | "beacon"
+                        | "optimistic"
+                        | "sanitize"
+                        | "uuid"
+                        | "keyIs"
+                        | "keyLabel"
                 ) {
                     format!("WF.{}({})", name, args_str.join(", "))
                 } else if name == "fetch" {
@@ -2145,9 +2153,35 @@ impl JsCodegen {
                     body
                 ));
             }
+            // `on keydown(e) { … }` on the page, a component or the app: the
+            // document hears it — the window, for what only the window says
+            // — for as long as it is shown. It used to compile to a comment.
             StatementKind::EventHandler(handler) => {
-                // Standalone event handlers at component level — unusual but handle it
-                self.emit_line(&format!("// event handler: on:{}", handler.event));
+                let body = self.emit_event_body(handler);
+                let target = if matches!(
+                    handler.event.as_str(),
+                    "resize"
+                        | "scroll"
+                        | "hashchange"
+                        | "popstate"
+                        | "online"
+                        | "offline"
+                        | "message"
+                        | "storage"
+                        | "beforeunload"
+                        | "pagehide"
+                        | "pageshow"
+                ) {
+                    "window"
+                } else {
+                    "document"
+                };
+                self.emit_line(&format!(
+                    "WF.listen({target}, \"{}\", {} => {{ {} }});",
+                    handler.event,
+                    Self::handler_head(handler, "event"),
+                    body
+                ));
             }
             _ => {
                 self.emit_statement(stmt);
@@ -2341,7 +2375,7 @@ impl JsCodegen {
                                 "shared" | "on" | "count" => {}
                                 // `mount:`, `update:`, `cleanup:`: a lifetime,
                                 // emitted below, on any element.
-                                "mount" | "update" | "cleanup" => {}
+                                "mount" | "update" | "cleanup" | "trapFocus" => {}
                                 "tag" if name == "Host" => {}
                                 // `maxLength` and `rows` are the textarea's,
                                 // written as HTML writes them.
@@ -3110,7 +3144,7 @@ impl JsCodegen {
                 let (lifetime, passed): (Vec<Arg>, Vec<Arg>) =
                     ui.args.iter().cloned().partition(|a| {
                         matches!(a, Arg::Named(k, _)
-                        if matches!(k.as_str(), "mount" | "update" | "cleanup") && !own.contains(k))
+                        if matches!(k.as_str(), "mount" | "update" | "cleanup" | "trapFocus") && !own.contains(k))
                     });
                 // An attribute the component does not take as a prop —
                 // `aria-label`, `data-*`, `id`, `hidden`, `title` — is its
@@ -3333,7 +3367,7 @@ impl JsCodegen {
             // What the generic paths below write themselves.
             if matches!(
                 key.as_str(),
-                "class" | "ref" | "mount" | "update" | "cleanup" | "shared" | "count"
+                "class" | "ref" | "mount" | "update" | "cleanup" | "trapFocus" | "shared" | "count"
             ) || key.starts_with("data-wf-")
             {
                 continue;
@@ -3380,6 +3414,14 @@ impl JsCodegen {
     /// node handed to somebody else's code, and given back when what owns
     /// it leaves.
     fn emit_host(&mut self, var: &str, ui: &UIElement) {
+        // `trapFocus: open`: while it holds, Tab stays inside the element.
+        if let Some(cond) = ui.args.iter().find_map(|a| match a {
+            Arg::Named(k, v) if k == "trapFocus" => Some(v),
+            _ => None,
+        }) {
+            let read = self.emit_expr(cond);
+            self.emit_line(&format!("WF.trapFocus({var}, () => {read});"));
+        }
         // `mount:`, `update:`, `cleanup:` on any element: the lifetime `Host`
         // gives a bare node, given to every element there is.
         if !ui.args.iter().any(|a| {
@@ -4259,13 +4301,15 @@ impl JsCodegen {
         for child in &ui.children {
             self.emit_statement_dom(child, var);
         }
+        // A shortcut is a key spelling, `mod+b`, written as this system
+        // writes it: `⌘B` on a Mac, `Ctrl+B` elsewhere.
         if let Some(keys) = shortcut {
             self.emit_line(&format!(
-                "{var}.appendChild(WF.el(\"kbd\", {{ className: \"wf-menu__shortcut\", \"aria-hidden\": \"true\" }}, {keys}));"
+                "{var}.appendChild(WF.el(\"kbd\", {{ className: \"wf-menu__shortcut\", \"aria-hidden\": \"true\" }}, WF.keyLabel({keys})));"
             ));
             // Said once, as the item's own shortcut.
             self.emit_line(&format!(
-                "{var}.setAttribute(\"aria-keyshortcuts\", {keys});"
+                "{var}.setAttribute(\"aria-keyshortcuts\", WF.keyAria({keys}));"
             ));
         }
         for handler in &ui.events {
@@ -4548,7 +4592,7 @@ impl JsCodegen {
                 "shortcut" => {
                     let keys = self.emit_expr(v);
                     self.emit_line(&format!(
-                        "{tip_var}.appendChild(WF.el(\"kbd\", {{ className: \"wf-tooltip__shortcut\" }}, {keys}));"
+                        "{tip_var}.appendChild(WF.el(\"kbd\", {{ className: \"wf-tooltip__shortcut\" }}, WF.keyLabel({keys})));"
                     ));
                 }
                 "placement" | "delay" => {
@@ -6476,7 +6520,15 @@ impl JsCodegen {
                     // which is the whole of why it exists.
                     // `uuid()` is where a `Uuid` comes from: the platform's
                     // generator, or a version-4 layout where there is none.
-                    "format" | "ago" | "setTheme" | "beacon" | "optimistic" | "sanitize" | "uuid"
+                    "format"
+                        | "ago"
+                        | "setTheme"
+                        | "beacon"
+                        | "optimistic"
+                        | "sanitize"
+                        | "uuid"
+                        | "keyIs"
+                        | "keyLabel"
                 ) && !self.own_actions.contains(name)
                 {
                     let args_str: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();

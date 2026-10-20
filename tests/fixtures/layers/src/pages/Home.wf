@@ -13,7 +13,7 @@ page Home(path: "/", title: "Layers", description: "Popovers, menus and tooltips
         Row {
             Button("Branches", ref: branches, id: "branches") { on click { open = !open } }
             Menu(trigger: "View", id: "view") {
-                Menu.Item(shortcut: "Ctrl+B", id: "sidebar") {
+                Menu.Item(shortcut: "mod+b", id: "sidebar") {
                     on click { said = "sidebar" }
                     Text("Toggle sidebar")
                 }
@@ -37,7 +37,7 @@ page Home(path: "/", title: "Layers", description: "Popovers, menus and tooltips
                     }
                 }
             }
-            Tooltip("Save", shortcut: "Ctrl+S", delay: 200) {
+            Tooltip("Save", shortcut: "mod+s", delay: 200) {
                 Button("Save", id: "save")
             }
         }

@@ -49,7 +49,7 @@ fn a_popover_is_a_layer_at_its_anchor_that_writes_its_state_back() {
 #[test]
 fn a_menu_at_its_button_is_drawn_in_the_top_layer() {
     let src = page(
-        "state wrap = false\n    Menu(trigger: \"View\", placement: .bottomEnd) {\n        Menu.Item(shortcut: \"Ctrl+B\") {\n            on click { wrap = !wrap }\n            Text(\"Toggle sidebar\")\n        }\n        Menu.Item(checked: wrap) { Text(\"Word wrap\") }\n        Menu.Item(disabled: true) { Text(\"Zen mode\") }\n        Menu.Divider()\n    }",
+        "state wrap = false\n    Menu(trigger: \"View\", placement: .bottomEnd) {\n        Menu.Item(shortcut: \"mod+b\") {\n            on click { wrap = !wrap }\n            Text(\"Toggle sidebar\")\n        }\n        Menu.Item(checked: wrap) { Text(\"Word wrap\") }\n        Menu.Item(disabled: true) { Text(\"Zen mode\") }\n        Menu.Divider()\n    }",
     );
     let js = spa_generated(&src);
     assert!(
@@ -67,11 +67,11 @@ fn a_menu_at_its_button_is_drawn_in_the_top_layer() {
     );
     // The item's shortcut is drawn at its end and said once.
     assert!(
-        js.contains("WF.el(\"kbd\", { className: \"wf-menu__shortcut\", \"aria-hidden\": \"true\" }, \"Ctrl+B\")"),
+        js.contains("WF.el(\"kbd\", { className: \"wf-menu__shortcut\", \"aria-hidden\": \"true\" }, WF.keyLabel(\"mod+b\"))"),
         "{js}"
     );
     assert!(
-        js.contains(".setAttribute(\"aria-keyshortcuts\", \"Ctrl+B\")"),
+        js.contains(".setAttribute(\"aria-keyshortcuts\", WF.keyAria(\"mod+b\"))"),
         "{js}"
     );
     assert!(
@@ -85,7 +85,7 @@ fn a_menu_at_its_button_is_drawn_in_the_top_layer() {
         "{js}"
     );
     assert!(
-        !js.contains("shortcut: \"Ctrl+B\""),
+        !js.contains("shortcut: \"mod+b\""),
         "a shortcut is not an attribute: {js}"
     );
 }
@@ -138,7 +138,7 @@ fn a_submenu_opens_beside_the_entry_of_the_menu_it_is_in() {
 #[test]
 fn a_tooltip_names_its_shortcut_and_its_delay_is_its_own() {
     let src = page(
-        "Tooltip(\"Save\", shortcut: \"Ctrl+S\", delay: 400, placement: .bottom) {\n        Button(\"Save\")\n    }",
+        "Tooltip(\"Save\", shortcut: \"mod+s\", delay: 400, placement: .bottom) {\n        Button(\"Save\")\n    }",
     );
     assert_eq!(checks(&src), "");
     let js = spa_generated(&src);
@@ -147,7 +147,9 @@ fn a_tooltip_names_its_shortcut_and_its_delay_is_its_own() {
         "the positional text is the tip: {js}"
     );
     assert!(
-        js.contains("WF.el(\"kbd\", { className: \"wf-tooltip__shortcut\" }, \"Ctrl+S\")"),
+        js.contains(
+            "WF.el(\"kbd\", { className: \"wf-tooltip__shortcut\" }, WF.keyLabel(\"mod+s\"))"
+        ),
         "{js}"
     );
     assert!(

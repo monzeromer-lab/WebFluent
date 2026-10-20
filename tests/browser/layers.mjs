@@ -127,7 +127,7 @@ async function scenario(label, ssg, port) {
     check("at its button", Math.abs(s.viewRect.left - s.viewButton.left) <= 1 && s.viewRect.top >= s.viewButton.bottom, JSON.stringify([s.viewRect, s.viewButton]));
     check("aria-expanded says so", s.expanded === "true", s.expanded);
     const shortcut = await page.$eval("#sidebar", (el) => [el.querySelector("kbd")?.textContent, el.getAttribute("aria-keyshortcuts")]);
-    check("an item shows its shortcut, and says it", shortcut[0] === "Ctrl+B" && shortcut[1] === "Ctrl+B", JSON.stringify(shortcut));
+    check("an item shows its shortcut, and says it", shortcut[0] === "Ctrl+B" && shortcut[1] === "Control+B", JSON.stringify(shortcut));
     await press("#zen");
     s = await look(page);
     check("a disabled item cannot be chosen, and the menu stays", s.said !== "zen" && s.view.shown, `${s.said} ${JSON.stringify(s.view)}`);

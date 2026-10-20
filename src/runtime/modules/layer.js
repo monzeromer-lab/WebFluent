@@ -439,3 +439,77 @@
     });
     onCleanup(() => clearTimeout(timer));
   }
+
+  // ─── A focus trap ──────────────────────────────────────────────────
+  //
+  // `trapFocus: open` on any element: while `read()` holds, focus moves in
+  // (to what says `autofocus`, else the first thing that takes focus), and
+  // Tab and Shift+Tab go round inside it; when it stops holding, or the
+  // element leaves, focus goes back to where it was. `Modal` and `Dialog`
+  // have the browser's own.
+
+  const FOCUSABLE = "a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, iframe, [contenteditable=\"true\"], [tabindex]:not([tabindex=\"-1\"])";
+  function _stops(el) {
+    if (!el.querySelectorAll) return [];
+    return Array.from(el.querySelectorAll(FOCUSABLE)).filter((n) => !n.hidden && n.getAttribute("aria-hidden") !== "true");
+  }
+  function trapFocus(el, read) {
+    live(el);
+    let before = null;
+    let held = false;
+    const onKeys = (e) => {
+      if (e.key !== "Tab") return;
+      const stops = _stops(el);
+      if (!stops.length) {
+        if (e.preventDefault) e.preventDefault();
+        return;
+      }
+      const first = stops[0];
+      const last = stops[stops.length - 1];
+      const at = document.activeElement;
+      if (e.shiftKey && (at === first || !el.contains(at))) {
+        if (e.preventDefault) e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && (at === last || !el.contains(at))) {
+        if (e.preventDefault) e.preventDefault();
+        first.focus();
+      }
+    };
+    // Focus that lands outside — a click on the page — is brought back.
+    const onFocus = (e) => {
+      if (held && e.target && !el.contains(e.target)) {
+        const stops = _stops(el);
+        (stops[0] || el).focus();
+      }
+    };
+    const hold = () => {
+      if (held) return;
+      held = true;
+      before = typeof document !== "undefined" ? document.activeElement : null;
+      document.addEventListener("keydown", onKeys, true);
+      document.addEventListener("focusin", onFocus, true);
+      const auto = el.querySelector && el.querySelector("[autofocus]");
+      const target = auto || _stops(el)[0];
+      if (target) target.focus();
+      else {
+        if (!el.hasAttribute("tabindex")) el.setAttribute("tabindex", "-1");
+        el.focus();
+      }
+    };
+    const release = () => {
+      if (!held) return;
+      held = false;
+      document.removeEventListener("keydown", onKeys, true);
+      document.removeEventListener("focusin", onFocus, true);
+      if (before && before.focus && before.isConnected !== false) before.focus();
+      before = null;
+    };
+    // After the element is drawn, so what is inside it can take focus.
+    effect(() => {
+      const on = !!read();
+      if (typeof queueMicrotask === "function") queueMicrotask(() => (on ? hold() : release()));
+      else if (on) hold();
+      else release();
+    });
+    onCleanup(release);
+  }

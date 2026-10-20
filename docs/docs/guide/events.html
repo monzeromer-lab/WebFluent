@@ -363,7 +363,57 @@
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Spelling: modifiers <code>ctrl</code>, <code>shift</code>, <code>alt</code>, <code>meta</code> (or <code>cmd</code>), joined with <code>+</code>, then the key as the browser names it — <code>k</code>, <code>Enter</code>, <code>Escape</code> (or <code>esc</code>), <code>Tab</code>, <code>ArrowDown</code> (or <code>down</code>), <code>space</code>. On an element the handler listens on that element; at the top of a page or component it listens on the document for as long as the page shows. Every modifier must match exactly, so <code>ctrl+k</code> does not fire on <code>ctrl+shift+k</code>.</p>
+<p>Spelling: modifiers <code>ctrl</code>, <code>shift</code>, <code>alt</code>, <code>meta</code> (or <code>cmd</code>), joined with <code>+</code>, then the key as the browser names it — <code>k</code>, <code>Enter</code>, <code>Escape</code> (or <code>esc</code>), <code>Tab</code>, <code>ArrowDown</code> (or <code>down</code>), <code>space</code>, <code>F2</code>. On an element the handler listens on that element; at the top of a page or component it listens on the document for as long as the page shows. Every modifier must match exactly, so <code>ctrl+k</code> does not fire on <code>ctrl+shift+k</code>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="shortcuts-for-an-app">Shortcuts for an app</h3>
+                            <div class="wf-markdown">
+<p>An app's shortcuts are written with <strong><code>mod</code></strong>, which is ⌘ on a Mac and Ctrl everywhere else, and declared on <code>app</code>, where they are heard on every page for as long as the app runs. A <strong>chord</strong> is its steps with a space between: the second step must come within a second and a half of the first, and alone it does not fire a shortcut of its own.</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">store Commands {
+    state said = &quot;&quot;
+    state table: [Command] = [
+        { id: &quot;palette&quot;, keys: &quot;mod+shift+p&quot;, title: &quot;Commands&quot; },
+        { id: &quot;sidebar&quot;, keys: &quot;mod+b&quot;, title: &quot;Toggle sidebar&quot; },
+    ]
+    action run(e) {
+        for c in table {
+            if keyIs(e, c.keys) {
+                e.preventDefault()
+                said = c.id
+            }
+        }
+    }
+}
+
+type Command { id: String, keys: String, title: String }
+
+app {
+    on key(&quot;mod+s&quot;) { Commands.said = &quot;saved&quot; }
+    on key(&quot;mod+k mod+s&quot;) { Commands.said = &quot;shortcut help&quot; }
+    on keydown(e) { Commands.run(e) }
+    Menu(trigger: &quot;View&quot;) {
+        for c in Commands.table {
+            Menu.Item(shortcut: c.keys) { Text(c.title) }
+        }
+    }
+    Text(&quot;Commands: {keyLabel(\&quot;mod+shift+p\&quot;)}&quot;)
+    Router
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><strong><code>keyIs(e, &quot;mod+s&quot;)</code></strong> is whether a key event is that combination — a chord's too — so one table of commands can drive the shortcuts, the menus and a palette.</li>
+<li><strong><code>keyLabel(&quot;mod+shift+p&quot;)</code></strong> is how this system writes it: <code>⇧⌘P</code> on a Mac, <code>Ctrl+Shift+P</code> elsewhere. A <code>Menu.Item</code>'s and a <code>Tooltip</code>'s <code>shortcut:</code> are written the same way, and the item tells assistive technology with <code>aria-keyshortcuts</code>.</li>
+<li>Outside any element, a page, a component or <code>app</code> may handle <code>keydown</code> and <code>keyup</code>, and the window's <code>resize</code>, <code>scroll</code>, <code>hashchange</code>, <code>popstate</code>, <code>online</code>, <code>offline</code>, <code>message</code>, <code>storage</code> and <code>visibilitychange</code>: each listens for as long as it shows.</li>
+<li>A letter is also the key in its place: on a Mac <code>⌥⌘P</code> sends <code>π</code>, and <code>mod+alt+p</code> still matches it.</li>
+</ul>
                             </div>
                             <h2 class="wf-heading" id="emitting-events-from-components">Emitting events from components</h2>
                             <div class="wf-markdown">

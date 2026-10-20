@@ -726,11 +726,23 @@ parameter names the DOM event; without one, `event` is in scope. An
 element's block is ordered `style` → `transition` → `on …` → slot fills →
 children.
 
-`on key("ctrl+k") { … }` answers to one key: modifiers `ctrl`, `shift`,
+`on key("ctrl+k") { … }` answers to one key: modifiers `mod` (⌘ on a Mac,
+Ctrl elsewhere — the one to use for an app's shortcuts), `ctrl`, `shift`,
 `alt`, `meta`/`cmd`, then the key as the browser names it (`k`, `Enter`,
-`Escape`/`esc`, `ArrowDown`/`down`, `space`). On an element it listens
-there; at the top of a page it listens on the document for as long as the
-page shows; `on key("Escape", e)` names the event too.
+`Escape`/`esc`, `ArrowDown`/`down`, `space`, `F2`). A chord is its steps
+with a space between: `on key("mod+k mod+s")`, the second within 1.5 s; the
+second step alone then does not fire its own shortcut. On an element it
+listens there; at the top of a page, a component or `app` it listens on the
+document for as long as that shows (on `app`, always); `on key("Escape", e)`
+names the event too. A page, a component or `app` may also handle
+`keydown`, `keyup`, and the window's `resize`, `scroll`, `hashchange`,
+`popstate`, `online`, `offline`, `message`, `storage` and
+`visibilitychange` itself, outside any element. `keyIs(e, "mod+s")` is
+whether a key event is a combination — for a table of commands held as
+data — and `keyLabel("mod+shift+p")` how this system writes it (`⇧⌘P`,
+`Ctrl+Shift+P`); a `Menu.Item`'s or `Tooltip`'s `shortcut:` is written
+that way. `trapFocus: open` on any element keeps Tab inside it while
+`open` holds, moving focus in and back out.
 
 `Form(bind: form)` hands a handle on the form: `form.valid`, `form.errors`
 by field name, `form.touched`, `form.pending` (an async rule is still
@@ -2206,7 +2218,8 @@ may too. Its surface:
 | Interop | `attach(node, mount, update, cleanup)` — what `mount:`/`update:`/`cleanup:` compile to on any element (a component's fragment is attached at its root); `wf:render` on `document` after each drawing; `jsonAttr(raw)` — an attribute holding JSON, as the prop it stands for |
 | Boot | `mount(fn, container)`; `hydrate(fn, container)` and `hydrating(root)` — draw beside a pre-rendered page and take it over in place; `live(node)` — something holds `node`, so the takeover keeps the drawn one; `mainOf(root)`; `setBasePath`; `setSsgMode`; `__debug`, `__reg` (the studio's) |
 | Scopes | `onCleanup(fn)` — run when what owns it leaves; `attempt(fn)` — an action that rolls itself back on a throw |
-| Keys | `onKey(node, combination, fn)`; `keyIs(event, combination)` — what `on key("ctrl+k")` compiles to |
+| Keys | `onKey(node, combination, fn)`; `keyIs(event, combination)`; `keyLabel(combination)`, `keyAria(combination)` — what `on key("mod+k")`, `keyIs` and `keyLabel` compile to |
+| Focus | `trapFocus(node, read)` — what `trapFocus:` compiles to |
 | Values | `caseOf(v)`, `payload(v)` read an enum case and its payload; `dateOf`, `timeOf`, `urlWith`, `urlQuery` are the scalar helpers behind `.date()`, `.time()`, `.with()` and `.query()` |
 
 ## Search and Sharing
@@ -2797,7 +2810,7 @@ And what the type checker finds:
 | `R01` | A link or `navigate()` to a path no page's route matches (spliced paths by their shape; a path with no leading `/`) |
 | `R02` | A route's `:param` with no page parameter of that name, or the reverse |
 | `R03` | An `app` with no `Router` (no page is ever drawn), or with two |
-| `E117` | An `on key("…")` combination no keyboard sends — an unknown modifier, no key, a key that does not exist |
+| `E117` | An `on key("…")` combination no keyboard sends — an unknown modifier, no key, a key that does not exist, in any step of a chord |
 | `D02` | A `persist` of a value storage cannot keep as JSON — a function, a `File`, a promise |
 | `I01` | A literal `t("key")` that no locale's translations have, so the page shows the key |
 | `I02` | A message and its call that disagree: a value passed the message does not use, or a placeholder the call does not pass |

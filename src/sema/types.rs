@@ -4562,6 +4562,11 @@ impl<'a, 'p> Checker<'a, 'p> {
                     "Bool" | "Boolean" => Type::Bool,
                     // Where a `Uuid` comes from.
                     "uuid" => Type::Scalar(Scalar::Uuid),
+                    // `keyIs(e, "mod+s")`: whether a key event is that
+                    // combination; `keyLabel("mod+s")`: how it is written for
+                    // the reader, `⌘S` or `Ctrl+S`.
+                    "keyIs" => Type::Bool,
+                    "keyLabel" => Type::String,
                     _ => Type::Any,
                 }
             }
@@ -5532,6 +5537,8 @@ pub(crate) const BUILT_IN_FUNCTIONS: &[&str] = &[
     "setLocale",
     "setTheme",
     "uuid",
+    "keyIs",
+    "keyLabel",
     "sanitize",
     "fetch",
     "optimistic",

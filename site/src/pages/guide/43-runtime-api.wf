@@ -103,7 +103,15 @@ WF.storeSnapshot("Cart");"#, title: "js")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`onKey(node, combination, fn)`, `keyIs(event, combination)`") }
-                    Table.Cell { Markdown("`on key(\"ctrl+k\")`") }
+                    Table.Cell { Markdown("`on key(\"mod+k\")`, `keyIs(e, \"mod+k\")`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`keyLabel(combination)`, `keyAria(combination)`") }
+                    Table.Cell { Markdown("`keyLabel(\"mod+k\")`, and a `shortcut:` drawn and given as `aria-keyshortcuts`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`trapFocus(node, read)`") }
+                    Table.Cell { Markdown("`trapFocus: open`") }
                 }
             }
         }

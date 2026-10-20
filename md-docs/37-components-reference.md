@@ -47,7 +47,7 @@ Renders with the class `wf-container`.
 |---|---|---|
 | `fluid:` | `Bool` | Full width, no maximum |
 
-**Flags:** `.fluid`
+**Flags:** `.fluid` `.trapFocus`
 
 Takes a block of children.
 
@@ -79,7 +79,7 @@ Renders with the class `wf-row`.
 | `direction:` | `.row` `.column` | Which way its children run; takes a value per breakpoint |
 | `stacks:` | `Bool` | Reflow on a narrow screen: a Row becomes a column, a Grid one column |
 
-**Flags:** `.xs` `.sm` `.md` `.lg` `.xl` `.stretch` `.baseline` `.between` `.around` `.evenly` `.row` `.column` `.stacks`
+**Flags:** `.xs` `.sm` `.md` `.lg` `.xl` `.stretch` `.baseline` `.between` `.around` `.evenly` `.row` `.column` `.stacks` `.trapFocus`
 
 Takes a block of children.
 
@@ -107,7 +107,7 @@ Renders with the class `wf-col`.
 | `span:` | `Number` | How many of the 12 grid columns to span |
 | `stacks:` | `Bool` | Reflow on a narrow screen: a Row becomes a column, a Grid one column |
 
-**Flags:** `.stacks`
+**Flags:** `.stacks` `.trapFocus`
 
 Takes a block of children.
 
@@ -139,7 +139,7 @@ Renders with the class `wf-grid`.
 | `justify:` | `.start` `.center` `.end` `.between` `.around` `.evenly` | Main-axis distribution |
 | `stacks:` | `Bool` | Reflow on a narrow screen: a Row becomes a column, a Grid one column |
 
-**Flags:** `.xs` `.sm` `.md` `.lg` `.xl` `.stretch` `.baseline` `.between` `.around` `.evenly` `.stacks`
+**Flags:** `.xs` `.sm` `.md` `.lg` `.xl` `.stretch` `.baseline` `.between` `.around` `.evenly` `.stacks` `.trapFocus`
 
 Takes a block of children.
 
@@ -168,7 +168,7 @@ Renders with the class `wf-stack`.
 | `align:` | `.start` `.center` `.end` `.stretch` `.baseline` | Cross-axis alignment |
 | `justify:` | `.start` `.center` `.end` `.between` `.around` `.evenly` | Main-axis distribution |
 
-**Flags:** `.xs` `.sm` `.md` `.lg` `.xl` `.stretch` `.baseline` `.between` `.around` `.evenly`
+**Flags:** `.xs` `.sm` `.md` `.lg` `.xl` `.stretch` `.baseline` `.between` `.around` `.evenly` `.trapFocus`
 
 Takes a block of children.
 
@@ -194,7 +194,7 @@ Renders with the class `wf-spacer`.
 |---|---|---|
 | `size:` | `.xs` `.sm` `.md` `.lg` `.xl` | How much space |
 
-**Flags:** `.xs` `.sm` `.md` `.lg` `.xl`
+**Flags:** `.xs` `.sm` `.md` `.lg` `.xl` `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -213,6 +213,8 @@ Text("Section two")
 ```
 
 Renders with the class `wf-divider`.
+
+**Flags:** `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -234,6 +236,8 @@ Renders with the class `wf-host`.
 |---|---|---|
 | `tag:` | `String` | The element to make: `div` (the default), `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul` or `table` |
 
+**Flags:** `.trapFocus`
+
 Attribute families: `global`, `aria`, `data`.
 
 ### Element
@@ -252,6 +256,8 @@ Element("stripe-pricing-table", publishableKey: "pk_test_…") { on ready { log(
 | Prop | Type | Meaning |
 |---|---|---|
 | `tag` (positional) | `String` | The custom element's tag: lower case, with a hyphen, as every custom element's is |
+
+**Flags:** `.trapFocus`
 
 Takes a block of children.
 
@@ -277,11 +283,16 @@ Navbar {
 
 Renders with the class `wf-navbar`.
 
+**Flags:** `.trapFocus`
+
 **Parts:**
 
 - `Navbar.Brand { … }` — The brand area, usually a link home.
+  - flags: `.trapFocus`
 - `Navbar.Links { … }` — The navigation links; collapses behind a toggle on small screens.
+  - flags: `.trapFocus`
 - `Navbar.Actions { … }` — Buttons at the end of the bar.
+  - flags: `.trapFocus`
 
 Takes a block of children.
 
@@ -306,15 +317,19 @@ Sidebar {
 
 Renders with the class `wf-sidebar`.
 
+**Flags:** `.trapFocus`
+
 **Parts:**
 
 - `Sidebar.Header { … }` — The sidebar's heading area.
+  - flags: `.trapFocus`
 - `Sidebar.Item(to: …, icon: …, active: …) { … }` — One navigation entry.
   - `to:` `Path` — Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current="page"`
   - `icon:` `String` — Icon shown before the label
   - `active:` `.prefix` — How the link decides it is the current one
-  - flags: `.prefix`
+  - flags: `.prefix` `.trapFocus`
 - `Sidebar.Divider` — A rule between groups of items.
+  - flags: `.trapFocus`
 
 Takes a block of children.
 
@@ -342,7 +357,7 @@ Renders with the class `wf-link`.
 | `to:` | `Path` | Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current="page"` |
 | `active:` | `.prefix` | How the link decides it is the current one |
 
-**Flags:** `.prefix`
+**Flags:** `.prefix` `.trapFocus`
 
 Takes a block of children.
 
@@ -365,10 +380,13 @@ Tabs {
 
 Renders with the class `wf-tabs`.
 
+**Flags:** `.trapFocus`
+
 **Parts:**
 
 - `Tabs.Page(label) { … }` — One tab and its panel.
   - `label:` `String` — The tab's label
+  - flags: `.trapFocus`
 
 Takes a block of children.
 
@@ -392,10 +410,13 @@ Breadcrumb {
 
 Renders with the class `wf-breadcrumb`.
 
+**Flags:** `.trapFocus`
+
 **Parts:**
 
 - `Breadcrumb.Item(to: …) { … }` — One step of the trail.
   - `to:` `Path` — Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current="page"`
+  - flags: `.trapFocus`
 
 Takes a block of children.
 
@@ -433,20 +454,22 @@ Renders with the class `wf-menu`.
 | `placement:` | `.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd` | Where it goes against its anchor; it flips to the other side when there is no room. Unset, `.bottomStart` |
 | `offset:` | `Number` | How far from the anchor, in px |
 
-**Flags:** `.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd`
+**Flags:** `.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd` `.trapFocus`
 
 **Events of its own:** `on close`
 
 **Parts:**
 
 - `Menu.Item(shortcut: …, checked: …, disabled: …) { … }` — One entry of the menu; `on click` is what choosing it does.
-  - `shortcut:` `String` — The keys that do the same, shown at its end
+  - `shortcut:` `String` — The keys that do the same, `mod+b`, shown at its end as this system writes them (`⌘B`, `Ctrl+B`)
   - `checked:` `Bool` — A check mark: the item turns something on and off
   - `disabled:` `Bool` — Shown, skipped by the arrow keys, and cannot be chosen
-  - flags: `.checked` `.disabled`
+  - flags: `.checked` `.disabled` `.trapFocus`
 - `Menu.Sub(label: …) { … }` — An entry that opens a menu of its own beside it.
   - `label:` `String` — What the entry says
+  - flags: `.trapFocus`
 - `Menu.Divider` — A rule between groups of entries.
+  - flags: `.trapFocus`
 
 Takes a block of children.
 
@@ -476,13 +499,16 @@ Renders with the class `wf-card`.
 |---|---|---|
 | `surface:` | `.flat` `.elevated` `.outlined` | Surface treatment |
 
-**Flags:** `.flat` `.elevated` `.outlined`
+**Flags:** `.flat` `.elevated` `.outlined` `.trapFocus`
 
 **Parts:**
 
 - `Card.Header { … }` — The card's heading area.
+  - flags: `.trapFocus`
 - `Card.Body { … }` — The card's content area.
+  - flags: `.trapFocus`
 - `Card.Footer { … }` — The card's action area.
+  - flags: `.trapFocus`
 
 Takes a block of children.
 
@@ -509,15 +535,20 @@ Renders with the class `wf-table`.
 |---|---|---|
 | `caption:` | `String` | Accessible name of the table (rendered visually hidden) |
 
+**Flags:** `.trapFocus`
+
 **Parts:**
 
 - `Table.Head { … }` — Header section; its cells become `<th scope="col">`.
+  - flags: `.trapFocus`
 - `Table.Body { … }` — Body section.
+  - flags: `.trapFocus`
 - `Table.Row { … }` — A row.
+  - flags: `.trapFocus`
 - `Table.Cell(content, header: …) { … }` — A cell. `header` makes it a `<th>` anywhere, as `Table.Head` does for its cells.
   - `content:` `Any` — The cell's content
   - `header:` `Bool` — Render as a `<th>`
-  - flags: `.header`
+  - flags: `.header` `.trapFocus`
 
 Takes a block of children.
 
@@ -545,11 +576,12 @@ Renders with the class `wf-list`.
 |---|---|---|
 | `ordered:` | `Bool` | Numbered (`<ol>`) |
 
-**Flags:** `.ordered`
+**Flags:** `.ordered` `.trapFocus`
 
 **Parts:**
 
 - `List.Item { … }` — One entry (`<li>`).
+  - flags: `.trapFocus`
 
 Takes a block of children.
 
@@ -576,7 +608,7 @@ Renders with the class `wf-badge`.
 | `tone:` | `.primary` `.secondary` `.success` `.danger` `.warning` `.info` | Colour |
 | `pill:` | `Bool` | Fully rounded ends |
 
-**Flags:** `.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.pill`
+**Flags:** `.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.pill` `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -597,6 +629,8 @@ Renders with the class `wf-tag`.
 | Prop | Type | Meaning |
 |---|---|---|
 | `label` (positional) | `String` | The tag text |
+
+**Flags:** `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -623,7 +657,7 @@ Renders with the class `wf-avatar`.
 | `size:` | `.sm` `.md` `.lg` | Its size |
 | `tone:` | `.primary` | Colour of the initials |
 
-**Flags:** `.sm` `.md` `.lg` `.primary`
+**Flags:** `.sm` `.md` `.lg` `.primary` `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -645,11 +679,11 @@ Renders with the class `wf-tooltip`.
 | Prop | Type | Meaning |
 |---|---|---|
 | `text` (positional) | `String` | The tooltip text |
-| `shortcut:` | `String` | The keys that do the same, shown as a chip |
+| `shortcut:` | `String` | The keys that do the same, `mod+s`, shown as a chip as this system writes them |
 | `placement:` | `.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd` | Where it goes against its anchor; it flips to the other side when there is no room. Unset, `.bottomStart` |
 | `delay:` | `Number` | How long a hover waits before it shows, in ms. Unset, 500 |
 
-**Flags:** `.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd`
+**Flags:** `.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd` `.trapFocus`
 
 Takes a block of children.
 
@@ -690,7 +724,7 @@ Renders with the class `wf-input`.
 | `width:` | `.full` | Width |
 | `rounded:` | `Bool` | Rounded corners |
 
-**Flags:** `.text` `.email` `.password` `.number` `.search` `.tel` `.url` `.date` `.time` `.datetime` `.color` `.required` `.disabled` `.sm` `.md` `.lg` `.full` `.rounded`
+**Flags:** `.text` `.email` `.password` `.number` `.search` `.tel` `.url` `.date` `.time` `.datetime` `.color` `.required` `.disabled` `.sm` `.md` `.lg` `.full` `.rounded` `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`, `input`.
 
@@ -722,13 +756,14 @@ Renders with the class `wf-select`.
 | `disabled:` | `Bool` | Whether the control is inert |
 | `multiple:` | `Bool` | Allow several choices |
 
-**Flags:** `.disabled` `.multiple`
+**Flags:** `.disabled` `.multiple` `.trapFocus`
 
 **Parts:**
 
 - `Select.Option(label, value: …)` — One choice: the visible label, and the value sent with the form.
   - `label:` `String` — The visible label
   - `value:` `Any` — The value `bind` takes when this one is chosen; the label when absent
+  - flags: `.trapFocus`
 
 Takes a block of children.
 
@@ -756,7 +791,7 @@ Renders with the class `wf-checkbox`.
 | `label:` | `String` | Visible label; also the control's accessible name |
 | `disabled:` | `Bool` | Whether the control is inert |
 
-**Flags:** `.checked` `.disabled`
+**Flags:** `.checked` `.disabled` `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`, `input`.
 
@@ -784,7 +819,7 @@ Renders with the class `wf-radio`.
 | `label:` | `String` | Visible label; also the control's accessible name |
 | `disabled:` | `Bool` | Whether the control is inert |
 
-**Flags:** `.checked` `.disabled`
+**Flags:** `.checked` `.disabled` `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`, `input`.
 
@@ -810,7 +845,7 @@ Renders with the class `wf-switch`.
 | `label:` | `String` | Visible label; also the control's accessible name |
 | `disabled:` | `Bool` | Whether the control is inert |
 
-**Flags:** `.checked` `.disabled`
+**Flags:** `.checked` `.disabled` `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`, `input`.
 
@@ -838,7 +873,7 @@ Renders with the class `wf-slider`.
 | `label:` | `String` | Visible label; also the control's accessible name |
 | `disabled:` | `Bool` | Whether the control is inert |
 
-**Flags:** `.disabled`
+**Flags:** `.disabled` `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`, `input`.
 
@@ -865,7 +900,7 @@ Renders with the class `wf-datepicker`.
 | `max:` | `String` | Latest date, `YYYY-MM-DD` |
 | `disabled:` | `Bool` | Whether the control is inert |
 
-**Flags:** `.disabled`
+**Flags:** `.disabled` `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`, `input`.
 
@@ -890,7 +925,7 @@ Renders with the class `wf-file-upload`.
 | `multiple:` | `Bool` | Accept several files |
 | `disabled:` | `Bool` | Whether the control is inert |
 
-**Flags:** `.multiple` `.disabled`
+**Flags:** `.multiple` `.disabled` `.trapFocus`
 
 Takes a block of children.
 
@@ -920,7 +955,7 @@ Renders with the class `wf-form`.
 | `bind:` | `State` | A handle on the form: `form.valid`, `form.errors`, `form.values` by field name, `form.reset()`, `form.apply(serverErrors)` |
 | `show:` | `.onBlur` `.onSubmit` `.live` | When a `validate` block's message is shown |
 
-**Flags:** `.onBlur` `.onSubmit` `.live`
+**Flags:** `.onBlur` `.onSubmit` `.live` `.trapFocus`
 
 Takes a block of children.
 
@@ -953,7 +988,7 @@ Renders with the class `wf-input wf-textarea`.
 | `required:` | `Bool` | Whether the form refuses to submit without it |
 | `disabled:` | `Bool` | Whether the control is inert |
 
-**Flags:** `.required` `.disabled`
+**Flags:** `.required` `.disabled` `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`, `input`.
 
@@ -979,7 +1014,7 @@ Renders with the class `wf-alert`.
 | `message` (positional) | `String` | The message |
 | `tone:` | `.success` `.danger` `.warning` `.info` | Kind of notice |
 
-**Flags:** `.success` `.danger` `.warning` `.info`
+**Flags:** `.success` `.danger` `.warning` `.info` `.trapFocus`
 
 Takes a block of children.
 
@@ -1005,7 +1040,7 @@ Renders with the class `wf-toast`.
 | `message` (positional) | `String` | The message |
 | `tone:` | `.success` `.danger` `.warning` `.info` | Kind of notice |
 
-**Flags:** `.success` `.danger` `.warning` `.info`
+**Flags:** `.success` `.danger` `.warning` `.info` `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -1033,9 +1068,12 @@ Renders with the class `wf-modal`.
 | `visible:` | `State` | State flag that opens and closes it |
 | `title:` | `String` | Heading shown at the top |
 
+**Flags:** `.trapFocus`
+
 **Parts:**
 
 - `Modal.Footer { … }` — The modal's action row.
+  - flags: `.trapFocus`
 
 Takes a block of children.
 
@@ -1070,7 +1108,7 @@ Renders with the class `wf-popover`.
 | `label:` | `String` | What it is, for a screen reader: its accessible name |
 | `arrow:` | `Bool` | A point toward the anchor |
 
-**Flags:** `.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd` `.arrow`
+**Flags:** `.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd` `.arrow` `.trapFocus`
 
 **Events of its own:** `on close`
 
@@ -1098,6 +1136,8 @@ Renders with the class `wf-dialog`.
 | `visible:` | `State` | State flag that opens and closes it |
 | `title:` | `String` | Heading shown at the top |
 
+**Flags:** `.trapFocus`
+
 Takes a block of children.
 
 Attribute families: `global`, `aria`, `data`.
@@ -1121,7 +1161,7 @@ Renders with the class `wf-spinner`.
 |---|---|---|
 | `size:` | `.sm` `.md` `.lg` | Its size |
 
-**Flags:** `.sm` `.md` `.lg`
+**Flags:** `.sm` `.md` `.lg` `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -1143,6 +1183,8 @@ Renders with the class `wf-progress`.
 |---|---|---|
 | `value:` | `Number` | Current value |
 | `max:` | `Number` | Value at 100% |
+
+**Flags:** `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -1168,7 +1210,7 @@ Renders with the class `wf-skeleton`.
 | `size:` | `String` | Diameter of a `circle` |
 | `circle:` | `Bool` | A round placeholder |
 
-**Flags:** `.circle`
+**Flags:** `.circle` `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -1202,7 +1244,7 @@ Renders with the class `wf-btn`.
 | `to:` | `Path` | Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current="page"` |
 | `disabled:` | `Bool` | Whether the control is inert |
 
-**Flags:** `.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.sm` `.md` `.lg` `.rounded` `.pill` `.full` `.outlined` `.button` `.submit` `.reset` `.disabled`
+**Flags:** `.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.sm` `.md` `.lg` `.rounded` `.pill` `.full` `.outlined` `.button` `.submit` `.reset` `.disabled` `.trapFocus`
 
 Takes a block of children.
 
@@ -1232,7 +1274,7 @@ Renders with the class `wf-icon-btn`.
 | `type:` | `.button` `.submit` `.reset` | Its role inside a form |
 | `disabled:` | `Bool` | Whether the control is inert |
 
-**Flags:** `.sm` `.md` `.lg` `.primary` `.danger` `.button` `.submit` `.reset` `.disabled`
+**Flags:** `.sm` `.md` `.lg` `.primary` `.danger` `.button` `.submit` `.reset` `.disabled` `.trapFocus`
 
 Takes a block of children.
 
@@ -1255,6 +1297,8 @@ ButtonGroup {
 ```
 
 Renders with the class `wf-btn-group`.
+
+**Flags:** `.trapFocus`
 
 Takes a block of children.
 
@@ -1282,10 +1326,14 @@ Renders with the class `wf-dropdown`.
 |---|---|---|
 | `label` (positional) | `String` | Label of the button that opens it |
 
+**Flags:** `.trapFocus`
+
 **Parts:**
 
 - `Dropdown.Item { … }` — One entry of the menu.
+  - flags: `.trapFocus`
 - `Dropdown.Divider` — A rule between groups of entries.
+  - flags: `.trapFocus`
 
 Takes a block of children.
 
@@ -1320,7 +1368,7 @@ Renders with the class `wf-image`.
 | `loading:` | `.lazy` `.eager` | Unset, the first image on a page is eager at high priority and the rest lazy |
 | `shape:` | `.rounded` `.circle` | Shape |
 
-**Flags:** `.blur` `.color` `.none` `.lazy` `.eager` `.rounded` `.circle`
+**Flags:** `.blur` `.color` `.none` `.lazy` `.eager` `.rounded` `.circle` `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -1351,7 +1399,7 @@ Renders with the class `wf-video`.
 | `width:` | `Number` | Intrinsic width |
 | `height:` | `Number` | Intrinsic height |
 
-**Flags:** `.controls` `.autoplay` `.muted` `.loop` `.playsinline`
+**Flags:** `.controls` `.autoplay` `.muted` `.loop` `.playsinline` `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`, `media`.
 
@@ -1377,7 +1425,7 @@ Renders with the class `wf-audio`.
 | `loop:` | `Bool` | Start again when it ends |
 | `transcript:` | `String` | A link to what was said, shown beneath the player |
 
-**Flags:** `.controls` `.autoplay` `.loop`
+**Flags:** `.controls` `.autoplay` `.loop` `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -1407,7 +1455,7 @@ Renders with the class `wf-frame`.
 | `allow:` | `String` | The features it may use: `"fullscreen; clipboard-write"` |
 | `loading:` | `.lazy` `.eager` | Unset, at once |
 
-**Flags:** `.lazy` `.eager`
+**Flags:** `.lazy` `.eager` `.trapFocus`
 
 **Events of its own:** `on message`, `on load`
 
@@ -1435,7 +1483,7 @@ Renders with the class `wf-icon`.
 | `tone:` | `.primary` `.secondary` `.success` `.danger` `.warning` `.info` | Colour |
 | `muted:` | `Bool` | Dimmed, for secondary text |
 
-**Flags:** `.sm` `.md` `.lg` `.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.muted`
+**Flags:** `.sm` `.md` `.lg` `.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.muted` `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -1462,11 +1510,12 @@ Renders with the class `wf-carousel`.
 | `autoplay:` | `Bool` | Advance automatically |
 | `interval:` | `Number` | Milliseconds between slides |
 
-**Flags:** `.autoplay`
+**Flags:** `.autoplay` `.trapFocus`
 
 **Parts:**
 
 - `Carousel.Slide { … }` — One slide.
+  - flags: `.trapFocus`
 
 Takes a block of children.
 
@@ -1503,7 +1552,7 @@ Renders with the class `wf-text`.
 | `underline:` | `Bool` | Underlined |
 | `muted:` | `Bool` | Dimmed, for secondary text |
 
-**Flags:** `.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.sm` `.md` `.lg` `.left` `.center` `.right` `.uppercase` `.lowercase` `.heading` `.subtitle` `.bold` `.italic` `.underline` `.muted`
+**Flags:** `.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.sm` `.md` `.lg` `.left` `.center` `.right` `.uppercase` `.lowercase` `.heading` `.subtitle` `.bold` `.italic` `.underline` `.muted` `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -1529,7 +1578,7 @@ Renders with the class `wf-heading`.
 | `align:` | `.left` `.center` `.right` | Text alignment |
 | `muted:` | `Bool` | Dimmed, for secondary text |
 
-**Flags:** `.h1` `.h2` `.h3` `.h4` `.h5` `.h6` `.left` `.center` `.right` `.muted`
+**Flags:** `.h1` `.h2` `.h3` `.h4` `.h5` `.h6` `.left` `.center` `.right` `.muted` `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -1555,7 +1604,7 @@ Renders with the class `wf-code`.
 | `block:` | `Bool` | A multi-line block |
 | `language:` | `String` | Colours the code as this language: `wf`, `json`, `bash` or `css` |
 
-**Flags:** `.block`
+**Flags:** `.block` `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -1577,6 +1626,8 @@ Renders with the class `wf-markdown`.
 |---|---|---|
 | `text` (positional) | `String` | The Markdown text |
 
+**Flags:** `.trapFocus`
+
 Attribute families: `global`, `aria`, `data`.
 
 ### Unsafe
@@ -1592,10 +1643,13 @@ state body = "<p>From the CMS</p>"
 Unsafe.Html(sanitize(body))
 ```
 
+**Flags:** `.trapFocus`
+
 **Parts:**
 
 - `Unsafe.Html(markup)` — Markup, put in as markup. It is **not** sanitised — the name says so — and `sanitize(…)` is one call away for anything the project did not write itself.
   - `markup:` `String` — The HTML to insert
+  - flags: `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -1616,6 +1670,8 @@ Renders with the class `wf-blockquote`.
 | Prop | Type | Meaning |
 |---|---|---|
 | `content` (positional) | `Any` | The quoted text |
+
+**Flags:** `.trapFocus`
 
 Takes a block of children.
 
@@ -1653,7 +1709,7 @@ Renders with the class `wf-chart`.
 | `labels:` | `Bool` | Write each bar's or slice's value on it |
 | `unit:` | `String` | A unit after each value on the axis: `ms`, `%` |
 
-**Flags:** `.bar` `.line` `.area` `.pie` `.donut` `.legend` `.stacked` `.labels`
+**Flags:** `.bar` `.line` `.area` `.pie` `.donut` `.legend` `.stacked` `.labels` `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -1677,6 +1733,8 @@ Renders with the class `wf-qr`.
 | `color:` | `String` | The colour of the dark modules |
 | `background:` | `String` | The colour behind them |
 
+**Flags:** `.trapFocus`
+
 Attribute families: `global`, `aria`, `data`.
 
 ## PDF
@@ -1699,6 +1757,8 @@ Renders with the class `wf-toc`.
 |---|---|---|
 | `levels:` | `Number` | How deep it lists: 1 is the `h1`s only (default 3) |
 | `title:` | `String` | A heading above the list |
+
+**Flags:** `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -1730,7 +1790,7 @@ Renders with the class `wf-document`.
 | `keywords:` | `String` | Comma-separated keywords |
 | `lang:` | `String` | The document's language, for screen readers and hyphenation |
 
-**Flags:** `.A4` `.A3` `.A5` `.Letter` `.Legal` `.landscape`
+**Flags:** `.A4` `.A3` `.A5` `.Letter` `.Legal` `.landscape` `.trapFocus`
 
 Takes a block of children.
 
@@ -1752,6 +1812,8 @@ Section {
 ```
 
 Renders with the class `wf-section`.
+
+**Flags:** `.trapFocus`
 
 Takes a block of children.
 
@@ -1784,7 +1846,7 @@ Renders with the class `wf-text`.
 | `underline:` | `Bool` | Underlined |
 | `muted:` | `Bool` | Dimmed, for secondary text |
 
-**Flags:** `.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.sm` `.md` `.lg` `.left` `.center` `.right` `.uppercase` `.lowercase` `.heading` `.subtitle` `.bold` `.italic` `.underline` `.muted`
+**Flags:** `.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.sm` `.md` `.lg` `.left` `.center` `.right` `.uppercase` `.lowercase` `.heading` `.subtitle` `.bold` `.italic` `.underline` `.muted` `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -1806,7 +1868,7 @@ Renders with the class `wf-header`.
 |---|---|---|
 | `on:` | `.all` `.first` `.rest` `.odd` `.even` | Which pages it is drawn on |
 
-**Flags:** `.all` `.first` `.rest` `.odd` `.even`
+**Flags:** `.all` `.first` `.rest` `.odd` `.even` `.trapFocus`
 
 Takes a block of children.
 
@@ -1830,7 +1892,7 @@ Renders with the class `wf-footer`.
 |---|---|---|
 | `on:` | `.all` `.first` `.rest` `.odd` `.even` | Which pages it is drawn on |
 
-**Flags:** `.all` `.first` `.rest` `.odd` `.even`
+**Flags:** `.all` `.first` `.rest` `.odd` `.even` `.trapFocus`
 
 Takes a block of children.
 
@@ -1854,7 +1916,7 @@ Renders with the class `wf-background`.
 |---|---|---|
 | `on:` | `.all` `.first` `.rest` `.odd` `.even` | Which pages it is drawn on |
 
-**Flags:** `.all` `.first` `.rest` `.odd` `.even`
+**Flags:** `.all` `.first` `.rest` `.odd` `.even` `.trapFocus`
 
 Takes a block of children.
 
@@ -1879,7 +1941,7 @@ Renders with the class `wf-watermark`.
 | `text` (positional) | `String` | The text |
 | `on:` | `.all` `.first` `.rest` `.odd` `.even` | Which pages it is drawn on |
 
-**Flags:** `.all` `.first` `.rest` `.odd` `.even`
+**Flags:** `.all` `.first` `.rest` `.odd` `.even` `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -1898,6 +1960,8 @@ Heading("Chapter two").h2
 ```
 
 Renders with the class `wf-page-break`.
+
+**Flags:** `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -1919,6 +1983,8 @@ Presentation {
 ```
 
 Renders with the class `wf-presentation`.
+
+**Flags:** `.trapFocus`
 
 Takes a block of children.
 
@@ -1943,6 +2009,8 @@ Presentation {
 
 Renders with the class `wf-slide`.
 
+**Flags:** `.trapFocus`
+
 Takes a block of children.
 
 Attribute families: `global`, `aria`, `data`.
@@ -1966,6 +2034,8 @@ Renders with the class `wf-title-slide`.
 | `title` (positional) | `String` | The title |
 | `subtitle:` | `String` | The subtitle |
 
+**Flags:** `.trapFocus`
+
 Attribute families: `global`, `aria`, `data`.
 
 ### SectionSlide
@@ -1987,7 +2057,7 @@ Renders with the class `wf-section-slide`.
 | `label` (positional) | `String` | The label |
 | `tone:` | `.primary` `.success` `.danger` `.warning` `.info` | Colour of the band |
 
-**Flags:** `.primary` `.success` `.danger` `.warning` `.info`
+**Flags:** `.primary` `.success` `.danger` `.warning` `.info` `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -2009,6 +2079,8 @@ Presentation {
 ```
 
 Renders with the class `wf-two-column`.
+
+**Flags:** `.trapFocus`
 
 Takes a block of children.
 
@@ -2032,6 +2104,8 @@ Renders with the class `wf-image-slide`.
 |---|---|---|
 | `src:` | `String` | Image path (required) |
 | `caption:` | `String` | Caption under the image |
+
+**Flags:** `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -2059,7 +2133,7 @@ Renders with the class `wf-router`.
 | `transition:` | `.none` `.fade` `.slide` | How a route change moves between pages |
 | `duration:` | `String` | How long each half of the transition plays, e.g. `200ms` |
 
-**Flags:** `.none` `.fade` `.slide`
+**Flags:** `.none` `.fade` `.slide` `.trapFocus`
 
 Takes a block of children.
 
@@ -2081,6 +2155,7 @@ Attribute families: `global`, `aria`, `data`.
 | `shared:` | `String` | A name this element keeps across a route change, so the browser carries it from one page to the next |
 | `class:` | `String` | Classes added beside the engine's, from the project's own stylesheets |
 | `ref:` | `State` | A handle on the element, usable as the element: `ref: nameInput`, then `nameInput.focus()` |
+| `trapFocus:` | `Bool` | While true, focus moves into it and Tab and Shift+Tab stay inside; when it turns false or the element leaves, focus goes back where it was |
 | `mount:` | `Any` | Run with the element each time it is made — `mount: (n) => initTilt(n)` — and what it returns is the handle `update:` and `cleanup:` get |
 | `update:` | `Any` | Run with the handle again whenever the state it reads changes: `update: (h) => h.setMax(max)` |
 | `cleanup:` | `Any` | Run with the handle when the element leaves — a route change, an `if` branch, a list item: `cleanup: (h) => h.destroy()` |

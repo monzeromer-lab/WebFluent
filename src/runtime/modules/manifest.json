@@ -45,6 +45,14 @@
           "keyIs"
         ],
         [
+          "keyLabel",
+          "keyLabel"
+        ],
+        [
+          "keyAria",
+          "keyAria"
+        ],
+        [
           "allowSchemes",
           "allowSchemes"
         ],
@@ -826,6 +834,10 @@
         [
           "tooltip",
           "tooltip"
+        ],
+        [
+          "trapFocus",
+          "trapFocus"
         ]
       ],
       "name": "layer",

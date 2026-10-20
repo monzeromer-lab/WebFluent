@@ -193,7 +193,7 @@ page DiagnosticsGuide(path: "/docs/guide/diagnostics", title: "Diagnostics", des
   |
 3 |     Button("Save").huge
   |                   ^^^^^
-  = help: Its flags are .bounce, .button, .collapse, .danger, .disabled, .expand, .fadeIn, .fadeOut, .fast, .full, .info, .lg, .md, .normal, .outlined, .pill, .primary, .pulse, .reset, .rounded, .scaleIn, .scaleOut, .secondary, .shake, .slideDown, .slideLeft, .slideRight, .slideUp, .slow, .sm, .spin, .submit, .success, .warning
+  = help: Its flags are .bounce, .button, .collapse, .danger, .disabled, .expand, .fadeIn, .fadeOut, .fast, .full, .info, .lg, .md, .normal, .outlined, .pill, .primary, .pulse, .reset, .rounded, .scaleIn, .scaleOut, .secondary, .shake, .slideDown, .slideLeft, .slideRight, .slideUp, .slow, .sm, .spin, .submit, .success, .trapFocus, .warning
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e103-a-flag-case-part-event-or-slot-the-component-does-not-have"#, title: "text")
 
         Markdown("**Fix:** Use one the message lists — it names every flag, case, event or slot the component takes.")
@@ -362,7 +362,7 @@ page P(path: "/", title: "T", description: "D") {
   |
 2 |     on key("ctrl+shfit+k") { log("search") }
   |            ^
-  = help: Modifiers `ctrl`, `shift`, `alt`, `meta` (`cmd`), then one key: a letter, a digit, or a name like `Enter`, `Escape`, `ArrowDown`, `Tab`, `F2`
+  = help: Modifiers `mod` (⌘ on a Mac, Ctrl elsewhere), `ctrl`, `shift`, `alt`, `meta` (`cmd`), then one key: a letter, a digit, or a name like `Enter`, `Escape`, `ArrowDown`, `Tab`, `F2`; a chord is its steps with a space between, `mod+k mod+s`
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e117-a-key-combination-no-keyboard-sends"#, title: "text")
 
         Markdown("**Fix:** Modifiers `ctrl`, `shift`, `alt`, `meta` (or `cmd`), then one key: a letter, a digit, or a name — `Enter`, `Escape`, `ArrowDown`, `Tab`, `F2`.")

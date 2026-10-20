@@ -1,0 +1,17 @@
+// A focus trap on a panel that is not a dialog, and shortcuts in a menu.
+page Home(path: "/", title: "Keys", description: "Shortcuts and a focus trap.") {
+    state finding = false
+    Heading("Keys").h1
+    Button("Find", id: "open") { on click { finding = true } }
+    if finding {
+        Row(trapFocus: finding, id: "panel") {
+            Input(id: "query", placeholder: "Find")
+            Button("Next", id: "next")
+            Button("Close", id: "close") { on click { finding = false } }
+        }
+    }
+    Button("After", id: "after")
+    Menu(trigger: "Edit") {
+        Menu.Item(shortcut: "mod+shift+p", id: "item") { Text("Commands") }
+    }
+}

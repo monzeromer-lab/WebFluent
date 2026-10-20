@@ -1,0 +1,31 @@
+// Shortcuts the whole app hears, on every page: `mod` is ⌘ on a Mac and
+// Ctrl elsewhere; a chord is its steps with a space between; a key matched
+// against data with `keyIs`, as a command table does.
+type Command { id: String, keys: String }
+
+store Keys {
+    state said = ""
+    state saves = 0
+    state commands: [Command] = [
+        { id: "palette", keys: "mod+shift+p" },
+        { id: "sidebar", keys: "mod+b" },
+    ]
+    action run(e) {
+        for c in commands {
+            if keyIs(e, c.keys) {
+                said = c.id
+                e.preventDefault()
+            }
+        }
+    }
+}
+
+app {
+    on key("mod+s") { Keys.saves = Keys.saves + 1 }
+    on key("mod+k mod+s") { Keys.said = "shortcut help" }
+    on keydown(e) { Keys.run(e) }
+    Text("{Keys.said}", id: "said")
+    Text("{Keys.saves}", id: "saves")
+    Text(keyLabel("mod+shift+p"), id: "label")
+    Router
+}

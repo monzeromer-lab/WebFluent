@@ -41,6 +41,36 @@ page Keys(path: "/") {
 }
 
 // md-docs/09-events.md
+store Commands {
+    state said = ""
+    state table: [Command] = [
+        { id: "palette", keys: "mod+shift+p", title: "Commands" },
+        { id: "sidebar", keys: "mod+b", title: "Toggle sidebar" },
+    ]
+    action run(e) {
+        for c in table {
+            if keyIs(e, c.keys) {
+                e.preventDefault()
+                said = c.id
+            }
+        }
+    }
+}
+type Command { id: String, keys: String, title: String }
+app {
+    on key("mod+s") { Commands.said = "saved" }
+    on key("mod+k mod+s") { Commands.said = "shortcut help" }
+    on keydown(e) { Commands.run(e) }
+    Menu(trigger: "View") {
+        for c in Commands.table {
+            Menu.Item(shortcut: c.keys) { Text(c.title) }
+        }
+    }
+    Text("Commands: {keyLabel(\"mod+shift+p\")}")
+    Router
+}
+
+// md-docs/09-events.md
 component Counter(_ start: Number) {
     event change(value: Number)
     state n = start

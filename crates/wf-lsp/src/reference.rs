@@ -630,6 +630,16 @@ pub const BUILTINS: &[(&str, &str, &str)] = &[
     ),
     ("uuid", "uuid()", "A new random identifier, a `Uuid`."),
     (
+        "keyIs",
+        "keyIs(event, \"mod+s\")",
+        "Whether a key event is that combination — `mod` is ⌘ on a Mac and Ctrl elsewhere; a chord is its steps with a space between. For a table of commands held as data.",
+    ),
+    (
+        "keyLabel",
+        "keyLabel(\"mod+shift+p\")",
+        "How this system writes a combination for the reader: `⇧⌘P` on a Mac, `Ctrl+Shift+P` elsewhere.",
+    ),
+    (
         "sanitize",
         "sanitize(html)",
         "The allow-listed part of some markup — no script, style, frame, form or `on*` — for `Unsafe.Html`.",

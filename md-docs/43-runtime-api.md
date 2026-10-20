@@ -55,7 +55,9 @@ for it ([JavaScript interop](32-javascript-interop.md#wf-render-for-a-script-tha
 | `match(parent, key, arg, arms)` | `match` |
 | `slot(…)` | A component's slot fill |
 | `emit(props, event, …args)` | Fires a component's declared event |
-| `onKey(node, combination, fn)`, `keyIs(event, combination)` | `on key("ctrl+k")` |
+| `onKey(node, combination, fn)`, `keyIs(event, combination)` | `on key("mod+k")`, `keyIs(e, "mod+k")` |
+| `keyLabel(combination)`, `keyAria(combination)` | `keyLabel("mod+k")`, and a `shortcut:` drawn and given as `aria-keyshortcuts` |
+| `trapFocus(node, read)` | `trapFocus: open` |
 
 ## Motion — `motion`
 

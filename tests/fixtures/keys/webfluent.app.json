@@ -1,0 +1,4 @@
+{
+  "name": "keys",
+  "build": { "ssg": true, "csp": true }
+}

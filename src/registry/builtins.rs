@@ -429,6 +429,11 @@ pub const UNIVERSAL_PROPS: &[PropSig] = &[
         "A handle on the element, usable as the element: `ref: nameInput`, then `nameInput.focus()`",
     ),
     special(
+        "trapFocus",
+        PropType::Bool,
+        "While true, focus moves into it and Tab and Shift+Tab stay inside; when it turns false or the element leaves, focus goes back where it was",
+    ),
+    special(
         "mount",
         PropType::Any,
         "Run with the element each time it is made — `mount: (n) => initTilt(n)` — and what it returns is the handle `update:` and `cleanup:` get",
@@ -865,7 +870,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
             special(
                 "shortcut",
                 PropType::Str,
-                "The keys that do the same, shown at its end",
+                "The keys that do the same, `mod+b`, shown at its end as this system writes them (`⌘B`, `Ctrl+B`)",
             ),
             special(
                 "checked",
@@ -1116,7 +1121,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
             special(
                 "shortcut",
                 PropType::Str,
-                "The keys that do the same, shown as a chip",
+                "The keys that do the same, `mod+s`, shown as a chip as this system writes them",
             ),
             PLACEMENT,
             special(

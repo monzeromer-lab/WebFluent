@@ -30,7 +30,8 @@
     }
    ],
    "flags": [
-    ".fluid"
+    ".fluid",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -96,7 +97,8 @@
     ".evenly",
     ".row",
     ".column",
-    ".stacks"
+    ".stacks",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -135,7 +137,8 @@
     }
    ],
    "flags": [
-    ".stacks"
+    ".stacks",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -199,7 +202,8 @@
     ".between",
     ".around",
     ".evenly",
-    ".stacks"
+    ".stacks",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -252,7 +256,8 @@
     ".baseline",
     ".between",
     ".around",
-    ".evenly"
+    ".evenly",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -290,7 +295,8 @@
     ".sm",
     ".md",
     ".lg",
-    ".xl"
+    ".xl",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -317,7 +323,9 @@
    "signature": "Divider",
    "block": false,
    "props": [],
-   "flags": [],
+   "flags": [
+    ".trapFocus"
+   ],
    "events": [],
    "parts": [],
    "attributes": [
@@ -343,7 +351,9 @@
    "signature": "Navbar { \u2026 }",
    "block": true,
    "props": [],
-   "flags": [],
+   "flags": [
+    ".trapFocus"
+   ],
    "events": [],
    "parts": [
     {
@@ -351,21 +361,27 @@
      "signature": "Navbar.Brand { \u2026 }",
      "summary": "The brand area, usually a link home.",
      "props": [],
-     "flags": []
+     "flags": [
+      ".trapFocus"
+     ]
     },
     {
      "name": "Navbar.Links",
      "signature": "Navbar.Links { \u2026 }",
      "summary": "The navigation links; collapses behind a toggle on small screens.",
      "props": [],
-     "flags": []
+     "flags": [
+      ".trapFocus"
+     ]
     },
     {
      "name": "Navbar.Actions",
      "signature": "Navbar.Actions { \u2026 }",
      "summary": "Buttons at the end of the bar.",
      "props": [],
-     "flags": []
+     "flags": [
+      ".trapFocus"
+     ]
     }
    ],
    "attributes": [
@@ -391,7 +407,9 @@
    "signature": "Sidebar { \u2026 }",
    "block": true,
    "props": [],
-   "flags": [],
+   "flags": [
+    ".trapFocus"
+   ],
    "events": [],
    "parts": [
     {
@@ -399,7 +417,9 @@
      "signature": "Sidebar.Header { \u2026 }",
      "summary": "The sidebar's heading area.",
      "props": [],
-     "flags": []
+     "flags": [
+      ".trapFocus"
+     ]
     },
     {
      "name": "Sidebar.Item",
@@ -423,7 +443,8 @@
       }
      ],
      "flags": [
-      ".prefix"
+      ".prefix",
+      ".trapFocus"
      ]
     },
     {
@@ -431,7 +452,9 @@
      "signature": "Sidebar.Divider",
      "summary": "A rule between groups of items.",
      "props": [],
-     "flags": []
+     "flags": [
+      ".trapFocus"
+     ]
     }
    ],
    "attributes": [
@@ -474,7 +497,8 @@
     }
    ],
    "flags": [
-    ".prefix"
+    ".prefix",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -502,7 +526,9 @@
    "signature": "Tabs { \u2026 }",
    "block": true,
    "props": [],
-   "flags": [],
+   "flags": [
+    ".trapFocus"
+   ],
    "events": [],
    "parts": [
     {
@@ -516,7 +542,9 @@
        "meaning": "The tab's label"
       }
      ],
-     "flags": []
+     "flags": [
+      ".trapFocus"
+     ]
     }
    ],
    "attributes": [
@@ -542,7 +570,9 @@
    "signature": "Breadcrumb { \u2026 }",
    "block": true,
    "props": [],
-   "flags": [],
+   "flags": [
+    ".trapFocus"
+   ],
    "events": [],
    "parts": [
     {
@@ -556,7 +586,9 @@
        "meaning": "Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current=\"page\"`"
       }
      ],
-     "flags": []
+     "flags": [
+      ".trapFocus"
+     ]
     }
    ],
    "attributes": [
@@ -630,7 +662,8 @@
     ".leftEnd",
     ".right",
     ".rightStart",
-    ".rightEnd"
+    ".rightEnd",
+    ".trapFocus"
    ],
    "events": [
     {
@@ -647,7 +680,7 @@
       {
        "name": "shortcut:",
        "type": "String",
-       "meaning": "The keys that do the same, shown at its end"
+       "meaning": "The keys that do the same, `mod+b`, shown at its end as this system writes them (`\u2318B`, `Ctrl+B`)"
       },
       {
        "name": "checked:",
@@ -662,7 +695,8 @@
      ],
      "flags": [
       ".checked",
-      ".disabled"
+      ".disabled",
+      ".trapFocus"
      ]
     },
     {
@@ -676,14 +710,18 @@
        "meaning": "What the entry says"
       }
      ],
-     "flags": []
+     "flags": [
+      ".trapFocus"
+     ]
     },
     {
      "name": "Menu.Divider",
      "signature": "Menu.Divider",
      "summary": "A rule between groups of entries.",
      "props": [],
-     "flags": []
+     "flags": [
+      ".trapFocus"
+     ]
     }
    ],
    "attributes": [
@@ -718,7 +756,8 @@
    "flags": [
     ".flat",
     ".elevated",
-    ".outlined"
+    ".outlined",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [
@@ -727,21 +766,27 @@
      "signature": "Card.Header { \u2026 }",
      "summary": "The card's heading area.",
      "props": [],
-     "flags": []
+     "flags": [
+      ".trapFocus"
+     ]
     },
     {
      "name": "Card.Body",
      "signature": "Card.Body { \u2026 }",
      "summary": "The card's content area.",
      "props": [],
-     "flags": []
+     "flags": [
+      ".trapFocus"
+     ]
     },
     {
      "name": "Card.Footer",
      "signature": "Card.Footer { \u2026 }",
      "summary": "The card's action area.",
      "props": [],
-     "flags": []
+     "flags": [
+      ".trapFocus"
+     ]
     }
    ],
    "attributes": [
@@ -773,7 +818,9 @@
      "meaning": "Accessible name of the table (rendered visually hidden)"
     }
    ],
-   "flags": [],
+   "flags": [
+    ".trapFocus"
+   ],
    "events": [],
    "parts": [
     {
@@ -781,21 +828,27 @@
      "signature": "Table.Head { \u2026 }",
      "summary": "Header section; its cells become `<th scope=\"col\">`.",
      "props": [],
-     "flags": []
+     "flags": [
+      ".trapFocus"
+     ]
     },
     {
      "name": "Table.Body",
      "signature": "Table.Body { \u2026 }",
      "summary": "Body section.",
      "props": [],
-     "flags": []
+     "flags": [
+      ".trapFocus"
+     ]
     },
     {
      "name": "Table.Row",
      "signature": "Table.Row { \u2026 }",
      "summary": "A row.",
      "props": [],
-     "flags": []
+     "flags": [
+      ".trapFocus"
+     ]
     },
     {
      "name": "Table.Cell",
@@ -814,7 +867,8 @@
       }
      ],
      "flags": [
-      ".header"
+      ".header",
+      ".trapFocus"
      ]
     }
    ],
@@ -848,7 +902,8 @@
     }
    ],
    "flags": [
-    ".ordered"
+    ".ordered",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [
@@ -857,7 +912,9 @@
      "signature": "List.Item { \u2026 }",
      "summary": "One entry (`<li>`).",
      "props": [],
-     "flags": []
+     "flags": [
+      ".trapFocus"
+     ]
     }
    ],
    "attributes": [
@@ -906,7 +963,8 @@
     ".danger",
     ".warning",
     ".info",
-    ".pill"
+    ".pill",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -939,7 +997,9 @@
      "meaning": "The tag text"
     }
    ],
-   "flags": [],
+   "flags": [
+    ".trapFocus"
+   ],
    "events": [],
    "parts": [],
    "attributes": [
@@ -995,7 +1055,8 @@
     ".sm",
     ".md",
     ".lg",
-    ".primary"
+    ".primary",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -1030,7 +1091,7 @@
     {
      "name": "shortcut:",
      "type": "String",
-     "meaning": "The keys that do the same, shown as a chip"
+     "meaning": "The keys that do the same, `mod+s`, shown as a chip as this system writes them"
     },
     {
      "name": "placement:",
@@ -1055,7 +1116,8 @@
     ".leftEnd",
     ".right",
     ".rightStart",
-    ".rightEnd"
+    ".rightEnd",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -1176,7 +1238,8 @@
     ".md",
     ".lg",
     ".full",
-    ".rounded"
+    ".rounded",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -1242,7 +1305,8 @@
    ],
    "flags": [
     ".disabled",
-    ".multiple"
+    ".multiple",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [
@@ -1262,7 +1326,9 @@
        "meaning": "The value `bind` takes when this one is chosen; the label when absent"
       }
      ],
-     "flags": []
+     "flags": [
+      ".trapFocus"
+     ]
     }
    ],
    "attributes": [
@@ -1312,7 +1378,8 @@
    ],
    "flags": [
     ".checked",
-    ".disabled"
+    ".disabled",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -1368,7 +1435,8 @@
    ],
    "flags": [
     ".checked",
-    ".disabled"
+    ".disabled",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -1419,7 +1487,8 @@
    ],
    "flags": [
     ".checked",
-    ".disabled"
+    ".disabled",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -1479,7 +1548,8 @@
     }
    ],
    "flags": [
-    ".disabled"
+    ".disabled",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -1534,7 +1604,8 @@
     }
    ],
    "flags": [
-    ".disabled"
+    ".disabled",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -1585,7 +1656,8 @@
    ],
    "flags": [
     ".multiple",
-    ".disabled"
+    ".disabled",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -1627,7 +1699,8 @@
    "flags": [
     ".onBlur",
     ".onSubmit",
-    ".live"
+    ".live",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -1703,7 +1776,8 @@
    ],
    "flags": [
     ".required",
-    ".disabled"
+    ".disabled",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -1746,7 +1820,8 @@
     ".success",
     ".danger",
     ".warning",
-    ".info"
+    ".info",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -1788,7 +1863,8 @@
     ".success",
     ".danger",
     ".warning",
-    ".info"
+    ".info",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -1826,7 +1902,9 @@
      "meaning": "Heading shown at the top"
     }
    ],
-   "flags": [],
+   "flags": [
+    ".trapFocus"
+   ],
    "events": [],
    "parts": [
     {
@@ -1834,7 +1912,9 @@
      "signature": "Modal.Footer { \u2026 }",
      "summary": "The modal's action row.",
      "props": [],
-     "flags": []
+     "flags": [
+      ".trapFocus"
+     ]
     }
    ],
    "attributes": [
@@ -1909,7 +1989,8 @@
     ".right",
     ".rightStart",
     ".rightEnd",
-    ".arrow"
+    ".arrow",
+    ".trapFocus"
    ],
    "events": [
     {
@@ -1952,7 +2033,9 @@
      "meaning": "Heading shown at the top"
     }
    ],
-   "flags": [],
+   "flags": [
+    ".trapFocus"
+   ],
    "events": [],
    "parts": [],
    "attributes": [
@@ -1987,7 +2070,8 @@
    "flags": [
     ".sm",
     ".md",
-    ".lg"
+    ".lg",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -2025,7 +2109,9 @@
      "meaning": "Value at 100%"
     }
    ],
-   "flags": [],
+   "flags": [
+    ".trapFocus"
+   ],
    "events": [],
    "parts": [],
    "attributes": [
@@ -2073,7 +2159,8 @@
     }
    ],
    "flags": [
-    ".circle"
+    ".circle",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -2163,7 +2250,8 @@
     ".button",
     ".submit",
     ".reset",
-    ".disabled"
+    ".disabled",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -2229,7 +2317,8 @@
     ".button",
     ".submit",
     ".reset",
-    ".disabled"
+    ".disabled",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -2255,7 +2344,9 @@
    "signature": "ButtonGroup { \u2026 }",
    "block": true,
    "props": [],
-   "flags": [],
+   "flags": [
+    ".trapFocus"
+   ],
    "events": [],
    "parts": [],
    "attributes": [
@@ -2286,7 +2377,9 @@
      "meaning": "Label of the button that opens it"
     }
    ],
-   "flags": [],
+   "flags": [
+    ".trapFocus"
+   ],
    "events": [],
    "parts": [
     {
@@ -2294,14 +2387,18 @@
      "signature": "Dropdown.Item { \u2026 }",
      "summary": "One entry of the menu.",
      "props": [],
-     "flags": []
+     "flags": [
+      ".trapFocus"
+     ]
     },
     {
      "name": "Dropdown.Divider",
      "signature": "Dropdown.Divider",
      "summary": "A rule between groups of entries.",
      "props": [],
-     "flags": []
+     "flags": [
+      ".trapFocus"
+     ]
     }
    ],
    "attributes": [
@@ -2379,7 +2476,8 @@
     ".lazy",
     ".eager",
     ".rounded",
-    ".circle"
+    ".circle",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -2462,7 +2560,8 @@
     ".autoplay",
     ".muted",
     ".loop",
-    ".playsinline"
+    ".playsinline",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -2519,7 +2618,8 @@
    "flags": [
     ".controls",
     ".autoplay",
-    ".loop"
+    ".loop",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -2574,7 +2674,8 @@
    ],
    "flags": [
     ".lazy",
-    ".eager"
+    ".eager",
+    ".trapFocus"
    ],
    "events": [
     {
@@ -2641,7 +2742,8 @@
     ".danger",
     ".warning",
     ".info",
-    ".muted"
+    ".muted",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -2685,7 +2787,8 @@
     }
    ],
    "flags": [
-    ".autoplay"
+    ".autoplay",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [
@@ -2694,7 +2797,9 @@
      "signature": "Carousel.Slide { \u2026 }",
      "summary": "One slide.",
      "props": [],
-     "flags": []
+     "flags": [
+      ".trapFocus"
+     ]
     }
    ],
    "attributes": [
@@ -2791,7 +2896,8 @@
     ".bold",
     ".italic",
     ".underline",
-    ".muted"
+    ".muted",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -2849,7 +2955,8 @@
     ".left",
     ".center",
     ".right",
-    ".muted"
+    ".muted",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -2893,7 +3000,8 @@
     }
    ],
    "flags": [
-    ".block"
+    ".block",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -2926,7 +3034,9 @@
      "meaning": "The Markdown text"
     }
    ],
-   "flags": [],
+   "flags": [
+    ".trapFocus"
+   ],
    "events": [],
    "parts": [],
    "attributes": [
@@ -2958,7 +3068,9 @@
      "meaning": "The element to make: `div` (the default), `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul` or `table`"
     }
    ],
-   "flags": [],
+   "flags": [
+    ".trapFocus"
+   ],
    "events": [],
    "parts": [],
    "attributes": [
@@ -2990,7 +3102,9 @@
      "meaning": "The custom element's tag: lower case, with a hyphen, as every custom element's is"
     }
    ],
-   "flags": [],
+   "flags": [
+    ".trapFocus"
+   ],
    "events": [],
    "parts": [],
    "attributes": [
@@ -3014,7 +3128,9 @@
    "signature": "Unsafe",
    "block": false,
    "props": [],
-   "flags": [],
+   "flags": [
+    ".trapFocus"
+   ],
    "events": [],
    "parts": [
     {
@@ -3028,7 +3144,9 @@
        "meaning": "The HTML to insert"
       }
      ],
-     "flags": []
+     "flags": [
+      ".trapFocus"
+     ]
     }
    ],
    "attributes": [
@@ -3060,7 +3178,9 @@
      "meaning": "The quoted text"
     }
    ],
-   "flags": [],
+   "flags": [
+    ".trapFocus"
+   ],
    "events": [],
    "parts": [],
    "attributes": [
@@ -3160,7 +3280,8 @@
     ".donut",
     ".legend",
     ".stacked",
-    ".labels"
+    ".labels",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -3200,7 +3321,9 @@
      "meaning": "The colour behind them"
     }
    ],
-   "flags": [],
+   "flags": [
+    ".trapFocus"
+   ],
    "events": [],
    "parts": [],
    "attributes": [
@@ -3234,7 +3357,9 @@
      "meaning": "A heading above the list"
     }
    ],
-   "flags": [],
+   "flags": [
+    ".trapFocus"
+   ],
    "events": [],
    "parts": [],
    "attributes": [
@@ -3312,7 +3437,8 @@
     ".A5",
     ".Letter",
     ".Legal",
-    ".landscape"
+    ".landscape",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -3339,7 +3465,9 @@
    "signature": "Section { \u2026 }",
    "block": true,
    "props": [],
-   "flags": [],
+   "flags": [
+    ".trapFocus"
+   ],
    "events": [],
    "parts": [],
    "attributes": [
@@ -3436,7 +3564,8 @@
     ".bold",
     ".italic",
     ".underline",
-    ".muted"
+    ".muted",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -3474,7 +3603,8 @@
     ".first",
     ".rest",
     ".odd",
-    ".even"
+    ".even",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -3512,7 +3642,8 @@
     ".first",
     ".rest",
     ".odd",
-    ".even"
+    ".even",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -3550,7 +3681,8 @@
     ".first",
     ".rest",
     ".odd",
-    ".even"
+    ".even",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -3593,7 +3725,8 @@
     ".first",
     ".rest",
     ".odd",
-    ".even"
+    ".even",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -3620,7 +3753,9 @@
    "signature": "PageBreak",
    "block": false,
    "props": [],
-   "flags": [],
+   "flags": [
+    ".trapFocus"
+   ],
    "events": [],
    "parts": [],
    "attributes": [
@@ -3646,7 +3781,9 @@
    "signature": "Presentation { \u2026 }",
    "block": true,
    "props": [],
-   "flags": [],
+   "flags": [
+    ".trapFocus"
+   ],
    "events": [],
    "parts": [],
    "attributes": [
@@ -3672,7 +3809,9 @@
    "signature": "Slide { \u2026 }",
    "block": true,
    "props": [],
-   "flags": [],
+   "flags": [
+    ".trapFocus"
+   ],
    "events": [],
    "parts": [],
    "attributes": [
@@ -3709,7 +3848,9 @@
      "meaning": "The subtitle"
     }
    ],
-   "flags": [],
+   "flags": [
+    ".trapFocus"
+   ],
    "events": [],
    "parts": [],
    "attributes": [
@@ -3751,7 +3892,8 @@
     ".success",
     ".danger",
     ".warning",
-    ".info"
+    ".info",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -3778,7 +3920,9 @@
    "signature": "TwoColumn { \u2026 }",
    "block": true,
    "props": [],
-   "flags": [],
+   "flags": [
+    ".trapFocus"
+   ],
    "events": [],
    "parts": [],
    "attributes": [
@@ -3815,7 +3959,9 @@
      "meaning": "Caption under the image"
     }
    ],
-   "flags": [],
+   "flags": [
+    ".trapFocus"
+   ],
    "events": [],
    "parts": [],
    "attributes": [
@@ -3855,7 +4001,8 @@
    "flags": [
     ".none",
     ".fade",
-    ".slide"
+    ".slide",
+    ".trapFocus"
    ],
    "events": [],
    "parts": [],
@@ -3930,6 +4077,11 @@
     "name": "ref:",
     "type": "State",
     "meaning": "A handle on the element, usable as the element: `ref: nameInput`, then `nameInput.focus()`"
+   },
+   {
+    "name": "trapFocus:",
+    "type": "Bool",
+    "meaning": "While true, focus moves into it and Tab and Shift+Tab stay inside; when it turns false or the element leaves, focus goes back where it was"
    },
    {
     "name": "mount:",

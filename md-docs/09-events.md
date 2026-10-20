@@ -84,10 +84,65 @@ page Keys(path: "/") {
 
 Spelling: modifiers `ctrl`, `shift`, `alt`, `meta` (or `cmd`), joined with
 `+`, then the key as the browser names it — `k`, `Enter`, `Escape` (or `esc`),
-`Tab`, `ArrowDown` (or `down`), `space`. On an element the handler listens on
-that element; at the top of a page or component it listens on the document
-for as long as the page shows. Every modifier must match exactly, so
+`Tab`, `ArrowDown` (or `down`), `space`, `F2`. On an element the handler
+listens on that element; at the top of a page or component it listens on the
+document for as long as the page shows. Every modifier must match exactly, so
 `ctrl+k` does not fire on `ctrl+shift+k`.
+
+### Shortcuts for an app
+
+An app's shortcuts are written with **`mod`**, which is ⌘ on a Mac and Ctrl
+everywhere else, and declared on `app`, where they are heard on every page
+for as long as the app runs. A **chord** is its steps with a space between:
+the second step must come within a second and a half of the first, and alone
+it does not fire a shortcut of its own.
+
+```wf
+store Commands {
+    state said = ""
+    state table: [Command] = [
+        { id: "palette", keys: "mod+shift+p", title: "Commands" },
+        { id: "sidebar", keys: "mod+b", title: "Toggle sidebar" },
+    ]
+    action run(e) {
+        for c in table {
+            if keyIs(e, c.keys) {
+                e.preventDefault()
+                said = c.id
+            }
+        }
+    }
+}
+
+type Command { id: String, keys: String, title: String }
+
+app {
+    on key("mod+s") { Commands.said = "saved" }
+    on key("mod+k mod+s") { Commands.said = "shortcut help" }
+    on keydown(e) { Commands.run(e) }
+    Menu(trigger: "View") {
+        for c in Commands.table {
+            Menu.Item(shortcut: c.keys) { Text(c.title) }
+        }
+    }
+    Text("Commands: {keyLabel(\"mod+shift+p\")}")
+    Router
+}
+```
+
+- **`keyIs(e, "mod+s")`** is whether a key event is that combination — a
+  chord's too — so one table of commands can drive the shortcuts, the menus
+  and a palette.
+- **`keyLabel("mod+shift+p")`** is how this system writes it: `⇧⌘P` on a
+  Mac, `Ctrl+Shift+P` elsewhere. A `Menu.Item`'s and a `Tooltip`'s
+  `shortcut:` are written the same way, and the item tells assistive
+  technology with `aria-keyshortcuts`.
+- Outside any element, a page, a component or `app` may handle `keydown`
+  and `keyup`, and the window's `resize`, `scroll`, `hashchange`,
+  `popstate`, `online`, `offline`, `message`, `storage` and
+  `visibilitychange`: each listens for as long as it shows.
+- A letter is also the key in its place: on a Mac `⌥⌘P` sends `π`, and
+  `mod+alt+p` still matches it.
 
 ## Emitting events from components
 
