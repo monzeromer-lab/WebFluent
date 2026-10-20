@@ -1,0 +1,17 @@
+// A store's resource: asked for when the store is first read, asked again
+// when the page it reads moves on, and kept across pages.
+store Feed {
+    state page = 1
+    resource rows = fetch("/data/rows-{page}.json")
+    derived count = rows.data?.length ?? 0
+    derived loaded = rows.state == "ready"
+    action next() { page = page + 1 }
+    action again() { rows.reload() }
+}
+
+// A `.route` store's: abandoned when its route leaves, and asked for again
+// when the route comes back.
+store Draft(scope: .route) {
+    resource note = fetch("/data/note.json")
+    derived title = note.data?.title ?? ""
+}

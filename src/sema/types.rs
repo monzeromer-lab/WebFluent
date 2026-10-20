@@ -494,6 +494,9 @@ pub fn check_in(
                         StatementKind::Action(a) => {
                             fixed.insert(a.name.clone(), "an action");
                         }
+                        StatementKind::Resource(r) => {
+                            fixed.insert(r.name.clone(), "a `resource`");
+                        }
                         _ => {}
                     }
                 }

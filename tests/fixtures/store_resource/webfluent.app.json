@@ -1,0 +1,4 @@
+{
+  "name": "store_resource",
+  "build": { "ssg": true, "csp": true }
+}

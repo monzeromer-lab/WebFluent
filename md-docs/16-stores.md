@@ -375,32 +375,63 @@ page Feed(path: "/", title: "Feed", description: "One line for every page.") {
 
 ## Loading data into a store
 
-A store can own a `resource` (see [Data and APIs](24-data.md)), or fill its
-state from a fetch in an action that a page calls:
+A store can own a `resource` (see [Data and APIs](24-data.md)). It is asked
+for the first time something reads the store, and lives as long as the
+store does — not as long as the page that happened to read it first — so
+another page that reads the store finds what has already arrived, and
+nothing is asked for again. It is abandoned with the store: a `.route`
+store's when its route leaves, to be asked for afresh when the route comes
+back.
+
+Inside the store it is `rows`, anywhere else `Deploys.rows`, and its
+`state`, `data`, `error`, `refreshing` and `pending` follow it in both. Its
+address and options read the store's own state, so an action that moves
+one asks again:
 
 ```wf
+type Deploy { id: String, status: String }
+
 store Deploys {
-    state rows: [Map] = []
-    state loaded = false
-    action load() {
-        if loaded { return }
-        let r = await fetch("/api/deploys")
-        rows = r.rows
-        loaded = true
-    }
+    state page = 1
+    resource rows: [Deploy] = fetch("/api/deploys?page={page}")
+    derived failing = (rows.data ?? []).filter(d => d.status == "failed").length
+    action next() { page = page + 1 }
+    action refresh() { rows.reload() }
 }
 
 page DeploysPage(path: "/deploys", title: "Deploys", description: "Every deploy.") {
-    use Deploys
-    Deploys.load()
-    if !Deploys.loaded { Spinner }
-    for d in Deploys.rows by d.id { Text("{d.id}: {d.status}") }
+    Heading("Deploys").h1
+    Text("{Deploys.failing} failing")
+    match Deploys.rows {
+        loading { Spinner() }
+        error(e) { Text(e.message) }
+        ready(rows) {
+            for d in rows by d.id { Text("{d.id}: {d.status}") }
+        }
+    }
+    Button("Refresh", disabled: Deploys.rows.pending) { on click { Deploys.refresh() } }
+    Button("Next page") { on click { Deploys.next() } }
 }
 ```
 
-A call at the top of a page's body, such as `Deploys.load()`, is set-up
-code: it runs once, when the page renders. The `if loaded { return }` line
-keeps a second visit from fetching again.
+A resource over a service's endpoint is owned the same way —
+`resource list = Catalog.items(page: page, paginate: .page)` — and its
+`loadMore()` moves the store's `page`. The resource is the store's to
+replace: `Deploys.rows = …` is an `X01`, as it is inside the store.
+
+When an action decides what is kept — a reply merged into rows already
+held, a list built from several calls — fill the store's state from a
+`fetch` instead, and call the action where the data is first wanted:
+
+```wf
+store Feed {
+    state items: [Map] = []
+    action more() {
+        let r = await fetch("/api/feed?after={items.length}")
+        items = [...items, ...r.items]
+    }
+}
+```
 
 ## Stores in the pre-rendered page
 

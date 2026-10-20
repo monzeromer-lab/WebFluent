@@ -742,7 +742,24 @@ page Shop(path: "/shop") {
 }
 ```
 
+A store may own a `resource`: asked for when the store is built, kept for
+as long as the store lives (not the page that first read it), and
+abandoned with it. Its address reads the store's state; its `state`,
+`data`, `error`, `refreshing` and `pending` are signals, read as
+`rows.data` inside the store and `Feed.rows.state` outside it, and
+`match Feed.rows { loading … error(e) … ready(rows) … }` draws it.
+
+```wf
+store Feed {
+    state page = 1
+    resource rows = fetch("/api/rows?page={page}")
+    derived count = rows.data?.length ?? 0
+    action next() { page = page + 1 }
+}
+```
+
 <!-- core -->
+
 ### State & Reactivity
 
 ```wf

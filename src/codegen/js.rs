@@ -253,6 +253,16 @@ fn action_names(body: &[Statement]) -> Vec<String> {
 
 /// What a connection's handle holds as signals.
 pub const CONNECTION_SIGNALS: &[&str] = &["state", "error", "pending", "messages", "closure"];
+/// What a resource's handle holds as signals.
+pub const RESOURCE_SIGNALS: &[&str] = &[
+    "state",
+    "data",
+    "error",
+    "refreshing",
+    "pending",
+    "items",
+    "hasMore",
+];
 
 /// The events a runtime recogniser turns the pointer into (`gesture.js`).
 pub const GESTURE_EVENTS: &[&str] = &["longpress", "swipe", "receive", "dragmove"];
@@ -347,6 +357,11 @@ pub struct JsCodegen {
     store_connections: Vec<(String, String)>,
     /// The connections of the store being emitted.
     own_connections: Vec<String>,
+    /// Every store's resources, as `(store, name)`: `Feed.rows.state` is a
+    /// signal on the handle, as a page's own resource's is.
+    store_resources: Vec<(String, String)>,
+    /// The resources of the store being emitted.
+    own_resources: Vec<String>,
     /// The options of the `VirtualList` whose `for` is drawn next.
     window_opts: Option<Vec<String>>,
     /// The body being emitted, for reading a state's declared condition.
@@ -547,6 +562,8 @@ impl JsCodegen {
             menu_lists: Vec::new(),
             store_connections: Vec::new(),
             own_connections: Vec::new(),
+            store_resources: Vec::new(),
+            own_resources: Vec::new(),
             window_opts: None,
             current_body: Vec::new(),
             own_names: Vec::new(),
@@ -994,6 +1011,9 @@ impl JsCodegen {
                             self.store_connections
                                 .push((s.name.clone(), c.name.clone()));
                         }
+                        if let StatementKind::Resource(r) = &stmt.kind {
+                            self.store_resources.push((s.name.clone(), r.name.clone()));
+                        }
                     }
                 }
                 // A service is a name in scope like a store's, not a
@@ -1363,6 +1383,7 @@ impl JsCodegen {
                 StatementKind::Derived(d) => Some(d.name.clone()),
                 StatementKind::Action(a) => Some(a.name.clone()),
                 StatementKind::Connection(c) => Some(c.name.clone()),
+                StatementKind::Resource(r) => Some(r.name.clone()),
                 _ => None,
             })
             .collect();
@@ -1371,6 +1392,14 @@ impl JsCodegen {
             .iter()
             .filter_map(|s| match &s.kind {
                 StatementKind::Connection(c) => Some(c.name.clone()),
+                _ => None,
+            })
+            .collect();
+        self.own_resources = store
+            .body
+            .iter()
+            .filter_map(|s| match &s.kind {
+                StatementKind::Resource(r) => Some(r.name.clone()),
                 _ => None,
             })
             .collect();
@@ -1515,7 +1544,29 @@ impl JsCodegen {
             self.indent -= 1;
             self.emit_line("},");
         }
+
+        // The requests the store holds — made when the store is, outside
+        // any page, and abandoned with it.
+        let resources: Vec<&ResourceDecl> = store
+            .body
+            .iter()
+            .filter_map(|s| match &s.kind {
+                StatementKind::Resource(r) => Some(r),
+                _ => None,
+            })
+            .collect();
+        if !resources.is_empty() {
+            self.emit_line("resources: {");
+            self.indent += 1;
+            for r in resources {
+                let call = self.resource_call(r, Some(&store_state_names));
+                self.emit_line(&format!("{}: (store) => {call},", r.name));
+            }
+            self.indent -= 1;
+            self.emit_line("},");
+        }
         self.own_connections.clear();
+        self.own_resources.clear();
 
         self.indent -= 1;
         self.emit_line(&format!("}}), {options});"));
@@ -1594,6 +1645,14 @@ impl JsCodegen {
                 if CONNECTION_SIGNALS.contains(&prop.as_str())
                     && matches!(base.as_ref(), Expr::Identifier(n)
                         if self.own_connections.contains(n) && self.is_own_member(n, store_states)) =>
+            {
+                format!("{}.{prop}()", self.emit_store_expr(base, store_states))
+            }
+            // A resource of this store's: what it holds is a signal.
+            Expr::PropertyAccess(base, prop)
+                if RESOURCE_SIGNALS.contains(&prop.as_str())
+                    && matches!(base.as_ref(), Expr::Identifier(n)
+                        if self.own_resources.contains(n) && self.is_own_member(n, store_states)) =>
             {
                 format!("{}.{prop}()", self.emit_store_expr(base, store_states))
             }
@@ -3988,8 +4047,14 @@ impl JsCodegen {
     /// address (`"{API}/rows"`), one that is a whole query (`"?{qs}"`), and
     /// anything after the `#` are written as they are.
     fn encoded_address(&self, val: &Expr) -> String {
+        self.encoded_address_in(val, None)
+    }
+
+    /// An address, its expressions read in a store's terms when `store`
+    /// names the store's members.
+    fn encoded_address_in(&self, val: &Expr, store: Option<&[String]>) -> String {
         let Expr::InterpolatedString(parts) = val else {
-            return self.emit_expr(val);
+            return self.term(val, store);
         };
         let mut out = String::from("`");
         let mut before = String::new();
@@ -4000,7 +4065,7 @@ impl JsCodegen {
                     before.push_str(text);
                 }
                 StringPart::Expression(e) => {
-                    let v = self.emit_expr(e);
+                    let v = self.term(e, store);
                     let raw = before.is_empty()
                         || before.contains('#')
                         || before.ends_with('?')
@@ -6760,12 +6825,29 @@ impl JsCodegen {
     /// `resource rows = fetch(url, opts)`: the request, made once here and
     /// again whenever a URL that reads state changes.
     fn emit_resource(&mut self, r: &ResourceDecl) {
+        let call = self.resource_call(r, None);
+        self.emit_line(&format!("const {} = {call};", sig(&r.name)));
+    }
+
+    /// An expression in a page's terms, or — when `store` names a store's
+    /// members — in that store's.
+    fn term(&self, e: &Expr, store: Option<&[String]>) -> String {
+        match store {
+            Some(states) => self.emit_store_expr(e, states),
+            None => self.emit_expr(e),
+        }
+    }
+
+    /// `WF.resource(…)` for a resource: a page's, or a store's when `store`
+    /// names the store's members, its address and options then read in the
+    /// store's terms.
+    fn resource_call(&self, r: &ResourceDecl, store: Option<&[String]>) -> String {
         // `resource rows = Backend.rows(page: n)`: an endpoint, which
         // carries its own address, headers, cache and abort. The arguments
         // are read again on every load, so one that reads state makes the
         // request again when it changes.
         if let Expr::MethodCall(object, endpoint, args) = &r.url {
-            let call = format!("{}.{}", self.emit_expr(object), endpoint);
+            let call = format!("{}.{}", self.term(object, store), endpoint);
             let named = args.iter().find_map(|a| match a {
                 Expr::MapLiteral(pairs) => Some(pairs),
                 _ => None,
@@ -6783,7 +6865,7 @@ impl JsCodegen {
             for (key, value) in &pairs {
                 let key = key.trim_matches('"');
                 if key == "on" {
-                    refetch = Some(self.refetch_policy(value));
+                    refetch = Some(self.refetch_policy_in(value, store));
                     continue;
                 }
                 // `paginate: .page` — `.items` gathers the pages, and
@@ -6796,9 +6878,12 @@ impl JsCodegen {
                     let set = pairs
                         .iter()
                         .find(|(k, _)| k.trim_matches('"') == by)
-                        .and_then(|(_, v)| match v {
-                            Expr::Identifier(name) => {
+                        .and_then(|(_, v)| match (v, store) {
+                            (Expr::Identifier(name), None) => {
                                 Some(format!(", set: (v) => {}.set(v)", sig(name)))
+                            }
+                            (Expr::Identifier(name), Some(states)) if states.contains(name) => {
+                                Some(format!(", set: (v) => {{ store.{name} = v; }}"))
                             }
                             _ => None,
                         })
@@ -6807,14 +6892,14 @@ impl JsCodegen {
                     continue;
                 }
                 let emitted = match key {
-                    "cache" => self.cache_policy(value),
-                    _ => self.emit_expr(value),
+                    "cache" => self.cache_policy_in(value, store),
+                    _ => self.term(value, store),
                 };
                 parts.push(format!("{key}: {emitted}"));
             }
             // A single positional argument is the one the path names.
             if let Some(first) = positional.first() {
-                parts.insert(0, format!("id: {}", self.emit_expr(first)));
+                parts.insert(0, format!("id: {}", self.term(first, store)));
             }
             let on = match refetch {
                 Some(policy) => format!(", on: {policy}"),
@@ -6824,15 +6909,20 @@ impl JsCodegen {
                 Some(policy) => format!(", paginate: {policy}"),
                 None => String::new(),
             };
-            self.emit_line(&format!(
-                "const {} = WF.resource({call}, {{ call: true, args: () => ({{ {} }}){on}{paging} }});",
-                sig(&r.name),
+            return format!(
+                "WF.resource({call}, {{ call: true, args: () => ({{ {} }}){on}{paging} }})",
                 parts.join(", ")
-            ));
-            return;
+            );
         }
-        let url = self.encoded_address(&r.url);
-        let url_js = if self.is_reactive(&url) {
+        let url = self.encoded_address_in(&r.url, store);
+        // A store's address is read in a function unless it is written out
+        // whole: what it reads — the store's state, another store's — is
+        // only known to be a signal when it is called.
+        let reactive = match store {
+            Some(_) => !matches!(r.url, Expr::StringLiteral(_)),
+            None => self.is_reactive(&url),
+        };
+        let url_js = if reactive {
             format!("() => {}", url)
         } else {
             url
@@ -6845,9 +6935,9 @@ impl JsCodegen {
             .iter()
             .map(|opt| {
                 let value = match opt.key.trim_matches('"') {
-                    "on" => self.refetch_policy(&opt.value),
-                    "cache" => self.cache_policy(&opt.value),
-                    _ => self.emit_expr(&opt.value),
+                    "on" => self.refetch_policy_in(&opt.value, store),
+                    "cache" => self.cache_policy_in(&opt.value, store),
+                    _ => self.term(&opt.value, store),
                 };
                 format!("{}: {value}", opt.key)
             })
@@ -6862,27 +6952,26 @@ impl JsCodegen {
         } else {
             format!("{{ {} }}", opts.join(", "))
         };
-        self.emit_line(&format!(
-            "const {} = WF.resource({}, {});",
-            sig(&r.name),
-            url_js,
-            opts_js
-        ));
+        format!("WF.resource({url_js}, {opts_js})")
     }
 
     /// `.swr(60.seconds)`, `.none`, `.forever`, `.cache(5.minutes)` — how
     /// long an answer stands, as the engine reads it.
     fn cache_policy(&self, value: &Expr) -> String {
+        self.cache_policy_in(value, None)
+    }
+
+    fn cache_policy_in(&self, value: &Expr, store: Option<&[String]>) -> String {
         match value {
             Expr::EnumCase(name) => format!("{{ kind: \"{name}\" }}"),
             Expr::CaseValue(name, args) => {
                 let ttl = args
                     .first()
-                    .map(|a| self.emit_expr(a))
+                    .map(|a| self.term(a, store))
                     .unwrap_or_else(|| "0".to_string());
                 format!("{{ kind: \"{name}\", ttl: {ttl} }}")
             }
-            other => self.emit_expr(other),
+            other => self.term(other, store),
         }
     }
 
@@ -6931,6 +7020,10 @@ impl JsCodegen {
     /// `.focus`, `.reconnect`, `.interval(30.seconds)`, `.never` — when to
     /// look again.
     fn refetch_policy(&self, value: &Expr) -> String {
+        self.refetch_policy_in(value, None)
+    }
+
+    fn refetch_policy_in(&self, value: &Expr, store: Option<&[String]>) -> String {
         let one = |e: &Expr| -> Option<String> {
             match e {
                 Expr::EnumCase(name) if name == "never" => Some(String::new()),
@@ -6938,7 +7031,7 @@ impl JsCodegen {
                 Expr::CaseValue(name, args) => Some(format!(
                     "{name}: {}",
                     args.first()
-                        .map(|a| self.emit_expr(a))
+                        .map(|a| self.term(a, store))
                         .unwrap_or_else(|| "0".to_string())
                 )),
                 _ => None,
@@ -6949,7 +7042,7 @@ impl JsCodegen {
             other => one(other).into_iter().collect(),
         };
         if parts.is_empty() {
-            return self.emit_expr(value);
+            return self.term(value, store);
         }
         format!("{{ {} }}", parts.join(", "))
     }
@@ -7817,6 +7910,15 @@ impl JsCodegen {
                     && matches!(base.as_ref(), Expr::PropertyAccess(owner, name)
                         if matches!(owner.as_ref(), Expr::Identifier(store)
                             if self.store_connections.iter().any(|(s, c)| s == store && c == name))) =>
+            {
+                format!("{}.{}()", self.emit_expr(base), prop)
+            }
+            // A store's resource, `Feed.rows.state`: the same.
+            Expr::PropertyAccess(base, prop)
+                if RESOURCE_SIGNALS.contains(&prop.as_str())
+                    && matches!(base.as_ref(), Expr::PropertyAccess(owner, name)
+                        if matches!(owner.as_ref(), Expr::Identifier(store)
+                            if self.store_resources.iter().any(|(s, r)| s == store && r == name))) =>
             {
                 format!("{}.{}()", self.emit_expr(base), prop)
             }

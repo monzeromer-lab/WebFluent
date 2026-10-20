@@ -1,0 +1,20 @@
+page Home(path: "/", title: "Feed", description: "A store's resource.") {
+    Heading("Feed").h1
+    Text(Feed.rows.state, id: "state")
+    Text("{Feed.count}", id: "count")
+    Text("{Feed.loaded}", id: "loaded")
+    if Feed.rows.refreshing { Text("refreshing", id: "refreshing") }
+    match Feed.rows {
+        loading { Text("Loading", id: "rows") }
+        error(e) { Text("failed", id: "rows") }
+        ready(rows) {
+            Stack(id: "rows") {
+                for r in rows { Text(r.name) }
+            }
+        }
+    }
+    Text(Draft.title, id: "title")
+    Button("Next", id: "next") { on click { Feed.next() } }
+    Button("Again", id: "again") { on click { Feed.again() } }
+    Link("Other", to: "/other", id: "other")
+}

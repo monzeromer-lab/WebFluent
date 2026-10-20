@@ -1,0 +1,6 @@
+page Other(path: "/other", title: "Other", description: "Another page reading the same store.") {
+    Heading("Other").h1
+    Text("{Feed.count}", id: "count")
+    Text(Feed.rows.state, id: "state")
+    Link("Home", to: "/", id: "home")
+}

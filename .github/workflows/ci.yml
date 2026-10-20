@@ -138,6 +138,10 @@ jobs:
         working-directory: tests/browser
         run: node markdown.mjs
 
+      - name: A store's resources
+        working-directory: tests/browser
+        run: node store_resource.mjs
+
       # What the compiler once compiled wrong, clicked and typed into.
       - name: Behaviour
         run: target/release/wf test tests/fixtures/behaviour

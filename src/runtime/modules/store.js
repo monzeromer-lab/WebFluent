@@ -156,6 +156,18 @@
       }
     }
 
+    // The requests it holds, made now — after its state, which an address
+    // may read, and before its derived values, which may read what they
+    // bring. They live as long as the store, not as long as the page that
+    // first read it, and are abandoned when a `.route` store's route
+    // leaves.
+    if (definition.resources) {
+      for (const [key, make] of Object.entries(definition.resources)) {
+        const handle = owned(off, () => make(store));
+        Object.defineProperty(store, key, { value: handle, enumerable: false });
+      }
+    }
+
     // The derived values: every one's getter first, then each made — in
     // the store's own lifetime, whatever reads it first — so a derived
     // value that reads one written after it finds it. Made one by one in
@@ -208,6 +220,24 @@
     builtStores.set(name, { states, store });
     if (storeWatcher) storeWatcher({ store: name, action: null, args: [], before: null, after: snap(states) });
     return store;
+  }
+
+  /// `fn()`, outside whatever page, effect or branch is being built: what
+  /// it starts is the store's, and stopped by `off`, not by the page
+  /// that happened to read the store first.
+  function owned(off, fn) {
+    const scope = currentScope;
+    const reader = currentEffect;
+    currentScope = [];
+    currentEffect = null;
+    try {
+      return fn();
+    } finally {
+      const mine = currentScope;
+      currentScope = scope;
+      currentEffect = reader;
+      off.push(() => { for (const f of mine.splice(0)) f(); });
+    }
   }
 
   /// What a store's state holds, as plain values.
