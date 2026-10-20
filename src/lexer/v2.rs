@@ -489,6 +489,12 @@ impl LexerV2 {
                 self.advance();
                 Ok(Token::new(TokenType::Semicolon, line, column))
             }
+            // A comma a value stopped at, before the next declaration; the
+            // parser says it should have been a `;`.
+            ',' => {
+                self.advance();
+                Ok(Token::new(TokenType::Comma, line, column))
+            }
             // A keyframe of an `animation`: `from {`, `to {`, `50% {`.
             _ if self.keyframe_ahead() => {
                 let mut text = String::new();
@@ -1015,6 +1021,12 @@ impl LexerV2 {
                 }
                 '}' => break,
                 ';' if parens == 0 && braces == 0 => break,
+                // `width: 200px, flex: none` is two declarations written with
+                // the separator of a map. CSS has no value in which a comma is
+                // followed by `name:`, so the value ends here and the comma is
+                // left for the parser to point at; read on, the second
+                // declaration became part of the first one's value.
+                ',' if parens == 0 && braces == 0 && self.declaration_after_comma() => break,
                 '\n' => {
                     let trimmed = text.trim_end();
                     if parens > 0 || braces > 0 || trimmed.ends_with(',') {
@@ -1051,6 +1063,29 @@ impl LexerV2 {
         self.current() == '/'
             && (self.peek() == Some('*')
                 || (self.peek() == Some('/') && self.source.get(self.pos + 2) != Some(&'/')))
+    }
+
+    /// At a `,`: whether what follows it, past spaces and line breaks, is
+    /// another declaration — `name:` or `--name:`.
+    fn declaration_after_comma(&self) -> bool {
+        let mut i = self.pos + 1;
+        while i < self.source.len() && self.source[i].is_whitespace() {
+            i += 1;
+        }
+        if i >= self.source.len()
+            || !(self.source[i].is_ascii_alphabetic() || self.source[i] == '-')
+        {
+            return false;
+        }
+        while i < self.source.len()
+            && (self.source[i].is_ascii_alphanumeric() || self.source[i] == '-')
+        {
+            i += 1;
+        }
+        while i < self.source.len() && self.source[i] == ' ' {
+            i += 1;
+        }
+        i < self.source.len() && self.source[i] == ':'
     }
 
     /// At a space: whether two or more spaces here are followed by what

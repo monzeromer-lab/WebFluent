@@ -79,7 +79,9 @@ page Styled(path: "/") {
 ```
 
 - A style block holds CSS declarations, one per line or `;`-separated. No
-  quotes around values — `padding: 2rem`, not `"2rem"`.
+  quotes around values — `padding: 2rem`, not `"2rem"`. A comma between
+  two declarations (`width: 2rem, flex: none`) is an error: it is CSS, not
+  a map.
 - `$token` names a token. A short name is resolved by the property:
   `padding: $lg` is `spacing-lg`, `color: $primary` is `color-primary`,
   `border-radius: $lg` is `radius-lg`, `box-shadow: $md` is `shadow-md`,

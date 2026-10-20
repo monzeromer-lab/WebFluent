@@ -3184,7 +3184,7 @@ page Invoice(path: "/", title: "Invoice") {
 9. **Imports via `use`**: `use StoreName` to access shared stores
 10. **No semicolons needed**: statements are newline-separated; `;` separates two on one line
 11. **`return` in actions**: `return expr` returns a value from store actions
-12. **Style values are CSS**: `padding: 1rem 2rem`, `background: $surface`, `width: {pct}%` — no quotes; `$name` is a design token, `{expr}` a live value
+12. **Style values are CSS**: `padding: 1rem 2rem`, `background: $surface`, `width: {pct}%` — no quotes; `$name` is a design token, `{expr}` a live value; two on one line are separated by `;`, never `,` (`E002`)
 13. **`@media` and nested rules inside style blocks**: `@media (max-width: 768px) { display: none }` and `&:hover { … }` compile to stylesheet rules scoped to the element
 14. **Router nests anywhere**: `Router` can be inside `Row`, `Container`, `Stack`, or any layout wrapper at any depth; pages own their routes
 15. **Browser globals are not prefixed**: `localStorage`, `window`, `console`, `JSON`, `Math`, `Date`, `setTimeout`, `fetch`, `Promise`, etc. compile as-is

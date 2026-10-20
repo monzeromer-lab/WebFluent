@@ -3196,6 +3196,15 @@ impl ParserV2 {
             _ => return Err(self.error(format!("Expected a value for `{name}`"))),
         };
         self.advance();
+        // The lexer stops a value at a `,` that another declaration follows.
+        if self.check(&TokenType::Comma) {
+            return Err(self.error_with_hint(
+                format!(
+                    "A `,` after the value of `{name}`: a style block's declarations are not a map"
+                ),
+                "Separate declarations on one line with `;`",
+            ));
+        }
         self.eat(&TokenType::Semicolon);
         Ok((name, value))
     }
@@ -4879,6 +4888,50 @@ app { Navbar(brand: "x") { Navbar.Links { Link("Home", to: "/") } }  Router }
         // A splice with a slip in it is an error, not silently text.
         let err = fails("page P(path: \"/\") { Text(\"Hi {name +}\") }");
         assert!(err.contains("name +"), "{err}");
+    }
+
+    /// `style { overflow: hidden, height: 60px }` used to compile to one
+    /// declaration whose value was the rest of the line.
+    #[test]
+    fn a_comma_between_two_declarations_is_an_error_with_a_hint() {
+        for block in [
+            "style { overflow: \"hidden\", height: \"60px\" }",
+            "style { width: {w}px, flex: none }",
+            "style { width: {w}px,\n  --gap: 4px }",
+            "style { &:hover { color: red, background: blue } }",
+        ] {
+            let src = format!("page P(path: \"/\") {{ Stack {{ {block} }} }}");
+            let Err(e) = parse_v2(&src, "<t>") else {
+                panic!("parsed, should not have:\n{src}")
+            };
+            let d = &e.diagnostics()[0];
+            assert_eq!(d.code, "E002", "{block}");
+            assert!(
+                d.message.contains("A `,` after the value of"),
+                "{}",
+                d.message
+            );
+            assert_eq!(
+                d.hint.as_deref(),
+                Some("Separate declarations on one line with `;`")
+            );
+        }
+        let err = fails("theme Brand { color-primary: #0F766E, radius-md: 14px }");
+        assert!(
+            err.contains("A `,` after the value of `color-primary`"),
+            "{err}"
+        );
+        // A comma inside a value is CSS's, and stays in the value.
+        let el = first_element(
+            "page P(path: \"/\") { Text(\"x\") { style { font-family: Manrope, sans-serif; transition: opacity 150ms,\n color 150ms; background: url(a), url(b) } } }",
+        );
+        let style = el.style_block.unwrap();
+        assert_eq!(style.properties.len(), 3);
+        assert!(
+            matches!(&style.properties[0].value, Expr::StringLiteral(s) if s == "Manrope, sans-serif"),
+            "{:?}",
+            style.properties[0].value
+        );
     }
 
     #[test]
