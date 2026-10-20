@@ -13,8 +13,9 @@
 pub mod jsdoc;
 pub mod scan;
 
-use std::fs;
 use std::path::{Path, PathBuf};
+
+use crate::vfs::{FsVfs, Vfs};
 
 pub use scan::Scan;
 
@@ -80,15 +81,19 @@ pub struct Script {
 /// linked in is stable. `.mjs` is a module by name and is left out; a
 /// `node_modules` directory is not the project's.
 pub fn find_scripts(dir: &Path) -> Vec<PathBuf> {
-    fn walk(dir: &Path, files: &mut Vec<PathBuf>) {
-        let Ok(entries) = fs::read_dir(dir) else {
+    find_scripts_via(&FsVfs, dir)
+}
+
+/// [`find_scripts`], looking through `vfs`.
+pub fn find_scripts_via(vfs: &dyn Vfs, dir: &Path) -> Vec<PathBuf> {
+    fn walk(vfs: &dyn Vfs, dir: &Path, files: &mut Vec<PathBuf>) {
+        let Ok(entries) = vfs.read_dir(dir) else {
             return;
         };
-        for entry in entries.flatten() {
-            let path = entry.path();
-            if path.is_dir() {
+        for path in entries {
+            if vfs.is_dir(&path) {
                 if path.file_name().is_some_and(|n| n != "node_modules") {
-                    walk(&path, files);
+                    walk(vfs, &path, files);
                 }
             } else if path.extension().is_some_and(|ext| ext == "js") {
                 files.push(path);
@@ -96,16 +101,21 @@ pub fn find_scripts(dir: &Path) -> Vec<PathBuf> {
         }
     }
     let mut files = Vec::new();
-    walk(dir, &mut files);
+    walk(vfs, dir, &mut files);
     files.sort();
     files
 }
 
 /// Read every script under `src_dir`.
 pub fn load(project_dir: &Path, src_dir: &Path) -> std::io::Result<Vec<Script>> {
+    load_via(&FsVfs, project_dir, src_dir)
+}
+
+/// [`load`], reading through `vfs`.
+pub fn load_via(vfs: &dyn Vfs, project_dir: &Path, src_dir: &Path) -> std::io::Result<Vec<Script>> {
     let mut out = Vec::new();
-    for file in find_scripts(src_dir) {
-        let source = fs::read_to_string(&file)?;
+    for file in find_scripts_via(vfs, src_dir) {
+        let source = vfs.read_to_string(&file)?;
         out.push(from_source(project_dir, src_dir, &file, source));
     }
     Ok(out)

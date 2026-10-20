@@ -1,5 +1,5 @@
+use lsp_types::*;
 use std::collections::HashMap;
-use tower_lsp::lsp_types::*;
 
 /// The quick fixes the compiler offers for the diagnostics in the request:
 /// each finding carries its fixes in `data` (see `diagnostics::to_lsp`),

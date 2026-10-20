@@ -1,7 +1,7 @@
 //! Inlay hints: the type the checker gives a `state`, `derived` value or
 //! `let` written without one — `state count = 0` shows `: Number`.
 
-use tower_lsp::lsp_types::*;
+use lsp_types::*;
 use webfluent::parser::ast::*;
 
 use crate::analysis;

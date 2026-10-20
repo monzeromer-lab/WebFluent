@@ -1,7 +1,7 @@
 //! Document symbols (the outline of one file) and workspace symbols (every
 //! declaration in the project, for "go to symbol in project").
 
-use tower_lsp::lsp_types::*;
+use lsp_types::*;
 use webfluent::parser::ast::*;
 
 use crate::line_index::LineIndex;

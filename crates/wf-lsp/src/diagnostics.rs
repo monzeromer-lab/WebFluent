@@ -9,7 +9,7 @@
 //! concerns, and an `Unnecessary` tag where it points at code nothing needs.
 
 use std::collections::HashMap;
-use tower_lsp::lsp_types::*;
+use lsp_types::*;
 use webfluent::diagnostics::{Diagnostic as WfDiagnostic, Severity, Tag};
 
 use crate::line_index::LineIndex;

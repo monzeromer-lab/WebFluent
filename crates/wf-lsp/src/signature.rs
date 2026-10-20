@@ -3,7 +3,7 @@
 //! service's endpoint, an action, a project script's function, or one the
 //! language gives.
 
-use tower_lsp::lsp_types::*;
+use lsp_types::*;
 use webfluent::lexer::{Token, TokenType};
 use webfluent::parser::ast::*;
 use webfluent::registry::{self, PropType};

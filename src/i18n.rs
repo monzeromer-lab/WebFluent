@@ -17,11 +17,20 @@ pub fn load(
     project_dir: &Path,
     config: &crate::config::project::I18nConfig,
 ) -> crate::error::Result<HashMap<String, HashMap<String, String>>> {
+    load_via(&crate::vfs::FsVfs, project_dir, config)
+}
+
+/// [`load`], reading through `vfs`.
+pub fn load_via(
+    vfs: &dyn crate::vfs::Vfs,
+    project_dir: &Path,
+    config: &crate::config::project::I18nConfig,
+) -> crate::error::Result<HashMap<String, HashMap<String, String>>> {
     let mut out = HashMap::new();
     let dir = project_dir.join(&config.dir);
     for locale in &config.locales {
         let file = dir.join(format!("{locale}.json"));
-        let Ok(content) = std::fs::read_to_string(&file) else {
+        let Ok(content) = vfs.read_to_string(&file) else {
             continue;
         };
         let messages: HashMap<String, String> = serde_json::from_str(&content).map_err(|e| {

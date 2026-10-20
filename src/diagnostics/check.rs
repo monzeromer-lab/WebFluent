@@ -12,6 +12,7 @@ use crate::config::ProjectConfig;
 use crate::config::project::OutputType;
 use crate::parser::ast::{Declaration, Program};
 use crate::project_js::Script;
+use crate::vfs::{FsVfs, Vfs};
 use std::path::Path;
 
 /// What the checks read.
@@ -55,9 +56,16 @@ const REFERENCES: &[&str] = &["E101", "E104", "T13", "T06", "R01", "U03", "U04",
 
 /// Every check over a project.
 pub fn check_project(p: &Project) -> Checked {
+    check_project_via(&FsVfs, p)
+}
+
+/// [`check_project`], reading the project's files through `vfs`: an
+/// editor's unsaved config, translations and sources are checked as the
+/// build reading the same `vfs` would check them.
+pub fn check_project_via(vfs: &dyn Vfs, p: &Project) -> Checked {
     let mut out = Vec::new();
     if let Some(dir) = p.dir {
-        out.extend(script_checks(dir, p.scripts));
+        out.extend(script_checks_via(vfs, dir, p.scripts));
         out.extend(crate::linter::project::missing_assets(
             p.program, dir, p.file_of,
         ));
@@ -65,10 +73,10 @@ pub fn check_project(p: &Project) -> Checked {
             p.program, dir, p.file_of,
         ));
         if let Some(config) = p.config {
-            out.extend(config_checks(dir, config, p.program));
-            out.extend(crate::linter::lint_env(dir, config, p.declaration_files));
+            out.extend(config_checks_via(vfs, dir, config, p.program));
+            out.extend(crate::linter::lint_env_via(vfs, dir, config, p.declaration_files));
             if let Some(i18n) = &config.i18n
-                && let Ok(messages) = crate::i18n::load(dir, i18n)
+                && let Ok(messages) = crate::i18n::load_via(vfs, dir, i18n)
             {
                 out.extend(crate::linter::project::translations(
                     p.program, i18n, &messages, p.file_of,
@@ -158,7 +166,7 @@ pub fn check_project(p: &Project) -> Checked {
     if let Some(config) = p.config {
         let text = p
             .dir
-            .and_then(|dir| std::fs::read_to_string(dir.join(CONFIG)).ok())
+            .and_then(|dir| vfs.read_to_string(&dir.join(CONFIG)).ok())
             .unwrap_or_default();
         apply_lints(&mut out, &config.lints, &text);
     }
@@ -193,6 +201,11 @@ pub fn program_checks(
 /// file the scanner could not read is linked, but its names are not in
 /// scope.
 pub fn script_checks(dir: &Path, scripts: &[Script]) -> Vec<Diagnostic> {
+    script_checks_via(&FsVfs, dir, scripts)
+}
+
+/// [`script_checks`], looking in `public/` through `vfs`.
+pub fn script_checks_via(vfs: &dyn Vfs, dir: &Path, scripts: &[Script]) -> Vec<Diagnostic> {
     let mut out = Vec::new();
     for script in scripts {
         if let Some((line, col)) = script.scan.module_at {
@@ -212,7 +225,7 @@ pub fn script_checks(dir: &Path, scripts: &[Script]) -> Vec<Diagnostic> {
                 ),
             );
         }
-        if dir.join("public").join(&script.href).exists() {
+        if vfs.exists(&dir.join("public").join(&script.href)) {
             out.push(
                 Diagnostic::coded(
                     "E110",
@@ -293,9 +306,19 @@ const CONFIG: &str = "webfluent.app.json";
 
 /// What the configuration asks for that cannot work, or that nothing reads.
 pub fn config_checks(dir: &Path, config: &ProjectConfig, program: &Program) -> Vec<Diagnostic> {
-    let text = std::fs::read_to_string(dir.join(CONFIG)).unwrap_or_default();
+    config_checks_via(&FsVfs, dir, config, program)
+}
+
+/// [`config_checks`], reading the config through `vfs`.
+pub fn config_checks_via(
+    vfs: &dyn Vfs,
+    dir: &Path,
+    config: &ProjectConfig,
+    program: &Program,
+) -> Vec<Diagnostic> {
+    let text = vfs.read_to_string(&dir.join(CONFIG)).unwrap_or_default();
     let mut out = Vec::new();
-    for unknown in ProjectConfig::unknown_keys(dir) {
+    for unknown in ProjectConfig::unknown_keys_via(vfs, dir) {
         let key = unknown
             .split('`')
             .nth(1)

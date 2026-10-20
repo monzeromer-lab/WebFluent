@@ -118,7 +118,30 @@ pub fn process(
     settings: &Settings,
     base_path: &str,
 ) -> Result<Asset> {
-    let bytes = std::fs::read(source)
+    process_via(
+        &crate::vfs::FsVfs,
+        name,
+        source,
+        out_dir,
+        cache_dir,
+        settings,
+        base_path,
+    )
+}
+
+/// [`process`], reading the picture through `vfs`. What it writes — the
+/// output and the cache — goes to the disk.
+pub fn process_via(
+    vfs: &dyn crate::vfs::Vfs,
+    name: &str,
+    source: &Path,
+    out_dir: &Path,
+    cache_dir: &Path,
+    settings: &Settings,
+    base_path: &str,
+) -> Result<Asset> {
+    let bytes = vfs
+        .read(source)
         .map_err(|e| crate::error::WebFluentError::IoError(format!("{}: {e}", source.display())))?;
     let probed = probe::probe(&bytes, source)?;
     let hash = encode::hash(&bytes, settings);

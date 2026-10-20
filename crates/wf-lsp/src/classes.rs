@@ -6,7 +6,7 @@
 //! the editor offers the classes those sheets define, shows the rule on
 //! hover, and goes to it.
 
-use tower_lsp::lsp_types::*;
+use lsp_types::*;
 use webfluent::lexer::{Token, TokenType};
 
 use crate::project::Project;

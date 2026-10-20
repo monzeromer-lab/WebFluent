@@ -139,6 +139,25 @@ pub mod sema;
 /// `wf migrate`: the original grammar rewritten as WebFluent 3.
 pub mod migrate;
 
+/// `wf test`: a project's tests, rendered or played in a browser, and what
+/// each came to.
+pub mod testing;
+
+/// `wf docs`: the component gallery, one self-contained HTML page.
+pub mod gallery;
+
+/// `wf verify`: every page of a built project in a browser — what each
+/// route did, and the built-ins no page drew.
+pub mod verify;
+
+/// `wf init`: a new project from a template.
+pub mod init;
+
+/// `wf audit`: what a project trusts — markup it did not write, other
+/// origins, what it keeps on the reader's machine, its `env` names, its
+/// policy and its dependencies.
+pub mod audit;
+
 /// `wf fmt --to wfx|wf`: the one grammar in either layout, braces or
 /// indentation.
 pub mod data;
@@ -196,6 +215,19 @@ pub mod edit;
 /// Studio integration facade — [`studio::compile_studio`] turns a program into a
 /// [`studio::CompiledSite`] (SSG pages + CSS + JS + node map) for the preview.
 pub mod studio;
+
+/// `wf build` as a library call: [`build::build`] reads a project through a
+/// [`vfs::Vfs`], writes the site, and reports every line the command prints
+/// and every finding, with its code and place.
+pub mod build;
+
+/// `wf generate` as a library call: the source of a new page, component or
+/// store, and [`generate::create`] to write one in the project's layout.
+pub mod generate;
+
+/// Where a project is read from: the disk ([`vfs::FsVfs`]), or the disk with
+/// an editor's unsaved buffers over it ([`vfs::OverlayVfs`]).
+pub mod vfs;
 
 pub use codegen::node_id::{NodeInfo, NodeMap};
 pub use config::project::{PdfConfig, PdfMargins, SlidesConfig};

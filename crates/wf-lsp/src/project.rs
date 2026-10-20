@@ -12,17 +12,22 @@
 //!
 //! A `.wf` file outside any project's `src/` (a template, a scratch file) is a
 //! project of one.
+//!
+//! Everything is read through a [`Vfs`]: the disk for the server, and for an
+//! editor that links the analysis, the disk with its buffers laid over it
+//! ([`webfluent::vfs::OverlayVfs`]) — the same view of the project its build
+//! reads.
 
-use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::SystemTime;
 
 use dashmap::DashMap;
-use tower_lsp::lsp_types::Url;
+use lsp_types::Url;
 use webfluent::config::project::{OutputType, ProjectConfig, ThemeConfig};
 use webfluent::error::WebFluentError;
 use webfluent::parser::{Declaration, Program};
+use webfluent::vfs::{FsVfs, Vfs};
 
 use crate::line_index::LineIndex;
 
@@ -84,30 +89,35 @@ pub struct Project {
     pub output_type: OutputType,
 }
 
-/// Parsed disk files, keyed by path, reused while the file is unchanged.
+/// Files read through a [`Vfs`], keyed by path, reused while the file is
+/// unchanged. A buffer, which has no time to key it by, is never kept.
 #[derive(Default)]
 pub struct FileCache {
     entries: DashMap<PathBuf, Arc<CachedFile>>,
 }
 
 struct CachedFile {
-    modified: Option<SystemTime>,
+    modified: SystemTime,
     len: u64,
     source: Arc<str>,
 }
 
 impl FileCache {
-    fn read(&self, path: &Path) -> Option<Arc<str>> {
-        let meta = fs::metadata(path).ok()?;
-        let modified = meta.modified().ok();
-        let len = meta.len();
+    fn read(&self, vfs: &dyn Vfs, path: &Path) -> Option<Arc<str>> {
+        let meta = vfs.metadata(path).ok()?;
+        // A buffer has no time to tell its edits apart by, and is in memory
+        // already: it is read every time.
+        let Some(modified) = meta.modified else {
+            return vfs.read_to_string(path).ok().map(Into::into);
+        };
+        let len = meta.len;
         if let Some(hit) = self.entries.get(path)
             && hit.modified == modified
             && hit.len == len
         {
             return Some(hit.source.clone());
         }
-        let source: Arc<str> = fs::read_to_string(path).ok()?.into();
+        let source: Arc<str> = vfs.read_to_string(path).ok()?.into();
         self.entries.insert(
             path.to_path_buf(),
             Arc::new(CachedFile {
@@ -128,11 +138,28 @@ impl Project {
         open_text: &dyn Fn(&Path) -> Option<OpenText>,
         cache: &FileCache,
     ) -> Project {
+        Self::load_via(uri, &FsVfs, open_text, cache)
+    }
+
+    /// The project containing `uri`, every file read through `vfs`.
+    pub fn load_with(uri: &Url, vfs: &dyn Vfs, cache: &FileCache) -> Project {
+        Self::load_via(uri, vfs, &|_| None, cache)
+    }
+
+    /// The project containing `uri`, read through `vfs`, with `open_text`'s
+    /// text over it for the files an editor has open — and their last parse
+    /// that succeeded, which stands in while the text does not parse.
+    pub fn load_via(
+        uri: &Url,
+        vfs: &dyn Vfs,
+        open_text: &dyn Fn(&Path) -> Option<OpenText>,
+        cache: &FileCache,
+    ) -> Project {
         let path = uri
             .to_file_path()
             .unwrap_or_else(|_| PathBuf::from(uri.path()));
 
-        let root = find_root(&path);
+        let root = find_root(vfs, &path);
         let mut stylesheet_files: Vec<(PathBuf, Arc<str>)> = Vec::new();
         let mut script_paths: Vec<PathBuf> = Vec::new();
         // What `meta.scripts` says its libraries define, in scope as `Any`.
@@ -142,13 +169,13 @@ impl Project {
         let mut project_config: Option<ProjectConfig> = None;
         let (theme, paths, stylesheets) = match &root {
             Some(root) if path.starts_with(root.join("src")) => {
-                let config = ProjectConfig::load(root).ok().map(|mut c| {
-                    c.resolve_env(root);
+                let config = ProjectConfig::load_via(vfs, root).ok().map(|mut c| {
+                    c.resolve_env_via(vfs, root, std::env::vars());
                     c
                 });
                 if let Some(config) = &config {
                     if let Some(i18n) = &config.i18n
-                        && let Ok(tables) = webfluent::i18n::load(root, i18n)
+                        && let Ok(tables) = webfluent::i18n::load_via(vfs, root, i18n)
                     {
                         let mut keys: Vec<String> =
                             tables.values().flat_map(|t| t.keys().cloned()).collect();
@@ -174,13 +201,13 @@ impl Project {
                     .unwrap_or_default();
                 project_config = config;
                 let src = root.join("src");
-                let mut paths = source_files(&src);
+                let mut paths = source_files(vfs, &src);
                 if !paths.iter().any(|p| p == &path) {
                     paths.push(path.clone());
                 }
-                stylesheet_files = webfluent::codegen::project_css::find_stylesheets(&src)
+                stylesheet_files = webfluent::codegen::project_css::find_stylesheets_via(vfs, &src)
                     .into_iter()
-                    .filter_map(|css| cache.read(&css).map(|text| (css, text)))
+                    .filter_map(|css| cache.read(vfs, &css).map(|text| (css, text)))
                     .collect();
                 let stylesheets =
                     stylesheet_files
@@ -190,7 +217,7 @@ impl Project {
                             all.push('\n');
                             all
                         });
-                script_paths = webfluent::project_js::find_scripts(&src);
+                script_paths = webfluent::project_js::find_scripts_via(vfs, &src);
                 (theme, paths, stylesheets)
             }
             _ => (ThemeConfig::default(), vec![path.clone()], String::new()),
@@ -202,7 +229,7 @@ impl Project {
             let (source, open, last_valid): (Arc<str>, bool, Option<Arc<Program>>) =
                 match open_text(&file_path) {
                     Some(open) => (open.text, true, open.last_valid),
-                    None => match cache.read(&file_path) {
+                    None => match cache.read(vfs, &file_path) {
                         Some(text) => (text, false, None),
                         None => continue,
                     },
@@ -235,7 +262,7 @@ impl Project {
         // names it makes global — the build's reading of it, so the editor
         // and the compiler agree on what is in scope.
         for script_path in script_paths {
-            let Some(source) = cache.read(&script_path) else {
+            let Some(source) = cache.read(vfs, &script_path) else {
                 continue;
             };
             let scan = webfluent::project_js::scan::scan(&source);
@@ -272,7 +299,7 @@ impl Project {
             && let Some(root) = &root
         {
             let config_path = root.join("webfluent.app.json");
-            let source: Arc<str> = cache.read(&config_path).unwrap_or_else(|| "".into());
+            let source: Arc<str> = cache.read(vfs, &config_path).unwrap_or_else(|| "".into());
             let names = library_globals
                 .into_iter()
                 .map(|name| webfluent::project_js::scan::Name {
@@ -428,37 +455,36 @@ pub(crate) fn parse(source: &str, label: &str) -> Result<Program, WebFluentError
 }
 
 /// The nearest ancestor of `path` that holds a `webfluent.app.json`.
-fn find_root(path: &Path) -> Option<PathBuf> {
+fn find_root(vfs: &dyn Vfs, path: &Path) -> Option<PathBuf> {
     path.ancestors()
         .skip(1)
-        .find(|dir| dir.join("webfluent.app.json").is_file())
+        .find(|dir| vfs.is_file(&dir.join("webfluent.app.json")))
         .map(Path::to_path_buf)
 }
 
 /// Every `.wf`, `.wfx` and `.md` page under `dir`, in the order `wf build`
 /// reads them: `App.wf` first, then the rest depth-first, alphabetically.
-fn source_files(dir: &Path) -> Vec<PathBuf> {
+fn source_files(vfs: &dyn Vfs, dir: &Path) -> Vec<PathBuf> {
     let mut files = Vec::new();
     let app = ["App.wf", "App.wfx"]
         .iter()
         .map(|n| dir.join(n))
-        .find(|p| p.is_file());
+        .find(|p| vfs.is_file(p));
     if let Some(app) = &app {
         files.push(app.clone());
     }
-    walk(dir, app.as_deref(), &mut files);
+    walk(vfs, dir, app.as_deref(), &mut files);
     files
 }
 
-fn walk(dir: &Path, app: Option<&Path>, files: &mut Vec<PathBuf>) {
-    let Ok(entries) = fs::read_dir(dir) else {
+fn walk(vfs: &dyn Vfs, dir: &Path, app: Option<&Path>, files: &mut Vec<PathBuf>) {
+    let Ok(mut entries) = vfs.read_dir(dir) else {
         return;
     };
-    let mut entries: Vec<PathBuf> = entries.flatten().map(|e| e.path()).collect();
     entries.sort();
     for path in entries {
-        if path.is_dir() {
-            walk(&path, app, files);
+        if vfs.is_dir(&path) {
+            walk(vfs, &path, app, files);
         } else if webfluent::syntax::is_source_file(&path)
             || path.extension().is_some_and(|e| e == "md")
         {

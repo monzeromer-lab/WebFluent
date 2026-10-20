@@ -1,7 +1,7 @@
 //! Folding ranges: every declaration, and every statement with a block of
 //! its own, that runs over more than one line.
 
-use tower_lsp::lsp_types::*;
+use lsp_types::*;
 use webfluent::parser::ast::*;
 
 use crate::analysis;

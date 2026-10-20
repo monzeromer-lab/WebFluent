@@ -2,7 +2,7 @@
 //! less than a page, so what it offers, what it explains and what it
 //! reports follow `build.output_type`.
 
-use tower_lsp::lsp_types::*;
+use lsp_types::*;
 use webfluent::config::OutputType;
 use wf_lsp::completion::provide_completions;
 use wf_lsp::diagnostics::project_diagnostics;

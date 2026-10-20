@@ -1,4 +1,5 @@
 pub mod analysis;
+#[cfg(feature = "server")]
 pub mod backend;
 pub mod classes;
 pub mod code_actions;

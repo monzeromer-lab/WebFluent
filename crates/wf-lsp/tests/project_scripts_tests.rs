@@ -4,7 +4,7 @@
 //! `class: "…"`.
 
 use std::path::PathBuf;
-use tower_lsp::lsp_types::*;
+use lsp_types::*;
 use wf_lsp::completion::provide_completions;
 use wf_lsp::definition::find_definition;
 use wf_lsp::diagnostics::project_diagnostics;

@@ -18,6 +18,7 @@
 //! note, so a migrated project builds or says exactly what is left to do.
 
 pub mod externals;
+pub mod project;
 
 use std::collections::{BTreeMap, HashMap};
 use std::path::{Path, PathBuf};

@@ -481,6 +481,7 @@ mod tests {
                 translations: &Default::default(),
                 components: &Default::default(),
                 program: &p,
+                program_scope: None,
             },
             true,
             &map,

@@ -1926,6 +1926,12 @@ fn markup_goes_in_through_one_door_and_the_build_says_where() {
         .map(|w| w.to_string())
         .collect();
     assert!(text.contains("V03") && text.contains("sanitize"), "{text}");
+    // Markup that skips the sanitiser still goes in: the runtime keeps only
+    // what a program reaches, and `Unsafe.Html` reaches its hook through an
+    // attribute (`html:`), not a call.
+    let js = raw_output(Backend::Spa, &page("Unsafe.Html(\"<p>ours</p>\")"));
+    assert!(js.contains("html: \"<p>ours</p>\""), "{js}");
+    assert!(js.contains("attrHook(\"html\""), "the hook that puts it in is shipped");
     let bare = parse_source(&page("Unsafe.Html(\"<p>ours</p>\")"), "t.wf").unwrap();
     let text: String = webfluent::linter::lint_accessibility_in(&bare, &|_| "t.wf".to_string())
         .iter()
@@ -2221,6 +2227,23 @@ fn a_state_named_like_a_generated_binding_is_still_the_state() {
     ));
     assert!(js.contains("key: (item, i) => item"), "{js}");
     assert!(js.contains("(e) => { _n.set(e.x); }"), "{js}");
+}
+
+#[test]
+fn a_state_named_env_is_the_state_not_the_projects_env() {
+    // `env` is the project's map of public values — unless the page
+    // declares its own. A `state env` used to read the config's map:
+    // `Badge("Live in {env}")` showed `Live in [object Object]` and never
+    // followed the state.
+    let js = spa_generated(&page(
+        "state env = \"prod\"\n    Badge(\"Live in {env}\").success\n    Button(\"dev\") { on click { env = \"dev\" } }",
+    ));
+    assert!(js.contains("`Live in ${_env()}`"), "{js}");
+    assert!(!js.contains("${env}"), "{js}");
+    assert!(js.contains("_env.set(\"dev\")"), "{js}");
+    // Without a declaration, `env` is still the project's.
+    let js = spa_generated(&page("Text(\"API at {env.PUBLIC_API}\")"));
+    assert!(js.contains("${env.PUBLIC_API}"), "{js}");
 }
 
 #[test]

@@ -12,7 +12,7 @@
 //! (`post.title`, `Post(title: …)`) in whichever type declares it. A
 //! string's `{…}` splices are code, and are read as such.
 
-use tower_lsp::lsp_types::*;
+use lsp_types::*;
 use webfluent::lexer::Token;
 use webfluent::parser::ast::*;
 
