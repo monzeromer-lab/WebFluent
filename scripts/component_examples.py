@@ -52,6 +52,7 @@ EXAMPLES = {
     "Image": 'Image(src: "/team.jpg", alt: "The team at the launch", width: 1200, height: 630)\nImage(src: "/flourish.svg", alt: "")',
     "Video": 'Video(src: "/demo.mp4", captions: "/demo.en.vtt", poster: "/demo.jpg").controls',
     "Audio": 'Audio(src: "/episode-1.mp3", transcript: "/episode-1.txt").controls',
+    "Frame": 'Frame(src: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ", title: "The launch talk", allow: "fullscreen")\nstate heard = ""\nFrame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") {\n    on message(m) { heard = m.data }\n}',
     "Icon": 'Icon("search")\nIcon("check").lg.success',
     "Carousel": 'Carousel(label: "Recent work", autoplay: true, interval: 5000) {\n    Carousel.Slide { Image(src: "/one.jpg", alt: "A bridge at dusk") }\n    Carousel.Slide { Image(src: "/two.jpg", alt: "The harbour") }\n}',
     "Text": 'Text("Hello, world")\nText("Last updated today").muted.sm\nText("Important").bold.danger',

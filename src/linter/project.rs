@@ -70,6 +70,11 @@ pub fn missing_assets(
     for (index, body) in bodies(program) {
         let file = file_of(index);
         walk_elements(body, &mut |ui| {
+            // A frame's `src` is a page — this site's or another's — not a
+            // file of `public/`.
+            if matches!(&ui.component, ComponentRef::BuiltIn(name) if name == "Frame") {
+                return;
+            }
             for (i, arg) in ui.args.iter().enumerate() {
                 let Arg::Named(key, Expr::StringLiteral(url)) = arg else {
                     continue;

@@ -25,3 +25,14 @@ page Gallery(path: "/", title: "Gallery", description: "Three pictures.") {
     }
 }
 
+// md-docs/28-media.md
+page Talk(path: "/", title: "The talk", description: "The launch talk, and what the preview says.") {
+    state heard = ""
+    Heading("The talk").h1
+    Frame(src: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ", title: "The launch talk", allow: "fullscreen")
+    Frame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") {
+        on message(m) { heard = m.data }
+    }
+    Text(heard)
+}
+

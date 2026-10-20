@@ -806,6 +806,20 @@ fn lint_ui_element(
                 }
             }
 
+            // A17: a frame is announced by its title
+            "Frame" => {
+                if !has_named_arg(&ui.args, "title") {
+                    warnings.push(A11yWarning::new(
+                        "A17",
+                        "Frame missing \"title\" attribute",
+                        file,
+                        line,
+                        col,
+                        "Say what it shows: Frame(src: \"/preview/\", title: \"Preview\")",
+                    ));
+                }
+            }
+
             // A09: Video missing controls, or captions
             "Video" => {
                 if !has_named_arg(&ui.args, "controls")

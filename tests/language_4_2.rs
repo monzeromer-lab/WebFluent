@@ -501,3 +501,28 @@ fn a_lifetime_on_a_component_call_goes_to_its_root_unless_it_takes_one() {
         "Own declares `mount` and gets it"
     );
 }
+
+#[test]
+fn a_frame_hears_only_its_own_page_and_is_drawn_whole() {
+    let src = page(
+        "state heard = \"\"\n    Frame(src: \"/preview/\", title: \"Preview\", sandbox: \"allow-scripts\") {\n        on message(m) { heard = m.data }\n    }",
+    );
+    let js = spa_generated(&src);
+    // On the window, where every page's messages arrive, and only this
+    // frame's let through; `listen` lets go when the frame leaves.
+    assert!(
+        js.contains("WF.listen(window, \"message\", (m) => { if (m.source !== "),
+        "{js}"
+    );
+    assert!(
+        js.contains(".contentWindow) return; _heard.set(m.data); });"),
+        "{js}"
+    );
+    let html = ssg_html(&src);
+    assert!(
+        html.contains(
+            "<iframe class=\"wf-frame\" src=\"/preview/\" title=\"Preview\" sandbox=\"allow-scripts\">"
+        ),
+        "{html}"
+    );
+}

@@ -617,6 +617,12 @@ pub static CODES: &[CodeInfo] = &[
         "One id on several elements",
         "A literal `id:` inside a `for`, or in a component placed more than once, gives several elements one id; a label's `for` and `aria-*` find only the first.",
     ),
+    code(
+        "A17",
+        Warning,
+        "A frame with no title",
+        "A `Frame` with no `title:`, which is its accessible name: a screen reader announces a frame by its title, and a frame without one as only a frame.",
+    ),
     // ── S: search and sharing ────────────────────────────────────────
     code(
         "S01",

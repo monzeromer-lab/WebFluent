@@ -2207,8 +2207,8 @@
    "nearby": [
     "Video",
     "Audio",
-    "Icon",
-    "Carousel"
+    "Frame",
+    "Icon"
    ],
    "example": "Image(src: \"/team.jpg\", alt: \"The team at the launch\", width: 1200, height: 630)\nImage(src: \"/flourish.svg\", alt: \"\")",
    "cssClass": "wf-image"
@@ -2291,8 +2291,8 @@
    "nearby": [
     "Image",
     "Audio",
-    "Icon",
-    "Carousel"
+    "Frame",
+    "Icon"
    ],
    "example": "Video(src: \"/demo.mp4\", captions: \"/demo.en.vtt\", poster: \"/demo.jpg\").controls",
    "cssClass": "wf-video"
@@ -2347,11 +2347,75 @@
    "nearby": [
     "Image",
     "Video",
-    "Icon",
-    "Carousel"
+    "Frame",
+    "Icon"
    ],
    "example": "Audio(src: \"/episode-1.mp3\", transcript: \"/episode-1.txt\").controls",
    "cssClass": "wf-audio"
+  },
+  {
+   "name": "Frame",
+   "slug": "frame",
+   "group": "Media",
+   "summary": "Another page, shown inside this one: an `iframe`. `on message(m)` hears what that page posts to this one (`m.data`), and nothing any other page posts. Without `title:` it draws an `A17` warning: a frame is announced by its title.",
+   "plain": "Another page, shown inside this one: an iframe. on message(m) hears what that page posts to this one (m.data), and nothing any other page posts. Without title: it draws an A17 warning: a frame is announced by its title.",
+   "signature": "Frame(src: \u2026, title: \u2026, sandbox: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "src:",
+     "type": "String",
+     "meaning": "The address of the page it shows"
+    },
+    {
+     "name": "title:",
+     "type": "String",
+     "meaning": "What it shows, in a few words: its accessible name"
+    },
+    {
+     "name": "sandbox:",
+     "type": "String",
+     "meaning": "What the framed page may do: `\"allow-scripts allow-forms\"`; empty, it may do nothing"
+    },
+    {
+     "name": "allow:",
+     "type": "String",
+     "meaning": "The features it may use: `\"fullscreen; clipboard-write\"`"
+    },
+    {
+     "name": "loading:",
+     "type": ".lazy .eager",
+     "meaning": "Unset, at once"
+    }
+   ],
+   "flags": [
+    ".lazy",
+    ".eager"
+   ],
+   "events": [
+    {
+     "name": "on message",
+     "meaning": ""
+    },
+    {
+     "name": "on load",
+     "meaning": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Image",
+    "Video",
+    "Audio",
+    "Icon"
+   ],
+   "example": "Frame(src: \"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ\", title: \"The launch talk\", allow: \"fullscreen\")\nstate heard = \"\"\nFrame(src: \"/preview/\", title: \"Preview\", sandbox: \"allow-scripts\") {\n    on message(m) { heard = m.data }\n}",
+   "cssClass": "wf-frame"
   },
   {
    "name": "Icon",
@@ -2406,7 +2470,7 @@
     "Image",
     "Video",
     "Audio",
-    "Carousel"
+    "Frame"
    ],
    "example": "Icon(\"search\")\nIcon(\"check\").lg.success",
    "cssClass": "wf-icon"
@@ -2458,7 +2522,7 @@
     "Image",
     "Video",
     "Audio",
-    "Icon"
+    "Frame"
    ],
    "example": "Carousel(label: \"Recent work\", autoplay: true, interval: 5000) {\n    Carousel.Slide { Image(src: \"/one.jpg\", alt: \"A bridge at dusk\") }\n    Carousel.Slide { Image(src: \"/two.jpg\", alt: \"The harbour\") }\n}",
    "cssClass": "wf-carousel"
@@ -3952,5 +4016,5 @@
   "sun",
   "moon"
  ],
- "count": 72
+ "count": 73
 }

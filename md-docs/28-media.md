@@ -111,6 +111,31 @@ button that stops it; it pauses on its own while the
 pointer or focus is on it, and does not run at all for a reader who asked
 for reduced motion.
 
+## Frames
+
+`Frame` shows another page inside this one — a video player, a map, a
+preview an app builds. Its `title:` says what it shows: a screen reader
+announces a frame by its title, and one without it draws an `A17` warning.
+
+```wf
+page Talk(path: "/", title: "The talk", description: "The launch talk, and what the preview says.") {
+    state heard = ""
+    Heading("The talk").h1
+    Frame(src: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ", title: "The launch talk", allow: "fullscreen")
+    Frame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") {
+        on message(m) { heard = m.data }
+    }
+    Text(heard)
+}
+```
+
+`on message(m)` hears what the framed page posts with
+`window.parent.postMessage(…)` — `m.data` is what it sent — and nothing
+another page posts. `sandbox:` limits what the framed page may do
+(`"allow-scripts allow-forms"`; empty, nothing at all), and `allow:` names
+the features it may use. A frame from another origin is named in
+`meta.frame`, or the page's policy refuses it ([Security](23-security.md)).
+
 ## Next
 
 [Deploying](29-deploying.md).

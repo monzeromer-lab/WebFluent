@@ -1603,6 +1603,44 @@ pub const COMPONENTS: &[ComponentSig] = &[
         G,
         Children::None,
     ),
+    ComponentSig {
+        events: &["message", "load"],
+        ..comp(
+            "Frame",
+            "Media",
+            "Another page, shown inside this one: an `iframe`. `on message(m)` hears what that page posts to this one (`m.data`), and nothing any other page posts. Without `title:` it draws an `A17` warning: a frame is announced by its title.",
+            None,
+            &[
+                attr("src", PropType::Str, "The address of the page it shows"),
+                attr(
+                    "title",
+                    PropType::Str,
+                    "What it shows, in a few words: its accessible name",
+                ),
+                attr(
+                    "sandbox",
+                    PropType::Str,
+                    "What the framed page may do: `\"allow-scripts allow-forms\"`; empty, it may do nothing",
+                ),
+                attr(
+                    "allow",
+                    PropType::Str,
+                    "The features it may use: `\"fullscreen; clipboard-write\"`",
+                ),
+                attr(
+                    "loading",
+                    PropType::Enum(&[
+                        case("lazy", "", "Load when near the viewport"),
+                        case("eager", "", "Load at once"),
+                    ]),
+                    "Unset, at once",
+                ),
+            ],
+            &[],
+            G,
+            Children::None,
+        )
+    },
     comp(
         "Icon",
         "Media",

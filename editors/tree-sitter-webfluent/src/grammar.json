@@ -4266,6 +4266,10 @@
           },
           {
             "type": "STRING",
+            "value": "Frame"
+          },
+          {
+            "type": "STRING",
             "value": "Icon"
           },
           {

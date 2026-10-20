@@ -177,6 +177,7 @@ pub enum TokenType {
     Image,
     Video,
     Audio,
+    Frame,
     Icon,
     Carousel,
 
@@ -425,6 +426,7 @@ pub const ALL_COMPONENT_NAMES: &[&str] = &[
     "Image",
     "Video",
     "Audio",
+    "Frame",
     "Icon",
     "Carousel",
     // Typography
@@ -528,6 +530,7 @@ pub fn component_name(token: &TokenType) -> Option<&'static str> {
         TokenType::Image => "Image",
         TokenType::Video => "Video",
         TokenType::Audio => "Audio",
+        TokenType::Frame => "Frame",
         TokenType::Icon => "Icon",
         TokenType::Carousel => "Carousel",
         // Typography
@@ -671,6 +674,7 @@ pub fn keyword_or_identifier(word: &str) -> TokenType {
         "Image" => TokenType::Image,
         "Video" => TokenType::Video,
         "Audio" => TokenType::Audio,
+        "Frame" => TokenType::Frame,
         "Icon" => TokenType::Icon,
         "Carousel" => TokenType::Carousel,
 

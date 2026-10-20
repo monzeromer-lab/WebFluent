@@ -1,6 +1,6 @@
 /// Chapter 28 of the guide, written from md-docs/28-media.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page MediaGuide(path: "/docs/guide/media", title: "Media", description: "Images from public/ and the image pipeline, Video with captions, Audio with a transcript, the 32 built-in icons, and Carousel.", layout: DocsShell("Media", chapter: t("guide.chapter", { n: "28" }), blurb: "Pictures the build resizes for every screen, video with captions, audio with a transcript, icons and carousels.", source: "md-docs/28-media.md", sections: [Anchor(id: "pictures-from-public", label: "Pictures from public/"), Anchor(id: "image-a-picture-the-build-processes", label: "image: a picture the build processes"), Anchor(id: "icons", label: "Icons"), Anchor(id: "carousel", label: "Carousel")], prevTo: "/docs/guide/content", prevLabel: "27. {t("ch.27")}", nextTo: "/docs/guide/deploying", nextLabel: "29. {t("ch.29")}")) {
+page MediaGuide(path: "/docs/guide/media", title: "Media", description: "Images from public/ and the image pipeline, Video with captions, Audio with a transcript, the 32 built-in icons, and Carousel.", layout: DocsShell("Media", chapter: t("guide.chapter", { n: "28" }), blurb: "Pictures the build resizes for every screen, video with captions, audio with a transcript, icons and carousels.", source: "md-docs/28-media.md", sections: [Anchor(id: "pictures-from-public", label: "Pictures from public/"), Anchor(id: "image-a-picture-the-build-processes", label: "image: a picture the build processes"), Anchor(id: "icons", label: "Icons"), Anchor(id: "carousel", label: "Carousel"), Anchor(id: "frames", label: "Frames")], prevTo: "/docs/guide/content", prevLabel: "27. {t("ch.27")}", nextTo: "/docs/guide/deploying", nextLabel: "29. {t("ch.29")}")) {
     Stack(gap: .lg) {
         Heading("Pictures from public/", id: "pictures-from-public").h2
 
@@ -53,5 +53,21 @@ page Home(path: "/", title: "Home", description: "The front page.") {
 }"#, title: "wf")
 
         Markdown("A carousel has named previous and next buttons and a dot per slide; its `label:` names the region for screen readers. With autoplay there is also a button that stops it; it pauses on its own while the pointer or focus is on it, and does not run at all for a reader who asked for reduced motion.")
+
+        Heading("Frames", id: "frames").h2
+
+        Markdown("`Frame` shows another page inside this one — a video player, a map, a preview an app builds. Its `title:` says what it shows: a screen reader announces a frame by its title, and one without it draws an `A17` warning.")
+
+        CodeBlock(#"page Talk(path: "/", title: "The talk", description: "The launch talk, and what the preview says.") {
+    state heard = ""
+    Heading("The talk").h1
+    Frame(src: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ", title: "The launch talk", allow: "fullscreen")
+    Frame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") {
+        on message(m) { heard = m.data }
+    }
+    Text(heard)
+}"#, title: "wf")
+
+        Markdown("`on message(m)` hears what the framed page posts with `window.parent.postMessage(…)` — `m.data` is what it sent — and nothing another page posts. `sandbox:` limits what the framed page may do (`\"allow-scripts allow-forms\"`; empty, nothing at all), and `allow:` names the features it may use. A frame from another origin is named in `meta.frame`, or the page's policy refuses it ([Security](/docs/guide/security)).")
     }
 }

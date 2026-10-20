@@ -1937,6 +1937,29 @@ warning[A16]: `id: "row"` is inside a `for`, so the page has several elements wi
 
 **Fix:** Make it unique — `id: "row-{r}"` — or drop it.
 
+### A17 — A frame with no title
+
+Warning.
+
+```wf expect A17
+page P(path: "/", title: "T", description: "D") {
+    Heading("Preview").h1
+    Frame(src: "https://example.com/")
+}
+```
+
+```text
+warning[A17]: Frame missing "title" attribute
+ --> src/App.wf:3:5
+  |
+3 |     Frame(src: "https://example.com/")
+  |     ^^^^^
+  = help: Say what it shows: Frame(src: "/preview/", title: "Preview")
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a17-a-frame-with-no-title
+```
+
+**Fix:** `Frame(src: "https://example.com/", title: "Example")` — the title is how a screen reader announces it.
+
 ## Search and sharing
 
 Warnings. What a search engine or a link preview would act on.

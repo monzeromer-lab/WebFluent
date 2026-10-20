@@ -58,7 +58,7 @@ const BUILTIN_COMPONENTS = [
   // Actions
   "Button", "IconButton", "ButtonGroup", "Dropdown",
   // Media
-  "Image", "Video", "Audio", "Icon", "Carousel",
+  "Image", "Video", "Audio", "Frame", "Icon", "Carousel",
   // Typography
   "Text", "Heading", "Code", "Blockquote", "Markdown", "Unsafe",
   // A node handed to somebody else's code, and a custom element by its tag.

@@ -1558,6 +1558,7 @@ Button flags: `.sm`, `.lg`, `.full`, `.rounded`, `.pill`, `.outlined`; `type: .s
 | `Image` | `Image(src: "/photo.jpg", alt: "Description")`, or `Image(hero, alt: "…", sizes: "…", placeholder: .blur)` with an `image` the program declares — decoded asynchronously; the first image on a page loads eagerly at high priority (it is usually the largest paint), the rest lazily. `loading:` overrides |
 | `Video` | `Video(src: "/video.mp4", captions: "/clip.en.vtt", poster: "/frame.jpg").controls` — `muted`, `loop`, `playsinline`; without `captions` it draws an `A09` |
 | `Audio` | `Audio(src: "/talk.mp3", transcript: "/talk.txt").controls` — the transcript is a link beneath the player |
+| `Frame` | `Frame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") { on message(m) { heard = m.data } }` — another page inside this one; `on message` hears only what that page posts; without `title:` it draws an `A17` |
 | `Icon` | `Icon("home")` or `Icon("search").lg.primary` — 32 built-in SVG icons rendered inline |
 | `Carousel` | `Carousel(autoplay: true, interval: 5000) { Carousel.Slide { Image(src: "...") } }` — slide track with dots and autoplay |
 
@@ -2872,6 +2873,7 @@ paint alike.
 | `D04` | A persisted value's shape changed since the last build with no `version:` raised (the shapes are kept in `.wf-cache/persist.json`) |
 | `I03` | A message one locale has and another does not |
 | `A16` | A literal `id:` inside a `for`, or in a component placed more than once, which several elements then share |
+| `A17` | A `Frame` with no `title:`, which is how a screen reader announces it |
 | `U06` | Code after a `return` in the same block |
 | `U08` | A condition that is always the same — a literal, or a value compared with itself |
 | `U09` | A `for` with no `by` whose items hold state, a control or a stateful component, which starts again when the list changes |

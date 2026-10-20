@@ -347,6 +347,7 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 
 /* ─── Image ─────────────────────────────────────────── */
 .wf-image { max-width: 100%; height: auto; display: block; }
+.wf-frame { display: block; width: 100%; border: 0; }
 .wf-image--rounded { border-radius: var(--radius-md); }
 .wf-image--circle { border-radius: 50%; }
 

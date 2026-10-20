@@ -95,6 +95,7 @@ pub fn builtin_to_html(name: &str) -> (&'static str, &'static str) {
         "Image" => ("img", "wf-image"),
         "Video" => ("video", "wf-video"),
         "Audio" => ("audio", "wf-audio"),
+        "Frame" => ("iframe", "wf-frame"),
         "Icon" => ("i", "wf-icon"),
         "Carousel" => ("div", "wf-carousel"),
 

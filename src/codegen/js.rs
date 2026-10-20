@@ -2888,6 +2888,17 @@ impl JsCodegen {
                     } else {
                         body
                     };
+                    // What the framed page posts arrives on this window, with
+                    // every other page's: a frame hears its own, and stops
+                    // listening when it leaves.
+                    if name == "Frame" && handler.event == "message" {
+                        let head = Self::handler_head(handler, "event");
+                        let param = handler.param.as_deref().unwrap_or("event");
+                        self.emit_line(&format!(
+                            "WF.listen(window, \"message\", {head} => {{ if ({param}.source !== {var}.contentWindow) return; {body} }});"
+                        ));
+                        continue;
+                    }
                     self.emit_line(&format!(
                         "{}.addEventListener(\"{}\", {} => {{ {} }});",
                         var,
