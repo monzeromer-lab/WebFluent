@@ -398,8 +398,8 @@ module.exports = grammar({
       seq(
         optional(field("positional", "_")),
         field("name", $._name),
-        ":",
-        field("type", $._type),
+        // An action's parameter may leave its type out: it is `Any`.
+        optional(seq(":", field("type", $._type))),
         optional(seq("=", field("default", $._expression))),
       ),
 
@@ -538,7 +538,7 @@ module.exports = grammar({
     connection_declaration: ($) =>
       prec.right(
         seq(
-          field("kind", choice("socket", "stream", "channel", "peer")),
+          field("kind", choice("socket", "stream", "channel", "peer", "worker")),
           field("name", $._name),
           "=",
           field("value", $._expression),
@@ -557,7 +557,7 @@ module.exports = grammar({
       seq(
         "action",
         field("name", $._name),
-        field("parameters", $.parameter_list),
+        optional(field("parameters", $.parameter_list)),
         field("body", $.block),
       ),
 
@@ -966,6 +966,9 @@ module.exports = grammar({
         $.call_expression,
         $.parenthesized_expression,
         $.string,
+        // `"{label(\"x\")}"`: inside a splice, the older way to write a
+        // string, its quotes escaped; the compiler still reads it.
+        alias($.escaped_string, $.string),
         $.regex,
         $.temporal,
         $.money,
@@ -1181,6 +1184,8 @@ module.exports = grammar({
       ),
 
     escape_sequence: (_) => token.immediate(/\\./),
+
+    escaped_string: (_) => token(seq('\\"', /([^"\\\n]|\\[^"\n])*/, '\\"')),
 
     // Its braces are the grammar's own tokens, not the scanner's: inside a
     // string or a style value they are not the writer's block braces.

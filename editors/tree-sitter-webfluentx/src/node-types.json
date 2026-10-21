@@ -397,7 +397,7 @@
       },
       "parameters": {
         "multiple": false,
-        "required": true,
+        "required": false,
         "types": [
           {
             "type": "parameter_list",
@@ -1125,6 +1125,10 @@
           },
           {
             "type": "stream",
+            "named": false
+          },
+          {
+            "type": "worker",
             "named": false
           }
         ]
@@ -3056,7 +3060,7 @@
       },
       "type": {
         "multiple": false,
-        "required": true,
+        "required": false,
         "types": [
           {
             "type": "builtin_type",
@@ -5156,6 +5160,10 @@
   {
     "type": "vendor_property_name",
     "named": true
+  },
+  {
+    "type": "worker",
+    "named": false
   },
   {
     "type": "{",

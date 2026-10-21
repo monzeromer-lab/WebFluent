@@ -9,10 +9,13 @@ use webfluent::diagnostics::fixes::{apply, fix_all};
 /// Every finding for one file `t.wf` holding `src`, with `public/` holding
 /// `files`, through the build's pipeline.
 fn findings_with(src: &str, files: &[&str]) -> Vec<Diagnostic> {
+    // A folder of its own: the tests run side by side, and two sources of
+    // one length used to share one, each removing it under the other.
+    static NEXT: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
     let dir = std::env::temp_dir().join(format!(
         "wf-fixes-{}-{}",
         std::process::id(),
-        src.len() ^ files.len()
+        NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
     ));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(dir.join("public")).unwrap();

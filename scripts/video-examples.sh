@@ -31,12 +31,14 @@ for dir in examples/videos/*/; do
       ;;
     one-file-three-outputs)
       # One project builds one kind of output; the file's three pages are
-      # drawn by `wf render`, which needs no data for this one.
+      # drawn by `wf render`, which needs no data for this one — and reads
+      # it from standard input when that is not a terminal, so it is given
+      # none rather than whatever the caller's input is.
       if (cd "$dir" \
         && "$wf" check --deny-warnings \
-        && "$wf" render src/Talk.wf --page Site -o build/talk.html \
-        && "$wf" render src/Talk.wf --page Handout --format pdf -o build/handout.pdf \
-        && "$wf" render src/Talk.wf --page Deck --format slides -o build/deck.pdf \
+        && "$wf" render src/Talk.wf --page Site -o build/talk.html </dev/null \
+        && "$wf" render src/Talk.wf --page Handout --format pdf -o build/handout.pdf </dev/null \
+        && "$wf" render src/Talk.wf --page Deck --format slides -o build/deck.pdf </dev/null \
         && test -s build/talk.html && test -s build/handout.pdf && test -s build/deck.pdf); then
         ok "$name renders a page, a PDF and a deck"
       else

@@ -24,7 +24,7 @@ Where a statement starts, these words have meaning: `page`, `component`,
 `store`, `app`, `theme`, `type`, `enum`, `api`, `const`, `data`, `image`,
 `animation` and `test` at the top of a file; `state`, `persist`,
 `derived`, `effect`, `cleanup`, `action`, `use`, `resource`, `validate`,
-`socket`, `stream`, `channel`, `peer`, `every`, `after`, `on key`, `head`,
+`socket`, `stream`, `channel`, `peer`, `worker`, `every`, `after`, `on key`, `head`,
 `if`, `if let`, `for`, `show`, `match`, `sequence` and `step` in a render
 block; `slot`, `event`, `part` and `children` in a component; `let`,
 `return`, `try`, `catch`, `await` and `emit` in an action; `expect`, `click`,

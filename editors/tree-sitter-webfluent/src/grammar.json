@@ -1799,16 +1799,29 @@
           }
         },
         {
-          "type": "STRING",
-          "value": ":"
-        },
-        {
-          "type": "FIELD",
-          "name": "type",
-          "content": {
-            "type": "SYMBOL",
-            "name": "_type"
-          }
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": ":"
+                },
+                {
+                  "type": "FIELD",
+                  "name": "type",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "_type"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
         },
         {
           "type": "CHOICE",
@@ -2636,6 +2649,10 @@
                 {
                   "type": "STRING",
                   "value": "peer"
+                },
+                {
+                  "type": "STRING",
+                  "value": "worker"
                 }
               ]
             }
@@ -2775,12 +2792,20 @@
           }
         },
         {
-          "type": "FIELD",
-          "name": "parameters",
-          "content": {
-            "type": "SYMBOL",
-            "name": "parameter_list"
-          }
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "parameters",
+              "content": {
+                "type": "SYMBOL",
+                "name": "parameter_list"
+              }
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
         },
         {
           "type": "FIELD",
@@ -5402,6 +5427,15 @@
           "name": "string"
         },
         {
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "escaped_string"
+          },
+          "named": true,
+          "value": "string"
+        },
+        {
           "type": "SYMBOL",
           "name": "regex"
         },
@@ -6533,6 +6567,26 @@
       "content": {
         "type": "PATTERN",
         "value": "\\\\."
+      }
+    },
+    "escaped_string": {
+      "type": "TOKEN",
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "\\\""
+          },
+          {
+            "type": "PATTERN",
+            "value": "([^\"\\\\\\n]|\\\\[^\"\\n])*"
+          },
+          {
+            "type": "STRING",
+            "value": "\\\""
+          }
+        ]
       }
     },
     "interpolation": {
