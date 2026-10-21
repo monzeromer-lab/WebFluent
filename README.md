@@ -2,6 +2,10 @@
 
 I'm building some kind of a scripting language that's have an 80% similar Syntax to flutter & jetpack compose
 
+This was the first version I built of the language, it was built by me without AI, it took me months to just compile to HTML, as you can see on the master branch, I use claude now, and the codebase is Rust now, tho it's messy but it's working.
+
+I'll leave this for historical purpose of the language basics, and hopefully soon I'll improve the new compiler code.
+
 Some examples:
 
     //create a new page
