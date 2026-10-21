@@ -26,6 +26,11 @@
     oneOf: "Choose one of the options",
     custom: "That is not right",
     async: "That is not right",
+    // What a refined type implies: `Number(0..10)` is below 10,
+    // `Date(after: …)` after it.
+    below: "Too large",
+    after: "Too early",
+    before: "Too late",
   };
 
   const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -57,6 +62,9 @@
       case "maxLength": return !given(value) || String(value).length <= Number(arg);
       case "min": return !given(value) || compare(value, arg) >= 0;
       case "max": return !given(value) || compare(value, arg) <= 0;
+      case "below": return !given(value) || compare(value, arg) < 0;
+      case "after": return !given(value) || compare(value, arg) > 0;
+      case "before": return !given(value) || compare(value, arg) < 0;
       case "pattern": return !given(value) || new RegExp(arg.source || arg, arg.flags || "").test(String(value));
       case "matches": return value === arg;
       case "oneOf": return !given(value) || (Array.isArray(arg) ? arg : []).includes(value);
@@ -85,6 +93,25 @@
       if (said !== key) return said;
     }
     return RULE_MESSAGES[rule.name] || "That is not right";
+  }
+
+  /// Whether the page's root asks for every message now —
+  /// `data-wf-validation="shown"`, which an editor's preview sets to show a
+  /// form as a failed submit leaves it. A signal, so the fields follow the
+  /// attribute as it comes and goes.
+  let previewing = null;
+  function shownByRoot() {
+    if (typeof document === "undefined" || !document.documentElement) return false;
+    if (!previewing) {
+      const root = document.documentElement;
+      const read = () => root.getAttribute("data-wf-validation") === "shown";
+      previewing = signal(read());
+      if (typeof MutationObserver === "function") {
+        new MutationObserver(() => previewing.set(read()))
+          .observe(root, { attributes: true, attributeFilter: ["data-wf-validation"] });
+      }
+    }
+    return previewing();
   }
 
   /// The form a rule belongs to, when it belongs to one.
@@ -154,7 +181,7 @@
     const when = (form && form.show()) || opts.show || "onBlur";
     effect(() => {
       const said = message();
-      const ready = when === "live" || (when === "onBlur" && touched()) || (form && form.submitted());
+      const ready = when === "live" || (when === "onBlur" && touched()) || (form && form.submitted()) || shownByRoot();
       shown.set(ready ? said : "");
     });
 

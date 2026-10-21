@@ -1589,6 +1589,11 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                 "required" | "disabled" | "controls" => {
                     attrs.push(key.to_string());
                 }
+                // What a form sends the control as; an icon's is its glyph.
+                "name" | "autocomplete" if name != "Icon" => {
+                    let s = value_to_string(&ctx.eval_expr(val));
+                    attrs.push(format!("{key}=\"{}\"", html_escape(&s)));
+                }
                 "icon" => {
                     let s = value_to_string(&ctx.eval_expr(val));
                     attrs.push(format!("data-icon=\"{}\"", html_escape(&s)));
@@ -1692,15 +1697,22 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
     if matches!(name, "Input" | "Select") {
         let resolve = |e: &Expr| Some(value_to_string(&ctx.eval_expr(e)));
         if let Some(mut parts) = crate::codegen::ssg::field_parts(ui, resolve) {
-            ctx.fields += 1;
-            let id = format!("wf-field-{}", ctx.fields);
+            let (id, own_attr) = match crate::codegen::ssg::own_id(&attrs) {
+                Some(own) => (own, String::new()),
+                None => {
+                    ctx.fields += 1;
+                    let id = format!("wf-field-{}", ctx.fields);
+                    let attr = format!(" id=\"{id}\"");
+                    (id, attr)
+                }
+            };
             parts.set_id(&id);
             let control = if actual_tag == "input" {
                 format!(
-                    "<{}{} id=\"{}\"{}>",
+                    "<{}{}{}{}>",
                     actual_tag,
                     attrs_str,
-                    id,
+                    own_attr,
                     parts.control_attrs()
                 )
             } else {
@@ -1708,10 +1720,10 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                 let inner = render_statements(&ui.children, ctx);
                 ctx.indent -= 1;
                 format!(
-                    "<{}{} id=\"{}\"{}>\n{}{}</{}>",
+                    "<{}{}{}{}>\n{}{}</{}>",
                     actual_tag,
                     attrs_str,
-                    id,
+                    own_attr,
                     parts.control_attrs(),
                     inner,
                     indent,

@@ -158,3 +158,34 @@ test("a bound control writes back the type the program wrote", () => {
   assert.equal(WF.bound({ tagName: "SELECT", selectedOptions: [{ value: "x" }] }), "x");
   assert.equal(WF.bound({ tagName: "SELECT", selectedOptions: [] }), null);
 });
+
+test("what a refined type implies: a bound the value may not reach, a date after or before one", () => {
+  const { WF } = load();
+  const nights = WF.signal(10);
+  const below = WF.validate(() => nights(), [{ name: "min", args: [1] }, { name: "below", args: [10] }], { show: "live" });
+  assert.equal(below.message(), "Too large", "`0..10` does not take 10");
+  nights.set(9);
+  assert.equal(below.message(), "");
+  const start = WF.signal("2026-01-01");
+  const after = WF.validate(() => start(), [{ name: "after", args: ["2026-01-01"] }], { show: "live" });
+  assert.equal(after.message(), "Too early", "`after:` does not take the day itself");
+  start.set("2026-03-14");
+  assert.equal(after.message(), "");
+  const end = WF.signal("2027-01-01");
+  const before = WF.validate(() => end(), [{ name: "before", args: ["2027-01-01"] }], { show: "live" });
+  assert.equal(before.message(), "Too late");
+  end.set("");
+  assert.equal(before.message(), "", "an empty value is `required`'s to refuse");
+});
+
+test("the page's root can ask for every message now, as a failed submit shows them", async () => {
+  const { WF, document } = load();
+  document.documentElement.setAttribute("data-wf-validation", "shown");
+  const email = WF.signal("");
+  const check = WF.validate(() => email(), [{ name: "required" }], {});
+  await settle();
+  assert.equal(check.shown(), "This is required", "shown though the reader never left the field");
+  email.set("ada@example.com");
+  await settle();
+  assert.equal(check.shown(), "", "and what is fine says nothing");
+});

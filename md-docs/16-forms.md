@@ -212,6 +212,17 @@ way, so `form.valid` is the truth whatever the reader has seen.
 A submit that fails shows every message, moves focus to the first field
 that has one and announces it, and does not run `on submit`.
 
+To see a form as a failed submit leaves it, without filling it in, set
+`data-wf-validation="shown"` on the page's root:
+
+```js
+document.documentElement.setAttribute("data-wf-validation", "shown")
+```
+
+Every field then says what its rules say about its value now; taking the
+attribute off says nothing again. It is what an editor's preview sets to
+show a form *Invalid*.
+
 ### A refined type validates itself
 
 ```wf
@@ -220,7 +231,18 @@ validate nights { required }
 ```
 
 The range on the type is already a rule; only `required` needed saying.
-See [Types](13-types.md#a-condition-on-a-type).
+A range's open end is refused (`Number(0..10)` does not take 10), and a
+date's `after:` and `before:` are held as the reader types, like `min` and
+`max`. See [Types](13-types.md#a-condition-on-a-type).
+
+### The rules as data
+
+`wf rules --json` lists every rule with what it takes, its own message and
+the key that replaces it; the patterns people write, by name (`a number`,
+`a letter` in any script, `no spaces` …); when a form shows its messages;
+and every state the project holds to a rule, in order, with the ones its
+type implies. The library has it as `webfluent::validation`, which also
+writes a state's `validate` block back one rule at a time.
 
 ### What the server said
 

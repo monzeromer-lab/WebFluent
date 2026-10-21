@@ -6021,8 +6021,10 @@ impl JsCodegen {
         // needs no rule written for the range it already declares.
         for (name, bound) in self.refinement_of(&v.name) {
             let rule = match name.as_str() {
-                "min" | "max" | "minLength" | "maxLength" | "pattern" => name.clone(),
-                "below" => "max".to_string(),
+                // `below`, `after` and `before` are their own: a bound the
+                // value may not reach.
+                "min" | "max" | "minLength" | "maxLength" | "pattern" | "below" | "after"
+                | "before" => name.clone(),
                 _ => continue,
             };
             rules.push(format!(

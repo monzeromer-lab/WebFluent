@@ -36,6 +36,7 @@ mod syntax;
 mod template;
 mod testing;
 mod themes;
+mod validation;
 mod verify;
 mod vfs;
 
@@ -111,6 +112,16 @@ enum Commands {
     /// The animations an element can play, the eases and speeds, the route
     /// transitions and the project's default
     Motion {
+        /// Project directory (default: current directory)
+        #[arg(short, long, default_value = ".")]
+        dir: PathBuf,
+        /// Print JSON, for tools
+        #[arg(long)]
+        json: bool,
+    },
+    /// The rules a `validate` block may hold, the named patterns, when a
+    /// form shows its messages, and every state the project holds to a rule
+    Rules {
         /// Project directory (default: current directory)
         #[arg(short, long, default_value = ".")]
         dir: PathBuf,
@@ -404,6 +415,7 @@ fn main() {
             }
             ConfigAction::Unset { path, dir } => cli::config::run_set(&dir, &path, None),
         },
+        Commands::Rules { dir, json } => cli::rules::run_rules(&dir, json),
         Commands::Motion { dir, json } => cli::motion::run_motion(&dir, json),
         Commands::Theme { dir, json } => cli::theme::run_theme(&dir, json),
         Commands::Components { dir, json } => cli::components::run_components(&dir, json),

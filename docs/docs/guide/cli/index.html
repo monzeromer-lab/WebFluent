@@ -449,6 +449,18 @@
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
+<p><code>wf rules [-d, --dir DIR] [--json]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The rules a <code>validate</code> block may hold, the named patterns, when a form shows its messages, and every state the project holds to a rule</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
 <p><code>wf motion [-d, --dir DIR] [--json]</code></p>
                                             </div>
                                         </td>
@@ -750,6 +762,19 @@
                             </div>
                             <div class="wf-markdown">
 <p>What a Motion section offers: every animation <code>animate:</code> and <code>exit:</code> take — the engine's, each with the keyframes and the rule its stylesheet plays it by, whether it is one an element leaves with and whether it repeats, then the project's own <code>animation</code> declarations — the named eases with the timing function each stands for, the three speeds and their lengths, the Router's transitions, the project's default length and pacing (<code>motion</code> in the config, or the engine's), and the attribute an editor sets on the page's root, <code>data-wf-motion=&quot;reduce&quot;</code>, to show the page as a reader who asked for less motion sees it. The library has it as <code>webfluent::motion::catalogue</code>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="wf-rules">wf rules</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>What a form's Must be section offers: every rule a <code>validate</code> block may hold — what it takes between its parentheses, when it holds, the message it shows when none is written and the translation key (<code>form.minLength</code>) that replaces that message in a project with translations, whether an empty value passes it and whether it is asked last — and the bounds a refined type implies (<code>below</code>, <code>after</code>, <code>before</code>); the handful of patterns people write, by name, each with the expression and a message; <code>Form(show:)</code>'s cases in the reader's terms; the attribute a preview sets on the page's root, <code>data-wf-validation=&quot;shown&quot;</code>, to show every message now; then every state in the project held to a rule, with its rules in order, the ones its type implies first, and whether the page checks them as the reader types. The library has it as <code>webfluent::validation</code>.</p>
                             </div>
                             <h3 class="wf-heading" id="wf-components">wf components</h3>
                             <div class="wf-stack wf-sba64d8a9 code-block">

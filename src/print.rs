@@ -538,14 +538,25 @@ pub fn type_ref(t: &TypeRef) -> String {
         TypeRef::List(inner) => format!("[{}]", type_ref(inner)),
         TypeRef::Optional(inner) => format!("{}?", type_ref(inner)),
         TypeRef::Named(n) => n.clone(),
-        TypeRef::Refined(base, args) => format!(
-            "{}({})",
-            type_ref(base),
-            args.iter()
-                .map(|(k, v)| format!("{k}: {}", expr(v)))
-                .collect::<Vec<_>>()
-                .join(", ")
-        ),
+        TypeRef::Refined(base, args) => {
+            // `min` and then `max` or `below` are the range they were read
+            // from: `Number(1..=30)`, `Number(0..10)`.
+            let (range, rest) = match args.as_slice() {
+                [(lo, from), (hi, to), rest @ ..]
+                    if lo == "min" && (hi == "max" || hi == "below") =>
+                {
+                    let range =
+                        Expr::Range(Box::new(from.clone()), Box::new(to.clone()), hi == "max");
+                    (Some(expr(&range)), rest)
+                }
+                _ => (None, args.as_slice()),
+            };
+            let parts: Vec<String> = range
+                .into_iter()
+                .chain(rest.iter().map(|(k, v)| format!("{k}: {}", expr(v))))
+                .collect();
+            format!("{}({})", type_ref(base), parts.join(", "))
+        }
     }
 }
 

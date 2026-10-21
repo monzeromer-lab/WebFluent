@@ -36,6 +36,7 @@ told otherwise, and exits non-zero on failure, so each is a CI step as it is.
 | `wf docs [-d, --dir DIR] [-o, --out OUT]` | Writes a gallery of every component |
 | `wf registry [--json]` | Describes every built-in |
 | `wf theme [-d, --dir DIR] [--json]` | The theme the build uses: every token, declared or inherited, where each is used, and its contrast |
+| `wf rules [-d, --dir DIR] [--json]` | The rules a `validate` block may hold, the named patterns, when a form shows its messages, and every state the project holds to a rule |
 | `wf motion [-d, --dir DIR] [--json]` | The animations an element can play, the eases and speeds, the route transitions and the project's default |
 | `wf components [-d, --dir DIR] [--json]` | Every component a call can name — the built-ins and the project's — with what each takes |
 | `wf commands [--json]` | Describes every command: its options, what it writes, and how to see it first |
@@ -445,6 +446,26 @@ pacing (`motion` in the config, or the engine's), and the attribute an
 editor sets on the page's root, `data-wf-motion="reduce"`, to show the
 page as a reader who asked for less motion sees it. The library has it as
 `webfluent::motion::catalogue`.
+
+### `wf rules`
+
+```bash
+wf rules
+wf rules --json
+```
+
+What a form's Must be section offers: every rule a `validate` block may
+hold — what it takes between its parentheses, when it holds, the message
+it shows when none is written and the translation key (`form.minLength`)
+that replaces that message in a project with translations, whether an
+empty value passes it and whether it is asked last — and the bounds a
+refined type implies (`below`, `after`, `before`); the handful of
+patterns people write, by name, each with the expression and a message;
+`Form(show:)`'s cases in the reader's terms; the attribute a preview sets
+on the page's root, `data-wf-validation="shown"`, to show every message
+now; then every state in the project held to a rule, with its rules in
+order, the ones its type implies first, and whether the page checks them
+as the reader types. The library has it as `webfluent::validation`.
 
 ### `wf components`
 

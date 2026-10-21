@@ -1423,7 +1423,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                 match key.as_str() {
                     "src" | "alt" | "href" | "placeholder" | "type" | "min" | "max" | "step"
                     | "accept" | "role" | "value" | "width" | "height" | "loading" | "decoding"
-                    | "fetchpriority" | "rows" | "sandbox" | "allow" => {
+                    | "fetchpriority" | "rows" | "sandbox" | "allow" | "autocomplete" => {
                         if let Some(s) = static_attr(val, &ctx.scope) {
                             // A value the browser follows goes through the
                             // same scheme check the live page applies.
@@ -1464,6 +1464,13 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                         }
                     }
                     "active" => {} // Consumed with `to` above
+                    // A control's `name:` is what a form sends it as, before
+                    // the script has loaded as after; an icon's is its glyph.
+                    "name" if name != "Icon" => {
+                        if let Some(s) = static_attr(val, &ctx.scope) {
+                            attrs.push(format!("name=\"{}\"", html_escape(&s)));
+                        }
+                    }
                     "required" => attrs.push("required".to_string()),
                     "disabled" => attrs.push("disabled".to_string()),
                     "controls" => attrs.push("controls".to_string()),
@@ -1633,14 +1640,23 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
         && field_parts(ui, |e| static_attr(e, &ctx.scope)).is_some()
     {
         let mut parts = field_parts(ui, |e| static_attr(e, &ctx.scope)).unwrap_or_default();
-        let id = format!("wf-field-{}", ctx.next_field_id());
+        // The author's `id:` is the control's, and the label's `for`; one
+        // is made only where none is written, as the runtime does.
+        let (id, own_attr) = match own_id(&attrs) {
+            Some(own) => (own, String::new()),
+            None => {
+                let id = format!("wf-field-{}", ctx.next_field_id());
+                let attr = format!(" id=\"{id}\"");
+                (id, attr)
+            }
+        };
         parts.set_id(&id);
         let control = if actual_tag == "input" {
             format!(
-                "<{}{} id=\"{}\"{}>",
+                "<{}{}{}{}>",
                 actual_tag,
                 attrs_str,
-                id,
+                own_attr,
                 parts.control_attrs()
             )
         } else {
@@ -1651,10 +1667,10 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                 r
             };
             format!(
-                "<{}{} id=\"{}\"{}>\n{}{}</{}>",
+                "<{}{}{}{}>\n{}{}</{}>",
                 actual_tag,
                 attrs_str,
-                id,
+                own_attr,
                 parts.control_attrs(),
                 inner,
                 indent,
@@ -2351,6 +2367,15 @@ fn camel_to_kebab(s: &str) -> String {
         result.push(ch.to_lowercase().next().unwrap());
     }
     result
+}
+
+/// The `id="…"` an element's attributes already carry, as written there.
+pub(crate) fn own_id(attrs: &[String]) -> Option<String> {
+    attrs.iter().find_map(|a| {
+        a.strip_prefix("id=\"")
+            .and_then(|v| v.strip_suffix('"'))
+            .map(str::to_string)
+    })
 }
 
 #[cfg(test)]

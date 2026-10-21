@@ -15,6 +15,7 @@ pub mod migrate;
 pub mod motion;
 pub mod preview;
 pub mod render;
+pub mod rules;
 pub mod serve;
 pub mod test;
 pub mod theme;

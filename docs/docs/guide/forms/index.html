@@ -634,6 +634,19 @@ Text(&quot;{todos.filter(todo =&gt; !todo.done).length} left&quot;)</code>
                             <div class="wf-markdown">
 <p><code>Form(show:)</code> says: <code>.onBlur</code> (the default — after the reader leaves the field), <code>.onSubmit</code>, or <code>.live</code> as they type. The fault is known either way, so <code>form.valid</code> is the truth whatever the reader has seen.</p>
 <p>A submit that fails shows every message, moves focus to the first field that has one and announces it, and does not run <code>on submit</code>.</p>
+<p>To see a form as a failed submit leaves it, without filling it in, set <code>data-wf-validation=&quot;shown&quot;</code> on the page's root:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">js</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="js" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">document.documentElement.setAttribute(&quot;data-wf-validation&quot;, &quot;shown&quot;)</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Every field then says what its rules say about its value now; taking the attribute off says nothing again. It is what an editor's preview sets to show a form <em>Invalid</em>.</p>
                             </div>
                             <h3 class="wf-heading" id="a-refined-type-validates-itself">A refined type validates itself</h3>
                             <div class="wf-stack wf-sba64d8a9 code-block">
@@ -647,7 +660,11 @@ Text(&quot;{todos.filter(todo =&gt; !todo.done).length} left&quot;)</code>
 validate nights { required }</code>
                             </div>
                             <div class="wf-markdown">
-<p>The range on the type is already a rule; only <code>required</code> needed saying. See <a href="/docs/guide/types#a-condition-on-a-type">Types</a>.</p>
+<p>The range on the type is already a rule; only <code>required</code> needed saying. A range's open end is refused (<code>Number(0..10)</code> does not take 10), and a date's <code>after:</code> and <code>before:</code> are held as the reader types, like <code>min</code> and <code>max</code>. See <a href="/docs/guide/types#a-condition-on-a-type">Types</a>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="the-rules-as-data">The rules as data</h3>
+                            <div class="wf-markdown">
+<p><code>wf rules --json</code> lists every rule with what it takes, its own message and the key that replaces it; the patterns people write, by name (<code>a number</code>, <code>a letter</code> in any script, <code>no spaces</code> …); when a form shows its messages; and every state the project holds to a rule, in order, with the ones its type implies. The library has it as <code>webfluent::validation</code>, which also writes a state's <code>validate</code> block back one rule at a time.</p>
                             </div>
                             <h3 class="wf-heading" id="what-the-server-said">What the server said</h3>
                             <div class="wf-stack wf-sba64d8a9 code-block">

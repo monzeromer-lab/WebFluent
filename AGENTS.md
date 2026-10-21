@@ -35,6 +35,7 @@ wf commands [--json]                      # Every command, its options, what it 
 wf assets [--unused] [--plan /a.png] [--json]  # public/: each file's kind, size, dimensions and uses; what the image pipeline makes of one
 wf theme [--json]                         # The theme: every token, declared or inherited, its uses, the contrast pairs
 wf motion [--json]                        # The animations, eases, speeds and route transitions, and the default
+wf rules [--json]                         # The validate rules, named patterns, and every state held to a rule
 wf components [--json]                    # Every component a call can name, built-in and the project's: props and their kinds, events, slots, parts
 wf explain [CODE]                         # A diagnostic's entry: meaning, example, fix
 wf serve [-d DIR]                         # Dev server (localhost:3000): rebuilds on save, reloads the page, shows a failed build's error over it

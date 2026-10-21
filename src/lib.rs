@@ -232,6 +232,11 @@ pub mod style_value;
 /// the route transition, the project's default, and how each is written.
 pub mod motion;
 
+/// Validation as data: every rule a `validate` block may hold, the named
+/// patterns, when a form shows its messages, the rules one state is held
+/// to, and the block written back one rule at a time.
+pub mod validation;
+
 /// Studio integration facade — [`studio::compile_studio`] turns a program into a
 /// [`studio::CompiledSite`] (SSG pages + CSS + JS + node map) for the preview.
 pub mod studio;

@@ -62,6 +62,7 @@ pub const EFFECTS: &[Effect] = &[
     e("components", "", None),
     e("theme", "", None),
     e("motion", "", None),
+    e("rules", "", None),
     e("commands", "", None),
 ];
 

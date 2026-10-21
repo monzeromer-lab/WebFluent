@@ -1,0 +1,33 @@
+/// The validation fixture: a form whose fields are held to rules written
+/// and implied — a range on the type, a named pattern, a value another
+/// follows — previewed as it is and as a failed submit leaves it.
+page Join(path: "/", title: "Join", description: "Make an account.") {
+    state email = ""
+    state password = ""
+    state confirm = ""
+    state nights: Number(1..10) = 2
+    validate email {
+        required
+        email
+    }
+    validate password {
+        required
+        minLength(8) "Use at least 8 characters"
+        pattern(/[0-9]/) "Include a number"
+    }
+    validate confirm {
+        matches(password) "The two passwords differ"
+    }
+    validate nights { required }
+
+    Heading("Join").h1
+    Form(bind: form) {
+        on submit { log("joined") }
+        Input(bind: email, name: "email", label: "Email", id: "email").email
+        Input(bind: password, name: "password", label: "Password", id: "password").password
+        Input(bind: confirm, name: "confirm", label: "Confirm", id: "confirm").password
+        Input(bind: nights, name: "nights", label: "Nights", id: "nights").number
+        Button("Join", type: .submit, id: "join").primary
+        Text("{form.valid}", id: "valid")
+    }
+}
