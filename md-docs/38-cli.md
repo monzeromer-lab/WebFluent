@@ -35,6 +35,7 @@ told otherwise, and exits non-zero on failure, so each is a CI step as it is.
 | `wf audit [PATH] [--json]` | Lists what the project trusts |
 | `wf docs [-d, --dir DIR] [-o, --out OUT]` | Writes a gallery of every component |
 | `wf registry [--json]` | Describes every built-in |
+| `wf theme [-d, --dir DIR] [--json]` | The theme the build uses: every token, declared or inherited, where each is used, and its contrast |
 | `wf components [-d, --dir DIR] [--json]` | Every component a call can name — the built-ins and the project's — with what each takes |
 | `wf commands [--json]` | Describes every command: its options, what it writes, and how to see it first |
 | `wf assets [-d, --dir DIR] [--unused] [--plan PATH] [--json]` | Lists `public/` and where each file is used, or what the image pipeline will make of one |
@@ -408,6 +409,23 @@ and says `about`. A format the build cannot write is named, with why.
 
 The library has the same as `webfluent::assets::{list, plan}`, reading
 through a `Vfs`, so an editor's unsaved buffers count.
+
+### `wf theme`
+
+```bash
+wf theme
+wf theme --json
+```
+
+The theme the build uses, as an editor shows it: every token by its group
+(colour, spacing, font size, line height, radius, shadow, transition,
+font, motion, and those the theme invents), its value, the baseline's,
+whether the theme declares it or inherits it, the dark theme's value when
+`theme.dark` names one, the properties that draw from it and every place
+the project names it; then the colour pairings the stylesheet composes,
+with their contrast and what WCAG AA asks of each — a pairing that falls
+short is the `A13` the build reports — and the tokens one theme of the
+dark pair declares and the other does not.
 
 ### `wf components`
 

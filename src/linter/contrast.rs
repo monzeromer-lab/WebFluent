@@ -135,6 +135,67 @@ fn used_modifiers(program: &Program) -> std::collections::HashSet<String> {
     out
 }
 
+/// One pairing the stylesheet composes, worked out over a set of tokens.
+#[derive(Debug, Clone, PartialEq, serde::Serialize)]
+pub struct Pairing {
+    /// The token on top, and the one under it (`white` for a label the
+    /// stylesheet sets in white).
+    pub foreground: String,
+    pub background: String,
+    /// What it is, in the build's words: `text on a card or surface`.
+    pub description: &'static str,
+    /// The ratio, when both are colours this check reads.
+    pub ratio: Option<f64>,
+    /// What WCAG AA asks of it: 4.5 for text, 3 for large text and icons.
+    pub threshold: f64,
+    /// Whether a page draws it: a white label on a variant no element
+    /// uses is not drawn, and not checked.
+    pub drawn: bool,
+}
+
+impl Pairing {
+    /// Whether it clears AA. One this check cannot read passes.
+    pub fn passes(&self) -> bool {
+        self.ratio.is_none_or(|r| r >= self.threshold)
+    }
+}
+
+/// Every pairing the stylesheet composes, over `resolved`: what the theme
+/// panel shows beside its swatches, and what A13 is drawn from.
+pub fn pairings(
+    program: &Program,
+    resolved: &std::collections::HashMap<String, String>,
+) -> Vec<Pairing> {
+    let ratio = |fg: Option<(u8, u8, u8)>, bg: Option<(u8, u8, u8)>| match (fg, bg) {
+        (Some(f), Some(b)) => Some(contrast_ratio(f, b)),
+        _ => None,
+    };
+    let colour = |name: &str| resolved.get(name).and_then(|v| parse_colour(v));
+    let mut out: Vec<Pairing> = PAIRS
+        .iter()
+        .map(|(fg, bg, threshold, description)| Pairing {
+            foreground: fg.to_string(),
+            background: bg.to_string(),
+            description,
+            ratio: ratio(colour(fg), colour(bg)),
+            threshold: *threshold,
+            drawn: true,
+        })
+        .collect();
+    let modifiers = used_modifiers(program);
+    for (token, modifier, description) in ON_WHITE {
+        out.push(Pairing {
+            foreground: "white".to_string(),
+            background: token.to_string(),
+            description,
+            ratio: ratio(Some((255, 255, 255)), colour(token)),
+            threshold: AA_TEXT,
+            drawn: modifiers.contains(*modifier),
+        });
+    }
+    out
+}
+
 /// Check the declared theme's tokens, layered over the baseline.
 ///
 /// Warnings name the file by convention (`src/theme.wf`); a caller that

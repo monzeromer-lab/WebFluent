@@ -79,6 +79,10 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                     Table.Cell("Describes every built-in")
                 }
                 Table.Row {
+                    Table.Cell { Markdown("`wf theme [-d, --dir DIR] [--json]`") }
+                    Table.Cell("The theme the build uses: every token, declared or inherited, where each is used, and its contrast")
+                }
+                Table.Row {
                     Table.Cell { Markdown("`wf components [-d, --dir DIR] [--json]`") }
                     Table.Cell("Every component a call can name — the built-ins and the project's — with what each takes")
                 }
@@ -258,6 +262,15 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
             ])
 
         Markdown("Every file of `public/`: its kind (image, font, video, audio, document, code, data), its size, a picture's dimensions, and every place the project names it — a prop the registry types as a file (`Image`'s `src`, `Video`'s `poster` and `captions`), a page's `image:`, a `const`, an `image` declaration, a `data` file's strings, a value of `webfluent.app.json`, a stylesheet's `url(…)`, a project script, a manifest. A file a browser or a host asks for by name — `favicon.ico`, `robots.txt`, `.well-known/…` — is used by convention; anything else nothing names is counted unused, and `--unused` lists only those.\n\n`--plan PATH` is what the image pipeline will make of one picture with the project's `build.media`: each width it writes, in each format, the file's name and its size — *3 widths × 1 format · 3 files · about 84 kB*. A size is exact once `wf build` has written the file (it is read from `.wf-cache/media/`) or when the picture is small enough to encode there and then; otherwise it is estimated from strips of it encoded at that width, and says `about`. A format the build cannot write is named, with why.\n\nThe library has the same as `webfluent::assets::\{list, plan\}`, reading through a `Vfs`, so an editor's unsaved buffers count.")
+
+        Heading("wf theme", id: "wf-theme").h3
+
+        Terminal(lines: [
+                Line(command: "wf theme"),
+                Line(command: "wf theme --json")
+            ])
+
+        Markdown("The theme the build uses, as an editor shows it: every token by its group (colour, spacing, font size, line height, radius, shadow, transition, font, motion, and those the theme invents), its value, the baseline's, whether the theme declares it or inherits it, the dark theme's value when `theme.dark` names one, the properties that draw from it and every place the project names it; then the colour pairings the stylesheet composes, with their contrast and what WCAG AA asks of each — a pairing that falls short is the `A13` the build reports — and the tokens one theme of the dark pair declares and the other does not.")
 
         Heading("wf components", id: "wf-components").h3
 

@@ -16,4 +16,5 @@ pub mod preview;
 pub mod render;
 pub mod serve;
 pub mod test;
+pub mod theme;
 pub mod verify;
