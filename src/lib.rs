@@ -224,6 +224,10 @@ pub mod print;
 /// edited copy's, touching nothing else.
 pub mod reprint;
 
+/// Style values as data: what shape a property's value has, the value read
+/// into its parts, and the narrowest declaration written back.
+pub mod style_value;
+
 /// Studio integration facade — [`studio::compile_studio`] turns a program into a
 /// [`studio::CompiledSite`] (SSG pages + CSS + JS + node map) for the preview.
 pub mod studio;

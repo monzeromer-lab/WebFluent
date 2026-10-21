@@ -59,6 +59,161 @@ a { color: inherit }
 /// cascade: important, origin, specificity, source order.
 type Hit<'a> = (bool, u8, (u32, u32, u32), usize, &'a Declaration);
 
+/// Every property the paged engine reads — what a PDF or a deck draws;
+/// anything else is the page's alone. A test holds it to what the cascade reads.
+pub const DRAWN: &[&str] = &[
+    "align-content",
+    "align-items",
+    "align-self",
+    "aspect-ratio",
+    "background",
+    "background-color",
+    "background-image",
+    "background-size",
+    "block-size",
+    "border",
+    "border-block",
+    "border-block-end",
+    "border-block-start",
+    "border-bottom",
+    "border-bottom-color",
+    "border-bottom-left-radius",
+    "border-bottom-right-radius",
+    "border-bottom-style",
+    "border-bottom-width",
+    "border-collapse",
+    "border-color",
+    "border-inline",
+    "border-inline-end",
+    "border-inline-start",
+    "border-left",
+    "border-left-color",
+    "border-left-style",
+    "border-left-width",
+    "border-radius",
+    "border-right",
+    "border-right-color",
+    "border-right-style",
+    "border-right-width",
+    "border-style",
+    "border-top",
+    "border-top-color",
+    "border-top-left-radius",
+    "border-top-right-radius",
+    "border-top-style",
+    "border-top-width",
+    "border-width",
+    "bottom",
+    "box-shadow",
+    "box-sizing",
+    "break-after",
+    "break-before",
+    "break-inside",
+    "color",
+    "column-gap",
+    "content",
+    "direction",
+    "display",
+    "flex",
+    "flex-basis",
+    "flex-direction",
+    "flex-flow",
+    "flex-grow",
+    "flex-shrink",
+    "flex-wrap",
+    "font",
+    "font-family",
+    "font-size",
+    "font-style",
+    "font-weight",
+    "gap",
+    "grid-auto-rows",
+    "grid-column",
+    "grid-column-end",
+    "grid-column-gap",
+    "grid-column-start",
+    "grid-gap",
+    "grid-row",
+    "grid-row-end",
+    "grid-row-gap",
+    "grid-row-start",
+    "grid-template-columns",
+    "grid-template-rows",
+    "height",
+    "inline-size",
+    "inset",
+    "justify-content",
+    "justify-items",
+    "left",
+    "letter-spacing",
+    "line-height",
+    "list-style",
+    "list-style-type",
+    "margin",
+    "margin-block",
+    "margin-block-end",
+    "margin-block-start",
+    "margin-bottom",
+    "margin-inline",
+    "margin-inline-end",
+    "margin-inline-start",
+    "margin-left",
+    "margin-right",
+    "margin-top",
+    "max-height",
+    "max-width",
+    "min-height",
+    "min-width",
+    "object-fit",
+    "opacity",
+    "order",
+    "orphans",
+    "overflow",
+    "overflow-x",
+    "overflow-y",
+    "padding",
+    "padding-block",
+    "padding-block-end",
+    "padding-block-start",
+    "padding-bottom",
+    "padding-inline",
+    "padding-inline-end",
+    "padding-inline-start",
+    "padding-left",
+    "padding-right",
+    "padding-top",
+    "page-break-after",
+    "page-break-before",
+    "page-break-inside",
+    "place-content",
+    "place-items",
+    "position",
+    "right",
+    "rotate",
+    "row-gap",
+    "tab-size",
+    "text-align",
+    "text-decoration",
+    "text-decoration-color",
+    "text-decoration-line",
+    "text-overflow",
+    "text-transform",
+    "top",
+    "transform",
+    "vertical-align",
+    "visibility",
+    "white-space",
+    "widows",
+    "width",
+    "word-spacing",
+];
+
+/// Whether a PDF or a deck draws `property`. A custom property is the
+/// style's own and always read.
+pub fn drawn_on_paper(property: &str) -> bool {
+    property.starts_with("--") || DRAWN.contains(&property)
+}
+
 /// The sheets of a page, indexed for matching.
 pub struct Styler {
     rules: Vec<IndexedRule>,
@@ -1327,5 +1482,119 @@ mod tests {
             Some("—".into())
         );
         assert!(s.compute_pseudo(&dom, p, &ps, false).is_none());
+    }
+
+    /// A value `property` takes, to see whether it is read.
+    fn sample(property: &str) -> &'static str {
+        match property {
+            "display" => "flex",
+            "position" => "absolute",
+            "box-sizing" => "border-box",
+            "visibility" => "hidden",
+            "direction" => "rtl",
+            "white-space" => "pre",
+            "text-overflow" => "ellipsis",
+            "text-transform" => "uppercase",
+            "text-align" => "center",
+            "vertical-align" => "middle",
+            "font-style" => "italic",
+            "font-weight" => "700",
+            "font-family" => "Serifish",
+            "font" => "italic 700 20px Serifish",
+            "opacity" => "0.5",
+            "order" | "flex-grow" | "flex-shrink" | "orphans" | "widows" | "tab-size" => "3",
+            "flex" => "2 1 10px",
+            "flex-direction" => "column",
+            "flex-flow" => "column wrap",
+            "flex-wrap" => "wrap",
+            "align-items" | "align-self" | "align-content" | "justify-content"
+            | "justify-items" | "place-items" | "place-content" => "center",
+            "aspect-ratio" => "2 / 1",
+            "overflow" | "overflow-x" | "overflow-y" => "hidden",
+            "object-fit" => "cover",
+            "border-collapse" => "collapse",
+            "list-style" | "list-style-type" => "square",
+            "content" => "\"x\"",
+            "transform" => "rotate(10deg)",
+            "rotate" => "10deg",
+            "box-shadow" => "1px 2px 3px #123456",
+            "background-image" => "linear-gradient(red, blue)",
+            "background-size" => "cover",
+            "text-decoration" | "text-decoration-line" => "underline",
+            "line-height" => "2",
+            "grid-template-columns" | "grid-template-rows" | "grid-auto-rows" => "1fr 2fr",
+            "grid-column" | "grid-row" => "1 / 3",
+            "grid-column-start" | "grid-column-end" | "grid-row-start" | "grid-row-end" => "2",
+            "break-after" | "break-before" | "page-break-after" | "page-break-before" => "page",
+            "break-inside" | "page-break-inside" => "avoid",
+            p if p.ends_with("-style") || p == "border-style" => "dashed",
+            p if p.contains("color") || p == "color" || p == "background" => "#123456",
+            p if p.starts_with("border") && !p.ends_with("radius") && !p.ends_with("width") => {
+                "3px solid #123456"
+            }
+            _ => "7px",
+        }
+    }
+
+    /// `DRAWN` is what the engine reads: each of them, set, changes the
+    /// style; what is not in it changes nothing.
+    #[test]
+    fn what_is_drawn_on_paper_is_what_the_engine_reads() {
+        let s = styler("");
+        let base = Style::root(12.0, "Sans");
+        let unchanged = format!("{:?}", s.apply_all(&base, &[]));
+        let set = |name: &str, value: &str| {
+            format!(
+                "{:?}",
+                s.apply_all(
+                    &base,
+                    &[Declaration {
+                        name: name.to_string(),
+                        value: value.to_string(),
+                        important: false,
+                    }],
+                )
+            )
+        };
+        let read: Vec<&str> = DRAWN
+            .iter()
+            .copied()
+            .filter(|p| set(p, sample(p)) == unchanged)
+            .collect();
+        assert!(
+            read.is_empty(),
+            "in DRAWN, but setting them changes nothing: {read:?}"
+        );
+        for p in [
+            "cursor",
+            "transition",
+            "mix-blend-mode",
+            "pointer-events",
+            "filter",
+            "animation",
+            "outline",
+            "caret-color",
+            "user-select",
+            "scroll-behavior",
+        ] {
+            assert_eq!(
+                set(p, sample(p)),
+                unchanged,
+                "`{p}` is read, so it belongs in DRAWN"
+            );
+            assert!(!drawn_on_paper(p));
+        }
+        assert!(drawn_on_paper("--brand"));
+        // And every property the style inspector curates that is not in
+        // DRAWN is one the engine leaves alone.
+        for (_, props) in crate::style_value::CURATED {
+            for p in props.iter().filter(|p| !drawn_on_paper(p)) {
+                assert_eq!(
+                    set(p, sample(p)),
+                    unchanged,
+                    "`{p}` is read, so it belongs in DRAWN"
+                );
+            }
+        }
     }
 }

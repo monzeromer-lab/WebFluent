@@ -62,7 +62,7 @@ pub fn resolve_short_token(
 /// The design-token group a style property draws from, or `None` if the property
 /// takes no token. Mirrors the card's "+ padding background color font-size border
 /// width" note and the logical-CSS spacing properties.
-fn token_group(css_prop: &str) -> Option<&'static str> {
+pub fn token_group(css_prop: &str) -> Option<&'static str> {
     let group = match css_prop {
         "font-size" => "font-size",
         "line-height" => "line-height",
@@ -109,7 +109,7 @@ fn is_spacing_prop(p: &str) -> bool {
 }
 
 /// The valid token suffixes for a group. Kept in lockstep with `themes::tokens`.
-fn group_suffixes(group: &str) -> &'static [&'static str] {
+pub fn group_suffixes(group: &str) -> &'static [&'static str] {
     match group {
         "font-size" => &["xs", "sm", "base", "lg", "xl", "2xl", "3xl"],
         "spacing" => &["xs", "sm", "md", "lg", "xl", "2xl", "3xl"],

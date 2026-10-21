@@ -30,6 +30,7 @@ mod registry;
 mod reprint;
 mod runtime;
 mod sema;
+mod style_value;
 mod syntax;
 mod template;
 mod testing;
