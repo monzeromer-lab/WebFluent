@@ -79,6 +79,10 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                     Table.Cell("Describes every built-in")
                 }
                 Table.Row {
+                    Table.Cell { Markdown("`wf components [-d, --dir DIR] [--json]`") }
+                    Table.Cell("Every component a call can name — the built-ins and the project's — with what each takes")
+                }
+                Table.Row {
                     Table.Cell { Markdown("`wf commands [--json]`") }
                     Table.Cell("Describes every command: its options, what it writes, and how to see it first")
                 }
@@ -254,6 +258,15 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
             ])
 
         Markdown("Every file of `public/`: its kind (image, font, video, audio, document, code, data), its size, a picture's dimensions, and every place the project names it — a prop the registry types as a file (`Image`'s `src`, `Video`'s `poster` and `captions`), a page's `image:`, a `const`, an `image` declaration, a `data` file's strings, a value of `webfluent.app.json`, a stylesheet's `url(…)`, a project script, a manifest. A file a browser or a host asks for by name — `favicon.ico`, `robots.txt`, `.well-known/…` — is used by convention; anything else nothing names is counted unused, and `--unused` lists only those.\n\n`--plan PATH` is what the image pipeline will make of one picture with the project's `build.media`: each width it writes, in each format, the file's name and its size — *3 widths × 1 format · 3 files · about 84 kB*. A size is exact once `wf build` has written the file (it is read from `.wf-cache/media/`) or when the picture is small enough to encode there and then; otherwise it is estimated from strips of it encoded at that width, and says `about`. A format the build cannot write is named, with why.\n\nThe library has the same as `webfluent::assets::\{list, plan\}`, reading through a `Vfs`, so an editor's unsaved buffers count.")
+
+        Heading("wf components", id: "wf-components").h3
+
+        Terminal(lines: [
+                Line(command: "wf components"),
+                Line(command: "wf components --json")
+            ])
+
+        Markdown("Every component a call can name, the built-ins and then the project's own, in one vocabulary: each prop with the kind of value it takes (`text`, `number`, `enum` and its cases, `file` and what kind, `state`, `path`, a declared `record`, a `list`, `date`, `color`, `money` …), whether it is the positional one, its default as written, a range where its type declares one (`Number(0..=100)`), and whether `.name` alone sets it; then the component's events, its slots and what each hands its fill, its parts and their owner, the attribute families its root takes, and whether it takes children. It is the table the checker reads a call against — an inspector draws a control per prop from it, and an Insert panel knows what may go where. The library has it as `webfluent::registry::schema::of_project_via`.")
 
         Heading("wf docs, wf registry, wf types", id: "wf-docs-wf-registry-wf-types").h3
 

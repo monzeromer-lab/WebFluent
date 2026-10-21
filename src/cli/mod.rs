@@ -2,6 +2,7 @@ pub mod act;
 pub mod assets;
 pub mod audit;
 pub mod build;
+pub mod components;
 pub mod config;
 pub mod describe;
 pub mod docs;

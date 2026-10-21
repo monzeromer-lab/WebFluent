@@ -33,6 +33,7 @@ wf fix [-d DIR] [--code C] [--dry-run]            # Apply every finding's fix (o
 wf config schema [--json] | get PATH | set PATH VALUE | unset PATH   # Every setting; edit webfluent.app.json keeping its shape
 wf commands [--json]                      # Every command, its options, what it writes and its preview flag, as data
 wf assets [--unused] [--plan /a.png] [--json]  # public/: each file's kind, size, dimensions and uses; what the image pipeline makes of one
+wf components [--json]                    # Every component a call can name, built-in and the project's: props and their kinds, events, slots, parts
 wf explain [CODE]                         # A diagnostic's entry: meaning, example, fix
 wf serve [-d DIR]                         # Dev server (localhost:3000): rebuilds on save, reloads the page, shows a failed build's error over it
 wf generate page|component|store <name>   # Scaffold a file, in the project's layout

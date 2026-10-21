@@ -59,6 +59,7 @@ pub const EFFECTS: &[Effect] = &[
     e("types", "", None),
     e("fmt", "the project's source files", Some("--check")),
     e("assets", "", None),
+    e("components", "", None),
     e("commands", "", None),
 ];
 

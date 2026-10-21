@@ -22,6 +22,7 @@
 
 pub mod builtins;
 pub mod json;
+pub mod schema;
 
 pub use builtins::{COMPONENTS, UNIVERSAL_EVENTS, UNIVERSAL_PROPS};
 

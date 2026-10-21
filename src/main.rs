@@ -102,6 +102,17 @@ enum Commands {
         #[command(subcommand)]
         action: ConfigAction,
     },
+    /// Every component a call can name — the built-ins and the project's —
+    /// with what each takes: its props and their kinds, events, slots,
+    /// parts and children
+    Components {
+        /// Project directory (default: current directory)
+        #[arg(short, long, default_value = ".")]
+        dir: PathBuf,
+        /// Print JSON, for tools
+        #[arg(long)]
+        json: bool,
+    },
     /// What `public/` holds — each file's kind, size and dimensions, and
     /// where the project names it — or what the media pipeline will make of
     /// one image
@@ -364,6 +375,7 @@ fn main() {
             }
             ConfigAction::Unset { path, dir } => cli::config::run_set(&dir, &path, None),
         },
+        Commands::Components { dir, json } => cli::components::run_components(&dir, json),
         Commands::Assets {
             dir,
             plan,

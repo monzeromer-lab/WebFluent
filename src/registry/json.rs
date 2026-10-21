@@ -360,7 +360,7 @@ fn type_ref_json(ty: &TypeRef) -> String {
 
 /// Whether a body places `children` anywhere — a component with a default
 /// slot it never declared, as the original grammar wrote them.
-fn uses_children(body: &[Statement]) -> bool {
+pub(crate) fn uses_children(body: &[Statement]) -> bool {
     body.iter().any(|s| match &s.kind {
         StatementKind::UIElement(el) => {
             matches!(&el.component, ComponentRef::BuiltIn(n) if n == "Children")

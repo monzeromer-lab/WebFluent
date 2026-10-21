@@ -35,6 +35,7 @@ told otherwise, and exits non-zero on failure, so each is a CI step as it is.
 | `wf audit [PATH] [--json]` | Lists what the project trusts |
 | `wf docs [-d, --dir DIR] [-o, --out OUT]` | Writes a gallery of every component |
 | `wf registry [--json]` | Describes every built-in |
+| `wf components [-d, --dir DIR] [--json]` | Every component a call can name — the built-ins and the project's — with what each takes |
 | `wf commands [--json]` | Describes every command: its options, what it writes, and how to see it first |
 | `wf assets [-d, --dir DIR] [--unused] [--plan PATH] [--json]` | Lists `public/` and where each file is used, or what the image pipeline will make of one |
 | `wf types [PATH] [--json]` | Describes what the project declares |
@@ -398,6 +399,26 @@ and says `about`. A format the build cannot write is named, with why.
 
 The library has the same as `webfluent::assets::{list, plan}`, reading
 through a `Vfs`, so an editor's unsaved buffers count.
+
+### `wf components`
+
+```bash
+wf components
+wf components --json
+```
+
+Every component a call can name, the built-ins and then the project's
+own, in one vocabulary: each prop with the kind of value it takes (`text`,
+`number`, `enum` and its cases, `file` and what kind, `state`, `path`, a
+declared `record`, a `list`, `date`, `color`, `money` …), whether it is
+the positional one, its default as written, a range where its type
+declares one (`Number(0..=100)`), and whether `.name` alone sets it; then
+the component's events, its slots and what each hands its fill, its parts
+and their owner, the attribute families its root takes, and whether it
+takes children. It is the table the checker reads a call against — an
+inspector draws a control per prop from it, and an Insert panel knows
+what may go where. The library has it as
+`webfluent::registry::schema::of_project_via`.
 
 ### `wf docs`, `wf registry`, `wf types`
 

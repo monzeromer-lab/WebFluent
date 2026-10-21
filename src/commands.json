@@ -333,6 +333,42 @@
       "writes": ""
     },
     {
+      "name": "components",
+      "options": [
+        {
+          "default": ".",
+          "flag": false,
+          "help": "Project directory (default: current directory)",
+          "long": "dir",
+          "name": "dir",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": "d",
+          "takes": "path",
+          "value_name": "DIR",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Print JSON, for tools",
+          "long": "json",
+          "name": "json",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "JSON",
+          "values": []
+        }
+      ],
+      "preview": null,
+      "summary": "Every component a call can name — the built-ins and the project's — with what each takes: its props and their kinds, events, slots, parts and children",
+      "writes": ""
+    },
+    {
       "name": "assets",
       "options": [
         {
