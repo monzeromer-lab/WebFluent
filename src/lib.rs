@@ -216,6 +216,14 @@ pub mod template;
 
 pub mod edit;
 
+/// The tree written back as source, one node at a time: what an editor
+/// that changes a node writes in its place.
+pub mod print;
+
+/// The smallest edit: the patches that turn one node's source into an
+/// edited copy's, touching nothing else.
+pub mod reprint;
+
 /// Studio integration facade — [`studio::compile_studio`] turns a program into a
 /// [`studio::CompiledSite`] (SSG pages + CSS + JS + node map) for the preview.
 pub mod studio;

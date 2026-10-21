@@ -25,6 +25,8 @@ src/
   themes/                    the baseline tokens and the built-ins' CSS
   template/                  the template engine behind `wf render`
   media/                     the image pipeline
+  print.rs, reprint.rs       the tree written back as source, and the smallest edit
+  edit.rs                    an editor's edits: change the tree, write only what changed
   cli/                       each `wf` command
 crates/wf-lsp/               the language server
 editors/                     VS Code, Zed and the Tree-sitter grammars
@@ -64,8 +66,11 @@ The browser suites need Chrome: `cd tests/browser && npm ci && node offline.mjs`
   `src/themes/`, and its code generation; then run
   `python3 scripts/components-reference.py` to rewrite the reference.
 - **The grammar**: the parser in `src/parser/v2.rs`, the formatter and the
-  `.wfx` layout, and both Tree-sitter grammars in `editors/`. The guide's own
-  code blocks are the grammar's test corpus.
+  `.wfx` layout, the printer in `src/print.rs`, and both Tree-sitter
+  grammars in `editors/`. The guide's own code blocks are the grammar's test
+  corpus; `tests/printer_corpus.rs` prints every statement of every project
+  in the repository back in its place and holds it to the same tree, and
+  `tests/reprint_corpus.rs` holds every edit to changing only its own bytes.
 - **The runtime**: a module in `src/runtime/modules/`; the manifest that says
   what reaches it is rewritten by a Rust test. Add a test in `tests/js/`.
 - **A diagnostic**: give it a code, an entry with a failing example in

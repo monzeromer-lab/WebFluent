@@ -237,6 +237,11 @@ jobs:
       - name: Documentation site builds
         run: cargo run --release -- build -d site
 
+      # The printer and the smallest edit, over every project in the
+      # repository: `cargo test` in a debug build reads a quarter of it.
+      - name: Every statement prints back, every edit keeps the rest
+        run: cargo test --release --test printer_corpus --test reprint_corpus
+
   editors:
     name: Zed extension and grammar
     runs-on: ubuntu-latest

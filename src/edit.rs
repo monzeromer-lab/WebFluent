@@ -20,6 +20,13 @@
 //! its braced spelling — [`apply_edits_to`] converts, edits and converts
 //! back — because node ids are structural and survive the change of layout.
 //!
+//! [`rewrite_element`], [`rewrite_statement`] and [`rewrite_body`] are the
+//! other way in, and the one the builder takes: change the tree itself —
+//! an argument's value, a flag, a style declaration, a child added, moved
+//! or wrapped in an `if` — and the smallest edit that says so is worked out
+//! ([`crate::reprint`]) and printed from the tree ([`crate::print`]). What
+//! is written must read back as the tree that was asked for, or nothing is.
+//!
 //! Node ids are per source version: structural paths (`Home:2.0.3`) that a
 //! change of a sibling shifts, and that `wf migrate` keeps where the
 //! statement structure holds — which it does for every element, since the
@@ -28,7 +35,9 @@
 
 use crate::codegen::node_id;
 use crate::error::{Result, WebFluentError};
-use crate::parser::ast::{Arg, Expr, Program, Span, UIElement};
+use crate::parser::ast::{
+    Arg, Declaration, Expr, Program, Span, Statement, StatementKind, UIElement,
+};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -889,6 +898,246 @@ fn raw_style_value(value: &str) -> String {
         }
     }
     value.to_string()
+}
+
+// ─── Rewrites: change the tree, write the smallest edit ──
+
+/// Change the element `node` (its studio id, `Home:2.0.3`) with `change`,
+/// and write the smallest edit that says so: the argument, the flag, the
+/// style value or the child that differs, printed in its place, and every
+/// other byte of the file as it was ([`crate::reprint`]).
+///
+/// The result is held to what was asked for: it must parse to the program
+/// with that element as `change` left it, or nothing is written and the
+/// error says so — the builder writes nothing it cannot read back.
+pub fn rewrite_element(
+    source: &str,
+    file: &str,
+    node: &str,
+    change: impl FnOnce(&mut UIElement),
+) -> Result<String> {
+    in_braces(source, file, |braced| {
+        let program = parse_program(braced)?;
+        let mut target: Option<*const UIElement> = None;
+        node_id::visit_nodes(&program, &mut |ui, id, _| {
+            if id == node {
+                target = Some(ui as *const UIElement);
+            }
+        });
+        let target = target.ok_or_else(|| edit_err(format!("unknown node id '{node}'")))?;
+        // The statement the element is: an element the parser makes itself
+        // — a slot's `children` — has no place of its own, but its
+        // statement has.
+        let mut span = None;
+        crate::print::each_statement(&program, &mut |stmts, i, _| {
+            if let StatementKind::UIElement(ui) = &stmts[i].kind
+                && std::ptr::eq(ui, target)
+            {
+                span = Some(stmts[i].span);
+            }
+        });
+        let span =
+            span.ok_or_else(|| edit_err(format!("'{node}' is not written in the source")))?;
+        rewrite_at(
+            braced,
+            program,
+            span.start as usize,
+            span.end as usize,
+            |stmt| match &mut stmt.kind {
+                StatementKind::UIElement(ui) => {
+                    change(ui);
+                    Ok(())
+                }
+                _ => Err(edit_err(format!("'{node}' is not an element"))),
+            },
+        )
+    })
+}
+
+/// Change the statement written at `start..end` of `source` — an `if`, a
+/// `for`, a `state`, a handler's line — with `change`, and write the
+/// smallest edit that says so, held to the tree as [`rewrite_element`] is.
+/// A `.wfx` file is addressed through its braced spelling.
+pub fn rewrite_statement(
+    source: &str,
+    file: &str,
+    start: usize,
+    end: usize,
+    change: impl FnOnce(&mut Statement),
+) -> Result<String> {
+    in_braces(source, file, |braced| {
+        let program = parse_program(braced)?;
+        rewrite_at(braced, program, start, end, |stmt| {
+            change(stmt);
+            Ok(())
+        })
+    })
+}
+
+/// Change the body of the page, component or store called `declaration` —
+/// add a statement, take one out, wrap some in an `if` — and write the
+/// smallest edit that says so.
+pub fn rewrite_body(
+    source: &str,
+    file: &str,
+    declaration: &str,
+    change: impl FnOnce(&mut Vec<Statement>),
+) -> Result<String> {
+    in_braces(source, file, |braced| {
+        let program = parse_program(braced)?;
+        let mut expected = program.clone();
+        let found = expected.declarations.iter_mut().find_map(|d| match d {
+            Declaration::Page(p) if p.name == declaration => Some((&mut p.body, p.body_span)),
+            Declaration::Component(c) if c.name == declaration => Some((&mut c.body, c.body_span)),
+            Declaration::Store(s) if s.name == declaration => Some((&mut s.body, s.body_span)),
+            _ => None,
+        });
+        let (body, interior) = found.ok_or_else(|| {
+            edit_err(format!(
+                "no page, component or store is called '{declaration}'"
+            ))
+        })?;
+        let old = body.clone();
+        change(body);
+        let patches = crate::reprint::body(
+            braced,
+            &old,
+            body,
+            (interior.start as usize, interior.end as usize),
+            crate::print::Block::Render,
+        );
+        written_as(braced, patches, &expected)
+    })
+}
+
+/// `edit` over a `.wf` file's text, or over a `.wfx` file's braced
+/// spelling and back.
+fn in_braces(
+    source: &str,
+    file: &str,
+    edit: impl FnOnce(&str) -> Result<String>,
+) -> Result<String> {
+    if file.ends_with(".wfx") {
+        let braced = crate::layout::to_braces(source, file)?;
+        let edited = edit(&braced)?;
+        return crate::layout::to_offside(&edited, file);
+    }
+    edit(source)
+}
+
+fn rewrite_at(
+    source: &str,
+    program: Program,
+    start: usize,
+    end: usize,
+    change: impl FnOnce(&mut Statement) -> Result<()>,
+) -> Result<String> {
+    let mut expected = program.clone();
+    let (stmt, block) = statement_at_mut(&mut expected, start, end)
+        .ok_or_else(|| edit_err(format!("no statement is written at {start}..{end}")))?;
+    let old = stmt.clone();
+    change(stmt)?;
+    let patches = crate::reprint::statement(source, &old, stmt, block);
+    written_as(source, patches, &expected)
+}
+
+/// The patches applied, and the result held to `expected`.
+fn written_as(
+    source: &str,
+    patches: Vec<crate::reprint::Patch>,
+    expected: &Program,
+) -> Result<String> {
+    let result = crate::reprint::apply(source, patches).map_err(edit_err)?;
+    let reread =
+        parse_program(&result).map_err(|e| edit_err(format!("the edit does not parse: {e}")))?;
+    if crate::print::shape(&reread) != crate::print::shape(expected) {
+        return Err(edit_err(
+            "the edit does not read back as the change asked for, so nothing was written",
+        ));
+    }
+    Ok(result)
+}
+
+/// The statement written at `start..end`, to change, and the kind of
+/// block it is in. Where two are written over the same bytes — an element
+/// is its statement — it is the outermost.
+fn statement_at_mut(
+    program: &mut Program,
+    start: usize,
+    end: usize,
+) -> Option<(&mut Statement, crate::print::Block)> {
+    use crate::print::Block;
+    fn find(
+        stmts: &mut [Statement],
+        block: Block,
+        start: usize,
+        end: usize,
+    ) -> Option<(&mut Statement, Block)> {
+        for s in stmts.iter_mut() {
+            let (s_start, s_end) = (s.span.start as usize, s.span.end as usize);
+            if s_start == start && s_end == end {
+                return Some((s, block));
+            }
+            if !(s_start <= start && end <= s_end) {
+                continue;
+            }
+            let found = match &mut s.kind {
+                StatementKind::UIElement(ui) => find(&mut ui.children, Block::Render, start, end)
+                    .or_else(|| {
+                        ui.slot_fills
+                            .iter_mut()
+                            .find_map(|f| find(&mut f.body, Block::Render, start, end))
+                    })
+                    .or_else(|| {
+                        ui.events
+                            .iter_mut()
+                            .find_map(|h| find(&mut h.body, Block::Imperative, start, end))
+                    }),
+                StatementKind::If(i) => {
+                    let mut bodies: Vec<&mut Vec<Statement>> = vec![&mut i.then_body];
+                    bodies.extend(i.else_if_branches.iter_mut().map(|(_, b)| b));
+                    bodies.extend(i.else_body.as_mut());
+                    bodies.into_iter().find_map(|b| find(b, block, start, end))
+                }
+                StatementKind::For(f) => find(&mut f.body, block, start, end),
+                StatementKind::Show(x) => find(&mut x.body, Block::Render, start, end),
+                StatementKind::Match(m) => m
+                    .arms
+                    .iter_mut()
+                    .find_map(|a| find(&mut a.body, Block::Render, start, end)),
+                StatementKind::Effect(e) => find(&mut e.body, Block::Imperative, start, end)
+                    .or_else(|| find(&mut e.cleanup, Block::Imperative, start, end)),
+                StatementKind::Timer(t) => find(&mut t.body, Block::Imperative, start, end),
+                StatementKind::Action(a) => find(&mut a.body, Block::Imperative, start, end),
+                StatementKind::EventHandler(h) => find(&mut h.body, Block::Imperative, start, end),
+                StatementKind::Try(t) => find(&mut t.body, Block::Imperative, start, end)
+                    .or_else(|| find(&mut t.catch_body, Block::Imperative, start, end)),
+                StatementKind::Connection(c) => c
+                    .handlers
+                    .iter_mut()
+                    .find_map(|h| find(&mut h.body, Block::Imperative, start, end)),
+                _ => None,
+            };
+            if found.is_some() {
+                return found;
+            }
+        }
+        None
+    }
+    for decl in program.declarations.iter_mut() {
+        let body = match decl {
+            Declaration::Page(p) => &mut p.body,
+            Declaration::Component(c) => &mut c.body,
+            Declaration::Store(s) => &mut s.body,
+            Declaration::App(a) => &mut a.body,
+            Declaration::Test(t) => &mut t.body,
+            _ => continue,
+        };
+        if let Some(found) = find(body, Block::Render, start, end) {
+            return Some(found);
+        }
+    }
+    None
 }
 
 fn edit_err(msg: impl Into<String>) -> WebFluentError {
