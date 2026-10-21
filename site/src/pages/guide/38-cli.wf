@@ -79,6 +79,10 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                     Table.Cell("Describes every built-in")
                 }
                 Table.Row {
+                    Table.Cell { Markdown("`wf commands [--json]`") }
+                    Table.Cell("Describes every command: its options, what it writes, and how to see it first")
+                }
+                Table.Row {
                     Table.Cell { Markdown("`wf types [PATH] [--json]`") }
                     Table.Cell("Describes what the project declares")
                 }
@@ -226,6 +230,15 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
         Markdown("Three things, in one command.\n\n**4.1 → 4.2** runs first, because 4.2 refuses `external`: a remote module becomes a `meta.scripts` entry, a local one a plain script under `src/` with its signatures as JSDoc (`X.f(…)` becomes `f(…)`), and an `external element` call `Element(\"tag\", …)`. It lists every `.js` already under `src/`, since each now ships on every page.\n\n**2 → 3** rewrites every `.wf` under `src/` in place, with a note for anything that needed a decision. It is a change of spelling: the migrated project builds to what it built before.\n\n**3 → 4** is a change of what the compiler allows, so it runs over the project rather than the files. It adds every `env` name your pages already read to `public_env` — preserving what the project did, and printing the list, because *public* means anyone who opens the site may read the value. Then it names, with file and line, everything 4 refuses that 3 allowed: an `on*` attribute, a `javascript:` or `data:` URL. Those have no automatic rewrite; the old value was a string of JavaScript or a link that ran one. Finally it states the changes that need no edit: a store is built on first read rather than at boot, a `persist` value follows the site's other tabs, and `WF.store`/`WF.host` were renamed.\n\n`--check` writes nothing and tells you what it would do.")
 
         Heading("Describing", id: "describing").h2
+
+        Heading("wf commands", id: "wf-commands").h3
+
+        Terminal(lines: [
+                Line(command: "wf commands"),
+                Line(command: "wf commands --json")
+            ])
+
+        Markdown("Every command as data: what it does, each option — its flag, what it takes (`nothing` for a flag, a `word` from the values it lists, a `number`, a `path`, `text`), its default — what the command writes, and the flag that shows it first and writes nothing (`fmt --check`, `migrate --check`, `fix --dry-run`). A tool page, a palette or a script is built from it rather than from a copy of this page; the library has the same, as `webfluent::commands`.")
 
         Heading("wf docs, wf registry, wf types", id: "wf-docs-wf-registry-wf-types").h3
 

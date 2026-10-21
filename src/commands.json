@@ -1,0 +1,992 @@
+{
+  "commands": [
+    {
+      "name": "init",
+      "options": [
+        {
+          "default": null,
+          "flag": false,
+          "help": "Project name",
+          "long": null,
+          "name": "name",
+          "positional": true,
+          "repeats": false,
+          "required": true,
+          "short": null,
+          "takes": "text",
+          "value_name": "NAME",
+          "values": []
+        },
+        {
+          "default": "spa",
+          "flag": false,
+          "help": "Template: \"spa\" (default), \"static\", \"pdf\", or \"slides\"",
+          "long": "template",
+          "name": "template",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": "t",
+          "takes": "word",
+          "value_name": "TEMPLATE",
+          "values": [
+            "spa",
+            "static",
+            "pdf",
+            "slides"
+          ]
+        }
+      ],
+      "preview": null,
+      "summary": "Create a new WebFluent project",
+      "writes": "a new project's folder"
+    },
+    {
+      "name": "build",
+      "options": [
+        {
+          "default": ".",
+          "flag": false,
+          "help": "Project directory (default: current directory)",
+          "long": "dir",
+          "name": "dir",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": "d",
+          "takes": "path",
+          "value_name": "DIR",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Print what the build weighs: every file, gzipped, and the runtime modules it kept and left out",
+          "long": "stats",
+          "name": "stats",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "STATS",
+          "values": []
+        },
+        {
+          "default": "human",
+          "flag": false,
+          "help": "How findings are written: `human` (default), `json`, `sarif` (code scanning) or `github` (annotations on a pull request)",
+          "long": "format",
+          "name": "format",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "word",
+          "value_name": "FORMAT",
+          "values": [
+            "human",
+            "json",
+            "sarif",
+            "github"
+          ]
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Let a warning stop the build as an error does",
+          "long": "deny-warnings",
+          "name": "deny_warnings",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "DENY_WARNINGS",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Reuse what earlier builds rendered, kept in `.wf-cache/build/`: only the pages an edit changed are rendered again",
+          "long": "cache",
+          "name": "cache",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "CACHE",
+          "values": []
+        }
+      ],
+      "preview": null,
+      "summary": "Build the project (compile .wf files to HTML + CSS + JS)",
+      "writes": "the site, in the output folder"
+    },
+    {
+      "name": "check",
+      "options": [
+        {
+          "default": ".",
+          "flag": false,
+          "help": "Project directory (default: current directory)",
+          "long": "dir",
+          "name": "dir",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": "d",
+          "takes": "path",
+          "value_name": "DIR",
+          "values": []
+        },
+        {
+          "default": "human",
+          "flag": false,
+          "help": "How findings are written: `human` (default), `json`, `sarif` (code scanning) or `github` (annotations on a pull request)",
+          "long": "format",
+          "name": "format",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "word",
+          "value_name": "FORMAT",
+          "values": [
+            "human",
+            "json",
+            "sarif",
+            "github"
+          ]
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Fail on a warning too",
+          "long": "deny-warnings",
+          "name": "deny_warnings",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "DENY_WARNINGS",
+          "values": []
+        }
+      ],
+      "preview": null,
+      "summary": "Check the project — every finding a build would report — and write nothing",
+      "writes": ""
+    },
+    {
+      "name": "config",
+      "options": [],
+      "preview": null,
+      "subcommands": [
+        {
+          "name": "schema",
+          "options": [
+            {
+              "default": null,
+              "flag": true,
+              "help": "As JSON, for a tool",
+              "long": "json",
+              "name": "json",
+              "positional": false,
+              "repeats": false,
+              "required": false,
+              "short": null,
+              "takes": "nothing",
+              "value_name": "JSON",
+              "values": []
+            }
+          ],
+          "preview": null,
+          "summary": "Every setting: its type, its default and what it does",
+          "writes": ""
+        },
+        {
+          "name": "get",
+          "options": [
+            {
+              "default": null,
+              "flag": false,
+              "help": "A dotted path: `build.base_path`, `build.budget.app.js`",
+              "long": null,
+              "name": "path",
+              "positional": true,
+              "repeats": false,
+              "required": true,
+              "short": null,
+              "takes": "text",
+              "value_name": "PATH",
+              "values": []
+            },
+            {
+              "default": ".",
+              "flag": false,
+              "help": "",
+              "long": "dir",
+              "name": "dir",
+              "positional": false,
+              "repeats": false,
+              "required": false,
+              "short": "d",
+              "takes": "path",
+              "value_name": "DIR",
+              "values": []
+            }
+          ],
+          "preview": null,
+          "summary": "What the project sets at PATH, or the default",
+          "writes": ""
+        },
+        {
+          "name": "set",
+          "options": [
+            {
+              "default": null,
+              "flag": false,
+              "help": "",
+              "long": null,
+              "name": "path",
+              "positional": true,
+              "repeats": false,
+              "required": true,
+              "short": null,
+              "takes": "text",
+              "value_name": "PATH",
+              "values": []
+            },
+            {
+              "default": null,
+              "flag": false,
+              "help": "",
+              "long": null,
+              "name": "value",
+              "positional": true,
+              "repeats": false,
+              "required": true,
+              "short": null,
+              "takes": "text",
+              "value_name": "VALUE",
+              "values": []
+            },
+            {
+              "default": ".",
+              "flag": false,
+              "help": "",
+              "long": "dir",
+              "name": "dir",
+              "positional": false,
+              "repeats": false,
+              "required": false,
+              "short": "d",
+              "takes": "path",
+              "value_name": "DIR",
+              "values": []
+            }
+          ],
+          "preview": null,
+          "summary": "Set PATH to VALUE — JSON, or a word as a string — keeping the file's shape",
+          "writes": "webfluent.app.json"
+        },
+        {
+          "name": "unset",
+          "options": [
+            {
+              "default": null,
+              "flag": false,
+              "help": "",
+              "long": null,
+              "name": "path",
+              "positional": true,
+              "repeats": false,
+              "required": true,
+              "short": null,
+              "takes": "text",
+              "value_name": "PATH",
+              "values": []
+            },
+            {
+              "default": ".",
+              "flag": false,
+              "help": "",
+              "long": "dir",
+              "name": "dir",
+              "positional": false,
+              "repeats": false,
+              "required": false,
+              "short": "d",
+              "takes": "path",
+              "value_name": "DIR",
+              "values": []
+            }
+          ],
+          "preview": null,
+          "summary": "Remove PATH, so its default applies",
+          "writes": "webfluent.app.json"
+        }
+      ],
+      "summary": "Read and change `webfluent.app.json`: every setting, what the project sets, and an edit that keeps the file's shape",
+      "writes": ""
+    },
+    {
+      "name": "commands",
+      "options": [
+        {
+          "default": null,
+          "flag": true,
+          "help": "Print JSON, for tools",
+          "long": "json",
+          "name": "json",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "JSON",
+          "values": []
+        }
+      ],
+      "preview": null,
+      "summary": "Every `wf` command, its options and what it writes, as data",
+      "writes": ""
+    },
+    {
+      "name": "fix",
+      "options": [
+        {
+          "default": ".",
+          "flag": false,
+          "help": "Project directory (default: current directory)",
+          "long": "dir",
+          "name": "dir",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": "d",
+          "takes": "path",
+          "value_name": "DIR",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": false,
+          "help": "Only this code's findings: `V01`, `A01`",
+          "long": "code",
+          "name": "code",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "text",
+          "value_name": "CODE",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Write nothing; say what would change",
+          "long": "dry-run",
+          "name": "dry_run",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "DRY_RUN",
+          "values": []
+        }
+      ],
+      "preview": "--dry-run",
+      "summary": "Fix every finding that has a fix — or every one of a code — as `wf check` and the editor offer it, and say what is left",
+      "writes": "the project's source files"
+    },
+    {
+      "name": "explain",
+      "options": [
+        {
+          "default": null,
+          "flag": false,
+          "help": "The code: `T05`, `A01`, `E101`",
+          "long": null,
+          "name": "code",
+          "positional": true,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "text",
+          "value_name": "CODE",
+          "values": []
+        }
+      ],
+      "preview": null,
+      "summary": "What a diagnostic code means, a program that draws it, and the fix; with no code, every code",
+      "writes": ""
+    },
+    {
+      "name": "serve",
+      "options": [
+        {
+          "default": ".",
+          "flag": false,
+          "help": "Project directory (default: current directory)",
+          "long": "dir",
+          "name": "dir",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": "d",
+          "takes": "path",
+          "value_name": "DIR",
+          "values": []
+        }
+      ],
+      "preview": null,
+      "summary": "Start the development server",
+      "writes": "the site, in the output folder, on every save"
+    },
+    {
+      "name": "generate",
+      "options": [
+        {
+          "default": null,
+          "flag": false,
+          "help": "What to generate: page, component, or store",
+          "long": null,
+          "name": "kind",
+          "positional": true,
+          "repeats": false,
+          "required": true,
+          "short": null,
+          "takes": "word",
+          "value_name": "KIND",
+          "values": [
+            "page",
+            "component",
+            "store"
+          ]
+        },
+        {
+          "default": null,
+          "flag": false,
+          "help": "Name of the item to generate",
+          "long": null,
+          "name": "name",
+          "positional": true,
+          "repeats": false,
+          "required": true,
+          "short": null,
+          "takes": "text",
+          "value_name": "NAME",
+          "values": []
+        },
+        {
+          "default": ".",
+          "flag": false,
+          "help": "Project directory (default: current directory)",
+          "long": "dir",
+          "name": "dir",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": "d",
+          "takes": "path",
+          "value_name": "DIR",
+          "values": []
+        }
+      ],
+      "preview": null,
+      "summary": "Generate a new page, component, or store",
+      "writes": "a new source file"
+    },
+    {
+      "name": "render",
+      "options": [
+        {
+          "default": null,
+          "flag": false,
+          "help": "Template file (.wf or .wfx), or a directory: every template under it as one, components shared",
+          "long": null,
+          "name": "template",
+          "positional": true,
+          "repeats": false,
+          "required": true,
+          "short": null,
+          "takes": "path",
+          "value_name": "TEMPLATE",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": false,
+          "help": "JSON data file (reads stdin if omitted)",
+          "long": "data",
+          "name": "data",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "path",
+          "value_name": "DATA",
+          "values": []
+        },
+        {
+          "default": "html",
+          "flag": false,
+          "help": "Output format: \"html\" (default), \"html-fragment\", \"pdf\", or \"slides\"",
+          "long": "format",
+          "name": "format",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": "f",
+          "takes": "word",
+          "value_name": "FORMAT",
+          "values": [
+            "html",
+            "html-fragment",
+            "pdf",
+            "slides"
+          ]
+        },
+        {
+          "default": null,
+          "flag": false,
+          "help": "Output file (stdout if omitted)",
+          "long": "output",
+          "name": "output",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": "o",
+          "takes": "path",
+          "value_name": "OUTPUT",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": false,
+          "help": "Which `Theme` declared in the template to render with. Only needed when the template declares more than one",
+          "long": "theme",
+          "name": "theme",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "text",
+          "value_name": "THEME",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": false,
+          "help": "A design token over the theme's, `NAME=VALUE`; may be given more than once",
+          "long": "token",
+          "name": "tokens",
+          "positional": false,
+          "repeats": true,
+          "required": false,
+          "short": null,
+          "takes": "text",
+          "value_name": "NAME=VALUE",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": false,
+          "help": "The page to render, by name, when the template has several",
+          "long": "page",
+          "name": "page",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "text",
+          "value_name": "PAGE",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": false,
+          "help": "The document's language, `<html lang>` (default `en`)",
+          "long": "lang",
+          "name": "lang",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "text",
+          "value_name": "LANG",
+          "values": []
+        }
+      ],
+      "preview": null,
+      "summary": "Render a .wf template with JSON data",
+      "writes": "the file `--output` names"
+    },
+    {
+      "name": "migrate",
+      "options": [
+        {
+          "default": ".",
+          "flag": false,
+          "help": "Project directory (default: current directory), or one .wf file",
+          "long": null,
+          "name": "path",
+          "positional": true,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "path",
+          "value_name": "PATH",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Report what would change without writing anything",
+          "long": "check",
+          "name": "check",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "CHECK",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Print the migrated text of one file to stdout instead of writing it",
+          "long": "stdout",
+          "name": "stdout",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "STDOUT",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Write the migrated files in the indented layout, as `.wfx`",
+          "long": "wfx",
+          "name": "wfx",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "WFX",
+          "values": []
+        }
+      ],
+      "preview": "--check",
+      "summary": "Carry a project forward: WebFluent 2 sources to the current grammar, then a 3 project to what 4 allows",
+      "writes": "the project's source files"
+    },
+    {
+      "name": "docs",
+      "options": [
+        {
+          "default": ".",
+          "flag": false,
+          "help": "Project directory (default: current directory)",
+          "long": "dir",
+          "name": "dir",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": "d",
+          "takes": "path",
+          "value_name": "DIR",
+          "values": []
+        },
+        {
+          "default": "docs",
+          "flag": false,
+          "help": "Where to write index.html (default: docs/)",
+          "long": "out",
+          "name": "out",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": "o",
+          "takes": "path",
+          "value_name": "OUT",
+          "values": []
+        }
+      ],
+      "preview": null,
+      "summary": "Write a component gallery: every built-in, and what the project declares",
+      "writes": "a gallery, in the folder `--out` names"
+    },
+    {
+      "name": "test",
+      "options": [
+        {
+          "default": ".",
+          "flag": false,
+          "help": "Project directory (default: current directory), or one test file",
+          "long": null,
+          "name": "path",
+          "positional": true,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "path",
+          "value_name": "PATH",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Rewrite every snapshot with the current render",
+          "long": "update",
+          "name": "update",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "UPDATE",
+          "values": []
+        }
+      ],
+      "preview": null,
+      "summary": "Run the project's `test \"…\" { … }` declarations under tests/",
+      "writes": "the snapshots, with `--update`"
+    },
+    {
+      "name": "audit",
+      "options": [
+        {
+          "default": ".",
+          "flag": false,
+          "help": "Project directory (default: current directory)",
+          "long": null,
+          "name": "path",
+          "positional": true,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "path",
+          "value_name": "PATH",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Print JSON, for tools",
+          "long": "json",
+          "name": "json",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "JSON",
+          "values": []
+        }
+      ],
+      "preview": null,
+      "summary": "What this project trusts: markup it did not write, other origins, what it keeps on the reader's machine, its `env` names, its policy and its dependencies",
+      "writes": ""
+    },
+    {
+      "name": "verify",
+      "options": [
+        {
+          "default": ".",
+          "flag": false,
+          "help": "Project directory (default: current directory)",
+          "long": null,
+          "name": "path",
+          "positional": true,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "path",
+          "value_name": "PATH",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Print JSON, for a pipeline",
+          "long": "json",
+          "name": "json",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "JSON",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": false,
+          "help": "Fail a route whose first paint is slower than this, in milliseconds",
+          "long": "budget",
+          "name": "budget",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "number",
+          "value_name": "MS",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Visit every route again as a reader whose storage holds what the previous build's pages kept",
+          "long": "returning-visitor",
+          "name": "returning_visitor",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "RETURNING_VISITOR",
+          "values": []
+        }
+      ],
+      "preview": null,
+      "summary": "Load every page of a built project in a real browser: errors, failed requests, paint timing, and which built-ins it drew",
+      "writes": ""
+    },
+    {
+      "name": "registry",
+      "options": [
+        {
+          "default": null,
+          "flag": true,
+          "help": "Print JSON, for tools",
+          "long": "json",
+          "name": "json",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "JSON",
+          "values": []
+        }
+      ],
+      "preview": null,
+      "summary": "Describe every built-in component: props, cases, flags, events, slots, parts",
+      "writes": ""
+    },
+    {
+      "name": "types",
+      "options": [
+        {
+          "default": ".",
+          "flag": false,
+          "help": "Project directory (default: current directory)",
+          "long": null,
+          "name": "path",
+          "positional": true,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "path",
+          "value_name": "PATH",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Print JSON, for tools",
+          "long": "json",
+          "name": "json",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "JSON",
+          "values": []
+        }
+      ],
+      "preview": null,
+      "summary": "Describe what a project declares: enums, types, components, stores, pages",
+      "writes": ""
+    },
+    {
+      "name": "fmt",
+      "options": [
+        {
+          "default": ".",
+          "flag": false,
+          "help": "Project directory (default: current directory), or one file",
+          "long": null,
+          "name": "path",
+          "positional": true,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "path",
+          "value_name": "PATH",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": false,
+          "help": "Change the layout instead: `wfx` or `wf`",
+          "long": "to",
+          "name": "to",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "word",
+          "value_name": "TO",
+          "values": [
+            "wfx",
+            "wf"
+          ]
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Write nothing; fail when a file is not formatted",
+          "long": "check",
+          "name": "check",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "CHECK",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Print the formatted text to stdout instead of writing it",
+          "long": "stdout",
+          "name": "stdout",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "STDOUT",
+          "values": []
+        }
+      ],
+      "preview": "--check",
+      "summary": "Format a project's source files; with `--to`, rewrite them in the other layout: `.wfx` (blocks by indentation) or `.wf` (blocks in braces)",
+      "writes": "the project's source files"
+    }
+  ]
+}

@@ -46,6 +46,8 @@ struct Cli {
     command: Commands,
 }
 
+// `wf commands` is a command too: its variant is named as it is typed.
+#[allow(clippy::enum_variant_names)]
 #[derive(Subcommand)]
 enum Commands {
     /// Create a new WebFluent project
@@ -53,7 +55,7 @@ enum Commands {
         /// Project name
         name: String,
         /// Template: "spa" (default), "static", "pdf", or "slides"
-        #[arg(short, long, default_value = "spa")]
+        #[arg(short, long, default_value = "spa", value_parser = ["spa", "static", "pdf", "slides"])]
         template: String,
     },
     /// Build the project (compile .wf files to HTML + CSS + JS)
@@ -67,7 +69,7 @@ enum Commands {
         stats: bool,
         /// How findings are written: `human` (default), `json`, `sarif`
         /// (code scanning) or `github` (annotations on a pull request)
-        #[arg(long, default_value = "human")]
+        #[arg(long, default_value = "human", value_parser = format_parser())]
         format: diagnostics::format::Format,
         /// Let a warning stop the build as an error does
         #[arg(long)]
@@ -85,7 +87,7 @@ enum Commands {
         dir: PathBuf,
         /// How findings are written: `human` (default), `json`, `sarif`
         /// (code scanning) or `github` (annotations on a pull request)
-        #[arg(long, default_value = "human")]
+        #[arg(long, default_value = "human", value_parser = format_parser())]
         format: diagnostics::format::Format,
         /// Fail on a warning too
         #[arg(long)]
@@ -96,6 +98,12 @@ enum Commands {
     Config {
         #[command(subcommand)]
         action: ConfigAction,
+    },
+    /// Every `wf` command, its options and what it writes, as data
+    Commands {
+        /// Print JSON, for tools
+        #[arg(long)]
+        json: bool,
     },
     /// Fix every finding that has a fix — or every one of a code — as
     /// `wf check` and the editor offer it, and say what is left
@@ -125,6 +133,7 @@ enum Commands {
     /// Generate a new page, component, or store
     Generate {
         /// What to generate: page, component, or store
+        #[arg(value_parser = ["page", "component", "store"])]
         kind: String,
         /// Name of the item to generate
         name: String,
@@ -141,7 +150,7 @@ enum Commands {
         #[arg(long)]
         data: Option<PathBuf>,
         /// Output format: "html" (default), "html-fragment", "pdf", or "slides"
-        #[arg(short, long, default_value = "html")]
+        #[arg(short, long, default_value = "html", value_parser = ["html", "html-fragment", "pdf", "slides"])]
         format: String,
         /// Output file (stdout if omitted)
         #[arg(short, long)]
@@ -244,7 +253,7 @@ enum Commands {
         #[arg(default_value = ".")]
         path: PathBuf,
         /// Change the layout instead: `wfx` or `wf`
-        #[arg(long)]
+        #[arg(long, value_parser = ["wfx", "wf"])]
         to: Option<String>,
         /// Write nothing; fail when a file is not formatted
         #[arg(long)]
@@ -334,6 +343,18 @@ fn main() {
             }
             ConfigAction::Unset { path, dir } => cli::config::run_set(&dir, &path, None),
         },
+        Commands::Commands { json } => {
+            let data = describe_commands();
+            if json {
+                println!(
+                    "{}",
+                    serde_json::to_string_pretty(&data).unwrap_or_default()
+                );
+            } else {
+                print_commands(&data);
+            }
+            Ok(())
+        }
         Commands::Fix { dir, code, dry_run } => cli::fix::run_fix(&dir, code.as_deref(), dry_run),
         Commands::Explain { code } => cli::explain::run_explain(code.as_deref()),
         Commands::Serve { dir } => cli::serve::run_serve(&dir),
@@ -401,5 +422,153 @@ fn main() {
             _ => eprintln!("{}", e),
         }
         std::process::exit(e.exit_code());
+    }
+}
+
+/// `--format`'s values, said to the command line so they are in its
+/// description, and read as a [`diagnostics::format::Format`].
+fn format_parser() -> impl clap::builder::TypedValueParser<Value = diagnostics::format::Format> {
+    use clap::builder::TypedValueParser;
+    clap::builder::PossibleValuesParser::new(["human", "json", "sarif", "github"]).map(|s| {
+        s.parse::<diagnostics::format::Format>()
+            .expect("one of the four")
+    })
+}
+
+/// Every command of the command line, from its own definition, with what
+/// [`webfluent::commands::EFFECTS`] says each writes: what
+/// `src/commands.json` holds.
+fn describe_commands() -> serde_json::Value {
+    use clap::CommandFactory;
+    fn options(cmd: &clap::Command) -> Vec<serde_json::Value> {
+        cmd.get_arguments()
+            .filter(|a| !matches!(a.get_id().as_str(), "help" | "version"))
+            .map(|a| {
+                let flag = matches!(a.get_action(), clap::ArgAction::SetTrue | clap::ArgAction::SetFalse);
+                let values: Vec<String> = a.get_possible_values().iter().map(|v| v.get_name().to_string()).collect();
+                let defaults: Vec<String> = a.get_default_values().iter().map(|v| v.to_string_lossy().to_string()).collect();
+                // What a control for it takes: read from the type the
+                // command line parses the value into.
+                // clap names the type in how it shows the id.
+                let parsed = format!("{:?}", a.get_value_parser().type_id());
+                let takes = if flag {
+                    "nothing"
+                } else if !values.is_empty() {
+                    "word"
+                } else if ["u8", "u16", "u32", "u64", "usize", "i32", "i64", "f64"].contains(&parsed.as_str()) {
+                    "number"
+                } else if parsed.ends_with("PathBuf") {
+                    "path"
+                } else {
+                    "text"
+                };
+                serde_json::json!({
+                    "name": a.get_id().as_str(),
+                    "takes": takes,
+                    "long": a.get_long(),
+                    "short": a.get_short().map(|c| c.to_string()),
+                    "positional": a.is_positional(),
+                    "flag": flag && values.iter().all(|v| v == "true" || v == "false"),
+                    "repeats": matches!(a.get_action(), clap::ArgAction::Append),
+                    "required": a.is_required_set(),
+                    "value_name": a.get_value_names().and_then(|n| n.first()).map(|n| n.to_string()),
+                    "default": defaults.first(),
+                    "values": if flag { Vec::new() } else { values },
+                    "help": a.get_help().map(|h| h.to_string()).unwrap_or_default(),
+                })
+            })
+            .collect()
+    }
+    fn one(cmd: &clap::Command, path: &str) -> serde_json::Value {
+        let effect = webfluent::commands::effect(path);
+        let mut out = serde_json::json!({
+            "name": cmd.get_name(),
+            "summary": cmd.get_about().map(|h| h.to_string()).unwrap_or_default(),
+            "writes": effect.map(|e| e.writes).unwrap_or(""),
+            "preview": effect.and_then(|e| e.preview),
+            "options": options(cmd),
+        });
+        let subs: Vec<serde_json::Value> = cmd
+            .get_subcommands()
+            .filter(|s| s.get_name() != "help")
+            .map(|s| one(s, &format!("{path} {}", s.get_name())))
+            .collect();
+        if !subs.is_empty() {
+            out["subcommands"] = serde_json::Value::Array(subs);
+        }
+        out
+    }
+    let cli = Cli::command();
+    serde_json::json!({
+        "commands": cli
+            .get_subcommands()
+            .filter(|s| s.get_name() != "help")
+            .map(|s| one(s, s.get_name()))
+            .collect::<Vec<_>>(),
+    })
+}
+
+/// `wf commands`: each command, what it writes, and its options.
+fn print_commands(data: &serde_json::Value) {
+    fn show(c: &serde_json::Value, prefix: &str) {
+        let name = format!("{prefix}{}", c["name"].as_str().unwrap_or(""));
+        if let Some(subs) = c.get("subcommands").and_then(|s| s.as_array()) {
+            for s in subs {
+                show(s, &format!("{name} "));
+            }
+            return;
+        }
+        println!("\nwf {name} — {}", c["summary"].as_str().unwrap_or(""));
+        if let Some(w) = c["writes"].as_str().filter(|w| !w.is_empty()) {
+            let preview = c["preview"]
+                .as_str()
+                .map(|p| format!("; `{p}` shows it first"))
+                .unwrap_or_default();
+            println!("  writes {w}{preview}");
+        }
+        for o in c["options"].as_array().into_iter().flatten() {
+            let spelled = match (o["long"].as_str(), o["positional"].as_bool()) {
+                (Some(long), _) => format!("--{long}"),
+                (None, Some(true)) => format!("<{}>", o["name"].as_str().unwrap_or("")),
+                _ => o["name"].as_str().unwrap_or("").to_string(),
+            };
+            let values = o["values"]
+                .as_array()
+                .filter(|v| !v.is_empty())
+                .map(|v| {
+                    format!(
+                        " ({})",
+                        v.iter()
+                            .filter_map(|x| x.as_str())
+                            .collect::<Vec<_>>()
+                            .join("|")
+                    )
+                })
+                .unwrap_or_default();
+            println!("  {spelled}{values}  {}", o["help"].as_str().unwrap_or(""));
+        }
+    }
+    for c in data["commands"].as_array().into_iter().flatten() {
+        show(c, "");
+    }
+}
+
+#[cfg(test)]
+mod commands_json {
+    /// `src/commands.json` is the command line's own description; it is
+    /// rewritten here when it is stale, and the test fails once so the
+    /// change is seen and committed.
+    #[test]
+    fn the_commands_json_is_current() {
+        let path = concat!(env!("CARGO_MANIFEST_DIR"), "/src/commands.json");
+        let want = format!(
+            "{}\n",
+            serde_json::to_string_pretty(&super::describe_commands()).unwrap()
+        );
+        let have = std::fs::read_to_string(path).unwrap_or_default();
+        if have != want {
+            std::fs::write(path, &want).expect("write commands.json");
+            panic!("src/commands.json was stale; it has been rewritten");
+        }
     }
 }

@@ -35,6 +35,7 @@ told otherwise, and exits non-zero on failure, so each is a CI step as it is.
 | `wf audit [PATH] [--json]` | Lists what the project trusts |
 | `wf docs [-d, --dir DIR] [-o, --out OUT]` | Writes a gallery of every component |
 | `wf registry [--json]` | Describes every built-in |
+| `wf commands [--json]` | Describes every command: its options, what it writes, and how to see it first |
 | `wf types [PATH] [--json]` | Describes what the project declares |
 
 ## Creating and building
@@ -351,6 +352,21 @@ and `WF.store`/`WF.host` were renamed.
 
 
 ## Describing
+
+### `wf commands`
+
+```bash
+wf commands
+wf commands --json
+```
+
+Every command as data: what it does, each option — its flag, what it takes
+(`nothing` for a flag, a `word` from the values it lists, a `number`, a
+`path`, `text`), its default — what the command writes, and the flag that
+shows it first and writes nothing (`fmt --check`, `migrate --check`, `fix
+--dry-run`). A tool page, a palette or a script is built from it rather
+than from a copy of this page; the library has the same, as
+`webfluent::commands`.
 
 ### `wf docs`, `wf registry`, `wf types`
 

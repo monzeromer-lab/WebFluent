@@ -172,6 +172,7 @@ pub mod layout;
 /// and PDF (the [`paged`] engine lays the HTML out on paper).
 pub mod browser;
 pub mod codegen;
+pub mod commands;
 pub mod media;
 pub mod openapi;
 

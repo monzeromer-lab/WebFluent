@@ -441,6 +441,14 @@
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
+<p><code>wf commands [--json]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Describes every command: its options, what it writes, and how to see it first</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
 <p><code>wf types [PATH] [--json]</code></p>
                                             </div>
                                         </td>
@@ -652,6 +660,19 @@
 <p><code>--check</code> writes nothing and tells you what it would do.</p>
                             </div>
                             <h2 class="wf-heading" id="describing">Describing</h2>
+                            <h3 class="wf-heading" id="wf-commands">wf commands</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Every command as data: what it does, each option — its flag, what it takes (<code>nothing</code> for a flag, a <code>word</code> from the values it lists, a <code>number</code>, a <code>path</code>, <code>text</code>), its default — what the command writes, and the flag that shows it first and writes nothing (<code>fmt --check</code>, <code>migrate --check</code>, <code>fix --dry-run</code>). A tool page, a palette or a script is built from it rather than from a copy of this page; the library has the same, as <code>webfluent::commands</code>.</p>
+                            </div>
                             <h3 class="wf-heading" id="wf-docs-wf-registry-wf-types">wf docs, wf registry, wf types</h3>
                             <div class="wf-markdown">
 <p><code>wf docs</code> writes <code>docs/index.html</code> (or <code>-o OUT</code>): a self-contained gallery of every built-in — props, cases, flags, events, slots, parts — and of every component, enum, type, store and page the project declares, with their <code>///</code> docs.</p>
