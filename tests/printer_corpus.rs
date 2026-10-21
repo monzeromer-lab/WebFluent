@@ -124,3 +124,66 @@ fn every_statement_prints_back_as_itself() {
         "{proven} statements"
     );
 }
+
+/// Every declaration of every file, printed whole and put back, and every
+/// file printed from its tree alone, parse to the same tree.
+#[test]
+fn every_declaration_prints_back_as_itself() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let mut files: Vec<PathBuf> = Vec::new();
+    for dir in [
+        "examples",
+        "site",
+        "tests",
+        "editors/tree-sitter-webfluent",
+        "editors/tree-sitter-webfluentx",
+    ] {
+        sources(&root.join(dir), &mut files);
+    }
+    if let Ok(more) = std::env::var("WF_PRINT_CORPUS") {
+        for dir in more.split(':').filter(|d| !d.is_empty()) {
+            sources(Path::new(dir), &mut files);
+        }
+    }
+    let mut proven = 0;
+    let mut failures = Vec::new();
+    for f in &files {
+        let source = std::fs::read_to_string(f).unwrap();
+        match webfluent::print::prove_declarations(&source, &f.to_string_lossy()) {
+            Ok(n) => proven += n,
+            Err(wrong)
+                if wrong.len() == 1
+                    && wrong[0].line == 0
+                    && wrong[0].why.starts_with("the file does not parse") => {}
+            Err(wrong) => {
+                for w in wrong {
+                    failures.push(format!(
+                        "{}:{} — {}\n  written: {}\n  printed: {}",
+                        f.strip_prefix(root).unwrap_or(f).display(),
+                        w.line,
+                        w.why,
+                        w.written.lines().next().unwrap_or(""),
+                        w.printed.lines().next().unwrap_or("")
+                    ));
+                }
+            }
+        }
+    }
+    eprintln!(
+        "{} files, {proven} declarations and files proven, {} not",
+        files.len(),
+        failures.len()
+    );
+    assert!(
+        failures.is_empty(),
+        "{} did not print back as themselves:\n{}",
+        failures.len(),
+        failures
+            .iter()
+            .take(60)
+            .cloned()
+            .collect::<Vec<_>>()
+            .join("\n")
+    );
+    assert!(proven > 1_000, "{proven}");
+}

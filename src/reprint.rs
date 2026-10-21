@@ -11,6 +11,12 @@
 //! piece cannot be addressed by its own span is the node around it printed
 //! whole — an element whose name changed, a block whose shape did.
 //!
+//! The same holds a level up: `program` compares two trees of a file,
+//! declaration by declaration — a component's header, one prop, an event,
+//! a part, its `///`; a page's header and `head { … }`; a type's fields; a
+//! theme's tokens — and adds and removes whole declarations with their
+//! comments and the blank line between them.
+//!
 //! [`crate::edit`] puts this behind its rewrites and holds the result to
 //! the tree the editor asked for.
 
@@ -1125,6 +1131,563 @@ fn diff_style(
     }
 }
 
+// ─── Declarations ────────────────────────────────────────
+
+/// One member of a declaration as the source holds it — a prop, an event,
+/// a field, a token — where it is written (from its `///`), and how it
+/// would be printed now.
+struct Item {
+    start: usize,
+    end: usize,
+    text: String,
+}
+
+/// Where a member written at `start..end` begins: its `///` above it, from
+/// the start of that line, when nothing else is before it on its line.
+fn item_start(source: &str, start: usize) -> usize {
+    let line_start = source[..start].rfind('\n').map_or(0, |n| n + 1);
+    if source[line_start..start].trim().is_empty() {
+        print::doc_start(source, start)
+    } else {
+        start
+    }
+}
+
+/// What turns the members `old` into `new` (each new one already printed,
+/// its `///` with it, at `depth`). A new member with nothing before it goes
+/// at `front` — right after a block's `{`.
+fn diff_items(
+    source: &str,
+    old: &[Item],
+    new: &[String],
+    front: usize,
+    depth: usize,
+    out: &mut Vec<Patch>,
+) {
+    let olds: Vec<&str> = old.iter().map(|i| i.text.as_str()).collect();
+    let news: Vec<&str> = new.iter().map(String::as_str).collect();
+    let pairs = lcs_by(&olds, &news);
+    let (mut oi, mut ni) = (0, 0);
+    let mut anchor: Option<usize> = None;
+    let line = |text: &str| format!("\n{}", indent_text(text, depth));
+    for &(om, nm) in pairs.iter().chain(std::iter::once(&(old.len(), new.len()))) {
+        let og = &old[oi..om];
+        let ng = &new[ni..nm];
+        let paired = og.len().min(ng.len());
+        for k in 0..paired {
+            let o = &og[k];
+            let at_line_start = o.start == 0 || source.as_bytes()[o.start - 1] == b'\n';
+            let text = if at_line_start {
+                indent_text(&ng[k], depth)
+            } else {
+                ng[k].trim_start().to_string()
+            };
+            out.push(Patch::new(o.start, o.end, text));
+            anchor = Some(o.end);
+        }
+        for o in &og[paired..] {
+            out.push(removal(source, o.start, o.end));
+        }
+        if ng.len() > paired {
+            let at = end_of_line(source, anchor.unwrap_or(front));
+            let text: String = ng[paired..].iter().map(|t| line(t)).collect();
+            out.push(Patch::new(at, at, text));
+        }
+        if om < old.len() {
+            anchor = Some(old[om].end);
+        }
+        oi = om + 1;
+        ni = nm + 1;
+    }
+}
+
+/// `text`, whose lines after the first are already at `depth` (as the
+/// printer writes them), with its first line — and a `///` before it — at
+/// `depth` too.
+fn indent_text(text: &str, depth: usize) -> String {
+    let mut out = String::new();
+    for (i, l) in text.split('\n').enumerate() {
+        if i > 0 {
+            out.push('\n');
+        }
+        if i == 0 || l.trim_start().starts_with("///") && !l.starts_with(&pad(depth)) {
+            out.push_str(&pad(depth));
+            out.push_str(l.trim_start());
+        } else {
+            out.push_str(l);
+        }
+    }
+    out
+}
+
+fn lcs_by(a: &[&str], b: &[&str]) -> Vec<(usize, usize)> {
+    let (n, m) = (a.len(), b.len());
+    let mut table = vec![vec![0u32; m + 1]; n + 1];
+    for i in (0..n).rev() {
+        for j in (0..m).rev() {
+            table[i][j] = if a[i] == b[j] {
+                table[i + 1][j + 1] + 1
+            } else {
+                table[i + 1][j].max(table[i][j + 1])
+            };
+        }
+    }
+    let mut out = Vec::new();
+    let (mut i, mut j) = (0, 0);
+    while i < n && j < m {
+        if a[i] == b[j] {
+            out.push((i, j));
+            i += 1;
+            j += 1;
+        } else if table[i + 1][j] >= table[i][j + 1] {
+            i += 1;
+        } else {
+            j += 1;
+        }
+    }
+    out
+}
+
+fn with_doc(doc: &Option<String>, text: &str, depth: usize) -> String {
+    print::documented(doc, text, depth)
+}
+
+fn parts_of<'a>(program: &'a Program, owner: &str) -> Vec<&'a ComponentDecl> {
+    program
+        .declarations
+        .iter()
+        .filter_map(|d| match d {
+            Declaration::Component(c)
+                if c.name.rsplit_once('.').is_some_and(|(o, _)| o == owner) =>
+            {
+                Some(c)
+            }
+            _ => None,
+        })
+        .collect()
+}
+
+/// What a declaration is as a whole: its own shape, and its parts'.
+fn declaration_key(d: &Declaration, program: &Program) -> String {
+    let mut key = shape_of(d);
+    if let Declaration::Component(c) = d {
+        for p in parts_of(program, &c.name) {
+            key.push_str(&shape_of(p));
+        }
+    }
+    key
+}
+
+/// The declarations of a file, as a reader of the file sees them: a part is
+/// its component's, and a project script is not source.
+fn top_level(program: &Program) -> Vec<&Declaration> {
+    program
+        .declarations
+        .iter()
+        .filter(|d| {
+            !matches!(d, Declaration::Component(c) if c.name.contains('.'))
+                && !matches!(d, Declaration::Script(_))
+        })
+        .collect()
+}
+
+/// What turns a file whose tree is `old` into one whose tree is `new`: a
+/// declaration added after the one before it, one removed with its `///`
+/// and the blank line after it, and one changed in the narrowest piece
+/// that says so.
+pub fn program(source: &str, old: &Program, new: &Program) -> Vec<Patch> {
+    let mut out = Vec::new();
+    let a = top_level(old);
+    let b = top_level(new);
+    let ka: Vec<String> = a.iter().map(|d| declaration_key(d, old)).collect();
+    let kb: Vec<String> = b.iter().map(|d| declaration_key(d, new)).collect();
+    let ra: Vec<&str> = ka.iter().map(String::as_str).collect();
+    let rb: Vec<&str> = kb.iter().map(String::as_str).collect();
+    let pairs = lcs_by(&ra, &rb);
+    let (mut oi, mut ni) = (0, 0);
+    let mut anchor: Option<usize> = None;
+    let mut front: Vec<String> = Vec::new();
+    for &(om, nm) in pairs.iter().chain(std::iter::once(&(a.len(), b.len()))) {
+        let og = &a[oi..om];
+        let ng = &b[ni..nm];
+        let paired = og.len().min(ng.len());
+        for k in 0..paired {
+            if !diff_declaration(source, og[k], ng[k], old, new, &mut out)
+                && let Some((s, e)) = print::declaration_span(source, og[k])
+            {
+                out.push(Patch::new(s, e, print::declaration(ng[k], new)));
+            }
+            anchor = print::declaration_span(source, og[k])
+                .map(|s| s.1)
+                .or(anchor);
+        }
+        for o in &og[paired..] {
+            if let Some((s, e)) = print::declaration_span(source, o) {
+                // The declaration, and the blank line that set it apart.
+                let mut p = removal(source, s, e);
+                if source[p.end..].starts_with('\n') {
+                    p.end += 1;
+                } else if p.start > 0 && source[..p.start].ends_with("\n\n") {
+                    p.start -= 1;
+                }
+                out.push(p);
+            }
+        }
+        let texts: Vec<String> = ng[paired..]
+            .iter()
+            .map(|d| print::declaration(d, new))
+            .collect();
+        if !texts.is_empty() {
+            match anchor {
+                Some(at) => {
+                    let text: String = texts.iter().map(|t| format!("\n\n{t}")).collect();
+                    out.push(Patch::new(at, at, text));
+                }
+                None => front.extend(texts),
+            }
+        }
+        if om < a.len() {
+            anchor = print::declaration_span(source, a[om])
+                .map(|s| s.1)
+                .or(anchor);
+        }
+        oi = om + 1;
+        ni = nm + 1;
+    }
+    if !front.is_empty() {
+        let first = a
+            .iter()
+            .find_map(|d| print::declaration_span(source, d))
+            .map(|s| s.0);
+        match first {
+            Some(at) => out.push(Patch::new(at, at, format!("{}\n\n", front.join("\n\n")))),
+            None => {
+                let sep = if source.trim().is_empty() { "" } else { "\n\n" };
+                let at = source.trim_end().len();
+                out.push(Patch::new(
+                    at,
+                    source.len(),
+                    format!("{sep}{}\n", front.join("\n\n")),
+                ));
+            }
+        }
+    }
+    out
+}
+
+/// A declaration changed in place: its `///`, its header, its members and
+/// its body each compared on their own. `false` when it must be printed
+/// whole.
+fn diff_declaration(
+    source: &str,
+    a: &Declaration,
+    b: &Declaration,
+    pa: &Program,
+    pb: &Program,
+    out: &mut Vec<Patch>,
+) -> bool {
+    let before = out.len();
+    let done = match (a, b) {
+        (Declaration::Component(x), Declaration::Component(y)) => {
+            diff_component(source, x, y, pa, pb, out)
+        }
+        (Declaration::Page(x), Declaration::Page(y)) => diff_page(source, x, y, out),
+        (Declaration::Store(x), Declaration::Store(y)) => {
+            if print::store_header(x) != print::store_header(y) {
+                out.push(Patch::new(
+                    x.header_span.start as usize,
+                    x.header_span.end as usize,
+                    print::store_header(y),
+                ));
+            }
+            diff_body(
+                source,
+                &x.body,
+                &y.body,
+                (x.body_span.start as usize, x.body_span.end as usize),
+                Block::Render,
+                depth_at(source, x.span.start as usize) + 1,
+                out,
+            );
+            true
+        }
+        (Declaration::Type(x), Declaration::Type(y)) => {
+            if !same(&x.doc, &y.doc) {
+                diff_doc(source, x.span.start as usize, &y.doc, out);
+            }
+            if print::type_header(x) != print::type_header(y) {
+                out.push(Patch::new(
+                    x.header_span.start as usize,
+                    x.header_span.end as usize,
+                    print::type_header(y),
+                ));
+            }
+            let (s, e) = (x.span.start as usize, x.span.end as usize);
+            match blocks_in(source, s, e).first() {
+                Some(&(open, _)) => {
+                    let depth = depth_at(source, s) + 1;
+                    let old: Vec<Item> = x
+                        .fields
+                        .iter()
+                        .map(|f| Item {
+                            start: item_start(source, f.span.start as usize),
+                            end: f.span.end as usize,
+                            text: with_doc(&f.doc, &print::field(f), depth),
+                        })
+                        .collect();
+                    let new: Vec<String> = y
+                        .fields
+                        .iter()
+                        .map(|f| with_doc(&f.doc, &print::field(f), depth))
+                        .collect();
+                    diff_items(source, &old, &new, open + 1, depth, out);
+                    true
+                }
+                None => false,
+            }
+        }
+        (Declaration::Theme(x), Declaration::Theme(y)) if x.name == y.name => {
+            let (s, e) = (x.span.start as usize, x.span.end as usize);
+            match blocks_in(source, s, e).first() {
+                Some(&(open, _)) => {
+                    let depth = depth_at(source, s) + 1;
+                    let old: Vec<Item> = x
+                        .tokens
+                        .iter()
+                        .map(|t| Item {
+                            start: item_start(source, t.span.start as usize),
+                            end: t.span.end as usize,
+                            text: print::token(t),
+                        })
+                        .collect();
+                    let new: Vec<String> = y.tokens.iter().map(print::token).collect();
+                    diff_items(source, &old, &new, open + 1, depth, out);
+                    true
+                }
+                None => false,
+            }
+        }
+        _ => false,
+    };
+    if !done {
+        out.truncate(before);
+    }
+    done
+}
+
+/// The `///` above the declaration at `start` made `doc`.
+fn diff_doc(source: &str, start: usize, doc: &Option<String>, out: &mut Vec<Patch>) {
+    let line_start = source[..start].rfind('\n').map_or(0, |n| n + 1);
+    let from = print::doc_start(source, start);
+    out.push(Patch::new(
+        from,
+        line_start,
+        print::doc(doc, depth_at(source, start)),
+    ));
+}
+
+fn diff_component(
+    source: &str,
+    x: &ComponentDecl,
+    y: &ComponentDecl,
+    pa: &Program,
+    pb: &Program,
+    out: &mut Vec<Patch>,
+) -> bool {
+    if x.name != y.name {
+        return false;
+    }
+    let start = x.span.start as usize;
+    let depth = depth_at(source, start);
+    if !same(&x.doc, &y.doc) {
+        diff_doc(source, start, &y.doc, out);
+    }
+    // The header: one prop at a time where the list is the same props,
+    // each with the `///` it had; otherwise the header again.
+    if !same(&x.props, &y.props) {
+        let aligned = x.props.len() == y.props.len()
+            && x.props
+                .iter()
+                .zip(&y.props)
+                .all(|(p, q)| p.name == q.name && p.doc == q.doc);
+        if aligned {
+            for (p, q) in x.props.iter().zip(&y.props) {
+                if !same(p, q) {
+                    out.push(Patch::new(
+                        p.span.start as usize,
+                        p.span.end as usize,
+                        print::prop(q),
+                    ));
+                }
+            }
+        } else {
+            out.push(Patch::new(
+                x.header_span.start as usize,
+                x.header_span.end as usize,
+                print::component_header(y, depth),
+            ));
+        }
+    }
+    let interior = (x.body_span.start as usize, x.body_span.end as usize);
+    let inner = depth + 1;
+    // The events, the slots and the parts, each a list of its own.
+    let events_old: Vec<Item> = x
+        .events
+        .iter()
+        .map(|e| Item {
+            start: item_start(source, e.span.start as usize),
+            end: e.span.end as usize,
+            text: with_doc(&e.doc, &print::event_decl(e), inner),
+        })
+        .collect();
+    let events_new: Vec<String> = y
+        .events
+        .iter()
+        .map(|e| with_doc(&e.doc, &print::event_decl(e), inner))
+        .collect();
+    if events_old
+        .iter()
+        .map(|i| i.text.as_str())
+        .ne(events_new.iter().map(String::as_str))
+    {
+        diff_items(source, &events_old, &events_new, interior.0, inner, out);
+    }
+    let slots_old: Vec<Item> = x
+        .slots
+        .iter()
+        .map(|s| Item {
+            start: s.span.start as usize,
+            end: s.span.end as usize,
+            text: print::slot_decl(s),
+        })
+        .collect();
+    let slots_new: Vec<String> = y.slots.iter().map(print::slot_decl).collect();
+    if slots_old
+        .iter()
+        .map(|i| i.text.as_str())
+        .ne(slots_new.iter().map(String::as_str))
+    {
+        let front = events_old.last().map(|i| i.end).unwrap_or(interior.0);
+        diff_items(source, &slots_old, &slots_new, front, inner, out);
+    }
+    let parts_a = parts_of(pa, &x.name);
+    let parts_b = parts_of(pb, &y.name);
+    let part_text =
+        |p: &ComponentDecl| with_doc(&p.doc, &print::component_decl(p, &[], inner), inner);
+    let parts_old: Vec<Item> = x
+        .parts
+        .iter()
+        .filter_map(|n| parts_a.iter().find(|p| p.name == format!("{}.{n}", x.name)))
+        .map(|p| Item {
+            start: item_start(source, p.span.start as usize),
+            end: p.span.end as usize,
+            text: part_text(p),
+        })
+        .collect();
+    let parts_new: Vec<String> = y
+        .parts
+        .iter()
+        .filter_map(|n| parts_b.iter().find(|p| p.name == format!("{}.{n}", y.name)))
+        .map(|p| part_text(p))
+        .collect();
+    if parts_old
+        .iter()
+        .map(|i| i.text.as_str())
+        .ne(parts_new.iter().map(String::as_str))
+    {
+        let front = slots_old
+            .last()
+            .map(|i| i.end)
+            .or(events_old.last().map(|i| i.end))
+            .unwrap_or(interior.0);
+        diff_items(source, &parts_old, &parts_new, front, inner, out);
+    }
+    diff_body(
+        source,
+        &x.body,
+        &y.body,
+        interior,
+        Block::Render,
+        inner,
+        out,
+    );
+    true
+}
+
+fn diff_page(source: &str, x: &PageDecl, y: &PageDecl, out: &mut Vec<Patch>) -> bool {
+    if print::page_header(x) != print::page_header(y) {
+        out.push(Patch::new(
+            x.header_span.start as usize,
+            x.header_span.end as usize,
+            print::page_header(y),
+        ));
+    }
+    let interior = (x.body_span.start as usize, x.body_span.end as usize);
+    let depth = depth_at(source, x.span.start as usize) + 1;
+    if !same(&x.head, &y.head) {
+        let tag = |t: &HeadTag| {
+            format!(
+                "{}({})",
+                t.tag,
+                t.attrs
+                    .iter()
+                    .map(|(k, v)| format!("{k}: {}", print::expr(v)))
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            )
+        };
+        if x.head.is_empty() {
+            // A head where there was none: first in the body.
+            let tags: Vec<String> = y.head.iter().map(tag).collect();
+            let block = format!(
+                "head {{\n{}\n{}}}",
+                tags.iter()
+                    .map(|t| format!("{}{t}", pad(depth + 1)))
+                    .collect::<Vec<_>>()
+                    .join("\n"),
+                pad(depth)
+            );
+            let at = end_of_line(source, interior.0);
+            out.push(Patch::new(at, at, format!("\n{}{block}", pad(depth))));
+        } else {
+            // The `{ … }` the tags are in.
+            let first = x.head[0].span.start as usize;
+            let Some(word) = source[interior.0..first].rfind("head") else {
+                return false;
+            };
+            let head_start = interior.0 + word;
+            let Some(&(open, close)) = blocks_in(source, head_start, interior.1).first() else {
+                return false;
+            };
+            if y.head.is_empty() {
+                out.push(removal(source, head_start, close + 1));
+            } else {
+                let old: Vec<Item> = x
+                    .head
+                    .iter()
+                    .map(|t| Item {
+                        start: t.span.start as usize,
+                        end: t.span.end as usize,
+                        text: tag(t),
+                    })
+                    .collect();
+                let new: Vec<String> = y.head.iter().map(tag).collect();
+                diff_items(source, &old, &new, open + 1, depth + 1, out);
+            }
+        }
+    }
+    diff_body(
+        source,
+        &x.body,
+        &y.body,
+        interior,
+        Block::Render,
+        depth,
+        out,
+    );
+    true
+}
+
 #[cfg(test)]
 mod tests {
     use crate::edit::{rewrite_body, rewrite_element, rewrite_statement};
@@ -1351,5 +1914,208 @@ mod tests {
         assert!(refused.is_err());
         let refused = rewrite_element(PAGE, "t.wf", "Home:9.9", |_| {});
         assert!(refused.unwrap_err().to_string().contains("unknown node id"));
+    }
+
+    const FILE: &str = r#"// Cards, and what they show.
+
+/// A card.
+component Card(_ title: String,   tone: String = "calm") {
+    event opened
+
+    Stack {
+        Text(title)   // the title
+    }
+}
+
+theme Brand {
+    color-primary: #0F766E
+    radius-md: 14px
+}
+
+const LIMIT = 10
+"#;
+
+    use crate::edit::{rewrite_declaration, rewrite_program};
+
+    fn card(d: &mut Declaration) -> &mut ComponentDecl {
+        match d {
+            Declaration::Component(c) => c,
+            _ => panic!("a component"),
+        }
+    }
+
+    #[test]
+    fn a_prop_changes_in_its_own_place() {
+        let out = rewrite_declaration(FILE, "t.wf", "Card", |d| {
+            card(d).props[1].default = Some(Expr::StringLiteral("loud".into()));
+        })
+        .unwrap();
+        assert_eq!(
+            out,
+            FILE.replace("tone: String = \"calm\"", "tone: String = \"loud\"")
+        );
+        let out = rewrite_declaration(FILE, "t.wf", "Card", |d| {
+            let mut p = card(d).props[1].clone();
+            p.name = "size".into();
+            p.default = None;
+            card(d).props.push(p);
+        })
+        .unwrap();
+        // A prop added is the header again; the rest of the file as it was.
+        assert_eq!(
+            out,
+            FILE.replace(
+                "component Card(_ title: String,   tone: String = \"calm\")",
+                "component Card(_ title: String, tone: String = \"calm\", size: String)"
+            )
+        );
+    }
+
+    #[test]
+    fn an_event_and_its_doc_go_after_the_last() {
+        let out = rewrite_declaration(FILE, "t.wf", "Card", |d| {
+            card(d).events.push(EventDecl {
+                name: "picked".into(),
+                params: vec![ParamDecl {
+                    name: "id".into(),
+                    param_type: TypeRef::String,
+                }],
+                doc: Some("When one is picked.".into()),
+                span: Span::dummy(),
+            });
+        })
+        .unwrap();
+        assert_eq!(
+            out,
+            FILE.replace(
+                "    event opened\n",
+                "    event opened\n    /// When one is picked.\n    event picked(id: String)\n"
+            )
+        );
+    }
+
+    #[test]
+    fn a_doc_is_written_above_and_replaced_where_it_is() {
+        let out = rewrite_declaration(FILE, "t.wf", "Card", |d| {
+            card(d).doc = Some("A card.\n\nIt shows one thing.".into());
+        })
+        .unwrap();
+        assert_eq!(
+            out,
+            FILE.replace(
+                "/// A card.\n",
+                "/// A card.\n///\n/// It shows one thing.\n"
+            )
+        );
+        let out = rewrite_declaration(FILE, "t.wf", "Card", |d| card(d).doc = None).unwrap();
+        assert_eq!(out, FILE.replace("/// A card.\n", ""));
+    }
+
+    #[test]
+    fn a_part_is_declared_in_its_component() {
+        let out = rewrite_program(FILE, "t.wf", |p| {
+            let mut part = match &p.declarations[0] {
+                Declaration::Component(c) => c.clone(),
+                _ => unreachable!(),
+            };
+            part.name = "Card.Header".into();
+            part.props.truncate(1);
+            part.events.clear();
+            part.doc = None;
+            part.body = Vec::new();
+            card(&mut p.declarations[0]).parts.push("Header".into());
+            p.declarations.insert(1, Declaration::Component(part));
+        })
+        .unwrap();
+        assert_eq!(
+            out,
+            FILE.replace(
+                "    event opened\n",
+                "    event opened\n    part Header(_ title: String) {}\n"
+            )
+        );
+    }
+
+    #[test]
+    fn a_declaration_comes_and_goes_with_its_doc_and_blank_line() {
+        let out = rewrite_program(FILE, "t.wf", |p| {
+            p.declarations
+                .retain(|d| !matches!(d, Declaration::Theme(_)));
+        })
+        .unwrap();
+        assert_eq!(
+            out,
+            FILE.replace(
+                "theme Brand {\n    color-primary: #0F766E\n    radius-md: 14px\n}\n\n",
+                ""
+            )
+        );
+        let out = rewrite_program(FILE, "t.wf", |p| {
+            p.declarations
+                .retain(|d| !matches!(d, Declaration::Component(_)));
+        })
+        .unwrap();
+        assert!(
+            out.starts_with("// Cards, and what they show.\n\ntheme Brand {"),
+            "{out}"
+        );
+        let out = rewrite_program(FILE, "t.wf", |p| {
+            p.declarations.push(Declaration::Const(ConstDecl {
+                name: "PAGE".into(),
+                ty: None,
+                value: Expr::NumberLiteral(20.0),
+                doc: Some("How many a page shows.".into()),
+                span: Span::dummy(),
+            }));
+        })
+        .unwrap();
+        assert_eq!(
+            out,
+            format!("{FILE}\n/// How many a page shows.\nconst PAGE = 20\n")
+                .replace("const LIMIT = 10\n\n", "const LIMIT = 10\n\n")
+        );
+    }
+
+    #[test]
+    fn a_token_changes_in_its_own_place() {
+        let out = rewrite_declaration(FILE, "t.wf", "Brand", |d| {
+            let Declaration::Theme(t) = d else { panic!() };
+            t.tokens[1].value = Expr::StringLiteral("8px".into());
+        })
+        .unwrap();
+        assert_eq!(out, FILE.replace("radius-md: 14px", "radius-md: 8px"));
+    }
+
+    #[test]
+    fn a_page_gains_a_head_and_loses_it() {
+        let src = "page Home(path: \"/\", title: \"Home\") {\n    Text(\"Hi\")\n}\n";
+        let out = rewrite_declaration(src, "t.wf", "Home", |d| {
+            let Declaration::Page(p) = d else { panic!() };
+            p.head.push(HeadTag {
+                tag: "meta".into(),
+                attrs: vec![
+                    ("name".into(), Expr::StringLiteral("theme-color".into())),
+                    ("content".into(), Expr::StringLiteral("#fff".into())),
+                ],
+                span: Span::dummy(),
+            });
+        })
+        .unwrap();
+        assert_eq!(
+            out,
+            "page Home(path: \"/\", title: \"Home\") {\n    head {\n        meta(name: \"theme-color\", content: \"#fff\")\n    }\n    Text(\"Hi\")\n}\n"
+        );
+        let back = rewrite_declaration(&out, "t.wf", "Home", |d| {
+            let Declaration::Page(p) = d else { panic!() };
+            p.head.clear();
+        })
+        .unwrap();
+        assert_eq!(back, src);
+        let titled = rewrite_declaration(src, "t.wf", "Home", |d| {
+            let Declaration::Page(p) = d else { panic!() };
+            p.title = Some("Start".into());
+        })
+        .unwrap();
+        assert_eq!(titled, src.replace("title: \"Home\"", "title: \"Start\""));
     }
 }

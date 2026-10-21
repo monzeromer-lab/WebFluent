@@ -309,6 +309,209 @@ fn prove_file(path: &Path, root: &Path) -> Tally {
             });
             check(&mut t, &file, "a head", line, &source, r, (start, open));
         }
+        // Every declaration: changed in its header, its members, its
+        // `///`; taken out; and one added after the last.
+        let identity = webfluent::edit::rewrite_program(&source, &name, |_| {});
+        t.edits += 1;
+        match identity {
+            Ok(out) if out == source => {}
+            Ok(_) => t
+                .failures
+                .push(format!("{file} the file, nothing changed, but bytes moved")),
+            Err(e) => t
+                .failures
+                .push(format!("{file} the file, nothing changed: {e}")),
+        }
+        let end_of_last = program
+            .declarations
+            .iter()
+            .filter_map(|d| webfluent::print::declaration_span(&source, d))
+            .map(|s| s.1)
+            .max()
+            .unwrap_or(0);
+        let r = webfluent::edit::rewrite_program(&source, &name, |p| {
+            p.declarations.push(Declaration::Const(ConstDecl {
+                name: "ADDED".into(),
+                ty: None,
+                value: text("x"),
+                doc: Some("Added.".into()),
+                span: Span::dummy(),
+            }))
+        });
+        check(
+            &mut t,
+            &file,
+            "a declaration added",
+            0,
+            &source,
+            r,
+            (end_of_last, source.len()),
+        );
+        for d in &program.declarations {
+            let Some(dname) = webfluent::edit::declaration_name(d).map(str::to_string) else {
+                continue;
+            };
+            if program
+                .declarations
+                .iter()
+                .filter(|x| webfluent::edit::declaration_name(x) == Some(dname.as_str()))
+                .count()
+                > 1
+            {
+                continue;
+            }
+            let Some((ds, de)) = webfluent::print::declaration_span(&source, d) else {
+                continue;
+            };
+            let line = source[..ds].matches('\n').count() as u32 + 1;
+            match d {
+                Declaration::Component(c) if !c.name.contains('.') => {
+                    let header = (c.header_span.start as usize, c.header_span.end as usize);
+                    let r = webfluent::edit::rewrite_declaration(&source, &name, &dname, |d| {
+                        if let Declaration::Component(c) = d {
+                            c.props.push(PropDecl {
+                                name: "zz".into(),
+                                prop_type: TypeRef::String,
+                                optional: false,
+                                default: Some(text("x")),
+                                positional: false,
+                                doc: None,
+                                span: Span::dummy(),
+                            });
+                        }
+                    });
+                    check(&mut t, &file, "a prop added", line, &source, r, header);
+                    if let Some(first) = c.props.first().filter(|p| p.doc.is_none()) {
+                        let r = webfluent::edit::rewrite_declaration(&source, &name, &dname, |d| {
+                            if let Declaration::Component(c) = d {
+                                c.props[0].default = Some(text("changed"));
+                            }
+                        });
+                        check(
+                            &mut t,
+                            &file,
+                            "a prop's default",
+                            line,
+                            &source,
+                            r,
+                            (first.span.start as usize, first.span.end as usize),
+                        );
+                    }
+                    let r = webfluent::edit::rewrite_declaration(&source, &name, &dname, |d| {
+                        if let Declaration::Component(c) = d {
+                            c.doc = Some("What it is.\n\nAnd more.".into());
+                        }
+                    });
+                    check(
+                        &mut t,
+                        &file,
+                        "a component's doc",
+                        line,
+                        &source,
+                        r,
+                        (ds, c.span.start as usize),
+                    );
+                    let r = webfluent::edit::rewrite_declaration(&source, &name, &dname, |d| {
+                        if let Declaration::Component(c) = d {
+                            c.events.push(EventDecl {
+                                name: "picked".into(),
+                                params: vec![ParamDecl {
+                                    name: "id".into(),
+                                    param_type: TypeRef::String,
+                                }],
+                                doc: Some("When one is picked.".into()),
+                                span: Span::dummy(),
+                            });
+                        }
+                    });
+                    check(
+                        &mut t,
+                        &file,
+                        "an event added",
+                        line,
+                        &source,
+                        r,
+                        (c.body_span.start as usize, c.body_span.end as usize),
+                    );
+                }
+                Declaration::Page(p) => {
+                    let r = webfluent::edit::rewrite_declaration(&source, &name, &dname, |d| {
+                        if let Declaration::Page(p) = d {
+                            p.title = Some("Changed".into());
+                            p.title_expr = None;
+                        }
+                    });
+                    check(
+                        &mut t,
+                        &file,
+                        "a page's title",
+                        line,
+                        &source,
+                        r,
+                        (p.header_span.start as usize, p.header_span.end as usize),
+                    );
+                }
+                Declaration::Type(ty) => {
+                    let r = webfluent::edit::rewrite_declaration(&source, &name, &dname, |d| {
+                        if let Declaration::Type(t) = d {
+                            t.fields.push(FieldDecl {
+                                name: "added".into(),
+                                ty: TypeRef::Optional(Box::new(TypeRef::String)),
+                                default: None,
+                                doc: None,
+                                span: Span::dummy(),
+                            });
+                        }
+                    });
+                    check(
+                        &mut t,
+                        &file,
+                        "a field added",
+                        line,
+                        &source,
+                        r,
+                        (ty.span.start as usize, ty.span.end as usize),
+                    );
+                }
+                Declaration::Theme(th) if !th.tokens.is_empty() => {
+                    let tok = &th.tokens[0];
+                    let r = webfluent::edit::rewrite_declaration(&source, &name, &dname, |d| {
+                        if let Declaration::Theme(t) = d {
+                            t.tokens[0].value = text("1px");
+                        }
+                    });
+                    check(
+                        &mut t,
+                        &file,
+                        "a token's value",
+                        line,
+                        &source,
+                        r,
+                        (tok.span.start as usize, tok.span.end as usize),
+                    );
+                }
+                _ => {}
+            }
+            if matches!(d, Declaration::Component(c) if c.name.contains('.')) {
+                continue;
+            }
+            let r = webfluent::edit::rewrite_program(&source, &name, |p| {
+                p.declarations
+                    .retain(|x| webfluent::edit::declaration_name(x) != Some(dname.as_str()))
+            });
+            // Its own lines, and a blank line beside them.
+            let from = source[..ds].trim_end_matches(['\n', ' ']).len();
+            let to = de + source[de..].len() - source[de..].trim_start_matches(['\n', ' ']).len();
+            check(
+                &mut t,
+                &file,
+                "a declaration taken out",
+                line,
+                &source,
+                r,
+                (from, to),
+            );
+        }
         // Every page's body.
         for d in &program.declarations {
             let (Declaration::Page(PageDecl { name: n, body, .. })

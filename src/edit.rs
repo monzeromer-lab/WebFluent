@@ -26,6 +26,9 @@
 //! or wrapped in an `if` — and the smallest edit that says so is worked out
 //! ([`crate::reprint`]) and printed from the tree ([`crate::print`]). What
 //! is written must read back as the tree that was asked for, or nothing is.
+//! [`rewrite_declaration`] and [`rewrite_program`] do the same for a
+//! declaration — a component's props, events, slots, parts and `///` — and
+//! for the declarations of a file, added or taken out.
 //!
 //! Node ids are per source version: structural paths (`Home:2.0.3`) that a
 //! change of a sibling shifts, and that `wf migrate` keeps where the
@@ -1007,6 +1010,73 @@ pub fn rewrite_body(
             crate::print::Block::Render,
         );
         written_as(braced, patches, &expected)
+    })
+}
+
+/// Change the file's declarations with `change` — add one, take one out,
+/// change one's header, its props, its events, its `///` — and write the
+/// smallest edit that says so: a declaration changed in its narrowest
+/// piece, one added after the one before it, one removed with its comment
+/// and the blank line after it. Held to the tree as [`rewrite_element`] is.
+pub fn rewrite_program(
+    source: &str,
+    file: &str,
+    change: impl FnOnce(&mut Program),
+) -> Result<String> {
+    in_braces(source, file, |braced| {
+        let program = parse_program(braced)?;
+        let mut expected = program.clone();
+        change(&mut expected);
+        let patches = crate::reprint::program(braced, &program, &expected);
+        written_as(braced, patches, &expected)
+    })
+}
+
+/// Change the declaration called `name` — a page, a component or one of
+/// its parts (`Card.Header`), a store, a type, an enum, a theme, a
+/// constant, an `api` — with `change`, as [`rewrite_program`] writes it.
+pub fn rewrite_declaration(
+    source: &str,
+    file: &str,
+    name: &str,
+    change: impl FnOnce(&mut Declaration),
+) -> Result<String> {
+    let mut change = Some(change);
+    let mut found = false;
+    let result = rewrite_program(source, file, |program| {
+        if let Some(d) = program
+            .declarations
+            .iter_mut()
+            .find(|d| declaration_name(d) == Some(name))
+        {
+            found = true;
+            if let Some(change) = change.take() {
+                change(d);
+            }
+        }
+    });
+    if !found {
+        return Err(edit_err(format!("nothing is declared as '{name}'")));
+    }
+    result
+}
+
+/// What a declaration is called, when it is called something.
+pub fn declaration_name(d: &Declaration) -> Option<&str> {
+    Some(match d {
+        Declaration::Page(p) => &p.name,
+        Declaration::Component(c) => &c.name,
+        Declaration::Store(s) => &s.name,
+        Declaration::Theme(t) => &t.name,
+        Declaration::Type(t) => &t.name,
+        Declaration::Enum(e) => &e.name,
+        Declaration::Const(c) => &c.name,
+        Declaration::Data(x) => &x.name,
+        Declaration::Animation(a) => &a.name,
+        Declaration::Api(a) => &a.name,
+        Declaration::Test(t) => &t.name,
+        Declaration::App(_) => "app",
+        Declaration::Script(_) => return None,
     })
 }
 

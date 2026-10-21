@@ -1,6 +1,8 @@
 //! The tree written back as source: an expression, an argument, an element,
-//! a statement, a type — what an editor that changes one node writes in
-//! that node's place, and nothing else.
+//! a statement, a type, a declaration — a component with its props, events,
+//! slots, parts and `///`, a page, a store, an `api` — and a whole file:
+//! what an editor that changes one node writes in that node's place, and
+//! what it writes for a file it makes.
 //!
 //! What this prints parses back to the same tree. That is the whole
 //! contract, and `tests/printer_corpus.rs` holds every statement of every
@@ -1219,6 +1221,540 @@ fn connection(c: &ConnectionDecl, indent: usize) -> String {
     out
 }
 
+// ─── Declarations ────────────────────────────────────────
+
+/// A `///` comment, one line of it a line, each at `indent`; nothing when
+/// there is none.
+pub fn doc(doc: &Option<String>, indent: usize) -> String {
+    match doc {
+        Some(text) => text
+            .lines()
+            .map(|l| {
+                if l.is_empty() {
+                    format!("{}///\n", pad(indent))
+                } else {
+                    format!("{}/// {l}\n", pad(indent))
+                }
+            })
+            .collect(),
+        None => String::new(),
+    }
+}
+
+/// A member with its `///` above it, as a block's line: the comment's
+/// lines, then the member at `indent` — the first line left for the block
+/// to indent.
+pub fn documented(d: &Option<String>, text: &str, indent: usize) -> String {
+    let lines = doc(d, indent);
+    if lines.is_empty() {
+        text.to_string()
+    } else {
+        format!("{}{}{text}", lines.trim_start(), pad(indent))
+    }
+}
+
+/// A string the parser reads as text with its `{name}` splices kept as
+/// written — a page's title, a path: a splice of a plain name is written
+/// as it is, any other brace escaped.
+fn text_with_names(text: &str) -> String {
+    let mut out = String::from("\"");
+    let chars: Vec<char> = text.chars().collect();
+    let mut i = 0;
+    while i < chars.len() {
+        let c = chars[i];
+        if c == '{' {
+            let close = chars[i + 1..]
+                .iter()
+                .position(|c| *c == '}')
+                .map(|n| i + 1 + n);
+            if let Some(close) = close {
+                let inner: String = chars[i + 1..close].iter().collect();
+                if is_name(&inner) {
+                    out.push('{');
+                    out.push_str(&inner);
+                    out.push('}');
+                    i = close + 1;
+                    continue;
+                }
+            }
+        }
+        match c {
+            '\\' => out.push_str("\\\\"),
+            '"' => out.push_str("\\\""),
+            '\n' => out.push_str("\\n"),
+            '\t' => out.push_str("\\t"),
+            '{' => out.push_str("\\{"),
+            '}' => out.push_str("\\}"),
+            c => out.push(c),
+        }
+        i += 1;
+    }
+    out.push('"');
+    out
+}
+
+/// One prop of a component or a parameter of an endpoint:
+/// `_ title: String = "x"`.
+pub fn prop(p: &PropDecl) -> String {
+    let mut out = String::new();
+    if p.positional {
+        out.push_str("_ ");
+    }
+    out.push_str(&format!("{}: {}", p.name, type_ref(&p.prop_type)));
+    if let Some(d) = &p.default {
+        out.push_str(&format!(" = {}", expr(d)));
+    }
+    out
+}
+
+/// `(a: T, b: U)`, or one a line when any of them has a `///` of its own.
+fn prop_list(props: &[PropDecl], indent: usize) -> String {
+    if props.is_empty() {
+        return String::new();
+    }
+    if props.iter().all(|p| p.doc.is_none()) {
+        return format!(
+            "({})",
+            props.iter().map(prop).collect::<Vec<_>>().join(", ")
+        );
+    }
+    let mut out = String::from("(\n");
+    for p in props {
+        out.push_str(&doc(&p.doc, indent + 1));
+        out.push_str(&pad(indent + 1));
+        out.push_str(&prop(p));
+        out.push_str(",\n");
+    }
+    out.push_str(&pad(indent));
+    out.push(')');
+    out
+}
+
+fn params(ps: &[ParamDecl]) -> String {
+    ps.iter()
+        .map(|p| match &p.param_type {
+            TypeRef::Any => p.name.clone(),
+            t => format!("{}: {}", p.name, type_ref(t)),
+        })
+        .collect::<Vec<_>>()
+        .join(", ")
+}
+
+/// A component's header: `component Card(_ title: String, tone: Tone = .calm)`,
+/// or a part's, `part Header(…)`.
+pub fn component_header(c: &ComponentDecl, indent: usize) -> String {
+    let (word, name) = match c.name.split_once('.') {
+        Some((_, part)) => ("part", part),
+        None => ("component", c.name.as_str()),
+    };
+    format!("{word} {name}{}", prop_list(&c.props, indent))
+}
+
+/// `event toggle(id: String)`.
+pub fn event_decl(e: &EventDecl) -> String {
+    if e.params.is_empty() {
+        format!("event {}", e.name)
+    } else {
+        format!("event {}({})", e.name, params(&e.params))
+    }
+}
+
+/// `slot`, `slot trailing`, `slot row(item: Todo)`.
+pub fn slot_decl(s: &SlotDecl) -> String {
+    match (&s.name, s.params.is_empty()) {
+        (None, _) => "slot".to_string(),
+        (Some(n), true) => format!("slot {n}"),
+        (Some(n), false) => format!("slot {n}({})", params(&s.params)),
+    }
+}
+
+/// A component whole: its header, then its block — the events, slots and
+/// parts it declares, then what it renders. `parts` are its parts as the
+/// program holds them, declarations of their own.
+pub fn component_decl(c: &ComponentDecl, parts: &[&ComponentDecl], indent: usize) -> String {
+    let mut lines: Vec<String> = Vec::new();
+    for e in &c.events {
+        lines.push(documented(&e.doc, &event_decl(e), indent + 1));
+    }
+    for s in &c.slots {
+        lines.push(slot_decl(s));
+    }
+    for name in &c.parts {
+        let full = format!("{}.{name}", c.name);
+        if let Some(p) = parts.iter().find(|p| p.name == full) {
+            lines.push(documented(
+                &p.doc,
+                &component_decl(p, &[], indent + 1),
+                indent + 1,
+            ));
+        }
+    }
+    lines.extend(statements(&c.body, Block::Render, indent + 1));
+    format!(
+        "{}{}",
+        component_header(c, indent),
+        lines_block(lines, indent)
+    )
+}
+
+/// ` {` the lines, one level in, `}`.
+fn lines_block(lines: Vec<String>, indent: usize) -> String {
+    if lines.is_empty() {
+        return " {}".to_string();
+    }
+    let mut out = String::from(" {\n");
+    for line in lines {
+        out.push_str(&pad(indent + 1));
+        out.push_str(&line);
+        out.push('\n');
+    }
+    out.push_str(&pad(indent));
+    out.push('}');
+    out
+}
+
+/// A page's header: `page Deploy(path: "/deploys/:id", title: "…", id: String)`.
+pub fn page_header(p: &PageDecl) -> String {
+    let mut attrs: Vec<String> = vec![format!("path: {}", text_with_names(&p.path))];
+    let text = |s: &str, e: &Option<Expr>| match e {
+        Some(e) => expr(e),
+        None => text_with_names(s),
+    };
+    if let Some(t) = &p.title {
+        attrs.push(format!("title: {}", text(t, &p.title_expr)));
+    }
+    if let Some(d) = &p.description {
+        attrs.push(format!("description: {}", text(d, &p.description_expr)));
+    }
+    if let Some(i) = &p.image {
+        attrs.push(format!("image: {}", text_with_names(i)));
+    }
+    if let Some(i) = &p.image_alt {
+        attrs.push(format!("image_alt: {}", text_with_names(i)));
+    }
+    if let Some(t) = &p.page_type {
+        attrs.push(format!("type: {}", text_with_names(t)));
+    }
+    if let Some(l) = &p.layout {
+        let args = if l.args.is_empty() {
+            String::new()
+        } else {
+            format!(
+                "({})",
+                l.args.iter().map(arg).collect::<Vec<_>>().join(", ")
+            )
+        };
+        attrs.push(format!("layout: {}{args}", l.name));
+    }
+    if let Some(g) = &p.guard {
+        attrs.push(format!("guard: {}", expr(g)));
+    }
+    if let Some(r) = &p.redirect {
+        attrs.push(format!("redirect: {}", text_with_names(r)));
+    }
+    if p.noindex {
+        attrs.push("noindex: true".to_string());
+    }
+    if let Some(x) = &p.paths {
+        attrs.push(format!("paths: {}", expr(x)));
+    }
+    for param in &p.params {
+        attrs.push(format!("{}: {}", param.name, type_ref(&param.prop_type)));
+    }
+    format!("page {}({})", p.name, attrs.join(", "))
+}
+
+/// A page whole: its header, its `head { … }`, and its body.
+pub fn page(p: &PageDecl, indent: usize) -> String {
+    let mut lines: Vec<String> = Vec::new();
+    if !p.head.is_empty() {
+        let tags: Vec<String> = p
+            .head
+            .iter()
+            .map(|t| {
+                format!(
+                    "{}({})",
+                    t.tag,
+                    t.attrs
+                        .iter()
+                        .map(|(k, v)| format!("{k}: {}", expr(v)))
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                )
+            })
+            .collect();
+        lines.push(format!("head{}", lines_block(tags, indent + 1)));
+    }
+    lines.extend(statements(&p.body, Block::Render, indent + 1));
+    format!("{}{}", page_header(p), lines_block(lines, indent))
+}
+
+/// `store Cart(scope: .route, eager: true)`.
+pub fn store_header(s: &StoreDecl) -> String {
+    let mut opts = Vec::new();
+    if s.scope != StoreScope::App {
+        opts.push(format!("scope: .{}", s.scope.as_str()));
+    }
+    if s.eager {
+        opts.push("eager: true".to_string());
+    }
+    if opts.is_empty() {
+        format!("store {}", s.name)
+    } else {
+        format!("store {}({})", s.name, opts.join(", "))
+    }
+}
+
+/// One field of a record or a case's payload: `title: String = ""`.
+pub fn field(f: &FieldDecl) -> String {
+    match &f.default {
+        Some(d) => format!("{}: {} = {}", f.name, type_ref(&f.ty), expr(d)),
+        None => format!("{}: {}", f.name, type_ref(&f.ty)),
+    }
+}
+
+/// `type Admin = User`.
+pub fn type_header(t: &TypeDecl) -> String {
+    match &t.extends {
+        Some(base) => format!("type {} = {base}", t.name),
+        None => format!("type {}", t.name),
+    }
+}
+
+/// A `theme` token: `color-primary: #0F766E`.
+pub fn token(t: &ThemeToken) -> String {
+    format!("{}: {}", t.name, style_value(&t.value))
+}
+
+/// A header's name as an `api` block writes it: bare when it is words and
+/// hyphens, quoted otherwise.
+fn header_key(k: &str) -> String {
+    if !k.is_empty() && k.split('-').all(|w| !w.is_empty() && is_name(w)) {
+        k.to_string()
+    } else {
+        string(k)
+    }
+}
+
+/// One endpoint of an `api`: `get user(id: String) at "users/:id" -> User`.
+pub fn endpoint(e: &Endpoint) -> String {
+    let mut out = format!("{} {}", e.method.to_lowercase(), e.name);
+    if !e.params.is_empty() {
+        out.push_str(&format!(
+            "({})",
+            e.params.iter().map(prop).collect::<Vec<_>>().join(", ")
+        ));
+    }
+    if e.path != e.name {
+        out.push_str(&format!(" at {}", text_with_names(&e.path)));
+    }
+    if let Some(r) = &e.returns {
+        out.push_str(&format!(" -> {}", type_ref(r)));
+    }
+    if !e.errors.is_empty() {
+        out.push_str(&format!(
+            " errors {{ {} }}",
+            e.errors
+                .iter()
+                .map(|(c, t)| format!("{c} -> {}", type_ref(t)))
+                .collect::<Vec<_>>()
+                .join(", ")
+        ));
+    }
+    for (k, v) in &e.settings {
+        out.push_str(&format!(" {k}: {}", expr(v)));
+    }
+    out
+}
+
+/// A declaration whole, with its `///` above it, at the top of a file.
+/// `program` is where a component's parts are found.
+pub fn declaration(d: &Declaration, program: &Program) -> String {
+    let parts: Vec<&ComponentDecl> = program
+        .declarations
+        .iter()
+        .filter_map(|x| match x {
+            Declaration::Component(c) if c.name.contains('.') => Some(c),
+            _ => None,
+        })
+        .collect();
+    match d {
+        Declaration::Page(p) => page(p, 0),
+        Declaration::Component(c) => format!("{}{}", doc(&c.doc, 0), component_decl(c, &parts, 0)),
+        Declaration::Store(s) => format!(
+            "{}{}",
+            store_header(s),
+            lines_block(statements(&s.body, Block::Render, 1), 0)
+        ),
+        Declaration::App(a) => format!(
+            "app{}",
+            lines_block(statements(&a.body, Block::Render, 1), 0)
+        ),
+        Declaration::Theme(t) => format!(
+            "theme {}{}",
+            t.name,
+            lines_block(t.tokens.iter().map(token).collect(), 0)
+        ),
+        Declaration::Type(t) => {
+            let lines: Vec<String> = t
+                .fields
+                .iter()
+                .map(|f| documented(&f.doc, &field(f), 1))
+                .collect();
+            format!(
+                "{}{}{}",
+                doc(&t.doc, 0),
+                type_header(t),
+                lines_block(lines, 0)
+            )
+        }
+        Declaration::Enum(e) => {
+            let lines: Vec<String> = e
+                .cases
+                .iter()
+                .map(|c| {
+                    if c.fields.is_empty() {
+                        c.name.clone()
+                    } else {
+                        format!(
+                            "{}({})",
+                            c.name,
+                            c.fields.iter().map(field).collect::<Vec<_>>().join(", ")
+                        )
+                    }
+                })
+                .collect();
+            format!("{}enum {}{}", doc(&e.doc, 0), e.name, lines_block(lines, 0))
+        }
+        Declaration::Const(c) => format!(
+            "{}const {} = {}",
+            doc(&c.doc, 0),
+            typed_name(&c.name, &c.ty),
+            expr(&c.value)
+        ),
+        Declaration::Data(x) => format!(
+            "{}{} {} = {}",
+            doc(&x.doc, 0),
+            if x.is_image { "image" } else { "data" },
+            typed_name(&x.name, &x.ty),
+            text_with_names(&x.file)
+        ),
+        Declaration::Animation(a) => {
+            let lines: Vec<String> = a
+                .frames
+                .iter()
+                .map(|f| {
+                    format!(
+                        "{}{}",
+                        f.selector,
+                        lines_block(f.properties.iter().map(style_property).collect(), 1)
+                    )
+                })
+                .collect();
+            format!(
+                "{}animation {}{}",
+                doc(&a.doc, 0),
+                a.name,
+                lines_block(lines, 0)
+            )
+        }
+        Declaration::Test(t) => {
+            let data = t
+                .data
+                .as_ref()
+                .map(|d| format!("(data: {})", expr(d)))
+                .unwrap_or_default();
+            let mut lines = statements(&t.body, Block::Render, 1);
+            for s in &t.steps {
+                lines.push(match s {
+                    Step::Expect { text, negated, .. } => {
+                        format!(
+                            "expect {}{}",
+                            if *negated { "not " } else { "" },
+                            expr(text)
+                        )
+                    }
+                    Step::Click { target, .. } => format!("click {}", expr(target)),
+                    Step::Type { text, into, .. } => {
+                        format!("type {} into {}", expr(text), expr(into))
+                    }
+                    Step::Press {
+                        key, target: None, ..
+                    } => format!("press {}", expr(key)),
+                    Step::Press {
+                        key,
+                        target: Some(t),
+                        ..
+                    } => {
+                        format!("press {} in {}", expr(key), expr(t))
+                    }
+                });
+            }
+            format!(
+                "test {}{data}{}",
+                text_with_names(&t.name),
+                lines_block(lines, 0)
+            )
+        }
+        Declaration::Api(a) => {
+            let mut head = format!("api {}", a.name);
+            if let Some(f) = &a.from {
+                head.push_str(&format!(" from {}", text_with_names(f)));
+            }
+            if !a.settings.is_empty() {
+                head.push_str(&format!(
+                    "({})",
+                    a.settings
+                        .iter()
+                        .map(|(k, v)| format!("{k}: {}", expr(v)))
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                ));
+            }
+            let mut lines = Vec::new();
+            if !a.headers.is_empty() {
+                let hs: Vec<String> = a
+                    .headers
+                    .iter()
+                    .map(|(k, v)| format!("{}: {}", header_key(k), expr(v)))
+                    .collect();
+                lines.push(format!("headers{}", lines_block(hs, 1)));
+            }
+            for h in &a.hooks {
+                lines.push(handler(h, 1));
+            }
+            for e in &a.endpoints {
+                lines.push(documented(&e.doc, &endpoint(e), 1));
+            }
+            let body = if lines.is_empty() && a.from.is_some() {
+                String::new()
+            } else {
+                lines_block(lines, 0)
+            };
+            format!("{}{head}{body}", doc(&a.doc, 0))
+        }
+        // A project script is a file of its own, not source.
+        Declaration::Script(_) => String::new(),
+    }
+}
+
+/// A whole file of declarations, a blank line between each, and a
+/// component's parts written inside it rather than beside it.
+pub fn file_text(program: &Program) -> String {
+    let mut out: Vec<String> = Vec::new();
+    for d in &program.declarations {
+        if matches!(d, Declaration::Component(c) if c.name.contains('.'))
+            || matches!(d, Declaration::Script(_))
+        {
+            continue;
+        }
+        out.push(declaration(d, program));
+    }
+    let mut text = out.join("\n\n");
+    text.push('\n');
+    text
+}
+
 // ─── The proof ───────────────────────────────────────────
 
 /// Every statement of `program`, nested ones too, with the kind of block
@@ -1455,6 +1991,128 @@ pub fn prove(source: &str, file: &str) -> Result<usize, Vec<Mismatch>> {
             });
         };
         walk_body(body, &mut each);
+    }
+    if wrong.is_empty() {
+        Ok(proven)
+    } else {
+        Err(wrong)
+    }
+}
+
+/// Where a declaration's `///` comment begins: the first of the lines
+/// right above `start` that are one, or `start`'s own line.
+pub fn doc_start(source: &str, start: usize) -> usize {
+    let mut at = source[..start].rfind('\n').map_or(0, |n| n + 1);
+    while at > 0 {
+        let prev = source[..at - 1].rfind('\n').map_or(0, |n| n + 1);
+        if source[prev..at - 1].trim_start().starts_with("///") {
+            at = prev;
+        } else {
+            break;
+        }
+    }
+    at
+}
+
+/// Where a declaration is written, from its `///` to its last byte.
+pub fn declaration_span(source: &str, d: &Declaration) -> Option<(usize, usize)> {
+    let span = match d {
+        Declaration::Page(p) => p.span,
+        Declaration::Component(c) => c.span,
+        Declaration::Store(s) => s.span,
+        Declaration::Theme(t) => t.span,
+        Declaration::Type(t) => t.span,
+        Declaration::Enum(e) => e.span,
+        Declaration::Const(c) => c.span,
+        Declaration::Data(x) => x.span,
+        Declaration::Animation(a) => a.span,
+        Declaration::Test(t) => t.span,
+        Declaration::Api(a) => a.span,
+        // The app keeps no place of its own: it is the `app { … }` that
+        // starts a line, of which a file has one.
+        Declaration::App(_) => {
+            let apps: Vec<usize> = regex::Regex::new(r"(?m)^app\s*\{")
+                .expect("a regex")
+                .find_iter(source)
+                .map(|m| m.start())
+                .collect();
+            // Two would leave which one this is a guess.
+            let [at] = apps[..] else {
+                return None;
+            };
+            let &(_, close) = crate::reprint::blocks_in(source, at, source.len()).first()?;
+            return Some((doc_start(source, at), close + 1));
+        }
+        Declaration::Script(_) => return None,
+    };
+    let (start, end) = (span.start as usize, span.end as usize);
+    (start < end && end <= source.len()).then(|| (doc_start(source, start), end))
+}
+
+/// Every declaration of `source` printed whole and put back in its own
+/// place, one at a time, and then the whole file printed: each time the
+/// file must parse to the same tree. Returns how many were proven, or what
+/// was not — a file that does not parse is one `Mismatch` at line 0.
+pub fn prove_declarations(source: &str, file: &str) -> Result<usize, Vec<Mismatch>> {
+    let braced = if file.ends_with(".wfx") {
+        crate::layout::to_braces(source, file).unwrap_or_default()
+    } else {
+        source.to_string()
+    };
+    let name = file.trim_end_matches('x');
+    let names = regex::Regex::new(r"d__\d+").expect("a regex");
+    let shape_of = |text: &str| -> Result<String, String> {
+        let p = crate::syntax::parse_source(text, name).map_err(|e| e.to_string())?;
+        Ok(names.replace_all(&shape(&p), "d__N").into_owned())
+    };
+    let program = match crate::syntax::parse_source(&braced, name) {
+        Ok(p) => p,
+        Err(e) => {
+            return Err(vec![Mismatch {
+                line: 0,
+                written: String::new(),
+                printed: String::new(),
+                why: format!("the file does not parse: {e}"),
+            }]);
+        }
+    };
+    let want = names.replace_all(&shape(&program), "d__N").into_owned();
+    let mut proven = 0;
+    let mut wrong = Vec::new();
+    for d in &program.declarations {
+        // A part is printed inside its component.
+        if matches!(d, Declaration::Component(c) if c.name.contains('.')) {
+            continue;
+        }
+        let Some((start, end)) = declaration_span(&braced, d) else {
+            continue;
+        };
+        let printed = declaration(d, &program);
+        let changed = format!("{}{printed}{}", &braced[..start], &braced[end..]);
+        match shape_of(&changed) {
+            Ok(got) if got == want => proven += 1,
+            other => wrong.push(Mismatch {
+                line: braced[..start].matches('\n').count() + 1,
+                written: braced[start..end].to_string(),
+                printed,
+                why: other.err().unwrap_or_else(|| "a different tree".into()),
+            }),
+        }
+    }
+    // The file printed from its tree alone. A project script is a file of
+    // its own, and never in a source's tree.
+    let printed = file_text(&program);
+    match shape_of(&printed) {
+        Ok(got) if got == want => proven += 1,
+        other => wrong.push(Mismatch {
+            line: 0,
+            written: String::new(),
+            printed: printed.lines().take(3).collect::<Vec<_>>().join("\n"),
+            why: format!(
+                "the whole file: {}",
+                other.err().unwrap_or_else(|| "a different tree".into())
+            ),
+        }),
     }
     if wrong.is_empty() {
         Ok(proven)
@@ -1723,5 +2381,132 @@ test "home" {
             )
         });
         assert_eq!(proven, 56, "every statement of the sample");
+    }
+    /// Every kind of declaration, printed whole and put back, reads as
+    /// itself; and so does the file printed from its tree alone.
+    #[test]
+    fn every_kind_of_declaration_prints_back_as_itself() {
+        let source = r##"/// A record.
+type Note {
+    /// Its id.
+    id: String
+    title: String = ""
+    score: Number(min: 0, max: 10) = 0
+    tags: [String]?
+}
+
+type Pinned = Note {
+    at: Date
+}
+
+/// What a request comes to.
+enum Outcome {
+    ok
+    failed(reason: String, code: Number = 0)
+}
+
+const LIMIT: Number = 10
+
+data posts: [Note] = "posts.json"
+
+image hero = "hero.jpg"
+
+animation Pulse {
+    from {
+        opacity: 1
+    }
+    50% {
+        opacity: 0.4
+    }
+    to {
+        opacity: 1
+    }
+}
+
+theme Brand {
+    color-primary: #0F766E
+    radius-md: 14px
+}
+
+/// The service.
+api Backend(base: "/api", timeout: 10.seconds) {
+    headers {
+        Authorization: "Bearer {token}"
+        X-Request-Id: "1"
+    }
+    on request(r) {
+        log(r)
+    }
+    /// One note.
+    get note(id: String) at "notes/:id" -> Note errors { 404 -> Any } cache: .swr(60.seconds)
+    post save(note: Note) -> Note
+}
+
+store Cart(scope: .route, eager: true) {
+    state items: [String] = []
+}
+
+/// A card.
+component Card(
+    /// What it says.
+    _ title: String,
+    tone: Outcome = .ok
+) {
+    /// When it is opened.
+    event opened(id: String)
+    event closed
+    slot
+    slot row(item: Note)
+    /// The top of it.
+    part Header(_ text: String) {
+        Heading(text).h3
+    }
+    Stack {
+        Card.Header(title)
+        children
+        row(item: Note(id: "1", title: title))
+    }
+}
+
+page Note(path: "/notes/:id", title: "{id} — Notes", description: "A note, {id}.", image: "/og.png", image_alt: "The note", type: "article", layout: Shell(crumb: "Notes"), guard: true, noindex: true, id: String) {
+    head {
+        meta(name: "robots", content: "x")
+    }
+    Text(id)
+}
+
+page Plain(path: "/", title: "Report: {Cart.items.length} items", description: "Home.") {
+    Text("x")
+}
+
+app {
+    Router
+}
+
+test "a note"(data: { id: "1" }) {
+    Text("{id}")
+    expect "1"
+    click "Save"
+}
+"##;
+        let proven = prove_declarations(source, "t.wf").unwrap_or_else(|w| {
+            panic!(
+                "{}",
+                w.iter()
+                    .map(|m| format!("{}: {}\n{}\n→\n{}", m.line, m.why, m.written, m.printed))
+                    .collect::<Vec<_>>()
+                    .join("\n\n")
+            )
+        });
+        assert_eq!(proven, 16, "fifteen declarations and the file");
+        // And a component prints as it is written.
+        let program = crate::syntax::parse_source(source, "t.wf").unwrap();
+        let card = program
+            .declarations
+            .iter()
+            .find(|d| matches!(d, Declaration::Component(c) if c.name == "Card"))
+            .unwrap();
+        let printed = declaration(card, &program);
+        assert!(printed.starts_with("/// A card.\ncomponent Card(\n    /// What it says.\n    _ title: String,\n    tone: Outcome = .ok,\n) {\n    /// When it is opened.\n    event opened(id: String)\n    event closed\n    slot\n    slot row(item: Note)\n    /// The top of it.\n    part Header(_ text: String) {\n        Heading(text).h3\n    }\n"), "{printed}");
     }
 }
