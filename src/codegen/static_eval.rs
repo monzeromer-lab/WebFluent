@@ -329,7 +329,7 @@ impl Scope {
     }
 
     /// The locale at hand: the project's, a `locale` in the data, or English.
-    fn locale(&self) -> String {
+    pub fn locale(&self) -> String {
         match self.get("__locale").or_else(|| self.get("locale")) {
             Some(Static::Str(l)) => l.clone(),
             _ => "en".to_string(),
@@ -648,6 +648,7 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
                         Some(_) => return None,
                     };
                     Some(Static::Str(crate::i18n::message(
+                        &scope.locale(),
                         &scope.messages(),
                         key,
                         &params,

@@ -1,0 +1,10 @@
+{
+  "title": "العدّ",
+  "english": "English",
+  "files.zero": "لا ملفات",
+  "files.one": "ملف واحد",
+  "files.two": "ملفان",
+  "files.few": "{count} ملفات",
+  "files.many": "{count} ملفًا",
+  "files.other": "{count} ملف"
+}

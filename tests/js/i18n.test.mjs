@@ -36,3 +36,29 @@ test("without it the default locale stands", () => {
   const WF = load("");
   assert.equal(WF.locales("en", tables).locale(), "en");
 });
+
+test("a count picks the locale's form, and exactly none is `zero` in any language", () => {
+  const WF = load("");
+  const i18n = WF.locales("en", {
+    en: { "files.zero": "No files", "files.one": "{count} file", "files.other": "{count} files" },
+    ar: { "files.one": "ملف", "files.two": "ملفان", "files.few": "{count} ملفات", "files.many": "{count} ملفًا", "files.other": "{count} ملف" },
+  });
+  assert.equal(i18n.t("files", { count: 0 }), "No files", "English's rules have no zero; the file's does");
+  assert.equal(i18n.t("files", { count: 1 }), "1 file");
+  assert.equal(i18n.t("files", { count: 2 }), "2 files");
+  i18n.setLocale("ar");
+  assert.equal(i18n.t("files", { count: 2 }), "ملفان");
+  assert.equal(i18n.t("files", { count: 5 }), "5 ملفات");
+  assert.equal(i18n.t("files", { count: 11 }), "11 ملفًا");
+  assert.equal(i18n.t("files", { count: 0 }), "0 ملف", "no zero in the file: Arabic's rules pick zero, which falls back to other");
+});
+
+test("a locale with a region is written in its language's direction", () => {
+  const WF = load("");
+  const i18n = WF.locales("ar-EG", { "ar-EG": { hi: "أهلاً" }, "en-GB": { hi: "Hello" } });
+  assert.equal(i18n.dir(), "rtl");
+  i18n.setLocale("en-GB");
+  assert.equal(i18n.dir(), "ltr");
+  i18n.setLocale("ckb");
+  assert.equal(i18n.dir(), "rtl");
+});

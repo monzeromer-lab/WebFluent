@@ -1929,10 +1929,7 @@ fn extra_classes(ui: &UIElement, ctx: &RenderContext) -> Vec<String> {
 
 /// Whether a language is written right to left.
 pub fn is_rtl(lang: &str) -> bool {
-    matches!(
-        lang.split(['-', '_']).next(),
-        Some("ar" | "he" | "fa" | "ur" | "ps" | "yi" | "dv" | "ku")
-    )
+    crate::i18n::table::is_rtl(lang)
 }
 
 /// A local only a paged render sets: inside a running element, `page` and

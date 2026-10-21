@@ -237,11 +237,7 @@ pub fn render_page_html_studio(
         ..
     } = *site;
     let title = page.title.as_deref().unwrap_or(&config.name);
-    let lang = if config.meta.lang.is_empty() {
-        "en"
-    } else {
-        &config.meta.lang
-    };
+    let lang = config.page_lang();
 
     let default_locale = config
         .i18n
@@ -445,7 +441,7 @@ pub fn render_page_html_studio(
 
     format!(
         r#"<!DOCTYPE html>
-<html lang="{}">
+<html lang="{}"{}>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -459,6 +455,7 @@ pub fn render_page_html_studio(
 </body>
 </html>"#,
         lang,
+        config.page_dir_attr(),
         title,
         description_meta,
         crate::codegen::html::csp_meta(config),
@@ -2313,7 +2310,12 @@ fn resolve_text_scoped(
         && let Some(Expr::StringLiteral(key)) = args.first()
         && let Some(Static::Map(params)) = eval(&args[1], scope)
     {
-        return Some(crate::i18n::message(messages, key, &params));
+        return Some(crate::i18n::message(
+            &scope.locale(),
+            messages,
+            key,
+            &params,
+        ));
     }
     resolve_text(expr, messages).or_else(|| match eval(expr, scope)? {
         // A collection has no text form; painting "" would be a lie about what

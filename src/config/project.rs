@@ -1120,6 +1120,40 @@ impl Default for MetaConfig {
 }
 
 impl ProjectConfig {
+    /// The language a page is in before any script has run: the default
+    /// locale when the project has translations — `meta.lang` when it is
+    /// that language with a region (`en-GB` for `en`) — and `meta.lang`
+    /// otherwise.
+    pub fn page_lang(&self) -> String {
+        let meta = if self.meta.lang.is_empty() {
+            "en"
+        } else {
+            self.meta.lang.as_str()
+        };
+        match &self.i18n {
+            Some(i18n) => {
+                let language =
+                    |l: &str| l.split(['-', '_']).next().unwrap_or(l).to_ascii_lowercase();
+                if language(meta) == language(&i18n.default_locale) {
+                    meta.to_string()
+                } else {
+                    i18n.default_locale.clone()
+                }
+            }
+            None => meta.to_string(),
+        }
+    }
+
+    /// ` dir="rtl"` for a page in a language written right to left, so it
+    /// reads that way before its script runs; empty otherwise.
+    pub fn page_dir_attr(&self) -> &'static str {
+        if crate::i18n::table::is_rtl(&self.page_lang()) {
+            " dir=\"rtl\""
+        } else {
+            ""
+        }
+    }
+
     /// Whether a page may read `env.NAME`.
     ///
     /// Everything a page reads is in the bundle, so the rule is a list,

@@ -9,7 +9,7 @@ use std::path::Path;
 
 /// Every expression in `stmts`, with the place of the statement or the
 /// argument it is in.
-fn visit(stmts: &[Statement], f: &mut dyn FnMut(&Expr, Span)) {
+pub(crate) fn visit(stmts: &[Statement], f: &mut dyn FnMut(&Expr, Span)) {
     fn expr(e: &Expr, span: Span, f: &mut dyn FnMut(&Expr, Span)) {
         f(e, span);
         for child in e.children() {
@@ -252,33 +252,31 @@ pub fn translations(
         })
     };
     let default = messages.get(&config.default_locale);
-    for (index, body) in bodies(program) {
-        let file = file_of(index);
-        visit(body, &mut |e, span| {
-            let (line, col) = (span.line.max(1) as usize, span.col.max(1) as usize);
-            let Expr::FunctionCall(name, args) = e else {
-                return;
-            };
-            match (name.as_str(), args.first()) {
-                ("t", Some(Expr::StringLiteral(key))) => {
-                    let Some((_, holder)) = has(key) else {
-                        let mut keys: Vec<&String> =
-                            messages.values().flat_map(|m| m.keys()).collect();
-                        keys.sort();
-                        keys.dedup();
-                        let near = keys
-                            .iter()
-                            .map(|k| (crate::linter::vocabulary::levenshtein(key, k), *k))
-                            .filter(|(d, _)| *d <= 3)
-                            .min()
-                            .map(|(_, k)| format!("Did you mean `{k}`?"))
-                            .unwrap_or_else(|| {
-                                format!(
-                                    "Add `\"{key}\": \"…\"` to `{}/{}.json`",
-                                    config.dir, config.default_locale
-                                )
-                            });
-                        out.push(
+    // Every `t()` the program writes — in bodies, and in a page's header,
+    // layout and head — as the translations table counts them.
+    for u in crate::i18n::table::uses(program, file_of) {
+        if u.dynamic {
+            continue;
+        }
+        let (file, line, col) = (u.file.clone(), u.line as usize, u.col as usize);
+        let key = &u.key;
+        let Some((_, holder)) = has(key) else {
+            let mut keys: Vec<&String> = messages.values().flat_map(|m| m.keys()).collect();
+            keys.sort();
+            keys.dedup();
+            let near = keys
+                .iter()
+                .map(|k| (crate::linter::vocabulary::levenshtein(key, k), *k))
+                .filter(|(d, _)| *d <= 3)
+                .min()
+                .map(|(_, k)| format!("Did you mean `{k}`?"))
+                .unwrap_or_else(|| {
+                    format!(
+                        "Add `\"{key}\": \"…\"` to `{}/{}.json`",
+                        config.dir, config.default_locale
+                    )
+                });
+            out.push(
                             Diagnostic::coded(
                                 "I01",
                                 format!("`t(\"{key}\")` names a message no translation has, so the page shows `{key}`"),
@@ -288,56 +286,72 @@ pub fn translations(
                             )
                             .with_hint(near),
                         );
-                        return;
-                    };
-                    // I02: what the call passes against what the message uses.
-                    let source = default.unwrap_or(holder);
-                    let mut used: Vec<String> = Vec::new();
-                    let mut plural = false;
-                    for (k, m) in source {
-                        let form = k.strip_prefix(key.as_str());
-                        // The message itself and its plural forms — not
-                        // `key.in`, a message of its own under the same name.
-                        let plural_form = |r: &str| {
-                            matches!(r, ".zero" | ".one" | ".two" | ".few" | ".many" | ".other")
-                        };
-                        if form == Some("") || form.is_some_and(plural_form) {
-                            plural |= form != Some("");
-                            used.extend(placeholders(m));
+            continue;
+        };
+        // I02: what the call passes against what the message uses.
+        let source = default.unwrap_or(holder);
+        let mut used: Vec<String> = Vec::new();
+        let mut plural = false;
+        for (k, m) in source {
+            let form = k.strip_prefix(key.as_str());
+            // The message itself and its plural forms — not
+            // `key.in`, a message of its own under the same name.
+            let plural_form =
+                |r: &str| matches!(r, ".zero" | ".one" | ".two" | ".few" | ".many" | ".other");
+            if form == Some("") || form.is_some_and(plural_form) {
+                plural |= form != Some("");
+                used.extend(placeholders(m));
+            }
+        }
+        used.sort();
+        used.dedup();
+        let Some(given) = u.passes.clone() else {
+            continue;
+        };
+        for g in &given {
+            if !used.contains(g) && !(plural && g == "count") {
+                out.push(
+                    Diagnostic::coded(
+                        "I02",
+                        format!("`t(\"{key}\")` passes `{g}`, which the message does not use"),
+                        &file,
+                        line,
+                        col,
+                    )
+                    .with_hint(format!(
+                        "The message uses {}",
+                        if used.is_empty() {
+                            "no placeholder".to_string()
+                        } else {
+                            used.iter()
+                                .map(|u| format!("`{{{u}}}`"))
+                                .collect::<Vec<_>>()
+                                .join(", ")
                         }
-                    }
-                    let given: Vec<String> = match args.get(1) {
-                        Some(Expr::MapLiteral(pairs)) => pairs
-                            .iter()
-                            .map(|(k, _)| k.trim_matches('"').to_string())
-                            .filter(|k| k != "...")
-                            .collect(),
-                        Some(_) => return,
-                        None => Vec::new(),
-                    };
-                    for g in &given {
-                        if !used.contains(g) && !(plural && g == "count") {
-                            out.push(Diagnostic::coded(
-                                "I02",
-                                format!("`t(\"{key}\")` passes `{g}`, which the message does not use"),
-                                &file,
-                                line,
-                                col,
-                            ).with_hint(format!("The message uses {}", if used.is_empty() { "no placeholder".to_string() } else { used.iter().map(|u| format!("`{{{u}}}`")).collect::<Vec<_>>().join(", ") })));
-                        }
-                    }
-                    for u in &used {
-                        if !given.contains(u) {
-                            out.push(Diagnostic::coded(
+                    )),
+                );
+            }
+        }
+        for u in &used {
+            if !given.contains(u) {
+                out.push(Diagnostic::coded(
                                 "I02",
                                 format!("the message `{key}` shows `{{{u}}}`, which `t(\"{key}\")` does not pass, so it shows as written"),
                                 &file,
                                 line,
                                 col,
                             ).with_hint(format!("Pass it: `t(\"{key}\", {{ {u}: … }})`")));
-                        }
-                    }
-                }
+            }
+        }
+    }
+    for (index, body) in bodies(program) {
+        let file = file_of(index);
+        visit(body, &mut |e, span| {
+            let (line, col) = (span.line.max(1) as usize, span.col.max(1) as usize);
+            let Expr::FunctionCall(name, args) = e else {
+                return;
+            };
+            match (name.as_str(), args.first()) {
                 ("setLocale", Some(Expr::StringLiteral(locale)))
                     if !config.locales.contains(locale) =>
                 {
@@ -418,7 +432,7 @@ pub fn translations(
             out.push(
                 Diagnostic::coded(
                     "I03",
-                    format!("`{locale}.json` has no {}{more}, which another locale has, so a reader in `{locale}` sees the key", shown.join(", ")),
+                    format!("`{locale}.json` has no {}{more}, which another locale has, so a reader in `{locale}` sees {}", shown.join(", "), if *locale == config.default_locale { "the key".to_string() } else { format!("the `{}` message", config.default_locale) }),
                     &file,
                     1,
                     1,

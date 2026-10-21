@@ -383,6 +383,84 @@
       "writes": ""
     },
     {
+      "name": "translations",
+      "options": [
+        {
+          "default": ".",
+          "flag": false,
+          "help": "Project directory (default: current directory)",
+          "long": "dir",
+          "name": "dir",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": "d",
+          "takes": "path",
+          "value_name": "DIR",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": false,
+          "help": "Only the keys this locale has no message for",
+          "long": "missing",
+          "name": "missing",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "text",
+          "value_name": "MISSING",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Only the keys nothing names",
+          "long": "unused",
+          "name": "unused",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "UNUSED",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "CLDR's plural rules instead: every locale's forms, and the form each of a run of counts takes",
+          "long": "plurals",
+          "name": "plurals",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "PLURALS",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Print JSON, for tools",
+          "long": "json",
+          "name": "json",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "JSON",
+          "values": []
+        }
+      ],
+      "preview": null,
+      "summary": "The translations as a table: each locale's plural forms and what it lacks, each key's messages, and where a `t()` names it",
+      "writes": ""
+    },
+    {
       "name": "scope",
       "options": [
         {

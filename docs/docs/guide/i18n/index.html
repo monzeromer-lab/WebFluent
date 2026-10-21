@@ -370,8 +370,9 @@ page Home(path: &quot;/&quot;, title: &quot;Home&quot;, description: &quot;The h
 <ul>
 <li><code>t(&quot;key&quot;)</code> is the string for the current locale, reactive: every call re-evaluates when the locale changes.</li>
 <li><code>t(&quot;key&quot;, { name: value })</code> fills <code>{name}</code> placeholders from the map.</li>
-<li>A <code>count</code> picks the plural form: <code>key.one</code> when the locale's rules say &quot;one&quot;, <code>key.other</code> otherwise, and <code>key.zero</code>, <code>key.two</code>, <code>key.few</code>, <code>key.many</code> when the file has them and the locale calls for them (Arabic has all six; English two). Falls back to <code>key.other</code>, then <code>key</code>.</li>
-<li>The static paint resolves <code>t</code> for the default locale at build time, so the pre-rendered HTML is already in the default language.</li>
+<li>A <code>count</code> picks the plural form the locale's rules give it — CLDR's rules, which the browser's <code>Intl.PluralRules</code> follows too: Arabic has <code>zero</code>, <code>one</code>, <code>two</code>, <code>few</code>, <code>many</code> and <code>other</code>; English <code>one</code> and <code>other</code>; Japanese only <code>other</code>. Exactly none is <code>key.zero</code> wherever the file has one, in any language, so English can say &quot;No files&quot; rather than &quot;0 files&quot;. Falls back to <code>key.other</code>, then <code>key</code>.</li>
+<li>A key's forms all come from one language: the reader's, when its file has the key at all, otherwise the default locale's — never one form from each.</li>
+<li>The static paint resolves <code>t</code> for the default locale at build time, by the same rules, so the pre-rendered HTML is already in the default language, its counts in that language's forms.</li>
 </ul>
                             </div>
                             <h2 class="wf-heading" id="switching-the-locale">Switching the locale</h2>
@@ -408,7 +409,7 @@ page Home(path: &quot;/&quot;) {
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>setLocale(&quot;ar&quot;)</code> switches; <code>locale</code> is the current code and <code>dir</code> is <code>&quot;ltr&quot;</code> or <code>&quot;rtl&quot;</code>. On a switch, <code>&lt;html lang&gt;</code> and <code>&lt;html dir&gt;</code> are set: <code>ar</code>, <code>he</code>, <code>fa</code> and <code>ur</code> are right-to-left, everything else left-to-right. The built-ins use logical CSS properties (<code>margin-inline-start</code>, not <code>margin-left</code>), so layouts mirror without work on your side; do the same in your own <code>style</code> blocks.</p>
+<p><code>setLocale(&quot;ar&quot;)</code> switches; <code>locale</code> is the current code and <code>dir</code> is <code>&quot;ltr&quot;</code> or <code>&quot;rtl&quot;</code>. On a switch, <code>&lt;html lang&gt;</code> and <code>&lt;html dir&gt;</code> are set. A locale is right to left when its language is — Arabic, Hebrew, Persian, Urdu, Pashto, Sindhi, Central Kurdish, Uyghur, Yiddish, Dhivehi, Kashmiri, Syriac, Aramaic and N'Ko — so <code>ar-EG</code> is too. A site whose default locale is one of them is written <code>&lt;html lang=&quot;ar&quot; dir=&quot;rtl&quot;&gt;</code> from the start, before any script runs. <code>meta.lang</code> names a region of the default locale's language (<code>en-GB</code> for <code>en</code>); otherwise the default locale is the page's language. The built-ins use logical CSS properties (<code>margin-inline-start</code>, not <code>margin-left</code>), so layouts mirror without work on your side; do the same in your own <code>style</code> blocks.</p>
 <p>An <code>app</code> block may declare <code>state</code> like a page, as <code>chosen</code> above.</p>
                             </div>
                             <h2 class="wf-heading" id="which-locale-a-page-opens-in">Which locale a page opens in</h2>
@@ -460,9 +461,13 @@ app {
 <ul>
 <li>Every visible string goes through <code>t</code>, including <code>label:</code>, <code>placeholder:</code> and <code>aria-label:</code> values.</li>
 <li>Never build a sentence from parts (<code>t(&quot;x&quot;) + name</code>); use a placeholder so a translator can reorder it.</li>
-<li>Give every count a plural key pair, even in English.</li>
-<li>Test with an RTL locale once: alignment, icons that imply direction, and a Latin code or figure inside Arabic text, which needs a left-to-right run of its own (<code>direction: ltr; unicode-bidi: isolate</code>) to keep its parts in order (arrows), and any <code>left</code>/<code>right</code> in your own CSS.</li>
+<li>Give every count its plural forms, even in English, and a <code>zero</code> where none reads better as a sentence.</li>
+<li>Test with an RTL locale once: alignment, icons that imply direction (arrows), any <code>left</code>/<code>right</code> in your own CSS, and a Latin code or figure inside Arabic text, which needs a left-to-right run of its own (<code>direction: ltr; unicode-bidi: isolate</code>) to keep its parts in order.</li>
 </ul>
+                            </div>
+                            <h2 class="wf-heading" id="the-translations-as-a-table">The translations as a table</h2>
+                            <div class="wf-markdown">
+<p><code>wf translations</code> lists each locale with the plural forms its rules use and how many keys it lacks, a form it lacks, or a placeholder that differs from the default locale's; <code>--missing ar</code> lists what Arabic lacks and <code>--unused</code> the keys nothing names; <code>--json</code> is the whole table, each key with its message in every locale and every place a <code>t()</code> names it. <code>--plurals</code> prints CLDR's rules: every locale's forms. The library has it as <code>webfluent::i18n::table</code>, which also writes one message back into its file with every other byte as it was.</p>
                             </div>
                         </div>
                     </div>
@@ -487,6 +492,7 @@ app {
                         <a class="wf-link wf-s3e136ca4" href="#numbers-dates-and-the-locale">Numbers, dates and the locale</a>
                         <a class="wf-link wf-s3e136ca4" href="#translating-a-markdown-page-or-a-md-page">Translating a Markdown page or a .md page</a>
                         <a class="wf-link wf-s3e136ca4" href="#checklist">Checklist</a>
+                        <a class="wf-link wf-s3e136ca4" href="#the-translations-as-a-table">The translations as a table</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-s614f8b98">

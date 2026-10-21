@@ -1,0 +1,12 @@
+/// The plurals fixture: an Arabic site that counts in each of Arabic's six
+/// forms, painted before its script runs and after, then read in English,
+/// where exactly none is the file's `zero` though English's rules have no
+/// such form.
+page Counts(path: "/", title: "Counts", description: "Every plural form.") {
+    state counts: [Number] = [0, 1, 2, 5, 11, 100]
+    Heading(t("title")).h1
+    for n in counts {
+        Text(t("files", { count: n }), id: "n{n}")
+    }
+    Button(t("english"), id: "english") { on click { setLocale("en") } }
+}

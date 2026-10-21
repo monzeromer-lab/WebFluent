@@ -20,4 +20,5 @@ pub mod scope;
 pub mod serve;
 pub mod test;
 pub mod theme;
+pub mod translations;
 pub mod verify;

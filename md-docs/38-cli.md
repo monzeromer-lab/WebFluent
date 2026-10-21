@@ -36,6 +36,7 @@ told otherwise, and exits non-zero on failure, so each is a CI step as it is.
 | `wf docs [-d, --dir DIR] [-o, --out OUT]` | Writes a gallery of every component |
 | `wf registry [--json]` | Describes every built-in |
 | `wf theme [-d, --dir DIR] [--json]` | The theme the build uses: every token, declared or inherited, where each is used, and its contrast |
+| `wf translations [-d, --dir DIR] [--missing LOCALE] [--unused] [--plurals] [--json]` | The translations as a table: each locale's plural forms and what it lacks, each key's messages and uses |
 | `wf scope FILE:LINE[:COL] [-d, --dir DIR] [--data JSON] [--json]` | What can be read at a place: the names in scope, each with its type and where it comes from |
 | `wf rules [-d, --dir DIR] [--json]` | The rules a `validate` block may hold, the named patterns, when a form shows its messages, and every state the project holds to a rule |
 | `wf motion [-d, --dir DIR] [--json]` | The animations an element can play, the eases and speeds, the route transitions and the project's default |
@@ -447,6 +448,31 @@ pacing (`motion` in the config, or the engine's), and the attribute an
 editor sets on the page's root, `data-wf-motion="reduce"`, to show the
 page as a reader who asked for less motion sees it. The library has it as
 `webfluent::motion::catalogue`.
+
+### `wf translations`
+
+```bash
+wf translations
+wf translations --missing ar
+wf translations --unused
+wf translations --json
+wf translations --plurals
+```
+
+The translations as an editor's table: each locale with its file, whether
+it is the default and right to left, the plural forms CLDR's rules give it,
+and how many keys it has no message for, how many lack a form it needs,
+and how many messages have placeholders the default locale's do not;
+`--missing LOCALE` lists the keys that locale lacks and `--unused` the
+keys nothing names — no `t()`, no key built at run time that may be it,
+no `validate` rule that shows it. `--json` is the whole table: every key,
+plural ones with each form, each message in each locale with its
+placeholders and its line, and every place a `t()` names the key; and the
+calls that name a key no locale has (`I01`). `--plurals` prints CLDR's
+rules instead — each locale's forms, and with `--json` the form each of a
+run of counts takes. The library has it as `webfluent::i18n::table`,
+which writes one message back with `set_message`, every other byte of the
+file as it was.
 
 ### `wf scope`
 

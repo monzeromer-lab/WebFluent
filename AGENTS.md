@@ -37,6 +37,7 @@ wf theme [--json]                         # The theme: every token, declared or 
 wf motion [--json]                        # The animations, eases, speeds and route transitions, and the default
 wf rules [--json]                         # The validate rules, named patterns, and every state held to a rule
 wf scope FILE:LINE[:COL] [--json]         # What can be read there: each name in scope, its type, where it comes from
+wf translations [--missing L] [--unused] [--json] # The translations table: what each locale lacks, what nothing names
 wf components [--json]                    # Every component a call can name, built-in and the project's: props and their kinds, events, slots, parts
 wf explain [CODE]                         # A diagnostic's entry: meaning, example, fix
 wf serve [-d DIR]                         # Dev server (localhost:3000): rebuilds on save, reloads the page, shows a failed build's error over it
@@ -2462,13 +2463,16 @@ Button("AR") { on click { setLocale("ar") } }     // Auto-RTL for Arabic
 
 A message with plural forms is several keys: `"items.one": "{count}
 item"`, `"items.other": "{count} items"` — and `items.zero`, `items.two`,
-`items.few`, `items.many` where the locale's rules call for them
-(`Intl.PluralRules`); `t("items", { count: n })` picks the form, falling
-back to `items.other` and then `items`. The static paint picks by the
-English rule (one for exactly one); the live page by the locale's.
-`format` and `ago` speak the locale too.
+`items.few`, `items.many` where the locale's CLDR rules call for them;
+`t("items", { count: n })` picks the form, exactly none `items.zero` when
+the file has it in any language, falling back to `items.other` and then
+`items` — the static paint and the live page by the same rules. A key's
+forms come from one language. `format` and `ago` speak the locale too.
+`wf translations` is the table: what each locale lacks, what nothing names.
 
-RTL locales (automatic `dir="rtl"`): `ar`, `he`, `fa`, `ur`
+RTL locales (automatic `dir="rtl"`, from the first paint when the default
+locale is one): `ar`, `he`, `fa`, `ur`, `ps`, `sd`, `ckb`, `ug`, `yi`, `dv`,
+`ks`, `syr`, `arc`, `nqo` — with any region (`ar-EG`)
 
 A Latin code or figure inside Arabic text (`2026-0417`) can come out with
 its parts reordered; give it its own left-to-right run:

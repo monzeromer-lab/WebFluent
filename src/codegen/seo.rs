@@ -354,8 +354,8 @@ pub fn head_tags(page: &PageDecl, config: &ProjectConfig, program: &Program) -> 
             attr(url)
         ));
     }
-    if !config.meta.lang.is_empty() {
-        let locale = og_locale(&config.meta.lang);
+    if !config.meta.lang.is_empty() || config.i18n.is_some() {
+        let locale = og_locale(&config.page_lang());
         push(format!(
             r#"<meta property="og:locale" content="{}">"#,
             attr(&locale)

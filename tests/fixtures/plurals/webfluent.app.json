@@ -1,0 +1,5 @@
+{
+  "name": "plurals",
+  "build": { "ssg": true },
+  "i18n": { "default_locale": "ar", "locales": ["ar", "en"] }
+}

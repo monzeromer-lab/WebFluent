@@ -148,6 +148,10 @@ jobs:
         working-directory: tests/browser
         run: node validation.mjs
 
+      - name: Plurals
+        working-directory: tests/browser
+        run: node plurals.mjs
+
       # What the compiler once compiled wrong, clicked and typed into.
       - name: Behaviour
         run: target/release/wf test tests/fixtures/behaviour

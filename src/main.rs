@@ -120,6 +120,26 @@ enum Commands {
         #[arg(long)]
         json: bool,
     },
+    /// The translations as a table: each locale's plural forms and what it
+    /// lacks, each key's messages, and where a `t()` names it
+    Translations {
+        /// Project directory (default: current directory)
+        #[arg(short, long, default_value = ".")]
+        dir: PathBuf,
+        /// Only the keys this locale has no message for
+        #[arg(long)]
+        missing: Option<String>,
+        /// Only the keys nothing names
+        #[arg(long)]
+        unused: bool,
+        /// CLDR's plural rules instead: every locale's forms, and the form
+        /// each of a run of counts takes
+        #[arg(long)]
+        plurals: bool,
+        /// Print JSON, for tools
+        #[arg(long)]
+        json: bool,
+    },
     /// What a path picker lists at a place: the names in scope there, each
     /// with its type and where it comes from, and the fields to go on into
     Scope {
@@ -431,6 +451,13 @@ fn main() {
             }
             ConfigAction::Unset { path, dir } => cli::config::run_set(&dir, &path, None),
         },
+        Commands::Translations {
+            dir,
+            missing,
+            unused,
+            plurals,
+            json,
+        } => cli::translations::run_translations(&dir, missing.as_deref(), unused, plurals, json),
         Commands::Scope {
             place,
             dir,

@@ -9,11 +9,7 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
         &config.meta.title
     };
 
-    let lang = if config.meta.lang.is_empty() {
-        "en"
-    } else {
-        &config.meta.lang
-    };
+    let lang = config.page_lang();
 
     // A single-page app serves every route from this one document, so the tags
     // here describe the entry route. A crawler that runs no JavaScript sees only
@@ -78,7 +74,7 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
 
     format!(
         r#"<!DOCTYPE html>
-<html lang="{}">
+<html lang="{}"{}>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -91,6 +87,7 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
 </body>
 </html>"#,
         lang,
+        config.page_dir_attr(),
         title,
         description_meta,
         csp_meta(config),
