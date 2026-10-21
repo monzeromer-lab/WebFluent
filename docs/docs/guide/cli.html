@@ -449,6 +449,14 @@
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
+<p><code>wf scope FILE:LINE[:COL] [-d, --dir DIR] [--data JSON] [--json]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>What can be read at a place: the names in scope, each with its type and where it comes from</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
 <p><code>wf rules [-d, --dir DIR] [--json]</code></p>
                                             </div>
                                         </td>
@@ -762,6 +770,19 @@
                             </div>
                             <div class="wf-markdown">
 <p>What a Motion section offers: every animation <code>animate:</code> and <code>exit:</code> take — the engine's, each with the keyframes and the rule its stylesheet plays it by, whether it is one an element leaves with and whether it repeats, then the project's own <code>animation</code> declarations — the named eases with the timing function each stands for, the three speeds and their lengths, the Router's transitions, the project's default length and pacing (<code>motion</code> in the config, or the engine's), and the attribute an editor sets on the page's root, <code>data-wf-motion=&quot;reduce&quot;</code>, to show the page as a reader who asked for less motion sees it. The library has it as <code>webfluent::motion::catalogue</code>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="wf-scope">wf scope</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>What a condition, a loop, a binding or a prop that takes anything may read at that place, in the order a path picker lists it: the page or component's own <code>state</code> and <code>derived</code> values (and the form it binds), its props and a page's route parameters, what the statements around the place bind — a loop's item and index, an <code>if let</code>, a <code>match</code> arm, a slot's fill, an action's parameters and the <code>let</code>s before the place — innermost first, then the members of every store it <code>use</code>s; with <code>--data</code>, a template's data after them. Each row has its type as the checker infers it, its shape (<code>bool</code>, <code>number</code>, <code>text</code>, <code>moment</code>, <code>list</code>, <code>record</code>, <code>enum</code> …), whether it may be <code>null</code>, where it comes from (<code>for d in live</code>, <code>member of Deploys</code>), and the fields of a record to go on into (<code>d.region.code</code>). It is the scope the editor's completion offers; the library has it as <code>webfluent::scope</code>.</p>
                             </div>
                             <h3 class="wf-heading" id="wf-rules">wf rules</h3>
                             <div class="wf-stack wf-sba64d8a9 code-block">

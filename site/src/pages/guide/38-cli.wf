@@ -83,6 +83,10 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                     Table.Cell("The theme the build uses: every token, declared or inherited, where each is used, and its contrast")
                 }
                 Table.Row {
+                    Table.Cell { Markdown("`wf scope FILE:LINE[:COL] [-d, --dir DIR] [--data JSON] [--json]`") }
+                    Table.Cell("What can be read at a place: the names in scope, each with its type and where it comes from")
+                }
+                Table.Row {
                     Table.Cell { Markdown("`wf rules [-d, --dir DIR] [--json]`") }
                     Table.Cell { Markdown("The rules a `validate` block may hold, the named patterns, when a form shows its messages, and every state the project holds to a rule") }
                 }
@@ -288,6 +292,16 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
             ])
 
         Markdown("What a Motion section offers: every animation `animate:` and `exit:` take — the engine's, each with the keyframes and the rule its stylesheet plays it by, whether it is one an element leaves with and whether it repeats, then the project's own `animation` declarations — the named eases with the timing function each stands for, the three speeds and their lengths, the Router's transitions, the project's default length and pacing (`motion` in the config, or the engine's), and the attribute an editor sets on the page's root, `data-wf-motion=\"reduce\"`, to show the page as a reader who asked for less motion sees it. The library has it as `webfluent::motion::catalogue`.")
+
+        Heading("wf scope", id: "wf-scope").h3
+
+        Terminal(lines: [
+                Line(command: "wf scope src/pages/Deploys.wf:24"),
+                Line(command: "wf scope src/pages/Deploys.wf:24:9 --json"),
+                Line(command: "wf scope src/templates/invoice.wf:3 --data data/invoice.json")
+            ])
+
+        Markdown("What a condition, a loop, a binding or a prop that takes anything may read at that place, in the order a path picker lists it: the page or component's own `state` and `derived` values (and the form it binds), its props and a page's route parameters, what the statements around the place bind — a loop's item and index, an `if let`, a `match` arm, a slot's fill, an action's parameters and the `let`s before the place — innermost first, then the members of every store it `use`s; with `--data`, a template's data after them. Each row has its type as the checker infers it, its shape (`bool`, `number`, `text`, `moment`, `list`, `record`, `enum` …), whether it may be `null`, where it comes from (`for d in live`, `member of Deploys`), and the fields of a record to go on into (`d.region.code`). It is the scope the editor's completion offers; the library has it as `webfluent::scope`.")
 
         Heading("wf rules", id: "wf-rules").h3
 

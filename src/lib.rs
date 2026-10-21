@@ -237,6 +237,10 @@ pub mod motion;
 /// to, and the block written back one rule at a time.
 pub mod validation;
 
+/// What a name at a place can refer to — the editor's completion scope —
+/// and, typed, what a path picker lists there.
+pub mod scope;
+
 /// Studio integration facade — [`studio::compile_studio`] turns a program into a
 /// [`studio::CompiledSite`] (SSG pages + CSS + JS + node map) for the preview.
 pub mod studio;

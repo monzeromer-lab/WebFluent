@@ -30,6 +30,7 @@ mod project_js;
 mod registry;
 mod reprint;
 mod runtime;
+mod scope;
 mod sema;
 mod style_value;
 mod syntax;
@@ -115,6 +116,21 @@ enum Commands {
         /// Project directory (default: current directory)
         #[arg(short, long, default_value = ".")]
         dir: PathBuf,
+        /// Print JSON, for tools
+        #[arg(long)]
+        json: bool,
+    },
+    /// What a path picker lists at a place: the names in scope there, each
+    /// with its type and where it comes from, and the fields to go on into
+    Scope {
+        /// The place: `src/pages/Signup.wf:24` or `…:24:9`
+        place: String,
+        /// Project directory (default: current directory)
+        #[arg(short, long, default_value = ".")]
+        dir: PathBuf,
+        /// A template's data, a JSON file, to list after the scope
+        #[arg(long)]
+        data: Option<PathBuf>,
         /// Print JSON, for tools
         #[arg(long)]
         json: bool,
@@ -415,6 +431,12 @@ fn main() {
             }
             ConfigAction::Unset { path, dir } => cli::config::run_set(&dir, &path, None),
         },
+        Commands::Scope {
+            place,
+            dir,
+            data,
+            json,
+        } => cli::scope::run_scope(&dir, &place, data.as_deref(), json),
         Commands::Rules { dir, json } => cli::rules::run_rules(&dir, json),
         Commands::Motion { dir, json } => cli::motion::run_motion(&dir, json),
         Commands::Theme { dir, json } => cli::theme::run_theme(&dir, json),

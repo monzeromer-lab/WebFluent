@@ -16,6 +16,7 @@ pub mod motion;
 pub mod preview;
 pub mod render;
 pub mod rules;
+pub mod scope;
 pub mod serve;
 pub mod test;
 pub mod theme;

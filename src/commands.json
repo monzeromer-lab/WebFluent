@@ -383,6 +383,70 @@
       "writes": ""
     },
     {
+      "name": "scope",
+      "options": [
+        {
+          "default": null,
+          "flag": false,
+          "help": "The place: `src/pages/Signup.wf:24` or `…:24:9`",
+          "long": null,
+          "name": "place",
+          "positional": true,
+          "repeats": false,
+          "required": true,
+          "short": null,
+          "takes": "text",
+          "value_name": "PLACE",
+          "values": []
+        },
+        {
+          "default": ".",
+          "flag": false,
+          "help": "Project directory (default: current directory)",
+          "long": "dir",
+          "name": "dir",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": "d",
+          "takes": "path",
+          "value_name": "DIR",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": false,
+          "help": "A template's data, a JSON file, to list after the scope",
+          "long": "data",
+          "name": "data",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "path",
+          "value_name": "DATA",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Print JSON, for tools",
+          "long": "json",
+          "name": "json",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "JSON",
+          "values": []
+        }
+      ],
+      "preview": null,
+      "summary": "What a path picker lists at a place: the names in scope there, each with its type and where it comes from, and the fields to go on into",
+      "writes": ""
+    },
+    {
       "name": "rules",
       "options": [
         {
