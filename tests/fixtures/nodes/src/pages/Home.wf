@@ -1,0 +1,23 @@
+/// The node map's fixture: the same layout in two files (`Left` and
+/// `Rite`), a loop, both branches of an `if`, and a slot filled.
+page Home(path: "/", title: "Nodes", description: "Every element stamped with its source.") {
+    state items: [String] = ["one", "two", "three"]
+    state open = true
+    Container {
+        Heading("Nodes").h1
+        Left
+        Rite
+        for item in items {
+            Badge(item, id: "item")
+        }
+        if open {
+            Text("open", id: "shown")
+        } else {
+            Text("shut", id: "hidden-branch")
+        }
+        Panel("A panel") {
+            Text("Inside the panel")
+            Button("Press")
+        }
+    }
+}

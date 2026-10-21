@@ -96,6 +96,52 @@ fn pad(depth: usize) -> String {
     "    ".repeat(depth)
 }
 
+/// The one patch that turns `before` into `after`: what lies between what
+/// they share at the front and at the back. For following a span across an
+/// edit made elsewhere, as [`follow`] does with an edit's own patches.
+pub fn between(before: &str, after: &str) -> Patch {
+    let (a, b) = (before.as_bytes(), after.as_bytes());
+    let mut front = a.iter().zip(b).take_while(|(x, y)| x == y).count();
+    while !before.is_char_boundary(front) {
+        front -= 1;
+    }
+    let mut back = a[front..]
+        .iter()
+        .rev()
+        .zip(b[front..].iter().rev())
+        .take_while(|(x, y)| x == y)
+        .count();
+    while !before.is_char_boundary(a.len() - back) || !after.is_char_boundary(b.len() - back) {
+        back -= 1;
+    }
+    Patch::new(front, a.len() - back, &after[front..b.len() - back])
+}
+
+/// Where `start..end` is once `patches` are applied — a selection kept
+/// across an edit. A patch before it moves it, one inside it grows or
+/// shrinks it; one that overlaps an edge, or covers it, leaves it nowhere.
+pub fn follow(start: usize, end: usize, patches: &[Patch]) -> Option<(usize, usize)> {
+    let (mut s, mut e) = (start as isize, end as isize);
+    for p in patches {
+        let delta = p.text.len() as isize - (p.end as isize - p.start as isize);
+        if p.end <= start && p.start < start {
+            s += delta;
+            e += delta;
+        } else if p.end <= start && p.start == p.end && p.start == start {
+            // Text written right where it starts is before it.
+            s += delta;
+            e += delta;
+        } else if p.start >= end {
+            // After it: nothing moves.
+        } else if p.start >= start && p.end <= end {
+            e += delta;
+        } else {
+            return None;
+        }
+    }
+    (s >= 0 && e >= s).then_some((s as usize, e as usize))
+}
+
 // ─── Finding the braces ──────────────────────────────────
 
 /// The `{ … }` groups at the top level of `source[start..end]`, as the

@@ -1,0 +1,9 @@
+/// A titled box: what is in its block is its body.
+component Panel(_ title: String) {
+    Card {
+        Heading(title).h3
+        Stack(gap: .sm) {
+            children
+        }
+    }
+}

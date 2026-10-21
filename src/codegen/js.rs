@@ -193,6 +193,8 @@ pub struct JsCodegen {
     studio: bool,
     /// Deterministic node ids keyed by element span (empty unless in studio mode).
     node_ids: NodeMap,
+    /// The page, component or app being emitted: whose element a span is.
+    node_owner: String,
     /// Whether each page is written as its own chunk (`pages/<Name>.js`),
     /// registered with `WF.page`, rather than into the main bundle.
     split_pages: bool,
@@ -290,6 +292,7 @@ impl JsCodegen {
             in_thead: false,
             studio: false,
             node_ids: NodeMap::default(),
+            node_owner: String::new(),
             split_pages: false,
             chunks: Vec::new(),
             page_sheets: std::collections::BTreeSet::new(),
@@ -510,7 +513,7 @@ impl JsCodegen {
             return None;
         }
         self.node_ids
-            .id_for(ui.span)
+            .id_in(&self.node_owner, ui.span)
             .map(|id| format!("\"data-wf-node\": \"{}\"", id))
     }
 
@@ -1706,6 +1709,7 @@ impl JsCodegen {
     // ─── Component ───────────────────────────────────
 
     fn emit_component(&mut self, comp: &ComponentDecl) {
+        self.node_owner = comp.name.clone();
         let params: Vec<String> = comp.props.iter().map(|p| p.name.clone()).collect();
         // Set current props so emit_expr treats them as plain variables, not signals
         self.current_props = params.clone();
@@ -1791,6 +1795,7 @@ impl JsCodegen {
     // ─── Page ────────────────────────────────────────
 
     fn emit_page(&mut self, page: &PageDecl) {
+        self.node_owner = page.name.clone();
         let start = self.output.len();
         self.emit_line(&format!("function Page_{}(params) {{", page.name));
         self.indent += 1;
@@ -1873,6 +1878,7 @@ impl JsCodegen {
     // ─── App ─────────────────────────────────────────
 
     fn emit_app(&mut self, app: &AppDecl) {
+        self.node_owner = "App".to_string();
         let start = self.output.len();
         self.emit_line("(function() {");
         self.indent += 1;
@@ -3319,6 +3325,19 @@ impl JsCodegen {
                     let mut root = ui.clone();
                     root.args = lifetime;
                     self.emit_host(&var, &root);
+                }
+                // An editor's preview: the instance's root says which call
+                // made it, innermost first, so a tap inside it can select
+                // the call on the page rather than the component's insides.
+                if self.studio
+                    && let Some(id) = self
+                        .node_ids
+                        .id_in(&self.node_owner, ui.span)
+                        .map(str::to_string)
+                {
+                    self.emit_line(&format!(
+                        "(_n => {{ const r = _n && _n.nodeType === 11 ? _n.firstElementChild : _n; if (r && r.setAttribute) r.setAttribute(\"data-wf-call\", ((r.getAttribute(\"data-wf-call\") || \"\") + \" {id}\").trim()); }})({var});"
+                    ));
                 }
                 // The motion asked of it here: markers on its root element.
                 let marks: Vec<String> = ui

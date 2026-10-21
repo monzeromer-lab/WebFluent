@@ -1,0 +1,4 @@
+{
+  "name": "nodes",
+  "build": { "ssg": true }
+}

@@ -20,7 +20,7 @@ told otherwise, and exits non-zero on failure, so each is a CI step as it is.
 | Command | Does |
 |---|---|
 | `wf init NAME [-t, --template spa\|static\|pdf\|slides]` | Creates a project from a template |
-| `wf build [-d, --dir DIR] [--stats] [--format FORMAT] [--deny-warnings] [--cache]` | Compiles the project; fails on errors, prints warnings |
+| `wf build [-d, --dir DIR] [--stats] [--format FORMAT] [--deny-warnings] [--cache] [--studio]` | Compiles the project; fails on errors, prints warnings |
 | `wf check [-d, --dir DIR] [--format FORMAT] [--deny-warnings]` | Every finding a build would report, with nothing written |
 | `wf fix [-d, --dir DIR] [--code CODE] [--dry-run]` | Fixes every finding that has a fix, or every one of a code |
 | `wf config schema [--json]`, `wf config get\|set\|unset PATH [VALUE] [-d, --dir DIR]` | Every setting, and an edit of `webfluent.app.json` that keeps its shape |
@@ -85,6 +85,15 @@ translations, the compiler) — is taken from the cache, and only the pages
 an edit changed are rendered again. What it writes is what a build without
 it writes, byte for byte. A build with nothing to reuse fills the cache;
 each keeps only what it used.
+
+`--studio` builds for an editor's preview: every element's root carries
+`data-wf-node`, its node id — the same in the pre-rendered page and the
+live one — and an instance of one of the project's components carries
+`data-wf-call`, the calls that made it, innermost first. `nodes.json`
+beside the site maps each id to where it is written (file, bytes, line),
+what it calls, its parent, the loops and branches it is inside and what
+its arguments read. A build without `--studio` stamps nothing and removes
+a `nodes.json` it finds there.
 
 `--stats` prints what the build weighs: every text file with its gzipped
 size and how it moved since the last build, the runtime modules it kept and

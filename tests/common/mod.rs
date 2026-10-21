@@ -157,6 +157,7 @@ pub fn ssg_html_as(src: &str, file: &str) -> String {
             program: &program,
             program_scope: None,
             page_sheets: None,
+            node_map: None,
         },
     )
 }

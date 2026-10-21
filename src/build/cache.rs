@@ -254,6 +254,7 @@ impl PageKeys {
         config: &ProjectConfig,
         translations: &HashMap<String, HashMap<String, String>>,
         page_sheets: &[&String],
+        studio: bool,
     ) -> Self {
         let mut components = HashMap::new();
         for decl in &program.declarations {
@@ -263,6 +264,8 @@ impl PageKeys {
         }
         let mut shared = Digest::new();
         shared.part(&COMPILER);
+        // A preview's pages carry node ids a site's do not.
+        shared.part(&studio);
         shared.part(&canonical_config(config));
         let mut locales: Vec<_> = translations.iter().collect();
         locales.sort_by(|a, b| a.0.cmp(b.0));

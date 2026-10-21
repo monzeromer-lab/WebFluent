@@ -51,6 +51,10 @@ pub struct BuildOptions<'a> {
     /// What earlier builds made, to reuse what this one would make the
     /// same; `None` builds everything.
     pub cache: Option<&'a BuildCache>,
+    /// For an editor's preview: every element's root carries its node id
+    /// (`data-wf-node`), in the pre-rendered pages and the bundle alike, and
+    /// the report hands back the map from each id to its source.
+    pub studio: bool,
     /// Called with each line as the build prints it, before it is kept in
     /// the report: `wf build` prints them as they come, so a build that
     /// spends a while on its images shows where it is.
@@ -70,6 +74,7 @@ impl<'a> BuildOptions<'a> {
             dev: false,
             color: false,
             cache: None,
+            studio: false,
             on_line: None,
         }
     }
@@ -105,6 +110,8 @@ pub struct RouteInfo {
 /// What a build did and said.
 #[derive(Clone, Debug, Default)]
 pub struct BuildReport {
+    /// For a studio build: every element's node id and where it is written.
+    pub nodes: Option<crate::codegen::node_id::NodeMap>,
     /// Every line `wf build` prints, in order. The error a failed build
     /// ends with is not among them: it is [`BuildFailure::error`].
     pub lines: Vec<BuildLine>,
@@ -667,6 +674,15 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
         js_codegen.set_base_path(config.build.base_path.clone());
     }
     js_codegen.set_app_schemes(crate::config::project::app_schemes(&config));
+    // An editor's preview: each element stamped with the id its source has.
+    let nodes = options.studio.then(|| {
+        let files = declaration_files.clone();
+        crate::codegen::node_id::build_node_map_with(&program, &|i| files.get(i).cloned())
+    });
+    if let Some(map) = &nodes {
+        js_codegen.set_studio(map.clone());
+        out.report.borrow_mut().nodes = Some(map.clone());
+    }
     let js = js_codegen.generate(&program);
 
     // The project as custom elements: one file any framework can load, and
@@ -746,7 +762,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
         // A page whose inputs are what they were is taken from the cache.
         let keys = options.cache.map(|_| {
             let sheets: Vec<&String> = page_sheets.keys().collect();
-            cache::PageKeys::new(&program, &config, &translations, &sheets)
+            cache::PageKeys::new(&program, &config, &translations, &sheets, options.studio)
         });
         let render = |page: &crate::parser::ast::PageDecl,
                       route: &str,
@@ -777,6 +793,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
                     program: &program,
                     program_scope: Some(&program_scope),
                     page_sheets: Some(&page_sheets),
+                    node_map: nodes.as_ref(),
                 };
                 // A `:param` route is rendered once per value its `paths:`
                 // names, and not at all without them.

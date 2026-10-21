@@ -14,7 +14,10 @@ use std::collections::{BTreeMap, HashMap};
 /// **expanded** into the static paint rather than left as placeholders. Pass an
 /// empty map to render without them (the pre-expansion behaviour).
 pub fn render_page_html(page: &PageDecl, site: &SiteContext) -> String {
-    render_page_html_studio(page, site, false, &NodeMap::default())
+    match site.node_map {
+        Some(map) => render_page_html_studio(page, site, true, map),
+        None => render_page_html_studio(page, site, false, &NodeMap::default()),
+    }
 }
 
 /// [`render_page_html`] for one value of a `:param` route: the page's
@@ -69,7 +72,10 @@ pub fn render_page_html_with_params(
     }
     extra.append(&mut seeded.body);
     seeded.body = extra;
-    render_page_html_studio(&seeded, site, false, &NodeMap::default())
+    match site.node_map {
+        Some(map) => render_page_html_studio(&seeded, site, true, map),
+        None => render_page_html_studio(&seeded, site, false, &NodeMap::default()),
+    }
 }
 
 /// The concrete routes of a `:param` page with `paths:`, each with its
@@ -160,6 +166,8 @@ pub struct SiteContext<'a> {
     /// them out (`build.split`); without them each page works them out
     /// again to know whether it has a sheet of its own.
     pub page_sheets: Option<&'a BTreeMap<String, String>>,
+    /// For an editor's preview: the node ids every element's root carries.
+    pub node_map: Option<&'a NodeMap>,
 }
 
 impl SiteContext<'_> {
@@ -187,6 +195,7 @@ impl<'a> SiteContext<'a> {
             program,
             program_scope: None,
             page_sheets: None,
+            node_map: None,
         }
     }
 }
@@ -273,6 +282,7 @@ pub fn render_page_html_studio(
         app_schemes: crate::config::project::app_schemes(config),
         studio,
         node_map: node_map.clone(),
+        owners: vec![page.name.clone(), "App".to_string()],
         components: components.clone(),
         scope,
         depth: 0,
@@ -486,6 +496,9 @@ struct SsgContext {
     /// Node ids keyed by element span (empty unless in studio mode). Matches the
     /// JS codegen's ids because both consult the same map.
     node_map: NodeMap,
+    /// The page, the app and the components being painted, outermost first:
+    /// whose element a span may be.
+    owners: Vec<String>,
     /// The program's `Component` declarations, so a call to one can be expanded
     /// into the static paint instead of a placeholder comment.
     components: HashMap<String, ComponentDecl>,
@@ -542,7 +555,7 @@ impl SsgContext {
             return None;
         }
         self.node_map
-            .id_for(ui.span)
+            .id_among(&self.owners, ui.span)
             .map(|id| format!("data-wf-node=\"{}\"", id))
     }
 
@@ -758,8 +771,46 @@ fn render_user_component(name: &str, call: &UIElement, ctx: &mut SsgContext) -> 
     let outer = ctx.scope.clone();
     ctx.scope.push_state(&body);
     ctx.depth += 1;
+    // The call's own id, from where it is written, before its component's
+    // names are in reach.
+    let call_id = if ctx.studio {
+        ctx.node_map
+            .id_among(&ctx.owners, call.span)
+            .map(str::to_string)
+    } else {
+        None
+    };
+    ctx.owners.push(name.to_string());
     let mut html = render_statements(&body, ctx);
+    ctx.owners.pop();
     ctx.depth -= 1;
+    // An editor's preview: the instance's root says which call made it,
+    // innermost first, as the bundle writes it.
+    if let Some(id) = call_id
+        && let Some(at) = first_tag_end(&html)
+    {
+        let close = html[at..].find('>').map_or(html.len(), |i| at + i);
+        let tag = &html[at..close];
+        html = match tag.find("data-wf-call=\"") {
+            Some(i) => {
+                let value = at + i + "data-wf-call=\"".len();
+                let end = html[value..].find('"').map_or(value, |j| value + j);
+                format!("{} {id}{}", &html[..end], &html[end..])
+            }
+            None => {
+                let insert = if html[..close].ends_with('/') {
+                    close - 1
+                } else {
+                    close
+                };
+                format!(
+                    "{} data-wf-call=\"{id}\"{}",
+                    html[..insert].trim_end(),
+                    &html[insert..]
+                )
+            }
+        };
+    }
     ctx.scope = outer;
     // The call's attributes the component takes no prop for — `aria-label`,
     // `id`, `hidden`, `class` — are its root element's, as on the live page.
@@ -2346,6 +2397,7 @@ mod component_expansion_tests {
                 program: &program,
                 program_scope: None,
                 page_sheets: None,
+                node_map: None,
             },
         )
     }
@@ -2500,6 +2552,7 @@ mod program_scope_tests {
                     program: &program,
                     program_scope,
                     page_sheets: None,
+                    node_map: None,
                 },
             )
         };

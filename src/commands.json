@@ -118,6 +118,20 @@
           "takes": "nothing",
           "value_name": "CACHE",
           "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "For an editor's preview: stamp every element with its node id (`data-wf-node`) and write `nodes.json`, from each id to its source",
+          "long": "studio",
+          "name": "studio",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "STUDIO",
+          "values": []
         }
       ],
       "preview": null,

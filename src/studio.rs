@@ -208,6 +208,7 @@ pub fn compile_studio(
                 program,
                 program_scope: Some(&program_scope),
                 page_sheets: None,
+                node_map: Some(&node_map),
             };
             let html = render_page_html_studio(page, &site, true, &node_map);
             pages.push(CompiledPage {

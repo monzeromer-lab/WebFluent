@@ -81,6 +81,10 @@ enum Commands {
         /// only the pages an edit changed are rendered again
         #[arg(long)]
         cache: bool,
+        /// For an editor's preview: stamp every element with its node id
+        /// (`data-wf-node`) and write `nodes.json`, from each id to its source
+        #[arg(long)]
+        studio: bool,
     },
     /// Check the project — every finding a build would report — and write
     /// nothing
@@ -343,6 +347,7 @@ fn main() {
             format,
             deny_warnings,
             cache,
+            studio,
         } => cli::build::run_build_opts(
             &dir,
             cli::build::Options {
@@ -351,6 +356,7 @@ fn main() {
                 deny_warnings,
                 dev: false,
                 cache,
+                studio,
             },
         ),
         Commands::Check {
@@ -365,6 +371,7 @@ fn main() {
                 deny_warnings,
                 dev: false,
                 cache: false,
+                studio: false,
             },
         ),
         Commands::Config { action } => match action {
