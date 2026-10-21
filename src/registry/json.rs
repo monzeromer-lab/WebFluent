@@ -98,7 +98,7 @@ fn flags_of(sig: &'static ComponentSig, prop: &'static PropSig) -> Vec<Value> {
 
 fn prop_json(prop: &PropSig, sig: Option<&'static ComponentSig>) -> Value {
     let (ty, cases): (&str, Option<Vec<Value>>) = match prop.ty {
-        PropType::Str => ("String", None),
+        PropType::Str | PropType::File(_) => ("String", None),
         PropType::Num => ("Number", None),
         PropType::Bool => ("Bool", None),
         PropType::State => ("State", None),
@@ -136,6 +136,11 @@ fn prop_json(prop: &PropSig, sig: Option<&'static ComponentSig>) -> Value {
             Sink::Special => "special",
         },
         "flag": prop.shorthand && matches!(prop.ty, PropType::Bool),
+        // The kind of file a picker offers for it: `image`, `video` …
+        "file": match prop.ty {
+            PropType::File(kind) => Some(kind.word()),
+            _ => None,
+        },
         "legacy": match prop.legacy {
             Legacy::Modifier(word) => Some(word),
             Legacy::Attr => None,

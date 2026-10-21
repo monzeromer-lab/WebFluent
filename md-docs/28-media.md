@@ -73,6 +73,11 @@ cached in `.wf-cache/media/`, so a build that changes no image does no
 image work. A PDF or a slide deck embeds the real picture rather than
 drawing a box where one should be.
 
+`wf assets --plan /hero.jpg` says what the pipeline will make of a picture
+before it does: each width, each format, and what the files come to. `wf
+assets` lists everything in `public/` with where it is used, and counts
+what nothing uses.
+
 ## Icons
 
 `Icon("name")` draws one of the built-in SVG icons inline, in the current

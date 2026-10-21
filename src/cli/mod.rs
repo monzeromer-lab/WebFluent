@@ -1,4 +1,5 @@
 pub mod act;
+pub mod assets;
 pub mod audit;
 pub mod build;
 pub mod config;

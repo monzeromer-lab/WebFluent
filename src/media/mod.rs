@@ -21,7 +21,25 @@ use std::path::{Path, PathBuf};
 use crate::error::Result;
 
 pub mod encode;
+pub mod plan;
 pub mod probe;
+
+/// The widths an image `width` pixels wide is written at, in the order the
+/// settings list them: each one that is smaller, then its own. Never up-scaled — a 600px
+/// photograph has no 1920px version.
+pub fn widths_for(settings: &Settings, width: u32) -> Vec<u32> {
+    let mut out: Vec<u32> = settings
+        .widths
+        .iter()
+        .copied()
+        .filter(|w| *w < width)
+        .collect();
+    out.push(width);
+    out
+}
+
+/// The formats the build can write.
+pub const FORMATS: &[&str] = &["webp", "png", "jpeg", "jpg"];
 
 /// What the config says to make.
 #[derive(Debug, Clone)]
@@ -165,14 +183,7 @@ pub fn process_via(
 
     let mut sources: BTreeMap<String, Vec<(u32, String)>> = BTreeMap::new();
     if settings.pipeline {
-        // Never up-scale: a 600px photograph has no 1920px version.
-        let widths: Vec<u32> = settings
-            .widths
-            .iter()
-            .copied()
-            .filter(|w| *w < probed.width)
-            .chain(std::iter::once(probed.width))
-            .collect();
+        let widths = widths_for(settings, probed.width);
         for format in &settings.formats {
             let mut made = Vec::new();
             for width in &widths {

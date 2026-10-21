@@ -128,7 +128,7 @@ pub fn missing_assets(
                 let Arg::Named(key, Expr::StringLiteral(url)) = arg else {
                     continue;
                 };
-                if !matches!(key.as_str(), "src" | "poster" | "captions" | "transcript") {
+                if !names_a_file(&ui.component, key) {
                     continue;
                 }
                 if !url.starts_with('/') || url.starts_with("//") {
@@ -154,6 +154,18 @@ pub fn missing_assets(
         });
     }
     out
+}
+
+/// Whether `key` on `component` names a file of `public/`: on a built-in,
+/// a prop the registry types as a file; on the project's own component,
+/// a prop called as the built-ins call theirs.
+pub fn names_a_file(component: &ComponentRef, key: &str) -> bool {
+    match component {
+        ComponentRef::BuiltIn(name) => {
+            crate::registry::file_props().any(|(c, p, _)| c.name == name && p.name == key)
+        }
+        _ => matches!(key, "src" | "poster" | "captions" | "transcript"),
+    }
 }
 
 /// Every file under `dir`, as `/<prefix>/<name>`.

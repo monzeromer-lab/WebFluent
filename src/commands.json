@@ -333,6 +333,70 @@
       "writes": ""
     },
     {
+      "name": "assets",
+      "options": [
+        {
+          "default": ".",
+          "flag": false,
+          "help": "Project directory (default: current directory)",
+          "long": "dir",
+          "name": "dir",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": "d",
+          "takes": "path",
+          "value_name": "DIR",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": false,
+          "help": "What the pipeline will make of this image of `public/`: `/hero.png`",
+          "long": "plan",
+          "name": "plan",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "text",
+          "value_name": "PATH",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Only the files nothing names",
+          "long": "unused",
+          "name": "unused",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "UNUSED",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Print JSON, for tools",
+          "long": "json",
+          "name": "json",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "JSON",
+          "values": []
+        }
+      ],
+      "preview": null,
+      "summary": "What `public/` holds — each file's kind, size and dimensions, and where the project names it — or what the media pipeline will make of one image",
+      "writes": ""
+    },
+    {
       "name": "commands",
       "options": [
         {

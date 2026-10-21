@@ -1498,7 +1498,7 @@ pub fn read_project_collecting_via(
     Ok((program, declaration_files, parse_errors))
 }
 
-fn find_wf_files(vfs: &dyn Vfs, dir: &Path) -> Result<Vec<PathBuf>> {
+pub(crate) fn find_wf_files(vfs: &dyn Vfs, dir: &Path) -> Result<Vec<PathBuf>> {
     let mut files = Vec::new();
 
     if !vfs.is_dir(dir) {

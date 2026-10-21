@@ -36,6 +36,7 @@ told otherwise, and exits non-zero on failure, so each is a CI step as it is.
 | `wf docs [-d, --dir DIR] [-o, --out OUT]` | Writes a gallery of every component |
 | `wf registry [--json]` | Describes every built-in |
 | `wf commands [--json]` | Describes every command: its options, what it writes, and how to see it first |
+| `wf assets [-d, --dir DIR] [--unused] [--plan PATH] [--json]` | Lists `public/` and where each file is used, or what the image pipeline will make of one |
 | `wf types [PATH] [--json]` | Describes what the project declares |
 
 ## Creating and building
@@ -367,6 +368,36 @@ shows it first and writes nothing (`fmt --check`, `migrate --check`, `fix
 --dry-run`). A tool page, a palette or a script is built from it rather
 than from a copy of this page; the library has the same, as
 `webfluent::commands`.
+
+### `wf assets`
+
+```bash
+wf assets
+wf assets --unused
+wf assets --plan /hero.png
+wf assets --json
+```
+
+Every file of `public/`: its kind (image, font, video, audio, document,
+code, data), its size, a picture's dimensions, and every place the project
+names it — a prop the registry types as a file (`Image`'s `src`, `Video`'s
+`poster` and `captions`), a page's `image:`, a `const`, an `image`
+declaration, a `data` file's strings, a value of `webfluent.app.json`, a
+stylesheet's `url(…)`, a project script, a manifest. A file a browser or a
+host asks for by name — `favicon.ico`, `robots.txt`, `.well-known/…` — is
+used by convention; anything else nothing names is counted unused, and
+`--unused` lists only those.
+
+`--plan PATH` is what the image pipeline will make of one picture with the
+project's `build.media`: each width it writes, in each format, the file's
+name and its size — *3 widths × 1 format · 3 files · about 84 kB*. A size
+is exact once `wf build` has written the file (it is read from
+`.wf-cache/media/`) or when the picture is small enough to encode there and
+then; otherwise it is estimated from strips of it encoded at that width,
+and says `about`. A format the build cannot write is named, with why.
+
+The library has the same as `webfluent::assets::{list, plan}`, reading
+through a `Vfs`, so an editor's unsaved buffers count.
 
 ### `wf docs`, `wf registry`, `wf types`
 

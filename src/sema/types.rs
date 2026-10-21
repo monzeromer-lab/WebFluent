@@ -2778,7 +2778,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             {
                 let wanted = match prop.ty {
                     PropType::Num => Some(Type::Number),
-                    PropType::Str => Some(Type::String),
+                    PropType::Str | PropType::File(_) => Some(Type::String),
                     PropType::Bool => Some(Type::Bool),
                     _ => None,
                 };
@@ -2877,7 +2877,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                         }
                     }
                 }
-                (PropType::Str | PropType::Path, _) => {
+                (PropType::Str | PropType::File(_) | PropType::Path, _) => {
                     let given = self.infer(value, Some(&Type::String));
                     // Text-like props take a number or a bool as text.
                     if !matches!(given, Type::Number | Type::Bool) {

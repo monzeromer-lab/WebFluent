@@ -514,7 +514,7 @@ impl Checker<'_, '_> {
                         let text_props: Vec<&str> = sig
                             .props
                             .iter()
-                            .filter(|p| matches!(p.ty, PropType::Str))
+                            .filter(|p| p.ty.is_text())
                             .map(|p| p.name)
                             .collect();
                         if let [only] = text_props.as_slice() {

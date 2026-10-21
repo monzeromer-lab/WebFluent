@@ -165,6 +165,9 @@ pub mod fmt;
 pub mod i18n;
 pub mod layout;
 
+/// `public/` as data: every file, its kind, size and dimensions, where
+/// the project names it, and what the media pipeline will make of an image.
+pub mod assets;
 /// Code generation — compiles the AST to various output formats.
 ///
 /// Supports HTML ([`codegen::generate_html`]), CSS ([`codegen::generate_css`]),

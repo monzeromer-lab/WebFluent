@@ -39,6 +39,9 @@ pub enum FieldType {
     Map,
     /// A list of scripts, each a URL or `{ "src": … }`.
     Scripts,
+    /// A file of `public/` by its site-relative path, or a URL: text, and
+    /// what an editor offers a picker of that kind for.
+    File(crate::registry::FileKind),
 }
 
 impl FieldType {
@@ -55,6 +58,7 @@ impl FieldType {
             FieldType::StringMap { .. } => "string map",
             FieldType::Map => "map",
             FieldType::Scripts => "scripts",
+            FieldType::File(_) => "file",
         }
     }
 
@@ -63,7 +67,7 @@ impl FieldType {
         match (self, value) {
             (_, Value::Null) => true,
             (FieldType::Bool, Value::Bool(_)) => true,
-            (FieldType::String, Value::String(_)) => true,
+            (FieldType::String | FieldType::File(_), Value::String(_)) => true,
             (FieldType::Number, Value::Number(_)) => true,
             (FieldType::Integer { min, max }, Value::Number(n)) => {
                 n.as_i64().is_some_and(|n| n >= min && n <= max)
@@ -103,6 +107,7 @@ const fn f(path: &'static str, ty: FieldType, summary: &'static str) -> Field {
     Field { path, ty, summary }
 }
 
+use crate::registry::FileKind;
 use FieldType::*;
 
 const OUTPUT_TYPES: &[&str] = &["spa", "static", "pdf", "slides", "elements"];
@@ -381,12 +386,12 @@ pub const FIELDS: &[Field] = &[
     ),
     f(
         "meta.favicon",
-        String,
+        File(FileKind::Icon),
         "The icon a tab shows: a file in `public/` or a URL.",
     ),
     f(
         "meta.touch_icon",
-        String,
+        File(FileKind::Image),
         "The icon a phone puts on its home screen: a 180×180 PNG in `public/`.",
     ),
     f(
@@ -421,7 +426,7 @@ pub const FIELDS: &[Field] = &[
     ),
     f(
         "meta.image",
-        String,
+        File(FileKind::Image),
         "The image a link to a page shows when shared, for a page that does not name its own.",
     ),
     f(
@@ -605,6 +610,7 @@ pub fn to_json() -> Value {
                     StringMap {
                         values: Some(cases),
                     } => row["values"] = serde_json::json!(cases),
+                    File(kind) => row["file"] = serde_json::json!(kind.word()),
                     Integer { min, max } => {
                         row["min"] = serde_json::json!(min);
                         row["max"] = serde_json::json!(max);
@@ -737,6 +743,7 @@ mod tests {
         match ty {
             Bool => Value::Bool(true),
             FieldType::String => Value::String("sample".into()),
+            File(_) => Value::String("/sample.png".into()),
             Number => serde_json::json!(12.5),
             Integer { min, max } => serde_json::json!((min + max) / 2),
             Enum(cases) => Value::String(cases[cases.len() - 1].into()),

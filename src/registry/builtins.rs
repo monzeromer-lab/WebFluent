@@ -7,7 +7,9 @@
 //! the word the code generators read; `""` marks a default that has no
 //! class of its own.
 
-use super::{AttrFamily, CaseSig, Children, ComponentSig, Ir, Legacy, PropSig, PropType, Sink};
+use super::{
+    AttrFamily, CaseSig, Children, ComponentSig, FileKind, Ir, Legacy, PropSig, PropType, Sink,
+};
 
 // ─── Construction helpers ────────────────────────────────────────────────
 
@@ -1218,7 +1220,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "A picture of a person, or their initials.",
         None,
         &[
-            special("src", PropType::Str, "Image URL"),
+            special("src", PropType::File(FileKind::Image), "Image URL"),
             special("alt", PropType::Str, "Text alternative for the image"),
             special(
                 "initials",
@@ -1739,7 +1741,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
             "An `image` the program declares, or a URL",
         )),
         &[
-            attr("src", PropType::Str, "Image URL"),
+            attr("src", PropType::File(FileKind::Image), "Image URL"),
             special(
                 "sizes",
                 PropType::Str,
@@ -1792,16 +1794,20 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Video player. Without `captions` it draws an `A09` warning: a video nobody can hear is a video nobody can follow.",
         None,
         &[
-            attr("src", PropType::Str, "Video URL"),
+            attr("src", PropType::File(FileKind::Video), "Video URL"),
             attr_flag("controls", "Show the browser's playback controls"),
             attr_flag("autoplay", "Start playing when shown"),
-            attr("poster", PropType::Str, "The frame shown before it plays"),
+            attr(
+                "poster",
+                PropType::File(FileKind::Image),
+                "The frame shown before it plays",
+            ),
             attr_flag("muted", "Start with the sound off"),
             attr_flag("loop", "Start again when it ends"),
             attr_flag("playsinline", "Play where it sits, rather than full screen"),
             special(
                 "captions",
-                PropType::Str,
+                PropType::File(FileKind::Captions),
                 "A WebVTT file of captions, which becomes a `<track>`",
             ),
             attr("width", PropType::Num, "Intrinsic width"),
@@ -1817,13 +1823,13 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Audio player. `transcript` links what was said, which is what a reader who cannot hear it needs.",
         None,
         &[
-            attr("src", PropType::Str, "Audio URL"),
+            attr("src", PropType::File(FileKind::Audio), "Audio URL"),
             attr_flag("controls", "Show the browser's playback controls"),
             attr_flag("autoplay", "Start playing when shown"),
             attr_flag("loop", "Start again when it ends"),
             special(
                 "transcript",
-                PropType::Str,
+                PropType::File(FileKind::Document),
                 "A link to what was said, shown beneath the player",
             ),
         ],
@@ -2307,7 +2313,11 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Image slide with an optional caption.",
         None,
         &[
-            special("src", PropType::Str, "Image path (required)"),
+            special(
+                "src",
+                PropType::File(FileKind::Image),
+                "Image path (required)",
+            ),
             special("caption", PropType::Str, "Caption under the image"),
         ],
         &[],

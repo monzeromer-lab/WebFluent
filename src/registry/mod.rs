@@ -39,6 +39,9 @@ pub enum Ir {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PropType {
     Str,
+    /// A file of `public/`, by its site-relative path (`/hero.png`), or a
+    /// URL: text to the checker, and what an editor offers a picker for.
+    File(FileKind),
     Num,
     Bool,
     /// A state variable the control reads and writes (`bind:`), or reads
@@ -52,6 +55,56 @@ pub enum PropType {
     Any,
     /// One of a fixed set of cases, written `.case`.
     Enum(&'static [CaseSig]),
+}
+
+/// What kind of file a [`PropType::File`] prop takes.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FileKind {
+    /// A picture: a raster image or an SVG.
+    Image,
+    /// What a tab or a home screen shows: a picture, or an `.ico`.
+    Icon,
+    Video,
+    Audio,
+    /// A WebVTT file of captions.
+    Captions,
+    /// Something a reader opens or reads: a PDF, text, a page.
+    Document,
+}
+
+impl FileKind {
+    /// Its word, as the registry's JSON says it.
+    pub fn word(self) -> &'static str {
+        match self {
+            FileKind::Image => "image",
+            FileKind::Icon => "icon",
+            FileKind::Video => "video",
+            FileKind::Audio => "audio",
+            FileKind::Captions => "captions",
+            FileKind::Document => "document",
+        }
+    }
+}
+
+impl PropType {
+    /// Whether the value is text: a string, or a file named by its path.
+    pub fn is_text(self) -> bool {
+        matches!(self, PropType::Str | PropType::File(_))
+    }
+}
+
+/// Every prop of a built-in that names a file: the component, the prop and
+/// the kind it takes — `Image`'s `src`, `Video`'s `poster`.
+pub fn file_props() -> impl Iterator<Item = (&'static ComponentSig, &'static PropSig, FileKind)> {
+    COMPONENTS.iter().flat_map(|c| {
+        c.positional
+            .iter()
+            .chain(c.props.iter())
+            .filter_map(move |p| match p.ty {
+                PropType::File(kind) => Some((c, p, kind)),
+                _ => None,
+            })
+    })
 }
 
 /// Where a prop's value ends up.

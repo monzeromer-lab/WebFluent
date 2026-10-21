@@ -58,6 +58,7 @@ pub const EFFECTS: &[Effect] = &[
     e("registry", "", None),
     e("types", "", None),
     e("fmt", "the project's source files", Some("--check")),
+    e("assets", "", None),
     e("commands", "", None),
 ];
 

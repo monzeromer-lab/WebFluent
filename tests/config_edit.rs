@@ -64,6 +64,7 @@ fn other(ty: FieldType, v: &Value) -> Value {
         FieldType::StringMap { values } => serde_json::json!({ "x": values.map_or("y", |c| c[0]) }),
         FieldType::Map => serde_json::json!({ "x": 1 }),
         FieldType::Scripts => serde_json::json!(["/x.js"]),
+        FieldType::File(_) => Value::String(format!("{}-changed.png", v.as_str().unwrap_or("/x"))),
     }
 }
 

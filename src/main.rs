@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 
+mod assets;
 mod audit;
 mod browser;
 mod build;
@@ -98,6 +99,24 @@ enum Commands {
     Config {
         #[command(subcommand)]
         action: ConfigAction,
+    },
+    /// What `public/` holds — each file's kind, size and dimensions, and
+    /// where the project names it — or what the media pipeline will make of
+    /// one image
+    Assets {
+        /// Project directory (default: current directory)
+        #[arg(short, long, default_value = ".")]
+        dir: PathBuf,
+        /// What the pipeline will make of this image of `public/`:
+        /// `/hero.png`
+        #[arg(long, value_name = "PATH")]
+        plan: Option<String>,
+        /// Only the files nothing names
+        #[arg(long)]
+        unused: bool,
+        /// Print JSON, for tools
+        #[arg(long)]
+        json: bool,
     },
     /// Every `wf` command, its options and what it writes, as data
     Commands {
@@ -343,6 +362,12 @@ fn main() {
             }
             ConfigAction::Unset { path, dir } => cli::config::run_set(&dir, &path, None),
         },
+        Commands::Assets {
+            dir,
+            plan,
+            unused,
+            json,
+        } => cli::assets::run_assets(&dir, plan.as_deref(), unused, json),
         Commands::Commands { json } => {
             let data = describe_commands();
             if json {

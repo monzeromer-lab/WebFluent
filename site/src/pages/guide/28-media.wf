@@ -35,7 +35,7 @@ page Home(path: "/", title: "Home", description: "The front page.") {
     "pipeline": true
 } } }"#, title: "json")
 
-        Markdown("`pipeline: false` copies the file as `public/` always did. The work is cached in `.wf-cache/media/`, so a build that changes no image does no image work. A PDF or a slide deck embeds the real picture rather than drawing a box where one should be.")
+        Markdown("`pipeline: false` copies the file as `public/` always did. The work is cached in `.wf-cache/media/`, so a build that changes no image does no image work. A PDF or a slide deck embeds the real picture rather than drawing a box where one should be.\n\n`wf assets --plan /hero.jpg` says what the pipeline will make of a picture before it does: each width, each format, and what the files come to. `wf assets` lists everything in `public/` with where it is used, and counts what nothing uses.")
 
         Heading("Icons", id: "icons").h2
 

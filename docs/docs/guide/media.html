@@ -349,6 +349,7 @@ page Home(path: &quot;/&quot;, title: &quot;Home&quot;, description: &quot;The f
                             </div>
                             <div class="wf-markdown">
 <p><code>pipeline: false</code> copies the file as <code>public/</code> always did. The work is cached in <code>.wf-cache/media/</code>, so a build that changes no image does no image work. A PDF or a slide deck embeds the real picture rather than drawing a box where one should be.</p>
+<p><code>wf assets --plan /hero.jpg</code> says what the pipeline will make of a picture before it does: each width, each format, and what the files come to. <code>wf assets</code> lists everything in <code>public/</code> with where it is used, and counts what nothing uses.</p>
                             </div>
                             <h2 class="wf-heading" id="icons">Icons</h2>
                             <div class="wf-markdown">

@@ -449,6 +449,18 @@
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
+<p><code>wf assets [-d, --dir DIR] [--unused] [--plan PATH] [--json]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Lists <code>public/</code> and where each file is used, or what the image pipeline will make of one</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
 <p><code>wf types [PATH] [--json]</code></p>
                                             </div>
                                         </td>
@@ -672,6 +684,21 @@
                             </div>
                             <div class="wf-markdown">
 <p>Every command as data: what it does, each option — its flag, what it takes (<code>nothing</code> for a flag, a <code>word</code> from the values it lists, a <code>number</code>, a <code>path</code>, <code>text</code>), its default — what the command writes, and the flag that shows it first and writes nothing (<code>fmt --check</code>, <code>migrate --check</code>, <code>fix --dry-run</code>). A tool page, a palette or a script is built from it rather than from a copy of this page; the library has the same, as <code>webfluent::commands</code>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="wf-assets">wf assets</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Every file of <code>public/</code>: its kind (image, font, video, audio, document, code, data), its size, a picture's dimensions, and every place the project names it — a prop the registry types as a file (<code>Image</code>'s <code>src</code>, <code>Video</code>'s <code>poster</code> and <code>captions</code>), a page's <code>image:</code>, a <code>const</code>, an <code>image</code> declaration, a <code>data</code> file's strings, a value of <code>webfluent.app.json</code>, a stylesheet's <code>url(…)</code>, a project script, a manifest. A file a browser or a host asks for by name — <code>favicon.ico</code>, <code>robots.txt</code>, <code>.well-known/…</code> — is used by convention; anything else nothing names is counted unused, and <code>--unused</code> lists only those.</p>
+<p><code>--plan PATH</code> is what the image pipeline will make of one picture with the project's <code>build.media</code>: each width it writes, in each format, the file's name and its size — <em>3 widths × 1 format · 3 files · about 84 kB</em>. A size is exact once <code>wf build</code> has written the file (it is read from <code>.wf-cache/media/</code>) or when the picture is small enough to encode there and then; otherwise it is estimated from strips of it encoded at that width, and says <code>about</code>. A format the build cannot write is named, with why.</p>
+<p>The library has the same as <code>webfluent::assets::{list, plan}</code>, reading through a <code>Vfs</code>, so an editor's unsaved buffers count.</p>
                             </div>
                             <h3 class="wf-heading" id="wf-docs-wf-registry-wf-types">wf docs, wf registry, wf types</h3>
                             <div class="wf-markdown">
