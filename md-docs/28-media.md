@@ -18,10 +18,17 @@ page Media(path: "/") {
 }
 ```
 
-Give every `Image` an `alt:` — empty for a decorative one — and a `width:`
-and `height:` where you know them so the layout does not shift; the first
-image on a page loads eagerly and later ones lazily. Files in `public/`
-are served from the root.
+Give every `Image` an `alt:` — empty for a decorative one. Files in
+`public/` are served from the root; the first image on a page loads
+eagerly and later ones lazily.
+
+A `src:` written as a path of `public/` that names a PNG, JPEG, GIF or
+WebP is processed by the build, exactly as an `image` declaration (below)
+is: written again at each width, given `width` and `height` from the file
+so nothing shifts, and served as a `<picture>` — `sizes:` and
+`placeholder:` work on it too. An SVG, a URL, or a path built at run time
+is used as it is; give those a `width:` and `height:` where you know them.
+`build.media.pipeline: false` turns it off.
 
 A `Video` without `captions:` and an `Audio` without `transcript:` each
 draw an `A09`: a video nobody can hear is a video nobody can follow.

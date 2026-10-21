@@ -5,7 +5,10 @@ import fs from "node:fs";
 import http from "node:http";
 import path from "node:path";
 
-const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json" };
+const TYPES = {
+  ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json",
+  ".png": "image/png", ".jpg": "image/jpeg", ".webp": "image/webp", ".svg": "image/svg+xml",
+};
 
 /// The build served as a static host would, and `POST /api/save` recorded.
 export function host(root, port) {

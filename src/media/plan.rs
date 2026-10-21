@@ -368,6 +368,7 @@ mod tests {
             widths: vec![320, 640],
             quality: 70,
             pipeline: true,
+            literal_src: true,
         };
         let before = plan(&bytes, &source, &settings, Some(&dir.join("cache"))).unwrap();
         // Small enough to encode outright.

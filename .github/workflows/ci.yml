@@ -132,6 +132,10 @@ jobs:
         working-directory: tests/browser
         run: node worker.mjs
 
+      - name: Pictures
+        working-directory: tests/browser
+        run: node pictures.mjs
+
       # What the compiler once compiled wrong, clicked and typed into.
       - name: Behaviour
         run: target/release/wf test tests/fixtures/behaviour

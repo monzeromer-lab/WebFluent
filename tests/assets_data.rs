@@ -280,8 +280,13 @@ fn every_file_is_listed_with_its_kind_size_and_uses() {
     assert_eq!((font[0].line, font[1].line), (3, 5));
 
     // Only what the pipeline processes says so.
+    // What the pipeline processes says so: an `image`, and an `Image`'s
+    // literal `src:`; a picture named any other way is copied.
     assert!(get("/card.png").processed());
-    assert!(!get("/hero.png").processed());
+    assert!(get("/hero.png").processed());
+    assert!(!get("/og.png").processed(), "a page's image is copied");
+    assert!(!get("/poster.png").processed(), "a poster is copied");
+    assert!(!get("/logo.svg").processed(), "an SVG is copied");
 
     // Asked for by name, so not unused; and the one file nothing names.
     for p in ["/robots.txt", "/favicon.ico", "/manifest.webmanifest"] {
@@ -573,6 +578,22 @@ fn the_plan_follows_the_settings_and_says_what_it_cannot_do() {
         plan.summary()
     );
 
+    // A PDF embeds a picture named by its path as it is; an `image` is
+    // still read.
+    let (code, _, err) = wf(&dir, &["config", "set", "build.output_type", "pdf"]);
+    assert_eq!(code, 0, "{err}");
+    let pdf = assets::list(&dir).unwrap();
+    assert!(!pdf.get("/hero.png").unwrap().processed());
+    assert!(pdf.get("/card.png").unwrap().processed());
+    wf(&dir, &["config", "unset", "build.output_type"]);
+    assert!(
+        assets::list(&dir)
+            .unwrap()
+            .get("/hero.png")
+            .unwrap()
+            .processed()
+    );
+
     wf(&dir, &["config", "set", "build.media.pipeline", "false"]);
     let off = assets::plan(&dir, "/hero.png").unwrap();
     assert!(!off.pipeline);
@@ -615,6 +636,10 @@ fn wf_assets_says_what_the_library_holds() {
         "{out}"
     );
     assert!(out.contains("used in 1 file, processed"), "{out}");
+    assert!(
+        out.contains("/og.png") && out.contains("used in 1 file\n"),
+        "{out}"
+    );
     assert!(out.contains("by convention"), "{out}");
     let (_, out, _) = wf(&dir, &["assets", "--unused"]);
     let rows: Vec<&str> = out.lines().filter(|l| l.starts_with("  /")).collect();
@@ -675,4 +700,74 @@ fn over_the_site_every_use_is_where_it_says() {
             String::from_utf8_lossy(&named.stdout)
         );
     }
+}
+
+/// `Image(src: "/hero.png")` is the picture an `image` declaration makes:
+/// every width, in every format, the box the right size — in the static
+/// page and in the bundle — and the files are the ones the plan named.
+#[test]
+fn a_literal_image_src_is_processed_as_an_image_is() {
+    let dir = project();
+    put(
+        &dir,
+        "webfluent.app.json",
+        r#"{ "name": "assets", "build": { "ssg": true, "base_path": "/Site" } }"#,
+    );
+    put(
+        &dir,
+        "src/pages/Home.wf",
+        "page Home(path: \"/\", title: \"Home\", description: \"The home page.\") {\n    Heading(\"Home\").h1\n    Image(src: \"/hero.png?v=2\", alt: \"The harbour at dawn\", sizes: \"100vw\")\n    Image(src: \"/hero.png\", alt: \"Again\")\n    Image(src: \"/logo.svg\", alt: \"Halyard\")\n    Image(src: \"https://example.com/elsewhere.png\", alt: \"Elsewhere\")\n}\n",
+    );
+    let plan = assets::plan(&dir, "/hero.png").unwrap();
+    let (_, before, _) = wf(&dir, &["check", "--format", "json"]);
+    let (code, _, err) = wf(&dir, &["build"]);
+    assert_eq!(code, 0, "{err}");
+    // A build that checks adds no finding of its own.
+    let (_, after, _) = wf(&dir, &["check", "--format", "json"]);
+    assert_eq!(before, after);
+
+    let mut written: Vec<String> = std::fs::read_dir(dir.join("build/img"))
+        .unwrap()
+        .map(|e| e.unwrap().file_name().to_string_lossy().to_string())
+        .filter(|n| n.starts_with("hero."))
+        .collect();
+    written.sort();
+    let mut named: Vec<String> = plan.made().map(|f| f.name.clone()).collect();
+    named.push(plan.original.name.clone());
+    named.sort();
+    assert_eq!(written, named, "once for both, as the plan named them");
+
+    let html = std::fs::read_to_string(dir.join("build/index.html")).unwrap();
+    let pictures = html.matches("<picture>").count();
+    assert_eq!(pictures, 2, "{html}");
+    let widest = plan.made().last().unwrap();
+    assert!(
+        html.contains(&format!("/Site/img/{} 1440w", widest.name)),
+        "{html}"
+    );
+    assert!(html.contains("width=\"1440\" height=\"900\""), "{html}");
+    assert!(html.contains("sizes=\"100vw\""));
+    assert!(html.contains("alt=\"The harbour at dawn\""));
+    // What the pipeline does not re-encode is as it was.
+    assert!(
+        html.contains("<img class=\"wf-image\" src=\"/logo.svg\""),
+        "{html}"
+    );
+    assert!(html.contains("https://example.com/elsewhere.png"));
+    let bundle = std::fs::read_to_string(dir.join("build/pages/Home.js"))
+        .unwrap_or_else(|_| std::fs::read_to_string(dir.join("build/app.js")).unwrap());
+    assert_eq!(bundle.matches("WF.picture(").count(), 2, "{bundle}");
+
+    // Exact now: the build wrote what the plan estimated.
+    assert!(!assets::plan(&dir, "/hero.png").unwrap().estimated());
+
+    // The pipeline off, the file is copied and named as it was written.
+    wf(&dir, &["config", "set", "build.media.pipeline", "false"]);
+    let (code, _, err) = wf(&dir, &["build"]);
+    assert_eq!(code, 0, "{err}");
+    let html = std::fs::read_to_string(dir.join("build/index.html")).unwrap();
+    assert_eq!(html.matches("<picture>").count(), 0, "{html}");
+    assert!(html.contains("/hero.png"), "{html}");
+    assert!(dir.join("build/hero.png").is_file());
+    let _ = std::fs::remove_dir_all(&dir);
 }

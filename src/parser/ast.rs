@@ -1316,6 +1316,35 @@ impl StatementKind {
         }
     }
 
+    /// [`StatementKind::bodies`], to change.
+    pub fn bodies_mut(&mut self) -> Vec<&mut Vec<Statement>> {
+        match self {
+            StatementKind::If(i) => {
+                let mut bodies: Vec<&mut Vec<Statement>> = vec![&mut i.then_body];
+                bodies.extend(i.else_if_branches.iter_mut().map(|(_, b)| b));
+                bodies.extend(i.else_body.as_mut());
+                bodies
+            }
+            StatementKind::For(f) => vec![&mut f.body],
+            StatementKind::Show(s) => vec![&mut s.body],
+            StatementKind::Fetch(f) => {
+                let mut bodies: Vec<&mut Vec<Statement>> = Vec::new();
+                bodies.extend(f.loading_block.as_mut());
+                bodies.extend(f.error_block.as_mut().map(|(_, b)| b));
+                bodies.extend(f.success_block.as_mut());
+                bodies
+            }
+            StatementKind::Match(m) => m.arms.iter_mut().map(|a| &mut a.body).collect(),
+            StatementKind::Effect(e) => vec![&mut e.body, &mut e.cleanup],
+            StatementKind::Timer(t) => vec![&mut t.body],
+            StatementKind::Action(a) => vec![&mut a.body],
+            StatementKind::EventHandler(h) => vec![&mut h.body],
+            StatementKind::Try(t) => vec![&mut t.body, &mut t.catch_body],
+            StatementKind::Connection(c) => c.handlers.iter_mut().map(|h| &mut h.body).collect(),
+            _ => Vec::new(),
+        }
+    }
+
     pub fn exprs(&self) -> Vec<&Expr> {
         match self {
             StatementKind::State(s) => vec![&s.value],

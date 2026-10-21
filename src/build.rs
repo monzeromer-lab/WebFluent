@@ -477,7 +477,12 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     let output_dir = project_dir.join(&config.build.output);
     out.report.borrow_mut().output_dir = output_dir.clone();
     fs::create_dir_all(&output_dir)?;
-    let media = config.build.media.settings();
+    let mut media = config.build.media.settings();
+    // A PDF or a deck embeds the picture it names, not a `<picture>`.
+    media.literal_src = !matches!(
+        config.build.output_type,
+        crate::config::OutputType::Pdf | crate::config::OutputType::Slides
+    );
     let base_path = config.build.base_path.clone();
     let Analysis {
         program,

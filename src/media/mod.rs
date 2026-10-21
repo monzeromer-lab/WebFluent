@@ -52,6 +52,10 @@ pub struct Settings {
     pub quality: u8,
     /// Whether to do any of it. Off, an image is copied as it always was.
     pub pipeline: bool,
+    /// Whether an `Image`'s literal `src:` of `public/` is processed too,
+    /// as an `image` declaration is: for a page, not for a PDF or a deck,
+    /// which embed the real picture.
+    pub literal_src: bool,
 }
 
 impl Default for Settings {
@@ -63,6 +67,7 @@ impl Default for Settings {
             widths: vec![480, 960, 1440, 1920],
             quality: 78,
             pipeline: true,
+            literal_src: true,
         }
     }
 }

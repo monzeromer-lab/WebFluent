@@ -327,6 +327,7 @@ impl MediaConfig {
             widths: self.widths.clone(),
             quality: self.quality,
             pipeline: self.pipeline,
+            literal_src: true,
         }
     }
 }

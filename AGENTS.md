@@ -500,6 +500,11 @@ The name is a value too: `hero.src`, `.width`, `.height`, `.color`,
 } } }
 ```
 
+`Image(src: "/hero.jpg", alt: "…")` with a literal path of `public/` to a
+PNG, JPEG, GIF or WebP is processed the same way, without a declaration:
+the same files, the same `<picture>`, `sizes:` and `placeholder:` too. An
+SVG, a URL or a path computed at run time is used as written.
+
 `media.pipeline: false` copies the file as `public/` always did. The work
 is cached in `.wf-cache/media/` by content hash, so a build that changes no
 image does no image work. A PDF or a deck embeds the real picture.
@@ -1619,7 +1624,7 @@ Button flags: `.sm`, `.lg`, `.full`, `.rounded`, `.pill`, `.outlined`; `type: .s
 
 | Component | Usage |
 |-----------|-------|
-| `Image` | `Image(src: "/photo.jpg", alt: "Description")`, or `Image(hero, alt: "…", sizes: "…", placeholder: .blur)` with an `image` the program declares — decoded asynchronously; the first image on a page loads eagerly at high priority (it is usually the largest paint), the rest lazily. `loading:` overrides |
+| `Image` | `Image(src: "/photo.jpg", alt: "Description")`, or `Image(hero, alt: "…", sizes: "…", placeholder: .blur)` with an `image` the program declares; a literal `src:` naming a PNG, JPEG, GIF or WebP in `public/` is processed by the build just as an `image` is — decoded asynchronously; the first image on a page loads eagerly at high priority (it is usually the largest paint), the rest lazily. `loading:` overrides |
 | `Video` | `Video(src: "/video.mp4", captions: "/clip.en.vtt", poster: "/frame.jpg").controls` — `muted`, `loop`, `playsinline`; without `captions` it draws an `A09` |
 | `Audio` | `Audio(src: "/talk.mp3", transcript: "/talk.txt").controls` — the transcript is a link beneath the player |
 | `Frame` | `Frame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") { on message(m) { heard = m.data } }` — another page inside this one; `on message` hears only what that page posts; without `title:` it draws an `A17` |

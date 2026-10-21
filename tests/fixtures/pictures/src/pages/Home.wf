@@ -1,0 +1,9 @@
+/// A picture `public/` holds, named by its path: the build re-encodes it
+/// as it would an `image` declaration. The browser test copies the site's
+/// `og.png` here as `public/hero.png` before it builds.
+page Home(path: "/", title: "Pictures", description: "A picture named by its path, processed by the build.") {
+    Heading("Pictures").h1
+    Image(src: "/hero.png", alt: "The harbour at dawn", sizes: "100vw", placeholder: .blur, id: "hero")
+    Text("Below the picture", id: "below")
+    Image(src: "/logo.svg", alt: "Halyard", id: "logo")
+}

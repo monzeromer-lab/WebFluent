@@ -119,8 +119,9 @@ pub struct Use {
     pub column: usize,
     /// How it is named: `Image src`, `image hero`, `meta.favicon`, `url()`.
     pub how: String,
-    /// Whether the media pipeline processes it there (`image hero = …`,
-    /// with `build.media.pipeline` on); otherwise it is copied as it is.
+    /// Whether the media pipeline processes it there — `image hero = …`,
+    /// or `Image(src: "/hero.png")` naming a picture it re-encodes, with
+    /// `build.media.pipeline` on; otherwise it is copied as it is.
     pub processed: bool,
 }
 
@@ -333,6 +334,11 @@ struct Finder<'a> {
     uses: BTreeMap<String, Vec<Use>>,
     icons: BTreeSet<String>,
     pipeline: bool,
+    /// Whether an `Image`'s literal `src:` is processed: `pipeline`, for a
+    /// page rather than a PDF or a deck.
+    literal: bool,
+    /// Set while the argument being read is one the pipeline processes.
+    processing: bool,
 }
 
 impl Finder<'_> {
@@ -343,7 +349,7 @@ impl Finder<'_> {
                 line,
                 column,
                 how: how.to_string(),
-                processed: false,
+                processed: self.processing,
             });
         }
     }
@@ -392,12 +398,19 @@ impl Finder<'_> {
                         ComponentRef::BuiltIn(n) | ComponentRef::UserDefined(n) => n.clone(),
                         ComponentRef::SubComponent(a, b) => format!("{a}.{b}"),
                     };
+                    // `Image(src: "/hero.png")`: re-encoded, as an `image` is.
+                    let processed = self
+                        .literal
+                        .then(|| crate::data::processed_src(ui).map(|(i, _)| i))
+                        .flatten();
                     for (i, arg) in ui.args.iter().enumerate() {
                         let at = ui.arg_spans.get(i).copied().unwrap_or(ui.span);
+                        self.processing = processed == Some(i);
                         match arg {
                             Arg::Positional(e) => self.expr(e, file, at, &name),
                             Arg::Named(key, e) => self.expr(e, file, at, &format!("{name} {key}")),
                         }
+                        self.processing = false;
                     }
                     if let Some(style) = &ui.style_block {
                         self.style(style, file);
@@ -683,14 +696,23 @@ pub fn list_via(vfs: &dyn Vfs, root: &Path) -> Result<Listing> {
     let config_text = vfs
         .read_to_string(&root.join("webfluent.app.json"))
         .unwrap_or_default();
-    let pipeline = ProjectConfig::load_via(vfs, root)
-        .map(|c| c.build.media.pipeline)
-        .unwrap_or(true);
+    let config = ProjectConfig::load_via(vfs, root).ok();
+    let pipeline = config.as_ref().is_none_or(|c| c.build.media.pipeline);
+    // A PDF or a deck embeds a picture named by its path as it is.
+    let literal = pipeline
+        && config.as_ref().is_none_or(|c| {
+            !matches!(
+                c.build.output_type,
+                crate::config::OutputType::Pdf | crate::config::OutputType::Slides
+            )
+        });
     let mut finder = Finder {
         have: &have,
         uses: BTreeMap::new(),
         icons: BTreeSet::new(),
         pipeline,
+        literal,
+        processing: false,
     };
 
     // The sources.

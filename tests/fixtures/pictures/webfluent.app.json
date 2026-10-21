@@ -1,0 +1,4 @@
+{
+  "name": "pictures",
+  "build": { "ssg": true, "csp": true }
+}

@@ -300,7 +300,8 @@
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Give every <code>Image</code> an <code>alt:</code> — empty for a decorative one — and a <code>width:</code> and <code>height:</code> where you know them so the layout does not shift; the first image on a page loads eagerly and later ones lazily. Files in <code>public/</code> are served from the root.</p>
+<p>Give every <code>Image</code> an <code>alt:</code> — empty for a decorative one. Files in <code>public/</code> are served from the root; the first image on a page loads eagerly and later ones lazily.</p>
+<p>A <code>src:</code> written as a path of <code>public/</code> that names a PNG, JPEG, GIF or WebP is processed by the build, exactly as an <code>image</code> declaration (below) is: written again at each width, given <code>width</code> and <code>height</code> from the file so nothing shifts, and served as a <code>&lt;picture&gt;</code> — <code>sizes:</code> and <code>placeholder:</code> work on it too. An SVG, a URL, or a path built at run time is used as it is; give those a <code>width:</code> and <code>height:</code> where you know them. <code>build.media.pipeline: false</code> turns it off.</p>
 <p>A <code>Video</code> without <code>captions:</code> and an <code>Audio</code> without <code>transcript:</code> each draw an <code>A09</code>: a video nobody can hear is a video nobody can follow. <code>captions:</code> becomes a <code>&lt;track&gt;</code>; <code>transcript:</code> a link beneath the player.</p>
                             </div>
                             <h2 class="wf-heading" id="image-a-picture-the-build-processes">image: a picture the build processes</h2>
