@@ -337,9 +337,15 @@ fn check_engine_classes(el: &UIElement, file: &str, out: &mut Vec<VocabWarning>)
         }
         _ => Vec::new(),
     };
+    // `animate: .Drop` is lowered to `wf-animate-Drop`, the project's own
+    // animation's class: no built-in's rule comes with it.
+    let project_animation = |c: &str| {
+        c.strip_prefix("wf-animate-")
+            .is_some_and(|n| !n.starts_with('-') && !crate::themes::prune::ANIMATIONS.contains(&n))
+    };
     for class in found
         .iter()
-        .filter(|c| c.starts_with("wf-") && !own.contains(c))
+        .filter(|c| c.starts_with("wf-") && !own.contains(c) && !project_animation(c))
     {
         out.push(VocabWarning {
             rule_id: "V04".to_string(),

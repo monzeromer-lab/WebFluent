@@ -424,7 +424,7 @@ page Custom(path: &quot;/&quot;) {
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Keyframe steps are <code>from</code>, <code>to</code> or a percentage; each holds raw CSS. The declaration is emitted as <code>@keyframes Name</code> once, in the shared stylesheet.</p>
+<p>Keyframe steps are <code>from</code>, <code>to</code> or a percentage; each holds raw CSS. The declaration is emitted as <code>@keyframes Name</code> once, in the shared stylesheet. A project's animation is always written <code>animate: .Name</code>: the flags are the engine's. It plays wherever a built-in one would — on an element that stands still, from the stylesheet, before any script has loaded.</p>
                             </div>
                             <h2 class="wf-heading" id="opening-to-the-height-of-the-content">Opening to the height of the content</h2>
                             <div class="wf-markdown">
@@ -626,6 +626,19 @@ page Wizard(path: &quot;/&quot;) {
                             <h2 class="wf-heading" id="reduced-motion">Reduced motion</h2>
                             <div class="wf-markdown">
 <p>A reader whose system asks for reduced motion gets none of the above: no animation started, no wait before removal, no FLIP, no route transition, no <code>transition { }</code> tween — a box that expands is simply open, and a number that counts is simply there. You never check for it; the runtime and the stylesheet do. An <code>animation:</code> or <code>transition:</code> you write by hand in a <code>style</code> block has no such path unless you wrap it in <code>@media (prefers-reduced-motion: no-preference) { }</code> — prefer the declared forms, which have one.</p>
+<p>To see a page as that reader does without changing your system's setting, set <code>data-wf-motion=&quot;reduce&quot;</code> on its root:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">js</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="js" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">document.documentElement.setAttribute(&quot;data-wf-motion&quot;, &quot;reduce&quot;)</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The stylesheet and the runtime honour it exactly as they honour the reader's setting, and taking it off plays everything again. It is what an editor's preview sets when you ask it for reduced motion.</p>
                             </div>
                         </div>
                     </div>

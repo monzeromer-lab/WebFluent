@@ -228,6 +228,10 @@ pub mod reprint;
 /// into its parts, and the narrowest declaration written back.
 pub mod style_value;
 
+/// Motion as data: the animations, eases and speeds an element can take,
+/// the route transition, the project's default, and how each is written.
+pub mod motion;
+
 /// Studio integration facade — [`studio::compile_studio`] turns a program into a
 /// [`studio::CompiledSite`] (SSG pages + CSS + JS + node map) for the preview.
 pub mod studio;

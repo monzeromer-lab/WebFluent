@@ -347,6 +347,42 @@
       "writes": ""
     },
     {
+      "name": "motion",
+      "options": [
+        {
+          "default": ".",
+          "flag": false,
+          "help": "Project directory (default: current directory)",
+          "long": "dir",
+          "name": "dir",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": "d",
+          "takes": "path",
+          "value_name": "DIR",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Print JSON, for tools",
+          "long": "json",
+          "name": "json",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "JSON",
+          "values": []
+        }
+      ],
+      "preview": null,
+      "summary": "The animations an element can play, the eases and speeds, the route transitions and the project's default",
+      "writes": ""
+    },
+    {
       "name": "theme",
       "options": [
         {

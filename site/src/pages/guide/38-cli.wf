@@ -83,6 +83,10 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                     Table.Cell("The theme the build uses: every token, declared or inherited, where each is used, and its contrast")
                 }
                 Table.Row {
+                    Table.Cell { Markdown("`wf motion [-d, --dir DIR] [--json]`") }
+                    Table.Cell("The animations an element can play, the eases and speeds, the route transitions and the project's default")
+                }
+                Table.Row {
                     Table.Cell { Markdown("`wf components [-d, --dir DIR] [--json]`") }
                     Table.Cell("Every component a call can name — the built-ins and the project's — with what each takes")
                 }
@@ -271,6 +275,15 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
             ])
 
         Markdown("The theme the build uses, as an editor shows it: every token by its group (colour, spacing, font size, line height, radius, shadow, transition, font, motion, and those the theme invents), its value, the baseline's, whether the theme declares it or inherits it, the dark theme's value when `theme.dark` names one, the properties that draw from it and every place the project names it; then the colour pairings the stylesheet composes, with their contrast and what WCAG AA asks of each — a pairing that falls short is the `A13` the build reports — and the tokens one theme of the dark pair declares and the other does not.")
+
+        Heading("wf motion", id: "wf-motion").h3
+
+        Terminal(lines: [
+                Line(command: "wf motion"),
+                Line(command: "wf motion --json")
+            ])
+
+        Markdown("What a Motion section offers: every animation `animate:` and `exit:` take — the engine's, each with the keyframes and the rule its stylesheet plays it by, whether it is one an element leaves with and whether it repeats, then the project's own `animation` declarations — the named eases with the timing function each stands for, the three speeds and their lengths, the Router's transitions, the project's default length and pacing (`motion` in the config, or the engine's), and the attribute an editor sets on the page's root, `data-wf-motion=\"reduce\"`, to show the page as a reader who asked for less motion sees it. The library has it as `webfluent::motion::catalogue`.")
 
         Heading("wf components", id: "wf-components").h3
 

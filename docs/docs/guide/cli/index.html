@@ -449,6 +449,14 @@
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
+<p><code>wf motion [-d, --dir DIR] [--json]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The animations an element can play, the eases and speeds, the route transitions and the project&#x27;s default</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
 <p><code>wf components [-d, --dir DIR] [--json]</code></p>
                                             </div>
                                         </td>
@@ -729,6 +737,19 @@
                             </div>
                             <div class="wf-markdown">
 <p>The theme the build uses, as an editor shows it: every token by its group (colour, spacing, font size, line height, radius, shadow, transition, font, motion, and those the theme invents), its value, the baseline's, whether the theme declares it or inherits it, the dark theme's value when <code>theme.dark</code> names one, the properties that draw from it and every place the project names it; then the colour pairings the stylesheet composes, with their contrast and what WCAG AA asks of each — a pairing that falls short is the <code>A13</code> the build reports — and the tokens one theme of the dark pair declares and the other does not.</p>
+                            </div>
+                            <h3 class="wf-heading" id="wf-motion">wf motion</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>What a Motion section offers: every animation <code>animate:</code> and <code>exit:</code> take — the engine's, each with the keyframes and the rule its stylesheet plays it by, whether it is one an element leaves with and whether it repeats, then the project's own <code>animation</code> declarations — the named eases with the timing function each stands for, the three speeds and their lengths, the Router's transitions, the project's default length and pacing (<code>motion</code> in the config, or the engine's), and the attribute an editor sets on the page's root, <code>data-wf-motion=&quot;reduce&quot;</code>, to show the page as a reader who asked for less motion sees it. The library has it as <code>webfluent::motion::catalogue</code>.</p>
                             </div>
                             <h3 class="wf-heading" id="wf-components">wf components</h3>
                             <div class="wf-stack wf-sba64d8a9 code-block">

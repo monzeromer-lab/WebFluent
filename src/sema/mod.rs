@@ -1772,6 +1772,14 @@ fn lower_builtin(el: &mut UIElement, sig: &'static ComponentSig) {
                     kept_spans.push(span);
                     continue;
                 }
+                // `animate: .Drop`, the project's own animation: the class its
+                // `animation Drop { … }` rule plays, as a built-in's is. (Only
+                // a declared animation passes the checks as a case it is not.)
+                if key == "animate" && sig.prop(key).is_some() {
+                    conditional_classes
+                        .push((Expr::StringLiteral(format!("wf-animate-{case}")), span));
+                    continue;
+                }
                 kept_args.push(Arg::Named(key.clone(), Expr::StringLiteral(case.clone())));
                 kept_spans.push(span);
             }
@@ -1815,7 +1823,8 @@ fn lower_builtin(el: &mut UIElement, sig: &'static ComponentSig) {
             }
         }
     }
-    // A flag's class that follows a condition joins whatever `class:` says.
+    // A flag's class that follows a condition, or a project animation's,
+    // joins whatever `class:` says.
     for (entry, span) in conditional_classes {
         match kept_args
             .iter_mut()

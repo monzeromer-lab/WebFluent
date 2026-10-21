@@ -76,29 +76,36 @@ pub fn animations_css(program: &Program) -> String {
         let Declaration::Animation(a) = decl else {
             continue;
         };
-        let frames: Vec<String> = a
-            .frames
-            .iter()
-            .map(|f| {
-                let decls: Vec<String> = f
-                    .properties
-                    .iter()
-                    .filter_map(|p| static_declaration(p).map(|(n, v)| format!("{n}: {v};")))
-                    .collect();
-                format!("{} {{ {} }}", f.selector, decls.join(" "))
-            })
-            .collect();
-        out.push_str(&format!(
-            "@keyframes {} {{ {} }}\n",
-            a.name,
-            frames.join(" ")
-        ));
-        out.push_str(&format!(
-            ".wf-animate-{n} {{ animation: {n} var(--animation-duration-normal) var(--animation-easing-default) both; }}\n",
-            n = a.name
-        ));
+        let (keyframes, rule) = animation_css(a);
+        out.push_str(&keyframes);
+        out.push('\n');
+        out.push_str(&rule);
+        out.push('\n');
     }
     out
+}
+
+/// One declared animation's `@keyframes` rule, and the class that plays it.
+pub fn animation_css(a: &crate::parser::ast::AnimationDecl) -> (String, String) {
+    let frames: Vec<String> = a
+        .frames
+        .iter()
+        .map(|f| {
+            let decls: Vec<String> = f
+                .properties
+                .iter()
+                .filter_map(|p| static_declaration(p).map(|(n, v)| format!("{n}: {v};")))
+                .collect();
+            format!("{} {{ {} }}", f.selector, decls.join(" "))
+        })
+        .collect();
+    (
+        format!("@keyframes {} {{ {} }}", a.name, frames.join(" ")),
+        format!(
+            ".wf-animate-{n} {{ animation: {n} var(--animation-duration-normal) var(--animation-easing-default) both; }}",
+            n = a.name
+        ),
+    )
 }
 
 /// The scoped rules of a program, split between the sheet every page loads

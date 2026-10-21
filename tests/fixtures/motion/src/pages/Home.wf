@@ -1,0 +1,22 @@
+/// The motion fixture: an element that animates as it stands, one that
+/// repeats, one the project animates, and a branch that enters and leaves
+/// — each played, and each stilled when the page's root asks for less
+/// motion as an editor's preview does.
+animation Drop {
+    from { transform: translateY(-12px); opacity: 0 }
+    to { transform: none; opacity: 1 }
+}
+
+page Home(path: "/", title: "Motion", description: "Every animation, played and stilled.") {
+    state open = false
+    Container {
+        Heading("Motion").h1
+        Card(id: "still").fadeIn { Text("Faded in") }
+        Badge("Live", id: "pulse").pulse
+        Card(animate: .Drop, id: "drop") { Text("Dropped") }
+        Button("Toggle", id: "toggle") { on click { open = !open } }
+        if open {
+            Card(animate: .slideUp, exit: .fadeOut, id: "branch") { Text("Arrived") }
+        }
+    }
+}

@@ -12,6 +12,7 @@ pub mod fmt;
 pub mod generate;
 pub mod init;
 pub mod migrate;
+pub mod motion;
 pub mod preview;
 pub mod render;
 pub mod serve;

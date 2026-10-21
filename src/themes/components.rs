@@ -638,6 +638,15 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
   }
   html { scroll-behavior: auto; }
 }
+/* The same, asked for by the page itself: an editor previewing what a
+   reader who wants less motion sees sets `data-wf-motion="reduce"` on the
+   root. */
+:root[data-wf-motion="reduce"] *, :root[data-wf-motion="reduce"] *::before, :root[data-wf-motion="reduce"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
 
 /* ─── Focus Visibility ──────────────────────────────── */
 /* Every focusable control needs a focus indicator a keyboard user can see. The

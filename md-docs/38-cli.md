@@ -36,6 +36,7 @@ told otherwise, and exits non-zero on failure, so each is a CI step as it is.
 | `wf docs [-d, --dir DIR] [-o, --out OUT]` | Writes a gallery of every component |
 | `wf registry [--json]` | Describes every built-in |
 | `wf theme [-d, --dir DIR] [--json]` | The theme the build uses: every token, declared or inherited, where each is used, and its contrast |
+| `wf motion [-d, --dir DIR] [--json]` | The animations an element can play, the eases and speeds, the route transitions and the project's default |
 | `wf components [-d, --dir DIR] [--json]` | Every component a call can name — the built-ins and the project's — with what each takes |
 | `wf commands [--json]` | Describes every command: its options, what it writes, and how to see it first |
 | `wf assets [-d, --dir DIR] [--unused] [--plan PATH] [--json]` | Lists `public/` and where each file is used, or what the image pipeline will make of one |
@@ -426,6 +427,24 @@ the project names it; then the colour pairings the stylesheet composes,
 with their contrast and what WCAG AA asks of each — a pairing that falls
 short is the `A13` the build reports — and the tokens one theme of the
 dark pair declares and the other does not.
+
+### `wf motion`
+
+```bash
+wf motion
+wf motion --json
+```
+
+What a Motion section offers: every animation `animate:` and `exit:`
+take — the engine's, each with the keyframes and the rule its stylesheet
+plays it by, whether it is one an element leaves with and whether it
+repeats, then the project's own `animation` declarations — the named
+eases with the timing function each stands for, the three speeds and
+their lengths, the Router's transitions, the project's default length and
+pacing (`motion` in the config, or the engine's), and the attribute an
+editor sets on the page's root, `data-wf-motion="reduce"`, to show the
+page as a reader who asked for less motion sees it. The library has it as
+`webfluent::motion::catalogue`.
 
 ### `wf components`
 

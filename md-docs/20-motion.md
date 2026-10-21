@@ -143,6 +143,9 @@ page Custom(path: "/") {
 
 Keyframe steps are `from`, `to` or a percentage; each holds raw CSS. The
 declaration is emitted as `@keyframes Name` once, in the shared stylesheet.
+A project's animation is always written `animate: .Name`: the flags are
+the engine's. It plays wherever a built-in one would — on an element that
+stands still, from the stylesheet, before any script has loaded.
 
 ## Opening to the height of the content
 
@@ -323,6 +326,17 @@ and the stylesheet do. An `animation:` or `transition:` you write by hand
 in a `style` block has no such path unless you wrap it in
 `@media (prefers-reduced-motion: no-preference) { }` — prefer the declared
 forms, which have one.
+
+To see a page as that reader does without changing your system's setting,
+set `data-wf-motion="reduce"` on its root:
+
+```js
+document.documentElement.setAttribute("data-wf-motion", "reduce")
+```
+
+The stylesheet and the runtime honour it exactly as they honour the
+reader's setting, and taking it off plays everything again. It is what an
+editor's preview sets when you ask it for reduced motion.
 
 ## Next
 

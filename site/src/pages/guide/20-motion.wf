@@ -95,7 +95,7 @@ page Custom(path: "/") {
     }
 }"#, title: "wf")
 
-        Markdown("Keyframe steps are `from`, `to` or a percentage; each holds raw CSS. The declaration is emitted as `@keyframes Name` once, in the shared stylesheet.")
+        Markdown("Keyframe steps are `from`, `to` or a percentage; each holds raw CSS. The declaration is emitted as `@keyframes Name` once, in the shared stylesheet. A project's animation is always written `animate: .Name`: the flags are the engine's. It plays wherever a built-in one would — on an element that stands still, from the stylesheet, before any script has loaded.")
 
         Heading("Opening to the height of the content", id: "opening-to-the-height-of-the-content").h2
 
@@ -220,6 +220,10 @@ page Wizard(path: "/") {
 
         Heading("Reduced motion", id: "reduced-motion").h2
 
-        Markdown("A reader whose system asks for reduced motion gets none of the above: no animation started, no wait before removal, no FLIP, no route transition, no `transition \{ \}` tween — a box that expands is simply open, and a number that counts is simply there. You never check for it; the runtime and the stylesheet do. An `animation:` or `transition:` you write by hand in a `style` block has no such path unless you wrap it in `@media (prefers-reduced-motion: no-preference) \{ \}` — prefer the declared forms, which have one.")
+        Markdown("A reader whose system asks for reduced motion gets none of the above: no animation started, no wait before removal, no FLIP, no route transition, no `transition \{ \}` tween — a box that expands is simply open, and a number that counts is simply there. You never check for it; the runtime and the stylesheet do. An `animation:` or `transition:` you write by hand in a `style` block has no such path unless you wrap it in `@media (prefers-reduced-motion: no-preference) \{ \}` — prefer the declared forms, which have one.\n\nTo see a page as that reader does without changing your system's setting, set `data-wf-motion=\"reduce\"` on its root:")
+
+        CodeBlock(#"document.documentElement.setAttribute("data-wf-motion", "reduce")"#, title: "js")
+
+        Markdown("The stylesheet and the runtime honour it exactly as they honour the reader's setting, and taking it off plays everything again. It is what an editor's preview sets when you ask it for reduced motion.")
     }
 }

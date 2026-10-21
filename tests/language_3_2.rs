@@ -169,11 +169,11 @@ fn a_declared_animation_is_keyframes_a_class_and_a_case_of_animate() {
     );
     let js = raw_output(Backend::Spa, &src);
     assert!(
-        js.contains("\"Pulse\""),
-        "the case reaches the runtime: {js}"
+        js.contains("\"wf-animate-Pulse\""),
+        "the element plays it by its class: {js}"
     );
     let html = painted(&src);
-    assert!(html.contains("wf-card"), "{html}");
+    assert!(html.contains("wf-animate-Pulse\""), "{html}");
 }
 
 #[test]

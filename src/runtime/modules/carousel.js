@@ -38,8 +38,9 @@
     if (count < 2) return { show, index };
 
     const reduced =
-      typeof window.matchMedia === "function" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      document.documentElement.getAttribute("data-wf-motion") === "reduce" ||
+      (typeof window.matchMedia === "function" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches);
     const autoplay = !!opts.autoplay && !reduced;
     let timer = null;
     let paused = false; // by the reader, with the button

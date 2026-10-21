@@ -140,6 +140,10 @@ jobs:
         working-directory: tests/browser
         run: node nodes.mjs
 
+      - name: Motion
+        working-directory: tests/browser
+        run: node motion.mjs
+
       # What the compiler once compiled wrong, clicked and typed into.
       - name: Behaviour
         run: target/release/wf test tests/fixtures/behaviour

@@ -52,8 +52,10 @@
   };
 
   // A reader who asked for less motion gets none: nothing starts, and
-  // everything that waits on it is already finished.
+  // everything that waits on it is already finished. An editor previewing
+  // that asks for it on the page's root.
   function reducedMotion() {
+    if (document.documentElement.getAttribute("data-wf-motion") === "reduce") return true;
     return typeof window.matchMedia === "function" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   }
