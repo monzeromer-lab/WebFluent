@@ -46,6 +46,9 @@ pub struct BuildCache {
     dir: Option<PathBuf>,
     pages: Mutex<HashMap<Key, String>>,
     used: Mutex<HashSet<Key>>,
+    /// The key each route was last painted under: what a build that
+    /// renders only the previewed page writes for every other.
+    routes: Mutex<HashMap<String, Key>>,
 }
 
 impl BuildCache {
@@ -65,8 +68,17 @@ impl BuildCache {
 
     /// The page kept under `key`, or `render`'s, kept for next time. The
     /// flag is whether it was kept.
-    pub(crate) fn page(&self, key: Key, render: impl FnOnce() -> String) -> (String, bool) {
+    pub(crate) fn page(
+        &self,
+        route: &str,
+        key: Key,
+        render: impl FnOnce() -> String,
+    ) -> (String, bool) {
         self.used.lock().expect("the cache's lock").insert(key);
+        self.routes
+            .lock()
+            .expect("the cache's lock")
+            .insert(route.to_string(), key);
         if let Some(html) = self.pages.lock().expect("the cache's lock").get(&key) {
             return (html.clone(), true);
         }
@@ -98,6 +110,20 @@ impl BuildCache {
         (html, false)
     }
 
+    /// The page `route` was last painted as, in this session, however its
+    /// inputs have changed since; kept for the next build as well.
+    pub(crate) fn last_paint(&self, route: &str) -> Option<String> {
+        let key = *self.routes.lock().expect("the cache's lock").get(route)?;
+        let html = self
+            .pages
+            .lock()
+            .expect("the cache's lock")
+            .get(&key)
+            .cloned()?;
+        self.used.lock().expect("the cache's lock").insert(key);
+        Some(html)
+    }
+
     /// After a build: let go of what it did not use, in memory and on disk,
     /// so the cache holds the site as it stands and no more.
     pub(crate) fn finish(&self) {
@@ -106,6 +132,10 @@ impl BuildCache {
             .lock()
             .expect("the cache's lock")
             .retain(|key, _| used.contains(key));
+        self.routes
+            .lock()
+            .expect("the cache's lock")
+            .retain(|_, key| used.contains(key));
         let Some(dir) = &self.dir else {
             return;
         };

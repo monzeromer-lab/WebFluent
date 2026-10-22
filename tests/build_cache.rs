@@ -335,3 +335,98 @@ fn a_cache_on_disk_outlives_the_value() {
         let _ = std::fs::remove_dir_all(dir);
     }
 }
+
+/// A preview that cannot wait for the whole site renders the page it shows
+/// and writes every other as it was last painted; the next build without
+/// the lever puts them right, and writes what a build from nothing writes.
+#[test]
+fn a_build_of_one_route_paints_it_alone_and_the_next_full_build_catches_up() {
+    let project = tutorial("medium-field-notes", "one-route");
+    let out = project.with_extension("out");
+    let cache = BuildCache::in_memory();
+    let first = build(&BuildOptions {
+        output_dir: Some(out.clone()),
+        cache: Some(&cache),
+        ..BuildOptions::new(&project, &FsVfs)
+    })
+    .expect("builds");
+    let pages = first.pages_rendered;
+    let before = tree(&out);
+
+    // The shell, which every page reads: every page's key changes.
+    let app = project.join("src/App.wf");
+    let text = std::fs::read_to_string(&app).unwrap();
+    let mut vfs = OverlayVfs::over_disk();
+    vfs.set(
+        &app,
+        text.replace(
+            "Link(\"Tags\", to: \"/tags\")",
+            "Link(\"All tags\", to: \"/tags\")",
+        ),
+    );
+
+    let one = build(&BuildOptions {
+        output_dir: Some(out.clone()),
+        cache: Some(&cache),
+        only_route: Some("/tags"),
+        ..BuildOptions::new(&project, &vfs)
+    })
+    .expect("builds");
+    assert_eq!(
+        (one.pages_rendered, one.pages_reused, one.pages_deferred),
+        (1, 0, pages - 1),
+        "only /tags is rendered"
+    );
+    let partial = tree(&out);
+    let full = built(&project, &vfs, &project.with_extension("full"), None).unwrap();
+    assert_eq!(
+        partial["tags/index.html"], full["tags/index.html"],
+        "the route shown is the source's"
+    );
+    assert!(String::from_utf8_lossy(&partial["tags/index.html"]).contains("All tags"));
+    assert_eq!(
+        partial["index.html"], before["index.html"],
+        "another page is as it was painted"
+    );
+    assert!(!String::from_utf8_lossy(&partial["index.html"]).contains("All tags"));
+
+    let caught_up = build(&BuildOptions {
+        output_dir: Some(out.clone()),
+        cache: Some(&cache),
+        ..BuildOptions::new(&project, &vfs)
+    })
+    .expect("builds");
+    assert_eq!(
+        (
+            caught_up.pages_rendered,
+            caught_up.pages_reused,
+            caught_up.pages_deferred
+        ),
+        (pages - 1, 1, 0),
+        "the deferred pages are rendered, the route shown is reused"
+    );
+    assert_eq!(tree(&out), full, "and the site is a full build's");
+
+    // A cache that never painted a page renders it, lever or not.
+    let fresh = BuildCache::in_memory();
+    let cold = build(&BuildOptions {
+        output_dir: Some(out.clone()),
+        cache: Some(&fresh),
+        only_route: Some("/tags"),
+        ..BuildOptions::new(&project, &vfs)
+    })
+    .expect("builds");
+    assert_eq!((cold.pages_rendered, cold.pages_deferred), (pages, 0));
+    // And without a cache, there is nothing to defer to.
+    let plain = build(&BuildOptions {
+        output_dir: Some(out.clone()),
+        only_route: Some("/tags"),
+        ..BuildOptions::new(&project, &vfs)
+    })
+    .expect("builds");
+    assert_eq!((plain.pages_rendered, plain.pages_deferred), (pages, 0));
+
+    for dir in [project.clone(), out, project.with_extension("full")] {
+        let _ = std::fs::remove_dir_all(dir);
+    }
+}

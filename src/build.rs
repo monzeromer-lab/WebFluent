@@ -55,6 +55,14 @@ pub struct BuildOptions<'a> {
     /// (`data-wf-node`), in the pre-rendered pages and the bundle alike, and
     /// the report hands back the map from each id to its source.
     pub studio: bool,
+    /// For an editor's preview when a whole build takes longer than it can
+    /// wait: render only the page answering this route (`/posts/hello`),
+    /// and write every other as this session's cache last painted it,
+    /// rendering only those it has never painted. The site may be behind
+    /// the source until a build without it; the report counts the pages
+    /// that are ([`BuildReport::pages_deferred`]). Without a cache it
+    /// builds everything.
+    pub only_route: Option<&'a str>,
     /// Called with each line as the build prints it, before it is kept in
     /// the report: `wf build` prints them as they come, so a build that
     /// spends a while on its images shows where it is.
@@ -75,6 +83,7 @@ impl<'a> BuildOptions<'a> {
             color: false,
             cache: None,
             studio: false,
+            only_route: None,
             on_line: None,
         }
     }
@@ -128,6 +137,10 @@ pub struct BuildReport {
     /// rendered.
     pub pages_reused: usize,
     pub pages_rendered: usize,
+    /// Pre-rendered pages written as an earlier build painted them, because
+    /// the build rendered only [`BuildOptions::only_route`]: the site is
+    /// the source's once a build renders them again.
+    pub pages_deferred: usize,
     /// Every finding the build reported, in the order it reported them.
     /// A build that could not run at all — a config it could not load, a
     /// file it could not read — has none, and its error says why.
@@ -773,7 +786,13 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
                 out.report.borrow_mut().pages_rendered += 1;
                 return make();
             };
-            let (html, reused) = cache.page(keys.page(page, route, params), make);
+            if options.only_route.is_some_and(|only| only != route)
+                && let Some(html) = cache.last_paint(route)
+            {
+                out.report.borrow_mut().pages_deferred += 1;
+                return html;
+            }
+            let (html, reused) = cache.page(route, keys.page(page, route, params), make);
             let mut report = out.report.borrow_mut();
             if reused {
                 report.pages_reused += 1;
