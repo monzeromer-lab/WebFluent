@@ -308,12 +308,69 @@ fn rendered_text(html: &str) -> String {
         rest = &rest[open + close + 1..];
     }
     out.push_str(rest);
-    out.replace("&lt;", "<")
-        .replace("&gt;", ">")
-        .replace("&quot;", "\"")
-        .replace("&#39;", "'")
-        .replace("&nbsp;", " ")
-        .replace("&amp;", "&")
+    decode_entities(&out)
+}
+
+/// The text an HTML escape stands for: the named entities the renderers
+/// write, and any numeric one, decimal (`&#39;`) or hex (`&#x27;`, how an
+/// apostrophe is escaped). One the reader would see as written stays so.
+fn decode_entities(text: &str) -> String {
+    let mut out = String::with_capacity(text.len());
+    let mut rest = text;
+    while let Some(at) = rest.find('&') {
+        out.push_str(&rest[..at]);
+        let tail = &rest[at..];
+        let end = tail.find(';').filter(|&e| e <= 10);
+        let decoded = end.and_then(|e| {
+            let name = &tail[1..e];
+            let c = match name {
+                "lt" => Some('<'),
+                "gt" => Some('>'),
+                "quot" => Some('"'),
+                "apos" => Some('\''),
+                "amp" => Some('&'),
+                "nbsp" => Some(' '),
+                _ => name
+                    .strip_prefix("#x")
+                    .or_else(|| name.strip_prefix("#X"))
+                    .and_then(|h| u32::from_str_radix(h, 16).ok())
+                    .or_else(|| name.strip_prefix('#').and_then(|d| d.parse().ok()))
+                    .and_then(char::from_u32),
+            }?;
+            Some((c, e + 1))
+        });
+        match decoded {
+            Some((c, len)) => {
+                out.push(c);
+                rest = &tail[len..];
+            }
+            None => {
+                out.push('&');
+                rest = &tail[1..];
+            }
+        }
+    }
+    out.push_str(rest);
+    out
+}
+
+#[cfg(test)]
+mod entity_tests {
+    use super::decode_entities;
+
+    #[test]
+    fn what_an_escape_stands_for_is_what_a_reader_sees() {
+        assert_eq!(
+            decode_entities("isn&#x27;t &#39;so&#39; &amp; &lt;b&gt; &quot;q&quot; &#X41;&#66;"),
+            "isn't 'so' & <b> \"q\" AB"
+        );
+        assert_eq!(
+            decode_entities("a & b &unknown; &#xZZ; &amp;lt;"),
+            "a & b &unknown; &#xZZ; &lt;",
+            "one it does not know, or not an escape, stays"
+        );
+        assert_eq!(decode_entities("&#x1F600; ok"), "😀 ok");
+    }
 }
 
 /// Runs of whitespace as one space, for comparing what text says.

@@ -1,0 +1,7 @@
+// What a test that looks reads: the text a reader sees, whatever escape the
+// render writes it with.
+test "an apostrophe, a quote and an ampersand are read as written" {
+    Text("It isn't \"so\" & that's <that>.")
+    expect "It isn't \"so\" & that's <that>."
+    expect not "&#x27;"
+}

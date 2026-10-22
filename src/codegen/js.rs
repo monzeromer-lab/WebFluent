@@ -4473,13 +4473,18 @@ impl JsCodegen {
             }
         };
         self.emit_line(&format!(
-            "const {} = WF.el(\"div\", {{ className: () => ({})() ? \"{} open\" : \"{}\"{}{} }});",
+            "const {} = WF.el(\"div\", {{ className: \"{}\"{}{} }});",
             var,
-            read,
-            root_classes,
             root_classes,
             extra,
             self.wf_node_inline(ui)
+        ));
+        // `open` is the only class the menu's state owns: toggled on its
+        // own, so the classes the author gave it (`class:`, a style block's)
+        // stay when it opens. Writing the whole class list each time
+        // dropped them.
+        self.emit_line(&format!(
+            "WF.effect(() => {var}.classList.toggle(\"open\", !!({read})()));"
         ));
 
         // `aria-expanded` is the only thing that tells a screen reader whether

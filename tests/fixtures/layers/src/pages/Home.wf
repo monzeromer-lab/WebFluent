@@ -17,7 +17,7 @@ page Home(path: "/", title: "Layers", description: "Popovers, menus and tooltips
         style { overflow: hidden; height: 60px }
         Row {
             Button("Branches", ref: branches, id: "branches") { on click { open = !open } }
-            Menu(trigger: "View", id: "view") {
+            Menu(trigger: "View", id: "view", class: "mine") {
                 Menu.Item(shortcut: "mod+b", id: "sidebar") {
                     on click { said = "sidebar" }
                     Text("Toggle sidebar")

@@ -24,6 +24,13 @@ class ClassList {
   add(...names) { for (const n of names) if (n) this._set.add(n); }
   remove(...names) { for (const n of names) this._set.delete(n); }
   contains(n) { return this._set.has(n); }
+  // As the DOM's own: with `force`, set to it; without, flipped. Whether
+  // the class is there afterwards.
+  toggle(n, force) {
+    const on = force === undefined ? !this._set.has(n) : !!force;
+    if (on) this._set.add(n); else this._set.delete(n);
+    return on;
+  }
   [Symbol.iterator]() { return this._set.values(); }
   toString() { return [...this._set].join(" "); }
 }

@@ -1264,6 +1264,58 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
             out.push_str(&format!("{indent}</{tag}>\n"));
             return out;
         }
+        // A menu at its button: the button, and the list hidden until the
+        // script opens it — as the live page draws it, which takes this one
+        // over. Painted as the bare items, a menu used to be a column of
+        // its entries in the page, with no button, its `label:` loose text
+        // above them. A menu opened by state has no button.
+        "Menu" | "Dropdown" => {
+            let named = |key: &str| {
+                ui.args.iter().find_map(|a| match a {
+                    Arg::Named(k, v) if k == key => {
+                        resolve_text_scoped(v, &ctx.default_messages, &ctx.scope)
+                    }
+                    _ => None,
+                })
+            };
+            let trigger = if name == "Dropdown" {
+                named("label")
+            } else {
+                named("trigger")
+            };
+            let label = if name == "Dropdown" {
+                None
+            } else {
+                named("label")
+            };
+            let id = named("id")
+                .map(|v| format!(" id=\"{}\"", html_escape(&v)))
+                .unwrap_or_default();
+            let items_class = format!("wf-{}__items", name.to_lowercase());
+            let indent = ctx.indent_str();
+            let mut out = format!("{indent}<div class=\"{class_str}\"{id}{wf}{inline_style}>\n");
+            ctx.indent += 1;
+            let inner = ctx.indent_str();
+            if let Some(trigger) = &trigger {
+                out.push_str(&format!(
+                    "{inner}<button class=\"wf-btn wf-menu__trigger\" type=\"button\" aria-haspopup=\"menu\" aria-expanded=\"false\">{}</button>\n",
+                    html_escape(trigger)
+                ));
+            }
+            let aria = label
+                .map(|l| format!(" aria-label=\"{}\"", html_escape(&l)))
+                .unwrap_or_default();
+            out.push_str(&format!(
+                "{inner}<ul class=\"{items_class}\" role=\"menu\"{aria} hidden>\n"
+            ));
+            ctx.indent += 1;
+            out.push_str(&render_statements(&ui.children, ctx));
+            ctx.indent -= 1;
+            out.push_str(&format!("{inner}</ul>\n"));
+            ctx.indent -= 1;
+            out.push_str(&format!("{indent}</div>\n"));
+            return out;
+        }
         "Spacer" | "Spinner" => {
             return format!(
                 "{}<div class=\"{}\"{}{}></div>\n",

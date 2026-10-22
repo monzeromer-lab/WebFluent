@@ -172,6 +172,8 @@ async function scenario(label, ssg, port) {
       s.view.top && s.view.shown && s.viewRect.bottom > s.clip.bottom, JSON.stringify([s.view, s.viewRect, s.clip]));
     check("at its button", Math.abs(s.viewRect.left - s.viewButton.left) <= 1 && s.viewRect.top >= s.viewButton.bottom, JSON.stringify([s.viewRect, s.viewButton]));
     check("aria-expanded says so", s.expanded === "true", s.expanded);
+    const openClass = await page.$eval("#view", (m) => m.className);
+    check("open, a menu keeps the class its author gave it", openClass.split(" ").includes("mine") && openClass.split(" ").includes("open"), openClass);
     const shortcut = await page.$eval("#sidebar", (el) => [el.querySelector("kbd")?.textContent, el.getAttribute("aria-keyshortcuts")]);
     check("an item shows its shortcut, and says it", shortcut[0] === "Ctrl+B" && shortcut[1] === "Control+B", JSON.stringify(shortcut));
     await press("#zen");
@@ -182,6 +184,8 @@ async function scenario(label, ssg, port) {
     s = await look(page);
     check("choosing an item runs it and closes the menu", s.wrapChecked === "true" && !s.view.shown, `${s.wrapChecked} ${JSON.stringify(s.view)}`);
     check("focus is back on the button", s.focus === "View", s.focus);
+    const shutClass = await page.$eval("#view", (m) => m.className);
+    check("closed, it keeps it, and only `open` goes", shutClass.split(" ").includes("mine") && !shutClass.split(" ").includes("open"), shutClass);
 
     await page.focus("#view > button");
     await page.keyboard.press("ArrowDown");

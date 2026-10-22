@@ -423,3 +423,38 @@ page P(path: "/", title: "T", description: "Boolean attributes.") {
         }
     }
 }
+
+/// A menu at its button paints as its button, and its list hidden: not as
+/// its entries laid out in the page with its label loose above them.
+#[test]
+fn a_menu_paints_as_its_button_with_its_list_hidden() {
+    let src = r#"
+page P(path: "/", title: "T", description: "A menu.") {
+    Menu(trigger: "Change…", label: "The language of this file") {
+        Menu.Item { Text("Rust") }
+    }
+    Dropdown(label: "More") {
+        Menu.Item { Text("Export") }
+    }
+}
+"#;
+    for backend in [Backend::Ssg, Backend::Template] {
+        let html = raw_output(backend, src);
+        let name = backend.name();
+        assert!(html.contains(r#"<button class="wf-btn wf-menu__trigger" type="button" aria-haspopup="menu" aria-expanded="false">Change…</button>"#), "{name}: {html}");
+        assert!(html.contains(r#"<ul class="wf-menu__items" role="menu" aria-label="The language of this file" hidden>"#), "{name}: {html}");
+        assert!(
+            html.contains(r#"aria-expanded="false">More</button>"#),
+            "{name}: the dropdown's label is its button: {html}"
+        );
+        assert!(
+            html.contains(r#"<ul class="wf-dropdown__items" role="menu" hidden>"#),
+            "{name}: {html}"
+        );
+        let before_list = &html[..html.find("<ul").unwrap()];
+        assert!(
+            !before_list.contains("The language of this file\n"),
+            "{name}: the label is not loose text: {html}"
+        );
+    }
+}
