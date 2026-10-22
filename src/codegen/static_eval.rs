@@ -956,6 +956,10 @@ fn method_call(
             }
             "first" => Some(items.first().cloned().unwrap_or(Static::Null)),
             "last" => Some(items.last().cloned().unwrap_or(Static::Null)),
+            // On a list made for the expression — `path.split("/").pop()` —
+            // what JavaScript's `pop` and `shift` give back.
+            "pop" if args.is_empty() => Some(items.last().cloned().unwrap_or(Static::Null)),
+            "shift" if args.is_empty() => Some(items.first().cloned().unwrap_or(Static::Null)),
             "flatMap" => {
                 let f = args.first()?;
                 let mut out = Vec::new();
@@ -1479,6 +1483,23 @@ mod tests {
             crate::parser::ast::Arg::Positional(e) => e.clone(),
             _ => unreachable!(),
         }
+    }
+
+    #[test]
+    fn a_file_name_from_its_path_is_painted() {
+        let s = Scope::default();
+        assert_eq!(
+            eval(&expr_of("\"src/pages/deploys.wf\".split(\"/\").pop()"), &s),
+            Some(Static::Str("deploys.wf".into()))
+        );
+        assert_eq!(
+            eval(&expr_of("\"a/b\".split(\"/\").shift()"), &s),
+            Some(Static::Str("a".into()))
+        );
+        assert_eq!(
+            eval(&expr_of("[].pop() ?? \"none\""), &s),
+            Some(Static::Str("none".into()))
+        );
     }
 
     #[test]
