@@ -135,8 +135,8 @@ app {
   and a palette.
 - **`keyLabel("mod+shift+p")`** is how this system writes it: `⇧⌘P` on a
   Mac, `Ctrl+Shift+P` elsewhere. A `Menu.Item`'s and a `Tooltip`'s
-  `shortcut:` are written the same way, and the item tells assistive
-  technology with `aria-keyshortcuts`.
+  `shortcut:` are written the same way, and the item — or the tooltip's
+  control — tells assistive technology with `aria-keyshortcuts`.
 - Outside any element, a page, a component or `app` may handle `keydown`
   and `keyup`, and the window's `resize`, `scroll`, `hashchange`,
   `popstate`, `online`, `offline`, `message`, `storage` and
@@ -294,8 +294,9 @@ page Editor(path: "/", title: "Editor", description: "Layers at a control and at
   entry; choosing in it closes the whole menu, and it closes with its menu.
 - **`Tooltip`** waits `delay:` milliseconds of hover (unset, 500) and shows
   at once for keyboard focus; it never takes focus, and goes on leaving, on
-  a press and on Escape. `shortcut:` adds a chip with the keys;
-  `placement:` is where it goes (unset, `.top`).
+  a press and on Escape. `shortcut:` adds a chip with the keys and gives
+  the control it names its `aria-keyshortcuts`, in ARIA's spelling
+  (`Control+S`); `placement:` is where it goes (unset, `.top`).
 
 ## Gestures: drag, long-press, swipe and the splitter
 
@@ -365,7 +366,11 @@ page Files(path: "/", title: "Files", description: "Reorder, move and resize.") 
   follows the pointer between its bounds, a double-click or Enter resets
   it, and the arrow keys move it 16 px (64 with Shift). `.horizontal` sits
   between regions one above the other; `.reverse` sits on the start side of
-  what it sizes — a pane on the right, a panel at the bottom.
+  what it sizes — a pane on the right, a panel at the bottom. A drag or a
+  key starts from the region's size as it is drawn, so the bound value may
+  mean "the default share" — `0`, with the region's width a percentage
+  until it is dragged — and `reset: 0` goes back to it: a reset is taken as
+  written, not held to `min:`.
 
 A drag has no keyboard of its own: give what it does a menu item or a
 command too (`Move left`, `Move to…`), as the desktop's rule asks of every

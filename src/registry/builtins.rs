@@ -789,7 +789,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
             special(
                 "reset",
                 PropType::Num,
-                "The size a double-click goes back to",
+                "The size a double-click or Enter goes back to, taken as written: `0` can mean the region's default share",
             ),
             special(
                 "label",

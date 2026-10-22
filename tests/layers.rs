@@ -143,8 +143,10 @@ fn a_tooltip_names_its_shortcut_and_its_delay_is_its_own() {
     assert_eq!(checks(&src), "");
     let js = spa_generated(&src);
     assert!(
-        js.contains("role: \"tooltip\", id: \"wf-tip-") && js.contains("}, \"Save\");"),
-        "the positional text is the tip: {js}"
+        js.contains("= WF.uid(\"wf-tip\");")
+            && js.contains("role: \"tooltip\", id: _e")
+            && js.contains("}, \"Save\");"),
+        "the positional text is the tip, under an id of its own at run time: {js}"
     );
     assert!(
         js.contains(
@@ -153,8 +155,8 @@ fn a_tooltip_names_its_shortcut_and_its_delay_is_its_own() {
         "{js}"
     );
     assert!(
-        js.contains("{ delay: 400, placement: \"bottom\" });"),
-        "a tooltip's `delay:` is how long it waits, not an animation's: {js}"
+        js.contains("{ keys: \"mod+s\", delay: 400, placement: \"bottom\" });"),
+        "a tooltip's `delay:` is how long it waits, not an animation's, and its keys are its control's: {js}"
     );
     assert!(!js.contains("data-wf-delay"), "{js}");
 }

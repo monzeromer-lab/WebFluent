@@ -254,7 +254,7 @@ Renders with the class `wf-splitter`.
 | `bind:` | `State` | State variable the control reads and writes (two-way) |
 | `min:` | `Number` | The smallest size, in px |
 | `max:` | `Number` | The largest size, in px |
-| `reset:` | `Number` | The size a double-click goes back to |
+| `reset:` | `Number` | The size a double-click or Enter goes back to, taken as written: `0` can mean the region's default share |
 | `label:` | `String` | What it resizes, for a screen reader |
 | `horizontal:` | `Bool` | Between two regions one above the other: it moves up and down |
 | `reverse:` | `Bool` | On the start side of what it sizes — a pane on the right, a panel below — so a drag toward the start grows it |

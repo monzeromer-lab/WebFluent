@@ -397,7 +397,7 @@
     {
      "name": "reset:",
      "type": "Number",
-     "meaning": "The size a double-click goes back to"
+     "meaning": "The size a double-click or Enter goes back to, taken as written: `0` can mean the region's default share"
     },
     {
      "name": "label:",

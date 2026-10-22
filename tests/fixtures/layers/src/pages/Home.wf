@@ -8,6 +8,10 @@ page Home(path: "/", title: "Layers", description: "Popovers, menus and tooltips
     state point = { x: 0, y: 0 }
     state said = ""
     state first = true
+    state modalOpen = false
+    state escapes = 0
+    // What the page hears of Escape: only what no layer and no modal took.
+    on key("Escape") { escapes = escapes + 1 }
     Heading("Layers").h1
     Container(id: "clip") {
         style { overflow: hidden; height: 60px }
@@ -80,5 +84,16 @@ page Home(path: "/", title: "Layers", description: "Popovers, menus and tooltips
             Menu(trigger: n) { Menu.Item { Text("In {n}") } }
         }
     }
+    // Tooltips a loop draws, each its own.
+    Row(id: "tips") {
+        for n in ["Cut", "Copy", "Paste"] by n {
+            Tooltip("{n} the selection") { Button(n) }
+        }
+    }
+    Button("Open the modal", id: "modal-open") { on click { modalOpen = true } }
+    Modal(visible: modalOpen, title: "A modal") {
+        Button("Inside", id: "inside")
+    }
+    Text("{escapes}", id: "escapes")
     Text("{said}", id: "said")
 }

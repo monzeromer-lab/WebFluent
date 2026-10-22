@@ -3389,7 +3389,12 @@ impl<'a, 'p> Checker<'a, 'p> {
                 }
             }
             Expr::Lambda(params, body) => {
-                let names: Vec<&str> = params.split(',').map(str::trim).collect();
+                // `() => …` takes nothing: its parameters are the empty string.
+                let names: Vec<&str> = params
+                    .split(',')
+                    .map(str::trim)
+                    .filter(|n| !n.is_empty())
+                    .collect();
                 let param_types: Vec<Type> = match expected {
                     Some(Type::Func(types, _)) => names
                         .iter()
@@ -6409,6 +6414,7 @@ pub fn expr_text(expr: &Expr) -> String {
         Expr::Range(a, b, _) => format!("{}..{}", expr_text(a), expr_text(b)),
         Expr::MapLiteral(_) => "{…}".to_string(),
         Expr::Record(n, _) => format!("{n}(…)"),
+        Expr::Lambda(p, _) if p.trim().is_empty() => "() => …".to_string(),
         Expr::Lambda(p, _) => format!("{p} => …"),
         Expr::EnumCase(c) => format!(".{c}"),
         Expr::CaseValue(c, args) => format!(

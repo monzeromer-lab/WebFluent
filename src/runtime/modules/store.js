@@ -28,7 +28,27 @@
   function store(name, define, options) {
     const opts = options || {};
     let instance = null;
-    const build = () => instance || (instance = assembleStore(name, define(), opts));
+    // A store outlives the page that first reads it: what it builds — its
+    // derived values, its effects — belongs to the store, not to that
+    // page's scope (which would dispose them when the reader moved on, and
+    // leave every derived value stale) nor to whatever effect was running.
+    // A `.route` store lets go of it with its route.
+    const build = () => {
+      if (instance) return instance;
+      const scope = currentScope;
+      const running = currentEffect;
+      const owned = [];
+      currentScope = owned;
+      currentEffect = null;
+      try {
+        instance = assembleStore(name, define(), opts);
+      } finally {
+        currentScope = scope;
+        currentEffect = running;
+      }
+      instance.__off.push(...owned);
+      return instance;
+    };
     if (opts.scope === "route") {
       routeScoped.add(() => {
         if (instance) disposeStore(name, instance);

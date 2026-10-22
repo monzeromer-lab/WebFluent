@@ -1605,8 +1605,11 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                         ));
                     }
                 }
+                // There or not: `disabled: false` writes nothing.
                 "required" | "disabled" | "controls" => {
-                    attrs.push(key.to_string());
+                    if matches!(ctx.eval_expr(val), Value::Bool(true)) {
+                        attrs.push(key.to_string());
+                    }
                 }
                 // What a form sends the control as; an icon's is its glyph.
                 "name" | "autocomplete" if name != "Icon" => {

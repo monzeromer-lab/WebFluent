@@ -324,10 +324,20 @@
       el.setAttribute("aria-valuemin", String(min()));
       if (max() !== Infinity) el.setAttribute("aria-valuemax", String(max()));
     });
+    // Where a move starts from: the region's size as it is drawn — the
+    // region beside the handle, after it when the handle is `reverse` —
+    // so a bound value that means "the default share" (0), or one the
+    // page's own rules clamp, starts where the reader sees the edge.
+    const drawn = () => {
+      const region = opts.reverse ? el.nextElementSibling : el.previousElementSibling;
+      const box = region && typeof region.getBoundingClientRect === "function" ? region.getBoundingClientRect() : null;
+      const size = box ? (across ? box.width : box.height) : 0;
+      return size > 0 ? Math.round(size) : Number(read()) || 0;
+    };
     let from = null;
     el.addEventListener("pointerdown", (e) => {
       if (e.button !== undefined && e.button !== 0) return;
-      from = { at: across ? e.clientX : e.clientY, size: Number(read()) || 0 };
+      from = { at: across ? e.clientX : e.clientY, size: drawn() };
       el.setAttribute("data-dragging", "");
       document.documentElement.setAttribute("data-wf-resizing", across ? "x" : "y");
       if (el.setPointerCapture && e.pointerId !== undefined) {
@@ -348,17 +358,20 @@
     };
     el.addEventListener("pointerup", done);
     el.addEventListener("pointercancel", done);
-    el.addEventListener("dblclick", () => {
-      if (opts.reset) set(opts.reset());
-    });
+    // A reset is the author's own value, taken as written: `reset: 0`
+    // can mean "back to the share" where 0 is below `min:`.
+    const reset = () => {
+      if (opts.reset && write) write(Math.round(Number(opts.reset()) || 0));
+    };
+    el.addEventListener("dblclick", reset);
     el.addEventListener("keydown", (e) => {
       const step = e.shiftKey ? 64 : 16;
       const grow = across ? (e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0) : (e.key === "ArrowDown" ? 1 : e.key === "ArrowUp" ? -1 : 0);
       let consumed = true;
-      if (grow) set((Number(read()) || 0) + sign * grow * step);
+      if (grow) set(drawn() + sign * grow * step);
       else if (e.key === "Home") set(min());
       else if (e.key === "End" && max() !== Infinity) set(max());
-      else if (e.key === "Enter" && opts.reset) set(opts.reset());
+      else if (e.key === "Enter" && opts.reset) reset();
       else consumed = false;
       if (consumed && e.preventDefault) e.preventDefault();
     });

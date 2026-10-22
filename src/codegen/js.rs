@@ -4866,7 +4866,10 @@ impl JsCodegen {
             })
             .unwrap_or_else(|| "\"\"".to_string());
 
-        let tip_id = format!("wf-tip-{}", var.trim_start_matches("_e"));
+        // An id of its own at run time: a component's tooltip, or one a
+        // loop draws, is the same code for every copy.
+        let tip_id = self.fresh_var();
+        self.emit_line(&format!("const {tip_id} = WF.uid(\"wf-tip\");"));
         self.emit_line(&format!(
             "const {} = WF.el(\"div\", {{ className: \"{}\"{} }});",
             var,
@@ -4881,7 +4884,7 @@ impl JsCodegen {
 
         let tip_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = WF.el(\"span\", {{ className: \"wf-tooltip__text\", role: \"tooltip\", id: \"{}\" }}, {});",
+            "const {} = WF.el(\"span\", {{ className: \"wf-tooltip__text\", role: \"tooltip\", id: {} }}, {});",
             tip_var, tip_id, text
         ));
         let mut opts = Vec::new();
@@ -4894,6 +4897,7 @@ impl JsCodegen {
                     self.emit_line(&format!(
                         "{tip_var}.appendChild(WF.el(\"kbd\", {{ className: \"wf-tooltip__shortcut\" }}, WF.keyLabel({keys})));"
                     ));
+                    opts.push(format!("keys: {keys}"));
                 }
                 "placement" | "delay" => {
                     let value = self.emit_expr(v);

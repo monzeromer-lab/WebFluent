@@ -526,3 +526,45 @@ fn a_frame_hears_only_its_own_page_and_is_drawn_whole() {
         "{html}"
     );
 }
+
+/// A lambda with no parameters is a function of none: `() => x` fits a
+/// script's `() => boolean`, and says so when it does not fit.
+#[test]
+fn a_lambda_of_no_parameters_takes_none() {
+    let script = "/**\n * Ask, then do.\n * @param {() => boolean} ask\n * @param {() => void} done\n * @returns {boolean}\n */\nfunction askThen(ask, done) {\n  if (ask()) { done(); return true }\n  return false\n}\n";
+    let (said, dir) = build(
+        "nullary",
+        r#"{ "name": "n", "build": { "split": false, "minify": false } }"#,
+        &[
+            ("src/ask.js", script),
+            (
+                "src/pages/Home.wf",
+                &page_using(
+                    "    state open = false\n    action shut() { open = false }\n    Button(\"Go\") { on click { askThen(() => open, () => shut()) } }",
+                ),
+            ),
+        ],
+    );
+    assert!(
+        !said.contains("error"),
+        "a lambda of no parameters fits a function of none: {said}"
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+    let (said, dir) = build(
+        "nullary-wrong",
+        r#"{ "name": "n", "build": { "split": false, "minify": false } }"#,
+        &[
+            ("src/ask.js", script),
+            (
+                "src/pages/Home.wf",
+                &page_using("    Button(\"Go\") { on click { askThen((x) => x, () => 1) } }"),
+            ),
+        ],
+    );
+    assert!(
+        said.contains("T01")
+            && said.contains("`ask` of `askThen` is `action() -> Bool`, but `x => …`"),
+        "{said}"
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}

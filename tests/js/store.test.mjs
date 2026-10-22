@@ -46,6 +46,33 @@ test("a store declared after the one that reads it is still there", () => {
   assert.equal(Totals.doubled, 42);
 });
 
+test("a store first read by a page outlives that page: its derived values still follow", () => {
+  const { WF } = loadRuntime();
+  const S = WF.store("Counted", () => ({
+    state: { n: 0 },
+    derived: { twice: (store) => store.n * 2 },
+    actions: { add: (store) => { store.n = store.n + 1; } },
+  }));
+  // The first page to read it, and then the reader moving on.
+  const [, leave] = WF.scoped(() => {
+    let seen = null;
+    WF.effect(() => { seen = S.twice; });
+    S.add();
+    assert.equal(seen, 2, "while the page shows, it follows");
+  });
+  leave();
+  // Another page, later.
+  S.add();
+  assert.equal(S.twice, 4, "after that page has gone, the derived value still follows its state");
+  const [, leaveToo] = WF.scoped(() => {
+    let seen = null;
+    WF.effect(() => { seen = S.twice; });
+    S.add();
+    assert.equal(seen, 6, "and the next page hears it change");
+  });
+  leaveToo();
+});
+
 test("`eager: true` builds it at boot", () => {
   const { WF } = loadRuntime();
   let built = 0;

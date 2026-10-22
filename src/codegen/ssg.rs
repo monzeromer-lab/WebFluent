@@ -1471,9 +1471,14 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                             attrs.push(format!("name=\"{}\"", html_escape(&s)));
                         }
                     }
-                    "required" => attrs.push("required".to_string()),
-                    "disabled" => attrs.push("disabled".to_string()),
-                    "controls" => attrs.push("controls".to_string()),
+                    // A boolean attribute is there or not: `disabled: false`
+                    // writes nothing, and neither does one the pre-render
+                    // cannot know — the script sets it as it starts.
+                    "required" | "disabled" | "controls" => {
+                        if matches!(eval(val, &ctx.scope), Some(Static::Bool(true))) {
+                            attrs.push(key.to_string());
+                        }
+                    }
                     "title" => {
                         if let Some(s) = static_attr(val, &ctx.scope) {
                             attrs.push(format!("title=\"{}\"", html_escape(&s)));

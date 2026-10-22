@@ -95,6 +95,24 @@ async function scenario(label, ssg, port) {
     await page.keyboard.press("Enter");
     check("Enter resets it", (await text("width")) === "200", await text("width"));
 
+    // ── a pane whose size is its share until it is dragged ──
+    let pane = await box("#pane");
+    const share = Math.round(pane.w);
+    let ps = await box("#pane-split");
+    await page.mouse.move(ps.cx, ps.cy);
+    await page.mouse.down();
+    await page.mouse.move(ps.cx - 30, ps.cy, { steps: 4 });
+    await page.mouse.up();
+    pane = await box("#pane");
+    check("a drag starts from the size as drawn, not from the bound 0", (await text("pane-size")) === String(share + 30) && Math.round(pane.w) === share + 30, `${share} → ${await text("pane-size")}, drawn ${pane.w}`);
+    await page.focus("#pane-split");
+    await page.keyboard.press("ArrowRight");
+    check("…and so does a key", (await text("pane-size")) === String(share + 30 - 16), await text("pane-size"));
+    ps = await box("#pane-split");
+    await page.mouse.click(ps.cx, ps.cy, { clickCount: 2 });
+    pane = await box("#pane");
+    check("a reset is taken as written, below min: back to the share", (await text("pane-size")) === "0" && Math.round(pane.w) === share, `${await text("pane-size")} ${pane.w}`);
+
     // ── tabs across a strip ──
     let a = await box("#tab-App\\.wf");
     let c = await box("#tab-Card\\.wf");

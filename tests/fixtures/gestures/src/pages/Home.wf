@@ -39,6 +39,20 @@ page Home(path: "/", title: "Gestures", description: "Drag, long-press, swipe an
     }
     Text("{width}", id: "width")
 
+    // A pane on the right whose size is "its share" until it is dragged.
+    state pane = 0
+    derived paneWidth = if pane == 0 { "40%" } else { "{pane}px" }
+    Row(id: "panes") {
+        style { width: 600px }
+        Container { style { flex: 1 1 auto } Text("Editor") }
+        Splitter(bind: pane, min: 100, max: 500, reset: 0, label: "Preview width", id: "pane-split").reverse
+        Container(id: "pane") {
+            style { width: {paneWidth}; flex: none; height: 40px; background: #efe }
+            Text("Preview")
+        }
+    }
+    Text("{pane}", id: "pane-size")
+
     Row(id: "tabs") {
         for tab in tabs {
             Card(drag: tab, dragGroup: "tabs", dropValue: tab, dropAxis: .x, id: "tab-{tab}") {

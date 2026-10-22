@@ -435,6 +435,13 @@
     if (!focusable && !root.hasAttribute("tabindex")) root.setAttribute("tabindex", "0");
     const existing = trigger.getAttribute("aria-describedby");
     trigger.setAttribute("aria-describedby", existing ? `${existing} ${tip.id}` : tip.id);
+    // The shortcut the tip names is the control's: say it to assistive
+    // technology too, in ARIA's own spelling (`Control+B`), unless the
+    // control already says one.
+    if (opts.keys && !trigger.hasAttribute("aria-keyshortcuts")) {
+      const aria = keyAria(opts.keys);
+      if (aria) trigger.setAttribute("aria-keyshortcuts", aria);
+    }
     const shown = signal(false);
     layer(tip, shown, null, {
       anchor: trigger,

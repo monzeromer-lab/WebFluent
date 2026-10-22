@@ -29,6 +29,12 @@
     el.addEventListener("close", () => {
       if (write && read()) write(false);
     });
+    // The Escape that closes it is its own: nothing behind it — a page's
+    // `on key("Escape")`, the back rule of an app — hears it too. The
+    // browser still closes the dialog (its `cancel` is not prevented).
+    el.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && el.open && e.stopPropagation) e.stopPropagation();
+    });
   }
 
   /// Close a popup on Escape or an outside click, returning focus to its trigger.

@@ -109,6 +109,14 @@ async function scenario(label, ssg, port) {
     }));
     check("three menus a loop draws have three lists, each named by its own button",
       many.length === 3 && new Set(many.map((m) => m.id)).size === 3 && many.every((m) => m.own && m.trigger), JSON.stringify(many));
+    const tips = await page.evaluate(() => [...document.querySelectorAll("#tips .wf-tooltip")].map((t) => {
+      const b = t.querySelector("button");
+      const tip = t.querySelector(".wf-tooltip__text");
+      return { id: tip?.id, describes: b?.getAttribute("aria-describedby"), says: tip?.textContent };
+    }));
+    check("three tooltips a loop draws have three ids, each describing its own trigger",
+      tips.length === 3 && new Set(tips.map((t) => t.id)).size === 3 && tips.every((t) => t.id && t.describes === t.id),
+      JSON.stringify(tips));
     let s = await look(page);
     check("nothing is open at first", !s.pop.shown && !s.view.shown && !s.ctx.shown && !s.tip.shown, JSON.stringify([s.pop, s.view, s.ctx, s.tip]));
 
@@ -250,6 +258,8 @@ async function scenario(label, ssg, port) {
     check("then shows in the top layer, past the box that clips it", s.tip.top && s.tip.shown && s.tipRect.bottom <= s.save.top, JSON.stringify([s.tip, s.tipRect, s.save]));
     const chip = await page.$eval(".wf-tooltip__text kbd", (el) => el.textContent).catch(() => null);
     check("with its shortcut chip", chip === "Ctrl+S", chip);
+    const keys = await page.$eval("#save", (b) => b.getAttribute("aria-keyshortcuts"));
+    check("and its control says the shortcut to assistive technology, in ARIA's spelling", keys === "Control+S", keys);
     await page.mouse.move(10, 590);
     await until(page, () => !document.querySelector(".wf-tooltip__text")?.hasAttribute("data-open"));
     s = await look(page);
@@ -264,6 +274,18 @@ async function scenario(label, ssg, port) {
     s = await look(page);
     check("and Escape hides it", !s.tip.shown, JSON.stringify(s.tip));
 
+    // ── Escape is the top one's: a modal's is not heard behind it ──
+    await page.mouse.move(5, 5);
+    const heard = async () => Number(await page.$eval("#escapes", (e) => e.textContent));
+    const before = await heard();
+    await press("#modal-open");
+    await until(page, () => document.querySelector("dialog.wf-modal")?.open);
+    await page.keyboard.press("Escape");
+    await until(page, () => !document.querySelector("dialog.wf-modal")?.open);
+    check("Escape closes an open modal, and the page behind it does not hear it",
+      !(await page.$eval("dialog.wf-modal", (d) => d.open)) && (await heard()) === before, `${before} → ${await heard()}`);
+    await page.keyboard.press("Escape");
+    check("with nothing open, the page hears Escape", (await heard()) === before + 1, `${before} → ${await heard()}`);
     check("nothing threw, and the policy refused nothing", problems.length === 0, problems.join(" | "));
   } catch (e) {
     check(`the run (${e.message})`, false);

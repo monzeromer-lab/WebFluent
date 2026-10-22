@@ -385,3 +385,41 @@ fn no_empty_class_attributes() {
         failures.join(", ")
     );
 }
+
+/// A boolean attribute is there or it is not: `disabled: false` must not
+/// write `disabled`, or a pre-rendered page's buttons are dead until its
+/// script runs — and for good without one.
+#[test]
+fn a_false_boolean_attribute_is_left_off() {
+    let src = r#"
+component Pick(off: Bool = false) {
+    Button("Go", disabled: off, id: "pick-{off}")
+}
+page P(path: "/", title: "T", description: "Boolean attributes.") {
+    Button("Plain", disabled: false, id: "plain")
+    Button("Off", disabled: true, id: "off")
+    Pick
+    Pick(off: true)
+    Video(src: "/a.mp4", controls: false, id: "quiet")
+}
+"#;
+    for backend in [Backend::Ssg, Backend::Template] {
+        let html = raw_output(backend, src);
+        // In order: Plain, Off, Pick, Pick(off: true).
+        let buttons: Vec<&str> = html
+            .match_indices("<button")
+            .map(|(at, _)| &html[at..at + html[at..].find('>').unwrap()])
+            .collect();
+        let disabled: Vec<bool> = buttons.iter().map(|b| b.contains(" disabled")).collect();
+        assert_eq!(
+            disabled,
+            [false, true, false, true],
+            "{}: {buttons:?}",
+            backend.name()
+        );
+        if let Some(at) = html.find("<video") {
+            let video = &html[at..at + html[at..].find('>').unwrap()];
+            assert!(!video.contains(" controls"), "{}: {video}", backend.name());
+        }
+    }
+}
