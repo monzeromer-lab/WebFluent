@@ -813,6 +813,26 @@ pub fn info(code: &str) -> Option<&'static CodeInfo> {
     CODES.iter().find(|c| c.code == code)
 }
 
+/// The diagnostics chapter, which holds an entry for every code (the docs
+/// test sees to it).
+const CHAPTER: &str = include_str!("../../md-docs/40-diagnostics.md");
+
+/// The guide's section for `code` (`### T06 — …`), as Markdown, without its
+/// heading: what `wf explain` prints after the summary, and what an editor
+/// shows when asked to explain a finding.
+pub fn guide_section(code: &str) -> Option<&'static str> {
+    let heading = format!("### {code} — ");
+    let start = CHAPTER.find(&heading)?;
+    let body = &CHAPTER[start..];
+    let body = &body[body.find('\n')? + 1..];
+    let end = body
+        .match_indices("\n#")
+        .map(|(i, _)| i)
+        .find(|&i| body[i + 1..].starts_with("## ") || body[i + 1..].starts_with("### "))
+        .unwrap_or(body.len());
+    Some(body[..end].trim())
+}
+
 /// The family a code belongs to: its letter.
 pub fn family(code: &str) -> &str {
     &code[..code.len().min(1)]
@@ -873,9 +893,32 @@ mod tests {
     }
 
     #[test]
+    fn every_code_has_a_section_of_its_own_in_the_guide() {
+        for c in CODES {
+            let section =
+                guide_section(c.code).unwrap_or_else(|| panic!("{} has no section", c.code));
+            assert!(!section.is_empty(), "{}", c.code);
+            assert!(
+                !section.contains(&format!("### {} — ", c.code)),
+                "{}: without its heading",
+                c.code
+            );
+            for other in CODES.iter().filter(|o| o.code != c.code) {
+                assert!(
+                    !section.contains(&format!("\n### {} — ", other.code)),
+                    "{} runs into {}",
+                    c.code,
+                    other.code
+                );
+            }
+        }
+        assert!(guide_section("Z99").is_none());
+    }
+
+    #[test]
     fn every_title_is_its_heading_in_the_guide() {
         // The heading is the anchor `docs_url` links to.
-        let chapter = include_str!("../../md-docs/40-diagnostics.md");
+        let chapter = CHAPTER;
         for c in CODES {
             let heading = format!("### {} — {}\n", c.code, c.title);
             assert!(

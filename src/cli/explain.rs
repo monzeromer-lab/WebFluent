@@ -6,10 +6,6 @@ use crate::diagnostics::codes::{self, CODES};
 use crate::diagnostics::fixes::nearest;
 use crate::error::{Result, WebFluentError};
 
-/// The diagnostics chapter, which holds an entry for every code (the docs
-/// test sees to it).
-const CHAPTER: &str = include_str!("../../md-docs/40-diagnostics.md");
-
 pub fn run_explain(code: Option<&str>) -> Result<()> {
     match code {
         None => {
@@ -80,16 +76,7 @@ pub fn explanation(code: &str) -> Option<String> {
 
 /// The text of the chapter's `### CODE — …` section, without its heading.
 fn section(code: &str) -> Option<&'static str> {
-    let heading = format!("### {code} — ");
-    let start = CHAPTER.find(&heading)?;
-    let body = &CHAPTER[start..];
-    let body = &body[body.find('\n')? + 1..];
-    let end = body
-        .match_indices("\n#")
-        .map(|(i, _)| i)
-        .find(|&i| body[i + 1..].starts_with("## ") || body[i + 1..].starts_with("### "))
-        .unwrap_or(body.len());
-    Some(body[..end].trim())
+    codes::guide_section(code)
 }
 
 /// Markdown made for a terminal: code blocks indented and unfenced, the
