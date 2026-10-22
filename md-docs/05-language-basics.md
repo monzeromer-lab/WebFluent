@@ -65,7 +65,9 @@ rest in name order.
 - Enum cases are written with a leading dot: `.calm`, `.md`.
 - Design tokens are written with a dollar: `$primary`, `$spacing-md`.
 - A `///` comment above a declaration, a prop or an event is its
-  documentation, shown on hover in the editor and in `wf docs`.
+  documentation, shown on hover in the editor and in `wf docs`. Above a
+  `state`, `persist`, `derived` or `action`, it is that member's, which an
+  editor shows where the member is used.
 
 Nothing resolves silently. A name the compiler does not know — a misspelled
 element, a flag the element lacks, a case the enum lacks — is an error with a

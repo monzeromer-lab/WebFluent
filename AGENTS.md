@@ -259,7 +259,8 @@ UserCard("Sam", role: "Designer").active
 - Default values: `active: Bool = true`; a `Bool` prop is set with a flag
   (`.active`), an enum prop with a flag or by name (`.loud`, `tone: .loud`)
 - A `///` comment above a declaration, a prop or an event is its
-  documentation, shown on hover
+  documentation, shown on hover; above a `state`, `persist`, `derived` or
+  `action`, it is that member's
 
 A prop that reads state stays live inside the component: `Chip(pressed:
 showErrors)` repaints when `showErrors` changes.

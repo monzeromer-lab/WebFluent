@@ -603,6 +603,28 @@ impl Statement {
     pub fn new(kind: StatementKind, span: Span) -> Self {
         Self { kind, span }
     }
+
+    /// The `///` lines above a `state`, `persist`, `derived` or `action`,
+    /// which is all that carries them among statements.
+    pub fn doc(&self) -> Option<&str> {
+        match &self.kind {
+            StatementKind::State(s) => s.doc.as_deref(),
+            StatementKind::Derived(d) => d.doc.as_deref(),
+            StatementKind::Action(a) => a.doc.as_deref(),
+            _ => None,
+        }
+    }
+
+    /// Give a `state`, `persist`, `derived` or `action` the `///` lines
+    /// written above it; any other statement has nowhere to keep them.
+    pub fn set_doc(&mut self, doc: Option<String>) {
+        match &mut self.kind {
+            StatementKind::State(s) => s.doc = doc,
+            StatementKind::Derived(d) => d.doc = doc,
+            StatementKind::Action(a) => a.doc = doc,
+            _ => {}
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -769,6 +791,8 @@ pub struct StateDecl {
     /// its shape is, whether other tabs are followed, and how a value an
     /// older build left is brought forward.
     pub policy: Option<PersistPolicy>,
+    /// The `///` lines above it.
+    pub doc: Option<String>,
 }
 
 /// How long a store's state lives.
@@ -831,6 +855,8 @@ pub struct DerivedDecl {
     /// what it works out to.
     pub ty: Option<TypeRef>,
     pub value: Expr,
+    /// The `///` lines above it.
+    pub doc: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -856,6 +882,8 @@ pub struct ActionDecl {
     pub name: String,
     pub params: Vec<ParamDecl>,
     pub body: Vec<Statement>,
+    /// The `///` lines above it.
+    pub doc: Option<String>,
 }
 
 #[derive(Debug, Clone)]

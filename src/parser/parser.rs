@@ -508,6 +508,7 @@ impl Parser {
             value,
             persist: false,
             policy: None,
+            doc: None,
         }))
     }
 
@@ -521,6 +522,7 @@ impl Parser {
             name,
             ty: None,
             value,
+            doc: None,
         }))
     }
 
@@ -554,7 +556,12 @@ impl Parser {
         self.expect(&TokenType::CloseParen)?;
         let body = self.parse_block()?;
 
-        Ok(StatementKind::Action(ActionDecl { name, params, body }))
+        Ok(StatementKind::Action(ActionDecl {
+            name,
+            params,
+            body,
+            doc: None,
+        }))
     }
 
     fn parse_use_decl(&mut self) -> Result<StatementKind> {

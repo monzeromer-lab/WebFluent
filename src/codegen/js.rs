@@ -8512,6 +8512,7 @@ mod tests {
                     value: Expr::EnumCase("danger".to_string()),
                     persist: false,
                     policy: None,
+                    doc: None,
                 })),
                 stmt(StatementKind::Match(MatchStmt {
                     scrutinee: Expr::Identifier("tone".to_string()),
@@ -8725,6 +8726,7 @@ mod tests {
                     value: Expr::Null,
                     persist: false,
                     policy: None,
+                    doc: None,
                 })),
                 stmt(StatementKind::State(StateDecl {
                     name: "items".to_string(),
@@ -8732,6 +8734,7 @@ mod tests {
                     value: Expr::ListLiteral(Vec::new()),
                     persist: false,
                     policy: None,
+                    doc: None,
                 })),
                 stmt(StatementKind::If(IfStmt {
                     condition: Expr::Identifier("hint".to_string()),
@@ -8764,6 +8767,7 @@ mod tests {
                             vec![Expr::StringLiteral("/x".into())],
                         ))),
                     }))],
+                    doc: None,
                 })),
             ],
         )]);

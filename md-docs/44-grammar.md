@@ -53,8 +53,9 @@ animation Name { from { css } 50% { css } to { css } }
 test "name"(data: { … }) { render block and test steps }
 ```
 
-A `///` comment before a declaration, a prop, a field, an event or an
-endpoint is its documentation.
+A `///` comment before a declaration, a prop, a field, an event, an
+endpoint, or a `state`, `persist`, `derived` or `action` of a page, a
+component or a store is its documentation.
 
 ## Render blocks
 

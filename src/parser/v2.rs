@@ -1245,12 +1245,13 @@ impl ParserV2 {
         let open = self.expect(&TokenType::OpenBrace, "`{`")?;
         let mut statements = Vec::new();
         while !self.check(&TokenType::CloseBrace) && !self.at_end() {
-            // A `///` above a store's action or state documents it for the
-            // reader of the source; nothing else reads it yet.
-            if self.take_docs().is_some() {
-                continue;
+            // A `///` above a `state`, `derived` or `action` is its
+            // documentation, which an editor shows where it is used.
+            let doc = self.take_docs();
+            if self.check(&TokenType::CloseBrace) || self.at_end() {
+                break;
             }
-            self.push_render_statement(body, &mut statements)?;
+            self.push_documented(body, &mut statements, doc)?;
         }
         let close = self.expect(&TokenType::CloseBrace, "`}`")?;
         let span = Span::new(
@@ -1355,7 +1356,7 @@ impl ParserV2 {
                 });
                 continue;
             }
-            self.push_render_statement(Body::Component, &mut statements)?;
+            self.push_documented(Body::Component, &mut statements, doc)?;
         }
         let close = self.expect(&TokenType::CloseBrace, "`}`")?;
         let span = Span::new(
@@ -1375,6 +1376,24 @@ impl ParserV2 {
 
     /// One statement of a render block — or, where it says `sequence`, the
     /// several a sequence spells out.
+    /// A statement, with the `///` lines written above it.
+    fn push_documented(
+        &mut self,
+        body: Body,
+        out: &mut Vec<Statement>,
+        doc: Option<String>,
+    ) -> Result<()> {
+        let before = out.len();
+        self.push_render_statement(body, out)?;
+        if doc.is_some()
+            && out.len() == before + 1
+            && let Some(stmt) = out.last_mut()
+        {
+            stmt.set_doc(doc);
+        }
+        Ok(())
+    }
+
     fn push_render_statement(&mut self, body: Body, out: &mut Vec<Statement>) -> Result<()> {
         if self.is_word("sequence") && matches!(self.kind_at(1), TokenType::OpenBrace) {
             out.extend(self.parse_sequence()?);
@@ -1863,6 +1882,7 @@ impl ParserV2 {
             value,
             persist,
             policy,
+            doc: None,
         }))
     }
 
@@ -2035,7 +2055,12 @@ impl ParserV2 {
         };
         self.expect(&TokenType::Equals, "`=` and the expression")?;
         let value = self.parse_expression()?;
-        Ok(StatementKind::Derived(DerivedDecl { name, ty, value }))
+        Ok(StatementKind::Derived(DerivedDecl {
+            name,
+            ty,
+            value,
+            doc: None,
+        }))
     }
 
     fn parse_action(&mut self) -> Result<StatementKind> {
@@ -2051,6 +2076,7 @@ impl ParserV2 {
             name,
             params,
             body: stmts,
+            doc: None,
         }))
     }
 
@@ -2946,6 +2972,7 @@ impl ParserV2 {
                 value,
                 persist: false,
                 policy: None,
+                doc: None,
             }),
             span,
         )];
@@ -2965,6 +2992,7 @@ impl ParserV2 {
                     value: read,
                     persist: false,
                     policy: None,
+                    doc: None,
                 }),
                 span,
             ));
@@ -2998,6 +3026,7 @@ impl ParserV2 {
                     value,
                     persist: false,
                     policy: None,
+                    doc: None,
                 }))
             }
             "if" => self.parse_if(true),
@@ -4453,6 +4482,69 @@ mod tests {
                 "page P(path: \"/\") {{\n    persist n = 0 {{\n        {line}\n    }}\n}}\n"
             ));
         }
+    }
+
+    /// The `///` above a store's or a component's `state`, `persist`,
+    /// `derived` and `action` stays with it, for an editor to show; above
+    /// anything else, and at the end of a body, it is dropped as before.
+    #[test]
+    fn a_member_keeps_the_doc_written_above_it() {
+        let program = parse(
+            "store Deploys {\n    /// What is deployed.\n    /// Newest first.\n    state items = []\n    /// Kept.\n    persist envs = []\n    /// Live ones.\n    derived live = items\n    /// Add one.\n    action add(d: Any) {\n        items = [...items, d]\n    }\n    derived count = items.length\n    /// Nothing follows.\n}\n\ncomponent Row {\n    /// Open or not.\n    state open = false\n    /// Not a member.\n    Text(\"x\")\n}\n",
+        );
+        let docs = |body: &[Statement]| -> Vec<(String, Option<String>)> {
+            body.iter()
+                .filter_map(|s| match &s.kind {
+                    StatementKind::State(d) => Some((d.name.clone(), s.doc().map(str::to_string))),
+                    StatementKind::Derived(d) => {
+                        Some((d.name.clone(), s.doc().map(str::to_string)))
+                    }
+                    StatementKind::Action(d) => Some((d.name.clone(), s.doc().map(str::to_string))),
+                    _ => None,
+                })
+                .collect()
+        };
+        let Declaration::Store(store) = &program.declarations[0] else {
+            panic!("a store")
+        };
+        let some = |s: &str| Some(s.to_string());
+        assert_eq!(
+            docs(&store.body),
+            [
+                (
+                    "items".to_string(),
+                    some("What is deployed.\nNewest first.")
+                ),
+                ("envs".to_string(), some("Kept.")),
+                ("live".to_string(), some("Live ones.")),
+                ("add".to_string(), some("Add one.")),
+                ("count".to_string(), None),
+            ]
+        );
+        let Declaration::Component(row) = &program.declarations[1] else {
+            panic!("a component")
+        };
+        assert_eq!(
+            docs(&row.body),
+            [("open".to_string(), some("Open or not."))]
+        );
+
+        // The indented layout keeps them where the braced one does.
+        let src = "store S {\n    /// The count.\n    state n = 0\n    /// Up one.\n    action up() {\n        n = n + 1\n    }\n}\n";
+        let wfx = crate::layout::to_offside(src, "t.wf").expect("to the indented layout");
+        let program =
+            crate::syntax::parse_source(&wfx, "t.wfx").unwrap_or_else(|e| panic!("{e}\n{wfx}"));
+        let Declaration::Store(store) = &program.declarations[0] else {
+            panic!("a store")
+        };
+        assert_eq!(
+            docs(&store.body),
+            [
+                ("n".to_string(), some("The count.")),
+                ("up".to_string(), some("Up one."))
+            ],
+            "{wfx}"
+        );
     }
 
     /// Each word of [`BODY_KEYWORDS`] leads a statement of its own — not a

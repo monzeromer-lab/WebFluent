@@ -55,6 +55,7 @@ pub fn render_page_html_with_params(
             value: static_expr(&map),
             persist: false,
             policy: None,
+            doc: None,
         }),
         page.span,
     ));
@@ -66,6 +67,7 @@ pub fn render_page_html_with_params(
                 value: static_expr(v),
                 persist: false,
                 policy: None,
+                doc: None,
             }),
             page.span,
         ));

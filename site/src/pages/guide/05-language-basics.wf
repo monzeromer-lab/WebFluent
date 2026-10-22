@@ -96,7 +96,7 @@ test "chip shows its label" { Chip("Beta")  expect "Beta" }"#, title: "wf")
 
         Heading("Naming", id: "naming").h2
 
-        Markdown("- Declaration keywords are lowercase: `page`, `component`, `store`.\n- The names they declare, and every element, are **PascalCase**: `Home`, `UserCard`, `Button`, `Table.Row`.\n- State, props, actions, variables and flags are **camelCase**: `count`, `isOpen`, `save`, `.primary`.\n- Enum cases are written with a leading dot: `.calm`, `.md`.\n- Design tokens are written with a dollar: `$primary`, `$spacing-md`.\n- A `///` comment above a declaration, a prop or an event is its documentation, shown on hover in the editor and in `wf docs`.\n\nNothing resolves silently. A name the compiler does not know — a misspelled element, a flag the element lacks, a case the enum lacks — is an error with a hint, never a no-op.")
+        Markdown("- Declaration keywords are lowercase: `page`, `component`, `store`.\n- The names they declare, and every element, are **PascalCase**: `Home`, `UserCard`, `Button`, `Table.Row`.\n- State, props, actions, variables and flags are **camelCase**: `count`, `isOpen`, `save`, `.primary`.\n- Enum cases are written with a leading dot: `.calm`, `.md`.\n- Design tokens are written with a dollar: `$primary`, `$spacing-md`.\n- A `///` comment above a declaration, a prop or an event is its documentation, shown on hover in the editor and in `wf docs`. Above a `state`, `persist`, `derived` or `action`, it is that member's, which an editor shows where the member is used.\n\nNothing resolves silently. A name the compiler does not know — a misspelled element, a flag the element lacks, a case the enum lacks — is an error with a hint, never a no-op.")
 
         Heading("Comments", id: "comments").h2
 
