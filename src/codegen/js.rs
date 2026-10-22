@@ -4183,6 +4183,34 @@ impl JsCodegen {
             .collect()
     }
 
+    /// A control's handlers as its input's: `on change` beside a `bind:`
+    /// runs after the binding's own write, in one listener — two
+    /// `"on:change"` keys in one object keep only the last, which dropped
+    /// the binding.
+    fn control_handlers(&mut self, ui: &UIElement, bound_change: Option<String>) -> String {
+        let mut out = String::new();
+        let mut merged = false;
+        for handler in &ui.events {
+            let body = self.emit_event_body(handler);
+            let head = Self::handler_head(handler, "e");
+            if handler.event == "change"
+                && let Some(write) = &bound_change
+            {
+                out.push_str(&format!(", \"on:change\": {head} => {{ {write}; {body} }}"));
+                merged = true;
+            } else {
+                out.push_str(&format!(
+                    ", \"on:{}\": {head} => {{ {body} }}",
+                    handler.event
+                ));
+            }
+        }
+        if !merged && let Some(write) = bound_change {
+            out.push_str(&format!(", \"on:change\": () => {{ {write}; }}"));
+        }
+        out
+    }
+
     fn emit_switch(&mut self, var: &str, attrs: &[String], ui: &UIElement, parent: &str) {
         // A store's member or a loop item's field binds as a state does; a
         // switch bound to one used to draw no input at all.
@@ -4210,10 +4238,29 @@ impl JsCodegen {
         if let Some(target) = &bind_var {
             let input_var = self.fresh_var();
             let read = &target.read;
+            let write = Self::with_commit(target, &target.write(&format!("!{read}")));
+            let handlers = self.control_handlers(ui, Some(write));
             self.emit_line(&format!(
-                "const {} = WF.el(\"input\", {{ type: \"checkbox\", role: \"switch\",                  checked: () => !!{read}, \"aria-checked\": () => {read} ? \"true\" : \"false\",                  \"on:change\": () => {{ {}; }}{} }});",
+                "const {} = WF.el(\"input\", {{ type: \"checkbox\", role: \"switch\", checked: () => !!{read}, \"aria-checked\": () => {read} ? \"true\" : \"false\"{}{} }});",
                 input_var,
-                Self::with_commit(target, &target.write(&format!("!{read}"))),
+                handlers,
+                Self::control_input_attrs(attrs)
+            ));
+            self.emit_line(&format!("{}.appendChild({});", var, input_var));
+        } else if let Some(checked) = ui.args.iter().find_map(|a| match a {
+            Arg::Named(k, v) if k == "checked" => Some(v),
+            _ => None,
+        }) {
+            // `checked:` without `bind:` — a value down, an event up: the
+            // input shows the value, and the change is the caller's, heard
+            // by `on change` on the switch as it bubbles.
+            let value = self.emit_expr(checked);
+            let input_var = self.fresh_var();
+            let handlers = self.control_handlers(ui, None);
+            self.emit_line(&format!(
+                "const {} = WF.el(\"input\", {{ type: \"checkbox\", role: \"switch\", checked: () => !!({value}), \"aria-checked\": () => ({value}) ? \"true\" : \"false\"{}{} }});",
+                input_var,
+                handlers,
                 Self::control_input_attrs(attrs)
             ));
             self.emit_line(&format!("{}.appendChild({});", var, input_var));
@@ -4294,18 +4341,18 @@ impl JsCodegen {
             input_attrs.push_str(&format!(", name: \"{group}\""));
         }
 
+        let mut bound_change: Option<String> = None;
         if let Some(target) = &bind_var {
             let read = &target.read;
             if name == "Checkbox" {
-                input_attrs.push_str(&format!(
-                    ", checked: () => !!{read}, \"on:change\": () => {{ {}; }}",
-                    Self::with_commit(target, &target.write(&format!("!{read}")))
+                input_attrs.push_str(&format!(", checked: () => !!{read}"));
+                bound_change = Some(Self::with_commit(
+                    target,
+                    &target.write(&format!("!{read}")),
                 ));
             } else if let Some(val) = &radio_value {
-                input_attrs.push_str(&format!(
-                    ", checked: () => {read} === {val}, \"on:change\": () => {{ {}; }}",
-                    Self::with_commit(target, &target.write(val))
-                ));
+                input_attrs.push_str(&format!(", checked: () => {read} === {val}"));
+                bound_change = Some(Self::with_commit(target, &target.write(val)));
             }
         }
 
@@ -4331,16 +4378,8 @@ impl JsCodegen {
             }
         }
 
-        // Emit events from ui.events
-        for handler in &ui.events {
-            let body = self.emit_event_body(handler);
-            input_attrs.push_str(&format!(
-                ", \"on:{}\": {} => {{ {} }}",
-                handler.event,
-                Self::handler_head(handler, "e"),
-                body
-            ));
-        }
+        // The caller's handlers, and the binding's write, on the input.
+        input_attrs.push_str(&self.control_handlers(ui, bound_change));
 
         self.emit_line(&format!(
             "const {} = WF.el(\"input\", {{ {} }});",
@@ -4368,10 +4407,26 @@ impl JsCodegen {
         } else {
             "wf-menu"
         };
+        // What the button says: `trigger:` (a `Dropdown`'s `label:`). A
+        // `Menu`'s `label:` is the list's accessible name, so a menu that
+        // state opens — with no trigger — draws no button.
         let label = ui.args.iter().find_map(|a| match a {
-            Arg::Named(k, v) if k == "label" || k == "trigger" => Some(self.emit_expr(v)),
+            Arg::Named(k, v) if k == "trigger" || (k == "label" && name == "Dropdown") => {
+                Some(self.emit_expr(v))
+            }
             _ => None,
         });
+        let named = if name == "Menu" {
+            ui.args.iter().find_map(|a| match a {
+                Arg::Named(k, v) if k == "label" => Some(self.emit_expr(v)),
+                _ => None,
+            })
+        } else {
+            None
+        };
+        let aria_name = named
+            .map(|n| format!(", \"aria-label\": {n}"))
+            .unwrap_or_default();
         let visible = self.visibility_parts(ui);
         let mut opts = self.layer_options(ui);
         opts.extend(self.close_handler(ui));
@@ -4385,9 +4440,10 @@ impl JsCodegen {
                 crate::codegen::builtin::class_list(&items_class, &ui.modifiers).join(" ");
             let extra = self.passthrough_attrs(ui);
             self.emit_line(&format!(
-                "const {} = WF.el(\"ul\", {{ className: \"{}\", role: \"menu\"{}{} }});",
+                "const {} = WF.el(\"ul\", {{ className: \"{}\", role: \"menu\"{}{}{} }});",
                 var,
                 classes,
+                aria_name,
                 extra,
                 self.wf_node_inline(ui)
             ));
@@ -4428,11 +4484,13 @@ impl JsCodegen {
 
         // `aria-expanded` is the only thing that tells a screen reader whether
         // the menu is open; the class ternary is visual only.
-        let items_id = format!("wf-menu-{}", var.trim_start_matches("_e"));
+        // Each menu drawn has its own: a `for` draws many from one call.
+        let items_id = self.fresh_var();
+        self.emit_line(&format!("const {items_id} = WF.uid(\"wf-menu\");"));
         let trigger_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = WF.el(\"button\", {{ className: \"wf-btn\", type: \"button\", \
-             \"aria-haspopup\": \"menu\", \"aria-controls\": \"{}\", \
+            "const {} = WF.el(\"button\", {{ className: \"wf-btn wf-menu__trigger\", type: \"button\", \
+             \"aria-haspopup\": \"menu\", \"aria-controls\": {}, \
              \"aria-expanded\": () => ({})() ? \"true\" : \"false\", \
              \"on:click\": () => ({})(!({})()) }}, {});",
             trigger_var, items_id, read, write, read, label
@@ -4444,8 +4502,8 @@ impl JsCodegen {
         // button, so no `overflow` above it clips it.
         let items_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = WF.el(\"ul\", {{ className: \"{}\", id: \"{}\", role: \"menu\" }});",
-            items_var, items_class, items_id
+            "const {} = WF.el(\"ul\", {{ className: \"{}\", id: {}, role: \"menu\"{} }});",
+            items_var, items_class, items_id, aria_name
         ));
         self.emit_line(&format!(
             "WF.menu({var}, {trigger_var}, {items_var}, {read}, {write}, {opts});"

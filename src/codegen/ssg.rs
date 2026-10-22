@@ -1634,6 +1634,81 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
         format!(" {}", attrs.join(" "))
     };
 
+    // A box, a choice or a switch is a label holding its input, as the
+    // bundle builds it: painted without the input, the page showed words
+    // where the boxes would be until its script ran.
+    if matches!(name, "Checkbox" | "Radio" | "Switch") {
+        let arg = |key: &str| {
+            ui.args.iter().find_map(|a| match a {
+                Arg::Named(k, v) if k == key => Some(v),
+                _ => None,
+            })
+        };
+        let truthy = |e: &Expr| matches!(eval(e, &ctx.scope), Some(Static::Bool(true)));
+        let value = arg("value").and_then(|v| static_attr(v, &ctx.scope));
+        let checked = arg("checked").is_some_and(truthy)
+            || arg("bind").is_some_and(|b| match (eval(b, &ctx.scope), &value) {
+                (Some(Static::Bool(on)), None) => on,
+                (Some(bound), Some(v)) if name == "Radio" => bound.to_text() == *v,
+                _ => false,
+            });
+        let mut input = format!(
+            "<input type=\"{}\"",
+            if name == "Radio" { "radio" } else { "checkbox" }
+        );
+        if name == "Switch" {
+            input.push_str(&format!(
+                " role=\"switch\" aria-checked=\"{}\"",
+                if checked { "true" } else { "false" }
+            ));
+        }
+        if let Some(v) = &value {
+            input.push_str(&format!(" value=\"{}\"", html_escape(v)));
+        }
+        if checked {
+            input.push_str(" checked");
+        }
+        if arg("disabled").is_some_and(truthy) {
+            input.push_str(" disabled");
+        }
+        input.push('>');
+        let track = if name == "Switch" {
+            "<span class=\"wf-switch__track\"><span class=\"wf-switch__thumb\"></span></span>"
+        } else {
+            ""
+        };
+        let text = text_content.as_deref().map(html_escape).unwrap_or_default();
+        // The control's own attributes go on the input, as the bundle puts
+        // them — an `id` names the input a label points at — and the rest
+        // (its class) on the label.
+        let on_input = |a: &str| {
+            a.starts_with("aria-")
+                || a.starts_with("data-")
+                || ["name=", "id=", "required", "tabindex="]
+                    .iter()
+                    .any(|k| a.starts_with(k))
+        };
+        let mut own: Vec<String> = attrs.iter().filter(|a| on_input(a)).cloned().collect();
+        // A choice's group is the state it binds, as the bundle names it.
+        if name == "Radio"
+            && !own.iter().any(|a| a.starts_with("name="))
+            && let Some(Expr::Identifier(group)) = arg("bind")
+        {
+            own.push(format!("name=\"{}\"", html_escape(group)));
+        }
+        let label_attrs: Vec<&String> = attrs
+            .iter()
+            .filter(|a| !on_input(a) && !a.starts_with("checked") && !a.starts_with("disabled"))
+            .collect();
+        let label_attrs = label_attrs
+            .iter()
+            .map(|a| format!(" {a}"))
+            .collect::<String>();
+        let own = own.iter().map(|a| format!(" {a}")).collect::<String>();
+        let input = input.replacen("<input", &format!("<input{own}"), 1);
+        return format!("{indent}<label{label_attrs}>{input}{track}{text}</label>\n");
+    }
+
     // An Input with a label, hint or error is a field: the label, the
     // control, then the hint and the error message, as the bundle builds it.
     if matches!(name, "Input" | "Select")

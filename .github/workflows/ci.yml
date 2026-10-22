@@ -156,6 +156,10 @@ jobs:
         working-directory: tests/browser
         run: node icons.mjs
 
+      - name: Controls
+        working-directory: tests/browser
+        run: node controls.mjs
+
       # What the compiler once compiled wrong, clicked and typed into.
       - name: Behaviour
         run: target/release/wf test tests/fixtures/behaviour

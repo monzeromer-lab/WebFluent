@@ -7,6 +7,7 @@ page Home(path: "/", title: "Layers", description: "Popovers, menus and tooltips
     state ctx = false
     state point = { x: 0, y: 0 }
     state said = ""
+    state first = true
     Heading("Layers").h1
     Container(id: "clip") {
         style { overflow: hidden; height: 60px }
@@ -63,6 +64,20 @@ page Home(path: "/", title: "Layers", description: "Popovers, menus and tooltips
         Menu.Item(id: "rename") {
             on click { said = "rename" }
             Text("Rename")
+        }
+    }
+    // A menu open from the first paint, which state opens: no button.
+    Button("Welcome", ref: welcome, id: "welcome")
+    Menu(visible: first, anchor: welcome, label: "Open from the start", id: "first") {
+        Menu.Item(id: "first-item") {
+            on click { said = "first" }
+            Text("Got it")
+        }
+    }
+    // Menus a loop draws, each its own.
+    Row(id: "many") {
+        for n in ["one", "two", "three"] by n {
+            Menu(trigger: n) { Menu.Item { Text("In {n}") } }
         }
     }
     Text("{said}", id: "said")

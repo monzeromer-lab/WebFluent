@@ -90,6 +90,25 @@ async function scenario(label, ssg, port) {
   const press = async (sel) => { const c = await centre(sel); await page.mouse.click(c.x, c.y); };
   try {
     await page.goto(`http://localhost:${port}/`, { waitUntil: "networkidle0" });
+    // ── A menu open from the first paint ──
+    await until(page, () => document.querySelector("#first")?.hasAttribute("data-open"));
+    const first = await page.evaluate(() => {
+      const list = document.getElementById("first");
+      return { open: list?.hasAttribute("data-open"), top: list?.matches(":popover-open"), button: !!list?.parentElement?.querySelector(":scope > button[aria-haspopup]"), name: list?.getAttribute("aria-label"), tag: list?.tagName };
+    });
+    check("a menu that state opens from the first paint opens in the top layer", first.open && first.top, JSON.stringify(first));
+    check("…draws no button, and is named by its label", !first.button && first.name === "Open from the start" && first.tag === "UL", JSON.stringify(first));
+    await page.keyboard.press("Escape");
+    await until(page, () => !document.querySelector("#first")?.hasAttribute("data-open"));
+    // ── Menus a loop draws ──
+    const many = await page.evaluate(() => [...document.querySelectorAll("#many .wf-menu")].map((m) => {
+      const b = m.querySelector(":scope > button");
+      const id = b?.getAttribute("aria-controls");
+      const list = id ? document.getElementById(id) : null;
+      return { id, own: !!list && m.contains(list), trigger: b?.classList.contains("wf-menu__trigger") };
+    }));
+    check("three menus a loop draws have three lists, each named by its own button",
+      many.length === 3 && new Set(many.map((m) => m.id)).size === 3 && many.every((m) => m.own && m.trigger), JSON.stringify(many));
     let s = await look(page);
     check("nothing is open at first", !s.pop.shown && !s.view.shown && !s.ctx.shown && !s.tip.shown, JSON.stringify([s.pop, s.view, s.ctx, s.tip]));
 

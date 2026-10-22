@@ -712,3 +712,52 @@ fn a_page_is_in_the_default_locale_s_language_and_direction() {
         let _ = std::fs::remove_dir_all(&dir);
     }
 }
+
+/// A test that looks renders as the page does: a `t()` with a `count`
+/// takes the default locale's plural form, exactly none is `zero`, and a
+/// key combination is written as the build writes it.
+#[test]
+fn a_test_that_looks_says_what_the_page_says() {
+    let ar = r#"{ "files.zero": "لا ملفات", "files.one": "ملف واحد", "files.two": "ملفان", "files.few": "{count} ملفات", "files.many": "{count} ملفًا", "files.other": "{count} ملف" }"#;
+    let tests = r#"
+test "each count takes Arabic's form" {
+    Text(t("files", { count: 0 }))
+    Text(t("files", { count: 2 }))
+    Text(t("files", { count: 5 }))
+    Text(t("files", { count: 11 }))
+    Text(t("files", { count: 100 }))
+    expect "لا ملفات"
+    expect "ملفان"
+    expect "5 ملفات"
+    expect "11 ملفًا"
+    expect "100 ملف"
+}
+
+test "a key is written as the build writes it" {
+    Text(keyLabel("mod+shift+p"))
+    expect "Ctrl+Shift+P"
+}
+"#;
+    let dir = project(&[
+        (
+            "webfluent.app.json",
+            r#"{ "name": "lt", "i18n": { "default_locale": "ar", "locales": ["ar"] } }"#,
+        ),
+        (
+            "src/pages/Home.wf",
+            "page Home(path: \"/\", title: \"H\", description: \"H.\") {\n    Heading(\"H\").h1\n}\n",
+        ),
+        ("src/translations/ar.json", ar),
+        ("tests/look.wf", tests),
+    ]);
+    let out = std::process::Command::new(env!("CARGO_BIN_EXE_wf"))
+        .arg("test")
+        .arg(&dir)
+        .output()
+        .unwrap();
+    let said =
+        String::from_utf8_lossy(&out.stdout).to_string() + &String::from_utf8_lossy(&out.stderr);
+    assert!(out.status.success(), "{said}");
+    assert!(said.contains("2 passed"), "{said}");
+    let _ = std::fs::remove_dir_all(&dir);
+}

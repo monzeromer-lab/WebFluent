@@ -885,6 +885,10 @@
         [
           "trapFocus",
           "trapFocus"
+        ],
+        [
+          "uid",
+          "uid"
         ]
       ],
       "name": "layer",

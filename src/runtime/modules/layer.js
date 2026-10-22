@@ -190,17 +190,40 @@
       }
     };
     if (!top) el.setAttribute("hidden", "");
+    // A layer open from the first paint is asked to open before it is in
+    // the document, where the top layer cannot take it: it opens on the
+    // first frame it is there, unless it was closed in between.
+    let waiting = 0;
+    const later = (fn) => (typeof requestAnimationFrame === "function" ? requestAnimationFrame(fn) : setTimeout(fn, 0));
+    const openWhenThere = () => {
+      if (entry || waiting) return;
+      if (el.isConnected !== false) return open();
+      waiting = later(() => {
+        waiting = 0;
+        if (read() && !entry) openWhenThere();
+      });
+    };
     // An anchor that follows state moves an open layer with it.
     effect(() => {
       if (!read()) shut();
       else if (entry) place();
-      else open();
+      else openWhenThere();
     });
     onCleanup(() => {
       shut();
+      if (waiting && typeof cancelAnimationFrame === "function") cancelAnimationFrame(waiting);
+      waiting = 0;
       if (frame && typeof cancelAnimationFrame === "function") cancelAnimationFrame(frame);
     });
     return { place, open, close: shut };
+  }
+
+  // An id no other element of the page has: a menu's list, named by its
+  // button's `aria-controls`, once for each menu drawn — a `for` draws many.
+  let _uids = 0;
+  function uid(prefix) {
+    _uids += 1;
+    return `${prefix}-${_uids}`;
   }
 
   // ─── Menus ─────────────────────────────────────────────────────────

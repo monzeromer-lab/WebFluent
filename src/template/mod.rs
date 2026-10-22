@@ -658,13 +658,29 @@ pub fn render_program_fragment(program: &Program, data: &Value) -> Result<String
     render_program(program, data, false, Default::default())
 }
 
-/// As [`render_program_fragment`], with the messages `t("key")` reads.
+/// As [`render_program_fragment`], with the messages `t("key")` reads,
+/// in English.
 pub fn render_program_fragment_with(
     program: &Program,
     data: &Value,
     messages: HashMap<String, String>,
 ) -> Result<String> {
-    render_program(program, data, false, std::rc::Rc::new(messages))
+    render_program_fragment_in(program, data, messages, "en")
+}
+
+/// As [`render_program_fragment_with`], the messages being `locale`'s: a
+/// `t()` with a `count` picks the form that locale's plural rules give it.
+pub fn render_program_fragment_in(
+    program: &Program,
+    data: &Value,
+    messages: HashMap<String, String>,
+    locale: &str,
+) -> Result<String> {
+    let mut ctx_locale = locale.to_string();
+    if ctx_locale.is_empty() {
+        ctx_locale = "en".to_string();
+    }
+    render_program_in(program, data, false, std::rc::Rc::new(messages), ctx_locale)
 }
 
 /// The markup a paged output lays out: as [`render_program_fragment`], with
@@ -680,8 +696,19 @@ fn render_program(
     paged: bool,
     messages: std::rc::Rc<HashMap<String, String>>,
 ) -> Result<String> {
+    render_program_in(program, data, paged, messages, "en".to_string())
+}
+
+fn render_program_in(
+    program: &Program,
+    data: &Value,
+    paged: bool,
+    messages: std::rc::Rc<HashMap<String, String>>,
+    locale: String,
+) -> Result<String> {
     let mut ctx = RenderContext::for_program(program, data);
     ctx.messages = messages;
+    ctx.locale = std::rc::Rc::from(locale.as_str());
     if paged {
         ctx.locals.insert(PAGED.to_string(), Value::Bool(true));
     }
@@ -731,6 +758,8 @@ struct RenderContext<'a> {
     /// The messages `t("key")` reads: the project's default locale, when it
     /// has translations. Without them `t` shows its key.
     messages: std::rc::Rc<HashMap<String, String>>,
+    /// The locale those messages are, whose plural rules pick a form.
+    locale: std::rc::Rc<str>,
 }
 
 impl<'a> RenderContext<'a> {
@@ -815,6 +844,7 @@ impl<'a> RenderContext<'a> {
             slots: Vec::new(),
             fields: 0,
             messages: Default::default(),
+            locale: std::rc::Rc::from("en"),
         }
     }
 
@@ -834,6 +864,7 @@ impl<'a> RenderContext<'a> {
             slots: self.slots.clone(),
             fields: self.fields,
             messages: self.messages.clone(),
+            locale: self.locale.clone(),
         }
     }
 
@@ -1043,41 +1074,29 @@ impl<'a> RenderContext<'a> {
                 // `key.other`, then `key`), its placeholders filled. Without
                 // a table, the key.
                 if name == "t" {
+                    // The message as the build and the page pick it: the
+                    // locale's plural form, exactly none `zero`, then
+                    // `other`, then the key itself.
                     let Some(Value::String(key)) = _args.first().map(|a| self.eval_expr(a)) else {
                         return Value::Null;
                     };
-                    let params = _args.get(1).map(|a| self.eval_expr(a));
-                    let count = params
-                        .as_ref()
-                        .and_then(|p| p.get("count"))
-                        .and_then(|c| c.as_f64());
-                    let forms = match count {
-                        None => Vec::new(),
-                        Some(n) => {
-                            let form = if n == 1.0 {
-                                "one"
-                            } else if n == 0.0 {
-                                "zero"
-                            } else {
-                                "other"
-                            };
-                            vec![format!("{key}.{form}"), format!("{key}.other")]
-                        }
-                    };
-                    let message = forms
-                        .iter()
-                        .chain(std::iter::once(&key))
-                        .find_map(|k| self.messages.get(k))
-                        .cloned()
-                        .unwrap_or(key);
-                    let mut out = message;
-                    if let Some(Value::Object(map)) = params {
-                        for (k, v) in map {
-                            out = out.replace(&format!("{{{k}}}"), &value_to_string(&v));
-                        }
-                    }
-                    Value::String(out)
-                } else if name == "format" || name == "ago" {
+                    let params: Vec<(String, crate::codegen::static_eval::Static)> =
+                        match _args.get(1).map(|a| self.eval_expr(a)) {
+                            Some(Value::Object(map)) => map
+                                .iter()
+                                .map(|(k, v)| {
+                                    (k.clone(), crate::codegen::static_eval::Static::from_json(v))
+                                })
+                                .collect(),
+                            _ => Vec::new(),
+                        };
+                    Value::String(crate::i18n::message(
+                        &self.locale,
+                        &self.messages,
+                        &key,
+                        &params,
+                    ))
+                } else if name == "format" || name == "ago" || name == "keyLabel" {
                     // Formatting speaks the data's `locale`, or English.
                     self.eval_static(expr)
                 } else {

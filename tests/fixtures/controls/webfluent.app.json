@@ -1,0 +1,4 @@
+{
+  "name": "controls",
+  "build": { "ssg": true }
+}

@@ -134,7 +134,7 @@ pub const MODULES: &[Module] = &[
     ], deps: [], triggers: []),
     module!("layer", exports: [
         same("layer"), same("placeAt"), same("menu"), same("submenu"), same("tooltip"),
-        same("trapFocus"),
+        same("trapFocus"), same("uid"),
     ], deps: [], triggers: []),
     module!("announce", exports: [same("announce")], deps: [], triggers: []),
     module!("field", exports: [same("field")], deps: [], triggers: []),

@@ -277,8 +277,10 @@ page Editor(path: "/", title: "Editor", description: "Layers at a control and at
   why: `"escape"` or `"outside"`. `.arrow` draws a point toward the anchor;
   `label:` is its accessible name.
 - **`Menu`** with `trigger:` is a button and its list. Without one it is a
-  list that state opens: `visible:` at an `anchor:`, or `at:` a point
-  `{ x, y }` — where the pointer asked for a context menu. Choosing an item
+  list that state opens — open from the first paint if its state starts
+  `true` — at an `anchor:`, or `at:` a point `{ x, y }`, where the pointer
+  asked for a context menu. `label:` names the list for a screen reader;
+  it is never a button's text. Choosing an item
   closes it (`on close` hears `"choose"`).
 - **`Menu.Item`** takes `shortcut:` — the keys that do the same, drawn at
   its end and given to assistive technology as `aria-keyshortcuts`;

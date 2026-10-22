@@ -1,0 +1,27 @@
+/// The controls fixture: a switch, a box and a choice, each bound, and the
+/// switch and the box given their value and told of a change — a value
+/// down, an event up — pre-rendered with their inputs as the page draws
+/// them.
+page Home(path: "/", title: "Controls", description: "Switches, boxes and choices.") {
+    state bound = true
+    state given = true
+    state ticked = false
+    state size = "md"
+    state kept = false
+    state heard = 0
+    Heading("Controls").h1
+    Switch(bind: bound, label: "Bound switch", id: "bound")
+    Switch(checked: given, label: "Given switch", id: "given") {
+        on change(e) { given = e.target.checked }
+    }
+    Checkbox(checked: ticked, label: "Given box", id: "box") {
+        on change(e) { ticked = e.target.checked }
+    }
+    Checkbox(bind: kept, label: "Bound box that is heard", id: "kept") {
+        on change { heard = heard + 1 }
+    }
+    Radio(bind: size, value: "sm", label: "Small", id: "sm")
+    Radio(bind: size, value: "md", label: "Medium", id: "md")
+    Text("{bound} {given} {ticked} {size}", id: "said")
+    Text("{kept} {heard}", id: "heard")
+}

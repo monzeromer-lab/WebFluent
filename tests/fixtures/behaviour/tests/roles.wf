@@ -1,0 +1,34 @@
+// What a reader presses is found by its name, whatever it is: a menu's
+// item, a tab, a choice of a group.
+
+test "a menu's item is pressed by its name" {
+    state said = "nothing"
+    Menu(trigger: "View") {
+        Menu.Item { on click { said = "wrapped" }  Text("Word wrap") }
+        Menu.Item(checked: false) { on click { said = "zen" }  Text("Zen mode") }
+    }
+    Text("said {said}")
+    click "View"
+    click "Zen mode"
+    expect "said zen"
+}
+
+test "a tab is pressed by its name" {
+    state shown = "code"
+    Row(role: "tablist") {
+        Text("Code", role: "tab", tabindex: 0) { on click { shown = "code" } }
+        Text("Preview", role: "tab", tabindex: -1) { on click { shown = "preview" } }
+    }
+    Text("showing {shown}")
+    click "Preview"
+    expect "showing preview"
+}
+
+test "a choice is pressed by its name" {
+    state size = "md"
+    Radio(bind: size, value: "sm", label: "Small")
+    Radio(bind: size, value: "md", label: "Medium")
+    Text("size {size}")
+    click "Small"
+    expect "size sm"
+}

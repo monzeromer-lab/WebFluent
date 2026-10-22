@@ -157,7 +157,16 @@ impl Tests {
     /// snapshot (written when missing, or with `update`).
     pub fn run_rendered(&self, file: &str, test: &TestDecl, update: bool) -> Outcome {
         let messages = self.messages();
-        match run_one(&self.shared, test, &self.snapshots, file, update, &messages) {
+        let locale = self.locale();
+        match run_one(
+            &self.shared,
+            test,
+            &self.snapshots,
+            file,
+            update,
+            &messages,
+            &locale,
+        ) {
             Ok(written) if written => Outcome::Written,
             Ok(_) => Outcome::Passed,
             Err(reasons) => Outcome::Failed(reasons),
@@ -178,6 +187,15 @@ impl Tests {
         }
     }
 
+    /// The project's default locale, whose plural rules a `t()` with a
+    /// `count` follows; English without translations.
+    pub fn locale(&self) -> String {
+        self.i18n
+            .as_ref()
+            .map(|(i, _)| i.default_locale.clone())
+            .unwrap_or_else(|| "en".to_string())
+    }
+
     /// The messages of the default locale, which a test that looks reads.
     pub fn messages(&self) -> HashMap<String, String> {
         self.i18n
@@ -193,6 +211,7 @@ pub fn render_test(
     shared: &[Declaration],
     test: &TestDecl,
     messages: &HashMap<String, String>,
+    locale: &str,
 ) -> Result<String> {
     let mut declarations = shared.to_vec();
     declarations.push(Declaration::Page(PageDecl {
@@ -258,7 +277,7 @@ pub fn render_test(
             }
         }
     }
-    crate::template::render_program_fragment_with(&program, &data, messages.clone())
+    crate::template::render_program_fragment_in(&program, &data, messages.clone(), locale)
 }
 
 /// The text a render shows, as a reader would read it: tags gone (a block's
@@ -311,8 +330,9 @@ fn run_one(
     file: &str,
     update: bool,
     messages: &HashMap<String, String>,
+    locale: &str,
 ) -> std::result::Result<bool, Vec<String>> {
-    let html = render_test(shared, test, messages).map_err(|e| vec![e.to_string()])?;
+    let html = render_test(shared, test, messages, locale).map_err(|e| vec![e.to_string()])?;
     let mut reasons = Vec::new();
     let empty = crate::codegen::static_eval::Scope::of([]);
     // What a reader sees: the text, not the markup — `expect "wf-text"` is
@@ -700,7 +720,10 @@ const FIND: &str = r#"
 
 const ACT: &str = r#"
   if (what === "click") {
-    const el = find(name, "button, a, [role=button], input, select, summary, label, [onclick]");
+    // Whatever a reader can press, by its name: a button or a link, a
+    // control, or a widget's role — a tab, a menu's item, an option, a row
+    // of a tree.
+    const el = find(name, "button, a, [role=button], [role=link], [role=tab], [role=menuitem], [role=menuitemcheckbox], [role=menuitemradio], [role=option], [role=treeitem], [role=switch], [role=checkbox], [role=radio], input, select, summary, label, [onclick]");
     if (!el) return "none";
     el.click();
     return "ok";

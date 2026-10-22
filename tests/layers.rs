@@ -228,3 +228,45 @@ fn a_middle_click_and_focus_within_are_events_of_any_element() {
         assert!(js.contains(event), "{event} is listened to: {js}");
     }
 }
+
+#[test]
+fn a_menu_state_opens_has_no_button_and_each_menu_drawn_has_its_own_list() {
+    let src = page(
+        "state open = true\n    Button(\"Here\", ref: here)\n    Menu(visible: open, anchor: here, label: \"Choose\") { Menu.Item { Text(\"One\") } }\n    for n in [\"a\", \"b\"] by n {\n        Menu(trigger: n) { Menu.Item { Text(n) } }\n    }",
+    );
+    let js = spa_generated(&src);
+    assert!(
+        js.contains("role: \"menu\", \"aria-label\": \"Choose\""),
+        "named by its label: {js}"
+    );
+    assert!(
+        !js.contains("}, \"Choose\");"),
+        "no button says the label: {js}"
+    );
+    assert!(
+        js.contains("WF.uid(\"wf-menu\")"),
+        "an id for each menu drawn: {js}"
+    );
+    assert!(js.contains("wf-menu__trigger"), "{js}");
+}
+
+#[test]
+fn a_box_a_choice_and_a_switch_are_painted_with_their_inputs() {
+    let src = page(
+        "state on = true\n    state size = \"md\"\n    Switch(bind: on, label: \"Wrap\", id: \"wrap\")\n    Checkbox(checked: false, label: \"Box\", id: \"box\") { on change { on = !on } }\n    Radio(bind: size, value: \"md\", label: \"Medium\", id: \"md\")",
+    );
+    let html = ssg_html(&src);
+    assert!(html.contains("<label class=\"wf-switch\"><input id=\"wrap\" type=\"checkbox\" role=\"switch\" aria-checked=\"true\" checked><span class=\"wf-switch__track\">"), "{html}");
+    assert!(
+        html.contains(
+            "<label class=\"wf-checkbox\"><input id=\"box\" type=\"checkbox\">Box</label>"
+        ),
+        "{html}"
+    );
+    assert!(
+        html.contains(
+            "<input id=\"md\" name=\"size\" type=\"radio\" value=\"md\" checked>Medium</label>"
+        ),
+        "{html}"
+    );
+}

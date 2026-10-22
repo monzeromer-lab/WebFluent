@@ -65,7 +65,7 @@ test "a list renders each row"(data: { rows: [{ name: "a" }, { name: "b" }] }) {
                 }
                 Table.Row {
                     Table.Cell { Markdown("`click \"Save\"`") }
-                    Table.Cell("Clicks whatever carries that name")
+                    Table.Cell("Clicks whatever carries that name: a button or a link, a control, a tab, a menu's item, an option, a row of a tree")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`type \"Ada\" into \"Name\"`") }
