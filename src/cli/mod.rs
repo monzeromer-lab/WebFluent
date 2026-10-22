@@ -4,6 +4,7 @@ pub mod audit;
 pub mod build;
 pub mod components;
 pub mod config;
+pub mod context;
 pub mod describe;
 pub mod docs;
 pub mod explain;

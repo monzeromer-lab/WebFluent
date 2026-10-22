@@ -36,6 +36,7 @@ told otherwise, and exits non-zero on failure, so each is a CI step as it is.
 | `wf docs [-d, --dir DIR] [-o, --out OUT]` | Writes a gallery of every component |
 | `wf registry [--json]` | Describes every built-in |
 | `wf theme [-d, --dir DIR] [--json]` | The theme the build uses: every token, declared or inherited, where each is used, and its contrast |
+| `wf context [-d, --dir DIR] [--open FILE[:START-END]] [--guide index\|full] [--json]` | What an agent is given: the files, the problems, the components, the theme, the config with only its public `env`, the guide, and what was withheld |
 | `wf translations [-d, --dir DIR] [--missing LOCALE] [--unused] [--plurals] [--json]` | The translations as a table: each locale's plural forms and what it lacks, each key's messages and uses |
 | `wf scope FILE:LINE[:COL] [-d, --dir DIR] [--data JSON] [--json]` | What can be read at a place: the names in scope, each with its type and where it comes from |
 | `wf rules [-d, --dir DIR] [--json]` | The rules a `validate` block may hold, the named patterns, when a form shows its messages, and every state the project holds to a rule |
@@ -448,6 +449,30 @@ pacing (`motion` in the config, or the engine's), and the attribute an
 editor sets on the page's root, `data-wf-motion="reduce"`, to show the
 page as a reader who asked for less motion sees it. The library has it as
 `webfluent::motion::catalogue`.
+
+### `wf context`
+
+```bash
+wf context
+wf context --open src/pages/Home.wf:120-180
+wf context --guide full --json
+```
+
+What an agent working on the project is given, named so nothing it is
+told is a mystery: every file of the project (not the build's output,
+`.git/`, dependencies or a `.env` file), the file open and its selection,
+the problems the build reports, every component a call can name with its
+props, cases, events and slots, the theme's tokens, `webfluent.app.json`
+with each `env` value `public_env` does not list withheld, and the guide —
+each chapter's title, blurb and sections to cite (`16 Forms and validation
+› What a value must be: validate`), or with `--guide full` the chapters
+whole — then what was withheld, and why. Without `--json` it is one
+Markdown document. The library has it as `webfluent::agent::context`, and
+an agent's edits as `webfluent::agent::changeset::ChangeSet`: a layer over
+the editor's buffers the compiler builds before anyone reads it, which
+refuses paths outside the project, `.git/`, the build's output and `.env`
+files, reads the config with its private values withheld and keeps them
+through a write, and is accepted whole, by file or by hunk.
 
 ### `wf translations`
 

@@ -449,6 +449,18 @@
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
+<p><code>wf context [-d, --dir DIR] [--open FILE[:START-END]] [--guide index|full] [--json]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>What an agent is given: the files, the problems, the components, the theme, the config with only its public <code>env</code>, the guide, and what was withheld</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
 <p><code>wf translations [-d, --dir DIR] [--missing LOCALE] [--unused] [--plurals] [--json]</code></p>
                                             </div>
                                         </td>
@@ -778,6 +790,19 @@
                             </div>
                             <div class="wf-markdown">
 <p>What a Motion section offers: every animation <code>animate:</code> and <code>exit:</code> take — the engine's, each with the keyframes and the rule its stylesheet plays it by, whether it is one an element leaves with and whether it repeats, then the project's own <code>animation</code> declarations — the named eases with the timing function each stands for, the three speeds and their lengths, the Router's transitions, the project's default length and pacing (<code>motion</code> in the config, or the engine's), and the attribute an editor sets on the page's root, <code>data-wf-motion=&quot;reduce&quot;</code>, to show the page as a reader who asked for less motion sees it. The library has it as <code>webfluent::motion::catalogue</code>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="wf-context">wf context</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>What an agent working on the project is given, named so nothing it is told is a mystery: every file of the project (not the build's output, <code>.git/</code>, dependencies or a <code>.env</code> file), the file open and its selection, the problems the build reports, every component a call can name with its props, cases, events and slots, the theme's tokens, <code>webfluent.app.json</code> with each <code>env</code> value <code>public_env</code> does not list withheld, and the guide — each chapter's title, blurb and sections to cite (<code>16 Forms and validation › What a value must be: validate</code>), or with <code>--guide full</code> the chapters whole — then what was withheld, and why. Without <code>--json</code> it is one Markdown document. The library has it as <code>webfluent::agent::context</code>, and an agent's edits as <code>webfluent::agent::changeset::ChangeSet</code>: a layer over the editor's buffers the compiler builds before anyone reads it, which refuses paths outside the project, <code>.git/</code>, the build's output and <code>.env</code> files, reads the config with its private values withheld and keeps them through a write, and is accepted whole, by file or by hunk.</p>
                             </div>
                             <h3 class="wf-heading" id="wf-translations">wf translations</h3>
                             <div class="wf-stack wf-sba64d8a9 code-block">

@@ -38,6 +38,7 @@ wf motion [--json]                        # The animations, eases, speeds and ro
 wf rules [--json]                         # The validate rules, named patterns, and every state held to a rule
 wf scope FILE:LINE[:COL] [--json]         # What can be read there: each name in scope, its type, where it comes from
 wf translations [--missing L] [--unused] [--json] # The translations table: what each locale lacks, what nothing names
+wf context [--open FILE] [--guide full] [--json] # Everything an agent is given about the project, private env withheld
 wf components [--json]                    # Every component a call can name, built-in and the project's: props and their kinds, events, slots, parts
 wf explain [CODE]                         # A diagnostic's entry: meaning, example, fix
 wf serve [-d DIR]                         # Dev server (localhost:3000): rebuilds on save, reloads the page, shows a failed build's error over it

@@ -241,6 +241,10 @@ pub mod validation;
 /// and, typed, what a path picker lists there.
 pub mod scope;
 
+/// What an agent works through: a change set held apart from the working
+/// tree, built before it is read, and the context it is given.
+pub mod agent;
+
 /// Studio integration facade — [`studio::compile_studio`] turns a program into a
 /// [`studio::CompiledSite`] (SSG pages + CSS + JS + node map) for the preview.
 pub mod studio;

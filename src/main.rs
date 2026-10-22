@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 
+mod agent;
 mod assets;
 mod audit;
 mod browser;
@@ -117,6 +118,24 @@ enum Commands {
         #[arg(short, long, default_value = ".")]
         dir: PathBuf,
         /// Print JSON, for tools
+        #[arg(long)]
+        json: bool,
+    },
+    /// What an agent is given: the files, the open file, the problems, the
+    /// components, the theme, the config with only its public env, the
+    /// guide, and what was withheld
+    Context {
+        /// Project directory (default: current directory)
+        #[arg(short, long, default_value = ".")]
+        dir: PathBuf,
+        /// The file open in the editor, and its selection as byte offsets:
+        /// `src/pages/Home.wf` or `src/pages/Home.wf:120-180`
+        #[arg(long)]
+        open: Option<String>,
+        /// The guide as its chapters' sections (`index`) or whole (`full`)
+        #[arg(long, default_value = "index")]
+        guide: String,
+        /// Print JSON, for tools; otherwise one Markdown document
         #[arg(long)]
         json: bool,
     },
@@ -451,6 +470,12 @@ fn main() {
             }
             ConfigAction::Unset { path, dir } => cli::config::run_set(&dir, &path, None),
         },
+        Commands::Context {
+            dir,
+            open,
+            guide,
+            json,
+        } => cli::context::run_context(&dir, open.as_deref(), &guide, json),
         Commands::Translations {
             dir,
             missing,

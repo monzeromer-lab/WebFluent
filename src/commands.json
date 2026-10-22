@@ -383,6 +383,70 @@
       "writes": ""
     },
     {
+      "name": "context",
+      "options": [
+        {
+          "default": ".",
+          "flag": false,
+          "help": "Project directory (default: current directory)",
+          "long": "dir",
+          "name": "dir",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": "d",
+          "takes": "path",
+          "value_name": "DIR",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": false,
+          "help": "The file open in the editor, and its selection as byte offsets: `src/pages/Home.wf` or `src/pages/Home.wf:120-180`",
+          "long": "open",
+          "name": "open",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "text",
+          "value_name": "OPEN",
+          "values": []
+        },
+        {
+          "default": "index",
+          "flag": false,
+          "help": "The guide as its chapters' sections (`index`) or whole (`full`)",
+          "long": "guide",
+          "name": "guide",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "text",
+          "value_name": "GUIDE",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Print JSON, for tools; otherwise one Markdown document",
+          "long": "json",
+          "name": "json",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "JSON",
+          "values": []
+        }
+      ],
+      "preview": null,
+      "summary": "What an agent is given: the files, the open file, the problems, the components, the theme, the config with only its public env, the guide, and what was withheld",
+      "writes": ""
+    },
+    {
       "name": "translations",
       "options": [
         {

@@ -83,6 +83,10 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                     Table.Cell("The theme the build uses: every token, declared or inherited, where each is used, and its contrast")
                 }
                 Table.Row {
+                    Table.Cell { Markdown("`wf context [-d, --dir DIR] [--open FILE[:START-END]] [--guide index|full] [--json]`") }
+                    Table.Cell { Markdown("What an agent is given: the files, the problems, the components, the theme, the config with only its public `env`, the guide, and what was withheld") }
+                }
+                Table.Row {
                     Table.Cell { Markdown("`wf translations [-d, --dir DIR] [--missing LOCALE] [--unused] [--plurals] [--json]`") }
                     Table.Cell("The translations as a table: each locale's plural forms and what it lacks, each key's messages and uses")
                 }
@@ -296,6 +300,16 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
             ])
 
         Markdown("What a Motion section offers: every animation `animate:` and `exit:` take — the engine's, each with the keyframes and the rule its stylesheet plays it by, whether it is one an element leaves with and whether it repeats, then the project's own `animation` declarations — the named eases with the timing function each stands for, the three speeds and their lengths, the Router's transitions, the project's default length and pacing (`motion` in the config, or the engine's), and the attribute an editor sets on the page's root, `data-wf-motion=\"reduce\"`, to show the page as a reader who asked for less motion sees it. The library has it as `webfluent::motion::catalogue`.")
+
+        Heading("wf context", id: "wf-context").h3
+
+        Terminal(lines: [
+                Line(command: "wf context"),
+                Line(command: "wf context --open src/pages/Home.wf:120-180"),
+                Line(command: "wf context --guide full --json")
+            ])
+
+        Markdown("What an agent working on the project is given, named so nothing it is told is a mystery: every file of the project (not the build's output, `.git/`, dependencies or a `.env` file), the file open and its selection, the problems the build reports, every component a call can name with its props, cases, events and slots, the theme's tokens, `webfluent.app.json` with each `env` value `public_env` does not list withheld, and the guide — each chapter's title, blurb and sections to cite (`16 Forms and validation › What a value must be: validate`), or with `--guide full` the chapters whole — then what was withheld, and why. Without `--json` it is one Markdown document. The library has it as `webfluent::agent::context`, and an agent's edits as `webfluent::agent::changeset::ChangeSet`: a layer over the editor's buffers the compiler builds before anyone reads it, which refuses paths outside the project, `.git/`, the build's output and `.env` files, reads the config with its private values withheld and keeps them through a write, and is accepted whole, by file or by hunk.")
 
         Heading("wf translations", id: "wf-translations").h3
 

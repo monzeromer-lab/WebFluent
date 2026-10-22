@@ -22,6 +22,38 @@ fn main() {
     }
     println!("cargo:rustc-env=WF_SOURCE_FINGERPRINT={hash:016x}");
     println!("cargo:rerun-if-changed=src");
+    guide();
+}
+
+// The guide, `md-docs/*.md`, listed for `include_str!`, so `wf` carries the
+// chapters of exactly the compiler it was built from (`agent::guide`).
+fn guide() {
+    let dir = Path::new("md-docs");
+    println!("cargo:rerun-if-changed=md-docs");
+    let mut names: Vec<String> = std::fs::read_dir(dir)
+        .map(|r| {
+            r.flatten()
+                .map(|e| e.file_name().to_string_lossy().into_owned())
+                .filter(|n| n.ends_with(".md"))
+                .collect()
+        })
+        .unwrap_or_default();
+    names.sort();
+    let root = std::env::var("CARGO_MANIFEST_DIR").unwrap_or_default();
+    let mut out = String::from(
+        "/// Every chapter of `md-docs/`, by file name, in name order.\npub static FILES: &[(&str, &str)] = &[\n",
+    );
+    for name in &names {
+        let path = Path::new(&root).join("md-docs").join(name);
+        println!("cargo:rerun-if-changed={}", path.display());
+        out.push_str(&format!(
+            "    ({name:?}, include_str!({:?})),\n",
+            path.display().to_string()
+        ));
+    }
+    out.push_str("];\n");
+    let target = Path::new(&std::env::var("OUT_DIR").unwrap_or_default()).join("guide_files.rs");
+    std::fs::write(target, out).expect("write the guide's list");
 }
 
 fn walk(dir: &Path, out: &mut Vec<std::path::PathBuf>) {

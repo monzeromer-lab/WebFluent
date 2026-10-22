@@ -65,6 +65,7 @@ pub const EFFECTS: &[Effect] = &[
     e("rules", "", None),
     e("scope", "", None),
     e("translations", "", None),
+    e("context", "", None),
     e("commands", "", None),
 ];
 
