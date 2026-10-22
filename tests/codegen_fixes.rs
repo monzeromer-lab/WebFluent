@@ -332,3 +332,29 @@ fn an_icons_name_that_reads_state_follows_it_named_or_not() {
         "a name that reads nothing is written as it is"
     );
 }
+
+// ─── A menu whose trigger reads state ────────────────────────────────
+
+#[test]
+fn a_menus_trigger_that_reads_state_follows_it() {
+    let out = js(&page(
+        "    state width = \"390\"\n    Menu(trigger: if width == \"full\" { \"Full\" } else { width }) {\n        \
+         Menu.Item { on click { width = \"full\" }  Text(\"Full\") }\n    }\n    Menu(trigger: \"Options\") {\n        Menu.Item { Text(\"One\") }\n    }",
+    ));
+    let trigger = |n: usize| {
+        out.match_indices("wf-menu__trigger")
+            .nth(n)
+            .map(|(at, _)| out[at..].split(");").next().unwrap_or_default().to_string())
+            .unwrap_or_default()
+    };
+    assert!(
+        trigger(0).contains("}, () => "),
+        "the trigger's words are a thunk: {}",
+        trigger(0)
+    );
+    assert!(
+        trigger(1).ends_with("}, \"Options\""),
+        "a fixed trigger is written as it is: {}",
+        trigger(1)
+    );
+}

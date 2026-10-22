@@ -4467,6 +4467,14 @@ impl JsCodegen {
         }
 
         let label = label.unwrap_or_else(|| "\"Menu\"".to_string());
+        // A trigger that reads state follows it, as any text does: the
+        // button of `Menu(trigger: if wide { "Full" } else { width })`
+        // kept the words it was drawn with.
+        let label = if self.is_reactive(&label) {
+            format!("() => {label}")
+        } else {
+            label
+        };
         let root_classes = self.class_attr(name, ui);
         let extra = self.passthrough_attrs(ui);
         // What says the menu is open: `visible:` when it is given and can
