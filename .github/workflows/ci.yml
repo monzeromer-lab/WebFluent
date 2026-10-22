@@ -152,6 +152,10 @@ jobs:
         working-directory: tests/browser
         run: node plurals.mjs
 
+      - name: Icons
+        working-directory: tests/browser
+        run: node icons.mjs
+
       # What the compiler once compiled wrong, clicked and typed into.
       - name: Behaviour
         run: target/release/wf test tests/fixtures/behaviour

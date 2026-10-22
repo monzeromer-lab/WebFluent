@@ -523,6 +523,15 @@ pub const UNIVERSAL_EVENTS: &[(&str, &str)] = &[
     ("mouseleave", "The pointer left the element"),
     ("dblclick", "The element was double-clicked"),
     (
+        "auxclick",
+        "A button other than the main one was clicked; `e.button` is which — 1 is the middle, which closes a tab",
+    ),
+    (
+        "focusin",
+        "Focus moved onto the element or something inside it",
+    ),
+    ("focusout", "Focus left the element or something inside it"),
+    (
         "contextmenu",
         "The context menu was asked for; `e.preventDefault()` keeps the browser's",
     ),
@@ -1003,6 +1012,11 @@ pub const COMPONENTS: &[ComponentSig] = &[
                 "disabled",
                 PropType::Bool,
                 "Shown, skipped by the arrow keys, and cannot be chosen",
+            ),
+            flag(
+                "danger",
+                "danger",
+                "What it does cannot be taken back — Delete, Discard: drawn in the danger colour",
             ),
         ],
         G,

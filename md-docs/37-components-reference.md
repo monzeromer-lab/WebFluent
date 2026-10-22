@@ -525,11 +525,12 @@ Renders with the class `wf-menu`.
 
 **Parts:**
 
-- `Menu.Item(shortcut: …, checked: …, disabled: …) { … }` — One entry of the menu; `on click` is what choosing it does.
+- `Menu.Item(shortcut: …, checked: …, disabled: …, danger: …) { … }` — One entry of the menu; `on click` is what choosing it does.
   - `shortcut:` `String` — The keys that do the same, `mod+b`, shown at its end as this system writes them (`⌘B`, `Ctrl+B`)
   - `checked:` `Bool` — A check mark: the item turns something on and off
   - `disabled:` `Bool` — Shown, skipped by the arrow keys, and cannot be chosen
-  - flags: `.checked` `.disabled` `.dropInside` `.trapFocus`
+  - `danger:` `Bool` — What it does cannot be taken back — Delete, Discard: drawn in the danger colour
+  - flags: `.checked` `.disabled` `.danger` `.dropInside` `.trapFocus`
 - `Menu.Sub(label: …) { … }` — An entry that opens a menu of its own beside it.
   - `label:` `String` — What the entry says
   - flags: `.dropInside` `.trapFocus`
@@ -2252,6 +2253,9 @@ Events every element accepts in an `on … { }` handler:
 - `on mouseenter` — The pointer entered the element
 - `on mouseleave` — The pointer left the element
 - `on dblclick` — The element was double-clicked
+- `on auxclick` — A button other than the main one was clicked; `e.button` is which — 1 is the middle, which closes a tab
+- `on focusin` — Focus moved onto the element or something inside it
+- `on focusout` — Focus left the element or something inside it
 - `on contextmenu` — The context menu was asked for; `e.preventDefault()` keeps the browser's
 - `on mousedown` — A mouse button went down over the element
 - `on mouseup` — A mouse button came up over the element
@@ -2298,7 +2302,7 @@ Events every element accepts in an `on … { }` handler:
 
 The names `Icon(…)`, `IconButton(icon:)` and `Sidebar.Item(icon:)` draw; any other name shows as the word, and the compiler warns.
 
-`close` `menu` `search` `home` `user` `settings` `check` `plus` `minus` `edit` `trash` `star` `heart` `mail` `bell` `download` `upload` `eye` `link` `calendar` `filter` `chevron-down` `chevron-right` `chevron-left` `info` `warning` `arrow-left` `arrow-right` `logout` `copy` `sun` `moon`
+`close` `menu` `search` `home` `user` `settings` `check` `plus` `minus` `edit` `trash` `star` `heart` `mail` `bell` `download` `upload` `eye` `link` `calendar` `filter` `chevron-down` `chevron-right` `chevron-left` `info` `warning` `arrow-left` `arrow-right` `logout` `copy` `sun` `moon` `folder` `folder-plus` `file` `refresh` `alert-circle` `clock` `dot` `diff` `book` `git-pull-request` `pin` `git-branch` `more-horizontal` `window-minimize` `window-maximize` `outline` `help-circle` `collapse-all` `chevron-up` `globe` `external-link` `panel-down` `panel-up`
 
 ## Next
 

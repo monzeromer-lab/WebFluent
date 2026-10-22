@@ -152,6 +152,8 @@ page Editor(path: "/", title: "Editor", description: "Layers at a control and at
     Menu(visible: asked, at: point) {
         Menu.Item(shortcut: "F12") { Text("Go to definition") }
         Menu.Item { Text("Rename") }
+        Menu.Divider
+        Menu.Item.danger { Text("Delete") }
     }
     Text(said)
 }

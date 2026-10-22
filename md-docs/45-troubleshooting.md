@@ -88,7 +88,7 @@ has to be declared: a library in `meta.scripts`, fonts and stylesheets in
 that origin. An inline `<script>` in `public/` HTML is never
 allowed; move it to a file.
 
-**An icon shows as a word.** Its name is not one of the 32 built-in icons
+**An icon shows as a word.** Its name is not one of the 55 built-in icons
 ([Media](28-media.md#icons)), or it is built at run time, which the build
 cannot see — set `"build": { "runtime": "full" }` or name it literally.
 

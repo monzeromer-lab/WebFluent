@@ -4,7 +4,7 @@
 route: guide/media
 group: shipping
 blurb: Pictures the build resizes for every screen, video with captions, audio with a transcript, icons and carousels.
-description: Images from public/ and the image pipeline, Video with captions, Audio with a transcript, the 32 built-in icons, and Carousel.
+description: Images from public/ and the image pipeline, Video with captions, Audio with a transcript, the 55 built-in icons, and Carousel.
 -->
 
 ## Pictures from `public/`
@@ -93,11 +93,12 @@ colour it. `IconButton(icon: "close", label: "Close")` is a button that is
 only an icon, named for screen readers by its `label:`. `Sidebar.Item`
 takes `icon:` too.
 
-The 32 icons: `home`, `menu`, `search`, `close`, `user`, `settings`,
+The 55 icons: `home`, `menu`, `search`, `close`, `user`, `settings`,
 `check`, `plus`, `minus`, `edit`, `trash`, `star`, `heart`, `mail`, `bell`,
 `download`, `upload`, `eye`, `link`, `calendar`, `filter`, `info`,
 `warning`, `arrow-left`, `arrow-right`, `chevron-down`, `chevron-right`,
-`chevron-left`, `logout`, `copy`, `sun`, `moon`.
+`chevron-left`, `logout`, `copy`, `sun`, `moon`; and what an editor or a
+tool draws — `folder`, `folder-plus`, `file`, `refresh`, `alert-circle`, `clock`, `dot`, `diff`, `book`, `git-pull-request`, `pin`, `git-branch`, `more-horizontal`, `window-minimize`, `window-maximize`, `outline`, `help-circle`, `collapse-all`, `chevron-up`, `globe`, `external-link`, `panel-down`, `panel-up`.
 
 A name that is not one of them draws as the word, and the build carries
 only the glyphs the program names — so an icon whose name arrives at run

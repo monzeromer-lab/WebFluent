@@ -187,3 +187,44 @@ fn what_a_layer_draws_with_is_kept_only_when_a_layer_is_used() {
         css("state o = false\n    Popover(visible: o) { Text(\"x\") }").contains(".wf-popover {")
     );
 }
+
+#[test]
+fn a_menu_item_that_cannot_be_taken_back_says_so() {
+    let src = page(
+        "Menu(trigger: \"File\") {\n        Menu.Item(shortcut: \"F2\") { Text(\"Rename\") }\n        Menu.Divider\n        Menu.Item.danger { Text(\"Delete\") }\n        Menu.Item(danger: true) { Text(\"Discard\") }\n    }",
+    );
+    assert!(checks(&src).is_empty(), "{}", checks(&src));
+    let js = spa_generated(&src);
+    assert_eq!(
+        js.matches("wf-menu__item--danger").count(),
+        2,
+        "both, as a flag and as a prop: {js}"
+    );
+    let html = ssg_html(&src);
+    assert_eq!(html.matches("wf-menu__item--danger").count(), 2, "{html}");
+}
+
+#[test]
+fn a_middle_click_and_focus_within_are_events_of_any_element() {
+    let src = page(
+        "state closed = 0\n    state inside = false\n    Row {\n        on auxclick(e) { if e.button == 1 { closed = closed + 1 } }\n        on focusin { inside = true }\n        on focusout { inside = false }\n        Text(\"{closed} {inside}\")\n    }",
+    );
+    let dir = std::env::temp_dir().join(format!("wf-events-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(dir.join("src/pages")).unwrap();
+    std::fs::write(dir.join("webfluent.app.json"), "{\"name\":\"e\"}").unwrap();
+    std::fs::write(dir.join("src/pages/P.wf"), &src).unwrap();
+    let out = std::process::Command::new(env!("CARGO_BIN_EXE_wf"))
+        .args(["check", "-d"])
+        .arg(&dir)
+        .output()
+        .unwrap();
+    let said =
+        String::from_utf8_lossy(&out.stdout).to_string() + &String::from_utf8_lossy(&out.stderr);
+    assert!(!said.contains("V09"), "no V09: {said}");
+    let _ = std::fs::remove_dir_all(&dir);
+    let js = spa_generated(&src);
+    for event in ["auxclick", "focusin", "focusout"] {
+        assert!(js.contains(event), "{event} is listened to: {js}");
+    }
+}

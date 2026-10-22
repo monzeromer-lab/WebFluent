@@ -1135,7 +1135,10 @@ fn render_ui_element(ui: &UIElement, ctx: &mut SsgContext) -> String {
     match &ui.component {
         ComponentRef::BuiltIn(name) => render_builtin(name, ui, ctx),
         ComponentRef::SubComponent(parent, sub) => {
-            let class = format!("wf-{}__{}", parent.to_lowercase(), camel_to_kebab(sub));
+            // A part's flags are its classes too (`Menu.Item.danger` is
+            // `wf-menu__item--danger`), as the live page writes them.
+            let base = format!("wf-{}__{}", parent.to_lowercase(), camel_to_kebab(sub));
+            let class = class_list(&base, &ui.modifiers).join(" ");
             // A sub-component with a `to:` is a link, and has to render as one.
             // This used to drop the destination and emit a bare `<li>`, so every
             // `Sidebar.Item` in a static build was dead until JavaScript ran —

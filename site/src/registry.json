@@ -829,11 +829,17 @@
        "name": "disabled:",
        "type": "Bool",
        "meaning": "Shown, skipped by the arrow keys, and cannot be chosen"
+      },
+      {
+       "name": "danger:",
+       "type": "Bool",
+       "meaning": "What it does cannot be taken back \u2014 Delete, Discard: drawn in the danger colour"
       }
      ],
      "flags": [
       ".checked",
       ".disabled",
+      ".danger",
       ".dropInside",
       ".trapFocus"
      ]
@@ -4410,6 +4416,18 @@
     "meaning": "The element was double-clicked"
    },
    {
+    "name": "on auxclick",
+    "meaning": "A button other than the main one was clicked; `e.button` is which \u2014 1 is the middle, which closes a tab"
+   },
+   {
+    "name": "on focusin",
+    "meaning": "Focus moved onto the element or something inside it"
+   },
+   {
+    "name": "on focusout",
+    "meaning": "Focus left the element or something inside it"
+   },
+   {
     "name": "on contextmenu",
     "meaning": "The context menu was asked for; `e.preventDefault()` keeps the browser's"
    },
@@ -4607,7 +4625,30 @@
   "logout",
   "copy",
   "sun",
-  "moon"
+  "moon",
+  "folder",
+  "folder-plus",
+  "file",
+  "refresh",
+  "alert-circle",
+  "clock",
+  "dot",
+  "diff",
+  "book",
+  "git-pull-request",
+  "pin",
+  "git-branch",
+  "more-horizontal",
+  "window-minimize",
+  "window-maximize",
+  "outline",
+  "help-circle",
+  "collapse-all",
+  "chevron-up",
+  "globe",
+  "external-link",
+  "panel-down",
+  "panel-up"
  ],
  "count": 76
 }

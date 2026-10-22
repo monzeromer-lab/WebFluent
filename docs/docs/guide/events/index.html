@@ -533,6 +533,8 @@ page Use(path: &quot;/&quot;) {
     Menu(visible: asked, at: point) {
         Menu.Item(shortcut: &quot;F12&quot;) { Text(&quot;Go to definition&quot;) }
         Menu.Item { Text(&quot;Rename&quot;) }
+        Menu.Divider
+        Menu.Item.danger { Text(&quot;Delete&quot;) }
     }
     Text(said)
 }</code>
@@ -541,7 +543,7 @@ page Use(path: &quot;/&quot;) {
 <ul>
 <li><strong><code>Popover</code></strong> is open while its <code>visible:</code> state is true, placed against <code>anchor:</code> — an element's <code>ref:</code> — on <code>placement:</code> (<code>.bottom</code>, <code>.bottomStart</code>, <code>.bottomEnd</code>, <code>.top…</code>, <code>.left…</code>, <code>.right…</code>; unset, <code>.bottomStart</code>), <code>offset:</code> pixels away. When Escape or a press outside closes it, <code>visible:</code> is set back to <code>false</code> and <code>on close(reason)</code> hears why: <code>&quot;escape&quot;</code> or <code>&quot;outside&quot;</code>. <code>.arrow</code> draws a point toward the anchor; <code>label:</code> is its accessible name.</li>
 <li><strong><code>Menu</code></strong> with <code>trigger:</code> is a button and its list. Without one it is a list that state opens: <code>visible:</code> at an <code>anchor:</code>, or <code>at:</code> a point <code>{ x, y }</code> — where the pointer asked for a context menu. Choosing an item closes it (<code>on close</code> hears <code>&quot;choose&quot;</code>).</li>
-<li><strong><code>Menu.Item</code></strong> takes <code>shortcut:</code> — the keys that do the same, drawn at its end and given to assistive technology as <code>aria-keyshortcuts</code>; <code>checked:</code>, which makes it a check item that follows its state; and <code>disabled:</code>, which keeps it in sight but out of reach — the arrow keys skip it and a press does nothing.</li>
+<li><strong><code>Menu.Item</code></strong> takes <code>shortcut:</code> — the keys that do the same, drawn at its end and given to assistive technology as <code>aria-keyshortcuts</code>; <code>checked:</code>, which makes it a check item that follows its state; and <code>disabled:</code>, which keeps it in sight but out of reach — the arrow keys skip it and a press does nothing; and <code>.danger</code>, for what cannot be taken back (Delete, Discard), drawn in the danger colour.</li>
 <li><strong><code>Menu.Sub(label:)</code></strong> is an entry with a menu of its own, opened beside it by a hover, ArrowRight or Enter. ArrowLeft and Escape go back to the entry; choosing in it closes the whole menu, and it closes with its menu.</li>
 <li><strong><code>Tooltip</code></strong> waits <code>delay:</code> milliseconds of hover (unset, 500) and shows at once for keyboard focus; it never takes focus, and goes on leaving, on a press and on Escape. <code>shortcut:</code> adds a chip with the keys; <code>placement:</code> is where it goes (unset, <code>.top</code>).</li>
 </ul>

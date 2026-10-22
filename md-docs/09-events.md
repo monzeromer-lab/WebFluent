@@ -262,6 +262,8 @@ page Editor(path: "/", title: "Editor", description: "Layers at a control and at
     Menu(visible: asked, at: point) {
         Menu.Item(shortcut: "F12") { Text("Go to definition") }
         Menu.Item { Text("Rename") }
+        Menu.Divider
+        Menu.Item.danger { Text("Delete") }
     }
     Text(said)
 }
@@ -282,7 +284,8 @@ page Editor(path: "/", title: "Editor", description: "Layers at a control and at
   its end and given to assistive technology as `aria-keyshortcuts`;
   `checked:`, which makes it a check item that follows its state; and
   `disabled:`, which keeps it in sight but out of reach — the arrow keys
-  skip it and a press does nothing.
+  skip it and a press does nothing; and `.danger`, for what cannot be taken
+  back (Delete, Discard), drawn in the danger colour.
 - **`Menu.Sub(label:)`** is an entry with a menu of its own, opened beside
   it by a hover, ArrowRight or Enter. ArrowLeft and Escape go back to the
   entry; choosing in it closes the whole menu, and it closes with its menu.
