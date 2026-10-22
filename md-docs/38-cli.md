@@ -690,6 +690,32 @@ root is the folder holding `webfluent.app.json`. The Tree-sitter grammars in
 `editors/tree-sitter-webfluent` (braces) and `editors/tree-sitter-webfluentx`
 (indentation) give highlighting to an editor that reads Tree-sitter.
 
+## Building a tool on the compiler
+
+Every command above is a call in the `webfluent` crate, and an editor, a
+builder or an agent calls them in process rather than running `wf`. Each
+reads the project through a `webfluent::vfs::Vfs`: `FsVfs` is the disk,
+and `OverlayVfs::over_disk()` lays the editor's unsaved buffers over it,
+so what a tool reports is the project as it is being edited.
+
+| | |
+|---|---|
+| `build::{build, check}` with `BuildOptions` | `wf build` and `wf check`, returning every line and every finding as a `Diagnostic` with its fixes; `BuildOptions::studio` is `--studio` |
+| `diagnostics::fixes::fix_all` | `wf fix`'s fix-all for one family in one file |
+| `print`, `reprint`, `edit::{rewrite_element, rewrite_statement, rewrite_body, rewrite_declaration, rewrite_program}` | an element, a statement or a declaration changed in the tree and written back as the smallest edit, every other byte as it was, refused when it would not read back the same |
+| `codegen::node_id::{build_node_map_with, layers}` | every element's id, file, place, parent and what it is inside; the node at a caret; the Layers tree |
+| `registry::schema::of_project_via` | `wf components` |
+| `style_value` | each style property's shape, a value read into parts (`read_box`) and the narrowest declaration written back (`edit_box`) |
+| `themes::view::{view_via, set_token, reset_token}` | `wf theme`, and one token written in its place |
+| `motion::catalogue` | `wf motion` |
+| `validation::{must_be_via, set_rule, remove_rule, move_rule}` | `wf rules`, and a state's `validate` block written back a rule at a time |
+| `scope::paths::at_via` | `wf scope` |
+| `i18n::{plurals, table}` | `wf translations`: CLDR's plural rules, the table, and `set_message` |
+| `assets`, `media::plan` | `wf assets` |
+| `config::{schema, json_edit}` | `wf config`, and a setting written keeping the file's shape |
+| `commands` | `wf commands` |
+| `agent::{changeset, context, diff}` | `wf context`, and a change set an agent writes to instead of the working tree, built before anyone reads it |
+
 ## Next
 
 [Configuration](39-configuration.md).

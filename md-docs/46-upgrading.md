@@ -4,7 +4,7 @@
 route: guide/upgrading
 group: help
 blurb: What changed in each release, what to do when you upgrade, and how wf migrate carries an older project forward.
-description: Installing a new version, what changed in 5.0, 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.
+description: Installing a new version, what changed in 5.9, 5.6, 5.0, 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.
 -->
 
 ## Installing a newer version
@@ -17,6 +17,36 @@ the same compiler.
 The full notes for every release are in
 [`RELEASE_NOTES.md`](../RELEASE_NOTES.md); what follows is what an upgrade
 asks of you.
+
+## 5.9
+
+5.9 holds a few things to what the guide already said, and a project may
+notice them:
+
+- **A comma between two style declarations is an error** (`E002`).
+  `style { width: {w}px, flex: none }` compiled to one declaration whose
+  value was the rest of the line, so the browser dropped both; write each
+  on its own line, or separate them with `;`. A comma inside a value
+  (`font-family: a, b`) is untouched.
+- **A store's `persist … key:` is kept.** It was dropped, so the value was
+  kept under no key; now it follows the key as a page's does. What is
+  already stored is found under the same names.
+- **A refined type's bounds are checked as the reader types** where a
+  `validate` block guards the state: `Number(0..10)` no longer takes 10,
+  and `Date(after: …)` and `before:` are held. A field that accepted its
+  open end now says *Too large*.
+- **`Card(animate: .Drop)` plays a project's own animation** on an element
+  that stands still. It did nothing before, so a page may now move where
+  it did not.
+- **A count of exactly 0 shows `key.zero`** wherever the translation file
+  has one, in any language, and the pre-render picks each count's form by
+  the default locale's rules rather than English's. A `zero` message that
+  never showed now does.
+- **A site whose default locale is right to left** is written `<html
+  lang="ar" dir="rtl">` from the first paint; `meta.lang` names a region of
+  the default locale's language, and is otherwise the default locale.
+- **New warnings:** `A17` (a `Frame` with no title) and `V12` (a long list
+  that is not windowed). `wf check` names each with its fix.
 
 ## 5.6
 

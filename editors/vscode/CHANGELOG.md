@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.0
+
+- WebFluent 5.9: `Popover`, `Frame`, `Splitter` and `VirtualList` are
+  highlighted as components.
+
 ## 0.4.0
 
 - WebFluent 4.2: `external` is no longer highlighted as a keyword — the

@@ -1,6 +1,6 @@
 /// Chapter 38 of the guide, written from md-docs/38-cli.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", description: "The wf command line: init, build, check, explain, serve, test, verify, fmt, generate, render, migrate, audit, docs, registry, types — and editor setup.", layout: DocsShell("Command line and editors", chapter: t("guide.chapter", { n: "38" }), blurb: "Every wf command and flag, the dev server, and the language server in each editor.", source: "md-docs/38-cli.md", sections: [Anchor(id: "the-commands", label: "The commands"), Anchor(id: "creating-and-building", label: "Creating and building"), Anchor(id: "checking", label: "Checking"), Anchor(id: "formatting", label: "Formatting"), Anchor(id: "rendering", label: "Rendering"), Anchor(id: "upgrading", label: "Upgrading"), Anchor(id: "describing", label: "Describing"), Anchor(id: "environment-variables", label: "Environment variables"), Anchor(id: "editors", label: "Editors")], prevTo: "/docs/reference", prevLabel: "37. {t("ch.37")}", nextTo: "/docs/guide/config", nextLabel: "39. {t("ch.39")}")) {
+page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", description: "The wf command line: init, build, check, explain, serve, test, verify, fmt, generate, render, migrate, audit, docs, registry, types — and editor setup.", layout: DocsShell("Command line and editors", chapter: t("guide.chapter", { n: "38" }), blurb: "Every wf command and flag, the dev server, and the language server in each editor.", source: "md-docs/38-cli.md", sections: [Anchor(id: "the-commands", label: "The commands"), Anchor(id: "creating-and-building", label: "Creating and building"), Anchor(id: "checking", label: "Checking"), Anchor(id: "formatting", label: "Formatting"), Anchor(id: "rendering", label: "Rendering"), Anchor(id: "upgrading", label: "Upgrading"), Anchor(id: "describing", label: "Describing"), Anchor(id: "environment-variables", label: "Environment variables"), Anchor(id: "editors", label: "Editors"), Anchor(id: "building-a-tool-on-the-compiler", label: "Building a tool on the compiler")], prevTo: "/docs/reference", prevLabel: "37. {t("ch.37")}", nextTo: "/docs/guide/config", nextLabel: "39. {t("ch.39")}")) {
     Stack(gap: .lg) {
         Markdown("One binary, `wf`, scaffolds, builds, serves, formats, tests, renders and describes a project. A second, `wf-lsp`, brings the same checks into your editor. `wf --help` lists the commands and `wf <command> --help` each one's flags; `wf --version` prints the version.\n\nEvery command that takes a project runs in the current directory unless told otherwise, and exits non-zero on failure, so each is a CI step as it is.")
 
@@ -424,5 +424,80 @@ vim.lsp.enable("wf_lsp")"#, title: "lua")
   (add-to-list 'eglot-server-programs '(webfluent-mode . ("wf-lsp"))))"#, title: "elisp")
 
         Markdown("Any other editor with LSP support runs `wf-lsp` over stdio; the project root is the folder holding `webfluent.app.json`. The Tree-sitter grammars in `editors/tree-sitter-webfluent` (braces) and `editors/tree-sitter-webfluentx` (indentation) give highlighting to an editor that reads Tree-sitter.")
+
+        Heading("Building a tool on the compiler", id: "building-a-tool-on-the-compiler").h2
+
+        Markdown("Every command above is a call in the `webfluent` crate, and an editor, a builder or an agent calls them in process rather than running `wf`. Each reads the project through a `webfluent::vfs::Vfs`: `FsVfs` is the disk, and `OverlayVfs::over_disk()` lays the editor's unsaved buffers over it, so what a tool reports is the project as it is being edited.")
+
+        Table(caption: "Building a tool on the compiler") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("").header
+                    Table.Cell("").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`build::\{build, check\}` with `BuildOptions`") }
+                    Table.Cell { Markdown("`wf build` and `wf check`, returning every line and every finding as a `Diagnostic` with its fixes; `BuildOptions::studio` is `--studio`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`diagnostics::fixes::fix_all`") }
+                    Table.Cell { Markdown("`wf fix`'s fix-all for one family in one file") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`print`, `reprint`, `edit::\{rewrite_element, rewrite_statement, rewrite_body, rewrite_declaration, rewrite_program\}`") }
+                    Table.Cell("an element, a statement or a declaration changed in the tree and written back as the smallest edit, every other byte as it was, refused when it would not read back the same")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`codegen::node_id::\{build_node_map_with, layers\}`") }
+                    Table.Cell("every element's id, file, place, parent and what it is inside; the node at a caret; the Layers tree")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`registry::schema::of_project_via`") }
+                    Table.Cell { Markdown("`wf components`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`style_value`") }
+                    Table.Cell { Markdown("each style property's shape, a value read into parts (`read_box`) and the narrowest declaration written back (`edit_box`)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`themes::view::\{view_via, set_token, reset_token\}`") }
+                    Table.Cell { Markdown("`wf theme`, and one token written in its place") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`motion::catalogue`") }
+                    Table.Cell { Markdown("`wf motion`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`validation::\{must_be_via, set_rule, remove_rule, move_rule\}`") }
+                    Table.Cell { Markdown("`wf rules`, and a state's `validate` block written back a rule at a time") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`scope::paths::at_via`") }
+                    Table.Cell { Markdown("`wf scope`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`i18n::\{plurals, table\}`") }
+                    Table.Cell { Markdown("`wf translations`: CLDR's plural rules, the table, and `set_message`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`assets`, `media::plan`") }
+                    Table.Cell { Markdown("`wf assets`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`config::\{schema, json_edit\}`") }
+                    Table.Cell { Markdown("`wf config`, and a setting written keeping the file's shape") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`commands`") }
+                    Table.Cell { Markdown("`wf commands`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`agent::\{changeset, context, diff\}`") }
+                    Table.Cell { Markdown("`wf context`, and a change set an agent writes to instead of the working tree, built before anyone reads it") }
+                }
+            }
+        }
     }
 }

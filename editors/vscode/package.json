@@ -2,7 +2,7 @@
   "name": "webfluent",
   "displayName": "WebFluent",
   "description": "WebFluent for VS Code: highlighting for .wf and .wfx, and the wf-lsp language server — diagnostics, completion, hover, go to definition, rename and quick fixes.",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "publisher": "monzeromer-lab",
   "license": "MPL-2.0",
   "icon": "icon.png",
