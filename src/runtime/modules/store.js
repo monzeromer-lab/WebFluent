@@ -156,12 +156,34 @@
       }
     }
 
-    // Create computed for derived
+    // The derived values: every one's getter first, then each made — in
+    // the store's own lifetime, whatever reads it first — so a derived
+    // value that reads one written after it finds it. Made one by one in
+    // order, the earlier one read nothing there, followed nothing, and
+    // kept what it first got.
     if (definition.derived) {
-      for (const [key, fn] of Object.entries(definition.derived)) {
-        const c = computed(() => fn(store));
-        Object.defineProperty(store, key, { get: () => c(), enumerable: true });
+      const made = {};
+      const own = currentScope;
+      const make = (key, fn) => {
+        if (!made[key]) {
+          const scope = currentScope;
+          const running = currentEffect;
+          currentScope = own;
+          currentEffect = null;
+          try {
+            made[key] = computed(() => fn(store));
+          } finally {
+            currentScope = scope;
+            currentEffect = running;
+          }
+        }
+        return made[key];
+      };
+      const entries = Object.entries(definition.derived);
+      for (const [key, fn] of entries) {
+        Object.defineProperty(store, key, { get: () => make(key, fn)(), enumerable: true });
       }
+      for (const [key, fn] of entries) make(key, fn);
     }
 
     // The connections it holds open — a socket, a worker — made now, with

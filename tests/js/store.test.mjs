@@ -46,6 +46,25 @@ test("a store declared after the one that reads it is still there", () => {
   assert.equal(Totals.doubled, 42);
 });
 
+test("a derived value that reads one written after it follows it", () => {
+  const { WF } = loadRuntime();
+  // `inWorker` is written before the `languageId` it reads. Made one by one
+  // in order, it read nothing, followed nothing, and stayed false.
+  const Editor = WF.store("Editor", () => ({
+    state: { language: null },
+    derived: {
+      inWorker: (s) => ["css", "json"].includes(s.languageId),
+      languageId: (s) => (s.language == null ? "plaintext" : s.language.id),
+    },
+  }));
+  assert.equal(Editor.inWorker, false);
+  Editor.language = { id: "css" };
+  assert.equal(Editor.languageId, "css");
+  assert.equal(Editor.inWorker, true, "it follows the later one");
+  Editor.language = { id: "rust" };
+  assert.equal(Editor.inWorker, false);
+});
+
 test("a store first read by a page outlives that page: its derived values still follow", () => {
   const { WF } = loadRuntime();
   const S = WF.store("Counted", () => ({

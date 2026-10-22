@@ -398,3 +398,39 @@ fn a_page_hears_the_window_lose_and_gain_focus() {
         "keys stay the document's: {out}"
     );
 }
+
+// ─── Stores, each after the stores it uses ───────────────────────────
+
+#[test]
+fn a_store_is_emitted_after_the_stores_it_uses() {
+    let out = js(&format!(
+        "store Editor {{\n    use Services\n    state id = \"css\"\n    derived inWorker = Services.languages.includes(id)\n}}\n\
+         store Layout {{\n    state wide = true\n}}\n\
+         store Services {{\n    use Layout\n    derived languages = [\"css\"]\n}}\n{}",
+        page("    use Editor\n    Text(\"{Editor.inWorker}\")")
+    ));
+    let at = |name: &str| {
+        out.find(&format!("const {name} = WF.store("))
+            .or_else(|| out.find(&format!("const {name}=WF.store(")))
+            .unwrap_or_else(|| panic!("no {name}: {out}"))
+    };
+    assert!(at("Layout") < at("Services"), "Services uses Layout");
+    assert!(at("Services") < at("Editor"), "Editor uses Services");
+}
+
+#[test]
+fn stores_that_use_each_other_keep_the_order_they_are_written_in() {
+    let out = js(&format!(
+        "store A {{\n    use B\n    state x = 1\n}}\nstore B {{\n    use A\n    state y = 2\n}}\n{}",
+        page("    use A\n    Text(\"{A.x}\")")
+    ));
+    let at = |name: &str| {
+        out.find(&format!("const {name} = WF.store("))
+            .or_else(|| out.find(&format!("const {name}=WF.store(")))
+            .unwrap()
+    };
+    assert!(
+        at("B") < at("A"),
+        "A's first use is B, which comes first; B's use of A is the cycle"
+    );
+}

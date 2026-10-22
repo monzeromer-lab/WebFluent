@@ -247,6 +247,54 @@ impl Default for JsCodegen {
     }
 }
 
+/// The program's stores, each after the stores it `use`s (directly or
+/// not), and otherwise in the order they are declared. A cycle keeps its
+/// declared order: each side then reads the other only once both exist.
+fn stores_in_use_order(program: &Program) -> Vec<&StoreDecl> {
+    let stores: Vec<&StoreDecl> = program
+        .declarations
+        .iter()
+        .filter_map(|d| match d {
+            Declaration::Store(s) => Some(s),
+            _ => None,
+        })
+        .collect();
+    let uses = |s: &StoreDecl| -> Vec<String> {
+        s.body
+            .iter()
+            .filter_map(|st| match &st.kind {
+                StatementKind::Use(u) => Some(u.store_name.clone()),
+                _ => None,
+            })
+            .collect()
+    };
+    let mut out: Vec<&StoreDecl> = Vec::new();
+    let mut visiting: Vec<String> = Vec::new();
+    fn visit<'a>(
+        s: &'a StoreDecl,
+        stores: &[&'a StoreDecl],
+        uses: &dyn Fn(&StoreDecl) -> Vec<String>,
+        out: &mut Vec<&'a StoreDecl>,
+        visiting: &mut Vec<String>,
+    ) {
+        if out.iter().any(|o| o.name == s.name) || visiting.contains(&s.name) {
+            return;
+        }
+        visiting.push(s.name.clone());
+        for name in uses(s) {
+            if let Some(dep) = stores.iter().find(|d| d.name == name) {
+                visit(dep, stores, uses, out, visiting);
+            }
+        }
+        visiting.pop();
+        out.push(s);
+    }
+    for s in &stores {
+        visit(s, &stores, &uses, &mut out, &mut visiting);
+    }
+    out
+}
+
 impl JsCodegen {
     pub fn new() -> Self {
         Self {
@@ -788,11 +836,13 @@ impl JsCodegen {
             }
         }
 
-        // Emit stores
-        for decl in &program.declarations {
-            if let Declaration::Store(s) = decl {
-                self.emit_store(s);
-            }
+        // Emit stores, each after the stores it `use`s: a store is built on
+        // its first read, and a read while the script still runs (a page's
+        // first paint, another store's persisted key) must not meet a store
+        // still in its temporal dead zone. A derived value that first ran
+        // there kept what it got, and followed nothing.
+        for s in stores_in_use_order(program) {
+            self.emit_store(s);
         }
 
         // Emit components
