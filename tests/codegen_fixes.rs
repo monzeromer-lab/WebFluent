@@ -312,3 +312,23 @@ fn a_persist_key_names_each_instance_s_storage() {
     let plain = js(&page("    persist open = false\n    Text(\"{open}\")"));
     assert!(plain.contains("WF.persist(\"P.open\""), "{plain}");
 }
+
+// ─── An icon whose name reads state ──────────────────────────────────
+
+#[test]
+fn an_icons_name_that_reads_state_follows_it_named_or_not() {
+    let out = js(&page(
+        "    state done = false\n    Icon(if done { \"check\" } else { \"clock\" })\n    \
+         Icon(icon: if done { \"check\" } else { \"clock\" })\n    Icon(\"home\")\n    \
+         Button(\"Done\") { on click { done = true } }",
+    ));
+    assert_eq!(
+        out.matches("\"data-icon\": () =>").count() + out.matches("\"data-icon\":() =>").count(),
+        2,
+        "both forms follow the state:\n{out}"
+    );
+    assert!(
+        out.contains("\"data-icon\": \"home\""),
+        "a name that reads nothing is written as it is"
+    );
+}

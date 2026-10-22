@@ -2600,8 +2600,15 @@ impl JsCodegen {
                             // word "home" because only `icon:` set `data-icon`.
                             if name == "Icon" {
                                 if !attrs.iter().any(|a| a.starts_with("\"data-icon\":")) {
+                                    // A name that reads state follows it, as
+                                    // `icon:` does: `Icon(if ok { "check" } else
+                                    // { "clock" })` was drawn once and kept.
                                     let v = self.emit_expr(expr);
-                                    attrs.push(format!("\"data-icon\": {}", v));
+                                    if self.is_reactive(&v) {
+                                        attrs.push(format!("\"data-icon\": () => {}", v));
+                                    } else {
+                                        attrs.push(format!("\"data-icon\": {}", v));
+                                    }
                                 }
                                 continue;
                             }
