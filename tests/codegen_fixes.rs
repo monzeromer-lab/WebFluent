@@ -383,3 +383,18 @@ fn a_modals_title_that_reads_state_follows_it() {
         headings[1]
     );
 }
+
+// ─── The window's focus, heard on a page ─────────────────────────────
+
+#[test]
+fn a_page_hears_the_window_lose_and_gain_focus() {
+    let out = js(&page(
+        "    state away = false\n    on blur { away = true }\n    on focus { away = false }\n    on keydown(e) { away = false }\n    Text(\"away {away}\")",
+    ));
+    assert!(out.contains("WF.listen(window, \"blur\""), "{out}");
+    assert!(out.contains("WF.listen(window, \"focus\""), "{out}");
+    assert!(
+        out.contains("WF.listen(document, \"keydown\""),
+        "keys stay the document's: {out}"
+    );
+}

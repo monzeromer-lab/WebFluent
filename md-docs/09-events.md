@@ -140,7 +140,9 @@ app {
 - Outside any element, a page, a component or `app` may handle `keydown`
   and `keyup`, and the window's `resize`, `scroll`, `hashchange`,
   `popstate`, `online`, `offline`, `message`, `storage` and
-  `visibilitychange`: each listens for as long as it shows.
+  `visibilitychange`, and the window losing and gaining focus (`blur`,
+  `focus`, as an editor saves on leaving): each listens for as long as it
+  shows.
 - A letter is also the key in its place: on a Mac `⌥⌘P` sends `π`, and
   `mod+alt+p` still matches it.
 

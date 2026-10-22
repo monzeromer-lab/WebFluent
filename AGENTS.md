@@ -765,8 +765,9 @@ listens there; at the top of a page, a component or `app` it listens on the
 document for as long as that shows (on `app`, always); `on key("Escape", e)`
 names the event too. A page, a component or `app` may also handle
 `keydown`, `keyup`, and the window's `resize`, `scroll`, `hashchange`,
-`popstate`, `online`, `offline`, `message`, `storage` and
-`visibilitychange` itself, outside any element. `keyIs(e, "mod+s")` is
+`popstate`, `online`, `offline`, `message`, `storage`,
+`visibilitychange`, `blur` and `focus` (the window's) itself, outside any
+element. `keyIs(e, "mod+s")` is
 whether a key event is a combination — for a table of commands held as
 data — and `keyLabel("mod+shift+p")` how this system writes it (`⇧⌘P`,
 `Ctrl+Shift+P`); a `Menu.Item`'s or `Tooltip`'s `shortcut:` is written

@@ -1675,7 +1675,7 @@ impl ParserV2 {
             "else" => Err(self.error("`else` without an `if`".into())),
             "on" | "style" | "transition" => Err(self.error_with_hint(
                 format!("`{word}` belongs inside an element's block"),
-                "Write `Button(\"x\") { on click { … } }`; outside an element, a page listens for `key`, `keydown`, `keyup`, and the window's `resize`, `scroll`, `hashchange`, `popstate`, `online`, `offline`, `message`, `storage` and `visibilitychange`",
+                "Write `Button(\"x\") { on click { … } }`; outside an element, a page listens for `key`, `keydown`, `keyup`, and the window's `resize`, `scroll`, `hashchange`, `popstate`, `online`, `offline`, `message`, `storage`, `visibilitychange`, `blur` and `focus`",
             )),
             _ => {
                 // A slot use: a bare lowercase word in a component's body, or
@@ -4080,6 +4080,8 @@ pub const PAGE_EVENTS: &[&str] = &[
     "message",
     "storage",
     "visibilitychange",
+    "blur",
+    "focus",
 ];
 
 /// `mod` is `meta` (⌘) on Apple's systems and `ctrl` everywhere else.

@@ -2248,6 +2248,9 @@ impl JsCodegen {
                         | "beforeunload"
                         | "pagehide"
                         | "pageshow"
+                        // The window's focus: the document hears neither.
+                        | "blur"
+                        | "focus"
                 ) {
                     "window"
                 } else {
