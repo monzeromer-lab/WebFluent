@@ -411,7 +411,7 @@ app {
 <ul>
 <li><strong><code>keyIs(e, &quot;mod+s&quot;)</code></strong> is whether a key event is that combination — a chord's too — so one table of commands can drive the shortcuts, the menus and a palette.</li>
 <li><strong><code>keyLabel(&quot;mod+shift+p&quot;)</code></strong> is how this system writes it: <code>⇧⌘P</code> on a Mac, <code>Ctrl+Shift+P</code> elsewhere. A <code>Menu.Item</code>'s and a <code>Tooltip</code>'s <code>shortcut:</code> are written the same way, and the item — or the tooltip's control — tells assistive technology with <code>aria-keyshortcuts</code>.</li>
-<li>Outside any element, a page, a component or <code>app</code> may handle <code>keydown</code> and <code>keyup</code>, and the window's <code>resize</code>, <code>scroll</code>, <code>hashchange</code>, <code>popstate</code>, <code>online</code>, <code>offline</code>, <code>message</code>, <code>storage</code> and <code>visibilitychange</code>: each listens for as long as it shows.</li>
+<li>Outside any element, a page, a component or <code>app</code> may handle <code>keydown</code> and <code>keyup</code>, and the window's <code>resize</code>, <code>scroll</code>, <code>hashchange</code>, <code>popstate</code>, <code>online</code>, <code>offline</code>, <code>message</code>, <code>storage</code> and <code>visibilitychange</code>, and the window losing and gaining focus (<code>blur</code>, <code>focus</code>, as an editor saves on leaving): each listens for as long as it shows.</li>
 <li>A letter is also the key in its place: on a Mac <code>⌥⌘P</code> sends <code>π</code>, and <code>mod+alt+p</code> still matches it.</li>
 </ul>
                             </div>

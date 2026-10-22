@@ -498,7 +498,7 @@ test &quot;chip shows its label&quot; { Chip(&quot;Beta&quot;)  expect &quot;Bet
 <li>State, props, actions, variables and flags are <strong>camelCase</strong>: <code>count</code>, <code>isOpen</code>, <code>save</code>, <code>.primary</code>.</li>
 <li>Enum cases are written with a leading dot: <code>.calm</code>, <code>.md</code>.</li>
 <li>Design tokens are written with a dollar: <code>$primary</code>, <code>$spacing-md</code>.</li>
-<li>A <code>///</code> comment above a declaration, a prop or an event is its documentation, shown on hover in the editor and in <code>wf docs</code>.</li>
+<li>A <code>///</code> comment above a declaration, a prop or an event is its documentation, shown on hover in the editor and in <code>wf docs</code>. Above a <code>state</code>, <code>persist</code>, <code>derived</code> or <code>action</code>, it is that member's, which an editor shows where the member is used.</li>
 </ul>
 <p>Nothing resolves silently. A name the compiler does not know — a misspelled element, a flag the element lacks, a case the enum lacks — is an error with a hint, never a no-op.</p>
                             </div>

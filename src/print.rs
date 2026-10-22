@@ -913,6 +913,18 @@ pub fn destructure(stmts: &[Statement]) -> Option<(String, usize)> {
 /// One statement, starting on a line indented `indent` levels, in a block
 /// of the kind `block` says.
 pub fn statement(s: &Statement, block: Block, indent: usize) -> String {
+    let text = bare_statement(s, block, indent);
+    // A `state`, `derived` or `action` of a body is written under its `///`.
+    match s.doc() {
+        Some(_) if block != Block::Imperative => {
+            documented(&s.doc().map(str::to_string), &text, indent)
+        }
+        _ => text,
+    }
+}
+
+/// One statement without the `///` above it.
+fn bare_statement(s: &Statement, block: Block, indent: usize) -> String {
     match &s.kind {
         StatementKind::UIElement(ui) => element(ui, indent),
         StatementKind::State(st) => {

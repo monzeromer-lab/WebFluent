@@ -288,10 +288,23 @@ pub fn statement(source: &str, old: &Statement, new: &Statement, block: Block) -
 fn whole(source: &str, old: &Statement, new: &Statement, block: Block, out: &mut Vec<Patch>) {
     let depth = depth_at(source, old.span.start as usize);
     out.push(Patch::new(
-        old.span.start as usize,
+        written_start(source, old),
         old.span.end as usize,
         print::statement(new, block, depth),
     ));
+}
+
+/// Where a statement is written from: its `///`, when it has one (a
+/// member's documentation goes where it goes, and is printed with it), else
+/// its first word.
+fn written_start(source: &str, s: &Statement) -> usize {
+    let start = s.span.start as usize;
+    if s.doc().is_none() || start > source.len() {
+        return start;
+    }
+    let line = print::doc_start(source, start);
+    let indent = source[line..start].len() - source[line..start].trim_start().len();
+    line + indent
 }
 
 fn diff_statement(
@@ -606,7 +619,7 @@ fn diff_body(
                 diff_statement(source, &o[0], &n[0], block, out);
             } else {
                 out.push(Patch::new(
-                    o[0].span.start as usize,
+                    written_start(source, &o[0]),
                     o[0].span.end as usize,
                     unit_text(n, block, depth),
                 ));
@@ -614,9 +627,10 @@ fn diff_body(
             anchor = Some(o[0].span.end as usize);
         }
         for o in &old_gap[paired..] {
+            // With its `///`, which would otherwise document the next one.
             out.push(removal(
                 source,
-                o[0].span.start as usize,
+                written_start(source, &o[0]),
                 o[0].span.end as usize,
             ));
         }
@@ -651,7 +665,7 @@ fn diff_body(
         // empty block.
         match old_units.first() {
             Some(first) => {
-                let at = first[0].span.start as usize;
+                let at = written_start(source, &first[0]);
                 let text: String = texts
                     .iter()
                     .map(|t| format!("{t}\n{}", pad(depth)))
@@ -2036,6 +2050,77 @@ const LIMIT = 10
             FILE.replace(
                 "    event opened\n",
                 "    event opened\n    /// When one is picked.\n    event picked(id: String)\n"
+            )
+        );
+    }
+
+    /// A store whose members are documented, for the tests below.
+    const STORE: &str = "store Deploys {\n    /// What is deployed.\n    state items = []\n    /// How many.\n    derived count = items.length\n\n    /// Empty it.\n    action clear {\n        items = []\n    }\n}\n";
+
+    fn store_body(d: &mut Declaration) -> &mut Vec<Statement> {
+        let Declaration::Store(s) = d else {
+            panic!("a store")
+        };
+        &mut s.body
+    }
+
+    #[test]
+    fn a_member_s_doc_stays_once_as_its_value_changes() {
+        let out = crate::edit::rewrite_declaration(STORE, "t.wf", "Deploys", |d| {
+            let StatementKind::Derived(c) = &mut store_body(d)[1].kind else {
+                panic!("count")
+            };
+            c.value = Expr::NumberLiteral(0.0);
+        })
+        .unwrap();
+        assert_eq!(
+            out,
+            STORE.replace("derived count = items.length", "derived count = 0")
+        );
+    }
+
+    #[test]
+    fn a_member_removed_takes_its_doc_and_one_added_brings_its_own() {
+        let out = crate::edit::rewrite_declaration(STORE, "t.wf", "Deploys", |d| {
+            store_body(d).remove(1);
+        })
+        .unwrap();
+        assert_eq!(
+            out,
+            STORE.replace("    /// How many.\n    derived count = items.length\n", "")
+        );
+        let out = crate::edit::rewrite_declaration(STORE, "t.wf", "Deploys", |d| {
+            let mut first = store_body(d)[0].clone();
+            let StatementKind::State(st) = &mut first.kind else {
+                panic!("items")
+            };
+            st.name = "envs".into();
+            st.doc = Some("Where to.".into());
+            store_body(d).insert(0, first);
+        })
+        .unwrap();
+        // At the front: above the first member's doc, not between it and
+        // its member.
+        assert_eq!(
+            out,
+            STORE.replace(
+                "    /// What is deployed.\n",
+                "    /// Where to.\n    state envs = []\n    /// What is deployed.\n"
+            )
+        );
+        // A doc changed is written where the old one was.
+        let out = crate::edit::rewrite_declaration(STORE, "t.wf", "Deploys", |d| {
+            let StatementKind::Action(a) = &mut store_body(d)[2].kind else {
+                panic!("clear")
+            };
+            a.doc = Some("Empty it.\nEvery one.".into());
+        })
+        .unwrap();
+        assert_eq!(
+            out,
+            STORE.replace(
+                "    /// Empty it.\n",
+                "    /// Empty it.\n    /// Every one.\n"
             )
         );
     }
