@@ -481,7 +481,7 @@ page Use(path: &quot;/&quot;) {
                             </div>
                             <h3 class="wf-heading" id="layers-popovers-menus-and-tooltips-above-everything">Layers: popovers, menus and tooltips above everything</h3>
                             <div class="wf-markdown">
-<p>A <code>Popover</code>, a <code>Menu</code>'s list and a <code>Tooltip</code> are drawn in the browser's top layer, above everything else on the page, so a box with <code>overflow: hidden</code> or a stacking context of its own cannot clip or cover them. Each is placed against its anchor: it flips to the other side when there is no room, slides along its side to stay on screen, and follows the anchor while the page scrolls. The open layers are one stack, newest on top: Escape closes the top one only, and a press outside closes every layer it is outside of.</p>
+<p>A <code>Popover</code>, a <code>Menu</code>'s list and a <code>Tooltip</code> are drawn in the browser's top layer, above everything else on the page, so a box with <code>overflow: hidden</code> or a stacking context of its own cannot clip or cover them. Each is placed against its anchor: it flips to the other side when there is no room, slides along its side to stay on screen, and follows the anchor while the page scrolls; when the anchor scrolls out of view the layer goes with it, still open, and comes back with it. The open layers are one stack, newest on top: Escape closes the top one only, and a press outside closes every layer it is outside of.</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">

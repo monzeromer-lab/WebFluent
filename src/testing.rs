@@ -531,7 +531,7 @@ fn step_one(page: &mut dyn Page, step: &Step) -> Result<std::result::Result<(), 
         }
         Step::Click { target, .. } => {
             let name = text(target);
-            let done = page.eval(&script("click", &name, ""))?;
+            let done = page.eval(&step_script("click", &name, ""))?;
             if done.as_str() != Some("ok") {
                 return Ok(Err(format!("nothing to click called {name:?}")));
             }
@@ -542,7 +542,7 @@ fn step_one(page: &mut dyn Page, step: &Step) -> Result<std::result::Result<(), 
         } => {
             let what = text(what);
             let into = text(into);
-            let done = page.eval(&script("type", &into, &what))?;
+            let done = page.eval(&step_script("type", &into, &what))?;
             match done.as_str() {
                 Some("ok") => {}
                 Some("no-option") => {
@@ -555,7 +555,7 @@ fn step_one(page: &mut dyn Page, step: &Step) -> Result<std::result::Result<(), 
         Step::Press { key, target, .. } => {
             let key = text(key);
             let where_ = target.as_ref().map(text).unwrap_or_default();
-            let done = page.eval(&script("press", &where_, &key))?;
+            let done = page.eval(&step_script("press", &where_, &key))?;
             if done.as_str() != Some("ok") {
                 return Ok(Err(format!(
                     "nothing called {where_:?} to press {key:?} in"
@@ -688,7 +688,16 @@ fn seeded(body: &[Statement], data: Option<&Expr>) -> Vec<Statement> {
 /// button is its text, a control is its label or its placeholder — which is
 /// the same name the accessibility checks hold a page to, so a test that
 /// passes here is a page somebody can use.
-fn script(what: &str, name: &str, value: &str) -> String {
+/// The script a step plays in its page: `what` is `"click"`, `"type"` or
+/// `"press"`, `name` what a reader calls the thing it acts on (empty for a
+/// `press` into what has focus), `value` what is typed or the key. It
+/// evaluates to `"ok"`, `"none"` (nothing by that name) or `"no-option"` (a
+/// select without that option).
+///
+/// A [`Page`] that is not Chrome — the editor's own window, playing its
+/// scenarios — runs the same steps by evaluating this, so a scenario finds
+/// a control exactly as a test does.
+pub fn step_script(what: &str, name: &str, value: &str) -> String {
     format!(
         "(() => {{\n{FIND}\n  const what = {}, name = {}, value = {};\n{ACT}\n}})()",
         serde_json::to_string(what).unwrap_or_default(),

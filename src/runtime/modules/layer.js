@@ -142,6 +142,16 @@
       el.style.left = `${at.x}px`;
       el.style.top = `${at.y}px`;
       el.setAttribute("data-placement", at.placement);
+      // An element scrolled out of view takes its layer with it, rather
+      // than leaving it pinned to the window's edge; it comes back when the
+      // element does. (A point does not scroll.)
+      const target = anchorOf();
+      const element = target && (target.el !== undefined ? target.el : target);
+      const gone = !!element && typeof element.getBoundingClientRect === "function" &&
+        (rect.bottom < 0 || rect.top > viewport.height || rect.right < 0 || rect.left > viewport.width);
+      el.style.visibility = gone ? "hidden" : "";
+      if (gone) el.setAttribute("data-anchor-hidden", "");
+      else el.removeAttribute("data-anchor-hidden");
     };
     const soon = () => {
       if (frame) return;

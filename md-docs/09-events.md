@@ -215,7 +215,8 @@ layer, above everything else on the page, so a box with `overflow: hidden`
 or a stacking context of its own cannot clip or cover them. Each is placed
 against its anchor: it flips to the other side when there is no room, slides
 along its side to stay on screen, and follows the anchor while the page
-scrolls. The open layers are one stack, newest on top: Escape closes the
+scrolls; when the anchor scrolls out of view the layer goes with it, still
+open, and comes back with it. The open layers are one stack, newest on top: Escape closes the
 top one only, and a press outside closes every layer it is outside of.
 
 ```wf

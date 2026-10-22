@@ -143,7 +143,7 @@ page Use(path: "/") {
 
         Heading("Layers: popovers, menus and tooltips above everything", id: "layers-popovers-menus-and-tooltips-above-everything").h3
 
-        Markdown("A `Popover`, a `Menu`'s list and a `Tooltip` are drawn in the browser's top layer, above everything else on the page, so a box with `overflow: hidden` or a stacking context of its own cannot clip or cover them. Each is placed against its anchor: it flips to the other side when there is no room, slides along its side to stay on screen, and follows the anchor while the page scrolls. The open layers are one stack, newest on top: Escape closes the top one only, and a press outside closes every layer it is outside of.")
+        Markdown("A `Popover`, a `Menu`'s list and a `Tooltip` are drawn in the browser's top layer, above everything else on the page, so a box with `overflow: hidden` or a stacking context of its own cannot clip or cover them. Each is placed against its anchor: it flips to the other side when there is no room, slides along its side to stay on screen, and follows the anchor while the page scrolls; when the anchor scrolls out of view the layer goes with it, still open, and comes back with it. The open layers are one stack, newest on top: Escape closes the top one only, and a press outside closes every layer it is outside of.")
 
         CodeBlock(#"page Editor(path: "/", title: "Editor", description: "Layers at a control and at the pointer.") {
     state branches = false

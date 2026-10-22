@@ -120,6 +120,25 @@ async function scenario(label, ssg, port) {
     check("below its anchor, from its start",
       s.popRect && Math.abs(s.popRect.left - s.branches.left) <= 1 && s.popRect.top >= s.branches.bottom && s.popRect.top - s.branches.bottom <= 10,
       JSON.stringify([s.popRect, s.branches]));
+    // Scrolled out of view, its anchor takes it along; back, it returns.
+    const away = await page.evaluate(async () => {
+      const frames = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      const pop = document.querySelector("#pop");
+      const spacer = document.createElement("div");
+      spacer.style.height = "3000px";
+      document.body.appendChild(spacer);
+      scrollTo({ top: 2000, behavior: "instant" });
+      await frames();
+      const gone = { hidden: getComputedStyle(pop).visibility === "hidden", marked: pop.hasAttribute("data-anchor-hidden"), open: pop.hasAttribute("data-open"), y: scrollY };
+      scrollTo({ top: 0, behavior: "instant" });
+      await frames();
+      const back = { hidden: getComputedStyle(pop).visibility === "hidden", marked: pop.hasAttribute("data-anchor-hidden") };
+      spacer.remove();
+      return { gone, back };
+    });
+    check("scrolled out of view, its anchor takes it along, still open",
+      away.gone.hidden && away.gone.marked && away.gone.open, JSON.stringify(away.gone));
+    check("…and scrolled back, it shows again", !away.back.hidden && !away.back.marked, JSON.stringify(away.back));
     await page.keyboard.press("Escape");
     await until(page, () => !document.querySelector("#pop")?.hasAttribute("data-open"));
     s = await look(page);
