@@ -3822,6 +3822,13 @@ impl JsCodegen {
         ));
 
         if let Some(t) = title {
+            // A title that reads state follows it, as any text does:
+            // `Modal(title: "Explain {code}")` kept the code it opened with.
+            let t = if self.is_reactive(&t) {
+                format!("() => {t}")
+            } else {
+                t
+            };
             let header_var = self.fresh_var();
             self.emit_line(&format!(
                 "const {} = WF.el(\"div\", {{ className: \"{}__header\" }}, WF.el(\"h3\", {{ id: \"{}\" }}, {}));",

@@ -358,3 +358,28 @@ fn a_menus_trigger_that_reads_state_follows_it() {
         trigger(1)
     );
 }
+
+// ─── A modal whose title reads state ─────────────────────────────────
+
+#[test]
+fn a_modals_title_that_reads_state_follows_it() {
+    let out = js(&page(
+        "    state code = \"T06\"\n    state open = false\n    Modal(visible: open, title: \"Explain {code}\") {\n        Text(\"x\")\n    }\n    \
+         Modal(visible: open, title: \"Fixed\") {\n        Text(\"y\")\n    }\n    Button(\"Next\") { on click { code = \"T07\"  open = true } }",
+    ));
+    let headings: Vec<&str> = out
+        .match_indices("WF.el(\"h3\", { id: ")
+        .map(|(at, _)| out[at..].split("));").next().unwrap_or_default())
+        .collect();
+    assert_eq!(headings.len(), 2, "{out}");
+    assert!(
+        headings[0].contains("}, () => `Explain "),
+        "the title follows its state: {}",
+        headings[0]
+    );
+    assert!(
+        headings[1].ends_with("}, \"Fixed\""),
+        "a fixed title is written as it is: {}",
+        headings[1]
+    );
+}
