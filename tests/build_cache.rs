@@ -265,6 +265,51 @@ fn an_unchanged_build_reuses_every_page_and_an_edited_page_is_rendered_alone() {
     }
 }
 
+/// An editor builds each preview into a folder of its own: where the site
+/// is written is not what its pages say, so a build into another folder
+/// reuses every page, and writes what a build from nothing writes there.
+#[test]
+fn a_build_into_another_folder_reuses_every_page() {
+    let project = tutorial("medium-field-notes", "folders");
+    let cache = BuildCache::in_memory();
+    let into = |n: usize| project.with_extension(format!("out{n}"));
+    let first = build(&BuildOptions {
+        output_dir: Some(into(1)),
+        cache: Some(&cache),
+        ..BuildOptions::new(&project, &FsVfs)
+    })
+    .expect("builds");
+    assert!(first.pages_rendered > 1);
+    for n in 2..=3 {
+        let again = build(&BuildOptions {
+            output_dir: Some(into(n)),
+            cache: Some(&cache),
+            ..BuildOptions::new(&project, &FsVfs)
+        })
+        .expect("builds");
+        assert_eq!(
+            (again.pages_reused, again.pages_rendered),
+            (first.pages_rendered, 0),
+            "a build into folder {n}"
+        );
+        let uncached = built(&project, &FsVfs, &project.with_extension("plain"), None).unwrap();
+        assert_eq!(
+            tree(&into(n)),
+            uncached,
+            "folder {n} holds what a build from nothing writes"
+        );
+    }
+    for dir in [
+        project.clone(),
+        into(1),
+        into(2),
+        into(3),
+        project.with_extension("plain"),
+    ] {
+        let _ = std::fs::remove_dir_all(dir);
+    }
+}
+
 #[test]
 fn a_cache_on_disk_outlives_the_value() {
     let project = tutorial("medium-field-notes", "disk");

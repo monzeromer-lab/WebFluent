@@ -216,6 +216,11 @@ fn digest(value: &dyn Debug) -> (Key, HashSet<String>) {
 /// the config holds hash maps, whose `Debug` order is a run's own), then
 /// what the build works out into it and serde skips.
 fn canonical_config(config: &ProjectConfig) -> String {
+    // Where the site is written is not what a page says: an editor builds
+    // each preview into a folder of its own, and its pages are the same.
+    let mut config = config.clone();
+    config.build.output = String::new();
+    let config = &config;
     let settings = serde_json::to_value(config)
         .map(|v| v.to_string())
         .unwrap_or_default();
