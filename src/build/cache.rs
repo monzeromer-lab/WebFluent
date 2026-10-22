@@ -110,6 +110,15 @@ impl BuildCache {
         (html, false)
     }
 
+    /// Whether a page made from `key` is kept, in memory or on disk.
+    pub(crate) fn holds(&self, key: Key) -> bool {
+        self.pages
+            .lock()
+            .expect("the cache's lock")
+            .contains_key(&key)
+            || self.file(key).is_some_and(|f| f.is_file())
+    }
+
     /// The page `route` was last painted as, in this session, however its
     /// inputs have changed since; kept for the next build as well.
     pub(crate) fn last_paint(&self, route: &str) -> Option<String> {

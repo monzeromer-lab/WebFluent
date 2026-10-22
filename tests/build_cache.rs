@@ -430,3 +430,49 @@ fn a_build_of_one_route_paints_it_alone_and_the_next_full_build_catches_up() {
         let _ = std::fs::remove_dir_all(dir);
     }
 }
+
+/// Only a page that would have to be rendered waits: one the cache holds
+/// as it stands is reused, the route shown or not.
+#[test]
+fn a_build_of_one_route_defers_only_the_pages_behind() {
+    let project = tutorial("medium-field-notes", "one-route-behind");
+    let out = project.with_extension("out");
+    let cache = BuildCache::in_memory();
+    let options = |vfs, only| BuildOptions {
+        output_dir: Some(out.clone()),
+        cache: Some(&cache),
+        only_route: only,
+        ..BuildOptions::new(&project, vfs)
+    };
+    let pages = build(&options(&FsVfs, None))
+        .expect("builds")
+        .pages_rendered;
+
+    // The Tags page's body: only it is behind, and it is not the one shown.
+    let tags = project.join("src/pages/Tags.wf");
+    let text = std::fs::read_to_string(&tags).unwrap();
+    let (start, end) = *literals(&text).last().unwrap();
+    let mut edited = text.clone();
+    edited.replace_range(start..end, &format!("{}·", &text[start..end]));
+    let mut vfs = OverlayVfs::over_disk();
+    vfs.set(&tags, edited);
+    let one = build(&options(&vfs, Some("/"))).expect("builds");
+    assert_eq!(
+        (one.pages_rendered, one.pages_reused, one.pages_deferred),
+        (0, pages - 1, 1),
+        "the front page is reused as it stands, Tags waits"
+    );
+    // Shown, it is rendered.
+    let shown = build(&options(&vfs, Some("/tags"))).expect("builds");
+    assert_eq!(
+        (
+            shown.pages_rendered,
+            shown.pages_reused,
+            shown.pages_deferred
+        ),
+        (1, pages - 1, 0)
+    );
+    for dir in [project, out] {
+        let _ = std::fs::remove_dir_all(dir);
+    }
+}

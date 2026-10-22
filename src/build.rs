@@ -56,9 +56,10 @@ pub struct BuildOptions<'a> {
     /// the report hands back the map from each id to its source.
     pub studio: bool,
     /// For an editor's preview when a whole build takes longer than it can
-    /// wait: render only the page answering this route (`/posts/hello`),
-    /// and write every other as this session's cache last painted it,
-    /// rendering only those it has never painted. The site may be behind
+    /// wait: render only the page answering this route (`/posts/hello`);
+    /// every other page the cache holds as it stands is reused, and one it
+    /// would have to render is written as this session last painted it
+    /// (rendered only if it never was). The site may be behind
     /// the source until a build without it; the report counts the pages
     /// that are ([`BuildReport::pages_deferred`]). Without a cache it
     /// builds everything.
@@ -786,13 +787,16 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
                 out.report.borrow_mut().pages_rendered += 1;
                 return make();
             };
+            let key = keys.page(page, route, params);
+            // A page another route needs rendered waits, as it was painted.
             if options.only_route.is_some_and(|only| only != route)
+                && !cache.holds(key)
                 && let Some(html) = cache.last_paint(route)
             {
                 out.report.borrow_mut().pages_deferred += 1;
                 return html;
             }
-            let (html, reused) = cache.page(route, keys.page(page, route, params), make);
+            let (html, reused) = cache.page(route, key, make);
             let mut report = out.report.borrow_mut();
             if reused {
                 report.pages_reused += 1;
