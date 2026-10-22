@@ -34,7 +34,7 @@ curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/inst
 ```
 
 Pin a version so a release cannot change a deploy under you:
-`WF_VERSION=v5.8.0`. Or build locally and upload `build/` — it is only files.
+`WF_VERSION=v5.9.0`. Or build locally and upload `build/` — it is only files.
 
 ## GitHub Pages
 
@@ -59,7 +59,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - run: curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v5.8.0 bash
+      - run: curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v5.9.0 bash
       - run: ~/.webfluent/bin/wf build
       - uses: actions/upload-pages-artifact@v3
         with:

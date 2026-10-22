@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upgrading</title>
-    <meta name="description" content="Installing a new version, what changed in 5.0, 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.">
+    <meta name="description" content="Installing a new version, what changed in 5.9, 5.6, 5.0, 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/upgrading">
     <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/upgrading?lang=en">
     <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/upgrading?lang=ar">
@@ -12,7 +12,7 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Upgrading">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="Installing a new version, what changed in 5.0, 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.">
+    <meta property="og:description" content="Installing a new version, what changed in 5.9, 5.6, 5.0, 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.">
     <meta property="og:url" content="https://webfluent.monzeromer.dev/docs/guide/upgrading">
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="ar_AR">
@@ -21,9 +21,9 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Upgrading">
-    <meta name="twitter:description" content="Installing a new version, what changed in 5.0, 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.">
+    <meta name="twitter:description" content="Installing a new version, what changed in 5.9, 5.6, 5.0, 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/upgrading#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/upgrading","name":"Upgrading","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Installing a new version, what changed in 5.0, 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/upgrading#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Upgrading","item":"https://webfluent.monzeromer.dev/docs/guide/upgrading"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/upgrading#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/upgrading","name":"Upgrading","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Installing a new version, what changed in 5.9, 5.6, 5.0, 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/upgrading#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Upgrading","item":"https://webfluent.monzeromer.dev/docs/guide/upgrading"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.8</p>
+                            <p class="wf-text wf-s859a58d7">5.9</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -289,6 +289,19 @@
 <p>Run the installer again — it replaces the binary in place — or <code>cargo install webfluent --force</code>. <code>wf --version</code> says what you have. Update <code>wf-lsp</code> and the editor extension with it: the language server is built from the same compiler.</p>
 <p>The full notes for every release are in <a href="https://github.com/monzeromer-lab/WebFluent/blob/master/RELEASE_NOTES.md"><code>RELEASE_NOTES.md</code></a>; what follows is what an upgrade asks of you.</p>
                             </div>
+                            <h2 class="wf-heading" id="5-9">5.9</h2>
+                            <div class="wf-markdown">
+<p>5.9 holds a few things to what the guide already said, and a project may notice them:</p>
+<ul>
+<li><strong>A comma between two style declarations is an error</strong> (<code>E002</code>). <code>style { width: {w}px, flex: none }</code> compiled to one declaration whose value was the rest of the line, so the browser dropped both; write each on its own line, or separate them with <code>;</code>. A comma inside a value (<code>font-family: a, b</code>) is untouched.</li>
+<li><strong>A store's <code>persist … key:</code> is kept.</strong> It was dropped, so the value was kept under no key; now it follows the key as a page's does. What is already stored is found under the same names.</li>
+<li><strong>A refined type's bounds are checked as the reader types</strong> where a <code>validate</code> block guards the state: <code>Number(0..10)</code> no longer takes 10, and <code>Date(after: …)</code> and <code>before:</code> are held. A field that accepted its open end now says <em>Too large</em>.</li>
+<li><strong><code>Card(animate: .Drop)</code> plays a project's own animation</strong> on an element that stands still. It did nothing before, so a page may now move where it did not.</li>
+<li><strong>A count of exactly 0 shows <code>key.zero</code></strong> wherever the translation file has one, in any language, and the pre-render picks each count's form by the default locale's rules rather than English's. A <code>zero</code> message that never showed now does.</li>
+<li><strong>A site whose default locale is right to left</strong> is written <code>&lt;html lang=&quot;ar&quot; dir=&quot;rtl&quot;&gt;</code> from the first paint; <code>meta.lang</code> names a region of the default locale's language, and is otherwise the default locale.</li>
+<li><strong>New warnings:</strong> <code>A17</code> (a <code>Frame</code> with no title) and <code>V12</code> (a long list that is not windowed). <code>wf check</code> names each with its fix.</li>
+</ul>
+                            </div>
                             <h2 class="wf-heading" id="5-6">5.6</h2>
                             <div class="wf-markdown">
 <p>5.6 refuses a name the language already has as a program's own (<a href="/docs/guide/diagnostics#e118-a-name-the-language-already-has"><code>E118</code></a>): a <code>state env</code>, a loop's <code>t</code>, a <code>persist theme</code>, an action named <code>update</code>. Each compiled before and read the language's value where the program meant its own — a page's <code>state env</code> showed <code>[object Object]</code>. Run <code>wf check</code>: the message names the declaration and suggests a name of your own, and renaming it and its reads is the whole change.</p>
@@ -425,6 +438,7 @@
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
                         <a class="wf-link wf-s3e136ca4" href="#installing-a-newer-version">Installing a newer version</a>
+                        <a class="wf-link wf-s3e136ca4" href="#5-9">5.9</a>
                         <a class="wf-link wf-s3e136ca4" href="#5-6">5.6</a>
                         <a class="wf-link wf-s3e136ca4" href="#5-0">5.0</a>
                         <a class="wf-link wf-s3e136ca4" href="#4-2">4.2</a>
@@ -459,7 +473,7 @@
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.8, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.9, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -486,7 +500,7 @@
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.8 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.9 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

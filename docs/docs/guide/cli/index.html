@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.8</p>
+                            <p class="wf-text wf-s859a58d7">5.9</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -1037,6 +1037,193 @@ command = &quot;wf-lsp&quot;</code>
                             <div class="wf-markdown">
 <p>Any other editor with LSP support runs <code>wf-lsp</code> over stdio; the project root is the folder holding <code>webfluent.app.json</code>. The Tree-sitter grammars in <code>editors/tree-sitter-webfluent</code> (braces) and <code>editors/tree-sitter-webfluentx</code> (indentation) give highlighting to an editor that reads Tree-sitter.</p>
                             </div>
+                            <h2 class="wf-heading" id="building-a-tool-on-the-compiler">Building a tool on the compiler</h2>
+                            <div class="wf-markdown">
+<p>Every command above is a call in the <code>webfluent</code> crate, and an editor, a builder or an agent calls them in process rather than running <code>wf</code>. Each reads the project through a <code>webfluent::vfs::Vfs</code>: <code>FsVfs</code> is the disk, and <code>OverlayVfs::over_disk()</code> lays the editor's unsaved buffers over it, so what a tool reports is the project as it is being edited.</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Building a tool on the compiler</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col"></th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>build::{build, check}</code> with <code>BuildOptions</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf build</code> and <code>wf check</code>, returning every line and every finding as a <code>Diagnostic</code> with its fixes; <code>BuildOptions::studio</code> is <code>--studio</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>diagnostics::fixes::fix_all</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf fix</code>'s fix-all for one family in one file</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>print</code>, <code>reprint</code>, <code>edit::{rewrite_element, rewrite_statement, rewrite_body, rewrite_declaration, rewrite_program}</code></p>
+                                            </div>
+                                        </td>
+                                        <td>an element, a statement or a declaration changed in the tree and written back as the smallest edit, every other byte as it was, refused when it would not read back the same</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>codegen::node_id::{build_node_map_with, layers}</code></p>
+                                            </div>
+                                        </td>
+                                        <td>every element&#x27;s id, file, place, parent and what it is inside; the node at a caret; the Layers tree</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>registry::schema::of_project_via</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf components</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>style_value</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>each style property's shape, a value read into parts (<code>read_box</code>) and the narrowest declaration written back (<code>edit_box</code>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>themes::view::{view_via, set_token, reset_token}</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf theme</code>, and one token written in its place</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>motion::catalogue</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf motion</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>validation::{must_be_via, set_rule, remove_rule, move_rule}</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf rules</code>, and a state's <code>validate</code> block written back a rule at a time</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>scope::paths::at_via</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf scope</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>i18n::{plurals, table}</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf translations</code>: CLDR's plural rules, the table, and <code>set_message</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>assets</code>, <code>media::plan</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf assets</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>config::{schema, json_edit}</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf config</code>, and a setting written keeping the file's shape</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>commands</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf commands</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>agent::{changeset, context, diff}</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf context</code>, and a change set an agent writes to instead of the working tree, built before anyone reads it</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                     <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
@@ -1062,6 +1249,7 @@ command = &quot;wf-lsp&quot;</code>
                         <a class="wf-link wf-s3e136ca4" href="#describing">Describing</a>
                         <a class="wf-link wf-s3e136ca4" href="#environment-variables">Environment variables</a>
                         <a class="wf-link wf-s3e136ca4" href="#editors">Editors</a>
+                        <a class="wf-link wf-s3e136ca4" href="#building-a-tool-on-the-compiler">Building a tool on the compiler</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-s614f8b98">
@@ -1089,7 +1277,7 @@ command = &quot;wf-lsp&quot;</code>
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.8, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.9, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -1116,7 +1304,7 @@ command = &quot;wf-lsp&quot;</code>
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.8 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.9 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

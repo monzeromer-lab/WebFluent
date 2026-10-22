@@ -1,3 +1,109 @@
+# WebFluent v5.9.0 Release Notes
+
+An app's frame — layers, shortcuts, gestures, long lists, workers, frames —
+and the compiler as a library an editor, a visual builder or an agent
+builds on, each piece also a `wf` command.
+
+## Additions
+
+- **Layers** ([chapter 9](md-docs/09-events.md#layers-popovers-menus-and-tooltips-above-everything)). `Popover`, a `Menu` at
+  its button, at an anchor or at a point (`at:`, for a context menu), with
+  submenus, and `Tooltip`, drawn in the browser's top layer, so nothing
+  clips or covers them. Each flips and slides to stay on screen; Escape
+  closes the top one, a press outside closes what it is outside of, and
+  focus goes back where it was.
+- **Shortcuts for an app** ([chapter 9](md-docs/09-events.md#shortcuts-for-an-app)). `mod` is ⌘
+  on Apple's systems and Ctrl elsewhere; chords (`"mod+k mod+s"`);
+  `keyIs(e, …)` and `keyLabel(…)` for a table of commands that drives
+  menus and a palette; a page, a component or `app` hears `keydown` and the
+  window's events itself; `trapFocus` keeps focus inside a panel.
+- **Gestures** ([chapter 9](md-docs/09-events.md#gestures-drag-long-press-swipe-and-the-splitter)). `drag:` and
+  `on receive(d)` with a ghost, edge scroll and Escape; `on longpress`,
+  `on swipe`; and `Splitter` between two regions, with its size kept.
+- **`VirtualList`** ([chapter 37](md-docs/37-components-reference.md)): a
+  long list drawn a window at a time, rows measured or of a fixed height,
+  `reveal:` to scroll one into view, and `V12` for a long list that is
+  not windowed.
+- **`worker`** ([chapter 18](md-docs/18-realtime.md)): a Web Worker held
+  like a connection, asked with `.request(method, params)` and heard with
+  `on message`, restarted when it crashes; a store may hold connections.
+- **`Frame`** ([chapter 28](md-docs/28-media.md)): another page inside
+  this one, its `on message` only that page's; `A17` for a frame with no
+  title.
+- **`persist` follows its key** ([chapter 12](md-docs/12-stores.md)):
+  `key: Project.id` keeps one value per project; `in: .app` names a
+  storage the project gives itself, which may answer later.
+- **The policy names an app's own schemes and WebAssembly**
+  ([chapter 33](md-docs/33-desktop-apps.md)): `meta.connect` and
+  `meta.frame` take `ipc:` or `wfpreview:`, `meta.wasm` lets a page compile
+  WebAssembly, `meta.style_elements` lets a script write `<style>`.
+- **A build cache**: only the pages an edit changed are pre-rendered
+  again, in a session (`BuildCache::in_memory`) or across runs.
+- **An `Image`'s literal `src:` in `public/` is processed** as an `image`
+  declaration is: each width and format, its size, a `<picture>`.
+- **Previews of what a reader asked for**: `data-wf-motion="reduce"` on
+  the page's root stills every animation as `prefers-reduced-motion` does,
+  and `data-wf-validation="shown"` shows every field's message as a failed
+  submit does.
+- **Plurals by CLDR** ([chapter 21](md-docs/21-i18n.md)): the build picks
+  each count's form by the default locale's rules (CLDR 48, the same
+  table the browser's `Intl.PluralRules` reads), and exactly none is
+  `key.zero` in any language.
+
+## For tools
+
+Every one reads the project through a `Vfs`, so an editor's unsaved
+buffers count ([chapter 38](md-docs/38-cli.md#building-a-tool-on-the-compiler)).
+
+- **Printing and reprinting**: `webfluent::print`, `reprint` and
+  `edit::rewrite_*` change an element, a statement or a declaration in the
+  tree and write the smallest edit, every other byte as it was.
+- **The node map both ways**: each element's id, place, parent and what it
+  is inside; the node at a caret; the Layers tree; `wf build --studio`
+  stamps `data-wf-node` and writes `nodes.json`.
+- **Data an inspector draws from**, each a command too: `wf components`
+  (every component, built-in and the project's), `wf theme` (every token,
+  its uses and its contrast), `wf motion`, `wf rules` (the `validate`
+  rules, named patterns, every state's rules), `wf scope FILE:LINE` (what
+  can be read at a place, typed), `wf translations` (what each locale
+  lacks, what nothing names; `--plurals`), `wf assets`, `wf config`,
+  `wf commands`; and style values read into their parts and written back.
+- **`wf fix`**: one decided fix on every family that has a certain one,
+  and fix-all per family.
+- **An agent's change set and context**: `webfluent::agent` holds an
+  agent's edits apart from the working tree, builds them before anyone
+  reads them, and gives them back by file or by hunk; `wf context` is what
+  an agent is given — the files, the problems, the components, the theme,
+  the config with only its public `env`, and the guide.
+
+## Fixes
+
+- A project's own animation (`Card(animate: .Drop)`) did nothing on an
+  element that stood still; it plays.
+- A refined type's open end (`Number(0..10)` took 10) and its `after:` and
+  `before:` were not checked as the reader typed.
+- Pre-rendered controls dropped `name:` and `autocomplete:`, and an
+  `Input` with its own `id:` got a second one, so its label named nothing.
+- A locale missing one plural form showed the default locale's form, two
+  languages on one page; a site whose default locale is right to left was
+  served left to right until a script ran; `ar-EG` was not right to left.
+- A `let` in an action, a handler, an effect or a timer was offered by
+  completion everywhere in its page, and listed as a store's member.
+- `I01` and `I02` missed a `t()` in a page's header; `I03` said a reader
+  sees the key, where they see the default locale's message.
+- `Unsafe.Html` without a `sanitize(…)` elsewhere put nothing in; a typo
+  was reported once per check that found it; a page's own `state env` read
+  the project's `env`.
+- A comma between two style declarations made the browser drop both; it is
+  an error.
+
+## Upgrading
+
+See [chapter 46](md-docs/46-upgrading.md#5-9): a comma between style
+declarations, a field that accepted its range's open end, an animation
+that now plays, a `zero` message that now shows, and a right-to-left
+default locale are what a project may notice. Run `wf check`.
+
 # WebFluent v5.8.0 Release Notes
 
 A state that copies a live value says so, a script's values reach a page,
