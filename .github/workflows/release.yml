@@ -75,10 +75,8 @@ jobs:
           dotnet tool install --global wix --version 5.0.2
           cargo install cargo-wix
 
-      - name: Init WiX (generate wxs if missing)
-        run: |
-          if (!(Test-Path "wix\main.wxs")) { cargo wix init --package webfluent }
-
+      # wix/main.wxs is checked in: it installs wf.exe and webfluent.exe,
+      # and keeps one UpgradeCode, so a new MSI replaces the old one.
       - name: Build MSI
         run: cargo wix --package webfluent --no-build --nocapture
 

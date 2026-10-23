@@ -31,6 +31,12 @@ needed. It covers Apple Silicon and Intel Macs and x86_64 Linux.
 irm https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.ps1 | iex
 ```
 
+On Windows a bare `wf` opens the Windows Firewall console, `WF.msc`, since
+`System32` comes first on `PATH`. The release zip, `install.ps1` and the
+`.msi` therefore install the compiler as `webfluent.exe` beside `wf.exe`, and
+the `.msi` puts their folder on `PATH`: type `webfluent build`,
+`webfluent serve` and so on, or `wf.exe build` with the extension.
+
 ### With Rust
 
 ```bash
