@@ -1543,16 +1543,19 @@ pub const COMPONENTS: &[ComponentSig] = &[
         G,
         Children::None,
     ),
-    comp(
-        "Modal",
-        "Feedback",
-        "Modal `<dialog>`, opened by a state flag; the browser supplies focus trapping and Escape.",
-        None,
-        &[VISIBLE, TITLE],
-        &["Footer"],
-        G,
-        Children::Elements,
-    ),
+    ComponentSig {
+        events: &["close"],
+        ..comp(
+            "Modal",
+            "Feedback",
+            "Modal `<dialog>`, opened by a state flag; the browser supplies focus trapping and Escape. `on close` runs when it closes, however it was closed.",
+            None,
+            &[VISIBLE, TITLE],
+            &["Footer"],
+            G,
+            Children::Elements,
+        )
+    },
     part(
         "Modal",
         "Footer",
@@ -1588,16 +1591,19 @@ pub const COMPONENTS: &[ComponentSig] = &[
             Children::Elements,
         )
     },
-    comp(
-        "Dialog",
-        "Feedback",
-        "Confirmation `<dialog>`, opened by a state flag.",
-        None,
-        &[VISIBLE, TITLE],
-        &[],
-        G,
-        Children::Elements,
-    ),
+    ComponentSig {
+        events: &["close"],
+        ..comp(
+            "Dialog",
+            "Feedback",
+            "Confirmation `<dialog>`, opened by a state flag. `on close` runs when it closes, however it was closed.",
+            None,
+            &[VISIBLE, TITLE],
+            &[],
+            G,
+            Children::Elements,
+        )
+    },
     comp(
         "Spinner",
         "Feedback",

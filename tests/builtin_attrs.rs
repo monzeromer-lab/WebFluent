@@ -9,7 +9,7 @@
 
 mod common;
 
-use common::{Backend, Elem, elems, page, spa_generated};
+use common::{Backend, Elem, elems, page, spa_generated, ssg_html, template_html};
 
 /// What every case is given, and what each backend must write.
 const GIVEN: &str = "role: \"r\", tabindex: \"-1\", data-k: \"v\", aria-describedby: \"d\"";
@@ -516,6 +516,55 @@ fn a_chart_drawn_at_build_takes_its_class_and_style() {
     );
 }
 
+/// The pre-render and the template engine paint a modal's or a dialog's
+/// title as the live page draws it: its heading, which names it — not the
+/// `title` attribute, the tooltip a pointer shows.
+#[test]
+fn a_modal_s_title_is_painted_as_its_heading() {
+    let src = source(
+        "Modal(visible: open, title: \"Explain\", data-k: \"v\") {\n        Text(\"Body\")\n        Modal.Footer { Button(\"OK\") }\n    }\n    Dialog(visible: open, title: \"Sure?\") { Text(\"D\") }",
+    );
+    for (name, html) in [
+        ("pre-render", ssg_html(&src)),
+        ("template", template_html(&src)),
+    ] {
+        assert!(!html.contains("title=\"Explain\""), "{name}: {html}");
+        let open = html
+            .find("<dialog class=\"wf-modal\"")
+            .unwrap_or_else(|| panic!("{name}: {html}"));
+        let tag = &html[open..open + html[open..].find('>').unwrap()];
+        let id = tag
+            .split("aria-labelledby=\"")
+            .nth(1)
+            .and_then(|r| r.split('"').next())
+            .unwrap_or_else(|| panic!("{name}: named by its heading: {tag}"));
+        assert!(tag.contains("data-k=\"v\""), "{name}: {tag}");
+        assert!(
+            html.contains(&format!(
+                "<div class=\"wf-modal__header\"><h3 id=\"{id}\">Explain</h3></div>"
+            )),
+            "{name}: {html}"
+        );
+        let body = html.find("<div class=\"wf-modal__body\">").unwrap();
+        let footer = html.find("<div class=\"wf-modal__footer\">").unwrap();
+        assert!(
+            html[body..footer].contains("Body") && html[footer..].contains("OK"),
+            "{name}: the body, then the footer: {html}"
+        );
+        assert!(
+            html.contains("<h3 id=\"") && html.contains(">Sure?</h3>"),
+            "{name}: a dialog's too: {html}"
+        );
+        let ids: Vec<&str> = html
+            .split("<h3 id=\"")
+            .skip(1)
+            .map(|r| r.split('"').next().unwrap())
+            .collect();
+        assert_eq!(ids.len(), 2, "{name}");
+        assert_ne!(ids[0], ids[1], "{name}: each heading its own id");
+    }
+}
+
 /// A long list's, a splitter's and a carousel's `label:` is their name, on
 /// the live page and so in the pre-render and the template engine — not
 /// words painted inside them; a breadcrumb named by its author is named
@@ -631,6 +680,36 @@ fn an_attribute_with_no_prop_is_painted_as_the_live_page_writes_it() {
             stack.raw
         );
     }
+}
+
+/// `on close` on a modal or a dialog is its own event — the `<dialog>`'s
+/// `close`, however it was closed — so it is not `V09`, and the registry
+/// offers it.
+#[test]
+fn on_close_is_an_event_a_modal_and_a_dialog_fire() {
+    let src = source(
+        "state closes = 0\n    Modal(visible: open, title: \"M\") {\n        on close { closes = closes + 1 }\n        Text(\"m\")\n    }\n    Dialog(visible: open, title: \"D\") {\n        on close { closes = closes + 1 }\n        Text(\"d\")\n    }",
+    );
+    assert_eq!(findings(&src), Vec::<String>::new());
+    for name in ["Modal", "Dialog"] {
+        let sig = webfluent::registry::component(name).unwrap();
+        assert!(sig.events.contains(&"close"), "{name}");
+    }
+    let js = spa_generated(&src);
+    let modal = js
+        .lines()
+        .find(|l| l.contains("WF.el(\"dialog\", { className: \"wf-modal\""))
+        .unwrap();
+    let var = modal
+        .trim()
+        .trim_start_matches("const ")
+        .split(' ')
+        .next()
+        .unwrap();
+    assert!(
+        js.contains(&format!("{var}.addEventListener(\"close\"")),
+        "the dialog's own close event: {js}"
+    );
 }
 
 /// A four-pixel PNG, for a build to make a picture of.

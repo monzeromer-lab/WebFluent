@@ -755,6 +755,8 @@ struct RenderContext<'a> {
     slots: Vec<HashMap<String, Fill>>,
     /// Fields rendered so far, for their ids.
     fields: usize,
+    /// Modals and dialogs drawn so far, for their headings' ids.
+    dialogs: usize,
     /// The messages `t("key")` reads: the project's default locale, when it
     /// has translations. Without them `t` shows its key.
     messages: std::rc::Rc<HashMap<String, String>>,
@@ -843,6 +845,7 @@ impl<'a> RenderContext<'a> {
             in_thead: false,
             slots: Vec::new(),
             fields: 0,
+            dialogs: 0,
             messages: Default::default(),
             locale: std::rc::Rc::from("en"),
         }
@@ -863,6 +866,7 @@ impl<'a> RenderContext<'a> {
             in_thead: self.in_thead,
             slots: self.slots.clone(),
             fields: self.fields,
+            dialogs: self.dialogs,
             messages: self.messages.clone(),
             locale: self.locale.clone(),
         }
@@ -1514,6 +1518,45 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                 class_str,
                 own_attrs(name, ui, ctx, &[]),
                 style_attr
+            );
+        }
+        // A modal or a dialog, as the pre-render and the live page draw it:
+        // its title is its heading, not the `title` attribute.
+        "Modal" | "Dialog" => {
+            let title = ui.args.iter().find_map(|a| match a {
+                Arg::Named(k, v) if k == "title" => Some(value_to_string(&ctx.eval_expr(v))),
+                _ => None,
+            });
+            let id = title.as_ref().map(|_| {
+                ctx.dialogs += 1;
+                format!("wf-dlg-s{}", ctx.dialogs)
+            });
+            let own = own_attrs(name, ui, ctx, &[]);
+            let indent = ctx.indent_str();
+            ctx.indent += 3;
+            let mut body = Vec::new();
+            let mut footer = None;
+            for child in &ui.children {
+                if let StatementKind::UIElement(part) = &child.kind
+                    && matches!(&part.component, ComponentRef::SubComponent(p, s) if p == name && s == "Footer")
+                {
+                    footer = Some(render_statements(&part.children, ctx));
+                    continue;
+                }
+                body.push(child.clone());
+            }
+            let body = render_statements(&body, ctx);
+            ctx.indent -= 3;
+            return crate::codegen::ssg::static_dialog(
+                &indent,
+                &crate::codegen::ssg::DialogPaint {
+                    root_class: &class_str,
+                    class: base_class,
+                    attrs: &format!("{own}{style_attr}"),
+                    title: title.as_deref().zip(id.as_deref()),
+                    body: &body,
+                    footer: footer.as_deref().map(|f| ("", f)),
+                },
             );
         }
         // A menu at its button: the button, and the list hidden, as the

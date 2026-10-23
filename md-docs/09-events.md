@@ -199,8 +199,9 @@ page Overlays(path: "/", title: "Overlays", description: "What a page opens.") {
   `visible:` state is true. The browser traps focus, makes the rest of the
   page inert and closes on Escape or a click on the backdrop — and when it
   closes that way, the state is set back to `false`, so it never disagrees
-  with what is on screen. Focus returns to what opened it. `title:` is the
-  accessible name (`A08` without one). `Modal.Footer` is the row of actions.
+  with what is on screen. Focus returns to what opened it. `on close` runs
+  when it closes, however it was closed. `title:` is its heading, which
+  names it (`A08` without one). `Modal.Footer` is the row of actions.
 - **`Toast`** shows the moment it is rendered and leaves after three seconds;
   it is announced politely to screen readers. Put it under a condition that
   turns true.

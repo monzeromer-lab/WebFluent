@@ -273,6 +273,7 @@ pub fn render_page_html_studio(
         images: 0,
         row_limit: None,
         fields: 0,
+        dialogs: 0,
         default_messages,
         indent: 2,
         base_path,
@@ -484,6 +485,8 @@ struct SsgContext {
     row_limit: Option<usize>,
     /// Fields painted so far, for their ids.
     fields: usize,
+    /// Modals and dialogs painted so far, for their headings' ids.
+    dialogs: usize,
     default_messages: HashMap<String, String>,
     indent: usize,
     base_path: String, // Relative path to root for assets (e.g., ".." for /about)
@@ -1347,6 +1350,50 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
             ctx.indent -= 1;
             out.push_str(&format!("{indent}</div>\n"));
             return out;
+        }
+        // A modal or a dialog: its title is its heading, which names it, and
+        // its children are its body, as the live page draws them. Painted as
+        // the generic element, its title was the `title` attribute — the
+        // tooltip a pointer shows — and there was no heading.
+        "Modal" | "Dialog" => {
+            let title = ui.args.iter().find_map(|a| match a {
+                Arg::Named(k, v) if k == "title" => Some(
+                    resolve_text_scoped(v, &ctx.default_messages, &ctx.scope).unwrap_or_default(),
+                ),
+                _ => None,
+            });
+            let id = title.as_ref().map(|_| {
+                ctx.dialogs += 1;
+                format!("wf-dlg-s{}", ctx.dialogs)
+            });
+            let own = own_attrs(name, ui, ctx, &[]);
+            let indent = ctx.indent_str();
+            ctx.indent += 3;
+            let mut body = Vec::new();
+            let mut footer = None;
+            for child in &ui.children {
+                if let StatementKind::UIElement(part) = &child.kind
+                    && matches!(&part.component, ComponentRef::SubComponent(p, s) if p == name && s == "Footer")
+                {
+                    let wf = ctx.wf_node_attr_inline(part);
+                    footer = Some((wf, render_statements(&part.children, ctx)));
+                    continue;
+                }
+                body.push(child.clone());
+            }
+            let body = render_statements(&body, ctx);
+            ctx.indent -= 3;
+            return static_dialog(
+                &indent,
+                &DialogPaint {
+                    root_class: &class_str,
+                    class: base_class,
+                    attrs: &format!("{own}{wf}{inline_style}"),
+                    title: title.as_deref().zip(id.as_deref()),
+                    body: &body,
+                    footer: footer.as_ref().map(|(wf, f)| (wf.as_str(), f.as_str())),
+                },
+            );
         }
         // A tooltip: its child, and its words hidden beside it, as the live
         // page draws them. Painted as the wrapper's text, the words stood
@@ -2581,6 +2628,57 @@ fn address_text(expr: &Expr, scope: &Scope) -> Option<String> {
         });
     }
     Some(crate::codegen::url::join_address(&pieces))
+}
+
+/// A modal or a dialog as a static renderer paints it (`static_dialog`).
+pub struct DialogPaint<'a> {
+    /// Its classes: the base class, its variants, the author's.
+    pub root_class: &'a str,
+    /// The base class its parts are named after: `wf-modal`.
+    pub class: &'a str,
+    /// Its other attributes, each with a leading space.
+    pub attrs: &'a str,
+    /// Its title, and the id of the heading that holds it.
+    pub title: Option<(&'a str, &'a str)>,
+    /// Its body, painted, three levels in.
+    pub body: &'a str,
+    /// Its `Modal.Footer`: the studio's node id, and what is in it.
+    pub footer: Option<(&'a str, &'a str)>,
+}
+
+/// A `Modal` or a `Dialog` as the live page draws it: the `<dialog>`, named
+/// by its title's heading, around its content — the heading, the body, the
+/// footer. The browser keeps it hidden until it is opened.
+pub fn static_dialog(indent: &str, d: &DialogPaint) -> String {
+    let labelled = d
+        .title
+        .map(|(_, id)| format!(" aria-labelledby=\"{id}\""))
+        .unwrap_or_default();
+    let mut out = format!(
+        "{indent}<dialog class=\"{}\"{labelled}{}>\n",
+        d.root_class, d.attrs
+    );
+    let inner = format!("{indent}    ");
+    let part = format!("{indent}        ");
+    out.push_str(&format!("{inner}<div class=\"{}__content\">\n", d.class));
+    if let Some((title, id)) = d.title {
+        out.push_str(&format!(
+            "{part}<div class=\"{}__header\"><h3 id=\"{id}\">{}</h3></div>\n",
+            d.class,
+            html_escape(title)
+        ));
+    }
+    out.push_str(&format!("{part}<div class=\"{}__body\">\n", d.class));
+    out.push_str(d.body);
+    out.push_str(&format!("{part}</div>\n"));
+    if let Some((wf, footer)) = d.footer {
+        out.push_str(&format!("{part}<div class=\"{}__footer\"{wf}>\n", d.class));
+        out.push_str(footer);
+        out.push_str(&format!("{part}</div>\n"));
+    }
+    out.push_str(&format!("{inner}</div>\n"));
+    out.push_str(&format!("{indent}</dialog>\n"));
+    out
 }
 
 /// A value an attribute is painted with, as far as a static renderer knows

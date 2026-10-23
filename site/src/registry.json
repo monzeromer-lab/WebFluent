@@ -2061,8 +2061,8 @@
    "name": "Modal",
    "slug": "modal",
    "group": "Feedback",
-   "summary": "Modal `<dialog>`, opened by a state flag; the browser supplies focus trapping and Escape.",
-   "plain": "Modal <dialog>, opened by a state flag; the browser supplies focus trapping and Escape.",
+   "summary": "Modal `<dialog>`, opened by a state flag; the browser supplies focus trapping and Escape. `on close` runs when it closes, however it was closed.",
+   "plain": "Modal <dialog>, opened by a state flag; the browser supplies focus trapping and Escape. on close runs when it closes, however it was closed.",
    "signature": "Modal(visible: \u2026, title: \u2026) { \u2026 }",
    "block": true,
    "props": [
@@ -2081,7 +2081,12 @@
     ".dropInside",
     ".trapFocus"
    ],
-   "events": [],
+   "events": [
+    {
+     "name": "on close",
+     "meaning": ""
+    }
+   ],
    "parts": [
     {
      "name": "Modal.Footer",
@@ -2195,8 +2200,8 @@
    "name": "Dialog",
    "slug": "dialog",
    "group": "Feedback",
-   "summary": "Confirmation `<dialog>`, opened by a state flag.",
-   "plain": "Confirmation <dialog>, opened by a state flag.",
+   "summary": "Confirmation `<dialog>`, opened by a state flag. `on close` runs when it closes, however it was closed.",
+   "plain": "Confirmation <dialog>, opened by a state flag. on close runs when it closes, however it was closed.",
    "signature": "Dialog(visible: \u2026, title: \u2026) { \u2026 }",
    "block": true,
    "props": [
@@ -2215,7 +2220,12 @@
     ".dropInside",
     ".trapFocus"
    ],
-   "events": [],
+   "events": [
+    {
+     "name": "on close",
+     "meaning": ""
+    }
+   ],
    "parts": [],
    "attributes": [
     "global",

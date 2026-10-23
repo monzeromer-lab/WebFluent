@@ -1112,7 +1112,7 @@ Attribute families: `global`, `aria`, `data`.
 
 ### Modal
 
-Modal `<dialog>`, opened by a state flag; the browser supplies focus trapping and Escape.
+Modal `<dialog>`, opened by a state flag; the browser supplies focus trapping and Escape. `on close` runs when it closes, however it was closed.
 
 ```
 Modal(visible: …, title: …) { … }
@@ -1135,6 +1135,8 @@ Renders with the class `wf-modal`.
 | `title:` | `String` | Heading shown at the top |
 
 **Flags:** `.dropInside` `.trapFocus`
+
+**Events of its own:** `on close`
 
 **Parts:**
 
@@ -1184,7 +1186,7 @@ Attribute families: `global`, `aria`, `data`.
 
 ### Dialog
 
-Confirmation `<dialog>`, opened by a state flag.
+Confirmation `<dialog>`, opened by a state flag. `on close` runs when it closes, however it was closed.
 
 ```
 Dialog(visible: …, title: …) { … }
@@ -1203,6 +1205,8 @@ Renders with the class `wf-dialog`.
 | `title:` | `String` | Heading shown at the top |
 
 **Flags:** `.dropInside` `.trapFocus`
+
+**Events of its own:** `on close`
 
 Takes a block of children.
 
