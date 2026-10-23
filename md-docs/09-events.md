@@ -309,15 +309,16 @@ page Editor(path: "/", title: "Editor", description: "Layers at a control and at
   control. `shortcut:` adds a chip with the keys and gives the control it
   names its `aria-keyshortcuts`, in ARIA's spelling (`Control+S`);
   `placement:` is where it goes (unset, `.top`).
-- A layer takes what any element takes, on the element it draws: `id:`,
-  `role:`, `tabindex:`, `title:`, `aria-*`, `data-*`, `ref:`, and its `on`
-  handlers. A `Popover` is a `dialog` unless its `role:` says what else it
-  is — a `listbox` of choices. A `Menu` with a `trigger:` takes them on the
-  box around its button and list, and one that state opens on its list,
-  whose `role:` then replaces `menu`; a `Tooltip` on the box around its
-  control; a `Modal` or a `Dialog` on its `<dialog>`, whose `title:` is
-  its heading rather than an attribute. A `Popover`'s or a `Menu`'s `on
-  close` is the layer's own, and hears why it closed.
+- A layer takes what any element takes, as every built-in does (chapter
+  7), on the element it draws: `id:`, `role:`, `tabindex:`, `title:`,
+  `aria-*`, `data-*`, `ref:`, and its `on` handlers. A `Popover` is a
+  `dialog` unless its `role:` says what else it is — a `listbox` of
+  choices. A `Menu` with a `trigger:` takes them on the box around its
+  button and list, and one that state opens on its list, whose `role:`
+  then replaces `menu`; a `Tooltip` on the box around its control; a
+  `Modal` or a `Dialog` on its `<dialog>`, whose `title:` is its heading
+  rather than an attribute. A `Popover`'s or a `Menu`'s `on close` is the
+  layer's own, and hears why it closed.
 
 ## Gestures: drag, long-press, swipe and the splitter
 
@@ -391,7 +392,8 @@ page Files(path: "/", title: "Files", description: "Reorder, move and resize.") 
   key starts from the region's size as it is drawn, so the bound value may
   mean "the default share" — `0`, with the region's width a percentage
   until it is dragged — and `reset: 0` goes back to it: a reset is taken as
-  written, not held to `min:`.
+  written, not held to `min:`. It is a `separator` in the tab order unless
+  its `role:` or `tabindex:` says otherwise.
 
 A drag has no keyboard of its own: give what it does a menu item or a
 command too (`Move left`, `Move to…`), as the desktop's rule asks of every

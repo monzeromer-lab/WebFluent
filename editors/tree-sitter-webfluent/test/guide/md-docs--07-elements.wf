@@ -33,6 +33,17 @@ page P(path: "/") {
 
 // md-docs/07-elements.md
 page P(path: "/") {
+    state refs = [{ id: "a" }, { id: "b" }, { id: "c" }]
+    state current = 0
+    VirtualList(rowHeight: 24, label: "References", role: "listbox", tabindex: "0", aria-activedescendant: "ref-{current}") {
+        style { height: 240px }
+        on keydown(e) { if e.key == "ArrowDown" { current = current + 1 } }
+        for r in refs by r.id { Text(r.id, id: "ref-{r.id}", role: "option") }
+    }
+}
+
+// md-docs/07-elements.md
+page P(path: "/") {
     Card.elevated {
         Card.Header { Heading("Title").h3 }
         Card.Body { Text("Body") }

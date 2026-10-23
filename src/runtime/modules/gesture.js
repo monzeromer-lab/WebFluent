@@ -316,8 +316,9 @@
     const set = (v) => {
       if (write) write(clamp(v));
     };
-    el.setAttribute("role", "separator");
-    el.setAttribute("tabindex", "0");
+    // A separator in the tab order, unless its author wrote what it is.
+    if (!el.hasAttribute("role")) el.setAttribute("role", "separator");
+    if (!el.hasAttribute("tabindex")) el.setAttribute("tabindex", "0");
     el.setAttribute("aria-orientation", across ? "vertical" : "horizontal");
     effect(() => {
       el.setAttribute("aria-valuenow", String(Math.round(Number(read()) || 0)));

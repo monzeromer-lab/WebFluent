@@ -87,6 +87,12 @@ pub const MENU_READS: &[&str] = &[
     "offset",
 ];
 
+/// What a control drawn in a box — `Switch`, `Checkbox`, `Radio`, `Slider`,
+/// `DatePicker`, `FileUpload` — takes on the box rather than on its input:
+/// what is the whole control's, its label and its input together. Every
+/// other attribute is its input's, where its handlers are.
+pub const BOX_ATTRS: &[&str] = &["hidden", "lang", "dir"];
+
 /// JavaScript code generator — compiles the AST to a JS bundle with reactivity and routing.
 pub struct JsCodegen {
     output: String,
@@ -2400,7 +2406,15 @@ impl JsCodegen {
                         if let Some(svg) = self.static_graphic(name, ui) {
                             let (_, class) = builtin_to_html(name);
                             let svg = serde_json::to_string(&svg).unwrap_or_default();
-                            self.emit_line(&format!("const {var} = WF.el(\"figure\", {{ className: \"{class}\", html: {svg} }});"));
+                            // The figure takes what any element takes: an
+                            // `aria-label:` naming the chart, a `role:`, its
+                            // handlers, `class:` and a `style { }` block.
+                            let extra = self.root_attrs(name, ui, &[]);
+                            self.emit_line(&format!("const {var} = WF.el(\"figure\", {{ className: \"{class}\", html: {svg}{extra} }});"));
+                            self.emit_root_handlers(&var, ui, false);
+                            self.emit_style_and_transition(&var, ui);
+                            self.emit_motion(&var, ui);
+                            self.emit_host(&var, ui);
                             self.emit_line(&format!("{parent}.appendChild({var});"));
                             return;
                         }
@@ -2962,6 +2976,7 @@ impl JsCodegen {
                             "const {} = WF.el(\"{}\", {});",
                             var, tag, attrs_str
                         ));
+                        self.emit_root_handlers(&var, ui, false);
                         self.emit_line(&format!("{}.appendChild({});", parent, var));
                         true
                     }
@@ -3901,7 +3916,7 @@ impl JsCodegen {
         } else {
             String::new()
         };
-        let extra = self.layer_attrs(name, ui, &[]);
+        let extra = self.root_attrs(name, ui, &[]);
         self.emit_line(&format!(
             "const {} = WF.el(\"dialog\", {{ className: \"{}\"{}{}{} }});",
             var,
@@ -3973,7 +3988,7 @@ impl JsCodegen {
         }
 
         self.emit_line(&format!("{}.appendChild({});", var, content_var));
-        self.emit_layer_handlers(var, ui, false);
+        self.emit_root_handlers(var, ui, false);
 
         // Visibility binding. `WF.dialog` drives `showModal()`/`close()` and
         // writes the signal back when the browser closes the dialog itself — via
@@ -4072,7 +4087,7 @@ impl JsCodegen {
         } else {
             ", role: \"dialog\""
         };
-        let extra = self.layer_attrs("Popover", ui, &[]);
+        let extra = self.root_attrs("Popover", ui, &[]);
         self.emit_line(&format!(
             "const {} = WF.el(\"div\", {{ className: \"{}\"{}{}{}{} }});",
             var,
@@ -4085,7 +4100,7 @@ impl JsCodegen {
         for child in &ui.children {
             self.emit_statement_dom(child, var);
         }
-        self.emit_layer_handlers(var, ui, true);
+        self.emit_root_handlers(var, ui, true);
         let mut opts = self.layer_options(ui);
         opts.extend(self.close_handler(ui));
         self.emit_line(&format!(
@@ -4107,7 +4122,9 @@ impl JsCodegen {
             Some(v) => format!(", \"aria-label\": {}", self.emit_expr(&v)),
             None => String::new(),
         };
-        let extra = self.passthrough_attrs(ui);
+        // What any element takes — `role: "listbox"`, `tabindex:`,
+        // `aria-activedescendant:` — is the box's, with its handlers below.
+        let extra = self.root_attrs("VirtualList", ui, &[]);
         self.emit_line(&format!(
             "const {} = WF.el(\"div\", {{ className: \"{}\"{}{}{} }});",
             var,
@@ -4148,6 +4165,7 @@ impl JsCodegen {
                 }
             }
         }
+        self.emit_root_handlers(var, ui, false);
         self.emit_line(&format!("{}.appendChild({});", parent, var));
     }
 
@@ -4163,7 +4181,9 @@ impl JsCodegen {
             Some(v) => format!(", \"aria-label\": {}", self.emit_expr(&v)),
             None => String::new(),
         };
-        let extra = self.passthrough_attrs(ui);
+        // An author's `role:` and `tabindex:` are kept by `WF.splitter`,
+        // which gives the handle its own only where none is written.
+        let extra = self.root_attrs("Splitter", ui, &[]);
         self.emit_line(&format!(
             "const {} = WF.el(\"div\", {{ className: \"{}\"{}{}{} }});",
             var,
@@ -4198,14 +4218,17 @@ impl JsCodegen {
             "WF.splitter({var}, {read}, {write}, {{ {} }});",
             opts.join(", ")
         ));
+        self.emit_root_handlers(var, ui, false);
         self.emit_line(&format!("{}.appendChild({});", parent, var));
     }
 
     fn emit_tabs(&mut self, var: &str, ui: &UIElement, parent: &str) {
+        let extra = self.root_attrs("Tabs", ui, &[]);
         self.emit_line(&format!(
-            "const {} = WF.el(\"div\", {{ className: \"{}\"{} }});",
+            "const {} = WF.el(\"div\", {{ className: \"{}\"{}{} }});",
             var,
             self.class_attr("Tabs", ui),
+            extra,
             self.wf_node_inline(ui)
         ));
         // `role="tablist"` and the tab/panel wiring below are what tell a screen
@@ -4284,6 +4307,7 @@ impl JsCodegen {
         // pattern requires and what a keyboard user will try.
         self.emit_line(&format!("WF.tabs({}, {});", nav_var, active_var));
 
+        self.emit_root_handlers(var, ui, false);
         self.emit_line(&format!("{}.appendChild({});", parent, var));
     }
 
@@ -4303,6 +4327,30 @@ impl JsCodegen {
             })
             .map(|a| format!(", {a}"))
             .collect()
+    }
+
+    /// The rest of what a wrapped control takes as any element does —
+    /// `role:`, `title:`, a `ref:`, any other attribute — on its input
+    /// beside what `control_input_attrs` puts there: the input is the
+    /// control, and its handlers are there too. What is the whole
+    /// control's (`BOX_ATTRS`) is its box's.
+    fn control_extra_attrs(&mut self, name: &str, ui: &UIElement) -> String {
+        self.element_attrs(crate::registry::component(name), ui, &|k| {
+            !k.contains('-')
+                && !BOX_ATTRS.contains(&k)
+                && !matches!(
+                    k,
+                    "name" | "id" | "disabled" | "required" | "tabindex" | "checked"
+                )
+        })
+    }
+
+    /// What a wrapped control's box takes: `hidden:`, `lang:`, `dir:`,
+    /// which are the whole control's — its label and its input together.
+    fn control_box_attrs(&mut self, name: &str, ui: &UIElement) -> String {
+        self.element_attrs(crate::registry::component(name), ui, &|k| {
+            BOX_ATTRS.contains(&k)
+        })
     }
 
     /// A control's handlers as its input's: `on change` beside a `bind:`
@@ -4369,23 +4417,33 @@ impl JsCodegen {
             }
         });
 
+        let own = self.control_box_attrs("Switch", ui);
         self.emit_line(&format!(
-            "const {} = WF.el(\"label\", {{ className: \"{}\"{} }});",
+            "const {} = WF.el(\"label\", {{ className: \"{}\"{}{} }});",
             var,
             self.class_attr("Switch", ui),
+            own,
             self.wf_node_inline(ui)
         ));
 
+        // A switch unless its author says what it is.
+        let role = if Self::gives(ui, "role") {
+            ""
+        } else {
+            " role: \"switch\","
+        };
+        let extra = self.control_extra_attrs("Switch", ui);
         if let Some(target) = &bind_var {
             let input_var = self.fresh_var();
             let read = &target.read;
             let write = Self::with_commit(target, &target.write(&format!("!{read}")));
             let handlers = self.control_handlers(ui, Some(write));
             self.emit_line(&format!(
-                "const {} = WF.el(\"input\", {{ type: \"checkbox\", role: \"switch\", checked: () => !!{read}, \"aria-checked\": () => {read} ? \"true\" : \"false\"{}{} }});",
+                "const {} = WF.el(\"input\", {{ type: \"checkbox\",{role} checked: () => !!{read}, \"aria-checked\": () => {read} ? \"true\" : \"false\"{}{}{} }});",
                 input_var,
                 handlers,
-                Self::control_input_attrs(attrs)
+                Self::control_input_attrs(attrs),
+                extra
             ));
             self.emit_line(&format!("{}.appendChild({});", var, input_var));
         } else if let Some(checked) = ui.args.iter().find_map(|a| match a {
@@ -4399,10 +4457,11 @@ impl JsCodegen {
             let input_var = self.fresh_var();
             let handlers = self.control_handlers(ui, None);
             self.emit_line(&format!(
-                "const {} = WF.el(\"input\", {{ type: \"checkbox\", role: \"switch\", checked: () => !!({value}), \"aria-checked\": () => ({value}) ? \"true\" : \"false\"{}{} }});",
+                "const {} = WF.el(\"input\", {{ type: \"checkbox\",{role} checked: () => !!({value}), \"aria-checked\": () => ({value}) ? \"true\" : \"false\"{}{}{} }});",
                 input_var,
                 handlers,
-                Self::control_input_attrs(attrs)
+                Self::control_input_attrs(attrs),
+                extra
             ));
             self.emit_line(&format!("{}.appendChild({});", var, input_var));
         }
@@ -4471,10 +4530,12 @@ impl JsCodegen {
             }
         });
 
+        let own = self.control_box_attrs(name, ui);
         self.emit_line(&format!(
-            "const {} = WF.el(\"label\", {{ className: \"{}\"{} }});",
+            "const {} = WF.el(\"label\", {{ className: \"{}\"{}{} }});",
             var,
             self.class_attr(name, ui),
+            own,
             wf
         ));
 
@@ -4528,7 +4589,9 @@ impl JsCodegen {
             }
         }
 
-        // The caller's handlers, and the binding's write, on the input.
+        // The rest of what any element takes, then the caller's handlers
+        // and the binding's write, on the input.
+        input_attrs.push_str(&self.control_extra_attrs(name, ui));
         input_attrs.push_str(&self.control_handlers(ui, bound_change));
 
         self.emit_line(&format!(
@@ -4604,7 +4667,7 @@ impl JsCodegen {
             } else {
                 ", role: \"menu\""
             };
-            let extra = self.layer_attrs(name, ui, MENU_READS);
+            let extra = self.root_attrs(name, ui, MENU_READS);
             self.emit_line(&format!(
                 "const {} = WF.el(\"ul\", {{ className: \"{}\"{}{}{}{} }});",
                 var,
@@ -4622,7 +4685,7 @@ impl JsCodegen {
                 self.emit_statement_dom(child, var);
             }
             self.menu_lists.pop();
-            self.emit_layer_handlers(var, ui, true);
+            self.emit_root_handlers(var, ui, true);
             self.emit_line(&format!("{}.appendChild({});", parent, var));
             return;
         }
@@ -4637,7 +4700,7 @@ impl JsCodegen {
             label
         };
         let root_classes = self.class_attr(name, ui);
-        let extra = self.layer_attrs(name, ui, MENU_READS);
+        let extra = self.root_attrs(name, ui, MENU_READS);
         // What says the menu is open: `visible:` when it is given and can
         // be written, else the menu's own.
         let (read, write) = match visible {
@@ -4695,7 +4758,7 @@ impl JsCodegen {
         }
         self.menu_lists.pop();
         self.emit_line(&format!("{}.appendChild({});", var, items_var));
-        self.emit_layer_handlers(var, ui, true);
+        self.emit_root_handlers(var, ui, true);
         self.emit_line(&format!("{}.appendChild({});", parent, var));
     }
 
@@ -4710,25 +4773,38 @@ impl JsCodegen {
         ))
     }
 
-    /// What the root of a layer — `Popover`, `Menu`, `Tooltip`, `Modal`,
-    /// `Dialog` — takes as any other element does: every named argument
-    /// that is not one of the component's own props, as `, key: value`.
-    /// That is the global attributes (`id:`, `role:`, `tabindex:`, `title:`
-    /// …), `aria-*` and `data-*`, a `ref:`, and anything else, which `C04`
-    /// says is written to the element as an attribute — `html:` too, which
-    /// is an attribute of that name and never markup (`attr_key`). A value
-    /// that reads state follows it, and one the browser follows goes
-    /// through the scheme check first, as on the generic path. Its own
+    /// What the root of a built-in its own emitter draws — a layer, a long
+    /// list, a splitter, tabs, a sidebar, a chart — takes as any other
+    /// element does: every named argument that is not one of the
+    /// component's own props, as `, key: value` (`element_attrs`). Its own
     /// props are its emitter's, and so is what `reads` names (a `Dropdown`
-    /// is drawn by the menu's emitter, which reads a menu's props); the
-    /// props every element takes (`class:`, motion, a lifetime, a drag) are
-    /// the shared tail's.
-    fn layer_attrs(&mut self, name: &str, ui: &UIElement, reads: &[&str]) -> String {
-        let sig = crate::registry::component(name);
+    /// is drawn by the menu's emitter, which reads a menu's props).
+    fn root_attrs(&mut self, name: &str, ui: &UIElement, reads: &[&str]) -> String {
+        self.element_attrs(crate::registry::component(name), ui, &|k| {
+            !reads.contains(&k)
+        })
+    }
+
+    /// Every named argument of `ui` that `sig` has no prop of its own for,
+    /// and that `keep` keeps, as `, key: value`: the global attributes
+    /// (`id:`, `role:`, `tabindex:`, `title:` …), `aria-*` and `data-*`, a
+    /// `ref:`, and anything else, which `C04` says is written to the
+    /// element as an attribute — `html:` too, which is an attribute of that
+    /// name and never markup (`attr_key`). A prop written as an attribute
+    /// (`disabled:`) is one too. A value that reads state follows it, and
+    /// one the browser follows goes through the scheme check first, as on
+    /// the generic path. The props every element takes (`class:`, motion,
+    /// a lifetime, a drag) are the shared tail's.
+    fn element_attrs(
+        &mut self,
+        sig: Option<&'static crate::registry::ComponentSig>,
+        ui: &UIElement,
+        keep: &dyn Fn(&str) -> bool,
+    ) -> String {
         let mut out = String::new();
         for arg in &ui.args {
             let Arg::Named(key, val) = arg else { continue };
-            if reads.contains(&key.as_str()) {
+            if !keep(key) {
                 continue;
             }
             if key == "ref" {
@@ -4763,17 +4839,17 @@ impl JsCodegen {
     }
 
     /// Whether the author gave `key:` — a `role:` that takes the place of
-    /// the one a layer's root would have.
+    /// the one a built-in's root would have.
     fn gives(ui: &UIElement, key: &str) -> bool {
         ui.args
             .iter()
             .any(|a| matches!(a, Arg::Named(k, _) if k == key))
     }
 
-    /// A layer's `on …` handlers, on its root as on any element: every one
-    /// but `on close`, which the layer hears itself (`close_handler`) when
-    /// `own_close` says so.
-    fn emit_layer_handlers(&mut self, var: &str, ui: &UIElement, own_close: bool) {
+    /// A built-in's `on …` handlers, on its root as on any element: every
+    /// one but `on close`, which a layer hears itself (`close_handler`)
+    /// when `own_close` says so.
+    fn emit_root_handlers(&mut self, var: &str, ui: &UIElement, own_close: bool) {
         for handler in &ui.events {
             if own_close && handler.event == "close" {
                 continue;
@@ -4782,31 +4858,6 @@ impl JsCodegen {
             let line = self.element_listener(var, handler, &body);
             self.emit_line(&line);
         }
-    }
-
-    /// The attributes a layer's own emitter passes through to its root:
-    /// `id:` and the hyphenated ones (`aria-…`, `data-…`), as `, key: value`.
-    fn passthrough_attrs(&mut self, ui: &UIElement) -> String {
-        let mut out = String::new();
-        for arg in &ui.args {
-            let Arg::Named(k, v) = arg else { continue };
-            if k != "id" && !k.contains('-') {
-                continue;
-            }
-            let value = self.emit_expr(v);
-            let value = if self.is_reactive(&value) {
-                format!("() => {value}")
-            } else {
-                value
-            };
-            let key = if k.contains('-') {
-                format!("\"{k}\"")
-            } else {
-                k.clone()
-            };
-            out.push_str(&format!(", {key}: {value}"));
-        }
-        out
     }
 
     /// A menu's entry: a `menuitem`, or a `menuitemcheckbox` with
@@ -4891,9 +4942,21 @@ impl JsCodegen {
             })
             .unwrap_or_else(|| "\"\"".to_string());
         let base = format!("wf-{}", owner.to_lowercase());
-        let extra = self.passthrough_attrs(ui);
+        // What any element takes is the entry's; its `role:` and
+        // `tabindex:` in place of its own.
+        let role = if Self::gives(ui, "role") {
+            ""
+        } else {
+            ", role: \"menuitem\""
+        };
+        let tabindex = if Self::gives(ui, "tabindex") {
+            ""
+        } else {
+            ", tabindex: \"-1\""
+        };
+        let extra = self.element_attrs(crate::registry::part(owner, "Sub"), ui, &|_| true);
         self.emit_line(&format!(
-            "const {} = WF.el(\"li\", {{ className: \"{base}__item {base}__sub\", role: \"menuitem\", tabindex: \"-1\"{}{} }}, WF.el(\"span\", {{}}, {}), WF.el(\"span\", {{ className: \"{base}__chevron\", \"aria-hidden\": \"true\" }}, \"\\u203a\"));",
+            "const {} = WF.el(\"li\", {{ className: \"{base}__item {base}__sub\"{role}{tabindex}{}{} }}, WF.el(\"span\", {{}}, {}), WF.el(\"span\", {{ className: \"{base}__chevron\", \"aria-hidden\": \"true\" }}, \"\\u203a\"));",
             var,
             extra,
             self.wf_node_inline(ui),
@@ -4913,16 +4976,39 @@ impl JsCodegen {
         }
         self.menu_lists.pop();
         self.emit_line(&format!("{}.appendChild({});", var, list_var));
+        // Its handlers, `class:` and style, as a menu item's.
+        self.emit_root_handlers(var, ui, false);
+        self.emit_style_and_transition(var, ui);
+        self.emit_motion(var, ui);
         self.emit_line(&format!("{}.appendChild({});", parent, var));
     }
 
     fn emit_sidebar(&mut self, var: &str, ui: &UIElement, parent: &str) {
         let sidebar_id = var.trim_start_matches("_e").to_string();
+        // The panel is named by its own id, which the toggle below points
+        // at — the author's `id:`, when there is one, in place of the one
+        // made for it.
+        let own_id = ui.args.iter().find_map(|a| match a {
+            Arg::Named(k, v) if k == "id" => Some(v),
+            _ => None,
+        });
+        let (id_attr, controls) = match own_id {
+            Some(v) => {
+                let v = self.emit_expr(v);
+                (String::new(), self.live(&v))
+            }
+            None => (
+                format!(", id: \"wf-sidebar-{sidebar_id}\""),
+                format!("\"wf-sidebar-{sidebar_id}\""),
+            ),
+        };
+        let extra = self.root_attrs("Sidebar", ui, &[]);
         self.emit_line(&format!(
-            "const {} = WF.el(\"aside\", {{ className: \"{}\", id: \"wf-sidebar-{}\"{} }});",
+            "const {} = WF.el(\"aside\", {{ className: \"{}\"{}{}{} }});",
             var,
             self.class_attr("Sidebar", ui),
-            sidebar_id,
+            id_attr,
+            extra,
             self.wf_node_inline(ui)
         ));
 
@@ -5026,6 +5112,7 @@ impl JsCodegen {
             }
         }
 
+        self.emit_root_handlers(var, ui, false);
         self.emit_line(&format!("{}.appendChild({});", parent, var));
 
         // Below the sidebar breakpoint the panel slides over the page, so it
@@ -5040,8 +5127,8 @@ impl JsCodegen {
             scrim_var
         ));
         self.emit_line(&format!(
-            "const {} = WF.el(\"button\", {{ className: \"wf-sidebar__toggle\", type: \"button\", \"aria-label\": \"Open navigation\", \"aria-expanded\": \"false\", \"aria-controls\": \"wf-sidebar-{}\" }}, \"\\u2630\");",
-            toggle_var, sidebar_id
+            "const {} = WF.el(\"button\", {{ className: \"wf-sidebar__toggle\", type: \"button\", \"aria-label\": \"Open navigation\", \"aria-expanded\": \"false\", \"aria-controls\": {} }}, \"\\u2630\");",
+            toggle_var, controls
         ));
         self.emit_line(&format!("{}.appendChild({});", parent, scrim_var));
         self.emit_line(&format!("{}.appendChild({});", parent, toggle_var));
@@ -5052,10 +5139,19 @@ impl JsCodegen {
     }
 
     fn emit_breadcrumb(&mut self, var: &str, ui: &UIElement, parent: &str) {
+        // The trail is named "breadcrumb" unless its author names it.
+        let named = if Self::gives(ui, "aria-label") {
+            ""
+        } else {
+            ", \"aria-label\": \"breadcrumb\""
+        };
+        let extra = self.root_attrs("Breadcrumb", ui, &[]);
         self.emit_line(&format!(
-            "const {} = WF.el(\"nav\", {{ className: \"{}\", \"aria-label\": \"breadcrumb\"{} }});",
+            "const {} = WF.el(\"nav\", {{ className: \"{}\"{}{}{} }});",
             var,
             self.class_attr("Breadcrumb", ui),
+            named,
+            extra,
             self.wf_node_inline(ui)
         ));
 
@@ -5103,6 +5199,7 @@ impl JsCodegen {
             }
         }
 
+        self.emit_root_handlers(var, ui, false);
         self.emit_line(&format!("{}.appendChild({});", parent, var));
     }
 
@@ -5122,7 +5219,7 @@ impl JsCodegen {
         // loop draws, is the same code for every copy.
         let tip_id = self.fresh_var();
         self.emit_line(&format!("const {tip_id} = WF.uid(\"wf-tip\");"));
-        let extra = self.layer_attrs("Tooltip", ui, &[]);
+        let extra = self.root_attrs("Tooltip", ui, &[]);
         self.emit_line(&format!(
             "const {} = WF.el(\"div\", {{ className: \"{}\"{}{} }});",
             var,
@@ -5163,7 +5260,7 @@ impl JsCodegen {
             }
         }
         self.emit_line(&format!("{}.appendChild({});", var, tip_var));
-        self.emit_layer_handlers(var, ui, false);
+        self.emit_root_handlers(var, ui, false);
         // The runtime points the trigger at the tip, shows it above
         // everything at the trigger, and makes it reachable and dismissible
         // from the keyboard.
@@ -5228,25 +5325,31 @@ impl JsCodegen {
         let src = src.map(live);
         let alt = alt.map(live);
         let initials = initials.map(live);
-        let wf = self.wf_node_inline(ui);
+        // What any element takes is the circle's, beside the studio's id.
+        let own = format!(
+            "{}{}",
+            self.root_attrs("Avatar", ui, &[]),
+            self.wf_node_inline(ui)
+        );
         if let Some(img_src) = src {
             let alt_val = alt.unwrap_or_else(|| "\"\"".to_string());
             self.emit_line(&format!(
                 "const {} = WF.el(\"div\", {{ className: \"{}\"{} }}, WF.el(\"img\", {{ src: {}, alt: {} }}));",
-                var, cls, wf, img_src, alt_val
+                var, cls, own, img_src, alt_val
             ));
         } else if let Some(init) = initials {
             self.emit_line(&format!(
                 "const {} = WF.el(\"div\", {{ className: \"{}\"{} }}, {});",
-                var, cls, wf, init
+                var, cls, own, init
             ));
         } else {
             self.emit_line(&format!(
                 "const {} = WF.el(\"div\", {{ className: \"{}\"{} }});",
-                var, cls, wf
+                var, cls, own
             ));
         }
 
+        self.emit_root_handlers(var, ui, false);
         self.emit_line(&format!("{}.appendChild({});", parent, var));
     }
 
@@ -5292,10 +5395,12 @@ impl JsCodegen {
             "wf-skeleton"
         };
 
+        let extra = self.root_attrs("Skeleton", ui, &[]);
         self.emit_line(&format!(
-            "const {} = WF.el(\"div\", {{ className: \"{}\"{} }});",
+            "const {} = WF.el(\"div\", {{ className: \"{}\"{}{} }});",
             var,
             cls,
+            extra,
             self.wf_node_inline(ui)
         ));
         // A size that reads state follows it.
@@ -5321,14 +5426,19 @@ impl JsCodegen {
                 set(self, "width", s);
             }
         }
+        self.emit_root_handlers(var, ui, false);
         self.emit_line(&format!("{}.appendChild({});", parent, var));
     }
 
     fn emit_carousel(&mut self, var: &str, ui: &UIElement, parent: &str) {
+        // An author's `role:` and `aria-roledescription:` are kept by
+        // `WF.carousel`, which writes its own only where none is given.
+        let extra = self.root_attrs("Carousel", ui, &[]);
         self.emit_line(&format!(
-            "const {} = WF.el(\"div\", {{ className: \"{}\"{} }});",
+            "const {} = WF.el(\"div\", {{ className: \"{}\"{}{} }});",
             var,
             self.class_attr("Carousel", ui),
+            extra,
             self.wf_node_inline(ui)
         ));
 
@@ -5398,6 +5508,7 @@ impl JsCodegen {
             "WF.carousel({var}, {{ autoplay: {autoplay}, interval: {interval}, label: {label} }});"
         ));
 
+        self.emit_root_handlers(var, ui, false);
         self.emit_line(&format!("{}.appendChild({});", parent, var));
     }
 
@@ -5472,21 +5583,11 @@ impl JsCodegen {
 
         // Every other named argument is an attribute, as on a Button: `type`,
         // `disabled`, `aria-haspopup`, `data-variant`. A value that reads
-        // state is a thunk the runtime keeps in step with it.
-        for arg in &ui.args {
-            if let Arg::Named(k, v) = arg {
-                if matches!(k.as_str(), "icon" | "label" | "class") {
-                    continue;
-                }
-                let value = self.emit_expr(v);
-                let key = attr_key(k);
-                if self.is_reactive(&value) {
-                    btn_attrs.push_str(&format!(", {}: () => {}", key, value));
-                } else {
-                    btn_attrs.push_str(&format!(", {}: {}", key, value));
-                }
-            }
-        }
+        // state is a thunk the runtime keeps in step with it. What every
+        // element takes beside them — a lifetime, a drag, motion — is the
+        // shared tail's: written here too, a `mount:` was run once more as
+        // an attribute's value, with no element.
+        btn_attrs.push_str(&self.root_attrs("IconButton", ui, &[]));
 
         for handler in &ui.events {
             let body = self.emit_event_body(handler);
@@ -5567,10 +5668,12 @@ impl JsCodegen {
             }
         });
 
+        let own = self.control_box_attrs("Slider", ui);
         self.emit_line(&format!(
-            "const {} = WF.el(\"div\", {{ className: \"{}\"{} }});",
+            "const {} = WF.el(\"div\", {{ className: \"{}\"{}{} }});",
             var,
             self.class_attr("Slider", ui),
+            own,
             self.wf_node_inline(ui)
         ));
 
@@ -5629,6 +5732,13 @@ impl JsCodegen {
                 }
             }
         }
+        // The rest of what any element takes — `id:`, `role:`, `tabindex:`,
+        // `name:`, `disabled:`, a `ref:` — is the control's too, where its
+        // handlers already go.
+        let sig = crate::registry::component("Slider");
+        input_attrs.push_str(
+            &self.element_attrs(sig, ui, &|k| !k.contains('-') && !BOX_ATTRS.contains(&k)),
+        );
         for handler in &ui.events {
             if handler.event == "input" && bind_var.is_some() {
                 continue; // merged into the binding above
@@ -5702,10 +5812,12 @@ impl JsCodegen {
         // static renderers key on `wf-datepicker`, and hydration has to find the
         // same root they painted.
         let wrapper_var = self.fresh_var();
+        let own = self.control_box_attrs("DatePicker", ui);
         self.emit_line(&format!(
-            "const {} = WF.el(\"div\", {{ className: \"{}\"{} }});",
+            "const {} = WF.el(\"div\", {{ className: \"{}\"{}{} }});",
             wrapper_var,
             self.class_attr("DatePicker", ui),
+            own,
             self.wf_node_inline(ui)
         ));
 
@@ -5734,6 +5846,8 @@ impl JsCodegen {
         if let Some(mx) = max {
             input_attrs.push_str(&format!(", max: {}", mx));
         }
+        // What any element takes is the control's, where its handlers go.
+        input_attrs.push_str(&self.root_attrs("DatePicker", ui, BOX_ATTRS));
         for handler in &ui.events {
             let body = self.emit_event_body(handler);
             input_attrs.push_str(&format!(
@@ -5779,10 +5893,12 @@ impl JsCodegen {
         let multiple = ui.modifiers.iter().any(|m| m == "multiple");
 
         let wrapper_var = self.fresh_var();
+        let own = self.control_box_attrs("FileUpload", ui);
         self.emit_line(&format!(
-            "const {} = WF.el(\"div\", {{ className: \"{}\"{} }});",
+            "const {} = WF.el(\"div\", {{ className: \"{}\"{}{} }});",
             wrapper_var,
             self.class_attr("FileUpload", ui),
+            own,
             self.wf_node_inline(ui)
         ));
 
@@ -5804,6 +5920,12 @@ impl JsCodegen {
         if multiple {
             input_attrs.push_str(", multiple: true");
         }
+        // What any element takes is the control's, where its handlers go.
+        input_attrs.push_str(&self.root_attrs(
+            "FileUpload",
+            ui,
+            &["multiple", "hidden", "lang", "dir"],
+        ));
         for handler in &ui.events {
             let body = self.emit_event_body(handler);
             input_attrs.push_str(&format!(
@@ -6276,6 +6398,9 @@ impl JsCodegen {
     fn emit_media(&mut self, name: &str, var: &str, attrs: &str, ui: &UIElement, parent: &str) {
         let tag = crate::codegen::builtin::builtin_to_html(name).0;
         self.emit_line(&format!("const {var} = WF.el(\"{tag}\", {attrs});"));
+        // `on ended`, `on timeupdate`: the player's, as on one without
+        // captions.
+        self.emit_root_handlers(var, ui, false);
         let named = |key: &str| {
             ui.args.iter().find_map(|a| match a {
                 Arg::Named(k, v) if k == key => Some(v),
@@ -6337,10 +6462,51 @@ impl JsCodegen {
         }
         let classes = crate::codegen::builtin::builtin_to_html("Image").1;
         opts.push(format!("className: \"{classes}\""));
+        // What any element takes — an `id:`, `aria-*`, `data-*`, a `ref:`
+        // — and its handlers are the image's, inside the `<picture>`, where
+        // its `alt:` is and its `load` fires. The build's own width, height
+        // and sources stay the picture's.
+        let mut own = self.root_attrs(
+            "Image",
+            ui,
+            &[
+                "alt",
+                "sizes",
+                "loading",
+                "className",
+                "source",
+                "placeholder",
+                "src",
+                "width",
+                "height",
+            ],
+        );
+        let mut gestures = Vec::new();
+        for handler in &ui.events {
+            if GESTURE_EVENTS.contains(&handler.event.as_str()) {
+                gestures.push(handler);
+                continue;
+            }
+            let body = self.emit_event_body(handler);
+            own.push_str(&format!(
+                ", \"on:{}\": {} => {{ {body} }}",
+                handler.event,
+                self.handler_head(handler, "event")
+            ));
+        }
+        if let Some(own) = own.strip_prefix(", ") {
+            opts.push(format!("attrs: {{ {own} }}"));
+        }
         self.emit_line(&format!(
             "const {var} = WF.picture({source}, {{ {} }});",
             opts.join(", ")
         ));
+        // A gesture is the picture's, as a drag on it is.
+        for handler in gestures {
+            let body = self.emit_event_body(handler);
+            let line = self.element_listener(var, handler, &body);
+            self.emit_line(&line);
+        }
         self.emit_line(&format!("{parent}.appendChild({var});"));
     }
 

@@ -5,7 +5,11 @@
 //! and executes it against the fake DOM, so the assertions are about the page a
 //! user would get — the codegen and the runtime together, not either alone.
 
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { makeDom } from "./dom.mjs";
 
 /// Where `tests/e2e_sites.rs` builds the fixture projects.
@@ -120,4 +124,53 @@ export function type(el, value, ctx, event = "input") {
   el.value = value;
   el.dispatchEvent({ type: event, target: el, preventDefault() {} });
   ctx?.drain?.();
+}
+
+/// The `wf` this checkout built most recently, release or debug.
+function newestWf() {
+  const built = ["release", "debug"]
+    .map((p) => fileURLToPath(new URL(`../../target/${p}/wf`, import.meta.url)))
+    .filter((p) => existsSync(p));
+  built.sort((a, b) => statSync(b).mtimeMs - statSync(a).mtimeMs);
+  return built[0] || null;
+}
+
+/// Build a one-page project of `body` with the compiler and mount what it
+/// wrote against the fake DOM: the codegen and the runtime together.
+export function mountPage(body) {
+  const wf = newestWf();
+  if (!wf) return null;
+  const dir = mkdtempSync(join(tmpdir(), "wf-layer-args-"));
+  try {
+    mkdirSync(join(dir, "src/pages"), { recursive: true });
+    writeFileSync(join(dir, "webfluent.app.json"), JSON.stringify({ name: "Args", build: { output: "./build", ssg: false, minify: false } }));
+    writeFileSync(join(dir, "src/pages/Home.wf"), `page Home(path: "/", title: "Args", description: "Layers and what they are given.") {\n    Heading("Args").h1\n${body}\n}\n`);
+    execFileSync(wf, ["build", "-d", dir], { stdio: "pipe" });
+    let src = readFileSync(join(dir, "build/app.js"), "utf8");
+    const pages = join(dir, "build/pages");
+    if (existsSync(pages)) {
+      for (const file of readdirSync(pages).sort()) {
+        if (file.endsWith(".js")) src += "\n" + readFileSync(join(pages, file), "utf8");
+      }
+    }
+    const { window, document, Node, Element, DocumentFragment } = makeDom();
+    window.innerWidth = 1000;
+    window.innerHeight = 600;
+    const app = document.createElement("div");
+    app.id = "app";
+    document.body.appendChild(app);
+    const timers = [];
+    window.setTimeout = (fn) => { timers.push(fn); return timers.length; };
+    window.clearTimeout = () => {};
+    const run = new Function(
+      "window", "document", "Node", "Element", "DocumentFragment", "setTimeout", "clearTimeout", "URLSearchParams", "console",
+      `${src}\nreturn typeof WF !== "undefined" ? WF : null;`,
+    );
+    const WF = run(window, document, Node, Element, DocumentFragment, window.setTimeout, window.clearTimeout, URLSearchParams, console);
+    const drain = () => { while (timers.length) timers.shift()(); };
+    drain();
+    return { WF, document, drain };
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 }

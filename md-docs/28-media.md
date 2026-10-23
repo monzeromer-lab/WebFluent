@@ -66,6 +66,10 @@ a `<picture>`:
 The name is a value: `hero.src`, `.width`, `.height`, `.color`,
 `.placeholder`, `.srcset`.
 
+What any element takes — an `id:`, `aria-*`, `data-*`, a `ref:`, an `on
+load` — is the `<img>` inside the `<picture>`, where its `alt:` is and its
+`load` fires; the width, the height and the sources stay the build's.
+
 ```json
 { "build": { "media": {
     "formats": ["webp"],
@@ -119,7 +123,8 @@ page Gallery(path: "/", title: "Gallery", description: "Three pictures.") {
 ```
 
 A carousel has named previous and next buttons and a dot per slide; its
-`label:` names the region for screen readers. With autoplay there is also a
+`label:` names the region for screen readers. It is a `region` called a
+carousel unless its `role:` or `aria-roledescription:` says otherwise. With autoplay there is also a
 button that stops it; it pauses on its own while the
 pointer or focus is on it, and does not run at all for a reader who asked
 for reduced motion.

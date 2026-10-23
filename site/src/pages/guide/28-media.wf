@@ -26,7 +26,7 @@ page Home(path: "/", title: "Home", description: "The front page.") {
     Text("It is {hero.width} by {hero.height}, and mostly {hero.color}.")
 }"#, title: "wf")
 
-        Markdown("The build reads its real size and its average colour, writes it again at every width in `media.widths` smaller than the original, and gives the page a `<picture>`:\n\n- a `<source>` per format, each with a `srcset` of the widths, so the browser picks the one it needs for the space `sizes:` describes;\n- `width` and `height` from the file, so the box is the right shape before a byte of the image has arrived and **nothing on the page moves**;\n- a placeholder in the meantime — `.blur` inlines a sixteen-pixel-wide copy as a data URI, `.color` fills the box with the average colour, `.none` does neither;\n- a content hash in every file's name, so a host can cache them forever.\n\nThe name is a value: `hero.src`, `.width`, `.height`, `.color`, `.placeholder`, `.srcset`.")
+        Markdown("The build reads its real size and its average colour, writes it again at every width in `media.widths` smaller than the original, and gives the page a `<picture>`:\n\n- a `<source>` per format, each with a `srcset` of the widths, so the browser picks the one it needs for the space `sizes:` describes;\n- `width` and `height` from the file, so the box is the right shape before a byte of the image has arrived and **nothing on the page moves**;\n- a placeholder in the meantime — `.blur` inlines a sixteen-pixel-wide copy as a data URI, `.color` fills the box with the average colour, `.none` does neither;\n- a content hash in every file's name, so a host can cache them forever.\n\nThe name is a value: `hero.src`, `.width`, `.height`, `.color`, `.placeholder`, `.srcset`.\n\nWhat any element takes — an `id:`, `aria-*`, `data-*`, a `ref:`, an `on load` — is the `<img>` inside the `<picture>`, where its `alt:` is and its `load` fires; the width, the height and the sources stay the build's.")
 
         CodeBlock(#"{ "build": { "media": {
     "formats": ["webp"],
@@ -52,7 +52,7 @@ page Home(path: "/", title: "Home", description: "The front page.") {
     }
 }"#, title: "wf")
 
-        Markdown("A carousel has named previous and next buttons and a dot per slide; its `label:` names the region for screen readers. With autoplay there is also a button that stops it; it pauses on its own while the pointer or focus is on it, and does not run at all for a reader who asked for reduced motion.")
+        Markdown("A carousel has named previous and next buttons and a dot per slide; its `label:` names the region for screen readers. It is a `region` called a carousel unless its `role:` or `aria-roledescription:` says otherwise. With autoplay there is also a button that stops it; it pauses on its own while the pointer or focus is on it, and does not run at all for a reader who asked for reduced motion.")
 
         Heading("Frames", id: "frames").h2
 

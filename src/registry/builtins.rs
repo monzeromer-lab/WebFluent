@@ -1413,7 +1413,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
     comp(
         "Slider",
         "Form",
-        "Range input. `aria-*` arguments reach the input; with `aria-valuetext` the raw number is not shown beside the track.",
+        "Range input. `aria-*` and its other attributes reach the input; with `aria-valuetext` the raw number is not shown beside the track.",
         None,
         &[
             BIND,

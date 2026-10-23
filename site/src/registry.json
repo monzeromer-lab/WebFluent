@@ -1679,8 +1679,8 @@
    "name": "Slider",
    "slug": "slider",
    "group": "Form",
-   "summary": "Range input. `aria-*` arguments reach the input; with `aria-valuetext` the raw number is not shown beside the track.",
-   "plain": "Range input. aria-* arguments reach the input; with aria-valuetext the raw number is not shown beside the track.",
+   "summary": "Range input. `aria-*` and its other attributes reach the input; with `aria-valuetext` the raw number is not shown beside the track.",
+   "plain": "Range input. aria-* and its other attributes reach the input; with aria-valuetext the raw number is not shown beside the track.",
    "signature": "Slider(bind: \u2026, min: \u2026, max: \u2026)",
    "block": false,
    "props": [

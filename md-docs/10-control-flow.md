@@ -143,6 +143,10 @@ page Search(path: "/", title: "Search", description: "Results, a window at a tim
   a guess at them trimmed a frame later. A row `reveal:` asks for in the
   meantime is scrolled to then, so that frame shows it. A list hidden and
   shown again is laid out the same way.
+- The box takes what any element takes (chapter 7): a `role: "listbox"`,
+  a `tabindex:`, an `aria-activedescendant:` that follows the current row,
+  `data-*`, and its `on` handlers — an `on keydown` that moves through a
+  references list. `label:` is its accessible name.
 - The pre-rendered page paints the first 60 rows; the runtime draws the
   window when it takes over.
 - With anything else in its body, or a `for` with no `by`, it draws every

@@ -1299,7 +1299,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
             };
             // `id:`, `role:`, `aria-*`, `data-*`: on the menu's root, as the
             // live page writes them.
-            let own = layer_root_attrs(ui, ctx, crate::codegen::js::MENU_READS);
+            let own = own_attrs(name, ui, ctx, crate::codegen::js::MENU_READS);
             let items_class = format!("wf-{}__items", name.to_lowercase());
             let aria = label
                 .map(|l| format!(" aria-label=\"{}\"", html_escape(&l)))
@@ -1362,7 +1362,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                 })
                 .and_then(|v| resolve_text_scoped(v, &ctx.default_messages, &ctx.scope))
                 .unwrap_or_default();
-            let own = layer_root_attrs(ui, ctx, &[]);
+            let own = own_attrs("Tooltip", ui, ctx, &[]);
             let indent = ctx.indent_str();
             let mut out = format!("{indent}<div class=\"{class_str}\"{own}{wf}{inline_style}>\n");
             ctx.indent += 1;
@@ -1378,9 +1378,10 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
         }
         "Spacer" | "Spinner" => {
             return format!(
-                "{}<div class=\"{}\"{}{}></div>\n",
+                "{}<div class=\"{}\"{}{}{}></div>\n",
                 ctx.indent_str(),
                 class_str,
+                own_attrs(name, ui, ctx, &[]),
                 wf,
                 inline_style
             );
@@ -1432,9 +1433,10 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                 String::new()
             };
             return format!(
-                "{}<figure class=\"{}\"{}{}>{}</figure>\n",
+                "{}<figure class=\"{}\"{}{}{}>{}</figure>\n",
                 ctx.indent_str(),
                 class_str,
+                own_attrs(name, ui, ctx, &[]),
                 wf,
                 inline_style,
                 svg
@@ -1518,7 +1520,13 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
             attrs.push("role=\"dialog\"".to_string());
         }
     }
-    if let Some(label) = landmark_label(name) {
+    // A landmark is named unless its author names it, as on the live page.
+    if let Some(label) = landmark_label(name)
+        && !ui
+            .args
+            .iter()
+            .any(|a| matches!(a, Arg::Named(k, _) if k == "aria-label"))
+    {
         attrs.push(format!("aria-label=\"{}\"", label));
     }
 
@@ -1617,6 +1625,18 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                             attrs.push(format!("aria-label=\"{}\"", html_escape(&s)));
                         }
                     }
+                    // What a long list, a splitter or a carousel is, for a
+                    // screen reader: its accessible name, as on the live
+                    // page, not words painted inside it.
+                    "label" if matches!(name, "VirtualList" | "Splitter" | "Carousel") => {
+                        let named = ui
+                            .args
+                            .iter()
+                            .any(|a| matches!(a, Arg::Named(k, _) if k == "aria-label"));
+                        if !named && let Some(s) = static_attr(val, &ctx.scope) {
+                            attrs.push(format!("aria-label=\"{}\"", html_escape(&s)));
+                        }
+                    }
                     "label" if name == "IconButton" => {
                         // An icon button's label is its accessible name, not
                         // visible text: it used to be painted as a word next
@@ -1663,6 +1683,16 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                     k if k.contains('-') => {
                         if let Some(v) = static_attr(val, &ctx.scope) {
                             attrs.push(format!("{}=\"{}\"", k, html_escape(&v)));
+                        }
+                    }
+                    // Anything else the component has no prop for is an
+                    // attribute, as `C04` says and the live page writes it:
+                    // `target:`, `colspan:`, `pattern:`, an author's own.
+                    k if crate::registry::component(name).is_none_or(|s| s.prop(k).is_none()) => {
+                        if let Some(one) =
+                            paint_attr(k, val, &|e| painted(e, &ctx.scope), &ctx.app_schemes)
+                        {
+                            attrs.push(one);
                         }
                     }
                     _ => {}
@@ -1794,8 +1824,12 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
             if name == "Radio" { "radio" } else { "checkbox" }
         );
         if name == "Switch" {
+            // A switch unless its author says what it is.
+            if arg("role").is_none() {
+                input.push_str(" role=\"switch\"");
+            }
             input.push_str(&format!(
-                " role=\"switch\" aria-checked=\"{}\"",
+                " aria-checked=\"{}\"",
                 if checked { "true" } else { "false" }
             ));
         }
@@ -1815,16 +1849,21 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
             ""
         };
         let text = text_content.as_deref().map(html_escape).unwrap_or_default();
-        // The control's own attributes go on the input, as the bundle puts
-        // them — an `id` names the input a label points at — and the rest
-        // (its class) on the label.
-        let on_input = |a: &str| {
-            a.starts_with("aria-")
-                || a.starts_with("data-")
-                || ["name=", "id=", "required", "tabindex="]
-                    .iter()
-                    .any(|k| a.starts_with(k))
+        // The control's attributes go on the input, as the bundle puts them
+        // — an `id` names the input a label points at, a `role:` says what
+        // it is — and what is the whole control's on the label: its class,
+        // its style, `hidden`, `lang`, `dir` (`BOX_ATTRS`), the studio's
+        // node id.
+        let key = |a: &str| a.split('=').next().unwrap_or(a).to_string();
+        let on_label = |a: &str| {
+            let key = key(a);
+            matches!(key.as_str(), "class" | "style" | "data-wf-node")
+                || crate::codegen::js::BOX_ATTRS.contains(&key.as_str())
         };
+        // The input's value, whether it is checked and whether it is
+        // disabled are written above.
+        let on_input =
+            |a: &str| !on_label(a) && !matches!(key(a).as_str(), "value" | "checked" | "disabled");
         let mut own: Vec<String> = attrs.iter().filter(|a| on_input(a)).cloned().collect();
         // A choice's group is the state it binds, as the bundle names it.
         if name == "Radio"
@@ -1833,10 +1872,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
         {
             own.push(format!("name=\"{}\"", html_escape(group)));
         }
-        let label_attrs: Vec<&String> = attrs
-            .iter()
-            .filter(|a| !on_input(a) && !a.starts_with("checked") && !a.starts_with("disabled"))
-            .collect();
+        let label_attrs: Vec<&String> = attrs.iter().filter(|a| on_label(a)).collect();
         let label_attrs = label_attrs
             .iter()
             .map(|a| format!(" {a}"))
@@ -2082,7 +2118,25 @@ fn render_media(name: &str, class: &str, ui: &UIElement, ctx: &mut SsgContext) -
             attrs.push(flag.to_string());
         }
     }
-    let mut out = format!("<{tag} {}>", attrs.join(" "));
+    // The rest of what any element takes: an `id:`, `aria-*`, `data-*`,
+    // `preload:`, as the live page writes them.
+    let own = own_attrs(
+        name,
+        ui,
+        ctx,
+        &[
+            "src",
+            "poster",
+            "width",
+            "height",
+            "controls",
+            "autoplay",
+            "muted",
+            "loop",
+            "playsinline",
+        ],
+    );
+    let mut out = format!("<{tag} {}{own}>", attrs.join(" "));
     if let Some(captions) = named("captions").and_then(|v| static_attr(v, &ctx.scope)) {
         out.push_str(&format!(
             "<track kind=\"captions\" src=\"{}\" srclang=\"{}\" default />",
@@ -2185,7 +2239,24 @@ fn render_picture(class: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
         _ => {}
     }
 
-    let img = format!("<img {} />", img.join(" "));
+    // What any element takes is the image's, as on the live page.
+    let own = own_attrs(
+        "Image",
+        ui,
+        ctx,
+        &[
+            "alt",
+            "sizes",
+            "loading",
+            "className",
+            "source",
+            "placeholder",
+            "src",
+            "width",
+            "height",
+        ],
+    );
+    let img = format!("<img {}{own} />", img.join(" "));
     let sources = match field("sources") {
         Some(Static::List(items)) => items,
         _ => Vec::new(),
@@ -2234,9 +2305,18 @@ fn render_labelled_input(
     };
 
     let indent = ctx.indent_str();
+    // What is the whole control's is its box's; every other attribute is
+    // its input's, as on the live page.
+    let own = painted_attrs(
+        crate::registry::component(name),
+        ui,
+        &|k| crate::codegen::js::BOX_ATTRS.contains(&k),
+        &|e| painted(e, &ctx.scope),
+        &ctx.app_schemes,
+    );
     let mut out = format!(
-        "{}<div class=\"{}\"{}{}>\n",
-        indent, class_str, wf, inline_style
+        "{}<div class=\"{}\"{}{}{}>\n",
+        indent, class_str, own, wf, inline_style
     );
 
     if let Some(label) = named("label") {
@@ -2273,11 +2353,22 @@ fn render_labelled_input(
     if ui.modifiers.iter().any(|m| m == "multiple") {
         input_attrs.push("multiple".to_string());
     }
+    let own = painted_attrs(
+        crate::registry::component(name),
+        ui,
+        &|k| {
+            !crate::codegen::js::BOX_ATTRS.contains(&k)
+                && !matches!(k, "min" | "max" | "accept" | "value" | "multiple")
+        },
+        &|e| painted(e, &ctx.scope),
+        &ctx.app_schemes,
+    );
 
     out.push_str(&format!(
-        "{}    <input {}>\n",
+        "{}    <input {}{}>\n",
         indent,
-        input_attrs.join(" ")
+        input_attrs.join(" "),
+        own
     ));
     out.push_str(&format!("{}</div>\n", indent));
     out
@@ -2492,37 +2583,113 @@ fn address_text(expr: &Expr, scope: &Scope) -> Option<String> {
     Some(crate::codegen::url::join_address(&pieces))
 }
 
-/// What the root of a layer drawn by its own branch above carries as any
-/// element does, as far as the build knows it: the global attributes
-/// (`id`, `role`, `tabindex`, `title`, `lang`, `dir`, `hidden`), `aria-*`
-/// and `data-*`, as ` key="value"` — what the live page writes there, so
-/// the paint agrees with it. `reads` names what the branch draws itself.
-fn layer_root_attrs(ui: &UIElement, ctx: &SsgContext, reads: &[&str]) -> String {
+/// A value an attribute is painted with, as far as a static renderer knows
+/// it: text, or a boolean.
+pub(crate) enum Painted {
+    Text(String),
+    Flag(bool),
+}
+
+/// The attributes the browser reads as there or not: written bare when
+/// true, left out when false, as the runtime sets them.
+const BARE_ATTRS: &[&str] = &[
+    "hidden",
+    "disabled",
+    "required",
+    "multiple",
+    "readonly",
+    "autofocus",
+    "novalidate",
+    "open",
+    "inert",
+];
+
+/// What an element carries as any element does, painted as the live page
+/// writes it (`element_attrs` in the bundle's code generator): every named
+/// argument that is not one of `sig`'s props drawn some other way — the
+/// global attributes (`id`, `role`, `tabindex`, `title`, `lang`, `dir`,
+/// `hidden`), `aria-*`, `data-*`, and any other, which `C04` says is an
+/// attribute — and that `keep` keeps, as ` key="value"`. A value the build
+/// cannot know (`value` says `None`) is left to the script; `false` is no
+/// attribute, but an ARIA state keeps it as text; a URL goes through the
+/// same scheme check the live page applies, with the app's own `schemes`.
+pub(crate) fn painted_attrs(
+    sig: Option<&'static crate::registry::ComponentSig>,
+    ui: &UIElement,
+    keep: &dyn Fn(&str) -> bool,
+    value: &dyn Fn(&Expr) -> Option<Painted>,
+    schemes: &[String],
+) -> String {
     let mut out = String::new();
     for arg in &ui.args {
         let Arg::Named(key, val) = arg else {
             continue;
         };
-        if reads.contains(&key.as_str()) {
+        if !keep(key) || key == "ref" {
             continue;
         }
-        match key.as_str() {
-            "hidden" => {
-                if matches!(eval(val, &ctx.scope), Some(Static::Bool(true))) {
-                    out.push_str(" hidden");
-                }
-            }
-            k if matches!(k, "id" | "role" | "tabindex" | "title" | "lang" | "dir")
-                || k.contains('-') =>
-            {
-                if let Some(v) = static_attr(val, &ctx.scope) {
-                    out.push_str(&format!(" {k}=\"{}\"", html_escape(&v)));
-                }
-            }
-            _ => {}
+        if sig.is_some_and(|s| {
+            s.prop(key)
+                .is_some_and(|p| p.sink != crate::registry::Sink::Attr)
+        }) {
+            continue;
+        }
+        if let Some(one) = paint_attr(key, val, value, schemes) {
+            out.push(' ');
+            out.push_str(&one);
         }
     }
     out
+}
+
+/// One attribute as `painted_attrs` paints it, `key="value"`, or `None`
+/// when it is no attribute: `false`, or a value the build cannot know.
+pub(crate) fn paint_attr(
+    key: &str,
+    val: &Expr,
+    value: &dyn Fn(&Expr) -> Option<Painted>,
+    schemes: &[String],
+) -> Option<String> {
+    if crate::codegen::scoped_css::is_responsive(val) {
+        return None;
+    }
+    match value(val)? {
+        Painted::Flag(on) if key.starts_with("aria-") => Some(format!("{key}=\"{on}\"")),
+        Painted::Flag(true) if BARE_ATTRS.contains(&key) => Some(key.to_string()),
+        Painted::Flag(true) => Some(format!("{key}=\"true\"")),
+        Painted::Flag(false) => None,
+        Painted::Text(text) => {
+            let text = if crate::codegen::url::URL_ATTRS.contains(&key) {
+                crate::codegen::url::guard_with(&text, schemes).to_string()
+            } else {
+                text
+            };
+            Some(format!("{key}=\"{}\"", html_escape(&text)))
+        }
+    }
+}
+
+/// What the build knows of an attribute's value, for `painted_attrs`.
+fn painted(expr: &Expr, scope: &Scope) -> Option<Painted> {
+    match eval(expr, scope) {
+        Some(Static::Bool(on)) => Some(Painted::Flag(on)),
+        Some(Static::Null | Static::List(_) | Static::Map(_)) => None,
+        Some(v) => Some(Painted::Text(v.to_text())),
+        None => expr_to_static_string(expr).map(Painted::Text),
+    }
+}
+
+/// What the root of a built-in drawn by its own branch above carries as
+/// any element does (`painted_attrs`): `reads` names what the branch
+/// draws itself.
+fn own_attrs(name: &str, ui: &UIElement, ctx: &SsgContext, reads: &[&str]) -> String {
+    painted_attrs(
+        crate::registry::component(name),
+        ui,
+        &|k| !reads.contains(&k),
+        &|e| painted(e, &ctx.scope),
+        &ctx.app_schemes,
+    )
 }
 
 fn static_attr(expr: &Expr, scope: &Scope) -> Option<String> {

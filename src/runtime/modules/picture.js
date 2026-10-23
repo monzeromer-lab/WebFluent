@@ -11,13 +11,15 @@
     const held = typeof asset === "function" ? asset() : asset;
     const source = held && typeof held === "object" ? held : { src: held };
 
-    const img = el("img", {
+    // What the author wrote on the image beside these — an id, `aria-*`,
+    // `data-*`, a ref, its handlers — is the image's too (`opts.attrs`).
+    const img = el("img", Object.assign({
       src: source.src,
       alt: opts.alt != null ? opts.alt : "",
       className: opts.className,
       decoding: "async",
       loading: opts.loading,
-    });
+    }, opts.attrs));
     if (source.width) img.setAttribute("width", String(source.width));
     if (source.height) img.setAttribute("height", String(source.height));
     if (opts.sizes) img.setAttribute("sizes", opts.sizes);

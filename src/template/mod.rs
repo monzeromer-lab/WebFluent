@@ -1509,9 +1509,10 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
     match name {
         "Spacer" | "Spinner" => {
             return format!(
-                "{}<div class=\"{}\"{}></div>\n",
+                "{}<div class=\"{}\"{}{}></div>\n",
                 ctx.indent_str(),
                 class_str,
+                own_attrs(name, ui, ctx, &[]),
                 style_attr
             );
         }
@@ -1541,14 +1542,29 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
             let aria = label
                 .map(|l| format!(" aria-label=\"{}\"", html_escape(&l)))
                 .unwrap_or_default();
+            // What any element takes is the menu's root's, as on the live
+            // page.
+            let own = own_attrs(name, ui, ctx, crate::codegen::js::MENU_READS);
+            let gives = |key: &str| {
+                ui.args
+                    .iter()
+                    .any(|a| matches!(a, Arg::Named(k, _) if k == key))
+            };
             let items_class = format!("wf-{}__items", name.to_lowercase());
             let indent = ctx.indent_str();
-            // Opened by state alone, a menu is its list and nothing else.
+            // Opened by state alone, a menu is its list and nothing else;
+            // its author's `role:` and `aria-label:` take the place of its
+            // own.
             if trigger.is_none() && visible {
                 let classes =
                     crate::codegen::builtin::class_list(&items_class, &ui.modifiers).join(" ");
-                let mut out =
-                    format!("{indent}<ul class=\"{classes}\" role=\"menu\"{aria} hidden>\n");
+                let role = if gives("role") { "" } else { " role=\"menu\"" };
+                let aria = if gives("aria-label") {
+                    ""
+                } else {
+                    aria.as_str()
+                };
+                let mut out = format!("{indent}<ul class=\"{classes}\"{role}{aria}{own} hidden>\n");
                 ctx.indent += 1;
                 out.push_str(&render_statements(&ui.children, ctx));
                 ctx.indent -= 1;
@@ -1557,7 +1573,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
             }
             // Given no words for its button, a menu's says "Menu".
             let trigger = trigger.unwrap_or_else(|| "Menu".to_string());
-            let mut out = format!("{indent}<div class=\"{class_str}\"{style_attr}>\n");
+            let mut out = format!("{indent}<div class=\"{class_str}\"{own}{style_attr}>\n");
             ctx.indent += 1;
             let inner = ctx.indent_str();
             out.push_str(&format!(
@@ -1617,7 +1633,13 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
     if let Some(role) = implicit_role(name, &ui.modifiers) {
         attrs.push(format!("role=\"{}\"", role));
     }
-    if let Some(label) = landmark_label(name) {
+    // A landmark is named unless its author names it, as on the live page.
+    if let Some(label) = landmark_label(name)
+        && !ui
+            .args
+            .iter()
+            .any(|a| matches!(a, Arg::Named(k, _) if k == "aria-label"))
+    {
         attrs.push(format!("aria-label=\"{}\"", label));
     }
 
@@ -1647,6 +1669,18 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                         "href=\"{}\"",
                         html_escape(crate::codegen::url::guard(&resolved))
                     ));
+                }
+                // What a long list, a splitter or a carousel is, for a
+                // screen reader: its accessible name, never words in it.
+                "label" if matches!(name, "VirtualList" | "Splitter" | "Carousel") => {
+                    if !ui
+                        .args
+                        .iter()
+                        .any(|a| matches!(a, Arg::Named(k, _) if k == "aria-label"))
+                    {
+                        let s = value_to_string(&ctx.eval_expr(val));
+                        attrs.push(format!("aria-label=\"{}\"", html_escape(&s)));
+                    }
                 }
                 "label" if name == "IconButton" => {
                     // The accessible name of an icon-only button, never visible text.
@@ -1684,6 +1718,20 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                 k if k.contains('-') => {
                     let s = value_to_string(&ctx.eval_expr(val));
                     attrs.push(format!("{}=\"{}\"", k, html_escape(&s)));
+                }
+                // Anything else the component has no prop for is an
+                // attribute, as `C04` says and the live page writes it: the
+                // global attributes (`id`, `tabindex`, `lang`, `dir`,
+                // `hidden`), `target:`, `colspan:`, an author's own.
+                k if crate::registry::component(name).is_none_or(|s| s.prop(k).is_none()) => {
+                    if let Some(one) = crate::codegen::ssg::paint_attr(
+                        k,
+                        val,
+                        &|e| painted_value(ctx.eval_expr(e)),
+                        &[],
+                    ) {
+                        attrs.push(one);
+                    }
                 }
                 _ => {}
             },
@@ -1934,7 +1982,26 @@ fn render_labelled_input(
         named("value"),
     );
 
-    let mut out = format!("{}<div class=\"{}\"{}>\n", indent, class_str, style_attr);
+    // What is the whole control's is its box's; every other attribute is
+    // its input's, as on the live page.
+    let own = |keep: &dyn Fn(&str) -> bool| {
+        crate::codegen::ssg::painted_attrs(
+            crate::registry::component(name),
+            ui,
+            keep,
+            &|e| painted_value(ctx.eval_expr(e)),
+            &[],
+        )
+    };
+    let on_box = own(&|k| crate::codegen::js::BOX_ATTRS.contains(&k));
+    let on_input = own(&|k| {
+        !crate::codegen::js::BOX_ATTRS.contains(&k)
+            && !matches!(k, "min" | "max" | "accept" | "value" | "multiple")
+    });
+    let mut out = format!(
+        "{}<div class=\"{}\"{}{}>\n",
+        indent, class_str, on_box, style_attr
+    );
     if let Some(l) = label {
         out.push_str(&format!(
             "{}    <label class=\"wf-form-label\">{}</label>\n",
@@ -1981,9 +2048,45 @@ fn render_labelled_input(
         attrs.push("multiple".to_string());
     }
 
-    out.push_str(&format!("{}    <input {}>\n", indent, attrs.join(" ")));
+    out.push_str(&format!(
+        "{}    <input {}{}>\n",
+        indent,
+        attrs.join(" "),
+        on_input
+    ));
     out.push_str(&format!("{}</div>\n", indent));
     out
+}
+
+/// An element's opening tag with what it carries as any element does
+/// (`own_attrs`) beside its class.
+fn with_own(open: String, tag: &str, name: &str, ui: &UIElement, ctx: &RenderContext) -> String {
+    let own = own_attrs(name, ui, ctx, &[]);
+    open.replacen(&format!("<{tag}"), &format!("<{tag}{own}"), 1)
+}
+
+/// What the data gives an attribute, for `painted_attrs`: text, a boolean,
+/// or nothing.
+fn painted_value(v: Value) -> Option<crate::codegen::ssg::Painted> {
+    use crate::codegen::ssg::Painted;
+    match v {
+        Value::Bool(on) => Some(Painted::Flag(on)),
+        Value::Null | Value::Array(_) | Value::Object(_) => None,
+        other => Some(Painted::Text(value_to_string(&other))),
+    }
+}
+
+/// What the root of a built-in drawn by its own branch carries as any
+/// element does, as the live page writes it (`painted_attrs`): `reads`
+/// names what the branch draws itself.
+fn own_attrs(name: &str, ui: &UIElement, ctx: &RenderContext, reads: &[&str]) -> String {
+    crate::codegen::ssg::painted_attrs(
+        crate::registry::component(name),
+        ui,
+        &|k| !reads.contains(&k),
+        &|e| painted_value(ctx.eval_expr(e)),
+        &[],
+    )
 }
 
 /// The classes an element carries beyond its base and modifier classes: the
@@ -2163,7 +2266,7 @@ fn render_paged(
         )),
         "Chart" => {
             let chart = chart_of(ui, ctx);
-            let mut out = open(ctx, "figure", Vec::new());
+            let mut out = with_own(open(ctx, "figure", Vec::new()), "figure", name, ui, ctx);
             out.push_str(&chart.svg());
             out.push_str(&format!("\n{indent}</figure>\n"));
             Some(out)
@@ -2175,7 +2278,7 @@ fn render_paged(
             let dark = named(ctx, "color").unwrap_or_else(|| "#000000".to_string());
             let light = named(ctx, "background").unwrap_or_else(|| "#ffffff".to_string());
             let svg = crate::codegen::charts::qr_svg(&value, &dark, &light).unwrap_or_default();
-            let mut out = open(ctx, "figure", Vec::new());
+            let mut out = with_own(open(ctx, "figure", Vec::new()), "figure", name, ui, ctx);
             out.push_str(&svg);
             out.push_str(&format!("\n{indent}</figure>\n"));
             Some(out)
@@ -2197,7 +2300,7 @@ fn render_paged(
         }
         "Avatar" => {
             let initials = named(ctx, "initials").unwrap_or_default();
-            let mut out = open(ctx, "div", Vec::new());
+            let mut out = with_own(open(ctx, "div", Vec::new()), "div", name, ui, ctx);
             if let Some(src) = named(ctx, "src") {
                 let alt = named(ctx, "alt").unwrap_or_default();
                 let src = crate::codegen::url::guard(&src).to_string();

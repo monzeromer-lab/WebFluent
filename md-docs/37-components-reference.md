@@ -917,7 +917,7 @@ Attribute families: `global`, `aria`, `data`, `input`.
 
 ### Slider
 
-Range input. `aria-*` arguments reach the input; with `aria-valuetext` the raw number is not shown beside the track.
+Range input. `aria-*` and its other attributes reach the input; with `aria-valuetext` the raw number is not shown beside the track.
 
 ```
 Slider(bind: …, min: …, max: …)

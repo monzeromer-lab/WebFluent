@@ -8,8 +8,11 @@
     );
     const count = slides.length;
 
-    root.setAttribute("role", "region");
-    root.setAttribute("aria-roledescription", _label("wf.carousel", "carousel"));
+    // A region called a carousel, unless its author wrote what it is.
+    if (!root.hasAttribute("role")) root.setAttribute("role", "region");
+    if (!root.hasAttribute("aria-roledescription")) {
+      root.setAttribute("aria-roledescription", _label("wf.carousel", "carousel"));
+    }
     if (!root.hasAttribute("aria-label") && !root.hasAttribute("aria-labelledby")) {
       root.setAttribute("aria-label", opts.label || _label("wf.carousel", "carousel"));
     }

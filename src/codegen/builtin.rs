@@ -488,10 +488,11 @@ pub fn input_type(modifier: &str) -> Option<&'static str> {
 ///
 /// `Navbar` and `Breadcrumb` both render `<nav>`, and a page with both gives a
 /// screen-reader user two identical "navigation" entries to choose between.
+/// A breadcrumb's is the one its own emitter writes on the live page.
 pub fn landmark_label(name: &str) -> Option<&'static str> {
     match name {
         "Navbar" => Some("Main"),
-        "Breadcrumb" => Some("Breadcrumb"),
+        "Breadcrumb" => Some("breadcrumb"),
         _ => None,
     }
 }

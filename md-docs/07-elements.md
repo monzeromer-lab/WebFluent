@@ -110,6 +110,33 @@ page P(path: "/") {
 An attribute value that reads state is kept in step with it; `aria-*` keeps a
 `false` value (it means something), other attributes drop it.
 
+Every built-in takes them, and its `on` handlers, on the element it draws:
+its root — the scrolling box of a `VirtualList`, the handle of a
+`Splitter`, the box of a `Tabs` or a `Carousel`, the panel of a `Sidebar`,
+the `<nav>` of a `Breadcrumb`, the `<dialog>` of a `Modal` — or, for a
+control drawn in a box (`Switch`, `Checkbox`, `Radio`, `Slider`,
+`DatePicker`, `FileUpload`), its input, which is the control and where its
+handlers already are; `hidden`, `lang` and `dir` are the whole control's,
+and stay on its box. A `role:` or an `aria-label:` written on a built-in
+takes the place of the one it gives itself — a `Splitter`'s `separator`, a
+`Switch`'s `switch`, a `Breadcrumb`'s name — and a `Sidebar`'s `id:` is the
+one its toggle points at:
+
+```wf
+page P(path: "/") {
+    state refs = [{ id: "a" }, { id: "b" }, { id: "c" }]
+    state current = 0
+    VirtualList(rowHeight: 24, label: "References", role: "listbox", tabindex: "0", aria-activedescendant: "ref-{current}") {
+        style { height: 240px }
+        on keydown(e) { if e.key == "ArrowDown" { current = current + 1 } }
+        for r in refs by r.id { Text(r.id, id: "ref-{r.id}", role: "option") }
+    }
+}
+```
+
+The pre-rendered page and the template engine paint the same attributes on
+the same elements, as far as the build knows their values.
+
 ## Parts
 
 Some built-ins are made of parts, written under their owner's name:
