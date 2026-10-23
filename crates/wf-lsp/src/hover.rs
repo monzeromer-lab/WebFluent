@@ -897,7 +897,7 @@ fn declaration_doc(project: &Project, decl: &Declaration) -> String {
             format!(
                 "**test \"{}\"** — {} by `wf test`{}{declared}",
                 t.name,
-                if t.acts() {
+                if webfluent::testing::runs_in_browser(t, &project.program.declarations) {
                     "run in a browser"
                 } else {
                     "rendered"

@@ -236,6 +236,7 @@ fn keep(title: &str, usage: &Usage) -> bool {
         "Frame" => any(&["Frame"]),
         "Splitter" => any(&["Splitter"]),
         "Virtual List" => any(&["VirtualList"]),
+        "Portal" => any(&["Portal"]),
         // What puts a box in the top layer at its anchor.
         "Layer" => any(&["Popover", "Menu", "Dropdown", "Tooltip"]),
         "Spinner" => any(&["Spinner"]),

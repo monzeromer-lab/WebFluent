@@ -138,11 +138,12 @@ test "reporting an incident opens one more" {
 
 A test with a step that **acts** is compiled into a real page, served and
 run in a headless Chrome (or `WF_CHROME`), because a click runs a handler,
-which runs an action, which repaints; a test that only looks needs no
-browser and is compared to its snapshot as well. The steps run in the
-order written, everything is found by the name a reader sees (a button's
-text, a control's label, placeholder or `aria-label`), and a handler that
-throws fails the test.
+which runs an action, which repaints; so is one that looks at a `Portal`
+(in its body or a component it places), whose block only the running page
+draws. A test that only looks needs no browser and is compared to its
+snapshot as well. The steps run in the order written, everything is found
+by the name a reader sees (a button's text, a control's label, placeholder
+or `aria-label`), and a handler that throws fails the test.
 
 | Step | What it does |
 |---|---|
@@ -1416,6 +1417,29 @@ page Gallery(path: "/gallery", title: "Gallery", description: "Cards that lean."
 is the same lifetime on a bare node (`div` · `span` · `canvas` · `svg` ·
 `section` · `figure` · `pre` · `p` · `ul` · `table`).
 
+### Drawing into somebody else's node
+
+```wf
+for row, i in Completions.rows by i {
+    Portal(into: editorHost(row.id), data-popup: "row") {   // a node CodeMirror made
+        Text(row.label) {
+            on mousedown(e) { e.preventDefault() }          // the editor keeps the focus
+            on click { Completions.pick(i) }
+        }
+    }
+}
+```
+
+The library keeps the node's place, keys and focus; the page draws what is
+in it. `into:` takes an element (what a script returns, JSDoc
+`HTMLElement|null`), a `ref:` handle (even one written further down), or
+`null`, which keeps the block aside with its nodes and state until a node is
+named again; it is read again whenever what it reads changes, and the same
+box moves. The block is drawn in the scope the portal is written in — its
+handlers, `emit`, state, `mount:` and `cleanup:` are that page's or
+component's — and a `mount:` inside runs once the block is in place. The
+box goes when its page, branch or list item does; the node stays.
+
 ### A library from somewhere else
 
 The compiler never fetches anything, so a library on another origin is a URL
@@ -1557,6 +1581,7 @@ file would change; a `.wfx` file is normalised through its braced spelling.
 | `Container` | `Container { ... }` — centered max-width wrapper |
 | `Host` | `Host(tag: "canvas", mount: (n) => …, update: (h) => …, cleanup: (h) => …)` — a node handed to somebody else's code, with a lifetime |
 | `Element` | `Element("stripe-pricing-table", publishableKey: key) { on ready { … } }` — any custom element, by its tag; named arguments are attributes, handlers its events |
+| `Portal` | `Portal(into: editorHost(row.id), data-popup: "row") { … }` — its block drawn into a node somebody else's code owns: an element a script returns, a `ref:` handle, or `null` to keep it aside; `into:` is read again when what it reads changes, and the block moves there with its nodes and state; it goes with the page, branch or item it is written in, and what is inside belongs there (handlers, `emit`, lifetimes). The box is `display: contents`; `id:`, `data-*` and `aria-*` are its own; the pre-rendered page has only a marker. Without `into:` it is a `C01` |
 | `Row` | `Row(gap: md, align: center, justify: between) { ... }` — horizontal flex. `gap`: xs sm md lg xl · `align`: start center end stretch baseline · `justify`: start center end between around evenly |
 | `Column` | `Column(span: 6) { ... }` — 12-column grid child |
 | `Grid` | `Grid(columns: 3, gap: md) { ... }` — CSS grid; takes the same `gap`/`align`/`justify` as `Row` |
@@ -2282,7 +2307,7 @@ may too. Its surface:
 | Widgets | `toast(message, tone, ms)`; `dialog(el, read, write)`; `popup`; `tabs`; `drawer`; `announce(text)`; `carousel`; `tooltip`; `menu`; `field` |
 | Safety | `safeUrl(url)` → the URL where a browser may follow it, `""` where it may not; `sanitize(html)` → the allow-listed markup. Both have a build-time twin, pinned by a shared case table |
 | Text | `markdown(text)` → HTML; `highlight(code, lang)` → HTML with `wf-tok-*` spans (`wf`, `json`, `bash`, `css`), the twin of `codegen::highlight` |
-| Interop | `attach(node, mount, update, cleanup)` — what `mount:`/`update:`/`cleanup:` compile to on any element (a component's fragment is attached at its root); `wf:render` on `document` after each drawing; `jsonAttr(raw)` — an attribute holding JSON, as the prop it stands for |
+| Interop | `attach(node, mount, update, cleanup)` — what `mount:`/`update:`/`cleanup:` compile to on any element (a component's fragment is attached at its root); `portal(box, read)` — what `Portal` compiles to: `box` kept in the node `read()` names, aside on `null`, gone with its scope, returning what runs the lifetimes its block held; `wf:render` on `document` after each drawing; `jsonAttr(raw)` — an attribute holding JSON, as the prop it stands for |
 | Boot | `mount(fn, container)`; `hydrate(fn, container)` and `hydrating(root)` — draw beside a pre-rendered page and take it over in place; `live(node)` — something holds `node`, so the takeover keeps the drawn one; `mainOf(root)`; `setBasePath`; `setSsgMode`; `__debug`, `__reg` (the studio's) |
 | Scopes | `onCleanup(fn)` — run when what owns it leaves; `attempt(fn)` — an action that rolls itself back on a throw |
 | Keys | `onKey(node, combination, fn)`; `keyIs(event, combination)`; `keyLabel(combination)`, `keyAria(combination)` — what `on key("mod+k")`, `keyIs` and `keyLabel` compile to |
@@ -2639,7 +2664,7 @@ page Report(path: "/", title: "Report", description: "The quarter.") {
 (`Button`, `Input`, `Select`, `Checkbox`, `Switch`, `Form`, …), navigation
 (`Router`, `Navbar`, `Sidebar`, `Tabs`, `Menu`), overlays (`Modal`, `Dialog`,
 `Toast`, `Tooltip`), media that plays (`Video`, `Audio`, `Carousel`),
-elements a script draws (`Host`, `Element`), handlers, `resource`, motion.
+elements a script draws (`Host`, `Element`, `Portal`), handlers, `resource`, motion.
 Everything static draws.
 
 ## Slides Output (PDF Slide Decks)
@@ -2874,7 +2899,7 @@ And what the type checker finds:
 | `T17` | An async action's result used before it is awaited; `await` outside an action, a handler, a timer or a hook (in a `derived` value or an effect); `.pending` on an action that awaits nothing |
 | `T18` | Arithmetic on something that is not a number (`"12" * 2`, `items - 1`) |
 | `X01` | An assignment to something that cannot change: a `const`, a `data` constant, a `derived` value (a store's too), a prop, a route parameter, a loop variable, an action |
-| `C01` | A required prop or record field left out — on a call, a `layout:`, a record (`Todo(title: "x")` when `id` has no default); a flag gives a `Bool` or an enum prop |
+| `C01` | A required prop or record field left out — on a call, a `layout:`, a record (`Todo(title: "x")` when `id` has no default), a built-in's (`Portal` without `into:`); a flag gives a `Bool` or an enum prop |
 | `C03` | A part outside its owner (`Select.Option` with no `Select` around it) |
 | `X02` | An effect that writes, every run, something it reads — itself or through an action it calls — so it never settles |
 | `X04` | A `derived` value that calls an action that assigns state |

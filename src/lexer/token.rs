@@ -445,6 +445,8 @@ pub const ALL_COMPONENT_NAMES: &[&str] = &[
     "Host",
     // A custom element a script defines, by its tag.
     "Element",
+    // A block drawn into a node somebody else's code owns.
+    "Portal",
     // `Unsafe.Html(markup)`: the one element whose content is markup.
     // The part lowers to `UnsafeHtml`, which is an IR name, not one a
     // program writes.

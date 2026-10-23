@@ -15,14 +15,15 @@ pub fn run_test(path: &Path, update: bool) -> Result<()> {
     let mut passed = 0;
     let mut failed = 0;
     let mut written = 0;
-    // A test that acts needs a browser, and a browser is expensive to
-    // start: one is opened for all of them, and only if any test asks.
+    // A test that acts needs a browser, and so does one that looks at a
+    // `Portal`; a browser is expensive to start: one is opened for all of
+    // them, and only if any test asks.
     let mut stage = if tests.acting() > 0 {
         match crate::cli::act::Stage::open() {
             Ok(stage) => Some(stage),
             Err(e) => {
                 println!(
-                    "  {} test(s) act, and there is no browser to run them in",
+                    "  {} test(s) run in a browser, and there is none to run them in",
                     tests.acting()
                 );
                 println!("  {e}");
@@ -35,8 +36,10 @@ pub fn run_test(path: &Path, update: bool) -> Result<()> {
         None
     };
     for (file, test) in &tests.tests {
-        // A test that clicks is run; one that only looks is rendered.
-        let outcome = if test.acts() {
+        // A test that clicks is run, and so is one that looks at what only
+        // a running page draws; one that only looks is rendered.
+        let in_browser = tests.in_browser(test);
+        let outcome = if in_browser {
             let stage = stage.as_mut().expect("opened above");
             let work = stage.work().to_path_buf();
             tests.run_acting(stage, test, &work)
@@ -46,7 +49,7 @@ pub fn run_test(path: &Path, update: bool) -> Result<()> {
         match outcome {
             Outcome::Passed => {
                 passed += 1;
-                if test.acts() {
+                if in_browser {
                     println!("  ok    {} — {} (in a browser)", file, test.name);
                 } else {
                     println!("  ok    {} — {}", file, test.name);

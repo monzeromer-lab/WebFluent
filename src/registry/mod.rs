@@ -154,6 +154,28 @@ pub struct PropSig {
     /// for a prop whose cases another prop shares, such as `exit`, which is
     /// written `exit: .fadeOut`.
     pub shorthand: bool,
+    /// Whether the component cannot be placed without it: `Portal`'s
+    /// `into:`. Left out, it is a `C01`, as a component's prop with no
+    /// default is.
+    pub required: bool,
+}
+
+impl PropSig {
+    /// The value a fix or an editor writes for it when a call leaves it
+    /// out: its type's empty value — `""`, `0`, `false`, an enum's first
+    /// case, and `null` for anything else (for `Portal`'s `into:`, the
+    /// value that keeps its block aside).
+    pub fn empty_value(&self) -> String {
+        match self.ty {
+            PropType::Str | PropType::File(_) | PropType::Path => "\"\"".to_string(),
+            PropType::Num => "0".to_string(),
+            PropType::Bool => "false".to_string(),
+            PropType::Enum(cases) => cases
+                .first()
+                .map_or("null".to_string(), |c| format!(".{}", c.name)),
+            PropType::State | PropType::Decl | PropType::Any => "null".to_string(),
+        }
+    }
 }
 
 /// Which HTML attributes reach a component's root beyond its props.

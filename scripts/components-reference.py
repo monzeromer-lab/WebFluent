@@ -36,7 +36,8 @@ def prop_line(p):
         ty = " ".join(f"`.{c['name']}`" for c in p["cases"])
     else:
         ty = f"`{ty}`"
-    return f"| `{p['name']}:` | {ty} | {esc(p['summary'])} |"
+    required = " (required)" if p.get("required") else ""
+    return f"| `{p['name']}:`{required} | {ty} | {esc(p['summary'])} |"
 
 out = []
 out.append(f"# {NUMBER}. Components reference\n")

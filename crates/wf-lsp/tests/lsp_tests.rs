@@ -1367,6 +1367,52 @@ fn hover_on_host_names_its_lifetime_props_and_its_tags() {
 }
 
 #[test]
+fn a_portal_is_offered_its_into_is_explained_and_left_out_is_reported() {
+    // Offered where an element is written, with `into:` inside its call.
+    let src = "page Home(path: \"/\") {\n    Container {\n        \n    }\n    Portal()\n}\n";
+    let items = labels_after(src, "Container {\n        ");
+    assert!(items.contains(&"Portal".to_string()), "{items:?}");
+    // What it inserts already says where it draws, so it is never a `C01`.
+    let open = project(src);
+    let offset = src.find("Container {\n        ").unwrap() + "Container {\n        ".len();
+    let pos = open.files[0].index.offset_to_position(src, offset);
+    let portal = provide_completions(&open, 0, pos)
+        .into_iter()
+        .find(|c| c.label == "Portal")
+        .unwrap();
+    assert_eq!(
+        portal.insert_text.as_deref(),
+        Some("Portal(into: ${1:null}) {\n\t$0\n}")
+    );
+    let props = labels_after(src, "    Portal(");
+    assert!(props.contains(&"into:".to_string()), "{props:?}");
+    // Its hover says what it is and what `into:` takes.
+    let src =
+        format!("{HEAD}    Stack(ref: spot)\n    Portal(into: spot) {{ Text(\"in\") }}\n}}\n");
+    let portal = hover_text(&src, "Portal").unwrap();
+    assert!(
+        portal.contains("somebody else's code owns") && portal.contains("`into:`"),
+        "{portal}"
+    );
+    let into = hover_text(&src, "into:").unwrap();
+    assert!(
+        into.contains("`ref:` handle") && into.contains("`null`"),
+        "{into}"
+    );
+    // And one placed without it is the compiler's `C01`.
+    let src = format!("{HEAD}    Portal {{ Text(\"in\") }}\n}}\n");
+    let project = project(&src);
+    let all = project_diagnostics(&project).remove(0);
+    assert!(
+        all.iter().any(
+            |d| matches!(&d.code, Some(NumberOrString::String(c)) if c == "C01")
+                && d.message.contains("`Portal` is placed without `into:`")
+        ),
+        "{all:?}"
+    );
+}
+
+#[test]
 fn hover_on_a_function_or_a_value_the_language_gives() {
     let src = format!(
         "{HEAD}    state d = @2026-01-01\n    Text(\"{{ago(d)}} {{viewport.md}}\")\n    Text(format(3, .currency))\n}}\n"

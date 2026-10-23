@@ -134,10 +134,13 @@
   }
 
   // The nodes that take part in matching: elements and text. A comment
-  // the painted page carries stays where it is.
+  // the painted page carries stays where it is, and so does the box of a
+  // `Portal` that drew into a painted node: it is not the painted page's.
   function _kids(parent) {
     const out = [];
-    for (const n of parent.childNodes) if (n.nodeType === 1 || n.nodeType === 3) out.push(n);
+    for (const n of parent.childNodes) {
+      if ((n.nodeType === 1 && !n.__wfPortal) || n.nodeType === 3) out.push(n);
+    }
     return out;
   }
 
@@ -280,7 +283,7 @@
         if (c.nodeType === 3) {
           const t = c.textContent.trim();
           if (t) out.push(JSON.stringify(t));
-        } else if (c.nodeType === 1) {
+        } else if (c.nodeType === 1 && !c.__wfPortal) {
           const attrs = _names(c)
             .map((a) => a + "=" + (a === "class" ? _classSet(c.getAttribute(a)) : c.getAttribute(a)))
             .sort();

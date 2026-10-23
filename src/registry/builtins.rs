@@ -39,6 +39,7 @@ const fn attr(name: &'static str, ty: PropType, summary: &'static str) -> PropSi
         sink: Sink::Attr,
         legacy: Legacy::Attr,
         shorthand: true,
+        required: false,
     }
 }
 
@@ -51,6 +52,7 @@ const fn special(name: &'static str, ty: PropType, summary: &'static str) -> Pro
         sink: Sink::Special,
         legacy: Legacy::Attr,
         shorthand: true,
+        required: false,
     }
 }
 
@@ -63,6 +65,7 @@ const fn variant(name: &'static str, cases: &'static [CaseSig], summary: &'stati
         sink: Sink::Class,
         legacy: Legacy::Attr,
         shorthand: true,
+        required: false,
     }
 }
 
@@ -75,6 +78,7 @@ const fn flag(name: &'static str, legacy: &'static str, summary: &'static str) -
         sink: Sink::Class,
         legacy: Legacy::Modifier(legacy),
         shorthand: true,
+        required: false,
     }
 }
 
@@ -87,6 +91,16 @@ const fn attr_flag(name: &'static str, summary: &'static str) -> PropSig {
         sink: Sink::Attr,
         legacy: Legacy::Attr,
         shorthand: true,
+        required: false,
+    }
+}
+
+/// A prop the component cannot be placed without (`C01` when it is left
+/// out).
+const fn required(prop: PropSig) -> PropSig {
+    PropSig {
+        required: true,
+        ..prop
     }
 }
 
@@ -382,6 +396,7 @@ pub const UNIVERSAL_PROPS: &[PropSig] = &[
         sink: Sink::Special,
         legacy: Legacy::Attr,
         shorthand: false,
+        required: false,
     },
     variant("speed", SPEEDS, "How fast its animation runs"),
     special("duration", PropType::Str, "Animation length, e.g. `300ms`"),
@@ -393,6 +408,7 @@ pub const UNIVERSAL_PROPS: &[PropSig] = &[
         sink: Sink::Special,
         legacy: Legacy::Attr,
         shorthand: false,
+        required: false,
     },
     special(
         "stagger",
@@ -409,6 +425,7 @@ pub const UNIVERSAL_PROPS: &[PropSig] = &[
         sink: Sink::Special,
         legacy: Legacy::Attr,
         shorthand: false,
+        required: false,
     },
     special(
         "count",
@@ -463,6 +480,7 @@ pub const UNIVERSAL_PROPS: &[PropSig] = &[
         sink: Sink::Special,
         legacy: Legacy::Attr,
         shorthand: false,
+        required: false,
     },
     special(
         "dropInside",
@@ -1336,6 +1354,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
                 sink: Sink::Attr,
                 legacy: Legacy::Modifier("multiple"),
                 shorthand: true,
+                required: false,
             },
         ],
         &["Option"],
@@ -1462,6 +1481,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
                 sink: Sink::Attr,
                 legacy: Legacy::Modifier("multiple"),
                 shorthand: true,
+                required: false,
             },
             DISABLED,
         ],
@@ -1999,6 +2019,20 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
+    ),
+    comp(
+        "Portal",
+        "Layout",
+        "Its block, drawn into a node somebody else's code owns: an element a script hands over, or a `ref:` handle. When `into:` names another node the block moves there with its nodes and state; `null` keeps it aside until a node comes back; it goes when the page, branch or list item it is written in leaves. What is inside belongs to where it is written: its handlers, `emit` and lifetimes.",
+        None,
+        &[required(special(
+            "into",
+            PropType::Any,
+            "Where it draws: an element, a `ref:` handle, or `null` to keep it aside; read again whenever what it reads changes",
+        ))],
+        &[],
+        G,
+        Children::Elements,
     ),
     comp(
         "Element",

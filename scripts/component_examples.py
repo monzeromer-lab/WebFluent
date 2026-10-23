@@ -16,6 +16,7 @@ EXAMPLES = {
     "VirtualList": 'state rows = (0..10000).map((i) => "row {i}")\nstate picked = "row 0"\nVirtualList(rowHeight: 32, reveal: picked, label: "Rows") {\n    style { height: 320px }\n    for r in rows by r { Text(r) { style { height: 32px; margin: 0 } } }\n}',
     "Splitter": 'state side = 240\nRow {\n    Container { style { width: {side}px } Text("Files") }\n    Splitter(bind: side, min: 160, max: 480, reset: 240, label: "Sidebar width")\n    Container { Text("Editor") }\n}',
     "Host": 'Host(tag: "canvas", mount: (node) => node.getContext("2d"), cleanup: (ctx) => log("gone"))',
+    "Portal": 'Stack(ref: panel)\nPortal(into: panel) { Text("Drawn inside the stack") }\nPortal(into: editorHost("hover"), data-popup: "hover") { Text("What the tooltip says") }',
     "Element": 'Element("relative-time", datetime: "2026-03-14T09:30:00Z") { Text("March 14") }\nElement("stripe-pricing-table", publishableKey: "pk_test_…") { on ready { log("prices shown") } }',
     "Navbar": 'Navbar {\n    Navbar.Brand { Link("Acme", to: "/") }\n    Navbar.Links { Link("Docs", to: "/docs")  Link("Pricing", to: "/pricing") }\n    Navbar.Actions { Button("Sign in").sm }\n}',
     "Sidebar": 'Sidebar {\n    Sidebar.Header { Text("Console").bold }\n    Sidebar.Item(to: "/", icon: "home") { Text("Overview") }\n    Sidebar.Divider\n    Sidebar.Item(to: "/settings", icon: "settings") { Text("Settings") }\n}',

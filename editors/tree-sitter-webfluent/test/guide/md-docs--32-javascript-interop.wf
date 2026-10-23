@@ -35,3 +35,36 @@ page Sales(path: "/sales", title: "Sales", description: "How it is going.") {
          cleanup: (chart) => chart.destroy())
 }
 
+// md-docs/32-javascript-interop.md
+page Edit(path: "/edit", title: "Edit", description: "An editor whose tooltip the page draws.") {
+    state tip: String? = null
+    state words = ""
+    action opened(id: String, text: String) {
+        tip = id
+        words = text
+    }
+    action closed(id: String) {
+        if tip == id { tip = null }
+    }
+
+    Heading("Edit").h1
+    Host(mount: (n) => startEditor(n, opened, closed), cleanup: (view) => view.destroy())
+    if let id = tip {
+        Portal(into: editorHost(id), data-popup: "hover") {
+            Text(words)
+        }
+    }
+}
+
+// md-docs/32-javascript-interop.md
+page Doc(path: "/") {
+    for row, i in Completions.rows by i {
+        Portal(into: editorHost(row.id), data-popup: "row") {
+            Text(row.label) {
+                on mousedown(e) { e.preventDefault() }
+                on click { Completions.pick(i) }
+            }
+        }
+    }
+}
+

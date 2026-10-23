@@ -1,0 +1,24 @@
+// A popup's content, drawn by the page into a node a script made outside
+// the page's root, the way an editor's completion list is: pressing a row
+// keeps the focus where the reader is typing.
+page Home(path: "/", title: "Portal", description: "A block drawn into somebody else's node.") {
+    state which = "a"
+    state search = ""
+    state picks = 0
+    Heading("Portal").h1
+    Input(bind: search, id: "search", label: "Search")
+    Text("picks {picks}", id: "picks")
+    Row {
+        Button("Use A") { on click { which = "a" } }
+        Button("Use B") { on click { which = "b" } }
+        Button("Park") { on click { which = "none" } }
+    }
+    Portal(into: popupHost(which), data-popup: "hint") {
+        Host(mount: (n) => sawMount(n))
+        Button("Pick", id: "pick") {
+            on mousedown(e) { e.preventDefault() }
+            on click { picks = picks + 1 }
+        }
+        Text("typed {search}", id: "typed")
+    }
+}

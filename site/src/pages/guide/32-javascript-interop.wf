@@ -1,6 +1,6 @@
 /// Chapter 32 of the guide, written from md-docs/32-javascript-interop.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page InteropGuide(path: "/docs/guide/interop", title: "JavaScript interop", description: "Your own .js files under src/, libraries via meta.scripts, mount and cleanup on any element, wf:render, Element for custom elements, and publishing yours.", layout: DocsShell("JavaScript interop", chapter: t("guide.chapter", { n: "32" }), blurb: "Write plain JavaScript beside your pages and call it by name; load a library from a CDN; hand an element to a script and get it back; place custom elements; publish your components for any framework.", source: "md-docs/32-javascript-interop.md", sections: [Anchor(id: "your-own-script", label: "Your own script"), Anchor(id: "a-library-from-a-cdn", label: "A library from a CDN"), Anchor(id: "mount-update-cleanup-on-any-element", label: "mount:, update:, cleanup: — on any element"), Anchor(id: "wf-render-for-a-script-that-finds-elements-itself", label: "wf:render — for a script that finds elements itself"), Anchor(id: "somebody-else-s-custom-element", label: "Somebody else's custom element"), Anchor(id: "publishing-your-components-as-custom-elements", label: "Publishing your components as custom elements"), Anchor(id: "wf-from-a-script-of-your-own", label: "WF from a script of your own"), Anchor(id: "coming-from-external", label: "Coming from external")], prevTo: "/docs/guide/performance", prevLabel: "31. {t("ch.31")}", nextTo: "/docs/guide/desktop", nextLabel: "33. {t("ch.33")}")) {
+page InteropGuide(path: "/docs/guide/interop", title: "JavaScript interop", description: "Your own .js under src/, libraries via meta.scripts, mount and cleanup on any element, Portal, wf:render, Element for custom elements, and publishing yours.", layout: DocsShell("JavaScript interop", chapter: t("guide.chapter", { n: "32" }), blurb: "Write plain JavaScript beside your pages and call it by name; load a library from a CDN; hand an element to a script and get it back; place custom elements; publish your components for any framework.", source: "md-docs/32-javascript-interop.md", sections: [Anchor(id: "your-own-script", label: "Your own script"), Anchor(id: "a-library-from-a-cdn", label: "A library from a CDN"), Anchor(id: "mount-update-cleanup-on-any-element", label: "mount:, update:, cleanup: — on any element"), Anchor(id: "portal-drawing-into-a-node-a-script-made", label: "Portal — drawing into a node a script made"), Anchor(id: "wf-render-for-a-script-that-finds-elements-itself", label: "wf:render — for a script that finds elements itself"), Anchor(id: "somebody-else-s-custom-element", label: "Somebody else's custom element"), Anchor(id: "publishing-your-components-as-custom-elements", label: "Publishing your components as custom elements"), Anchor(id: "wf-from-a-script-of-your-own", label: "WF from a script of your own"), Anchor(id: "coming-from-external", label: "Coming from external")], prevTo: "/docs/guide/performance", prevLabel: "31. {t("ch.31")}", nextTo: "/docs/guide/desktop", nextLabel: "33. {t("ch.33")}")) {
     Stack(gap: .lg) {
         Markdown("WebFluent has no package manager of its own, and does not need one to use the JavaScript ecosystem. A `.js` file is part of the project the way a `.css` file is: put it under `src/` and its functions are there.")
 
@@ -23,6 +23,10 @@ page InteropGuide(path: "/docs/guide/interop", title: "JavaScript interop", desc
                 Table.Row {
                     Table.Cell("hand an element to a script, and take it back")
                     Table.Cell { Markdown("`mount:`, `update:`, `cleanup:` on any element") }
+                }
+                Table.Row {
+                    Table.Cell("draw into a node a script made — a tooltip, a popup")
+                    Table.Cell { Markdown("`Portal(into: node) \{ … \}`") }
                 }
                 Table.Row {
                     Table.Cell("let a script find elements itself")
@@ -190,6 +194,79 @@ function drawSales(canvas, values) {
         Heading("mount:, update:, cleanup: — on any element", id: "mount-update-cleanup-on-any-element").h2
 
         Markdown("Every element and every component call takes the three:\n\n- `mount: (node) => …` runs each time the element is made — the first paint, a route change, an `if` branch arriving, a list item added. What it returns is the handle the other two get.\n- `update: (handle) => …` runs again whenever the state it reads changes.\n- `cleanup: (handle) => …` runs when the element leaves — its page, its branch or its list item — so nothing a library made outlives it.\n- On a component call they belong to the component's root element, unless the component declares a prop of that name itself.\n- A mount that throws takes itself out and logs the error; the page stays.\n\n`Host` is the same lifetime on a bare node: `Host(tag: \"canvas\", …)` makes the element a library wants — `div` by default, or `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul`, `table`.")
+
+        Heading("Portal — drawing into a node a script made", id: "portal-drawing-into-a-node-a-script-made").h2
+
+        Markdown("Some libraries make a node and leave it empty for the page to fill: an editor's tooltip, a map's popup, a chart's legend. `Portal(into: node) \{ … \}` draws its block there. The library keeps the node's place, its keys and its focus; the page keeps what is in it.\n\nCodeMirror, loaded from `meta.scripts` as `CM`, with a hover tooltip whose words the page draws:")
+
+        CodeBlock(#"// src/editor.js
+// CodeMirror places each tooltip and keeps its keys; the node it makes is
+// left empty, and the page draws what is in it.
+const tooltips = new Map();
+let made = 0;
+
+/**
+ * The node CodeMirror made for a tooltip, or null once it has gone.
+ * @param {string} id
+ * @returns {HTMLElement|null}
+ */
+function editorHost(id) {
+  return tooltips.get(id) ?? null;
+}
+
+/**
+ * An editor in `node`. `opened(id, text)` hears a tooltip open, with the
+ * words under the pointer; `closed(id)` hears it close.
+ * @param {HTMLElement} node
+ * @param {(id: string, text: string) => void} opened
+ * @param {(id: string) => void} closed
+ */
+function startEditor(node, opened, closed) {
+  const hover = CM.hoverTooltip((view, pos) => ({
+    pos,
+    create() {
+      const id = `hover-${++made}`;
+      const dom = document.createElement("div");
+      tooltips.set(id, dom);
+      opened(id, view.state.doc.lineAt(pos).text);
+      return { dom, destroy() { tooltips.delete(id); closed(id); } };
+    },
+  }));
+  return new CM.EditorView({ parent: node, extensions: [CM.basicSetup, hover] });
+}"#, title: "js")
+
+        CodeBlock(#"page Edit(path: "/edit", title: "Edit", description: "An editor whose tooltip the page draws.") {
+    state tip: String? = null
+    state words = ""
+    action opened(id: String, text: String) {
+        tip = id
+        words = text
+    }
+    action closed(id: String) {
+        if tip == id { tip = null }
+    }
+
+    Heading("Edit").h1
+    Host(mount: (n) => startEditor(n, opened, closed), cleanup: (view) => view.destroy())
+    if let id = tip {
+        Portal(into: editorHost(id), data-popup: "hover") {
+            Text(words)
+        }
+    }
+}"#, title: "wf")
+
+        Markdown("- **Where it goes is read again.** `into:` is read like any other expression: when a state or a list item it reads changes, it is read again. A tooltip that replaces another has a new id, so the block follows it to the new node.\n- **It moves; it is not drawn again.** Named another node, the same box goes there with its nodes and their state — a field half typed in, a list scrolled halfway. `null` keeps it aside, and when a node is named again the same nodes come back.\n- **It belongs to where it is written.** Its handlers, its `emit`, the state it reads and changes, its `mount:` and `cleanup:` are the page's or the component's it is written in; the node is only where they are drawn. A `mount:` inside it runs once the block is drawn and in place, so it meets its node in the document when the node it goes into is there.\n- **It goes with its scope.** When the page, the branch or the list item it is written in leaves, the box leaves the node with it. The node is the library's, and stays.\n- **The box adds nothing.** It is a `div` with `display: contents`, so the node lays out the block as if the box were not there; an `id:`, a `class:`, `data-*` and `aria-*` are the box's.\n- **A handle is somewhere too.** `Portal(into: panel)` draws into the element a `ref: panel` names, even one written further down the page.\n- **Pre-rendered, it is a place.** The static paint has a marker where a portal is and nothing of its block; the live page draws it once its script has run. A test that looks at one is run in a browser ([Testing](/docs/guide/testing)).\n\nA list the library keeps — an editor's completions, each row a node it made — is a keyed `for` of portals. A press on a row should leave the focus in the editor, and `on mousedown(e) \{ e.preventDefault() \}` does that while `on click` still runs:")
+
+        CodeBlock(#"for row, i in Completions.rows by i {
+    Portal(into: editorHost(row.id), data-popup: "row") {
+        Text(row.label) {
+            on mousedown(e) { e.preventDefault() }
+            on click { Completions.pick(i) }
+        }
+    }
+}"#, title: "wf")
+
+        Markdown("Left out, `into:` is a `C01`.")
 
         Heading("wf:render — for a script that finds elements itself", id: "wf-render-for-a-script-that-finds-elements-itself").h2
 

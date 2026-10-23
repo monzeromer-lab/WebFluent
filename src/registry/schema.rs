@@ -204,7 +204,7 @@ fn builtin_prop(p: &'static PropSig, sig: Option<&'static ComponentSig>, positio
         item: None,
         range: None,
         default: None,
-        required: false,
+        required: p.required,
         positional,
         flag: p.shorthand && p.ty == PropType::Bool,
         sink: match p.sink {

@@ -13,7 +13,7 @@ Every component is written `Name(positional, prop: value).flag { block }`. A **p
 
 ## Contents
 
-- **Layout**: [`Container`](#container), [`Row`](#row), [`Column`](#column), [`Grid`](#grid), [`Stack`](#stack), [`Spacer`](#spacer), [`VirtualList`](#virtuallist), [`Splitter`](#splitter), [`Divider`](#divider), [`Host`](#host), [`Element`](#element)
+- **Layout**: [`Container`](#container), [`Row`](#row), [`Column`](#column), [`Grid`](#grid), [`Stack`](#stack), [`Spacer`](#spacer), [`VirtualList`](#virtuallist), [`Splitter`](#splitter), [`Divider`](#divider), [`Host`](#host), [`Portal`](#portal), [`Element`](#element)
 - **Navigation**: [`Navbar`](#navbar), [`Sidebar`](#sidebar), [`Link`](#link), [`Tabs`](#tabs), [`Breadcrumb`](#breadcrumb), [`Menu`](#menu)
 - **Data display**: [`Card`](#card), [`Table`](#table), [`List`](#list), [`Badge`](#badge), [`Tag`](#tag), [`Avatar`](#avatar), [`Tooltip`](#tooltip)
 - **Form**: [`Input`](#input), [`Select`](#select), [`Checkbox`](#checkbox), [`Radio`](#radio), [`Switch`](#switch), [`Slider`](#slider), [`DatePicker`](#datepicker), [`FileUpload`](#fileupload), [`Form`](#form), [`Textarea`](#textarea)
@@ -302,6 +302,32 @@ Renders with the class `wf-host`.
 | `tag:` | `String` | The element to make: `div` (the default), `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul` or `table` |
 
 **Flags:** `.dropInside` `.trapFocus`
+
+Attribute families: `global`, `aria`, `data`.
+
+### Portal
+
+Its block, drawn into a node somebody else's code owns: an element a script hands over, or a `ref:` handle. When `into:` names another node the block moves there with its nodes and state; `null` keeps it aside until a node comes back; it goes when the page, branch or list item it is written in leaves. What is inside belongs to where it is written: its handlers, `emit` and lifetimes.
+
+```
+Portal(into: …) { … }
+```
+
+```wf
+Stack(ref: panel)
+Portal(into: panel) { Text("Drawn inside the stack") }
+Portal(into: editorHost("hover"), data-popup: "hover") { Text("What the tooltip says") }
+```
+
+Renders with the class `wf-portal`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `into:` (required) | `Any` | Where it draws: an element, a `ref:` handle, or `null` to keep it aside; read again whenever what it reads changes |
+
+**Flags:** `.dropInside` `.trapFocus`
+
+Takes a block of children.
 
 Attribute families: `global`, `aria`, `data`.
 

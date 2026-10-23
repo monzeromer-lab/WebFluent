@@ -1338,6 +1338,10 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
             out.push_str(&format!("{indent}</div>\n"));
             return out;
         }
+        // A portal draws into a node somebody else's code makes once the
+        // page runs: the paint has only its place, which the live page
+        // takes over, and the block is drawn there by the script.
+        "Portal" => return format!("{}<!--wf-portal-->\n", ctx.indent_str()),
         "Spacer" | "Spinner" => {
             return format!(
                 "{}<div class=\"{}\"{}{}></div>\n",

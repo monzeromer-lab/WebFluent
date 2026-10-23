@@ -35,6 +35,13 @@ test "reporting an incident opens one more" {
 }
 
 // md-docs/24-testing.md
+test "a portal draws into the element a handle names" {
+    Stack(ref: spot)
+    Portal(into: spot) { Text("in") }
+    expect "in"
+}
+
+// md-docs/24-testing.md
 test "the cart shows what is in it"(data: { Cart: { items: [{ id: "a", qty: 2 }] } }) {
     CartSummary()
     expect "2 items"
