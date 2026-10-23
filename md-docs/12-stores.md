@@ -148,6 +148,12 @@ page Login(path: "/login", title: "Sign in", description: "Sign in.") {
 }
 ```
 
+Inside an action a bare name is the store's own member — `items`, `error` —
+unless something nearer declares it: a `let`, a parameter, a `for` binding,
+a lambda's parameter or a caught error is the action's own until its block
+ends, so `let items = …` in an action reads and writes that local and
+leaves the store's `items` alone.
+
 A derived value may call one of the store's own actions, and an action may
 read other stores through their names — stores are global, so no `use` is
 needed inside a store.

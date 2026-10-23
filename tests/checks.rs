@@ -161,6 +161,48 @@ fn a_record_is_held_to_its_fields() {
 }
 
 #[test]
+fn a_record_whose_fields_all_have_defaults_is_built_with_none_given() {
+    // Wherever an expression is: a prop's default, a field's, a constant,
+    // a state, an argument.
+    let src = format!(
+        "type Offers {{ definition: Bool = false, references: Bool = false }}\ntype Card {{ offers: Offers = Offers(), name: String = \"n\" }}\nconst NONE = Offers()\ncomponent Box(offers: Offers = Offers()) {{\n    Text(\"{{offers.definition}}\")\n}}\n{}",
+        page(
+            "    state c = Card()\n    Box(offers: Offers())\n    Text(\"{c.name}{NONE.references}\")"
+        )
+    );
+    clean(&src);
+    // One with a field that must be given is held to it, as with any
+    // argument left out; a function that is not a record is still one.
+    let src = format!(
+        "type Todo {{ id: String, done: Bool = false }}\n{}",
+        page("    state t = Todo()\n    state u = Nobody()\n    Text(\"{t.id}{u}\")")
+    );
+    let missing = with(&src, "C01");
+    assert!(
+        missing.len() == 1 && missing[0].contains("leaves out `id` of `Todo`"),
+        "{missing:?}"
+    );
+    let unresolved = with(&src, "T13");
+    assert!(
+        unresolved.len() == 1 && unresolved[0].contains("`Nobody(…)`"),
+        "{unresolved:?}"
+    );
+}
+
+#[test]
+fn a_local_in_a_store_action_is_its_own_not_the_member_it_shadows() {
+    // `refs` is a list of the store's and `twice` a derived value; the
+    // action's own of the same names are a number, written as it likes.
+    let src = format!(
+        "type Ref {{ id: String }}\nstore Refs {{\n    state refs: [Ref] = []\n    state count = 0\n    derived twice = count * 2\n    action add(x: Number) {{\n        let refs = x\n        count = refs + 1\n        let twice = refs\n        twice = twice + 1\n        for refs in [\"a\"] {{ log(refs.toUpperCase()) }}\n        count = [1].map(refs => refs + 1).length\n    }}\n}}\n{}",
+        page(
+            "    use Refs\n    Text(\"{Refs.count} {Refs.twice} {Refs.refs.length}\")\n    Button(\"Go\") { on click { Refs.add(1) } }"
+        )
+    );
+    clean(&src);
+}
+
+#[test]
 fn a_case_fits_an_enum_only_when_the_enum_has_it_and_a_function_its_arguments() {
     let src = format!(
         "enum Tone {{ calm, loud }}\n{}",

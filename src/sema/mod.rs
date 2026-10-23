@@ -1028,6 +1028,12 @@ pub fn lower(mut program: Program) -> Program {
     // `null` for an optional one, so `Todo(id: "a", title: "b")` carries
     // `done: false` and `note: null` wherever it goes.
     let record_defaults = record_defaults(&program);
+    // `Offers()` with nothing given is a record too, when `Offers` is one
+    // and no script or constant makes a function of the name.
+    let records = Records {
+        defaults: &record_defaults,
+        bare: bare_records(&program),
+    };
     let theme_tokens: std::collections::HashSet<String> = program
         .declarations
         .iter()
@@ -1040,6 +1046,13 @@ pub fn lower(mut program: Program) -> Program {
     for decl in &mut program.declarations {
         if let Declaration::Component(c) = decl {
             mark_enum_props(c, &enum_names, &payload_enums);
+            // A prop's default is a value like any other: `offers: Offers =
+            // Offers()` carries every field.
+            for prop in &mut c.props {
+                if let Some(default) = &mut prop.default {
+                    default.walk_mut(&mut |e| fill_record(e, &records));
+                }
+            }
         }
         let body = match decl {
             Declaration::Page(p) => &mut p.body,
@@ -1058,20 +1071,49 @@ pub fn lower(mut program: Program) -> Program {
         };
         lower_statements(body, &user);
         resolve_short_tokens(body, &theme_tokens);
-        fill_records(body, &record_defaults);
+        fill_records(body, &records);
     }
     for decl in &mut program.declarations {
         let value = match decl {
             Declaration::Const(c) => &mut c.value,
             Declaration::Test(t) => {
-                fill_records(&mut t.body, &record_defaults);
+                fill_records(&mut t.body, &records);
                 continue;
             }
             _ => continue,
         };
-        value.walk_mut(&mut |e| fill_record(e, &record_defaults));
+        value.walk_mut(&mut |e| fill_record(e, &records));
     }
     program
+}
+
+/// What the lowering knows of records: what each construction may leave
+/// out, and which names `Name()` builds a record by.
+struct Records<'a> {
+    defaults: &'a HashMap<String, Vec<(String, Expr)>>,
+    bare: std::collections::HashSet<String>,
+}
+
+/// The records `Name()` builds: every declared one no script or constant
+/// makes a function of the same name.
+fn bare_records(program: &Program) -> std::collections::HashSet<String> {
+    let taken: std::collections::HashSet<&str> = program
+        .declarations
+        .iter()
+        .flat_map(|d| match d {
+            Declaration::Script(s) => s.names.iter().map(|n| n.name.as_str()).collect(),
+            Declaration::Const(c) => vec![c.name.as_str()],
+            _ => Vec::new(),
+        })
+        .collect();
+    program
+        .declarations
+        .iter()
+        .filter_map(|d| match d {
+            Declaration::Type(t) if !taken.contains(t.name.as_str()) => Some(t.name.clone()),
+            _ => None,
+        })
+        .collect()
 }
 
 /// For each declared record, the fields a construction may leave out and
@@ -1102,15 +1144,21 @@ fn record_defaults(program: &Program) -> HashMap<String, Vec<(String, Expr)>> {
         .collect()
 }
 
-fn fill_records(stmts: &mut [Statement], defaults: &HashMap<String, Vec<(String, Expr)>>) {
-    walk_exprs_mut(stmts, &mut |e| fill_record(e, defaults));
+fn fill_records(stmts: &mut [Statement], records: &Records) {
+    walk_exprs_mut(stmts, &mut |e| fill_record(e, records));
 }
 
-fn fill_record(expr: &mut Expr, defaults: &HashMap<String, Vec<(String, Expr)>>) {
+fn fill_record(expr: &mut Expr, records: &Records) {
+    if let Expr::FunctionCall(name, args) = expr
+        && args.is_empty()
+        && records.bare.contains(name)
+    {
+        *expr = Expr::Record(std::mem::take(name), Vec::new());
+    }
     let Expr::Record(name, fields) = expr else {
         return;
     };
-    let Some(missing) = defaults.get(name) else {
+    let Some(missing) = records.defaults.get(name) else {
         return;
     };
     for (field, value) in missing {
@@ -2259,6 +2307,49 @@ mod tests {
                 && f.contains(&"tone=StringLiteral(\"calm\")".to_string()),
             "{f:?}"
         );
+    }
+
+    #[test]
+    fn a_record_built_with_nothing_given_carries_every_field() {
+        let p = lowered(
+            "type Offers { definition: Bool = false, note: String? }\ntype Card { offers: Offers = Offers() }\nconst O = Offers()\ncomponent Box(offers: Offers = Offers(), card: Card = Card()) { Text(\"x\") }\npage P(path: \"/\") { state c = Card()\n Text(\"{c.offers.definition}{Date()}\") }",
+        );
+        let fields = |e: &Expr| -> Vec<String> {
+            let Expr::Record(_, f) = e else {
+                panic!("{e:?}")
+            };
+            f.iter().map(|(k, v)| format!("{k}={v:?}")).collect()
+        };
+        let Declaration::Const(c) = &p.declarations[2] else {
+            panic!()
+        };
+        assert_eq!(
+            fields(&c.value),
+            ["definition=BoolLiteral(false)", "note=Null"]
+        );
+        let Declaration::Component(b) = &p.declarations[3] else {
+            panic!()
+        };
+        assert_eq!(
+            fields(b.props[0].default.as_ref().unwrap()),
+            ["definition=BoolLiteral(false)", "note=Null"]
+        );
+        // A field's default is built the same way, inside the record.
+        let card = fields(b.props[1].default.as_ref().unwrap());
+        assert!(card[0].starts_with("offers=Record(\"Offers\""), "{card:?}");
+        assert!(card[0].contains("definition"), "{card:?}");
+        let Declaration::Page(page) = &p.declarations[4] else {
+            panic!()
+        };
+        let StatementKind::State(st) = &page.body[0].kind else {
+            panic!()
+        };
+        assert!(fields(&st.value)[0].contains("definition"));
+        // A call of a name no record has is still a call.
+        let StatementKind::UIElement(el) = &page.body[1].kind else {
+            panic!()
+        };
+        assert!(format!("{:?}", el.args).contains("FunctionCall(\"Date\", [])"));
     }
 
     #[test]

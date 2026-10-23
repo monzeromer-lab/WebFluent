@@ -209,7 +209,10 @@ page Records(path: "/") {
 
 - Fields may be separated by newlines or commas.
 - A field with a default may be left out of a construction; a `T?` field
-  defaults to `null`.
+  defaults to `null`. A record whose fields can all be left out is built
+  with none given, `Offers()`, wherever a value goes — a prop's default
+  (`component Card(offers: Offers = Offers())`), a field's, a `const`, a
+  `state`, an argument.
 - `type Admin = Todo { owner: String }` extends a record: an `Admin` has
   every field of `Todo` and then its own.
 - Records are structural: `{ id: "a", title: "b" }` given where a `Todo` is

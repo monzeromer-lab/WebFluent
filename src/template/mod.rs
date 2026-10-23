@@ -1391,6 +1391,8 @@ fn render_ui_element(ui: &UIElement, ctx: &mut RenderContext) -> String {
         ComponentRef::UserDefined(name) => {
             // Expand user component if registered
             if let Some(component) = ctx.components.get(name).cloned() {
+                // What the call puts on the root, read where it is written.
+                let (root_attrs, root_classes) = call_root_attrs(&component, ui, ctx);
                 // The props as locals, restored afterwards.
                 let mut old_locals = Vec::new();
                 for (key, resolved) in ctx.props_of(&component, ui) {
@@ -1410,7 +1412,7 @@ fn render_ui_element(ui: &UIElement, ctx: &mut RenderContext) -> String {
                     }
                 }
 
-                html
+                on_root(html, &root_attrs, &root_classes)
             } else {
                 format!("{}<!-- unknown component: {} -->\n", ctx.indent_str(), name)
             }
@@ -1778,9 +1780,18 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                     let s = value_to_string(&ctx.eval_expr(val));
                     attrs.push(format!("data-icon=\"{}\"", html_escape(&s)));
                 }
+                // A hyphenated name — `aria-*`, `data-*` — as the live page
+                // writes it: `true` is `"true"`, `false` none but an ARIA
+                // state's, `null` none.
                 k if k.contains('-') => {
-                    let s = value_to_string(&ctx.eval_expr(val));
-                    attrs.push(format!("{}=\"{}\"", k, html_escape(&s)));
+                    if let Some(one) = crate::codegen::ssg::paint_attr(
+                        k,
+                        val,
+                        &|e| painted_value(ctx.eval_expr(e)),
+                        &[],
+                    ) {
+                        attrs.push(one);
+                    }
                 }
                 // Anything else the component has no prop for is an
                 // attribute, as `C04` says and the live page writes it: the
@@ -2126,6 +2137,67 @@ fn render_labelled_input(
 fn with_own(open: String, tag: &str, name: &str, ui: &UIElement, ctx: &RenderContext) -> String {
     let own = own_attrs(name, ui, ctx, &[]);
     open.replacen(&format!("<{tag}"), &format!("<{tag}{own}"), 1)
+}
+
+/// What a component's call puts on its root element, as the pre-rendered
+/// page and the live one put it: each attribute the component takes no prop
+/// for — `aria-*`, `data-*`, `id`, `role`, `title`, `hidden` — painted as
+/// it would be on an element, and the classes a `class:` adds.
+fn call_root_attrs(
+    component: &TemplateComponent,
+    ui: &UIElement,
+    ctx: &RenderContext,
+) -> (String, Vec<String>) {
+    let mut attrs = String::new();
+    let mut classes = Vec::new();
+    for arg in &ui.args {
+        let Arg::Named(key, value) = arg else {
+            continue;
+        };
+        if component.props.iter().any(|p| &p.name == key) {
+            continue;
+        }
+        if key == "class" {
+            class_names(&ctx.eval_expr(value), &mut classes);
+            continue;
+        }
+        if !crate::codegen::js::is_root_attribute(key) {
+            continue;
+        }
+        if let Some(one) =
+            crate::codegen::ssg::paint_attr(key, value, &|e| painted_value(ctx.eval_expr(e)), &[])
+        {
+            attrs.push(' ');
+            attrs.push_str(&one);
+        }
+    }
+    (attrs, classes)
+}
+
+/// `html` with `attrs` and `classes` on its first element: the classes
+/// joined to its own, the attributes after its name.
+fn on_root(html: String, attrs: &str, classes: &[String]) -> String {
+    if attrs.is_empty() && classes.is_empty() {
+        return html;
+    }
+    let Some(at) = crate::codegen::ssg::first_tag_end(&html) else {
+        return html;
+    };
+    let close = html[at..].find('>').map_or(html.len(), |i| at + i);
+    let mut html = html;
+    if !classes.is_empty() {
+        let joined = classes.join(" ");
+        html = match html[at..close].find(" class=\"") {
+            Some(i) => {
+                let value = at + i + " class=\"".len();
+                let end = html[value..].find('"').map_or(value, |j| value + j);
+                let sep = if end > value { " " } else { "" };
+                format!("{}{sep}{joined}{}", &html[..end], &html[end..])
+            }
+            None => format!("{} class=\"{joined}\"{}", &html[..at], &html[at..]),
+        };
+    }
+    format!("{}{attrs}{}", &html[..at], &html[at..])
 }
 
 /// What the data gives an attribute, for `painted_attrs`: text, a boolean,

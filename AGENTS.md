@@ -103,7 +103,11 @@ polls.
 stores, types and constants at hand, and holds the render to what it
 expects and to a snapshot in `tests/__snapshots__/<file>/<name>.html`
 (written when missing, rewritten with `--update`). A build ignores tests.
-`expect` reads the text a reader sees, never the markup; `t("key")` reads
+`expect` reads the text a reader sees, never the markup, laid out as a
+browser lays it out — white space collapsed, blocks (and what a `Row`,
+`Stack` or `Grid` lays out) apart, inline elements that touch touching, so
+`Text { Code("live") Code(": ") }` reads `live:` rendered and in a browser
+alike; `t("key")` reads
 the project's default locale; `data: { … }` seeds the body's state and,
 by a store's name, the store — in a render and in a browser alike; a
 page with no route parameter is placed by its name, as a component is
@@ -140,8 +144,10 @@ A test with a step that **acts** is compiled into a real page, served and
 run in a headless Chrome (or `WF_CHROME`), because a click runs a handler,
 which runs an action, which repaints; so is one that looks at a `Portal`
 (in its body or a component it places), whose block only the running page
-draws. A test that only looks needs no browser and is compared to its
-snapshot as well. The steps run in the order written, everything is found
+draws. Its page is drawn as the built one is: the project's scripts, its
+stylesheets under `src/`, those `meta.stylesheets` links, and `public/`
+served beside it. A test that only looks needs no browser and is compared
+to its snapshot as well. The steps run in the order written, everything is found
 by the name a reader sees (a button's text, a control's label, placeholder
 or `aria-label`), and a handler that throws fails the test.
 
@@ -331,8 +337,10 @@ one; the caller handles it with `on name(args) { }`. A DOM event written on
 a component call — `on click { }` — attaches to the component's root
 element, so a styled button component is clickable wherever it is used.
 So does an attribute the component takes no prop for — `aria-label`,
-`data-*`, `id`, `role`, `title`, `hidden` — on the live page and in the
-static paint alike: `Avatar2(user, aria-label: "Profile")`.
+`data-*`, `id`, `role`, `title`, `hidden` — on the live page, in the
+static paint and in a test's render alike, written as on an element
+(`data-open: true` is `data-open="true"`, `false` none but an ARIA
+state's): `Avatar2(user, aria-label: "Profile")`.
 
 ```wf
 component TodoRow(_ label: String, done: Bool = false) {
@@ -427,8 +435,9 @@ refuse, from the same condition.
 it would escape: shown by an element, spliced into text (which is how one
 ends up in a URL), logged, or kept with `persist`. Each is a `T12`.
 
-A record is built with named fields, `Todo(id: "1", title: "x")`; a case is
-written `.calm`. The type checker reads every declared type and infers the
+A record is built with named fields, `Todo(id: "1", title: "x")`, and one
+whose fields all have defaults with none, `Offers()` — a prop's default
+too, `offers: Offers = Offers()`; a case is written `.calm`. The type checker reads every declared type and infers the
 rest (literals, records, lists, the built-in methods of strings, numbers and
 lists, store members, lambdas). Anything unresolved is `Any`, which agrees
 with everything, so a program that declares no types checks as it always
@@ -881,7 +890,10 @@ store AuthStore {
 }
 ```
 
-`let` declares a local of an action or handler; `await` inside one makes
+`let` declares a local of an action or handler, which — like a `for`
+binding, a lambda's parameter or a caught error — shadows a store member,
+a prop or a state of the same name until its block ends (`let refs = …` in
+a store with `state refs` is the action's own); `await` inside one makes
 it async; `return` leaves it with a value or without. `for` loops (with an
 index, over a range), `try { } catch e { }` and destructuring `let` are
 imperative statements too:

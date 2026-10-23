@@ -97,6 +97,26 @@ test("an aria-* attribute keeps a false value, and follows a reactive one", () =
   assert.equal(chip.getAttribute("aria-pressed"), "true");
 });
 
+test("an attribute a component's call gives its root is written as on an element", () => {
+  const { WF, document } = loadRuntime();
+  const given = { "data-x": true, "data-y": false, "data-n": 3, "aria-hidden": false, hidden: true, title: null };
+  const element = WF.el("p", given);
+  const root = document.createElement("p");
+  WF.rootAttrs(root, given);
+  const written = (el) => Object.keys(given).map((k) => `${k}=${el.getAttribute(k)}`).join(" ");
+  assert.equal(written(root), written(element));
+  assert.equal(root.getAttribute("data-x"), "true", "`true` is the word, as `[data-x=\"true\"]` selects");
+  assert.equal(root.getAttribute("data-y"), null, "`false` is no attribute");
+  assert.equal(root.getAttribute("aria-hidden"), "false", "but an ARIA state keeps it");
+  // And as it changes.
+  const on = WF.signal(true);
+  const live = document.createElement("p");
+  WF.rootAttrs(live, { "data-on": () => on() });
+  assert.equal(live.getAttribute("data-on"), "true");
+  on.set(false);
+  assert.equal(live.getAttribute("data-on"), null);
+});
+
 test("the router sets the document title to the page it shows", () => {
   const { WF, document } = loadRuntime();
   const container = document.createElement("div");

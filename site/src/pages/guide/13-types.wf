@@ -289,7 +289,7 @@ page Records(path: "/") {
     Text("{special.owner} owns {special.title}")
 }"#, title: "wf")
 
-        Markdown("- Fields may be separated by newlines or commas.\n- A field with a default may be left out of a construction; a `T?` field defaults to `null`.\n- `type Admin = Todo \{ owner: String \}` extends a record: an `Admin` has every field of `Todo` and then its own.\n- Records are structural: `\{ id: \"a\", title: \"b\" \}` given where a `Todo` is wanted is a `Todo`, and its fields are checked against the record's.\n- A `Map` fits any record and a record fits a `Map`: JSON from `fetch` fits a `type` it was never declared as.")
+        Markdown("- Fields may be separated by newlines or commas.\n- A field with a default may be left out of a construction; a `T?` field defaults to `null`. A record whose fields can all be left out is built with none given, `Offers()`, wherever a value goes — a prop's default (`component Card(offers: Offers = Offers())`), a field's, a `const`, a `state`, an argument.\n- `type Admin = Todo \{ owner: String \}` extends a record: an `Admin` has every field of `Todo` and then its own.\n- Records are structural: `\{ id: \"a\", title: \"b\" \}` given where a `Todo` is wanted is a `Todo`, and its fields are checked against the record's.\n- A `Map` fits any record and a record fits a `Map`: JSON from `fetch` fits a `type` it was never declared as.")
 
         Heading("Enums", id: "enums").h2
 

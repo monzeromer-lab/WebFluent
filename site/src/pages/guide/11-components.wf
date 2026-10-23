@@ -205,7 +205,7 @@ page Booking(path: "/", title: "Booking", description: "How many seats.") {
     Stepper(seats, label: "Seats", min: 1) { on change(v) { seats = v } }
 }"#, title: "wf")
 
-        Markdown("**What a call puts on the root.** A DOM event handler on a call — `Chip(\"x\") \{ on click \{ … \} \}` — attaches to the component's root element, and so does an attribute the component takes no prop for: a `class:` (added to the root's own classes), `aria-*`, `data-*`, `id`, `role`, `title`, `hidden`. A component that declares a prop of that name receives it instead, and decides where it goes — declare it when the root is not the right element:")
+        Markdown("**What a call puts on the root.** A DOM event handler on a call — `Chip(\"x\") \{ on click \{ … \} \}` — attaches to the component's root element, and so does an attribute the component takes no prop for: a `class:` (added to the root's own classes), `aria-*`, `data-*`, `id`, `role`, `title`, `hidden`, written as it would be on an element: `data-open: true` is `data-open=\"true\"`, and `false` no attribute but an ARIA state's. A component that declares a prop of that name receives it instead, and decides where it goes — declare it when the root is not the right element:")
 
         CodeBlock(#"component Chip(_ label: String, extra: String = "", note: String = "") {
     Badge(label, class: extra, aria-description: note)

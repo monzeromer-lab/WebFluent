@@ -107,8 +107,11 @@ page P(path: "/") {
 }
 ```
 
-An attribute value that reads state is kept in step with it; `aria-*` keeps a
-`false` value (it means something), other attributes drop it.
+An attribute value that reads state is kept in step with it. `true` is
+written as the word, `data-open="true"`, so `[data-open="true"]` selects it
+(a boolean attribute — `hidden`, `disabled` — is there or not); `aria-*`
+keeps a `false` value (it means something), other attributes drop it. The
+same holds for an attribute a component's call hands its root.
 
 Every built-in takes them, and its `on` handlers, on the element it draws:
 its root — the scrolling box of a `VirtualList`, the handle of a

@@ -3268,6 +3268,17 @@ impl<'a, 'p> Checker<'a, 'p> {
                 Type::optional(self.method_call_on(obj, method, args, true))
             }
             Expr::MethodCall(obj, method, args) => self.method_call(obj, method, args),
+            // `Offers()`: a record whose fields all have defaults, built
+            // with none given — a record, as `Offers(definition: true)` is,
+            // unless something in reach is a function of that name.
+            Expr::FunctionCall(name, args)
+                if args.is_empty()
+                    && self.lookup(name).is_none()
+                    && !self.world.scripts.contains_key(name.as_str())
+                    && self.world.record_fields(name).is_some() =>
+            {
+                self.infer(&Expr::Record(name.clone(), Vec::new()), expected)
+            }
             Expr::FunctionCall(name, args) => self.function_call(name, args),
             Expr::ListLiteral(items) => {
                 let expected_item = match expected {

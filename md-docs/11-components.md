@@ -263,7 +263,9 @@ page Booking(path: "/", title: "Booking", description: "How many seats.") {
 `Chip("x") { on click { … } }` — attaches to the component's root element,
 and so does an attribute the component takes no prop for: a `class:`
 (added to the root's own classes), `aria-*`, `data-*`, `id`, `role`,
-`title`, `hidden`. A component that declares a prop of that name receives
+`title`, `hidden`, written as it would be on an element: `data-open: true`
+is `data-open="true"`, and `false` no attribute but an ARIA state's. A
+component that declares a prop of that name receives
 it instead, and decides where it goes — declare it when the root is not
 the right element:
 

@@ -46,7 +46,12 @@ test "a list renders each row"(data: { rows: [{ name: "a" }, { name: "b" }] }) {
 - Tests live in `tests/*.wf` (or beside the code in `src/`).
 - `expect "text"` must appear in what the page shows; `expect not "text"`
   must not. It reads the text a reader sees — a class name in the markup
-  does not count.
+  does not count — laid out as a browser lays it out: runs of white space
+  are one space, a block (or anything a `Row`, `Stack` or `Grid` lays out)
+  is set apart from what is beside it, and inline elements that touch read
+  as touching, so `Text { Code("live") Code(": ") Code("[Deploy]") }` reads
+  `live: [Deploy]`. The line breaks and indentation of the snapshot are
+  not text. A render and a browser read the same page the same way.
 - `t("key")` reads the project's translations, in its default locale.
 - `data: { … }` supplies values by name; a `state` in the body is seeded
   with its initial value.
@@ -105,8 +110,13 @@ that cannot find what it asks for says so:
 have passed — a click that quietly did nothing is the bug, not a pass.
 These tests need a Chrome or Chromium on the machine, or `WF_CHROME`
 pointing at one; a test that only looks needs neither. The page a test that
-acts runs on links the project's scripts under `src/`, so a click that calls
-one runs it; a test that only looks renders without them.
+acts runs on is drawn as the built one is: it links the project's scripts
+under `src/`, so a click that calls one runs it, bundles its stylesheets
+under `src/` after the theme's rules and before what `style { }` blocks
+compile to, links the stylesheets `meta.stylesheets` names, and serves
+`public/` beside it — so a rule that hides a word, or one that names a font
+or an image under `public/`, is the same in a test as on the site. A test
+that only looks renders without any of them.
 
 A test that acts takes no snapshot. What it expects is the test.
 

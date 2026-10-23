@@ -833,14 +833,10 @@ fn render_user_component(name: &str, call: &UIElement, ctx: &mut SsgContext) -> 
         if !crate::codegen::js::is_root_attribute(key) {
             continue;
         }
-        match eval(value, &ctx.scope) {
-            Some(Static::Bool(b)) if key.starts_with("aria-") => {
-                attrs.push_str(&format!(" {key}=\"{b}\""))
-            }
-            Some(Static::Bool(true)) => attrs.push_str(&format!(" {key}")),
-            Some(Static::Bool(false)) | Some(Static::Null) | None => {}
-            Some(Static::List(_) | Static::Map(_)) => {}
-            Some(v) => attrs.push_str(&format!(" {key}=\"{}\"", html_escape(&v.to_text()))),
+        // As the same attribute written on an element is painted.
+        if let Some(one) = paint_attr(key, value, &|e| painted(e, &ctx.scope), &ctx.app_schemes) {
+            attrs.push(' ');
+            attrs.push_str(&one);
         }
     }
     if !extra_class.is_empty()
@@ -868,7 +864,7 @@ fn render_user_component(name: &str, call: &UIElement, ctx: &mut SsgContext) -> 
 
 /// Where the first element's tag name ends in a painted fragment — the
 /// place its root's attributes go. Comments are skipped.
-fn first_tag_end(html: &str) -> Option<usize> {
+pub(crate) fn first_tag_end(html: &str) -> Option<usize> {
     let bytes = html.as_bytes();
     let mut i = 0;
     while i + 1 < bytes.len() {
@@ -1748,10 +1744,14 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                     }
                     "gap" | "align" | "justify" => {} // Utility classes, added below
                     // A hyphenated name is an HTML attribute (`aria-*`, `data-*`);
-                    // it is painted when its value is known at build time.
+                    // it is painted when its value is known at build time, as
+                    // the live page writes it: `true` is `"true"`, `false`
+                    // none but an ARIA state's.
                     k if k.contains('-') => {
-                        if let Some(v) = static_attr(val, &ctx.scope) {
-                            attrs.push(format!("{}=\"{}\"", k, html_escape(&v)));
+                        if let Some(one) =
+                            paint_attr(k, val, &|e| painted(e, &ctx.scope), &ctx.app_schemes)
+                        {
+                            attrs.push(one);
                         }
                     }
                     // Anything else the component has no prop for is an
@@ -2962,6 +2962,52 @@ mod component_expansion_tests {
                 node_map: None,
             },
         )
+    }
+
+    #[test]
+    fn an_attribute_through_a_call_is_painted_as_on_an_element_by_both_renderers() {
+        let src = "component NameTag(_ label: String) {\n  Text(label, class: \"tag\")\n}\n\
+             page Home(path: \"/\") {\n  Text(\"el\", data-x: true, data-y: false, data-n: 3, aria-hidden: false)\n  NameTag(\"call\", data-x: true, data-y: false, data-n: 3, aria-hidden: false, class: \"more\")\n}\n";
+        // Each `<p>`'s attributes, in name order.
+        let attrs = |html: &str| -> Vec<String> {
+            html.lines()
+                .filter_map(|l| l.trim_start().strip_prefix("<p "))
+                .map(|l| {
+                    let tag = &l[..l.find('>').unwrap()];
+                    let mut parts = Vec::new();
+                    let (mut word, mut quoted) = (String::new(), false);
+                    for c in tag.chars() {
+                        match c {
+                            '"' => quoted = !quoted,
+                            ' ' if !quoted => parts.push(std::mem::take(&mut word)),
+                            _ => {}
+                        }
+                        if c != ' ' || quoted {
+                            word.push(c);
+                        }
+                    }
+                    parts.push(word);
+                    parts.sort();
+                    parts.join(" ")
+                })
+                .collect()
+        };
+        let painted = attrs(&render(src));
+        let program = crate::syntax::parse_source(src, "<t>").unwrap();
+        let rendered = attrs(
+            &crate::template::render_program_fragment(&program, &serde_json::json!({})).unwrap(),
+        );
+        assert_eq!(
+            painted,
+            [
+                "aria-hidden=\"false\" class=\"wf-text\" data-n=\"3\" data-x=\"true\"",
+                "aria-hidden=\"false\" class=\"wf-text tag more\" data-n=\"3\" data-x=\"true\"",
+            ]
+        );
+        assert_eq!(
+            rendered, painted,
+            "the template engine paints what the pre-render does"
+        );
     }
 
     #[test]

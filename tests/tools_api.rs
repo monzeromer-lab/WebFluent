@@ -75,6 +75,24 @@ fn tests_are_collected_rendered_and_held_to_their_snapshots() {
     }
 }
 
+#[test]
+fn a_render_is_read_as_a_browser_lays_it_out() {
+    let dir = scratch("reading");
+    std::fs::write(
+        dir.join("src/App.wf"),
+        "component Head(_ name: String, detail: String) {\n    Text {\n        Code(name)\n        Code(\": \")\n        Code(detail)\n    }\n}\npage P(path: \"/\", title: \"T\", description: \"d\") { Heading(\"x\").h1 }\n",
+    )
+    .unwrap();
+    std::fs::write(
+        dir.join("tests/head.wf"),
+        "test \"a head reads as one line\" {\n    Head(\"live\", detail: \"[Deploy]\")\n    Row { Code(\"a\") Code(\"b\") }\n    expect \"live: [Deploy]\"\n    expect \"a b\"\n    expect not \"live :\"\n}\n",
+    )
+    .unwrap();
+    let tests = testing::collect(&dir).unwrap();
+    let (file, test) = &tests.tests[0];
+    assert_eq!(tests.run_rendered(file, test, false), Outcome::Written);
+}
+
 /// A browser that is not one: it answers the scripts a test's steps run,
 /// and remembers the site it was asked to open.
 struct Fake {
@@ -149,6 +167,105 @@ fn a_test_that_acts_is_built_as_a_site_and_played_in_any_browser() {
         Outcome::Failed(reasons) => assert_eq!(reasons[0], "nothing to click called \"Remove\""),
         other => panic!("{other:?}"),
     }
+}
+
+/// A browser that only looks at the site it is asked to open: what its
+/// sheet holds, what its page links, and what it serves.
+#[derive(Default)]
+struct Looker {
+    sheet: String,
+    page: String,
+    extra: Option<String>,
+    font: Option<String>,
+}
+
+impl Browser for Looker {
+    fn open(
+        &mut self,
+        dir: &Path,
+        _settle_ms: u64,
+    ) -> webfluent::error::Result<Box<dyn Page + '_>> {
+        self.sheet = std::fs::read_to_string(dir.join("styles.css")).unwrap();
+        self.page = std::fs::read_to_string(dir.join("index.html")).unwrap();
+        self.extra = std::fs::read_to_string(dir.join("extra.css")).ok();
+        self.font = std::fs::read_to_string(dir.join("fonts/face.txt")).ok();
+        Ok(Box::new(Shown))
+    }
+}
+
+struct Shown;
+
+impl Page for Shown {
+    fn eval(&mut self, _script: &str) -> webfluent::error::Result<serde_json::Value> {
+        Ok(serde_json::json!("Hi"))
+    }
+    fn settle(&mut self, _ms: u64) -> webfluent::error::Result<()> {
+        Ok(())
+    }
+    fn errors(&self) -> Vec<String> {
+        Vec::new()
+    }
+}
+
+#[test]
+fn a_test_in_a_browser_is_drawn_with_the_projects_own_styles() {
+    let dir = scratch("styles");
+    std::fs::write(
+        dir.join("webfluent.app.json"),
+        r#"{ "name": "scratch", "build": { "output": "build" }, "meta": { "stylesheets": ["/extra.css"] } }"#,
+    )
+    .unwrap();
+    std::fs::write(
+        dir.join("src/App.wf"),
+        "page P(path: \"/\", title: \"T\", description: \"d\") { Heading(\"x\").h1 }\n",
+    )
+    .unwrap();
+    std::fs::create_dir_all(dir.join("src/look")).unwrap();
+    std::fs::write(
+        dir.join("src/look/parts.css"),
+        ".mine { color: rgb(1, 2, 3); }\n",
+    )
+    .unwrap();
+    std::fs::create_dir_all(dir.join("public/fonts")).unwrap();
+    std::fs::write(dir.join("public/extra.css"), ".linked { color: red; }\n").unwrap();
+    std::fs::write(dir.join("public/fonts/face.txt"), "a font").unwrap();
+    // `public/` may hold a file of a name the test's site writes itself:
+    // the site's own is the one served, and the project's is untouched.
+    std::fs::write(dir.join("public/styles.css"), "/* the project's */\n").unwrap();
+    std::fs::write(
+        dir.join("tests/look.wf"),
+        "test \"says hi\" {\n    Text(\"Hi\", class: \"mine\")\n    click \"Hi\"\n    expect \"Hi\"\n}\n",
+    )
+    .unwrap();
+    let tests = testing::collect(&dir).unwrap();
+    let mut looker = Looker::default();
+    let (_, says) = &tests.tests[0];
+    let work = dir.join(".work");
+    tests.run_acting(&mut looker, says, &work);
+    // The sheet holds the project's own stylesheet, after the engine's
+    // rules, as the build bundles it.
+    assert!(
+        looker.sheet.contains(".mine { color: rgb(1, 2, 3); }"),
+        "{}",
+        looker.sheet
+    );
+    assert!(looker.sheet.find(".wf-text").unwrap() < looker.sheet.find(".mine").unwrap());
+    // The page links what the config links, and serves `public/`.
+    assert!(
+        looker
+            .page
+            .contains(r#"<link rel="stylesheet" href="/extra.css">"#),
+        "{}",
+        looker.page
+    );
+    assert_eq!(looker.extra.as_deref(), Some(".linked { color: red; }\n"));
+    assert_eq!(looker.font.as_deref(), Some("a font"));
+    assert_eq!(
+        std::fs::read_to_string(dir.join("public/styles.css")).unwrap(),
+        "/* the project's */\n"
+    );
+    // The site is gone afterwards, and `public/` with it untouched.
+    assert!(dir.join("public/fonts/face.txt").is_file());
 }
 
 #[test]

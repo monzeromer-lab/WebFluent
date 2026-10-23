@@ -169,6 +169,10 @@ pub struct JsCodegen {
     /// `_item()` against a binding named `item` — a `ReferenceError` the moment
     /// a non-empty list rendered.
     loop_bindings: Vec<String>,
+    /// The `let`s of the imperative block being emitted, innermost last: a
+    /// signal of the block's own, which shadows a prop, a route parameter
+    /// or a resource of the same name until the block ends.
+    block_lets: Vec<String>,
     /// The positions in `loop_bindings` of the names bound live: a `match`
     /// arm's binding, an `if let`'s and a keyed `for`'s item and index. Each
     /// is handed to its body as an accessor `$name`, and read as `$name()`,
@@ -348,6 +352,7 @@ impl JsCodegen {
             current_body: Vec::new(),
             own_names: Vec::new(),
             loop_bindings: Vec::new(),
+            block_lets: Vec::new(),
             live_at: Vec::new(),
             loop_sources: Vec::new(),
             lambda_params: std::cell::RefCell::new(Vec::new()),
@@ -1296,12 +1301,21 @@ impl JsCodegen {
         format!("{{ {} }}", parts.join(", "))
     }
 
+    /// Whether `name`, inside a store, is the store's own member: one of
+    /// `store_states` that no local in reach — a `let`, a `for` binding, a
+    /// lambda's parameter, a caught error — shadows. `let refs = …` in an
+    /// action of a store with `state refs` is the action's own.
+    fn is_own_member(&self, name: &str, store_states: &[String]) -> bool {
+        store_states.iter().any(|s| s == name)
+            && !self.store_locals.borrow().iter().any(|l| l == name)
+    }
+
     /// Emit expression inside a store context — identifiers that are store state
     /// are accessed via `store.property` instead of `_name()`.
     fn emit_store_expr(&self, expr: &Expr, store_states: &[String]) -> String {
         match expr {
             Expr::Identifier(name) => {
-                if store_states.contains(name) {
+                if self.is_own_member(name, store_states) {
                     format!("store.{}", name)
                 } else if BROWSER_VALUES.contains(&name.as_str()) && !self.own_names.contains(name)
                 {
@@ -1314,7 +1328,7 @@ impl JsCodegen {
             Expr::PropertyAccess(base, prop)
                 if CONNECTION_SIGNALS.contains(&prop.as_str())
                     && matches!(base.as_ref(), Expr::Identifier(n)
-                        if self.own_connections.contains(n) && store_states.contains(n)) =>
+                        if self.own_connections.contains(n) && self.is_own_member(n, store_states)) =>
             {
                 format!("{}.{prop}()", self.emit_store_expr(base, store_states))
             }
@@ -1420,7 +1434,10 @@ impl JsCodegen {
                     && let Expr::Lambda(name, then_expr) = &args[0]
                 {
                     let value = self.emit_store_expr(obj, store_states);
+                    let bound = self.store_locals.borrow().len();
+                    self.store_locals.borrow_mut().push(name.clone());
                     let then_val = self.emit_store_expr(then_expr, store_states);
+                    self.store_locals.borrow_mut().truncate(bound);
                     let else_val = self.emit_store_expr(&args[1], store_states);
                     return format!(
                         "(({name}) => {name} != null ? {then_val} : {else_val})({value})"
@@ -1435,7 +1452,9 @@ impl JsCodegen {
                 // is one of the store's own states is held by the store, so
                 // a mutating method assigns back through it.
                 let holder = match obj.as_ref() {
-                    Expr::Identifier(n) if store_states.contains(n) => Holder::StoreMember,
+                    Expr::Identifier(n) if self.is_own_member(n, store_states) => {
+                        Holder::StoreMember
+                    }
                     Expr::PropertyAccess(base, _) => match base.as_ref() {
                         Expr::Identifier(s) if self.stores.contains(s) => Holder::StoreMember,
                         _ => Holder::Plain,
@@ -1444,8 +1463,18 @@ impl JsCodegen {
                 };
                 method_to_js(method, &obj_str, &args_str, holder)
             }
+            // A parameter shadows a store member of its name in the body.
             Expr::Lambda(param, body) => {
+                let bound = self.store_locals.borrow().len();
+                self.store_locals.borrow_mut().extend(
+                    param
+                        .split(',')
+                        .map(str::trim)
+                        .filter(|p| !p.is_empty())
+                        .map(str::to_string),
+                );
                 let body_str = self.emit_store_expr(body, store_states);
+                self.store_locals.borrow_mut().truncate(bound);
                 format!("(({}) => {})", param, body_str)
             }
             Expr::EnumCase(case) => format!("\"{}\"", case),
@@ -1464,7 +1493,7 @@ impl JsCodegen {
                 // A call to one of the store's own actions goes through the
                 // store; anything else is a global (`Math.round` is a method
                 // call, but `parseInt` is a plain function).
-                if store_states.contains(name) {
+                if self.is_own_member(name, store_states) {
                     format!("store.{}({})", name, args_str.join(", "))
                 } else if matches!(
                     name.as_str(),
@@ -1544,7 +1573,7 @@ impl JsCodegen {
             StatementKind::Assignment(a) => {
                 let value = self.emit_store_expr(&a.value, store_states);
                 if let Expr::Identifier(name) = &a.target {
-                    if store_states.contains(name) {
+                    if self.is_own_member(name, store_states) {
                         self.emit_line(&format!("store.{} = {};", name, value));
                     } else if action_params.contains(name)
                         || self.store_locals.borrow().contains(name)
@@ -1558,7 +1587,7 @@ impl JsCodegen {
                         self.emit_line(&format!("let {} = {};", name, value));
                     }
                 } else if let Some((Expr::Identifier(root), steps)) = path_of(&a.target)
-                    && store_states.contains(root)
+                    && self.is_own_member(root, store_states)
                     && !steps.is_empty()
                 {
                     // `items[0].done = v` in a store action: the state
@@ -1592,7 +1621,7 @@ impl JsCodegen {
                 if let Expr::MethodCall(obj, method, args) = expr
                     && MUTATORS.contains(&method.as_str())
                     && let Expr::Identifier(name) = obj.as_ref()
-                    && store_states.contains(name)
+                    && self.is_own_member(name, store_states)
                 {
                     let args: Vec<String> = args
                         .iter()
@@ -1631,6 +1660,7 @@ impl JsCodegen {
                 }
                 self.indent -= 1;
                 self.store_locals.borrow_mut().truncate(bound);
+                // Each branch is a block: what it declares ends with it.
                 for (cond, body) in &if_stmt.else_if_branches {
                     let cond = self.emit_store_expr(cond, store_states);
                     self.emit_line(&format!("}} else if ({cond}) {{"));
@@ -1639,6 +1669,7 @@ impl JsCodegen {
                         self.emit_store_statement(s, store_states, action_params);
                     }
                     self.indent -= 1;
+                    self.store_locals.borrow_mut().truncate(bound);
                 }
                 if let Some(else_body) = &if_stmt.else_body {
                     self.emit_line("} else {");
@@ -1647,6 +1678,7 @@ impl JsCodegen {
                         self.emit_store_statement(s, store_states, action_params);
                     }
                     self.indent -= 1;
+                    self.store_locals.borrow_mut().truncate(bound);
                 }
                 self.emit_line("}");
                 if if_stmt.binding.is_some() {
@@ -1658,12 +1690,14 @@ impl JsCodegen {
             // emitter, whose statements read `_x()` signals a store does
             // not have.
             StatementKind::Try(t) => {
+                let bound = self.store_locals.borrow().len();
                 self.emit_line("try {");
                 self.indent += 1;
                 for s in &t.body {
                     self.emit_store_statement(s, store_states, action_params);
                 }
                 self.indent -= 1;
+                self.store_locals.borrow_mut().truncate(bound);
                 let param = t.param.clone().unwrap_or_else(|| "_error".to_string());
                 self.emit_line(&format!("}} catch ({param}) {{"));
                 self.store_locals.borrow_mut().push(param.clone());
@@ -1672,7 +1706,7 @@ impl JsCodegen {
                     self.emit_store_statement(s, store_states, action_params);
                 }
                 self.indent -= 1;
-                self.store_locals.borrow_mut().pop();
+                self.store_locals.borrow_mut().truncate(bound);
                 self.emit_line("}");
             }
             StatementKind::For(f) => {
@@ -1684,6 +1718,8 @@ impl JsCodegen {
                     )),
                     None => self.emit_line(&format!("for (const {} of {list}) {{", f.item)),
                 }
+                // The bindings, and what the body declares, are the loop's.
+                let bound = self.store_locals.borrow().len();
                 self.store_locals.borrow_mut().push(f.item.clone());
                 if let Some(index) = &f.index {
                     self.store_locals.borrow_mut().push(index.clone());
@@ -1693,10 +1729,7 @@ impl JsCodegen {
                     self.emit_store_statement(s, store_states, action_params);
                 }
                 self.indent -= 1;
-                if f.index.is_some() {
-                    self.store_locals.borrow_mut().pop();
-                }
-                self.store_locals.borrow_mut().pop();
+                self.store_locals.borrow_mut().truncate(bound);
                 self.emit_line("}");
             }
             StatementKind::Log(expr) => {
@@ -2228,9 +2261,11 @@ impl JsCodegen {
             StatementKind::Effect(e) => {
                 self.emit_line("WF.effect(() => {");
                 self.indent += 1;
+                let lets = self.block_lets.len();
                 for s in &e.body {
                     self.emit_statement(s);
                 }
+                self.block_lets.truncate(lets);
                 // What the effect returns runs before its next run and when
                 // its owner leaves.
                 if !e.cleanup.is_empty() {
@@ -2239,6 +2274,7 @@ impl JsCodegen {
                     for s in &e.cleanup {
                         self.emit_statement(s);
                     }
+                    self.block_lets.truncate(lets);
                     self.indent -= 1;
                     self.emit_line("};");
                 }
@@ -2256,9 +2292,11 @@ impl JsCodegen {
                 };
                 self.emit_line(&format!("WF.{kind}({interval}, {head} {{"));
                 self.indent += 1;
+                let lets = self.block_lets.len();
                 for s in &t.body {
                     self.emit_statement(s);
                 }
+                self.block_lets.truncate(lets);
                 self.indent -= 1;
                 self.emit_line("});");
             }
@@ -2294,9 +2332,11 @@ impl JsCodegen {
                 self.lambda_params
                     .borrow_mut()
                     .extend(params.iter().cloned());
+                let lets = self.block_lets.len();
                 for s in &a.body {
                     self.emit_statement(s);
                 }
+                self.block_lets.truncate(lets);
                 self.lambda_params.borrow_mut().truncate(depth);
                 if optimistic {
                     self.indent -= 1;
@@ -6904,6 +6944,7 @@ impl JsCodegen {
             StatementKind::State(s) => {
                 let val = self.emit_expr(&s.value);
                 self.emit_line(&format!("const _{} = WF.signal({});", s.name, val));
+                self.block_lets.push(s.name.clone());
             }
             StatementKind::If(if_stmt) => {
                 // `if let x = e` binds the value for the branch, which runs
@@ -6926,11 +6967,14 @@ impl JsCodegen {
                 };
                 self.emit_line(&format!("if ({}) {{", cond));
                 self.indent += 1;
+                // Each branch is a block: its `let`s end with it.
+                let lets = self.block_lets.len();
                 for s in &if_stmt.then_body {
                     self.emit_statement(s);
                 }
                 self.indent -= 1;
                 self.loop_bindings.truncate(bound);
+                self.block_lets.truncate(lets);
                 // An `else if` chain used to be dropped here.
                 for (cond, body) in &if_stmt.else_if_branches {
                     let cond = self.emit_expr(cond);
@@ -6940,6 +6984,7 @@ impl JsCodegen {
                         self.emit_statement(s);
                     }
                     self.indent -= 1;
+                    self.block_lets.truncate(lets);
                 }
                 if let Some(else_body) = &if_stmt.else_body {
                     self.emit_line("} else {");
@@ -6948,6 +6993,7 @@ impl JsCodegen {
                         self.emit_statement(s);
                     }
                     self.indent -= 1;
+                    self.block_lets.truncate(lets);
                 }
                 self.emit_line("}");
                 if if_stmt.binding.is_some() {
@@ -6967,6 +7013,7 @@ impl JsCodegen {
                     )),
                     None => self.emit_line(&format!("for (const {} of {list}) {{", f.item)),
                 }
+                let (bound, lets) = (self.loop_bindings.len(), self.block_lets.len());
                 self.loop_bindings.push(f.item.clone());
                 if let Some(index) = &f.index {
                     self.loop_bindings.push(index.clone());
@@ -6976,10 +7023,8 @@ impl JsCodegen {
                     self.emit_statement(s);
                 }
                 self.indent -= 1;
-                if f.index.is_some() {
-                    self.loop_bindings.pop();
-                }
-                self.loop_bindings.pop();
+                self.loop_bindings.truncate(bound);
+                self.block_lets.truncate(lets);
                 self.emit_line("}");
             }
             StatementKind::Return(expr) => {
@@ -6991,12 +7036,14 @@ impl JsCodegen {
                 }
             }
             StatementKind::Try(t) => {
+                let lets = self.block_lets.len();
                 self.emit_line("try {");
                 self.indent += 1;
                 for s in &t.body {
                     self.emit_statement(s);
                 }
                 self.indent -= 1;
+                self.block_lets.truncate(lets);
                 let param = t.param.clone().unwrap_or_else(|| "_error".to_string());
                 self.emit_line(&format!("}} catch ({param}) {{"));
                 self.loop_bindings.push(param);
@@ -7006,6 +7053,7 @@ impl JsCodegen {
                 }
                 self.indent -= 1;
                 self.loop_bindings.pop();
+                self.block_lets.truncate(lets);
                 self.emit_line("}");
             }
             // `emit toggle(id)`: the handler the caller passed for the
@@ -7030,9 +7078,11 @@ impl JsCodegen {
     fn emit_statements_inline(&mut self, stmts: &[Statement]) -> String {
         let saved = std::mem::take(&mut self.output);
         let indent = std::mem::replace(&mut self.indent, 0);
+        let lets = self.block_lets.len();
         for stmt in stmts {
             self.emit_statement(stmt);
         }
+        self.block_lets.truncate(lets);
         let out = std::mem::replace(&mut self.output, saved);
         self.indent = indent;
         out.split('\n')
@@ -7207,6 +7257,18 @@ impl JsCodegen {
                     && !self.lambda_params.borrow().iter().any(|n| n == name)
                 {
                     return format!("WF.{name}()");
+                }
+                // What a block binds — a loop's item, a lambda's parameter, a
+                // caught error, an `if let` — and what it declares with
+                // `let` shadow a prop, a route parameter or a resource of
+                // the same name.
+                if self.loop_bindings.contains(name)
+                    || self.lambda_params.borrow().iter().any(|n| n == name)
+                {
+                    return name.to_string();
+                }
+                if self.block_lets.contains(name) {
+                    return format!("_{name}()");
                 }
                 // Store references, component props, and built-in names stay as-is
                 if self.current_props.contains(name) {
@@ -9567,6 +9629,97 @@ mod tests {
         );
         assert!(out.contains("store.at = (store.at + step);"), "{out}");
         assert!(!out.contains("store.step"), "{out}");
+    }
+
+    #[test]
+    fn a_local_shadows_a_store_member_of_the_same_name_within_its_scope() {
+        let out = compile(
+            r#"
+            store S {
+                state refs = ["a"]
+                state count = 0
+                derived sizes = refs.map(refs => refs.length)
+                action add(x: String) {
+                    let refs = [x, x]
+                    count = refs.length
+                    refs = [x]
+                    if count > 0 {
+                        let count = 5
+                        log(count)
+                    }
+                    count = count + refs.length
+                }
+                action each() {
+                    for refs in [[1, 2, 3]] {
+                        let count = refs.length
+                        log(count)
+                    }
+                    let n = [[4]].map(refs => refs.length)
+                    try { log(n) } catch refs { log(refs) }
+                    count = count + refs.length
+                }
+            }
+            page P(path: "/") { use S  Text("{S.sizes.length}") }
+            "#,
+        );
+        let add = &out[out.find("add: (store, x)").unwrap()..];
+        let add = &add[..add.find("each:").unwrap()];
+        assert!(add.contains("let refs = [x, x];"), "{add}");
+        assert!(add.contains("store.count = refs.length;"), "{add}");
+        assert!(
+            add.contains("\n      refs = [x];"),
+            "the local is assigned, not the store: {add}"
+        );
+        assert!(
+            add.contains("let count = 5;") && add.contains("console.log(count);"),
+            "{add}"
+        );
+        assert!(
+            add.contains("store.count = (store.count + refs.length);"),
+            "a block's local ends with it: {add}"
+        );
+        let each = &out[out.find("each: (store)").unwrap()..];
+        assert!(each.contains("let count = refs.length;"), "{each}");
+        assert!(each.contains("((refs) => refs.length)"), "{each}");
+        assert!(each.contains("console.log(refs);"), "{each}");
+        assert!(
+            each.contains("store.count = (store.count + store.refs.length);"),
+            "past the loop, the store's again: {each}"
+        );
+        assert!(
+            out.contains("sizes: (store) => store.refs.map(((refs) => refs.length))"),
+            "{out}"
+        );
+    }
+
+    #[test]
+    fn a_local_shadows_a_prop_of_the_same_name_within_its_block() {
+        let out = compile(
+            r#"
+            component Box(items: [String] = [], label: String = "L") {
+                Text("{items.map(label => label.length)} {label}")
+                Button("Box") { on click {
+                    let label = "mine"
+                    log(label)
+                    for items in [["q"]] { log(items.length) }
+                    log(items.length)
+                } }
+            }
+            page P(path: "/") { Box(items: ["a"]) }
+            "#,
+        );
+        assert!(
+            out.contains("_p.items.map(((label) => label.length))"),
+            "{out}"
+        );
+        assert!(
+            out.contains("const _label = WF.signal(\"mine\"); console.log(_label());"),
+            "{out}"
+        );
+        assert!(
+            out.contains("for (const items of [[\"q\"]]) { console.log(items.length); } console.log(_p.items.length);"),
+            "{out}"
+        );
     }
 
     #[test]

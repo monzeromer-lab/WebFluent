@@ -44,6 +44,25 @@ pub struct Tests {
     /// The project's translations, so `t("key")` in a test reads the same
     /// messages the site does.
     pub i18n: Option<I18n>,
+    /// The project's own styles, which a test that acts is drawn with as
+    /// the built page is.
+    pub styles: Styles,
+}
+
+/// What a project styles its pages with beyond the theme and its `style { }`
+/// blocks, for a test's page to be drawn as the built one is.
+#[derive(Debug, Clone, Default)]
+pub struct Styles {
+    /// Every `.css` file under `src/`, bundled as the build bundles them
+    /// into `styles.css`.
+    pub css: String,
+    /// The stylesheets `meta.stylesheets` links, by URL or site-relative
+    /// path, with the `meta.integrity` of any that has one.
+    pub linked: Vec<String>,
+    pub integrity: HashMap<String, String>,
+    /// The project's `public/` folder, when it has one: what a site-relative
+    /// stylesheet, or a font a stylesheet names, is served from.
+    pub public: Option<PathBuf>,
 }
 
 /// A project's `i18n` settings and every locale's messages.
@@ -168,6 +187,21 @@ pub fn collect(path: &Path) -> Result<Tests> {
     });
     let scripts =
         crate::project_js::load(&project_dir, &project_dir.join("src")).unwrap_or_default();
+    // Absolute: the test's site links to it from somewhere else.
+    let public = project_dir.join("public");
+    let public = public.canonicalize().unwrap_or(public);
+    let styles = Styles {
+        css: crate::codegen::project_css::bundle(&project_dir, &project_dir.join("src"))?,
+        linked: config
+            .as_ref()
+            .map(|c| c.meta.stylesheets.clone())
+            .unwrap_or_default(),
+        integrity: config
+            .as_ref()
+            .map(|c| c.meta.integrity.clone())
+            .unwrap_or_default(),
+        public: public.is_dir().then_some(public),
+    };
     Ok(Tests {
         shared,
         tests,
@@ -175,6 +209,7 @@ pub fn collect(path: &Path) -> Result<Tests> {
         theme: config.map(|c| c.theme).unwrap_or_default(),
         scripts,
         i18n,
+        styles,
     })
 }
 
@@ -220,6 +255,7 @@ impl Tests {
             theme: &self.theme,
             scripts: &self.scripts,
             i18n: self.i18n.as_ref(),
+            styles: &self.styles,
         };
         match act(browser, &self.shared, test, work, &site) {
             Ok(Ok(())) => Outcome::Passed,
@@ -370,35 +406,106 @@ pub fn render_test(
     crate::template::render_program_fragment_in(&program, &data, messages.clone(), locale)
 }
 
-/// The text a render shows, as a reader would read it: tags gone (a block's
-/// edge a space, an inline element's nothing), the common entities decoded.
+/// The text a render shows, as a browser lays it out and a reader reads
+/// it: tags gone, the common entities decoded. An element laid out as a
+/// block — a block by its tag, or any element a layout box (`Row`, `Stack`,
+/// `Grid`) lays out, as a browser blockifies a flex or grid item — has a
+/// space at each edge; an inline one has none, so `<code>live</code><code>:
+/// </code>` reads `live:`.
+///
+/// The render is written for people to read: each element on a line of its
+/// own, indented. That formatting is not text — the line break and the
+/// indentation the renderer puts before a tag, after one or around an
+/// element's own words are dropped — so two inline elements that touch read
+/// as touching, as they do on the live page.
 fn rendered_text(html: &str) -> String {
     const INLINE: &[&str] = &[
         "a", "abbr", "b", "bdi", "bdo", "code", "em", "i", "kbd", "mark", "q", "s", "small",
         "span", "strong", "sub", "sup", "time", "u",
     ];
+    // Elements with no end tag, which open nothing.
+    const VOID: &[&str] = &[
+        "area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source",
+        "track", "wbr",
+    ];
+    // The engine's own layout boxes: their children are flex or grid items.
+    const LAYOUT: &[&str] = &["wf-row", "wf-stack", "wf-grid"];
+    // Each open element: its name, whether it is laid out as a block, and
+    // whether it lays its children out.
+    let mut open: Vec<(String, bool, bool)> = Vec::new();
     let mut out = String::with_capacity(html.len());
     let mut rest = html;
-    while let Some(open) = rest.find('<') {
-        out.push_str(&rest[..open]);
-        let Some(close) = rest[open..].find('>') else {
-            rest = "";
+    loop {
+        let at = rest.find('<').unwrap_or(rest.len());
+        out.push_str(unformatted(&rest[..at]));
+        if at == rest.len() {
+            break;
+        }
+        rest = &rest[at..];
+        // A comment says nothing.
+        if let Some(after) = rest.strip_prefix("<!--") {
+            rest = after.find("-->").map_or("", |end| &after[end + 3..]);
+            continue;
+        }
+        let Some(close) = rest.find('>') else {
             break;
         };
-        let tag = &rest[open + 1..open + close];
+        let tag = &rest[1..close];
+        rest = &rest[close + 1..];
+        let closing = tag.starts_with('/');
         let name: String = tag
             .trim_start_matches('/')
             .chars()
             .take_while(|c| c.is_ascii_alphanumeric())
             .collect::<String>()
             .to_ascii_lowercase();
-        if !INLINE.contains(&name.as_str()) {
+        if name.is_empty() {
+            continue; // `<!doctype …>`, or a `<` that opens no tag
+        }
+        if closing {
+            if let Some(at) = open.iter().rposition(|(n, ..)| *n == name) {
+                if open[at].1 {
+                    out.push(' ');
+                }
+                open.truncate(at);
+            }
+            continue;
+        }
+        let laid_out = open.last().is_some_and(|(.., lays_out)| *lays_out);
+        let block = laid_out || !INLINE.contains(&name.as_str());
+        if block {
             out.push(' ');
         }
-        rest = &rest[open + close + 1..];
+        if !VOID.contains(&name.as_str()) && !tag.ends_with('/') {
+            let lays_out = class_of(tag)
+                .is_some_and(|class| class.split_whitespace().any(|c| LAYOUT.contains(&c)));
+            open.push((name, block, lays_out));
+        }
     }
-    out.push_str(rest);
     decode_entities(&out)
+}
+
+/// A run of text between two tags without the renderer's formatting: the
+/// line break and indentation it starts with, and the one it ends with.
+/// A run that is only formatting is nothing; a reader's own spaces stay.
+fn unformatted(run: &str) -> &str {
+    let mut run = run;
+    if let Some(after) = run.strip_prefix('\n') {
+        run = after.trim_start_matches(' ');
+    }
+    if let Some(at) = run.rfind('\n')
+        && run[at + 1..].bytes().all(|b| b == b' ')
+    {
+        run = &run[..at];
+    }
+    run
+}
+
+/// The value of a tag's `class` attribute, as the renderers write it.
+fn class_of(tag: &str) -> Option<&str> {
+    let at = tag.find(" class=\"")? + " class=\"".len();
+    let end = tag[at..].find('"')?;
+    Some(&tag[at..at + end])
 }
 
 /// The text an HTML escape stands for: the named entities the renderers
@@ -446,7 +553,35 @@ fn decode_entities(text: &str) -> String {
 
 #[cfg(test)]
 mod entity_tests {
-    use super::decode_entities;
+    use super::{decode_entities, rendered_text, squeeze};
+
+    /// What an `expect` reads in a render, white space collapsed.
+    fn read(html: &str) -> String {
+        squeeze(&rendered_text(html))
+    }
+
+    #[test]
+    fn inline_elements_that_touch_read_as_touching_whatever_the_formatting() {
+        let head = "    <p class=\"wf-text\">\n        <code class=\"wf-code\">derived </code>\n        <code class=\"wf-code\">live</code>\n        <code class=\"wf-code\">: </code>\n        <code class=\"wf-code\">[Deploy]</code>\n    </p>\n";
+        assert_eq!(read(head), "derived live: [Deploy]");
+        // A word of its own before the children keeps the space it was
+        // given, and only that.
+        let words = "<p class=\"wf-text\">\n    Hello \n    <strong>world</strong>\n</p>\n<p class=\"wf-text\">\n    Hello\n    <strong>world</strong>\n</p>\n";
+        assert_eq!(read(words), "Hello world Helloworld");
+        // Blocks are apart, and so is what a layout box lays out: a flex or
+        // grid item is a block to the browser, inline by its tag or not.
+        let row = "<div class=\"wf-row p-line\">\n    <code class=\"wf-code\">a</code>\n    <code class=\"wf-code\">b</code>\n</div>\n<p>c</p><p>d<br>e</p>";
+        assert_eq!(read(row), "a b c d e");
+        // Inside a laid-out item, inline is inline again.
+        let nested =
+            "<div class=\"wf-stack\"><p class=\"x\"><code>b</code>\n<code>ack</code></p></div>";
+        assert_eq!(read(nested), "back");
+        // A comment and an empty element say nothing; entities are decoded.
+        assert_eq!(
+            read("<!--wf-portal--><span></span><b>a &amp;</b><i> b</i>"),
+            "a & b"
+        );
+    }
 
     #[test]
     fn what_an_escape_stands_for_is_what_a_reader_sees() {
@@ -587,12 +722,13 @@ pub trait Browser {
 }
 
 /// What a test's site is built with, beside its program: the project's
-/// theme settings, its own scripts and its translations.
+/// theme settings, its own scripts, its translations and its styles.
 #[derive(Clone, Copy)]
 pub struct Site<'a> {
     pub theme: &'a ThemeConfig,
     pub scripts: &'a [crate::project_js::Script],
     pub i18n: Option<&'a I18n>,
+    pub styles: &'a Styles,
 }
 
 /// Build a test that acts as a site of one page under `work`, open it in
@@ -745,15 +881,76 @@ pub fn write_site(program: &Program, dir: &Path, site: &Site) -> Result<()> {
     }
     std::fs::write(dir.join("app.js"), js.generate(program))?;
 
+    // The sheet in the build's order: the engine's rules and the theme's
+    // tokens, the dark theme's, the project's own stylesheets, then what
+    // its `style { }` blocks compile to.
     let tokens = crate::themes::resolve_tokens(program, &config.theme)?;
     let mut css = crate::codegen::generate_css_for(&tokens, config.theme.builtin, program);
+    if let Some(dark) = crate::themes::resolve_dark_tokens(program, &config.theme)? {
+        css.push_str(&crate::codegen::dark_css(&dark));
+    }
+    css.push_str(&site.styles.css);
     css.push_str(&crate::codegen::scoped_css::scoped_rules(program));
     std::fs::write(dir.join("styles.css"), css)?;
+    // The stylesheets the project links, linked as the built page links
+    // them.
+    config.meta.stylesheets = site.styles.linked.clone();
+    config.meta.integrity = site.styles.integrity.clone();
 
     std::fs::write(
         dir.join("index.html"),
         crate::codegen::generate_html(&config, program),
     )?;
+    // `public/` beside the page, as the build copies it: a site-relative
+    // sheet, or a font a sheet names, is found where it is on the site.
+    // Last, so nothing written above goes through a link into the project.
+    if let Some(public) = &site.styles.public {
+        serve_public(public, dir)?;
+    }
+    Ok(())
+}
+
+/// What is in `public/` (an absolute path), reachable from the test's site
+/// `dir` as from the built one: each entry linked in, or copied where a
+/// link cannot be made.
+/// What the test's site wrote itself is its own, as the build's own files
+/// are; a folder both have is gone into.
+fn serve_public(public: &Path, dir: &Path) -> Result<()> {
+    for entry in std::fs::read_dir(public)? {
+        let from = entry?.path();
+        let Some(name) = from.file_name() else {
+            continue;
+        };
+        let to = dir.join(name);
+        if to.symlink_metadata().is_ok() {
+            if from.is_dir() && to.symlink_metadata()?.is_dir() {
+                serve_public(&from, &to)?;
+            }
+            continue;
+        }
+        #[cfg(unix)]
+        let linked = std::os::unix::fs::symlink(&from, &to).is_ok();
+        #[cfg(not(unix))]
+        let linked = false;
+        if !linked {
+            copy_into(&from, &to)?;
+        }
+    }
+    Ok(())
+}
+
+fn copy_into(from: &Path, to: &Path) -> Result<()> {
+    if from.is_dir() {
+        std::fs::create_dir_all(to)?;
+        for entry in std::fs::read_dir(from)? {
+            let path = entry?.path();
+            if let Some(name) = path.file_name() {
+                copy_into(&path, &to.join(name))?;
+            }
+        }
+    } else {
+        std::fs::copy(from, to)?;
+    }
     Ok(())
 }
 

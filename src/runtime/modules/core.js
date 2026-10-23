@@ -572,9 +572,11 @@
         classes(root, typeof v === "function" ? v : () => v);
         continue;
       }
+      // As the same attribute written on an element: `true` is "true",
+      // and `false` no attribute but an ARIA state's.
       const set = (val) => {
         if (val == null || (val === false && !k.startsWith("aria-"))) root.removeAttribute(k);
-        else root.setAttribute(k, val === true && !k.startsWith("aria-") ? "" : String(val));
+        else root.setAttribute(k, String(val));
       };
       if (typeof v === "function") effect(() => set(v()));
       else set(v);
