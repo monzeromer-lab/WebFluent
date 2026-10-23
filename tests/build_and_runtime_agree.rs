@@ -434,6 +434,91 @@ fn the_static_paint_shows_what_the_runtime_computes() {
     );
 }
 
+/// The Markdown texts both renderers are given: the shared case table's,
+/// each drawn plain and inert with and without a base path, and every
+/// entity the inert form decodes, by name and by number.
+fn markdown_inputs() -> Vec<(String, bool, &'static str)> {
+    let raw = std::fs::read_to_string(root().join("tests/markdown-cases.json")).unwrap();
+    let cases: Vec<(String, serde_json::Value, String)> = serde_json::from_str(&raw).unwrap();
+    let mut texts: Vec<String> = cases.into_iter().map(|(text, _, _)| text).collect();
+    for (name, ch) in webfluent::codegen::markdown::ENTITIES {
+        texts.push(format!(
+            "&{name}; &#{}; &#x{:X}; `&{name};`",
+            *ch as u32, *ch as u32
+        ));
+    }
+    let mut inputs = Vec::new();
+    for text in texts {
+        for inert in [false, true] {
+            for base in ["", "/site"] {
+                inputs.push((text.clone(), inert, base));
+            }
+        }
+    }
+    inputs
+}
+
+/// `Markdown(text)` is painted at build time by `codegen::markdown` and
+/// drawn again in the browser by `WF.markdown`: the two must give the same
+/// bytes, or a hydrated page changes under the reader — and a link one of
+/// them refuses is a link the other draws.
+#[test]
+fn markdown_draws_the_same_at_build_time_and_in_the_browser() {
+    if Command::new("node").arg("--version").output().is_err() {
+        eprintln!("skipped: node is not installed");
+        return;
+    }
+    let inputs = markdown_inputs();
+    let js_dir = root().join("tests/js");
+    let script = format!(
+        r#"import {{ fullRuntime }} from {runtime:?};
+import {{ makeDom }} from {dom:?};
+const {{ window, document, Node, Element, DocumentFragment }} = makeDom();
+const WF = new Function("window", "document", "Node", "Element", "DocumentFragment", fullRuntime() + "\nreturn WF;")(window, document, Node, Element, DocumentFragment);
+const inputs = {inputs};
+console.log(JSON.stringify(inputs.map(([text, inert, base]) => {{
+  WF.setBasePath(base);
+  return WF.markdown(text, inert ? {{ inert: true }} : undefined);
+}})));
+"#,
+        runtime = format!("file://{}", js_dir.join("runtime.mjs").display()),
+        dom = format!("file://{}", js_dir.join("dom.mjs").display()),
+        inputs = serde_json::to_string(&inputs).unwrap(),
+    );
+    let file = std::env::temp_dir().join(format!("wf-agree-md-{}.mjs", std::process::id()));
+    std::fs::write(&file, script).unwrap();
+    let out = Command::new("node").arg(&file).output().expect("run node");
+    let _ = std::fs::remove_file(&file);
+    assert!(
+        out.status.success(),
+        "the runtime script failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let drawn: Vec<String> = serde_json::from_slice(&out.stdout).expect("the runtime's HTML");
+    let mut wrong = Vec::new();
+    for ((text, inert, base), runtime) in inputs.iter().zip(&drawn) {
+        let built = webfluent::codegen::markdown::render_with(
+            text,
+            webfluent::codegen::markdown::Options {
+                base,
+                inert: *inert,
+                ..Default::default()
+            },
+        );
+        if built != *runtime {
+            wrong.push(format!(
+                "  {text:?} (inert: {inert}, base: {base:?})\n      build:   {built:?}\n      runtime: {runtime:?}"
+            ));
+        }
+    }
+    assert_eq!(drawn.len(), inputs.len());
+    assert!(
+        wrong.is_empty(),
+        "the page paints one Markdown before its script runs and another after:\n{}",
+        wrong.join("\n")
+    );
+}
+
 /// Every runtime module is concatenated into one closure, so a name one
 /// module declares at its top level is a name every other module sees — and
 /// when two declare the same one, the later wins, silently. `http.js` had a

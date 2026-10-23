@@ -1676,14 +1676,16 @@ Attribute families: `global`, `aria`, `data`.
 
 ### Markdown
 
-Markdown text rendered as HTML: headings, paragraphs, lists, quotes, code, links, emphasis. The text is escaped first, so HTML in it is shown, not run.
+Markdown text rendered as HTML: headings, paragraphs, lists, quotes, code, links, emphasis. The text is escaped first, so HTML in it is shown, not run, and a link or picture whose URL a browser would run is drawn as its words. `.inert` is for text somebody else wrote.
 
 ```
-Markdown(text)
+Markdown(text, inert: …)
 ```
 
 ```wf
+state docs = "Returns &lt;T&gt;, as [the guide](/docs) says."
 Markdown("Some **bold** text and a [link](/docs).")
+Markdown(docs).inert
 ```
 
 Renders with the class `wf-markdown`.
@@ -1691,8 +1693,9 @@ Renders with the class `wf-markdown`.
 | Prop | Type | Meaning |
 |---|---|---|
 | `text` (positional) | `String` | The Markdown text |
+| `inert:` | `Bool` | Text somebody else wrote, such as a language server's documentation: its entities are decoded, a link is drawn as its words and a picture is left out |
 
-**Flags:** `.dropInside` `.trapFocus`
+**Flags:** `.inert` `.dropInside` `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`.
 

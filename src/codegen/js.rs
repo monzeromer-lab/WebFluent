@@ -2531,6 +2531,11 @@ impl JsCodegen {
                                 "mount" | "update" | "cleanup" | "trapFocus" => {}
                                 k if DRAG_PROPS.contains(&k) => {}
                                 "tag" if name == "Host" => {}
+                                // `.inert` goes with the text, below: it is
+                                // how the text is drawn, not an attribute
+                                // (HTML's own `inert` takes the element
+                                // out of reach).
+                                "inert" if name == "Markdown" => {}
                                 // `maxLength` and `rows` are the textarea's,
                                 // written as HTML writes them.
                                 "maxLength" => {
@@ -2702,7 +2707,8 @@ impl JsCodegen {
                                 continue;
                             }
                             // Markdown is rendered to HTML by the runtime, and
-                            // again when its text changes.
+                            // again when its text changes; `.inert` text is
+                            // somebody else's, drawn with nothing to follow.
                             if name == "Markdown" {
                                 let v = self.emit_expr(expr);
                                 let getter = if self.is_reactive(&v) {
@@ -2710,7 +2716,12 @@ impl JsCodegen {
                                 } else {
                                     v
                                 };
-                                attrs.push(format!("markdown: {getter}"));
+                                match self.markdown_inert(ui) {
+                                    None => attrs.push(format!("markdown: {getter}")),
+                                    Some(inert) => attrs.push(format!(
+                                        "markdown: {{text: {getter}, inert: {inert}}}"
+                                    )),
+                                }
                                 continue;
                             }
                             // `Option("value", "Label")`: the first positional
@@ -3466,6 +3477,29 @@ impl JsCodegen {
                     ));
                 }
                 self.emit_line(&format!("{}.appendChild({});", parent, var));
+            }
+        }
+    }
+
+    /// What `Markdown(text).inert` hands the runtime with the text: `None`
+    /// for the plain form, whose output stays what it always was; `true`
+    /// for the flag; and a value, kept in step where it reads state, for
+    /// `inert: expression`.
+    fn markdown_inert(&mut self, ui: &UIElement) -> Option<String> {
+        let value = ui.args.iter().find_map(|a| match a {
+            Arg::Named(k, v) if k == "inert" => Some(v),
+            _ => None,
+        })?;
+        match value {
+            Expr::BoolLiteral(true) => Some("true".to_string()),
+            Expr::BoolLiteral(false) => None,
+            other => {
+                let v = self.emit_expr(other);
+                Some(if self.is_reactive(&v) {
+                    format!("() => {v}")
+                } else {
+                    v
+                })
             }
         }
     }

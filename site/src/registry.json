@@ -3221,18 +3221,24 @@
    "name": "Markdown",
    "slug": "markdown",
    "group": "Typography",
-   "summary": "Markdown text rendered as HTML: headings, paragraphs, lists, quotes, code, links, emphasis. The text is escaped first, so HTML in it is shown, not run.",
-   "plain": "Markdown text rendered as HTML: headings, paragraphs, lists, quotes, code, links, emphasis. The text is escaped first, so HTML in it is shown, not run.",
-   "signature": "Markdown(text)",
+   "summary": "Markdown text rendered as HTML: headings, paragraphs, lists, quotes, code, links, emphasis. The text is escaped first, so HTML in it is shown, not run, and a link or picture whose URL a browser would run is drawn as its words. `.inert` is for text somebody else wrote.",
+   "plain": "Markdown text rendered as HTML: headings, paragraphs, lists, quotes, code, links, emphasis. The text is escaped first, so HTML in it is shown, not run, and a link or picture whose URL a browser would run is drawn as its words. .inert is for text somebody else wrote.",
+   "signature": "Markdown(text, inert: \u2026)",
    "block": false,
    "props": [
     {
      "name": "text",
      "type": "String  (positional)",
      "meaning": "The Markdown text"
+    },
+    {
+     "name": "inert:",
+     "type": "Bool",
+     "meaning": "Text somebody else wrote, such as a language server's documentation: its entities are decoded, a link is drawn as its words and a picture is left out"
     }
    ],
    "flags": [
+    ".inert",
     ".dropInside",
     ".trapFocus"
    ],
@@ -3249,7 +3255,7 @@
     "Code",
     "Unsafe"
    ],
-   "example": "Markdown(\"Some **bold** text and a [link](/docs).\")",
+   "example": "state docs = \"Returns &lt;T&gt;, as [the guide](/docs) says.\"\nMarkdown(\"Some **bold** text and a [link](/docs).\")\nMarkdown(docs).inert",
    "cssClass": "wf-markdown"
   },
   {

@@ -2,8 +2,9 @@
 //!
 //! Two of them have a build-time twin, and the twins are what these hold
 //! together: a `javascript:` URL is refused the same way whether it was
-//! written in the source or arrived at run time, and markup is sanitised
-//! to exactly the same bytes in the static paint as in the browser.
+//! written in the source or arrived at run time, and markup is sanitised,
+//! and Markdown drawn, to exactly the same bytes in the static paint as in
+//! the browser.
 //!
 //! Run: node --test tests/js/security.test.mjs
 import { test } from "node:test";
@@ -73,6 +74,80 @@ test("`Unsafe.Html` puts markup in, and nothing else does", () => {
   assert.equal(text.textContent, "<b>not bold</b>");
   assert.equal(text.children.length, 0, "nothing was parsed as markup");
   assert.ok(document);
+});
+
+test("Markdown gives the same bytes as the compiler's", () => {
+  const { WF } = loadRuntime();
+  const cases = JSON.parse(
+    readFileSync(new URL("../markdown-cases.json", import.meta.url), "utf8"),
+  );
+  for (const [text, options, expected] of cases) {
+    WF.setBasePath(options.base || "");
+    const opts = options.inert ? { inert: true } : undefined;
+    assert.equal(WF.markdown(text, opts), expected, `markdown(${JSON.stringify(text)}, ${JSON.stringify(options)})`);
+  }
+  WF.setBasePath("");
+});
+
+test("a Markdown link or image a browser would run is drawn as its words", () => {
+  const { WF } = loadRuntime();
+  // `[x](javascript:alert(1))` used to be a live link.
+  assert.equal(WF.markdown("[x](javascript:alert(1))"), "<p>x)</p>\n");
+  // Whitespace before the URL is no URL at all; a control character a
+  // browser strips does not hide the scheme behind it.
+  for (const md of ["[x]( JavaScript:alert(1))", "[x](\u001fJavaScript:alert(1))", "[x](JAVASCRIPT:alert(1))"]) {
+    const html = WF.markdown(md);
+    assert.ok(!html.includes("<a") && !html.includes("href"), `${JSON.stringify(md)} → ${html}`);
+    assert.ok(html.includes("x"), "the words stay");
+  }
+  assert.equal(WF.markdown("![pic](javascript:alert(1))"), "<p>pic)</p>\n");
+  assert.equal(WF.markdown("[x](vbscript:msgbox(1)) ![d](data:image/png;base64,AA==)"), "<p>x) d</p>\n");
+  assert.equal(
+    WF.markdown("[docs](https://example.com/docs) ![i](https://example.com/i.png)"),
+    "<p><a href=\"https://example.com/docs\">docs</a> <img src=\"https://example.com/i.png\" alt=\"i\"></p>\n",
+  );
+  // A site-relative link still takes the base path; a refused one has none to take.
+  WF.setBasePath("/site/");
+  assert.equal(WF.markdown("[a](/docs) [b](javascript:x)"), "<p><a href=\"/site/docs\">a</a> b</p>\n");
+  WF.setBasePath("");
+});
+
+test("inert Markdown shows text somebody else wrote and nothing in it runs", () => {
+  const { WF } = loadRuntime();
+  const inert = (md) => WF.markdown(md, { inert: true });
+  assert.equal(inert("Returns &lt;color&gt;"), "<p>Returns &lt;color&gt;</p>\n", "shown as <color>");
+  for (const md of ["<script>alert(1)</script>", "&lt;script&gt;alert(1)&lt;/script&gt;", "&#60;script&#62;alert(1)&#60;/script&#62;"]) {
+    const html = inert(md);
+    assert.ok(!html.includes("<script"), `${md} → ${html}`);
+    assert.equal(html, "<p>&lt;script&gt;alert(1)&lt;/script&gt;</p>\n");
+  }
+  const linked = inert("See ![logo](https://x.y/l.png) the [guide](https://x.y/g), [run](javascript:x) and [![b](/b.svg)](/ci).");
+  assert.ok(!linked.includes("<img"), linked);
+  assert.ok(!linked.includes("<a"), linked);
+  assert.equal(linked, "<p>See the guide, run and .</p>\n");
+  assert.equal(inert("_Widely_ used"), "<p><em>Widely</em> used</p>\n");
+  assert.equal(inert("```ts\nconst a: Array&lt;T&gt; = [];\n```"), "<pre><code class=\"language-ts\">const a: Array&amp;lt;T&amp;gt; = [];\n</code></pre>\n", "a fence is a pre, its entities as written");
+  assert.equal(inert("`&amp;` is &amp;"), "<p><code>&amp;amp;</code> is &amp;</p>\n", "an entity in code is as written");
+  // Plain Markdown keeps today's: an entity is shown as it was written.
+  assert.equal(WF.markdown("&lt;color&gt;"), "<p>&amp;lt;color&amp;gt;</p>\n");
+});
+
+test("the markdown attribute takes the inert form, and follows its text", () => {
+  const { WF } = loadRuntime();
+  const docs = WF.signal("[a](https://a.b) &lt;T&gt;");
+  const el = WF.el("div", { className: "wf-markdown", markdown: { text: () => docs(), inert: true } });
+  assert.equal(el.innerHTML, "<p>a &lt;T&gt;</p>\n");
+  docs.set("![p](/p.png) **b**");
+  assert.equal(el.innerHTML, "<p><strong>b</strong></p>\n", "the render follows the text");
+  const still = WF.el("div", { markdown: { text: "[a](/a)", inert: true } });
+  assert.equal(still.innerHTML, "<p>a</p>\n");
+  const on = WF.signal(true);
+  const both = WF.el("div", { markdown: { text: "[a](/a)", inert: () => on() } });
+  assert.equal(both.innerHTML, "<p>a</p>\n");
+  on.set(false);
+  assert.equal(both.innerHTML, "<p><a href=\"/a\">a</a></p>\n", "and the flag, where it reads state");
+  // The plain form is as it was.
+  assert.equal(WF.el("div", { markdown: "[a](/a)" }).innerHTML, "<p><a href=\"/a\">a</a></p>\n");
 });
 
 test("a route a browser would run is one the router refuses", () => {

@@ -14,7 +14,18 @@ page ContentGuide(path: "/docs/guide/content", title: "Content", description: "T
     Markdown("Inline *emphasis*, a [link](/about) and an ![image](/img.png).")
 }"##, title: "wf")
 
-        Markdown("Blocks: `#`–`######` headings, paragraphs (their lines run together, as in CommonMark — end a line with two spaces or `\\` to break it), fenced code with a language (`` ```js ``), `>` quotes, `-`/`*` and `1.` lists (one level), `---` rules. Inline: `` `code` ``, `**strong**`, `*em*`/`_em_`, links, images. Raw HTML in the text is shown as text, not run — Markdown from a user or an API is safe to render.")
+        Markdown("Blocks: `#`–`######` headings, paragraphs (their lines run together, as in CommonMark — end a line with two spaces or `\\` to break it), fenced code with a language (`` ```js ``), `>` quotes, `-`/`*` and `1.` lists (one level), `---` rules. Inline: `` `code` ``, `**strong**`, `*em*`/`_em_`, links, images. Raw HTML in the text is shown as text, not run — Markdown from a user or an API is safe to render.\n\nA link or a picture goes through the scheme check every other URL does ([Security](/docs/guide/security)): one whose URL a browser would run — `javascript:`, `vbscript:`, a `data:` URL — is drawn as its words, with no link and no picture. A site-relative URL (`/about`, `/img.png`) is addressed from the site's `base_path`, as `Link(to:)`'s is.")
+
+        Heading("Text somebody else wrote: .inert", id: "text-somebody-else-wrote-inert").h3
+
+        Markdown("Documentation from a language server, a `///` comment, a package's readme: text written by somebody else, often with HTML entities in it, and with links and pictures that should not be followed or fetched from where it is shown. `.inert` draws it:")
+
+        CodeBlock(#"page Hover(path: "/") {
+    state docs = "Returns a list of &lt;T&gt; &mdash; see [the guide](https://example.com/guide).\n\n![build](https://ci.example.com/badge.svg)"
+    Markdown(docs).inert
+}"#, title: "wf")
+
+        Markdown("It draws one paragraph, `Returns a list of <T> — see the guide.`, with no link in it, and leaves the badge out. Under `.inert`:\n\n- Entities are decoded, then escaped: `&lt;color&gt;` shows as `<color>`, and a `<script>`, written out or encoded, is shown as text. In `` `code` `` and in a fence an entity stays as it was written, as CommonMark leaves it. The named entities are the ones documentation is written with — `&lt;` `&gt;` `&amp;` `&quot;` `&apos;` `&nbsp;`, the dashes, quotes and arrows, and a few signs — and any number works (`&#60;`, `&#x3C;`).\n- A link is drawn as its words, with no `<a>`.\n- A picture is left out, with the space after it; a paragraph of nothing but pictures is left out with them.\n- Everything else — paragraphs, fences, `code`, `**strong**`, `*em*` and `_em_`, headings, lists, quotes, rules — is drawn as plain `Markdown` draws it.\n\n`inert:` takes a value too, `Markdown(docs, inert: untrusted)`, and follows it. Plain `Markdown` is unchanged: an entity in it shows as it was written, so a page that wrote `&lt;` to mean the four characters still shows them.")
 
         Heading(".md pages", id: "md-pages").h2
 

@@ -2,7 +2,12 @@
   // The same small Markdown the compiler renders at build time (see
   // `src/codegen/markdown.rs`): headings, paragraphs, fenced code, quotes,
   // one-level lists, rules; code spans, strong, emphasis, links, images.
-  // The text is escaped first, so HTML in it is shown, not run.
+  // The text is escaped first, so HTML in it is shown, not run, and a link
+  // or image whose URL a browser would run is drawn as its words.
+  //
+  // `{ inert: true }` (`Markdown(text).inert`) is for text somebody else
+  // wrote: its entities are decoded before they are escaped, a link is
+  // drawn as its words and an image is left out.
   function mdEscape(text) {
     return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\x22/g, "&quot;");
   }
@@ -15,10 +20,38 @@
     code: new RegExp("\\x60([^\\x60]+)\\x60", "g"),
     image: new RegExp("!\\[([^\\]]*)\\]\\(([^)\\s]+)\\)", "g"),
     link: new RegExp("\\[([^\\]]+)\\]\\(([^)\\s]+)\\)", "g"),
+    // Inert's: an image with the space after it, and a link whose words
+    // may be empty — what is left of a linked image.
+    picture: new RegExp("!\\[([^\\]]*)\\]\\(([^)\\s]+)\\) ?", "g"),
+    words: new RegExp("\\[([^\\]]*)\\]\\(([^)\\s]+)\\)", "g"),
     strong: new RegExp("\\*\\*([^*]+)\\*\\*", "g"),
     em: new RegExp("\\*([^*]+)\\*", "g"),
     em2: new RegExp("(^|[^A-Za-z0-9])_([^_]+)_($|[^A-Za-z0-9])", "g"),
+    entity: new RegExp("&amp;(#[0-9]{1,7}|#[xX][0-9a-fA-F]{1,6}|[A-Za-z][A-Za-z0-9]{1,31});", "g"),
+    edges: new RegExp("^[ \\t\\n]+|[ \\t\\n]+$", "g"),
+    markers: new RegExp("[\\u0000\\u0001]", "g"),
   };
+  // The named entities inert text decodes: the compiler's `ENTITIES`.
+  const MD_NAMED = {
+    amp: "&", lt: "<", gt: ">", quot: "\x22", apos: "'", nbsp: "\u00a0", ensp: "\u2002", emsp: "\u2003",
+    thinsp: "\u2009", shy: "\u00ad", zwj: "\u200d", zwnj: "\u200c", copy: "\u00a9", reg: "\u00ae",
+    trade: "\u2122", mdash: "\u2014", ndash: "\u2013", minus: "\u2212", hellip: "\u2026", lsquo: "\u2018",
+    rsquo: "\u2019", ldquo: "\u201c", rdquo: "\u201d", laquo: "\u00ab", raquo: "\u00bb", bull: "\u2022",
+    middot: "\u00b7", times: "\u00d7", divide: "\u00f7", plusmn: "\u00b1", deg: "\u00b0", le: "\u2264",
+    ge: "\u2265", ne: "\u2260", larr: "\u2190", rarr: "\u2192", uarr: "\u2191", darr: "\u2193",
+    harr: "\u2194", lArr: "\u21d0", rArr: "\u21d2", hArr: "\u21d4", euro: "\u20ac", pound: "\u00a3",
+    yen: "\u00a5", cent: "\u00a2", sect: "\u00a7", para: "\u00b6",
+  };
+  /// The character an entity's body (`lt`, `#60`, `#x3C`) stands for, or
+  /// null for a name the table does not have. A number that is no
+  /// character a page may hold is U+FFFD, as a browser draws it.
+  function mdEntity(body) {
+    if (body[0] !== "#") return Object.prototype.hasOwnProperty.call(MD_NAMED, body) ? MD_NAMED[body] : null;
+    const code = body[1] === "x" || body[1] === "X" ? parseInt(body.slice(2), 16) : parseInt(body.slice(1), 10);
+    const refused = code === 0 || code > 0x10ffff || (code >= 0xd800 && code <= 0xdfff)
+      || (code < 0x20 && code !== 0x9 && code !== 0xa && code !== 0xd) || (code >= 0x7f && code <= 0x9f);
+    return refused ? "\ufffd" : String.fromCodePoint(code);
+  }
   function mdHeading(line) {
     const m = MD.heading.exec(line);
     return m ? [m[1].length, m[2].trim()] : null;
@@ -30,17 +63,27 @@
     if (m) return [m[1].trim(), true];
     return null;
   }
-  function mdInline(text) {
+  function mdInline(text, inert) {
     const spans = [];
     let s = mdEscape(text).replace(MD.code, (_, c) => { spans.push("<code>" + c + "</code>"); return "\u0000" + (spans.length - 1) + "\u0000"; });
-    // A site-relative link or image is addressed from the base path, as
-    // `Link(to:)` and `Image(src:)` are.
-    const at = (url) => (url.startsWith("/") && !url.startsWith("//") ? _basePath + url : url);
-    s = s.replace(MD.image, (_, alt, url) => '<img src="' + at(url) + '" alt="' + alt + '">');
-    s = s.replace(MD.link, (_, label, url) => '<a href="' + at(url) + '">' + label + "</a>");
+    if (inert) {
+      s = s.replace(MD.picture, "").replace(MD.words, "$1");
+    } else {
+      // A site-relative link or image is addressed from the base path, as
+      // `Link(to:)` and `Image(src:)` are. The URL is checked as it was
+      // escaped, which names the scheme it would unescaped: escaping adds
+      // only `&` and `;`, neither of which a scheme may hold.
+      const at = (url) => (url.startsWith("/") && !url.startsWith("//") ? _basePath + url : url);
+      s = s.replace(MD.image, (_, alt, url) => (safeUrl(url) ? '<img src="' + at(url) + '" alt="' + alt + '">' : alt));
+      s = s.replace(MD.link, (_, label, url) => (safeUrl(url) ? '<a href="' + at(url) + '">' + label + "</a>" : label));
+    }
     s = s.replace(MD.strong, "<strong>$1</strong>");
     s = s.replace(MD.em, "<em>$1</em>");
     s = s.replace(MD.em2, "$1<em>$2</em>$3");
+    // Decoded where it was escaped, once the spans are found, so what an
+    // entity says is a character and never Markdown; code, still held
+    // aside, keeps its entities as written.
+    if (inert) s = s.replace(MD.entity, (whole, body) => { const c = mdEntity(body); return c === null ? whole : mdEscape(c); });
     spans.forEach((span, i) => { s = s.split("\u0000" + i + "\u0000").join(span); });
     return s.replace(/\u0001\n/g, "<br>\n").replace(/\u0001/g, "");
   }
@@ -223,8 +266,13 @@
   }
 
   attrHook("markdown", (el, v) => {
-    if (typeof v === "function") effect(() => { el.innerHTML = markdown(v()); });
-    else el.innerHTML = markdown(v);
+    // `{ text, inert }`: `Markdown(text).inert`; either may follow state.
+    const opts = v !== null && typeof v === "object" && "inert" in v ? v : null;
+    const text = opts ? opts.text : v;
+    const read = (x) => (typeof x === "function" ? x() : x);
+    const paint = () => { el.innerHTML = markdown(read(text), opts && read(opts.inert) ? { inert: true } : undefined); };
+    if (typeof text === "function" || (opts && typeof opts.inert === "function")) effect(paint);
+    else paint();
   });
   attrHook("highlight", (el, v) => {
     // `{ code, lang }`: the code coloured as the language.
@@ -237,8 +285,13 @@
     else paint();
   });
 
-  function markdown(text) {
-    const lines = String(text == null ? "" : text).split("\n");
+  function markdown(text, opts) {
+    const inert = !!(opts && opts.inert);
+    let source = String(text == null ? "" : text);
+    // The two characters the renderer marks its own places with cannot
+    // arrive in text somebody else wrote.
+    if (inert) source = source.replace(MD.markers, "\ufffd");
+    const lines = source.split("\n");
     let out = "";
     let i = 0;
     const isBlock = (t) => t === "" || t.startsWith("```") || t === "---" || t === "***" || mdHeading(t) || t.startsWith(">") || mdListItem(t);
@@ -257,11 +310,11 @@
       }
       if (t === "---" || t === "***") { out += "<hr>\n"; i++; continue; }
       const h = mdHeading(t);
-      if (h) { out += "<h" + h[0] + ">" + mdInline(h[1]) + "</h" + h[0] + ">\n"; i++; continue; }
+      if (h) { out += "<h" + h[0] + ">" + mdInline(h[1], inert) + "</h" + h[0] + ">\n"; i++; continue; }
       if (t.startsWith(">")) {
         const quoted = [];
         while (i < lines.length && lines[i].trim().startsWith(">")) { quoted.push(lines[i].trim().slice(1).replace(/^\s+/, "")); i++; }
-        out += "<blockquote>\n" + markdown(quoted.join("\n")) + "</blockquote>\n";
+        out += "<blockquote>\n" + markdown(quoted.join("\n"), opts) + "</blockquote>\n";
         continue;
       }
       const item = mdListItem(t);
@@ -272,7 +325,7 @@
         while (i < lines.length) {
           const it = mdListItem(lines[i].trim());
           if (!it || it[1] !== ordered) break;
-          out += "<li>" + mdInline(it[0]) + "</li>\n";
+          out += "<li>" + mdInline(it[0], inert) + "</li>\n";
           i++;
         }
         out += "</" + tag + ">\n";
@@ -289,7 +342,11 @@
         i++;
       }
       if (para.length) para[para.length - 1] = para[para.length - 1].replace(/\u0001+$/, "");
-      out += "<p>" + mdInline(para.join("\n")) + "</p>\n";
+      const body = mdInline(para.join("\n"), inert);
+      // A paragraph of nothing but images has nothing left to draw once
+      // they are left out.
+      if (inert && body.replace(MD.edges, "") === "") continue;
+      out += "<p>" + body + "</p>\n";
     }
     return out;
   }
