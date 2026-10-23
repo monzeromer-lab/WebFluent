@@ -34,12 +34,14 @@ function inDocument(document, node) {
 }
 
 /// What `Portal(into: read()) { block }` compiles to, written into `parent`:
-/// the box, the marker, the box placed, then the block drawn into it.
+/// the box, the marker, the box placed, then the block drawn into it at the
+/// same level — never inside a block of its own — and what it held let go.
 function portalIn(WF, document, parent, read, block) {
   const box = WF.el("div", { className: "wf-portal" });
   parent.appendChild(document.createComment("wf-portal"));
   const drawn = WF.portal(box, read);
-  try { block(box); } finally { drawn(); }
+  block(box);
+  drawn();
   return box;
 }
 
@@ -218,16 +220,30 @@ test("a lifetime held by a portal belongs to the branch it was asked for in", ()
   assert.deepEqual(seen, ["mount", "cleanup", "mount"], "drawn again later, it mounts at once");
 });
 
-test("a block that throws still lets the lifetimes after it run as they always have", () => {
+test("a block that throws holds nothing for good: what it and the page after it asked for runs once the drawing is over", async () => {
   const { WF, document } = load();
+  const host = foreign(document, "host");
   const seen = [];
-  WF.scoped(() => {
+  const [, dispose] = WF.scoped(() => {
     try {
-      portalIn(WF, document, document.createDocumentFragment(), () => null, () => { throw new Error("boom"); });
-    } catch { /* the page's own handling */ }
+      portalIn(WF, document, document.createDocumentFragment(), () => host, () => {
+        WF.attach(WF.el("div", {}), () => seen.push("before the throw"), null, () => seen.push("its cleanup"));
+        throw new Error("boom");
+      });
+    } catch { /* a list draws the rest of its items */ }
+    // A portal drawn after it still lets its own go once it is whole.
+    portalIn(WF, document, document.createDocumentFragment(), () => host, () => {
+      WF.attach(WF.el("div", {}), () => seen.push("the next portal"), null, null);
+    });
     WF.attach(WF.el("div", {}), () => seen.push("later"), null, null);
   });
-  assert.deepEqual(seen, ["later"], "nothing is held after the portal");
+  assert.deepEqual(seen, ["the next portal"]);
+  await Promise.resolve();
+  assert.deepEqual(seen, ["the next portal", "before the throw", "later"], "let go once the drawing is over");
+  dispose();
+  assert.deepEqual(seen.at(-1), "its cleanup", "in the scope it was asked for in");
+  WF.scoped(() => WF.attach(WF.el("div", {}), () => seen.push("after"), null, null));
+  assert.equal(seen.at(-1), "after", "and nothing is held after it");
 });
 
 // ─── What the compiler writes ──────────────────────────────────
@@ -262,7 +278,7 @@ function build(files, config = {}) {
 /// Run a bundle against a fresh DOM: `#app`, filled with `painted` markup
 /// when a pre-rendered page is being taken over; `before(dom)` sets up what
 /// somebody else's code would have made.
-function run(bundle, { painted = null, before = () => {}, dev = false } = {}) {
+function run(bundle, { painted = null, before = () => {}, dev = false, quiet = false } = {}) {
   const dom = makeDom();
   const { window, document } = dom;
   const app = document.createElement("div");
@@ -272,7 +288,14 @@ function run(bundle, { painted = null, before = () => {}, dev = false } = {}) {
   window.__WF_DEV__ = dev;
   before(dom);
   const warned = [];
-  const console_ = { ...console, warn: (...a) => warned.push(a.map(String).join(" ")) };
+  // `quiet`: what the page reports as an error is kept, not printed — for
+  // a test that makes something throw on purpose.
+  const errors = [];
+  const console_ = {
+    ...console,
+    warn: (...a) => warned.push(a.map(String).join(" ")),
+    ...(quiet ? { error: (...a) => errors.push(a.map(String).join(" ")) } : {}),
+  };
   const timers = [];
   window.setTimeout = (fn) => { timers.push(fn); return timers.length; };
   window.clearTimeout = () => {};
@@ -282,7 +305,7 @@ function run(bundle, { painted = null, before = () => {}, dev = false } = {}) {
   )(window, document, dom.Node, dom.Element, dom.DocumentFragment, window.setTimeout, window.clearTimeout, URLSearchParams, console_);
   const drain = () => { while (timers.length) timers.shift()(); };
   drain();
-  return { ...dom, app, warned, drain };
+  return { ...dom, app, warned, errors, drain };
 }
 
 const click = (el) => el.dispatchEvent({ type: "click", target: el, preventDefault() {} });
@@ -478,4 +501,149 @@ test("a pre-rendered page with a portal is taken over with no mismatch, and the 
   page.drain();
   assert.ok(buttonIn(tip, "Count 1"), "the block in the host is live");
   assert.ok(page.app.textContent.includes("after"));
+});
+
+test("what a portal's block declares is read after it, as what a Stack's block declares is", (t) => {
+  const built = build({
+    "src/hosts.js": HOSTS,
+    "src/App.wf": `page Home(path: "/", title: "H", description: "D") {
+    state n = 3
+    Heading("Declared").h1
+    Portal(into: editorHost("tip")) {
+        derived twice = n * 2
+        Text("in {twice}")
+    }
+    Text("out {twice}")
+}
+`,
+  });
+  if (!built) return t.skip("no compiler built");
+  // The block is written at the level the portal is: inside a JavaScript
+  // block of its own, `twice` was not defined after it, and the page threw.
+  const page = run(built.bundle, {
+    before: ({ window, document }) => {
+      const tip = document.createElement("div");
+      document.body.appendChild(tip);
+      window.hosts = { tip };
+    },
+  });
+  assert.ok(page.app.textContent.includes("out 6"), page.app.textContent);
+  assert.equal(page.window.hosts.tip.textContent, "in 6");
+});
+
+test("an item whose portal's block throws is one item: the rest of the page draws and mounts", async (t) => {
+  const built = build({
+    "src/hosts.js": HOSTS + `
+/**
+ * A row's text, which throws for one row as bad data would.
+ * @param {string} id
+ * @returns {string}
+ */
+function label(id) {
+  if (id === "b") throw new Error("a row that cannot be drawn");
+  return "row " + id;
+}
+
+/**
+ * What a mount saw.
+ * @param {HTMLElement} node
+ * @returns {number}
+ */
+function sawMount(node) {
+  window.seen = (window.seen || []).concat([node.className]);
+  return 1;
+}
+`,
+    "src/App.wf": `page Home(path: "/", title: "H", description: "D") {
+    state rows = [{ id: "a" }, { id: "b" }, { id: "c" }]
+    Heading("Rows").h1
+    for r in rows by r.id {
+        Portal(into: editorHost(r.id)) {
+            Host(mount: (n) => sawMount(n), class: "in-{r.id}")
+            Text(label(r.id))
+        }
+    }
+    Host(mount: (n) => sawMount(n), class: "after")
+}
+`,
+  });
+  if (!built) return t.skip("no compiler built");
+  const page = run(built.bundle, {
+    quiet: true,
+    before: ({ window, document }) => {
+      window.hosts = {};
+      for (const id of ["a", "b", "c"]) {
+        const el = document.createElement("div");
+        document.body.appendChild(el);
+        window.hosts[id] = el;
+      }
+    },
+  });
+  await Promise.resolve();
+  const { hosts } = page.window;
+  assert.equal(hosts.a.textContent, "row a");
+  assert.equal(hosts.c.textContent, "row c", "the rows after it draw");
+  assert.ok(page.errors.some((e) => e.includes("could not be drawn")), page.errors.join("\n"));
+  const seen = (page.window.seen || []).map((c) => c.split(" ").find((n) => n !== "wf-host"));
+  for (const which of ["in-a", "in-c", "after"]) {
+    assert.ok(seen.includes(which), `${which} mounted: ${seen}`);
+  }
+});
+
+test("a portal into a node of the page's own that the takeover puts a drawn one in place of follows it", async (t) => {
+  const built = build({
+    "src/App.wf": `page Home(path: "/", title: "H", description: "D") {
+    state n = 0
+    Heading("Taken over").h1
+    Stack(id: "side") {
+        on click { n = n + 1 }
+        Text("side")
+    }
+    Portal(into: document.getElementById("side")) { Text("in the side") }
+    Text("after {n}")
+}
+`,
+  }, { ssg: true });
+  if (!built) return t.skip("no compiler built");
+  const page = run(built.bundle, { painted: built.html, dev: true });
+  await Promise.resolve();
+  // The painted `#side` is what `into:` found while the page was drawn
+  // beside it; the takeover puts the drawn one, which its handler holds,
+  // in its place, and once the drawing is over the box goes there.
+  const side = page.document.getElementById("side");
+  assert.ok(side.textContent.includes("in the side"), side.textContent);
+  assert.equal(page.document.querySelectorAll(".wf-portal").length, 1);
+  assert.deepEqual(page.warned.filter((w) => w.includes("differs")), []);
+});
+
+test("a single page finds its own element by id once it is in the document, as a pre-rendered one does", async (t) => {
+  const source = {
+    "src/App.wf": `page Home(path: "/", title: "H", description: "D") {
+    state open = false
+    Heading("Found").h1
+    Stack(id: "side") { Text("side") }
+    Portal(into: document.getElementById("side")) { Text("in the side") }
+    Button("Open") { on click { open = true } }
+    if open {
+        Stack(id: "later") { Text("later") }
+        Portal(into: document.getElementById("later")) { Text("in the later one") }
+    }
+}
+`,
+  };
+  for (const ssg of [false, true]) {
+    const built = build(source, { ssg });
+    if (!built) return t.skip("no compiler built");
+    const page = run(built.bundle, ssg ? { painted: built.html } : {});
+    // The page is drawn apart from the document, where a lookup finds
+    // nothing; once it is in, where the portal goes is read again.
+    await Promise.resolve();
+    const side = page.document.getElementById("side");
+    assert.ok(side.textContent.includes("in the side"), `ssg ${ssg}: ${side.textContent}`);
+    click(buttonIn(page.app, "Open"));
+    page.drain();
+    await Promise.resolve();
+    const later = page.document.getElementById("later");
+    assert.ok(later.textContent.includes("in the later one"), `ssg ${ssg}: ${later.textContent}`);
+  }
 });

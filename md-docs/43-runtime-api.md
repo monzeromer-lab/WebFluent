@@ -162,7 +162,7 @@ The list and string helpers (`sortBy`, `groupBy`, `unique`, `take`,
 | `i18n` | `locales(default, tables)` → `WF.i18n`, with `t`, `locale`, `dir`, `setLocale` |
 | `offline` | `offline(options)`, `update()` — the service worker and the update flow |
 | `head` | `head(tags)` — a page's own head tags |
-| `host` | `attach(node, mount, update, cleanup)` — what `mount:`, `update:` and `cleanup:` compile to, on `Host` or any element; a component's fragment is attached at its root element. `portal(box, read)` — what a `Portal` compiles to: `box` is kept in the element (or `ref:` handle) `read()` names, read again when what it reads changes, kept aside on `null`, and taken away with its scope; it returns what runs the lifetimes its block asked for while it was drawn |
+| `host` | `attach(node, mount, update, cleanup)` — what `mount:`, `update:` and `cleanup:` compile to, on `Host` or any element; a component's fragment is attached at its root element. `portal(box, read)` — what a `Portal` compiles to: `box` is kept in the element (or `ref:` handle) `read()` names, read again when what it reads changes and once the drawing is over, kept aside on `null`, and taken away with its scope; it returns what runs the lifetimes its block asked for while it was drawn |
 | `picture` | `picture(…)` — an `image`'s `<picture>` |
 | `hydrate` | `hydrate(fn, container)`, `hydrating(root)` — draw beside a pre-rendered page and take it over in place |
 | `core` | `mount(fn, container)`, `mainOf(root)` — boot; `live(node)` — something holds `node`, so a takeover keeps the drawn one rather than the painted one |

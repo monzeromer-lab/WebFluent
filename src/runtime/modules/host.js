@@ -26,10 +26,11 @@
     // so a mount meets its node where the portal put it — in the page,
     // when the node it draws into is. It runs in the scope it was asked
     // for in, which a branch or an item of the block may have opened.
-    if (_portalHeld) {
+    const held = _portalsOpen.length ? _portalsOpen[_portalsOpen.length - 1] : null;
+    if (held) {
       const scope = currentScope;
       const tracking = currentEffect;
-      _portalHeld.push(() => {
+      held.push(() => {
         const [wasScope, wasEffect] = [currentScope, currentEffect];
         currentScope = scope;
         currentEffect = tracking;
@@ -87,8 +88,9 @@
   // in — and what the block holds belongs to where it is written, as the
   // rest of that scope does.
 
-  /// The lifetimes held back while a portal's block is drawn, or null.
-  let _portalHeld = null;
+  /// The portals whose blocks are being drawn, the innermost last: each is
+  /// the lifetimes its block asked for, held until it is whole.
+  const _portalsOpen = [];
 
   /// Keep `box` in the node `read` names: an element, or a `ref:` handle's
   /// element, takes it (unless it is already there); null or undefined
@@ -97,7 +99,6 @@
   /// was drawn, once the block is whole and in place.
   function portal(box, read) {
     let alive = true;
-    let named;
     // A takeover of a pre-rendered page leaves a box where it is when the
     // node it was put in is a painted one (hydrate).
     box.__wfPortal = true;
@@ -109,26 +110,41 @@
         box.remove();
       }
     };
-    effect(() => {
+    const run = effect(() => {
       let target = null;
       try { target = read(); } catch (e) { console.error("WF: a Portal's into: failed", e); }
-      named = target;
       place(target);
-      // A handle whose element comes later in the drawing is looked at
-      // again once the drawing is done: a handle is not a state.
-      if (target && target.el === null) {
-        queueMicrotask(() => { if (alive && named === target) place(target); });
-      }
     });
     onCleanup(() => {
       alive = false;
       box.remove();
     });
-    const outer = _portalHeld;
     const held = [];
-    _portalHeld = held;
-    return () => {
-      _portalHeld = outer;
-      for (const run of held.splice(0)) run();
+    _portalsOpen.push(held);
+    let open = true;
+    const release = () => {
+      if (!open) return;
+      open = false;
+      // Anything opened inside this block and left open — a portal whose
+      // block threw, caught by the list it was an item of — is closed with
+      // it; its own lifetimes are still let go, by its own microtask.
+      const at = _portalsOpen.lastIndexOf(held);
+      if (at >= 0) _portalsOpen.length = at;
+      for (const go of held.splice(0)) go();
     };
+    // Once the drawing is over, where the box goes is read again. A page
+    // is drawn apart from the document and put in it whole, so what was
+    // not there while it was drawn is there now: a `ref:` handle filled
+    // further down, an element of the page's own a lookup did not find,
+    // or the drawn node a takeover put in place of a painted one. A handle
+    // is not a state, and is not watched after that. And a block that
+    // threw, which never reached the line that lets it go, lets go here:
+    // the page's later lifetimes are never held for good.
+    const settle = () => {
+      if (alive) run();
+      release();
+    };
+    if (typeof queueMicrotask === "function") queueMicrotask(settle);
+    else Promise.resolve().then(settle);
+    return release;
   }

@@ -70,11 +70,14 @@ fn a_portal_is_a_box_a_marker_and_its_block_drawn_after_the_box_is_placed() {
     let b = the_box(&js);
     assert!(js.contains(&format!("WF.portal({b}, () => spot);")), "{js}");
     // The block goes into the box, in the scope the portal is written in,
-    // and the lifetimes it asked for are let go however drawing it ends.
+    // and the lifetimes it asked for are let go once it is whole. It is
+    // written at the portal's own level, never in a block of its own, so
+    // what it declares is read after it as a `Stack`'s is.
     let child = at(&js, &format!("{b}.appendChild(_e"));
     assert!(drawn < child, "{js}");
-    let release = at(&js, &format!("}} finally {{ {b}_drawn(); }}"));
-    assert!(drawn < release, "{js}");
+    let release = at(&js, &format!("\n  {b}_drawn();\n"));
+    assert!(child < release, "{js}");
+    assert!(!js.contains("try {") && !js.contains("finally"), "{js}");
     // The runtime ships what it calls.
     let kept = webfluent::runtime::modules_for(&js);
     assert!(kept.contains("host"), "{kept:?}");
@@ -115,7 +118,7 @@ fn a_portal_with_handlers_of_its_own_hears_what_its_block_does() {
         "state clicks = 0\n    Portal(into: null) {\n        on click { clicks = clicks + 1 }\n        Text(\"in\")\n    }\n    Text(\"{clicks}\")",
     ));
     let b = the_box(&js);
-    let release = at(&js, &format!("}} finally {{ {b}_drawn(); }}"));
+    let release = at(&js, &format!("{b}_drawn();"));
     let listener = at(&js, &format!("{b}.addEventListener(\"click\""));
     assert!(release < listener, "{js}");
 }

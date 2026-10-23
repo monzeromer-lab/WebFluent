@@ -3625,8 +3625,13 @@ impl JsCodegen {
     /// into a node already in the page when the target is; and the block is
     /// drawn here, in the scope the portal is written in, so its effects,
     /// handlers, `emit` and cleanups are that scope's. The lifetimes it asks
-    /// for (`mount:`) are held until it is whole, and the `finally` lets
-    /// them go even when drawing it throws.
+    /// for (`mount:`) are held until it is whole.
+    ///
+    /// The block is written at the level the portal is, as any element's
+    /// children are, never inside a block of its own: a `derived` value or
+    /// an action declared in it is read after it as one declared in a
+    /// `Stack` is. A block that throws never reaches the line that lets its
+    /// lifetimes go, and the runtime lets them go once the drawing is over.
     fn emit_portal(&mut self, var: &str, attrs: &str, ui: &UIElement, parent: &str) {
         let into = ui
             .args
@@ -3644,13 +3649,10 @@ impl JsCodegen {
         self.emit_line(&format!(
             "const {release} = WF.portal({var}, () => {into});"
         ));
-        self.emit_line("try {");
-        self.indent += 1;
         for child in &ui.children {
             self.emit_statement_dom(child, var);
         }
-        self.indent -= 1;
-        self.emit_line(&format!("}} finally {{ {release}(); }}"));
+        self.emit_line(&format!("{release}();"));
         for handler in &ui.events {
             let body = self.emit_event_body(handler);
             let line = self.element_listener(var, handler, &body);

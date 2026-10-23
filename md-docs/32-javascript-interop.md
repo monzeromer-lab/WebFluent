@@ -322,6 +322,19 @@ page Edit(path: "/edit", title: "Edit", description: "An editor whose tooltip th
   `class:`, `data-*` and `aria-*` are the box's.
 - **A handle is somewhere too.** `Portal(into: panel)` draws into the
   element a `ref: panel` names, even one written further down the page.
+  Where it goes is read once more when the drawing is over and the page is
+  in the document, so an element of the page's own found by
+  `document.getElementById` is found too. A handle is not a state: an
+  element it names only later, in an `if` that opens afterwards, is not
+  followed.
+- **Events go up from where it is drawn.** A press inside the block bubbles
+  through the node it is in and that node's parents, not through the
+  elements around the place it is written: an `on click` on a `Stack` that
+  holds the portal does not hear it. Put the handler on the portal, or
+  inside its block.
+- **`show` does not hide it.** `show` hides what is drawn in its own place,
+  and a portal's block is drawn somewhere else. Take it away with `if`, or
+  keep it aside with `into: null`.
 - **Pre-rendered, it is a place.** The static paint has a marker where a
   portal is and nothing of its block; the live page draws it once its
   script has run. A test that looks at one is run in a browser

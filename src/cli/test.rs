@@ -28,7 +28,7 @@ pub fn run_test(path: &Path, update: bool) -> Result<()> {
                 );
                 println!("  {e}");
                 return Err(WebFluentError::IoError(
-                    "a test that clicks needs a browser".to_string(),
+                    "a test that runs in a browser needs one".to_string(),
                 ));
             }
         }

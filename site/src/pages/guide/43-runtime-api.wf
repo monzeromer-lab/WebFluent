@@ -390,7 +390,7 @@ WF.storeSnapshot("Cart");"#, title: "js")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`host`") }
-                    Table.Cell { Markdown("`attach(node, mount, update, cleanup)` — what `mount:`, `update:` and `cleanup:` compile to, on `Host` or any element; a component's fragment is attached at its root element. `portal(box, read)` — what a `Portal` compiles to: `box` is kept in the element (or `ref:` handle) `read()` names, read again when what it reads changes, kept aside on `null`, and taken away with its scope; it returns what runs the lifetimes its block asked for while it was drawn") }
+                    Table.Cell { Markdown("`attach(node, mount, update, cleanup)` — what `mount:`, `update:` and `cleanup:` compile to, on `Host` or any element; a component's fragment is attached at its root element. `portal(box, read)` — what a `Portal` compiles to: `box` is kept in the element (or `ref:` handle) `read()` names, read again when what it reads changes and once the drawing is over, kept aside on `null`, and taken away with its scope; it returns what runs the lifetimes its block asked for while it was drawn") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`picture`") }

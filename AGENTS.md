@@ -1434,11 +1434,14 @@ The library keeps the node's place, keys and focus; the page draws what is
 in it. `into:` takes an element (what a script returns, JSDoc
 `HTMLElement|null`), a `ref:` handle (even one written further down), or
 `null`, which keeps the block aside with its nodes and state until a node is
-named again; it is read again whenever what it reads changes, and the same
-box moves. The block is drawn in the scope the portal is written in — its
+named again; it is read again whenever what it reads changes and once more
+when the page is drawn and in the document, and the same box moves. The block is drawn in the scope the portal is written in — its
 handlers, `emit`, state, `mount:` and `cleanup:` are that page's or
 component's — and a `mount:` inside runs once the block is in place. The
 box goes when its page, branch or list item does; the node stays.
+Events bubble from the node it is drawn in, not from where it is written,
+and `show` does not hide it (its block is not in `show`'s place): use `if`,
+or `into: null`.
 
 ### A library from somewhere else
 
@@ -2307,7 +2310,7 @@ may too. Its surface:
 | Widgets | `toast(message, tone, ms)`; `dialog(el, read, write)`; `popup`; `tabs`; `drawer`; `announce(text)`; `carousel`; `tooltip`; `menu`; `field` |
 | Safety | `safeUrl(url)` → the URL where a browser may follow it, `""` where it may not; `sanitize(html)` → the allow-listed markup. Both have a build-time twin, pinned by a shared case table |
 | Text | `markdown(text)` → HTML; `highlight(code, lang)` → HTML with `wf-tok-*` spans (`wf`, `json`, `bash`, `css`), the twin of `codegen::highlight` |
-| Interop | `attach(node, mount, update, cleanup)` — what `mount:`/`update:`/`cleanup:` compile to on any element (a component's fragment is attached at its root); `portal(box, read)` — what `Portal` compiles to: `box` kept in the node `read()` names, aside on `null`, gone with its scope, returning what runs the lifetimes its block held; `wf:render` on `document` after each drawing; `jsonAttr(raw)` — an attribute holding JSON, as the prop it stands for |
+| Interop | `attach(node, mount, update, cleanup)` — what `mount:`/`update:`/`cleanup:` compile to on any element (a component's fragment is attached at its root); `portal(box, read)` — what `Portal` compiles to: `box` kept in the node `read()` names (read again once the drawing is over), aside on `null`, gone with its scope, returning what runs the lifetimes its block held; `wf:render` on `document` after each drawing; `jsonAttr(raw)` — an attribute holding JSON, as the prop it stands for |
 | Boot | `mount(fn, container)`; `hydrate(fn, container)` and `hydrating(root)` — draw beside a pre-rendered page and take it over in place; `live(node)` — something holds `node`, so the takeover keeps the drawn one; `mainOf(root)`; `setBasePath`; `setSsgMode`; `__debug`, `__reg` (the studio's) |
 | Scopes | `onCleanup(fn)` — run when what owns it leaves; `attempt(fn)` — an action that rolls itself back on a throw |
 | Keys | `onKey(node, combination, fn)`; `keyIs(event, combination)`; `keyLabel(combination)`, `keyAria(combination)` — what `on key("mod+k")`, `keyIs` and `keyLabel` compile to |
