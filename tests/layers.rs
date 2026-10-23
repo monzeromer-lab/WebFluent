@@ -272,3 +272,213 @@ fn a_box_a_choice_and_a_switch_are_painted_with_their_inputs() {
         "{html}"
     );
 }
+
+/// The line that builds the element `class` names, and what is drawn after it
+/// up to the next element of that kind: the attributes it is given, and the
+/// handlers attached to it.
+fn element_line<'a>(js: &'a str, class: &str) -> &'a str {
+    js.lines()
+        .find(|l| l.contains(&format!("{{ className: \"{class}")))
+        .unwrap_or_else(|| panic!("no element of class {class}: {js}"))
+}
+
+fn var_of(line: &str) -> &str {
+    line.trim()
+        .trim_start_matches("const ")
+        .split(' ')
+        .next()
+        .unwrap()
+}
+
+#[test]
+fn a_layer_takes_the_attributes_and_handlers_any_element_takes() {
+    let src = page(
+        "state open = false\n    state keys = 0\n    state why = \"\"\n    Button(\"Anchor\", ref: anchor)\n    \
+         Popover(visible: open, anchor: anchor, label: \"Choices\", role: \"listbox\", tabindex: \"-1\", data-popup: \"row\", aria-describedby: \"hint\", title: \"Pick one\", id: \"pop\", ref: pop) {\n        \
+             on keydown(e) { keys = keys + 1 }\n        \
+             on pointerdown { keys = keys + 10 }\n        \
+             on close(reason) { why = reason }\n        \
+             Text(\"one\")\n    }\n    \
+         Menu(trigger: \"View\", role: \"group\", data-kind: \"view\", tabindex: \"-1\") {\n        \
+             on keydown(e) { keys = keys + 1 }\n        \
+             Menu.Item { Text(\"x\") }\n    }\n    \
+         Menu(visible: open, at: { x: 0, y: 0 }, role: \"listbox\", aria-label: \"Actions\", data-kind: \"ctx\") {\n        \
+             on keydown(e) { keys = keys + 1 }\n        \
+             on close(reason) { why = reason }\n        \
+             Menu.Item { Text(\"y\") }\n    }\n    \
+         Tooltip(\"Save\", data-tip: \"save\", id: \"tip\") {\n        \
+             on mouseenter { keys = keys + 1 }\n        \
+             Button(\"Save\")\n    }\n    \
+         Modal(visible: open, title: \"M\", role: \"alertdialog\", data-kind: \"modal\", tabindex: \"-1\") {\n        \
+             on keydown(e) { keys = keys + 1 }\n        \
+             Text(\"m\")\n    }\n    \
+         Dialog(visible: open, title: \"D\", data-kind: \"dialog\", aria-describedby: \"body\") {\n        \
+             on keydown(e) { keys = keys + 1 }\n        \
+             Text(\"d\", id: \"body\")\n    }\n    \
+         Text(\"{keys} {why}\")",
+    );
+    // `C04` says an unknown named argument is written to the element as an
+    // attribute; these are all known to every element, and none is reported.
+    assert_eq!(checks(&src), "");
+    let js = spa_generated(&src);
+
+    // A popover: the author's role in place of `dialog`, and the rest.
+    let pop = element_line(&js, "wf-popover");
+    assert!(
+        pop.contains("role: \"listbox\"") && !pop.contains("role: \"dialog\""),
+        "its author's role, and only that: {pop}"
+    );
+    for attr in [
+        "\"aria-label\": \"Choices\"",
+        "tabindex: \"-1\"",
+        "\"data-popup\": \"row\"",
+        "\"aria-describedby\": \"hint\"",
+        "title: \"Pick one\"",
+        "id: \"pop\"",
+        "ref: pop",
+    ] {
+        assert!(pop.contains(attr), "{attr} on the popover: {pop}");
+    }
+    let v = var_of(pop);
+    assert!(
+        js.contains(&format!(
+            "{v}.addEventListener(\"keydown\", (e) => {{ _keys.set((_keys() + 1)); }});"
+        )),
+        "its `on keydown` is its element's: {js}"
+    );
+    assert!(
+        js.contains(&format!("{v}.addEventListener(\"pointerdown\"")),
+        "{js}"
+    );
+    assert!(
+        !js.contains(&format!("{v}.addEventListener(\"close\"")),
+        "`on close` is the layer's, heard once: {js}"
+    );
+    assert!(
+        js.contains("onClose: (reason) => { _why.set(reason); }"),
+        "{js}"
+    );
+
+    // A menu at its button: on its root.
+    let menu = element_line(&js, "wf-menu\"");
+    for attr in [
+        "role: \"group\"",
+        "\"data-kind\": \"view\"",
+        "tabindex: \"-1\"",
+    ] {
+        assert!(menu.contains(attr), "{attr} on the menu: {menu}");
+    }
+    assert!(
+        js.contains(&format!("{}.addEventListener(\"keydown\"", var_of(menu))),
+        "{js}"
+    );
+    assert!(
+        !menu.contains("trigger") && !menu.contains("visible"),
+        "what the menu reads is not an attribute: {menu}"
+    );
+
+    // A menu state opens: its list is the whole of it.
+    let ctx = js
+        .lines()
+        .find(|l| l.contains("WF.el(\"ul\"") && l.contains("\"data-kind\": \"ctx\""))
+        .unwrap_or_else(|| panic!("{js}"));
+    assert!(
+        ctx.contains("role: \"listbox\"") && !ctx.contains("role: \"menu\""),
+        "{ctx}"
+    );
+    assert!(ctx.contains("\"aria-label\": \"Actions\""), "{ctx}");
+    assert!(!ctx.contains("at:") && !ctx.contains("visible:"), "{ctx}");
+    assert!(
+        js.contains(&format!("{}.addEventListener(\"keydown\"", var_of(ctx))),
+        "{js}"
+    );
+
+    // A tooltip: on its wrapper.
+    let tip = element_line(&js, "wf-tooltip\"");
+    assert!(
+        tip.contains("\"data-tip\": \"save\"") && tip.contains("id: \"tip\""),
+        "{tip}"
+    );
+    assert!(
+        js.contains(&format!("{}.addEventListener(\"mouseenter\"", var_of(tip))),
+        "{js}"
+    );
+
+    // A modal and a dialog: on the `<dialog>`, beside the name its title gives.
+    let modal = element_line(&js, "wf-modal\"");
+    for attr in [
+        "\"aria-labelledby\": \"wf-dlg-",
+        "role: \"alertdialog\"",
+        "\"data-kind\": \"modal\"",
+        "tabindex: \"-1\"",
+    ] {
+        assert!(modal.contains(attr), "{attr} on the modal: {modal}");
+    }
+    assert!(
+        !modal.contains("title:"),
+        "its title is its heading: {modal}"
+    );
+    let dialog = element_line(&js, "wf-dialog\"");
+    assert!(
+        dialog.contains("\"data-kind\": \"dialog\"")
+            && dialog.contains("\"aria-describedby\": \"body\""),
+        "{dialog}"
+    );
+    for el in [modal, dialog] {
+        assert!(
+            js.contains(&format!("{}.addEventListener(\"keydown\"", var_of(el))),
+            "{js}"
+        );
+    }
+}
+
+#[test]
+fn a_layers_attributes_are_painted_as_the_live_page_writes_them() {
+    let src = page(
+        "state open = false\n    Button(\"Anchor\", ref: anchor)\n    \
+         Popover(visible: open, anchor: anchor, label: \"Choices\", role: \"listbox\", data-popup: \"row\", id: \"pop\") { Text(\"one\") }\n    \
+         Popover(visible: open, anchor: anchor, label: \"Branches\") { Text(\"main\") }\n    \
+         Menu(trigger: \"View\", role: \"group\", data-kind: \"view\", id: \"view\") { Menu.Item { Text(\"x\") } }\n    \
+         Menu(visible: open, at: { x: 0, y: 0 }, role: \"listbox\", label: \"Mine\", aria-label: \"Actions\", data-kind: \"ctx\") { Menu.Item { Text(\"y\") } }\n    \
+         Tooltip(\"Saves the draft\", data-tip: \"save\") { Button(\"Save\") }",
+    );
+    let html = ssg_html(&src);
+    assert!(
+        html.contains("<div popover=\"manual\" class=\"wf-popover\" aria-label=\"Choices\" role=\"listbox\" data-popup=\"row\" id=\"pop\">"),
+        "the author's role, and the label as its name: {html}"
+    );
+    assert!(
+        html.contains(
+            "popover=\"manual\" role=\"dialog\" class=\"wf-popover\" aria-label=\"Branches\""
+        ),
+        "a dialog when nothing says otherwise: {html}"
+    );
+    assert!(
+        !html.contains(">\n                Branches") && !html.contains("Choices\n"),
+        "a label is a name, not words inside it: {html}"
+    );
+    assert!(
+        html.contains("<div class=\"wf-menu\" role=\"group\" data-kind=\"view\" id=\"view\">"),
+        "{html}"
+    );
+    assert!(
+        html.contains("<ul class=\"wf-menu__items\" role=\"listbox\" aria-label=\"Actions\" data-kind=\"ctx\" hidden>"),
+        "the author's role and name in place of the list's own: {html}"
+    );
+    assert!(
+        html.contains("<div class=\"wf-tooltip\" data-tip=\"save\">"),
+        "{html}"
+    );
+    assert!(
+        html.contains(
+            "<span class=\"wf-tooltip__text\" role=\"tooltip\" hidden>Saves the draft</span>"
+        ),
+        "the tip is hidden until the script shows it, not words in the page: {html}"
+    );
+    let wrapper = html.find("class=\"wf-tooltip\"").unwrap();
+    let button = html[wrapper..].find("<button").unwrap();
+    assert!(
+        !html[wrapper..wrapper + button].contains("Saves the draft"),
+        "nothing painted before its control: {html}"
+    );
+}

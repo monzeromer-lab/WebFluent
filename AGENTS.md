@@ -1616,7 +1616,7 @@ Input types (a flag): `.text`, `.email`, `.password`, `.number`, `.search`, `.te
 | `Toast` | `Toast("Saved!").success` — temporary notification |
 | `Modal` | `Modal(visible: showModal, title: "Title") { ... Modal.Footer { ... } }` |
 | `Dialog` | `Dialog(visible: show, title: "Confirm") { ... }` |
-| `Popover` | `Popover(visible: open, anchor: button, placement: .bottomStart, label: "Branches").arrow { on close(reason) { ... } ... }` — a layer above everything at `anchor:` (a `ref:`) or `at:` a point; flips and slides to stay on screen; Escape or a press outside sets `visible:` back to `false`, and `on close` hears `"escape"` or `"outside"` |
+| `Popover` | `Popover(visible: open, anchor: button, placement: .bottomStart, label: "Branches").arrow { on close(reason) { ... } ... }` — a layer above everything at `anchor:` (a `ref:`) or `at:` a point; flips and slides to stay on screen; Escape or a press outside sets `visible:` back to `false`, and `on close` hears `"escape"` or `"outside"`; `role:` (in place of `dialog`), `tabindex:`, `aria-*`, `data-*`, `ref:` and its other `on` handlers are its element's, as on any element — and on a `Menu`, a `Tooltip`, a `Modal` and a `Dialog` too |
 | `Spinner` | `Spinner` or `Spinner.lg` |
 | `Progress` | `Progress(value: 75, max: 100)` |
 | `Skeleton` | `Skeleton(height: "20px", width: "200px")` or `Skeleton(size: "48px").circle` — flags: `.circle` |

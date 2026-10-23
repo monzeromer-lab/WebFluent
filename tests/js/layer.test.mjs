@@ -1,9 +1,15 @@
 //! Layers: where a popover, a menu or a tooltip goes against its anchor,
-//! and the one stack Escape and a press outside close the top of.
+//! the one stack Escape and a press outside close the top of, and what a
+//! layer is given beyond its own props, as any element is.
 //!
 //! Run: node --test tests/js/
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { makeDom } from "./dom.mjs";
 import { fullRuntime } from "./runtime.mjs";
 
@@ -217,4 +223,125 @@ test("focus inside a layer that cannot be dismissed keeps its Escape", () => {
   const key = press(document, "Escape");
   assert.equal(shown(), false, "it hid, and its state followed");
   assert.equal(key.prevented && key.stopped, true);
+});
+
+// ─── What a layer takes as any element does ─────────────────────────
+
+/// The `wf` this checkout built most recently, release or debug.
+function newestWf() {
+  const built = ["release", "debug"]
+    .map((p) => fileURLToPath(new URL(`../../target/${p}/wf`, import.meta.url)))
+    .filter((p) => existsSync(p));
+  built.sort((a, b) => statSync(b).mtimeMs - statSync(a).mtimeMs);
+  return built[0] || null;
+}
+
+/// Build a one-page project of `body` with the compiler and mount what it
+/// wrote against the fake DOM: the codegen and the runtime together.
+function mountPage(body) {
+  const wf = newestWf();
+  if (!wf) return null;
+  const dir = mkdtempSync(join(tmpdir(), "wf-layer-args-"));
+  try {
+    mkdirSync(join(dir, "src/pages"), { recursive: true });
+    writeFileSync(join(dir, "webfluent.app.json"), JSON.stringify({ name: "Args", build: { output: "./build", ssg: false, minify: false } }));
+    writeFileSync(join(dir, "src/pages/Home.wf"), `page Home(path: "/", title: "Args", description: "Layers and what they are given.") {\n    Heading("Args").h1\n${body}\n}\n`);
+    execFileSync(wf, ["build", "-d", dir], { stdio: "pipe" });
+    let src = readFileSync(join(dir, "build/app.js"), "utf8");
+    const pages = join(dir, "build/pages");
+    if (existsSync(pages)) {
+      for (const file of readdirSync(pages).sort()) {
+        if (file.endsWith(".js")) src += "\n" + readFileSync(join(pages, file), "utf8");
+      }
+    }
+    const { window, document, Node, Element, DocumentFragment } = makeDom();
+    window.innerWidth = 1000;
+    window.innerHeight = 600;
+    const app = document.createElement("div");
+    app.id = "app";
+    document.body.appendChild(app);
+    const timers = [];
+    window.setTimeout = (fn) => { timers.push(fn); return timers.length; };
+    window.clearTimeout = () => {};
+    const run = new Function(
+      "window", "document", "Node", "Element", "DocumentFragment", "setTimeout", "clearTimeout", "URLSearchParams", "console",
+      `${src}\nreturn typeof WF !== "undefined" ? WF : null;`,
+    );
+    const WF = run(window, document, Node, Element, DocumentFragment, window.setTimeout, window.clearTimeout, URLSearchParams, console);
+    const drain = () => { while (timers.length) timers.shift()(); };
+    drain();
+    return { WF, document, drain };
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+test("a popover, a menu, a tooltip and a modal are given role, tabindex, aria-* and data-*, and hear their handlers", () => {
+  const page = mountPage(`    state open = true
+    state keys = 0
+    state closes = 0
+    state why = ""
+    Button("Anchor", ref: anchor)
+    Popover(visible: open, anchor: anchor, label: "Choices", role: "listbox", tabindex: "-1", data-popup: "row", aria-describedby: "hint", id: "pop") {
+        on keydown(e) { keys = keys + 1 }
+        on close(reason) {
+            closes = closes + 1
+            why = reason
+        }
+        Text("one", role: "option")
+    }
+    Menu(trigger: "View", role: "group", data-kind: "view", id: "view") {
+        on keydown(e) { keys = keys + 1 }
+        Menu.Item { Text("x") }
+    }
+    Tooltip("Save", data-tip: "save", id: "tip") {
+        on mouseenter { keys = keys + 1 }
+        Button("Save")
+    }
+    Modal(visible: false, title: "M", role: "alertdialog", data-kind: "modal") {
+        on keydown(e) { keys = keys + 1 }
+        Text("m")
+    }
+    Text("{keys} {closes} {why}", id: "said")
+    Text("hint", id: "hint")`);
+  if (!page) return; // no compiler built: the Rust tests cover the build
+  const { document, drain } = page;
+  const said = () => document.querySelector("#said").textContent;
+  const pop = document.querySelector("#pop");
+  assert.ok(pop, "the popover is drawn");
+  assert.equal(pop.getAttribute("role"), "listbox", "its author's role, in place of dialog");
+  assert.equal(pop.getAttribute("tabindex"), "-1");
+  assert.equal(pop.getAttribute("data-popup"), "row");
+  assert.equal(pop.getAttribute("aria-describedby"), "hint");
+  assert.equal(pop.getAttribute("aria-label"), "Choices");
+  assert.equal(pop.hasAttribute("data-open"), true, "open, as its state says");
+
+  pop.dispatchEvent({ type: "keydown", key: "a", target: pop });
+  drain();
+  assert.equal(said(), "1 0 ", "its `on keydown` is its own element's");
+
+  document.dispatchEvent({ type: "keydown", key: "Escape", preventDefault() {}, stopPropagation() {} });
+  drain();
+  assert.equal(pop.hasAttribute("data-open"), false, "Escape closed it");
+  assert.equal(said(), "1 1 escape", "and `on close` heard why, once");
+
+  const menu = document.querySelector("#view");
+  assert.equal(menu.getAttribute("role"), "group");
+  assert.equal(menu.getAttribute("data-kind"), "view");
+  menu.dispatchEvent({ type: "keydown", key: "a", target: menu });
+  drain();
+  assert.equal(said(), "2 1 escape", "a menu's `on keydown` is its root's");
+
+  const tip = document.querySelector("#tip");
+  assert.equal(tip.getAttribute("data-tip"), "save");
+  tip.dispatchEvent({ type: "mouseenter", target: tip });
+  drain();
+  assert.equal(said(), "3 1 escape", "a tooltip's handler is its wrapper's");
+
+  const modal = document.querySelector("dialog");
+  assert.equal(modal.getAttribute("role"), "alertdialog");
+  assert.equal(modal.getAttribute("data-kind"), "modal");
+  modal.dispatchEvent({ type: "keydown", key: "a", target: modal });
+  drain();
+  assert.equal(said(), "4 1 escape", "a modal's handler is its dialog's");
 });

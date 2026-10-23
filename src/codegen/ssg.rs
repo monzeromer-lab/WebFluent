@@ -1297,22 +1297,32 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
             } else {
                 named("label")
             };
-            let id = named("id")
-                .map(|v| format!(" id=\"{}\"", html_escape(&v)))
-                .unwrap_or_default();
+            // `id:`, `role:`, `aria-*`, `data-*`: on the menu's root, as the
+            // live page writes them.
+            let own = layer_root_attrs(ui, ctx, crate::codegen::js::MENU_READS);
             let items_class = format!("wf-{}__items", name.to_lowercase());
             let aria = label
                 .map(|l| format!(" aria-label=\"{}\"", html_escape(&l)))
                 .unwrap_or_default();
             let indent = ctx.indent_str();
             // Opened by state alone — a context menu, or one a menu bar
-            // opens — the live page draws the list and nothing else.
+            // opens — the live page draws the list and nothing else. Its
+            // author's `role:` and `aria-label:` take the place of its own.
             if trigger.is_none() && given("visible").is_some() {
                 let classes =
                     crate::codegen::builtin::class_list(&items_class, &ui.modifiers).join(" ");
-                let mut out = format!(
-                    "{indent}<ul class=\"{classes}\" role=\"menu\"{aria}{id}{wf} hidden>\n"
-                );
+                let role = if given("role").is_some() {
+                    ""
+                } else {
+                    " role=\"menu\""
+                };
+                let aria = if given("aria-label").is_some() {
+                    ""
+                } else {
+                    aria.as_str()
+                };
+                let mut out =
+                    format!("{indent}<ul class=\"{classes}\"{role}{aria}{own}{wf} hidden>\n");
                 ctx.indent += 1;
                 out.push_str(&render_statements(&ui.children, ctx));
                 ctx.indent -= 1;
@@ -1320,7 +1330,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                 return out;
             }
             let trigger = trigger.unwrap_or_else(|| "Menu".to_string());
-            let mut out = format!("{indent}<div class=\"{class_str}\"{id}{wf}{inline_style}>\n");
+            let mut out = format!("{indent}<div class=\"{class_str}\"{own}{wf}{inline_style}>\n");
             ctx.indent += 1;
             let inner = ctx.indent_str();
             out.push_str(&format!(
@@ -1334,6 +1344,34 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
             out.push_str(&render_statements(&ui.children, ctx));
             ctx.indent -= 1;
             out.push_str(&format!("{inner}</ul>\n"));
+            ctx.indent -= 1;
+            out.push_str(&format!("{indent}</div>\n"));
+            return out;
+        }
+        // A tooltip: its child, and its words hidden beside it, as the live
+        // page draws them. Painted as the wrapper's text, the words stood
+        // in the page beside the control until the script took over.
+        "Tooltip" => {
+            let text = ui
+                .args
+                .iter()
+                .find_map(|a| match a {
+                    Arg::Named(k, v) if k == "text" => Some(v),
+                    Arg::Positional(v) => Some(v),
+                    _ => None,
+                })
+                .and_then(|v| resolve_text_scoped(v, &ctx.default_messages, &ctx.scope))
+                .unwrap_or_default();
+            let own = layer_root_attrs(ui, ctx, &[]);
+            let indent = ctx.indent_str();
+            let mut out = format!("{indent}<div class=\"{class_str}\"{own}{wf}{inline_style}>\n");
+            ctx.indent += 1;
+            out.push_str(&render_statements(&ui.children, ctx));
+            out.push_str(&format!(
+                "{}<span class=\"wf-tooltip__text\" role=\"tooltip\" hidden>{}</span>\n",
+                ctx.indent_str(),
+                html_escape(&text)
+            ));
             ctx.indent -= 1;
             out.push_str(&format!("{indent}</div>\n"));
             return out;
@@ -1469,8 +1507,16 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
         attrs.push(format!("role=\"{}\"", role));
     }
     // A layer is in the top layer only when shown, and hidden until then.
+    // It is a dialog unless its author says what it is.
     if name == "Popover" {
-        attrs.push("popover=\"manual\" role=\"dialog\"".to_string());
+        attrs.push("popover=\"manual\"".to_string());
+        if !ui
+            .args
+            .iter()
+            .any(|a| matches!(a, Arg::Named(k, _) if k == "role"))
+        {
+            attrs.push("role=\"dialog\"".to_string());
+        }
     }
     if let Some(label) = landmark_label(name) {
         attrs.push(format!("aria-label=\"{}\"", label));
@@ -1559,6 +1605,18 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                         }
                     }
                     "caption" if name == "Table" => {} // Rendered as the first child below
+                    // A popover's label is its accessible name, as on the
+                    // live page, not words painted inside it — unless its
+                    // author gave the name itself.
+                    "label" if name == "Popover" => {
+                        let named = ui
+                            .args
+                            .iter()
+                            .any(|a| matches!(a, Arg::Named(k, _) if k == "aria-label"));
+                        if !named && let Some(s) = static_attr(val, &ctx.scope) {
+                            attrs.push(format!("aria-label=\"{}\"", html_escape(&s)));
+                        }
+                    }
                     "label" if name == "IconButton" => {
                         // An icon button's label is its accessible name, not
                         // visible text: it used to be painted as a word next
@@ -2432,6 +2490,39 @@ fn address_text(expr: &Expr, scope: &Scope) -> Option<String> {
         });
     }
     Some(crate::codegen::url::join_address(&pieces))
+}
+
+/// What the root of a layer drawn by its own branch above carries as any
+/// element does, as far as the build knows it: the global attributes
+/// (`id`, `role`, `tabindex`, `title`, `lang`, `dir`, `hidden`), `aria-*`
+/// and `data-*`, as ` key="value"` — what the live page writes there, so
+/// the paint agrees with it. `reads` names what the branch draws itself.
+fn layer_root_attrs(ui: &UIElement, ctx: &SsgContext, reads: &[&str]) -> String {
+    let mut out = String::new();
+    for arg in &ui.args {
+        let Arg::Named(key, val) = arg else {
+            continue;
+        };
+        if reads.contains(&key.as_str()) {
+            continue;
+        }
+        match key.as_str() {
+            "hidden" => {
+                if matches!(eval(val, &ctx.scope), Some(Static::Bool(true))) {
+                    out.push_str(" hidden");
+                }
+            }
+            k if matches!(k, "id" | "role" | "tabindex" | "title" | "lang" | "dir")
+                || k.contains('-') =>
+            {
+                if let Some(v) = static_attr(val, &ctx.scope) {
+                    out.push_str(&format!(" {k}=\"{}\"", html_escape(&v)));
+                }
+            }
+            _ => {}
+        }
+    }
+    out
 }
 
 fn static_attr(expr: &Expr, scope: &Scope) -> Option<String> {

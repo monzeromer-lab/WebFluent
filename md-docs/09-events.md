@@ -309,6 +309,14 @@ page Editor(path: "/", title: "Editor", description: "Layers at a control and at
   chip with the keys and gives the control it names its
   `aria-keyshortcuts`, in ARIA's spelling (`Control+S`); `placement:` is
   where it goes (unset, `.top`).
+- A layer takes what any element takes, on the element it draws: `id:`,
+  `role:`, `tabindex:`, `title:`, `aria-*`, `data-*`, `ref:`, and its `on`
+  handlers. A `Popover` is a `dialog` unless its `role:` says what else it
+  is — a `listbox` of choices. A `Menu` with a `trigger:` takes them on the
+  box around its button and list, and one that state opens on its list,
+  whose `role:` then replaces `menu`; a `Tooltip` on the box around its
+  control; a `Modal` or a `Dialog` on its `<dialog>`. A `Popover`'s or a
+  `Menu`'s `on close` is the layer's own, and hears why it closed.
 
 ## Gestures: drag, long-press, swipe and the splitter
 

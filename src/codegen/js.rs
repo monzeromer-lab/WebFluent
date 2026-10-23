@@ -75,6 +75,18 @@ pub const GESTURE_EVENTS: &[&str] = &["longpress", "swipe", "receive", "dragmove
 /// attributes the element carries.
 pub const DRAG_PROPS: &[&str] = &["drag", "dragGroup", "dropValue", "dropAxis", "dropInside"];
 
+/// What the emitter of a `Menu` and a `Dropdown` reads itself, whichever of
+/// the two it draws: never an attribute of the element.
+pub const MENU_READS: &[&str] = &[
+    "trigger",
+    "label",
+    "visible",
+    "anchor",
+    "at",
+    "placement",
+    "offset",
+];
+
 /// JavaScript code generator — compiles the AST to a JS bundle with reactivity and routing.
 pub struct JsCodegen {
     output: String,
@@ -3890,11 +3902,13 @@ impl JsCodegen {
         } else {
             String::new()
         };
+        let extra = self.layer_attrs(name, ui, &[]);
         self.emit_line(&format!(
-            "const {} = WF.el(\"dialog\", {{ className: \"{}\"{}{} }});",
+            "const {} = WF.el(\"dialog\", {{ className: \"{}\"{}{}{} }});",
             var,
             root_classes,
             labelled,
+            extra,
             self.wf_node_inline(ui)
         ));
 
@@ -3960,6 +3974,7 @@ impl JsCodegen {
         }
 
         self.emit_line(&format!("{}.appendChild({});", var, content_var));
+        self.emit_layer_handlers(var, ui, false);
 
         // Visibility binding. `WF.dialog` drives `showModal()`/`close()` and
         // writes the signal back when the browser closes the dialog itself — via
@@ -4051,11 +4066,19 @@ impl JsCodegen {
             Some(v) => format!(", \"aria-label\": {}", self.emit_expr(&v)),
             None => String::new(),
         };
-        let extra = self.passthrough_attrs(ui);
+        // A popover is a dialog unless its author says what it is: a
+        // `listbox` of choices, a `tooltip`.
+        let role = if Self::gives(ui, "role") {
+            ""
+        } else {
+            ", role: \"dialog\""
+        };
+        let extra = self.layer_attrs("Popover", ui, &[]);
         self.emit_line(&format!(
-            "const {} = WF.el(\"div\", {{ className: \"{}\", role: \"dialog\"{}{}{} }});",
+            "const {} = WF.el(\"div\", {{ className: \"{}\"{}{}{}{} }});",
             var,
             self.class_attr("Popover", ui),
+            role,
             labelled,
             extra,
             self.wf_node_inline(ui)
@@ -4063,6 +4086,7 @@ impl JsCodegen {
         for child in &ui.children {
             self.emit_statement_dom(child, var);
         }
+        self.emit_layer_handlers(var, ui, true);
         let mut opts = self.layer_options(ui);
         opts.extend(self.close_handler(ui));
         self.emit_line(&format!(
@@ -4576,11 +4600,17 @@ impl JsCodegen {
         if let (None, Some((read, write))) = (&label, &visible) {
             let classes =
                 crate::codegen::builtin::class_list(&items_class, &ui.modifiers).join(" ");
-            let extra = self.passthrough_attrs(ui);
+            let role = if Self::gives(ui, "role") {
+                ""
+            } else {
+                ", role: \"menu\""
+            };
+            let extra = self.layer_attrs(name, ui, MENU_READS);
             self.emit_line(&format!(
-                "const {} = WF.el(\"ul\", {{ className: \"{}\", role: \"menu\"{}{}{} }});",
+                "const {} = WF.el(\"ul\", {{ className: \"{}\"{}{}{}{} }});",
                 var,
                 classes,
+                role,
                 aria_name,
                 extra,
                 self.wf_node_inline(ui)
@@ -4593,6 +4623,7 @@ impl JsCodegen {
                 self.emit_statement_dom(child, var);
             }
             self.menu_lists.pop();
+            self.emit_layer_handlers(var, ui, true);
             self.emit_line(&format!("{}.appendChild({});", parent, var));
             return;
         }
@@ -4607,7 +4638,7 @@ impl JsCodegen {
             label
         };
         let root_classes = self.class_attr(name, ui);
-        let extra = self.passthrough_attrs(ui);
+        let extra = self.layer_attrs(name, ui, MENU_READS);
         // What says the menu is open: `visible:` when it is given and can
         // be written, else the menu's own.
         let (read, write) = match visible {
@@ -4665,6 +4696,7 @@ impl JsCodegen {
         }
         self.menu_lists.pop();
         self.emit_line(&format!("{}.appendChild({});", var, items_var));
+        self.emit_layer_handlers(var, ui, true);
         self.emit_line(&format!("{}.appendChild({});", parent, var));
     }
 
@@ -4677,6 +4709,83 @@ impl JsCodegen {
             self.handler_head(handler, "reason"),
             body
         ))
+    }
+
+    /// What the root of a layer — `Popover`, `Menu`, `Tooltip`, `Modal`,
+    /// `Dialog` — takes as any other element does: every named argument
+    /// that is not one of the component's own props, as `, key: value`.
+    /// That is the global attributes (`id:`, `role:`, `tabindex:`, `title:`
+    /// …), `aria-*` and `data-*`, a `ref:`, and anything else, which `C04`
+    /// says is written to the element as an attribute. A value that reads
+    /// state follows it, and one the browser follows goes through the
+    /// scheme check first, as on the generic path. Its own props are its
+    /// emitter's, and so is what `reads` names (a `Dropdown` is drawn by
+    /// the menu's emitter, which reads a menu's props); the props every
+    /// element takes (`class:`, motion, a lifetime, a drag) are the shared
+    /// tail's.
+    fn layer_attrs(&mut self, name: &str, ui: &UIElement, reads: &[&str]) -> String {
+        let sig = crate::registry::component(name);
+        let mut out = String::new();
+        for arg in &ui.args {
+            let Arg::Named(key, val) = arg else { continue };
+            if reads.contains(&key.as_str()) {
+                continue;
+            }
+            if key == "ref" {
+                if let Expr::Identifier(handle) = val {
+                    out.push_str(&format!(", ref: {handle}"));
+                }
+                continue;
+            }
+            if sig.is_some_and(|s| {
+                s.prop(key)
+                    .is_some_and(|p| p.sink != crate::registry::Sink::Attr)
+            }) {
+                continue;
+            }
+            // A value per breakpoint is carried by a class, not an attribute.
+            if crate::codegen::scoped_css::is_responsive(val) {
+                continue;
+            }
+            let value = if crate::codegen::url::URL_ATTRS.contains(&key.as_str()) {
+                self.url_value(val)
+            } else {
+                self.emit_expr(val)
+            };
+            let k = if key.contains('-') {
+                format!("\"{key}\"")
+            } else {
+                key.clone()
+            };
+            if self.is_reactive(&value) {
+                out.push_str(&format!(", {k}: () => {value}"));
+            } else {
+                out.push_str(&format!(", {k}: {value}"));
+            }
+        }
+        out
+    }
+
+    /// Whether the author gave `key:` — a `role:` that takes the place of
+    /// the one a layer's root would have.
+    fn gives(ui: &UIElement, key: &str) -> bool {
+        ui.args
+            .iter()
+            .any(|a| matches!(a, Arg::Named(k, _) if k == key))
+    }
+
+    /// A layer's `on …` handlers, on its root as on any element: every one
+    /// but `on close`, which the layer hears itself (`close_handler`) when
+    /// `own_close` says so.
+    fn emit_layer_handlers(&mut self, var: &str, ui: &UIElement, own_close: bool) {
+        for handler in &ui.events {
+            if own_close && handler.event == "close" {
+                continue;
+            }
+            let body = self.emit_event_body(handler);
+            let line = self.element_listener(var, handler, &body);
+            self.emit_line(&line);
+        }
     }
 
     /// The attributes a layer's own emitter passes through to its root:
@@ -5021,10 +5130,12 @@ impl JsCodegen {
         // loop draws, is the same code for every copy.
         let tip_id = self.fresh_var();
         self.emit_line(&format!("const {tip_id} = WF.uid(\"wf-tip\");"));
+        let extra = self.layer_attrs("Tooltip", ui, &[]);
         self.emit_line(&format!(
-            "const {} = WF.el(\"div\", {{ className: \"{}\"{} }});",
+            "const {} = WF.el(\"div\", {{ className: \"{}\"{}{} }});",
             var,
             self.class_attr("Tooltip", ui),
+            extra,
             self.wf_node_inline(ui)
         ));
 
@@ -5060,6 +5171,7 @@ impl JsCodegen {
             }
         }
         self.emit_line(&format!("{}.appendChild({});", var, tip_var));
+        self.emit_layer_handlers(var, ui, false);
         // The runtime points the trigger at the tip, shows it above
         // everything at the trigger, and makes it reachable and dismissible
         // from the keyboard.
