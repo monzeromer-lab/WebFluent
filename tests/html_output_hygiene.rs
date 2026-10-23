@@ -424,6 +424,57 @@ page P(path: "/", title: "T", description: "Boolean attributes.") {
     }
 }
 
+/// Every menu paints as the live page draws it: one given no words for
+/// its button has the button the live page gives it ("Menu"), one opened
+/// by state alone is its list and nothing else, and one whose words come
+/// from state has its button too.
+#[test]
+fn a_menu_paints_as_the_live_page_draws_it() {
+    let src = r#"
+page P(path: "/", title: "T", description: "Menus.") {
+    state open = false
+    state word = "Edit"
+    Menu(label: "File") {
+        Menu.Item { Text("New") }
+    }
+    Menu(visible: open, label: "Context") {
+        Menu.Item { Text("Copy") }
+    }
+    Menu(trigger: word) {
+        Menu.Item { Text("Undo") }
+    }
+}
+"#;
+    for backend in [Backend::Ssg, Backend::Template] {
+        let html = raw_output(backend, src);
+        let name = backend.name();
+        let buttons: Vec<&str> = html
+            .match_indices("<button")
+            .map(|(at, _)| &html[at..at + html[at..].find("</button>").unwrap()])
+            .collect();
+        assert_eq!(buttons.len(), 2, "{name}: two menus have buttons: {html}");
+        assert!(buttons[0].ends_with(">Menu"), "{name}: {html}");
+        assert!(
+            html.contains(r#"<ul class="wf-menu__items" role="menu" aria-label="File" hidden>"#),
+            "{name}: {html}"
+        );
+        // The menu state opens: its list, straight after the box of the
+        // menu before it, in no box of its own.
+        let at = html
+            .find(r#"aria-label="Context""#)
+            .expect("the context menu's list");
+        let open = html[..at].rfind('<').unwrap();
+        assert!(
+            html[open..].starts_with("<ul class=\"wf-menu__items\""),
+            "{name}: {html}"
+        );
+        assert!(
+            html[..open].trim_end().ends_with("</div>"),
+            "{name}: {html}"
+        );
+    }
+}
+
 /// A menu at its button paints as its button, and its list hidden: not as
 /// its entries laid out in the page with its label loose above them.
 #[test]

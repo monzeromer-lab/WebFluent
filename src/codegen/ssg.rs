@@ -1271,21 +1271,27 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
         // script opens it — as the live page draws it, which takes this one
         // over. Painted as the bare items, a menu used to be a column of
         // its entries in the page, with no button, its `label:` loose text
-        // above them. A menu opened by state has no button.
+        // above them. A menu opened by state is its list alone.
         "Menu" | "Dropdown" => {
-            let named = |key: &str| {
+            let given = |key: &str| {
                 ui.args.iter().find_map(|a| match a {
-                    Arg::Named(k, v) if k == key => {
-                        resolve_text_scoped(v, &ctx.default_messages, &ctx.scope)
-                    }
+                    Arg::Named(k, v) if k == key => Some(v),
                     _ => None,
                 })
             };
-            let trigger = if name == "Dropdown" {
-                named("label")
-            } else {
-                named("trigger")
+            let named = |key: &str| {
+                given(key).and_then(|v| resolve_text_scoped(v, &ctx.default_messages, &ctx.scope))
             };
+            // The button's words: a `Menu`'s `trigger:`, a `Dropdown`'s
+            // `label:`. One the build cannot work out is drawn empty, for
+            // the script to fill, and a menu given none says "Menu", as the
+            // live page's does.
+            let says = if name == "Dropdown" {
+                "label"
+            } else {
+                "trigger"
+            };
+            let trigger = given(says).map(|_| named(says).unwrap_or_default());
             let label = if name == "Dropdown" {
                 None
             } else {
@@ -1295,19 +1301,32 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                 .map(|v| format!(" id=\"{}\"", html_escape(&v)))
                 .unwrap_or_default();
             let items_class = format!("wf-{}__items", name.to_lowercase());
-            let indent = ctx.indent_str();
-            let mut out = format!("{indent}<div class=\"{class_str}\"{id}{wf}{inline_style}>\n");
-            ctx.indent += 1;
-            let inner = ctx.indent_str();
-            if let Some(trigger) = &trigger {
-                out.push_str(&format!(
-                    "{inner}<button class=\"wf-btn wf-menu__trigger\" type=\"button\" aria-haspopup=\"menu\" aria-expanded=\"false\">{}</button>\n",
-                    html_escape(trigger)
-                ));
-            }
             let aria = label
                 .map(|l| format!(" aria-label=\"{}\"", html_escape(&l)))
                 .unwrap_or_default();
+            let indent = ctx.indent_str();
+            // Opened by state alone — a context menu, or one a menu bar
+            // opens — the live page draws the list and nothing else.
+            if trigger.is_none() && given("visible").is_some() {
+                let classes =
+                    crate::codegen::builtin::class_list(&items_class, &ui.modifiers).join(" ");
+                let mut out = format!(
+                    "{indent}<ul class=\"{classes}\" role=\"menu\"{aria}{id}{wf} hidden>\n"
+                );
+                ctx.indent += 1;
+                out.push_str(&render_statements(&ui.children, ctx));
+                ctx.indent -= 1;
+                out.push_str(&format!("{indent}</ul>\n"));
+                return out;
+            }
+            let trigger = trigger.unwrap_or_else(|| "Menu".to_string());
+            let mut out = format!("{indent}<div class=\"{class_str}\"{id}{wf}{inline_style}>\n");
+            ctx.indent += 1;
+            let inner = ctx.indent_str();
+            out.push_str(&format!(
+                "{inner}<button class=\"wf-btn wf-menu__trigger\" type=\"button\" aria-haspopup=\"menu\" aria-expanded=\"false\">{}</button>\n",
+                html_escape(&trigger)
+            ));
             out.push_str(&format!(
                 "{inner}<ul class=\"{items_class}\" role=\"menu\"{aria} hidden>\n"
             ));

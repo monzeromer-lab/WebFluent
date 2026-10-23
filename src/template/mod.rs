@@ -1524,6 +1524,10 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                     _ => None,
                 })
             };
+            let visible = ui
+                .args
+                .iter()
+                .any(|a| matches!(a, Arg::Named(k, _) if k == "visible"));
             let trigger = if name == "Dropdown" {
                 named(ctx, "label")
             } else {
@@ -1534,22 +1538,34 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
             } else {
                 named(ctx, "label")
             };
-            let indent = ctx.indent_str();
-            let mut out = format!("{indent}<div class=\"{class_str}\"{style_attr}>\n");
-            ctx.indent += 1;
-            let inner = ctx.indent_str();
-            if let Some(trigger) = &trigger {
-                out.push_str(&format!(
-                    "{inner}<button class=\"wf-btn wf-menu__trigger\" type=\"button\" aria-haspopup=\"menu\" aria-expanded=\"false\">{}</button>\n",
-                    html_escape(trigger)
-                ));
-            }
             let aria = label
                 .map(|l| format!(" aria-label=\"{}\"", html_escape(&l)))
                 .unwrap_or_default();
+            let items_class = format!("wf-{}__items", name.to_lowercase());
+            let indent = ctx.indent_str();
+            // Opened by state alone, a menu is its list and nothing else.
+            if trigger.is_none() && visible {
+                let classes =
+                    crate::codegen::builtin::class_list(&items_class, &ui.modifiers).join(" ");
+                let mut out =
+                    format!("{indent}<ul class=\"{classes}\" role=\"menu\"{aria} hidden>\n");
+                ctx.indent += 1;
+                out.push_str(&render_statements(&ui.children, ctx));
+                ctx.indent -= 1;
+                out.push_str(&format!("{indent}</ul>\n"));
+                return out;
+            }
+            // Given no words for its button, a menu's says "Menu".
+            let trigger = trigger.unwrap_or_else(|| "Menu".to_string());
+            let mut out = format!("{indent}<div class=\"{class_str}\"{style_attr}>\n");
+            ctx.indent += 1;
+            let inner = ctx.indent_str();
             out.push_str(&format!(
-                "{inner}<ul class=\"wf-{}__items\" role=\"menu\"{aria} hidden>\n",
-                name.to_lowercase()
+                "{inner}<button class=\"wf-btn wf-menu__trigger\" type=\"button\" aria-haspopup=\"menu\" aria-expanded=\"false\">{}</button>\n",
+                html_escape(&trigger)
+            ));
+            out.push_str(&format!(
+                "{inner}<ul class=\"{items_class}\" role=\"menu\"{aria} hidden>\n"
             ));
             ctx.indent += 1;
             out.push_str(&render_statements(&ui.children, ctx));
