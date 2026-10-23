@@ -50,8 +50,8 @@ the character it is: it makes no link, no emphasis and no entity. In a
 link's words an escaped bracket is a bracket like any other
 (`[a\]b](/c)`), and they hold no unescaped `[`, so in `[a [b](/c)` only
 `b` is the link. In a URL an escape is read as the character it is, so
-`[x](javascript\:alert(1))` is checked as the `javascript:` URL it says,
-and drawn as its words.
+`[x](javascript\:alert\(1\))` is checked as the `javascript:alert(1)` URL
+it says, and drawn as its words.
 
 A backslash before anything else is shown, as `C:\Users` is, and so is
 one in a code span or a fence, where nothing is Markdown. A line that ends

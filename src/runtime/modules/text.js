@@ -13,23 +13,31 @@
   function mdEscape(text) {
     return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\x22/g, "&quot;");
   }
+  // Whitespace as the compiler's `str::trim` and regex `\s` have it
+  // (Unicode's White_Space): JavaScript's `\s` and `trim` add U+FEFF and
+  // leave out U+0085, which would draw a line one way at build time and
+  // another here.
+  const MD_WS = "\\t\\n\\v\\f\\r \\u0085\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000";
+  const mdTrim = (t) => t.replace(MD.trim, "");
   // Written as `RegExp` over strings, so a tool that scans the bundle for
   // balanced brackets is not misled by a bracket inside a pattern.
   const MD = {
-    heading: new RegExp("^(#{1,6}) (.*)$"),
-    bullet: new RegExp("^[-*] (.*)$"),
-    numbered: new RegExp("^[0-9]+\\. (.*)$"),
+    heading: new RegExp("^(#{1,6}) (.*)$", "s"),
+    bullet: new RegExp("^[-*] (.*)$", "s"),
+    numbered: new RegExp("^[0-9]+\\. (.*)$", "s"),
     // An ASCII punctuation character, which a backslash escapes.
     punct: new RegExp("^[!-\\/:-@\\[-\\x60{-~]$"),
     escaped: new RegExp("\\\\([!-\\/:-@\\[-\\x60{-~])", "g"),
     held: new RegExp("\\u0000(0|[1-9][0-9]*)\\u0000", "g"),
-    space: new RegExp("\\s"),
-    image: new RegExp("!\\[([^\\[\\]]*)\\]\\(([^)\\s]+)\\)", "g"),
-    link: new RegExp("\\[([^\\[\\]]+)\\]\\(([^)\\s]+)\\)", "g"),
+    space: new RegExp("[" + MD_WS + "]"),
+    trim: new RegExp("^[" + MD_WS + "]+|[" + MD_WS + "]+$", "g"),
+    trimStart: new RegExp("^[" + MD_WS + "]+"),
+    image: new RegExp("!\\[([^\\[\\]]*)\\]\\(([^)" + MD_WS + "]+)\\)", "g"),
+    link: new RegExp("\\[([^\\[\\]]+)\\]\\(([^)" + MD_WS + "]+)\\)", "g"),
     // Inert's: an image with the space after it, and a link whose words
     // may be empty — what is left of a linked image.
-    picture: new RegExp("!\\[([^\\[\\]]*)\\]\\(([^)\\s]+)\\) ?", "g"),
-    words: new RegExp("\\[([^\\[\\]]*)\\]\\(([^)\\s]+)\\)", "g"),
+    picture: new RegExp("!\\[([^\\[\\]]*)\\]\\(([^)" + MD_WS + "]+)\\) ?", "g"),
+    words: new RegExp("\\[([^\\[\\]]*)\\]\\(([^)" + MD_WS + "]+)\\)", "g"),
     strong: new RegExp("\\*\\*([^*]+)\\*\\*", "g"),
     em: new RegExp("\\*([^*]+)\\*", "g"),
     em2: new RegExp("(^|[^A-Za-z0-9])_([^_]+)_($|[^A-Za-z0-9])", "g"),
@@ -61,13 +69,13 @@
   }
   function mdHeading(line) {
     const m = MD.heading.exec(line);
-    return m ? [m[1].length, m[2].trim()] : null;
+    return m ? [m[1].length, mdTrim(m[2])] : null;
   }
   function mdListItem(line) {
     let m = MD.bullet.exec(line);
-    if (m) return [m[1].trim(), false];
+    if (m) return [mdTrim(m[1]), false];
     m = MD.numbered.exec(line);
-    if (m) return [m[1].trim(), true];
+    if (m) return [mdTrim(m[1]), true];
     return null;
   }
   /// `text` escaped, with its code spans and backslash escapes held aside
@@ -364,15 +372,15 @@
     let i = 0;
     const isBlock = (t) => t === "" || t.startsWith("```") || t === "---" || t === "***" || mdHeading(t) || t.startsWith(">") || mdListItem(t);
     while (i < lines.length) {
-      const t = lines[i].trim();
+      const t = mdTrim(lines[i]);
       if (t === "") { i++; continue; }
       if (t.startsWith("```")) {
         // The language takes backslash escapes, as CommonMark's info
         // string does; the code does not.
-        const lang = t.slice(3).trim().replace(MD.escaped, "$1");
+        const lang = mdTrim(t.slice(3)).replace(MD.escaped, "$1");
         let raw = "";
         i++;
-        while (i < lines.length && lines[i].trim() !== "```") { raw += lines[i] + "\n"; i++; }
+        while (i < lines.length && mdTrim(lines[i]) !== "```") { raw += lines[i] + "\n"; i++; }
         i++;
         const code = highlightKnows(lang) ? highlight(raw, lang) : mdEscape(raw);
         out += lang ? '<pre><code class="language-' + mdEscape(lang) + '">' + code + "</code></pre>\n" : "<pre><code>" + code + "</code></pre>\n";
@@ -383,7 +391,7 @@
       if (h) { out += "<h" + h[0] + ">" + mdInline(h[1], inert) + "</h" + h[0] + ">\n"; i++; continue; }
       if (t.startsWith(">")) {
         const quoted = [];
-        while (i < lines.length && lines[i].trim().startsWith(">")) { quoted.push(lines[i].trim().slice(1).replace(/^\s+/, "")); i++; }
+        while (i < lines.length && mdTrim(lines[i]).startsWith(">")) { quoted.push(mdTrim(lines[i]).slice(1).replace(MD.trimStart, "")); i++; }
         out += "<blockquote>\n" + markdown(quoted.join("\n"), opts) + "</blockquote>\n";
         continue;
       }
@@ -393,7 +401,7 @@
         const tag = ordered ? "ol" : "ul";
         out += "<" + tag + ">\n";
         while (i < lines.length) {
-          const it = mdListItem(lines[i].trim());
+          const it = mdListItem(mdTrim(lines[i]));
           if (!it || it[1] !== ordered) break;
           out += "<li>" + mdInline(it[0], inert) + "</li>\n";
           i++;
@@ -405,8 +413,8 @@
       // breaks there (`\u0001` marks it), and so does one that ends in a
       // backslash, which `mdHold` sees before the newline.
       const para = [];
-      while (i < lines.length && !isBlock(lines[i].trim())) {
-        const t = lines[i].trim();
+      while (i < lines.length && !isBlock(mdTrim(lines[i]))) {
+        const t = mdTrim(lines[i]);
         para.push(lines[i].endsWith("  ") ? t + "\u0001" : t);
         i++;
       }

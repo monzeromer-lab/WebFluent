@@ -448,6 +448,7 @@ fn markdown_mixtures(count: usize) -> Vec<String> {
         "javascript:", "JavaScript:", "data:", "x:y", "\u{1f}", "\u{0}", "\u{1}", "\t", "\u{a0}",
         "é", "\\*", "\\_", "\\`", "\\[", "\\]", "\\(", "\\)", "\\!", "\\#", "\\-", "\\>",
         "\\&", "\\:", "\\/", "\\\\", "\\\n", "\\  \n", "\\a", "javascript\\:", "1\\. ",
+        "\r", "\u{85}", "\u{feff}", "\u{2028}", "\u{3000}",
     ];
     let mut seed: u64 = 0x9e37_79b9_7f4a_7c15;
     let mut next = move || {
