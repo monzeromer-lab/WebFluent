@@ -777,3 +777,78 @@ fn a_picture_s_image_takes_them() {
         assert!(img.contains(attr), "{attr} on the painted image: {img}");
     }
 }
+
+/// How many times `key` is written in an element's opening tag or its
+/// attributes object.
+fn written(el: &Elem, key: &str) -> usize {
+    el.raw.matches(&format!(" {key}=")).count()
+        + el.raw.matches(&format!("{key}: ")).count()
+        + el.raw.matches(&format!("{key}:\"")).count()
+}
+
+#[test]
+fn an_icon_buttons_own_title_takes_the_place_of_its_label() {
+    // Its label is its tooltip unless its author writes one. Written twice,
+    // the live page kept the last and the painted page the first: one said
+    // "Shut", the other "Close".
+    let src = page("    IconButton(icon: \"close\", label: \"Close\", title: \"Shut\")");
+    for backend in ALL {
+        let els = elems(*backend, &src);
+        let el = find(&els, At::Root("wf-icon-btn")).unwrap();
+        assert_eq!(written(el, "title"), 1, "{}: {}", backend.name(), el.raw);
+        assert_eq!(
+            el.attr("title"),
+            Some("Shut"),
+            "{}: {}",
+            backend.name(),
+            el.raw
+        );
+        assert_eq!(el.attr("aria-label"), Some("Close"), "{}", backend.name());
+    }
+    // Given none, the label is the tooltip, as before.
+    let src = page("    IconButton(icon: \"close\", label: \"Close\")");
+    for backend in ALL {
+        let els = elems(*backend, &src);
+        let el = find(&els, At::Root("wf-icon-btn")).unwrap();
+        assert_eq!(
+            el.attr("title"),
+            Some("Close"),
+            "{}: {}",
+            backend.name(),
+            el.raw
+        );
+    }
+}
+
+#[test]
+fn a_checkboxs_style_is_its_inputs_on_both_pages() {
+    // `style:` is an attribute like any other, so the live page writes it on
+    // the input; the pre-render painted it on the label.
+    for call in [
+        "Checkbox(bind: on, label: \"C\", style: \"margin: 0\")",
+        "Switch(bind: on, label: \"S\", style: \"margin: 0\")",
+        "Radio(bind: n, value: 1, label: \"R\", style: \"margin: 0\")",
+    ] {
+        let src = page(&format!(
+            "    state on = false\n    state n = 1\n    {call}"
+        ));
+        for backend in [Backend::Spa, Backend::Ssg] {
+            let els = elems(backend, &src);
+            let input = els.iter().find(|e| e.tag == "input").unwrap();
+            assert_eq!(
+                input.attr("style"),
+                Some("margin: 0"),
+                "{call} in {}",
+                backend.name()
+            );
+            let label = els.iter().find(|e| e.tag == "label").unwrap();
+            assert_eq!(
+                label.attr("style"),
+                None,
+                "{call} in {}: {}",
+                backend.name(),
+                label.raw
+            );
+        }
+    }
+}

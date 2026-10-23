@@ -1729,7 +1729,14 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                     // The accessible name of an icon-only button, never visible text.
                     let s = value_to_string(&ctx.eval_expr(val));
                     attrs.push(format!("aria-label=\"{}\"", html_escape(&s)));
-                    attrs.push(format!("title=\"{}\"", html_escape(&s)));
+                    // Its tooltip too, unless its author writes one.
+                    if !ui
+                        .args
+                        .iter()
+                        .any(|a| matches!(a, Arg::Named(k, _) if k == "title"))
+                    {
+                        attrs.push(format!("title=\"{}\"", html_escape(&s)));
+                    }
                 }
                 "label" => {
                     let resolved = ctx.eval_expr(val);

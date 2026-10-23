@@ -1769,7 +1769,7 @@ IconButton(icon: "edit", label: "Edit").primary { on click { editItem() } }
 IconButton(icon: "menu", label: "Actions", aria-haspopup: "menu", aria-expanded: open) { on click { toggleMenu() } }
 ```
 
-Flags: `.sm`, `.lg`, `.primary`, `.danger`. The `label` is the accessible name (`aria-label` and `title`), never visible text; every other named argument (`type`, `disabled`, `aria-*`, `data-*`) is an attribute as on `Button`.
+Flags: `.sm`, `.lg`, `.primary`, `.danger`. The `label` is the accessible name (`aria-label`, and the `title` unless a `title:` is written), never visible text; every other named argument (`type`, `disabled`, `aria-*`, `data-*`) is an attribute as on `Button`.
 
 #### Slider
 

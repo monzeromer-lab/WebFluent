@@ -1690,7 +1690,14 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                         // to the glyph until the runtime replaced it.
                         if let Some(s) = static_attr(val, &ctx.scope) {
                             attrs.push(format!("aria-label=\"{}\"", html_escape(&s)));
-                            attrs.push(format!("title=\"{}\"", html_escape(&s)));
+                            // Its tooltip too, unless its author writes one.
+                            if !ui
+                                .args
+                                .iter()
+                                .any(|a| matches!(a, Arg::Named(k, _) if k == "title"))
+                            {
+                                attrs.push(format!("title=\"{}\"", html_escape(&s)));
+                            }
                         }
                     }
                     "label" => {
@@ -1898,13 +1905,13 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
         let text = text_content.as_deref().map(html_escape).unwrap_or_default();
         // The control's attributes go on the input, as the bundle puts them
         // — an `id` names the input a label points at, a `role:` says what
-        // it is — and what is the whole control's on the label: its class,
-        // its style, `hidden`, `lang`, `dir` (`BOX_ATTRS`), the studio's
-        // node id.
+        // it is, a `style:` is its own — and what is the whole control's on
+        // the label: its class, `hidden`, `lang`, `dir` (`BOX_ATTRS`), the
+        // studio's node id.
         let key = |a: &str| a.split('=').next().unwrap_or(a).to_string();
         let on_label = |a: &str| {
             let key = key(a);
-            matches!(key.as_str(), "class" | "style" | "data-wf-node")
+            matches!(key.as_str(), "class" | "data-wf-node")
                 || crate::codegen::js::BOX_ATTRS.contains(&key.as_str())
         };
         // The input's value, whether it is checked and whether it is

@@ -94,7 +94,8 @@ what nothing uses.
 `Icon("name")` draws one of the built-in SVG icons inline, in the current
 text colour, so it follows the theme; `.sm`, `.lg` and a tone flag size and
 colour it. `IconButton(icon: "close", label: "Close")` is a button that is
-only an icon, named for screen readers by its `label:`. `Sidebar.Item`
+only an icon, named for screen readers by its `label:`, which is its
+tooltip too unless it is given a `title:`. `Sidebar.Item`
 takes `icon:` too.
 
 The 55 icons: `home`, `menu`, `search`, `close`, `user`, `settings`,

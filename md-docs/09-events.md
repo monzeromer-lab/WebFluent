@@ -197,9 +197,9 @@ page Overlays(path: "/", title: "Overlays", description: "What a page opens.") {
 
 - **`Modal`** and **`Dialog`** are real `<dialog>` elements, opened while their
   `visible:` state is true. The browser traps focus, makes the rest of the
-  page inert and closes on Escape or a click on the backdrop — and when it
-  closes that way, the state is set back to `false`, so it never disagrees
-  with what is on screen. Focus returns to what opened it. `on close` runs
+  page inert and closes on Escape (a click on the backdrop leaves it open)
+  — and when it closes that way, the state is set back to `false`, so it
+  never disagrees with what is on screen. Focus returns to what opened it. `on close` runs
   when it closes, however it was closed. `title:` is its heading, which
   names it (`A08` without one). `Modal.Footer` is the row of actions.
 - **`Toast`** shows the moment it is rendered and leaves after three seconds;

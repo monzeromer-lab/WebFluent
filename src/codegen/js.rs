@@ -5573,13 +5573,18 @@ impl JsCodegen {
             };
             btn_attrs.push_str(&format!(", \"aria-label\": {}", l));
         }
-        let title = label.as_deref().unwrap_or(&icon);
-        let title = if self.is_reactive(title) {
-            format!("() => {title}")
-        } else {
-            title.to_string()
-        };
-        btn_attrs.push_str(&format!(", title: {title}"));
+        // Its label is its tooltip too, unless its author writes one: two
+        // `title` keys kept the last on the live page and the first in the
+        // painted one.
+        if !Self::gives(ui, "title") {
+            let title = label.as_deref().unwrap_or(&icon);
+            let title = if self.is_reactive(title) {
+                format!("() => {title}")
+            } else {
+                title.to_string()
+            };
+            btn_attrs.push_str(&format!(", title: {title}"));
+        }
 
         // Every other named argument is an attribute, as on a Button: `type`,
         // `disabled`, `aria-haspopup`, `data-variant`. A value that reads
