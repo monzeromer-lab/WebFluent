@@ -35,8 +35,9 @@ On Windows, type **`webfluent`** where this guide types `wf`. Windows
 already has a `wf`: `C:\Windows\System32\WF.msc`, the Windows Firewall
 console. System32 comes first on `PATH` and `.MSC` is one of the
 extensions a bare name is tried with, so `wf` opens the firewall instead
-of WebFluent. The installer puts the same binary in place as
-`webfluent.exe` beside `wf.exe`; `webfluent build`, `webfluent serve` and
+of WebFluent. The release zip, `install.ps1` and the `.msi` therefore
+install the compiler as `webfluent.exe` beside `wf.exe` (the `.msi` puts
+their folder on `PATH`): `webfluent build`, `webfluent serve` and
 `wf.exe build` all work. After `cargo install webfluent`, use `wf.exe`.
 
 ### With Rust
