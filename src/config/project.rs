@@ -208,6 +208,14 @@ pub struct BuildConfig {
     /// skipped by serde for that reason.
     #[serde(skip)]
     pub inline_styles: bool,
+    /// Whether this build's pages frame a page of the site itself — a
+    /// `Frame` with a site-relative `src:` — so the anti-framing headers
+    /// allow the site's own origin rather than none.
+    ///
+    /// Not a setting: answered from the program
+    /// (`codegen::csp::frames_itself`), skipped by serde like `inline_styles`.
+    #[serde(skip)]
+    pub frames_itself: bool,
     /// The project's own scripts — every `.js` under `src/` — by where the
     /// build writes them, relative to the output root (`js/tilt.js`).
     ///
@@ -823,6 +831,17 @@ fn asset_origins(url: &str) -> Vec<String> {
 /// it in a response header — so leaving it there is a policy that says one
 /// thing and delivers another. It is written to `_headers` instead, where
 /// it works, and left out here so nothing claims otherwise.
+/// The `X-Frame-Options` value the pages are served with: `DENY`, or
+/// `SAMEORIGIN` for a site that frames its own pages — the header twin of
+/// `frame-ancestors`, for browsers that read only the older one.
+pub fn frame_options(config: &ProjectConfig) -> &'static str {
+    if config.build.frames_itself {
+        "SAMEORIGIN"
+    } else {
+        "DENY"
+    }
+}
+
 pub fn csp_meta_policy(config: &ProjectConfig) -> String {
     csp_policy(config)
         .split("; ")
@@ -853,6 +872,11 @@ pub fn csp_policy(config: &ProjectConfig) -> String {
         }
     }
     let mut policy = CSP_POLICY.to_string();
+    // A site that shows its own pages in a `Frame` must let its own origin
+    // frame them; any other origin is still refused.
+    if config.build.frames_itself {
+        policy = policy.replace("frame-ancestors 'none'", "frame-ancestors 'self'");
+    }
     if !style.is_empty() {
         policy = policy.replace(
             "style-src 'self';",
@@ -1058,6 +1082,7 @@ impl Default for BuildConfig {
         Self {
             elements: Vec::new(),
             inline_styles: false,
+            frames_itself: false,
             scripts: Vec::new(),
             output: default_output_dir(),
             minify: true,

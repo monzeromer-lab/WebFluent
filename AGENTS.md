@@ -2400,7 +2400,10 @@ what the compiler depends on. `--json` for a tool; it never fails a build.
 `"build": { "csp": true }` — on for a project `wf init` creates — emits a
 `Content-Security-Policy` meta tag and a `_headers` file for hosts that
 read one. `frame-ancestors` is only in `_headers`, because a browser
-ignores it in a meta tag. The policy is widened by exactly the origins
+ignores it in a meta tag. It is `'none'`, with `X-Frame-Options: DENY`
+(`wf serve` sends the same); a project that places a `Frame` with a
+site-relative `src:` (`"/preview/"`) gets `'self'` and `SAMEORIGIN`, so it
+may frame its own pages and no one else may. The policy is widened by exactly the origins
 `meta.fonts`, `meta.stylesheets` and `meta.scripts` declare, so a declared
 font or library is never blocked by the policy that ships beside it; the
 project's own scripts are same-origin and need nothing. `meta.connect` names

@@ -149,6 +149,12 @@ another page posts. `sandbox:` limits what the framed page may do
 the features it may use. A frame from another origin is named in
 `meta.frame`, or the page's policy refuses it ([Security](23-security.md)).
 
+A page of the site itself (`src: "/preview/"`) needs nothing named: the
+pages are served refusing to be framed by anyone (`X-Frame-Options: DENY`),
+and a project that places a `Frame` with a site-relative `src:` is served
+`SAMEORIGIN` instead — by `wf serve` and in the `_headers` a build writes —
+so it may frame its own pages and still no one else may.
+
 ## Next
 
 [Deploying](29-deploying.md).

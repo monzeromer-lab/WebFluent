@@ -266,8 +266,8 @@ fn canonical_config(config: &ProjectConfig) -> String {
     let mut sizes: Vec<_> = config.meta.image_sizes.iter().collect();
     sizes.sort();
     format!(
-        "{settings}\u{0}{:?}\u{0}{:?}\u{0}{sizes:?}",
-        config.build.inline_styles, config.build.scripts
+        "{settings}\u{0}{:?}\u{0}{:?}\u{0}{:?}\u{0}{sizes:?}",
+        config.build.inline_styles, config.build.frames_itself, config.build.scripts
     )
 }
 

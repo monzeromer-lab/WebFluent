@@ -1996,6 +1996,75 @@ fn a_style_value_that_reads_state_is_what_widens_the_policy() {
 }
 
 #[test]
+fn a_site_that_frames_its_own_page_lets_its_own_origin_frame_it() {
+    use webfluent::codegen::csp::frames_itself;
+    let frames = |body: &str| frames_itself(&parse_source(&page(body), "t.wf").unwrap());
+    assert!(frames(r#"Frame(src: "/preview/", title: "Preview")"#));
+    assert!(frames(r#"Frame(src: "embed/one", title: "One")"#));
+    assert!(frames(
+        "state id = \"1\"\n    if true { Frame(src: \"/embed/{id}\", title: \"Embed\") }"
+    ));
+    // Another origin's page, or an address nothing can read, does not.
+    assert!(!frames(
+        r#"Frame(src: "https://example.com/", title: "Elsewhere")"#
+    ));
+    assert!(!frames(
+        r#"Frame(src: "//example.com/", title: "Elsewhere")"#
+    ));
+    assert!(!frames("state u = \"/x\"\n    Frame(src: u, title: \"X\")"));
+    assert!(!frames(r#"Text("no frame")"#));
+
+    let mut config = webfluent::config::ProjectConfig::default_config("t");
+    assert_eq!(webfluent::config::project::frame_options(&config), "DENY");
+    config.build.frames_itself = true;
+    let policy = webfluent::config::project::csp_policy(&config);
+    assert!(policy.contains("frame-ancestors 'self'"), "{policy}");
+    assert!(!policy.contains("frame-ancestors 'none'"), "{policy}");
+    assert_eq!(
+        webfluent::config::project::frame_options(&config),
+        "SAMEORIGIN"
+    );
+
+    // And the file a host reads says so — only for the project that frames itself.
+    let built = |name: &str, body: &str| {
+        let dir = std::env::temp_dir().join(format!("wf-frames-{name}-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(dir.join("src")).unwrap();
+        std::fs::write(
+            dir.join("webfluent.app.json"),
+            r#"{ "name": "t", "build": { "output": "build", "ssg": true, "csp": true } }"#,
+        )
+        .unwrap();
+        std::fs::write(
+            dir.join("src/App.wf"),
+            format!(
+                "page Home(path: \"/\", title: \"Home\", description: \"d\") {{\n    Heading(\"Home\").h1\n    {body}\n}}\npage X(path: \"/x\", title: \"X\", description: \"d\") {{ Heading(\"X\").h1 }}\n"
+            ),
+        )
+        .unwrap();
+        let out = std::process::Command::new(env!("CARGO_BIN_EXE_wf"))
+            .args(["build", "-d"])
+            .arg(&dir)
+            .output()
+            .unwrap();
+        assert!(
+            out.status.success(),
+            "{}",
+            String::from_utf8_lossy(&out.stderr)
+        );
+        let headers = std::fs::read_to_string(dir.join("build/_headers")).unwrap();
+        let _ = std::fs::remove_dir_all(&dir);
+        headers
+    };
+    let own = built("own", r#"Frame(src: "/x/", title: "X")"#);
+    assert!(own.contains("X-Frame-Options: SAMEORIGIN"), "{own}");
+    assert!(own.contains("frame-ancestors 'self'"), "{own}");
+    let none = built("none", r#"Text("no frame")"#);
+    assert!(none.contains("X-Frame-Options: DENY"), "{none}");
+    assert!(none.contains("frame-ancestors 'none'"), "{none}");
+}
+
+#[test]
 fn an_env_name_that_has_not_said_it_is_public_is_not_in_the_bundle() {
     use webfluent::config::ProjectConfig;
     let mut config: ProjectConfig = serde_json::from_str(r#"{"name":"t"}"#).unwrap();

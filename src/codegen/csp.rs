@@ -61,6 +61,59 @@ pub fn writes_inline_styles(program: &crate::parser::ast::Program) -> bool {
     })
 }
 
+/// Whether this program frames a page of its own site: a `Frame` whose
+/// `src:` is site-relative (`"/preview/"`, `"embed/{id}"`), not another
+/// origin's address.
+///
+/// The pages refuse to be framed by default (`X-Frame-Options: DENY`,
+/// `frame-ancestors 'none'`), which would refuse the site's own frame too.
+/// Only a project that shows itself inside itself is relaxed, and only to
+/// its own origin (`SAMEORIGIN`, `'self'`).
+pub fn frames_itself(program: &crate::parser::ast::Program) -> bool {
+    use crate::parser::ast::{Arg, ComponentRef, Declaration, Expr, StringPart};
+    fn site_relative(src: &Expr) -> bool {
+        // What the address opens with: a literal, or the literal text an
+        // interpolation starts with. A splice up front could be anything,
+        // so it does not count.
+        let head = match src {
+            Expr::StringLiteral(s) => s.as_str(),
+            Expr::InterpolatedString(parts) => match parts.first() {
+                Some(StringPart::Literal(s)) => s.as_str(),
+                _ => return false,
+            },
+            _ => return false,
+        };
+        let scheme = head.split_once(':').is_some_and(|(s, _)| {
+            !s.is_empty()
+                && !s.contains(['/', '?', '#'])
+                && s.chars()
+                    .all(|c| c.is_ascii_alphanumeric() || "+-.".contains(c))
+        });
+        !head.starts_with("//") && !scheme
+    }
+    fn element(el: &crate::parser::ast::UIElement) -> bool {
+        let own = matches!(&el.component, ComponentRef::BuiltIn(n) if n == "Frame")
+            && el.args.iter().any(|a| match a {
+                Arg::Named(k, v) if k == "src" => site_relative(v),
+                Arg::Positional(v) => site_relative(v),
+                _ => false,
+            });
+        own || statements(&el.children) || el.slot_fills.iter().any(|f| statements(&f.body))
+    }
+    fn statements(body: &[crate::parser::ast::Statement]) -> bool {
+        body.iter().any(|stmt| {
+            matches!(&stmt.kind, crate::parser::ast::StatementKind::UIElement(el) if element(el))
+                || stmt.kind.bodies().into_iter().any(statements)
+        })
+    }
+    program.declarations.iter().any(|d| match d {
+        Declaration::Page(page) => statements(&page.body),
+        Declaration::Component(c) => statements(&c.body),
+        Declaration::App(a) => statements(&a.body),
+        _ => false,
+    })
+}
+
 /// One thing in a page the policy beside it forbids.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Violation {
