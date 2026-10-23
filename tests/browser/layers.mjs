@@ -6,7 +6,8 @@
 // the arrow keys move through a menu and skip what is disabled; a disabled
 // item cannot be chosen; a submenu opens on ArrowRight and closes with its
 // menu; a tooltip waits for its delay, shows its shortcut, and goes on
-// leaving; and the policy the build ships refuses nothing.
+// leaving; a tooltip under the pointer hides on an Escape that goes on to
+// the field with focus; and the policy the build ships refuses nothing.
 //
 //   cd tests/browser && npm ci && node layers.mjs
 //
@@ -274,9 +275,30 @@ async function scenario(label, ssg, port) {
     await until(page, () => document.querySelector(".wf-tooltip__text")?.hasAttribute("data-open"));
     s = await look(page);
     check("keyboard focus shows it at once", s.tip.shown && s.focus === "save", JSON.stringify([s.tip, s.focus]));
+    const count = (sel) => page.$eval(sel, (e) => Number(e.textContent));
+    const pageBefore = await count("#escapes");
     await page.keyboard.press("Escape");
     s = await look(page);
     check("and Escape hides it", !s.tip.shown, JSON.stringify(s.tip));
+    check("…without the page hearing that Escape", (await count("#escapes")) === pageBefore, `${pageBefore} → ${await count("#escapes")}`);
+
+    // A field has focus and the pointer rests on the tooltip's button: the
+    // Escape is the field's, and the tooltip hides on its way past.
+    await page.mouse.move(10, 590);
+    await page.focus("#field");
+    const fieldBefore = await count("#field-escapes");
+    await page.hover("#save");
+    await until(page, () => document.querySelector(".wf-tooltip__text")?.hasAttribute("data-open"));
+    s = await look(page);
+    check("a hovered tooltip shows while a field has focus", s.tip.shown && s.focus === "field", JSON.stringify([s.tip, s.focus]));
+    await page.keyboard.press("Escape");
+    s = await look(page);
+    const fieldAfter = await count("#field-escapes");
+    check("Escape reaches the field, not the tooltip", fieldAfter === fieldBefore + 1, `${fieldBefore} → ${fieldAfter}`);
+    check("…and the tooltip hides", !s.tip.shown, JSON.stringify(s.tip));
+    await new Promise((r) => setTimeout(r, 320));
+    s = await look(page);
+    check("…and stays hidden while the pointer stays", !s.tip.shown && s.focus === "field", JSON.stringify([s.tip, s.focus]));
 
     // ── Escape is the top one's: a modal's is not heard behind it ──
     await page.mouse.move(5, 5);

@@ -6,8 +6,10 @@
   // pointer asked for a context menu. It flips to the other side when there
   // is no room, slides along its side to stay on screen, and follows the
   // anchor while the page scrolls or resizes. The open layers are one stack:
-  // `Escape` and a press outside close the top one only, and focus goes back
-  // to where it was before that layer opened.
+  // `Escape` and a press outside close the top one that can be dismissed
+  // only, and focus goes back to where it was before that layer opened. A
+  // tooltip on top hides on the same Escape, but keeps it only when focus
+  // is on its control (see `_escape`).
 
   // The margin a layer keeps from the edges of the viewport.
   const LAYER_MARGIN = 8;
@@ -81,11 +83,33 @@
     return null;
   }
 
-  function _closeTop(reason) {
-    const top = _layers[_layers.length - 1];
-    if (!top) return false;
-    top.close(reason);
-    return true;
+  // The element a layer is anchored to, or null for a point.
+  function _anchorEl(anchor) {
+    const target = anchor && anchor.el !== undefined ? anchor.el : anchor;
+    return target && typeof target.contains === "function" ? target : null;
+  }
+
+  // Escape is the newest layer's that can be dismissed: it closes, and the
+  // key is used up. A layer that cannot be dismissed — a tooltip — takes
+  // the key only while focus is in it or in what it is anchored to (its
+  // control, reached from the keyboard): it hides, and the key is used up
+  // too. Otherwise the same Escape hides it on its way past and goes on, to
+  // the layer below or to the page: a tooltip under a pointer resting on a
+  // toolbar does not take the Escape of the editor the reader is typing
+  // in. Whether the key was used up is what this returns.
+  function _escape() {
+    const focus = typeof document !== "undefined" ? document.activeElement : null;
+    const holds = (node) => !!focus && !!node && typeof node.contains === "function" && node.contains(focus);
+    for (const layer of _layers.slice().reverse()) {
+      if (layer.dismiss) {
+        layer.close("escape");
+        return true;
+      }
+      const focused = holds(layer.el) || holds(_anchorEl(layer.anchor));
+      layer.close("escape");
+      if (focused) return true;
+    }
+    return false;
   }
 
   let _layerKeysHeard = false;
@@ -93,7 +117,7 @@
     if (_layerKeysHeard || typeof document === "undefined") return;
     _layerKeysHeard = true;
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && _layers.length && _closeTop("escape")) {
+      if (e.key === "Escape" && _layers.length && _escape()) {
         if (e.preventDefault) e.preventDefault();
         if (e.stopPropagation) e.stopPropagation();
       }
@@ -443,13 +467,6 @@
       if (aria) trigger.setAttribute("aria-keyshortcuts", aria);
     }
     const shown = signal(false);
-    layer(tip, shown, null, {
-      anchor: trigger,
-      placement: opts.placement || "top",
-      offset: opts.offset === undefined ? 6 : opts.offset,
-      focus: false,
-      dismiss: false,
-    });
     let timer = 0;
     const show = (wait) => {
       clearTimeout(timer);
@@ -460,6 +477,15 @@
       clearTimeout(timer);
       shown.set(false);
     };
+    // An Escape that hides it from the stack writes it back here: it stays
+    // hidden while the pointer stays, and the next hover or focus shows it.
+    layer(tip, shown, (v) => (v ? shown.set(true) : hide()), {
+      anchor: trigger,
+      placement: opts.placement || "top",
+      offset: opts.offset === undefined ? 6 : opts.offset,
+      focus: false,
+      dismiss: false,
+    });
     root.addEventListener("pointerenter", () => show(delay));
     root.addEventListener("pointerleave", hide);
     root.addEventListener("pointerdown", hide);

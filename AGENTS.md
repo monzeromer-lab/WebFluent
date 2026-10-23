@@ -766,7 +766,9 @@ with a space between: `on key("mod+k mod+s")`, the second within 1.5 s; the
 second step alone then does not fire its own shortcut. On an element it
 listens there; at the top of a page, a component or `app` it listens on the
 document for as long as that shows (on `app`, always); `on key("Escape", e)`
-names the event too. A page, a component or `app` may also handle
+names the event too. Escape closes the newest open `Popover` or `Menu`
+first, and nothing behind it hears that key; a `Tooltip` keeps it only
+while its control has focus. A page, a component or `app` may also handle
 `keydown`, `keyup`, and the window's `resize`, `scroll`, `hashchange`,
 `popstate`, `online`, `offline`, `message`, `storage`,
 `visibilitychange`, `blur` and `focus` (the window's) itself, outside any
@@ -1693,7 +1695,11 @@ The last item (without `to:`) renders as the current page (no link).
 #### Tooltip
 
 Wraps children, shows text on hover after `delay:` ms (unset, 500) and at
-once on keyboard focus, above everything; `shortcut:` adds a chip:
+once on keyboard focus, above everything; `shortcut:` adds a chip. Escape
+hides it. While focus is on its control the key is the tooltip's and goes
+no further; otherwise it goes on — to the `Popover` or `Menu` below, which
+it closes, or to the element with focus — so a tooltip under a resting
+pointer never takes an editor's or a field's Escape:
 
 ```wf
 Tooltip("Click to save", shortcut: "Ctrl+S") {

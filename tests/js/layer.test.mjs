@@ -93,3 +93,128 @@ test("a press outside closes the top layer; a press on its anchor is the anchor'
   document.dispatchEvent({ type: "pointerdown", target: elsewhere });
   assert.equal(open(), false);
 });
+
+// A key as the browser sends it: the document hears it first, on its way
+// down (where the layers listen), then the element with focus, unless the
+// document stopped it there.
+function press(document, key) {
+  const event = {
+    type: "keydown",
+    key,
+    prevented: false,
+    stopped: false,
+    preventDefault() { this.prevented = true; },
+    stopPropagation() { this.stopped = true; },
+  };
+  document.dispatchEvent(event);
+  const at = document.activeElement;
+  if (!event.stopped && at) {
+    event.target = at;
+    at.dispatchEvent(event);
+  }
+  return event;
+}
+
+// A tooltip around a button, shown as a hover shows it.
+function hovered(WF, document, words) {
+  const button = WF.el("button", {}, [words]);
+  const tip = WF.el("span", { className: "wf-tooltip__text", role: "tooltip", id: `tip-${words}` }, [words]);
+  const root = WF.el("div", { className: "wf-tooltip" }, [button, tip]);
+  document.body.appendChild(root);
+  WF.tooltip(root, tip, { delay: 0 });
+  root.dispatchEvent({ type: "pointerenter" });
+  return { button, tip, root };
+}
+
+test("a tooltip on top hides on Escape, and the layer under it that can be dismissed closes", () => {
+  const { WF, document } = loadRuntime();
+  const input = document.createElement("input");
+  const typed = [];
+  input.addEventListener("keydown", (e) => typed.push(e.key));
+  const anchor = document.createElement("button");
+  const pop = document.createElement("div");
+  document.body.appendChild(input);
+  document.body.appendChild(anchor);
+  document.body.appendChild(pop);
+  input.focus();
+  const open = WF.signal(true);
+  const closed = [];
+  WF.layer(pop, open, undefined, { anchor, focus: false, onClose: (why) => closed.push(why) });
+  const { tip } = hovered(WF, document, "Save");
+  assert.equal(tip.hasAttribute("data-open"), true, "the tooltip is on top");
+
+  const key = press(document, "Escape");
+  assert.equal(tip.hasAttribute("data-open"), false, "the tooltip hid");
+  assert.equal(open(), false, "the popover under it closed");
+  assert.deepEqual(closed, ["escape"]);
+  assert.equal(key.prevented && key.stopped, true, "the popover used the key up");
+  assert.deepEqual(typed, [], "so the field did not hear it");
+});
+
+test("with only a tooltip open and focus elsewhere, Escape hides it and goes on to the field", () => {
+  const { WF, document } = loadRuntime();
+  const input = document.createElement("input");
+  const typed = [];
+  input.addEventListener("keydown", (e) => typed.push(e.key));
+  document.body.appendChild(input);
+  input.focus();
+  const { tip, root } = hovered(WF, document, "Save");
+  assert.equal(tip.hasAttribute("data-open"), true);
+
+  const key = press(document, "Escape");
+  assert.equal(tip.hasAttribute("data-open"), false, "the tooltip hid");
+  assert.equal(key.prevented, false, "the key was not prevented");
+  assert.equal(key.stopped, false, "nor stopped");
+  assert.deepEqual(typed, ["Escape"], "the field heard it: an editor's Escape is its own");
+
+  // With nothing open, Escape is the page's as it always was.
+  const again = press(document, "Escape");
+  assert.equal(again.prevented || again.stopped, false);
+  assert.deepEqual(typed, ["Escape", "Escape"]);
+
+  // Hidden by Escape, it stays hidden while the pointer stays, and the
+  // next hover shows it again.
+  root.dispatchEvent({ type: "pointerleave" });
+  root.dispatchEvent({ type: "pointerenter" });
+  assert.equal(tip.hasAttribute("data-open"), true, "the next hover shows it");
+});
+
+test("with focus on a tooltip's control, Escape is the tooltip's: it hides and the key is used up", () => {
+  const { WF, document } = loadRuntime();
+  const anchor = document.createElement("button");
+  const pop = document.createElement("div");
+  document.body.appendChild(anchor);
+  document.body.appendChild(pop);
+  const open = WF.signal(true);
+  WF.layer(pop, open, undefined, { anchor, focus: false });
+  const { button, tip } = hovered(WF, document, "Save");
+  const heard = [];
+  button.addEventListener("keydown", (e) => heard.push(e.key));
+  button.focus();
+
+  const key = press(document, "Escape");
+  assert.equal(tip.hasAttribute("data-open"), false, "the tooltip hid");
+  assert.equal(key.prevented && key.stopped, true, "and used the key up");
+  assert.deepEqual(heard, [], "its control did not hear it");
+  assert.equal(open(), true, "the popover under it is still open");
+
+  const next = press(document, "Escape");
+  assert.equal(open(), false, "the next Escape closes the popover");
+  assert.equal(next.prevented && next.stopped, true);
+});
+
+test("focus inside a layer that cannot be dismissed keeps its Escape", () => {
+  const { WF, document } = loadRuntime();
+  const anchor = document.createElement("button");
+  const panel = document.createElement("div");
+  const inside = document.createElement("button");
+  panel.appendChild(inside);
+  document.body.appendChild(anchor);
+  document.body.appendChild(panel);
+  const shown = WF.signal(true);
+  WF.layer(panel, shown, undefined, { anchor, focus: false, dismiss: false });
+  inside.focus();
+  const key = press(document, "Escape");
+  assert.equal(shown(), false, "it hid, and its state followed");
+  assert.equal(key.prevented && key.stopped, true);
+});

@@ -218,8 +218,16 @@ or a stacking context of its own cannot clip or cover them. Each is placed
 against its anchor: it flips to the other side when there is no room, slides
 along its side to stay on screen, and follows the anchor while the page
 scrolls; when the anchor scrolls out of view the layer goes with it, still
-open, and comes back with it. The open layers are one stack, newest on top: Escape closes the
-top one only, and a press outside closes every layer it is outside of.
+open, and comes back with it. The open layers are one stack, newest on top,
+and a press outside closes every layer it is outside of.
+
+Escape closes the newest layer that can be dismissed — a popover, a menu —
+and stops there: nothing behind it hears that key. A tooltip keeps Escape
+only while focus is on its control: it hides, and the key goes no further.
+Otherwise the same Escape hides it on its way past and goes on, to the
+layer below or to the element with focus. A tooltip under a pointer
+resting on a toolbar button does not take the Escape that closes an
+editor's completion list.
 
 ```wf
 page Editor(path: "/", title: "Editor", description: "Layers at a control and at the pointer.") {
@@ -296,9 +304,11 @@ page Editor(path: "/", title: "Editor", description: "Layers at a control and at
   entry; choosing in it closes the whole menu, and it closes with its menu.
 - **`Tooltip`** waits `delay:` milliseconds of hover (unset, 500) and shows
   at once for keyboard focus; it never takes focus, and goes on leaving, on
-  a press and on Escape. `shortcut:` adds a chip with the keys and gives
-  the control it names its `aria-keyshortcuts`, in ARIA's spelling
-  (`Control+S`); `placement:` is where it goes (unset, `.top`).
+  a press and on Escape — and once Escape has hidden it, it stays hidden
+  until the pointer or focus leaves and comes back. `shortcut:` adds a
+  chip with the keys and gives the control it names its
+  `aria-keyshortcuts`, in ARIA's spelling (`Control+S`); `placement:` is
+  where it goes (unset, `.top`).
 
 ## Gestures: drag, long-press, swipe and the splitter
 

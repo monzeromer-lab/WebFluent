@@ -1,6 +1,7 @@
 // Every kind of layer, inside a box that clips: a popover at a button, a
 // menu with a shortcut, a checked item, a disabled item and a submenu, a
-// context menu at the pointer, and a tooltip with its shortcut chip.
+// context menu at the pointer, a tooltip with its shortcut chip, and a
+// field whose Escape is its own while the pointer rests on a tooltip.
 page Home(path: "/", title: "Layers", description: "Popovers, menus and tooltips above everything.") {
     state open = false
     state wrap = false
@@ -10,6 +11,7 @@ page Home(path: "/", title: "Layers", description: "Popovers, menus and tooltips
     state first = true
     state modalOpen = false
     state escapes = 0
+    state fieldEscapes = 0
     // What the page hears of Escape: only what no layer and no modal took.
     on key("Escape") { escapes = escapes + 1 }
     Heading("Layers").h1
@@ -94,6 +96,10 @@ page Home(path: "/", title: "Layers", description: "Popovers, menus and tooltips
     Modal(visible: modalOpen, title: "A modal") {
         Button("Inside", id: "inside")
     }
+    Input(label: "Find", id: "field") {
+        on keydown(e) { if e.key == "Escape" { fieldEscapes = fieldEscapes + 1 } }
+    }
+    Text("{fieldEscapes}", id: "field-escapes")
     Text("{escapes}", id: "escapes")
     Text("{said}", id: "said")
 }
