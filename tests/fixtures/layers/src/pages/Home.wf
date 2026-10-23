@@ -1,7 +1,8 @@
 // Every kind of layer, inside a box that clips: a popover at a button, a
 // menu with a shortcut, a checked item, a disabled item and a submenu, a
-// context menu at the pointer, a tooltip with its shortcut chip, and a
-// field whose Escape is its own while the pointer rests on a tooltip.
+// context menu at the pointer, a tooltip with its shortcut chip, a field
+// whose Escape is its own while the pointer rests on a tooltip, and a
+// modal opened from a popover, over it.
 page Home(path: "/", title: "Layers", description: "Popovers, menus and tooltips above everything.") {
     state open = false
     state wrap = false
@@ -12,6 +13,8 @@ page Home(path: "/", title: "Layers", description: "Popovers, menus and tooltips
     state modalOpen = false
     state escapes = 0
     state fieldEscapes = 0
+    state confirm = false
+    state confirmCloses = 0
     // What the page hears of Escape: only what no layer and no modal took.
     on key("Escape") { escapes = escapes + 1 }
     Heading("Layers").h1
@@ -52,6 +55,12 @@ page Home(path: "/", title: "Layers", description: "Popovers, menus and tooltips
     Popover(visible: open, anchor: branches, placement: .bottomStart, label: "Branches", id: "pop").arrow {
         on close(reason) { said = "popover {reason}" }
         Text("main")
+        Button("Delete…", id: "pop-confirm") { on click { confirm = true } }
+    }
+    // Opened from the popover, over it: its Escape is the first.
+    Modal(visible: confirm, title: "Delete the branch?", id: "over") {
+        on close { confirmCloses = confirmCloses + 1 }
+        Button("Keep it", id: "keep")
     }
     Card(id: "area") {
         on contextmenu(e) {
@@ -101,5 +110,6 @@ page Home(path: "/", title: "Layers", description: "Popovers, menus and tooltips
     }
     Text("{fieldEscapes}", id: "field-escapes")
     Text("{escapes}", id: "escapes")
+    Text("{confirmCloses}", id: "over-closes")
     Text("{said}", id: "said")
 }

@@ -7,7 +7,9 @@
 // item cannot be chosen; a submenu opens on ArrowRight and closes with its
 // menu; a tooltip waits for its delay, shows its shortcut, and goes on
 // leaving; a tooltip under the pointer hides on an Escape that goes on to
-// the field with focus; and the policy the build ships refuses nothing.
+// the field with focus; a modal opened over a popover takes the first
+// Escape and the popover the next; and the policy the build ships refuses
+// nothing.
 //
 //   cd tests/browser && npm ci && node layers.mjs
 //
@@ -312,6 +314,30 @@ async function scenario(label, ssg, port) {
       !(await page.$eval("dialog.wf-modal", (d) => d.open)) && (await heard()) === before, `${before} → ${await heard()}`);
     await page.keyboard.press("Escape");
     check("with nothing open, the page hears Escape", (await heard()) === before + 1, `${before} → ${await heard()}`);
+
+    // ── A modal opened over a popover: its Escape first, then the popover's ──
+    const beneath = await heard();
+    const closes = async () => Number(await page.$eval("#over-closes", (e) => e.textContent));
+    await press("#branches");
+    await until(page, () => document.querySelector("#pop")?.hasAttribute("data-open"));
+    await press("#pop-confirm");
+    await until(page, () => document.querySelector("#over")?.open);
+    s = await look(page);
+    check("a modal opens over the popover it was opened from",
+      (await page.$eval("#over", (d) => d.open)) && s.pop.shown, JSON.stringify(s.pop));
+    await page.keyboard.press("Escape");
+    await until(page, () => !document.querySelector("#over")?.open);
+    s = await look(page);
+    check("Escape closes the modal, not the popover under it",
+      !(await page.$eval("#over", (d) => d.open)) && s.pop.shown, JSON.stringify(s.pop));
+    // The browser fires `close` a task after the dialog shuts.
+    await until(page, () => document.getElementById("over-closes")?.textContent !== "0");
+    check("…the modal's `on close` runs once", (await closes()) === 1, String(await closes()));
+    await page.keyboard.press("Escape");
+    await until(page, () => !document.querySelector("#pop")?.hasAttribute("data-open"));
+    s = await look(page);
+    check("the next Escape closes the popover", !s.pop.shown && s.said === "popover escape", s.said);
+    check("…and the page heard neither", (await heard()) === beneath, `${beneath} → ${await heard()}`);
     check("nothing threw, and the policy refused nothing", problems.length === 0, problems.join(" | "));
   } catch (e) {
     check(`the run (${e.message})`, false);

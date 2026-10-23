@@ -20,6 +20,17 @@
     // document, and `showModal()` throws on a dialog that is not — which
     // stopped the whole page drawing. It opens once it is there.
     let wanted = false;
+    // While it is open it is one of the layers, when the page has any
+    // (`_stackDialog`): its Escape is then the newest layer's — this one's,
+    // before a popover's under it.
+    let unstack = null;
+    const stacked = () => {
+      if (!unstack && typeof _stackDialog === "function") unstack = _stackDialog(el);
+    };
+    const unstacked = () => {
+      if (unstack) unstack();
+      unstack = null;
+    };
     const open = (tries) => {
       if (!wanted || el.open) return;
       if (el.isConnected === false) {
@@ -28,6 +39,7 @@
       }
       if (el.showModal) el.showModal();
       else el.setAttribute("open", "");
+      stacked();
     };
     effect(() => {
       const shouldBeOpen = read();
@@ -38,11 +50,14 @@
       } else if (!shouldBeOpen && el.open) {
         if (el.close) el.close();
         else el.removeAttribute("open");
+        unstacked();
       }
     });
     el.addEventListener("close", () => {
+      unstacked();
       if (write && read()) write(false);
     });
+    onCleanup(unstacked);
     // The Escape that closes it is its own: nothing behind it — a page's
     // `on key("Escape")`, the back rule of an app — hears it too. The
     // browser still closes the dialog (its `cancel` is not prevented).

@@ -222,8 +222,12 @@ scrolls; when the anchor scrolls out of view the layer goes with it, still
 open, and comes back with it. The open layers are one stack, newest on top,
 and a press outside closes every layer it is outside of.
 
-Escape closes the newest layer that can be dismissed — a popover, a menu —
-and stops there: nothing behind it hears that key. A tooltip keeps Escape
+Escape closes the newest layer that can be dismissed — a popover, a menu,
+an open `Modal` or `Dialog` — and stops there: nothing behind it hears that
+key. A modal opened from a popover is above it: the first Escape closes the
+modal, which its `on close` hears, and the next the popover. A modal covers
+what is beneath it, so a press in it, or on its backdrop, leaves the
+popover under it open. A tooltip keeps Escape
 only while focus is on its control: it hides, and the key goes no further.
 Otherwise the same Escape hides it on its way past and goes on, to the
 layer below or to the element with focus. A tooltip under a pointer

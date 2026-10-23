@@ -235,6 +235,158 @@ test("focus inside a layer that cannot be dismissed keeps its Escape", () => {
   assert.equal(key.prevented && key.stopped, true);
 });
 
+// ─── A modal or a dialog is one of the stack ────────────────────────
+
+// A key as the browser sends it to a page with an open modal: the document
+// hears it first, on its way down (where the layers listen); then the
+// element with focus and the dialog around it, whose own listener keeps it
+// from the page; then the page, unless it was stopped. A key the layers did
+// not prevent is the one the browser closes the modal with.
+function pressInModal(document, dialog, page, key) {
+  const event = {
+    type: "keydown",
+    key,
+    prevented: false,
+    stopped: false,
+    preventDefault() { this.prevented = true; },
+    stopPropagation() { this.stopped = true; },
+  };
+  document.dispatchEvent(event);
+  if (!event.stopped && dialog.open) {
+    event.target = document.activeElement;
+    dialog.dispatchEvent(event);
+    if (!event.prevented) dialog.close();
+  }
+  if (!event.stopped) page.push(key);
+  return event;
+}
+
+function popoverAndModal(WF, document) {
+  const anchor = document.createElement("button");
+  const pop = document.createElement("div");
+  const confirm = document.createElement("button");
+  pop.appendChild(confirm);
+  document.body.appendChild(anchor);
+  document.body.appendChild(pop);
+  const popOpen = WF.signal(true);
+  const why = [];
+  WF.layer(pop, popOpen, undefined, { anchor, focus: false, onClose: (r) => why.push(r) });
+  confirm.focus();
+  const dialog = document.createElement("dialog");
+  const stay = document.createElement("button");
+  dialog.appendChild(stay);
+  document.body.appendChild(dialog);
+  const modalOpen = WF.signal(false);
+  const closes = [];
+  dialog.addEventListener("close", () => closes.push("close"));
+  WF.dialog(dialog, modalOpen);
+  // Opened from the popover, over it.
+  modalOpen.set(true);
+  stay.focus();
+  return { pop, popOpen, why, dialog, modalOpen, closes, stay };
+}
+
+test("a modal opened over a popover takes the first Escape, and the popover the next", () => {
+  const { WF, document } = loadRuntime();
+  const { popOpen, why, dialog, modalOpen, closes } = popoverAndModal(WF, document);
+  assert.equal(dialog.open, true);
+  const page = [];
+
+  const first = pressInModal(document, dialog, page, "Escape");
+  assert.equal(first.prevented, false, "the layers left the key to the modal");
+  assert.equal(dialog.open, false, "so the browser closed it");
+  assert.equal(modalOpen(), false, "its state followed");
+  assert.deepEqual(closes, ["close"], "its `on close` ran once");
+  assert.equal(popOpen(), true, "the popover under it is still open");
+  assert.deepEqual(why, [], "and heard nothing");
+  assert.deepEqual(page, [], "the page did not hear it");
+
+  const second = pressInModal(document, dialog, page, "Escape");
+  assert.equal(popOpen(), false, "the next Escape closes the popover");
+  assert.deepEqual(why, ["escape"]);
+  assert.equal(second.prevented && second.stopped, true, "and is used up");
+  assert.deepEqual(page, [], "the page heard neither");
+
+  pressInModal(document, dialog, page, "Escape");
+  assert.deepEqual(page, ["Escape"], "with nothing open, the page hears it");
+});
+
+test("a modal its state closes leaves the stack, and the next Escape is the popover's", () => {
+  const { WF, document } = loadRuntime();
+  const { popOpen, why, dialog, modalOpen } = popoverAndModal(WF, document);
+  modalOpen.set(false);
+  assert.equal(dialog.open, false);
+  const page = [];
+  const key = pressInModal(document, dialog, page, "Escape");
+  assert.equal(popOpen(), false, "the popover closes");
+  assert.deepEqual(why, ["escape"]);
+  assert.equal(key.prevented && key.stopped, true);
+});
+
+test("a press in a modal, or on its backdrop, is the modal's: the popover under it stays", () => {
+  const { WF, document } = loadRuntime();
+  const { popOpen, dialog, stay, modalOpen } = popoverAndModal(WF, document);
+  document.dispatchEvent({ type: "pointerdown", target: stay });
+  assert.equal(popOpen(), true, "a press inside the modal");
+  document.dispatchEvent({ type: "pointerdown", target: dialog });
+  assert.equal(popOpen(), true, "a press on its backdrop, whose target is the dialog");
+  assert.equal(modalOpen(), true, "and the modal is not closed by a press");
+  modalOpen.set(false);
+  document.dispatchEvent({ type: "pointerdown", target: document.body });
+  assert.equal(popOpen(), false, "closed, the modal leaves the press to the popover");
+});
+
+test("a popover opened from a modal closes first, then the modal", () => {
+  const { WF, document } = loadRuntime();
+  const dialog = document.createElement("dialog");
+  const button = document.createElement("button");
+  dialog.appendChild(button);
+  document.body.appendChild(dialog);
+  const modalOpen = WF.signal(true);
+  WF.dialog(dialog, modalOpen);
+  button.focus();
+  const pop = document.createElement("div");
+  dialog.appendChild(pop);
+  const popOpen = WF.signal(true);
+  WF.layer(pop, popOpen, undefined, { anchor: button, focus: false });
+  const page = [];
+  const first = pressInModal(document, dialog, page, "Escape");
+  assert.equal(popOpen(), false, "the popover, the newest, closes");
+  assert.equal(first.prevented && first.stopped, true);
+  assert.equal(dialog.open, true, "the modal stays");
+  pressInModal(document, dialog, page, "Escape");
+  assert.equal(dialog.open, false, "the next Escape is the modal's");
+  assert.equal(modalOpen(), false);
+  assert.deepEqual(page, []);
+});
+
+test("a tooltip over a modal keeps the rule: it takes Escape only from its control", () => {
+  const { WF, document } = loadRuntime();
+  const dialog = document.createElement("dialog");
+  const field = document.createElement("input");
+  dialog.appendChild(field);
+  document.body.appendChild(dialog);
+  const modalOpen = WF.signal(true);
+  WF.dialog(dialog, modalOpen);
+  const { button, tip } = hovered(WF, document, "Save");
+  dialog.appendChild(button.parentNode);
+  button.focus();
+  const page = [];
+  const own = pressInModal(document, dialog, page, "Escape");
+  assert.equal(tip.hasAttribute("data-open"), false, "the tooltip hid");
+  assert.equal(own.prevented && own.stopped, true, "focus on its control: the key was its");
+  assert.equal(dialog.open, true, "the modal stays");
+
+  field.focus();
+  tip.parentNode.dispatchEvent({ type: "pointerleave" });
+  tip.parentNode.dispatchEvent({ type: "pointerenter" });
+  assert.equal(tip.hasAttribute("data-open"), true, "hovered again");
+  pressInModal(document, dialog, page, "Escape");
+  assert.equal(tip.hasAttribute("data-open"), false, "it hid on the way past");
+  assert.equal(dialog.open, false, "and the modal took the key");
+  assert.deepEqual(page, []);
+});
+
 // ─── What a layer takes as any element does ─────────────────────────
 
 test("a popover, a menu, a tooltip and a modal are given role, tabindex, aria-* and data-*, and hear their handlers", () => {

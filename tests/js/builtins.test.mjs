@@ -76,6 +76,19 @@ test("a picture's image takes the attributes and handlers written on it", () => 
   assert.deepEqual(loads, ["load"], "its `on load` is the image's");
 });
 
+test("with no layers in the build, a modal opens and closes on its own", () => {
+  // `overlay` without `layer`: the stack it joins is not there, and the
+  // dialog is driven as it always was.
+  const { WF, document } = load(runtimeFor("overlay"));
+  const dialog = document.createElement("dialog");
+  document.body.appendChild(dialog);
+  const open = WF.signal(true);
+  WF.dialog(dialog, open);
+  assert.equal(dialog.open, true);
+  dialog.close();
+  assert.equal(open(), false, "the browser's close writes the state back");
+});
+
 test("a long list is a listbox: its role, its active descendant and its keys are the box's", () => {
   const page = mountPage(`    state rows = [{ id: "a" }, { id: "b" }, { id: "c" }]
     state at = 0

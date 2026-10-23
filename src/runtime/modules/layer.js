@@ -9,7 +9,8 @@
   // `Escape` and a press outside close the top one that can be dismissed
   // only, and focus goes back to where it was before that layer opened. A
   // tooltip on top hides on the same Escape, but keeps it only when focus
-  // is on its control (see `_escape`).
+  // is on its control (see `_escape`). An open modal or dialog is one of
+  // the stack while it is open, the newest when it opened last.
 
   // The margin a layer keeps from the edges of the viewport.
   const LAYER_MARGIN = 8;
@@ -97,10 +98,19 @@
   // the layer below or to the page: a tooltip under a pointer resting on a
   // toolbar does not take the Escape of the editor the reader is typing
   // in. Whether the key was used up is what this returns.
+  //
+  // An open modal or dialog is a layer too (`_stackDialog`): on top, the
+  // Escape is its own, and goes on to it — the browser closes it as it
+  // always does, its `on close` runs, and nothing beneath it, a popover or
+  // the page, hears the key.
   function _escape() {
     const focus = typeof document !== "undefined" ? document.activeElement : null;
     const holds = (node) => !!focus && !!node && typeof node.contains === "function" && node.contains(focus);
     for (const layer of _layers.slice().reverse()) {
+      if (layer.modal) {
+        if (layer.el.open) return false;
+        continue;
+      }
       if (layer.dismiss) {
         layer.close("escape");
         return true;
@@ -124,16 +134,34 @@
     }, true);
     // A press outside closes every layer it is outside of, from the top
     // down: a press on a menu closes its submenu, and a press on the page
-    // closes both.
+    // closes both. An open modal covers what is beneath it: a press is its
+    // own — in it or on its backdrop — and the layers under it stay.
     document.addEventListener("pointerdown", (e) => {
       const inside = (node) => node && typeof node.contains === "function" && node.contains(e.target);
       for (const layer of _layers.slice().reverse()) {
+        if (layer.modal) {
+          if (layer.el.open) break;
+          continue;
+        }
         if (!layer.dismiss) continue;
         const anchor = layer.anchor && layer.anchor.el !== undefined ? layer.anchor.el : layer.anchor;
         if (inside(layer.el) || inside(anchor)) break;
         layer.close("outside");
       }
     }, true);
+  }
+
+  // An open `<dialog>` — a Modal, a Dialog — on the stack, the newest
+  // layer, while `WF.dialog` holds it open: so the Escape of a modal opened
+  // over a popover is the modal's, and the popover's is the next. What
+  // this returns takes it off again.
+  function _stackDialog(el) {
+    const entry = { el, anchor: null, dismiss: true, modal: true, close: () => {} };
+    _layers.push(entry);
+    return () => {
+      const at = _layers.indexOf(entry);
+      if (at >= 0) _layers.splice(at, 1);
+    };
   }
 
   // Show `el` as a layer while `read()` is true. `write(false)` is called
