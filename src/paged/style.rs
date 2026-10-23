@@ -54,6 +54,9 @@ pub enum Length {
     Auto,
     Pt(f32),
     Pct(f32),
+    /// Points and a percentage at once, from `calc()`: `calc(50% - 12px)`
+    /// is `Mix(-9.0, 50.0)`. Layout reads it against the box it lands in.
+    Mix(f32, f32),
 }
 
 impl Length {
@@ -62,6 +65,7 @@ impl Length {
             Length::Auto => None,
             Length::Pt(v) => Some(v),
             Length::Pct(p) => Some(of * p / 100.0),
+            Length::Mix(v, p) => Some(v + of * p / 100.0),
         }
     }
     pub fn or_zero(self, of: f32) -> f32 {
@@ -372,6 +376,51 @@ pub struct Style {
 }
 
 impl Style {
+    /// Whether a length layout places by the box around this one is a
+    /// `calc()` of points and a percentage.
+    pub fn has_mix(&self) -> bool {
+        let mix = |l: &Length| matches!(l, Length::Mix(..));
+        self.inset.iter().any(mix)
+            || self.margin.iter().any(mix)
+            || self.padding.iter().any(mix)
+            || [
+                self.width,
+                self.height,
+                self.min_width,
+                self.min_height,
+                self.max_width,
+                self.max_height,
+                self.flex_basis,
+            ]
+            .iter()
+            .any(mix)
+    }
+
+    /// Those lengths in points, against the content box this box lands in:
+    /// `w` wide, `h` tall, `main` along the flex line (`w` or `h`).
+    pub fn settle_mix(&mut self, w: f32, h: f32, main: f32) {
+        let at = |l: &mut Length, of: f32| {
+            if let Length::Mix(v, p) = *l {
+                *l = Length::Pt(v + of * p / 100.0);
+            }
+        };
+        for (i, l) in self.inset.iter_mut().enumerate() {
+            at(l, if i % 2 == 0 { h } else { w });
+        }
+        // Margins and padding are read against the width on every side.
+        self.margin
+            .iter_mut()
+            .chain(self.padding.iter_mut())
+            .for_each(|l| at(l, w));
+        for l in [&mut self.width, &mut self.min_width, &mut self.max_width] {
+            at(l, w);
+        }
+        for l in [&mut self.height, &mut self.min_height, &mut self.max_height] {
+            at(l, h);
+        }
+        at(&mut self.flex_basis, main);
+    }
+
     /// The initial values, as a printed page starts.
     pub fn root(font_size: f32, family: &str) -> Style {
         Style {
@@ -609,51 +658,175 @@ pub fn length(value: &str, u: &Units) -> Option<Length> {
     })
 }
 
-/// `calc()` over points and at most one percentage: `100% - 24px`.
+/// `calc()`: sums of points and percentages, scaled by plain numbers —
+/// `100% - 24px`, `100%/12*8`, `(100% + 16px) * 8 / 12 - 16px`.
 fn calc(inner: &str, u: &Units) -> Option<Length> {
-    let mut pt = 0.0f32;
-    let mut pct = 0.0f32;
-    let mut sign = 1.0f32;
-    let mut product: Option<f32> = None;
-    for tok in split_spaces(inner) {
-        match tok {
-            "+" => sign = 1.0,
-            "-" => sign = -1.0,
-            "*" => product = Some(1.0),
-            "/" => product = Some(-1.0),
-            t => {
-                let t = t.trim_start_matches('(').trim_end_matches(')');
-                if let Some(op) = product.take() {
-                    let n: f32 = t.parse().ok()?;
-                    let k = if op < 0.0 { 1.0 / n } else { n };
-                    pt *= k;
-                    pct *= k;
-                    continue;
+    let mut p = Calc {
+        s: inner.as_bytes(),
+        at: 0,
+        u,
+    };
+    let v = p.sum()?;
+    p.space();
+    if p.at != p.s.len() {
+        return None;
+    }
+    let (pt, pct) = match v {
+        Term::Num(n) => (n, 0.0),
+        Term::Len(pt, pct) => (pt, pct),
+    };
+    Some(if pct == 0.0 {
+        Length::Pt(pt)
+    } else if pt == 0.0 {
+        Length::Pct(pct)
+    } else {
+        Length::Mix(pt, pct)
+    })
+}
+
+/// A `calc()` value: a plain number, or points plus a percentage.
+#[derive(Clone, Copy)]
+enum Term {
+    Num(f32),
+    Len(f32, f32),
+}
+
+struct Calc<'a, 'u> {
+    s: &'a [u8],
+    at: usize,
+    u: &'u Units,
+}
+
+impl Calc<'_, '_> {
+    fn space(&mut self) {
+        while self.s.get(self.at).is_some_and(|c| c.is_ascii_whitespace()) {
+            self.at += 1;
+        }
+    }
+
+    fn peek(&mut self) -> Option<u8> {
+        self.space();
+        self.s.get(self.at).copied()
+    }
+
+    fn sum(&mut self) -> Option<Term> {
+        let mut acc = self.product()?;
+        while let Some(op @ (b'+' | b'-')) = self.peek() {
+            self.at += 1;
+            let rhs = self.product()?;
+            let k = if op == b'+' { 1.0 } else { -1.0 };
+            acc = match (acc, rhs) {
+                (Term::Num(a), Term::Num(b)) => Term::Num(a + k * b),
+                (Term::Len(a, ap), Term::Len(b, bp)) => Term::Len(a + k * b, ap + k * bp),
+                // `0` is a length wherever one is wanted.
+                (Term::Len(a, ap), Term::Num(b)) | (Term::Num(b), Term::Len(a, ap)) if b == 0.0 => {
+                    Term::Len(a, ap)
                 }
-                match length(t, u)? {
-                    Length::Pt(p) => pt += sign * p,
-                    Length::Pct(p) => pct += sign * p,
+                _ => return None,
+            };
+        }
+        Some(acc)
+    }
+
+    fn product(&mut self) -> Option<Term> {
+        let mut acc = self.factor()?;
+        while let Some(op @ (b'*' | b'/')) = self.peek() {
+            self.at += 1;
+            let rhs = self.factor()?;
+            acc = match (op, acc, rhs) {
+                (b'*', Term::Num(a), Term::Num(b)) => Term::Num(a * b),
+                (b'*', Term::Len(a, ap), Term::Num(n)) | (b'*', Term::Num(n), Term::Len(a, ap)) => {
+                    Term::Len(a * n, ap * n)
+                }
+                (b'/', Term::Num(a), Term::Num(b)) if b != 0.0 => Term::Num(a / b),
+                (b'/', Term::Len(a, ap), Term::Num(n)) if n != 0.0 => Term::Len(a / n, ap / n),
+                _ => return None,
+            };
+        }
+        Some(acc)
+    }
+
+    fn factor(&mut self) -> Option<Term> {
+        match self.peek()? {
+            b'(' => {
+                self.at += 1;
+                let v = self.sum()?;
+                (self.peek()? == b')').then_some(())?;
+                self.at += 1;
+                Some(v)
+            }
+            b'-' if !self
+                .s
+                .get(self.at + 1)
+                .is_some_and(|c| c.is_ascii_digit() || *c == b'.') =>
+            {
+                self.at += 1;
+                Some(match self.factor()? {
+                    Term::Num(n) => Term::Num(-n),
+                    Term::Len(a, ap) => Term::Len(-a, -ap),
+                })
+            }
+            c if c.is_ascii_alphabetic() => {
+                // A function — `calc()`, `min()` — read as a length.
+                let start = self.at;
+                while self
+                    .s
+                    .get(self.at)
+                    .is_some_and(|c| c.is_ascii_alphanumeric() || *c == b'-')
+                {
+                    self.at += 1;
+                }
+                (self.s.get(self.at) == Some(&b'(')).then_some(())?;
+                let all = std::str::from_utf8(self.s).ok()?;
+                let close = matching_paren(all, self.at)?;
+                let text = &all[start..=close];
+                self.at = close + 1;
+                Some(match length(text, self.u)? {
+                    Length::Pt(p) => Term::Len(p, 0.0),
+                    Length::Pct(p) => Term::Len(0.0, p),
+                    Length::Mix(a, p) => Term::Len(a, p),
                     Length::Auto => return None,
+                })
+            }
+            _ => {
+                let start = self.at;
+                if matches!(self.s.get(self.at), Some(b'-' | b'+')) {
+                    self.at += 1;
                 }
-                sign = 1.0;
+                while self
+                    .s
+                    .get(self.at)
+                    .is_some_and(|c| c.is_ascii_digit() || *c == b'.')
+                {
+                    self.at += 1;
+                }
+                let num = start..self.at;
+                while self
+                    .s
+                    .get(self.at)
+                    .is_some_and(|c| c.is_ascii_alphabetic() || *c == b'%')
+                {
+                    self.at += 1;
+                }
+                let text = std::str::from_utf8(&self.s[start..self.at]).ok()?;
+                if num.end == self.at {
+                    return Some(Term::Num(text.parse().ok()?));
+                }
+                Some(match length(text, self.u)? {
+                    Length::Pt(p) => Term::Len(p, 0.0),
+                    Length::Pct(p) => Term::Len(0.0, p),
+                    _ => return None,
+                })
             }
         }
     }
-    if pct != 0.0 && pt == 0.0 {
-        return Some(Length::Pct(pct));
-    }
-    if pct != 0.0 {
-        // A mixed value: the layout cannot take both, so the percentage is
-        // read against the page width it will most likely meet.
-        return Some(Length::Pt(pt + pct / 100.0 * u.vw));
-    }
-    Some(Length::Pt(pt))
 }
 
 pub fn length_pt(value: &str, u: &Units) -> Option<f32> {
     match length(value, u)? {
         Length::Pt(p) => Some(p),
         Length::Pct(p) => Some(p / 100.0 * u.em),
+        Length::Mix(v, p) => Some(v + p / 100.0 * u.em),
         Length::Auto => None,
     }
 }
@@ -1045,6 +1218,8 @@ fn track(word: &str, u: &Units) -> Option<Track> {
         w => match length(w, u)? {
             Length::Pt(p) => Track::Pt(p),
             Length::Pct(p) => Track::Pct(p),
+            // A track cannot carry both; read it against the page.
+            Length::Mix(v, p) => Track::Pt(v + p / 100.0 * u.vw),
             Length::Auto => Track::Auto,
         },
     })
@@ -1117,6 +1292,17 @@ mod tests {
         );
         assert_eq!(length("calc(8px * 2)", &U), Some(Length::Pt(12.0)));
         assert_eq!(length("calc(100%)", &U), Some(Length::Pct(100.0)));
+        assert_eq!(length("calc(100%/12*6)", &U), Some(Length::Pct(50.0)));
+        assert_eq!(
+            length("calc(100% - 24px)", &U),
+            Some(Length::Mix(-18.0, 100.0))
+        );
+        assert_eq!(
+            length("calc((100% + 16px) * 6 / 12 - 16px)", &U),
+            Some(Length::Mix(-6.0, 50.0))
+        );
+        assert_eq!(length("calc(-1 * 8px)", &U), Some(Length::Pt(-6.0)));
+        assert_eq!(length("calc(2 * (4px + 4px))", &U), Some(Length::Pt(12.0)));
         assert_eq!(length("bogus", &U), None);
     }
 

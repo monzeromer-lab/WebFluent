@@ -104,16 +104,25 @@ pub struct Layout<'a> {
     pub db: &'a FontDb,
     /// An inline-block's size at an available width, once worked out.
     atom_cache: RefCell<HashMap<(usize, u32), AtomSize>>,
+    /// While a tree is built: the content box each box with a `calc()` of
+    /// points and a percentage lands in, as the last pass measured it —
+    /// width, height, and the length along its flex line.
+    bases: RefCell<HashMap<usize, [f32; 3]>>,
+    /// While a tree is built: each such box, and the node of the box it
+    /// lands in (`None` for the root).
+    mixed: RefCell<Vec<(usize, Option<NodeId>, bool)>>,
 }
 
 /// Width, height, and the baseline from the top.
 type AtomSize = (f32, f32, f32);
 
+// A `Mix` reaches these only while the box around it is not measured yet:
+// the percentage alone, until the next pass settles it.
 fn dim(l: L) -> Dimension {
     match l {
         L::Auto => Dimension::auto(),
         L::Pt(p) => Dimension::length(p),
-        L::Pct(p) => Dimension::percent(p / 100.0),
+        L::Pct(p) | L::Mix(_, p) => Dimension::percent(p / 100.0),
     }
 }
 
@@ -121,7 +130,7 @@ fn lpa(l: L) -> LengthPercentageAuto {
     match l {
         L::Auto => LengthPercentageAuto::auto(),
         L::Pt(p) => LengthPercentageAuto::length(p),
-        L::Pct(p) => LengthPercentageAuto::percent(p / 100.0),
+        L::Pct(p) | L::Mix(_, p) => LengthPercentageAuto::percent(p / 100.0),
     }
 }
 
@@ -129,7 +138,7 @@ fn lp(l: L) -> LengthPercentage {
     match l {
         L::Auto => LengthPercentage::length(0.0),
         L::Pt(p) => LengthPercentage::length(p),
-        L::Pct(p) => LengthPercentage::percent(p / 100.0),
+        L::Pct(p) | L::Mix(_, p) => LengthPercentage::percent(p / 100.0),
     }
 }
 
@@ -205,6 +214,8 @@ impl<'a> Layout<'a> {
             tree,
             db,
             atom_cache: RefCell::new(HashMap::new()),
+            bases: RefCell::new(HashMap::new()),
+            mixed: RefCell::new(Vec::new()),
         }
     }
 
@@ -223,24 +234,21 @@ impl<'a> Layout<'a> {
 
     /// Lay out a box at exactly the page's size: a full-bleed background.
     pub fn layout_page(&self, root: usize, width: f32, height: f32) -> Frag {
-        let mut taffy: TaffyTree<Leaf> = TaffyTree::new();
-        taffy.disable_rounding();
-        let node = self.build(&mut taffy, root, true);
-        let mut st = taffy.style(node).cloned().unwrap_or_default();
-        st.size = Size {
-            width: Dimension::length(width),
-            height: Dimension::length(height),
-        };
-        let _ = taffy.set_style(node, st);
-        let _ = taffy.compute_layout_with_measure(
-            node,
+        self.passes(
+            root,
             Size {
                 width: AvailableSpace::Definite(width),
                 height: AvailableSpace::Definite(height),
             },
-            |inputs, _id, ctx, style| self.measure(inputs, ctx, style),
-        );
-        self.collect(&taffy, node, root, 0.0, 0.0)
+            |taffy, node| {
+                let mut st = taffy.style(node).cloned().unwrap_or_default();
+                st.size = Size {
+                    width: Dimension::length(width),
+                    height: Dimension::length(height),
+                };
+                let _ = taffy.set_style(node, st);
+            },
+        )
     }
 
     /// Lay out a box as wide as its content: a watermark.
@@ -261,29 +269,98 @@ impl<'a> Layout<'a> {
         available: Size<AvailableSpace>,
         force_width: Option<f32>,
     ) -> Frag {
-        let mut taffy: TaffyTree<Leaf> = TaffyTree::new();
-        taffy.disable_rounding();
-        let node = self.build(&mut taffy, root, true);
         // A box laid out at a width fills it, as a block does — taffy would
         // size a flex or grid root to its content.
         let fill = force_width.or(match available.width {
             AvailableSpace::Definite(w) if self.tree.boxes[root].style.width == L::Auto => Some(w),
             _ => None,
         });
-        if let Some(w) = fill {
-            let mut st = taffy.style(node).cloned().unwrap_or_default();
-            st.size.width = Dimension::length(w);
-            let _ = taffy.set_style(node, st);
+        self.passes(root, available, |taffy, node| {
+            if let Some(w) = fill {
+                let mut st = taffy.style(node).cloned().unwrap_or_default();
+                st.size.width = Dimension::length(w);
+                let _ = taffy.set_style(node, st);
+            }
+        })
+    }
+
+    /// Build the tree, lay it out, and collect it. taffy cannot hold
+    /// `calc(100% - 16px)`, so a box with one is laid out again once the
+    /// box around it is measured, with the length worked out in points —
+    /// until nothing moves (a pass or two).
+    fn passes(
+        &self,
+        root: usize,
+        available: Size<AvailableSpace>,
+        setup: impl Fn(&mut TaffyTree<Leaf>, NodeId),
+    ) -> Frag {
+        let definite = |a: AvailableSpace| match a {
+            AvailableSpace::Definite(v) => v,
+            _ => 0.0,
+        };
+        let mut bases: HashMap<usize, [f32; 3]> = HashMap::new();
+        let mut pass = 0;
+        loop {
+            // Nested layouts (an inline-block measured while this one is
+            // computed) build their own trees, so these are only this
+            // tree's while it is built.
+            *self.bases.borrow_mut() = std::mem::take(&mut bases);
+            self.mixed.borrow_mut().clear();
+            let mut taffy: TaffyTree<Leaf> = TaffyTree::new();
+            taffy.disable_rounding();
+            let node = self.build(&mut taffy, root, true);
+            if self.tree.boxes[root].style.has_mix() {
+                self.mixed.borrow_mut().push((root, None, false));
+            }
+            bases = std::mem::take(&mut *self.bases.borrow_mut());
+            let mixed = std::mem::take(&mut *self.mixed.borrow_mut());
+            setup(&mut taffy, node);
+            let _ =
+                taffy.compute_layout_with_measure(node, available, |inputs, _id, ctx, style| {
+                    self.measure(inputs, ctx, style)
+                });
+            pass += 1;
+            let mut moved = false;
+            for (b, parent, column) in mixed {
+                let (w, h) = match parent.and_then(|p| taffy.layout(p).ok()) {
+                    Some(l) => (
+                        l.size.width
+                            - l.padding.left
+                            - l.padding.right
+                            - l.border.left
+                            - l.border.right,
+                        l.size.height
+                            - l.padding.top
+                            - l.padding.bottom
+                            - l.border.top
+                            - l.border.bottom,
+                    ),
+                    None => (definite(available.width), definite(available.height)),
+                };
+                let basis = [w, h, if column { h } else { w }];
+                let old = bases.insert(b, basis);
+                if old.is_none_or(|o| o.iter().zip(basis).any(|(a, b)| (a - b).abs() > 0.01)) {
+                    moved = true;
+                }
+            }
+            if !moved || pass >= 4 {
+                return self.collect(&taffy, node, root, 0.0, 0.0);
+            }
         }
-        let _ = taffy.compute_layout_with_measure(node, available, |inputs, _id, ctx, style| {
-            self.measure(inputs, ctx, style)
-        });
-        self.collect(&taffy, node, root, 0.0, 0.0)
     }
 
     fn style_of(&self, b: usize, root: bool) -> Style {
         let lb = &self.tree.boxes[b];
-        let s: &S = &lb.style;
+        let settled;
+        let s: &S = match self.bases.borrow().get(&b) {
+            Some(&[w, h, main]) => {
+                let mut c: S = (*lb.style).clone();
+                c.settle_mix(w, h, main);
+                settled = c;
+                &settled
+            }
+            None => &lb.style,
+        };
         let mut st = Style {
             display: match s.display {
                 D::None => Display::None,
@@ -534,6 +611,8 @@ impl<'a> Layout<'a> {
         let mut kids: Vec<usize> = lb.children.clone();
         kids.sort_by_key(|&c| self.tree.boxes[c].style.order);
         let children: Vec<NodeId> = kids.iter().map(|&c| self.build(taffy, c, false)).collect();
+        let column = matches!(lb.style.flex_direction, FD::Column | FD::ColumnReverse)
+            && matches!(lb.style.display, D::Flex | D::InlineFlex);
         // A block container with only floats of text and nothing else is a
         // plain block; one with block children too.
         if matches!(style.display, Display::Block) && children.is_empty() {
@@ -542,7 +621,13 @@ impl<'a> Layout<'a> {
                 d => d,
             };
         }
-        taffy.new_with_children(style, &children).expect("a node")
+        let node = taffy.new_with_children(style, &children).expect("a node");
+        for &c in &kids {
+            if self.tree.boxes[c].style.has_mix() {
+                self.mixed.borrow_mut().push((c, Some(node), column));
+            }
+        }
+        node
     }
 
     fn measure(&self, inputs: LayoutInput, ctx: Option<&mut Leaf>, style: &Style) -> LayoutOutput {
@@ -787,6 +872,36 @@ mod tests {
         assert!((xs[1] - (ws[0] + 12.0)).abs() < 0.5);
         // All on one line.
         assert!(row.children.iter().all(|c| (c.y - row.y).abs() < 0.01));
+    }
+
+    #[test]
+    fn a_calc_of_a_percentage_and_points_is_read_against_the_box_it_lands_in() {
+        // The grid's spans: 8 and 4 of 12 with the gap between them, in a
+        // box narrower than the page (its padding), so a percentage read
+        // against the page would overflow it.
+        let col = |n: u32| {
+            format!(
+                ".c{n} {{ flex: 0 0 calc((100% + var(--g, 0px)) * {n} / 12 - var(--g, 0px)); max-width: calc((100% + var(--g, 0px)) * {n} / 12 - var(--g, 0px)) }}"
+            )
+        };
+        let css = format!(
+            ".card {{ padding: 20pt }} .row {{ display: flex; flex-wrap: wrap; --g: 16px; gap: var(--g) }} {} {}",
+            col(8),
+            col(4)
+        );
+        let (_, f) = lay(
+            r#"<body><div class="card"><div class="row"><div class="c8">a</div><div class="c4">b</div></div></div></body>"#,
+            &css,
+            400.0,
+        );
+        let row = &f.children[0].children[0];
+        let (a, b) = (&row.children[0], &row.children[1]);
+        // 360pt inside the padding and a 12pt gap: (372 × 8/12) − 12 and
+        // (372 × 4/12) − 12, which with the gap fill the 360.
+        assert!((a.w - 236.0).abs() < 0.5, "{} {}", a.w, b.w);
+        assert!((b.w - 112.0).abs() < 0.5, "{} {}", a.w, b.w);
+        assert!((a.y - b.y).abs() < 0.01, "one line");
+        assert!((b.x - (a.x + a.w + 12.0)).abs() < 0.5, "the gap between");
     }
 
     #[test]

@@ -30,6 +30,20 @@ fn a_document_shorter_than_a_page_is_one_page() {
 }
 
 #[test]
+fn a_columns_span_reaches_the_paint_a_pdf_is_laid_out_from() {
+    // The paint wrote every `Column` as a bare `wf-col`, so a PDF drew
+    // `span: 8` and `span: 4` as two equal halves.
+    let html = Template::from_str(
+        r#"page P(path: "/", title: "Spans") { Row(gap: .md) { Column(span: 8) { Text("a") } Column(span: 4) { Text("b") } } }"#,
+    )
+    .unwrap()
+    .render_html_fragment(&json!({}))
+    .unwrap();
+    assert!(html.contains(r#"class="wf-col wf-col--8""#), "{html}");
+    assert!(html.contains(r#"class="wf-col wf-col--4""#), "{html}");
+}
+
+#[test]
 fn a_footer_numbers_every_page_and_a_header_keeps_to_its_pages() {
     let filler: String = (0..120)
         .map(|i| {
