@@ -646,11 +646,18 @@ pub fn output_checks(
         // A page draws a chart or a QR code when it is built: what it reads
         // must be known then.
         _ => {
-            let scope = crate::codegen::static_eval::Scope::from_program_with_env(
-                lowered,
-                &[],
-                &config.env,
-            );
+            // What the build can work out, worked out only once a chart or
+            // a QR code needs it: most pages have neither.
+            let worked_out = std::cell::OnceCell::new();
+            let scope = || {
+                worked_out.get_or_init(|| {
+                    crate::codegen::static_eval::Scope::from_program_with_env(
+                        lowered,
+                        &[],
+                        &config.env,
+                    )
+                })
+            };
             for (decl, span, name, arg) in unknown_graphic_args(lowered, &scope) {
                 out.push(
                     Diagnostic::coded(
@@ -670,15 +677,15 @@ pub fn output_checks(
 
 /// Every `Chart` and `QrCode` argument a build cannot work out: the
 /// declaration, the element's place, its name and the argument's.
-fn unknown_graphic_args(
+fn unknown_graphic_args<'s>(
     program: &Program,
-    scope: &crate::codegen::static_eval::Scope,
+    scope: &dyn Fn() -> &'s crate::codegen::static_eval::Scope,
 ) -> Vec<(usize, crate::parser::ast::Span, String, String)> {
     use crate::parser::{Arg, ComponentRef, Declaration, Statement, StatementKind};
-    fn walk(
+    fn walk<'s>(
         stmts: &[Statement],
         decl: usize,
-        scope: &crate::codegen::static_eval::Scope,
+        scope: &dyn Fn() -> &'s crate::codegen::static_eval::Scope,
         out: &mut Vec<(usize, crate::parser::ast::Span, String, String)>,
     ) {
         for stmt in stmts {
@@ -691,7 +698,7 @@ fn unknown_graphic_args(
                         Arg::Named(k, e) => (k.clone(), e),
                         Arg::Positional(e) => ("value".to_string(), e),
                     };
-                    if crate::codegen::static_eval::eval(e, scope).is_none() {
+                    if crate::codegen::static_eval::eval(e, scope()).is_none() {
                         out.push((decl, ui.span, name.clone(), label));
                         break;
                     }

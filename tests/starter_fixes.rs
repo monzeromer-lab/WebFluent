@@ -91,8 +91,14 @@ fn every_label_and_size_that_reads_state_follows_it() {
     ] {
         assert!(out.contains(live), "missing `{live}`:\n{out}");
     }
-    assert!(out.contains("WF.effect(() => {"), "the skeleton's width follows `n`");
-    assert!(out.contains("() => _v()"), "the avatar's initials follow `v`");
+    assert!(
+        out.contains("WF.effect(() => {"),
+        "the skeleton's width follows `n`"
+    );
+    assert!(
+        out.contains("() => _v()"),
+        "the avatar's initials follow `v`"
+    );
 }
 
 #[test]
@@ -109,7 +115,10 @@ fn an_unbound_form_with_rules_asks_them_before_submitting() {
         out.contains("if (!_wfForm.__submitting()) return;"),
         "the submit asks the rules:\n{out}"
     );
-    assert!(out.contains("form: _wfForm"), "the rule belongs to the form");
+    assert!(
+        out.contains("form: _wfForm"),
+        "the rule belongs to the form"
+    );
 }
 
 #[test]
@@ -141,7 +150,10 @@ fn a_components_form_is_its_own() {
     let one = &out[out.find("function Component_One").expect("One")..];
     let first = one.find("const _wfForm").expect("One's form handle");
     let body_start = one.find('{').unwrap();
-    assert!(first > body_start, "the handle is declared inside the component");
+    assert!(
+        first > body_start,
+        "the handle is declared inside the component"
+    );
 }
 
 #[test]

@@ -42,6 +42,12 @@ pub fn lint_env_via(
         let Ok(text) = vfs.read_to_string(&project_dir.join(file)) else {
             continue;
         };
+        // Lexing every file of the project on each check cost a third of
+        // the editor's check; a file whose text has no `env` before a `.`
+        // reads nothing of the build's env.
+        if !may_read_env(&text) {
+            continue;
+        }
         let Ok(tokens) = crate::syntax::tokens(&text, file) else {
             continue; // a file that does not lex has a parse error of its own
         };
@@ -67,6 +73,23 @@ pub fn lint_env_via(
         }
     }
     out
+}
+
+/// Whether `text` could hold an `env.NAME` reference: `env` as a word of
+/// its own, then a `.` after any spaces. Every reference the tokens find
+/// passes this; most files have none.
+fn may_read_env(text: &str) -> bool {
+    let bytes = text.as_bytes();
+    let word = |b: u8| b.is_ascii_alphanumeric() || b == b'_';
+    text.match_indices("env").any(|(at, _)| {
+        let before = at.checked_sub(1).map(|i| bytes[i]);
+        if before.is_some_and(word) {
+            return false;
+        }
+        let rest = &bytes[at + 3..];
+        let next = rest.iter().position(|b| !b.is_ascii_whitespace());
+        next.is_some_and(|i| rest[i] == b'.')
+    })
 }
 
 /// The `env.NAME` references among `tokens`, each with where it is written.
@@ -209,6 +232,18 @@ fn spliced(spelling: &str) -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn a_file_is_read_for_env_only_when_its_text_could_name_it() {
+        assert!(may_read_env("Text(env.API_URL)"));
+        assert!(may_read_env("Text(env  .API_URL)"));
+        assert!(may_read_env("x = env\n    .API_URL"));
+        assert!(!may_read_env("state envs = []"), "a longer word");
+        assert!(!may_read_env("Text(myenv.X)"), "a word that ends in env");
+        assert!(!may_read_env("Text(\"environment\")"));
+        assert!(!may_read_env("page P(path: \"/\") { Text(\"hi\") }"));
+        assert!(!may_read_env("env"), "at the end, nothing after it");
+    }
+
     use super::*;
 
     #[test]

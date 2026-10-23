@@ -357,7 +357,9 @@ fn every_init_template_builds_clean() {
                     std::env::var_os("WF_REQUIRE_CHROME").is_none(),
                     "WF_REQUIRE_CHROME is set and there is no browser: {out}"
                 );
-                eprintln!("\n  SKIPPED: no Chrome or Chromium for the {template} scaffold's tests.\n");
+                eprintln!(
+                    "\n  SKIPPED: no Chrome or Chromium for the {template} scaffold's tests.\n"
+                );
             } else if !test.status.success() {
                 failures.push(format!("{template}: its tests fail:\n{}", out.trim()));
             }

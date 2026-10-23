@@ -552,7 +552,8 @@ fn declaration_for(prop: &str, value: &Expr) -> Option<String> {
             // As `.wf-col--N`: the share of the row less the share of its
             // gaps, so spans that add to 12 fit on one line.
             let n = number(value)?;
-            let width = format!("calc((100% + var(--wf-gap, 0px)) * {n} / 12 - var(--wf-gap, 0px))");
+            let width =
+                format!("calc((100% + var(--wf-gap, 0px)) * {n} / 12 - var(--wf-gap, 0px))");
             format!("flex: 0 0 {width}; max-width: {width}")
         }
         "width" | "height" | "padding" | "margin" | "font-size" => {

@@ -122,45 +122,117 @@ impl Template {
 
 const SPA: &[(&str, &str)] = &[
     ("src/App.wf", include_str!("init/spa/src/App.wf")),
-    ("src/components/StatCard.wf", include_str!("init/spa/src/components/StatCard.wf")),
-    ("src/components/TaskItem.wf", include_str!("init/spa/src/components/TaskItem.wf")),
-    ("src/components/ThemeToggle.wf", include_str!("init/spa/src/components/ThemeToggle.wf")),
-    ("src/pages/Home.wf", include_str!("init/spa/src/pages/Home.wf")),
-    ("src/pages/Profile.wf", include_str!("init/spa/src/pages/Profile.wf")),
-    ("src/pages/Settings.wf", include_str!("init/spa/src/pages/Settings.wf")),
-    ("src/pages/Tasks.wf", include_str!("init/spa/src/pages/Tasks.wf")),
-    ("src/stores/auth.wf", include_str!("init/spa/src/stores/auth.wf")),
-    ("src/stores/tasks.wf", include_str!("init/spa/src/stores/tasks.wf")),
+    (
+        "src/components/StatCard.wf",
+        include_str!("init/spa/src/components/StatCard.wf"),
+    ),
+    (
+        "src/components/TaskItem.wf",
+        include_str!("init/spa/src/components/TaskItem.wf"),
+    ),
+    (
+        "src/components/ThemeToggle.wf",
+        include_str!("init/spa/src/components/ThemeToggle.wf"),
+    ),
+    (
+        "src/pages/Home.wf",
+        include_str!("init/spa/src/pages/Home.wf"),
+    ),
+    (
+        "src/pages/Profile.wf",
+        include_str!("init/spa/src/pages/Profile.wf"),
+    ),
+    (
+        "src/pages/Settings.wf",
+        include_str!("init/spa/src/pages/Settings.wf"),
+    ),
+    (
+        "src/pages/Tasks.wf",
+        include_str!("init/spa/src/pages/Tasks.wf"),
+    ),
+    (
+        "src/stores/auth.wf",
+        include_str!("init/spa/src/stores/auth.wf"),
+    ),
+    (
+        "src/stores/tasks.wf",
+        include_str!("init/spa/src/stores/tasks.wf"),
+    ),
     ("src/styles.css", include_str!("init/spa/src/styles.css")),
     ("src/theme.wf", include_str!("init/spa/src/theme.wf")),
     ("tests/app.wf", include_str!("init/spa/tests/app.wf")),
     ("tests/tasks.wf", include_str!("init/spa/tests/tasks.wf")),
-    ("webfluent.app.json", include_str!("init/spa/webfluent.app.json")),
+    (
+        "webfluent.app.json",
+        include_str!("init/spa/webfluent.app.json"),
+    ),
 ];
 
 const STATIC: &[(&str, &str)] = &[
     ("src/App.wf", include_str!("init/static/src/App.wf")),
-    ("src/components/FeatureCard.wf", include_str!("init/static/src/components/FeatureCard.wf")),
-    ("src/components/SiteFooter.wf", include_str!("init/static/src/components/SiteFooter.wf")),
-    ("src/components/TeamMember.wf", include_str!("init/static/src/components/TeamMember.wf")),
-    ("src/pages/About.wf", include_str!("init/static/src/pages/About.wf")),
-    ("src/pages/Blog.wf", include_str!("init/static/src/pages/Blog.wf")),
-    ("src/pages/Contact.wf", include_str!("init/static/src/pages/Contact.wf")),
-    ("src/pages/Home.wf", include_str!("init/static/src/pages/Home.wf")),
-    ("src/translations/ar.json", include_str!("init/static/src/translations/ar.json")),
-    ("src/translations/en.json", include_str!("init/static/src/translations/en.json")),
+    (
+        "src/components/FeatureCard.wf",
+        include_str!("init/static/src/components/FeatureCard.wf"),
+    ),
+    (
+        "src/components/SiteFooter.wf",
+        include_str!("init/static/src/components/SiteFooter.wf"),
+    ),
+    (
+        "src/components/TeamMember.wf",
+        include_str!("init/static/src/components/TeamMember.wf"),
+    ),
+    (
+        "src/pages/About.wf",
+        include_str!("init/static/src/pages/About.wf"),
+    ),
+    (
+        "src/pages/Blog.wf",
+        include_str!("init/static/src/pages/Blog.wf"),
+    ),
+    (
+        "src/pages/Contact.wf",
+        include_str!("init/static/src/pages/Contact.wf"),
+    ),
+    (
+        "src/pages/Home.wf",
+        include_str!("init/static/src/pages/Home.wf"),
+    ),
+    (
+        "src/translations/ar.json",
+        include_str!("init/static/src/translations/ar.json"),
+    ),
+    (
+        "src/translations/en.json",
+        include_str!("init/static/src/translations/en.json"),
+    ),
     ("tests/site.wf", include_str!("init/static/tests/site.wf")),
-    ("webfluent.app.json", include_str!("init/static/webfluent.app.json")),
+    (
+        "webfluent.app.json",
+        include_str!("init/static/webfluent.app.json"),
+    ),
 ];
 
 const PDF: &[(&str, &str)] = &[
-    ("src/pages/Report.wf", include_str!("init/pdf/src/pages/Report.wf")),
-    ("webfluent.app.json", include_str!("init/pdf/webfluent.app.json")),
+    (
+        "src/pages/Report.wf",
+        include_str!("init/pdf/src/pages/Report.wf"),
+    ),
+    (
+        "webfluent.app.json",
+        include_str!("init/pdf/webfluent.app.json"),
+    ),
 ];
 
 const SLIDES: &[(&str, &str)] = &[
-    ("src/pages/Deck.wf", include_str!("init/slides/src/pages/Deck.wf")),
-    ("webfluent.app.json", include_str!("init/slides/webfluent.app.json")),
+    (
+        "src/pages/Deck.wf",
+        include_str!("init/slides/src/pages/Deck.wf"),
+    ),
+    (
+        "webfluent.app.json",
+        include_str!("init/slides/webfluent.app.json"),
+    ),
 ];
 
 #[cfg(test)]
@@ -189,9 +261,18 @@ mod tests {
                 }
             }
             on_disk.sort();
-            let mut listed: Vec<String> = template.files().iter().map(|(p, _)| p.to_string()).collect();
+            let mut listed: Vec<String> = template
+                .files()
+                .iter()
+                .map(|(p, _)| p.to_string())
+                .collect();
             listed.sort();
-            assert_eq!(on_disk, listed, "the `{}` starter's table and its folder differ", template.name());
+            assert_eq!(
+                on_disk,
+                listed,
+                "the `{}` starter's table and its folder differ",
+                template.name()
+            );
         }
     }
 }

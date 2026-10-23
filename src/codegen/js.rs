@@ -2789,7 +2789,10 @@ impl JsCodegen {
                 if name == "Form" {
                     attrs.push("\"on:submit\": (e) => e.preventDefault()".to_string());
                     if let Some(implicit) = &self.implicit_form
-                        && !ui.args.iter().any(|a| matches!(a, Arg::Named(k, _) if k == "bind"))
+                        && !ui
+                            .args
+                            .iter()
+                            .any(|a| matches!(a, Arg::Named(k, _) if k == "bind"))
                     {
                         attrs.push(format!("ref: {implicit}"));
                     }
@@ -4320,7 +4323,9 @@ impl JsCodegen {
             return;
         }
         let message = self.fresh_var();
-        self.emit_line(&format!("const {message} = WF.choiceError({var}, _{bound}_check);"));
+        self.emit_line(&format!(
+            "const {message} = WF.choiceError({var}, _{bound}_check);"
+        ));
         self.emit_line(&format!("{parent}.appendChild({message});"));
     }
 
@@ -4390,7 +4395,11 @@ impl JsCodegen {
             // A label that reads state — `t("…")`, which follows the locale,
             // or a signal — is drawn live; it was worked out once, so a
             // `Checkbox` kept the language the page opened in.
-            let l = if self.is_reactive(&l) { format!("() => {l}") } else { l };
+            let l = if self.is_reactive(&l) {
+                format!("() => {l}")
+            } else {
+                l
+            };
             self.emit_line(&format!("{}.appendChild(WF.text({}));", var, l));
         }
 
@@ -4509,7 +4518,11 @@ impl JsCodegen {
             // A label that reads state — `t("…")`, which follows the locale,
             // or a signal — is drawn live; it was worked out once, so a
             // `Checkbox` kept the language the page opened in.
-            let l = if self.is_reactive(&l) { format!("() => {l}") } else { l };
+            let l = if self.is_reactive(&l) {
+                format!("() => {l}")
+            } else {
+                l
+            };
             self.emit_line(&format!("{}.appendChild(WF.text({}));", var, l));
         }
 
@@ -5101,7 +5114,13 @@ impl JsCodegen {
 
         // What reads state follows it: the initials of a user who renames
         // themself, a picture that arrives. They were worked out once.
-        let live = |v: String| if self.is_reactive(&v) { format!("() => {v}") } else { v };
+        let live = |v: String| {
+            if self.is_reactive(&v) {
+                format!("() => {v}")
+            } else {
+                v
+            }
+        };
         let src = src.map(live);
         let alt = alt.map(live);
         let initials = initials.map(live);
@@ -6703,7 +6722,11 @@ impl JsCodegen {
     /// the handler's own parameter — is left as it is.
     fn implicit_handler_names(&self, handler: &EventHandler, param: &str) -> String {
         let param = param.trim();
-        if param.is_empty() || !param.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '$') {
+        if param.is_empty()
+            || !param
+                .chars()
+                .all(|c| c.is_alphanumeric() || c == '_' || c == '$')
+        {
             return String::new();
         }
         let mut body = handler.body.clone();
