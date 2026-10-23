@@ -67,92 +67,79 @@ pub fn check_project(p: &Project) -> Checked {
 /// editor's unsaved config, translations and sources are checked as the
 /// build reading the same `vfs` would check them.
 pub fn check_project_via(vfs: &dyn Vfs, p: &Project) -> Checked {
-    let mut out = Vec::new();
-    if let Some(dir) = p.dir {
-        out.extend(script_checks_via(vfs, dir, p.scripts));
-        out.extend(crate::linter::project::missing_assets(
-            p.program, dir, p.file_of,
-        ));
-        out.extend(crate::linter::project::persist_changes(
-            p.program, dir, p.file_of,
-        ));
-        if let Some(config) = p.config {
-            out.extend(config_checks_via(vfs, dir, config, p.program));
-            out.extend(crate::linter::lint_env_via(
-                vfs,
-                dir,
-                config,
-                p.declaration_files,
-            ));
-            if let Some(i18n) = &config.i18n
-                && let Ok(messages) = crate::i18n::load_via(vfs, dir, i18n)
-            {
-                out.extend(crate::linter::project::translations(
-                    p.program, i18n, &messages, p.file_of,
-                ));
+    // Each declaration's file and that file's text, asked once here: the
+    // checks below run side by side, on threads of their own, and are
+    // handed these rather than the caller's closures. An editor runs this
+    // each time typing stops; one after another the checks waited for one
+    // core, and a busy computer made that core slow.
+    let count = p.program.declarations.len();
+    let mut labels: Vec<String> = Vec::new();
+    let mut texts: Vec<Option<String>> = Vec::new();
+    let mut file_ix: Vec<usize> = Vec::with_capacity(count);
+    for i in 0..count {
+        let file = (p.file_of)(i);
+        let at = match labels.iter().position(|f| *f == file) {
+            Some(at) => at,
+            None => {
+                labels.push(file);
+                texts.push((p.source_of)(i));
+                labels.len() - 1
             }
-        }
+        };
+        file_ix.push(at);
     }
-    let (program_found, types) = program_checks_typed(p.program, p.file_of, p.source_of);
-    out.extend(program_found);
-    out.extend(crate::linter::structure::lint_structure(
-        p.program, p.file_of,
-    ));
+    let file_of = |i: usize| {
+        file_ix
+            .get(i)
+            .and_then(|&at| labels.get(at))
+            .cloned()
+            .unwrap_or_default()
+    };
+    let source_of = |i: usize| {
+        file_ix
+            .get(i)
+            .and_then(|&at| texts.get(at).cloned().flatten())
+    };
+    let file_of: &(dyn Fn(usize) -> String + Sync) = &file_of;
+    let source_of: &(dyn Fn(usize) -> Option<String> + Sync) = &source_of;
+    let shared = Shared {
+        program: p.program,
+        dir: p.dir,
+        config: p.config,
+        declaration_files: p.declaration_files,
+        scripts: p.scripts,
+        stylesheets: p.stylesheets,
+    };
+    let shared = &shared;
 
-    let lowered = crate::sema::lower(p.program.clone());
-    let mut lints: Vec<crate::error::A11yWarning> =
-        crate::linter::lint_accessibility_in(&lowered, p.file_of);
-    let theme = p.config.map(|c| c.theme.clone()).unwrap_or_default();
-    if let Ok(mut tokens) = crate::themes::resolve_tokens(&lowered, &theme) {
-        lints.extend(crate::linter::lint_contrast_in(
-            &lowered, &tokens, p.file_of,
-        ));
-        if let Some(config) = p.config {
-            crate::themes::apply_motion(&mut tokens, &config.motion);
-        }
-        out.extend(crate::linter::styles::lint_styles(
-            &lowered,
-            Some(&tokens),
-            p.file_of,
-        ));
-    } else {
-        out.extend(crate::linter::styles::lint_styles(
-            &lowered, None, p.file_of,
-        ));
-    }
-    let published = p
-        .config
-        .map(|c| c.build.elements.clone())
-        .unwrap_or_default();
-    lints.extend(crate::linter::lint_unused_in(
-        &lowered, p.file_of, &published,
-    ));
-    out.extend(lints.into_iter().map(Diagnostic::from));
-    out.extend(
-        crate::linter::lint_vocabulary_with(&lowered, p.stylesheets, p.file_of)
-            .into_iter()
-            .map(Diagnostic::from),
-    );
-    if let Some(config) = p.config {
-        out.extend(output_checks(&lowered, config, p.file_of));
-        if config.build.csp {
-            out.extend(crate::codegen::csp::head_violations(
-                p.program,
-                &crate::config::project::csp_meta_policy(config),
-                p.file_of,
-            ));
-        }
-    }
+    // The checks that read the program as parsed, and those that read it
+    // lowered, side by side; their findings are joined in the order they
+    // were always given, which the de-duplication below keeps.
+    let (around, (program_found, types), structure, lowered, from_lowered) =
+        std::thread::scope(|s| {
+            let around = s.spawn(|| project_checks_via(vfs, shared, file_of));
+            let typed = s.spawn(|| program_checks_typed(p.program, file_of, source_of));
+            let structure =
+                s.spawn(|| crate::linter::structure::lint_structure(p.program, file_of));
+            let lowered = crate::sema::lower(p.program.clone());
+            let from_lowered = lowered_checks(&lowered, shared, file_of);
+            (
+                around.join().expect("the project's checks"),
+                typed.join().expect("the program's checks"),
+                structure.join().expect("the structure's checks"),
+                lowered,
+                from_lowered,
+            )
+        });
+    let mut out = around;
+    out.extend(program_found);
+    out.extend(structure);
+    out.extend(from_lowered);
 
     // The text of each file, by the name its findings carry: for the
     // `wf-allow` comments, and the fixes known by their shape.
-    let mut sources: Vec<(String, Option<String>)> = Vec::new();
-    for i in 0..p.program.declarations.len() {
-        let file = (p.file_of)(i);
-        if !sources.iter().any(|(f, _)| *f == file) {
-            sources.push((file, (p.source_of)(i)));
-        }
-    }
+    let sources: Vec<(String, Option<String>)> =
+        labels.iter().cloned().zip(texts.iter().cloned()).collect();
     let text_of = |file: &str| {
         sources
             .iter()
@@ -184,6 +171,117 @@ pub fn check_project_via(vfs: &dyn Vfs, p: &Project) -> Checked {
         lowered,
         types,
     }
+}
+
+/// What of a [`Project`] the checks share between their threads.
+struct Shared<'a> {
+    program: &'a Program,
+    dir: Option<&'a Path>,
+    config: Option<&'a ProjectConfig>,
+    declaration_files: &'a [String],
+    scripts: &'a [Script],
+    stylesheets: &'a str,
+}
+
+/// What the project around the program says: its scripts, its assets,
+/// what it persists, its config, its env and its translations.
+fn project_checks_via(
+    vfs: &dyn Vfs,
+    p: &Shared,
+    file_of: &(dyn Fn(usize) -> String + Sync),
+) -> Vec<Diagnostic> {
+    let mut out = Vec::new();
+    let Some(dir) = p.dir else {
+        return out;
+    };
+    out.extend(script_checks_via(vfs, dir, p.scripts));
+    out.extend(crate::linter::project::missing_assets(
+        p.program, dir, file_of,
+    ));
+    out.extend(crate::linter::project::persist_changes(
+        p.program, dir, file_of,
+    ));
+    if let Some(config) = p.config {
+        out.extend(config_checks_via(vfs, dir, config, p.program));
+        out.extend(crate::linter::lint_env_via(
+            vfs,
+            dir,
+            config,
+            p.declaration_files,
+        ));
+        if let Some(i18n) = &config.i18n
+            && let Ok(messages) = crate::i18n::load_via(vfs, dir, i18n)
+        {
+            out.extend(crate::linter::project::translations(
+                p.program, i18n, &messages, file_of,
+            ));
+        }
+    }
+    out
+}
+
+/// What the lowered program says: its styles, its accessibility, its
+/// contrast, what it declares and never reads, its vocabulary and what its
+/// output can hold. Each on a thread of its own; the findings in the order
+/// they were always given.
+fn lowered_checks(
+    lowered: &Program,
+    p: &Shared,
+    file_of: &(dyn Fn(usize) -> String + Sync),
+) -> Vec<Diagnostic> {
+    let theme = p.config.map(|c| c.theme.clone()).unwrap_or_default();
+    let published = p
+        .config
+        .map(|c| c.build.elements.clone())
+        .unwrap_or_default();
+    let (accessibility, (contrast, styles), unused, vocabulary, output) = std::thread::scope(|s| {
+        let accessibility = s.spawn(|| crate::linter::lint_accessibility_in(lowered, file_of));
+        let painted = s.spawn(|| match crate::themes::resolve_tokens(lowered, &theme) {
+            Ok(mut tokens) => {
+                let contrast = crate::linter::lint_contrast_in(lowered, &tokens, file_of);
+                if let Some(config) = p.config {
+                    crate::themes::apply_motion(&mut tokens, &config.motion);
+                }
+                (
+                    contrast,
+                    crate::linter::styles::lint_styles(lowered, Some(&tokens), file_of),
+                )
+            }
+            Err(_) => (
+                Vec::new(),
+                crate::linter::styles::lint_styles(lowered, None, file_of),
+            ),
+        });
+        let unused = s.spawn(|| crate::linter::lint_unused_in(lowered, file_of, &published));
+        let vocabulary =
+            s.spawn(|| crate::linter::lint_vocabulary_with(lowered, p.stylesheets, file_of));
+        let output = p.config.map(|config| {
+            let mut out = output_checks(lowered, config, file_of);
+            if config.build.csp {
+                out.extend(crate::codegen::csp::head_violations(
+                    p.program,
+                    &crate::config::project::csp_meta_policy(config),
+                    file_of,
+                ));
+            }
+            out
+        });
+        (
+            accessibility.join().expect("the accessibility checks"),
+            painted.join().expect("the style checks"),
+            unused.join().expect("the checks for what is unused"),
+            vocabulary.join().expect("the vocabulary's checks"),
+            output.unwrap_or_default(),
+        )
+    });
+    let mut out = styles;
+    let mut lints = accessibility;
+    lints.extend(contrast);
+    lints.extend(unused);
+    out.extend(lints.into_iter().map(Diagnostic::from));
+    out.extend(vocabulary.into_iter().map(Diagnostic::from));
+    out.extend(output);
+    out
 }
 
 /// What a program says about itself, with nothing around it: the
