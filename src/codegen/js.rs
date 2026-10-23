@@ -120,6 +120,9 @@ pub struct JsCodegen {
     /// The form handle the body binds, which a `validate` block registers
     /// into, and which decides when a message is shown.
     current_form: Option<String>,
+    /// The handle an unbound `Form` is given when the body has `validate`
+    /// rules — so its submit asks them, as a bound form's does.
+    implicit_form: Option<String>,
     /// Every `Form(bind: name)` handle of the page or component being
     /// written: `form.valid` reads signals, so what reads it is followed.
     form_handles: Vec<String>,
@@ -317,6 +320,7 @@ impl JsCodegen {
             own_actions: Vec::new(),
             refs: Vec::new(),
             current_form: None,
+            implicit_form: None,
             form_handles: Vec::new(),
             validated: Vec::new(),
             menu_lists: Vec::new(),
@@ -1758,6 +1762,36 @@ impl JsCodegen {
 
     // ─── Component ───────────────────────────────────
 
+    /// Declare the body's form handles. Each page and component starts with
+    /// none: the last body's handle used to carry over, so a page whose form
+    /// had no `bind:` compiled to a submit that read another page's handle,
+    /// which its chunk does not have. A `Form` with no `bind:` in a body that
+    /// has `validate` rules is given a handle of its own, so a submit with a
+    /// fault stops, as the guide says — it used to run its handler anyway.
+    ///
+    /// Gives back the declarations, for the caller to write inside the body's
+    /// function: a component's used to be written above it, so two
+    /// components with a form declared one name twice in the bundle, and
+    /// every copy of a component shared one form.
+    fn open_forms(&mut self, body: &[Statement]) -> Vec<String> {
+        self.current_form = None;
+        self.implicit_form = None;
+        self.form_handles = crate::sema::types::form_names(body);
+        let mut lines = Vec::new();
+        for name in crate::sema::types::form_names(body) {
+            lines.push(format!("const {name} = WF.form({});", form_options(body)));
+            self.current_form = Some(name.clone());
+            self.refs.push(name);
+        }
+        if self.current_form.is_none() && has_form(body) && !validated_names(body).is_empty() {
+            let name = "_wfForm".to_string();
+            lines.push(format!("const {name} = WF.form({});", form_options(body)));
+            self.current_form = Some(name.clone());
+            self.implicit_form = Some(name);
+        }
+        lines
+    }
+
     fn emit_component(&mut self, comp: &ComponentDecl) {
         self.node_owner = comp.name.clone();
         let params: Vec<String> = comp.props.iter().map(|p| p.name.clone()).collect();
@@ -1770,15 +1804,7 @@ impl JsCodegen {
         // A form handle resolves as a bare name like a ref does, but is
         // declared here, once, as a form.
         let handles = self.refs.clone();
-        self.form_handles = crate::sema::types::form_names(&comp.body);
-        for name in crate::sema::types::form_names(&comp.body) {
-            self.emit_line(&format!(
-                "const {name} = WF.form({});",
-                form_options(&comp.body)
-            ));
-            self.current_form = Some(name.clone());
-            self.refs.push(name);
-        }
+        let forms = self.open_forms(&comp.body);
         self.validated = validated_names(&comp.body);
         self.current_body = comp.body.clone();
         // Props are read through `_p.name`, never copied out: a caller passes
@@ -1811,6 +1837,9 @@ impl JsCodegen {
             "_p = WF.props(_p, {{ {} }});",
             defaults.join(", ")
         ));
+        for line in forms {
+            self.emit_line(&line);
+        }
         for name in handles {
             self.emit_line(&format!("const {name} = WF.ref();"));
         }
@@ -1855,14 +1884,8 @@ impl JsCodegen {
         self.own_names = declared_names(&page.body);
         self.emit_pending_signals(&page.body);
         let handles = self.refs.clone();
-        self.form_handles = crate::sema::types::form_names(&page.body);
-        for name in crate::sema::types::form_names(&page.body) {
-            self.emit_line(&format!(
-                "const {name} = WF.form({});",
-                form_options(&page.body)
-            ));
-            self.current_form = Some(name.clone());
-            self.refs.push(name);
+        for line in self.open_forms(&page.body) {
+            self.emit_line(&line);
         }
         self.validated = validated_names(&page.body);
         self.current_body = page.body.clone();
@@ -2276,7 +2299,7 @@ impl JsCodegen {
                 self.emit_line(&format!(
                     "WF.onKey(document, \"{}\", {} => {{ {} }});",
                     key.replace('"', "\\\""),
-                    Self::handler_head(handler, "event"),
+                    self.handler_head(handler, "event"),
                     body
                 ));
             }
@@ -2309,7 +2332,7 @@ impl JsCodegen {
                 self.emit_line(&format!(
                     "WF.listen({target}, \"{}\", {} => {{ {} }});",
                     handler.event,
-                    Self::handler_head(handler, "event"),
+                    self.handler_head(handler, "event"),
                     body
                 ));
             }
@@ -2765,6 +2788,11 @@ impl JsCodegen {
                 // is attached after creation, on top of this.
                 if name == "Form" {
                     attrs.push("\"on:submit\": (e) => e.preventDefault()".to_string());
+                    if let Some(implicit) = &self.implicit_form
+                        && !ui.args.iter().any(|a| matches!(a, Arg::Named(k, _) if k == "bind"))
+                    {
+                        attrs.push(format!("ref: {implicit}"));
+                    }
                 }
 
                 // Async decoding keeps an image off the critical path. Whether
@@ -2989,7 +3017,7 @@ impl JsCodegen {
                     let v = self.emit_expr(cap);
                     children_arr.push(format!(
                         "WF.el(\"caption\", {{ className: \"wf-visually-hidden\" }}, {})",
-                        v
+                        self.live(&v)
                     ));
                 }
 
@@ -3095,14 +3123,14 @@ impl JsCodegen {
                     // every other page's: a frame hears its own, and stops
                     // listening when it leaves.
                     if name == "Frame" && handler.event == "message" {
-                        let head = Self::handler_head(handler, "event");
+                        let head = self.handler_head(handler, "event");
                         let param = handler.param.as_deref().unwrap_or("event");
                         self.emit_line(&format!(
                             "WF.listen(window, \"message\", {head} => {{ if ({param}.source !== {var}.contentWindow) return; {body} }});"
                         ));
                         continue;
                     }
-                    let line = Self::element_listener(&var, handler, &body);
+                    let line = self.element_listener(&var, handler, &body);
                     self.emit_line(&line);
                 }
 
@@ -3254,7 +3282,7 @@ impl JsCodegen {
                 }
                 for handler in &ui.events {
                     let body = self.emit_event_body(handler);
-                    let line = Self::element_listener(&var, handler, &body);
+                    let line = self.element_listener(&var, handler, &body);
                     self.emit_line(&line);
                 }
                 // A sub-component used to drop its style block and its
@@ -3299,7 +3327,7 @@ impl JsCodegen {
                             format!(
                                 "{}: {} => {{ {} }}",
                                 h.event,
-                                Self::handler_head(h, "_ev"),
+                                self.handler_head(h, "_ev"),
                                 body
                             )
                         })
@@ -3377,7 +3405,7 @@ impl JsCodegen {
                         "WF.onRoot({}, \"{}\", {} => {{ {} }});",
                         var,
                         handler.event,
-                        Self::handler_head(handler, "event"),
+                        self.handler_head(handler, "event"),
                         body
                     ));
                 }
@@ -3544,7 +3572,7 @@ impl JsCodegen {
         ));
         for handler in &ui.events {
             let body = self.emit_event_body(handler);
-            let line = Self::element_listener(var, handler, &body);
+            let line = self.element_listener(var, handler, &body);
             self.emit_line(&line);
         }
         self.emit_style_and_transition(var, ui);
@@ -3563,8 +3591,8 @@ impl JsCodegen {
     /// `longpress`, `swipe`, a drop's `receive`, a drag's `dragmove` — is
     /// set up by `WF.gesture`, and its handler hears what it saw; every
     /// other event is the element's own.
-    fn element_listener(var: &str, handler: &EventHandler, body: &str) -> String {
-        let head = Self::handler_head(handler, "event");
+    fn element_listener(&self, var: &str, handler: &EventHandler, body: &str) -> String {
+        let head = self.handler_head(handler, "event");
         if GESTURE_EVENTS.contains(&handler.event.as_str()) {
             format!(
                 "WF.gesture({var}, \"{}\", {head} => {{ {body} }});",
@@ -4195,6 +4223,7 @@ impl JsCodegen {
                     }
                 })
                 .unwrap_or_else(|| format!("\"Tab {}\"", i));
+            let label = self.live(&label);
 
             // Roving tabindex: only the selected tab is in the tab order, and
             // the arrow keys move between them (see `WF.tabs`).
@@ -4259,7 +4288,7 @@ impl JsCodegen {
         let mut merged = false;
         for handler in &ui.events {
             let body = self.emit_event_body(handler);
-            let head = Self::handler_head(handler, "e");
+            let head = self.handler_head(handler, "e");
             if handler.event == "change"
                 && let Some(write) = &bound_change
             {
@@ -4276,6 +4305,23 @@ impl JsCodegen {
             out.push_str(&format!(", \"on:change\": () => {{ {write}; }}"));
         }
         out
+    }
+
+    /// The message a validated `Checkbox` or `Switch` shows, beneath it.
+    fn emit_choice_message(&mut self, ui: &UIElement, var: &str, parent: &str) {
+        let Some(Arg::Named(_, Expr::Identifier(bound))) = ui
+            .args
+            .iter()
+            .find(|a| matches!(a, Arg::Named(k, _) if k == "bind"))
+        else {
+            return;
+        };
+        if !self.validated.contains(bound) {
+            return;
+        }
+        let message = self.fresh_var();
+        self.emit_line(&format!("const {message} = WF.choiceError({var}, _{bound}_check);"));
+        self.emit_line(&format!("{parent}.appendChild({message});"));
     }
 
     fn emit_switch(&mut self, var: &str, attrs: &[String], ui: &UIElement, parent: &str) {
@@ -4341,10 +4387,15 @@ impl JsCodegen {
         self.emit_line(&format!("{}.appendChild({});", var, track_var));
 
         if let Some(l) = label {
+            // A label that reads state — `t("…")`, which follows the locale,
+            // or a signal — is drawn live; it was worked out once, so a
+            // `Checkbox` kept the language the page opened in.
+            let l = if self.is_reactive(&l) { format!("() => {l}") } else { l };
             self.emit_line(&format!("{}.appendChild(WF.text({}));", var, l));
         }
 
         self.emit_line(&format!("{}.appendChild({});", parent, var));
+        self.emit_choice_message(ui, var, parent);
     }
 
     fn emit_check_radio(
@@ -4455,10 +4506,17 @@ impl JsCodegen {
         self.emit_line(&format!("{}.appendChild({});", var, input_var));
 
         if let Some(l) = label {
+            // A label that reads state — `t("…")`, which follows the locale,
+            // or a signal — is drawn live; it was worked out once, so a
+            // `Checkbox` kept the language the page opened in.
+            let l = if self.is_reactive(&l) { format!("() => {l}") } else { l };
             self.emit_line(&format!("{}.appendChild(WF.text({}));", var, l));
         }
 
         self.emit_line(&format!("{}.appendChild({});", parent, var));
+        if name == "Checkbox" {
+            self.emit_choice_message(ui, var, parent);
+        }
     }
 
     fn emit_dropdown_menu(
@@ -4603,7 +4661,7 @@ impl JsCodegen {
         let body = self.emit_event_body(handler);
         Some(format!(
             "onClose: {} => {{ {} }}",
-            Self::handler_head(handler, "reason"),
+            self.handler_head(handler, "reason"),
             body
         ))
     }
@@ -4699,7 +4757,7 @@ impl JsCodegen {
         }
         for handler in &ui.events {
             let body = self.emit_event_body(handler);
-            let line = Self::element_listener(var, handler, &body);
+            let line = self.element_listener(var, handler, &body);
             self.emit_line(&line);
         }
         self.emit_style_and_transition(var, ui);
@@ -4965,7 +5023,9 @@ impl JsCodegen {
         let tip_var = self.fresh_var();
         self.emit_line(&format!(
             "const {} = WF.el(\"span\", {{ className: \"wf-tooltip__text\", role: \"tooltip\", id: {} }}, {});",
-            tip_var, tip_id, text
+            tip_var,
+            tip_id,
+            self.live(&text)
         ));
         let mut opts = Vec::new();
         for arg in &ui.args {
@@ -5000,17 +5060,12 @@ impl JsCodegen {
     }
 
     fn emit_avatar(&mut self, var: &str, ui: &UIElement, parent: &str) {
-        let src = ui.args.iter().find_map(|a| {
-            if let Arg::Named(k, v) = a {
-                if k == "src" {
-                    Some(self.emit_expr(v))
-                } else {
-                    None
-                }
-            } else {
-                None
-            }
+        // Through the scheme check like any other `src:`.
+        let src = ui.args.iter().find_map(|a| match a {
+            Arg::Named(k, v) if k == "src" => Some(v.clone()),
+            _ => None,
         });
+        let src = src.map(|v| self.url_value(&v));
         let alt = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
                 if k == "alt" {
@@ -5044,6 +5099,12 @@ impl JsCodegen {
             }
         }
 
+        // What reads state follows it: the initials of a user who renames
+        // themself, a picture that arrives. They were worked out once.
+        let live = |v: String| if self.is_reactive(&v) { format!("() => {v}") } else { v };
+        let src = src.map(live);
+        let alt = alt.map(live);
+        let initials = initials.map(live);
         let wf = self.wf_node_inline(ui);
         if let Some(img_src) = src {
             let alt_val = alt.unwrap_or_else(|| "\"\"".to_string());
@@ -5114,18 +5175,27 @@ impl JsCodegen {
             cls,
             self.wf_node_inline(ui)
         ));
+        // A size that reads state follows it.
+        let set = |out: &mut Self, prop: &str, v: &str| {
+            let line = format!("{var}.style.{prop} = {v};");
+            if out.is_reactive(v) {
+                out.emit_line(&format!("WF.effect(() => {{ {line} }});"));
+            } else {
+                out.emit_line(&line);
+            }
+        };
         if let Some(h) = &height {
-            self.emit_line(&format!("{}.style.height = {};", var, h));
+            set(self, "height", h);
         }
         if let Some(w) = &width {
-            self.emit_line(&format!("{}.style.width = {};", var, w));
+            set(self, "width", w);
         }
         if is_circle && let Some(s) = &size {
             if height.is_none() {
-                self.emit_line(&format!("{}.style.height = {};", var, s));
+                set(self, "height", s);
             }
             if width.is_none() {
-                self.emit_line(&format!("{}.style.width = {};", var, s));
+                set(self, "width", s);
             }
         }
         self.emit_line(&format!("{}.appendChild({});", parent, var));
@@ -5304,7 +5374,7 @@ impl JsCodegen {
             btn_attrs.push_str(&format!(
                 ", \"on:{}\": {} => {{ {} }}",
                 handler.event,
-                Self::handler_head(handler, "event"),
+                self.handler_head(handler, "event"),
                 body
             ));
         }
@@ -5389,7 +5459,8 @@ impl JsCodegen {
             let label_var = self.fresh_var();
             self.emit_line(&format!(
                 "const {} = WF.el(\"label\", {{ className: \"wf-form-label\" }}, {});",
-                label_var, l
+                label_var,
+                self.live(l)
             ));
             self.emit_line(&format!("{}.appendChild({});", var, label_var));
         }
@@ -5447,7 +5518,7 @@ impl JsCodegen {
             input_attrs.push_str(&format!(
                 ", \"on:{}\": {} => {{ {} }}",
                 handler.event,
-                Self::handler_head(handler, "event"),
+                self.handler_head(handler, "event"),
                 body
             ));
         }
@@ -5523,7 +5594,8 @@ impl JsCodegen {
             let label_var = self.fresh_var();
             self.emit_line(&format!(
                 "const {} = WF.el(\"label\", {{ className: \"wf-form-label\" }}, {});",
-                label_var, l
+                label_var,
+                self.live(l)
             ));
             self.emit_line(&format!("{}.appendChild({});", wrapper_var, label_var));
         }
@@ -5548,7 +5620,7 @@ impl JsCodegen {
             input_attrs.push_str(&format!(
                 ", \"on:{}\": {} => {{ {} }}",
                 handler.event,
-                Self::handler_head(handler, "event"),
+                self.handler_head(handler, "event"),
                 body
             ));
         }
@@ -5599,7 +5671,8 @@ impl JsCodegen {
             let label_var = self.fresh_var();
             self.emit_line(&format!(
                 "const {} = WF.el(\"label\", {{ className: \"wf-form-label\" }}, {});",
-                label_var, l
+                label_var,
+                self.live(l)
             ));
             self.emit_line(&format!("{}.appendChild({});", wrapper_var, label_var));
         }
@@ -5617,7 +5690,7 @@ impl JsCodegen {
             input_attrs.push_str(&format!(
                 ", \"on:{}\": {} => {{ {} }}",
                 handler.event,
-                Self::handler_head(handler, "event"),
+                self.handler_head(handler, "event"),
                 body
             ));
         }
@@ -6611,13 +6684,49 @@ impl JsCodegen {
 
     /// The head of a handler's arrow function: its parameter, and `async`
     /// when the body awaits.
-    fn handler_head(handler: &EventHandler, default_param: &str) -> String {
+    fn handler_head(&self, handler: &EventHandler, default_param: &str) -> String {
         let param = handler.param.as_deref().unwrap_or(default_param);
+        let params = format!("{param}{}", self.implicit_handler_names(handler, param));
         if crate::parser::ast::awaits(&handler.body) {
-            format!("async ({})", param)
+            format!("async ({params})")
         } else {
-            format!("({})", param)
+            format!("({params})")
         }
+    }
+
+    /// `key` and `value` are names inside a handler — the checker accepts
+    /// `on keydown { if key == "Enter" { … } }` — but nothing declared them,
+    /// so the handler threw `ReferenceError: key is not defined` on the first
+    /// key press. A handler that reads either gets it as a defaulted
+    /// parameter, read off its event: `key` the event's key, `value` its
+    /// target's value. A name the body already has — a state, a loop item,
+    /// the handler's own parameter — is left as it is.
+    fn implicit_handler_names(&self, handler: &EventHandler, param: &str) -> String {
+        let param = param.trim();
+        if param.is_empty() || !param.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '$') {
+            return String::new();
+        }
+        let mut body = handler.body.clone();
+        let (mut key, mut value) = (false, false);
+        crate::parser::ast::walk_exprs_mut(&mut body, &mut |e| match e {
+            Expr::Identifier(n) if n == "key" => key = true,
+            Expr::Identifier(n) if n == "value" => value = true,
+            _ => {}
+        });
+        let free = |name: &str| {
+            param != name
+                && !self.own_names.iter().any(|n| n == name)
+                && !self.loop_bindings.iter().any(|n| n == name)
+                && !self.lambda_params.borrow().iter().any(|n| n == name)
+        };
+        let mut out = String::new();
+        if key && free("key") {
+            out.push_str(&format!(", key = {param}?.key"));
+        }
+        if value && free("value") {
+            out.push_str(&format!(", value = {param}?.target?.value"));
+        }
+        out
     }
 
     // ─── Expression emitter ──────────────────────────
@@ -6705,7 +6814,7 @@ impl JsCodegen {
                     && !self.current_props.contains(name)
                     && !self.page_params.contains(name)
                     && !self.loop_bindings.contains(name)
-                    && !self.lambda_params.borrow().contains(name)
+                    && !self.lambda_params.borrow().iter().any(|n| n == name)
                 {
                     return name.to_string();
                 }
@@ -6716,7 +6825,7 @@ impl JsCodegen {
                     && !self.current_props.contains(name)
                     && !self.page_params.contains(name)
                     && !self.loop_bindings.contains(name)
-                    && !self.lambda_params.borrow().contains(name)
+                    && !self.lambda_params.borrow().iter().any(|n| n == name)
                 {
                     return format!("WF.{name}()");
                 }
@@ -7557,6 +7666,16 @@ impl JsCodegen {
         }
     }
 
+    /// An emitted value as `WF.el` takes it: a thunk when it reads state, so
+    /// the text or attribute follows it; as it is otherwise.
+    fn live(&self, emitted: &str) -> String {
+        if self.is_reactive(emitted) {
+            format!("() => {emitted}")
+        } else {
+            emitted.to_string()
+        }
+    }
+
     fn is_reactive(&self, expr_str: &str) -> bool {
         is_reactive_expr(expr_str)
             // What a resource or a connection holds is a signal on its
@@ -7948,6 +8067,21 @@ fn validated_names(stmts: &[Statement]) -> Vec<String> {
     }
     walk(stmts, &mut out);
     out
+}
+
+/// Whether a `Form` is anywhere in the body.
+fn has_form(stmts: &[Statement]) -> bool {
+    stmts.iter().any(|stmt| {
+        if let StatementKind::UIElement(el) = &stmt.kind {
+            if matches!(&el.component, ComponentRef::BuiltIn(n) if n == "Form") {
+                return true;
+            }
+            if has_form(&el.children) || el.slot_fills.iter().any(|f| has_form(&f.body)) {
+                return true;
+            }
+        }
+        stmt.kind.bodies().into_iter().any(has_form)
+    })
 }
 
 /// `Form(show: .live)` — when a message is shown — as the runtime takes it.

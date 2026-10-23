@@ -1,0 +1,10 @@
+component FeatureCard(title: String, description: String, icon: String) {
+    Card.elevated.scaleIn {
+        Card.Body {
+            Icon(icon).primary.lg
+            Spacer.sm
+            Heading(title).h2
+            Text(description).muted
+        }
+    }
+}

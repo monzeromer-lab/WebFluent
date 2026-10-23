@@ -47,11 +47,17 @@ try {
 
     New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
     Move-Item -Path $Exe -Destination (Join-Path $InstallDir "wf.exe") -Force
+    # Windows already has a `wf`: C:\Windows\System32\WF.msc, the firewall
+    # console. System32 comes first on PATH and `.MSC` is in PATHEXT, so a bare
+    # `wf` opens the firewall whatever we do to the user's PATH. The same
+    # binary is installed as webfluent.exe, which nothing else claims. A
+    # release from before it was in the zip is copied here instead.
+    Copy-Item -Path (Join-Path $InstallDir "wf.exe") -Destination (Join-Path $InstallDir "webfluent.exe") -Force
 } finally {
     Remove-Item -Recurse -Force $Tmp -ErrorAction SilentlyContinue
 }
 
-Write-Host "Installed wf to $InstallDir\wf.exe"
+Write-Host "Installed webfluent to $InstallDir\webfluent.exe (and wf.exe)"
 
 # Put it on PATH, once.
 $UserPath = [Environment]::GetEnvironmentVariable("Path", "User")
@@ -62,4 +68,8 @@ if ($UserPath -notlike "*$InstallDir*") {
     Write-Host "$InstallDir is already on your PATH."
 }
 
-Write-Host "Done! Run 'wf --help' to get started."
+Write-Host ""
+Write-Host "Done! Run 'webfluent --help' to get started."
+Write-Host "On Windows a bare 'wf' opens the Windows Firewall console (WF.msc), which"
+Write-Host "comes first on PATH. Type 'webfluent' or 'wf.exe' instead; every 'wf ...'"
+Write-Host "command in the docs works as 'webfluent ...'."

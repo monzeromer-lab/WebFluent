@@ -85,7 +85,11 @@ jobs:
       - name: Create zips
         run: |
           New-Item -ItemType Directory -Force -Path dist
-          Compress-Archive -Path target\release\wf.exe -DestinationPath dist\wf-${{ github.ref_name }}-x86_64-windows.zip
+          # Windows has its own `wf`: System32\WF.msc, the firewall console,
+          # which PATH and PATHEXT find before a user-installed wf.exe. The
+          # zip carries the same binary as webfluent.exe, the name to type there.
+          Copy-Item target\release\wf.exe target\release\webfluent.exe
+          Compress-Archive -Path target\release\wf.exe,target\release\webfluent.exe -DestinationPath dist\wf-${{ github.ref_name }}-x86_64-windows.zip
           Compress-Archive -Path target\release\wf-lsp.exe -DestinationPath dist\wf-lsp-${{ github.ref_name }}-x86_64-windows.zip
 
       - name: Collect MSI

@@ -1,0 +1,70 @@
+page Contact(path: "/contact", description: "How to reach us.", title: "Contact") {
+    state name = ""
+    state email = ""
+    state subject = "general"
+    state message = ""
+    state agreed = false
+    state submitted = false
+
+    // The rules sit beside what they guard; the form shows their messages
+    // and does not send while one fails.
+    validate name { required }
+    validate email { required  email }
+    validate message { required  minLength(10) t("contact.message.short") }
+    validate agreed { required t("contact.agree.required") }
+
+    Container.fadeIn {
+        Heading(t("contact.title")).h1
+        Text(t("contact.subtitle")).muted
+
+        Spacer
+
+        Row(gap: .lg, align: .start).stacks {
+            Column(span: 8) {
+                Card.elevated {
+                    Card.Body {
+                        show submitted {
+                            Alert(t("contact.success")).success
+                            Spacer
+                        }
+                        Form(bind: form) {
+                            on submit {
+                                submitted = true
+                                name = ""
+                                email = ""
+                                message = ""
+                                agreed = false
+                                form.reset()
+                            }
+                            Stack(gap: .sm) {
+                                Input(bind: name, label: t("contact.name")).text
+                                Input(bind: email, label: t("contact.email")).email
+                                Select(bind: subject, label: t("contact.subject")) {
+                                    Select.Option(t("contact.subject.general"), value: "general")
+                                    Select.Option(t("contact.subject.support"), value: "support")
+                                    Select.Option(t("contact.subject.feedback"), value: "feedback")
+                                }
+                                Textarea(bind: message, label: t("contact.message"), rows: 4, maxLength: 500)
+                                Checkbox(bind: agreed, label: t("contact.agree"))
+                                Button(t("contact.send"), type: .submit).primary.lg.full
+                            }
+                        }
+                    }
+                }
+            }
+            Column(span: 4) {
+                Card {
+                    Card.Body {
+                        Heading(t("contact.info")).h2
+                        Spacer.sm
+                        Stack(gap: .sm) {
+                            Text("hello@example.com")
+                            Text("+1 (555) 123-4567")
+                            Text("123 Main Street")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

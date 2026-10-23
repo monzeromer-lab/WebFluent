@@ -1,0 +1,23 @@
+{
+  "name": "{{name}}",
+  "version": "1.0.0",
+  "author": "",
+  "theme": {
+    "name": "Day",
+    "dark": "Night"
+  },
+  "build": {
+    "output": "./build",
+    "minify": true,
+    "ssg": false,
+    "csp": true
+  },
+  "dev": {
+    "port": 3000
+  },
+  "meta": {
+    "title": "{{name}}",
+    "description": "Built with WebFluent",
+    "lang": "en"
+  }
+}

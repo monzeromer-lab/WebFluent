@@ -1,0 +1,39 @@
+page Deck(path: "/", description: "A slide deck.", title: "{{name}}") {
+    Presentation {
+        TitleSlide("{{name}}", subtitle: "Built with WebFluent")
+
+        Slide {
+            Heading("What this deck is").h1
+            Text("A starter PDF slide deck. Each Slide compiles to one PDF page.")
+        }
+
+        Slide {
+            Heading("Layouts").h2
+            List {
+                List.Item { Text("Slide — freeform content") }
+                List.Item { Text("TitleSlide — cover page") }
+                List.Item { Text("SectionSlide — divider between sections") }
+                List.Item { Text("TwoColumn — two side-by-side columns") }
+                List.Item { Text("ImageSlide — image with optional caption") }
+            }
+        }
+
+        TwoColumn {
+            Container {
+                Heading("Left column").h3
+                Text("Each column is laid out on its own.")
+            }
+            Container {
+                Heading("Right column").h3
+                Text("Style a slide as you would a web page.")
+            }
+        }
+
+        SectionSlide("Wrap up").primary
+
+        Slide {
+            Heading("Thanks!").h1
+            Text("Edit src/pages/Deck.wf to make this deck your own.")
+        }
+    }
+}

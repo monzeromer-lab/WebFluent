@@ -106,8 +106,8 @@ mod tests {
     fn structural_keeps_layout_and_mechanics() {
         let css = structural();
         for rule in [
-            ".wf-row { display: flex",
-            ".wf-col--6 { flex: 0 0 50%",
+            ".wf-row { --wf-gap: var(--spacing-md); display: flex",
+            ".wf-col--6 { flex: 0 0 calc(",
             ".wf-stack { display: flex; flex-direction: column",
             // Modal visibility is now the browser's job — `<dialog>` hides itself
             // while closed — so what the sheet still owes is the backdrop.

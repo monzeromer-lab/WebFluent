@@ -1474,7 +1474,7 @@ fn a_value_per_breakpoint_becomes_a_class_and_a_media_query() {
         "{css}"
     );
     assert!(
-        css.contains("gap: var(--spacing-sm)") && css.contains("gap: var(--spacing-lg)"),
+        css.contains("--wf-gap: var(--spacing-sm)") && css.contains("--wf-gap: var(--spacing-lg)"),
         "{css}"
     );
     assert!(

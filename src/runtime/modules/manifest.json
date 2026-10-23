@@ -911,6 +911,10 @@
         [
           "field",
           "field"
+        ],
+        [
+          "choiceError",
+          "choiceError"
         ]
       ],
       "name": "field",

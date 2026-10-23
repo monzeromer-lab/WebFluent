@@ -1,0 +1,41 @@
+type Task { id: Number, title: String, done: Bool = false, priority: String = "medium" }
+
+store TaskStore {
+    /// Kept in the browser, so a reload keeps what was added.
+    persist tasks: [Task] = [
+        Task(id: 1, title: "Learn WebFluent", priority: "high"),
+        Task(id: 2, title: "Build a dashboard"),
+        Task(id: 3, title: "Deploy to production", priority: "low")
+    ]
+    persist nextId = 4
+    state filter = "all"
+
+    derived remaining = tasks.filter(item => !item.done).length
+    derived completed = tasks.filter(item => item.done).length
+    derived filtered = if filter == "all" {
+        tasks
+    } else if filter == "active" {
+        tasks.filter(item => !item.done)
+    } else {
+        tasks.filter(item => item.done)
+    }
+
+    action add(title: String) {
+        let trimmed = title.trim()
+        if trimmed == "" { return }
+        tasks = tasks.concat([Task(id: nextId, title: trimmed)])
+        nextId = nextId + 1
+    }
+
+    action toggle(id: Number) {
+        tasks = tasks.map(item => if item.id == id { { ...item, done: !item.done } } else { item })
+    }
+
+    action remove(id: Number) {
+        tasks = tasks.filter(item => item.id != id)
+    }
+
+    action setFilter(value: String) {
+        filter = value
+    }
+}

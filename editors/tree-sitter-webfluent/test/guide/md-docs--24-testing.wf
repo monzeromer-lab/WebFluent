@@ -40,3 +40,11 @@ test "the cart shows what is in it"(data: { Cart: { items: [{ id: "a", qty: 2 }]
     expect "2 items"
 }
 
+// md-docs/24-testing.md
+test "a task is added with Enter" {
+    Tasks
+    type "Walk the dog" into "New task"
+    press "Enter" in "New task"
+    expect "Walk the dog"
+}
+

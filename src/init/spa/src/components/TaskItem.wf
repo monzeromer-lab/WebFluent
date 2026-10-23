@@ -1,0 +1,13 @@
+component TaskItem(title: String, done: Bool, priority: String) {
+    event toggle
+    event remove
+    Card.outlined {
+        Row(align: .center, justify: .between) {
+            Checkbox(checked: done, label: title) { on change { emit toggle } }
+            Row(align: .center, gap: .sm) {
+                Badge(priority).primary
+                IconButton(icon: "trash", label: "Delete {title}").danger.sm { on click { emit remove } }
+            }
+        }
+    }
+}

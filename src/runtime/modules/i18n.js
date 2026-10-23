@@ -43,8 +43,18 @@
       return text;
     }
 
-    function setLocale(newLocale) {
+    function setLocale(newLocale, remember) {
       locale.set(newLocale);
+      // The reader's choice is kept, as `setTheme`'s is: a static site loads
+      // each page afresh, and one that picked Arabic was handed the next
+      // page in English. Only a choice is kept — a `?lang=` address opens
+      // that language without changing what the reader picked.
+      if (remember !== false) {
+        try {
+          if (newLocale === defaultLocale) window.localStorage.removeItem("wf:locale");
+          else window.localStorage.setItem("wf:locale", newLocale);
+        } catch (e) { /* no storage */ }
+      }
       const newDir = isRtl(newLocale) ? "rtl" : "ltr";
       dir.set(newDir);
       document.documentElement.setAttribute("lang", newLocale);
@@ -59,7 +69,13 @@
       const asked = typeof location !== "undefined" && location.search
         ? new URLSearchParams(location.search).get("lang")
         : null;
-      if (asked && asked !== defaultLocale && translations[asked]) setLocale(asked);
+      if (asked && translations[asked]) {
+        if (asked !== defaultLocale) setLocale(asked, false);
+      } else {
+        let kept = null;
+        try { kept = window.localStorage.getItem("wf:locale"); } catch (e) { /* no storage */ }
+        if (kept && kept !== defaultLocale && translations[kept]) setLocale(kept, false);
+      }
     } catch (e) { /* no location to read */ }
     return i18nInstance;
   }

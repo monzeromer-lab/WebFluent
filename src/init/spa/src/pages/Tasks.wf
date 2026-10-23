@@ -1,0 +1,73 @@
+page Tasks(path: "/tasks", description: "Everything on the list, and what is left of it.", title: "Tasks") {
+    use TaskStore
+
+    state newTask = ""
+    state deleting: Task? = null
+
+    Container.fadeIn {
+        Heading("My tasks").h1
+        Text("{TaskStore.remaining} tasks remaining").muted
+
+        Spacer
+
+        Form {
+            on submit {
+                TaskStore.add(newTask)
+                newTask = ""
+            }
+            Row(gap: .md) {
+                Input(bind: newTask, placeholder: "What needs to be done?", aria-label: "New task").text.full
+                Button("Add", type: .submit, disabled: newTask.trim() == "").primary
+            }
+        }
+
+        Spacer
+
+        ButtonGroup {
+            Button("All", aria-pressed: TaskStore.filter == "all", outlined: TaskStore.filter != "all") {
+                on click { TaskStore.setFilter("all") }
+            }
+            Button("Active", aria-pressed: TaskStore.filter == "active", outlined: TaskStore.filter != "active") {
+                on click { TaskStore.setFilter("active") }
+            }
+            Button("Done", aria-pressed: TaskStore.filter == "done", outlined: TaskStore.filter != "done") {
+                on click { TaskStore.setFilter("done") }
+            }
+        }
+
+        Spacer
+
+        if TaskStore.filtered.length == 0 {
+            Card.outlined.scaleIn {
+                Text("No tasks found.").muted.center
+            }
+        } else {
+            Stack(gap: .sm) {
+                for task in TaskStore.filtered by task.id {
+                    TaskItem(
+                        title: task.title,
+                        done: task.done,
+                        priority: task.priority,
+                        exit: .fadeOut, stagger: "50ms"
+                    ).slideUp {
+                        on toggle { TaskStore.toggle(task.id) }
+                        on remove { deleting = task }
+                    }
+                }
+            }
+        }
+
+        Modal(visible: deleting != null, title: "Delete task") {
+            Text("Delete “{deleting?.title ?? ""}”? This cannot be undone.")
+            Modal.Footer {
+                Button("Cancel") { on click { deleting = null } }
+                Button("Delete").danger {
+                    on click {
+                        if let d = deleting { TaskStore.remove(d.id) }
+                        deleting = null
+                    }
+                }
+            }
+        }
+    }
+}

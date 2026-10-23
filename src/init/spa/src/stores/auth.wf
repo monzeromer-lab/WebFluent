@@ -1,0 +1,20 @@
+type User { name: String, email: String, bio: String, role: String }
+
+store AuthStore {
+    state user: User? = null
+
+    action login(email: String) {
+        user = User(name: "Demo User", email: email, bio: "WebFluent developer", role: "admin")
+    }
+
+    action saveProfile(name: String, email: String, bio: String) {
+        if let u = user {
+            user = { ...u, name: name, email: email, bio: bio }
+        }
+    }
+
+    action logout() {
+        user = null
+        navigate("/")
+    }
+}

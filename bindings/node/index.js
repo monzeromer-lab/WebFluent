@@ -14,24 +14,38 @@ const os = require("os");
 function findBinary() {
   if (process.env.WF_BIN) return process.env.WF_BIN;
 
-  // Try PATH
-  try {
-    const cmd = process.platform === "win32" ? "where" : "which";
-    return execFileSync(cmd, ["wf"], { encoding: "utf-8" }).trim();
-  } catch {}
+  const win = process.platform === "win32";
+
+  // Try PATH. On Windows a bare `wf` is System32\WF.msc, the firewall
+  // console, which `where` lists first — so ask for the executables by their
+  // full names, and take the first line of what `where` prints.
+  const names = win ? ["webfluent.exe", "wf.exe"] : ["wf"];
+  for (const name of names) {
+    try {
+      const out = execFileSync(win ? "where" : "which", [name], {
+        encoding: "utf-8",
+        stdio: ["ignore", "pipe", "ignore"],
+      });
+      const first = out.split(/\r?\n/).map((l) => l.trim()).find(Boolean);
+      if (first) return first;
+    } catch {}
+  }
 
   // Common locations
-  const candidates = [
-    // Where install.sh and install.ps1 put it.
-    path.join(os.homedir(), ".webfluent", "bin", "wf"),
-    path.join(os.homedir(), ".cargo", "bin", "wf"),
-    "/usr/local/bin/wf",
-    "/usr/bin/wf",
-  ];
-  if (process.platform === "win32") {
-    candidates.push(path.join(os.homedir(), ".webfluent", "bin", "wf.exe"));
-    candidates.push(path.join(os.homedir(), ".cargo", "bin", "wf.exe"));
-  }
+  const candidates = win
+    ? [
+        // Where install.ps1 and cargo put it.
+        path.join(os.homedir(), ".webfluent", "bin", "webfluent.exe"),
+        path.join(os.homedir(), ".webfluent", "bin", "wf.exe"),
+        path.join(os.homedir(), ".cargo", "bin", "wf.exe"),
+      ]
+    : [
+        // Where install.sh puts it.
+        path.join(os.homedir(), ".webfluent", "bin", "wf"),
+        path.join(os.homedir(), ".cargo", "bin", "wf"),
+        "/usr/local/bin/wf",
+        "/usr/bin/wf",
+      ];
   for (const p of candidates) {
     if (fs.existsSync(p)) return p;
   }
@@ -39,6 +53,7 @@ function findBinary() {
   throw new Error(
     "WebFluent CLI (wf) not found. Install it with:\n" +
     "  curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash\n" +
+    "  irm https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.ps1 | iex   (Windows)\n" +
     "or: cargo install webfluent\n" +
     "Or set the WF_BIN environment variable to the binary path."
   );

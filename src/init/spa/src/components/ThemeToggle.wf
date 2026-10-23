@@ -1,0 +1,11 @@
+component ThemeToggle {
+    // `theme` is the reader's choice — "light", "dark", or "system" until
+    // they pick one — and follows `setTheme` wherever it is called, so the
+    // switch stays in step with the Settings page.
+    derived prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
+    derived isDark = theme == "dark" || (theme == "system" && prefersDark)
+
+    Switch(checked: isDark, label: "Dark mode") {
+        on change { setTheme(if isDark { "light" } else { "dark" }) }
+    }
+}

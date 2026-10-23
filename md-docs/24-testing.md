@@ -174,6 +174,25 @@ jobs:
 GitHub's Ubuntu runners come with Chrome, so the interactive tests and
 `wf verify` run there as they do on your machine.
 
+## Testing a whole page
+
+A page whose route takes no parameter is placed in a test by its name, as a
+component is, so a test can click through it as a reader does — its state,
+its stores and its handlers all run:
+
+```wf
+test "a task is added with Enter" {
+    Tasks
+    type "Walk the dog" into "New task"
+    press "Enter" in "New task"
+    expect "Walk the dog"
+}
+```
+
+`press "Enter"` in a form's text field submits the form, as a real key
+does. The `spa` and `static` projects `wf init` writes carry tests like
+this under `tests/`; run `wf test` in a new project to see them pass.
+
 ## What to test
 
 - **Components** with more than one state: each branch a prop can take.

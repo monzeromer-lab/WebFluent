@@ -16,11 +16,25 @@
       const signal = read;
       write = (v) => signal.set(v);
     }
+    // A modal open from the start is drawn before its page is in the
+    // document, and `showModal()` throws on a dialog that is not — which
+    // stopped the whole page drawing. It opens once it is there.
+    let wanted = false;
+    const open = (tries) => {
+      if (!wanted || el.open) return;
+      if (el.isConnected === false) {
+        if (tries > 0) requestAnimationFrame(() => open(tries - 1));
+        return;
+      }
+      if (el.showModal) el.showModal();
+      else el.setAttribute("open", "");
+    };
     effect(() => {
       const shouldBeOpen = read();
+      wanted = !!shouldBeOpen;
       if (shouldBeOpen && !el.open) {
-        if (el.showModal) el.showModal();
-        else el.setAttribute("open", "");
+        if (el.isConnected !== false) open(0);
+        else queueMicrotask(() => open(60));
       } else if (!shouldBeOpen && el.open) {
         if (el.close) el.close();
         else el.removeAttribute("open");

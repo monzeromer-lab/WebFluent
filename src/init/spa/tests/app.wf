@@ -1,0 +1,39 @@
+test "the dashboard counts what is done" {
+    Home
+    expect "Total tasks 3"
+    click "Build a dashboard"
+    expect "Completed 1"
+}
+
+test "the profile asks you to log in" {
+    Profile
+    expect "Log in to see your profile."
+    click "Log in"
+    expect "Demo User"
+}
+
+test "a profile is edited" {
+    Profile
+    click "Log in"
+    click "Edit"
+    type "Ada Lovelace" into "Name"
+    click "Save"
+    expect "Ada Lovelace"
+}
+
+test "settings will not save a short username" {
+    Settings
+    type "ab" into "Username"
+    click "Save settings"
+    expect "Use at least 3 characters"
+    expect not "Settings saved."
+}
+
+test "the theme switch turns dark mode on and off" {
+    ThemeToggle
+    Text("Theme: {theme}")
+    click "Dark mode"
+    expect "Theme: dark"
+    click "Dark mode"
+    expect "Theme: light"
+}

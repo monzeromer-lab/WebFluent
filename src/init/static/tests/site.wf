@@ -1,0 +1,34 @@
+// `wf test` runs these. A test that clicks or types runs in a real browser
+// (Chrome or Chromium, or WF_CHROME); one that only looks needs none.
+// A test places a page by its name, as it places a component.
+
+test "the home page shows the four features" {
+    Home
+    expect "Build Beautiful Websites"
+    expect "Lightning Fast"
+}
+
+test "the contact form will not send empty" {
+    Contact
+    click "Send Message"
+    expect "This is required."
+    expect "Please agree to the privacy policy."
+    expect not "Your message has been sent"
+}
+
+test "the contact form sends" {
+    Contact
+    type "Ada" into "Your Name"
+    type "ada@example.com" into "Email Address"
+    type "A question about the site." into "Message"
+    click "I agree to the privacy policy"
+    click "Send Message"
+    expect "Thank you! Your message has been sent."
+}
+
+test "the site speaks Arabic" {
+    SiteFooter
+    Button("AR") { on click { setLocale("ar") } }
+    click "AR"
+    expect "جميع الحقوق محفوظة."
+}

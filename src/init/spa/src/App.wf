@@ -1,0 +1,25 @@
+app {
+    use AuthStore
+
+    Navbar {
+        Navbar.Brand {
+            Text("{{name}}").heading
+        }
+        Navbar.Links {
+            Link(to: "/") { Text("Dashboard") }
+            Link(to: "/tasks") { Text("Tasks") }
+            Link(to: "/settings") { Text("Settings") }
+        }
+        Navbar.Actions {
+            ThemeToggle
+            if let user = AuthStore.user {
+                Link(to: "/profile") { Text(user.name) }
+                Button("Log out").sm { on click { AuthStore.logout() } }
+            } else {
+                Button("Log in").primary.sm { on click { AuthStore.login("user@demo.com") } }
+            }
+        }
+    }
+
+    Router
+}

@@ -1,6 +1,6 @@
 /// Chapter 24 of the guide, written from md-docs/24-testing.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page TestingGuide(path: "/docs/guide/testing", title: "Testing", description: "wf test: render tests with snapshots, seeding stores, tests that click and type in headless Chrome, wf verify, and running them in CI.", layout: DocsShell("Testing", chapter: t("guide.chapter", { n: "24" }), blurb: "Tests written in WebFluent: render a component and read what it shows, or click through it in a real browser — then check every page in one.", source: "md-docs/24-testing.md", sections: [Anchor(id: "a-test-that-looks", label: "A test that looks"), Anchor(id: "a-test-that-acts", label: "A test that acts"), Anchor(id: "seeding-data-and-stores", label: "Seeding data and stores"), Anchor(id: "running-them", label: "Running them"), Anchor(id: "checking-every-page-wf-verify", label: "Checking every page: wf verify"), Anchor(id: "in-ci", label: "In CI"), Anchor(id: "what-to-test", label: "What to test")], prevTo: "/docs/guide/security", prevLabel: "23. {t("ch.23")}", nextTo: "/docs/guide/project-structure", nextLabel: "25. {t("ch.25")}")) {
+page TestingGuide(path: "/docs/guide/testing", title: "Testing", description: "wf test: render tests with snapshots, seeding stores, tests that click and type in headless Chrome, wf verify, and running them in CI.", layout: DocsShell("Testing", chapter: t("guide.chapter", { n: "24" }), blurb: "Tests written in WebFluent: render a component and read what it shows, or click through it in a real browser — then check every page in one.", source: "md-docs/24-testing.md", sections: [Anchor(id: "a-test-that-looks", label: "A test that looks"), Anchor(id: "a-test-that-acts", label: "A test that acts"), Anchor(id: "seeding-data-and-stores", label: "Seeding data and stores"), Anchor(id: "running-them", label: "Running them"), Anchor(id: "checking-every-page-wf-verify", label: "Checking every page: wf verify"), Anchor(id: "in-ci", label: "In CI"), Anchor(id: "testing-a-whole-page", label: "Testing a whole page"), Anchor(id: "what-to-test", label: "What to test")], prevTo: "/docs/guide/security", prevLabel: "23. {t("ch.23")}", nextTo: "/docs/guide/project-structure", nextLabel: "25. {t("ch.25")}")) {
     Stack(gap: .lg) {
         Markdown("Tests are WebFluent declarations: `test \"name\" \{ … \}`. A test renders something — a component, a fragment of a page — and holds it to what it must and must not show. A test that clicks or types runs in a real, headless browser. `wf verify` then loads every page of the built site in one.")
 
@@ -131,6 +131,19 @@ jobs:
       - run: wf verify --budget 1000"#, title: "yaml")
 
         Markdown("GitHub's Ubuntu runners come with Chrome, so the interactive tests and `wf verify` run there as they do on your machine.")
+
+        Heading("Testing a whole page", id: "testing-a-whole-page").h2
+
+        Markdown("A page whose route takes no parameter is placed in a test by its name, as a component is, so a test can click through it as a reader does — its state, its stores and its handlers all run:")
+
+        CodeBlock(#"test "a task is added with Enter" {
+    Tasks
+    type "Walk the dog" into "New task"
+    press "Enter" in "New task"
+    expect "Walk the dog"
+}"#, title: "wf")
+
+        Markdown("`press \"Enter\"` in a form's text field submits the form, as a real key does. The `spa` and `static` projects `wf init` writes carry tests like this under `tests/`; run `wf test` in a new project to see them pass.")
 
         Heading("What to test", id: "what-to-test").h2
 

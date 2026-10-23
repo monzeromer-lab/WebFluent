@@ -1,0 +1,25 @@
+{
+  "name": "{{name}}",
+  "version": "1.0.0",
+  "author": "",
+  "theme": {},
+  "build": {
+    "output": "./build",
+    "minify": true,
+    "ssg": true,
+    "csp": true
+  },
+  "dev": {
+    "port": 3000
+  },
+  "meta": {
+    "title": "{{name}}",
+    "description": "A modern website built with WebFluent",
+    "lang": "en"
+  },
+  "i18n": {
+    "default_locale": "en",
+    "locales": ["en", "ar"],
+    "dir": "src/translations"
+  }
+}

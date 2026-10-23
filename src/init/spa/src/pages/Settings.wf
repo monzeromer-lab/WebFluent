@@ -1,0 +1,96 @@
+page Settings(path: "/settings", description: "Preferences, appearance and account options.", title: "Settings") {
+    // `persist` keeps a value in the browser, so the settings are still
+    // here on the next visit.
+    persist username = "demo_user"
+    persist email = "user@example.com"
+    persist notifications = true
+    persist fontSize = 16
+    persist language = "en"
+    persist autoSave = false
+    state scheme = theme
+    state saved = false
+
+    validate username { required  minLength(3) "Use at least 3 characters" }
+    validate email { required  email }
+
+    Container.fadeIn {
+        Heading("Settings").h1
+
+        Spacer
+
+        Tabs {
+            Tabs.Page("General") {
+                Form {
+                    on submit { saved = true }
+
+                    Stack(gap: .sm) {
+                        Heading("Profile").h2
+                        Input(bind: username, label: "Username", placeholder: "Enter username").text
+                        Input(bind: email, label: "Email", placeholder: "Enter email").email
+                        Select(bind: language, label: "Language") {
+                            Select.Option("English", value: "en")
+                            Select.Option("Spanish", value: "es")
+                            Select.Option("Arabic", value: "ar")
+                        }
+
+                        Spacer
+
+                        Heading("Preferences").h2
+                        Switch(bind: notifications, label: "Email notifications")
+                        Switch(bind: autoSave, label: "Auto-save changes")
+                        Slider(bind: fontSize, min: 12, max: 24, step: 1, label: "Font size")
+
+                        Spacer
+
+                        Heading("Appearance").h2
+                        Radio(bind: scheme, value: "light", label: "Light") { on change { setTheme("light") } }
+                        Radio(bind: scheme, value: "dark", label: "Dark") { on change { setTheme("dark") } }
+                        Radio(bind: scheme, value: "system", label: "Same as my system") { on change { setTheme("system") } }
+
+                        Spacer
+
+                        Button("Save settings", type: .submit).primary
+
+                        show saved {
+                            Alert("Settings saved.").success
+                        }
+                    }
+                }
+            }
+            Tabs.Page("Account") {
+                Card {
+                    Card.Body {
+                        Heading("Account info").h2
+                        Text("Username: {username}")
+                        Text("Email: {email}")
+                        Text("Theme: {theme}")
+                        Text("Font size: {fontSize}px")
+                        Spacer
+                        Text("Notifications: {if notifications { "on" } else { "off" }}").muted
+                        Text("Auto-save: {if autoSave { "on" } else { "off" }}").muted
+                    }
+                }
+            }
+            Tabs.Page("Danger zone") {
+                Card.outlined {
+                    Card.Body {
+                        Heading("Danger zone").h2
+                        Text("These actions cannot be undone.").muted
+                        Spacer
+                        Button("Reset settings").danger {
+                            on click {
+                                username = "demo_user"
+                                email = "user@example.com"
+                                notifications = true
+                                fontSize = 16
+                                language = "en"
+                                autoSave = false
+                                saved = false
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

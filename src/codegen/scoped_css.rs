@@ -541,14 +541,19 @@ fn declaration_for(prop: &str, value: &Expr) -> Option<String> {
             "grid-template-columns: repeat({}, 1fr)",
             number(value)? as i64
         ),
-        "gap" => format!("gap: var(--spacing-{})", word(value)?),
+        "gap" => {
+            let w = word(value)?;
+            format!("--wf-gap: var(--spacing-{w}); gap: var(--wf-gap)")
+        }
         "direction" => format!("flex-direction: {}", word(value)?),
         "align" => format!("align-items: {}", flex_word(&word(value)?)),
         "justify" => format!("justify-content: {}", flex_word(&word(value)?)),
         "span" => {
+            // As `.wf-col--N`: the share of the row less the share of its
+            // gaps, so spans that add to 12 fit on one line.
             let n = number(value)?;
-            let percent = n / 12.0 * 100.0;
-            format!("flex: 0 0 {percent:.4}%; max-width: {percent:.4}%")
+            let width = format!("calc((100% + var(--wf-gap, 0px)) * {n} / 12 - var(--wf-gap, 0px))");
+            format!("flex: 0 0 {width}; max-width: {width}")
         }
         "width" | "height" | "padding" | "margin" | "font-size" => {
             format!("{prop}: {}", word(value)?)

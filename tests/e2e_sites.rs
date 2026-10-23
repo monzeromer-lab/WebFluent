@@ -337,6 +337,31 @@ fn every_init_template_builds_clean() {
                 String::from_utf8_lossy(&fmt.stderr).trim()
             ));
         }
+        // A scaffold's own tests pass: they click through it as a reader
+        // does — add a task, press Enter, delete one, switch the theme, send
+        // the contact form — which is how the bugs a new project used to
+        // meet on its first click are kept out.
+        if root.join(&name).join("tests").is_dir() {
+            let test = Command::new(env!("CARGO_BIN_EXE_wf"))
+                .arg("test")
+                .current_dir(root.join(&name))
+                .output()
+                .expect("running `wf test`");
+            let out = format!(
+                "{}{}",
+                String::from_utf8_lossy(&test.stdout),
+                String::from_utf8_lossy(&test.stderr)
+            );
+            if out.contains("no Chrome or Chromium") {
+                assert!(
+                    std::env::var_os("WF_REQUIRE_CHROME").is_none(),
+                    "WF_REQUIRE_CHROME is set and there is no browser: {out}"
+                );
+                eprintln!("\n  SKIPPED: no Chrome or Chromium for the {template} scaffold's tests.\n");
+            } else if !test.status.success() {
+                failures.push(format!("{template}: its tests fail:\n{}", out.trim()));
+            }
+        }
     }
     assert!(
         failures.is_empty(),

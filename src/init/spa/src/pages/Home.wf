@@ -1,0 +1,57 @@
+page Home(path: "/", description: "An overview of what needs your attention today.", title: "Dashboard") {
+    use TaskStore
+
+    Container.fadeIn {
+        Heading("Dashboard").h1.slideUp
+        Text("Welcome to your dashboard.").muted
+
+        Spacer
+
+        Grid(columns: { base: 1, md: 3 }, gap: .md) {
+            StatCard(title: "Total tasks", value: TaskStore.tasks.length)
+            StatCard(title: "Remaining", value: TaskStore.remaining, accent: .warning)
+            StatCard(title: "Completed", value: TaskStore.completed, accent: .success)
+        }
+
+        Spacer
+
+        Row(gap: .md, align: .start).stacks {
+            Column(span: 8) {
+                Card {
+                    Card.Header {
+                        Heading("Recent tasks").h2
+                    }
+                    Card.Body {
+                        if TaskStore.tasks.length == 0 {
+                            Text("No tasks yet. Go to the Tasks page to add some!").muted.center
+                        } else {
+                            for task in TaskStore.tasks.take(5) by task.id {
+                                Row(align: .center, justify: .between) {
+                                    Checkbox(checked: task.done, label: task.title) {
+                                        on change { TaskStore.toggle(task.id) }
+                                    }
+                                    Badge(task.priority).primary
+                                }
+                                Divider
+                            }
+                        }
+                    }
+                }
+            }
+            Column(span: 4) {
+                Card.elevated {
+                    Card.Header {
+                        Heading("Quick actions").h2
+                    }
+                    Card.Body {
+                        Stack(gap: .sm) {
+                            Button("Add a task").primary.full { on click { navigate("/tasks") } }
+                            Button("Settings").full { on click { navigate("/settings") } }
+                            Button("Your profile").full { on click { navigate("/profile") } }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -379,7 +379,15 @@
           // An option keeps the value it was given — a number, a case —
           // beside the string the DOM makes of it, so a bound select
           // writes back what the program wrote (`bound`, below).
-          const put = tag === "option" ? (val) => { el.value = val; el._wfValue = val; } : (val) => { el.value = val; };
+          // A value the program sets is told to what follows the control's
+          // text — a field's count of what is left — so the count follows a
+          // clear or a reset too, not only typing (`el._wfOnValue`).
+          const put = tag === "option"
+            ? (val) => { el.value = val; el._wfValue = val; }
+            : (val) => {
+                el.value = val;
+                if (el._wfOnValue) el._wfOnValue();
+              };
           if (typeof v === "function") {
             effect(() => put(v()));
           } else {

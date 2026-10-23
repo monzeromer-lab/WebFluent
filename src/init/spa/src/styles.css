@@ -1,0 +1,11 @@
+/* The project's own rules, bundled into styles.css. A component's enum
+   props are on its root as data-<prop>, so a rule can pick by them. */
+.stat-card {
+  border-left: 4px solid var(--color-primary);
+}
+.stat-card[data-accent="warning"] {
+  border-left-color: var(--color-warning);
+}
+.stat-card[data-accent="success"] {
+  border-left-color: var(--color-success);
+}

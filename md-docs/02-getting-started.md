@@ -31,6 +31,14 @@ needed. It covers Apple Silicon and Intel Macs and x86_64 Linux.
 irm https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.ps1 | iex
 ```
 
+On Windows, type **`webfluent`** where this guide types `wf`. Windows
+already has a `wf`: `C:\Windows\System32\WF.msc`, the Windows Firewall
+console. System32 comes first on `PATH` and `.MSC` is one of the
+extensions a bare name is tried with, so `wf` opens the firewall instead
+of WebFluent. The installer puts the same binary in place as
+`webfluent.exe` beside `wf.exe`; `webfluent build`, `webfluent serve` and
+`wf.exe build` all work. After `cargo install webfluent`, use `wf.exe`.
+
 ### With Rust
 
 ```bash

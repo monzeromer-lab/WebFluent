@@ -105,9 +105,11 @@ expects and to a snapshot in `tests/__snapshots__/<file>/<name>.html`
 (written when missing, rewritten with `--update`). A build ignores tests.
 `expect` reads the text a reader sees, never the markup; `t("key")` reads
 the project's default locale; `data: { … }` seeds the body's state and,
-by a store's name, the store — in a render and in a browser alike; and
-`wf test tests/cart.wf` runs one file's tests in the project it belongs
-to.
+by a store's name, the store — in a render and in a browser alike; a
+page with no route parameter is placed by its name, as a component is
+(`Tasks`, then `click "Add"`), so a test can click through a whole page;
+and `wf test tests/cart.wf` runs one file's tests in the project it
+belongs to. The `spa` and `static` starters come with tests of their own.
 
 ```wf
 test "greets by name" {

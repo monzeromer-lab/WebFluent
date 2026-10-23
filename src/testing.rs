@@ -117,7 +117,7 @@ pub fn collect(path: &Path) -> Result<Tests> {
             _ => None,
         })
         .collect();
-    let shared: Vec<Declaration> = declarations
+    let mut shared: Vec<Declaration> = declarations
         .iter()
         .filter(|d| {
             !matches!(
@@ -127,6 +127,36 @@ pub fn collect(path: &Path) -> Result<Tests> {
         })
         .cloned()
         .collect();
+    // A page a test can place by its name, as it places a component: `Tasks`
+    // draws the Tasks page's body — its state, its stores, its handlers — so
+    // a test can click through a page as a reader does. A page that takes a
+    // route parameter, or whose name a component has, is left out.
+    let components: Vec<String> = shared
+        .iter()
+        .filter_map(|d| match d {
+            Declaration::Component(c) => Some(c.name.clone()),
+            _ => None,
+        })
+        .collect();
+    for d in &declarations {
+        if let Declaration::Page(page) = d
+            && page.params.is_empty()
+            && !components.contains(&page.name)
+        {
+            shared.push(Declaration::Component(crate::parser::ast::ComponentDecl {
+                name: page.name.clone(),
+                props: Vec::new(),
+                events: Vec::new(),
+                slots: Vec::new(),
+                parts: Vec::new(),
+                doc: None,
+                body: page.body.clone(),
+                span: page.span,
+                header_span: page.header_span,
+                body_span: page.body_span,
+            }));
+        }
+    }
     let config = crate::config::ProjectConfig::load(&project_dir).ok();
     // The project's translations: a test draws `t("key")` as the site does,
     // in its default locale.
@@ -576,8 +606,11 @@ fn step_one(page: &mut dyn Page, step: &Step) -> Result<std::result::Result<(), 
             ..
         } => {
             let want = text(want);
+            // Read as a rendered test reads it: runs of white space are one
+            // space, so `expect "Total tasks 3"` finds a card's title and its
+            // number on two lines, in a browser as in a render.
             let shown = visible_text(page)?;
-            let found = shown.contains(&want);
+            let found = squeeze(&shown).contains(&squeeze(&want));
             if found == *negated {
                 return Ok(Err(if *negated {
                     format!("expected not to find {want:?}, and the page shows it")
@@ -831,6 +864,12 @@ const ACT: &str = r#"
       const open = [...document.querySelectorAll("dialog[open]")];
       const dialog = (el.closest && el.closest("dialog[open]")) || open[open.length - 1];
       if (dialog && dialog.dispatchEvent(new Event("cancel", { cancelable: true }))) dialog.close();
+    }
+    // A real Enter in a form's text field submits the form (its implicit
+    // submission); a synthetic one does not, so the step does it.
+    if (down && key === "Enter" && el.form && el.tagName === "INPUT"
+        && !/^(button|submit|reset|checkbox|radio|file)$/.test(el.type) && el.form.requestSubmit) {
+      el.form.requestSubmit();
     }
     return "ok";
   }

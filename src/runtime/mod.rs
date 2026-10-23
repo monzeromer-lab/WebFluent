@@ -137,7 +137,7 @@ pub const MODULES: &[Module] = &[
         same("trapFocus"), same("uid"),
     ], deps: [], triggers: []),
     module!("announce", exports: [same("announce")], deps: [], triggers: []),
-    module!("field", exports: [same("field")], deps: [], triggers: []),
+    module!("field", exports: [same("field"), same("choiceError")], deps: [], triggers: []),
     module!("carousel", exports: [same("carousel")], deps: ["field"], triggers: []),
     module!("drawer", exports: [same("drawer")], deps: [], triggers: []),
     module!("head", exports: [same("head")], deps: [], triggers: []),

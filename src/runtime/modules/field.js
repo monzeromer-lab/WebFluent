@@ -55,12 +55,36 @@
         count.textContent = `${used} / ${limit}`;
       };
       control.addEventListener("input", show);
+      control._wfOnValue = show;
       show();
       wrapper.appendChild(count);
       described.push(id);
     }
     if (described.length) control.setAttribute("aria-describedby", described.join(" "));
     return wrapper;
+  }
+
+  /// A `Checkbox` or `Switch` bound to a state a `validate` block guards:
+  /// the rule's message beneath it, announced, referred to by the control
+  /// and marking it invalid, as a field's error is. A box the reader had to
+  /// tick used to stop the submit and say nothing about why.
+  function choiceError(label, check) {
+    const control = label.querySelector("input") || label;
+    if (!control.id) control.id = "wf-field-" + (++fieldSeq);
+    const id = control.id + "-error";
+    const message = el("p", { className: "wf-field__error", id, role: "alert" });
+    live(message);
+    const described = control.getAttribute("aria-describedby");
+    control.setAttribute("aria-describedby", described ? described + " " + id : id);
+    control.addEventListener("change", () => check.touched.set(true));
+    effect(() => {
+      const text = check.shown();
+      message.textContent = text || "";
+      if (text) message.removeAttribute("hidden");
+      else message.setAttribute("hidden", "");
+      control.setAttribute("aria-invalid", text ? "true" : "false");
+    });
+    return message;
   }
 
   /// Wire a tooltip: the tip describes the trigger, and can be reached and

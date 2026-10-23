@@ -1,0 +1,11 @@
+enum Accent { primary, warning, success }
+
+/// One number on the dashboard, with a coloured edge (see styles.css).
+component StatCard(title: String, value: Number, accent: Accent = .primary) {
+    Card(class: "stat-card").elevated.fadeIn {
+        Card.Body {
+            Text(title).muted.sm
+            Heading("{value}").h2
+        }
+    }
+}

@@ -1,0 +1,42 @@
+// `wf test` runs these. A test that clicks or types runs in a real browser
+// (Chrome or Chromium, or WF_CHROME); one that only looks needs none.
+// A test places a page by its name, as it places a component.
+
+test "the task list starts with three" {
+    Tasks
+    expect "3 tasks remaining"
+    expect "Learn WebFluent"
+}
+
+test "a task is added with the button" {
+    Tasks
+    type "Buy milk" into "New task"
+    click "Add"
+    expect "Buy milk"
+    expect "4 tasks remaining"
+}
+
+test "a task is added with Enter" {
+    Tasks
+    type "Walk the dog" into "New task"
+    press "Enter" in "New task"
+    expect "Walk the dog"
+}
+
+test "ticking a task off counts it" {
+    Tasks
+    click "Learn WebFluent"
+    expect "2 tasks remaining"
+    click "Done"
+    expect "Learn WebFluent"
+    expect not "Build a dashboard"
+}
+
+test "a task is deleted after asking" {
+    Tasks
+    click "Delete Learn WebFluent"
+    expect "Delete “Learn WebFluent”?"
+    click "Delete"
+    expect not "Learn WebFluent"
+    expect "2 tasks remaining"
+}

@@ -1,0 +1,87 @@
+page Profile(path: "/profile", description: "Your details and how they appear to others.", title: "Profile") {
+    use AuthStore
+
+    state editing = false
+    state name = ""
+    state email = ""
+    state bio = ""
+
+    validate name { required }
+    validate email { required  email }
+
+    Container.fadeIn {
+        Heading("Profile").h1
+
+        Spacer
+
+        if let user = AuthStore.user {
+            Row(gap: .md, align: .start).stacks {
+                Column(span: 4) {
+                    Card.elevated.scaleIn {
+                        Card.Body {
+                            Stack(gap: .md, align: .center) {
+                                Avatar(initials: user.name.slice(0, 1)).primary.lg
+                                Heading(user.name).h2.center
+                                Text(user.email).muted.center
+                                Badge(user.role).success
+                            }
+                        }
+                    }
+                }
+                Column(span: 8) {
+                    Card {
+                        Card.Header {
+                            Row(align: .center, justify: .between) {
+                                Heading("Details").h2
+                                if !editing {
+                                    Button("Edit").primary.sm {
+                                        on click {
+                                            name = user.name
+                                            email = user.email
+                                            bio = user.bio
+                                            editing = true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        Card.Body {
+                            if editing {
+                                Form {
+                                    on submit {
+                                        AuthStore.saveProfile(name, email, bio)
+                                        editing = false
+                                    }
+                                    Stack(gap: .sm) {
+                                        Input(bind: name, label: "Name").text
+                                        Input(bind: email, label: "Email").email
+                                        Textarea(bind: bio, label: "Bio", rows: 3, maxLength: 160)
+                                        Row(gap: .sm) {
+                                            Button("Save", type: .submit).primary
+                                            Button("Cancel") { on click { editing = false } }
+                                        }
+                                    }
+                                }
+                            } else {
+                                Stack(gap: .md) {
+                                    Row(gap: .sm) { Text("Name:").bold  Text(user.name) }
+                                    Row(gap: .sm) { Text("Email:").bold  Text(user.email) }
+                                    Row(gap: .sm) { Text("Bio:").bold  Text(user.bio) }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            Card.outlined {
+                Card.Body {
+                    Stack(gap: .md, align: .start) {
+                        Text("Log in to see your profile.").muted
+                        Button("Log in").primary { on click { AuthStore.login("user@demo.com") } }
+                    }
+                }
+            }
+        }
+    }
+}

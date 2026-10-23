@@ -62,7 +62,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
    sets `display` on the wrapper, which beats this. */
 .wf-hidden { display: none; }
 .wf-visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-.wf-row { display: flex; flex-wrap: wrap; gap: var(--spacing-md); }
+.wf-row { --wf-gap: var(--spacing-md); display: flex; flex-wrap: wrap; gap: var(--wf-gap); }
 .wf-row--center { align-items: center; }
 .wf-row--between { justify-content: space-between; }
 .wf-row--end { justify-content: flex-end; }
@@ -78,18 +78,21 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .wf-justify--around { justify-content: space-around; }
 .wf-justify--evenly { justify-content: space-evenly; }
 .wf-col { flex: 1 1 0%; min-width: 0; }
-.wf-col--1 { flex: 0 0 calc(100%/12*1); max-width: calc(100%/12*1); }
-.wf-col--2 { flex: 0 0 calc(100%/12*2); max-width: calc(100%/12*2); }
-.wf-col--3 { flex: 0 0 25%; max-width: 25%; }
-.wf-col--4 { flex: 0 0 calc(100%/3); max-width: calc(100%/3); }
-.wf-col--5 { flex: 0 0 calc(100%/12*5); max-width: calc(100%/12*5); }
-.wf-col--6 { flex: 0 0 50%; max-width: 50%; }
-.wf-col--7 { flex: 0 0 calc(100%/12*7); max-width: calc(100%/12*7); }
-.wf-col--8 { flex: 0 0 calc(100%/12*8); max-width: calc(100%/12*8); }
-.wf-col--9 { flex: 0 0 75%; max-width: 75%; }
-.wf-col--10 { flex: 0 0 calc(100%/12*10); max-width: calc(100%/12*10); }
-.wf-col--11 { flex: 0 0 calc(100%/12*11); max-width: calc(100%/12*11); }
-.wf-col--12 { flex: 0 0 100%; max-width: 100%; }
+/* A span is its share of the row less its share of the gaps, so spans
+   that add to 12 sit on one line: `8` and `4` in a row with a gap
+   used to come to 100% plus the gap, and the second always wrapped. */
+.wf-col--1 { flex: 0 0 calc((100% + var(--wf-gap, 0px)) * 1 / 12 - var(--wf-gap, 0px)); max-width: calc((100% + var(--wf-gap, 0px)) * 1 / 12 - var(--wf-gap, 0px)); }
+.wf-col--2 { flex: 0 0 calc((100% + var(--wf-gap, 0px)) * 2 / 12 - var(--wf-gap, 0px)); max-width: calc((100% + var(--wf-gap, 0px)) * 2 / 12 - var(--wf-gap, 0px)); }
+.wf-col--3 { flex: 0 0 calc((100% + var(--wf-gap, 0px)) * 3 / 12 - var(--wf-gap, 0px)); max-width: calc((100% + var(--wf-gap, 0px)) * 3 / 12 - var(--wf-gap, 0px)); }
+.wf-col--4 { flex: 0 0 calc((100% + var(--wf-gap, 0px)) * 4 / 12 - var(--wf-gap, 0px)); max-width: calc((100% + var(--wf-gap, 0px)) * 4 / 12 - var(--wf-gap, 0px)); }
+.wf-col--5 { flex: 0 0 calc((100% + var(--wf-gap, 0px)) * 5 / 12 - var(--wf-gap, 0px)); max-width: calc((100% + var(--wf-gap, 0px)) * 5 / 12 - var(--wf-gap, 0px)); }
+.wf-col--6 { flex: 0 0 calc((100% + var(--wf-gap, 0px)) * 6 / 12 - var(--wf-gap, 0px)); max-width: calc((100% + var(--wf-gap, 0px)) * 6 / 12 - var(--wf-gap, 0px)); }
+.wf-col--7 { flex: 0 0 calc((100% + var(--wf-gap, 0px)) * 7 / 12 - var(--wf-gap, 0px)); max-width: calc((100% + var(--wf-gap, 0px)) * 7 / 12 - var(--wf-gap, 0px)); }
+.wf-col--8 { flex: 0 0 calc((100% + var(--wf-gap, 0px)) * 8 / 12 - var(--wf-gap, 0px)); max-width: calc((100% + var(--wf-gap, 0px)) * 8 / 12 - var(--wf-gap, 0px)); }
+.wf-col--9 { flex: 0 0 calc((100% + var(--wf-gap, 0px)) * 9 / 12 - var(--wf-gap, 0px)); max-width: calc((100% + var(--wf-gap, 0px)) * 9 / 12 - var(--wf-gap, 0px)); }
+.wf-col--10 { flex: 0 0 calc((100% + var(--wf-gap, 0px)) * 10 / 12 - var(--wf-gap, 0px)); max-width: calc((100% + var(--wf-gap, 0px)) * 10 / 12 - var(--wf-gap, 0px)); }
+.wf-col--11 { flex: 0 0 calc((100% + var(--wf-gap, 0px)) * 11 / 12 - var(--wf-gap, 0px)); max-width: calc((100% + var(--wf-gap, 0px)) * 11 / 12 - var(--wf-gap, 0px)); }
+.wf-col--12 { flex: 0 0 calc((100% + var(--wf-gap, 0px)) * 12 / 12 - var(--wf-gap, 0px)); max-width: calc((100% + var(--wf-gap, 0px)) * 12 / 12 - var(--wf-gap, 0px)); }
 .wf-grid { display: grid; gap: var(--spacing-md); }
 .wf-grid[data-cols="1"] { grid-template-columns: repeat(1, 1fr); }
 .wf-grid[data-cols="2"] { grid-template-columns: repeat(2, 1fr); }
@@ -105,11 +108,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .wf-grid[data-cols="12"] { grid-template-columns: repeat(12, 1fr); }
 .wf-stack { display: flex; flex-direction: column; gap: var(--spacing-md); }
 /* A gap a layout names wins over its default, so it comes after them. */
-.wf-gap--xs { gap: var(--spacing-xs); }
-.wf-gap--sm { gap: var(--spacing-sm); }
-.wf-gap--md { gap: var(--spacing-md); }
-.wf-gap--lg { gap: var(--spacing-lg); }
-.wf-gap--xl { gap: var(--spacing-xl); }
+.wf-gap--xs { --wf-gap: var(--spacing-xs); gap: var(--wf-gap); }
+.wf-gap--sm { --wf-gap: var(--spacing-sm); gap: var(--wf-gap); }
+.wf-gap--md { --wf-gap: var(--spacing-md); gap: var(--wf-gap); }
+.wf-gap--lg { --wf-gap: var(--spacing-lg); gap: var(--wf-gap); }
+.wf-gap--xl { --wf-gap: var(--spacing-xl); gap: var(--wf-gap); }
 .wf-spacer { height: var(--spacing-md); }
 .wf-spacer--xs { height: var(--spacing-xs); }
 .wf-spacer--sm { height: var(--spacing-sm); }
