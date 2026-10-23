@@ -34,20 +34,12 @@ page Home(path: "/") {
 }
 
 // md-docs/21-i18n.md
-store Prefs {
-    persist language = ""
-    action choose(code: String) {
-        language = code
-        setLocale(code)
-    }
-}
 app {
-    effect { if Prefs.language != "" { setLocale(Prefs.language) } }
     Navbar {
         Navbar.Brand { Link("i18n", to: "/") }
         Navbar.Actions {
-            Button("English") { on click { Prefs.choose("en") } }
-            Button("العربية") { on click { Prefs.choose("ar") } }
+            Button("English") { on click { setLocale("en") } }
+            Button("العربية") { on click { setLocale("ar") } }
         }
     }
     Router
