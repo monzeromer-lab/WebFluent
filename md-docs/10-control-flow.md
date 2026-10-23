@@ -140,8 +140,9 @@ page Search(path: "/", title: "Search", description: "Results, a window at a tim
   true, in a panel not shown yet — draws only the few rows past the window
   until the box has a height, and the first height it has is laid out
   before that frame is painted: the first frame shows the rows in view, not
-  a guess at them trimmed a frame later. A list hidden and shown again is
-  laid out the same way.
+  a guess at them trimmed a frame later. A row `reveal:` asks for in the
+  meantime is scrolled to then, so that frame shows it. A list hidden and
+  shown again is laid out the same way.
 - The pre-rendered page paints the first 60 rows; the runtime draws the
   window when it takes over.
 - With anything else in its body, or a `for` with no `by`, it draws every

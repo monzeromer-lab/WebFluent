@@ -6,7 +6,8 @@
 // the list shrinking redraws the window; rows of two heights are measured,
 // and `reveal:` scrolls the current match into view, to the last one; a
 // list built before it is in the page paints its first frame with the rows
-// in view and the overscan, not a window's height of them; the paint
+// in view and the overscan, not a window's height of them, and with the
+// row it was asked to reveal in view; the paint
 // carries a screenful, not the whole list.
 //
 //   cd tests/browser && npm ci && node windowed.mjs
@@ -201,6 +202,28 @@ async function scenario(label, ssg, port) {
     await page.$eval("#late", (el) => { el.scrollTop = 32 * 150; });
     await frames(page);
     check("and it scrolls as any list does", await until(page, () => !!document.getElementById("late 150") && !document.getElementById("late 0")));
+
+    // Asked to reveal a row far down before it had a height: the first
+    // painted frame shows that row, at the bottom of the box.
+    const revealed = await page.evaluate(() => new Promise((resolve) => {
+      requestAnimationFrame(() => {
+        document.getElementById("show-late-at").click();
+        requestAnimationFrame(() => {
+          const box = document.getElementById("late-at");
+          const row = document.getElementById("at 200");
+          const b = box.getBoundingClientRect();
+          const r = row ? row.getBoundingClientRect() : null;
+          resolve({
+            scrollTop: box.scrollTop,
+            rows: box.querySelectorAll(":scope > p").length,
+            inView: !!r && Math.round(r.top) >= Math.round(b.top) && Math.round(r.bottom) <= Math.round(b.bottom),
+            bottom: r ? Math.round(b.bottom - r.bottom) : null,
+          });
+        });
+      });
+    }));
+    check("a row revealed before the box had a height is in view in its first frame",
+      revealed.inView && revealed.bottom === 0 && revealed.scrollTop === 201 * 32 - 320 && revealed.rows <= most, JSON.stringify(revealed));
 
     const errors = await page.evaluate(() => window.__errors || []);
     check("no layout loop was reported", errors.length === 0, errors.join(" | "));

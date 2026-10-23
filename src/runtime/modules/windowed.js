@@ -202,20 +202,32 @@
       });
     });
 
+    // The row with this key scrolled into view. A box with no height yet
+    // has nothing to scroll it into: the key waits for the first height
+    // the box has (`unrevealed`, below), so the first frame shows it.
+    let unrevealed = null;
+    const reveal = (wanted) => {
+      const i = where.get(wanted);
+      if (i === undefined) return;
+      measureAll();
+      const rowTop = offset(i);
+      const rowBottom = rowTop + heightOf(i);
+      const at = box.scrollTop || 0;
+      const view = viewHeight();
+      if (rowTop < at) box.scrollTop = rowTop;
+      else if (rowBottom > at + view) box.scrollTop = rowBottom - view;
+    };
     if (typeof opts.reveal === "function") {
       effect(() => {
         const wanted = opts.reveal();
         untracked(() => {
+          unrevealed = null;
           if (wanted === null || wanted === undefined) return;
-          const i = where.get(wanted);
-          if (i === undefined) return;
-          measureAll();
-          const rowTop = offset(i);
-          const rowBottom = rowTop + heightOf(i);
-          const at = box.scrollTop || 0;
-          const view = viewHeight();
-          if (rowTop < at) box.scrollTop = rowTop;
-          else if (rowBottom > at + view) box.scrollTop = rowBottom - view;
+          if (!viewHeight()) {
+            unrevealed = wanted;
+            return;
+          }
+          reveal(wanted);
           layout();
         });
       });
@@ -233,6 +245,12 @@
         if (tall && !sized) {
           sized = true;
           if (frame && typeof cancelAnimationFrame === "function") cancelAnimationFrame(frame);
+          // A row asked for before the box had a height is shown now.
+          if (unrevealed !== null) {
+            const wanted = unrevealed;
+            unrevealed = null;
+            reveal(wanted);
+          }
           layout();
           return;
         }

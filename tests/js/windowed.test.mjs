@@ -202,6 +202,44 @@ test("a list without `rowHeight:` lays out the size it is first seen to have at 
   assert.equal(drawn(), 14);
 });
 
+test("a row revealed before the box has a height is in view in the first frame it has one", () => {
+  const { WF, document, seen, pending } = loadObserved();
+  const box = document.createElement("div");
+  box.clientHeight = 0;
+  box.scrollTop = 0;
+  const picked = WF.signal("r200");
+  const rows = () => [...box.children].filter((n) => n.tagName === "P").map((n) => n.textContent);
+  WF.scoped(() => WF.windowed(box, () => numbers(300), (item) => WF.el("p", {}, [item]), {
+    key: (x) => x, live: true, rowHeight: 32, overscan: 2, reveal: () => picked(),
+  }));
+  assert.equal(box.scrollTop, 0, "nothing to scroll in yet");
+  assert.deepEqual(rows(), ["r0", "r1"]);
+
+  document.body.appendChild(box);
+  box.clientHeight = 320;
+  seen(box);
+  // Its bottom at the box's: 201 × 32 − 320.
+  assert.equal(box.scrollTop, 201 * 32 - 320, "scrolled to it as the box got its height");
+  assert.ok(rows().includes("r200"), `the row is drawn: ${rows().join(" ")}`);
+  assert.equal(rows()[0], "r189", "the rows in view, from two before the first");
+  assert.equal(pending(), 0, "in that frame, not the next");
+
+  // With a height, a reveal scrolls at once, as it always did.
+  picked.set("r10");
+  assert.equal(box.scrollTop, 320, "r10 is above the view: its top at the box's");
+  assert.ok(rows().includes("r10"));
+
+  // Hidden, a reveal waits for it to be shown again.
+  box.clientHeight = 0;
+  seen(box);
+  picked.set("r250");
+  assert.equal(box.scrollTop, 320, "not while it has no height");
+  box.clientHeight = 320;
+  seen(box);
+  assert.equal(box.scrollTop, 251 * 32 - 320);
+  assert.ok(rows().includes("r250"));
+});
+
 test("without a ResizeObserver, a box not laid out yet stands on the window's height", () => {
   const { WF, document, window } = load();
   window.innerHeight = 640;

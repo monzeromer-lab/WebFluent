@@ -1,7 +1,8 @@
 // Long lists drawn a window at a time: ten thousand rows of one height,
 // and search results whose file headings and lines differ in height, with
-// the current match revealed as it moves, and a list drawn after the page
-// is, whose first frame is already right.
+// the current match revealed as it moves, and lists drawn after the page
+// is, whose first frame is already right — the one asked to reveal a row
+// far down shows that row.
 type Hit { id: String, heading: Bool, text: String }
 
 page Home(path: "/", title: "Windowed", description: "Long lists, a window at a time.") {
@@ -65,6 +66,17 @@ page Home(path: "/", title: "Windowed", description: "Long lists, a window at a 
         VirtualList(rowHeight: 32, label: "Late", id: "late") {
             style { height: 320px }
             for r in (0..300).map((i) => "late {i}") by r {
+                Text(r, id: r) { style { height: 32px; margin: 0 } }
+            }
+        }
+    }
+    // The same, asked to show a row far down before it has a height.
+    state lateAt = false
+    Button("Show the late list at a row", id: "show-late-at") { on click { lateAt = true } }
+    if lateAt {
+        VirtualList(rowHeight: 32, reveal: "at 200", label: "Late at a row", id: "late-at") {
+            style { height: 320px }
+            for r in (0..300).map((i) => "at {i}") by r {
                 Text(r, id: r) { style { height: 32px; margin: 0 } }
             }
         }
