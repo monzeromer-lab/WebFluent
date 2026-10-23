@@ -430,6 +430,7 @@ pub fn analyse_via(
     // What the pages will contain, decided before any of them is written:
     // the policy each one ships has to describe that page.
     config.build.inline_styles = crate::codegen::csp::writes_inline_styles(&program);
+    config.build.frames_itself = crate::codegen::csp::frames_itself(&program);
     // The project's own scripts: every `.js` under `src/`, a plain browser
     // script each, copied as written and linked before the compiled code.
     let scripts = crate::project_js::load_via(vfs, project_dir, &project_dir.join("src"))?;
@@ -1696,8 +1697,9 @@ fn headers_file(config: &ProjectConfig) -> String {
          \x20 Content-Security-Policy: {}\n\
          \x20 X-Content-Type-Options: nosniff\n\
          \x20 Referrer-Policy: strict-origin-when-cross-origin\n\
-         \x20 X-Frame-Options: DENY\n",
-        crate::config::project::csp_policy(config)
+         \x20 X-Frame-Options: {}\n",
+        crate::config::project::csp_policy(config),
+        crate::config::project::frame_options(config)
     );
     // A browser checks the worker for a new version on every visit; a host
     // that let it be cached would keep a deploy from reaching anyone.

@@ -175,6 +175,15 @@ given, and storage somewhere nothing is served from.
 meta tag — a policy that carried it there would say one thing and deliver
 another.
 
+No other site may frame the pages: `_headers` says `frame-ancestors
+'none'` and `X-Frame-Options: DENY`, and `wf serve` sends the same, so a
+page cannot be laid under someone else's to be clicked through. A project
+that frames a page of its own — a `Frame` whose `src:` is site-relative,
+`Frame(src: "/preview/", title: "Preview")` — is relaxed to its own
+origin and no further: `frame-ancestors 'self'` and `X-Frame-Options:
+SAMEORIGIN`. A `Frame` of another origin's page changes nothing here
+(that is `meta.frame`'s `frame-src`).
+
 The policy is `'self'` throughout, with no `'unsafe-inline'` for scripts:
 the compiler writes external files and binds events with
 `addEventListener`, so nothing needs it. It is widened by exactly the

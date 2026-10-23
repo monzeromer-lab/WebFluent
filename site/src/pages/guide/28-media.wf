@@ -68,6 +68,6 @@ page Home(path: "/", title: "Home", description: "The front page.") {
     Text(heard)
 }"#, title: "wf")
 
-        Markdown("`on message(m)` hears what the framed page posts with `window.parent.postMessage(…)` — `m.data` is what it sent — and nothing another page posts. `sandbox:` limits what the framed page may do (`\"allow-scripts allow-forms\"`; empty, nothing at all), and `allow:` names the features it may use. A frame from another origin is named in `meta.frame`, or the page's policy refuses it ([Security](/docs/guide/security)).")
+        Markdown("`on message(m)` hears what the framed page posts with `window.parent.postMessage(…)` — `m.data` is what it sent — and nothing another page posts. `sandbox:` limits what the framed page may do (`\"allow-scripts allow-forms\"`; empty, nothing at all), and `allow:` names the features it may use. A frame from another origin is named in `meta.frame`, or the page's policy refuses it ([Security](/docs/guide/security)).\n\nA page of the site itself (`src: \"/preview/\"`) needs nothing named: the pages are served refusing to be framed by anyone (`X-Frame-Options: DENY`), and a project that places a `Frame` with a site-relative `src:` is served `SAMEORIGIN` instead — by `wf serve` and in the `_headers` a build writes — so it may frame its own pages and still no one else may.")
     }
 }

@@ -13,11 +13,19 @@ struct DevState {
     /// Every finding of the last build — warnings too — as the overlay and
     /// `/__wf/status` read them.
     diagnostics: Vec<crate::error::Diagnostic>,
+    /// Whether the project frames a page of its own (a `Frame` with a
+    /// site-relative `src:`), so its pages are served `SAMEORIGIN` rather
+    /// than `DENY`, as the built `_headers` asks.
+    frames_itself: bool,
 }
 
 impl DevState {
     /// What a build that just ran leaves behind.
-    fn record(&mut self, outcome: Result<()>) {
+    fn record(&mut self, root: &Path, outcome: Result<()>) {
+        // A source that does not read keeps the answer the last one gave.
+        if let Ok((program, _)) = crate::build::read_project(root) {
+            self.frames_itself = crate::codegen::csp::frames_itself(&program);
+        }
         match outcome {
             Ok(()) => {
                 self.version += 1;
@@ -216,14 +224,17 @@ pub fn run_serve(project_dir: &Path) -> Result<()> {
     let state = std::sync::Arc::new(std::sync::Mutex::new(DevState::default()));
     {
         let mut s = state.lock().unwrap();
-        s.record(crate::cli::build::run_build_opts(
+        s.record(
             project_dir,
-            crate::cli::build::Options {
-                dev: true,
-                cache: true,
-                ..Default::default()
-            },
-        ));
+            crate::cli::build::run_build_opts(
+                project_dir,
+                crate::cli::build::Options {
+                    dev: true,
+                    cache: true,
+                    ..Default::default()
+                },
+            ),
+        );
         // The first build is version 0, whether it passed or not.
         s.version = 0;
     }
@@ -273,7 +284,7 @@ pub fn run_serve(project_dir: &Path) -> Result<()> {
                         ..Default::default()
                     },
                 );
-                state.lock().unwrap().record(outcome);
+                state.lock().unwrap().record(&root, outcome);
             }
         });
     }
@@ -418,11 +429,17 @@ pub fn run_serve(project_dir: &Path) -> Result<()> {
             response
                 .add_header(tiny_http::Header::from_bytes("Content-Encoding", encoding).unwrap());
         }
+        // A site that frames its own pages lets its own origin do so.
+        let frame_options = if state.lock().unwrap().frames_itself {
+            "SAMEORIGIN"
+        } else {
+            "DENY"
+        };
         for (name, value) in [
             ("Vary", "Accept-Encoding"),
             ("X-Content-Type-Options", "nosniff"),
             ("Referrer-Policy", "strict-origin-when-cross-origin"),
-            ("X-Frame-Options", "DENY"),
+            ("X-Frame-Options", frame_options),
         ] {
             if let Ok(header) = tiny_http::Header::from_bytes(name, value) {
                 response.add_header(header);
