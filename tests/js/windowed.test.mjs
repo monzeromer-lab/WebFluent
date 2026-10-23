@@ -113,3 +113,106 @@ test("the list leaving lets go of every row", () => {
   assert.equal(l.stats.gone, drawn);
   assert.equal(l.rows().length, 0);
 });
+
+/// The runtime with a ResizeObserver and frames it can wait for: `seen(el)`
+/// is the observer telling what it saw of `el`, after layout and before
+/// paint; `frame()` runs what waited for the next frame.
+function loadObserved() {
+  const { window, document, Node, Element, DocumentFragment } = makeDom();
+  const observers = [];
+  class ResizeObserver {
+    constructor(fn) { this.fn = fn; this.targets = new Set(); observers.push(this); }
+    observe(el) { this.targets.add(el); }
+    unobserve(el) { this.targets.delete(el); }
+    disconnect() { this.targets.clear(); }
+  }
+  let waiting = new Map();
+  let next = 1;
+  const requestAnimationFrame = (fn) => { waiting.set(next, fn); return next++; };
+  const cancelAnimationFrame = (id) => { waiting.delete(id); };
+  const fn = new Function(
+    "window", "document", "Node", "Element", "DocumentFragment",
+    "ResizeObserver", "requestAnimationFrame", "cancelAnimationFrame",
+    `${fullRuntime()}\nreturn WF;`,
+  );
+  const WF = fn(window, document, Node, Element, DocumentFragment, ResizeObserver, requestAnimationFrame, cancelAnimationFrame);
+  const seen = (el) => {
+    for (const o of observers) if (o.targets.has(el)) o.fn([{ target: el }], o);
+  };
+  const frame = () => {
+    const due = waiting;
+    waiting = new Map();
+    for (const f of due.values()) f();
+  };
+  return { WF, document, window, seen, frame, pending: () => waiting.size };
+}
+
+test("a box not laid out yet draws only the overscan rows, and the size it is first seen to have is laid out at once", () => {
+  const { WF, document, seen, frame, pending } = loadObserved();
+  // Built before it is in the page, as a `VirtualList` is: 0 tall.
+  const box = document.createElement("div");
+  box.clientHeight = 0;
+  box.scrollTop = 0;
+  const rows = () => [...box.children].filter((n) => n.tagName === "P").map((n) => n.textContent);
+  WF.scoped(() => WF.windowed(box, () => numbers(300), (item) => WF.el("p", {}, [item]), {
+    key: (x) => x, live: true, rowHeight: 32, overscan: 2,
+  }));
+  assert.deepEqual(rows(), ["r0", "r1"], "the overscan rows, and not a window's height of them");
+
+  // In the page, 320 px tall: the observer's first word lays it out there
+  // and then — before the frame is painted, not a frame later.
+  document.body.appendChild(box);
+  box.clientHeight = 320;
+  seen(box);
+  assert.deepEqual(rows(), numbers(13), "ten in view, one partial, two overscan");
+  assert.equal(pending(), 0, "nothing was left for the next frame");
+
+  // A later change of size waits for the next frame.
+  box.clientHeight = 160;
+  seen(box);
+  assert.equal(rows().length, 13, "not yet");
+  frame();
+  assert.deepEqual(rows(), numbers(8), "five in view, one partial, two overscan");
+
+  // Hidden, its rows stay as they are; shown again, it is laid out at once.
+  box.clientHeight = 0;
+  seen(box);
+  frame();
+  assert.deepEqual(rows(), numbers(8), "hidden, nothing is drawn or let go");
+  box.clientHeight = 320;
+  seen(box);
+  assert.deepEqual(rows(), numbers(13), "shown again, at once");
+  assert.equal(pending(), 0);
+});
+
+test("a list without `rowHeight:` lays out the size it is first seen to have at once, too", () => {
+  const { WF, document, seen } = loadObserved();
+  const box = document.createElement("div");
+  box.clientHeight = 0;
+  box.scrollTop = 0;
+  WF.scoped(() => WF.windowed(box, () => numbers(300), (item) => WF.el("p", {}, [item]), {
+    key: (x) => x, live: true, estimate: 40, overscan: 3,
+  }));
+  const drawn = () => [...box.children].filter((n) => n.tagName === "P").length;
+  assert.equal(drawn(), 3, "the overscan rows only");
+  document.body.appendChild(box);
+  box.clientHeight = 400;
+  seen(box);
+  // 400 / 40 = 10 in view, one partial, three overscan.
+  assert.equal(drawn(), 14);
+});
+
+test("without a ResizeObserver, a box not laid out yet stands on the window's height", () => {
+  const { WF, document, window } = load();
+  window.innerHeight = 640;
+  const box = document.createElement("div");
+  box.clientHeight = 0;
+  box.scrollTop = 0;
+  WF.scoped(() => WF.windowed(box, () => numbers(300), (item) => WF.el("p", {}, [item]), {
+    key: (x) => x, live: true, rowHeight: 32, overscan: 2,
+  }));
+  const rows = [...box.children].filter((n) => n.tagName === "P").map((n) => n.textContent);
+  // Nothing would say when the box has a size: 640 / 32 = 20, one partial,
+  // two overscan.
+  assert.deepEqual(rows, numbers(23));
+});

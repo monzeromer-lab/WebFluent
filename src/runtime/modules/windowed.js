@@ -63,7 +63,16 @@
       }
       return lo;
     };
-    const viewHeight = () => box.clientHeight || (typeof window !== "undefined" ? window.innerHeight : 0) || 0;
+    // A box not laid out yet — built before it is in the page, or in a
+    // part of the page not shown — is 0 tall. With a ResizeObserver, it is
+    // taken at its word: only the overscan rows are drawn, and the first
+    // size the observer sees is laid out at once (below). Guessing the
+    // window's height drew some forty rows to trim a frame later. Without
+    // one, nothing would say when the box has a size, so the window's
+    // height stands for it.
+    const observed = typeof ResizeObserver === "function";
+    const viewHeight = () =>
+      box.clientHeight || (observed ? 0 : (typeof window !== "undefined" ? window.innerHeight : 0)) || 0;
 
     const nodesOf = (made) =>
       made instanceof DocumentFragment ? [...made.childNodes] : [].concat(made).flat().filter((n) => n instanceof Node);
@@ -99,10 +108,12 @@
       const total = offset(n);
       // A list that just got shorter is looked at from its end: where the
       // browser will clamp the scroll to.
-      const at = Math.min(box.scrollTop || 0, Math.max(0, total - viewHeight()));
+      const view = viewHeight();
+      const at = Math.min(box.scrollTop || 0, Math.max(0, total - view));
       let start = rowAt(at);
-      let end = rowAt(at + viewHeight());
-      if (end < n) end += 1;
+      // A box with no height has no rows in view, only the overscan.
+      let end = view > 0 ? rowAt(at + view) : start;
+      if (view > 0 && end < n) end += 1;
       start = Math.max(0, start - overscan);
       end = Math.min(n, end + overscan);
 
@@ -211,8 +222,28 @@
     }
 
     listen(box, "scroll", soon, { passive: true });
-    if (typeof ResizeObserver === "function") {
-      const watcher = new ResizeObserver(soon);
+    if (observed) {
+      // The observer is called after layout and before paint. The size a
+      // box is first seen to have — once it is in the page, or shown — is
+      // laid out there and then, so the first frame drawn is right; any
+      // later change of size waits for the next frame, as a scroll does.
+      let sized = false;
+      const watcher = new ResizeObserver(() => {
+        const tall = box.clientHeight > 0;
+        if (tall && !sized) {
+          sized = true;
+          if (frame && typeof cancelAnimationFrame === "function") cancelAnimationFrame(frame);
+          layout();
+          return;
+        }
+        // Hidden, there is nothing to draw into: the rows stay as they
+        // are, and showing it again lays it out at once.
+        if (!tall) {
+          sized = false;
+          return;
+        }
+        soon();
+      });
       watcher.observe(box);
       onCleanup(() => watcher.disconnect());
       if (!fixed) {

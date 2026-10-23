@@ -4,8 +4,10 @@
 // scroll draws the rows it reaches and lets go of the rest; a row kept in
 // the window is the same node; a click on a drawn row reaches its handler;
 // the list shrinking redraws the window; rows of two heights are measured,
-// and `reveal:` scrolls the current match into view, to the last one; the
-// paint carries a screenful, not the whole list.
+// and `reveal:` scrolls the current match into view, to the last one; a
+// list built before it is in the page paints its first frame with the rows
+// in view and the overscan, not a window's height of them; the paint
+// carries a screenful, not the whole list.
 //
 //   cd tests/browser && npm ci && node windowed.mjs
 //
@@ -50,6 +52,12 @@ async function scenario(label, ssg, port) {
   const page = await browser.newPage();
   await page.setViewport({ width: 900, height: 1000 });
   const problems = [];
+  // What reaches the window's `error` and not the console: a
+  // ResizeObserver that changed what it observes, among it.
+  await page.evaluateOnNewDocument(() => {
+    window.__errors = [];
+    window.addEventListener("error", (e) => window.__errors.push(e.message));
+  });
   page.on("pageerror", (e) => problems.push(e.message));
   page.on("console", (m) => { if (m.type() === "error" && !/^Failed to load resource/.test(m.text())) problems.push(m.text()); });
   page.on("response", (r) => { if (r.status() >= 400 && !/favicon\.ico$/.test(r.url())) problems.push(`${r.status()} ${r.url()}`); });
@@ -162,6 +170,40 @@ async function scenario(label, ssg, port) {
     await frames(page);
     const focus = await page.evaluate(() => ({ gone: !document.getElementById("o1"), on: document.activeElement && document.activeElement.id }));
     check("a focused row scrolled away hands focus to the list", focus.gone && focus.on === "opts", JSON.stringify(focus));
+
+    // ── a list built before it is in the page ──
+    // Shown from inside a frame: the next frame's first callback, queued
+    // before anything the list could queue, sees what this frame painted.
+    const late = await page.evaluate(() => new Promise((resolve) => {
+      requestAnimationFrame(() => {
+        document.getElementById("show-late").click();
+        const box = document.getElementById("late");
+        const built = { there: !!box, rows: box ? box.querySelectorAll(":scope > p").length : -1 };
+        requestAnimationFrame(() => {
+          const rows = [...box.querySelectorAll(":scope > p")];
+          resolve({
+            built,
+            height: box.clientHeight,
+            ids: rows.map((r) => r.id),
+            top: rows.length ? Math.round(rows[0].getBoundingClientRect().top - box.getBoundingClientRect().top) : null,
+          });
+        });
+      });
+    }));
+    // 320 / 32 = 10 in view, one partial, six overscan either side.
+    const most = 320 / 32 + 1 + 2 * 6;
+    const inOrder = late.ids.every((id, i) => id === `late ${i}`);
+    check("built before it is in the page, it draws no screenful it cannot see",
+      late.built.there && late.built.rows <= 6, JSON.stringify(late.built));
+    check("its first painted frame holds the rows in view and no more than the overscan past them",
+      late.height === 320 && late.ids.length >= 10 && late.ids.length <= most, `${late.ids.length} rows, at most ${most}`);
+    check("…the right rows, in order, from the top", inOrder && late.top === 0, JSON.stringify({ first: late.ids[0], last: late.ids.at(-1), top: late.top }));
+    await page.$eval("#late", (el) => { el.scrollTop = 32 * 150; });
+    await frames(page);
+    check("and it scrolls as any list does", await until(page, () => !!document.getElementById("late 150") && !document.getElementById("late 0")));
+
+    const errors = await page.evaluate(() => window.__errors || []);
+    check("no layout loop was reported", errors.length === 0, errors.join(" | "));
 
     check("nothing threw, and the policy refused nothing", problems.length === 0, problems.join(" | "));
   } catch (e) {

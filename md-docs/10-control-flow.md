@@ -133,6 +133,15 @@ page Search(path: "/", title: "Search", description: "Results, a window at a tim
   box's.
 - A tree is a list of the rows that are showing: flatten it in a `derived`
   (the open folders' children after each folder) and window that.
+- The box needs a height that does not come from its rows — `style {
+  height: 400px }`, a `max-height:`, a cell of a grid or a flex row that
+  sets one; a box as tall as what it holds grows until every row is drawn.
+- A list drawn before its box is laid out — inside an `if` that just turned
+  true, in a panel not shown yet — draws only the few rows past the window
+  until the box has a height, and the first height it has is laid out
+  before that frame is painted: the first frame shows the rows in view, not
+  a guess at them trimmed a frame later. A list hidden and shown again is
+  laid out the same way.
 - The pre-rendered page paints the first 60 rows; the runtime draws the
   window when it takes over.
 - With anything else in its body, or a `for` with no `by`, it draws every
