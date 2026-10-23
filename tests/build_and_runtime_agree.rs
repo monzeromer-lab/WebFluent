@@ -434,6 +434,157 @@ fn the_static_paint_shows_what_the_runtime_computes() {
     );
 }
 
+/// Texts put together from the pieces Markdown is made of, by a fixed
+/// sequence: the case table holds what was thought of, and these the
+/// orders nobody would think to write — a fence left open at the end, a
+/// Windows line ending in a list, an entity against a link's bracket.
+fn markdown_mixtures(count: usize) -> Vec<String> {
+    #[rustfmt::skip]
+    const PIECES: &[&str] = &[
+        "a", "b ", " ", "  ", "\n", "\n\n", "\r\n", "`", "``", "*", "**", "_", "[", "]", "(", ")",
+        "!", "](", "![", "[a](", "#", "# ", "> ", "- ", "1. ", "```\n", "```wf\n", "---", "\\", "<",
+        ">", "\"", "'", "&", ";", "&lt;", "&amp;", "&#42;", "&#x5F;", "&#96;", "&#000060;", "&#0;",
+        "&#x110000;", "&nbsp;", "&bogus;", "/x", "//h/y", "x.png", "https://a.b/c", "mailto:",
+        "javascript:", "JavaScript:", "data:", "x:y", "\u{1f}", "\u{0}", "\u{1}", "\t", "\u{a0}",
+        "é", "\\*", "\\_", "\\`", "\\[", "\\]", "\\(", "\\)", "\\!", "\\#", "\\-", "\\>",
+        "\\&", "\\:", "\\/", "\\\\", "\\\n", "\\  \n", "\\a", "javascript\\:", "1\\. ",
+        "\r", "\u{85}", "\u{feff}", "\u{2028}", "\u{3000}",
+    ];
+    let mut seed: u64 = 0x9e37_79b9_7f4a_7c15;
+    let mut next = move || {
+        seed ^= seed << 13;
+        seed ^= seed >> 7;
+        seed ^= seed << 17;
+        seed as usize
+    };
+    (0..count)
+        .map(|_| {
+            let len = next() % 14 + 1;
+            (0..len).map(|_| PIECES[next() % PIECES.len()]).collect()
+        })
+        .collect()
+}
+
+/// The Markdown texts both renderers are given: the shared case table's,
+/// every entity the inert form decodes, by name and by number, every
+/// character a backslash escapes, and a few thousand mixtures, each drawn
+/// plain and inert with and without a base path.
+fn markdown_inputs() -> Vec<(String, bool, &'static str)> {
+    let raw = std::fs::read_to_string(root().join("tests/markdown-cases.json")).unwrap();
+    let cases: Vec<(String, serde_json::Value, String)> = serde_json::from_str(&raw).unwrap();
+    let mut texts: Vec<String> = cases.into_iter().map(|(text, _, _)| text).collect();
+    for (name, ch) in webfluent::codegen::markdown::ENTITIES {
+        texts.push(format!(
+            "&{name}; &#{}; &#x{:X}; `&{name};`",
+            *ch as u32, *ch as u32
+        ));
+    }
+    // Every character a backslash escapes, everywhere it could mean
+    // something: alone, at a line's start, in emphasis, in a link's words
+    // and its URL, in code, in a fence and its language, and before a
+    // line's end.
+    for ch in "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~".chars() {
+        texts.push(format!(
+            "\\{ch} a\\{ch}b\n\\{ch}{ch} x\n*a\\{ch}* [a\\{ch}](/b\\{ch}c) ![\\{ch}](x\\{ch}.png) `\\{ch}`\\\n\\{ch}\\\\\n\n```\\{ch}\n\\{ch}\n```\n{ch}\\"
+        ));
+    }
+    texts.extend(markdown_mixtures(3000));
+    let mut inputs = Vec::new();
+    for text in texts {
+        for inert in [false, true] {
+            for base in ["", "/site"] {
+                inputs.push((text.clone(), inert, base));
+            }
+        }
+    }
+    inputs
+}
+
+/// `Markdown(text)` is painted at build time by `codegen::markdown` and
+/// drawn again in the browser by `WF.markdown`: the two must give the same
+/// bytes, or a hydrated page changes under the reader — and a link one of
+/// them refuses is a link the other draws.
+#[test]
+fn markdown_draws_the_same_at_build_time_and_in_the_browser() {
+    if Command::new("node").arg("--version").output().is_err() {
+        eprintln!("skipped: node is not installed");
+        return;
+    }
+    let inputs = markdown_inputs();
+    let js_dir = root().join("tests/js");
+    let script = format!(
+        r#"import {{ fullRuntime }} from {runtime:?};
+import {{ makeDom }} from {dom:?};
+const {{ window, document, Node, Element, DocumentFragment }} = makeDom();
+const WF = new Function("window", "document", "Node", "Element", "DocumentFragment", fullRuntime() + "\nreturn WF;")(window, document, Node, Element, DocumentFragment);
+const inputs = {inputs};
+console.log(JSON.stringify(inputs.map(([text, inert, base]) => {{
+  WF.setBasePath(base);
+  return WF.markdown(text, inert ? {{ inert: true }} : undefined);
+}})));
+"#,
+        runtime = format!("file://{}", js_dir.join("runtime.mjs").display()),
+        dom = format!("file://{}", js_dir.join("dom.mjs").display()),
+        inputs = serde_json::to_string(&inputs).unwrap(),
+    );
+    let file = std::env::temp_dir().join(format!("wf-agree-md-{}.mjs", std::process::id()));
+    std::fs::write(&file, script).unwrap();
+    let out = Command::new("node").arg(&file).output().expect("run node");
+    let _ = std::fs::remove_file(&file);
+    assert!(
+        out.status.success(),
+        "the runtime script failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let drawn: Vec<String> = serde_json::from_slice(&out.stdout).expect("the runtime's HTML");
+    let mut wrong = Vec::new();
+    for ((text, inert, base), runtime) in inputs.iter().zip(&drawn) {
+        let built = webfluent::codegen::markdown::render_with(
+            text,
+            webfluent::codegen::markdown::Options {
+                base,
+                inert: *inert,
+                ..Default::default()
+            },
+        );
+        if built != *runtime {
+            wrong.push(format!(
+                "  {text:?} (inert: {inert}, base: {base:?})\n      build:   {built:?}\n      runtime: {runtime:?}"
+            ));
+        }
+    }
+    assert_eq!(drawn.len(), inputs.len());
+    assert!(
+        wrong.is_empty(),
+        "the page paints one Markdown before its script runs and another after:\n{}",
+        wrong.join("\n")
+    );
+}
+
+/// The runtime decodes the named entities the compiler does, and no
+/// others: one name more on either side is a page whose words change when
+/// its script runs.
+#[test]
+fn the_runtime_names_the_entities_the_compiler_does() {
+    let source = std::fs::read_to_string(root().join("src/runtime/modules/text.js")).unwrap();
+    let table = source
+        .split("const MD_NAMED = {")
+        .nth(1)
+        .and_then(|rest| rest.split("};").next())
+        .expect("the runtime's MD_NAMED table");
+    let runtime: BTreeSet<String> = table
+        .split(',')
+        .filter_map(|pair| pair.split(':').next())
+        .map(|name| name.trim().to_string())
+        .filter(|name| !name.is_empty())
+        .collect();
+    let compiler: BTreeSet<String> = webfluent::codegen::markdown::ENTITIES
+        .iter()
+        .map(|(name, _)| name.to_string())
+        .collect();
+    assert_eq!(runtime, compiler);
+}
+
 /// Every runtime module is concatenated into one closure, so a name one
 /// module declares at its top level is a name every other module sees — and
 /// when two declare the same one, the later wins, silently. `http.js` had a

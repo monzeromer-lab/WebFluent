@@ -61,7 +61,7 @@ EXAMPLES = {
     "Text": 'Text("Hello, world")\nText("Last updated today").muted.sm\nText("Important").bold.danger',
     "Heading": 'Heading("Pricing").h1\nHeading("Frequently asked").h2',
     "Code": 'Text("Run ")\nCode("wf serve")\nCode("page Home(path: \\"/\\") { Text(\\"Hi\\") }", language: "wf").block',
-    "Markdown": 'Markdown("Some **bold** text and a [link](/docs).")',
+    "Markdown": 'state docs = "Returns &lt;T&gt;, as [the guide](/docs) says."\nMarkdown("Some **bold** text and a [link](/docs).")\nMarkdown(docs).inert',
     "Unsafe": 'state body = "<p>From the CMS</p>"\nUnsafe.Html(sanitize(body))',
     "Blockquote": 'Blockquote { Text("Make it work, make it right, make it fast.") }',
     "Document": 'Document(page_size: "A4") {\n    Section { Heading("Report").h1  Paragraph("Revenue grew.") }\n}',

@@ -37,7 +37,13 @@ These are properties of the output, not advice. You do not opt in.
   `rel="noopener noreferrer"`, so the page it opens cannot navigate yours.
 - **Markdown is escaped first.** `Markdown(text)` renders the small
   Markdown it documents and shows any HTML in the text rather than running
-  it.
+  it. Its links and pictures go through the same scheme check as every
+  other URL: a link to a `javascript:` URL is drawn as its words, with no
+  link, at build time and in the browser alike, and so is one that puts a
+  backslash before its colon (`javascript\:`), which Markdown reads as the
+  colon it escapes. For text somebody else wrote, such as a language
+  server's documentation, `Markdown(text).inert` draws no link or picture
+  at all ([Content](27-content.md#text-somebody-else-wrote-inert)).
 - **A `Secret` cannot escape.** It may not be shown, spliced into a string,
   logged or persisted — each is a `T12`, at the line that does it.
 - **A non-public `env` name may not be read from a page.** See below.

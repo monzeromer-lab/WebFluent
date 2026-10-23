@@ -1500,13 +1500,24 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                     _ => None,
                 })
                 .unwrap_or_default();
+            // `.inert`, or `inert:` with what the build knows of it; one
+            // only the page knows is painted the stricter way.
+            let inert = ui.args.iter().any(|a| match a {
+                Arg::Named(k, v) if k == "inert" => eval(v, &ctx.scope).is_none_or(|v| v.truthy()),
+                _ => false,
+            });
+            let options = crate::codegen::markdown::Options {
+                base: &ctx.link_base,
+                schemes: &ctx.app_schemes,
+                inert,
+            };
             return format!(
                 "{}<div class=\"{}\"{}{}>\n{}{}</div>\n",
                 ctx.indent_str(),
                 class_str,
                 wf,
                 inline_style,
-                crate::codegen::markdown::render_with_base(&text, &ctx.link_base),
+                crate::codegen::markdown::render_with(&text, options),
                 ctx.indent_str()
             );
         }

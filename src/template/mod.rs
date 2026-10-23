@@ -1643,12 +1643,19 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                     _ => None,
                 })
                 .unwrap_or_default();
+            let inert = ui.args.iter().any(
+                |a| matches!(a, Arg::Named(k, v) if k == "inert" && is_truthy(&ctx.eval_expr(v))),
+            );
+            let options = crate::codegen::markdown::Options {
+                inert,
+                ..Default::default()
+            };
             return format!(
                 "{}<div class=\"{}\"{}>\n{}{}</div>\n",
                 ctx.indent_str(),
                 class_str,
                 style_attr,
-                crate::codegen::markdown::render(&text),
+                crate::codegen::markdown::render_with(&text, options),
                 ctx.indent_str()
             );
         }

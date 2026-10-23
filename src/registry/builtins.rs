@@ -1985,9 +1985,13 @@ pub const COMPONENTS: &[ComponentSig] = &[
     comp(
         "Markdown",
         "Typography",
-        "Markdown text rendered as HTML: headings, paragraphs, lists, quotes, code, links, emphasis. The text is escaped first, so HTML in it is shown, not run.",
+        "Markdown text rendered as HTML: headings, paragraphs, lists, quotes, code, links, emphasis. The text is escaped first, so HTML in it is shown, not run, and a link or picture whose URL a browser would run is drawn as its words. `.inert` is for text somebody else wrote.",
         Some(special("text", PropType::Str, "The Markdown text")),
-        &[],
+        &[special(
+            "inert",
+            PropType::Bool,
+            "Text somebody else wrote, such as a language server's documentation: its entities are decoded, a link is drawn as its words and a picture is left out",
+        )],
         &[],
         G,
         Children::None,

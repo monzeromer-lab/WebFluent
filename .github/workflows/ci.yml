@@ -160,6 +160,10 @@ jobs:
         working-directory: tests/browser
         run: node controls.mjs
 
+      - name: Markdown
+        working-directory: tests/browser
+        run: node markdown.mjs
+
       # What the compiler once compiled wrong, clicked and typed into.
       - name: Behaviour
         run: target/release/wf test tests/fixtures/behaviour

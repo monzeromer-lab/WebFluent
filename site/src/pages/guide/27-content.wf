@@ -14,7 +14,22 @@ page ContentGuide(path: "/docs/guide/content", title: "Content", description: "T
     Markdown("Inline *emphasis*, a [link](/about) and an ![image](/img.png).")
 }"##, title: "wf")
 
-        Markdown("Blocks: `#`–`######` headings, paragraphs (their lines run together, as in CommonMark — end a line with two spaces or `\\` to break it), fenced code with a language (`` ```js ``), `>` quotes, `-`/`*` and `1.` lists (one level), `---` rules. Inline: `` `code` ``, `**strong**`, `*em*`/`_em_`, links, images. Raw HTML in the text is shown as text, not run — Markdown from a user or an API is safe to render.")
+        Markdown("Blocks: `#`–`######` headings, paragraphs (their lines run together, as in CommonMark — end a line with two spaces or `\\` to break it), fenced code with a language (`` ```js ``), `>` quotes, `-`/`*` and `1.` lists (one level), `---` rules. Inline: `` `code` ``, `**strong**`, `*em*`/`_em_`, links, images. Raw HTML in the text is shown as text, not run — Markdown from a user or an API is safe to render.\n\nA link or a picture goes through the scheme check every other URL does ([Security](/docs/guide/security)): one whose URL a browser would run — `javascript:`, `vbscript:`, a `data:` URL — is drawn as its words, with no link and no picture. A site-relative URL (`/about`, `/img.png`) is addressed from the site's `base_path`, as `Link(to:)`'s is.")
+
+        Heading("Backslash escapes", id: "backslash-escapes").h3
+
+        Markdown("A backslash before a punctuation mark shows the mark and stops it meaning anything, as in CommonMark: `\\*not em\\*` is `*not em*`, `\\[not a link\\](/x)` is no link, `\\#` at the start of a line is no heading, `1\\.` is no list, and `\\\\` is one backslash. Every ASCII punctuation mark can be escaped this way (`\\-`, `\\\{`, `\\(`, `\\_`, `\\&` and the rest), and an escaped one is only the character it is: it makes no link, no emphasis and no entity. In a link's words an escaped bracket is a bracket like any other (`[a\\]b](/c)`), and they hold no unescaped `[`, so in `[a [b](/c)` only `b` is the link. In a URL an escape is read as the character it is, so `[x](javascript\\:alert\\(1\\))` is checked as the `javascript:alert(1)` URL it says, and drawn as its words.\n\nA backslash before anything else is shown, as `C:\\Users` is, and so is one in a code span or a fence, where nothing is Markdown. A line that ends in a backslash breaks there, as above; the last line of a paragraph, a heading or a list item has no line after it to break to, and shows its backslash. A fence's language takes escapes too: `c\\+\\+` after the backticks is `c++`.")
+
+        Heading("Text somebody else wrote: .inert", id: "text-somebody-else-wrote-inert").h3
+
+        Markdown("Documentation from a language server, a `///` comment, a package's readme: text written by somebody else, often with HTML entities in it, and with links and pictures that should not be followed or fetched from where it is shown. `.inert` draws it:")
+
+        CodeBlock(#"page Hover(path: "/") {
+    state docs = "Returns a list of &lt;T&gt; &mdash; see [the guide](https://example.com/guide).\n\n![build](https://ci.example.com/badge.svg)"
+    Markdown(docs).inert
+}"#, title: "wf")
+
+        Markdown("It draws one paragraph, `Returns a list of <T> — see the guide.`, with no link in it, and leaves the badge out. Under `.inert`:\n\n- Entities are decoded, then escaped: `&lt;color&gt;` shows as `<color>`, and a `<script>`, written out or encoded, is shown as text. In `` `code` `` and in a fence an entity stays as it was written, as CommonMark leaves it. The named entities are the ones documentation is written with — `&lt;` `&gt;` `&amp;` `&quot;` `&apos;` `&nbsp;`, the dashes, quotes and arrows, and a few signs — and any number works (`&#60;`, `&#x3C;`).\n- A link is drawn as its words, with no `<a>`.\n- A picture is left out, with the space after it; a paragraph of nothing but pictures is left out with them.\n- Everything else — paragraphs, fences, `code`, `**strong**`, `*em*` and `_em_`, headings, lists, quotes, rules, backslash escapes — is drawn as plain `Markdown` draws it. A language server escapes its documentation this way: the CSS one writes `margin\\-top` and `&lt;length\\-percentage&gt;\\\{1,4\\\}`, which `.inert` shows as `margin-top` and `<length-percentage>\{1,4\}`. An escaped `&` begins no entity: `\\&lt;` shows the four characters `&lt;`.\n\n`inert:` takes a value too, `Markdown(docs, inert: untrusted)`, and follows it. Plain `Markdown` is unchanged: an entity in it shows as it was written, so a page that wrote `&lt;` to mean the four characters still shows them.")
 
         Heading(".md pages", id: "md-pages").h2
 

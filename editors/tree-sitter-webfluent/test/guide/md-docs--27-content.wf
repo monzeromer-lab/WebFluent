@@ -6,6 +6,12 @@ page Notes(path: "/") {
 }
 
 // md-docs/27-content.md
+page Hover(path: "/") {
+    state docs = "Returns a list of &lt;T&gt; &mdash; see [the guide](https://example.com/guide).\n\n![build](https://ci.example.com/badge.svg)"
+    Markdown(docs).inert
+}
+
+// md-docs/27-content.md
 component DocsShell {
     slot
     Row(gap: .lg) {

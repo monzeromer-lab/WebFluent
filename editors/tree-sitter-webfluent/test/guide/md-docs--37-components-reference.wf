@@ -396,7 +396,9 @@ page Doc(path: "/") {
 
 // md-docs/37-components-reference.md
 page Doc(path: "/") {
+    state docs = "Returns &lt;T&gt;, as [the guide](/docs) says."
     Markdown("Some **bold** text and a [link](/docs).")
+    Markdown(docs).inert
 }
 
 // md-docs/37-components-reference.md
