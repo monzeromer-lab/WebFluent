@@ -132,6 +132,76 @@ test("inert Markdown shows text somebody else wrote and nothing in it runs", () 
   assert.equal(WF.markdown("&lt;color&gt;"), "<p>&amp;lt;color&amp;gt;</p>\n");
 });
 
+test("a backslash before punctuation draws the character and nothing more", () => {
+  const { WF } = loadRuntime();
+  const punctuation = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
+  const shown = (c) => c.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  for (const c of punctuation) {
+    for (const opts of [undefined, { inert: true }]) {
+      assert.equal(WF.markdown("\\" + c, opts), "<p>" + shown(c) + "</p>\n", `\\${c}`);
+      assert.equal(WF.markdown("a \\" + c + " b", opts), "<p>a " + shown(c) + " b</p>\n", `a \\${c} b`);
+    }
+  }
+  // An escaped mark at a line's start makes no block of it.
+  assert.equal(
+    WF.markdown("\\# not a heading\n\\- not a list\n1\\. nor this\n\\> not a quote\n\\---"),
+    "<p># not a heading\n- not a list\n1. nor this\n&gt; not a quote\n---</p>\n",
+  );
+  // No link, picture or emphasis is made of an escaped character.
+  assert.equal(WF.markdown("\\[not a link\\](https://x.y) !\\[nor a picture](/p.png)"), "<p>[not a link](https://x.y) ![nor a picture](/p.png)</p>\n");
+  assert.equal(WF.markdown("[a\\](b) [c](d)"), "<p>[a](b) <a href=\"d\">c</a></p>\n", "nor carries a link's words into the next");
+  assert.equal(WF.markdown("[a\\]b](/c)"), "<p><a href=\"/c\">a]b</a></p>\n");
+  assert.equal(WF.markdown("\\*not em\\* *a \\* b* **c \\*\\* d** _e\\_f_"), "<p>*not em* <em>a * b</em> <strong>c ** d</strong> <em>e_f</em></p>\n");
+  assert.equal(WF.markdown("\\\\*a*"), "<p>\\<em>a</em></p>\n", "`\\\\` is one backslash");
+});
+
+test("an escaped character in a Markdown URL is checked as the character it is", () => {
+  const { WF } = loadRuntime();
+  // `javascript\:` is `javascript:`, refused as it is.
+  for (const md of ["[x](javascript\\:alert(1))", "![x](javascript\\:alert(1))", "[x](JavaScript\\:alert\\(1\\))"]) {
+    const html = WF.markdown(md);
+    assert.ok(!html.includes("<a") && !html.includes("<img"), `${md} → ${html}`);
+  }
+  assert.equal(WF.markdown("[x](javascript\\:alert\\(1\\))"), "<p>x</p>\n");
+  WF.setBasePath("/site");
+  assert.equal(
+    WF.markdown("[a](\\/docs) [b](/\\/b.c) [c](/\\*x\\*) [d](/e\\(1\\))"),
+    "<p><a href=\"/site/docs\">a</a> <a href=\"//b.c\">b</a> <a href=\"/site/*x*\">c</a> <a href=\"/site/e(1)\">d</a></p>\n",
+  );
+  WF.setBasePath("");
+  assert.equal(
+    WF.markdown("\\<b\\> ![a\\\"b](/i.png) [c](/x\\\"onclick=alert(1))"),
+    "<p>&lt;b&gt; <img src=\"/i.png\" alt=\"a&quot;b\"> <a href=\"/x&quot;onclick=alert(1\">c</a>)</p>\n",
+    "no markup comes through an escaped character",
+  );
+});
+
+test("a backslash before anything else, ending a block, or in code is shown", () => {
+  const { WF } = loadRuntime();
+  assert.equal(WF.markdown("\\a C:\\Users\\me \\ x \\1"), "<p>\\a C:\\Users\\me \\ x \\1</p>\n");
+  assert.equal(WF.markdown("a\\\nb\\"), "<p>a<br>\nb\\</p>\n", "it breaks a line, and is shown at a paragraph's end");
+  assert.equal(WF.markdown("a\\\\\nb"), "<p>a\\\nb</p>\n", "an escaped one breaks nothing");
+  assert.equal(WF.markdown("# Title\\\n\n- item\\"), "<h1>Title\\</h1>\n<ul>\n<li>item\\</li>\n</ul>\n");
+  assert.equal(WF.markdown("`a\\*b` `C:\\` \\`not code`"), "<p><code>a\\*b</code> <code>C:\\</code> `not code`</p>\n");
+  assert.equal(WF.markdown("`a\\\nb`"), "<p><code>a\\\nb</code></p>\n");
+  assert.equal(WF.markdown("```c\\+\\+\n\\*a\\* \\\\\n```"), "<pre><code class=\"language-c++\">\\*a\\* \\\\\n</code></pre>\n");
+  const inert = (md) => WF.markdown(md, { inert: true });
+  assert.equal(inert("\\&lt; &lt\\; &lt;"), "<p>&amp;lt; &amp;lt; &lt;</p>\n", "an escaped character begins no entity");
+});
+
+test("a language server's escaped documentation reads as it was meant", () => {
+  const { WF } = loadRuntime();
+  // vscode-css-languageservice's hover for `border-radius`: a backslash
+  // before each of \ ` * _ { } [ ] ( ) # + - . !, and < > as entities.
+  const hover = "Defines the radii of the outer border edge\\.\n\n![Baseline icon](data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgi) _Widely available across major browsers (Baseline since 2015)_\n\nSyntax: &lt;length\\-percentage \\[0,∞\\]&gt;\\{1,4\\} \\[ / &lt;length\\-percentage \\[0,∞\\]&gt;\\{1,4\\} \\]?\n\n[MDN Reference](https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-radius)";
+  const el = WF.el("div", { className: "wf-markdown", markdown: { text: hover, inert: true } });
+  assert.equal(
+    el.innerHTML,
+    "<p>Defines the radii of the outer border edge.</p>\n<p><em>Widely available across major browsers (Baseline since 2015)</em></p>\n<p>Syntax: &lt;length-percentage [0,∞]&gt;{1,4} [ / &lt;length-percentage [0,∞]&gt;{1,4} ]?</p>\n<p>MDN Reference</p>\n",
+  );
+  assert.ok(!el.innerHTML.includes("\\"), "no backslash is left to read");
+});
+
 test("the markdown attribute takes the inert form, and follows its text", () => {
   const { WF } = loadRuntime();
   const docs = WF.signal("[a](https://a.b) &lt;T&gt;");

@@ -39,6 +39,27 @@ A link or a picture goes through the scheme check every other URL does
 link and no picture. A site-relative URL (`/about`, `/img.png`) is
 addressed from the site's `base_path`, as `Link(to:)`'s is.
 
+### Backslash escapes
+
+A backslash before a punctuation mark shows the mark and stops it meaning
+anything, as in CommonMark: `\*not em\*` is `*not em*`, `\[not a link\](/x)`
+is no link, `\#` at the start of a line is no heading, `1\.` is no list,
+and `\\` is one backslash. Every ASCII punctuation mark can be escaped this
+way (`\-`, `\{`, `\(`, `\_`, `\&` and the rest), and an escaped one is only
+the character it is: it makes no link, no emphasis and no entity. In a
+link's words an escaped bracket is a bracket like any other
+(`[a\]b](/c)`), and they hold no unescaped `[`, so in `[a [b](/c)` only
+`b` is the link. In a URL an escape is read as the character it is, so
+`[x](javascript\:alert(1))` is checked as the `javascript:` URL it says,
+and drawn as its words.
+
+A backslash before anything else is shown, as `C:\Users` is, and so is
+one in a code span or a fence, where nothing is Markdown. A line that ends
+in a backslash breaks there, as above; the last line of a paragraph, a
+heading or a list item has no line after it to break to, and shows its
+backslash. A fence's language takes escapes too: `c\+\+` after the
+backticks is `c++`.
+
 ### Text somebody else wrote: `.inert`
 
 Documentation from a language server, a `///` comment, a package's readme:
@@ -67,8 +88,12 @@ link in it, and leaves the badge out. Under `.inert`:
 - A picture is left out, with the space after it; a paragraph of nothing
   but pictures is left out with them.
 - Everything else — paragraphs, fences, `code`, `**strong**`, `*em*` and
-  `_em_`, headings, lists, quotes, rules — is drawn as plain `Markdown`
-  draws it.
+  `_em_`, headings, lists, quotes, rules, backslash escapes — is drawn as
+  plain `Markdown` draws it. A language server escapes its documentation
+  this way: the CSS one writes `margin\-top` and
+  `&lt;length\-percentage&gt;\{1,4\}`, which `.inert` shows as
+  `margin-top` and `<length-percentage>{1,4}`. An escaped `&` begins no
+  entity: `\&lt;` shows the four characters `&lt;`.
 
 `inert:` takes a value too, `Markdown(docs, inert: untrusted)`, and follows
 it. Plain `Markdown` is unchanged: an entity in it shows as it was written,

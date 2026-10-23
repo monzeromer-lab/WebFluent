@@ -35,12 +35,20 @@ const HOSTILE = [
   "![pic](javascript:window.ran=4)",
   "[vb](vbscript:msgbox)",
   "[page](data:text/html;base64,PHNjcmlwdD53aW5kb3cucmFuPTU8L3NjcmlwdD4=)",
+  // A backslash before the colon hides no scheme: `javascript\:` is
+  // `javascript:`, and an escaped bracket makes no link at all.
+  "[esc](javascript\\\\:window.ran=9)",
+  "\\\\[not\\\\](/not)",
 ].join(" ");
 const DOCS = [
   "Returns &lt;color&gt; &mdash; see [the guide](https://example.com/guide) ![badge](/badge.svg) now.",
   "&lt;script&gt;window.ran = 6&lt;/script&gt; <script>window.ran = 7</script> <img src=x onerror=\\\"window.ran = 8\\\">",
   "```ts\\nconst a: Array&lt;T&gt; = [];\\n```",
   "_Widely_ used; `&amp;` stays.",
+  // A language server's syntax line, escaped as vscode-css-languageservice
+  // escapes it: each backslash doubled for this string, and again for the
+  // .wf string, where `\{` is a brace.
+  "Syntax: &lt;'margin\\\\-top'&gt;\\\\\\{1,4\\\\\\} \\\\[a\\\\](/a)",
 ].join("\\n\\n");
 
 const SOURCE = `page Home(path: "/", title: "Markdown", description: "Markdown in a browser.") {
@@ -97,7 +105,7 @@ async function scenario(label, ssg, port) {
     check("a site-relative link takes the base path, another site's is kept",
       JSON.stringify(plain.links) === JSON.stringify(["/site/guide", "https://example.com/"]), JSON.stringify(plain.links));
     check("a refused link or picture is drawn as its words",
-      ["run", "Run", "RUN", "pic", "vb", "page"].every((w) => plain.text.includes(w)), plain.text);
+      ["run", "Run", "RUN", "pic", "vb", "page", "esc", "[not](/not)"].every((w) => plain.text.includes(w)), plain.text);
 
     check("inert text has no link, no picture and no script",
       docs.links.length === 0 && docs.pictures.length === 0 && docs.scripts === 0
@@ -106,6 +114,7 @@ async function scenario(label, ssg, port) {
     check("HTML in it, written or encoded, is text",
       docs.text.includes("<script>window.ran = 6</script> <script>window.ran = 7</script> <img src=x onerror=\"window.ran = 8\">"), docs.text);
     check("a fence is a pre, its entities as written", docs.pre === "const a: Array&lt;T&gt; = [];\n", JSON.stringify(docs.pre));
+    check("a backslash escape shows the character it escapes", docs.text.includes("Syntax: <'margin-top'>{1,4} [a](/a)") && !docs.text.includes("\\"), docs.text);
     check("_Widely_ is emphasis, and code keeps its entity", docs.em === "Widely" && JSON.stringify(docs.code) === JSON.stringify(["&amp;"]), JSON.stringify([docs.em, docs.code]));
 
     // A click on each link the page drew runs nothing either.

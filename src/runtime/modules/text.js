@@ -3,7 +3,9 @@
   // `src/codegen/markdown.rs`): headings, paragraphs, fenced code, quotes,
   // one-level lists, rules; code spans, strong, emphasis, links, images.
   // The text is escaped first, so HTML in it is shown, not run, and a link
-  // or image whose URL a browser would run is drawn as its words.
+  // or image whose URL a browser would run is drawn as its words. A
+  // backslash before ASCII punctuation draws that character and nothing
+  // more (`\*`, `\[`, `\\`), as CommonMark's does.
   //
   // `{ inert: true }` (`Markdown(text).inert`) is for text somebody else
   // wrote: its entities are decoded before they are escaped, a link is
@@ -17,13 +19,17 @@
     heading: new RegExp("^(#{1,6}) (.*)$"),
     bullet: new RegExp("^[-*] (.*)$"),
     numbered: new RegExp("^[0-9]+\\. (.*)$"),
-    code: new RegExp("\\x60([^\\x60]+)\\x60", "g"),
-    image: new RegExp("!\\[([^\\]]*)\\]\\(([^)\\s]+)\\)", "g"),
-    link: new RegExp("\\[([^\\]]+)\\]\\(([^)\\s]+)\\)", "g"),
+    // An ASCII punctuation character, which a backslash escapes.
+    punct: new RegExp("^[!-\\/:-@\\[-\\x60{-~]$"),
+    escaped: new RegExp("\\\\([!-\\/:-@\\[-\\x60{-~])", "g"),
+    held: new RegExp("\\u0000(0|[1-9][0-9]*)\\u0000", "g"),
+    space: new RegExp("\\s"),
+    image: new RegExp("!\\[([^\\[\\]]*)\\]\\(([^)\\s]+)\\)", "g"),
+    link: new RegExp("\\[([^\\[\\]]+)\\]\\(([^)\\s]+)\\)", "g"),
     // Inert's: an image with the space after it, and a link whose words
     // may be empty — what is left of a linked image.
-    picture: new RegExp("!\\[([^\\]]*)\\]\\(([^)\\s]+)\\) ?", "g"),
-    words: new RegExp("\\[([^\\]]*)\\]\\(([^)\\s]+)\\)", "g"),
+    picture: new RegExp("!\\[([^\\[\\]]*)\\]\\(([^)\\s]+)\\) ?", "g"),
+    words: new RegExp("\\[([^\\[\\]]*)\\]\\(([^)\\s]+)\\)", "g"),
     strong: new RegExp("\\*\\*([^*]+)\\*\\*", "g"),
     em: new RegExp("\\*([^*]+)\\*", "g"),
     em2: new RegExp("(^|[^A-Za-z0-9])_([^_]+)_($|[^A-Za-z0-9])", "g"),
@@ -64,29 +70,85 @@
     if (m) return [m[1].trim(), true];
     return null;
   }
+  /// `text` escaped, with its code spans and backslash escapes held aside
+  /// as `\u0000N\u0000`, `held[N]` being `[html, isEscapedChar]`: one pass
+  /// left to right, as CommonMark reads them, so an escaped backtick opens
+  /// no span and a backslash in a span is a backslash. Before ASCII
+  /// punctuation a backslash is that character and nothing more; before a
+  /// newline (or the `\u0001` of a line ending in two spaces) it breaks
+  /// the line, and the spaces before it go; before anything else it stays.
+  /// The twin of the compiler's `hold`.
+  function mdHold(text) {
+    const held = [];
+    let out = "";
+    let plain = 0;
+    let i = 0;
+    const mark = (html, isChar) => { held.push([html, isChar]); return "\u0000" + (held.length - 1) + "\u0000"; };
+    while (i < text.length) {
+      const c = text[i];
+      const next = text[i + 1];
+      if (c === "\\" && next !== undefined && MD.punct.test(next)) {
+        out += mdEscape(text.slice(plain, i)) + mark(mdEscape(next), true);
+        i += 2;
+        plain = i;
+        continue;
+      }
+      if (c === "\\" && (next === "\n" || next === "\u0001")) {
+        out += mdEscape(text.slice(plain, i));
+        let end = out.length;
+        while (end > 0 && out[end - 1] !== "\n" && MD.space.test(out[end - 1])) end--;
+        out = out.slice(0, end);
+        if (next === "\n") out += "\u0001";
+        i += 1;
+        plain = i;
+        continue;
+      }
+      if (c === "\x60") {
+        const close = text.indexOf("\x60", i + 1);
+        if (close > i + 1) {
+          out += mdEscape(text.slice(plain, i)) + mark("<code>" + mdEscape(text.slice(i + 1, close)) + "</code>", false);
+          i = close + 1;
+          plain = i;
+          continue;
+        }
+      }
+      i++;
+    }
+    return [out + mdEscape(text.slice(plain)), held];
+  }
+  /// `text` with what `mdHold` set aside put back: only the escaped
+  /// characters when `charsOnly`, everything otherwise.
+  function mdRestore(text, held, charsOnly) {
+    if (!held.length) return text;
+    return text.replace(MD.held, (whole, n) => {
+      const h = held[Number(n)];
+      return h && (h[1] || !charsOnly) ? h[0] : whole;
+    });
+  }
   function mdInline(text, inert) {
-    const spans = [];
-    let s = mdEscape(text).replace(MD.code, (_, c) => { spans.push("<code>" + c + "</code>"); return "\u0000" + (spans.length - 1) + "\u0000"; });
+    const [heldText, held] = mdHold(text);
+    let s = heldText;
     if (inert) {
       s = s.replace(MD.picture, "").replace(MD.words, "$1");
     } else {
       // A site-relative link or image is addressed from the base path, as
       // `Link(to:)` and `Image(src:)` are. The URL is checked as it was
       // escaped, which names the scheme it would unescaped: escaping adds
-      // only `&` and `;`, neither of which a scheme may hold.
-      const at = (url) => (url.startsWith("/") && !url.startsWith("//") ? _basePath + url : url);
-      s = s.replace(MD.image, (_, alt, url) => (safeUrl(url) ? '<img src="' + at(url) + '" alt="' + alt + '">' : alt));
-      s = s.replace(MD.link, (_, label, url) => (safeUrl(url) ? '<a href="' + at(url) + '">' + label + "</a>" : label));
+      // only `&` and `;`, neither of which a scheme may hold. It is checked
+      // with its escaped characters as the characters they are, and
+      // written with them still held, so none of them is emphasis.
+      const at = (url) => (url.startsWith("/") && !url.startsWith("//") ? _basePath : "");
+      s = s.replace(MD.image, (_, alt, url) => { const u = mdRestore(url, held, true); return safeUrl(u) ? '<img src="' + at(u) + url + '" alt="' + alt + '">' : alt; });
+      s = s.replace(MD.link, (_, label, url) => { const u = mdRestore(url, held, true); return safeUrl(u) ? '<a href="' + at(u) + url + '">' + label + "</a>" : label; });
     }
     s = s.replace(MD.strong, "<strong>$1</strong>");
     s = s.replace(MD.em, "<em>$1</em>");
     s = s.replace(MD.em2, "$1<em>$2</em>$3");
     // Decoded where it was escaped, once the spans are found, so what an
-    // entity says is a character and never Markdown; code, still held
-    // aside, keeps its entities as written.
+    // entity says is a character and never Markdown; code and escaped
+    // characters, still held aside, keep theirs as written.
     if (inert) s = s.replace(MD.entity, (whole, body) => { const c = mdEntity(body); return c === null ? whole : mdEscape(c); });
-    spans.forEach((span, i) => { s = s.split("\u0000" + i + "\u0000").join(span); });
-    return s.replace(/\u0001\n/g, "<br>\n").replace(/\u0001/g, "");
+    return mdRestore(s, held, false).replace(/\u0001\n/g, "<br>\n").replace(/\u0001/g, "");
   }
   // ─── Syntax colouring ───────────────────────────────
   //
@@ -305,7 +367,9 @@
       const t = lines[i].trim();
       if (t === "") { i++; continue; }
       if (t.startsWith("```")) {
-        const lang = t.slice(3).trim();
+        // The language takes backslash escapes, as CommonMark's info
+        // string does; the code does not.
+        const lang = t.slice(3).trim().replace(MD.escaped, "$1");
         let raw = "";
         i++;
         while (i < lines.length && lines[i].trim() !== "```") { raw += lines[i] + "\n"; i++; }
@@ -338,13 +402,12 @@
         continue;
       }
       // Lines run together, as CommonMark's do; one that ends in two spaces
-      // or a backslash breaks there (`\u0001` marks it).
+      // breaks there (`\u0001` marks it), and so does one that ends in a
+      // backslash, which `mdHold` sees before the newline.
       const para = [];
       while (i < lines.length && !isBlock(lines[i].trim())) {
         const t = lines[i].trim();
-        if (t.endsWith("\\")) para.push(t.slice(0, -1).trimEnd() + "\u0001");
-        else if (lines[i].endsWith("  ")) para.push(t + "\u0001");
-        else para.push(t);
+        para.push(lines[i].endsWith("  ") ? t + "\u0001" : t);
         i++;
       }
       if (para.length) para[para.length - 1] = para[para.length - 1].replace(/\u0001+$/, "");

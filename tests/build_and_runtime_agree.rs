@@ -446,7 +446,8 @@ fn markdown_mixtures(count: usize) -> Vec<String> {
         ">", "\"", "'", "&", ";", "&lt;", "&amp;", "&#42;", "&#x5F;", "&#96;", "&#000060;", "&#0;",
         "&#x110000;", "&nbsp;", "&bogus;", "/x", "//h/y", "x.png", "https://a.b/c", "mailto:",
         "javascript:", "JavaScript:", "data:", "x:y", "\u{1f}", "\u{0}", "\u{1}", "\t", "\u{a0}",
-        "é",
+        "é", "\\*", "\\_", "\\`", "\\[", "\\]", "\\(", "\\)", "\\!", "\\#", "\\-", "\\>",
+        "\\&", "\\:", "\\/", "\\\\", "\\\n", "\\  \n", "\\a", "javascript\\:", "1\\. ",
     ];
     let mut seed: u64 = 0x9e37_79b9_7f4a_7c15;
     let mut next = move || {
@@ -464,9 +465,9 @@ fn markdown_mixtures(count: usize) -> Vec<String> {
 }
 
 /// The Markdown texts both renderers are given: the shared case table's,
-/// every entity the inert form decodes, by name and by number, and a few
-/// thousand mixtures, each drawn plain and inert with and without a base
-/// path.
+/// every entity the inert form decodes, by name and by number, every
+/// character a backslash escapes, and a few thousand mixtures, each drawn
+/// plain and inert with and without a base path.
 fn markdown_inputs() -> Vec<(String, bool, &'static str)> {
     let raw = std::fs::read_to_string(root().join("tests/markdown-cases.json")).unwrap();
     let cases: Vec<(String, serde_json::Value, String)> = serde_json::from_str(&raw).unwrap();
@@ -475,6 +476,15 @@ fn markdown_inputs() -> Vec<(String, bool, &'static str)> {
         texts.push(format!(
             "&{name}; &#{}; &#x{:X}; `&{name};`",
             *ch as u32, *ch as u32
+        ));
+    }
+    // Every character a backslash escapes, everywhere it could mean
+    // something: alone, at a line's start, in emphasis, in a link's words
+    // and its URL, in code, in a fence and its language, and before a
+    // line's end.
+    for ch in "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~".chars() {
+        texts.push(format!(
+            "\\{ch} a\\{ch}b\n\\{ch}{ch} x\n*a\\{ch}* [a\\{ch}](/b\\{ch}c) ![\\{ch}](x\\{ch}.png) `\\{ch}`\\\n\\{ch}\\\\\n\n```\\{ch}\n\\{ch}\n```\n{ch}\\"
         ));
     }
     texts.extend(markdown_mixtures(3000));

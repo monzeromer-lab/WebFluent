@@ -108,6 +108,57 @@ fn the_pre_render_and_the_template_engine_draw_the_inert_form() {
     assert!(html.contains("<p>b</p>"), "{html}");
 }
 
+#[test]
+fn the_pre_render_and_the_template_engine_draw_backslash_escapes() {
+    // In a `.wf` string `\\` is one backslash and `\{` a brace.
+    let src = body(concat!(
+        r#"    Markdown("\\*not em\\* [a](\\/docs) `C:\\` a\\")"#,
+        "\n",
+        r#"    Markdown("&lt;'margin\\-top'&gt;\\\{1,4\\\} \\[x\\](/y)").inert"#,
+    ));
+    for (backend, html) in [("ssg", ssg_html(&src)), ("template", template_html(&src))] {
+        assert!(
+            html.contains(r#"<p>*not em* <a href="/docs">a</a> <code>C:\</code> a\</p>"#),
+            "{backend}: {html}"
+        );
+        assert!(
+            html.contains("<p>&lt;'margin-top'&gt;{1,4} [x](/y)</p>"),
+            "{backend}: {html}"
+        );
+    }
+}
+
+#[test]
+fn a_markdown_page_takes_backslash_escapes() {
+    let dir = scratch("escapes");
+    std::fs::write(
+        dir.join("webfluent.app.json"),
+        r#"{ "name": "scratch", "build": { "output": "build", "ssg": true, "base_path": "/site" } }"#,
+    )
+    .unwrap();
+    std::fs::write(
+        dir.join("src/notes.md"),
+        "---\ntitle: Notes\ndescription: D\npath: /\n---\n\n# Notes\n\n\\# Not a heading, \\*not em\\*, C:\\Users\\me, [docs](\\/docs)\n\nA line that ends in a backslash\\\nbreaks, and the last one keeps it\\\n",
+    )
+    .unwrap();
+    let (ok, out) = wf(&dir, &["build"]);
+    assert!(ok, "{out}");
+    let html = std::fs::read_to_string(dir.join("build/index.html")).unwrap();
+    assert!(
+        html.contains(
+            r#"<p># Not a heading, *not em*, C:\Users\me, <a href="/site/docs">docs</a></p>"#
+        ),
+        "{html}"
+    );
+    assert!(
+        html.contains(
+            "<p>A line that ends in a backslash<br>\nbreaks, and the last one keeps it\\</p>"
+        ),
+        "{html}"
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
 fn scratch(name: &str) -> PathBuf {
     let dir = std::env::temp_dir().join(format!("wf-markdown-{name}-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
