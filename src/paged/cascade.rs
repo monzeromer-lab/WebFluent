@@ -432,6 +432,9 @@ impl Styler {
                 match size {
                     Some(Length::Pt(p)) => s.font_size = p.max(0.5),
                     Some(Length::Pct(p)) => s.font_size = parent.font_size * p / 100.0,
+                    Some(Length::Mix(v, p)) => {
+                        s.font_size = (v + parent.font_size * p / 100.0).max(0.5)
+                    }
                     _ => {}
                 }
             }

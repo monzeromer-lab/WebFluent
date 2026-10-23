@@ -294,6 +294,17 @@ pub fn layout_arg_classes(args: &[Arg]) -> Vec<String> {
     classes
 }
 
+/// `Column(span: 8)` is `wf-col--8`, in the paint as on the live page — a
+/// PDF, which is only the paint, had every column the same width.
+pub fn span_class(base_class: &str, args: &[Arg]) -> Option<String> {
+    args.iter().find_map(|a| match a {
+        Arg::Named(k, Expr::NumberLiteral(n)) if k == "span" => {
+            Some(format!("{}--{}", base_class, *n as i32))
+        }
+        _ => None,
+    })
+}
+
 /// The classes a literal `class:` argument names, split on whitespace.
 pub fn author_classes(args: &[Arg]) -> Vec<String> {
     args.iter()

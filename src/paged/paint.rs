@@ -133,6 +133,7 @@ pub fn radii(s: &Style, w: f32, h: f32) -> [f32; 4] {
     s.radius.map(|r| match r {
         Length::Pt(p) => p,
         Length::Pct(p) => w.min(h) * p / 100.0,
+        Length::Mix(v, p) => v + w.min(h) * p / 100.0,
         Length::Auto => 0.0,
     })
 }

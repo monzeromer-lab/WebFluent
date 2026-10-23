@@ -1,6 +1,6 @@
 use crate::codegen::builtin::{
     builtin_to_html, class_list, element_tag, implicit_role, input_type, landmark_label,
-    layout_arg_classes,
+    layout_arg_classes, span_class,
 };
 use crate::codegen::node_id::NodeMap;
 use crate::codegen::static_eval::{Scope, Static, case_of, eval};
@@ -1186,6 +1186,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     let (_, base_class) = builtin_to_html(name);
     let mut classes = class_list(base_class, &ui.modifiers);
     classes.extend(layout_arg_classes(&ui.args));
+    classes.extend(span_class(base_class, &ui.args));
     classes.extend(extra_classes(ui, ctx));
     let mut current_link = false;
     let class_str = classes.join(" ");
