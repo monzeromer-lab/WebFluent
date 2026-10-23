@@ -136,6 +136,8 @@ fn prop_json(prop: &PropSig, sig: Option<&'static ComponentSig>) -> Value {
             Sink::Special => "special",
         },
         "flag": prop.shorthand && matches!(prop.ty, PropType::Bool),
+        // Whether a call must give it: `Portal`'s `into:`.
+        "required": prop.required,
         // The kind of file a picker offers for it: `image`, `video` …
         "file": match prop.ty {
             PropType::File(kind) => Some(kind.word()),

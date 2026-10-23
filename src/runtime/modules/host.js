@@ -22,6 +22,29 @@
     }
     // Somebody else's code holds the node from here on (hydrate).
     live(node);
+    // Inside a portal's block the lifetime waits for the block to be drawn,
+    // so a mount meets its node where the portal put it — in the page,
+    // when the node it draws into is. It runs in the scope it was asked
+    // for in, which a branch or an item of the block may have opened.
+    const held = _portalsOpen.length ? _portalsOpen[_portalsOpen.length - 1] : null;
+    if (held) {
+      const scope = currentScope;
+      const tracking = currentEffect;
+      held.push(() => {
+        const [wasScope, wasEffect] = [currentScope, currentEffect];
+        currentScope = scope;
+        currentEffect = tracking;
+        try { _attachNow(node, mount, update, cleanup); } finally {
+          currentScope = wasScope;
+          currentEffect = wasEffect;
+        }
+      });
+      return undefined;
+    }
+    return _attachNow(node, mount, update, cleanup);
+  }
+
+  function _attachNow(node, mount, update, cleanup) {
     let handle;
     try {
       handle = typeof mount === "function" ? mount(node) : undefined;
@@ -51,4 +74,77 @@
       });
     }
     return handle;
+  }
+
+  // ─── Somebody else's node ────────────────────────────
+  //
+  // An editor's tooltip, a map's popup, a panel a library placed: a node
+  // that somebody else's code made, owns and positions, with nothing in it
+  // until the page draws there. `Portal(into: node) { … }` draws its block
+  // into a box of its own and puts the box in that node. The box is the
+  // page's; the node it sits in is not. So the box follows `into:` — moved,
+  // never drawn again, when it names another node; kept aside with its
+  // nodes and state when it names none; gone with the scope it was written
+  // in — and what the block holds belongs to where it is written, as the
+  // rest of that scope does.
+
+  /// The portals whose blocks are being drawn, the innermost last: each is
+  /// the lifetimes its block asked for, held until it is whole.
+  const _portalsOpen = [];
+
+  /// Keep `box` in the node `read` names: an element, or a `ref:` handle's
+  /// element, takes it (unless it is already there); null or undefined
+  /// parks it, its nodes and their state kept; the scope's end takes it
+  /// away. Returns what runs the lifetimes the block asked for while it
+  /// was drawn, once the block is whole and in place.
+  function portal(box, read) {
+    let alive = true;
+    // A takeover of a pre-rendered page leaves a box where it is when the
+    // node it was put in is a painted one (hydrate).
+    box.__wfPortal = true;
+    const place = (target) => {
+      const node = target && target.el !== undefined ? target.el : target;
+      if (node && (node.nodeType === 1 || node.nodeType === 11) && !box.contains(node)) {
+        if (box.parentNode !== node) node.appendChild(box);
+      } else if (box.parentNode) {
+        box.remove();
+      }
+    };
+    const run = effect(() => {
+      let target = null;
+      try { target = read(); } catch (e) { console.error("WF: a Portal's into: failed", e); }
+      place(target);
+    });
+    onCleanup(() => {
+      alive = false;
+      box.remove();
+    });
+    const held = [];
+    _portalsOpen.push(held);
+    let open = true;
+    const release = () => {
+      if (!open) return;
+      open = false;
+      // Anything opened inside this block and left open — a portal whose
+      // block threw, caught by the list it was an item of — is closed with
+      // it; its own lifetimes are still let go, by its own microtask.
+      const at = _portalsOpen.lastIndexOf(held);
+      if (at >= 0) _portalsOpen.length = at;
+      for (const go of held.splice(0)) go();
+    };
+    // Once the drawing is over, where the box goes is read again. A page
+    // is drawn apart from the document and put in it whole, so what was
+    // not there while it was drawn is there now: a `ref:` handle filled
+    // further down, an element of the page's own a lookup did not find,
+    // or the drawn node a takeover put in place of a painted one. A handle
+    // is not a state, and is not watched after that. And a block that
+    // threw, which never reached the line that lets it go, lets go here:
+    // the page's later lifetimes are never held for good.
+    const settle = () => {
+      if (alive) run();
+      release();
+    };
+    if (typeof queueMicrotask === "function") queueMicrotask(settle);
+    else Promise.resolve().then(settle);
+    return release;
   }

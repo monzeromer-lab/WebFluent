@@ -1,0 +1,4 @@
+{
+  "name": "portal",
+  "build": { "ssg": true, "csp": true }
+}

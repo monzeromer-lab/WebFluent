@@ -25,6 +25,9 @@ pub fn builtin_to_html(name: &str) -> (&'static str, &'static str) {
         "Container" => ("div", "wf-container"),
         // A node handed to somebody else's code.
         "Host" => ("div", "wf-host"),
+        // A block drawn into a node somebody else's code owns; the box is
+        // `display: contents`, so it adds nothing to the layout there.
+        "Portal" => ("div", "wf-portal"),
         // `Unsafe.html(markup)`: the one element whose content is markup.
         "UnsafeHtml" => ("div", "wf-html"),
         "Row" => ("div", "wf-row"),

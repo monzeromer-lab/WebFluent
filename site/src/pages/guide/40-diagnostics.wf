@@ -402,7 +402,7 @@ page P(path: "/", title: "T", description: "D") {
   = help: Give it, or declare a default in the type: `field: Type = value`
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#c01-a-required-prop-or-field-left-out"#, title: "text")
 
-        Markdown("**Fix:** Give it, or declare a default in the type (`id: String = \"\"`) or on the prop.")
+        Markdown("**Fix:** Give it, or declare a default in the type (`id: String = \"\"`) or on the prop.\n\nA built-in that cannot be placed without a prop is held to it the same way: a `Portal` with no `into:` would draw nowhere, and the fix passes `into: null` for you to name the node.")
 
         Heading("C02 — A prop the component does not declare", id: "c02-a-prop-the-component-does-not-declare").h3
 

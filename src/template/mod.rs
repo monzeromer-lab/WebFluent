@@ -1497,6 +1497,12 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
         out.push_str(&format!("{indent}</{tag}>\n"));
         return out;
     }
+    // A portal draws into a node somebody else's code makes in a running
+    // page; what is rendered here has only its place, as the pre-rendered
+    // page does.
+    if name == "Portal" {
+        return format!("{}<!--wf-portal-->\n", ctx.indent_str());
+    }
     let (_, base_class) = builtin_to_html(name);
     let mut classes = class_list(base_class, &ui.modifiers);
     classes.extend(layout_arg_classes(&ui.args));

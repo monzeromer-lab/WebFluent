@@ -79,6 +79,13 @@ page Doc(path: "/") {
 
 // md-docs/37-components-reference.md
 page Doc(path: "/") {
+    Stack(ref: panel)
+    Portal(into: panel) { Text("Drawn inside the stack") }
+    Portal(into: editorHost("hover"), data-popup: "hover") { Text("What the tooltip says") }
+}
+
+// md-docs/37-components-reference.md
+page Doc(path: "/") {
     Navbar {
         Navbar.Brand { Link("Acme", to: "/") }
         Navbar.Links { Link("Docs", to: "/docs")  Link("Pricing", to: "/pricing") }

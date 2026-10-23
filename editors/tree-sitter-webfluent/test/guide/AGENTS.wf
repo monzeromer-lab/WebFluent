@@ -579,6 +579,18 @@ page Gallery(path: "/gallery", title: "Gallery", description: "Cards that lean."
 
 // AGENTS.md
 page Doc(path: "/") {
+    for row, i in Completions.rows by i {
+        Portal(into: editorHost(row.id), data-popup: "row") {   // a node CodeMirror made
+            Text(row.label) {
+                on mousedown(e) { e.preventDefault() }          // the editor keeps the focus
+                on click { Completions.pick(i) }
+            }
+        }
+    }
+}
+
+// AGENTS.md
+page Doc(path: "/") {
     navigate("/path")                    // Programmatic
     Link("About", to: "/about")          // Declarative
 }

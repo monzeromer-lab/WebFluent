@@ -1,6 +1,7 @@
 //! Running a project's tests: every `test "…" { … }` under `tests/` (and in
 //! `src/`), rendered through the template engine over its data, held to what
-//! it expects and to its snapshot; and a test that acts, built as a site of
+//! it expects and to its snapshot; and a test that acts — or one that looks
+//! at a `Portal`, whose block only a running page draws — built as a site of
 //! one page and played in a browser.
 //!
 //! A test's body renders with the project's components, stores, types,
@@ -178,9 +179,19 @@ pub fn collect(path: &Path) -> Result<Tests> {
 }
 
 impl Tests {
-    /// How many of the tests act, and so need a browser.
+    /// How many of the tests are run in a browser ([`Tests::in_browser`]).
     pub fn acting(&self) -> usize {
-        self.tests.iter().filter(|(_, t)| t.acts()).count()
+        self.tests
+            .iter()
+            .filter(|(_, t)| self.in_browser(t))
+            .count()
+    }
+
+    /// Whether `test` is run in a browser rather than rendered: it acts —
+    /// a click is not something a renderer can do — or what it draws holds
+    /// a `Portal`, whose block only a running page draws.
+    pub fn in_browser(&self, test: &TestDecl) -> bool {
+        runs_in_browser(test, &self.shared)
     }
 
     /// Run a test that only looks: render it, hold it to its expects and its
@@ -233,6 +244,55 @@ impl Tests {
             .and_then(|(i, tables)| tables.get(&i.default_locale).cloned())
             .unwrap_or_default()
     }
+}
+
+/// Whether `test` is run in a browser, with `declarations` the components
+/// it may place: it acts, or what it draws holds a `Portal`.
+pub fn runs_in_browser(test: &TestDecl, declarations: &[Declaration]) -> bool {
+    test.acts() || draws_portal(&test.body, declarations, &mut Vec::new())
+}
+
+/// Whether `body`, or a component it places, draws a `Portal`. A render
+/// paints only a portal's place: its block is drawn into a node the running
+/// page has, so a test that looks at one is run in a browser.
+fn draws_portal<'a>(
+    body: &'a [Statement],
+    shared: &'a [Declaration],
+    seen: &mut Vec<&'a str>,
+) -> bool {
+    body.iter().any(|stmt| match &stmt.kind {
+        StatementKind::UIElement(el) => {
+            let own = match &el.component {
+                ComponentRef::BuiltIn(name) => name == "Portal",
+                ComponentRef::UserDefined(name) if !seen.contains(&name.as_str()) => {
+                    seen.push(name);
+                    shared.iter().any(|d| {
+                        matches!(d, Declaration::Component(c)
+                            if c.name == *name && draws_portal(&c.body, shared, seen))
+                    })
+                }
+                _ => false,
+            };
+            own || draws_portal(&el.children, shared, seen)
+                || el
+                    .slot_fills
+                    .iter()
+                    .any(|f| draws_portal(&f.body, shared, seen))
+        }
+        StatementKind::If(i) => {
+            draws_portal(&i.then_body, shared, seen)
+                || i.else_if_branches
+                    .iter()
+                    .any(|(_, b)| draws_portal(b, shared, seen))
+                || i.else_body
+                    .as_deref()
+                    .is_some_and(|b| draws_portal(b, shared, seen))
+        }
+        StatementKind::For(f) => draws_portal(&f.body, shared, seen),
+        StatementKind::Show(s) => draws_portal(&s.body, shared, seen),
+        StatementKind::Match(m) => m.arms.iter().any(|a| draws_portal(&a.body, shared, seen)),
+        _ => false,
+    })
 }
 
 /// The rendered fragment of one test: its body as a page over the shared

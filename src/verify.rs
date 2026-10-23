@@ -157,6 +157,7 @@ pub fn undrawn(drew: &BTreeSet<String>) -> Vec<String> {
                     | "Unsafe"
                     | "UnsafeHtml"
                     | "Host"
+                    | "Portal"
                     | "Document"
                     | "Header"
                     | "Footer"

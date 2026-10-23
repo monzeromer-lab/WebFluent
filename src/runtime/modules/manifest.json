@@ -650,6 +650,10 @@
         [
           "attach",
           "attach"
+        ],
+        [
+          "portal",
+          "portal"
         ]
       ],
       "name": "host",

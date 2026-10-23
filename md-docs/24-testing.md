@@ -110,6 +110,19 @@ one runs it; a test that only looks renders without them.
 
 A test that acts takes no snapshot. What it expects is the test.
 
+A test that looks at a `Portal` is run the same way. A render paints only
+where a portal is — its block is drawn by the running page, into the node
+`into:` names — so a test whose body, or a component it places, holds one is
+compiled into a page and run in the browser too, with no snapshot:
+
+```wf
+test "a portal draws into the element a handle names" {
+    Stack(ref: spot)
+    Portal(into: spot) { Text("in") }
+    expect "in"
+}
+```
+
 ## Seeding data and stores
 
 A test's `data:` names values its body reads, and a key that is a store's

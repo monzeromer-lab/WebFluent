@@ -240,7 +240,7 @@ Everything static draws. What only means something in a browser is refused
 where it is written (`E109`): controls (`Button`, `Input`, `Form`, …),
 navigation (`Router`, `Navbar`, `Tabs`, `Menu`), overlays (`Modal`,
 `Dialog`, `Toast`, `Tooltip`), media that plays (`Video`, `Audio`,
-`Carousel`), elements a script draws (`Host`, `Element`), handlers,
+`Carousel`), elements a script draws (`Host`, `Element`, `Portal`), handlers,
 `resource`, motion.
 
 `wf init my-report --template pdf` scaffolds one.

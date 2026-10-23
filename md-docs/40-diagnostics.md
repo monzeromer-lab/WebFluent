@@ -568,6 +568,10 @@ error[C01]: `Todo(…)` leaves out `id` of `Todo`, which has no default
 **Fix:** Give it, or declare a default in the type (`id: String = ""`) or
 on the prop.
 
+A built-in that cannot be placed without a prop is held to it the same way:
+a `Portal` with no `into:` would draw nowhere, and the fix passes
+`into: null` for you to name the node.
+
 ### C02 — A prop the component does not declare
 
 ```wf expect C02

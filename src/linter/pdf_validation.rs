@@ -71,7 +71,7 @@ fn refusal(name: &str) -> &'static str {
         "Router" | "Route" | "Navbar" | "Sidebar" | "Menu" | "Tabs" | "TabPage" => {
             "navigation components are web-only"
         }
-        "Host" | "Element" => "a script draws it in a browser, and a PDF runs no script",
+        "Host" | "Element" | "Portal" => "a script draws it in a browser, and a PDF runs no script",
         "Video" | "Audio" | "Carousel" => "a PDF cannot play or animate it",
         "Frame" => "a PDF cannot show another page inside it",
         _ => "this component is not supported in PDF output",
@@ -312,6 +312,7 @@ mod tests {
             "Carousel",
             "Host",
             "Element",
+            "Portal",
             "TabPage",
             "Option",
             "Route",

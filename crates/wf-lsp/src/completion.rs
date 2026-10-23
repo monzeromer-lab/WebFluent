@@ -2106,13 +2106,27 @@ fn icons() -> Vec<CompletionItem> {
         .collect()
 }
 
-/// A call snippet for a built-in: its positional prop, if any.
+/// A call snippet for a built-in: its positional prop, if any, and every
+/// prop it cannot be placed without (`Portal(into: null)`), so what is
+/// inserted is never a `C01`.
 fn builtin_snippet(sig: &ComponentSig) -> String {
-    match (&sig.positional, sig.children) {
-        (Some(p), Children::Elements) => format!("{}(${{1:{}}}) {{\n\t$0\n}}", sig.name, p.name),
-        (Some(p), Children::None) => format!("{}(${{1:{}}})", sig.name, p.name),
-        (None, Children::Elements) => format!("{} {{\n\t$0\n}}", sig.name),
-        (None, Children::None) => sig.name.to_string(),
+    let mut args: Vec<String> = sig
+        .positional
+        .iter()
+        .map(|p| format!("${{1:{}}}", p.name))
+        .collect();
+    for p in sig.props.iter().filter(|p| p.required) {
+        let stop = args.len() + 1;
+        args.push(format!("{}: ${{{stop}:{}}}", p.name, p.empty_value()));
+    }
+    let call = if args.is_empty() {
+        sig.name.to_string()
+    } else {
+        format!("{}({})", sig.name, args.join(", "))
+    };
+    match sig.children {
+        Children::Elements => format!("{call} {{\n\t$0\n}}"),
+        Children::None => call,
     }
 }
 

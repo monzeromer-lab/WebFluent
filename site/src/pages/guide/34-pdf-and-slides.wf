@@ -142,7 +142,7 @@ page Report(path: "/", title: "Sales", description: "The quarter.") {
 
         Heading("What a PDF does not draw", id: "what-a-pdf-does-not-draw").h3
 
-        Markdown("Everything static draws. What only means something in a browser is refused where it is written (`E109`): controls (`Button`, `Input`, `Form`, …), navigation (`Router`, `Navbar`, `Tabs`, `Menu`), overlays (`Modal`, `Dialog`, `Toast`, `Tooltip`), media that plays (`Video`, `Audio`, `Carousel`), elements a script draws (`Host`, `Element`), handlers, `resource`, motion.\n\n`wf init my-report --template pdf` scaffolds one.")
+        Markdown("Everything static draws. What only means something in a browser is refused where it is written (`E109`): controls (`Button`, `Input`, `Form`, …), navigation (`Router`, `Navbar`, `Tabs`, `Menu`), overlays (`Modal`, `Dialog`, `Toast`, `Tooltip`), media that plays (`Video`, `Audio`, `Carousel`), elements a script draws (`Host`, `Element`, `Portal`), handlers, `resource`, motion.\n\n`wf init my-report --template pdf` scaffolds one.")
 
         Heading("Slide decks", id: "slide-decks").h2
 

@@ -47,7 +47,11 @@ def prop_row(p, positional=False):
     else:
         ty = p["type"]
     name = p["name"] if positional else f"{p['name']}:"
-    return {"name": name, "type": ty + ("  (positional)" if positional else ""), "meaning": p["summary"]}
+    if positional:
+        ty += "  (positional)"
+    elif p.get("required"):
+        ty += "  (required)"
+    return {"name": name, "type": ty, "meaning": p["summary"]}
 
 
 def signature(c, owner=None):

@@ -1,0 +1,14 @@
+// A render paints only where a portal is: its block is drawn by the running
+// page, into the node `into:` names. So a test that looks at one is run in a
+// browser, as one that clicks is.
+test "a portal draws its block into the element a handle names" {
+    Stack(ref: box)
+    Portal(into: box) { Text("in") }
+    expect "in"
+}
+test "a portal into nothing keeps its block aside" {
+    Portal(into: null) { Text("kept aside") }
+    Text("the page")
+    expect "the page"
+    expect not "kept aside"
+}

@@ -3304,6 +3304,41 @@
    "cssClass": "wf-host"
   },
   {
+   "name": "Portal",
+   "slug": "portal",
+   "group": "Layout",
+   "summary": "Its block, drawn into a node somebody else's code owns: an element a script hands over, or a `ref:` handle. When `into:` names another node the block moves there with its nodes and state; `null` keeps it aside until a node comes back; it goes when the page, branch or list item it is written in leaves. What is inside belongs to where it is written: its handlers, `emit` and lifetimes.",
+   "plain": "Its block, drawn into a node somebody else's code owns: an element a script hands over, or a ref: handle. When into: names another node the block moves there with its nodes and state; null keeps it aside until a node comes back; it goes when the page, branch or list item it is written in leaves. What is inside belongs to where it is written: its handlers, emit and lifetimes.",
+   "signature": "Portal(into: \u2026) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "into:",
+     "type": "Any  (required)",
+     "meaning": "Where it draws: an element, a `ref:` handle, or `null` to keep it aside; read again whenever what it reads changes"
+    }
+   ],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Container",
+    "Row",
+    "Column",
+    "Grid"
+   ],
+   "example": "Stack(ref: panel)\nPortal(into: panel) { Text(\"Drawn inside the stack\") }\nPortal(into: editorHost(\"hover\"), data-popup: \"hover\") { Text(\"What the tooltip says\") }",
+   "cssClass": "wf-portal"
+  },
+  {
    "name": "Element",
    "slug": "element",
    "group": "Layout",
@@ -4666,5 +4701,5 @@
   "panel-down",
   "panel-up"
  ],
- "count": 76
+ "count": 77
 }

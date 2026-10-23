@@ -61,8 +61,9 @@ const BUILTIN_COMPONENTS = [
   "Image", "Video", "Audio", "Frame", "Icon", "Carousel",
   // Typography
   "Text", "Heading", "Code", "Blockquote", "Markdown", "Unsafe",
-  // A node handed to somebody else's code, and a custom element by its tag.
-  "Host", "Element",
+  // A node handed to somebody else's code, a custom element by its tag, and
+  // a block drawn into a node somebody else's code owns.
+  "Host", "Element", "Portal",
   // Document (PDF)
   "Document", "Section", "Paragraph", "PageBreak", "Header", "Footer",
   "Background", "Watermark", "TableOfContents", "Chart", "QrCode",

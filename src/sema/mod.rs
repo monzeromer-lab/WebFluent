@@ -161,6 +161,13 @@ impl Checker<'_, '_> {
         });
     }
 
+    /// A fix for the error just reported.
+    fn plan_last_error(&mut self, title: String, plan: crate::diagnostics::fixes::Plan) {
+        if let Some(d) = self.findings.errors.pop() {
+            self.findings.errors.push(d.with_plan(title, plan));
+        }
+    }
+
     /// A fix for the warning just reported.
     fn plan_last_warning(&mut self, title: String, plan: crate::diagnostics::fixes::Plan) {
         if let Some(d) = self.findings.warnings.pop() {
@@ -608,6 +615,39 @@ impl Checker<'_, '_> {
                     }
                 }
             }
+        }
+        // A prop the built-in cannot be placed without — `Portal`'s
+        // `into:` — is held to as a component's prop with no default is.
+        for prop in sig.props.iter().filter(|p| p.required) {
+            let given = el
+                .args
+                .iter()
+                .any(|a| matches!(a, Arg::Named(k, _) if k == prop.name));
+            if given {
+                continue;
+            }
+            let mut summary = prop.summary.to_string();
+            if let Some(first) = summary.get(..1) {
+                summary.replace_range(..1, &first.to_lowercase());
+            }
+            self.error(
+                span,
+                "C01",
+                format!(
+                    "`{name}` is placed without `{}:`, which it needs",
+                    prop.name
+                ),
+                &format!("Pass `{}:` — {summary}", prop.name),
+            );
+            // Its type's empty value, as a component's missing prop is
+            // given one; for `Portal` it is `null`, which keeps the block
+            // aside until a node is named.
+            self.plan_last_error(
+                format!("Pass `{}:`", prop.name),
+                crate::diagnostics::fixes::Plan::AddArgument {
+                    text: format!("{}: {}", prop.name, prop.empty_value()),
+                },
+            );
         }
         // `VirtualList { for row in rows by row.id { … } }`: one keyed
         // `for`, or nothing is windowed.

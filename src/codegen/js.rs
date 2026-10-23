@@ -2562,6 +2562,9 @@ impl JsCodegen {
                                 // (HTML's own `inert` takes the element
                                 // out of reach).
                                 "inert" if name == "Markdown" => {}
+                                // Where a `Portal` draws, read by its own
+                                // emitter; never an attribute.
+                                "into" if name == "Portal" => {}
                                 // `maxLength` and `rows` are the textarea's,
                                 // written as HTML writes them.
                                 "maxLength" => {
@@ -2951,6 +2954,10 @@ impl JsCodegen {
                     }
                     "VirtualList" => {
                         self.emit_virtual_list(&var, ui, parent);
+                        true
+                    }
+                    "Portal" => {
+                        self.emit_portal(&var, &attrs_str, ui, parent);
                         true
                     }
                     "Popover" => {
@@ -3666,6 +3673,50 @@ impl JsCodegen {
                 "{var}.addEventListener(\"{}\", {head} => {{ {body} }});",
                 handler.event
             )
+        }
+    }
+
+    /// `Portal(into: node) { … }`: the block, drawn into a box that is put
+    /// in a node somebody else's code owns, and follows `into:`.
+    ///
+    /// Where it is written there is a marker and nothing else, so a branch
+    /// or a list item that holds only a portal still has a node of its own.
+    /// The box is placed before the block is drawn, so the block is built
+    /// into a node already in the page when the target is; and the block is
+    /// drawn here, in the scope the portal is written in, so its effects,
+    /// handlers, `emit` and cleanups are that scope's. The lifetimes it asks
+    /// for (`mount:`) are held until it is whole.
+    ///
+    /// The block is written at the level the portal is, as any element's
+    /// children are, never inside a block of its own: a `derived` value or
+    /// an action declared in it is read after it as one declared in a
+    /// `Stack` is. A block that throws never reaches the line that lets its
+    /// lifetimes go, and the runtime lets them go once the drawing is over.
+    fn emit_portal(&mut self, var: &str, attrs: &str, ui: &UIElement, parent: &str) {
+        let into = ui
+            .args
+            .iter()
+            .find_map(|a| match a {
+                Arg::Named(k, v) if k == "into" => Some(self.emit_expr(v)),
+                _ => None,
+            })
+            .unwrap_or_else(|| "null".to_string());
+        self.emit_line(&format!("const {var} = WF.el(\"div\", {attrs});"));
+        self.emit_line(&format!(
+            "{parent}.appendChild(document.createComment(\"wf-portal\"));"
+        ));
+        let release = format!("{var}_drawn");
+        self.emit_line(&format!(
+            "const {release} = WF.portal({var}, () => {into});"
+        ));
+        for child in &ui.children {
+            self.emit_statement_dom(child, var);
+        }
+        self.emit_line(&format!("{release}();"));
+        for handler in &ui.events {
+            let body = self.emit_event_body(handler);
+            let line = self.element_listener(var, handler, &body);
+            self.emit_line(&line);
         }
     }
 

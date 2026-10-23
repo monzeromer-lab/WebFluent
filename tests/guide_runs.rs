@@ -67,11 +67,12 @@ fn page_examples(markdown: &str) -> Vec<(usize, String)> {
             whole
                 && src.lines().any(|l| l.starts_with("page "))
                 && !src.contains('…')
-                // Paper, a canvas a library from a CDN draws into, a file on
-                // disk, or a deliberate failure: nothing a fake DOM can stand
-                // for.
+                // Paper, a canvas or an editor a library from a CDN draws
+                // into, a file on disk, or a deliberate failure: nothing a
+                // fake DOM can stand for.
                 && !src.contains("Document(")
                 && !src.contains("Host(tag: \"canvas\"")
+                && !src.contains("startEditor(")
                 && !src.contains("Presentation")
                 && !src.contains("data ")
                 && !src.contains("image ")

@@ -132,6 +132,10 @@ jobs:
         working-directory: tests/browser
         run: node worker.mjs
 
+      - name: Portals
+        working-directory: tests/browser
+        run: node portal.mjs
+
       - name: Pictures
         working-directory: tests/browser
         run: node pictures.mjs

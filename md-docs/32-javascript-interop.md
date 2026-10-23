@@ -4,7 +4,7 @@
 route: guide/interop
 group: shipping
 blurb: Write plain JavaScript beside your pages and call it by name; load a library from a CDN; hand an element to a script and get it back; place custom elements; publish your components for any framework.
-description: Your own .js files under src/, libraries via meta.scripts, mount and cleanup on any element, wf:render, Element for custom elements, and publishing yours.
+description: Your own .js under src/, libraries via meta.scripts, mount and cleanup on any element, Portal, wf:render, Element for custom elements, and publishing yours.
 -->
 
 WebFluent has no package manager of its own, and does not need one to use
@@ -16,6 +16,7 @@ the JavaScript ecosystem. A `.js` file is part of the project the way a
 | call JavaScript of your own | a `.js` file under `src/` |
 | use a library from a CDN | `meta.scripts` in the config |
 | hand an element to a script, and take it back | `mount:`, `update:`, `cleanup:` on any element |
+| draw into a node a script made — a tooltip, a popup | `Portal(into: node) { … }` |
 | let a script find elements itself | the `wf:render` event |
 | place somebody else's custom element | `Element("tag-name", …)` |
 | use your components from React, Vue or a plain page | `output_type: "elements"` |
@@ -229,6 +230,133 @@ Every element and every component call takes the three:
 `Host` is the same lifetime on a bare node: `Host(tag: "canvas", …)` makes
 the element a library wants — `div` by default, or `span`, `canvas`, `svg`,
 `section`, `figure`, `pre`, `p`, `ul`, `table`.
+
+## `Portal` — drawing into a node a script made
+
+Some libraries make a node and leave it empty for the page to fill: an
+editor's tooltip, a map's popup, a chart's legend. `Portal(into: node)
+{ … }` draws its block there. The library keeps the node's place, its keys
+and its focus; the page keeps what is in it.
+
+CodeMirror, loaded from `meta.scripts` as `CM`, with a hover tooltip whose
+words the page draws:
+
+```js
+// src/editor.js
+// CodeMirror places each tooltip and keeps its keys; the node it makes is
+// left empty, and the page draws what is in it.
+const tooltips = new Map();
+let made = 0;
+
+/**
+ * The node CodeMirror made for a tooltip, or null once it has gone.
+ * @param {string} id
+ * @returns {HTMLElement|null}
+ */
+function editorHost(id) {
+  return tooltips.get(id) ?? null;
+}
+
+/**
+ * An editor in `node`. `opened(id, text)` hears a tooltip open, with the
+ * words under the pointer; `closed(id)` hears it close.
+ * @param {HTMLElement} node
+ * @param {(id: string, text: string) => void} opened
+ * @param {(id: string) => void} closed
+ */
+function startEditor(node, opened, closed) {
+  const hover = CM.hoverTooltip((view, pos) => ({
+    pos,
+    create() {
+      const id = `hover-${++made}`;
+      const dom = document.createElement("div");
+      tooltips.set(id, dom);
+      opened(id, view.state.doc.lineAt(pos).text);
+      return { dom, destroy() { tooltips.delete(id); closed(id); } };
+    },
+  }));
+  return new CM.EditorView({ parent: node, extensions: [CM.basicSetup, hover] });
+}
+```
+
+```wf
+page Edit(path: "/edit", title: "Edit", description: "An editor whose tooltip the page draws.") {
+    state tip: String? = null
+    state words = ""
+    action opened(id: String, text: String) {
+        tip = id
+        words = text
+    }
+    action closed(id: String) {
+        if tip == id { tip = null }
+    }
+
+    Heading("Edit").h1
+    Host(mount: (n) => startEditor(n, opened, closed), cleanup: (view) => view.destroy())
+    if let id = tip {
+        Portal(into: editorHost(id), data-popup: "hover") {
+            Text(words)
+        }
+    }
+}
+```
+
+- **Where it goes is read again.** `into:` is read like any other
+  expression: when a state or a list item it reads changes, it is read
+  again. A tooltip that replaces another has a new id, so the block
+  follows it to the new node.
+- **It moves; it is not drawn again.** Named another node, the same box
+  goes there with its nodes and their state — a field half typed in, a
+  list scrolled halfway. `null` keeps it aside, and when a node is named
+  again the same nodes come back.
+- **It belongs to where it is written.** Its handlers, its `emit`, the
+  state it reads and changes, its `mount:` and `cleanup:` are the page's or
+  the component's it is written in; the node is only where they are drawn.
+  A `mount:` inside it runs once the block is drawn and in place, so it
+  meets its node in the document when the node it goes into is there.
+- **It goes with its scope.** When the page, the branch or the list item
+  it is written in leaves, the box leaves the node with it. The node is the
+  library's, and stays.
+- **The box adds nothing.** It is a `div` with `display: contents`, so the
+  node lays out the block as if the box were not there; an `id:`, a
+  `class:`, `data-*` and `aria-*` are the box's.
+- **A handle is somewhere too.** `Portal(into: panel)` draws into the
+  element a `ref: panel` names, even one written further down the page.
+  Where it goes is read once more when the drawing is over and the page is
+  in the document, so an element of the page's own found by
+  `document.getElementById` is found too. A handle is not a state: an
+  element it names only later, in an `if` that opens afterwards, is not
+  followed.
+- **Events go up from where it is drawn.** A press inside the block bubbles
+  through the node it is in and that node's parents, not through the
+  elements around the place it is written: an `on click` on a `Stack` that
+  holds the portal does not hear it. Put the handler on the portal, or
+  inside its block.
+- **`show` does not hide it.** `show` hides what is drawn in its own place,
+  and a portal's block is drawn somewhere else. Take it away with `if`, or
+  keep it aside with `into: null`.
+- **Pre-rendered, it is a place.** The static paint has a marker where a
+  portal is and nothing of its block; the live page draws it once its
+  script has run. A test that looks at one is run in a browser
+  ([Testing](24-testing.md)).
+
+A list the library keeps — an editor's completions, each row a node it
+made — is a keyed `for` of portals. A press on a row should leave the focus
+in the editor, and `on mousedown(e) { e.preventDefault() }` does that while
+`on click` still runs:
+
+```wf
+for row, i in Completions.rows by i {
+    Portal(into: editorHost(row.id), data-popup: "row") {
+        Text(row.label) {
+            on mousedown(e) { e.preventDefault() }
+            on click { Completions.pick(i) }
+        }
+    }
+}
+```
+
+Left out, `into:` is a `C01`.
 
 ## `wf:render` — for a script that finds elements itself
 
