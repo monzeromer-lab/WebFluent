@@ -254,16 +254,19 @@ pub const ENTITIES: &[(&str, char)] = &[
 ];
 
 /// The character an entity's body (`lt`, `#60`, `#x3C`) stands for, or
-/// `None` for a name the table does not have. A number that is no
-/// character a page may hold — NUL, a surrogate, a control character, one
-/// past U+10FFFF — is U+FFFD, as a browser draws it.
+/// `None` for a name the table does not have. A number may have any
+/// number of digits, as in a browser (`&#00060;` is `<`); one that is no
+/// character a page should hold — NUL, a surrogate, a control character,
+/// one past U+10FFFF — is U+FFFD.
 fn entity(body: &str) -> Option<char> {
     let Some(number) = body.strip_prefix('#') else {
         return ENTITIES.iter().find(|(n, _)| *n == body).map(|(_, c)| *c);
     };
+    // The pattern let only digits through, so a number that does not
+    // parse is one too large for any character.
     let code = match number.strip_prefix(['x', 'X']) {
-        Some(hex) => u32::from_str_radix(hex, 16).ok()?,
-        None => number.parse::<u32>().ok()?,
+        Some(hex) => u32::from_str_radix(hex, 16).unwrap_or(u32::MAX),
+        None => number.parse::<u32>().unwrap_or(u32::MAX),
     };
     let refused = code == 0
         || (code < 0x20 && !matches!(code, 0x9 | 0xA | 0xD))
@@ -298,7 +301,7 @@ fn inline(text: &str, options: Options) -> String {
     let em = EM.get_or_init(|| Regex::new(r"\*([^*]+)\*").unwrap());
     let em2 = EM2.get_or_init(|| Regex::new(r"(^|[^A-Za-z0-9])_([^_]+)_($|[^A-Za-z0-9])").unwrap());
     let entity_re = ENTITY.get_or_init(|| {
-        Regex::new(r"&amp;(#[0-9]{1,7}|#[xX][0-9a-fA-F]{1,6}|[A-Za-z][A-Za-z0-9]{1,31});").unwrap()
+        Regex::new(r"&amp;(#[0-9]+|#[xX][0-9a-fA-F]+|[A-Za-z][A-Za-z0-9]{1,31});").unwrap()
     });
 
     let escaped = escape(text);
@@ -526,12 +529,14 @@ mod tests {
             inert("&#42;&#42;x&#42;&#42; &#91;a&#93;(b)"),
             "<p>**x** [a](b)</p>\n"
         );
-        // A name the table does not have, and a number that is no
-        // character, are what a browser makes of them.
+        // A name the table does not have is kept as written; a number
+        // that is no character is U+FFFD, however many digits it has.
         assert_eq!(
-            inert("&bogus; &#0; &#xD800; &#x110000; &#1; &#99999999;"),
-            "<p>&amp;bogus; \u{FFFD} \u{FFFD} \u{FFFD} \u{FFFD} &amp;#99999999;</p>\n"
+            inert("&bogus; &#0; &#xD800; &#x110000; &#1; &#99999999; &#x123456789ABCDEF0;"),
+            "<p>&amp;bogus; \u{FFFD} \u{FFFD} \u{FFFD} \u{FFFD} \u{FFFD} \u{FFFD}</p>\n"
         );
+        // Leading zeros are digits like any other.
+        assert_eq!(inert("&#00000060;&#x000003E;"), "<p>&lt;&gt;</p>\n");
         // The renderer's own markers cannot arrive in the text.
         assert_eq!(
             inert("a\u{0}0\u{0}b `c`"),

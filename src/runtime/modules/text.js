@@ -27,7 +27,7 @@
     strong: new RegExp("\\*\\*([^*]+)\\*\\*", "g"),
     em: new RegExp("\\*([^*]+)\\*", "g"),
     em2: new RegExp("(^|[^A-Za-z0-9])_([^_]+)_($|[^A-Za-z0-9])", "g"),
-    entity: new RegExp("&amp;(#[0-9]{1,7}|#[xX][0-9a-fA-F]{1,6}|[A-Za-z][A-Za-z0-9]{1,31});", "g"),
+    entity: new RegExp("&amp;(#[0-9]+|#[xX][0-9a-fA-F]+|[A-Za-z][A-Za-z0-9]{1,31});", "g"),
     edges: new RegExp("^[ \\t\\n]+|[ \\t\\n]+$", "g"),
     markers: new RegExp("[\\u0000\\u0001]", "g"),
   };
@@ -43,8 +43,9 @@
     yen: "\u00a5", cent: "\u00a2", sect: "\u00a7", para: "\u00b6",
   };
   /// The character an entity's body (`lt`, `#60`, `#x3C`) stands for, or
-  /// null for a name the table does not have. A number that is no
-  /// character a page may hold is U+FFFD, as a browser draws it.
+  /// null for a name the table does not have. A number may have any number
+  /// of digits (`&#00060;` is `<`); one that is no character a page should
+  /// hold is U+FFFD.
   function mdEntity(body) {
     if (body[0] !== "#") return Object.prototype.hasOwnProperty.call(MD_NAMED, body) ? MD_NAMED[body] : null;
     const code = body[1] === "x" || body[1] === "X" ? parseInt(body.slice(2), 16) : parseInt(body.slice(1), 10);
@@ -291,7 +292,12 @@
     // The two characters the renderer marks its own places with cannot
     // arrive in text somebody else wrote.
     if (inert) source = source.replace(MD.markers, "\ufffd");
-    const lines = source.split("\n");
+    // Lines as the compiler's `str::lines` has them: split at `\n` or
+    // `\r\n`, with no empty line after the last newline. A fence left
+    // open at the end, or a text with Windows line endings, is painted
+    // the same at build time and here.
+    const lines = source.split(/\r?\n/);
+    if (lines[lines.length - 1] === "") lines.pop();
     let out = "";
     let i = 0;
     const isBlock = (t) => t === "" || t.startsWith("```") || t === "---" || t === "***" || mdHeading(t) || t.startsWith(">") || mdListItem(t);

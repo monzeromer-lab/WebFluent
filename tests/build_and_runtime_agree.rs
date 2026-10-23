@@ -434,9 +434,39 @@ fn the_static_paint_shows_what_the_runtime_computes() {
     );
 }
 
+/// Texts put together from the pieces Markdown is made of, by a fixed
+/// sequence: the case table holds what was thought of, and these the
+/// orders nobody would think to write — a fence left open at the end, a
+/// Windows line ending in a list, an entity against a link's bracket.
+fn markdown_mixtures(count: usize) -> Vec<String> {
+    #[rustfmt::skip]
+    const PIECES: &[&str] = &[
+        "a", "b ", " ", "  ", "\n", "\n\n", "\r\n", "`", "``", "*", "**", "_", "[", "]", "(", ")",
+        "!", "](", "![", "[a](", "#", "# ", "> ", "- ", "1. ", "```\n", "```wf\n", "---", "\\", "<",
+        ">", "\"", "'", "&", ";", "&lt;", "&amp;", "&#42;", "&#x5F;", "&#96;", "&#000060;", "&#0;",
+        "&#x110000;", "&nbsp;", "&bogus;", "/x", "//h/y", "x.png", "https://a.b/c", "mailto:",
+        "javascript:", "JavaScript:", "data:", "x:y", "\u{1f}", "\u{0}", "\u{1}", "\t", "\u{a0}",
+        "é",
+    ];
+    let mut seed: u64 = 0x9e37_79b9_7f4a_7c15;
+    let mut next = move || {
+        seed ^= seed << 13;
+        seed ^= seed >> 7;
+        seed ^= seed << 17;
+        seed as usize
+    };
+    (0..count)
+        .map(|_| {
+            let len = next() % 14 + 1;
+            (0..len).map(|_| PIECES[next() % PIECES.len()]).collect()
+        })
+        .collect()
+}
+
 /// The Markdown texts both renderers are given: the shared case table's,
-/// each drawn plain and inert with and without a base path, and every
-/// entity the inert form decodes, by name and by number.
+/// every entity the inert form decodes, by name and by number, and a few
+/// thousand mixtures, each drawn plain and inert with and without a base
+/// path.
 fn markdown_inputs() -> Vec<(String, bool, &'static str)> {
     let raw = std::fs::read_to_string(root().join("tests/markdown-cases.json")).unwrap();
     let cases: Vec<(String, serde_json::Value, String)> = serde_json::from_str(&raw).unwrap();
@@ -447,6 +477,7 @@ fn markdown_inputs() -> Vec<(String, bool, &'static str)> {
             *ch as u32, *ch as u32
         ));
     }
+    texts.extend(markdown_mixtures(3000));
     let mut inputs = Vec::new();
     for text in texts {
         for inert in [false, true] {
@@ -517,6 +548,30 @@ console.log(JSON.stringify(inputs.map(([text, inert, base]) => {{
         "the page paints one Markdown before its script runs and another after:\n{}",
         wrong.join("\n")
     );
+}
+
+/// The runtime decodes the named entities the compiler does, and no
+/// others: one name more on either side is a page whose words change when
+/// its script runs.
+#[test]
+fn the_runtime_names_the_entities_the_compiler_does() {
+    let source = std::fs::read_to_string(root().join("src/runtime/modules/text.js")).unwrap();
+    let table = source
+        .split("const MD_NAMED = {")
+        .nth(1)
+        .and_then(|rest| rest.split("};").next())
+        .expect("the runtime's MD_NAMED table");
+    let runtime: BTreeSet<String> = table
+        .split(',')
+        .filter_map(|pair| pair.split(':').next())
+        .map(|name| name.trim().to_string())
+        .filter(|name| !name.is_empty())
+        .collect();
+    let compiler: BTreeSet<String> = webfluent::codegen::markdown::ENTITIES
+        .iter()
+        .map(|(name, _)| name.to_string())
+        .collect();
+    assert_eq!(runtime, compiler);
 }
 
 /// Every runtime module is concatenated into one closure, so a name one

@@ -36,7 +36,7 @@ These are properties of the output, not advice. You do not opt in.
 - **Markdown is escaped first.** `Markdown(text)` renders the small
   Markdown it documents and shows any HTML in the text rather than running
   it. Its links and pictures go through the same scheme check as every
-  other URL: `[x](javascript:alert(1))` is drawn as the word `x`, with no
+  other URL: a link to a `javascript:` URL is drawn as its words, with no
   link, at build time and in the browser alike. For text somebody else
   wrote, such as a language server's documentation, `Markdown(text).inert`
   draws no link or picture at all
