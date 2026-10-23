@@ -14,7 +14,7 @@ import { makeDom } from "./dom.mjs";
 import { runtimeFor } from "./runtime.mjs";
 
 /// The runtime, with the globals the motion engine reaches for.
-function run({ reducedMotion = false, tokens = {} } = {}) {
+function run({ reducedMotion = false, tokens = {}, module = "show" } = {}) {
   const dom = makeDom();
   const { window, document } = dom;
   for (const [name, value] of Object.entries(tokens)) window.tokens.set(name, value);
@@ -25,7 +25,7 @@ function run({ reducedMotion = false, tokens = {} } = {}) {
   const fn = new Function(
     "window", "document", "Node", "Element", "DocumentFragment", "setTimeout",
     "getComputedStyle", "IntersectionObserver", "requestAnimationFrame",
-    `${runtimeFor("show")}\nreturn WF;`,
+    `${runtimeFor(module)}\nreturn WF;`,
   );
   const WF = fn(
     window, document, dom.Node, dom.Element, dom.DocumentFragment,
@@ -293,4 +293,47 @@ test("an animation the page never painted settles at its end, not its start", as
   await done;
   assert.equal(animation.committed, true, "the end state was written to the element");
   assert.equal(animation.playState, "idle", "and the animation was taken off it");
+});
+
+test("a keyed list measures only the items that move: none as it grows at its end, or when keyed by its index", async () => {
+  const { WF, document } = run({ module: "each" });
+  const parent = document.createElement("ul");
+  document.body.appendChild(parent);
+  const items = WF.signal([{ id: 1 }, { id: 2 }, { id: 3 }]);
+  let measured = 0;
+  WF.each(parent, () => items(), (item) => {
+    const li = WF.el("li", {}, [String(item.id)]);
+    const rect = li.getBoundingClientRect.bind(li);
+    li.getBoundingClientRect = () => { measured++; return rect(); };
+    return li;
+  }, { key: (item) => item.id });
+  // A long log appended to: nothing moves, nothing is read.
+  for (let n = 4; n < 40; n++) items.set([...items(), { id: n }]);
+  assert.equal(measured, 0, "an append moves nothing, so reads no place");
+  assert.equal(parent.children.length, 39);
+  // A reverse moves every one: each is read where it was and where it went.
+  measured = 0;
+  items.set(items().slice().reverse());
+  assert.ok(measured >= 39, `a move reads the places of what moves (${measured})`);
+  // Only the one that moves: the first taken to the end.
+  measured = 0;
+  const now = items();
+  items.set([...now.slice(1), now[0]]);
+  assert.ok(measured > 0 && measured <= 2 * 39, `${measured}`);
+
+  // Keyed by its index (`by i`), a log cut at its front moves nothing either.
+  const log = document.createElement("ul");
+  document.body.appendChild(log);
+  const lines = WF.signal(Array.from({ length: 30 }, (_, i) => ({ t: "line " + i })));
+  let read = 0;
+  WF.each(log, () => lines(), (item, i, itemOf) => {
+    const li = WF.el("li", {}, [() => itemOf().t]);
+    const rect = li.getBoundingClientRect.bind(li);
+    li.getBoundingClientRect = () => { read++; return rect(); };
+    return li;
+  }, { key: (_, i) => i, live: true });
+  for (let n = 30; n < 60; n++) lines.set([...lines().slice(1), { t: "line " + n }]);
+  assert.equal(read, 0, "a list keyed by its index keeps every item in its place");
+  assert.equal(log.children[0].textContent, "line 30");
+  await settle();
 });

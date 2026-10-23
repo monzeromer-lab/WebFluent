@@ -50,12 +50,15 @@
         removeNodes(nodes);
       });
     };
-    // Where each kept node was before a change, so a node that moved can
-    // slide from there to where it is now (first, last, invert, play).
-    const positions = () => {
+    // Where each kept node that is about to move was before a change, so it
+    // can slide from there to where it is now (first, last, invert, play).
+    // Only those are measured: reading every row's place forces a layout and
+    // costs each row, and a list that only grows at its end, or is keyed by
+    // its index, moves none.
+    const positions = (moving) => {
       const seen = new Map();
-      if (reducedMotion() || typeof requestAnimationFrame !== "function") return seen;
-      for (const entry of entries.values()) {
+      if (!moving.length || reducedMotion() || typeof requestAnimationFrame !== "function") return seen;
+      for (const entry of moving) {
         for (const drawn of nodesNow(entry.nodes)) {
           const n = inPage(drawn);
           if (n instanceof Element && typeof n.getBoundingClientRect === "function") {
@@ -170,20 +173,34 @@
       untracked(() => {
         const host = start.parentNode;
         if (!host) return;
-        const before = positions();
-        const next = new Map();
-        const seen = new Map();
-        let cursor = start;
+        // Each item's key, two under one key told apart by how many came
+        // before (the author told once).
+        const keys = [];
+        const counted = new Map();
+        const taken = new Set();
         items.forEach((item, index) => {
           let k = key(item, index);
-          if (next.has(k)) {
-            // Two items under one key: the later ones are told apart by
-            // how many came before, and the author is told once.
-            const n = (seen.get(k) || 1) + 1;
-            seen.set(k, n);
+          if (taken.has(k)) {
+            const n = (counted.get(k) || 1) + 1;
+            counted.set(k, n);
             if (n === 2) console.warn("WF: two items of a list share the key " + JSON.stringify(k) + "; add a `by` that tells them apart");
             k = String(k) + "#" + n;
           }
+          taken.add(k);
+          keys.push(k);
+        });
+        // The kept items whose place in the list changes: the ones that
+        // can slide.
+        const moving = [];
+        keys.forEach((k, index) => {
+          const old = entries.get(k);
+          if (old && old.index !== index) moving.push(old);
+        });
+        const before = positions(moving);
+        const next = new Map();
+        let cursor = start;
+        items.forEach((item, index) => {
+          const k = keys[index];
           const old = entries.get(k);
           let entry;
           if (old && live) {
