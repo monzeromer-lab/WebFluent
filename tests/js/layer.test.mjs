@@ -185,6 +185,20 @@ test("with only a tooltip open and focus elsewhere, Escape hides it and goes on 
   assert.equal(tip.hasAttribute("data-open"), true, "the next hover shows it");
 });
 
+test("a tooltip Escape hid shows again when keyboard focus reaches its control", () => {
+  const { WF, document } = loadRuntime();
+  const input = document.createElement("input");
+  document.body.appendChild(input);
+  input.focus();
+  const { button, tip, root } = hovered(WF, document, "Save");
+  press(document, "Escape");
+  assert.equal(tip.hasAttribute("data-open"), false, "hidden, the pointer still on it");
+  // Tab reaches its button: the state the stack wrote back lets it show.
+  button.focus();
+  root.dispatchEvent({ type: "focusin", target: button });
+  assert.equal(tip.hasAttribute("data-open"), true, "focus shows it again");
+});
+
 test("with focus on a tooltip's control, Escape is the tooltip's: it hides and the key is used up", () => {
   const { WF, document } = loadRuntime();
   const anchor = document.createElement("button");
