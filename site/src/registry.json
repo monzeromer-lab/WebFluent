@@ -3335,7 +3335,7 @@
     "Column",
     "Grid"
    ],
-   "example": "Stack(ref: panel)\nPortal(into: panel) { Text(\"Drawn inside the stack\") }\nPortal(into: editorHost(\"hover\"), data-popup: \"hover\") { Text(\"What the tooltip says\") }",
+   "example": "Stack(ref: panel)\nPortal(into: panel) { Text(\"Drawn inside the stack\") }",
    "cssClass": "wf-portal"
   },
   {

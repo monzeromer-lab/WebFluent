@@ -81,7 +81,6 @@ page Doc(path: "/") {
 page Doc(path: "/") {
     Stack(ref: panel)
     Portal(into: panel) { Text("Drawn inside the stack") }
-    Portal(into: editorHost("hover"), data-popup: "hover") { Text("What the tooltip says") }
 }
 
 // md-docs/37-components-reference.md

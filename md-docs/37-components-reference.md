@@ -316,7 +316,6 @@ Portal(into: …) { … }
 ```wf
 Stack(ref: panel)
 Portal(into: panel) { Text("Drawn inside the stack") }
-Portal(into: editorHost("hover"), data-popup: "hover") { Text("What the tooltip says") }
 ```
 
 Renders with the class `wf-portal`.
