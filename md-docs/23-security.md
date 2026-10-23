@@ -21,7 +21,9 @@ These are properties of the output, not advice. You do not opt in.
 
 - **Text is text.** Every string an element shows goes in as a text node.
   There is no path by which `"<script>"` in your data becomes a script. The
-  one exception has `Unsafe` in its name.
+  one exception has `Unsafe` in its name. An `html:` written on an element
+  is an attribute called `html`, as any argument an element does not
+  declare is (`C04`), and never markup.
 - **No inline handlers.** Events bind through `addEventListener`. Writing
   `Button("x", onclick: expr)` is a compile error, because that attribute
   is the one place an attribute value is executed.

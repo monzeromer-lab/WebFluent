@@ -328,6 +328,19 @@
   const lateHooks = {};
   function attrHook(name, fn) { attrHooks[name] = fn; }
   function lateHook(name, fn) { lateHooks[name] = fn; }
+  // An attribute as it is written: a value that reads state is kept in
+  // step with it, and `null` or `false` is no attribute.
+  function plainAttr(el, k, v) {
+    if (typeof v === "function") {
+      effect(() => {
+        const val = v();
+        if (val == null || val === false) el.removeAttribute(k);
+        else el.setAttribute(k, val);
+      });
+    } else if (v != null && v !== false) {
+      el.setAttribute(k, v);
+    }
+  }
   // The studio's signal registry, set by the debug module when it is built in.
   let __regHook = null;
   // Set by the offline module when the config asks for `sync`: what the
@@ -351,7 +364,12 @@
         // pre-rendered page keeps its own element in this one's place
         // only when nothing does (hydrate).
         if (_hyd && (typeof v === "function" || k === "ref" || k === "checked" || k === "value")) _hyd.live.add(el);
-        if (k === "ref" && v && typeof v === "object") {
+        if (k.startsWith("attr:")) {
+          // An author's attribute spelled like a key of the runtime's own
+          // — `html`, `markdown` — is that attribute, never markup: the
+          // compiler writes it so (`attr_key`).
+          plainAttr(el, k.slice(5), v);
+        } else if (k === "ref" && v && typeof v === "object") {
           v.current = el;
         } else if (attrHooks[k]) {
           // An attribute a feature module owns — `markdown`, `highlight`.
@@ -422,14 +440,8 @@
           };
           if (typeof v === "function") effect(() => set(v()));
           else set(v);
-        } else if (typeof v === "function") {
-          effect(() => {
-            const val = v();
-            if (val == null || val === false) el.removeAttribute(k);
-            else el.setAttribute(k, val);
-          });
-        } else if (v != null && v !== false) {
-          el.setAttribute(k, v);
+        } else {
+          plainAttr(el, k, v);
         }
       }
     }

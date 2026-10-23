@@ -2658,22 +2658,20 @@ impl JsCodegen {
                                 _ => {
                                     // Any other named argument is an HTML
                                     // attribute. A hyphenated name (`aria-*`,
-                                    // `data-*`) is quoted; a value that reads
-                                    // state is a thunk, which the runtime
-                                    // keeps in step with it; and one the
-                                    // browser follows goes through the
-                                    // scheme check first.
+                                    // `data-*`) is quoted, and one of the
+                                    // runtime's own keys (`html`) is written
+                                    // as the attribute, not as markup; a
+                                    // value that reads state is a thunk,
+                                    // which the runtime keeps in step with
+                                    // it; and one the browser follows goes
+                                    // through the scheme check first.
                                     let v =
                                         if crate::codegen::url::URL_ATTRS.contains(&key.as_str()) {
                                             self.url_value(val)
                                         } else {
                                             self.emit_expr(val)
                                         };
-                                    let k = if key.contains('-') {
-                                        format!("\"{}\"", key)
-                                    } else {
-                                        key.clone()
-                                    };
+                                    let k = attr_key(key);
                                     if self.is_reactive(&v) {
                                         attrs.push(format!("{}: () => {}", k, v));
                                     } else {
@@ -3265,11 +3263,7 @@ impl JsCodegen {
                             continue;
                         }
                         let value = self.emit_expr(v);
-                        let key = if k.contains('-') {
-                            format!("\"{}\"", k)
-                        } else {
-                            k.clone()
-                        };
+                        let key = attr_key(k);
                         if self.is_reactive(&value) {
                             attrs.push(format!("{}: () => {}", key, value));
                         } else {
@@ -3570,6 +3564,11 @@ impl JsCodegen {
                 self.url_value(value)
             } else {
                 self.emit_expr(value)
+            };
+            let attribute = if RUNTIME_KEYS.contains(&attribute.as_str()) {
+                format!("attr:{attribute}")
+            } else {
+                attribute
             };
             if self.is_reactive(&emitted) {
                 attrs.push(format!("\"{attribute}\": () => {emitted}"));
@@ -4716,13 +4715,14 @@ impl JsCodegen {
     /// that is not one of the component's own props, as `, key: value`.
     /// That is the global attributes (`id:`, `role:`, `tabindex:`, `title:`
     /// …), `aria-*` and `data-*`, a `ref:`, and anything else, which `C04`
-    /// says is written to the element as an attribute. A value that reads
-    /// state follows it, and one the browser follows goes through the
-    /// scheme check first, as on the generic path. Its own props are its
-    /// emitter's, and so is what `reads` names (a `Dropdown` is drawn by
-    /// the menu's emitter, which reads a menu's props); the props every
-    /// element takes (`class:`, motion, a lifetime, a drag) are the shared
-    /// tail's.
+    /// says is written to the element as an attribute — `html:` too, which
+    /// is an attribute of that name and never markup (`attr_key`). A value
+    /// that reads state follows it, and one the browser follows goes
+    /// through the scheme check first, as on the generic path. Its own
+    /// props are its emitter's, and so is what `reads` names (a `Dropdown`
+    /// is drawn by the menu's emitter, which reads a menu's props); the
+    /// props every element takes (`class:`, motion, a lifetime, a drag) are
+    /// the shared tail's.
     fn layer_attrs(&mut self, name: &str, ui: &UIElement, reads: &[&str]) -> String {
         let sig = crate::registry::component(name);
         let mut out = String::new();
@@ -4752,11 +4752,7 @@ impl JsCodegen {
             } else {
                 self.emit_expr(val)
             };
-            let k = if key.contains('-') {
-                format!("\"{key}\"")
-            } else {
-                key.clone()
-            };
+            let k = attr_key(key);
             if self.is_reactive(&value) {
                 out.push_str(&format!(", {k}: () => {value}"));
             } else {
@@ -4844,11 +4840,7 @@ impl JsCodegen {
                     attrs.push(format!("\"aria-disabled\": {read}"));
                 }
                 _ => {
-                    let key = if k.contains('-') {
-                        format!("\"{k}\"")
-                    } else {
-                        k.clone()
-                    };
+                    let key = attr_key(k);
                     attrs.push(format!("{key}: {}", live(self, value)));
                 }
             }
@@ -5487,11 +5479,7 @@ impl JsCodegen {
                     continue;
                 }
                 let value = self.emit_expr(v);
-                let key = if k.contains('-') {
-                    format!("\"{}\"", k)
-                } else {
-                    k.clone()
-                };
+                let key = attr_key(k);
                 if self.is_reactive(&value) {
                     btn_attrs.push_str(&format!(", {}: () => {}", key, value));
                 } else {
@@ -8485,6 +8473,26 @@ pub(crate) fn is_root_attribute(name: &str) -> bool {
             name,
             "id" | "role" | "tabindex" | "title" | "hidden" | "lang" | "dir"
         )
+}
+
+/// The keys `WF.el` gives to a runtime module rather than writing them as
+/// attributes — every `attrHook` the runtime registers. Each puts markup in
+/// the element: `html` (what `Unsafe.Html` draws), `markdown`, `highlight`.
+pub const RUNTIME_KEYS: &[&str] = &["html", "markdown", "highlight"];
+
+/// The key an author's named argument goes to `WF.el` under, to be written
+/// as an attribute: quoted when it is hyphenated (`"aria-label"`), and
+/// spelled `"attr:html"` when it is one of the runtime's own keys, so that
+/// `Stack(html: text)` is an `html` attribute, as `C04` says, and never
+/// markup — the one way markup goes in is `Unsafe.Html`.
+pub(crate) fn attr_key(key: &str) -> String {
+    if RUNTIME_KEYS.contains(&key) {
+        format!("\"attr:{key}\"")
+    } else if key.contains('-') {
+        format!("\"{key}\"")
+    } else {
+        key.to_string()
+    }
 }
 
 /// Whether either side of a comparison is the literal `null`.

@@ -345,3 +345,40 @@ test("a popover, a menu, a tooltip and a modal are given role, tabindex, aria-* 
   drain();
   assert.equal(said(), "4 1 escape", "a modal's handler is its dialog's");
 });
+
+test("`html:` on a layer, or on any element, is an attribute of that name and never markup", () => {
+  // The runtime's own key for markup is a hook; an author's spelling of it
+  // reaches `WF.el` as `attr:html`, which is written as it is.
+  const { WF } = loadRuntime();
+  const markup = "<img src=x onerror=alert(1)>";
+  const plain = WF.el("div", { "attr:html": markup, "attr:markdown": "# Hi" }, ["kept"]);
+  assert.equal(plain.getAttribute("html"), markup);
+  assert.equal(plain.getAttribute("markdown"), "# Hi");
+  assert.equal(plain.innerHTML, "kept", "its children are its own, no markup put in");
+  const said = WF.signal("one");
+  const live = WF.el("div", { "attr:html": () => said() });
+  said.set("two");
+  assert.equal(live.getAttribute("html"), "two", "a value that reads state follows it");
+  said.set(null);
+  assert.equal(live.hasAttribute("html"), false, "and null is no attribute");
+
+  const page = mountPage(`    state open = true
+    state markup = "<img src=x onerror=alert(1)>"
+    Button("Anchor", ref: anchor)
+    Stack(html: markup, id: "stack") { Text("stack") }
+    Popover(visible: open, anchor: anchor, html: markup, markdown: markup, id: "pop") { Text("pop") }
+    Tooltip("Save", html: markup, id: "tip") { Button("Save") }
+    Modal(visible: false, title: "M", html: markup, id: "modal") { Text("m") }
+    Menu(trigger: "View", html: markup, id: "menu") { Menu.Item(html: markup, id: "item") { Text("x") } }
+    Element("x-card", html: markup, id: "custom")`);
+  if (!page) return; // no compiler built: the Rust tests cover the build
+  const { document } = page;
+  for (const id of ["stack", "pop", "tip", "modal", "menu", "item", "custom"]) {
+    const el = document.querySelector(`#${id}`);
+    assert.ok(el, `#${id} is drawn`);
+    assert.equal(el.getAttribute("html"), "<img src=x onerror=alert(1)>", `#${id} has it as an attribute`);
+    assert.equal(el._html, undefined, `#${id} has no markup put in`);
+  }
+  assert.equal(document.querySelector("#pop").getAttribute("markdown"), "<img src=x onerror=alert(1)>");
+  assert.match(document.querySelector("#stack").textContent, /stack/, "its children are drawn");
+});

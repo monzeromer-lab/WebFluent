@@ -2361,7 +2361,9 @@ advice:
 
 - **Text is text.** Every string an element shows goes in as a text node.
   `Unsafe.Html(markup)` is the one door for markup, named so a review
-  greps for it, and every use draws a `V03`.
+  greps for it, and every use draws a `V03`. An `html:` (or `markdown:`)
+  written on an element is an attribute of that name, as any argument an
+  element does not declare is (`C04`), never markup.
 - **No inline handlers.** `Button("x", onclick: expr)` is a compile error
   pointing at `on click { }`.
 - **No URL a browser would run.** `href:`, `src:`, `to:`, `poster:` and

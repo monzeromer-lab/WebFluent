@@ -482,3 +482,78 @@ fn a_layers_attributes_are_painted_as_the_live_page_writes_them() {
         "nothing painted before its control: {html}"
     );
 }
+
+/// `html:` is one of the runtime's own keys — where `Unsafe.Html`'s markup
+/// goes. An author's `html:` is the attribute `C04` says it is, on a layer
+/// as on any element; it used to be markup on every element that wrote its
+/// unknown arguments through.
+#[test]
+fn an_html_argument_is_an_attribute_and_never_markup() {
+    let src = page(
+        "state open = false\n    state markup = \"<b>x</b>\"\n    Button(\"Anchor\", ref: anchor)\n    \
+         Stack(html: markup, markdown: \"# x\") { Text(\"s\") }\n    \
+         Popover(visible: open, anchor: anchor, html: markup) { Text(\"p\") }\n    \
+         Tooltip(\"Save\", html: markup) { Button(\"Save\") }\n    \
+         Modal(visible: open, title: \"M\", html: markup) { Text(\"m\") }\n    \
+         Menu(trigger: \"View\", highlight: markup) { Menu.Item(html: markup) { Text(\"x\") } }\n    \
+         IconButton(icon: \"x\", label: \"Close\", html: markup)\n    \
+         Element(\"x-card\", html: markup)\n    \
+         Unsafe.Html(markup)",
+    );
+    let js = spa_generated(&src);
+    for (class, key) in [
+        ("wf-stack", "\"attr:html\": () => _markup()"),
+        ("wf-stack", "\"attr:markdown\": \"# x\""),
+        ("wf-popover", "\"attr:html\": () => _markup()"),
+        ("wf-tooltip\"", "\"attr:html\": () => _markup()"),
+        ("wf-modal\"", "\"attr:html\": () => _markup()"),
+        ("wf-menu\"", "\"attr:highlight\": () => _markup()"),
+        ("wf-menu__item\"", "\"attr:html\": () => _markup()"),
+        ("wf-icon-btn", "\"attr:html\": () => _markup()"),
+    ] {
+        let line = js
+            .lines()
+            .find(|l| l.contains(&format!("className: \"{class}")))
+            .unwrap_or_else(|| panic!("no {class}: {js}"));
+        assert!(line.contains(key), "{key} on {class}: {line}");
+    }
+    assert!(
+        js.contains("WF.el(\"x-card\", { \"attr:html\": () => _markup()"),
+        "a custom element's too: {js}"
+    );
+    // The one element that puts markup in still does.
+    let unsafe_html = js
+        .lines()
+        .filter(|l| l.contains("html: () => _markup()") && !l.contains("attr:html"))
+        .count();
+    assert_eq!(unsafe_html, 1, "only `Unsafe.Html` writes markup: {js}");
+}
+
+/// Every key the runtime hands a module (`attrHook`) is one the compiler
+/// spells `attr:…` for an author, so no attribute can become markup.
+#[test]
+fn every_runtime_hook_is_a_key_an_author_cannot_reach() {
+    let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src/runtime/modules");
+    let mut hooks = Vec::new();
+    for entry in std::fs::read_dir(&dir).unwrap() {
+        let path = entry.unwrap().path();
+        if path.extension().is_none_or(|e| e != "js") {
+            continue;
+        }
+        let text = std::fs::read_to_string(&path).unwrap();
+        for piece in text.split("attrHook(\"").skip(1) {
+            let name = piece.split('"').next().unwrap().to_string();
+            hooks.push((
+                name,
+                path.file_name().unwrap().to_string_lossy().to_string(),
+            ));
+        }
+    }
+    assert!(!hooks.is_empty(), "the hooks are found");
+    for (name, file) in hooks {
+        assert!(
+            webfluent::codegen::js::RUNTIME_KEYS.contains(&name.as_str()),
+            "`attrHook(\"{name}\")` in {file} is missing from RUNTIME_KEYS"
+        );
+    }
+}
