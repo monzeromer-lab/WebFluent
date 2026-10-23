@@ -288,23 +288,10 @@ pub fn statement(source: &str, old: &Statement, new: &Statement, block: Block) -
 fn whole(source: &str, old: &Statement, new: &Statement, block: Block, out: &mut Vec<Patch>) {
     let depth = depth_at(source, old.span.start as usize);
     out.push(Patch::new(
-        written_start(source, old),
+        print::written_start(source, old),
         old.span.end as usize,
         print::statement(new, block, depth),
     ));
-}
-
-/// Where a statement is written from: its `///`, when it has one (a
-/// member's documentation goes where it goes, and is printed with it), else
-/// its first word.
-fn written_start(source: &str, s: &Statement) -> usize {
-    let start = s.span.start as usize;
-    if s.doc().is_none() || start > source.len() {
-        return start;
-    }
-    let line = print::doc_start(source, start);
-    let indent = source[line..start].len() - source[line..start].trim_start().len();
-    line + indent
 }
 
 fn diff_statement(
@@ -619,7 +606,7 @@ fn diff_body(
                 diff_statement(source, &o[0], &n[0], block, out);
             } else {
                 out.push(Patch::new(
-                    written_start(source, &o[0]),
+                    print::written_start(source, &o[0]),
                     o[0].span.end as usize,
                     unit_text(n, block, depth),
                 ));
@@ -630,7 +617,7 @@ fn diff_body(
             // With its `///`, which would otherwise document the next one.
             out.push(removal(
                 source,
-                written_start(source, &o[0]),
+                print::written_start(source, &o[0]),
                 o[0].span.end as usize,
             ));
         }
@@ -665,7 +652,7 @@ fn diff_body(
         // empty block.
         match old_units.first() {
             Some(first) => {
-                let at = written_start(source, &first[0]);
+                let at = print::written_start(source, &first[0]);
                 let text: String = texts
                     .iter()
                     .map(|t| format!("{t}\n{}", pad(depth)))

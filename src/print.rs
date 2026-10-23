@@ -1984,6 +1984,8 @@ pub fn prove(source: &str, file: &str) -> Result<usize, Vec<Mismatch>> {
             if !seen.insert((start, end)) || start >= end || start < from || end > to {
                 return;
             }
+            // From its `///`, which it is printed with.
+            let start = written_start(&braced, s).max(from);
             let line_start = braced[..start].rfind('\n').map_or(0, |n| n + 1);
             let leading = braced[line_start..start]
                 .chars()
@@ -2020,6 +2022,19 @@ pub fn prove(source: &str, file: &str) -> Result<usize, Vec<Mismatch>> {
     } else {
         Err(wrong)
     }
+}
+
+/// Where a statement is written from: its `///`, when it has one (a
+/// member's documentation goes where the member goes, and is printed with
+/// it), else its first word.
+pub fn written_start(source: &str, s: &Statement) -> usize {
+    let start = s.span.start as usize;
+    if s.doc().is_none() || start > source.len() {
+        return start;
+    }
+    let line = doc_start(source, start);
+    let indent = source[line..start].len() - source[line..start].trim_start().len();
+    line + indent
 }
 
 /// Where a declaration's `///` comment begins: the first of the lines
