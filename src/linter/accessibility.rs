@@ -1134,7 +1134,9 @@ fn lint_aria_structure(
 /// what a user component in the block renders from its own literals and
 /// the literal props it was given — a `Kbd(text: "⌘K")` inside a search
 /// button is text the reader sees. Each piece the build can read must be in
-/// the label; a value that reads state cannot be checked and is not.
+/// the label; a value that reads state cannot be checked and is not, and
+/// one the author hid from readers (`aria-hidden: true`, a glyph such as
+/// `Aa` beside "Match case") is not the label.
 fn lint_label_in_name(
     ui: &UIElement,
     file: &str,
@@ -1216,6 +1218,13 @@ fn visible_text(
         let StatementKind::UIElement(el) = &stmt.kind else {
             continue;
         };
+        // What the author hid from readers (`aria-hidden: true`) is a glyph
+        // beside the name, as `Aa` is beside "Match case": not the label
+        // a reader says.
+        let hidden = el.args.iter().any(|a| matches!(a, Arg::Named(k, e) if k == "aria-hidden" && matches!(e, Expr::BoolLiteral(true)) || matches!(a, Arg::Named(k, Expr::StringLiteral(v)) if k == "aria-hidden" && v == "true")));
+        if hidden {
+            continue;
+        }
         match &el.component {
             // An icon's positional argument names a glyph, not text.
             ComponentRef::BuiltIn(n) if n == "Icon" || n == "Image" => {}
@@ -1680,6 +1689,19 @@ mod structure_tests {
             "{}",
             found[0].message
         );
+    }
+
+    #[test]
+    fn a_glyph_hidden_from_readers_is_not_the_label() {
+        // `Aa` beside "Match case" is a symbol the author hid; shown, it is
+        // still text the label must hold.
+        let src = "page P(path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\").h1\n    Button(aria-label: \"Match case\") { Text(\"Aa\", aria-hidden: true) }\n    Button(aria-label: \"Whole word\") { Text(\"ab\") }\n}\n";
+        let found: Vec<_> = warnings(src)
+            .into_iter()
+            .filter(|w| w.rule_id == "A15")
+            .collect();
+        assert_eq!(found.len(), 1, "{found:?}");
+        assert_eq!(found[0].line, 4, "only the one shown to readers");
     }
 
     #[test]
