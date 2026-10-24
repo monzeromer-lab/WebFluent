@@ -59,6 +59,27 @@ fn a_scoped_slot_hands_the_fill_its_values() {
     assert!(html.contains(">none<"), "template: {html}");
 }
 
+/// A block a component hands to another is drawn in the names of where it
+/// was written: a name the inner component also has (`empty`, a prop of
+/// both, the inner one's a flag left `false`) is the caller's.
+#[test]
+fn a_block_handed_on_reads_the_names_where_it_was_written() {
+    let panel = "component Panel(title: String, empty: Bool = false, emptyText: String = \"\") {\n slot toolbar\n Stack {\n Row { Text(title)  Row { toolbar } }\n if empty { Stack { Text(emptyText) } } else { Stack { children } }\n }\n}\n";
+    let list = "component Listing(lines: [String] = [], empty: String = \"\") {\n Panel(title: \"Outline\") {\n toolbar { Text(\"tools\") }\n Stack { if lines.length == 0 { Text(empty) } else { Text(\"rows\") } }\n }\n}\n";
+    let src = format!(
+        "{panel}{list}{}",
+        page("Listing(lines: [], empty: \"Nothing here.\")")
+    );
+    for (backend, html) in [
+        ("template", templated(&src, json!({}))),
+        ("paint", painted(&src)),
+    ] {
+        assert!(html.contains(">Nothing here.<"), "{backend}: {html}");
+        assert!(!html.contains(">false<"), "{backend}: {html}");
+        assert!(html.contains(">tools<"), "{backend}: {html}");
+    }
+}
+
 #[test]
 fn a_component_declares_parts_that_are_called_under_its_name() {
     let panel = "component Panel(_ title: String) {\n part Header(_ text: String) { Heading(text) }\n part Footer { Text(\"end\") }\n Card { Text(title)  children }\n}\n";

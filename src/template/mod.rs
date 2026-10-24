@@ -731,6 +731,9 @@ struct Fill {
     params: Vec<String>,
     handed: Vec<String>,
     body: Vec<Statement>,
+    /// The names in reach where the block was written: the caller's, not
+    /// the component's that draws it.
+    scope: HashMap<String, Value>,
 }
 
 /// A component as the template engine expands it: its body, its props,
@@ -1393,13 +1396,16 @@ fn render_ui_element(ui: &UIElement, ctx: &mut RenderContext) -> String {
             if let Some(component) = ctx.components.get(name).cloned() {
                 // What the call puts on the root, read where it is written.
                 let (root_attrs, root_classes) = call_root_attrs(&component, ui, ctx);
+                // The caller's names, for its blocks: what it fills a slot
+                // with reads them, not the component's props.
+                let caller = ctx.locals.clone();
                 // The props as locals, restored afterwards.
                 let mut old_locals = Vec::new();
                 for (key, resolved) in ctx.props_of(&component, ui) {
                     let old = ctx.locals.insert(key.clone(), resolved);
                     old_locals.push((key, old));
                 }
-                ctx.slots.push(slot_fills(&component, ui));
+                ctx.slots.push(slot_fills(&component, ui, caller));
                 let html = render_statements(&component.body, ctx);
                 ctx.slots.pop();
 
@@ -1426,27 +1432,37 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
     if let Some(slot) = ui.slot_name() {
         return match ctx.slots.last().and_then(|s| s.get(slot)).cloned() {
             Some(fill) => {
-                // A scoped slot's values, under the names the fill gave them.
-                let mut saved = Vec::new();
-                for (i, param) in fill.params.iter().enumerate() {
-                    let key = fill.handed.get(i).cloned().unwrap_or_else(|| param.clone());
-                    let value = ui
-                        .args
-                        .iter()
-                        .find_map(|a| match a {
-                            Arg::Named(k, v) if *k == key => Some(ctx.eval_expr(v)),
-                            _ => None,
-                        })
-                        .unwrap_or(Value::Null);
-                    saved.push((param.clone(), ctx.locals.insert(param.clone(), value)));
-                }
+                // A scoped slot's values, read in the component's scope,
+                // under the names the fill gave them.
+                let handed: Vec<(String, Value)> = fill
+                    .params
+                    .iter()
+                    .enumerate()
+                    .map(|(i, param)| {
+                        let key = fill.handed.get(i).cloned().unwrap_or_else(|| param.clone());
+                        let value = ui
+                            .args
+                            .iter()
+                            .find_map(|a| match a {
+                                Arg::Named(k, v) if *k == key => Some(ctx.eval_expr(v)),
+                                _ => None,
+                            })
+                            .unwrap_or(Value::Null);
+                        (param.clone(), value)
+                    })
+                    .collect();
+                // The block is drawn where it was written: in the caller's
+                // names and with the caller's own slots, then the
+                // component's are put back.
+                let mut scope = fill.scope.clone();
+                scope.extend(handed);
+                let inner = std::mem::replace(&mut ctx.locals, scope);
+                let frame = ctx.slots.pop();
                 let html = render_statements(&fill.body, ctx);
-                for (name, old) in saved.into_iter().rev() {
-                    match old {
-                        Some(v) => ctx.locals.insert(name, v),
-                        None => ctx.locals.remove(&name),
-                    };
+                if let Some(frame) = frame {
+                    ctx.slots.push(frame);
                 }
+                ctx.locals = inner;
                 html
             }
             None => String::new(),
@@ -2553,7 +2569,11 @@ fn render_tag(tag: &str, class: &str, ui: &UIElement, ctx: &mut RenderContext) -
 
 /// The blocks a call of `component` fills its slots with: its own block as
 /// `children`, and each named fill.
-fn slot_fills(component: &TemplateComponent, ui: &UIElement) -> HashMap<String, Fill> {
+fn slot_fills(
+    component: &TemplateComponent,
+    ui: &UIElement,
+    scope: HashMap<String, Value>,
+) -> HashMap<String, Fill> {
     let mut slots: HashMap<String, Fill> = HashMap::new();
     slots.insert(
         "children".to_string(),
@@ -2561,6 +2581,7 @@ fn slot_fills(component: &TemplateComponent, ui: &UIElement) -> HashMap<String, 
             params: Vec::new(),
             handed: Vec::new(),
             body: ui.children.clone(),
+            scope: scope.clone(),
         },
     );
     for fill in &ui.slot_fills {
@@ -2574,6 +2595,7 @@ fn slot_fills(component: &TemplateComponent, ui: &UIElement) -> HashMap<String, 
                     .cloned()
                     .unwrap_or_default(),
                 body: fill.body.clone(),
+                scope: scope.clone(),
             },
         );
     }
