@@ -1165,6 +1165,8 @@ Renders with the class `wf-modal`.
 
 **Parts:**
 
+- `Modal.Title { … }` — What the modal's heading draws, in place of its `title:`'s words, which stay its name: `Modal.Title { Text { "Rename "  Code(name) } }`.
+  - flags: `.dropInside` `.trapFocus`
 - `Modal.Footer { … }` — The modal's action row.
   - flags: `.dropInside` `.trapFocus`
 
@@ -1232,6 +1234,11 @@ Renders with the class `wf-dialog`.
 **Flags:** `.dropInside` `.trapFocus`
 
 **Events of its own:** `on close`
+
+**Parts:**
+
+- `Dialog.Title { … }` — What the dialog's heading draws, in place of its `title:`'s words, which stay its name.
+  - flags: `.dropInside` `.trapFocus`
 
 Takes a block of children.
 
@@ -2334,7 +2341,7 @@ Events every element accepts in an `on … { }` handler:
 
 The names `Icon(…)`, `IconButton(icon:)` and `Sidebar.Item(icon:)` draw; any other name shows as the word, and the compiler warns.
 
-`close` `menu` `search` `home` `user` `settings` `check` `plus` `minus` `edit` `trash` `star` `heart` `mail` `bell` `download` `upload` `eye` `link` `calendar` `filter` `chevron-down` `chevron-right` `chevron-left` `info` `warning` `arrow-left` `arrow-right` `logout` `copy` `sun` `moon` `folder` `folder-plus` `file` `refresh` `alert-circle` `clock` `dot` `diff` `book` `git-pull-request` `pin` `git-branch` `more-horizontal` `window-minimize` `window-maximize` `outline` `help-circle` `collapse-all` `chevron-up` `globe` `external-link` `panel-down` `panel-up`
+`close` `menu` `search` `home` `user` `settings` `check` `plus` `minus` `edit` `trash` `star` `heart` `mail` `bell` `download` `upload` `eye` `link` `calendar` `filter` `chevron-down` `chevron-right` `chevron-left` `info` `warning` `arrow-left` `arrow-right` `logout` `copy` `sun` `moon` `folder` `folder-plus` `file` `refresh` `alert-circle` `clock` `dot` `diff` `book` `git-pull-request` `pin` `git-branch` `more-horizontal` `window-minimize` `window-maximize` `outline` `help-circle` `collapse-all` `locate` `chevron-up` `globe` `external-link` `panel-down` `panel-up`
 
 ## Next
 

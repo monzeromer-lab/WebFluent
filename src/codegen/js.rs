@@ -4058,19 +4058,38 @@ impl JsCodegen {
             content_var, content_class
         ));
 
+        // `Modal.Title { … }`: what the heading draws, in place of the
+        // title's words, which stay its name.
+        let heading_part = ui.children.iter().find_map(|child| match &child.kind {
+            StatementKind::UIElement(part) if matches!(&part.component, ComponentRef::SubComponent(p, s) if p == name && s == "Title") => Some(part.children.clone()),
+            _ => None,
+        });
         if let Some(t) = title {
-            // A title that reads state follows it, as any text does:
-            // `Modal(title: "Explain {code}")` kept the code it opened with.
-            let t = if self.is_reactive(&t) {
-                format!("() => {t}")
-            } else {
-                t
-            };
             let header_var = self.fresh_var();
-            self.emit_line(&format!(
-                "const {} = WF.el(\"div\", {{ className: \"{}__header\" }}, WF.el(\"h3\", {{ id: \"{}\" }}, {}));",
-                header_var, class, title_id, t
-            ));
+            if let Some(drawn) = &heading_part {
+                let h3 = self.fresh_var();
+                self.emit_line(&format!(
+                    "const {h3} = WF.el(\"h3\", {{ id: \"{title_id}\" }});"
+                ));
+                for child in drawn {
+                    self.emit_statement_dom(child, &h3);
+                }
+                self.emit_line(&format!(
+                    "const {header_var} = WF.el(\"div\", {{ className: \"{class}__header\" }}, {h3});"
+                ));
+            } else {
+                // A title that reads state follows it, as any text does:
+                // `Modal(title: "Explain {code}")` kept the code it opened with.
+                let t = if self.is_reactive(&t) {
+                    format!("() => {t}")
+                } else {
+                    t
+                };
+                self.emit_line(&format!(
+                    "const {} = WF.el(\"div\", {{ className: \"{}__header\" }}, WF.el(\"h3\", {{ id: \"{}\" }}, {}));",
+                    header_var, class, title_id, t
+                ));
+            }
             self.emit_line(&format!("{}.appendChild({});", content_var, header_var));
         }
 
@@ -4090,6 +4109,11 @@ impl JsCodegen {
             {
                 footer_stmts = ui_child.children.clone();
                 footer_wf = self.wf_node_inline(ui_child);
+                continue;
+            }
+            if let StatementKind::UIElement(ui_child) = &child.kind
+                && matches!(&ui_child.component, ComponentRef::SubComponent(p, s) if p == name && s == "Title")
+            {
                 continue;
             }
             body_stmts.push(child);

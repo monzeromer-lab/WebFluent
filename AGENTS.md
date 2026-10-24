@@ -1672,7 +1672,7 @@ Input types (a flag): `.text`, `.email`, `.password`, `.number`, `.search`, `.te
 |-----------|-------|
 | `Alert` | `Alert("Message").success` — tones: `.success`, `.danger`, `.warning`, `.info` |
 | `Toast` | `Toast("Saved!").success` — temporary notification |
-| `Modal` | `Modal(visible: showModal, title: "Title") { on close { ... } ... Modal.Footer { ... } }` — a `<dialog>`; `title:` is its heading; `on close` runs however it closes; an open one is the newest layer, so opened over a popover it takes the first Escape and the popover the next |
+| `Modal` | `Modal(visible: showModal, title: "Title") { on close { ... } ... Modal.Footer { ... } }` — a `<dialog>`; `title:` is its heading, and `Modal.Title { Markdown("Rename `{name}`") }` draws the heading instead, `title:` staying its name; `on close` runs however it closes; an open one is the newest layer, so opened over a popover it takes the first Escape and the popover the next |
 | `Dialog` | `Dialog(visible: show, title: "Confirm") { ... }` — as `Modal` |
 | `Popover` | `Popover(visible: open, anchor: button, placement: .bottomStart, label: "Branches").arrow { on close(reason) { ... } ... }` — a layer above everything at `anchor:` (a `ref:`) or `at:` a point; flips and slides to stay on screen; Escape or a press outside sets `visible:` back to `false`, and `on close` hears `"escape"` or `"outside"`; `role:` (in place of `dialog`), `tabindex:`, `aria-*`, `data-*`, `ref:` and its other `on` handlers are its element's, as on any element — and on a `Menu`, a `Tooltip`, a `Modal` and a `Dialog` too |
 | `Spinner` | `Spinner` or `Spinner.lg` |

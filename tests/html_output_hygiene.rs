@@ -424,6 +424,59 @@ page P(path: "/", title: "T", description: "Boolean attributes.") {
     }
 }
 
+/// A modal's `Modal.Title { … }` is what its heading draws, in the live
+/// page, the pre-render and the template engine alike, in place of its
+/// `title:`'s words, which stay its name (the heading names the dialog).
+#[test]
+fn a_modal_s_title_part_is_drawn_in_its_heading() {
+    let src = r#"
+page P(path: "/", title: "T", description: "A modal.") {
+    state open = true
+    Modal(visible: open, title: "Rename Deploys") {
+        Modal.Title { Markdown("Rename `Deploys`") }
+        Text("body")
+    }
+}
+"#;
+    for backend in [Backend::Ssg, Backend::Template] {
+        let html = raw_output(backend, src);
+        let name = backend.name();
+        let at = html
+            .find("<h3 id=\"wf-dlg-s1\">")
+            .unwrap_or_else(|| panic!("{name}: the heading: {html}"));
+        let heading = &html[at..at + html[at..].find("</h3>").unwrap()];
+        assert!(
+            heading.contains("Rename <code>Deploys</code>"),
+            "{name}: {heading}"
+        );
+        assert!(
+            !heading.contains("Rename Deploys"),
+            "{name}: the title's words are not drawn as well: {heading}"
+        );
+        assert!(
+            html.contains("aria-labelledby=\"wf-dlg-s1\""),
+            "{name}: {html}"
+        );
+        assert!(
+            !html[..at].contains("Rename `Deploys`") && html.contains(">body<"),
+            "{name}: the part is not drawn in the body: {html}"
+        );
+    }
+    let js = raw_output(Backend::Spa, src);
+    let h3 = js
+        .find("WF.el(\"h3\", { id: \"wf-dlg-")
+        .expect("the heading");
+    assert!(
+        js[h3..].find("markdown").is_some_and(|m| m < 400),
+        "the part is drawn into the heading: {}",
+        &js[h3..h3 + 400]
+    );
+    assert!(
+        !js.contains("\"Rename Deploys\")"),
+        "the title's words are not the heading's text: {js}"
+    );
+}
+
 /// Every menu paints as the live page draws it: one given no words for
 /// its button has the button the live page gives it ("Menu"), one opened
 /// by state alone is its list and nothing else, and one whose words come

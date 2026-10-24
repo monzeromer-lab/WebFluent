@@ -201,7 +201,9 @@ page Overlays(path: "/", title: "Overlays", description: "What a page opens.") {
   — and when it closes that way, the state is set back to `false`, so it
   never disagrees with what is on screen. Focus returns to what opened it. `on close` runs
   when it closes, however it was closed. `title:` is its heading, which
-  names it (`A08` without one). `Modal.Footer` is the row of actions.
+  names it (`A08` without one). `Modal.Footer` is the row of actions. `Modal.Title { … }` is
+  what the heading draws when words alone will not do — `Modal.Title {
+  Markdown("Rename `{name}`") }` — while `title:` stays its name.
 - **`Toast`** shows the moment it is rendered and leaves after three seconds;
   it is announced politely to screen readers. Put it under a condition that
   turns true.

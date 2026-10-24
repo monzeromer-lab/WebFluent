@@ -2089,6 +2089,16 @@
    ],
    "parts": [
     {
+     "name": "Modal.Title",
+     "signature": "Modal.Title { \u2026 }",
+     "summary": "What the modal's heading draws, in place of its `title:`'s words, which stay its name: `Modal.Title { Text { \"Rename \"  Code(name) } }`.",
+     "props": [],
+     "flags": [
+      ".dropInside",
+      ".trapFocus"
+     ]
+    },
+    {
      "name": "Modal.Footer",
      "signature": "Modal.Footer { \u2026 }",
      "summary": "The modal's action row.",
@@ -2226,7 +2236,18 @@
      "meaning": ""
     }
    ],
-   "parts": [],
+   "parts": [
+    {
+     "name": "Dialog.Title",
+     "signature": "Dialog.Title { \u2026 }",
+     "summary": "What the dialog's heading draws, in place of its `title:`'s words, which stay its name.",
+     "props": [],
+     "flags": [
+      ".dropInside",
+      ".trapFocus"
+     ]
+    }
+   ],
    "attributes": [
     "global",
     "aria",

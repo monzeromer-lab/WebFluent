@@ -1367,7 +1367,14 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
             ctx.indent += 3;
             let mut body = Vec::new();
             let mut footer = None;
+            let mut heading = None;
             for child in &ui.children {
+                if let StatementKind::UIElement(part) = &child.kind
+                    && matches!(&part.component, ComponentRef::SubComponent(p, s) if p == name && s == "Title")
+                {
+                    heading = Some(render_inline(&part.children, ctx));
+                    continue;
+                }
                 if let StatementKind::UIElement(part) = &child.kind
                     && matches!(&part.component, ComponentRef::SubComponent(p, s) if p == name && s == "Footer")
                 {
@@ -1386,6 +1393,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                     class: base_class,
                     attrs: &format!("{own}{wf}{inline_style}"),
                     title: title.as_deref().zip(id.as_deref()),
+                    heading: heading.as_deref(),
                     body: &body,
                     footer: footer.as_ref().map(|(wf, f)| (wf.as_str(), f.as_str())),
                 },
@@ -2662,6 +2670,9 @@ pub struct DialogPaint<'a> {
     pub attrs: &'a str,
     /// Its title, and the id of the heading that holds it.
     pub title: Option<(&'a str, &'a str)>,
+    /// What `Modal.Title { … }` draws in the heading, painted, in place of
+    /// the title's words.
+    pub heading: Option<&'a str>,
     /// Its body, painted, three levels in.
     pub body: &'a str,
     /// Its `Modal.Footer`: the studio's node id, and what is in it.
@@ -2671,6 +2682,13 @@ pub struct DialogPaint<'a> {
 /// A `Modal` or a `Dialog` as the live page draws it: the `<dialog>`, named
 /// by its title's heading, around its content — the heading, the body, the
 /// footer. The browser keeps it hidden until it is opened.
+/// Statements painted on one line, as a heading holds them: each piece's
+/// own line breaks and indent taken out.
+fn render_inline(stmts: &[Statement], ctx: &mut SsgContext) -> String {
+    let painted = render_statements(stmts, ctx);
+    painted.lines().map(str::trim).collect::<Vec<_>>().join("")
+}
+
 pub fn static_dialog(indent: &str, d: &DialogPaint) -> String {
     let labelled = d
         .title
@@ -2684,10 +2702,13 @@ pub fn static_dialog(indent: &str, d: &DialogPaint) -> String {
     let part = format!("{indent}        ");
     out.push_str(&format!("{inner}<div class=\"{}__content\">\n", d.class));
     if let Some((title, id)) = d.title {
+        let words = match d.heading {
+            Some(drawn) => drawn.trim().to_string(),
+            None => html_escape(title),
+        };
         out.push_str(&format!(
-            "{part}<div class=\"{}__header\"><h3 id=\"{id}\">{}</h3></div>\n",
-            d.class,
-            html_escape(title)
+            "{part}<div class=\"{}__header\"><h3 id=\"{id}\">{words}</h3></div>\n",
+            d.class
         ));
     }
     out.push_str(&format!("{part}<div class=\"{}__body\">\n", d.class));

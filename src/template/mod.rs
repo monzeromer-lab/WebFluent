@@ -1560,7 +1560,15 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
             ctx.indent += 3;
             let mut body = Vec::new();
             let mut footer = None;
+            let mut heading = None;
             for child in &ui.children {
+                if let StatementKind::UIElement(part) = &child.kind
+                    && matches!(&part.component, ComponentRef::SubComponent(p, s) if p == name && s == "Title")
+                {
+                    let drawn = render_statements(&part.children, ctx);
+                    heading = Some(drawn.lines().map(str::trim).collect::<Vec<_>>().join(""));
+                    continue;
+                }
                 if let StatementKind::UIElement(part) = &child.kind
                     && matches!(&part.component, ComponentRef::SubComponent(p, s) if p == name && s == "Footer")
                 {
@@ -1578,6 +1586,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                     class: base_class,
                     attrs: &format!("{own}{style_attr}"),
                     title: title.as_deref().zip(id.as_deref()),
+                    heading: heading.as_deref(),
                     body: &body,
                     footer: footer.as_deref().map(|f| ("", f)),
                 },
