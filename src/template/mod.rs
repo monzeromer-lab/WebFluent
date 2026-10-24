@@ -1587,6 +1587,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                     attrs: &format!("{own}{style_attr}"),
                     title: title.as_deref().zip(id.as_deref()),
                     heading: heading.as_deref(),
+                    closable: ui.modifiers.iter().any(|m| m == "closable"),
                     body: &body,
                     footer: footer.as_deref().map(|f| ("", f)),
                 },

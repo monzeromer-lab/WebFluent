@@ -4090,6 +4090,13 @@ impl JsCodegen {
                     header_var, class, title_id, t
                 ));
             }
+            // `.closable`: a close button in the heading row, closing it as
+            // Escape does, so `on close` and `visible:` follow.
+            if ui.modifiers.iter().any(|m| m == "closable") {
+                self.emit_line(&format!(
+                    "{header_var}.appendChild(WF.el(\"button\", {{ className: \"{class}__close\", type: \"button\", \"aria-label\": \"Close\", \"on:click\": () => {var}.close() }}, WF.el(\"i\", {{ className: \"wf-icon\", \"data-icon\": \"close\" }})));"
+                ));
+            }
             self.emit_line(&format!("{}.appendChild({});", content_var, header_var));
         }
 

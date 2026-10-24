@@ -102,7 +102,7 @@ page Home(path: "/", title: "Layers", description: "Popovers, menus and tooltips
         }
     }
     Button("Open the modal", id: "modal-open") { on click { modalOpen = true } }
-    Modal(visible: modalOpen, title: "A modal") {
+    Modal(visible: modalOpen, title: "A modal").closable {
         Button("Inside", id: "inside")
     }
     Input(label: "Find", id: "field") {

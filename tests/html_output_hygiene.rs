@@ -432,7 +432,7 @@ fn a_modal_s_title_part_is_drawn_in_its_heading() {
     let src = r#"
 page P(path: "/", title: "T", description: "A modal.") {
     state open = true
-    Modal(visible: open, title: "Rename Deploys") {
+    Modal(visible: open, title: "Rename Deploys").closable {
         Modal.Title { Markdown("Rename `Deploys`") }
         Text("body")
     }
@@ -458,6 +458,12 @@ page P(path: "/", title: "T", description: "A modal.") {
             "{name}: {html}"
         );
         assert!(
+            html.contains(
+                "</h3><button class=\"wf-modal__close\" type=\"button\" aria-label=\"Close\">"
+            ),
+            "{name}: `.closable` is a close button in the heading row: {html}"
+        );
+        assert!(
             !html[..at].contains("Rename `Deploys`") && html.contains(">body<"),
             "{name}: the part is not drawn in the body: {html}"
         );
@@ -475,6 +481,13 @@ page P(path: "/", title: "T", description: "A modal.") {
         !js.contains("\"Rename Deploys\")"),
         "the title's words are not the heading's text: {js}"
     );
+    assert!(
+        js.contains("className: \"wf-modal__close\", type: \"button\", \"aria-label\": \"Close\", \"on:click\": () =>"),
+        "{js}"
+    );
+    // Without the flag, no button.
+    let plain = raw_output(Backend::Ssg, &src.replace(".closable", ""));
+    assert!(!plain.contains("wf-modal__close"), "{plain}");
 }
 
 /// Every menu paints as the live page draws it: one given no words for

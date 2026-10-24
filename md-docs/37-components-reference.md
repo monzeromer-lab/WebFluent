@@ -1140,7 +1140,7 @@ Attribute families: `global`, `aria`, `data`.
 Modal `<dialog>`, opened by a state flag; the browser supplies focus trapping and Escape. `on close` runs when it closes, however it was closed.
 
 ```
-Modal(visible: …, title: …) { … }
+Modal(visible: …, title: …, closable: …) { … }
 ```
 
 ```wf
@@ -1158,8 +1158,9 @@ Renders with the class `wf-modal`.
 |---|---|---|
 | `visible:` | `State` | State flag that opens and closes it |
 | `title:` | `String` | Heading shown at the top |
+| `closable:` | `Bool` | A close button in the heading row, which closes it as Escape does |
 
-**Flags:** `.dropInside` `.trapFocus`
+**Flags:** `.closable` `.dropInside` `.trapFocus`
 
 **Events of its own:** `on close`
 
@@ -1216,7 +1217,7 @@ Attribute families: `global`, `aria`, `data`.
 Confirmation `<dialog>`, opened by a state flag. `on close` runs when it closes, however it was closed.
 
 ```
-Dialog(visible: …, title: …) { … }
+Dialog(visible: …, title: …, closable: …) { … }
 ```
 
 ```wf
@@ -1230,8 +1231,9 @@ Renders with the class `wf-dialog`.
 |---|---|---|
 | `visible:` | `State` | State flag that opens and closes it |
 | `title:` | `String` | Heading shown at the top |
+| `closable:` | `Bool` | A close button in the heading row, which closes it as Escape does |
 
-**Flags:** `.dropInside` `.trapFocus`
+**Flags:** `.closable` `.dropInside` `.trapFocus`
 
 **Events of its own:** `on close`
 

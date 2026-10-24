@@ -368,6 +368,8 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 .wf-modal__content { background: var(--color-background); border-radius: var(--radius-lg); box-shadow: var(--shadow-xl); max-width: 500px; width: 90vw; max-height: 90vh; overflow-y: auto; }
 .wf-modal__header { padding: var(--spacing-md); border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; }
 .wf-modal__header h3 { margin: 0; }
+.wf-modal__close, .wf-dialog__close { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: var(--radius-sm, 4px); background: none; color: inherit; cursor: pointer; opacity: 0.7; }
+.wf-modal__close:hover, .wf-dialog__close:hover { opacity: 1; }
 .wf-modal__body { padding: var(--spacing-md); }
 .wf-modal__footer { padding: var(--spacing-md); border-top: 1px solid var(--color-border); display: flex; justify-content: flex-end; gap: var(--spacing-sm); }
 

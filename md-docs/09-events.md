@@ -203,7 +203,9 @@ page Overlays(path: "/", title: "Overlays", description: "What a page opens.") {
   when it closes, however it was closed. `title:` is its heading, which
   names it (`A08` without one). `Modal.Footer` is the row of actions. `Modal.Title { … }` is
   what the heading draws when words alone will not do — `Modal.Title {
-  Markdown("Rename `{name}`") }` — while `title:` stays its name.
+  Markdown("Rename `{name}`") }` — while `title:` stays its name, and
+  `.closable` puts a close button in the heading row, which closes it as
+  Escape does.
 - **`Toast`** shows the moment it is rendered and leaves after three seconds;
   it is announced politely to screen readers. Put it under a condition that
   turns true.

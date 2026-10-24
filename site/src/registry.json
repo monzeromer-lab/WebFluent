@@ -2063,7 +2063,7 @@
    "group": "Feedback",
    "summary": "Modal `<dialog>`, opened by a state flag; the browser supplies focus trapping and Escape. `on close` runs when it closes, however it was closed.",
    "plain": "Modal <dialog>, opened by a state flag; the browser supplies focus trapping and Escape. on close runs when it closes, however it was closed.",
-   "signature": "Modal(visible: \u2026, title: \u2026) { \u2026 }",
+   "signature": "Modal(visible: \u2026, title: \u2026, closable: \u2026) { \u2026 }",
    "block": true,
    "props": [
     {
@@ -2075,9 +2075,15 @@
      "name": "title:",
      "type": "String",
      "meaning": "Heading shown at the top"
+    },
+    {
+     "name": "closable:",
+     "type": "Bool",
+     "meaning": "A close button in the heading row, which closes it as Escape does"
     }
    ],
    "flags": [
+    ".closable",
     ".dropInside",
     ".trapFocus"
    ],
@@ -2212,7 +2218,7 @@
    "group": "Feedback",
    "summary": "Confirmation `<dialog>`, opened by a state flag. `on close` runs when it closes, however it was closed.",
    "plain": "Confirmation <dialog>, opened by a state flag. on close runs when it closes, however it was closed.",
-   "signature": "Dialog(visible: \u2026, title: \u2026) { \u2026 }",
+   "signature": "Dialog(visible: \u2026, title: \u2026, closable: \u2026) { \u2026 }",
    "block": true,
    "props": [
     {
@@ -2224,9 +2230,15 @@
      "name": "title:",
      "type": "String",
      "meaning": "Heading shown at the top"
+    },
+    {
+     "name": "closable:",
+     "type": "Bool",
+     "meaning": "A close button in the heading row, which closes it as Escape does"
     }
    ],
    "flags": [
+    ".closable",
     ".dropInside",
     ".trapFocus"
    ],

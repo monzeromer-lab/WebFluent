@@ -1394,6 +1394,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                     attrs: &format!("{own}{wf}{inline_style}"),
                     title: title.as_deref().zip(id.as_deref()),
                     heading: heading.as_deref(),
+                    closable: ui.modifiers.iter().any(|m| m == "closable"),
                     body: &body,
                     footer: footer.as_ref().map(|(wf, f)| (wf.as_str(), f.as_str())),
                 },
@@ -2673,6 +2674,8 @@ pub struct DialogPaint<'a> {
     /// What `Modal.Title { … }` draws in the heading, painted, in place of
     /// the title's words.
     pub heading: Option<&'a str>,
+    /// Whether its heading row has a close button (`.closable`).
+    pub closable: bool,
     /// Its body, painted, three levels in.
     pub body: &'a str,
     /// Its `Modal.Footer`: the studio's node id, and what is in it.
@@ -2706,8 +2709,16 @@ pub fn static_dialog(indent: &str, d: &DialogPaint) -> String {
             Some(drawn) => drawn.trim().to_string(),
             None => html_escape(title),
         };
+        let close = if d.closable {
+            format!(
+                "<button class=\"{}__close\" type=\"button\" aria-label=\"Close\"><i class=\"wf-icon\" data-icon=\"close\"></i></button>",
+                d.class
+            )
+        } else {
+            String::new()
+        };
         out.push_str(&format!(
-            "{part}<div class=\"{}__header\"><h3 id=\"{id}\">{words}</h3></div>\n",
+            "{part}<div class=\"{}__header\"><h3 id=\"{id}\">{words}</h3>{close}</div>\n",
             d.class
         ));
     }

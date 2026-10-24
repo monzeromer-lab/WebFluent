@@ -347,6 +347,12 @@ const VISIBLE: PropSig = special(
     "State flag that opens and closes it",
 );
 const TITLE: PropSig = special("title", PropType::Str, "Heading shown at the top");
+/// A modal's or a dialog's close button, in its heading row.
+const CLOSABLE: PropSig = flag(
+    "closable",
+    "closable",
+    "A close button in the heading row, which closes it as Escape does",
+);
 /// Where a layer goes against its anchor: a side, and where along it.
 const PLACEMENT: PropSig = special(
     "placement",
@@ -1570,7 +1576,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
             "Feedback",
             "Modal `<dialog>`, opened by a state flag; the browser supplies focus trapping and Escape. `on close` runs when it closes, however it was closed.",
             None,
-            &[VISIBLE, TITLE],
+            &[VISIBLE, TITLE, CLOSABLE],
             &["Title", "Footer"],
             G,
             Children::Elements,
@@ -1628,7 +1634,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
             "Feedback",
             "Confirmation `<dialog>`, opened by a state flag. `on close` runs when it closes, however it was closed.",
             None,
-            &[VISIBLE, TITLE],
+            &[VISIBLE, TITLE, CLOSABLE],
             &["Title"],
             G,
             Children::Elements,

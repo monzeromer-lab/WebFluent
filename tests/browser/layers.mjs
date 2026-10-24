@@ -315,6 +315,19 @@ async function scenario(label, ssg, port) {
     await page.keyboard.press("Escape");
     check("with nothing open, the page hears Escape", (await heard()) === before + 1, `${before} → ${await heard()}`);
 
+    // ── A closable modal's button closes it, as Escape does, and writes it back ──
+    await press("#modal-open");
+    await until(page, () => document.querySelector("#inside")?.closest("dialog")?.open);
+    const closeName = await page.evaluate(() => document.querySelector("#inside").closest("dialog").querySelector(".wf-modal__header .wf-modal__close")?.getAttribute("aria-label"));
+    await page.evaluate(() => document.querySelector("#inside").closest("dialog").querySelector(".wf-modal__close").click());
+    await until(page, () => !document.querySelector("#inside")?.closest("dialog")?.open);
+    await press("#modal-open");
+    await until(page, () => document.querySelector("#inside")?.closest("dialog")?.open);
+    const again = await page.evaluate(() => document.querySelector("#inside").closest("dialog").open);
+    check("a closable modal's close button, in its heading row, closes it; its state follows, so it opens again", closeName === "Close" && again, `${closeName} ${again}`);
+    await page.keyboard.press("Escape");
+    await until(page, () => !document.querySelector("#inside")?.closest("dialog")?.open);
+
     // ── A modal opened over a popover: its Escape first, then the popover's ──
     const beneath = await heard();
     const closes = async () => Number(await page.$eval("#over-closes", (e) => e.textContent));
