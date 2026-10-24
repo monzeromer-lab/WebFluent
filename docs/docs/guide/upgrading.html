@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upgrading</title>
-    <meta name="description" content="Installing a new version, what changed in 5.9, 5.6, 5.0, 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.">
+    <meta name="description" content="Installing a new version, what changed in 5.10, 5.9, 5.6, 5.0, 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/upgrading">
     <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/upgrading?lang=en">
     <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/upgrading?lang=ar">
@@ -12,7 +12,7 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Upgrading">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="Installing a new version, what changed in 5.9, 5.6, 5.0, 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.">
+    <meta property="og:description" content="Installing a new version, what changed in 5.10, 5.9, 5.6, 5.0, 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.">
     <meta property="og:url" content="https://webfluent.monzeromer.dev/docs/guide/upgrading">
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="ar_AR">
@@ -21,9 +21,9 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Upgrading">
-    <meta name="twitter:description" content="Installing a new version, what changed in 5.9, 5.6, 5.0, 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.">
+    <meta name="twitter:description" content="Installing a new version, what changed in 5.10, 5.9, 5.6, 5.0, 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/upgrading#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/upgrading","name":"Upgrading","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Installing a new version, what changed in 5.9, 5.6, 5.0, 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/upgrading#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Upgrading","item":"https://webfluent.monzeromer.dev/docs/guide/upgrading"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/upgrading#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/upgrading","name":"Upgrading","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Installing a new version, what changed in 5.10, 5.9, 5.6, 5.0, 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/upgrading#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Upgrading","item":"https://webfluent.monzeromer.dev/docs/guide/upgrading"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.9</p>
+                            <p class="wf-text wf-s859a58d7">5.10</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -289,6 +289,39 @@
 <p>Run the installer again — it replaces the binary in place — or <code>cargo install webfluent --force</code>. <code>wf --version</code> says what you have. Update <code>wf-lsp</code> and the editor extension with it: the language server is built from the same compiler.</p>
 <p>The full notes for every release are in <a href="https://github.com/monzeromer-lab/WebFluent/blob/master/RELEASE_NOTES.md"><code>RELEASE_NOTES.md</code></a>; what follows is what an upgrade asks of you.</p>
                             </div>
+                            <h2 class="wf-heading" id="5-10">5.10</h2>
+                            <div class="wf-markdown">
+<p>5.10 makes pages, pre-renders and tests do what the guide says, and a project may notice these:</p>
+<ul>
+<li><strong>Column spans leave room for the gap.</strong> A <code>Column</code> in a <code>Row</code> with a gap is narrower by its share of the gap, and spans that add to 12 sit on one line instead of wrapping the last. A layout that made up for it, <code>span: 8</code> beside <code>span: 3</code>, now leaves a space; give it back its <code>4</code>. The spans read the gap from <code>--wf-gap</code>, which <code>gap:</code> sets, so a gap your own CSS gives a <code>Row</code> (<code>style { gap: 4px }</code>) needs <code>--wf-gap: 4px</code> beside it. A PDF now lays a <code>Column</code> out at its <code>span:</code>, and a <code>calc()</code> of a percentage and points is read against the box it lands in, as a browser does.</li>
+<li><strong>A <code>Menu</code>'s <code>label:</code> names its list, not its button.</strong> The button says what <code>trigger:</code> says. <code>Menu(label: &quot;File&quot;)</code> with neither <code>trigger:</code> nor <code>visible:</code> now draws a button that says <em>Menu</em>; write <code>trigger: &quot;File&quot;</code>. A menu that <code>visible:</code> opens no longer draws a button. A <code>Dropdown</code>'s <code>label:</code> is still its button.</li>
+<li><strong>A <code>Form</code> without <code>bind:</code> asks the <code>validate</code> rules</strong> of its page or component before <code>on submit</code>, and shows their messages instead of submitting while one fails. Each copy of a component with <code>Form(bind: …)</code> has its own form, where all its copies shared one.</li>
+<li><strong>A bound <code>Checkbox</code> or <code>Radio</code> with its own <code>on change</code> writes its state first.</strong> The binding's write used to be lost, so a handler that wrote the state itself now writes it a second time, and one that toggles it (<code>agreed = !agreed</code>) undoes the click: take that write out. A <code>Switch</code>'s <code>on change</code>, which never ran, runs.</li>
+<li><strong>Text that reads state follows it.</strong> Control labels, a <code>Table</code>'s <code>caption:</code>, tab titles, tooltip text, a modal's <code>title:</code>, a menu's trigger, an <code>Avatar</code>, a <code>Skeleton</code>'s sizes and an <code>Icon</code>'s positional name kept the value they were drawn with; they now change with it. A <code>Checkbox(label: t(&quot;…&quot;))</code> changes language with <code>setLocale</code>.</li>
+<li><strong><code>setLocale</code> is remembered.</strong> The choice is kept in the reader's <code>localStorage</code> under <code>wf:locale</code>, and the next page opens in it; a <code>?lang=</code> address still wins. A <code>persist</code> store kept for the same purpose still works beside it.</li>
+<li><strong>The <code>Navbar</code> takes the theme's surface and text colours</strong>, so a dark or custom theme no longer gets a white bar.</li>
+<li><strong>The Escape that closes an open <code>Modal</code> or <code>Dialog</code> stays there</strong>: a page's <code>on key(&quot;Escape&quot;)</code> no longer runs for it.</li>
+<li><strong>An anchored layer hides with its anchor</strong> when the anchor scrolls out of view, and stays open; style it through <code>[data-anchor-hidden]</code> if needed.</li>
+<li><strong>A <code>Splitter</code>'s <code>reset:</code> is written as given</strong>, not clamped to <code>min:</code> and <code>max:</code>, and the first drag or key press moves from the edge as drawn.</li>
+<li><strong>A keyed list slides only the items whose index changes.</strong> One that keeps its index while its place on screen moves now jumps there.</li>
+<li><strong>An <code>Avatar</code> whose <code>src:</code> is a run-time <code>data:</code> or <code>blob:</code> address</strong> gets an empty <code>src</code>, as any other <code>src:</code> does.</li>
+<li><strong>A site that frames its own page</strong>, with a <code>Frame</code> whose <code>src:</code> is a site-relative string (<code>&quot;/preview/&quot;</code>, <code>&quot;/embed/{id}&quot;</code>), is served <code>X-Frame-Options: SAMEORIGIN</code> and <code>frame-ancestors 'self'</code>. One whose same-site address comes from a variable is still served <code>DENY</code>, so the browser still refuses it; write the address as a string, such as <code>&quot;/embed/{id}&quot;</code>.</li>
+<li><strong>Stores</strong>: a store's derived values keep following their state after the first page that read the store has gone, and one that reads a <code>derived</code> written below it follows it. The built script declares a store after the stores it <code>use</code>s.</li>
+<li><strong>Pre-rendered HTML matches the live page.</strong> A <code>Menu</code> or <code>Dropdown</code> is its button and a hidden list, so its entries no longer show before the script runs, and a menu that state opens is its list alone; a <code>Checkbox</code>, <code>Radio</code> or <code>Switch</code> has its <code>&lt;input&gt;</code>, with the control's <code>id:</code> on it; a part written with flags carries their classes; a <code>Column</code> with a literal <code>span:</code> carries <code>wf-col--N</code>; <code>disabled</code>, <code>required</code> and <code>controls</code> are left off when false, or when the build cannot know them.</li>
+<li><strong><code>wf test</code> snapshots change</strong> where they hold a <code>Menu</code>, a <code>Dropdown</code>, a <code>Column</code> with a <code>span:</code>, a <code>keyLabel</code>, a count in a locale with more plural forms than English, or a <code>disabled:</code>, <code>required:</code> or <code>controls:</code> that is false: look at the difference and run <code>wf test --update</code>. An <code>expect</code> for a <code>Menu</code>'s <code>label:</code> text no longer finds it (it is an <code>aria-label</code>), and one for its <code>trigger:</code> does. <code>expect</code> reads <code>&amp;#x27;</code> as an apostrophe, and in a test that acts compares with white space collapsed. A <code>click</code> may now find a tab, a menu item or a radio button it used to miss.</li>
+<li><strong>Fewer warnings and errors</strong>: an <code>Icon</code> naming one of the 23 new icons draws it instead of warning <code>V08</code>; <code>on auxclick</code>, <code>on focusin</code> and <code>on focusout</code> no longer warn <code>V09</code>; <code>on blur</code> and <code>on focus</code> outside an element compile, where they were an error; and <code>() =&gt; value</code> fits a function of no arguments, where it was <code>T01</code>.</li>
+<li><strong>Markdown reads backslash escapes.</strong> A text with <code>\*</code>, <code>\_</code>, <code>\#</code>, <code>\[</code> and the like now shows the character alone, and it takes no part in emphasis or a link; <code>\\</code> is one backslash. A backslash at the end of a paragraph's last line is shown, where it was dropped. A link or picture whose address has a scheme a page refuses (<code>javascript:</code>, <code>data:</code>) is drawn as its words.</li>
+<li><strong>Built-ins write what they are given.</strong> <code>role:</code>, <code>tabindex:</code>, <code>title:</code>, <code>hidden:</code>, <code>aria-*</code>, <code>data-*</code> and <code>on</code> handlers on a <code>VirtualList</code>, <code>Splitter</code>, <code>Tabs</code>, <code>Sidebar</code>, <code>Breadcrumb</code>, <code>Slider</code>, <code>DatePicker</code>, <code>FileUpload</code>, the layers and the rest now reach their element, where some were dropped; <code>label:</code> on a <code>VirtualList</code>, <code>Splitter</code> or <code>Carousel</code> is painted as its <code>aria-label</code>, not as text in it; <code>disabled: true</code> on a <code>Slider</code>, <code>DatePicker</code> or <code>FileUpload</code> disables it; a <code>Sidebar</code>'s <code>id:</code> is its id. Pre-rendered HTML and <code>wf test</code> snapshots carry these too: look at the difference and run <code>wf test --update</code>.</li>
+<li><strong>A modal's Escape and title.</strong> Over an open popover, the first Escape closes the modal and the next the popover; a press inside the modal no longer closes the popover beneath. Pre-rendered, a modal's title is its heading. A tooltip under the pointer lets Escape go on to the page.</li>
+<li><strong>Tests read as a reader does.</strong> An <code>expect</code> that counted on a space between two elements that touch (&quot;live : …&quot;) now reads them touching. A test run in a browser has the project's own CSS, so CSS that hides or changes text changes what it sees, and a stylesheet naming a file not in <code>public/</code> fails it. Snapshots lose <code>data-*</code> that were <code>false</code> and gain a call's <code>data-*</code>, <code>aria-*</code>, <code>id</code> and <code>class:</code> on a component's root: run <code>wf test --update</code> after looking at the difference.</li>
+<li><strong><code>data-x: true</code> passed through a component is <code>&quot;true&quot;</code></strong>, where it was <code>&quot;&quot;</code>: a selector on <code>[data-x=&quot;&quot;]</code> stops matching.</li>
+<li><strong>A local of a member's name is the action's own.</strong> A store action that wrote a member through a <code>let</code> of the same name now writes the local.</li>
+<li><strong><code>Portal</code> is a built-in's name</strong>: a project's own component or store called <code>Portal</code> is reported.</li>
+<li><strong>On Windows, type <code>webfluent</code></strong> (or <code>wf.exe</code>) wherever the guide says <code>wf</code>. Each earlier <code>.msi</code> had an <code>UpgradeCode</code> of its own, so the new one cannot replace it: uninstall the old one from <em>Apps</em>, or both stay installed and on <code>PATH</code>.</li>
+<li><strong>A tool built on the compiler</strong> adds the new fields where it writes a struct literal: <code>doc</code> on <code>StateDecl</code>, <code>DerivedDecl</code> and <code>ActionDecl</code>, <code>frames_itself</code> on <code>BuildConfig</code>, <code>only_route</code> on <code>BuildOptions</code> and <code>pages_deferred</code> on <code>BuildReport</code>. It adds a <code>Length::Mix(..)</code> arm where it matches <code>paged::style::Length</code>, and passes a locale to <code>testing::render_test</code> as its fourth argument. <code>print::statement</code> text for a documented member starts at its <code>///</code>, so replace from <code>print::written_start</code>. <code>check_project_via</code> starts threads, and calls a <code>Project</code>'s <code>file_of</code> and <code>source_of</code> up front.</li>
+</ul>
+<p>Run <code>wf check</code> after upgrading.</p>
+                            </div>
                             <h2 class="wf-heading" id="5-9">5.9</h2>
                             <div class="wf-markdown">
 <p>5.9 holds a few things to what the guide already said, and a project may notice them:</p>
@@ -438,6 +471,7 @@
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
                         <a class="wf-link wf-s3e136ca4" href="#installing-a-newer-version">Installing a newer version</a>
+                        <a class="wf-link wf-s3e136ca4" href="#5-10">5.10</a>
                         <a class="wf-link wf-s3e136ca4" href="#5-9">5.9</a>
                         <a class="wf-link wf-s3e136ca4" href="#5-6">5.6</a>
                         <a class="wf-link wf-s3e136ca4" href="#5-0">5.0</a>
@@ -473,7 +507,7 @@
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.9, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.10, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -500,7 +534,7 @@
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.9 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.10 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

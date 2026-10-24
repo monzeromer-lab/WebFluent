@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.9</p>
+                            <p class="wf-text wf-s859a58d7">5.10</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -415,7 +415,7 @@ page Home(path: &quot;/&quot;) {
                             <h2 class="wf-heading" id="which-locale-a-page-opens-in">Which locale a page opens in</h2>
                             <div class="wf-markdown">
 <p>A page opens in <code>default_locale</code>, unless its address carries <code>?lang=&lt;code&gt;</code> for one of the configured locales — <code>/about?lang=ar</code> opens the Arabic page. That is the address the build gives each language in the <code>hreflang</code> alternates it writes for search engines, so a reader who arrives from a search result in Arabic reads Arabic.</p>
-<p>The runtime does not guess from the browser's language, and it does not remember a choice across visits on its own: both are a few lines of yours. To remember what the reader picked, keep it in a store with <code>persist</code>, and apply it from an <code>effect</code> in the app:</p>
+<p>The runtime does not guess from the browser's language, but it remembers a choice. <code>setLocale(code)</code> keeps the code in the reader's <code>localStorage</code>, under <code>wf:locale</code>, and every page loaded after that opens in it, on this visit and the next; choosing <code>default_locale</code> again forgets it. A <code>?lang=</code> address opens its page in that language and leaves the kept choice alone. So a static site, which loads each page afresh, keeps the reader's language from page to page, and a language switch is a button that calls <code>setLocale</code>:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -424,28 +424,19 @@ page Home(path: &quot;/&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">store Prefs {
-    persist language = &quot;&quot;
-    action choose(code: String) {
-        language = code
-        setLocale(code)
-    }
-}
-
-app {
-    effect { if Prefs.language != &quot;&quot; { setLocale(Prefs.language) } }
+                                <code class="wf-code wf-code--block wf-sa8223565">app {
     Navbar {
         Navbar.Brand { Link(&quot;i18n&quot;, to: &quot;/&quot;) }
         Navbar.Actions {
-            Button(&quot;English&quot;) { on click { Prefs.choose(&quot;en&quot;) } }
-            Button(&quot;العربية&quot;) { on click { Prefs.choose(&quot;ar&quot;) } }
+            Button(&quot;English&quot;) { on click { setLocale(&quot;en&quot;) } }
+            Button(&quot;العربية&quot;) { on click { setLocale(&quot;ar&quot;) } }
         }
     }
     Router
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>The stored value starts empty — &quot;no choice yet&quot; — so a first visit, and a search engine's crawler, still get the <code>?lang=</code> locale or the default. To start from the browser's language, apply it when nothing is stored: <code>setLocale(navigator.language.slice(0, 2))</code>.</p>
+<p>Nothing is kept until the reader chooses, so a first visit, and a search engine's crawler, still get the <code>?lang=</code> locale or the default. To start a first visit from the browser's language, keep whether the reader has chosen in a store with <code>persist</code>, and until they have, apply <code>setLocale(navigator.language.slice(0, 2))</code> from an <code>effect</code> in the app.</p>
 <p>A static build pre-renders every page once, in the default locale; another locale is applied as the page loads. For search engines that is what the <code>?lang=</code> alternates are for.</p>
                             </div>
                             <h2 class="wf-heading" id="numbers-dates-and-the-locale">Numbers, dates and the locale</h2>
@@ -520,7 +511,7 @@ app {
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.9, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.10, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -547,7 +538,7 @@ app {
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.9 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.10 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

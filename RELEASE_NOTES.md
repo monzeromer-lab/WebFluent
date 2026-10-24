@@ -1,3 +1,325 @@
+# WebFluent v5.10.0 Release Notes
+
+The `wf init` starters, rewritten to work on first use, and the compiler
+and runtime bugs that clicking through them turned up; what an editor
+built on the compiler asks of it — icons, events, a member's `///`, a
+build of one route, a faster check; and a pre-render, a test and a PDF
+that draw what the live page draws.
+
+## Additions
+
+- **Starters that work on first use** ([chapter 38](md-docs/38-cli.md#wf-init)).
+  `wf init spa` has `Day` and `Night` themes with a switch that calls
+  `setTheme`, a task list that adds a task on Enter through a `Form` and
+  asks in a `Modal` before deleting one, a Settings page with validated
+  fields, and `tests/app.wf` and `tests/tasks.wf`. `wf init static` has a
+  validated contact form with a required agreement `Checkbox`, English and
+  Arabic translations, and `tests/site.wf`. `wf test` passes in a new
+  project.
+- **A test can place a whole page** ([chapter 24](md-docs/24-testing.md#testing-a-whole-page))
+  by its name, as it places a component (`Tasks`, then `click "Add"`),
+  with its state, stores and handlers running. This works for a page with
+  no route parameter whose name no component also has. In a test that
+  acts, `press "Enter"` in a form's text field submits the form, and
+  `click "Name"` also finds, by its name, an element whose role is a link,
+  a tab, a menu item (a `Menu.Item`), an option, a tree item, a switch, a
+  checkbox or a radio ([chapter 24](md-docs/24-testing.md#a-test-that-acts)).
+- **`on blur` and `on focus` on a page** ([chapter 9](md-docs/09-events.md#shortcuts-for-an-app)).
+  A page, a component or `app` hears the window lose and gain focus for as
+  long as it shows, for example to save when the window is left. Both
+  listen on the window; `on keydown` and `on keyup` still listen on the
+  document.
+- **`on auxclick`, `on focusin` and `on focusout` on any element**
+  ([chapter 37](md-docs/37-components-reference.md#on-every-element)).
+  `on auxclick(e)` hears a click with a button other than the main one
+  (`e.button == 1` is the middle button, to close a tab); `on focusin` and
+  `on focusout` hear focus move onto or off the element or anything inside
+  it.
+- **23 icons for editors and tools** ([chapter 28](md-docs/28-media.md#icons)),
+  55 in all: `folder`, `folder-plus`, `file`, `refresh`, `alert-circle`,
+  `clock`, `dot`, `diff`, `book`, `git-branch`, `git-pull-request`, `pin`,
+  `more-horizontal`, `window-minimize`, `window-maximize`, `outline`,
+  `help-circle`, `collapse-all`, `chevron-up`, `globe`, `external-link`,
+  `panel-down` and `panel-up`. They go wherever an icon name does and are
+  drawn in `currentColor`.
+- **`Menu.Item.danger`** ([chapter 9](md-docs/09-events.md#layers-popovers-menus-and-tooltips-above-everything)),
+  or `danger: true`, draws an item that cannot be undone, such as Delete
+  or Discard, in the danger colour.
+- **A `Tooltip`'s `shortcut:` reaches its control**
+  ([chapter 9](md-docs/09-events.md#layers-popovers-menus-and-tooltips-above-everything)):
+  `Tooltip("Save", shortcut: "mod+s") { Button("Save") }` also gives the
+  button `aria-keyshortcuts` in ARIA's spelling (`Control+S`, or
+  `Meta+S` on Apple's systems), unless it has one.
+- **A member's `///` is its documentation** ([chapter 5](md-docs/05-language-basics.md#naming)).
+  A `///` comment above a `state`, `persist`, `derived` or `action` in a
+  page, a component or a store stays with it, in `.wf` and `.wfx` alike;
+  the parser used to drop it. A `///` above anything else in a body is
+  still dropped.
+
+- **`Portal`** ([chapter 32](md-docs/32-javascript-interop.md#portal--drawing-into-a-node-a-script-made)).
+  `Portal(into: node) { … }` draws its block into a node somebody else's
+  code made: an editor's tooltip, a map's popup, a chart's legend. The
+  library keeps the node's place, its keys and its focus; the page keeps
+  what is in it. `into:` takes an element, a `ref:` handle or null; named
+  another node the block moves there with its state, and null keeps it
+  aside. Its handlers, `emit` and lifetimes belong to where it is written.
+  `Portal` is now a built-in's name, so a project's own component or store
+  of that name is reported.
+- **`Markdown(text).inert`** ([chapter 37](md-docs/37-components-reference.md#markdown)),
+  for text somebody else wrote, such as a language server's documentation:
+  entities are decoded and shown as text, a link is its words and a
+  picture is left out.
+## For tools
+
+Each is for a tool built on the compiler
+([chapter 38](md-docs/38-cli.md#building-a-tool-on-the-compiler)); paths
+are under `webfluent::`.
+
+- **A build of one route.** `BuildOptions::only_route` (`Some("/posts/hello")`)
+  renders the page answering that route, for a preview that cannot wait
+  for a whole build. With a `BuildCache`, a page the cache holds for its
+  current inputs, in memory or on disk, is reused (`pages_reused`); any
+  other page this session has painted is written as it was last painted
+  and counted in the new `BuildReport::pages_deferred`; a page never
+  painted is rendered. The next build without the option renders what was
+  deferred, and its output equals a build from nothing. Without a cache it
+  builds everything, and what was last painted is kept only in memory, so
+  a `BuildCache::on_disk` reopened in a new session defers nothing.
+- **A member's documentation in the tree.** `StateDecl`, `DerivedDecl`
+  and `ActionDecl` carry `doc: Option<String>`, the `///` lines joined with
+  `\n`; `Statement::doc()` and `Statement::set_doc()` read and set it, for
+  a completion or a hover to show. `print::statement` writes a documented
+  member under its `///`, so a store whose members are documented prints
+  back as itself. `reprint` and `edit::rewrite_declaration` replace, remove
+  and insert a member together with its `///`: a member taken out left its
+  doc to document the next one, and one put in at the front went between
+  the first member and its doc. `print::written_start(source, &statement)`
+  is public: where a statement is written from, its `///` when it has one.
+- **A code's guide entry.** `diagnostics::codes::guide_section(code)`
+  returns a diagnostic code's section of the Diagnostics chapter as
+  Markdown, without its heading (what `wf explain` prints after the
+  summary, before setting it for a terminal), or `None`. The code is
+  matched as given: `T06`, not `t06`.
+- **A test's steps outside Chrome.** `testing::step_script(what, name,
+  value)` returns the JavaScript expression a `click`, `type` or `press`
+  step evaluates in the page, which answers `"ok"`, `"none"` or
+  `"no-option"`, so an editor's own window can find controls as `wf test`
+  does.
+- **A rendered test in its locale.** `testing::render_test` takes the
+  locale as a fourth argument (`Tests::locale()` is the project's default,
+  or `en`), and `template::render_program_fragment_in(program, data,
+  messages, locale)` renders with that locale's plural rules.
+- **The framing decision.** `codegen::csp::frames_itself(&program)`,
+  `config::project::frame_options(&config)` (`"DENY"` or `"SAMEORIGIN"`)
+  and the `BuildConfig::frames_itself` flag, which the build fills in, so
+  a server an editor runs for its preview can send what `wf serve` sends.
+- **A starter's files.** `init::Template::files()` lists a starter's own
+  files, as (path, text) pairs with the project's name still `{{name}}`;
+  `init::create` writes them, and `.gitignore`, `AGENTS.md` and `public/`
+  beside them.
+- **The registry** ([chapter 38](md-docs/38-cli.md#wf-docs-wf-registry-wf-types)):
+  `wf registry --json` lists the new icons, `auxclick`, `focusin` and
+  `focusout` among every element's events, and `danger` on `Menu.Item`.
+- **Paged layout.** `paged::style::Length::Mix(points, percent)` holds a
+  `calc()` of both (`calc(50% - 12px)` is `Mix(-9.0, 50.0)`); `Style` gains
+  `has_mix()` and `settle_mix(w, h, main)`; `codegen::builtin::span_class`
+  writes a `Column`'s span class.
+- **`check_project_via` runs its phases on scoped threads**, and calls a
+  `Project`'s `file_of` and `source_of` up front, on the calling thread.
+  The findings and their order are unchanged.
+
+## Fixes
+
+- **A handler reads `key` and `value`** ([chapter 9](md-docs/09-events.md#the-event-object)).
+  `on keydown { if key == "Enter" { … } }` passed the check and threw
+  `ReferenceError: key is not defined` on the first key press, which broke
+  Enter in the SPA starter. A handler that reads `key` now gets
+  `event?.key`, and one that reads `value` gets `event?.target?.value`, on
+  every kind of handler; a state, a loop item or a parameter of that name
+  is left alone.
+- **A layer that starts open no longer stops the page drawing**
+  ([chapter 9](md-docs/09-events.md#layers-popovers-menus-and-tooltips-above-everything)).
+  A `Modal`, `Dialog`, `Popover` or state-opened `Menu` whose `visible:`
+  was `true` from the start asked to open before it was in the document,
+  and threw; each now opens once it is there. A layer anchored to an
+  element stayed clamped to the window's edge once the element scrolled
+  away; it now hides with it (`data-anchor-hidden`), stays open and shows
+  again when the element comes back. The Escape that closes an open
+  `Modal` or `Dialog` no longer reaches the page behind it.
+- **Menus and tooltips** ([chapter 9](md-docs/09-events.md#layers-popovers-menus-and-tooltips-above-everything)).
+  `Menu(label:)` is the list's accessible name; the button's words come
+  from `trigger:` (a `Dropdown`'s still from `label:`), so a menu that
+  `visible:` opens no longer draws a stray button. Each menu and each
+  tooltip drawn gets its own id at run time (`WF.uid`), where every copy a
+  `for` or a component drew shared one, so `aria-controls` and
+  `aria-describedby` could name another copy's. A menu keeps its `class:`
+  and its `style { }` class as it opens and closes.
+- **Forms ask their rules** ([chapter 16](md-docs/16-forms.md#when-a-message-shows)).
+  A `Form` with no `bind:` in a page or component with `validate` rules
+  ran `on submit` anyway; it now stops on a failing rule and shows the
+  messages. Each page and each copy of a component has its own form
+  handles: a page's carried into the next page compiled, and every copy of
+  a component shared one form. A validated `Checkbox` or `Switch` shows
+  its message beneath it, announced and tied to the control
+  (`aria-describedby`, `aria-invalid`). A field's character count follows
+  a value the program sets, such as a reset.
+- **Controls given a value work** ([chapter 16](md-docs/16-forms.md#controls-and-bind)).
+  `Switch(checked: value)` without `bind:` drew no input; it now follows
+  the value, and its `on change` hears the click. A `Switch`'s `on change`
+  was never attached. A bound `Checkbox` or `Radio` with its own
+  `on change` lost the binding's write; the binding now writes first and
+  the handler runs after it.
+- **Text that reads state follows it** ([chapter 21](md-docs/21-i18n.md#switching-the-locale)).
+  Each of these was worked out once, when the page was drawn: the labels
+  of `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker` and
+  `FileUpload`; a `Table`'s `caption:`; `Tabs.Page` titles; `Tooltip`
+  text; a `Modal`'s or `Dialog`'s `title:`; a `Menu`'s `trigger:` and a
+  `Dropdown`'s `label:`; an `Avatar`'s `src:`, `alt:` and `initials:`; a
+  `Skeleton`'s `width:`, `height:` and `size:`; and an `Icon`'s positional
+  name (`Icon(if done { "check" } else { "clock" })`). So
+  `Checkbox(label: t("…"))` now changes language with `setLocale`. Fixed
+  text compiles as before.
+- **Stores** ([chapter 12](md-docs/12-stores.md#how-long-it-lives)). A
+  store outlives the page that reads it first: its derived values and
+  effects belonged to that page's scope and stopped when the reader moved
+  on. A `derived` that reads one written below it in the same store
+  follows it, where it kept its first value. The built script declares
+  each store after the stores it `use`s, so a read made while the script
+  starts never meets a store not declared yet.
+- **The pre-render paints what the live page draws**
+  ([chapter 26](md-docs/26-static-and-spa.md#what-the-static-paint-knows)).
+  A `Checkbox`, `Radio` or `Switch` is its `<label>` and `<input>`, ticked
+  and disabled as its state starts, where only the labels' words showed.
+  A `Menu` or `Dropdown` is its button and a hidden list, where its
+  entries lay in the page, and a menu that state opens is its list alone.
+  A part written with flags carries their
+  classes (`Menu.Item.danger`), and `Column(span: 8)` its `wf-col--8`,
+  where every column was painted the same width. `disabled`, `required`
+  and `controls` are written only when `true`, here and in the template
+  engine, so `Button("Go", disabled: false)` is not a dead button.
+  `.pop()` and `.shift()` are evaluated on a list the build knows.
+- **A test that looks reads the page as a reader does**
+  ([chapter 24](md-docs/24-testing.md#a-test-that-looks)). The template
+  engine draws a `Menu` or `Dropdown` as its button and hidden list,
+  `keyLabel("mod+shift+p")` as the build writes it (`Ctrl+Shift+P`), and
+  a `t()` with a count in the default locale's CLDR form. `expect` decodes
+  every numeric entity and the common named ones, so `expect "It isn't"`
+  matches. In a test that acts, `expect` treats any run of white space as
+  one space, as a test that looks already did.
+- **Column spans leave room for the gap** ([chapter 37](md-docs/37-components-reference.md#column)).
+  `span: 8` and `span: 4` in a `Row` with a gap came to 100% plus the gap,
+  and the second always wrapped; each span now gives up its share of the
+  gap, a gap or a span given per breakpoint too. A PDF lays a
+  `Column` out at its `span:`, where every column came out equal, and the
+  PDF engine's `calc()` is a real parser: no spaces needed, nested
+  parentheses, unary minus, functions inside, and a sum of a percentage
+  and points resolved against the box it lands in
+  ([chapter 34](md-docs/34-pdf-and-slides.md#the-engine)).
+- **The `Navbar` follows the theme** ([chapter 37](md-docs/37-components-reference.md#navbar)).
+  Its background was a fixed translucent white; it is now the theme's
+  surface, and its text the theme's text colour.
+- **`setLocale` is remembered** ([chapter 21](md-docs/21-i18n.md#which-locale-a-page-opens-in))
+  across page loads, in `localStorage` under `wf:locale`, so a static site
+  keeps the reader's language from page to page. A `?lang=` address still
+  wins, without changing the saved choice.
+- **A site may frame its own pages** ([chapter 23](md-docs/23-security.md#content-security-policy)).
+  A `Frame` whose `src:` is site-relative (`"/preview/"`, `"/embed/{id}"`)
+  was refused by the site's own headers. A project that places one is
+  served `X-Frame-Options: SAMEORIGIN` by `wf serve`, and its `_headers`
+  says the same with `frame-ancestors 'self'`; every other project keeps
+  `DENY` and `'none'`.
+- **An `Avatar`'s `src:` is checked** like any other `src:`
+  ([chapter 23](md-docs/23-security.md#what-the-compiler-guarantees)): a
+  run-time value goes through `WF.safeUrl`.
+- **Long keyed lists no longer stall as they grow**
+  ([chapter 20](md-docs/20-motion.md#lists)). A keyed `for` read the place
+  of every item it kept before each change, so a 960-line log appended
+  line by line froze the page for 3.5 s. Only items whose index changes
+  are measured now; a list that only grows at its end measures nothing.
+- **A `Splitter` moves from where it is drawn**
+  ([chapter 9](md-docs/09-events.md#gestures-drag-long-press-swipe-and-the-splitter)).
+  A drag or an arrow key starts from the region's drawn size, not the
+  bound value, and a reset writes `reset:` as given, so `reset: 0` can
+  mean the region's default share.
+- **`() => …` takes no arguments** ([chapter 14](md-docs/14-expressions.md#fields-calls-and-methods)).
+  It was typed as taking one, so it could fail to fit a script parameter
+  whose JSDoc says `() => boolean`.
+- **`webfluent` on Windows** ([chapter 2](md-docs/02-getting-started.md#windows-powershell)).
+  A bare `wf` runs `WF.msc`, the Windows Firewall console, which comes
+  first on `PATH`. The `.msi`, the release zip and `install.ps1` now also
+  install the binary as `webfluent.exe`, so `webfluent build` works;
+  `wf.exe` does too. The `.msi` now keeps one `UpgradeCode`, where each
+  release had its own, so the next one replaces it instead of installing
+  beside it. The Node binding looks for `webfluent.exe` and `wf.exe` by
+  their full names ([chapter 35](md-docs/35-server-rendering.md#from-node)).
+- **The check does less** ([chapter 38](md-docs/38-cli.md#wf-check)).
+  The `env` lint lexes only a file whose text could name `env.…`, and the
+  output checks work out what a build can evaluate only once they find a
+  `Chart` or a `QrCode`: on Halyard the check went from 28 ms to 18 ms.
+  Its phases also run side by side, which helps most on a busy machine.
+- **A build into another folder reuses the cache**
+  ([chapter 38](md-docs/38-cli.md#wf-build)). The cache's key held the
+  output folder, so two builds of one project into different folders, as
+  an editor's previews are, never shared a page.
+
+- **Markdown links are checked, and backslash escapes work**
+  ([chapter 27](md-docs/27-content.md#backslash-escapes)). Every link and
+  picture in `Markdown` goes through the scheme check the rest of a page
+  does, so `[x](javascript:…)` is drawn as its words. A backslash before
+  punctuation draws that character (`\*` is `*`, not emphasis), as
+  CommonMark has it, and the build and the browser draw Markdown alike,
+  line breaks and white space included.
+- **Escape goes to the newest layer that can take it**
+  ([chapter 9](md-docs/09-events.md#layers-popovers-menus-and-tooltips-above-everything)).
+  A tooltip under the pointer no longer takes Escape from the page (an
+  editor's completion list behind a toolbar button lost it); it hides and
+  lets the key go on. An open `Modal` or `Dialog` is the newest layer, so
+  its Escape comes before a popover's beneath it, and a press inside it no
+  longer closes that popover. `on close` on a modal is its event, with no
+  `V09`.
+- **Every built-in takes what any element takes**
+  ([chapter 37](md-docs/37-components-reference.md)). `role:`,
+  `tabindex:`, `aria-*`, `data-*` and `on` handlers reached a `Popover`,
+  `Menu`, `Tooltip`, `Modal`, `VirtualList`, `Splitter`, `Tabs`,
+  `Sidebar`, `Slider` and the rest only in part, or not at all; each now
+  writes them on its element, in the live page, the pre-render and the
+  template engine alike, as `C04` says. `disabled: true` disables a
+  `Slider`, `DatePicker` or `FileUpload`. An `html:` written on an element
+  is an attribute, never markup.
+- **A long list drawn before its box is laid out**
+  ([chapter 37](md-docs/37-components-reference.md#virtuallist)) paints the
+  right rows in its first frame, the row `reveal:` names among them, where
+  it drew about forty and trimmed them a frame later.
+- **A pre-rendered modal** has its title as its heading, as the live page
+  draws it, not as a `title=` tooltip; an `IconButton`'s own `title:` wins
+  over its label on every page.
+- **A test reads a page as a reader does**
+  ([chapter 24](md-docs/24-testing.md#a-test-that-looks)). `expect` reads
+  a plain render as a browser lays it out: elements that touch read as
+  touching, where the render's line breaks put a space between them. A
+  test run in a browser loads the project's own stylesheets and serves
+  `public/` beside the page, as the built page does.
+- **A record with all its fields defaulted is `Offers()`**
+  ([chapter 12](md-docs/12-stores.md#declaring-a-store)), wherever an
+  expression goes, a prop's default among them; a left-out field of a
+  default record is filled in, in the pre-render too.
+- **`data-x: true` is `data-x="true"`** on every page, given to an element
+  or passed through a component's call, and a call's `data-*`, `aria-*`,
+  `id:` and `class:` reach the component's root in the template engine.
+- **A local is its own** ([chapter 12](md-docs/12-stores.md#actions)). A
+  `let`, a parameter or a loop's name in a store's action that shares a
+  member's name was compiled to the member, so writing it wrote the store;
+  in a page or a component, one that shared a prop's name read the prop.
+## Upgrading
+
+See [chapter 46](md-docs/46-upgrading.md#5-10): Markdown's backslash
+escapes and checked links, attributes that built-ins now write, a modal's
+Escape and painted title, column spans that leave room for the gap, a `Menu`'s `label:` that no longer names its button, a
+form without `bind:` that asks its rules, a bound box whose `on change`
+wrote the value itself, and pre-rendered HTML and test snapshots that now
+match the live page are what a project may notice. On Windows, type
+`webfluent` and uninstall an older MSI. Run `wf check`.
+
 # WebFluent v5.9.0 Release Notes
 
 An app's frame — layers, shortcuts, gestures, long lists, workers, frames —

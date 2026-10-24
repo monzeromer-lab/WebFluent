@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.9</p>
+                            <p class="wf-text wf-s859a58d7">5.10</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -473,7 +473,7 @@ page Use(path: &quot;/&quot;) {
                             </div>
                             <div class="wf-markdown">
 <ul>
-<li><strong><code>Modal</code></strong> and <strong><code>Dialog</code></strong> are real <code>&lt;dialog&gt;</code> elements, opened while their <code>visible:</code> state is true. The browser traps focus, makes the rest of the page inert and closes on Escape or a click on the backdrop — and when it closes that way, the state is set back to <code>false</code>, so it never disagrees with what is on screen. Focus returns to what opened it. <code>title:</code> is the accessible name (<code>A08</code> without one). <code>Modal.Footer</code> is the row of actions.</li>
+<li><strong><code>Modal</code></strong> and <strong><code>Dialog</code></strong> are real <code>&lt;dialog&gt;</code> elements, opened while their <code>visible:</code> state is true. The browser traps focus, makes the rest of the page inert and closes on Escape (a click on the backdrop leaves it open) — and when it closes that way, the state is set back to <code>false</code>, so it never disagrees with what is on screen. Focus returns to what opened it. <code>on close</code> runs when it closes, however it was closed. <code>title:</code> is its heading, which names it (<code>A08</code> without one). <code>Modal.Footer</code> is the row of actions.</li>
 <li><strong><code>Toast</code></strong> shows the moment it is rendered and leaves after three seconds; it is announced politely to screen readers. Put it under a condition that turns true.</li>
 <li><strong><code>Menu</code></strong> and <strong><code>Dropdown</code></strong> open a list from a button. Arrow keys move between items, Home and End jump to the ends, Enter and Space choose, Escape closes with focus back on the button, and a click outside closes it.</li>
 <li><strong><code>Tooltip</code></strong> shows its text when its child is hovered or focused, and is linked to it with <code>aria-describedby</code>.</li>
@@ -481,7 +481,8 @@ page Use(path: &quot;/&quot;) {
                             </div>
                             <h3 class="wf-heading" id="layers-popovers-menus-and-tooltips-above-everything">Layers: popovers, menus and tooltips above everything</h3>
                             <div class="wf-markdown">
-<p>A <code>Popover</code>, a <code>Menu</code>'s list and a <code>Tooltip</code> are drawn in the browser's top layer, above everything else on the page, so a box with <code>overflow: hidden</code> or a stacking context of its own cannot clip or cover them. Each is placed against its anchor: it flips to the other side when there is no room, slides along its side to stay on screen, and follows the anchor while the page scrolls; when the anchor scrolls out of view the layer goes with it, still open, and comes back with it. The open layers are one stack, newest on top: Escape closes the top one only, and a press outside closes every layer it is outside of.</p>
+<p>A <code>Popover</code>, a <code>Menu</code>'s list and a <code>Tooltip</code> are drawn in the browser's top layer, above everything else on the page, so a box with <code>overflow: hidden</code> or a stacking context of its own cannot clip or cover them. Each is placed against its anchor: it flips to the other side when there is no room, slides along its side to stay on screen, and follows the anchor while the page scrolls; when the anchor scrolls out of view the layer goes with it, still open, and comes back with it. The open layers are one stack, newest on top, and a press outside closes every layer it is outside of.</p>
+<p>Escape closes the newest layer that can be dismissed — a popover, a menu, an open <code>Modal</code> or <code>Dialog</code> — and stops there: nothing behind it hears that key. A modal opened from a popover is above it: the first Escape closes the modal, which its <code>on close</code> hears, and the next the popover. A modal covers what is beneath it, so a press in it, or on its backdrop, leaves the popover under it open. A tooltip keeps Escape only while focus is on its control: it hides, and the key goes no further. Otherwise the same Escape hides it on its way past and goes on, to the layer below or to the element with focus. A tooltip under a pointer resting on a toolbar button does not take the Escape that closes an editor's completion list.</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -545,7 +546,8 @@ page Use(path: &quot;/&quot;) {
 <li><strong><code>Menu</code></strong> with <code>trigger:</code> is a button and its list. Without one it is a list that state opens — open from the first paint if its state starts <code>true</code> — at an <code>anchor:</code>, or <code>at:</code> a point <code>{ x, y }</code>, where the pointer asked for a context menu. <code>label:</code> names the list for a screen reader; it is never a button's text. Choosing an item closes it (<code>on close</code> hears <code>&quot;choose&quot;</code>).</li>
 <li><strong><code>Menu.Item</code></strong> takes <code>shortcut:</code> — the keys that do the same, drawn at its end and given to assistive technology as <code>aria-keyshortcuts</code>; <code>checked:</code>, which makes it a check item that follows its state; and <code>disabled:</code>, which keeps it in sight but out of reach — the arrow keys skip it and a press does nothing; and <code>.danger</code>, for what cannot be taken back (Delete, Discard), drawn in the danger colour.</li>
 <li><strong><code>Menu.Sub(label:)</code></strong> is an entry with a menu of its own, opened beside it by a hover, ArrowRight or Enter. ArrowLeft and Escape go back to the entry; choosing in it closes the whole menu, and it closes with its menu.</li>
-<li><strong><code>Tooltip</code></strong> waits <code>delay:</code> milliseconds of hover (unset, 500) and shows at once for keyboard focus; it never takes focus, and goes on leaving, on a press and on Escape. <code>shortcut:</code> adds a chip with the keys and gives the control it names its <code>aria-keyshortcuts</code>, in ARIA's spelling (<code>Control+S</code>); <code>placement:</code> is where it goes (unset, <code>.top</code>).</li>
+<li><strong><code>Tooltip</code></strong> waits <code>delay:</code> milliseconds of hover (unset, 500) and shows at once for keyboard focus; it never takes focus, and goes on leaving, on a press and on Escape — and once Escape has hidden it, it stays hidden until the pointer comes back to it or keyboard focus reaches its control. <code>shortcut:</code> adds a chip with the keys and gives the control it names its <code>aria-keyshortcuts</code>, in ARIA's spelling (<code>Control+S</code>); <code>placement:</code> is where it goes (unset, <code>.top</code>).</li>
+<li>A layer takes what any element takes, as every built-in does (chapter 7), on the element it draws: <code>id:</code>, <code>role:</code>, <code>tabindex:</code>, <code>title:</code>, <code>aria-*</code>, <code>data-*</code>, <code>ref:</code>, and its <code>on</code> handlers. A <code>Popover</code> is a <code>dialog</code> unless its <code>role:</code> says what else it is — a <code>listbox</code> of choices. A <code>Menu</code> with a <code>trigger:</code> takes them on the box around its button and list, and one that state opens on its list, whose <code>role:</code> then replaces <code>menu</code>; a <code>Tooltip</code> on the box around its control; a <code>Modal</code> or a <code>Dialog</code> on its <code>&lt;dialog&gt;</code>, whose <code>title:</code> is its heading rather than an attribute. A <code>Popover</code>'s or a <code>Menu</code>'s <code>on close</code> is the layer's own, and hears why it closed.</li>
 </ul>
                             </div>
                             <h2 class="wf-heading" id="gestures-drag-long-press-swipe-and-the-splitter">Gestures: drag, long-press, swipe and the splitter</h2>
@@ -605,7 +607,7 @@ page Use(path: &quot;/&quot;) {
 <li><strong><code>on dragmove(d)</code></strong> on the dragged element hears, as it moves, what it is over — the target's <code>dropValue:</code> as <code>d.over</code>, null over nothing — and where it would land: enough to say &quot;Goes after Badge, inside Row&quot;.</li>
 <li><strong><code>dragGroup:</code></strong> on a drag and its targets keeps tabs and tree rows apart.</li>
 <li><strong><code>on longpress(p)</code></strong> is half a second held still (<code>p.x</code>, <code>p.y</code>); the click it ends with is not a click. <strong><code>on swipe(s)</code></strong> is a finger or a pen swept across: <code>s.direction</code> is <code>&quot;left&quot;</code>, <code>&quot;right&quot;</code>, <code>&quot;up&quot;</code> or <code>&quot;down&quot;</code>.</li>
-<li><strong><code>Splitter(bind:, min:, max:, reset:)</code></strong> sizes the region beside it: it follows the pointer between its bounds, a double-click or Enter resets it, and the arrow keys move it 16 px (64 with Shift). <code>.horizontal</code> sits between regions one above the other; <code>.reverse</code> sits on the start side of what it sizes — a pane on the right, a panel at the bottom. A drag or a key starts from the region's size as it is drawn, so the bound value may mean &quot;the default share&quot; — <code>0</code>, with the region's width a percentage until it is dragged — and <code>reset: 0</code> goes back to it: a reset is taken as written, not held to <code>min:</code>.</li>
+<li><strong><code>Splitter(bind:, min:, max:, reset:)</code></strong> sizes the region beside it: it follows the pointer between its bounds, a double-click or Enter resets it, and the arrow keys move it 16 px (64 with Shift). <code>.horizontal</code> sits between regions one above the other; <code>.reverse</code> sits on the start side of what it sizes — a pane on the right, a panel at the bottom. A drag or a key starts from the region's size as it is drawn, so the bound value may mean &quot;the default share&quot; — <code>0</code>, with the region's width a percentage until it is dragged — and <code>reset: 0</code> goes back to it: a reset is taken as written, not held to <code>min:</code>. It is a <code>separator</code> in the tab order unless its <code>role:</code> or <code>tabindex:</code> says otherwise.</li>
 </ul>
 <p>A drag has no keyboard of its own: give what it does a menu item or a command too (<code>Move left</code>, <code>Move to…</code>), as the desktop's rule asks of every pointer action.</p>
                             </div>
@@ -683,7 +685,7 @@ page Use(path: &quot;/&quot;) {
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.9, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.10, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -710,7 +712,7 @@ page Use(path: &quot;/&quot;) {
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.9 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.10 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

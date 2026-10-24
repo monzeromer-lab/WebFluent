@@ -46,7 +46,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.9</p>
+                            <p class="wf-text wf-s859a58d7">5.10</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -72,7 +72,7 @@
                 <aside class="wf-sidebar wf-sc879c3a5" aria-label="Components">
                     <div class="wf-row wf-align--center wf-gap--sm wf-sc37bab83 site-search">
                         <i class="wf-icon" data-icon="search"></i>
-                        <input class="wf-input" placeholder="Filter 76 built-ins" aria-label="Filter 76 built-ins" type="search">
+                        <input class="wf-input" placeholder="Filter 77 built-ins" aria-label="Filter 77 built-ins" type="search">
                     </div>
                     <p class="wf-text group-label">Layout</p>
                     <a class="wf-sidebar__item" href="/docs/reference/container">
@@ -104,6 +104,9 @@
                     </a>
                     <a class="wf-sidebar__item" href="/docs/reference/host">
                         <p class="wf-text">Host</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/reference/portal">
+                        <p class="wf-text">Portal</p>
                     </a>
                     <a class="wf-sidebar__item" href="/docs/reference/element">
                         <p class="wf-text">Element</p>
@@ -324,7 +327,7 @@
                     <div class="wf-stack wf-gap--sm wf-s82e57ad1">
                         <h1 class="wf-heading wf-s1f2db64f">Components reference</h1>
                         <div class="wf-markdown wf-se4ee4d09">
-<p>76 built-in elements in eleven groups, each with its signature, its props, its flags, its events and its parts — read from the compiler's registry, so what this page lists is exactly what the checker accepts. Every element is written <code>Name(positional, prop: value).flag { block }</code>.</p>
+<p>77 built-in elements in eleven groups, each with its signature, its props, its flags, its events and its parts — read from the compiler's registry, so what this page lists is exactly what the checker accepts. Every element is written <code>Name(positional, prop: value).flag { block }</code>.</p>
                         </div>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s982ede03" id="layout">
@@ -369,6 +372,10 @@
                             <a class="wf-link wf-s6662a90f" href="/docs/reference/host">
                                 <p class="wf-text wf-s778fc8aa">Host</p>
                                 <p class="wf-text wf-s36513411">A bare node handed to somebody else&#x27;s code, with a lifetime. mount: runs with the node each time it is made, update: again whenever the state it reads changes, and cleanup: when the page, branch or list item it belongs to leaves. Every other element takes the same three.</p>
+                            </a>
+                            <a class="wf-link wf-s6662a90f" href="/docs/reference/portal">
+                                <p class="wf-text wf-s778fc8aa">Portal</p>
+                                <p class="wf-text wf-s36513411">Its block, drawn into a node somebody else&#x27;s code owns: an element a script hands over, or a ref: handle. When into: names another node the block moves there with its nodes and state; null keeps it aside until a node comes back; it goes when the page, branch or list item it is written in leaves. What is inside belongs to where it is written: its handlers, emit and lifetimes.</p>
                             </a>
                             <a class="wf-link wf-s6662a90f" href="/docs/reference/element">
                                 <p class="wf-text wf-s778fc8aa">Element</p>
@@ -463,7 +470,7 @@
                             </a>
                             <a class="wf-link wf-s6662a90f" href="/docs/reference/slider">
                                 <p class="wf-text wf-s778fc8aa">Slider</p>
-                                <p class="wf-text wf-s36513411">Range input. aria-* arguments reach the input; with aria-valuetext the raw number is not shown beside the track.</p>
+                                <p class="wf-text wf-s36513411">Range input. aria-* and its other attributes reach the input; with aria-valuetext the raw number is not shown beside the track.</p>
                             </a>
                             <a class="wf-link wf-s6662a90f" href="/docs/reference/datepicker">
                                 <p class="wf-text wf-s778fc8aa">DatePicker</p>
@@ -496,7 +503,7 @@
                             </a>
                             <a class="wf-link wf-s6662a90f" href="/docs/reference/modal">
                                 <p class="wf-text wf-s778fc8aa">Modal</p>
-                                <p class="wf-text wf-s36513411">Modal &lt;dialog&gt;, opened by a state flag; the browser supplies focus trapping and Escape.</p>
+                                <p class="wf-text wf-s36513411">Modal &lt;dialog&gt;, opened by a state flag; the browser supplies focus trapping and Escape. on close runs when it closes, however it was closed.</p>
                             </a>
                             <a class="wf-link wf-s6662a90f" href="/docs/reference/popover">
                                 <p class="wf-text wf-s778fc8aa">Popover</p>
@@ -504,7 +511,7 @@
                             </a>
                             <a class="wf-link wf-s6662a90f" href="/docs/reference/dialog">
                                 <p class="wf-text wf-s778fc8aa">Dialog</p>
-                                <p class="wf-text wf-s36513411">Confirmation &lt;dialog&gt;, opened by a state flag.</p>
+                                <p class="wf-text wf-s36513411">Confirmation &lt;dialog&gt;, opened by a state flag. on close runs when it closes, however it was closed.</p>
                             </a>
                             <a class="wf-link wf-s6662a90f" href="/docs/reference/spinner">
                                 <p class="wf-text wf-s778fc8aa">Spinner</p>
@@ -587,7 +594,7 @@
                             </a>
                             <a class="wf-link wf-s6662a90f" href="/docs/reference/markdown">
                                 <p class="wf-text wf-s778fc8aa">Markdown</p>
-                                <p class="wf-text wf-s36513411">Markdown text rendered as HTML: headings, paragraphs, lists, quotes, code, links, emphasis. The text is escaped first, so HTML in it is shown, not run.</p>
+                                <p class="wf-text wf-s36513411">Markdown text rendered as HTML: headings, paragraphs, lists, quotes, code, links, emphasis. The text is escaped first, so HTML in it is shown, not run, and a link or picture whose URL a browser would run is drawn as its words. .inert is for text somebody else wrote.</p>
                             </a>
                             <a class="wf-link wf-s6662a90f" href="/docs/reference/unsafe">
                                 <p class="wf-text wf-s778fc8aa">Unsafe</p>
@@ -1381,7 +1388,7 @@
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.9, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.10, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -1408,7 +1415,7 @@
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.9 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.10 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

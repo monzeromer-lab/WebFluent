@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.9</p>
+                            <p class="wf-text wf-s859a58d7">5.10</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -399,6 +399,9 @@ page Search(path: &quot;/&quot;, title: &quot;Search&quot;, description: &quot;R
 <li><strong><code>reveal:</code></strong> reads a row's key: when it changes, that row is scrolled into view — the selected file as the arrow keys move, the current match.</li>
 <li>A row keeps its nodes while it stays in the window and is told in place when its item changes, as a keyed <code>for</code>'s are; a row scrolled out of the window is let go. Give rows no vertical margins: a row's height is its box's.</li>
 <li>A tree is a list of the rows that are showing: flatten it in a <code>derived</code> (the open folders' children after each folder) and window that.</li>
+<li>The box needs a height that does not come from its rows — <code>style { height: 400px }</code>, a <code>max-height:</code>, a cell of a grid or a flex row that sets one; a box as tall as what it holds grows until every row is drawn.</li>
+<li>A list drawn before its box is laid out — inside an <code>if</code> that just turned true, in a panel not shown yet — draws only the few rows past the window until the box has a height, and the first height it has is laid out before that frame is painted: the first frame shows the rows in view, not a guess at them trimmed a frame later. A row <code>reveal:</code> asks for in the meantime is scrolled to then, so that frame shows it. A list hidden and shown again is laid out the same way.</li>
+<li>The box takes what any element takes (chapter 7): a <code>role: &quot;listbox&quot;</code>, a <code>tabindex:</code>, an <code>aria-activedescendant:</code> that follows the current row, <code>data-*</code>, and its <code>on</code> handlers — an <code>on keydown</code> that moves through a references list. <code>label:</code> is its accessible name.</li>
 <li>The pre-rendered page paints the first 60 rows; the runtime draws the window when it takes over.</li>
 <li>With anything else in its body, or a <code>for</code> with no <code>by</code>, it draws every row (<code>V12</code>).</li>
 </ul>
@@ -551,7 +554,7 @@ page Job(path: &quot;/&quot;) {
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.9, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.10, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -578,7 +581,7 @@ page Job(path: &quot;/&quot;) {
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.9 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.10 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

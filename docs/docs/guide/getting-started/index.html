@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.9</p>
+                            <p class="wf-text wf-s859a58d7">5.10</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -314,6 +314,9 @@
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">irm https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.ps1 | iex</code>
                             </div>
+                            <div class="wf-markdown">
+<p>On Windows, type <strong><code>webfluent</code></strong> where this guide types <code>wf</code>. Windows already has a <code>wf</code>: <code>C:\Windows\System32\WF.msc</code>, the Windows Firewall console. System32 comes first on <code>PATH</code> and <code>.MSC</code> is one of the extensions a bare name is tried with, so <code>wf</code> opens the firewall instead of WebFluent. The release zip, <code>install.ps1</code> and the <code>.msi</code> therefore install the compiler as <code>webfluent.exe</code> beside <code>wf.exe</code> (the <code>.msi</code> puts their folder on <code>PATH</code>): <code>webfluent build</code>, <code>webfluent serve</code> and <code>wf.exe build</code> all work. After <code>cargo install webfluent</code>, use <code>wf.exe</code>.</p>
+                            </div>
                             <h3 class="wf-heading" id="with-rust">With Rust</h3>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -343,7 +346,7 @@
                             </div>
                             <div class="wf-markdown">
 <p>If the shell cannot find <code>wf</code>, open a new terminal: the installer adds its directory to your <code>PATH</code> in your shell's startup file, which the session you ran it in had already read.</p>
-<p>Both installers read two environment variables: <code>WF_INSTALL_DIR</code> puts the binary somewhere other than <code>~/.webfluent/bin</code>, and <code>WF_VERSION</code> pins a release (<code>WF_VERSION=v5.9.0</code>) rather than taking the latest. Running the installer again upgrades in place.</p>
+<p>Both installers read two environment variables: <code>WF_INSTALL_DIR</code> puts the binary somewhere other than <code>~/.webfluent/bin</code>, and <code>WF_VERSION</code> pins a release (<code>WF_VERSION=v5.10.0</code>) rather than taking the latest. Running the installer again upgrades in place.</p>
 <p>To build from a clone instead — for an unreleased change, or to work on the compiler itself:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
@@ -604,7 +607,7 @@ tests/*.wf            `test &quot;…&quot; { }` declarations for `wf test`</cod
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.9, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.10, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -631,7 +634,7 @@ tests/*.wf            `test &quot;…&quot; { }` declarations for `wf test`</cod
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.9 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.10 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

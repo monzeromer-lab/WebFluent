@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.9</p>
+                            <p class="wf-text wf-s859a58d7">5.10</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -292,11 +292,11 @@
                             <div class="wf-markdown">
 <p>These are properties of the output, not advice. You do not opt in.</p>
 <ul>
-<li><strong>Text is text.</strong> Every string an element shows goes in as a text node. There is no path by which <code>&quot;&lt;script&gt;&quot;</code> in your data becomes a script. The one exception has <code>Unsafe</code> in its name.</li>
+<li><strong>Text is text.</strong> Every string an element shows goes in as a text node. There is no path by which <code>&quot;&lt;script&gt;&quot;</code> in your data becomes a script. The one exception has <code>Unsafe</code> in its name. An <code>html:</code> written on an element is an attribute called <code>html</code>, as any argument an element does not declare is (<code>C04</code>), and never markup.</li>
 <li><strong>No inline handlers.</strong> Events bind through <code>addEventListener</code>. Writing <code>Button(&quot;x&quot;, onclick: expr)</code> is a compile error, because that attribute is the one place an attribute value is executed.</li>
 <li><strong>No URL a browser would run.</strong> <code>href:</code>, <code>src:</code>, <code>to:</code>, <code>poster:</code> and <code>navigate()</code> take a URL whose scheme is <code>http</code>, <code>https</code>, <code>mailto</code>, <code>tel</code>, <code>sms</code>, <code>ftp</code> or nothing at all. A literal is refused where it is written; a value that only exists at run time is refused at the moment it is used. <code>javascript:</code>, <code>data:</code>, <code>vbscript:</code>, <code>blob:</code> and <code>file:</code> are not URLs a page may point at.</li>
 <li><strong>No handle on your page.</strong> A link with <code>target:</code> carries <code>rel=&quot;noopener noreferrer&quot;</code>, so the page it opens cannot navigate yours.</li>
-<li><strong>Markdown is escaped first.</strong> <code>Markdown(text)</code> renders the small Markdown it documents and shows any HTML in the text rather than running it.</li>
+<li><strong>Markdown is escaped first.</strong> <code>Markdown(text)</code> renders the small Markdown it documents and shows any HTML in the text rather than running it. Its links and pictures go through the same scheme check as every other URL: a link to a <code>javascript:</code> URL is drawn as its words, with no link, at build time and in the browser alike, and so is one that puts a backslash before its colon (<code>javascript\:</code>), which Markdown reads as the colon it escapes. For text somebody else wrote, such as a language server's documentation, <code>Markdown(text).inert</code> draws no link or picture at all (<a href="/docs/guide/content#text-somebody-else-wrote-inert">Content</a>).</li>
 <li><strong>A <code>Secret</code> cannot escape.</strong> It may not be shown, spliced into a string, logged or persisted — each is a <code>T12</code>, at the line that does it.</li>
 <li><strong>A non-public <code>env</code> name may not be read from a page.</strong> See below.</li>
 </ul>
@@ -415,6 +415,7 @@ store Session {
 <li>a <code>_headers</code> file for hosts that read one (Netlify, Cloudflare Pages, Vercel; others ignore it).</li>
 </ul>
 <p><code>frame-ancestors</code> is only in <code>_headers</code>, because a browser ignores it in a meta tag — a policy that carried it there would say one thing and deliver another.</p>
+<p>No other site may frame the pages: <code>_headers</code> says <code>frame-ancestors 'none'</code> and <code>X-Frame-Options: DENY</code>, and <code>wf serve</code> sends the same, so a page cannot be laid under someone else's to be clicked through. A project that frames a page of its own — a <code>Frame</code> whose <code>src:</code> is site-relative, <code>Frame(src: &quot;/preview/&quot;, title: &quot;Preview&quot;)</code> — is relaxed to its own origin and no further: <code>frame-ancestors 'self'</code> and <code>X-Frame-Options: SAMEORIGIN</code>. A <code>Frame</code> of another origin's page changes nothing here (that is <code>meta.frame</code>'s <code>frame-src</code>).</p>
 <p>The policy is <code>'self'</code> throughout, with no <code>'unsafe-inline'</code> for scripts: the compiler writes external files and binds events with <code>addEventListener</code>, so nothing needs it. It is widened by exactly the origins <code>meta.fonts</code>, <code>meta.stylesheets</code> and <code>meta.scripts</code> declare, so a declared font or library is never blocked by the policy shipped beside it. The project's own scripts under <code>src/</code> are served from the site itself, so they need nothing added.</p>
 <p>Where a page may <em>send</em> requests is the same rule: its own origin, unless <code>meta.connect</code> names others — an API on another domain, an analytics endpoint. Each is an origin, <code>https://api.example.com</code>, or <code>https://*.example.com</code> for its subdomains, and joins <code>connect-src</code>:</p>
                             </div>
@@ -550,7 +551,7 @@ store Session {
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.9, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.10, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -577,7 +578,7 @@ store Session {
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.9 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.10 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

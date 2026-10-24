@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.9</p>
+                            <p class="wf-text wf-s859a58d7">5.10</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -306,6 +306,38 @@
                             </div>
                             <div class="wf-markdown">
 <p>Blocks: <code>#</code>–<code>######</code> headings, paragraphs (their lines run together, as in CommonMark — end a line with two spaces or <code>\</code> to break it), fenced code with a language (`<code> </code>`<code>js </code><code>), </code>&gt;<code> quotes, </code>-<code>/</code><em><code> and </code>1.<code> lists (one level), </code>---<code> rules. Inline: </code><code> </code>code<code> </code><code>, </code><strong>strong</strong><code>, </code></em>em*<code>/</code><em>em</em>`, links, images. Raw HTML in the text is shown as text, not run — Markdown from a user or an API is safe to render.</p>
+<p>A link or a picture goes through the scheme check every other URL does (<a href="/docs/guide/security">Security</a>): one whose URL a browser would run — <code>javascript:</code>, <code>vbscript:</code>, a <code>data:</code> URL — is drawn as its words, with no link and no picture. A site-relative URL (<code>/about</code>, <code>/img.png</code>) is addressed from the site's <code>base_path</code>, as <code>Link(to:)</code>'s is.</p>
+                            </div>
+                            <h3 class="wf-heading" id="backslash-escapes">Backslash escapes</h3>
+                            <div class="wf-markdown">
+<p>A backslash before a punctuation mark shows the mark and stops it meaning anything, as in CommonMark: <code>\*not em\*</code> is <code>*not em*</code>, <code>\[not a link\](/x)</code> is no link, <code>\#</code> at the start of a line is no heading, <code>1\.</code> is no list, and <code>\\</code> is one backslash. Every ASCII punctuation mark can be escaped this way (<code>\-</code>, <code>\{</code>, <code>\(</code>, <code>\_</code>, <code>\&amp;</code> and the rest), and an escaped one is only the character it is: it makes no link, no emphasis and no entity. In a link's words an escaped bracket is a bracket like any other (<code>[a\]b](/c)</code>), and they hold no unescaped <code>[</code>, so in <code>[a [b](/c)</code> only <code>b</code> is the link. In a URL an escape is read as the character it is, so <code>[x](javascript\:alert\(1\))</code> is checked as the <code>javascript:alert(1)</code> URL it says, and drawn as its words.</p>
+<p>A backslash before anything else is shown, as <code>C:\Users</code> is, and so is one in a code span or a fence, where nothing is Markdown. A line that ends in a backslash breaks there, as above; the last line of a paragraph, a heading or a list item has no line after it to break to, and shows its backslash. A fence's language takes escapes too: <code>c\+\+</code> after the backticks is <code>c++</code>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="text-somebody-else-wrote-inert">Text somebody else wrote: .inert</h3>
+                            <div class="wf-markdown">
+<p>Documentation from a language server, a <code>///</code> comment, a package's readme: text written by somebody else, often with HTML entities in it, and with links and pictures that should not be followed or fetched from where it is shown. <code>.inert</code> draws it:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Hover(path: &quot;/&quot;) {
+    state docs = &quot;Returns a list of &amp;lt;T&amp;gt; &amp;mdash; see [the guide](https://example.com/guide).\n\n![build](https://ci.example.com/badge.svg)&quot;
+    Markdown(docs).inert
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>It draws one paragraph, <code>Returns a list of &lt;T&gt; — see the guide.</code>, with no link in it, and leaves the badge out. Under <code>.inert</code>:</p>
+<ul>
+<li>Entities are decoded, then escaped: <code>&amp;lt;color&amp;gt;</code> shows as <code>&lt;color&gt;</code>, and a <code>&lt;script&gt;</code>, written out or encoded, is shown as text. In `<code> </code>code<code> </code><code> and in a fence an entity stays as it was written, as CommonMark leaves it. The named entities are the ones documentation is written with — </code>&amp;lt;<code> </code>&amp;gt;<code> </code>&amp;amp;<code> </code>&amp;quot;<code> </code>&amp;apos;<code> </code>&amp;nbsp;<code>, the dashes, quotes and arrows, and a few signs — and any number works (</code>&amp;#60;<code>, </code>&amp;#x3C;`).</li>
+<li>A link is drawn as its words, with no <code>&lt;a&gt;</code>.</li>
+<li>A picture is left out, with the space after it; a paragraph of nothing but pictures is left out with them.</li>
+<li>Everything else — paragraphs, fences, <code>code</code>, <code>**strong**</code>, <code>*em*</code> and <code>_em_</code>, headings, lists, quotes, rules, backslash escapes — is drawn as plain <code>Markdown</code> draws it. A language server escapes its documentation this way: the CSS one writes <code>margin\-top</code> and <code>&amp;lt;length\-percentage&amp;gt;\{1,4\}</code>, which <code>.inert</code> shows as <code>margin-top</code> and <code>&lt;length-percentage&gt;{1,4}</code>. An escaped <code>&amp;</code> begins no entity: <code>\&amp;lt;</code> shows the four characters <code>&amp;lt;</code>.</li>
+</ul>
+<p><code>inert:</code> takes a value too, <code>Markdown(docs, inert: untrusted)</code>, and follows it. Plain <code>Markdown</code> is unchanged: an entity in it shows as it was written, so a page that wrote <code>&amp;lt;</code> to mean the four characters still shows them.</p>
                             </div>
                             <h2 class="wf-heading" id="md-pages">.md pages</h2>
                             <div class="wf-markdown">
@@ -613,7 +645,7 @@ page PostPage(path: &quot;/posts/:slug&quot;, slug: String, type: &quot;article&
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.9, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.10, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -640,7 +672,7 @@ page PostPage(path: &quot;/posts/:slug&quot;, slug: String, type: &quot;article&
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.9 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.10 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

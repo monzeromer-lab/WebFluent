@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.9</p>
+                            <p class="wf-text wf-s859a58d7">5.10</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -540,7 +540,28 @@
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>An attribute value that reads state is kept in step with it; <code>aria-*</code> keeps a <code>false</code> value (it means something), other attributes drop it.</p>
+<p>An attribute value that reads state is kept in step with it. <code>true</code> is written as the word, <code>data-open=&quot;true&quot;</code>, so <code>[data-open=&quot;true&quot;]</code> selects it (a boolean attribute — <code>hidden</code>, <code>disabled</code> — is there or not); <code>aria-*</code> keeps a <code>false</code> value (it means something), other attributes drop it. The same holds for an attribute a component's call hands its root.</p>
+<p>Every built-in takes them, and its <code>on</code> handlers, on the element it draws: its root — the scrolling box of a <code>VirtualList</code>, the handle of a <code>Splitter</code>, the box of a <code>Tabs</code> or a <code>Carousel</code>, the panel of a <code>Sidebar</code>, the <code>&lt;nav&gt;</code> of a <code>Breadcrumb</code>, the <code>&lt;dialog&gt;</code> of a <code>Modal</code> — or, for a control drawn in a box (<code>Switch</code>, <code>Checkbox</code>, <code>Radio</code>, <code>Slider</code>, <code>DatePicker</code>, <code>FileUpload</code>), its input, which is the control and where its handlers already are; <code>hidden</code>, <code>lang</code> and <code>dir</code> are the whole control's, and stay on its box. A <code>role:</code> or an <code>aria-label:</code> written on a built-in takes the place of the one it gives itself — a <code>Splitter</code>'s <code>separator</code>, a <code>Switch</code>'s <code>switch</code>, a <code>Breadcrumb</code>'s name — and a <code>Sidebar</code>'s <code>id:</code> is the one its toggle points at:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;) {
+    state refs = [{ id: &quot;a&quot; }, { id: &quot;b&quot; }, { id: &quot;c&quot; }]
+    state current = 0
+    VirtualList(rowHeight: 24, label: &quot;References&quot;, role: &quot;listbox&quot;, tabindex: &quot;0&quot;, aria-activedescendant: &quot;ref-{current}&quot;) {
+        style { height: 240px }
+        on keydown(e) { if e.key == &quot;ArrowDown&quot; { current = current + 1 } }
+        for r in refs by r.id { Text(r.id, id: &quot;ref-{r.id}&quot;, role: &quot;option&quot;) }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The pre-rendered page and the template engine paint the same attributes on the same elements, as far as the build knows their values.</p>
                             </div>
                             <h2 class="wf-heading" id="parts">Parts</h2>
                             <div class="wf-markdown">
@@ -786,7 +807,7 @@
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.9, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.10, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -813,7 +834,7 @@
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.9 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.10 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>
