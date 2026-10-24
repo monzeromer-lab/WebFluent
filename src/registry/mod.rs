@@ -467,6 +467,7 @@ pub const ICONS: &[&str] = &[
     "outline",
     "help-circle",
     "collapse-all",
+    "locate",
     "chevron-up",
     "globe",
     "external-link",

@@ -51,6 +51,7 @@
     outline: '<g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5h2.5M8 5.5h9M5.5 10H8M10.5 10h6.5M8 14.5h2.5M13 14.5h4"/></g>',
     "help-circle": '<g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="7.5"/><path d="M8 8a2 2 0 1 1 2 2v1.5M10 14.6h.01"/></g>',
     "collapse-all": '<g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8.5l4-4 4 4M6 15.5h8"/></g>',
+    "locate": '<g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2.5v8M5 7.5L10 2.5l5 5"/><circle cx="10" cy="14" r="2"/></g>',
     "chevron-up": '<g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 12.5L10 8l4.5 4.5"/></g>',
     globe: '<g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 10h15M10 2.5c2 2.2 3 4.7 3 7.5s-1 5.3-3 7.5c-2-2.2-3-4.7-3-7.5s1-5.3 3-7.5z"/><circle cx="10" cy="10" r="7.5"/></g>',
     "external-link": '<g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3.5h5.5V9M16.5 3.5L9 11M14.5 11.5v5h-11v-11h5"/></g>',
