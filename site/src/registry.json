@@ -2126,7 +2126,7 @@
     "Popover",
     "Dialog"
    ],
-   "example": "state open = false\nButton(\"Delete\") { on click { open = true } }\nModal(visible: open, title: \"Delete this?\") {\n    Text(\"This cannot be undone.\")\n    Modal.Footer { Button(\"Cancel\") { on click { open = false } } }\n}",
+   "example": "state open = false\nButton(\"Delete\") { on click { open = true } }\nModal(visible: open, title: \"Delete deploys.wf?\").closable {\n    Modal.Title { Markdown(\"Delete `deploys.wf`?\") }\n    Text(\"This cannot be undone.\")\n    Modal.Footer { Button(\"Cancel\") { on click { open = false } } }\n}",
    "cssClass": "wf-modal"
   },
   {
@@ -2271,7 +2271,7 @@
     "Modal",
     "Popover"
    ],
-   "example": "state asking = false\nDialog(visible: asking, title: \"Leave without saving?\") { Text(\"Your draft will be lost.\") }",
+   "example": "state asking = false\nDialog(visible: asking, title: \"Leave without saving notes.md?\") {\n    Dialog.Title { Markdown(\"Leave without saving `notes.md`?\") }\n    Text(\"Your draft will be lost.\")\n}",
    "cssClass": "wf-dialog"
   },
   {

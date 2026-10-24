@@ -271,7 +271,8 @@ page Doc(path: "/") {
 page Doc(path: "/") {
     state open = false
     Button("Delete") { on click { open = true } }
-    Modal(visible: open, title: "Delete this?") {
+    Modal(visible: open, title: "Delete deploys.wf?").closable {
+        Modal.Title { Markdown("Delete `deploys.wf`?") }
         Text("This cannot be undone.")
         Modal.Footer { Button("Cancel") { on click { open = false } } }
     }
@@ -290,7 +291,10 @@ page Doc(path: "/") {
 // md-docs/37-components-reference.md
 page Doc(path: "/") {
     state asking = false
-    Dialog(visible: asking, title: "Leave without saving?") { Text("Your draft will be lost.") }
+    Dialog(visible: asking, title: "Leave without saving notes.md?") {
+        Dialog.Title { Markdown("Leave without saving `notes.md`?") }
+        Text("Your draft will be lost.")
+    }
 }
 
 // md-docs/37-components-reference.md
