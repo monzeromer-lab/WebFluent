@@ -4735,7 +4735,9 @@
   "globe",
   "external-link",
   "panel-down",
-  "panel-up"
+  "panel-up",
+  "code",
+  "monitor"
  ],
  "count": 77
 }

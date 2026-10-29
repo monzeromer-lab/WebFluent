@@ -224,6 +224,16 @@ test("an icon button draws its glyph once", () => {
   assert.equal(draws, 2, "a lone icon still draws");
 });
 
+test("a settings page's code and monitor icons draw as glyphs, not as their names", () => {
+  const { WF } = loadRuntime();
+  for (const name of ["code", "monitor"]) {
+    const icon = WF.el("span", { className: "wf-icon", "data-icon": name });
+    assert.match(icon.innerHTML, /^<svg [^>]*viewBox="0 0 24 24"[^>]*>.*stroke="currentColor".*<\/svg>$/, name);
+  }
+  const unknown = WF.el("span", { className: "wf-icon", "data-icon": "not-an-icon" });
+  assert.equal(unknown.innerHTML, "not-an-icon", "an unknown name is still its word");
+});
+
 test("a route change moves focus to the new page's heading, resets the scroll and announces the title", () => {
   const { WF, document, window } = loadRuntime();
   const container = document.createElement("main");
