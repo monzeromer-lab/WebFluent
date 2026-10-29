@@ -1055,6 +1055,16 @@ pub fn step_script(what: &str, name: &str, value: &str) -> String {
 
 const FIND: &str = r#"
   const words = (s) => (s || "").replace(/\s+/g, " ").trim();
+  // Its text as a reader hears it: what is hidden from readers (a menu
+  // item's shortcut, a glyph) is not part of its name.
+  const heard = (el) => {
+    let t = "";
+    for (const c of el.childNodes) {
+      if (c.nodeType === 3) t += c.textContent;
+      else if (c.nodeType === 1 && c.getAttribute("aria-hidden") !== "true") t += heard(c);
+    }
+    return t;
+  };
   const named = (el, n) => {
     const label = el.labels && el.labels[0] ? el.labels[0].textContent : "";
     return [
@@ -1064,7 +1074,7 @@ const FIND: &str = r#"
       el.getAttribute("title"),
       el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT"
         ? null
-        : el.textContent,
+        : heard(el),
     ].some((t) => words(t) === n);
   };
   const find = (n, kinds) => {

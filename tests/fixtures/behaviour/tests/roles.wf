@@ -13,6 +13,21 @@ test "a menu's item is pressed by its name" {
     expect "said zen"
 }
 
+test "a menu's item with a shortcut is pressed by its name, not its keys" {
+    state said = "nothing"
+    Menu(trigger: "Edit") {
+        Menu.Item(shortcut: "mod+v") { on click { said = "pasted" }  Text("Paste") }
+        Menu.Item(shortcut: "F2") { on click { said = "renamed" }  Text("Rename") }
+    }
+    Text("said {said}")
+    click "Edit"
+    click "Rename"
+    expect "said renamed"
+    click "Edit"
+    click "Paste"
+    expect "said pasted"
+}
+
 test "a tab is pressed by its name" {
     state shown = "code"
     Row(role: "tablist") {
