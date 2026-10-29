@@ -19,7 +19,7 @@ told otherwise, and exits non-zero on failure, so each is a CI step as it is.
 
 | Command | Does |
 |---|---|
-| `wf init NAME [-t, --template spa\|static\|pdf\|slides]` | Creates a project from a template |
+| `wf init NAME [-t, --template spa\|static\|pdf\|slides] [-l, --locales LIST]` | Creates a project from a template, translated into `LIST` when given |
 | `wf build [-d, --dir DIR] [--stats] [--format FORMAT] [--deny-warnings] [--cache] [--studio]` | Compiles the project; fails on errors, prints warnings |
 | `wf check [-d, --dir DIR] [--format FORMAT] [--deny-warnings]` | Every finding a build would report, with nothing written |
 | `wf fix [-d, --dir DIR] [--code CODE] [--dry-run]` | Fixes every finding that has a fix, or every one of a code |
@@ -58,6 +58,23 @@ Makes a directory `NAME` with a config, a `.gitignore` and a small working
 application for the template: `spa` (the default — an interactive app),
 `static` (a marketing site, pre-rendered), `pdf` (a document) or `slides` (a
 deck). It refuses a directory that already exists.
+
+```bash
+wf init my-app --locales en,ar
+```
+
+`--locales` starts it translated, in the languages listed — the first the
+default. Every visible string of the starter goes through `t("…")`, the
+config's `i18n` names the locales (and `meta.lang` the default), the
+language switch has one entry for each, and `src/translations/` holds a
+file per locale: the default's is the starter's English, the text its pages
+and tests are written in; another is the starter's own translation where it
+has one (Arabic) and the same English otherwise, for you to translate. A
+locale is a language tag — `en`, `ar`, `pt-BR`, `zh-Hant`, written in any
+case and kept in the usual one; a tag named twice, an empty list, or a code
+that is not a tag (`pt_BR`) is refused with what to write instead. `spa` and
+`static` take locales; a `pdf` or a `slides` deck is made in one language
+and refuses them. [Internationalisation](21-i18n.md) is the rest.
 
 It also writes `AGENTS.md`: the language reference, the file a coding agent
 reads before it changes a project — so an assistant asked to add a page

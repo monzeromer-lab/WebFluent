@@ -65,6 +65,11 @@ enum Commands {
         /// Template: "spa" (default), "static", "pdf", or "slides"
         #[arg(short, long, default_value = "spa", value_parser = ["spa", "static", "pdf", "slides"])]
         template: String,
+        /// Start it translated: the locales, comma-separated, the default
+        /// first ("en,ar"). Every visible string goes through t(), and
+        /// src/translations/ holds a file for each. spa and static only
+        #[arg(short, long, value_name = "LOCALES")]
+        locales: Option<String>,
     },
     /// Build the project (compile .wf files to HTML + CSS + JS)
     Build {
@@ -428,7 +433,11 @@ fn main() {
         Commands::Build { .. } | Commands::Check { .. } | Commands::Serve { .. }
     );
     let result = match cli.command {
-        Commands::Init { name, template } => cli::init::run_init(&name, &template),
+        Commands::Init {
+            name,
+            template,
+            locales,
+        } => cli::init::run_init(&name, &template, locales.as_deref()),
         Commands::Build {
             dir,
             stats,

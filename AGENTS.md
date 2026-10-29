@@ -26,7 +26,7 @@ Files in `public/` are copied to the **root** of the build output (not nested un
 ## CLI
 
 ```bash
-wf init <name> -t spa|static|pdf|slides   # Create a project (with this AGENTS.md in it)
+wf init <name> -t spa|static|pdf|slides [--locales en,ar]   # Create a project (with this AGENTS.md in it); --locales: translated, the default first
 wf build [-d DIR] [--stats] [--cache] [--studio]  # Compile (--stats: what it weighs; --cache: only the pages an edit changed; --studio: node ids for an editor's preview, nodes.json)
 wf check [-d DIR] [--format F] [--deny-warnings]  # Every finding, nothing written
 wf fix [-d DIR] [--code C] [--dry-run]            # Apply every finding's fix (or one code's)
@@ -2537,6 +2537,19 @@ has none. The build never fetches the file to work the hash out.
     }
 }
 ```
+
+### Starting translated
+
+`wf init my-app --locales en,ar` (spa or static; the first is the
+default) writes the `i18n` config above with `meta.lang` the default, every
+visible string of the starter through `t("…")`, a language switch with one
+entry per locale, and `src/translations/<locale>.json` for each: the
+default's holds the starter's English (the text its pages and tests are
+written in), another the starter's translation into it where it has one
+(Arabic), otherwise the same English to translate. A tag is `en`, `ar`,
+`pt-BR`, `zh-Hant`; one named twice, an empty list or a code that is not
+a tag is refused. `pdf` and `slides` take none. The library:
+`webfluent::init::create_with(dir, name, &Options { template, locales })`.
 
 ### Usage
 

@@ -15,8 +15,8 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
             }
             Table.Body {
                 Table.Row {
-                    Table.Cell { Markdown("`wf init NAME [-t, --template spa|static|pdf|slides]`") }
-                    Table.Cell("Creates a project from a template")
+                    Table.Cell { Markdown("`wf init NAME [-t, --template spa|static|pdf|slides] [-l, --locales LIST]`") }
+                    Table.Cell { Markdown("Creates a project from a template, translated into `LIST` when given") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`wf build [-d, --dir DIR] [--stats] [--format FORMAT] [--deny-warnings] [--cache] [--studio]`") }
@@ -129,7 +129,13 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                 Line(command: "wf init my-site -t static")
             ])
 
-        Markdown("Makes a directory `NAME` with a config, a `.gitignore` and a small working application for the template: `spa` (the default — an interactive app), `static` (a marketing site, pre-rendered), `pdf` (a document) or `slides` (a deck). It refuses a directory that already exists.\n\nIt also writes `AGENTS.md`: the language reference, the file a coding agent reads before it changes a project — so an assistant asked to add a page writes the WebFluent of the `wf` that made it, flags and all, rather than guessing. Its first line names the version it describes; a newer `wf` brings a newer one, and an older project can take it from the [repository](https://github.com/monzeromer-lab/WebFluent/blob/master/AGENTS.md).")
+        Markdown("Makes a directory `NAME` with a config, a `.gitignore` and a small working application for the template: `spa` (the default — an interactive app), `static` (a marketing site, pre-rendered), `pdf` (a document) or `slides` (a deck). It refuses a directory that already exists.")
+
+        Terminal(lines: [
+                Line(command: "wf init my-app --locales en,ar")
+            ])
+
+        Markdown("`--locales` starts it translated, in the languages listed — the first the default. Every visible string of the starter goes through `t(\"…\")`, the config's `i18n` names the locales (and `meta.lang` the default), the language switch has one entry for each, and `src/translations/` holds a file per locale: the default's is the starter's English, the text its pages and tests are written in; another is the starter's own translation where it has one (Arabic) and the same English otherwise, for you to translate. A locale is a language tag — `en`, `ar`, `pt-BR`, `zh-Hant`, written in any case and kept in the usual one; a tag named twice, an empty list, or a code that is not a tag (`pt_BR`) is refused with what to write instead. `spa` and `static` take locales; a `pdf` or a `slides` deck is made in one language and refuses them. [Internationalisation](/docs/guide/i18n) is the rest.\n\nIt also writes `AGENTS.md`: the language reference, the file a coding agent reads before it changes a project — so an assistant asked to add a page writes the WebFluent of the `wf` that made it, flags and all, rather than guessing. Its first line names the version it describes; a newer `wf` brings a newer one, and an older project can take it from the [repository](https://github.com/monzeromer-lab/WebFluent/blob/master/AGENTS.md).")
 
         Heading("wf build", id: "wf-build").h3
 

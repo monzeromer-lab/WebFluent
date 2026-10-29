@@ -130,6 +130,10 @@ next save fixes it.
 | `-t pdf` | A PDF document |
 | `-t slides` | A PDF slide deck |
 
+and `--locales en,ar` starts either of the first two translated, its text in
+`src/translations/`, one file per language
+([Internationalisation](21-i18n.md#starting-translated)).
+
 Not sure between `spa` and `static`? Start with `static`: every page is real
 HTML before any script runs, which is better for search and for a first
 paint, and it is still fully interactive once the script loads.

@@ -1,0 +1,95 @@
+page Settings(path: "/settings", description: "Preferences, appearance and account options.", title: "Settings") {
+    // `persist` keeps a value in the browser, so the settings are still
+    // here on the next visit. The language is the reader's locale, which
+    // `setLocale` keeps on its own.
+    persist username = "demo_user"
+    persist email = "user@example.com"
+    persist notifications = true
+    persist fontSize = 16
+    persist autoSave = false
+    state language = locale
+    state scheme = theme
+    state saved = false
+
+    validate username { required  minLength(3) t("settings.username.short") }
+    validate email { required  email }
+
+    Container.fadeIn {
+        Heading(t("settings.title")).h1
+
+        Spacer
+
+        Tabs {
+            Tabs.Page(t("settings.general")) {
+                Form {
+                    on submit { saved = true }
+
+                    Stack(gap: .sm) {
+                        Heading(t("profile.title")).h2
+                        Input(bind: username, label: t("settings.username"), placeholder: t("settings.username.placeholder")).text
+                        Input(bind: email, label: t("profile.email"), placeholder: t("settings.email.placeholder")).email
+                        Select(bind: language, label: t("settings.language")) {
+                            on change { setLocale(language) }
+                            Select.Option("English", value: "en")
+                        }
+
+                        Spacer
+
+                        Heading(t("settings.preferences")).h2
+                        Switch(bind: notifications, label: t("settings.notifications"))
+                        Switch(bind: autoSave, label: t("settings.autosave"))
+                        Slider(bind: fontSize, min: 12, max: 24, step: 1, label: t("settings.fontsize"))
+
+                        Spacer
+
+                        Heading(t("settings.appearance")).h2
+                        Radio(bind: scheme, value: "light", label: t("settings.light")) { on change { setTheme("light") } }
+                        Radio(bind: scheme, value: "dark", label: t("settings.dark")) { on change { setTheme("dark") } }
+                        Radio(bind: scheme, value: "system", label: t("settings.system")) { on change { setTheme("system") } }
+
+                        Spacer
+
+                        Button(t("settings.save"), type: .submit).primary
+
+                        show saved {
+                            Alert(t("settings.saved")).success
+                        }
+                    }
+                }
+            }
+            Tabs.Page(t("settings.account")) {
+                Card {
+                    Card.Body {
+                        Heading(t("settings.account.title")).h2
+                        Text(t("settings.account.username", { value: username }))
+                        Text(t("settings.account.email", { value: email }))
+                        Text(t("settings.account.theme", { value: theme }))
+                        Text(t("settings.account.fontsize", { value: fontSize }))
+                        Spacer
+                        Text(t("settings.account.notifications", { value: if notifications { t("settings.on") } else { t("settings.off") } })).muted
+                        Text(t("settings.account.autosave", { value: if autoSave { t("settings.on") } else { t("settings.off") } })).muted
+                    }
+                }
+            }
+            Tabs.Page(t("settings.danger")) {
+                Card.outlined {
+                    Card.Body {
+                        Heading(t("settings.danger")).h2
+                        Text(t("settings.danger.note")).muted
+                        Spacer
+                        Button(t("settings.reset")).danger {
+                            on click {
+                                username = "demo_user"
+                                email = "user@example.com"
+                                notifications = true
+                                fontSize = 16
+                                autoSave = false
+                                saved = false
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

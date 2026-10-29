@@ -25,10 +25,3 @@ test "the contact form sends" {
     click "Send Message"
     expect "Thank you! Your message has been sent."
 }
-
-test "the site speaks Arabic" {
-    SiteFooter
-    Button("AR") { on click { setLocale("ar") } }
-    click "AR"
-    expect "جميع الحقوق محفوظة."
-}

@@ -35,6 +35,20 @@
             "pdf",
             "slides"
           ]
+        },
+        {
+          "default": null,
+          "flag": false,
+          "help": "Start it translated: the locales, comma-separated, the default first (\"en,ar\"). Every visible string goes through t(), and src/translations/ holds a file for each. spa and static only",
+          "long": "locales",
+          "name": "locales",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": "l",
+          "takes": "text",
+          "value_name": "LOCALES",
+          "values": []
         }
       ],
       "preview": null,

@@ -1,6 +1,6 @@
 /// Chapter 21 of the guide, written from md-docs/21-i18n.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page I18nGuide(path: "/docs/guide/i18n", title: "Internationalisation", description: "Translation files, t() with placeholders and plurals, choosing and switching the locale, right-to-left, and locale-aware formatting.", layout: DocsShell("Internationalisation", chapter: t("guide.chapter", { n: "21" }), blurb: "One JSON file per locale, t() to read it, and a switch that flips the whole site — direction included.", source: "md-docs/21-i18n.md", sections: [Anchor(id: "setting-up", label: "Setting up"), Anchor(id: "t-key", label: "t(\"key\")"), Anchor(id: "switching-the-locale", label: "Switching the locale"), Anchor(id: "which-locale-a-page-opens-in", label: "Which locale a page opens in"), Anchor(id: "numbers-dates-and-the-locale", label: "Numbers, dates and the locale"), Anchor(id: "translating-a-markdown-page-or-a-md-page", label: "Translating a Markdown page or a .md page"), Anchor(id: "checklist", label: "Checklist"), Anchor(id: "the-translations-as-a-table", label: "The translations as a table")], prevTo: "/docs/guide/motion", prevLabel: "20. {t("ch.20")}", nextTo: "/docs/guide/accessibility", nextLabel: "22. {t("ch.22")}")) {
+page I18nGuide(path: "/docs/guide/i18n", title: "Internationalisation", description: "Translation files, t() with placeholders and plurals, choosing and switching the locale, right-to-left, and locale-aware formatting.", layout: DocsShell("Internationalisation", chapter: t("guide.chapter", { n: "21" }), blurb: "One JSON file per locale, t() to read it, and a switch that flips the whole site — direction included.", source: "md-docs/21-i18n.md", sections: [Anchor(id: "setting-up", label: "Setting up"), Anchor(id: "starting-translated", label: "Starting translated"), Anchor(id: "t-key", label: "t(\"key\")"), Anchor(id: "switching-the-locale", label: "Switching the locale"), Anchor(id: "which-locale-a-page-opens-in", label: "Which locale a page opens in"), Anchor(id: "numbers-dates-and-the-locale", label: "Numbers, dates and the locale"), Anchor(id: "translating-a-markdown-page-or-a-md-page", label: "Translating a Markdown page or a .md page"), Anchor(id: "checklist", label: "Checklist"), Anchor(id: "the-translations-as-a-table", label: "The translations as a table")], prevTo: "/docs/guide/motion", prevLabel: "20. {t("ch.20")}", nextTo: "/docs/guide/accessibility", nextLabel: "22. {t("ch.22")}")) {
     Stack(gap: .lg) {
         Markdown("A site speaks several languages by keeping its text in one JSON file per locale and reading it with `t(\"key\")`. Switching the locale re-renders every translated string, flips the document to right-to-left where the language reads that way, and changes how `format` and `ago` spell numbers and dates.")
 
@@ -41,6 +41,14 @@ page I18nGuide(path: "/docs/guide/i18n", title: "Internationalisation", descript
 }"#, title: "json")
 
         Markdown("A missing file is a build warning; a key missing from a locale falls back to the default locale, then to the key itself.")
+
+        Heading("Starting translated", id: "starting-translated").h2
+
+        Terminal(lines: [
+                Line(command: "wf init my-app --locales en,ar")
+            ])
+
+        Markdown("starts a project — `spa` or `static` — in those languages, the first the default: the `i18n` config above, `meta.lang` the default, every visible string through `t(\"…\")`, a language switch with one entry per locale, and a file for each in `src/translations/`. The default's holds the starter's English, which its pages and tests are written in; Arabic holds the starter's Arabic; any other locale starts as the same English, for you to translate. Each locale is a language tag (`en`, `ar`, `pt-BR`); `--locales ar,en` makes Arabic the default, so the page is right to left from the first paint. From a program it is `webfluent::init::create_with(dir, name, &Options \{ template, locales \})`.")
 
         Heading("t(\"key\")", id: "t-key").h2
 

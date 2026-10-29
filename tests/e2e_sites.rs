@@ -372,6 +372,154 @@ fn every_init_template_builds_clean() {
     );
 }
 
+/// `wf init --locales` starts a project translated: its config names the
+/// locales, `src/translations/` holds a table for each and nothing lacks a
+/// key, it builds clean and formatted, its own tests pass, and Arabic reads
+/// right to left — from the first paint when it is the default.
+#[test]
+fn an_init_with_locales_builds_in_each() {
+    let root = repo_root().join("target/e2e/_init_locales");
+    let _ = std::fs::remove_dir_all(&root);
+    std::fs::create_dir_all(&root).expect("create init root");
+
+    let wf = |dir: &std::path::Path, args: &[&str]| {
+        Command::new(env!("CARGO_BIN_EXE_wf"))
+            .args(args)
+            .current_dir(dir)
+            .output()
+            .expect("running wf")
+    };
+    let mut failures = Vec::new();
+    for (template, locales) in [
+        ("spa", "en,ar"),
+        ("static", "en,ar"),
+        ("spa", "ar,en"),
+        ("static", "ar,en"),
+    ] {
+        let name = format!("{template}_{}", locales.replace(',', "_"));
+        let what = format!("{template} --locales {locales}");
+        let init = wf(
+            &root,
+            &["init", &name, "-t", template, "--locales", locales],
+        );
+        if !init.status.success() {
+            failures.push(format!(
+                "{what}: init failed: {}",
+                String::from_utf8_lossy(&init.stderr).trim()
+            ));
+            continue;
+        }
+        let dir = root.join(&name);
+        let wanted: Vec<&str> = locales.split(',').collect();
+
+        let config: serde_json::Value =
+            serde_json::from_str(&std::fs::read_to_string(dir.join("webfluent.app.json")).unwrap())
+                .unwrap();
+        if config["i18n"]["default_locale"] != wanted[0]
+            || config["i18n"]["locales"] != serde_json::json!(wanted)
+        {
+            failures.push(format!("{what}: the config's i18n is {}", config["i18n"]));
+        }
+
+        let table = wf(&dir, &["translations", "--json"]);
+        let table: serde_json::Value =
+            serde_json::from_slice(&table.stdout).unwrap_or(serde_json::Value::Null);
+        let found: Vec<(String, u64, bool)> = table["locales"]
+            .as_array()
+            .map(|ls| {
+                ls.iter()
+                    .map(|l| {
+                        (
+                            l["code"].as_str().unwrap_or("").to_string(),
+                            l["missing"].as_u64().unwrap_or(u64::MAX),
+                            l["rtl"].as_bool().unwrap_or(false),
+                        )
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
+        let expected: Vec<(String, u64, bool)> = wanted
+            .iter()
+            .map(|l| (l.to_string(), 0, *l == "ar"))
+            .collect();
+        if found != expected {
+            failures.push(format!("{what}: the translations are {found:?}"));
+        }
+
+        let build = wf(&dir, &["build"]);
+        let out = format!(
+            "{}{}",
+            String::from_utf8_lossy(&build.stdout),
+            String::from_utf8_lossy(&build.stderr)
+        );
+        if !build.status.success() {
+            failures.push(format!("{what}: build failed: {}", out.trim()));
+            continue;
+        }
+        let warnings: Vec<&str> = out.lines().filter(|l| l.starts_with("warning[")).collect();
+        if !warnings.is_empty() {
+            failures.push(format!("{what}:\n    {}", warnings.join("\n    ")));
+        }
+        let check = wf(&dir, &["check"]);
+        if !check.status.success() {
+            failures.push(format!(
+                "{what}: check failed: {}",
+                String::from_utf8_lossy(&check.stderr).trim()
+            ));
+        }
+        if !wf(&dir, &["fmt", "--check"]).status.success() {
+            failures.push(format!("{what}: not formatted"));
+        }
+
+        let html = std::fs::read_to_string(dir.join("build/index.html")).unwrap_or_default();
+        let opening = if wanted[0] == "ar" {
+            "<html lang=\"ar\" dir=\"rtl\">"
+        } else {
+            "<html lang=\"en\">"
+        };
+        if !html.contains(opening) {
+            failures.push(format!("{what}: the page does not open with {opening}"));
+        }
+        // The Arabic table is in the page wherever Arabic is a locale to
+        // switch to; where it is the default it holds the starter's text.
+        let js = std::fs::read_to_string(dir.join("build/app.js")).unwrap_or_default();
+        let arabic = if template == "spa" {
+            "الوضع الداكن"
+        } else {
+            "جميع الحقوق محفوظة."
+        };
+        if wanted[0] == "en" && !js.contains(arabic) {
+            failures.push(format!("{what}: the Arabic table is not in app.js"));
+        }
+
+        let test = wf(&dir, &["test"]);
+        let out = format!(
+            "{}{}",
+            String::from_utf8_lossy(&test.stdout),
+            String::from_utf8_lossy(&test.stderr)
+        );
+        if out.contains("no Chrome or Chromium") {
+            assert!(
+                std::env::var_os("WF_REQUIRE_CHROME").is_none(),
+                "WF_REQUIRE_CHROME is set and there is no browser: {out}"
+            );
+            eprintln!("\n  SKIPPED: no Chrome or Chromium for {what}'s tests.\n");
+        } else if !test.status.success() {
+            failures.push(format!("{what}: its tests fail:\n{}", out.trim()));
+        } else if wanted[0] == "en" && !out.contains("speaks Arabic") {
+            failures.push(format!(
+                "{what}: no test switched to Arabic:\n{}",
+                out.trim()
+            ));
+        }
+    }
+    assert!(
+        failures.is_empty(),
+        "`wf init --locales` projects do not build clean:\n{}",
+        failures.join("\n")
+    );
+}
+
 /// Write a one-page project under `target/e2e/<name>` and build it, returning
 /// the exit status and everything the build printed.
 fn build_scratch(name: &str, app: &str, page: &str) -> (bool, String) {

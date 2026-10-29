@@ -1,0 +1,8 @@
+// Written when Arabic is a language the site switches to.
+
+test "the site speaks Arabic" {
+    SiteFooter
+    Button("AR") { on click { setLocale("ar") } }
+    click "AR"
+    expect "جميع الحقوق محفوظة."
+}

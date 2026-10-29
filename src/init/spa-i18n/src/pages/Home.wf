@@ -1,0 +1,57 @@
+page Home(path: "/", description: "An overview of what needs your attention today.", title: "Dashboard") {
+    use TaskStore
+
+    Container.fadeIn {
+        Heading(t("home.title")).h1.slideUp
+        Text(t("home.welcome")).muted
+
+        Spacer
+
+        Grid(columns: { base: 1, md: 3 }, gap: .md) {
+            StatCard(title: t("home.stats.total"), value: TaskStore.tasks.length)
+            StatCard(title: t("home.stats.remaining"), value: TaskStore.remaining, accent: .warning)
+            StatCard(title: t("home.stats.completed"), value: TaskStore.completed, accent: .success)
+        }
+
+        Spacer
+
+        Row(gap: .md, align: .start).stacks {
+            Column(span: 8) {
+                Card {
+                    Card.Header {
+                        Heading(t("home.recent")).h2
+                    }
+                    Card.Body {
+                        if TaskStore.tasks.length == 0 {
+                            Text(t("home.empty")).muted.center
+                        } else {
+                            for task in TaskStore.tasks.take(5) by task.id {
+                                Row(align: .center, justify: .between) {
+                                    Checkbox(checked: task.done, label: task.title) {
+                                        on change { TaskStore.toggle(task.id) }
+                                    }
+                                    Badge(t("tasks.priority.{task.priority}")).primary
+                                }
+                                Divider
+                            }
+                        }
+                    }
+                }
+            }
+            Column(span: 4) {
+                Card.elevated {
+                    Card.Header {
+                        Heading(t("home.actions")).h2
+                    }
+                    Card.Body {
+                        Stack(gap: .sm) {
+                            Button(t("home.actions.add")).primary.full { on click { navigate("/tasks") } }
+                            Button(t("nav.settings")).full { on click { navigate("/settings") } }
+                            Button(t("home.actions.profile")).full { on click { navigate("/profile") } }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
