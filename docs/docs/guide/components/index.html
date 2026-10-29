@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.10</p>
+                            <p class="wf-text wf-s859a58d7">5.11</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -387,6 +387,36 @@ page Todos(path: &quot;/&quot;) {
                             <div class="wf-markdown">
 <p>The checker holds <code>emit</code> to the declared parameters (<code>T09</code>) and a handler on a call to a declared event or a DOM event; a DOM event on a component call attaches to its root element.</p>
                             </div>
+                            <h3 class="wf-heading" id="an-event-with-several-values">An event with several values</h3>
+                            <div class="wf-markdown">
+<p>An event may send several values. The handler names them in the order the event declares them, and each name has the type declared for it: here <code>key</code> is a <code>String</code>, and <code>x</code> and <code>y</code> are <code>Number</code>s.</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">component Entry(_ key: String) {
+    event menu(key: String, x: Number, y: Number)
+    Button(key) {
+        on contextmenu(e) {
+            e.preventDefault()
+            emit menu(key, e.clientX, e.clientY)
+        }
+    }
+}
+
+page Files(path: &quot;/&quot;) {
+    state at = &quot;nothing yet&quot;
+    Entry(&quot;notes.wf&quot;) { on menu(key, x, y) { at = &quot;{key} at {x}, {y}&quot; } }
+    Text(&quot;Menu for {at}&quot;)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A handler may name fewer values than the event sends — <code>on menu(key)</code> reads the key and leaves the rest — but not more: a name past the last value would only ever be <code>undefined</code>, and the checker says so (<code>T22</code>). An event that sends nothing is handled with no names, <code>on close { }</code>.</p>
+                            </div>
                             <h2 class="wf-heading" id="slots">Slots</h2>
                             <div class="wf-markdown">
 <p>A component places its caller's block with <code>children</code>, and may declare named slots the caller fills with <code>name { … }</code>:</p>
@@ -707,7 +737,7 @@ page Chips(path: &quot;/&quot;, title: &quot;Chips&quot;, description: &quot;Sty
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.10, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.11, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -734,7 +764,7 @@ page Chips(path: &quot;/&quot;, title: &quot;Chips&quot;, description: &quot;Sty
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.10 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.11 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

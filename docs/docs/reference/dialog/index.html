@@ -46,7 +46,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.10</p>
+                            <p class="wf-text wf-s859a58d7">5.11</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -333,10 +333,13 @@
                         <div class="wf-markdown wf-sa01f76ef">
 <p>Confirmation <code>&lt;dialog&gt;</code>, opened by a state flag. <code>on close</code> runs when it closes, however it was closed.</p>
                         </div>
-                        <code class="wf-code wf-code--block wf-s42a9213e"><span class="wf-tok-name">Dialog</span>(<span class="wf-tok-prop">visible</span>: …, <span class="wf-tok-prop">title</span>: …) { … }</code>
+                        <code class="wf-code wf-code--block wf-s42a9213e"><span class="wf-tok-name">Dialog</span>(<span class="wf-tok-prop">visible</span>: …, <span class="wf-tok-prop">title</span>: …, <span class="wf-tok-prop">closable</span>: …) { … }</code>
                         <p class="wf-text wf-s080a8452 overline">Example</p>
                         <code class="wf-code wf-code--block wf-s1235381a"><span class="wf-tok-kw">state</span> asking = <span class="wf-tok-kw">false</span>
-<span class="wf-tok-name">Dialog</span>(<span class="wf-tok-prop">visible</span>: asking, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Leave without saving?&quot;</span>) { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Your draft will be lost.&quot;</span>) }</code>
+<span class="wf-tok-name">Dialog</span>(<span class="wf-tok-prop">visible</span>: asking, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Leave without saving notes.md?&quot;</span>) {
+    <span class="wf-tok-name">Dialog</span>.<span class="wf-tok-name">Title</span> { <span class="wf-tok-name">Markdown</span>(<span class="wf-tok-str">&quot;Leave without saving `notes.md`?&quot;</span>) }
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Your draft will be lost.&quot;</span>)
+}</code>
                         <div class="wf-markdown wf-s4e367f57">
 <p>Renders with the class <code>wf-dialog</code>, stable across releases, so a stylesheet may target it.</p>
                         </div>
@@ -345,6 +348,7 @@
                         <button class="wf-btn active" role="tab" aria-selected="true" type="button">Props</button>
                         <button class="wf-btn" role="tab" aria-selected="false" type="button">Flags and cases</button>
                         <button class="wf-btn" role="tab" aria-selected="false" type="button">Events</button>
+                        <button class="wf-btn" role="tab" aria-selected="false" type="button">Parts</button>
                     </div>
                     <div class="wf-stack wf-gap--md wf-s28a8547f" role="tabpanel" id="props">
                         <table class="wf-table wf-s219b5f22 props-table">
@@ -375,6 +379,15 @@
                                         </div>
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td>closable:</td>
+                                    <td>Bool</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>A close button in the heading row, which closes it as Escape does</p>
+                                        </div>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                         <div class="wf-markdown wf-s4e367f57">
@@ -388,6 +401,7 @@
                         <button class="wf-btn active" type="button">Props</button>
                         <button class="wf-btn" type="button">Flags and cases</button>
                         <button class="wf-btn" type="button">Events</button>
+                        <button class="wf-btn" type="button">Parts</button>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-sf0dee40d">
@@ -413,7 +427,7 @@
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.10, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.11, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -440,7 +454,7 @@
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.10 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.11 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

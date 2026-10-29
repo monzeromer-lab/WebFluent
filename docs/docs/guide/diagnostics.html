@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.10</p>
+                            <p class="wf-text wf-s859a58d7">5.11</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -1169,6 +1169,41 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Mark the prop the call means: <code>component Tag2(_ label: String)</code>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="c07-a-drag-or-a-gesture-on-a-component-with-no-one-element">C07 — A drag or a gesture on a component with no one element</h3>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws C07</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws C07" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">component Rows2(_ name: String) {
+    for x in [1, 2] { Text(name) }
+}
+page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    Heading(&quot;Files&quot;).h1
+    Rows2(&quot;a&quot;, drag: &quot;a&quot;)
+}</code>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">error[C07]: `drag:` on `Rows2` has no element to land on: its body is a `for`
+ --&gt; src/App.wf:6:16
+  |
+6 |     Rows2(&quot;a&quot;, drag: &quot;a&quot;)
+  |                ^^^^
+  = help: Wrap what `Rows2` draws in one element (a `Stack`, a `Row`), or write `drag:` inside it
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#c07-a-drag-or-a-gesture-on-a-component-with-no-one-element</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>drag:</code>, <code>dragGroup:</code>, <code>dropValue:</code>, <code>dropAxis:</code>, <code>dropInside:</code> and the handlers of the gestures — <code>on receive(d)</code>, <code>on dragmove(d)</code>, <code>on longpress</code>, <code>on swipe</code> — written on your component's call belong to the one element it draws. A body that is an <code>if</code>, a <code>for</code>, a <code>show</code>, a <code>match</code> or several elements has no one element to give them.</p>
+<p><strong>Fix:</strong> Wrap what the component draws in one element — a <code>Stack</code>, a <code>Row</code> — or write the drag inside it, on the element it is for.</p>
                             </div>
                             <h2 class="wf-heading" id="state-and-reactivity">State and reactivity</h2>
                             <h3 class="wf-heading" id="x01-an-assignment-to-something-that-cannot-change">X01 — An assignment to something that cannot change</h3>
@@ -2351,6 +2386,48 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> <code>error(e) { Alert(e.message).danger }</code>, or an <code>else</code>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="t22-a-handler-that-names-more-values-than-its-event-sends">T22 — A handler that names more values than its event sends</h3>
+                            <div class="wf-markdown">
+<p>Error.</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws T22</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws T22" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">component Entry(_ key: String) {
+    event menu(key: String, x: Number, y: Number)
+    Button(key) { on contextmenu(e) { e.preventDefault()  emit menu(key, e.clientX, e.clientY) } }
+}
+
+page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    state at = &quot;&quot;
+    Heading(&quot;Files&quot;).h1
+    Entry(&quot;notes.wf&quot;) { on menu(key, x, y, z) { at = &quot;{key} at {x}, {y}&quot; } }
+    Text(at)
+}</code>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">error[T22]: `on menu` names 4 values, but `event menu(key: String, x: Number, y: Number)` sends 3 values
+ --&gt; src/App.wf:9:44
+  |
+9 |     Entry(&quot;notes.wf&quot;) { on menu(key, x, y, z) { at = &quot;{key} at {x}, {y}&quot; } }
+  |                                            ^
+  = help: Name at most 3, in order: `on menu(key, x, y)`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t22-a-handler-that-names-more-values-than-its-event-sends</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A handler names the values its event sends, in the order the event declares them; it may name fewer, never more. A DOM event — <code>click</code>, <code>input</code>, <code>keydown</code> — sends one value, the event itself, so <code>on click(e, x)</code> is this error too.</p>
+<p><strong>Fix:</strong> Drop the extra names. For a DOM event, name the event alone and read what it carries from it: <code>on click(e) { … e.clientX … }</code>.</p>
                             </div>
                             <h3 class="wf-heading" id="t20-a-list-or-a-record-shown-as-text">T20 — A list or a record shown as text</h3>
                             <div class="wf-markdown">
@@ -3744,7 +3821,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
   |
 3 |     Icon(&quot;rocket&quot;)
   |          ^
-  = help: The icons: close, menu, search, home, user, settings, check, plus, minus, edit, trash, star, heart, mail, bell, download, upload, eye, link, calendar, filter, chevron-down, chevron-right, chevron-left, info, warning, arrow-left, arrow-right, logout, copy, sun, moon, folder, folder-plus, file, refresh, alert-circle, clock, dot, diff, book, git-pull-request, pin, git-branch, more-horizontal, window-minimize, window-maximize, outline, help-circle, collapse-all, chevron-up, globe, external-link, panel-down, panel-up
+  = help: The icons: close, menu, search, home, user, settings, check, plus, minus, edit, trash, star, heart, mail, bell, download, upload, eye, link, calendar, filter, chevron-down, chevron-right, chevron-left, info, warning, arrow-left, arrow-right, logout, copy, sun, moon, folder, folder-plus, folder-off, file, file-plus, refresh, alert-circle, clock, dot, diff, book, git-pull-request, pin, git-branch, more-horizontal, window-minimize, window-maximize, outline, help-circle, collapse-all, locate, chevron-up, globe, external-link, panel-down, panel-up
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v08-an-icon-the-runtime-does-not-draw</code>
                             </div>
                             <div class="wf-markdown">
@@ -3946,7 +4023,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.10, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.11, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -3973,7 +4050,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.10 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.11 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

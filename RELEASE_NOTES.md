@@ -1,3 +1,108 @@
+# WebFluent v5.11.0 Release Notes
+
+What an editor written in WebFluent asked of the language: a handler that
+reads every value an event sends, gestures on a component's call, a
+modal's own heading and close button, source maps, a translated
+`wf init`, and icons; and tests that find a control by the name a reader
+hears, each test file with its own declarations.
+
+## Additions
+
+- **A handler names each value its event sends** ([chapter 9](md-docs/09-events.md#emitting-events-from-components)).
+  A component that declares `event menu(key: String, x: Number, y: Number)`
+  and `emit menu(k, x, y)` is handled with `on menu(key, x, y) { … }`, each
+  name typed as the event declares it. A handler may name fewer values
+  than the event sends, never more: a name past the last one is the new
+  error T22, which says what the event sends. The same holds for an api's
+  hooks and a connection's handlers.
+- **Gestures on a component's call** ([chapter 9](md-docs/09-events.md#gestures-drag-long-press-swipe-and-the-splitter)).
+  `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`,
+  `on receive(d)`, `on dragmove(d)`, `on longpress` and `on swipe` written
+  on a component's call land on its root element, as `class:` and
+  `on contextmenu` already did. A component whose body is not one element
+  has nothing for them to land on, which is the new error C07.
+- **`Modal.Title` and `.closable`** ([chapter 9](md-docs/09-events.md#overlays-modals-dialogs-toasts-and-menus)).
+  `Modal.Title { … }` (and `Dialog.Title`) is drawn in the heading in place
+  of `title:`'s words, so a heading can set a name apart in code;
+  `title:` stays the dialog's name. `.closable` puts a close button,
+  named Close, in the heading row. It closes the dialog as Escape does, so
+  `on close` runs and `visible:` follows. Both work in the live page, the
+  pre-render and the template engine.
+- **Source maps** ([chapter 39](md-docs/39-configuration.md)).
+  `build.sourcemap` was in the config and nothing read it. It now writes a
+  version 3 map beside the bundle and each page's chunk (`app.js.map`,
+  `pages/Home.js.map`), with the sources' text, so a stack trace reads
+  back to the `.wf` line each statement came from. The scripts are
+  otherwise byte for byte what they are without one.
+- **`wf init --locales`** ([chapter 38](md-docs/38-cli.md#wf-init)).
+  `wf init my-app --locales en,ar` (spa or static, the default first)
+  starts a project translated: the i18n config and `meta.lang`, every
+  visible string of the starter through `t()`, a language switch built
+  from the locales, and `src/translations/<locale>.json` for each. A tag
+  that is not one, a tag named twice and an empty list are refused, and so
+  are locales for `pdf` and `slides`.
+- **Three icons** ([chapter 28](md-docs/28-media.md#icons)), 58 in all:
+  `locate` for a panel that follows the caret, `folder-off` for a folder
+  that is gone, and `file-plus` for New file.
+
+## For tools
+
+Each is for a tool built on the compiler
+([chapter 38](md-docs/38-cli.md#building-a-tool-on-the-compiler)); paths
+are under `webfluent::`.
+
+- **`VERSION`**: the compiler's version, as `wf --version` prints it.
+- **`BuildOptions::sourcemap`** asks for maps whatever the config says,
+  for an editor's preview, and `codegen::sourcemap::SourceMap` reads a
+  map back and looks a place up, as a console does with a stack trace.
+- **`init::create_with(dir, name, &Options { template, locales })`** is
+  `wf init` with locales; `init::create` stays the form without them.
+- **The language server knows a handler's names**: hover gives each its
+  type and completion offers them, where hovering `e` in
+  `on click(e) { … }` used to show nothing. The tree-sitter grammar reads
+  several names.
+
+## Fixes
+
+- **A test finds a control by the name a reader hears** ([chapter 24](md-docs/24-testing.md#a-test-that-acts)).
+  What is `aria-hidden` (a menu item's shortcut, a glyph) is left out of
+  a name, so `click "Paste"` finds an item that shows Ctrl+V. A submenu's
+  entry is named by its label, not by its items: `WF.submenu` points the
+  entry's `aria-labelledby` at its label, for a screen reader and for
+  `click "File"`.
+- **A test file's declarations are its own.** Every test page was built
+  with every test file's declarations, so two files under `tests/` that
+  each declared `const T06` broke every test that runs in a browser
+  ("Identifier 'T06' has already been declared"). A test now renders and
+  runs with the project's declarations and its own file's only.
+- **A closable modal's close button writes its state at once.** The state
+  followed a task later, with the `close` event, so opening the modal
+  again straight after closing it did nothing.
+- **A store's action named like a helper is the store's own.**
+  `OpenFiles.preview(path)`, called from another store's action, compiled
+  to the runtime's file preview and lost its argument. A value with a
+  method of its own named like a list or string helper (`last`, `first`,
+  `take` …) now answers for itself, with every argument.
+- **A block handed to a component reads the names where it was written**
+  in `wf test` and the template engine, as the live page and the
+  pre-render already did: a panel's `empty` text, handed to a frame with
+  an `empty` flag of its own, came out as "false".
+- **A `Menu.Item`'s `class:` is added beside the item's own**, where it
+  wrote over `wf-menu__item` and the item lost its padding and its
+  shortcut column.
+- **A15 holds a control's label to its words**, not to a glyph beside them
+  that the author marks `aria-hidden` (`Aa` beside "Match case").
+- **The components reference** has an example of `Modal.Title`,
+  `.closable` and `Dialog.Title`, so every part the registry lists has
+  one a tool can show.
+
+## Upgrading
+
+See [chapter 46](md-docs/46-upgrading.md#5-11): gestures on a component
+that is not one element (C07), a handler's names (T22), a test file's own
+declarations, a control's name as a reader hears it, a block's names, a
+menu item's class, and a value's own method over a helper. Run `wf check`.
+
 # WebFluent v5.10.0 Release Notes
 
 The `wf init` starters, rewritten to work on first use, and the compiler

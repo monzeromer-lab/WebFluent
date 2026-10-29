@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.10</p>
+                            <p class="wf-text wf-s859a58d7">5.11</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -348,6 +348,19 @@
                             <div class="wf-markdown">
 <p>A missing file is a build warning; a key missing from a locale falls back to the default locale, then to the key itself.</p>
                             </div>
+                            <h2 class="wf-heading" id="starting-translated">Starting translated</h2>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>starts a project — <code>spa</code> or <code>static</code> — in those languages, the first the default: the <code>i18n</code> config above, <code>meta.lang</code> the default, every visible string through <code>t(&quot;…&quot;)</code>, a language switch with one entry per locale, and a file for each in <code>src/translations/</code>. The default's holds the starter's English, which its pages and tests are written in; Arabic holds the starter's Arabic; any other locale starts as the same English, for you to translate. Each locale is a language tag (<code>en</code>, <code>ar</code>, <code>pt-BR</code>); <code>--locales ar,en</code> makes Arabic the default, so the page is right to left from the first paint. From a program it is <code>webfluent::init::create_with(dir, name, &amp;Options { template, locales })</code>.</p>
+                            </div>
                             <h2 class="wf-heading" id="t-key">t(&quot;key&quot;)</h2>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -477,6 +490,7 @@ page Home(path: &quot;/&quot;) {
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
                         <a class="wf-link wf-s3e136ca4" href="#setting-up">Setting up</a>
+                        <a class="wf-link wf-s3e136ca4" href="#starting-translated">Starting translated</a>
                         <a class="wf-link wf-s3e136ca4" href="#t-key">t(&quot;key&quot;)</a>
                         <a class="wf-link wf-s3e136ca4" href="#switching-the-locale">Switching the locale</a>
                         <a class="wf-link wf-s3e136ca4" href="#which-locale-a-page-opens-in">Which locale a page opens in</a>
@@ -511,7 +525,7 @@ page Home(path: &quot;/&quot;) {
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.10, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.11, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -538,7 +552,7 @@ page Home(path: &quot;/&quot;) {
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.10 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.11 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

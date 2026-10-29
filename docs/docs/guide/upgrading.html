@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.10</p>
+                            <p class="wf-text wf-s859a58d7">5.11</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -289,6 +289,20 @@
 <p>Run the installer again — it replaces the binary in place — or <code>cargo install webfluent --force</code>. <code>wf --version</code> says what you have. Update <code>wf-lsp</code> and the editor extension with it: the language server is built from the same compiler.</p>
 <p>The full notes for every release are in <a href="https://github.com/monzeromer-lab/WebFluent/blob/master/RELEASE_NOTES.md"><code>RELEASE_NOTES.md</code></a>; what follows is what an upgrade asks of you.</p>
                             </div>
+                            <h2 class="wf-heading" id="5-11">5.11</h2>
+                            <div class="wf-markdown">
+<p>5.11 adds to the language and fixes what an editor built on it found. A project may notice these:</p>
+<ul>
+<li><strong>A gesture on a component needs one element to land on.</strong> <code>drag:</code>, <code>dropValue:</code>, <code>on receive(d)</code>, <code>on longpress</code> and the rest, written on a component's call, used to throw at run time; they now land on the component's root element. A component whose body is an <code>if</code>, a <code>for</code>, a <code>match</code> or several elements has no root, and the call is the new error C07: wrap the body in one <code>Stack</code> or <code>Row</code>.</li>
+<li><strong>A handler names at most what its event sends.</strong> <code>on menu(key, x, y)</code> now reads each value a component's <code>event menu(…)</code> sends. A name past the last one is T22, and a DOM event sends only the event, so <code>on click(e, x)</code> is T22 too.</li>
+<li><strong>A test file's declarations are its own.</strong> A <code>const</code>, a component or a type written beside the tests in one file under <code>tests/</code> is no longer seen by another file's tests. Two files may now declare the same name; one that used another file's <code>const</code> declares it itself, or moves it under <code>src/</code>.</li>
+<li><strong>A test names a control as a reader hears it.</strong> What is <code>aria-hidden</code> (a menu item's shortcut, a glyph) is not part of the name, and a submenu's entry is its label without its items. <code>click &quot;Paste Ctrl+V&quot;</code> is now <code>click &quot;Paste&quot;</code>, and <code>click &quot;File&quot;</code> opens a <code>Menu.Sub(label: &quot;File&quot;)</code>. A15 no longer counts an <code>aria-hidden</code> glyph as part of a control's visible label either.</li>
+<li><strong>A block handed to a component reads the names where it was written</strong> in <code>wf test</code> and the template engine, as the live page and the pre-render already did. A snapshot that showed the inner component's value of a shared name changes.</li>
+<li><strong>A <code>Menu.Item</code>'s <code>class:</code> is added beside the menu's own</strong>, where it used to replace it, so the item keeps its padding and its shortcut column. A style that made up for the lost class can go.</li>
+<li><strong>A method of a receiver's own wins over a helper of the same name.</strong> <code>x.last(k)</code> on a value with a <code>last</code> method of its own calls that method with every argument, where it used to call the list helper. A store's action named like a helper (<code>preview</code>, <code>first</code>, <code>take</code> …), called from another store, runs that action.</li>
+</ul>
+<p>Run <code>wf check</code>, then <code>wf test --update</code> once you have read what the new snapshots show.</p>
+                            </div>
                             <h2 class="wf-heading" id="5-10">5.10</h2>
                             <div class="wf-markdown">
 <p>5.10 makes pages, pre-renders and tests do what the guide says, and a project may notice these:</p>
@@ -471,6 +485,7 @@
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
                         <a class="wf-link wf-s3e136ca4" href="#installing-a-newer-version">Installing a newer version</a>
+                        <a class="wf-link wf-s3e136ca4" href="#5-11">5.11</a>
                         <a class="wf-link wf-s3e136ca4" href="#5-10">5.10</a>
                         <a class="wf-link wf-s3e136ca4" href="#5-9">5.9</a>
                         <a class="wf-link wf-s3e136ca4" href="#5-6">5.6</a>
@@ -507,7 +522,7 @@
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.10, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.11, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -534,7 +549,7 @@
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.10 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.11 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.10</p>
+                            <p class="wf-text wf-s859a58d7">5.11</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -301,10 +301,14 @@
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>wf init NAME [-t, --template spa|static|pdf|slides]</code></p>
+<p><code>wf init NAME [-t, --template spa|static|pdf|slides] [-l, --locales LIST]</code></p>
                                             </div>
                                         </td>
-                                        <td>Creates a project from a template</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Creates a project from a template, translated into <code>LIST</code> when given</p>
+                                            </div>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -545,6 +549,18 @@
                             </div>
                             <div class="wf-markdown">
 <p>Makes a directory <code>NAME</code> with a config, a <code>.gitignore</code> and a small working application for the template: <code>spa</code> (the default — an interactive app), <code>static</code> (a marketing site, pre-rendered), <code>pdf</code> (a document) or <code>slides</code> (a deck). It refuses a directory that already exists.</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>--locales</code> starts it translated, in the languages listed — the first the default. Every visible string of the starter goes through <code>t(&quot;…&quot;)</code>, the config's <code>i18n</code> names the locales (and <code>meta.lang</code> the default), the language switch has one entry for each, and <code>src/translations/</code> holds a file per locale: the default's is the starter's English, the text its pages and tests are written in; another is the starter's own translation where it has one (Arabic) and the same English otherwise, for you to translate. A locale is a language tag — <code>en</code>, <code>ar</code>, <code>pt-BR</code>, <code>zh-Hant</code>, written in any case and kept in the usual one; a tag named twice, an empty list, or a code that is not a tag (<code>pt_BR</code>) is refused with what to write instead. <code>spa</code> and <code>static</code> take locales; a <code>pdf</code> or a <code>slides</code> deck is made in one language and refuses them. <a href="/docs/guide/i18n">Internationalisation</a> is the rest.</p>
 <p>It also writes <code>AGENTS.md</code>: the language reference, the file a coding agent reads before it changes a project — so an assistant asked to add a page writes the WebFluent of the <code>wf</code> that made it, flags and all, rather than guessing. Its first line names the version it describes; a newer <code>wf</code> brings a newer one, and an older project can take it from the <a href="https://github.com/monzeromer-lab/WebFluent/blob/master/AGENTS.md">repository</a>.</p>
                             </div>
                             <h3 class="wf-heading" id="wf-build">wf build</h3>
@@ -1277,7 +1293,7 @@ command = &quot;wf-lsp&quot;</code>
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.10, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.11, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -1304,7 +1320,7 @@ command = &quot;wf-lsp&quot;</code>
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.10 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.11 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

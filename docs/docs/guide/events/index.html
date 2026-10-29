@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.10</p>
+                            <p class="wf-text wf-s859a58d7">5.11</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -314,6 +314,7 @@
                             <h3 class="wf-heading" id="the-event-object">The event object</h3>
                             <div class="wf-markdown">
 <p>Name a parameter to read the event: <code>on keydown(e) { … }</code>. Without one, the event is still in scope as <code>event</code>. It is the browser's own event object, so <code>e.key</code>, <code>e.target.value</code>, <code>e.clientX</code>, <code>e.preventDefault()</code> and <code>e.stopPropagation()</code> are all there.</p>
+<p>A DOM event sends that one value and nothing beside it, so a handler names one name at most: <code>on click(e, x)</code> is an error (<code>T22</code>); read what you want from the event, <code>e.clientX</code>. Several names are for a component's own events, which send what they declare (<a href="#emitting-events-from-components">below</a>).</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -417,7 +418,7 @@ app {
                             </div>
                             <h2 class="wf-heading" id="emitting-events-from-components">Emitting events from components</h2>
                             <div class="wf-markdown">
-<p>A component declares the events it fires and fires them with <code>emit</code>; the caller handles them like DOM events. <a href="/docs/guide/components#events">Chapter 11</a> covers it:</p>
+<p>A component declares the events it fires and fires them with <code>emit</code>; the caller handles them like DOM events, with a name for each value the event sends — <code>on change(v)</code>, <code>on menu(key, x, y)</code>. <a href="/docs/guide/components#events">Chapter 11</a> covers it:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -473,7 +474,7 @@ page Use(path: &quot;/&quot;) {
                             </div>
                             <div class="wf-markdown">
 <ul>
-<li><strong><code>Modal</code></strong> and <strong><code>Dialog</code></strong> are real <code>&lt;dialog&gt;</code> elements, opened while their <code>visible:</code> state is true. The browser traps focus, makes the rest of the page inert and closes on Escape (a click on the backdrop leaves it open) — and when it closes that way, the state is set back to <code>false</code>, so it never disagrees with what is on screen. Focus returns to what opened it. <code>on close</code> runs when it closes, however it was closed. <code>title:</code> is its heading, which names it (<code>A08</code> without one). <code>Modal.Footer</code> is the row of actions.</li>
+<li><strong><code>Modal</code></strong> and <strong><code>Dialog</code></strong> are real <code>&lt;dialog&gt;</code> elements, opened while their <code>visible:</code> state is true. The browser traps focus, makes the rest of the page inert and closes on Escape (a click on the backdrop leaves it open) — and when it closes that way, the state is set back to <code>false</code>, so it never disagrees with what is on screen. Focus returns to what opened it. <code>on close</code> runs when it closes, however it was closed. <code>title:</code> is its heading, which names it (<code>A08</code> without one). <code>Modal.Footer</code> is the row of actions. <code>Modal.Title { … }</code> is what the heading draws when words alone will not do — <code>Modal.Title { Markdown(&quot;Rename </code>{name}<code>&quot;) }</code> — while <code>title:</code> stays its name, and <code>.closable</code> puts a close button in the heading row, which closes it as Escape does.</li>
 <li><strong><code>Toast</code></strong> shows the moment it is rendered and leaves after three seconds; it is announced politely to screen readers. Put it under a condition that turns true.</li>
 <li><strong><code>Menu</code></strong> and <strong><code>Dropdown</code></strong> open a list from a button. Arrow keys move between items, Home and End jump to the ends, Enter and Space choose, Escape closes with focus back on the button, and a click outside closes it.</li>
 <li><strong><code>Tooltip</code></strong> shows its text when its child is hovered or focused, and is linked to it with <code>aria-describedby</code>.</li>
@@ -609,6 +610,33 @@ page Use(path: &quot;/&quot;) {
 <li><strong><code>on longpress(p)</code></strong> is half a second held still (<code>p.x</code>, <code>p.y</code>); the click it ends with is not a click. <strong><code>on swipe(s)</code></strong> is a finger or a pen swept across: <code>s.direction</code> is <code>&quot;left&quot;</code>, <code>&quot;right&quot;</code>, <code>&quot;up&quot;</code> or <code>&quot;down&quot;</code>.</li>
 <li><strong><code>Splitter(bind:, min:, max:, reset:)</code></strong> sizes the region beside it: it follows the pointer between its bounds, a double-click or Enter resets it, and the arrow keys move it 16 px (64 with Shift). <code>.horizontal</code> sits between regions one above the other; <code>.reverse</code> sits on the start side of what it sizes — a pane on the right, a panel at the bottom. A drag or a key starts from the region's size as it is drawn, so the bound value may mean &quot;the default share&quot; — <code>0</code>, with the region's width a percentage until it is dragged — and <code>reset: 0</code> goes back to it: a reset is taken as written, not held to <code>min:</code>. It is a <code>separator</code> in the tab order unless its <code>role:</code> or <code>tabindex:</code> says otherwise.</li>
 </ul>
+<p>On your own component's call, all of these — the drag, the drop, the gestures — are the one element it draws, as a DOM event's handler or an <code>aria-label</code> written on the call is:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">component TreeRow(_ name: String) {
+    Row { Icon(&quot;file&quot;)  Text(name) }
+}
+
+page Files(path: &quot;/files&quot;, title: &quot;Files&quot;) {
+    state rows = [&quot;src&quot;, &quot;README.md&quot;]
+    Stack {
+        for r in rows {
+            TreeRow(r, drag: r, dragGroup: &quot;tree&quot;, dropValue: r, dropInside: r == &quot;src&quot;) {
+                on receive(d) { log(&quot;{d.value} goes {d.position} {r}&quot;) }
+                on contextmenu(e) { log(&quot;menu for {r}&quot;) }
+            }
+        }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A component that declares a prop or an event of that name takes it itself. One whose body is an <code>if</code>, a <code>for</code> or several elements has no one element for them, and the build says so (<code>C07</code>): wrap what it draws in a <code>Stack</code> or a <code>Row</code>.</p>
 <p>A drag has no keyboard of its own: give what it does a menu item or a command too (<code>Move left</code>, <code>Move to…</code>), as the desktop's rule asks of every pointer action.</p>
                             </div>
                             <h2 class="wf-heading" id="listening-outside-the-page-s-elements">Listening outside the page&#x27;s elements</h2>
@@ -685,7 +713,7 @@ page Use(path: &quot;/&quot;) {
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.10, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.11, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -712,7 +740,7 @@ page Use(path: &quot;/&quot;) {
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.10 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.11 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>
