@@ -18,6 +18,48 @@ The full notes for every release are in
 [`RELEASE_NOTES.md`](../RELEASE_NOTES.md); what follows is what an upgrade
 asks of you.
 
+## 5.11
+
+5.11 adds to the language and fixes what an editor built on it found. A
+project may notice these:
+
+- **A gesture on a component needs one element to land on.** `drag:`,
+  `dropValue:`, `on receive(d)`, `on longpress` and the rest, written on a
+  component's call, used to throw at run time; they now land on the
+  component's root element. A component whose body is an `if`, a `for`, a
+  `match` or several elements has no root, and the call is the new error
+  C07: wrap the body in one `Stack` or `Row`.
+- **A handler names at most what its event sends.** `on menu(key, x, y)`
+  now reads each value a component's `event menu(…)` sends. A name past
+  the last one is T22, and a DOM event sends only the event, so
+  `on click(e, x)` is T22 too.
+- **A test file's declarations are its own.** A `const`, a component or a
+  type written beside the tests in one file under `tests/` is no longer
+  seen by another file's tests. Two files may now declare the same name;
+  one that used another file's `const` declares it itself, or moves it
+  under `src/`.
+- **A test names a control as a reader hears it.** What is `aria-hidden`
+  (a menu item's shortcut, a glyph) is not part of the name, and a
+  submenu's entry is its label without its items. `click "Paste Ctrl+V"`
+  is now `click "Paste"`, and `click "File"` opens a `Menu.Sub(label:
+  "File")`. A15 no longer counts an `aria-hidden` glyph as part of a
+  control's visible label either.
+- **A block handed to a component reads the names where it was written**
+  in `wf test` and the template engine, as the live page and the
+  pre-render already did. A snapshot that showed the inner component's
+  value of a shared name changes.
+- **A `Menu.Item`'s `class:` is added beside the menu's own**, where it
+  used to replace it, so the item keeps its padding and its shortcut
+  column. A style that made up for the lost class can go.
+- **A method of a receiver's own wins over a helper of the same name.**
+  `x.last(k)` on a value with a `last` method of its own calls that
+  method with every argument, where it used to call the list helper. A
+  store's action named like a helper (`preview`, `first`, `take` …),
+  called from another store, runs that action.
+
+Run `wf check`, then `wf test --update` once you have read what the new
+snapshots show.
+
 ## 5.10
 
 5.10 makes pages, pre-renders and tests do what the guide says, and a
