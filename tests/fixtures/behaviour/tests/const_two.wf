@@ -1,0 +1,11 @@
+// The same name as const_one.wf's, and this file's tests read this one.
+
+const GREETING = "two"
+
+test "another test file's const of the same name is its own" {
+    state said = "nothing"
+    Button("Say") { on click { said = GREETING } }
+    Text("said {said}")
+    click "Say"
+    expect "said two"
+}

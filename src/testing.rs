@@ -27,8 +27,12 @@ use crate::parser::ast::*;
 /// A project's tests, read and ready to run.
 pub struct Tests {
     /// What every test renders with: everything but pages, the app and the
-    /// tests.
+    /// tests, of the project's sources.
     pub shared: Vec<Declaration>,
+    /// What a test file under `tests/` declares beside its tests — a
+    /// `const`, a component — by file: it is that file's tests' alone, so
+    /// two files may each declare a `const` of one name.
+    pub own: HashMap<String, Vec<Declaration>>,
     /// Each test, with the file it is in (project-relative).
     pub tests: Vec<(String, TestDecl)>,
     /// `tests/__snapshots__`.
@@ -101,6 +105,7 @@ pub fn collect(path: &Path) -> Result<Tests> {
     let (program, files) = crate::build::read_project(&project_dir)?;
     let mut declarations = program.declarations;
     let mut owners: Vec<String> = files;
+    let mut own: HashMap<String, Vec<Declaration>> = HashMap::new();
     // The test files: `tests/*.wf` and `tests/*.wfx`, or the one named.
     let test_files: Vec<PathBuf> = if path.is_file() {
         vec![path.to_path_buf()]
@@ -126,6 +131,15 @@ pub fn collect(path: &Path) -> Result<Tests> {
             .to_string_lossy()
             .to_string();
         let parsed = crate::syntax::parse_source(&source, &name)?;
+        own.insert(
+            name.clone(),
+            parsed
+                .declarations
+                .iter()
+                .filter(|d| !is_drawn(d))
+                .cloned()
+                .collect(),
+        );
         owners.extend(parsed.declarations.iter().map(|_| name.clone()));
         declarations.extend(parsed.declarations);
     }
@@ -139,13 +153,9 @@ pub fn collect(path: &Path) -> Result<Tests> {
         .collect();
     let mut shared: Vec<Declaration> = declarations
         .iter()
-        .filter(|d| {
-            !matches!(
-                d,
-                Declaration::Page(_) | Declaration::App(_) | Declaration::Test(_)
-            )
-        })
-        .cloned()
+        .zip(&owners)
+        .filter(|(d, file)| !is_drawn(d) && !own.contains_key(*file))
+        .map(|(d, _)| d.clone())
         .collect();
     // A page a test can place by its name, as it places a component: `Tasks`
     // draws the Tasks page's body — its state, its stores, its handlers — so
@@ -153,6 +163,7 @@ pub fn collect(path: &Path) -> Result<Tests> {
     // route parameter, or whose name a component has, is left out.
     let components: Vec<String> = shared
         .iter()
+        .chain(own.values().flatten())
         .filter_map(|d| match d {
             Declaration::Component(c) => Some(c.name.clone()),
             _ => None,
@@ -204,6 +215,7 @@ pub fn collect(path: &Path) -> Result<Tests> {
     };
     Ok(Tests {
         shared,
+        own,
         tests,
         snapshots: project_dir.join("tests").join("__snapshots__"),
         theme: config.map(|c| c.theme).unwrap_or_default(),
@@ -213,7 +225,39 @@ pub fn collect(path: &Path) -> Result<Tests> {
     })
 }
 
+/// A page, the app or a test: what a test's render is not drawn with.
+fn is_drawn(d: &Declaration) -> bool {
+    matches!(
+        d,
+        Declaration::Page(_) | Declaration::App(_) | Declaration::Test(_)
+    )
+}
+
 impl Tests {
+    /// What `test` renders with: the project's declarations, and its own
+    /// file's.
+    pub fn declarations_for(&self, test: &TestDecl) -> Vec<Declaration> {
+        let file = self
+            .tests
+            .iter()
+            .find(|(_, t)| std::ptr::eq(t, test))
+            .or_else(|| {
+                self.tests
+                    .iter()
+                    .find(|(_, t)| t.name == test.name && t.span == test.span)
+            })
+            .map(|(file, _)| file.as_str());
+        self.declarations_in(file)
+    }
+
+    fn declarations_in(&self, file: Option<&str>) -> Vec<Declaration> {
+        let mut all = self.shared.clone();
+        if let Some(own) = file.and_then(|f| self.own.get(f)) {
+            all.extend(own.iter().cloned());
+        }
+        all
+    }
+
     /// How many of the tests are run in a browser ([`Tests::in_browser`]).
     pub fn acting(&self) -> usize {
         self.tests
@@ -226,7 +270,7 @@ impl Tests {
     /// a click is not something a renderer can do — or what it draws holds
     /// a `Portal`, whose block only a running page draws.
     pub fn in_browser(&self, test: &TestDecl) -> bool {
-        runs_in_browser(test, &self.shared)
+        runs_in_browser(test, &self.declarations_for(test))
     }
 
     /// Run a test that only looks: render it, hold it to its expects and its
@@ -235,7 +279,7 @@ impl Tests {
         let messages = self.messages();
         let locale = self.locale();
         match run_one(
-            &self.shared,
+            &self.declarations_in(Some(file)),
             test,
             &self.snapshots,
             file,
@@ -257,7 +301,7 @@ impl Tests {
             i18n: self.i18n.as_ref(),
             styles: &self.styles,
         };
-        match act(browser, &self.shared, test, work, &site) {
+        match act(browser, &self.declarations_for(test), test, work, &site) {
             Ok(Ok(())) => Outcome::Passed,
             Ok(Err(reasons)) => Outcome::Failed(reasons),
             Err(e) => Outcome::Failed(vec![e.to_string()]),

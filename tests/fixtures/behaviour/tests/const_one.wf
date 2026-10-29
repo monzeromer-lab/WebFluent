@@ -1,0 +1,12 @@
+// A test file's `const` is its own tests': another file may declare one
+// of the same name (const_two.wf).
+
+const GREETING = "one"
+
+test "a test file's const is its own" {
+    state said = "nothing"
+    Button("Say") { on click { said = GREETING } }
+    Text("said {said}")
+    click "Say"
+    expect "said one"
+}
