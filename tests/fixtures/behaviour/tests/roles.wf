@@ -47,3 +47,17 @@ test "a choice is pressed by its name" {
     click "Small"
     expect "size sm"
 }
+
+test "a submenu's entry is pressed by its label, not its items" {
+    state said = "nothing"
+    Menu(visible: true) {
+        Menu.Sub(label: "File") {
+            Menu.Item { on click { said = "saved" }  Text("Save") }
+        }
+    }
+    Text("said {said}")
+    click "File"
+    expect "Save"
+    click "Save"
+    expect "said saved"
+}

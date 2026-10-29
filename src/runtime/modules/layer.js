@@ -416,6 +416,7 @@
 
   // A submenu: `list` beside `item` in the menu `parent`, open while
   // its parent is and it was asked for.
+  let _subs = 0;
   function submenu(item, list, parent) {
     live(item, list);
     const owner = _menus.get(parent);
@@ -428,6 +429,13 @@
     };
     item.setAttribute("aria-haspopup", "menu");
     item.setAttribute("aria-expanded", "false");
+    // Its list is inside it, so the entry's name would be its label and
+    // every item under it: the label alone names it.
+    const label = item.firstElementChild;
+    if (label && !item.hasAttribute("aria-label") && !item.hasAttribute("aria-labelledby")) {
+      if (!label.id) label.id = "wf-sub-" + ++_subs;
+      item.setAttribute("aria-labelledby", label.id);
+    }
     const close = (reason) => {
       set(false);
       if (owner) owner.close(reason);

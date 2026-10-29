@@ -1056,19 +1056,36 @@ pub fn step_script(what: &str, name: &str, value: &str) -> String {
 const FIND: &str = r#"
   const words = (s) => (s || "").replace(/\s+/g, " ").trim();
   // Its text as a reader hears it: what is hidden from readers (a menu
-  // item's shortcut, a glyph) is not part of its name.
+  // item's shortcut, a glyph) is not part of its name, nor is a menu of
+  // its own (a submenu's items).
   const heard = (el) => {
     let t = "";
     for (const c of el.childNodes) {
       if (c.nodeType === 3) t += c.textContent;
-      else if (c.nodeType === 1 && c.getAttribute("aria-hidden") !== "true") t += heard(c);
+      else if (
+        c.nodeType === 1 &&
+        c.getAttribute("aria-hidden") !== "true" &&
+        c.getAttribute("role") !== "menu"
+      )
+        t += heard(c);
     }
     return t;
+  };
+  const labelledBy = (el) => {
+    const ids = el.getAttribute("aria-labelledby");
+    if (!ids) return null;
+    return ids
+      .split(/\s+/)
+      .map((id) => document.getElementById(id))
+      .filter(Boolean)
+      .map(heard)
+      .join(" ");
   };
   const named = (el, n) => {
     const label = el.labels && el.labels[0] ? el.labels[0].textContent : "";
     return [
       el.getAttribute("aria-label"),
+      labelledBy(el),
       label,
       el.getAttribute("placeholder"),
       el.getAttribute("title"),
