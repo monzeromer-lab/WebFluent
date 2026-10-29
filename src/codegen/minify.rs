@@ -13,6 +13,11 @@
 //! automatic semicolon insertion (`x = {}` then `foo()` on the next line), so
 //! the output runs exactly as the input did.
 //!
+//! A source map's markers (`build.sourcemap`, `sourcemap::MARK`) are the
+//! comments it keeps: each is written right before the token that follows
+//! it, after whatever separates that token from the last, so it marks
+//! where that token is.
+//!
 //! The CSS minifier removes comments and whitespace outside strings, and the
 //! last semicolon of each block.
 
@@ -32,6 +37,8 @@ pub fn minify_js(source: &str) -> String {
     // A pending newline or space, written only if what follows needs it.
     let mut pending_newline = false;
     let mut pending_space = false;
+    // Source map markers waiting for the next token.
+    let mut marks = String::new();
 
     while i < bytes.len() {
         let c = bytes[i] as char;
@@ -48,6 +55,9 @@ pub fn minify_js(source: &str) -> String {
                 .find("*/")
                 .map(|e| i + 2 + e + 2)
                 .unwrap_or(bytes.len());
+            if source[i..].starts_with(crate::codegen::sourcemap::MARK) {
+                marks.push_str(&source[i..end]);
+            }
             i = end;
             continue;
         }
@@ -84,6 +94,8 @@ pub fn minify_js(source: &str) -> String {
         }
         pending_newline = false;
         pending_space = false;
+        out.push_str(&marks);
+        marks.clear();
 
         match c {
             '"' | '\'' => {
@@ -129,6 +141,7 @@ pub fn minify_js(source: &str) -> String {
             }
         }
     }
+    out.push_str(&marks);
     out
 }
 
@@ -345,6 +358,31 @@ mod tests {
     fn newlines_after_a_semicolon_or_brace_go() {
         let src = "a();\nb();\nif (x) {\n  c();\n}\nd();\n";
         assert_eq!(minify_js(src), "a();b();if(x){c();}\nd();");
+    }
+
+    #[test]
+    fn a_source_map_marker_is_kept_before_the_token_it_marks() {
+        use crate::codegen::sourcemap::{end_marker, marker};
+        let src = format!(
+            "function f() {{\n  {}const x = 1; // one\n  {}\n  return x;\n}}\n/* gone */ {}g();\n",
+            marker(0, 2, 5),
+            marker(0, 3, 5),
+            end_marker()
+        );
+        let small = minify_js(&src);
+        assert_eq!(
+            small,
+            format!(
+                "function f(){{{}const x=1;{}return x;}}\n{}g();",
+                marker(0, 2, 5),
+                marker(0, 3, 5),
+                end_marker()
+            )
+        );
+        // Without its markers it is what the minifier writes without them.
+        let (code, _) = crate::codegen::sourcemap::extract(&small, "app.js", &[], &[]);
+        let plain = "function f() {\n  const x = 1; // one\n  \n  return x;\n}\n/* gone */ g();\n";
+        assert_eq!(code, minify_js(plain));
     }
 
     #[test]

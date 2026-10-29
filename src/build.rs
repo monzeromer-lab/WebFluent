@@ -55,6 +55,10 @@ pub struct BuildOptions<'a> {
     /// (`data-wf-node`), in the pre-rendered pages and the bundle alike, and
     /// the report hands back the map from each id to its source.
     pub studio: bool,
+    /// For an editor's preview: write source maps (`build.sourcemap`)
+    /// whatever the config says, so the console can read a stack trace
+    /// back to the `.wf` lines.
+    pub sourcemap: bool,
     /// For an editor's preview when a whole build takes longer than it can
     /// wait: render only the page answering this route (`/posts/hello`);
     /// every other page the cache holds as it stands is reused, and one it
@@ -84,6 +88,7 @@ impl<'a> BuildOptions<'a> {
             color: false,
             cache: None,
             studio: false,
+            sourcemap: false,
             only_route: None,
             on_line: None,
         }
@@ -689,6 +694,39 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
         js_codegen.set_base_path(config.build.base_path.clone());
     }
     js_codegen.set_app_schemes(crate::config::project::app_schemes(&config));
+    // `build.sourcemap`: each declaration's file, as the map's sources name
+    // it (the project's own path, `src/pages/home.wf`).
+    let sourcemap = config.build.sourcemap || options.sourcemap;
+    let map_sources: Vec<String> = if sourcemap {
+        let mut sources: Vec<String> = Vec::new();
+        let mut keys = HashMap::new();
+        for (i, decl) in program.declarations.iter().enumerate() {
+            let (Some(key), Some(file)) = (
+                crate::codegen::js::JsCodegen::map_key(decl),
+                declaration_files.get(i),
+            ) else {
+                continue;
+            };
+            let file = file.replace('\\', "/");
+            let index = match sources.iter().position(|s| *s == file) {
+                Some(n) => n,
+                None => {
+                    sources.push(file);
+                    sources.len() - 1
+                }
+            };
+            keys.insert(key, index);
+        }
+        js_codegen.set_sourcemap(keys);
+        sources
+    } else {
+        Vec::new()
+    };
+    // Their text, through the same `Vfs` (an editor's unsaved buffers too).
+    let map_contents: Vec<Option<String>> = map_sources
+        .iter()
+        .map(|f| vfs.read_to_string(&project_dir.join(f)).ok())
+        .collect();
     // An editor's preview: each element stamped with the id its source has.
     let nodes = options.studio.then(|| {
         let files = declaration_files.clone();
@@ -720,7 +758,21 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
             }
         };
         read_back(out, "elements.js", &bundle, false)?;
-        fs::write(output_dir.join("elements.js"), shrink(bundle, true))?;
+        let small = shrink(bundle, true);
+        // `build.sourcemap`: the markers out, into `elements.js.map`.
+        let small = if sourcemap {
+            let (code, map) = crate::codegen::sourcemap::extract(
+                &small,
+                "elements.js",
+                &map_sources,
+                &map_contents,
+            );
+            fs::write(output_dir.join("elements.js.map"), map)?;
+            format!("{code}\n//# sourceMappingURL=elements.js.map\n")
+        } else {
+            small
+        };
+        fs::write(output_dir.join("elements.js"), small)?;
         fs::write(output_dir.join("styles.css"), shrink(css.clone(), false))?;
         fs::write(
             output_dir.join("index.html"),
@@ -895,15 +947,25 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     // `build.minify` — on by default, and read for the first time here: the
     // bundle and the sheet lose their comments and whitespace, and nothing
     // else, so a stack trace still reads as the compiler wrote it.
+    // With `build.sourcemap`, its markers come out last, into `<name>.map`
+    // beside it, which its last line names.
     let minify_js = |name: &str, src: String| -> Result<String> {
         read_back(out, name, &src, false)?;
-        if config.build.minify {
+        let done = if config.build.minify {
             let small = crate::codegen::minify::minify_js(&src);
             read_back(out, name, &small, true)?;
-            Ok(small)
+            small
         } else {
-            Ok(src)
+            src
+        };
+        if !sourcemap {
+            return Ok(done);
         }
+        let base = name.rsplit('/').next().unwrap_or(name);
+        let (code, map) =
+            crate::codegen::sourcemap::extract(&done, base, &map_sources, &map_contents);
+        fs::write(output_dir.join(format!("{name}.map")), map)?;
+        Ok(format!("{code}\n//# sourceMappingURL={base}.map\n"))
     };
     let minify_css = |src: String| {
         if config.build.minify {

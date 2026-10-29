@@ -149,7 +149,7 @@ absent unless you add them.
 | `clean_urls` | unset | How a route's address avoids a redirect on a host that adds the slash: `"file"` also writes `contact.html` beside `contact/index.html`; `"directory"` names every route `/contact/` in canonical links, the sitemap and links to pages ([chapter 27](27-content.md#addresses-that-do-not-redirect)). |
 | `split` | `true` | One script and stylesheet chunk per page, loaded when its route shows. |
 | `minify` | `true` | Strip comments and whitespace from the scripts and stylesheets. |
-| `sourcemap` | `false` | Write a source map beside the bundle. |
+| `sourcemap` | `false` | Write a source map (version 3) beside the bundle and each page's chunk, `app.js.map`, `pages/Home.js.map`, so a stack trace from the running site reads back to the `.wf` line each statement came from; the scripts are otherwise unchanged. |
 | `compress` | `true` | Write a `.gz` beside every text output over a kilobyte. |
 | `runtime` | `"auto"` | `auto` ships the runtime modules the program reaches; `full` ships every one, for a hand-written script that calls `WF` ([chapter 32](32-javascript-interop.md)). |
 | `csp` | `false` (`true` in a project `wf init` makes) | Emit a Content-Security-Policy and `_headers`, and check the output against the policy ([chapter 23](23-security.md#content-security-policy)). |

@@ -181,7 +181,7 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
                 Table.Row {
                     Table.Cell { Markdown("`sourcemap`") }
                     Table.Cell { Markdown("`false`") }
-                    Table.Cell("Write a source map beside the bundle.")
+                    Table.Cell { Markdown("Write a source map (version 3) beside the bundle and each page's chunk, `app.js.map`, `pages/Home.js.map`, so a stack trace from the running site reads back to the `.wf` line each statement came from; the scripts are otherwise unchanged.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`compress`") }

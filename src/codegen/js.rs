@@ -96,6 +96,12 @@ pub const BOX_ATTRS: &[&str] = &["hidden", "lang", "dir"];
 /// JavaScript code generator — compiles the AST to a JS bundle with reactivity and routing.
 pub struct JsCodegen {
     output: String,
+    /// `build.sourcemap`: each declaration's source (by `map_key`) as an
+    /// index into the map's sources; the one being emitted; and the marker
+    /// the next line written starts with (`codegen::sourcemap`).
+    map_files: Option<HashMap<String, usize>>,
+    map_file: Option<usize>,
+    pending_mark: Option<String>,
     /// A build for `wf serve`: each response a type is declared for carries
     /// that type's shape, which the runtime holds the response to.
     dev: bool,
@@ -323,6 +329,9 @@ fn stores_in_use_order(program: &Program) -> Vec<&StoreDecl> {
 impl JsCodegen {
     pub fn new() -> Self {
         Self {
+            map_files: None,
+            map_file: None,
+            pending_mark: None,
             dev: false,
             shapes: Default::default(),
             offline: None,
@@ -528,6 +537,49 @@ impl JsCodegen {
     /// Each kept module, with its size and what reached it.
     pub fn runtime_report(&self) -> &[runtime::Kept] {
         &self.runtime_report
+    }
+
+    /// Write source map markers (`build.sourcemap`): `files` names each
+    /// declaration's source, by its `map_key`, as an index into the map's
+    /// sources.
+    pub fn set_sourcemap(&mut self, files: HashMap<String, usize>) {
+        self.map_files = Some(files);
+    }
+
+    /// The key a declaration's source is found by: its kind and its name.
+    pub fn map_key(decl: &Declaration) -> Option<String> {
+        Some(match decl {
+            Declaration::Component(c) => format!("component:{}", c.name),
+            Declaration::Page(p) => format!("page:{}", p.name),
+            Declaration::Store(s) => format!("store:{}", s.name),
+            Declaration::Api(a) => format!("api:{}", a.name),
+            Declaration::App(_) => "app".to_string(),
+            _ => return None,
+        })
+    }
+
+    /// The declaration `key` is being emitted: its statements are marked.
+    fn map_start(&mut self, key: String) {
+        if let Some(files) = &self.map_files {
+            self.map_file = files.get(&key).copied();
+        }
+    }
+
+    /// Its code is done: what follows is the compiler's own.
+    fn map_end(&mut self) {
+        if self.map_files.is_some() {
+            self.map_file = None;
+            self.pending_mark = Some(crate::codegen::sourcemap::end_marker());
+        }
+    }
+
+    /// The statement at `span` begins: the next line written is marked.
+    fn map_at(&mut self, span: Span) {
+        if let Some(file) = self.map_file
+            && span.line > 0
+        {
+            self.pending_mark = Some(crate::codegen::sourcemap::marker(file, span.line, span.col));
+        }
     }
 
     pub fn set_studio(&mut self, node_ids: NodeMap) {
@@ -859,7 +911,9 @@ impl JsCodegen {
         // Emit services, which a store's actions may call.
         for decl in &program.declarations {
             if let Declaration::Api(a) = decl {
+                self.map_start(format!("api:{}", a.name));
                 self.emit_api(a);
+                self.map_end();
             }
         }
 
@@ -869,13 +923,17 @@ impl JsCodegen {
         // still in its temporal dead zone. A derived value that first ran
         // there kept what it got, and followed nothing.
         for s in stores_in_use_order(program) {
+            self.map_start(format!("store:{}", s.name));
             self.emit_store(s);
+            self.map_end();
         }
 
         // Emit components
         for decl in &program.declarations {
             if let Declaration::Component(c) = decl {
+                self.map_start(format!("component:{}", c.name));
                 self.emit_component(c);
+                self.map_end();
             }
         }
 
@@ -883,16 +941,19 @@ impl JsCodegen {
         // registers itself with the runtime when it runs.
         for decl in &program.declarations {
             if let Declaration::Page(p) = decl {
+                self.map_start(format!("page:{}", p.name));
                 if self.split_pages {
                     let saved = std::mem::take(&mut self.output);
                     let indent = std::mem::replace(&mut self.indent, 0);
                     self.emit_page(p);
+                    self.map_end();
                     self.emit_line(&format!("WF.page(\"{}\", Page_{});", p.name, p.name));
                     let chunk = std::mem::replace(&mut self.output, saved);
                     self.indent = indent;
                     self.chunks.push((p.name.clone(), chunk));
                 } else {
                     self.emit_page(p);
+                    self.map_end();
                 }
             }
         }
@@ -900,7 +961,9 @@ impl JsCodegen {
         // Emit app (router setup)
         for decl in &program.declarations {
             if let Declaration::App(a) = decl {
+                self.map_start("app".to_string());
                 self.emit_app(a);
+                self.map_end();
             }
         }
 
@@ -2236,6 +2299,7 @@ impl JsCodegen {
     // ─── DOM-building statement emitter ──────────────
 
     fn emit_statement_dom(&mut self, stmt: &Statement, parent: &str) {
+        self.map_at(stmt.span);
         match &stmt.kind {
             StatementKind::UIElement(ui) => self.emit_ui_element(ui, parent),
             StatementKind::If(if_stmt) => self.emit_if_dom(if_stmt, parent),
@@ -6925,6 +6989,7 @@ impl JsCodegen {
     // ─── Statement (imperative, non-DOM) ─────────────
 
     fn emit_statement(&mut self, stmt: &Statement) {
+        self.map_at(stmt.span);
         match &stmt.kind {
             StatementKind::Assignment(a) => {
                 let target = self.emit_expr(&a.target);
@@ -7117,6 +7182,8 @@ impl JsCodegen {
             self.emit_statement(stmt);
         }
         self.block_lets.truncate(lets);
+        // A marker no line took stays inside: it is not the outer code's.
+        self.pending_mark = None;
         let out = std::mem::replace(&mut self.output, saved);
         self.indent = indent;
         out.split('\n')
@@ -7672,7 +7739,9 @@ impl JsCodegen {
 
     fn emit_line(&mut self, text: &str) {
         let indent = "  ".repeat(self.indent);
-        self.output.push_str(&format!("{}{}\n", indent, text));
+        let mark = self.pending_mark.take().unwrap_or_default();
+        self.output
+            .push_str(&format!("{}{}{}\n", indent, mark, text));
     }
 
     fn fresh_var(&self) -> String {

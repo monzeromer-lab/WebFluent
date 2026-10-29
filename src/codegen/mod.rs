@@ -31,6 +31,7 @@ pub mod project_css;
 pub mod sanitize;
 pub mod scoped_css;
 pub mod seo;
+pub mod sourcemap;
 pub mod ssg;
 pub mod static_eval;
 pub mod style;
