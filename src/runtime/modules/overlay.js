@@ -57,6 +57,15 @@
       unstacked();
       if (write && read()) write(false);
     });
+    // `.closable`'s button: shut it and write the state now. The `close`
+    // event comes a task later, and a press in between (open it again)
+    // would set a state that still said open, and be lost.
+    el._wfShut = () => {
+      if (el.close) el.close();
+      else el.removeAttribute("open");
+      unstacked();
+      if (write && read()) write(false);
+    };
     onCleanup(unstacked);
     // The Escape that closes it is its own: nothing behind it — a page's
     // `on key("Escape")`, the back rule of an app — hears it too. The
