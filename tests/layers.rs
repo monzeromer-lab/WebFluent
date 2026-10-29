@@ -207,6 +207,23 @@ fn a_menu_item_that_cannot_be_taken_back_says_so() {
 }
 
 #[test]
+fn a_menu_item_s_own_class_is_added_to_the_menu_s() {
+    let src = page(
+        "Menu(trigger: \"Edit\") {\n        Menu.Item(shortcut: \"mod+.\", class: \"fix\") { Text(\"Quick fix\") }\n        Menu.Sub(label: \"More\", class: \"more\") { Menu.Item { Text(\"x\") } }\n    }",
+    );
+    assert!(checks(&src).is_empty(), "{}", checks(&src));
+    let js = spa_generated(&src);
+    // Drawn as an item, with the author's class beside the menu's own:
+    // not written over it as an attribute.
+    assert!(!js.contains("class: \"fix\""), "{js}");
+    assert!(!js.contains("class: \"more\""), "{js}");
+    assert!(js.contains("classList.add(\"fix\")"), "{js}");
+    assert!(js.contains("classList.add(\"more\")"), "{js}");
+    let html = ssg_html(&src);
+    assert!(html.contains("class=\"wf-menu__item fix\""), "{html}");
+}
+
+#[test]
 fn a_middle_click_and_focus_within_are_events_of_any_element() {
     let src = page(
         "state closed = 0\n    state inside = false\n    Row {\n        on auxclick(e) { if e.button == 1 { closed = closed + 1 } }\n        on focusin { inside = true }\n        on focusout { inside = false }\n        Text(\"{closed} {inside}\")\n    }",

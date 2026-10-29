@@ -5046,6 +5046,9 @@ impl JsCodegen {
                     let read = live(self, format!("(({value}) ? \"true\" : \"false\")"));
                     attrs.push(format!("\"aria-disabled\": {read}"));
                 }
+                // Added beside the item's own classes with its style, below:
+                // as an attribute it would write over them.
+                "class" => {}
                 _ => {
                     let key = attr_key(k);
                     attrs.push(format!("{key}: {}", live(self, value)));
