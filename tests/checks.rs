@@ -469,6 +469,48 @@ fn c02_a_prop_your_component_does_not_declare_is_an_error() {
 }
 
 #[test]
+fn c07_a_drag_on_a_component_with_no_one_element() {
+    // Each body draws something other than one element.
+    for (body, said) in [
+        ("if on { Row { Text(name) } }", "an `if`"),
+        ("for x in [1, 2] { Text(name) }", "a `for`"),
+        ("Text(name)\n    Text(name)", "several elements"),
+        ("Many2(name)", "a `for`"),
+    ] {
+        let src = format!(
+            "component Many2(_ name: String) {{ for x in [1, 2] {{ Text(name) }} }}\ncomponent Row2(_ name: String, on: Bool = true) {{\n    {body}\n}}\n{}",
+            page("    Row2(\"a\", drag: \"a\", dragGroup: \"g\")")
+        );
+        let found = with(&src, "C07");
+        assert_eq!(found.len(), 1, "{body}: {found:?}");
+        assert!(
+            found[0].contains("`drag:` on `Row2` has no element to land on")
+                && found[0].contains(said),
+            "{found:?}"
+        );
+    }
+    // A gesture's handler is the root's too.
+    let src = format!(
+        "component Row2(_ name: String) {{ if true {{ Text(name) }} }}\n{}",
+        page("    Row2(\"a\") { on receive(d) { log(d.value) } }")
+    );
+    let found = with(&src, "C07");
+    assert!(
+        found.len() == 1 && found[0].contains("`on receive` on `Row2`"),
+        "{found:?}"
+    );
+    // One element — through another component's call, and beside the state
+    // and actions it declares — is a root; a prop or an event the component
+    // takes itself is its own.
+    clean(&format!(
+        "component Inner2(_ name: String) {{ Row {{ Text(name) }} }}\ncomponent Row2(_ name: String) {{\n    state open = false\n    Inner2(name)\n}}\ncomponent Many2(drag: String) {{\n    event receive(d: String)\n    for x in [1, 2] {{ Text(drag) }}\n}}\n{}",
+        page(
+            "    Row2(\"a\", drag: \"a\", dragGroup: \"g\", dropInside: true) { on receive(d) { log(d.value) } on dragmove(d) { log(d.position) } }\n    Many2(drag: \"b\") { on receive(d) { log(d) } }"
+        )
+    ));
+}
+
+#[test]
 fn c03_a_part_outside_its_owner_and_e101_in_every_position() {
     let src = page(
         "    Select.Option(\"a\")\n    Card { Card.Header { Text(\"h\") } }\n    Button(\"x\") { on click { log(1) } }",

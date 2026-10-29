@@ -151,6 +151,19 @@ async function scenario(label, ssg, port) {
     await page.mouse.up();
     check("Escape cancels a drag: nothing moves", (await text("rows")) === "public,src" && (await page.evaluate(() => !document.querySelector("[data-drop], .wf-drag-ghost"))), await text("rows"));
 
+    // ── rows drawn by a component's call ──
+    const fa = await box("#file-a\\.wf");
+    const lib = await box("#file-lib");
+    await drag({ x: fa.cx, y: fa.cy }, { x: lib.cx, y: lib.cy });
+    check("a component's call is dragged by its root, and its root receives", (await text("moved")) === "a.wf inside lib", await text("moved"));
+    const fb = await box("#file-b\\.wf");
+    const fa2 = await box("#file-a\\.wf");
+    await drag({ x: fb.cx, y: fb.cy }, { x: fa2.cx, y: fa2.y + 2 });
+    check("and hears where it lands", (await text("moved")) === "b.wf before a.wf", await text("moved"));
+    await page.mouse.click(fb.cx, fb.cy, { button: "right" });
+    check("a DOM event on the call is still its root's", (await text("menu")) === "b.wf contextmenu", await text("menu"));
+    await page.keyboard.press("Escape");
+
     // ── a long press ──
     const press = await box("#press");
     await page.mouse.move(press.cx, press.cy);

@@ -921,6 +921,39 @@ impl Checker<'_, '_> {
                 );
             }
         }
+        // `drag:`, `drop…:` and a gesture's handler the component does not
+        // take itself are its root element's, so it needs one root.
+        let dragged = el.args.iter().enumerate().find_map(|(i, a)| match a {
+            Arg::Named(k, _)
+                if crate::codegen::js::DRAG_PROPS.contains(&k.as_str())
+                    && !decl.props.iter().any(|p| p.name == *k) =>
+            {
+                Some((
+                    el.arg_spans.get(i).copied().unwrap_or(span),
+                    format!("`{k}:`"),
+                ))
+            }
+            _ => None,
+        });
+        let gesture = || {
+            el.events.iter().find_map(|h| {
+                (crate::codegen::js::GESTURE_EVENTS.contains(&h.event.as_str())
+                    && !decl.events.iter().any(|e| e.name == h.event))
+                .then(|| (h.span, format!("`on {}`", h.event)))
+            })
+        };
+        if let Some((at, what)) = dragged.or_else(gesture)
+            && let Err(body) = single_root(&self.decls.components, decl, 0)
+        {
+            self.error(
+                at,
+                "C07",
+                format!("{what} on `{name}` has no element to land on: its body is {body}"),
+                &format!(
+                    "Wrap what `{name}` draws in one element (a `Stack`, a `Row`), or write {what} inside it"
+                ),
+            );
+        }
         for fill in &el.slot_fills {
             let declared = decl
                 .slots
@@ -2025,6 +2058,46 @@ fn lower_user_flags(el: &mut UIElement, us: &UserSig) {
     }
     el.modifiers = modifiers;
     el.modifier_spans = modifier_spans;
+}
+
+/// Whether a component draws one element, which what is written on its call
+/// lands on; when it does not, what its body is instead. A component whose
+/// one element is another component's call draws that component's root.
+fn single_root(
+    components: &HashMap<&str, &ComponentDecl>,
+    decl: &ComponentDecl,
+    depth: usize,
+) -> Result<(), &'static str> {
+    let mut drawn = decl.body.iter().filter(|s| {
+        matches!(
+            s.kind,
+            StatementKind::UIElement(_)
+                | StatementKind::If(_)
+                | StatementKind::For(_)
+                | StatementKind::Show(_)
+                | StatementKind::Match(_)
+        )
+    });
+    let first = match (drawn.next(), drawn.next()) {
+        (Some(first), None) => first,
+        (None, _) => return Err("no element"),
+        (Some(_), Some(_)) => return Err("several elements"),
+    };
+    match &first.kind {
+        StatementKind::UIElement(el) => match &el.component {
+            ComponentRef::UserDefined(inner) if depth < 16 => {
+                match components.get(inner.as_str()) {
+                    Some(inner) => single_root(components, inner, depth + 1),
+                    None => Ok(()),
+                }
+            }
+            _ => Ok(()),
+        },
+        StatementKind::If(_) => Err("an `if`"),
+        StatementKind::For(_) => Err("a `for`"),
+        StatementKind::Show(_) => Err("a `show`"),
+        _ => Err("a `match`"),
+    }
 }
 
 #[cfg(test)]

@@ -383,6 +383,12 @@ pub static CODES: &[CodeInfo] = &[
         "A positional argument bound by order",
         "Your component declares no positional prop (`_ name`), so the argument is bound to its first prop. Mark that prop with `_` to say so.",
     ),
+    code(
+        "C07",
+        Error,
+        "A drag or a gesture on a component with no one element",
+        "`drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `on receive(d)`, `on dragmove(d)`, `on longpress` and `on swipe` written on your component's call belong to the one element it draws. A component whose body is an `if`, a `for`, a `show`, a `match` or several elements has none to give them, so wrap what it draws in one element, or write them inside it.",
+    ),
     // ── R: routes ────────────────────────────────────────────────────
     code(
         "R01",

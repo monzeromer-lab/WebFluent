@@ -239,7 +239,25 @@ page Use(path: "/") {
     }
 }"#, title: "wf")
 
-        Markdown("- **`drag: value`** picks an element up: a mouse moved a few pixels, or a finger held still for half a second. A ghost follows the pointer, a box near whose edge it passes scrolls, and Escape puts it back. The click a drag ends with is not a click.\n- **`on receive(d)`** takes a drop: `d.value` is what was dropped and `d.position` where — `\"before\"` or `\"after\"` along `dropAxis:` (`.y` down the page, the default; `.x` across it, for a tab strip), or `\"inside\"` on the middle of a target with `dropInside: true` (a folder, a container). The target shows a line where the drop would go, or an outline for inside.\n- **`on dragmove(d)`** on the dragged element hears, as it moves, what it is over — the target's `dropValue:` as `d.over`, null over nothing — and where it would land: enough to say \"Goes after Badge, inside Row\".\n- **`dragGroup:`** on a drag and its targets keeps tabs and tree rows apart.\n- **`on longpress(p)`** is half a second held still (`p.x`, `p.y`); the click it ends with is not a click. **`on swipe(s)`** is a finger or a pen swept across: `s.direction` is `\"left\"`, `\"right\"`, `\"up\"` or `\"down\"`.\n- **`Splitter(bind:, min:, max:, reset:)`** sizes the region beside it: it follows the pointer between its bounds, a double-click or Enter resets it, and the arrow keys move it 16 px (64 with Shift). `.horizontal` sits between regions one above the other; `.reverse` sits on the start side of what it sizes — a pane on the right, a panel at the bottom. A drag or a key starts from the region's size as it is drawn, so the bound value may mean \"the default share\" — `0`, with the region's width a percentage until it is dragged — and `reset: 0` goes back to it: a reset is taken as written, not held to `min:`. It is a `separator` in the tab order unless its `role:` or `tabindex:` says otherwise.\n\nA drag has no keyboard of its own: give what it does a menu item or a command too (`Move left`, `Move to…`), as the desktop's rule asks of every pointer action.")
+        Markdown("- **`drag: value`** picks an element up: a mouse moved a few pixels, or a finger held still for half a second. A ghost follows the pointer, a box near whose edge it passes scrolls, and Escape puts it back. The click a drag ends with is not a click.\n- **`on receive(d)`** takes a drop: `d.value` is what was dropped and `d.position` where — `\"before\"` or `\"after\"` along `dropAxis:` (`.y` down the page, the default; `.x` across it, for a tab strip), or `\"inside\"` on the middle of a target with `dropInside: true` (a folder, a container). The target shows a line where the drop would go, or an outline for inside.\n- **`on dragmove(d)`** on the dragged element hears, as it moves, what it is over — the target's `dropValue:` as `d.over`, null over nothing — and where it would land: enough to say \"Goes after Badge, inside Row\".\n- **`dragGroup:`** on a drag and its targets keeps tabs and tree rows apart.\n- **`on longpress(p)`** is half a second held still (`p.x`, `p.y`); the click it ends with is not a click. **`on swipe(s)`** is a finger or a pen swept across: `s.direction` is `\"left\"`, `\"right\"`, `\"up\"` or `\"down\"`.\n- **`Splitter(bind:, min:, max:, reset:)`** sizes the region beside it: it follows the pointer between its bounds, a double-click or Enter resets it, and the arrow keys move it 16 px (64 with Shift). `.horizontal` sits between regions one above the other; `.reverse` sits on the start side of what it sizes — a pane on the right, a panel at the bottom. A drag or a key starts from the region's size as it is drawn, so the bound value may mean \"the default share\" — `0`, with the region's width a percentage until it is dragged — and `reset: 0` goes back to it: a reset is taken as written, not held to `min:`. It is a `separator` in the tab order unless its `role:` or `tabindex:` says otherwise.\n\nOn your own component's call, all of these — the drag, the drop, the gestures — are the one element it draws, as a DOM event's handler or an `aria-label` written on the call is:")
+
+        CodeBlock(#"component TreeRow(_ name: String) {
+    Row { Icon("file")  Text(name) }
+}
+
+page Files(path: "/files", title: "Files") {
+    state rows = ["src", "README.md"]
+    Stack {
+        for r in rows {
+            TreeRow(r, drag: r, dragGroup: "tree", dropValue: r, dropInside: r == "src") {
+                on receive(d) { log("{d.value} goes {d.position} {r}") }
+                on contextmenu(e) { log("menu for {r}") }
+            }
+        }
+    }
+}"#, title: "wf")
+
+        Markdown("A component that declares a prop or an event of that name takes it itself. One whose body is an `if`, a `for` or several elements has no one element for them, and the build says so (`C07`): wrap what it draws in a `Stack` or a `Row`.\n\nA drag has no keyboard of its own: give what it does a menu item or a command too (`Move left`, `Move to…`), as the desktop's rule asks of every pointer action.")
 
         Heading("Listening outside the page's elements", id: "listening-outside-the-page-s-elements").h2
 

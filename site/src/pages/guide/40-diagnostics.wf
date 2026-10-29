@@ -497,6 +497,26 @@ page P(path: "/", title: "T", description: "D") {
 
         Markdown("**Fix:** Mark the prop the call means: `component Tag2(_ label: String)`.")
 
+        Heading("C07 — A drag or a gesture on a component with no one element", id: "c07-a-drag-or-a-gesture-on-a-component-with-no-one-element").h3
+
+        CodeBlock(#"component Rows2(_ name: String) {
+    for x in [1, 2] { Text(name) }
+}
+page P(path: "/", title: "T", description: "D") {
+    Heading("Files").h1
+    Rows2("a", drag: "a")
+}"#, title: "wf · draws C07")
+
+        CodeBlock(#"error[C07]: `drag:` on `Rows2` has no element to land on: its body is a `for`
+ --> src/App.wf:6:16
+  |
+6 |     Rows2("a", drag: "a")
+  |                ^^^^
+  = help: Wrap what `Rows2` draws in one element (a `Stack`, a `Row`), or write `drag:` inside it
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#c07-a-drag-or-a-gesture-on-a-component-with-no-one-element"#, title: "text")
+
+        Markdown("`drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:` and the handlers of the gestures — `on receive(d)`, `on dragmove(d)`, `on longpress`, `on swipe` — written on your component's call belong to the one element it draws. A body that is an `if`, a `for`, a `show`, a `match` or several elements has no one element to give them.\n\n**Fix:** Wrap what the component draws in one element — a `Stack`, a `Row` — or write the drag inside it, on the element it is for.")
+
         Heading("State and reactivity", id: "state-and-reactivity").h2
 
         Heading("X01 — An assignment to something that cannot change", id: "x01-an-assignment-to-something-that-cannot-change").h3

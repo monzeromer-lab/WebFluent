@@ -410,6 +410,33 @@ page Files(path: "/", title: "Files", description: "Reorder, move and resize.") 
   written, not held to `min:`. It is a `separator` in the tab order unless
   its `role:` or `tabindex:` says otherwise.
 
+On your own component's call, all of these — the drag, the drop, the
+gestures — are the one element it draws, as a DOM event's handler or an
+`aria-label` written on the call is:
+
+```wf
+component TreeRow(_ name: String) {
+    Row { Icon("file")  Text(name) }
+}
+
+page Files(path: "/files", title: "Files") {
+    state rows = ["src", "README.md"]
+    Stack {
+        for r in rows {
+            TreeRow(r, drag: r, dragGroup: "tree", dropValue: r, dropInside: r == "src") {
+                on receive(d) { log("{d.value} goes {d.position} {r}") }
+                on contextmenu(e) { log("menu for {r}") }
+            }
+        }
+    }
+}
+```
+
+A component that declares a prop or an event of that name takes it itself.
+One whose body is an `if`, a `for` or several elements has no one element
+for them, and the build says so (`C07`): wrap what it draws in a `Stack` or
+a `Row`.
+
 A drag has no keyboard of its own: give what it does a menu item or a
 command too (`Move left`, `Move to…`), as the desktop's rule asks of every
 pointer action.

@@ -688,6 +688,37 @@ warning[C06]: `Tag2` declares no positional prop; the argument binds to `label`
 
 **Fix:** Mark the prop the call means: `component Tag2(_ label: String)`.
 
+### C07 — A drag or a gesture on a component with no one element
+
+```wf expect C07
+component Rows2(_ name: String) {
+    for x in [1, 2] { Text(name) }
+}
+page P(path: "/", title: "T", description: "D") {
+    Heading("Files").h1
+    Rows2("a", drag: "a")
+}
+```
+
+```text
+error[C07]: `drag:` on `Rows2` has no element to land on: its body is a `for`
+ --> src/App.wf:6:16
+  |
+6 |     Rows2("a", drag: "a")
+  |                ^^^^
+  = help: Wrap what `Rows2` draws in one element (a `Stack`, a `Row`), or write `drag:` inside it
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#c07-a-drag-or-a-gesture-on-a-component-with-no-one-element
+```
+
+`drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:` and the
+handlers of the gestures — `on receive(d)`, `on dragmove(d)`, `on
+longpress`, `on swipe` — written on your component's call belong to the one
+element it draws. A body that is an `if`, a `for`, a `show`, a `match` or
+several elements has no one element to give them.
+
+**Fix:** Wrap what the component draws in one element — a `Stack`, a `Row`
+— or write the drag inside it, on the element it is for.
+
 ## State and reactivity
 
 ### X01 — An assignment to something that cannot change

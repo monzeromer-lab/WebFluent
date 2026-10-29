@@ -797,7 +797,12 @@ tab strip). `dropValue: v` names the target, as `d.over`; the dragged
 element's `on dragmove(d)` hears where it would land as it moves (`d.over`
 null when nowhere). `dragGroup: "tabs"` on both keeps drags apart. The
 runtime draws a ghost and the drop line, scrolls a box near its edge, and
-Escape cancels.
+Escape cancels. On your component's call (`TreeRow(name, drag: path,
+dropInside: true) { on receive(d) { … } }`) these, and `on longpress` and
+`on swipe`, are the one element it draws, as an attribute or a DOM event's
+handler written there is — unless it declares a prop or an event of that
+name. A component whose body is an `if`, a `for` or several elements has no
+one element for them: `C07`.
 
 `on key("ctrl+k") { … }` answers to one key: modifiers `mod` (⌘ on a Mac,
 Ctrl elsewhere — the one to use for an app's shortcuts), `ctrl`, `shift`,
@@ -2968,6 +2973,7 @@ And what the type checker finds:
 | `X01` | An assignment to something that cannot change: a `const`, a `data` constant, a `derived` value (a store's too), a prop, a route parameter, a loop variable, an action |
 | `C01` | A required prop or record field left out — on a call, a `layout:`, a record (`Todo(title: "x")` when `id` has no default), a built-in's (`Portal` without `into:`); a flag gives a `Bool` or an enum prop |
 | `C03` | A part outside its owner (`Select.Option` with no `Select` around it) |
+| `C07` | `drag:`, `drop…:`, `on receive`, `on dragmove`, `on longpress` or `on swipe` on a component whose body is not one element (an `if`, a `for`, several elements) |
 | `X02` | An effect that writes, every run, something it reads — itself or through an action it calls — so it never settles |
 | `X04` | A `derived` value that calls an action that assigns state |
 | `X05` | `use` of a store nothing declares |

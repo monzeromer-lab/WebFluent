@@ -1,0 +1,7 @@
+// A row of a file tree, drawn by a component: what its call is given to
+// drag, to drop on and to hear lands on the one element it draws.
+component FileRow(_ name: String) {
+    Card {
+        Text(name)
+    }
+}

@@ -3545,8 +3545,16 @@ impl JsCodegen {
                     self.indent -= 1;
                     self.emit_line("});");
                 }
+                // A gesture — `on receive(d)`, `on dragmove(d)`, a long press,
+                // a swipe — is recognised on the root by the runtime; any
+                // other event is the root's own.
                 for handler in attached {
                     let body = self.emit_event_body(handler);
+                    if GESTURE_EVENTS.contains(&handler.event.as_str()) {
+                        let line = self.element_listener(&var, handler, &body);
+                        self.emit_line(&line);
+                        continue;
+                    }
                     self.emit_line(&format!(
                         "WF.onRoot({}, \"{}\", {} => {{ {} }});",
                         var,

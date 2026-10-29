@@ -76,6 +76,21 @@ page Home(path: "/", title: "Gestures", description: "Drag, long-press, swipe an
     Text(into, id: "into")
     Text(landing, id: "landing")
 
+    // The same, with each row a component's call.
+    state files = ["a.wf", "b.wf", "lib"]
+    state moved = ""
+    state menu = ""
+    Stack(id: "files") {
+        for f in files {
+            FileRow(f, drag: f, dragGroup: "files", dropValue: f, dropInside: f == "lib", id: "file-{f}") {
+                on receive(d) { moved = "{d.value} {d.position} {d.over}" }
+                on contextmenu(e) { menu = "{f} {e.type}" }
+            }
+        }
+    }
+    Text(moved, id: "moved")
+    Text(menu, id: "menu")
+
     Card(id: "press") {
         on longpress(p) { pressed = "held" }
         on click { pressed = "clicked" }

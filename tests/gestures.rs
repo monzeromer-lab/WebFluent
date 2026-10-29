@@ -52,6 +52,51 @@ fn a_drag_carries_a_value_to_what_receives_it() {
 }
 
 #[test]
+fn a_drag_on_a_component_call_is_its_root_elements() {
+    let src = format!(
+        "component Row2(_ name: String) {{ Row {{ Text(name) }} }}\n{}",
+        page(
+            "state rows = [\"a\", \"b\"]\n    for r in rows {\n        Row2(r, drag: r, dragGroup: \"g\", dropValue: r, dropInside: true, dropAxis: .y) {\n            on receive(d) { log(d.value) }\n            on dragmove(d) { log(d.position) }\n            on longpress(p) { log(p) }\n            on contextmenu(e) { log(e) }\n        }\n    }"
+        )
+    );
+    assert_eq!(checks(&src), "");
+    let js = spa_generated(&src);
+    // What the call rendered is handed to the runtime, which finds its root.
+    assert!(
+        js.contains("WF.draggable(_e") && js.contains(", () => r, { group: \"g\" });"),
+        "{js}"
+    );
+    assert!(
+        js.contains("{ value: () => r, axis: \"y\", inside: true, group: \"g\" });"),
+        "{js}"
+    );
+    // The gestures are recognised, not listened for as DOM events; a DOM
+    // event is still the root's own.
+    assert!(js.contains(", \"receive\", (d) => {"), "{js}");
+    assert!(js.contains(", \"dragmove\", (d) => {"), "{js}");
+    assert!(js.contains(", \"longpress\", (p) => {"), "{js}");
+    for gesture in ["receive", "dragmove", "longpress"] {
+        assert!(
+            !js.contains(&format!("WF.onRoot(_e0, \"{gesture}\"")),
+            "{js}"
+        );
+        assert!(!js.contains(&format!("\"{gesture}\", (event)")), "{js}");
+    }
+    assert!(js.contains("\"contextmenu\", (e) => {"), "{js}");
+    assert!(js.contains("WF.onRoot("), "{js}");
+    // Nor are they passed in as props the component never declared.
+    assert!(
+        !js.contains("drag: r") && !js.contains("dragGroup:"),
+        "{js}"
+    );
+    let html = ssg_html(&src);
+    assert!(
+        !html.contains("drag-group") && !html.contains("drop-value") && !html.contains(" drag="),
+        "nor painted: {html}"
+    );
+}
+
+#[test]
 fn a_long_press_and_a_swipe_are_recognised() {
     let src = page(
         "state said = \"\"\n    Card {\n        on longpress(p) { said = \"held\" }\n        on swipe(s) { said = s.direction }\n        Text(\"x\")\n    }",

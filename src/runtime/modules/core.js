@@ -524,12 +524,21 @@
     return out;
   }
 
+  // The element what a component's call rendered stands for: the node
+  // itself, or its fragment's first element — what a handler, a drag, an
+  // attribute or a lifetime written on the call lands on. `null` when it
+  // rendered no element.
+  function _rootOf(node) {
+    if (!node) return null;
+    const isFragment = node.nodeType === 11 || node.tagName === "#DOCUMENT-FRAGMENT";
+    return isFragment ? [...node.childNodes].find((n) => n.nodeType === 1) || null : node;
+  }
+
   // Listen on the root element of what a component returned: its fragment's
   // first element. A component that renders several roots gets the handler on
   // the first, which is where a caller expects it.
   function onRoot(frag, event, handler) {
-    const isFragment = frag.nodeType === 11 || frag.tagName === "#DOCUMENT-FRAGMENT";
-    const root = isFragment ? [...frag.childNodes].find((n) => n.nodeType === 1) : frag;
+    const root = _rootOf(frag);
     if (root) {
       live(root);
       root.addEventListener(event, handler);
@@ -547,8 +556,7 @@
   // element: `data-wf-exit`, `data-wf-delay`, `data-wf-duration`,
   // `data-wf-easing`.
   function mark(frag, attrs) {
-    const isFragment = frag.nodeType === 11 || frag.tagName === "#DOCUMENT-FRAGMENT";
-    const root = isFragment ? [...frag.childNodes].find((n) => n.nodeType === 1) : frag;
+    const root = _rootOf(frag);
     if (!root) return;
     for (const [k, v] of Object.entries(attrs)) {
       root.setAttribute(k, v);
@@ -562,8 +570,7 @@
   // state keeps `false` as the string; any other attribute given `false`
   // or nothing is taken off.
   function rootAttrs(frag, attrs) {
-    const isFragment = frag.nodeType === 11 || frag.tagName === "#DOCUMENT-FRAGMENT";
-    const root = isFragment ? [...frag.childNodes].find((n) => n.nodeType === 1) : frag;
+    const root = _rootOf(frag);
     if (!root) return;
     for (const [k, v] of Object.entries(attrs)) {
       if (k === "class" || typeof v === "function") live(root);

@@ -20,7 +20,11 @@
 
   // `on longpress(p)`, `on swipe(s)`, `on receive(d)`, `on dragmove(d)`:
   // the gesture's recogniser is set up on `el`, and `fn` hears what it saw.
+  // Written on a component's call, `el` is what it rendered, and the
+  // gesture is its root element's.
   function gesture(el, name, fn) {
+    el = _rootOf(el);
+    if (!el) return;
     live(el);
     if (name === "longpress") _longPress(el);
     else if (name === "swipe") _swipe(el);
@@ -133,6 +137,8 @@
   // (a tab strip); with `inside`, the middle of it is inside (a folder, a
   // container).
   function dropTarget(el, options) {
+    el = _rootOf(el);
+    if (!el) return;
     live(el);
     const opts = options || {};
     _targets.set(el, opts);
@@ -173,6 +179,8 @@
   // few pixels, or a finger held still — and carried to a drop target.
   // `group` keeps tabs and tree rows apart.
   function draggable(el, value, options) {
+    el = _rootOf(el);
+    if (!el) return;
     live(el);
     const opts = options || {};
     const group = opts.group || "";

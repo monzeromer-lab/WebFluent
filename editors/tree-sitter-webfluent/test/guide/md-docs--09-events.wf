@@ -199,6 +199,22 @@ page Files(path: "/", title: "Files", description: "Reorder, move and resize.") 
 }
 
 // md-docs/09-events.md
+component TreeRow(_ name: String) {
+    Row { Icon("file")  Text(name) }
+}
+page Files(path: "/files", title: "Files") {
+    state rows = ["src", "README.md"]
+    Stack {
+        for r in rows {
+            TreeRow(r, drag: r, dragGroup: "tree", dropValue: r, dropInside: r == "src") {
+                on receive(d) { log("{d.value} goes {d.position} {r}") }
+                on contextmenu(e) { log("menu for {r}") }
+            }
+        }
+    }
+}
+
+// md-docs/09-events.md
 page Scrolled(path: "/", title: "Scrolled", description: "How far down the reader is.") {
     state y = 0
     action track() { y = window.scrollY }

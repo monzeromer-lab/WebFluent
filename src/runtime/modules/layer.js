@@ -560,6 +560,9 @@
     return false;
   }
   function trapFocus(el, read) {
+    // On a component's call, its root element.
+    el = _rootOf(el);
+    if (!el) return;
     live(el);
     const self = {};
     const mine = () => _traps[_traps.length - 1] === self;

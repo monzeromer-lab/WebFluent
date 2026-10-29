@@ -16,10 +16,8 @@
   function attach(node, mount, update, cleanup) {
     // A component's call hands over what it rendered, which may be a
     // fragment: the lifetime belongs to its root element.
-    if (node && (node.nodeType === 11 || node.tagName === "#DOCUMENT-FRAGMENT")) {
-      node = [...node.childNodes].find((n) => n.nodeType === 1);
-      if (!node) return undefined;
-    }
+    node = _rootOf(node);
+    if (!node) return undefined;
     // Somebody else's code holds the node from here on (hydrate).
     live(node);
     // Inside a portal's block the lifetime waits for the block to be drawn,
