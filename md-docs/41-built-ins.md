@@ -80,6 +80,10 @@ browser's; `push(x)` in an action — and WebFluent's own:
 
 Every helper runs at build time too, so a static page shows its result.
 
+A member something declares wins over a helper of its name: a store's own
+`action first(n)` or `action preview(path)` is the store's, called with its
+arguments.
+
 ## Number methods
 
 `toFixed(n)`, `toString()`. Convert with `Number("12")` and `String(n)`, or

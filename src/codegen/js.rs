@@ -1511,6 +1511,18 @@ impl JsCodegen {
                     .iter()
                     .map(|a| self.emit_store_expr(a, store_states))
                     .collect();
+                // Another store's own actions come first, as they do on a
+                // page: `OpenFiles.preview(path)` calls the action the
+                // store declares. Through the table it was the runtime's
+                // `WF.preview(OpenFiles, path)`, and the action never ran
+                // with its arguments.
+                if let Expr::Identifier(s) = obj.as_ref()
+                    && self.stores.contains(s)
+                    && !store_states.contains(s)
+                    && !self.store_locals.borrow().contains(s)
+                {
+                    return format!("{}.{}({})", obj_str, method, args_str.join(", "));
+                }
                 // The same table the page emitter reads. A bare name that
                 // is one of the store's own states is held by the store, so
                 // a mutating method assigns back through it.

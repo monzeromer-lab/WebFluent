@@ -196,6 +196,12 @@ whitespace.
 `truncate`, `dedent`, `lines` and `words` are WebFluent's own; the rest are
 the browser's.
 
+A member something declares wins over a helper of the same name. A store
+may name an action `preview`, `first` or `truncate`: `OpenFiles.preview(path)`
+calls that action, with its arguments, from a page or from another store;
+a worker's `css.last(kind)` is the worker's own `last`. The helpers are for
+lists and strings.
+
 ### Number methods
 
 `toFixed(n)`, `toString()`. `Number("12")` converts a string; `"{n}"` or

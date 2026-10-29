@@ -264,8 +264,10 @@
   //
   // The object URL is revoked when the scope that made it leaves, so a
   // preview never outlives the page that showed it.
-  function preview(file) {
-    if (own(file, "preview")) return file.preview();
+  // An object with its own `preview` — a store's action, say — is handed
+  // every argument the call had.
+  function preview(file, ...more) {
+    if (own(file, "preview")) return file.preview(...more);
     if (typeof URL === "undefined" || !URL.createObjectURL) return "";
     const url = URL.createObjectURL(file);
     onCleanup(() => URL.revokeObjectURL(url));

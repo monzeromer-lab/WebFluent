@@ -158,7 +158,7 @@ page Calls(path: "/") {
 
         Heading("List methods", id: "list-methods").h3
 
-        Markdown("`length`, `map(f)`, `filter(f)`, `find(f)`, `findIndex(f)`, `some(f)`, `every(f)`, `includes(x)`, `indexOf(x)`, `reduce(f, init)`, `join(sep)`, `slice(a, b)`, `concat(other)`, `reverse()`, `sort(f)`, `sortBy(f)`, `groupBy(f)`, `unique()`, `take(n)`, `first()`, `last()`, `sum()`, `flatMap(f)`, and, in an imperative block, `push(x)`.\n\n`sortBy`, `groupBy`, `unique`, `take`, `first`, `last`, `sum`, `capitalize`, `truncate`, `dedent`, `lines` and `words` are WebFluent's own; the rest are the browser's.")
+        Markdown("`length`, `map(f)`, `filter(f)`, `find(f)`, `findIndex(f)`, `some(f)`, `every(f)`, `includes(x)`, `indexOf(x)`, `reduce(f, init)`, `join(sep)`, `slice(a, b)`, `concat(other)`, `reverse()`, `sort(f)`, `sortBy(f)`, `groupBy(f)`, `unique()`, `take(n)`, `first()`, `last()`, `sum()`, `flatMap(f)`, and, in an imperative block, `push(x)`.\n\n`sortBy`, `groupBy`, `unique`, `take`, `first`, `last`, `sum`, `capitalize`, `truncate`, `dedent`, `lines` and `words` are WebFluent's own; the rest are the browser's.\n\nA member something declares wins over a helper of the same name. A store may name an action `preview`, `first` or `truncate`: `OpenFiles.preview(path)` calls that action, with its arguments, from a page or from another store; a worker's `css.last(kind)` is the worker's own `last`. The helpers are for lists and strings.")
 
         Heading("Number methods", id: "number-methods").h3
 

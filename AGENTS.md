@@ -992,6 +992,11 @@ JavaScript methods; string helpers: `capitalize()`, `truncate(n)`,
 regex. Every one runs at build time too, so the static paint shows the
 result.
 
+A member something declares always wins over a helper of its name: a
+store's `action preview(path)` or `action first(n)` is called as
+`OpenFiles.preview(path)` from a page or another store, and a worker's
+`css.last(kind)` is the worker's — never the list or file helper.
+
 ### Formatting
 
 ```wf

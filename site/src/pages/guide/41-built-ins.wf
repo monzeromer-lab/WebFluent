@@ -221,7 +221,7 @@ page BuiltInsGuide(path: "/docs/guide/built-ins", title: "Built-ins", descriptio
             }
         }
 
-        Markdown("Every helper runs at build time too, so a static page shows its result.")
+        Markdown("Every helper runs at build time too, so a static page shows its result.\n\nA member something declares wins over a helper of its name: a store's own `action first(n)` or `action preview(path)` is the store's, called with its arguments.")
 
         Heading("Number methods", id: "number-methods").h2
 

@@ -213,3 +213,118 @@ page P(path: "/", title: "T", description: "D") {
         );
     }
 }
+
+/// Two stores, one calling the other's actions, and a page calling both.
+fn two_stores(caller: &str, page_calls: &str) -> String {
+    let src = format!(
+        r#"
+store OpenFiles {{
+    state x = ""
+    state n = 0
+    action preview(path: String) {{ x = path }}
+    action first(count: Number) {{ n = count }}
+    action truncate(text: String, size: Number) {{
+        x = text
+        n = size
+    }}
+    action last(kind: String) {{ x = kind }}
+}}
+
+store Shell {{
+    state names: [String] = ["a", "b", "c"]
+    state label = "hello"
+    action open(path: String) {{
+{caller}
+    }}
+}}
+
+page P(path: "/", title: "T", description: "D") {{
+    use Shell
+    use OpenFiles
+    Container {{
+        Heading("T").h1
+        Text("{{OpenFiles.x}} {{OpenFiles.n}} {{Shell.label}}")
+        Button("go") {{ on click {{ {page_calls} }} }}
+    }}
+}}
+
+app {{ Router }}
+"#
+    );
+    spa_generated(&src)
+}
+
+/// A store's action named like one of the runtime's helpers — `preview`,
+/// `first`, `truncate`, `last` — is the store's own when another store
+/// calls it. The store emitter used to send `OpenFiles.preview(path)`
+/// through the helper table, as `WF.preview(OpenFiles, path)`: the runtime's
+/// file preview, which called the action with no arguments, so `path`
+/// arrived `undefined`. A declared member always wins over a helper.
+#[test]
+fn a_store_action_named_like_a_helper_is_the_stores_own_from_another_store() {
+    let js = two_stores(
+        "        OpenFiles.preview(path)\n\
+         \x20       OpenFiles.first(3)\n\
+         \x20       OpenFiles.truncate(path, 4)\n\
+         \x20       OpenFiles.last(\"x\")",
+        "Shell.open(\"a.wf\")",
+    );
+    for want in [
+        "OpenFiles.preview(path)",
+        "OpenFiles.first(3)",
+        "OpenFiles.truncate(path, 4)",
+        "OpenFiles.last(\"x\")",
+    ] {
+        assert!(
+            js.contains(want),
+            "expected `{want}` in the store's action, got:\n{js}"
+        );
+    }
+    for helper in ["preview", "first", "truncate", "last"] {
+        assert!(
+            !js.contains(&format!("WF.{helper}(OpenFiles")),
+            "`OpenFiles.{helper}` went through the runtime's helper:\n{js}"
+        );
+    }
+}
+
+/// And from a page, which already called a store's actions directly.
+#[test]
+fn a_store_action_named_like_a_helper_is_the_stores_own_from_a_page() {
+    let js = two_stores(
+        "        label = path",
+        "OpenFiles.preview(\"p\")  OpenFiles.first(2)  OpenFiles.truncate(\"t\", 1)",
+    );
+    for want in [
+        "OpenFiles.preview(\"p\")",
+        "OpenFiles.first(2)",
+        "OpenFiles.truncate(\"t\", 1)",
+    ] {
+        assert!(
+            js.contains(want),
+            "expected `{want}` in the page's handler, got:\n{js}"
+        );
+    }
+    assert!(!js.contains("WF.preview(OpenFiles"), "{js}");
+    assert!(!js.contains("WF.first(OpenFiles"), "{js}");
+}
+
+/// The helpers still work on what they are for: a store's list and string.
+#[test]
+fn the_helpers_still_compile_on_lists_and_strings_inside_a_store() {
+    let js = two_stores(
+        "        label = names.first() ?? \"\"\n\
+         \x20       label = label.truncate(2)\n\
+         \x20       names = names.take(2)\n\
+         \x20       label = names.last() ?? \"\"",
+        "Shell.open(\"a.wf\")",
+    );
+    for want in [
+        "WF.first(store.names)",
+        "WF.truncate(store.label, 2)",
+        "WF.take(store.names, 2)",
+        "WF.last(store.names)",
+    ] {
+        assert!(js.contains(want), "expected `{want}`, got:\n{js}");
+    }
+}
