@@ -1,3 +1,7 @@
+# Help Needed:
+
+If you are an open-source contributor and find this project helpful and have experience writing docs, I need help writing the docs for the language, as it's currently pure AI generated.
+
 # WebFluent
 
 **One binary. Websites, PDFs and slide decks from one language.** No Node, no framework, no build config — and no browser for your PDFs.
