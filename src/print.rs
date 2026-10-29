@@ -795,11 +795,12 @@ pub fn transition(t: &TransitionBlock, indent: usize) -> String {
 
 /// `on click(e) { … }`, `on key("mod+k") { … }`.
 pub fn handler(h: &EventHandler, indent: usize) -> String {
-    let head = match (&h.key, &h.param) {
-        (Some(key), Some(p)) => format!("({}, {p})", string(key)),
-        (Some(key), None) => format!("({})", string(key)),
-        (None, Some(p)) => format!("({p})"),
-        (None, None) => String::new(),
+    let names = h.params.join(", ");
+    let head = match (&h.key, names.is_empty()) {
+        (Some(key), false) => format!("({}, {names})", string(key)),
+        (Some(key), true) => format!("({})", string(key)),
+        (None, false) => format!("({names})"),
+        (None, true) => String::new(),
     };
     format!(
         "on {}{head}{}",
@@ -2176,6 +2177,32 @@ mod tests {
             panic!("a derived")
         };
         d.value.clone()
+    }
+
+    #[test]
+    fn a_handler_prints_each_name_it_gives_its_values() {
+        let page = "page P(path: \"/\", title: \"P\", description: \"P.\") {\n    Entry(\"a\") { on menu(key, x, y) { log(x) } }\n    on key(\"Escape\", e) { log(e) }\n    on keydown { log(1) }\n}\n";
+        let program = crate::syntax::parse_source(page, "t.wf").unwrap();
+        let Declaration::Page(p) = &program.declarations[0] else {
+            panic!("a page")
+        };
+        let StatementKind::UIElement(entry) = &p.body[0].kind else {
+            panic!("an element")
+        };
+        assert!(
+            handler(&entry.events[0], 0).starts_with("on menu(key, x, y) {"),
+            "{}",
+            handler(&entry.events[0], 0)
+        );
+        let heads: Vec<String> = p.body[1..]
+            .iter()
+            .map(|s| match &s.kind {
+                StatementKind::EventHandler(h) => handler(h, 0),
+                _ => panic!("a handler"),
+            })
+            .collect();
+        assert!(heads[0].starts_with("on key(\"Escape\", e) {"), "{heads:?}");
+        assert!(heads[1].starts_with("on keydown {"), "{heads:?}");
     }
 
     /// What is written is printed back as a person writes it, and that

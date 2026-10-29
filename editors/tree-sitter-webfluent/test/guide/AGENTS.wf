@@ -88,8 +88,15 @@ component TodoRow(_ label: String, done: Bool = false) {
         Text(label)
     }
 }
+component Entry(_ key: String) {
+    event menu(key: String, x: Number, y: Number)
+    Button(key) { on contextmenu(e) { e.preventDefault()  emit menu(key, e.clientX, e.clientY) } }
+}
 page Doc(path: "/") {
     TodoRow("Milk") { on toggle(id) { Todos.toggle(id) } }
+
+
+    Entry("row-1") { on menu(key, x, y) { Menus.open(key, x, y) } }
 }
 
 // AGENTS.md

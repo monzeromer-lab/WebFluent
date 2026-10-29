@@ -1790,7 +1790,7 @@ impl Parser {
         let body = self.parse_block()?;
         Ok(EventHandler {
             event,
-            param: None,
+            params: Vec::new(),
             key: None,
             body,
             span: self.span_since(mark),
@@ -2967,7 +2967,7 @@ mod span_tests {
             "transition { opacity fast }"
         );
         assert_eq!(button.events[0].span.slice(src), "on:click { count = 1 }");
-        assert_eq!(button.events[0].param, None);
+        assert!(button.events[0].params.is_empty());
 
         let StatementKind::If(i) = &body[1].kind else {
             panic!("if");

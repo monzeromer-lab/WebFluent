@@ -335,6 +335,12 @@ pub static CODES: &[CodeInfo] = &[
         "A `match` with no `else` must give every case of the enum an arm — a value with a case it misses would match nothing. A case with two arms reaches only the first. A `match` expression that covers every case needs no `else`.",
     ),
     code(
+        "T22",
+        Error,
+        "A handler that names more values than its event sends",
+        "A handler names the values its event sends, in order: `on menu(key, x, y)` for a component's `event menu(key: String, x: Number, y: Number)`. A DOM event sends one value, the event itself. A name past the last value sent is never anything but `undefined`.",
+    ),
+    code(
         "T21",
         Warning,
         "A resource `match` with no `error` arm",

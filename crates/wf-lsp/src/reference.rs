@@ -243,7 +243,7 @@ pub const KEYWORDS: &[KeywordDoc] = &[
     },
     KeywordDoc {
         name: "on",
-        summary: "An event handler on an element: `on click { }`; `on click(event) { }` names the DOM event. On a component, a handler for an event it declares receives its arguments: `on toggle(id) { }`.",
+        summary: "An event handler on an element: `on click { }`; `on click(event) { }` names the DOM event. On a component, a handler for an event it declares names the values `emit` sends, in order: `on toggle(id) { }`, `on menu(key, x, y) { }`. A DOM event sends one value, the event.",
         example: "Button(\"Save\") {\n    on click { save() }\n}",
         place: Place::Body,
     },

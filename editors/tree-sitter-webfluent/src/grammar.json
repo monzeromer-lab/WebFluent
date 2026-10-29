@@ -4684,12 +4684,37 @@
                       ]
                     },
                     {
-                      "type": "FIELD",
-                      "name": "parameter",
-                      "content": {
-                        "type": "SYMBOL",
-                        "name": "_name"
-                      }
+                      "type": "SEQ",
+                      "members": [
+                        {
+                          "type": "FIELD",
+                          "name": "parameter",
+                          "content": {
+                            "type": "SYMBOL",
+                            "name": "_name"
+                          }
+                        },
+                        {
+                          "type": "REPEAT",
+                          "content": {
+                            "type": "SEQ",
+                            "members": [
+                              {
+                                "type": "STRING",
+                                "value": ","
+                              },
+                              {
+                                "type": "FIELD",
+                                "name": "parameter",
+                                "content": {
+                                  "type": "SYMBOL",
+                                  "name": "_name"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
                     }
                   ]
                 },

@@ -105,6 +105,35 @@ The checker holds `emit` to the declared parameters (`T09`) and a handler on
 a call to a declared event or a DOM event; a DOM event on a component call
 attaches to its root element.
 
+### An event with several values
+
+An event may send several values. The handler names them in the order the
+event declares them, and each name has the type declared for it: here `key`
+is a `String`, and `x` and `y` are `Number`s.
+
+```wf
+component Entry(_ key: String) {
+    event menu(key: String, x: Number, y: Number)
+    Button(key) {
+        on contextmenu(e) {
+            e.preventDefault()
+            emit menu(key, e.clientX, e.clientY)
+        }
+    }
+}
+
+page Files(path: "/") {
+    state at = "nothing yet"
+    Entry("notes.wf") { on menu(key, x, y) { at = "{key} at {x}, {y}" } }
+    Text("Menu for {at}")
+}
+```
+
+A handler may name fewer values than the event sends — `on menu(key)`
+reads the key and leaves the rest — but not more: a name past the last
+value would only ever be `undefined`, and the checker says so (`T22`). An
+event that sends nothing is handled with no names, `on close { }`.
+
 ## Slots
 
 A component places its caller's block with `children`, and may declare named

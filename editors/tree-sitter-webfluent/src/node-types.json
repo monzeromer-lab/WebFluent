@@ -1842,7 +1842,7 @@
         ]
       },
       "parameter": {
-        "multiple": false,
+        "multiple": true,
         "required": false,
         "types": [
           {

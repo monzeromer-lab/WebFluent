@@ -55,6 +55,22 @@ page Todos(path: "/") {
 }
 
 // md-docs/11-components.md
+component Entry(_ key: String) {
+    event menu(key: String, x: Number, y: Number)
+    Button(key) {
+        on contextmenu(e) {
+            e.preventDefault()
+            emit menu(key, e.clientX, e.clientY)
+        }
+    }
+}
+page Files(path: "/") {
+    state at = "nothing yet"
+    Entry("notes.wf") { on menu(key, x, y) { at = "{key} at {x}, {y}" } }
+    Text("Menu for {at}")
+}
+
+// md-docs/11-components.md
 component Panel(_ title: String) {
     slot
     slot trailing

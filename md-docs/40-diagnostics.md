@@ -1564,6 +1564,42 @@ warning[T21]: this `match` on `users` has no `error` arm, so a failed request sh
 
 **Fix:** `error(e) { Alert(e.message).danger }`, or an `else`.
 
+### T22 — A handler that names more values than its event sends
+
+Error.
+
+```wf expect T22
+component Entry(_ key: String) {
+    event menu(key: String, x: Number, y: Number)
+    Button(key) { on contextmenu(e) { e.preventDefault()  emit menu(key, e.clientX, e.clientY) } }
+}
+
+page P(path: "/", title: "T", description: "D") {
+    state at = ""
+    Heading("Files").h1
+    Entry("notes.wf") { on menu(key, x, y, z) { at = "{key} at {x}, {y}" } }
+    Text(at)
+}
+```
+
+```text
+error[T22]: `on menu` names 4 values, but `event menu(key: String, x: Number, y: Number)` sends 3 values
+ --> src/App.wf:9:44
+  |
+9 |     Entry("notes.wf") { on menu(key, x, y, z) { at = "{key} at {x}, {y}" } }
+  |                                            ^
+  = help: Name at most 3, in order: `on menu(key, x, y)`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t22-a-handler-that-names-more-values-than-its-event-sends
+```
+
+A handler names the values its event sends, in the order the event
+declares them; it may name fewer, never more. A DOM event — `click`,
+`input`, `keydown` — sends one value, the event itself, so `on click(e, x)`
+is this error too.
+
+**Fix:** Drop the extra names. For a DOM event, name the event alone and
+read what it carries from it: `on click(e) { … e.clientX … }`.
+
 ### T20 — A list or a record shown as text
 
 Warning.

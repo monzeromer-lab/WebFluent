@@ -1089,7 +1089,7 @@ impl JsCodegen {
             self.emit_line("},");
         }
         for hook in &api.hooks {
-            let param = hook.param.clone().unwrap_or_else(|| "r".to_string());
+            let param = hook.param().unwrap_or("r").to_string();
             let name = match hook.event.as_str() {
                 "request" => "onRequest",
                 "response" => "onResponse",
@@ -3274,7 +3274,7 @@ impl JsCodegen {
                     // listening when it leaves.
                     if name == "Frame" && handler.event == "message" {
                         let head = self.handler_head(handler, "event");
-                        let param = handler.param.as_deref().unwrap_or("event");
+                        let param = handler.param().unwrap_or("event");
                         self.emit_line(&format!(
                             "WF.listen(window, \"message\", {head} => {{ if ({param}.source !== {var}.contentWindow) return; {body} }});"
                         ));
@@ -6823,10 +6823,7 @@ impl JsCodegen {
             self.emit_line(&format!("{key}: {v},"));
         }
         for handler in &c.handlers {
-            let param = handler
-                .param
-                .clone()
-                .unwrap_or_else(|| "message".to_string());
+            let param = handler.param().unwrap_or("message").to_string();
             self.emit_line(&format!(
                 "on{}: {}({param}) => {{",
                 capitalize_first(&handler.event),
@@ -6884,10 +6881,7 @@ impl JsCodegen {
             .collect();
         // `on message(m) { … }`: what arrives, handled where it is opened.
         for handler in &c.handlers {
-            let param = handler
-                .param
-                .clone()
-                .unwrap_or_else(|| "message".to_string());
+            let param = handler.param().unwrap_or("message").to_string();
             let body = self.emit_event_body(handler);
             options.push(format!(
                 "on{}: ({param}) => {{ {body} }}",
@@ -7194,25 +7188,29 @@ impl JsCodegen {
     }
 
     /// A handler's body: the same as any imperative block. The handler's
-    /// named parameter (`on click(e)`) is a plain name inside it; a handler
+    /// named parameters (`on click(e)`, `on menu(key, x, y)`) are plain
+    /// names inside it; a handler
     /// of the original grammar reads an implicit `event`.
     fn emit_event_body(&mut self, handler: &EventHandler) -> String {
-        match &handler.param {
-            Some(param) => {
-                self.loop_bindings.push(param.clone());
-                let body = self.emit_statements_inline(&handler.body);
-                self.loop_bindings.pop();
-                body
-            }
-            None => self.emit_statements_inline(&handler.body),
-        }
+        let names = handler.params.len();
+        self.loop_bindings.extend(handler.params.iter().cloned());
+        let body = self.emit_statements_inline(&handler.body);
+        self.loop_bindings
+            .truncate(self.loop_bindings.len() - names);
+        body
     }
 
     /// The head of a handler's arrow function: its parameter, and `async`
     /// when the body awaits.
+    /// A component's event sends as many values as it declares, and the
+    /// handler names them in order: `on menu(key, x, y)` is `(key, x, y)`.
     fn handler_head(&self, handler: &EventHandler, default_param: &str) -> String {
-        let param = handler.param.as_deref().unwrap_or(default_param);
-        let params = format!("{param}{}", self.implicit_handler_names(handler, param));
+        let params = if handler.params.len() > 1 {
+            handler.params.join(", ")
+        } else {
+            let param = handler.param().unwrap_or(default_param);
+            format!("{param}{}", self.implicit_handler_names(handler, param))
+        };
         if crate::parser::ast::awaits(&handler.body) {
             format!("async ({params})")
         } else {
@@ -9283,7 +9281,7 @@ mod tests {
                     );
                     b.events.push(EventHandler {
                         event: "click".to_string(),
-                        param: Some("ev".to_string()),
+                        params: vec!["ev".to_string()],
                         key: None,
                         body: vec![stmt(StatementKind::Emit(EmitStmt {
                             event: "pick".to_string(),
@@ -9316,7 +9314,7 @@ mod tests {
         };
         call.events.push(EventHandler {
             event: "pick".to_string(),
-            param: Some("which".to_string()),
+            params: vec!["which".to_string()],
             key: None,
             body: vec![stmt(StatementKind::Log(Expr::Identifier(
                 "which".to_string(),
@@ -9325,7 +9323,7 @@ mod tests {
         });
         call.events.push(EventHandler {
             event: "mouseenter".to_string(),
-            param: None,
+            params: Vec::new(),
             key: None,
             body: vec![stmt(StatementKind::Log(Expr::StringLiteral("in".into())))],
             span: Span::dummy(),

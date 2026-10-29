@@ -238,7 +238,7 @@ pub fn scope_at(decl: &Declaration, offset: usize) -> Vec<Binding> {
                 }
             }
             StatementKind::EventHandler(h) => {
-                if let Some(param) = &h.param {
+                for param in &h.params {
                     scope.push(Binding {
                         name: param.clone(),
                         kind: BindingKind::Param,
@@ -260,8 +260,19 @@ pub fn scope_at(decl: &Declaration, offset: usize) -> Vec<Binding> {
                     });
                 }
             }
-            // `row(t, i) { … }`: the values a scoped slot hands its fill.
+            // `row(t, i) { … }`: the values a scoped slot hands its fill; and
+            // `on menu(key, x, y) { … }`, the names a handler gives its
+            // event's values, inside the handler the place is in.
             StatementKind::UIElement(el) => {
+                for h in el.events.iter().filter(|h| contains(h.span, offset)) {
+                    for param in &h.params {
+                        scope.push(Binding {
+                            name: param.clone(),
+                            kind: BindingKind::Param,
+                            span: h.span,
+                        });
+                    }
+                }
                 if let ComponentRef::BuiltIn(n) = &el.component
                     && matches!(n.as_str(), "Header" | "Footer" | "Background")
                 {

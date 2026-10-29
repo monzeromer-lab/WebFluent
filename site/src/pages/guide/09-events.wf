@@ -23,7 +23,7 @@ page EventsGuide(path: "/docs/guide/events", title: "Events", description: "DOM 
 
         Heading("The event object", id: "the-event-object").h3
 
-        Markdown("Name a parameter to read the event: `on keydown(e) \{ … \}`. Without one, the event is still in scope as `event`. It is the browser's own event object, so `e.key`, `e.target.value`, `e.clientX`, `e.preventDefault()` and `e.stopPropagation()` are all there.")
+        Markdown("Name a parameter to read the event: `on keydown(e) \{ … \}`. Without one, the event is still in scope as `event`. It is the browser's own event object, so `e.key`, `e.target.value`, `e.clientX`, `e.preventDefault()` and `e.stopPropagation()` are all there.\n\nA DOM event sends that one value and nothing beside it, so a handler names one name at most: `on click(e, x)` is an error (`T22`); read what you want from the event, `e.clientX`. Several names are for a component's own events, which send what they declare ([below](#emitting-events-from-components)).")
 
         CodeBlock(#"page Drop(path: "/", title: "Drop", description: "A place to drop files.") {
     state names: [String] = []
@@ -98,7 +98,7 @@ app {
 
         Heading("Emitting events from components", id: "emitting-events-from-components").h2
 
-        Markdown("A component declares the events it fires and fires them with `emit`; the caller handles them like DOM events. [Chapter 11](/docs/guide/components#events) covers it:")
+        Markdown("A component declares the events it fires and fires them with `emit`; the caller handles them like DOM events, with a name for each value the event sends — `on change(v)`, `on menu(key, x, y)`. [Chapter 11](/docs/guide/components#events) covers it:")
 
         CodeBlock(#"component Counter(_ start: Number) {
     event change(value: Number)

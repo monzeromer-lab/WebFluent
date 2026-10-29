@@ -1766,3 +1766,20 @@ fn semantic_tokens_classify_names_by_what_they_resolve_to() {
         assert_eq!(Position::new(line, col), c.start);
     }
 }
+
+#[test]
+fn each_name_a_handler_gives_its_values_hovers_with_its_declared_type() {
+    let src = "component Entry(_ label: String) {\n    event menu(key: String, x: Number, y: Number)\n    Button(label) { on click { emit menu(label, 1, 2) } }\n}\npage Home(path: \"/\") {\n    state said = \"\"\n    Entry(\"a\") { on menu(key, x, y) { log(key)\n log(x)\n log(y) } }\n}\n";
+    let key = hover_text(src, "key)\n").unwrap();
+    assert!(key.contains("String"), "{key}");
+    let x = hover_text(src, "x)\n").unwrap();
+    assert!(x.contains("Number"), "{x}");
+    assert!(x.contains("A parameter of this action or handler."), "{x}");
+    let y = hover_text(src, "y) }").unwrap();
+    assert!(y.contains("Number"), "{y}");
+    // And completion offers them inside the handler.
+    let labels = labels_after(src, "log(x)\n log(");
+    for name in ["key", "x", "y"] {
+        assert!(labels.iter().any(|l| l == name), "{name} in {labels:?}");
+    }
+}

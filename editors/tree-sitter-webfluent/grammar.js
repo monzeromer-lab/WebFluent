@@ -781,7 +781,8 @@ module.exports = grammar({
     // ─── Events and slots ───────────────────────────────────────────────
 
     // `on click { }`, `on keydown(event) { }`, `on toggle(id) { }`.
-    // `on click(e) { }`; `on key("ctrl+k") { }` names the key it answers to.
+    // `on click(e) { }`; `on key("ctrl+k") { }` names the key it answers to;
+    // `on menu(key, x, y) { }` names each value a component's event sends.
     event_handler: ($) =>
       seq(
         "on",
@@ -791,7 +792,7 @@ module.exports = grammar({
             "(",
             choice(
               seq(field("key", $.string), optional(seq(",", field("parameter", $._name)))),
-              field("parameter", $._name),
+              seq(field("parameter", $._name), repeat(seq(",", field("parameter", $._name)))),
             ),
             ")",
           ),

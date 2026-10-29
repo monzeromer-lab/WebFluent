@@ -736,9 +736,11 @@ pub fn check_in(
                 }
                 for hook in &a.hooks {
                     cx.push_scope();
-                    if let Some(param) = &hook.param {
-                        cx.bind(param, Type::Any, hook.span);
-                    }
+                    cx.handler_names(
+                        hook,
+                        &[Type::Any],
+                        &format!("an `api`'s `on {}` hook receives one value", hook.event),
+                    );
                     cx.returns.push(Vec::new());
                     cx.async_ok = true;
                     cx.in_handler += 1;
@@ -764,6 +766,8 @@ pub fn check_in(
 
 /// What a `match` arm's binding is, for a write to it.
 const ARM: &str = "a value a `match` arm binds";
+/// What a DOM event's handler is given: the event, and nothing beside it.
+const DOM_SENDS: &str = "a DOM event sends one value, the event";
 
 /// The kind of body being checked, for what a statement may be.
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -973,6 +977,90 @@ impl<'a, 'p> Checker<'a, 'p> {
         .with_span(span, self.source.as_deref())
         .with_hint(hint);
         self.info.findings.warnings.push(d);
+    }
+
+    /// Binds the names a handler gives its event's values (`on menu(key, x,
+    /// y)`), each typed as `sends` says, and reports a name past the last
+    /// value sent: it would only ever be `undefined`.
+    fn handler_names(&mut self, handler: &EventHandler, sends: &[Type], what: &str) {
+        self.handler_names_hinted(
+            handler,
+            sends,
+            what,
+            &format!(
+                "Name the one value, `on {}(e)`, and read what it carries from it: `e.target.value`, `e.clientX`",
+                handler.event
+            ),
+        );
+    }
+
+    fn handler_names_hinted(
+        &mut self,
+        handler: &EventHandler,
+        sends: &[Type],
+        what: &str,
+        hint: &str,
+    ) {
+        for (i, name) in handler.params.iter().enumerate() {
+            let ty = sends.get(i).cloned().unwrap_or(Type::Any);
+            self.bind(name, ty, handler.span);
+        }
+        if handler.params.len() > sends.len() {
+            let n = handler.params.len();
+            let span = self.handler_extra_names(handler, sends.len());
+            self.error(
+                span,
+                "T22",
+                format!(
+                    "`on {}` names {n} value{}, but {what}",
+                    handler.event,
+                    if n == 1 { "" } else { "s" },
+                ),
+                hint,
+            );
+        }
+    }
+
+    /// Where the names past the `kept`-th are written in the handler's
+    /// head, `on menu(key, x, y, z)` → `z`; the handler's first line when
+    /// the source is not at hand.
+    fn handler_extra_names(&self, handler: &EventHandler, kept: usize) -> Span {
+        let head = Span {
+            end: handler.span.start,
+            ..handler.span
+        };
+        let Some(source) = self.source.as_deref() else {
+            return head;
+        };
+        let start = handler.span.start as usize;
+        let end = (handler.span.end as usize).min(source.len());
+        let Some(text) = source.get(start..end) else {
+            return head;
+        };
+        let (Some(open), Some(close)) = (text.find('('), text.find(')')) else {
+            return head;
+        };
+        if close < open {
+            return head;
+        }
+        // The names start after the `(`, past the key's string when there is
+        // one; the extra ones after the `kept`-th comma that follows.
+        let inside = &text[open + 1..close];
+        let mut from = 0;
+        let skip = kept + usize::from(handler.key.is_some());
+        for _ in 0..skip {
+            match inside[from..].find(',') {
+                Some(at) => from += at + 1,
+                None => return head,
+            }
+        }
+        let lead = inside[from..].len() - inside[from..].trim_start().len();
+        let first = start + open + 1 + from + lead;
+        let last = start + open + 1 + inside.trim_end().len();
+        let before = &source[..first];
+        let line = before.matches('\n').count() as u32 + 1;
+        let col = (first - before.rfind('\n').map_or(0, |n| n + 1)) as u32 + 1;
+        Span::new(first as u32, last.max(first) as u32, line, col)
     }
 
     fn error(&mut self, span: Span, code: &'static str, message: String, hint: &str) {
@@ -1432,13 +1520,15 @@ impl<'a, 'p> Checker<'a, 'p> {
                 }
                 for handler in &c.handlers {
                     self.push_scope();
-                    if let Some(param) = &handler.param {
-                        let ty = match &c.receives {
-                            Some(t) => self.world.resolve(Type::from_ref(t)),
-                            None => Type::Any,
-                        };
-                        self.bind(param, ty, span);
-                    }
+                    let ty = match &c.receives {
+                        Some(t) => self.world.resolve(Type::from_ref(t)),
+                        None => Type::Any,
+                    };
+                    self.handler_names(
+                        handler,
+                        &[ty],
+                        &format!("a connection's `on {}` receives one value", handler.event),
+                    );
                     let was = std::mem::replace(&mut self.async_ok, true);
                     self.in_handler += 1;
                     self.statements(&handler.body, Body::Imperative);
@@ -1514,9 +1604,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             }
             StatementKind::EventHandler(h) => {
                 self.push_scope();
-                if let Some(param) = &h.param {
-                    self.bind(param, Type::Any, h.span);
-                }
+                self.handler_names(h, &[Type::Any], DOM_SENDS);
                 let was = std::mem::replace(&mut self.async_ok, true);
                 self.in_handler += 1;
                 self.statements(&h.body, Body::Imperative);
@@ -2295,21 +2383,57 @@ impl<'a, 'p> Checker<'a, 'p> {
         self.current_span = span;
         for handler in &el.events {
             self.push_scope();
-            if let Some(param) = &handler.param {
-                // A declared event's handler receives its first parameter;
-                // a DOM handler receives the event.
-                let ty = match &el.component {
-                    ComponentRef::UserDefined(name) => self
-                        .world
-                        .components
-                        .get(name.as_str())
-                        .and_then(|c| c.events.iter().find(|e| e.name == handler.event))
-                        .and_then(|e| e.params.first())
+            // A declared event's handler receives the values `emit` sends,
+            // each name typed as the event declares it; a DOM handler
+            // receives the event.
+            let declared = match &el.component {
+                ComponentRef::UserDefined(name) => self
+                    .world
+                    .components
+                    .get(name.as_str())
+                    .and_then(|c| c.events.iter().find(|e| e.name == handler.event)),
+                _ => None,
+            };
+            match declared {
+                Some(event) => {
+                    let sends: Vec<Type> = event
+                        .params
+                        .iter()
                         .map(|p| self.world.resolve(Type::from_ref(&p.param_type)))
-                        .unwrap_or(Type::Any),
-                    _ => Type::Any,
-                };
-                self.bind(param, ty, handler.span);
+                        .collect();
+                    let what = format!(
+                        "`event {}({})` sends {}",
+                        event.name,
+                        event
+                            .params
+                            .iter()
+                            .map(|p| format!("{}: {}", p.name, Type::from_ref(&p.param_type)))
+                            .collect::<Vec<_>>()
+                            .join(", "),
+                        match sends.len() {
+                            0 => "no value".to_string(),
+                            1 => "one value".to_string(),
+                            n => format!("{n} values"),
+                        }
+                    );
+                    let names: Vec<&str> = event.params.iter().map(|p| p.name.as_str()).collect();
+                    self.handler_names_hinted(
+                        handler,
+                        &sends,
+                        &what,
+                        &if names.is_empty() {
+                            format!("Write `on {} {{ … }}`", event.name)
+                        } else {
+                            format!(
+                                "Name at most {}, in order: `on {}({})`",
+                                names.len(),
+                                event.name,
+                                names.join(", ")
+                            )
+                        },
+                    );
+                }
+                None => self.handler_names(handler, &[Type::Any], DOM_SENDS),
             }
             let was = std::mem::replace(&mut self.async_ok, true);
             self.in_handler += 1;
@@ -6993,6 +7117,56 @@ mod tests {
         clean(
             "component C { event pick(id: String)\n Button(\"x\") { on click { emit pick(\"a\") } } }\npage P(path: \"/\") { C { on pick(id) { log(id.length) } } }",
         );
+    }
+
+    #[test]
+    fn a_handler_names_each_value_its_event_sends() {
+        const MENU: &str = "component Entry { event menu(key: String, x: Number, y: Number)\n Button(\"x\") { on click(e) { emit menu(\"a\", e.clientX, e.clientY) } } }\n";
+        // Each name is typed as the event declares it.
+        clean(&format!(
+            "{MENU}page P(path: \"/\") {{ Entry {{ on menu(key, x, y) {{ log(key.length + x + y) }} }} }}"
+        ));
+        has(
+            &format!(
+                "{MENU}page P(path: \"/\") {{ state n = 0\n Entry {{ on menu(key, x, y) {{ n = key }} }} }}"
+            ),
+            "`String`",
+        );
+        clean(&format!(
+            "{MENU}page P(path: \"/\") {{ state n = 0\n Entry {{ on menu(key, x, y) {{ n = x + y }} }} }}"
+        ));
+        // Fewer names than values is fine: the rest are not read.
+        clean(&format!(
+            "{MENU}page P(path: \"/\") {{ Entry {{ on menu(key) {{ log(key.length) }} }} }}"
+        ));
+        has(
+            &format!(
+                "{MENU}page P(path: \"/\") {{ Entry {{ on menu(key, x, y, z) {{ log(z) }} }} }}"
+            ),
+            "[T22] `on menu` names 4 values, but `event menu(key: String, x: Number, y: Number)` sends 3 values\n  Name at most 3, in order: `on menu(key, x, y)`",
+        );
+        has(
+            "component C { event close\n Button(\"x\") { on click { emit close() } } }\npage P(path: \"/\") { C { on close(e) { log(e) } } }",
+            "[T22] `on close` names 1 value, but `event close()` sends no value\n  Write `on close { … }`",
+        );
+        // A DOM event sends the event and nothing else, on a built-in, on a
+        // component's root, and on the page.
+        has(
+            "page P(path: \"/\") { Button(\"x\") { on click(e, x) { log(x) } } }",
+            "[T22] `on click` names 2 values, but a DOM event sends one value, the event\n  Name the one value, `on click(e)`",
+        );
+        has(
+            &format!(
+                "{MENU}page P(path: \"/\") {{ Entry {{ on mouseenter(e, x) {{ log(x) }} }} }}"
+            ),
+            "[T22] `on mouseenter` names 2 values, but a DOM event sends one value",
+        );
+        has(
+            "page P(path: \"/\") { on keydown(e, k) { log(k) }\n Text(\"x\") }",
+            "[T22] `on keydown` names 2 values",
+        );
+        clean("page P(path: \"/\") { Button(\"x\") { on click(e) { log(e) } } }");
+        clean("page P(path: \"/\") { on key(\"Escape\", e) { log(e) }\n Text(\"x\") }");
     }
 
     #[test]

@@ -2842,13 +2842,13 @@ impl ParserV2 {
         Ok(())
     }
 
-    /// `on name[(param)] { statements }`.
+    /// `on name[(param, …)] { statements }`.
     fn parse_handler(&mut self) -> Result<EventHandler> {
         let mark = self.mark();
         self.expect_word("on")?;
         let event = self.expect_ident("the event's name")?;
         let mut key = None;
-        let mut param = None;
+        let mut params = Vec::new();
         if self.eat(&TokenType::OpenParen) {
             // `on key("ctrl+k")`, or `on key("Escape", e)`.
             if event == "key" {
@@ -2874,10 +2874,15 @@ impl ParserV2 {
                     }
                 }
                 if self.eat(&TokenType::Comma) {
-                    param = Some(self.expect_ident("the event parameter's name")?);
+                    params.push(self.expect_ident("the event parameter's name")?);
                 }
             } else {
-                param = Some(self.expect_ident("the event parameter's name")?);
+                // `on menu(key, x, y)`: a name for each value the event
+                // sends. How many it may have is the checker's to say.
+                params.push(self.expect_ident("the event parameter's name")?);
+                while self.eat(&TokenType::Comma) {
+                    params.push(self.expect_ident("the event parameter's name")?);
+                }
             }
             self.expect(&TokenType::CloseParen, "`)`")?;
         }
@@ -2890,7 +2895,7 @@ impl ParserV2 {
         let (body, _) = self.parse_imperative_block()?;
         Ok(EventHandler {
             event,
-            param,
+            params,
             key,
             body,
             span: self.span_since(mark),
@@ -4694,7 +4699,7 @@ app { Navbar(brand: "x") { Navbar.Links { Link("Home", to: "/") } }  Router }
         let transition = root.transition_block.as_ref().unwrap();
         assert_eq!(transition.properties[0].duration, "150ms");
         assert_eq!(transition.properties[0].easing.as_deref(), Some("ease-out"));
-        assert_eq!(root.events[0].param.as_deref(), Some("e"));
+        assert_eq!(root.events[0].param(), Some("e"));
         assert!(
             matches!(&root.events[0].body[0].kind, StatementKind::Emit(e) if e.event == "toggle")
         );
@@ -5064,6 +5069,36 @@ app { Navbar(brand: "x") { Navbar.Links { Link("Home", to: "/") } }  Router }
         assert!(
             matches!(&t.tokens[1].value, Expr::StringLiteral(v) if v == "\"Manrope\", sans-serif")
         );
+    }
+
+    #[test]
+    fn a_handler_names_as_many_values_as_it_writes() {
+        let program = parse(
+            "page P(path: \"/\") { Entry(\"a\") { on menu(key, x, y) { log(x) } }\n Button(\"b\") { on click(e) { } on mouseenter { } }\n on key(\"Escape\", e) { } }",
+        );
+        let Declaration::Page(page) = &program.declarations[0] else {
+            panic!("a page")
+        };
+        let StatementKind::UIElement(entry) = &page.body[0].kind else {
+            panic!("an element")
+        };
+        assert_eq!(entry.events[0].params, ["key", "x", "y"]);
+        assert_eq!(entry.events[0].param(), Some("key"));
+        let StatementKind::UIElement(button) = &page.body[1].kind else {
+            panic!("an element")
+        };
+        assert_eq!(button.events[0].params, ["e"]);
+        assert!(button.events[1].params.is_empty());
+        let StatementKind::EventHandler(key) = &page.body[2].kind else {
+            panic!("a handler")
+        };
+        assert_eq!(key.key.as_deref(), Some("Escape"));
+        assert_eq!(key.params, ["e"]);
+        // A key handler takes the key and the event, and nothing more.
+        let err = fails("page P(path: \"/\") { on key(\"Escape\", e, f) { } }");
+        assert!(err.contains("`)`"), "{err}");
+        let err = fails("page P(path: \"/\") { Entry { on menu(key,) { } } }");
+        assert!(err.contains("the event parameter's name"), "{err}");
     }
 
     #[test]

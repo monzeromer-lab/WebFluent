@@ -44,6 +44,11 @@ event is still in scope as `event`. It is the browser's own event object, so
 `e.key`, `e.target.value`, `e.clientX`, `e.preventDefault()` and
 `e.stopPropagation()` are all there.
 
+A DOM event sends that one value and nothing beside it, so a handler names
+one name at most: `on click(e, x)` is an error (`T22`); read what you want
+from the event, `e.clientX`. Several names are for a component's own events,
+which send what they declare ([below](#emitting-events-from-components)).
+
 ```wf
 page Drop(path: "/", title: "Drop", description: "A place to drop files.") {
     state names: [String] = []
@@ -149,8 +154,9 @@ app {
 ## Emitting events from components
 
 A component declares the events it fires and fires them with `emit`; the
-caller handles them like DOM events. [Chapter 11](11-components.md#events)
-covers it:
+caller handles them like DOM events, with a name for each value the event
+sends — `on change(v)`, `on menu(key, x, y)`.
+[Chapter 11](11-components.md#events) covers it:
 
 ```wf
 component Counter(_ start: Number) {

@@ -333,7 +333,10 @@ them.
 #### Events
 
 A component declares the events it fires and their arguments; `emit` fires
-one; the caller handles it with `on name(args) { }`. A DOM event written on
+one; the caller handles it with `on name(args) { }`, a name for each value
+the event sends, in order — `event menu(key: String, x: Number, y: Number)`
+is handled `on menu(key, x, y) { }`, each name typed as declared. It may
+name fewer (`on menu(key)`), never more (T22). A DOM event written on
 a component call — `on click { }` — attaches to the component's root
 element, so a styled button component is clickable wherever it is used.
 So does an attribute the component takes no prop for — `aria-label`,
@@ -352,6 +355,13 @@ component TodoRow(_ label: String, done: Bool = false) {
 }
 
 TodoRow("Milk") { on toggle(id) { Todos.toggle(id) } }
+
+component Entry(_ key: String) {
+    event menu(key: String, x: Number, y: Number)
+    Button(key) { on contextmenu(e) { e.preventDefault()  emit menu(key, e.clientX, e.clientY) } }
+}
+
+Entry("row-1") { on menu(key, x, y) { Menus.open(key, x, y) } }
 ```
 
 ### Types and enums
@@ -772,7 +782,10 @@ a click), `swipe(s)` (a finger or pen, `s.direction` `"left"`/`"right"`/
 standard one — `dblclick`, `contextmenu`, `pointerdown`, `pointermove`,
 `touchstart`, `wheel`, `scroll`, `paste`, `drop`, `dragover`, `ended`,
 `animationend`, … (`wf registry --json` lists them). The handler's
-parameter names the DOM event; without one, `event` is in scope. An
+parameter names the DOM event; without one, `event` is in scope. A DOM
+event sends that one value and nothing beside it: `on click(e, x)` is T22
+— read what it carries from the event, `e.clientX`. Only a component's
+declared event sends several (Components, Events). An
 element's block is ordered `style` → `transition` → `on …` → slot fills →
 children.
 

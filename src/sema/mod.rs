@@ -1341,10 +1341,10 @@ fn lower_key_handler(handler: &mut EventHandler) {
     if handler.event != "key" {
         return;
     }
-    let param = handler.param.clone().unwrap_or_else(|| "_ke".to_string());
+    let param = handler.param().unwrap_or("_ke").to_string();
     let body = std::mem::take(&mut handler.body);
     handler.event = "keydown".to_string();
-    handler.param = Some(param.clone());
+    handler.params = vec![param.clone()];
     handler.body = vec![Statement {
         kind: StatementKind::If(IfStmt {
             condition: Expr::FunctionCall(
@@ -1788,7 +1788,7 @@ fn lower_action_shorthand(el: &mut UIElement) {
     };
     el.events.push(EventHandler {
         event: "click".to_string(),
-        param: None,
+        params: Vec::new(),
         key: None,
         body: actions,
         span,

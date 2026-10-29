@@ -1023,14 +1023,24 @@ pub struct PseudoBlock {
 #[derive(Debug, Clone)]
 pub struct EventHandler {
     pub event: String, // click, submit, input, change, etc.
-    /// The handler's named event parameter (`on click(e)`); `None` for the
-    /// original grammar, whose handlers read an implicit `event`.
-    pub param: Option<String>,
+    /// The names the handler gives the event's values, in order:
+    /// `on click(e)` one, the DOM event; `on menu(key, x, y)` as many as a
+    /// component's `event menu(…)` declares. Empty for `on click { … }` and
+    /// the original grammar, whose handlers read an implicit `event`.
+    pub params: Vec<String>,
     /// `on key("ctrl+k")`: the key the handler answers to.
     pub key: Option<String>,
     pub body: Vec<Statement>,
     /// The whole handler, from `on` to the closing brace.
     pub span: Span,
+}
+
+impl EventHandler {
+    /// The first name, the one a DOM event's handler has: `e` in
+    /// `on click(e)`.
+    pub fn param(&self) -> Option<&str> {
+        self.params.first().map(String::as_str)
+    }
 }
 
 // ─── Animation ───────────────────────────────────────────

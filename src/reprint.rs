@@ -498,7 +498,7 @@ fn diff_match(
 
 fn diff_handler(source: &str, a: &EventHandler, b: &EventHandler, out: &mut Vec<Patch>) -> bool {
     let (start, end) = (a.span.start as usize, a.span.end as usize);
-    if a.event != b.event || a.param != b.param || a.key != b.key {
+    if a.event != b.event || a.params != b.params || a.key != b.key {
         out.push(Patch::new(
             start,
             end,
