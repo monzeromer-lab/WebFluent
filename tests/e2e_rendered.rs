@@ -154,3 +154,27 @@ fn a_refreshed_resource_redraws_in_place() {
         String::from_utf8_lossy(&out.stderr)
     );
 }
+
+/// A program's names never take the generated code's own: every name the
+/// generated code uses, and JavaScript's own words, in every place a
+/// program can bind one — built with this `wf`, run, clicked through and
+/// read back (`tests/js/names.test.mjs`).
+#[test]
+fn a_programs_names_are_its_own_wherever_they_are_bound() {
+    if !node_available() {
+        eprintln!("\n  SKIPPED: `node` is not on PATH; tests/js/names.test.mjs did not run.\n");
+        return;
+    }
+    let out = Command::new("node")
+        .args(["--test", "tests/js/names.test.mjs"])
+        .env("WF_BIN", env!("CARGO_BIN_EXE_wf"))
+        .current_dir(repo_root())
+        .output()
+        .expect("running node --test");
+    assert!(
+        out.status.success(),
+        "a program's name was read as the generated code's:\n{}\n{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
+}

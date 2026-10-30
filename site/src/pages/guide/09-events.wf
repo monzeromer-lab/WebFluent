@@ -23,7 +23,7 @@ page EventsGuide(path: "/docs/guide/events", title: "Events", description: "DOM 
 
         Heading("The event object", id: "the-event-object").h3
 
-        Markdown("Name a parameter to read the event: `on keydown(e) \{ … \}`. Without one, the event is still in scope as `event`. It is the browser's own event object, so `e.key`, `e.target.value`, `e.clientX`, `e.preventDefault()` and `e.stopPropagation()` are all there.\n\nA DOM event sends that one value and nothing beside it, so a handler names one name at most: `on click(e, x)` is an error (`T22`); read what you want from the event, `e.clientX`. Several names are for a component's own events, which send what they declare ([below](#emitting-events-from-components)).")
+        Markdown("Name a parameter to read the event: `on keydown(e) \{ … \}`. Without one, the event is still in scope as `event` — unless the program has an `event` of its own (a loop's item, a state, an action), which wins; name the parameter to read the event there. It is the browser's own event object, so `e.key`, `e.target.value`, `e.clientX`, `e.preventDefault()` and `e.stopPropagation()` are all there.\n\nA DOM event sends that one value and nothing beside it, so a handler names one name at most: `on click(e, x)` is an error (`T22`); read what you want from the event, `e.clientX`. Several names are for a component's own events, which send what they declare ([below](#emitting-events-from-components)).")
 
         CodeBlock(#"page Drop(path: "/", title: "Drop", description: "A place to drop files.") {
     state names: [String] = []

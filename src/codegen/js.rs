@@ -49,6 +49,117 @@ fn sig(name: &str) -> String {
     }
 }
 
+/// Names a program's binding cannot be written as in the generated code:
+/// JavaScript's own words (`for class in classes` was `for (const class
+/// of …)`), the browser's names the generated code reads inside a
+/// program's code (`document.createDocumentFragment()` under `for document
+/// in docs`), the globals no script may declare again, and the parameters
+/// of the functions the generated code wraps around a program's code — a
+/// store's `store`, a layout's `page`, the router's `routes` and
+/// `container`. (An event or a bound value it hands such a function is
+/// `$$e` or `$$v`, which no program spells.)
+const RESERVED_BARE: &[&str] = &[
+    // JavaScript's.
+    "arguments",
+    "await",
+    "break",
+    "case",
+    "catch",
+    "class",
+    "const",
+    "continue",
+    "debugger",
+    "default",
+    "delete",
+    "do",
+    "else",
+    "enum",
+    "eval",
+    "export",
+    "extends",
+    "false",
+    "finally",
+    "for",
+    "function",
+    "if",
+    "implements",
+    "import",
+    "in",
+    "instanceof",
+    "interface",
+    "let",
+    "new",
+    "null",
+    "package",
+    "private",
+    "protected",
+    "public",
+    "return",
+    "static",
+    "super",
+    "switch",
+    "this",
+    "throw",
+    "true",
+    "try",
+    "typeof",
+    "var",
+    "void",
+    "while",
+    "with",
+    "yield",
+    "undefined",
+    "NaN",
+    "Infinity",
+    // The browser's, as the generated code reads them.
+    "Array",
+    "Number",
+    "Object",
+    "String",
+    "console",
+    "document",
+    "encodeURIComponent",
+    "globalThis",
+    "location",
+    "top",
+    "window",
+    // The generated code's own.
+    "WF",
+    "store",
+    "page",
+    "routes",
+    "container",
+    "__x",
+];
+
+/// What a program's binding — a loop's item, a lambda's parameter, a
+/// `let`, a caught error, an action, a `const` — is called in the generated
+/// code: its own name, unless that is one of [`RESERVED_BARE`] or begins
+/// like a page's or a component's function — then `name$`, which nothing
+/// else spells (a program's names have no `$`).
+fn bare(name: &str) -> String {
+    if RESERVED_BARE.contains(&name)
+        || name.starts_with("Page_")
+        || name.starts_with("Component_")
+        || name.starts_with("__wf")
+    {
+        format!("{name}$")
+    } else {
+        name.to_string()
+    }
+}
+
+/// A lambda's parameters, `a, b`, each as [`bare`] has it.
+fn bare_list(params: &str) -> String {
+    params
+        .split(',')
+        .map(str::trim)
+        .filter(|p| !p.is_empty())
+        .map(bare)
+        .collect::<Vec<_>>()
+        .join(", ")
+}
+
 /// Every name `body` declares at any depth: state, derived values,
 /// resources, actions and the locals of their bodies.
 fn declared_names(body: &[Statement]) -> Vec<String> {
@@ -90,6 +201,20 @@ fn declared_names(body: &[Statement]) -> Vec<String> {
     let mut out = Vec::new();
     walk(body, &mut out);
     out
+}
+
+/// The signals declared directly in `body`: states, derived values,
+/// resources and connections.
+fn body_signals(body: &[Statement]) -> Vec<String> {
+    body.iter()
+        .filter_map(|s| match &s.kind {
+            StatementKind::State(d) => Some(d.name.clone()),
+            StatementKind::Derived(d) => Some(d.name.clone()),
+            StatementKind::Resource(r) => Some(r.name.clone()),
+            StatementKind::Connection(c) => Some(c.name.clone()),
+            _ => None,
+        })
+        .collect()
 }
 
 /// The names of the actions declared directly in `body`.
@@ -205,6 +330,10 @@ pub struct JsCodegen {
     /// Every name the page, component or store being emitted declares, at
     /// any depth: a declared `query` is its own, not the browser's.
     own_names: Vec<String>,
+    /// The signals the body declares at its top — its states, derived
+    /// values, resources and connections — which a top-level `const` of the
+    /// same name gives way to.
+    body_signals: Vec<String>,
     /// Names bound by an enclosing `for` loop, innermost last.
     ///
     /// `WF.each` calls the body with the item as a plain parameter, so a
@@ -397,6 +526,7 @@ impl JsCodegen {
             window_opts: None,
             current_body: Vec::new(),
             own_names: Vec::new(),
+            body_signals: Vec::new(),
             loop_bindings: Vec::new(),
             block_lets: Vec::new(),
             live_at: Vec::new(),
@@ -941,7 +1071,7 @@ impl JsCodegen {
         for decl in &program.declarations {
             if let Declaration::Const(c) = decl {
                 let value = self.emit_expr(&c.value);
-                self.emit_line(&format!("const {} = {};", c.name, value));
+                self.emit_line(&format!("const {} = {};", bare(&c.name), value));
             }
         }
 
@@ -1180,6 +1310,7 @@ impl JsCodegen {
 
     fn emit_store(&mut self, store: &StoreDecl) {
         self.own_names = declared_names(&store.body);
+        self.body_signals = body_signals(&store.body);
         // The definition is a **thunk**: nothing in it is evaluated until
         // something reads the store. A `state` whose value reads another
         // store used to be evaluated at module scope, in declaration
@@ -1311,11 +1442,16 @@ impl JsCodegen {
                     if params.is_empty() {
                         String::new()
                     } else {
-                        format!(", {}", params.join(", "))
+                        let named: Vec<String> = params.iter().map(|p| bare(p)).collect();
+                        format!(", {}", named.join(", "))
                     }
                 ));
                 self.indent += 1;
                 self.store_locals.borrow_mut().clear();
+                // The parameters are the action's locals, read as declared.
+                self.store_locals
+                    .borrow_mut()
+                    .extend(params.iter().cloned());
                 // A parameter shadows a store member of the same name: an
                 // action `move(step)` beside an action `step` used to read
                 // `store.step` — the function — where its argument was meant.
@@ -1417,6 +1553,8 @@ impl JsCodegen {
             Expr::Identifier(name) => {
                 if self.is_own_member(name, store_states) {
                     format!("store.{}", name)
+                } else if self.store_locals.borrow().contains(name) || self.consts.contains(name) {
+                    bare(name)
                 } else if BROWSER_VALUES.contains(&name.as_str()) && !self.own_names.contains(name)
                 {
                     format!("WF.{name}()")
@@ -1539,6 +1677,7 @@ impl JsCodegen {
                     let then_val = self.emit_store_expr(then_expr, store_states);
                     self.store_locals.borrow_mut().truncate(bound);
                     let else_val = self.emit_store_expr(&args[1], store_states);
+                    let name = bare(name);
                     return format!(
                         "(({name}) => {name} != null ? {then_val} : {else_val})({value})"
                     );
@@ -1587,7 +1726,7 @@ impl JsCodegen {
                 );
                 let body_str = self.emit_store_expr(body, store_states);
                 self.store_locals.borrow_mut().truncate(bound);
-                format!("(({}) => {})", param, body_str)
+                format!("(({}) => {})", bare_list(param), body_str)
             }
             Expr::EnumCase(case) => format!("\"{}\"", case),
             Expr::CaseValue(case, args) => {
@@ -1628,6 +1767,8 @@ impl JsCodegen {
                     || BROWSER_CLASSES.contains(&name.as_str())
                 {
                     format!("new {}({})", name, args_str.join(", "))
+                } else if self.store_locals.borrow().contains(name) || self.consts.contains(name) {
+                    format!("{}({})", bare(name), args_str.join(", "))
                 } else {
                     format!("{}({})", name, args_str.join(", "))
                 }
@@ -1690,13 +1831,13 @@ impl JsCodegen {
                     } else if action_params.contains(name)
                         || self.store_locals.borrow().contains(name)
                     {
-                        self.emit_line(&format!("{} = {};", name, value));
+                        self.emit_line(&format!("{} = {};", bare(name), value));
                     } else {
                         // A name that is neither state nor a parameter is a
                         // local of this action. It used to be assigned bare,
                         // which the bundle's strict mode refuses.
                         self.store_locals.borrow_mut().push(name.clone());
-                        self.emit_line(&format!("let {} = {};", name, value));
+                        self.emit_line(&format!("let {} = {};", bare(name), value));
                     }
                 } else if let Some((Expr::Identifier(root), steps)) = path_of(&a.target)
                     && self.is_own_member(root, store_states)
@@ -1721,7 +1862,7 @@ impl JsCodegen {
             StatementKind::State(s) => {
                 let val = self.emit_store_expr(&s.value, store_states);
                 self.store_locals.borrow_mut().push(s.name.clone());
-                self.emit_line(&format!("let {} = {};", s.name, val));
+                self.emit_line(&format!("let {} = {};", bare(&s.name), val));
             }
             StatementKind::Navigate(expr) => {
                 let path = self.emit_store_expr(expr, store_states);
@@ -1759,9 +1900,9 @@ impl JsCodegen {
                         let value = self.emit_store_expr(&if_stmt.condition, store_states);
                         self.emit_line("{");
                         self.indent += 1;
-                        self.emit_line(&format!("const {name} = {value};"));
+                        self.emit_line(&format!("const {} = {value};", bare(name)));
                         self.store_locals.borrow_mut().push(name.clone());
-                        format!("{name} != null")
+                        format!("{} != null", bare(name))
                     }
                     None => self.emit_store_expr(&if_stmt.condition, store_states),
                 };
@@ -1811,7 +1952,7 @@ impl JsCodegen {
                 self.indent -= 1;
                 self.store_locals.borrow_mut().truncate(bound);
                 let param = t.param.clone().unwrap_or_else(|| "_error".to_string());
-                self.emit_line(&format!("}} catch ({param}) {{"));
+                self.emit_line(&format!("}} catch ({}) {{", bare(&param)));
                 self.store_locals.borrow_mut().push(param.clone());
                 self.indent += 1;
                 for s in &t.catch_body {
@@ -1825,10 +1966,11 @@ impl JsCodegen {
                 let list = self.emit_store_expr(&f.iterable, store_states);
                 match &f.index {
                     Some(index) => self.emit_line(&format!(
-                        "for (const [{index}, {}] of Array.from({list}).entries()) {{",
-                        f.item
+                        "for (const [{}, {}] of Array.from({list}).entries()) {{",
+                        bare(index),
+                        bare(&f.item)
                     )),
-                    None => self.emit_line(&format!("for (const {} of {list}) {{", f.item)),
+                    None => self.emit_line(&format!("for (const {} of {list}) {{", bare(&f.item))),
                 }
                 // The bindings, and what the body declares, are the loop's.
                 let bound = self.store_locals.borrow().len();
@@ -1942,8 +2084,9 @@ impl JsCodegen {
         self.form_handles = crate::sema::types::form_names(body);
         let mut lines = Vec::new();
         for name in crate::sema::types::form_names(body) {
-            lines.push(format!("const {name} = WF.form({});", form_options(body)));
-            self.current_form = Some(name.clone());
+            let handle = bare(&name);
+            lines.push(format!("const {handle} = WF.form({});", form_options(body)));
+            self.current_form = Some(handle);
             self.refs.push(name);
         }
         if self.current_form.is_none() && has_form(body) && !validated_names(body).is_empty() {
@@ -1963,6 +2106,7 @@ impl JsCodegen {
         self.own_actions = action_names(&comp.body);
         self.refs = crate::sema::types::ref_names(&comp.body);
         self.own_names = declared_names(&comp.body);
+        self.body_signals = body_signals(&comp.body);
         self.emit_pending_signals(&comp.body);
         // A form handle resolves as a bare name like a ref does, but is
         // declared here, once, as a form.
@@ -2004,7 +2148,7 @@ impl JsCodegen {
             self.emit_line(&line);
         }
         for name in handles {
-            self.emit_line(&format!("const {name} = WF.ref();"));
+            self.emit_line(&format!("const {} = WF.ref();", bare(&name)));
         }
 
         // Emit state declarations first
@@ -2045,6 +2189,7 @@ impl JsCodegen {
         self.own_actions = action_names(&page.body);
         self.refs = crate::sema::types::ref_names(&page.body);
         self.own_names = declared_names(&page.body);
+        self.body_signals = body_signals(&page.body);
         self.emit_pending_signals(&page.body);
         let handles = self.refs.clone();
         for line in self.open_forms(&page.body) {
@@ -2053,7 +2198,7 @@ impl JsCodegen {
         self.validated = validated_names(&page.body);
         self.current_body = page.body.clone();
         for name in handles {
-            self.emit_line(&format!("const {name} = WF.ref();"));
+            self.emit_line(&format!("const {} = WF.ref();", bare(&name)));
         }
 
         // Emit state declarations
@@ -2132,6 +2277,7 @@ impl JsCodegen {
         // of `chosen` and never the `const` behind it, so the site threw on
         // load.
         self.own_names = declared_names(&app.body);
+        self.body_signals = body_signals(&app.body);
         self.own_actions = action_names(&app.body);
         self.resources = resource_names(&app.body);
         for stmt in &app.body {
@@ -2423,7 +2569,12 @@ impl JsCodegen {
                 } else {
                     "function"
                 };
-                self.emit_line(&format!("{} {}({}) {{", kind, a.name, params.join(", ")));
+                self.emit_line(&format!(
+                    "{} {}({}) {{",
+                    kind,
+                    bare(&a.name),
+                    bare_list(&params.join(", "))
+                ));
                 self.indent += 1;
                 if is_async {
                     self.emit_line(&format!("{}_pending.set(true);", sig(&a.name)));
@@ -2641,25 +2792,28 @@ impl JsCodegen {
                                 // The handle takes the element once drawn.
                                 "ref" => {
                                     if let Expr::Identifier(handle) = val {
-                                        attrs.push(format!("ref: {handle}"));
+                                        attrs.push(format!("ref: {}", bare(handle)));
                                     }
                                 }
                                 // `Form(bind: form)`: the handle takes the form.
                                 "bind" if name == "Form" => {
                                     if let Expr::Identifier(handle) = val {
-                                        attrs.push(format!("ref: {handle}"));
+                                        attrs.push(format!("ref: {}", bare(handle)));
                                     }
                                 }
                                 "bind" => {
                                     // An empty date picker holds nothing,
                                     // which is `null` — not the empty
                                     // string the input reports.
+                                    // The event is `$$e`, which no name of
+                                    // the program's spells: the target's
+                                    // path may read a loop's item `e`.
                                     let read = if name == "DatePicker" {
-                                        "e.target.value || null"
+                                        "$$e.target.value || null"
                                     } else {
                                         // A number field's number, a
                                         // select's option as it was given.
-                                        "WF.bound(e.target)"
+                                        "WF.bound($$e.target)"
                                     };
                                     // A state, a store's member or a loop
                                     // item's field (`bind: t.title`) — the
@@ -2667,7 +2821,7 @@ impl JsCodegen {
                                     if let Some(target) = self.bind_target(val) {
                                         attrs.push(format!("value: () => {} ?? \"\"", target.read));
                                         attrs.push(format!(
-                                            "\"on:input\": (e) => {{ {}; }}",
+                                            "\"on:input\": ($$e) => {{ {}; }}",
                                             target.write(read)
                                         ));
                                         if let Some(commit) = &target.commit {
@@ -2755,7 +2909,7 @@ impl JsCodegen {
                                     } else {
                                         attrs.push(format!("href: {}", v));
                                         attrs.push(format!(
-                                            "\"on:click\": (e) => {{ e.preventDefault(); WF.navigate({}); }}",
+                                            "\"on:click\": ($$e) => {{ $$e.preventDefault(); WF.navigate({}); }}",
                                             v
                                         ));
                                     }
@@ -3326,7 +3480,10 @@ impl JsCodegen {
                     // listening when it leaves.
                     if name == "Frame" && handler.event == "message" {
                         let head = self.handler_head(handler, "event");
-                        let param = handler.param().unwrap_or("event");
+                        let param = match handler.param() {
+                            Some(p) => bare(p),
+                            None => self.implicit_param("event"),
+                        };
                         self.emit_line(&format!(
                             "WF.listen(window, \"message\", {head} => {{ if ({param}.source !== {var}.contentWindow) return; {body} }});"
                         ));
@@ -3443,7 +3600,7 @@ impl JsCodegen {
                     attrs.push(format!("href: {href_attr}"));
                     if !self.ssg_mode {
                         attrs.push(format!(
-                            "\"on:click\": (e) => {{ e.preventDefault(); WF.navigate({href}); }}"
+                            "\"on:click\": ($$e) => {{ $$e.preventDefault(); WF.navigate({href}); }}"
                         ));
                     }
                 }
@@ -3581,7 +3738,7 @@ impl JsCodegen {
                         let declared = handed.get(slot).cloned().unwrap_or_default();
                         for (i, param) in params.iter().enumerate() {
                             let key = declared.get(i).cloned().unwrap_or_else(|| param.clone());
-                            self.emit_line(&format!("const {param} = _s.{key};"));
+                            self.emit_line(&format!("const {} = _s.{key};", bare(param)));
                             self.loop_bindings.push(param.clone());
                         }
                         self.emit_line("const _cf = document.createDocumentFragment();");
@@ -4476,7 +4633,7 @@ impl JsCodegen {
         let (read, write) = match self.bind_arg(ui) {
             Some(target) => (
                 format!("() => {}", target.read),
-                format!("(v) => {{ {} }}", target.write.replace("$V", "v")),
+                format!("($$v) => {{ {} }}", target.write("$$v")),
             ),
             None => ("() => 0".to_string(), "null".to_string()),
         };
@@ -5091,7 +5248,7 @@ impl JsCodegen {
             }
             if key == "ref" {
                 if let Expr::Identifier(handle) = val {
-                    out.push_str(&format!(", ref: {handle}"));
+                    out.push_str(&format!(", ref: {}", bare(handle)));
                 }
                 continue;
             }
@@ -5349,7 +5506,7 @@ impl JsCodegen {
                                     String::new()
                                 } else {
                                     format!(
-                                        ", \"on:click\": (e) => {{ e.preventDefault(); WF.navigate({}); }}",
+                                        ", \"on:click\": ($$e) => {{ $$e.preventDefault(); WF.navigate({}); }}",
                                         href
                                     )
                                 };
@@ -5992,10 +6149,11 @@ impl JsCodegen {
                 .find(|h| h.event == "input")
                 .map(|h| self.emit_event_body(h))
                 .unwrap_or_default();
+            let event = self.implicit_param("event");
             input_attrs.push_str(&format!(
-                ", value: () => {}, \"on:input\": (event) => {{ {}; {} }}",
+                ", value: () => {}, \"on:input\": ({event}) => {{ {}; {} }}",
                 target.read,
-                target.write("Number(event.target.value)"),
+                target.write(&format!("Number({event}.target.value)")),
                 own_input
             ));
             if let Some(commit) = &target.commit {
@@ -6125,9 +6283,9 @@ impl JsCodegen {
         let mut input_attrs = "type: \"date\", className: \"wf-input\"".to_string();
         if let Some(target) = &bind_var {
             input_attrs.push_str(&format!(
-                ", value: () => {} ?? \"\", \"on:change\": (e) => {{ {}; }}",
+                ", value: () => {} ?? \"\", \"on:change\": ($$e) => {{ {}; }}",
                 target.read,
-                Self::with_commit(target, &target.write("e.target.value || null"))
+                Self::with_commit(target, &target.write("$$e.target.value || null"))
             ));
         }
         if let Some(mn) = min {
@@ -6357,11 +6515,11 @@ impl JsCodegen {
             }
         } else {
             let index_param = if let Some(idx) = &for_stmt.index {
-                format!(", {}", idx)
+                format!(", {}", bare(idx))
             } else {
                 ", _idx".to_string()
             };
-            self.emit_line(&format!("({}{}) => {{", for_stmt.item, index_param));
+            self.emit_line(&format!("({}{}) => {{", bare(&for_stmt.item), index_param));
             self.loop_bindings.push(for_stmt.item.clone());
             if let Some(idx) = &for_stmt.index {
                 self.loop_bindings.push(idx.clone());
@@ -6402,9 +6560,9 @@ impl JsCodegen {
             let params = match &for_stmt.index {
                 Some(index) => {
                     self.loop_bindings.push(index.clone());
-                    format!("{}, {index}", for_stmt.item)
+                    format!("{}, {}", bare(&for_stmt.item), bare(index))
                 }
-                None => for_stmt.item.clone(),
+                None => bare(&for_stmt.item),
             };
             let key_js = self.emit_expr(key);
             self.loop_bindings.truncate(bound);
@@ -6891,16 +7049,18 @@ impl JsCodegen {
         for handler in &c.handlers {
             let param = handler.param().unwrap_or("message").to_string();
             self.emit_line(&format!(
-                "on{}: {}({param}) => {{",
+                "on{}: {}({}) => {{",
                 capitalize_first(&handler.event),
                 if crate::parser::ast::awaits(&handler.body) {
                     "async "
                 } else {
                     ""
-                }
+                },
+                bare(&param)
             ));
             self.indent += 1;
             self.store_locals.borrow_mut().clear();
+            self.store_locals.borrow_mut().push(param.clone());
             let visible: Vec<String> = store_states
                 .iter()
                 .filter(|n| **n != param)
@@ -6947,7 +7107,10 @@ impl JsCodegen {
             .collect();
         // `on message(m) { … }`: what arrives, handled where it is opened.
         for handler in &c.handlers {
-            let param = handler.param().unwrap_or("message").to_string();
+            let param = match handler.param() {
+                Some(p) => bare(p),
+                None => self.implicit_param("message"),
+            };
             let body = self.emit_event_body(handler);
             options.push(format!(
                 "on{}: ({param}) => {{ {body} }}",
@@ -7116,11 +7279,11 @@ impl JsCodegen {
                         // action do not declare `x` twice.
                         self.emit_line("{");
                         self.indent += 1;
-                        self.emit_line(&format!("const {} = {};", name, value));
+                        self.emit_line(&format!("const {} = {};", bare(name), value));
                         // The branch reads it as a plain name — it is a
                         // `const` here, not a signal of the body's own.
                         self.loop_bindings.push(name.clone());
-                        format!("{} != null", name)
+                        format!("{} != null", bare(name))
                     }
                     None => self.emit_expr(&if_stmt.condition),
                 };
@@ -7167,10 +7330,11 @@ impl JsCodegen {
                 let list = self.emit_expr(&f.iterable);
                 match &f.index {
                     Some(index) => self.emit_line(&format!(
-                        "for (const [{index}, {}] of Array.from({list}).entries()) {{",
-                        f.item
+                        "for (const [{}, {}] of Array.from({list}).entries()) {{",
+                        bare(index),
+                        bare(&f.item)
                     )),
-                    None => self.emit_line(&format!("for (const {} of {list}) {{", f.item)),
+                    None => self.emit_line(&format!("for (const {} of {list}) {{", bare(&f.item))),
                 }
                 let (bound, lets) = (self.loop_bindings.len(), self.block_lets.len());
                 self.loop_bindings.push(f.item.clone());
@@ -7204,7 +7368,7 @@ impl JsCodegen {
                 self.indent -= 1;
                 self.block_lets.truncate(lets);
                 let param = t.param.clone().unwrap_or_else(|| "_error".to_string());
-                self.emit_line(&format!("}} catch ({param}) {{"));
+                self.emit_line(&format!("}} catch ({}) {{", bare(&param)));
                 self.loop_bindings.push(param);
                 self.indent += 1;
                 for s in &t.catch_body {
@@ -7272,15 +7436,39 @@ impl JsCodegen {
     /// handler names them in order: `on menu(key, x, y)` is `(key, x, y)`.
     fn handler_head(&self, handler: &EventHandler, default_param: &str) -> String {
         let params = if handler.params.len() > 1 {
-            handler.params.join(", ")
+            bare_list(&handler.params.join(", "))
         } else {
-            let param = handler.param().unwrap_or(default_param);
-            format!("{param}{}", self.implicit_handler_names(handler, param))
+            let param = match handler.param() {
+                Some(p) => bare(p),
+                None => self.implicit_param(default_param),
+            };
+            format!("{param}{}", self.implicit_handler_names(handler, &param))
         };
         if crate::parser::ast::awaits(&handler.body) {
             format!("async ({params})")
         } else {
             format!("({params})")
+        }
+    }
+
+    /// The parameter a handler gets when it names none — `event`, `reason`
+    /// — is read by that name in its body, unless the program binds the
+    /// name itself: then the program's wins, and the parameter is `$$event`.
+    /// A loop's `for event in events` read in `on click { pick(event) }`
+    /// was handed the click, and an action `event()` could not be called.
+    fn implicit_param(&self, name: &str) -> String {
+        let n = name.to_string();
+        if self.own_names.contains(&n)
+            || self.loop_bindings.contains(&n)
+            || self.lambda_params.borrow().contains(&n)
+            || self.own_actions.contains(&n)
+            || self.consts.contains(&n)
+            || self.refs.contains(&n)
+            || self.stores.contains(&n)
+        {
+            format!("$${name}")
+        } else {
+            name.to_string()
         }
     }
 
@@ -7409,6 +7597,8 @@ impl JsCodegen {
                     && !self.page_params.contains(name)
                     && !self.loop_bindings.contains(name)
                     && !self.lambda_params.borrow().iter().any(|n| n == name)
+                    && !self.consts.contains(name)
+                    && !self.refs.contains(name)
                 {
                     return name.to_string();
                 }
@@ -7430,7 +7620,7 @@ impl JsCodegen {
                 if self.loop_bindings.contains(name)
                     || self.lambda_params.borrow().iter().any(|n| n == name)
                 {
-                    return name.to_string();
+                    return bare(name);
                 }
                 if self.block_lets.contains(name) {
                     return format!("{}()", sig(name));
@@ -7457,22 +7647,28 @@ impl JsCodegen {
                 // itself. It used to be read as a signal, `_track()`, which
                 // does not exist.
                 if self.own_actions.contains(name) && !self.lambda_params.borrow().contains(name) {
-                    return name.to_string();
+                    return bare(name);
                 }
                 // A name a project script declares — `const VERSION = "1"`,
                 // `window.ready = …`, a function handed on as a value — is
                 // the script's global, unless the body declares it too. It
                 // was read as a signal, `_VERSION()`, which nothing
                 // declares, so the page threw as it drew.
-                if self.stores.contains(name)
-                    || self.consts.contains(name)
+                if self.stores.contains(name) {
+                    name.to_string()
+                } else if
+                // A `const`, unless the body declares a signal of its
+                // name: a component's `state label` beside a project's
+                // `const label` read the constant, and never changed.
+                (self.consts.contains(name) && !self.body_signals.contains(name))
                     || self.refs.contains(name)
-                    // The project's `env`, unless the page declares its
-                    // own: a `state env` read the config's map, and
-                    // `Text("Live in {env}")` showed `[object Object]`.
-                    || (name == "env" && !self.own_names.contains(name))
-                    || self.loop_bindings.contains(name)
-                    || self.lambda_params.borrow().contains(name)
+                {
+                    bare(name)
+                } else if
+                // The project's `env`, unless the page declares its
+                // own: a `state env` read the config's map, and
+                // `Text("Live in {env}")` showed `[object Object]`.
+                (name == "env" && !self.own_names.contains(name))
                     || (IMPLICIT.contains(&name.as_str()) && !self.own_names.contains(name))
                     || (self.script_names.contains(name) && !self.own_names.contains(name))
                     || name.starts_with("_")
@@ -7616,6 +7812,7 @@ impl JsCodegen {
                     let then_val = self.emit_expr(then_expr);
                     self.lambda_params.borrow_mut().pop();
                     let else_val = self.emit_expr(&args[1]);
+                    let name = bare(name);
                     return format!(
                         "(({name}) => {name} != null ? {then_val} : {else_val})({value})"
                     );
@@ -7739,6 +7936,13 @@ impl JsCodegen {
                     // `scale(3)`, which nothing declares.
                     let callee = self.emit_expr(&Expr::Identifier(name.clone()));
                     format!("{}({})", callee, args_str.join(", "))
+                } else if self.own_actions.contains(name)
+                    || self.loop_bindings.contains(name)
+                    || self.lambda_params.borrow().contains(name)
+                    || self.consts.contains(name)
+                {
+                    // The program's own, written as its declaration is.
+                    format!("{}({})", bare(name), args_str.join(", "))
                 } else {
                     format!("{}({})", name, args_str.join(", "))
                 }
@@ -7768,7 +7972,7 @@ impl JsCodegen {
                 for _ in 0..count {
                     self.lambda_params.borrow_mut().pop();
                 }
-                format!("(({}) => {})", param, body_str)
+                format!("(({}) => {})", bare_list(param), body_str)
             }
             // An enum case is its name: the code generators read cases as
             // the words they always were (`"primary"`), and a user enum's
@@ -8252,7 +8456,7 @@ impl JsCodegen {
         if self.is_live(name) {
             format!("${name}()")
         } else {
-            name.to_string()
+            bare(name)
         }
     }
 
@@ -9678,7 +9882,7 @@ mod tests {
             "#,
         );
         assert!(
-            out.contains("\"on:input\": (e) => { _email.set(WF.bound(e.target)); }"),
+            out.contains("\"on:input\": ($$e) => { _email.set(WF.bound($$e.target)); }"),
             "{out}"
         );
         assert!(
@@ -10469,7 +10673,7 @@ mod tests {
             "page P(path: \"/\") {\n state rows = [{ id: \"1\", name: \"a\" }]\n for Vendor in rows by Vendor.id { Input(bind: Vendor.name, label: \"Name\") }\n}",
         );
         assert!(
-            out.contains("$Vendor().name = WF.bound(e.target); _rows.set(_rows().slice())"),
+            out.contains("$Vendor().name = WF.bound($$e.target); _rows.set(_rows().slice())"),
             "{out}"
         );
     }

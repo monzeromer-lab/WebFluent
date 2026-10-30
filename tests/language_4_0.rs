@@ -2329,7 +2329,7 @@ fn a_store_member_binds_like_a_state() {
     ));
     assert!(js.contains("value: () => Filters.q"), "{js}");
     assert!(
-        js.contains("\"on:input\": (e) => { Filters.q = WF.bound(e.target); }"),
+        js.contains("\"on:input\": ($$e) => { Filters.q = WF.bound($$e.target); }"),
         "{js}"
     );
 }

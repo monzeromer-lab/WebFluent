@@ -119,7 +119,7 @@ fn a_splitter_sizes_what_it_is_bound_to() {
         "{js}"
     );
     assert!(
-        js.contains("() => _width(), (v) => { _width.set(v) }, { min: () => 160, max: () => 480, reset: () => 240, reverse: true });"),
+        js.contains("() => _width(), ($$v) => { _width.set($$v) }, { min: () => 160, max: () => 480, reset: () => 240, reverse: true });"),
         "{js}"
     );
     let html = ssg_html(&src);
@@ -133,7 +133,7 @@ fn a_splitter_writes_a_store_too() {
     let js = spa_generated(src);
     assert!(
         js.contains(
-            "() => Layout.side, (v) => { Layout.side = v }, { min: () => 160, horizontal: true });"
+            "() => Layout.side, ($$v) => { Layout.side = $$v }, { min: () => 160, horizontal: true });"
         ),
         "{js}"
     );

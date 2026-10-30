@@ -782,7 +782,9 @@ a click), `swipe(s)` (a finger or pen, `s.direction` `"left"`/`"right"`/
 standard one — `dblclick`, `contextmenu`, `pointerdown`, `pointermove`,
 `touchstart`, `wheel`, `scroll`, `paste`, `drop`, `dragover`, `ended`,
 `animationend`, … (`wf registry --json` lists them). The handler's
-parameter names the DOM event; without one, `event` is in scope. A DOM
+parameter names the DOM event; without one, `event` is in scope — unless
+the program has an `event` of its own (a loop's item, a state, an action),
+which wins, as every name a program declares does. A DOM
 event sends that one value and nothing beside it: `on click(e, x)` is T22
 — read what it carries from the event, `e.clientX`. Only a component's
 declared event sends several (Components, Events). An

@@ -40,7 +40,9 @@ call actions, `await`, and `navigate`.
 ### The event object
 
 Name a parameter to read the event: `on keydown(e) { … }`. Without one, the
-event is still in scope as `event`. It is the browser's own event object, so
+event is still in scope as `event` — unless the program has an `event` of its
+own (a loop's item, a state, an action), which wins; name the parameter to
+read the event there. It is the browser's own event object, so
 `e.key`, `e.target.value`, `e.clientX`, `e.preventDefault()` and
 `e.stopPropagation()` are all there.
 

@@ -62,11 +62,11 @@ fn a_bound_control_writes_back_through_the_runtime() {
          Text(\"{qty + size}\")",
     ));
     assert!(
-        out.contains("_qty.set(WF.bound(e.target))"),
+        out.contains("_qty.set(WF.bound($$e.target))"),
         "a number, not \"3\""
     );
     assert!(
-        out.contains("_size.set(WF.bound(e.target))"),
+        out.contains("_size.set(WF.bound($$e.target))"),
         "the option's value as written"
     );
 }
@@ -123,7 +123,7 @@ fn a_bound_loop_field_writes_the_item_and_tells_the_list() {
     // A keyed item is read through its accessor, `$t()`: it follows a new
     // value under the same key.
     assert!(
-        keyed.contains("$t().title = WF.bound(e.target); _todos.set(_todos().slice())"),
+        keyed.contains("$t().title = WF.bound($$e.target); _todos.set(_todos().slice())"),
         "{keyed}"
     );
     assert!(
@@ -137,7 +137,7 @@ fn a_bound_loop_field_writes_the_item_and_tells_the_list() {
         "    state rows = [{ name: \"a\" }]\n    for r in rows { Input(bind: r.name, label: \"Name\") }",
     ));
     assert!(
-        unkeyed.contains("\"on:input\": (e) => { r.name = WF.bound(e.target); }"),
+        unkeyed.contains("\"on:input\": ($$e) => { r.name = WF.bound($$e.target); }"),
         "{unkeyed}"
     );
     assert!(
@@ -161,7 +161,7 @@ fn every_control_binds_a_stores_member() {
         "the switch has its input"
     );
     assert!(out.contains("Prefs.volume = Number(event.target.value)"));
-    assert!(out.contains("Prefs.day = e.target.value || null"));
+    assert!(out.contains("Prefs.day = $$e.target.value || null"));
     assert!(out.contains("Prefs.plan = \"a\""));
 }
 
