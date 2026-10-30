@@ -1917,6 +1917,7 @@ page P(path: "/", title: "T", description: "D") {
   |
 3 |     Button(primary)
   |            ^^^^^^^
+  = help: did you mean `.primary`?
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v01-a-bare-word-that-means-nothing"#, title: "text")
 
         Markdown("**Fix:** Write the flag with its dot — `Button(\"Save\").primary` — or declare the name. The word is also a name nothing declares, so the build stops on it as `T13`; the editor shows both.\n\nA name a branch binds is declared through the whole of its block, however deep the element that reads it: `if let why = e.reason \{ Row \{ Pill(why) \} \}`, and a case's payload, `.failed(why) \{ … \}`, draw nothing.")

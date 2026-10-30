@@ -481,9 +481,10 @@ fn check_element(el: &UIElement, file: &str, scope: &HashSet<String>, out: &mut 
     }
 }
 
-/// The closest in-scope name or flag of the element within edit distance
-/// 2, if any — `outline` → `.outlined`, `centered` → `.center`, `cuont` →
-/// `count`.
+/// The element's own flag the word is, written without its dot —
+/// `primary` → `.primary`; else the closest in-scope name or flag within
+/// edit distance 2 (1 for a word of two letters), if any — `outline` →
+/// `.outlined`, `centered` → `.center`, `cuont` → `count`.
 fn suggest(word: &str, scope: &HashSet<String>, el: &UIElement) -> Option<String> {
     let sig = match &el.component {
         ComponentRef::BuiltIn(name) => crate::registry::component(name),
@@ -507,6 +508,15 @@ fn suggest(word: &str, scope: &HashSet<String>, el: &UIElement) -> Option<String
             }
         }
     }
+    // The word is one of the element's own flags, written without its dot
+    // — `Button(primary)` — which is the slip V01 exists for: certain.
+    if flags.iter().any(|f| f.trim_start_matches('.') == word) {
+        return Some(format!(".{word}"));
+    }
+    // Otherwise the nearest, close enough to be a slip of the hand for a
+    // word of its length: two letters away from a word of two is any
+    // word, and `sm` is not `P`.
+    let limit = if word.chars().count() <= 2 { 1 } else { 2 };
     let candidates = scope
         .iter()
         .map(String::as_str)
@@ -514,7 +524,7 @@ fn suggest(word: &str, scope: &HashSet<String>, el: &UIElement) -> Option<String
     let best = candidates
         .filter_map(|c| {
             let d = levenshtein(word, c.trim_start_matches('.'));
-            (d <= 2 && d > 0).then_some((d, c))
+            (d <= limit && d > 0).then_some((d, c))
         })
         .min_by_key(|&(d, c)| (d, c.len()))?;
     Some(best.1.to_string())
@@ -546,6 +556,38 @@ mod tests {
             .map(crate::sema::lower)
             .expect("parse");
         lint_vocabulary(&program, "<test>")
+    }
+
+    /// The title of each fix planned for the one warning `source` draws.
+    fn fixes_of(source: &str) -> Vec<String> {
+        let w = lint(source);
+        assert_eq!(w.len(), 1, "{w:?}");
+        w[0].plans.iter().map(|p| p.title.clone()).collect()
+    }
+
+    #[test]
+    fn a_flag_written_without_its_dot_is_given_its_dot() {
+        // The guide's own example offered nothing: the word is the flag
+        // itself, at distance 0, and only a near miss was looked for.
+        assert_eq!(
+            fixes_of(r#"page P(path: "/") { Button(primary) }"#),
+            ["Write it as the flag `.primary`"]
+        );
+        assert_eq!(
+            fixes_of(r#"page P(path: "/") { Button(sm) }"#),
+            ["Write it as the flag `.sm`"]
+        );
+        assert_eq!(
+            fixes_of(r#"page P(path: "/") { Button(outline) }"#),
+            ["Write it as the flag `.outlined`"]
+        );
+    }
+
+    #[test]
+    fn a_short_word_is_not_guessed_into_another() {
+        // Two letters away from a word of two is any word: `xq` was
+        // `Change to P`, the page's own name.
+        assert!(fixes_of(r#"page P(path: "/") { Button(xq) }"#).is_empty());
     }
 
     #[test]

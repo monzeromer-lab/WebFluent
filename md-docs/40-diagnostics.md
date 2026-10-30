@@ -2481,6 +2481,7 @@ warning[V01]: nothing in scope declares `primary`, so it reads as nothing — a 
   |
 3 |     Button(primary)
   |            ^^^^^^^
+  = help: did you mean `.primary`?
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v01-a-bare-word-that-means-nothing
 ```
 
