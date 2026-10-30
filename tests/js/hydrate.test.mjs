@@ -224,9 +224,9 @@ test("an icon button draws its glyph once", () => {
   assert.equal(draws, 2, "a lone icon still draws");
 });
 
-test("a settings page's code and monitor icons draw as glyphs, not as their names", () => {
+test("a settings page's code and monitor icons, and a commit button's git-commit, draw as glyphs, not as their names", () => {
   const { WF } = loadRuntime();
-  for (const name of ["code", "monitor"]) {
+  for (const name of ["code", "monitor", "git-commit"]) {
     const icon = WF.el("span", { className: "wf-icon", "data-icon": name });
     assert.match(icon.innerHTML, /^<svg [^>]*viewBox="0 0 24 24"[^>]*>.*stroke="currentColor".*<\/svg>$/, name);
   }

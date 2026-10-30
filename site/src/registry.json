@@ -4742,7 +4742,8 @@
   "panel-down",
   "panel-up",
   "code",
-  "monitor"
+  "monitor",
+  "git-commit"
  ],
  "count": 77
 }

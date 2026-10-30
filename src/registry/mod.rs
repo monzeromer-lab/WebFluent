@@ -477,6 +477,7 @@ pub const ICONS: &[&str] = &[
     "panel-up",
     "code",
     "monitor",
+    "git-commit",
 ];
 
 /// Whether `name` is a universal DOM event every element accepts.
