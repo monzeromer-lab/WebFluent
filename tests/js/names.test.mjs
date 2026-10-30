@@ -50,6 +50,9 @@ const NAMES = [
   "arguments", "eval", "instanceof", "package", "private", "protected", "public", "implements",
   "interface", "undefined", "NaN", "Infinity",
   "top", "location", "window", "globalThis", "console", "Array", "Number", "Object", "String",
+  // What every object has: a store is an object, and a component's props
+  // one (`toString` left to its default was Object's function).
+  "valueOf", "toString", "constructor", "hasOwnProperty", "isPrototypeOf", "toLocaleString",
   // The browser's globals, which a top-level name shares a scope with: the
   // runtime builds with these (`const Map = 3` stopped every page), and a
   // project's scripts and libraries read the rest.

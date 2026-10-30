@@ -947,6 +947,52 @@ fn e118_nothing_at_the_top_level_takes_a_name_the_language_has() {
 }
 
 #[test]
+fn e118_a_store_member_takes_no_name_every_object_has() {
+    // A store is an object whose members are its own properties: a member
+    // `valueOf` replaced the one JavaScript calls whenever it turns the
+    // store into a value, and the page threw as soon as it was drawn.
+    for member in [
+        "state valueOf = 1",
+        "derived toString = 2",
+        "action constructor() { }",
+        "state hasOwnProperty = 3",
+        "state __proto__ = 4",
+    ] {
+        let found = with(
+            &format!("store S {{\n    {member}\n}}\n{}", page("    Text(\"x\")")),
+            "E118",
+        );
+        assert_eq!(found.len(), 1, "{member}: {found:?}");
+        assert!(
+            found[0].contains("every JavaScript object's, and `S` is one"),
+            "{found:?}"
+        );
+    }
+    // A prop of those names is the caller's own and works, except
+    // `__proto__`, which in the object a call passes sets its prototype.
+    let found = with(
+        &format!(
+            "component Tile(toString: String = \"b\", valueOf: String) {{ Text(toString) }}\n{}",
+            page("    Tile(valueOf: \"a\")")
+        ),
+        "E118",
+    );
+    assert!(found.is_empty(), "{found:?}");
+    let found = with(
+        &format!(
+            "component Tile(__proto__: String) {{ Text(\"x\") }}\n{}",
+            page("")
+        ),
+        "E118",
+    );
+    assert_eq!(found.len(), 1, "{found:?}");
+    assert!(
+        found[0].contains("`__proto__` is a name the language already has"),
+        "{found:?}"
+    );
+}
+
+#[test]
 fn e118_no_name_a_body_declares_takes_one_the_language_has() {
     // A `state env` compiled every read to the build's settings and every
     // write to the state, so the page showed `[object Object]` and `env ==

@@ -529,8 +529,11 @@
       Object.defineProperty(out, key, {
         enumerable: true,
         get() {
-          const v = given ? given[key] : undefined;
-          return v === undefined ? defaults[key] : v;
+          // The caller's own, never what every object inherits: a prop
+          // named `toString` left to its default is the default, not
+          // Object's function.
+          const v = given && Object.prototype.hasOwnProperty.call(given, key) ? given[key] : undefined;
+          return v === undefined && defaults && Object.prototype.hasOwnProperty.call(defaults, key) ? defaults[key] : v;
         },
       });
     }

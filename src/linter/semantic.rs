@@ -55,6 +55,7 @@ pub fn validate_semantics_in(
     check_one_meaning(program, file_of, &mut diags);
     check_script_names(program, file_of, &mut diags);
     check_build_names(program, file_of, &mut diags);
+    check_object_names(program, file_of, &mut diags);
 
     for (index, decl) in program.declarations.iter().enumerate() {
         let body = match decl {
@@ -384,6 +385,82 @@ fn check_build_names(
                 "Name it something of your own: a top-level value is every page's, and the language's would have no name anywhere",
             ),
         );
+    }
+}
+
+/// What every JavaScript object has: a store is one, and a member of one of
+/// these names replaces the object's own. JavaScript calls `valueOf` and
+/// `toString` itself whenever it turns the store into a value, so a store
+/// with a member `valueOf` throws as soon as it is drawn.
+pub const OBJECT_NAMES: &[&str] = &[
+    "constructor",
+    "hasOwnProperty",
+    "isPrototypeOf",
+    "propertyIsEnumerable",
+    "toLocaleString",
+    "toString",
+    "valueOf",
+    "__proto__",
+    "__defineGetter__",
+    "__defineSetter__",
+    "__lookupGetter__",
+    "__lookupSetter__",
+];
+
+/// `E118` for a name every JavaScript object has ([`OBJECT_NAMES`]): a
+/// store's state, derived value, action or connection may not take one;
+/// nor may a component's prop be `__proto__`, which in the object a call
+/// passes sets the object's prototype rather than a prop. (A prop of any
+/// other of these names is the caller's own, and works.)
+fn check_object_names(
+    program: &Program,
+    file_of: &dyn Fn(usize) -> String,
+    diags: &mut Vec<Diagnostic>,
+) {
+    for (index, decl) in program.declarations.iter().enumerate() {
+        if let Declaration::Component(c) = decl {
+            for prop in c.props.iter().filter(|p| p.name == "__proto__") {
+                diags.push(
+                    diag(
+                        "E118",
+                        "`__proto__` is a name the language already has: every JavaScript object's prototype".to_string(),
+                        &file_of(index),
+                        prop.span,
+                    )
+                    .with_hint("Name the prop something of your own: passed in a call, `__proto__` sets the props' prototype, and the component never receives it"),
+                );
+            }
+            continue;
+        }
+        let Declaration::Store(store) = decl else {
+            continue;
+        };
+        for stmt in &store.body {
+            let name = match &stmt.kind {
+                StatementKind::State(s) => &s.name,
+                StatementKind::Derived(d) => &d.name,
+                StatementKind::Action(a) => &a.name,
+                StatementKind::Connection(c) => &c.name,
+                _ => continue,
+            };
+            if !OBJECT_NAMES.contains(&name.as_str()) {
+                continue;
+            }
+            diags.push(
+                diag(
+                    "E118",
+                    format!(
+                        "`{name}` is a name the language already has: every JavaScript object's, and `{}` is one",
+                        store.name
+                    ),
+                    &file_of(index),
+                    stmt.span,
+                )
+                .with_hint(format!(
+                    "Name it something of your own: a member `{name}` replaces the store's own, which JavaScript calls itself, and the store stops working"
+                )),
+            );
+        }
     }
 }
 

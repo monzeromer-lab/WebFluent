@@ -532,7 +532,15 @@ loop's `t` hid the translation function inside the loop. The names are:
   `channel`, `peer`, `head`, `slot`, `part`, `if`, `else`, `for`, `in`, `by`,
   `show`, `match`, `children`, `emit`, `sequence`, `on`, `style`,
   `transition`, `let`, `return`, `await`, `try`, `catch`;
-- and, at the top level, `WF`, the runtime the compiled pages call.
+- at the top level, `WF`, the runtime the compiled pages call;
+- in a store, the names every JavaScript object has — `valueOf`,
+  `toString`, `constructor`, `hasOwnProperty`, `isPrototypeOf`,
+  `propertyIsEnumerable`, `toLocaleString`, `__proto__` and its
+  `__define…`/`__lookup…` kin: a store is an object whose members are its
+  own, and a `valueOf` member replaced the one JavaScript calls itself, so
+  the page threw as soon as it was drawn;
+- and, as a prop, `__proto__`, which in the object a call passes sets its
+  prototype instead (a prop named `toString` or `valueOf` is fine).
 
 The names a handler brings with it — `event`, `e`, `value`, `key` — and the
 browser's globals (`window`, `history`, …) are a program's to use, and so is
