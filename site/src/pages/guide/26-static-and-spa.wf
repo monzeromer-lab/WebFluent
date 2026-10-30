@@ -46,7 +46,7 @@ page StaticAndSpaGuide(path: "/docs/guide/static-and-spa", title: "Static or sin
             }
         }
 
-        Markdown("`wf init -t static` starts with `ssg` on; `-t spa` with it off. Change your mind at any time — the source is the same.\n\n**Choose static** for anything people find by searching or share by link: marketing sites, docs, blogs, shops. **Choose single-page** for an app behind a login, where every page is personal and navigation speed matters more than a first paint — or when your host cannot serve a file per route.")
+        Markdown("`wf init -t static` starts with `ssg` on; `-t spa` with it off. `\"output_type\": \"static\"` is the same as `\"ssg\": true`. Change your mind at any time — the source is the same.\n\n**Choose static** for anything people find by searching or share by link: marketing sites, docs, blogs, shops. **Choose single-page** for an app behind a login, where every page is personal and navigation speed matters more than a first paint — or when your host cannot serve a file per route.")
 
         Heading("Hydration", id: "hydration").h2
 

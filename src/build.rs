@@ -667,7 +667,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     if let Some(i18n_config) = &config.i18n {
         js_codegen.set_i18n(i18n_config.default_locale.clone(), translations.clone());
     }
-    if config.build.ssg {
+    if config.build.pre_renders() {
         js_codegen.set_ssg(true);
     }
     js_codegen.set_dev(options.dev);
@@ -800,7 +800,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
 
     // Write output
 
-    if config.build.ssg {
+    if config.build.pre_renders() {
         // SSG: generate per-page HTML files
         let app_body: Option<Vec<Statement>> = program.declarations.iter().find_map(|d| {
             if let Declaration::App(a) = d {
@@ -1854,7 +1854,7 @@ fn write_service_worker(
     let mut shell = None;
     let mut fallback = None;
     let mut matched = 0usize;
-    if config.build.ssg {
+    if config.build.pre_renders() {
         for html in written_html {
             let Ok(rel) = html.strip_prefix(output_dir) else {
                 continue;

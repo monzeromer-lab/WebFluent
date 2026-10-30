@@ -143,7 +143,7 @@ absent unless you add them.
 | Key | Default | Meaning |
 |---|---|---|
 | `output` | `"./build"` | Where the build is written, relative to the project. |
-| `output_type` | `"spa"` | `spa` (a website), `pdf`, `slides` or `elements` ([chapter 34](34-pdf-and-slides.md)). |
+| `output_type` | `"spa"` | `spa` (a website), `static` (a website whose every page is pre-rendered, as `ssg: true` builds it), `pdf`, `slides` or `elements` ([chapter 34](34-pdf-and-slides.md)). |
 | `ssg` | `false` | Pre-render every page to its own HTML ([chapter 26](26-static-and-spa.md)). |
 | `base_path` | `""` | The sub-path the site is served under, such as `"/docs"`. Every link and asset is prefixed. |
 | `clean_urls` | unset | How a route's address avoids a redirect on a host that adds the slash: `"file"` also writes `contact.html` beside `contact/index.html`; `"directory"` names every route `/contact/` in canonical links, the sitemap and links to pages ([chapter 27](27-content.md#addresses-that-do-not-redirect)). |

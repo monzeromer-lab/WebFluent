@@ -151,7 +151,7 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
                 Table.Row {
                     Table.Cell { Markdown("`output_type`") }
                     Table.Cell { Markdown("`\"spa\"`") }
-                    Table.Cell { Markdown("`spa` (a website), `pdf`, `slides` or `elements` ([chapter 34](/docs/guide/pdf-and-slides)).") }
+                    Table.Cell { Markdown("`spa` (a website), `static` (a website whose every page is pre-rendered, as `ssg: true` builds it), `pdf`, `slides` or `elements` ([chapter 34](/docs/guide/pdf-and-slides)).") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`ssg`") }

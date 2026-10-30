@@ -12,7 +12,7 @@ The same language compiles to paper. `build.output_type` in
 
 | Output | `output_type` | Writes |
 |---|---|---|
-| A website | `spa` (default), with `build.ssg` for static pages | HTML, CSS and JavaScript ([chapter 26](26-static-and-spa.md)) |
+| A website | `spa` (default), with `build.ssg` for static pages; or `static`, which is the same as `ssg` | HTML, CSS and JavaScript ([chapter 26](26-static-and-spa.md)) |
 | PDF document | `pdf` | One `.pdf`, paginated |
 | Slide deck | `slides` | One `.pdf`, a slide per page |
 | Custom elements | `elements` | `elements.js` for other frameworks ([chapter 32](32-javascript-interop.md#publishing-your-components-as-custom-elements)) |

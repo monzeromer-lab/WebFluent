@@ -15,7 +15,7 @@ page PdfAndSlidesGuide(path: "/docs/guide/pdf-and-slides", title: "PDF and slide
             Table.Body {
                 Table.Row {
                     Table.Cell("A website")
-                    Table.Cell { Markdown("`spa` (default), with `build.ssg` for static pages") }
+                    Table.Cell { Markdown("`spa` (default), with `build.ssg` for static pages; or `static`, which is the same as `ssg`") }
                     Table.Cell { Markdown("HTML, CSS and JavaScript ([chapter 26](/docs/guide/static-and-spa))") }
                 }
                 Table.Row {

@@ -276,7 +276,8 @@ pub struct BuildConfig {
     /// What the build does with the images the program names.
     #[serde(default)]
     pub media: MediaConfig,
-    /// Output type: "spa" (default), "static", "pdf", or "slides"
+    /// Output type: "spa" (default), "static" (every page pre-rendered, as
+    /// `ssg` does), "pdf", "slides" or "elements"
     #[serde(default = "default_output_type")]
     pub output_type: OutputType,
     /// PDF-specific configuration
@@ -285,6 +286,14 @@ pub struct BuildConfig {
     /// Slides-specific configuration
     #[serde(default)]
     pub slides: SlidesConfig,
+}
+
+impl BuildConfig {
+    /// Whether every page is pre-rendered to its own HTML: `ssg`, or an
+    /// `output_type` of `static`, which is a static site and says so.
+    pub fn pre_renders(&self) -> bool {
+        self.ssg || self.output_type == OutputType::Static
+    }
 }
 
 /// What the build does with the images a program names.

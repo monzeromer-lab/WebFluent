@@ -18,7 +18,8 @@ A web build comes in two shapes, chosen by one switch, `build.ssg`:
 | The host | Any static host, as it is | Must answer every path with `index.html` (the "SPA fallback") |
 | Interactive | Yes, once the script *hydrates* the paint in place | Yes |
 
-`wf init -t static` starts with `ssg` on; `-t spa` with it off. Change your
+`wf init -t static` starts with `ssg` on; `-t spa` with it off.
+`"output_type": "static"` is the same as `"ssg": true`. Change your
 mind at any time — the source is the same.
 
 **Choose static** for anything people find by searching or share by link:
