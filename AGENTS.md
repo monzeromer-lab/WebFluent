@@ -536,6 +536,10 @@ the same files, the same `<picture>`, `sizes:` and `placeholder:` too. An
 SVG, a URL or a path computed at run time is used as written, and so is a
 picture carried in its address (`data:image/png;base64,…`).
 
+WebP and JPEG are written lossily at `quality`. A file that would be no
+smaller than the original is not written: the original serves there, and
+`wf assets --plan` says so.
+
 `media.pipeline: false` copies the file as `public/` always did. The work
 is cached in `.wf-cache/media/` by content hash, so a build that changes no
 image does no image work. A PDF or a deck embeds the real picture.

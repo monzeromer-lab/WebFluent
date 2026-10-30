@@ -771,3 +771,102 @@ fn a_literal_image_src_is_processed_as_an_image_is() {
     assert!(dir.join("build/hero.png").is_file());
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// A file the pipeline would make no smaller than the original is not
+/// written: a photograph's PNG is larger than its JPEG, so with `png` the
+/// only format there is no `<picture>`, the original serves, and the plan
+/// says so. WebP of a well-kept JPEG is a saving, and is written.
+#[test]
+fn a_file_that_saves_nothing_is_not_written_and_the_plan_says_so() {
+    let dir = project();
+    let jpeg_at = |quality: u8| {
+        let img = image::load_from_memory(&photo(600, 400, image::ImageFormat::Png))
+            .unwrap()
+            .to_rgb8();
+        let mut out = Vec::new();
+        image::codecs::jpeg::JpegEncoder::new_with_quality(&mut out, quality)
+            .encode(img.as_raw(), 600, 400, image::ExtendedColorType::Rgb8)
+            .unwrap();
+        out
+    };
+    put(&dir, "public/grain.jpg", jpeg_at(40));
+    put(
+        &dir,
+        "src/pages/Home.wf",
+        "page Home(path: \"/\", title: \"Home\", description: \"The home page.\") {\n    Heading(\"Home\").h1\n    Image(src: \"/grain.jpg\", alt: \"Grain\")\n}\n",
+    );
+    put(
+        &dir,
+        "webfluent.app.json",
+        r#"{ "name": "assets", "build": { "ssg": true, "media": { "formats": ["png"], "widths": [] } } }"#,
+    );
+    let plan = assets::plan(&dir, "/grain.jpg").unwrap();
+    assert_eq!(plan.formats[0].dropped, [600], "{plan:?}");
+    assert_eq!(plan.made().count(), 0);
+    assert!(
+        plan.summary()
+            .starts_with("nothing smaller than the original"),
+        "{}",
+        plan.summary()
+    );
+    let said = plan.said();
+    assert!(
+        said.iter().any(|l| l.starts_with("No png is written")),
+        "{said:?}"
+    );
+    assert_eq!(
+        plan.as_json()["formats"][0]["dropped"],
+        serde_json::json!([600])
+    );
+    assert_eq!(plan.as_json()["said"], serde_json::json!(said));
+
+    let (code, _, err) = wf(&dir, &["build"]);
+    assert_eq!(code, 0, "{err}");
+    let written: Vec<String> = std::fs::read_dir(dir.join("build/img"))
+        .unwrap()
+        .map(|e| e.unwrap().file_name().to_string_lossy().to_string())
+        .filter(|n| n.starts_with("grain."))
+        .collect();
+    assert_eq!(
+        written,
+        std::slice::from_ref(&plan.original.name),
+        "only the original"
+    );
+    let html = std::fs::read_to_string(dir.join("build/index.html")).unwrap();
+    assert!(
+        !html.contains("<picture>") && !html.contains(".png 600w"),
+        "{html}"
+    );
+    assert!(
+        html.contains(&format!("/img/{}", plan.original.name)),
+        "{html}"
+    );
+    let (_, out, _) = wf(&dir, &["assets", "--plan", "/grain.jpg"]);
+    assert!(out.contains("No png is written"), "{out}");
+
+    // Saved at quality 40, the JPEG is already smaller than a WebP at 78
+    // would be: that is no saving either. Saved at 92, WebP is, and is
+    // written.
+    put(
+        &dir,
+        "webfluent.app.json",
+        r#"{ "name": "assets", "build": { "ssg": true, "media": { "formats": ["webp"], "widths": [] } } }"#,
+    );
+    assert_eq!(
+        assets::plan(&dir, "/grain.jpg").unwrap().formats[0].dropped,
+        [600]
+    );
+    let fine = jpeg_at(92);
+    put(&dir, "public/grain.jpg", &fine);
+    let webp = assets::plan(&dir, "/grain.jpg").unwrap();
+    assert!(webp.formats[0].dropped.is_empty(), "{webp:?}");
+    assert!(webp.made().all(|f| f.bytes < fine.len() as u64));
+    let (code, _, err) = wf(&dir, &["build"]);
+    assert_eq!(code, 0, "{err}");
+    let html = std::fs::read_to_string(dir.join("build/index.html")).unwrap();
+    assert!(
+        html.contains("<picture>") && html.contains(".webp 600w"),
+        "{html}"
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}

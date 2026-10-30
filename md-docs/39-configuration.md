@@ -164,7 +164,7 @@ absent unless you add them.
 |---|---|---|
 | `formats` | `["webp"]` | The formats every `image` is written in, as well as its original. |
 | `widths` | `[480, 960, 1440, 1920]` | The widths written, where smaller than the original. |
-| `quality` | `78` | The encoding quality, 1–100. |
+| `quality` | `78` | The encoding quality, 1–100: WebP and JPEG are lossy at it. A file no smaller than the original is not written. |
 | `pipeline` | `true` | `false` copies images as `public/` does, without resizing. |
 
 ### `build.pdf`

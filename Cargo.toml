@@ -75,6 +75,11 @@ regex = "1"
 # progressive JPEG is the kind of bug that never ends. The hand-written PDF
 # writer and gzip encoder stay as they are.
 image = { version = "0.25", default-features = false, features = ["jpeg", "png", "webp", "gif"] }
+# Lossy WebP at `build.media.quality`: `image`'s own WebP encoder is
+# lossless only, and a lossless WebP of a photograph is larger than the
+# picture it replaces. libwebp is built from its source with `cc`, so it
+# builds wherever the compiler does, Android included.
+webp = { version = "0.3.1", default-features = false }
 # Paged output (PDF documents and slide decks). Layout, shaping and writing a
 # correct PDF are each a project of their own; these are the pure-Rust crates
 # Typst's own PDF export is built on.

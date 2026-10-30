@@ -44,6 +44,9 @@ pub struct FormatPlan {
     /// Why nothing is written in it — a format the build cannot write — as
     /// the build itself would say it.
     pub error: Option<String>,
+    /// The widths it would come to no less than the original at, which the
+    /// build does not write: the original serves there.
+    pub dropped: Vec<u32>,
 }
 
 impl FormatPlan {
@@ -88,7 +91,13 @@ impl Plan {
         if !self.pipeline {
             return format!("copied as it is · {}", size_text(self.original.bytes));
         }
-        let formats = self.formats.iter().filter(|f| f.error.is_none()).count();
+        let formats = self.formats.iter().filter(|f| !f.files.is_empty()).count();
+        if formats == 0 {
+            return format!(
+                "nothing smaller than the original · {}",
+                size_text(self.original.bytes)
+            );
+        }
         let n = self.made().count();
         format!(
             "{} × {} · {} · {}{}",
@@ -98,6 +107,47 @@ impl Plan {
             if self.estimated() { "about " } else { "" },
             size_text(self.bytes())
         )
+    }
+
+    /// What `wf assets --plan` says after the files: what is written
+    /// beside them, what is not and why, and whether a size is a guess.
+    pub fn said(&self) -> Vec<String> {
+        let original = format!(
+            "{} ({})",
+            self.original.name,
+            size_text(self.original.bytes)
+        );
+        if !self.pipeline {
+            return vec![format!(
+                "`build.media.pipeline` is off: the original is copied as it is, as {original}."
+            )];
+        }
+        let mut out = vec![format!("The original is written too, as {original}.")];
+        for f in &self.formats {
+            if f.dropped.is_empty() || f.error.is_some() {
+                continue;
+            }
+            let widths: Vec<String> = f.dropped.iter().map(u32::to_string).collect();
+            out.push(if f.files.is_empty() {
+                format!(
+                    "No {} is written: at every width it would be no smaller than the original, which serves instead.",
+                    f.format
+                )
+            } else {
+                format!(
+                    "{} at {} is not written: it would be no smaller than the original, which serves there.",
+                    f.format,
+                    widths.join(" · ")
+                )
+            });
+        }
+        if self.estimated() {
+            out.push(
+                "A size marked `about` is estimated; `wf build` writes the files and makes it exact."
+                    .to_string(),
+            );
+        }
+        out
     }
 
     pub fn as_json(&self) -> serde_json::Value {
@@ -122,7 +172,9 @@ impl Plan {
                 "files": f.files.iter().map(file).collect::<Vec<_>>(),
                 "bytes": f.bytes(),
                 "error": f.error,
+                "dropped": f.dropped,
             })).collect::<Vec<_>>(),
+            "said": self.said(),
             "files": self.made().count(),
             "bytes": self.bytes(),
             "estimated": self.estimated(),
@@ -199,6 +251,7 @@ pub fn plan_probed(
                 formats.push(FormatPlan {
                     format: format.clone(),
                     files: Vec::new(),
+                    dropped: Vec::new(),
                     error: Some(format!(
                         "`{format}` is not a format the build can write; it writes webp, png and jpeg"
                     )),
@@ -211,6 +264,7 @@ pub fn plan_probed(
                 .sum();
             let exact = pixels <= EXACT_PIXELS;
             let mut files = Vec::new();
+            let mut dropped = Vec::new();
             let mut error = None;
             for w in &widths {
                 let h = height_at(*w);
@@ -236,6 +290,11 @@ pub fn plan_probed(
                         }
                     },
                 };
+                // As the build decides: no saving, not written.
+                if super::no_saving(size, original.bytes) {
+                    dropped.push(*w);
+                    continue;
+                }
                 files.push(PlannedFile {
                     width: *w,
                     height: h,
@@ -246,10 +305,12 @@ pub fn plan_probed(
             }
             if error.is_some() {
                 files.clear();
+                dropped.clear();
             }
             formats.push(FormatPlan {
                 format: format.clone(),
                 files,
+                dropped,
                 error,
             });
         }
@@ -423,5 +484,92 @@ mod tests {
         assert_eq!(json["files"], 4);
         assert_eq!(json["estimated"], true);
         assert_eq!(json["formats"][0]["bytes"], p.bytes());
+    }
+
+    /// A smooth picture, as a photograph's sky or a design's gradient is.
+    fn gradient(w: u32, h: u32) -> image::DynamicImage {
+        image::DynamicImage::ImageRgb8(image::RgbImage::from_fn(w, h, |x, y| {
+            let t = (f64::from(x) / f64::from(w) + f64::from(y) / f64::from(h)) / 2.0;
+            let mix = |a: f64, b: f64| (a * (1.0 - t) + b * t) as u8;
+            image::Rgb([mix(40.0, 100.0), mix(80.0, 200.0), mix(120.0, 220.0)])
+        }))
+    }
+
+    fn probed(image: image::DynamicImage) -> Probed {
+        Probed {
+            width: image.width(),
+            height: image.height(),
+            image,
+            color: String::new(),
+            placeholder: String::new(),
+        }
+    }
+
+    /// WebP is written lossily, at the quality the config gives: a
+    /// gradient comes to a fraction of its PNG (lossless, it came to eight
+    /// times it), and a lower quality to fewer bytes.
+    #[test]
+    fn webp_is_lossy_at_the_quality_asked_and_smaller_than_the_picture() {
+        let img = gradient(1440, 900);
+        let mut png = Vec::new();
+        img.write_to(&mut std::io::Cursor::new(&mut png), image::ImageFormat::Png)
+            .unwrap();
+        let p = probed(img);
+        let q78 = encode::resized(&p, 1440, "webp", 78).unwrap();
+        assert_eq!(&q78[..4], b"RIFF");
+        assert_eq!(&q78[12..16], b"VP8 ", "a lossy WebP, not VP8L");
+        assert!(
+            q78.len() * 2 < png.len(),
+            "{} against a {}-byte PNG",
+            q78.len(),
+            png.len()
+        );
+        let grain = probed(image::DynamicImage::ImageRgb8(image::RgbImage::from_fn(
+            640,
+            400,
+            |x, y| {
+                image::Rgb([
+                    (x * 7 % 256) as u8,
+                    (y * 5 % 256) as u8,
+                    ((x ^ y) % 256) as u8,
+                ])
+            },
+        )));
+        let low = encode::resized(&grain, 640, "webp", 30).unwrap();
+        let high = encode::resized(&grain, 640, "webp", 95).unwrap();
+        assert!(
+            low.len() < high.len(),
+            "quality 30: {}, 95: {}",
+            low.len(),
+            high.len()
+        );
+    }
+
+    /// A picture's transparency survives its WebP.
+    #[test]
+    fn webp_keeps_alpha() {
+        let img = image::DynamicImage::ImageRgba8(image::RgbaImage::from_fn(64, 64, |x, _| {
+            if x < 32 {
+                image::Rgba([200, 40, 40, 255])
+            } else {
+                image::Rgba([0, 0, 0, 0])
+            }
+        }));
+        let out = encode::resized(&probed(img), 64, "webp", 78).unwrap();
+        let back = image::load_from_memory_with_format(&out, image::ImageFormat::WebP)
+            .unwrap()
+            .to_rgba8();
+        assert!(back.get_pixel(8, 8)[3] > 240, "the opaque half is opaque");
+        assert!(back.get_pixel(56, 8)[3] < 16, "the clear half is clear");
+    }
+
+    /// A file of an older encoder is never taken from the cache for one
+    /// this encoder writes: the encoder is part of the name.
+    #[test]
+    fn the_encoder_is_part_of_a_file_s_name() {
+        let s = Settings::default();
+        assert_eq!(encode::hash(b"pic", &s), encode::hash(b"pic", &s));
+        assert_ne!(encode::hash(b"pic", &s), encode::hash(b"pid", &s));
+        assert_eq!(encode::hash(b"pic", &s).len(), 8);
     }
 }

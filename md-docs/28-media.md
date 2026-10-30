@@ -79,13 +79,20 @@ load` — is the `<img>` inside the `<picture>`, where its `alt:` is and its
 } } }
 ```
 
+WebP is written lossily at `quality`; PNG losslessly; JPEG at `quality`.
+A file that would come to no less than the original is not written: the
+original, which the `<img>` falls back to, serves at that width instead,
+and a format with no width left has no `<source>`. A JPEG already saved
+small is often one of these.
+
 `pipeline: false` copies the file as `public/` always did. The work is
 cached in `.wf-cache/media/`, so a build that changes no image does no
 image work. A PDF or a slide deck embeds the real picture rather than
 drawing a box where one should be.
 
 `wf assets --plan /hero.jpg` says what the pipeline will make of a picture
-before it does: each width, each format, and what the files come to. `wf
+before it does: each width, each format, and what the files come to, and
+the widths it would not write because they save nothing. `wf
 assets` lists everything in `public/` with where it is used, and counts
 what nothing uses.
 

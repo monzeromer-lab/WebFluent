@@ -38,6 +38,12 @@ pub fn widths_for(settings: &Settings, width: u32) -> Vec<u32> {
     out
 }
 
+/// Whether a file of `size` bytes saves nothing over the `original`'s:
+/// the build does not ship it, and the plan says it would not.
+pub fn no_saving(size: u64, original: u64) -> bool {
+    size >= original
+}
+
 /// The formats the build can write.
 pub const FORMATS: &[&str] = &["webp", "png", "jpeg", "jpg"];
 
@@ -195,20 +201,38 @@ pub fn process_via(
                 let file = format!("{stem}.{hash}.{width}.{format}");
                 let at = img_dir.join(&file);
                 let cached = cache_dir.join(&file);
+                // Encoded once, and kept in the cache whether it is shipped
+                // or not, so the next build knows without encoding again.
+                let fresh = if cached.exists() {
+                    None
+                } else {
+                    let encoded = encode::resized(&probed, *width, format, settings.quality)?;
+                    std::fs::create_dir_all(cache_dir).ok();
+                    std::fs::write(&cached, &encoded).ok();
+                    Some(encoded)
+                };
+                let size = match &fresh {
+                    Some(encoded) => encoded.len() as u64,
+                    None => std::fs::metadata(&cached).map(|m| m.len()).unwrap_or(0),
+                };
+                // A file no smaller than the original is no saving: the
+                // original, which the page falls back to, serves instead.
+                if no_saving(size, bytes.len() as u64) {
+                    let _ = std::fs::remove_file(&at);
+                    continue;
+                }
                 if !at.exists() {
-                    if cached.exists() {
-                        std::fs::copy(&cached, &at).ok();
-                    } else {
-                        let encoded = encode::resized(&probed, *width, format, settings.quality)?;
-                        std::fs::write(&at, &encoded)
-                            .map_err(|e| crate::error::WebFluentError::IoError(e.to_string()))?;
-                        std::fs::create_dir_all(cache_dir).ok();
-                        std::fs::write(&cached, &encoded).ok();
-                    }
+                    let written = match &fresh {
+                        Some(encoded) => std::fs::write(&at, encoded),
+                        None => std::fs::copy(&cached, &at).map(|_| ()),
+                    };
+                    written.map_err(|e| crate::error::WebFluentError::IoError(e.to_string()))?;
                 }
                 made.push((*width, url_of(&file)));
             }
-            sources.insert(format.clone(), made);
+            if !made.is_empty() {
+                sources.insert(format.clone(), made);
+            }
         }
     }
 

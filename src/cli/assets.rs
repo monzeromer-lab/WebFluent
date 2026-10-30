@@ -47,15 +47,8 @@ pub fn run_assets(dir: &Path, plan: Option<&str>, unused: bool, json: bool) -> R
             }
         }
         println!("  {}", plan.summary());
-        println!(
-            "  The original is written too, as {} ({}).",
-            plan.original.name,
-            size_text(plan.original.bytes)
-        );
-        if plan.estimated() {
-            println!(
-                "  A size marked `about` is estimated; `wf build` writes the files and makes it exact."
-            );
+        for line in plan.said() {
+            println!("  {line}");
         }
         return Ok(());
     }

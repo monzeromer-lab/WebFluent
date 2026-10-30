@@ -6,10 +6,17 @@ use super::probe::Probed;
 use crate::error::{Result, WebFluentError};
 use crate::media::Settings;
 
-/// A short hash of an image's bytes and the settings that shaped it.
+/// Which encoders made a file: part of its hash, so a file an older
+/// encoder wrote (a lossless WebP) is never taken from the cache for one
+/// this encoder would write.
+const ENCODERS: &[u8] = b"libwebp-lossy";
+
+/// A short hash of an image's bytes, the settings that shaped it and the
+/// encoders that write it.
 ///
 /// It goes in the file's name, which is what lets a host cache the file
-/// forever: change the image or a setting, and the name changes with it.
+/// forever: change the image, a setting or an encoder, and the name
+/// changes with it.
 pub fn hash(bytes: &[u8], settings: &Settings) -> String {
     // FNV-1a over the bytes and the settings: short, fast, and it only has
     // to tell two versions of one file apart.
@@ -32,6 +39,9 @@ pub fn hash(bytes: &[u8], settings: &Settings) -> String {
         }
     }
     eat(settings.quality);
+    for b in ENCODERS {
+        eat(*b);
+    }
     format!("{h:x}")[..8].to_string()
 }
 
@@ -50,7 +60,7 @@ pub fn resized(probed: &Probed, width: u32, format: &str, quality: u8) -> Result
     let mut out = Vec::new();
     let mut cursor = std::io::Cursor::new(&mut out);
     let written = match format {
-        "webp" => scaled.write_to(&mut cursor, image::ImageFormat::WebP),
+        "webp" => return Ok(webp_of(&scaled, quality)),
         "png" => scaled.write_to(&mut cursor, image::ImageFormat::Png),
         "jpeg" | "jpg" => {
             // The quality is the author's, and the encoder wants it here
@@ -71,4 +81,21 @@ pub fn resized(probed: &Probed, width: u32, format: &str, quality: u8) -> Result
     };
     written.map_err(|e| WebFluentError::IoError(format!("the image could not be written: {e}")))?;
     Ok(out)
+}
+
+/// `image` as a lossy WebP at `quality`, its alpha kept where it has one.
+fn webp_of(image: &image::DynamicImage, quality: u8) -> Vec<u8> {
+    let (width, height) = (image.width(), image.height());
+    let quality = f32::from(quality.clamp(1, 100));
+    if image.color().has_alpha() {
+        let rgba = image.to_rgba8();
+        webp::Encoder::from_rgba(rgba.as_raw(), width, height)
+            .encode(quality)
+            .to_vec()
+    } else {
+        let rgb = image.to_rgb8();
+        webp::Encoder::from_rgb(rgb.as_raw(), width, height)
+            .encode(quality)
+            .to_vec()
+    }
 }

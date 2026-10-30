@@ -427,7 +427,9 @@ name and its size — *3 widths × 1 format · 3 files · about 84 kB*. A size
 is exact once `wf build` has written the file (it is read from
 `.wf-cache/media/`) or when the picture is small enough to encode there and
 then; otherwise it is estimated from strips of it encoded at that width,
-and says `about`. A format the build cannot write is named, with why.
+and says `about`. A format the build cannot write is named, with why, and
+so is a width it would not write because the file would be no smaller
+than the original. `--json` carries the same sentences as `said`.
 
 The library has the same as `webfluent::assets::{list, plan}`, reading
 through a `Vfs`, so an editor's unsaved buffers count.

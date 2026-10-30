@@ -245,7 +245,7 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
                 Table.Row {
                     Table.Cell { Markdown("`quality`") }
                     Table.Cell { Markdown("`78`") }
-                    Table.Cell("The encoding quality, 1–100.")
+                    Table.Cell("The encoding quality, 1–100: WebP and JPEG are lossy at it. A file no smaller than the original is not written.")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`pipeline`") }
