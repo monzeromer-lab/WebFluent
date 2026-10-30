@@ -98,12 +98,12 @@ only an icon, named for screen readers by its `label:`, which is its
 tooltip too unless it is given a `title:`. `Sidebar.Item`
 takes `icon:` too.
 
-The 61 icons: `home`, `menu`, `search`, `close`, `user`, `settings`,
+The 62 icons: `home`, `menu`, `search`, `close`, `user`, `settings`,
 `check`, `plus`, `minus`, `edit`, `trash`, `star`, `heart`, `mail`, `bell`,
 `download`, `upload`, `eye`, `link`, `calendar`, `filter`, `info`,
 `warning`, `arrow-left`, `arrow-right`, `chevron-down`, `chevron-right`,
 `chevron-left`, `logout`, `copy`, `sun`, `moon`; and what an editor or a
-tool draws — `folder`, `folder-plus`, `folder-off`, `file`, `file-plus`, `refresh`, `alert-circle`, `clock`, `dot`, `diff`, `book`, `git-pull-request`, `pin`, `git-branch`, `more-horizontal`, `window-minimize`, `window-maximize`, `outline`, `help-circle`, `collapse-all`, `locate`, `chevron-up`, `globe`, `external-link`, `panel-down`, `panel-up`, `code`, `monitor`, `git-commit`.
+tool draws — `folder`, `folder-plus`, `folder-off`, `file`, `file-plus`, `refresh`, `alert-circle`, `clock`, `dot`, `diff`, `book`, `git-pull-request`, `pin`, `git-branch`, `more-horizontal`, `window-minimize`, `window-maximize`, `outline`, `help-circle`, `collapse-all`, `locate`, `chevron-up`, `globe`, `external-link`, `panel-down`, `panel-up`, `code`, `monitor`, `git-commit`, `play`.
 
 A name that is not one of them draws as the word, and the build carries
 only the glyphs the program names — so an icon whose name arrives at run

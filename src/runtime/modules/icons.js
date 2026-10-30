@@ -62,6 +62,7 @@
     code: '<g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5.5L2.5 10 7 14.5M13 5.5l4.5 4.5-4.5 4.5"/></g>',
     "git-commit": '<g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="3"/><path d="M2.5 10H7M13 10h4.5"/></g>',
     monitor: '<g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="15" height="10" rx="1"/><path d="M10 13.5v3M6.5 16.5h7"/></g>',
+    play: '<g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 3l11 7-11 7z"/></g>',
   };
 
   lateHook("data-icon", (el, name) => {
