@@ -1618,7 +1618,8 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                 match key.as_str() {
                     "src" | "alt" | "href" | "placeholder" | "type" | "min" | "max" | "step"
                     | "accept" | "role" | "value" | "width" | "height" | "loading" | "decoding"
-                    | "fetchpriority" | "rows" | "sandbox" | "allow" | "autocomplete" => {
+                    | "fetchpriority" | "rows" | "sandbox" | "srcdoc" | "allow"
+                    | "autocomplete" => {
                         if let Some(s) = static_attr(val, &ctx.scope) {
                             // A value the browser follows goes through the
                             // same scheme check the live page applies.

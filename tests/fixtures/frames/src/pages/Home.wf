@@ -1,0 +1,8 @@
+page Home(path: "/", title: "Frames", description: "A frame drawing the HTML it is given.") {
+    state version = 1
+    derived example = "<p id=\"said\">Version {version}</p>"
+
+    Heading("Frames").h1
+    Button("Next") { on click { version = version + 1 } }
+    Frame(srcdoc: example, title: "Example", sandbox: "")
+}

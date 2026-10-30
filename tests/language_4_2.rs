@@ -527,6 +527,39 @@ fn a_frame_hears_only_its_own_page_and_is_drawn_whole() {
     );
 }
 
+/// `srcdoc:` is a prop of `Frame`: the HTML it draws, sandboxed as
+/// `sandbox:` says, followed as it changes, and the same HTML in the
+/// pre-render and the template engine — never held to the URL check, since
+/// it is markup, not an address.
+#[test]
+fn a_frame_draws_the_html_srcdoc_gives_it() {
+    let src = page(
+        "state n = 1\n    derived html = \"<p>Note: version {n}</p>\"\n    Frame(srcdoc: html, title: \"Example\", sandbox: \"\")",
+    );
+    assert!(
+        warnings_of(&src, "C04").is_empty(),
+        "{:?}",
+        warnings_of(&src, "C04")
+    );
+    assert!(errors_of(&src).is_empty(), "{}", errors_of(&src));
+    let js = spa_generated(&src);
+    assert!(
+        js.contains("srcdoc: () => _html(), title: \"Example\", sandbox: \"\""),
+        "followed, and not through `WF.safeUrl`: {js}"
+    );
+    let painted = "<iframe class=\"wf-frame\" srcdoc=\"&lt;p&gt;Note: version 1&lt;/p&gt;\" title=\"Example\" sandbox=\"\">";
+    let html = ssg_html(&src);
+    assert!(html.contains(painted), "{html}");
+    let html = template_html(&src);
+    assert!(html.contains(painted), "{html}");
+    let literal = page("    Frame(srcdoc: \"<i>a: b</i>\", title: \"L\", sandbox: \"\")");
+    assert!(
+        errors_of(&literal).is_empty(),
+        "markup is not a URL: {}",
+        errors_of(&literal)
+    );
+}
+
 /// A lambda with no parameters is a function of none: `() => x` fits a
 /// script's `() => boolean`, and says so when it does not fit.
 #[test]

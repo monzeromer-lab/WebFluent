@@ -1736,7 +1736,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
             Arg::Named(key, val) => match key.as_str() {
                 "src" | "alt" | "href" | "placeholder" | "type" | "min" | "max" | "step"
                 | "accept" | "role" | "value" | "title" | "width" | "height" | "loading"
-                | "decoding" | "fetchpriority" => {
+                | "decoding" | "fetchpriority" | "sandbox" | "srcdoc" | "allow" => {
                     let resolved = value_to_string(&ctx.eval_expr(val));
                     // A URL from the data: `javascript:` and its kind are
                     // dropped, as `WF.safeUrl` drops them on a live page.

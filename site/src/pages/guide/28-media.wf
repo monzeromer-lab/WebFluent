@@ -68,6 +68,15 @@ page Home(path: "/", title: "Home", description: "The front page.") {
     Text(heard)
 }"#, title: "wf")
 
-        Markdown("`on message(m)` hears what the framed page posts with `window.parent.postMessage(…)` — `m.data` is what it sent — and nothing another page posts. `sandbox:` limits what the framed page may do (`\"allow-scripts allow-forms\"`; empty, nothing at all), and `allow:` names the features it may use. A frame from another origin is named in `meta.frame`, or the page's policy refuses it ([Security](/docs/guide/security)).\n\nA page of the site itself (`src: \"/preview/\"`) needs nothing named: the pages are served refusing to be framed by anyone (`X-Frame-Options: DENY`), and a project that places a `Frame` with a site-relative `src:` is served `SAMEORIGIN` instead — by `wf serve` and in the `_headers` a build writes — so it may frame its own pages and still no one else may.")
+        Markdown("`on message(m)` hears what the framed page posts with `window.parent.postMessage(…)` — `m.data` is what it sent — and nothing another page posts. `sandbox:` limits what the framed page may do (`\"allow-scripts allow-forms\"`; empty, nothing at all), and `allow:` names the features it may use. A frame from another origin is named in `meta.frame`, or the page's policy refuses it ([Security](/docs/guide/security)).\n\n`srcdoc:` gives a frame the HTML to draw instead of an address — an example a page renders, a preview of what a reader is writing. It is drawn sandboxed as `sandbox:` says, so `sandbox: \"\"` draws it with no script and no reach into the page; a value that reads state draws the new HTML as it changes, and the pre-rendered page has it before any script runs.")
+
+        CodeBlock(#"page Preview(path: "/preview-note", title: "Preview", description: "A note, drawn as it will look.") {
+    state note = "Hello"
+    Heading("Preview").h1
+    Input(bind: note, label: "Note")
+    Frame(srcdoc: "<p>{note}</p>", title: "The note, drawn", sandbox: "")
+}"#, title: "wf")
+
+        Markdown("A page of the site itself (`src: \"/preview/\"`) needs nothing named: the pages are served refusing to be framed by anyone (`X-Frame-Options: DENY`), and a project that places a `Frame` with a site-relative `src:` is served `SAMEORIGIN` instead — by `wf serve` and in the `_headers` a build writes — so it may frame its own pages and still no one else may.")
     }
 }

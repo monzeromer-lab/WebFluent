@@ -24,7 +24,6 @@ pub const URL_ATTRS: &[&str] = &[
     "formaction",
     "cite",
     "ping",
-    "srcdoc",
     "data",
     "background",
     "captions",

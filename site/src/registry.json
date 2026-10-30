@@ -2875,15 +2875,20 @@
    "name": "Frame",
    "slug": "frame",
    "group": "Media",
-   "summary": "Another page, shown inside this one: an `iframe`. `on message(m)` hears what that page posts to this one (`m.data`), and nothing any other page posts. Without `title:` it draws an `A17` warning: a frame is announced by its title.",
-   "plain": "Another page, shown inside this one: an iframe. on message(m) hears what that page posts to this one (m.data), and nothing any other page posts. Without title: it draws an A17 warning: a frame is announced by its title.",
-   "signature": "Frame(src: \u2026, title: \u2026, sandbox: \u2026)",
+   "summary": "Another page, shown inside this one: an `iframe` \u2014 the page at `src:`, or the HTML `srcdoc:` gives it, sandboxed as `sandbox:` says. `on message(m)` hears what that page posts to this one (`m.data`), and nothing any other page posts. Without `title:` it draws an `A17` warning: a frame is announced by its title.",
+   "plain": "Another page, shown inside this one: an iframe \u2014 the page at src:, or the HTML srcdoc: gives it, sandboxed as sandbox: says. on message(m) hears what that page posts to this one (m.data), and nothing any other page posts. Without title: it draws an A17 warning: a frame is announced by its title.",
+   "signature": "Frame(src: \u2026, srcdoc: \u2026, title: \u2026)",
    "block": false,
    "props": [
     {
      "name": "src:",
      "type": "String",
      "meaning": "The address of the page it shows"
+    },
+    {
+     "name": "srcdoc:",
+     "type": "String",
+     "meaning": "The HTML it draws in place of an address, sandboxed as `sandbox:` says; a value that reads state draws the new HTML as it changes"
     },
     {
      "name": "title:",
@@ -2934,7 +2939,7 @@
     "Audio",
     "Icon"
    ],
-   "example": "Frame(src: \"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ\", title: \"The launch talk\", allow: \"fullscreen\")\nstate heard = \"\"\nFrame(src: \"/preview/\", title: \"Preview\", sandbox: \"allow-scripts\") {\n    on message(m) { heard = m.data }\n}",
+   "example": "Frame(src: \"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ\", title: \"The launch talk\", allow: \"fullscreen\")\nstate heard = \"\"\nFrame(src: \"/preview/\", title: \"Preview\", sandbox: \"allow-scripts\") {\n    on message(m) { heard = m.data }\n}\nstate version = 1\nFrame(srcdoc: \"<p>Version {version}</p>\", title: \"Example\", sandbox: \"\")",
    "cssClass": "wf-frame"
   },
   {

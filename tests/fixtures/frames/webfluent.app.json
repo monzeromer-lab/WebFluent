@@ -1,0 +1,4 @@
+{
+  "name": "frames",
+  "build": { "ssg": true, "csp": true }
+}

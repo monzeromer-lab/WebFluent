@@ -36,3 +36,11 @@ page Talk(path: "/", title: "The talk", description: "The launch talk, and what 
     Text(heard)
 }
 
+// md-docs/28-media.md
+page Preview(path: "/preview-note", title: "Preview", description: "A note, drawn as it will look.") {
+    state note = "Hello"
+    Heading("Preview").h1
+    Input(bind: note, label: "Note")
+    Frame(srcdoc: "<p>{note}</p>", title: "The note, drawn", sandbox: "")
+}
+

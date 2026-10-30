@@ -155,6 +155,22 @@ another page posts. `sandbox:` limits what the framed page may do
 the features it may use. A frame from another origin is named in
 `meta.frame`, or the page's policy refuses it ([Security](23-security.md)).
 
+`srcdoc:` gives a frame the HTML to draw instead of an address — an
+example a page renders, a preview of what a reader is writing. It is
+drawn sandboxed as `sandbox:` says, so `sandbox: ""` draws it with no
+script and no reach into the page; a value that reads state draws the new
+HTML as it changes, and the pre-rendered page has it before any script
+runs.
+
+```wf
+page Preview(path: "/preview-note", title: "Preview", description: "A note, drawn as it will look.") {
+    state note = "Hello"
+    Heading("Preview").h1
+    Input(bind: note, label: "Note")
+    Frame(srcdoc: "<p>{note}</p>", title: "The note, drawn", sandbox: "")
+}
+```
+
 A page of the site itself (`src: "/preview/"`) needs nothing named: the
 pages are served refusing to be framed by anyone (`X-Frame-Options: DENY`),
 and a project that places a `Frame` with a site-relative `src:` is served

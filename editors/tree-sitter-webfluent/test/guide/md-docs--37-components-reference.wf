@@ -368,6 +368,8 @@ page Doc(path: "/") {
     Frame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") {
         on message(m) { heard = m.data }
     }
+    state version = 1
+    Frame(srcdoc: "<p>Version {version}</p>", title: "Example", sandbox: "")
 }
 
 // md-docs/37-components-reference.md

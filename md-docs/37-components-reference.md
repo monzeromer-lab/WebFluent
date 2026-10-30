@@ -1539,10 +1539,10 @@ Attribute families: `global`, `aria`, `data`.
 
 ### Frame
 
-Another page, shown inside this one: an `iframe`. `on message(m)` hears what that page posts to this one (`m.data`), and nothing any other page posts. Without `title:` it draws an `A17` warning: a frame is announced by its title.
+Another page, shown inside this one: an `iframe` — the page at `src:`, or the HTML `srcdoc:` gives it, sandboxed as `sandbox:` says. `on message(m)` hears what that page posts to this one (`m.data`), and nothing any other page posts. Without `title:` it draws an `A17` warning: a frame is announced by its title.
 
 ```
-Frame(src: …, title: …, sandbox: …)
+Frame(src: …, srcdoc: …, title: …)
 ```
 
 ```wf
@@ -1551,6 +1551,8 @@ state heard = ""
 Frame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") {
     on message(m) { heard = m.data }
 }
+state version = 1
+Frame(srcdoc: "<p>Version {version}</p>", title: "Example", sandbox: "")
 ```
 
 Renders with the class `wf-frame`.
@@ -1558,6 +1560,7 @@ Renders with the class `wf-frame`.
 | Prop | Type | Meaning |
 |---|---|---|
 | `src:` | `String` | The address of the page it shows |
+| `srcdoc:` | `String` | The HTML it draws in place of an address, sandboxed as `sandbox:` says; a value that reads state draws the new HTML as it changes |
 | `title:` | `String` | What it shows, in a few words: its accessible name |
 | `sandbox:` | `String` | What the framed page may do: `"allow-scripts allow-forms"`; empty, it may do nothing |
 | `allow:` | `String` | The features it may use: `"fullscreen; clipboard-write"` |

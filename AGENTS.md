@@ -1721,7 +1721,7 @@ Button flags: `.sm`, `.lg`, `.full`, `.rounded`, `.pill`, `.outlined`; `type: .s
 | `Image` | `Image(src: "/photo.jpg", alt: "Description")`, or `Image(hero, alt: "…", sizes: "…", placeholder: .blur)` with an `image` the program declares; a literal `src:` naming a PNG, JPEG, GIF or WebP in `public/` is processed by the build just as an `image` is — decoded asynchronously; the first image on a page loads eagerly at high priority (it is usually the largest paint), the rest lazily. `loading:` overrides |
 | `Video` | `Video(src: "/video.mp4", captions: "/clip.en.vtt", poster: "/frame.jpg").controls` — `muted`, `loop`, `playsinline`; without `captions` it draws an `A09` |
 | `Audio` | `Audio(src: "/talk.mp3", transcript: "/talk.txt").controls` — the transcript is a link beneath the player |
-| `Frame` | `Frame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") { on message(m) { heard = m.data } }` — another page inside this one; `on message` hears only what that page posts; without `title:` it draws an `A17` |
+| `Frame` | `Frame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") { on message(m) { heard = m.data } }` — another page inside this one; `on message` hears only what that page posts; without `title:` it draws an `A17`. `Frame(srcdoc: html, title: "Example", sandbox: "")` draws the HTML it is given instead of an address, sandboxed as `sandbox:` says, and draws the new HTML when a value that reads state changes |
 | `Icon` | `Icon("home")` or `Icon("search").lg.primary` — 32 built-in SVG icons rendered inline |
 | `Carousel` | `Carousel(autoplay: true, interval: 5000) { Carousel.Slide { Image(src: "...") } }` — slide track with dots and autoplay |
 

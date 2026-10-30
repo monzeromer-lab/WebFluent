@@ -1908,10 +1908,15 @@ pub const COMPONENTS: &[ComponentSig] = &[
         ..comp(
             "Frame",
             "Media",
-            "Another page, shown inside this one: an `iframe`. `on message(m)` hears what that page posts to this one (`m.data`), and nothing any other page posts. Without `title:` it draws an `A17` warning: a frame is announced by its title.",
+            "Another page, shown inside this one: an `iframe` — the page at `src:`, or the HTML `srcdoc:` gives it, sandboxed as `sandbox:` says. `on message(m)` hears what that page posts to this one (`m.data`), and nothing any other page posts. Without `title:` it draws an `A17` warning: a frame is announced by its title.",
             None,
             &[
                 attr("src", PropType::Str, "The address of the page it shows"),
+                attr(
+                    "srcdoc",
+                    PropType::Str,
+                    "The HTML it draws in place of an address, sandboxed as `sandbox:` says; a value that reads state draws the new HTML as it changes",
+                ),
                 attr(
                     "title",
                     PropType::Str,
