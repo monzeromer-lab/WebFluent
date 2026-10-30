@@ -10,7 +10,11 @@
 //! parse, or that read the generated code's value in place of its own. So
 //! every name the generated code uses is put here in every place a program
 //! can bind a name, each place a component that says `ok` when it reads its
-//! own value and `bad` when it does not. Each project is built, run against
+//! own value and `bad` when it does not. A name declared at the top of the
+//! script — a `const`, `data`, a store, a service — shares one scope with
+//! the runtime, which builds with the browser's globals (`const Map = 3`
+//! stopped every page), so the browser's names are here too, and each of
+//! those places is a project of its own. Each project is built, run against
 //! the fake DOM, clicked through and read back.
 //!
 //! A name the language refuses where it is written (`E118`, `params`) is
@@ -46,6 +50,16 @@ const NAMES = [
   "arguments", "eval", "instanceof", "package", "private", "protected", "public", "implements",
   "interface", "undefined", "NaN", "Infinity",
   "top", "location", "window", "globalThis", "console", "Array", "Number", "Object", "String",
+  // The browser's globals, which a top-level name shares a scope with: the
+  // runtime builds with these (`const Map = 3` stopped every page), and a
+  // project's scripts and libraries read the rest.
+  "Map", "Set", "WeakMap", "Promise", "Proxy", "Reflect", "Symbol", "Error", "RegExp", "Date",
+  "JSON", "Math", "Intl", "URL", "URLSearchParams", "Node", "DOMParser", "Animation", "Event",
+  "CustomEvent", "File", "Blob", "FormData", "Headers", "Response", "Request", "WebSocket",
+  "Worker", "HTMLElement", "Selection", "Range", "Storage", "History", "Location", "Notification",
+  "fetch", "name", "status", "open", "close", "length", "origin", "parent", "self", "history",
+  "navigator", "performance", "crypto", "localStorage", "setTimeout", "requestAnimationFrame",
+  "matchMedia", "getComputedStyle", "queueMicrotask", "alert", "screen", "find",
 ];
 
 /// Each place a program binds a name: a component of its own that shows
@@ -99,13 +113,13 @@ const PLACES = [
   // A caught error, named; and a nameless catch beside a state of the name.
   ["catch", `component P7 {
     state out = ""
-    action go() { try { let bad = JSON.parse("{") } catch @ { out = "caught {@ != null}" } }
+    action go() { try { let bad = decodeURIComponent("%") } catch @ { out = "caught {@ != null}" } }
     Text(if out == "caught true" { "P7 ok" } else { "P7 bad {out}" })
     Button("go P7") { on click { go() } }
 }`],
   ["nameless catch", `component P8 {
     state @ = "none"
-    action go() { try { let bad = JSON.parse("{") } catch { @ = "caught" } }
+    action go() { try { let bad = decodeURIComponent("%") } catch { @ = "caught" } }
     Text(if @ == "caught" { "P8 ok" } else { "P8 bad {@}" })
     Button("go P8") { on click { go() } }
 }`],
@@ -190,9 +204,6 @@ component P18 {
     Text(if P18Store.above == 1 { "P18 ok" } else { "P18 bad {P18Store.above}" })
     Button("go P18") { on click { P18Store.go() } }
 }`],
-  // A constant of the name, at the top of the script.
-  ["const", `const @ = "konst"
-component P19 { Text(if @ == "konst" { "P19 ok" } else { "P19 bad {@}" }) }`],
   // An enum payload bound by a match arm.
   ["match payload", `enum P20Tone { calm, loud(level: Number) }
 component P20 {
@@ -259,6 +270,34 @@ component P26 {
 }`],
 ];
 
+/// The places a program names something at the top of its script — a
+/// `const`, a `data` constant, a store, a service. One name is declared
+/// once at the top, so each of these is a project of its own; the fourth
+/// item is what else the project needs.
+const TOP_PLACES = [
+  ["const", `const @ = "konst"
+component P19 { Text(if @ == "konst" { "P19 ok" } else { "P19 bad {@}" }) }`],
+  ["data constant", `data @ = "p28.json"
+component P28 { Text(if @.length == 2 { "P28 ok" } else { "P28 bad {@.length}" }) }`, [], { "src/p28.json": "[1, 2]" }],
+  // Read, called, bound, changed in place, and read by another store.
+  ["store", `store @ {
+    state count = 1
+    state word = ""
+    state flags = { done: false }
+    action add() { count = count + 1 }
+}
+store P29Reader { derived seen = @.count * 10 }
+component P29 {
+    use @
+    use P29Reader
+    Input(bind: @.word, label: "word P29")
+    Button("go P29") { on click { @.add()  @.flags.done = true } }
+    Text(if @.count == 2 && @.word == "hi" && @.flags.done == true && P29Reader.seen == 20 { "P29 ok" } else { "P29 bad {@.count} {@.word} {P29Reader.seen}" })
+}`, [{ type: "word P29", value: "hi" }]],
+  ["service", `api @(base: "/api") { get users() -> [String] }
+component P30 { Text(if @.users.url() == "/api/users" { "P30 ok" } else { "P30 bad {@.users.url()}" }) }`],
+];
+
 /// The `wf` to build with: `WF_BIN`, or the one this checkout built last.
 function wfBinary() {
   if (process.env.WF_BIN) return process.env.WF_BIN;
@@ -271,9 +310,12 @@ function wfBinary() {
 
 /// Each place of `PLACES` for `name`, in a file of its own so a place the
 /// language refuses can be left out by its file.
-function sources(name) {
+function sources(name, places) {
   const files = {};
-  for (const [, src] of PLACES) files[`src/components/${tagOf(src)}.wf`] = src.replaceAll("@", name);
+  for (const [, src, , extra = {}] of places) {
+    files[`src/components/${tagOf(src)}.wf`] = src.replaceAll("@", name);
+    Object.assign(files, extra);
+  }
   return files;
 }
 
@@ -283,7 +325,7 @@ function tagOf(src) {
 }
 
 function writeProject(dir, files) {
-  const kept = Object.keys(files).map((f) => f.match(/P(\d+)\.wf$/)[1]);
+  const kept = Object.keys(files).map((f) => f.match(/components\/P(\d+)\.wf$/)?.[1]).filter(Boolean);
   mkdirSync(join(dir, "src/components"), { recursive: true });
   writeFileSync(join(dir, "webfluent.app.json"), JSON.stringify({ name: "Names", build: { output: "./build", ssg: false, minify: false, split: false } }));
   writeFileSync(
@@ -296,10 +338,10 @@ function writeProject(dir, files) {
 /// Build `name` in every place; the places the language refuses for it are
 /// dropped and the rest built again. What a refusal is, is `E118` — any
 /// other error is a failure of the test.
-function build(name) {
+function build(name, places) {
   const wf = wfBinary();
   const dir = mkdtempSync(join(tmpdir(), "wf-names-"));
-  let files = sources(name);
+  let files = sources(name, places);
   const refused = [];
   for (;;) {
     rmSync(join(dir, "src"), { recursive: true, force: true });
@@ -322,6 +364,10 @@ function build(name) {
       // else that refusal brought with it there.
       const dropped = new Set(found.filter((f) => f.code === "E118" && f.file).map((f) => f.file));
       const errors = found.filter((f) => !dropped.has(f.file)).map((f) => f.line);
+      // A project that is nothing but a refused place has nothing to run.
+      if (!errors.length && dropped.size && Object.keys(files).every((f) => !/components\//.test(f) || [...dropped].some((p) => f.endsWith(`/${p}.wf`)))) {
+        return { dir, refused: [...refused, ...dropped], empty: true };
+      }
       if (errors.length || dropped.size === 0) {
         rmSync(dir, { recursive: true, force: true });
         throw new Error(`\`${name}\` did not build:\n${out}`);
@@ -376,61 +422,75 @@ function control(app, label) {
   return null;
 }
 
+/// Build `name` in `places`, run it, click and type through it, and say
+/// every place that read something other than its own value.
+function check(name, places) {
+  const { dir, refused, empty } = build(name, places);
+  if (empty) {
+    rmSync(dir, { recursive: true, force: true });
+    return [];
+  }
+  try {
+    const { app, drain, errors } = mount(dir);
+    const wrong = [];
+    places.forEach(([place, src, clicks = []]) => {
+      const tag = tagOf(src);
+      if (refused.includes(tag)) return;
+      try {
+        for (const step of [...clicks, `go ${tag}`]) {
+          const label = typeof step === "string" ? step : step.type ?? step.change;
+          const el = control(app, label);
+          if (!el && label === `go ${tag}`) continue;
+          if (!el) throw new Error(`nothing is called "${label}"`);
+          if (typeof step !== "string") {
+            el.value = step.value;
+            // What a reader does: types, then leaves the field, which
+            // commits it (an unkeyed loop's field writes back then).
+            for (const kind of step.change ? ["change"] : ["input", "change"]) {
+              el.dispatchEvent({ type: kind, target: el, currentTarget: el, preventDefault() {} });
+            }
+          } else if (el.tagName === "INPUT") {
+            el.checked = !el.checked;
+            el.dispatchEvent({ type: "change", target: el, currentTarget: el, preventDefault() {} });
+          } else {
+            el.dispatchEvent({ type: "click", target: el, currentTarget: el, preventDefault() {} });
+          }
+          drain();
+        }
+      } catch (err) {
+        wrong.push(`as a ${place}: ${err.message}`);
+        return;
+      }
+      const shown = app.textContent;
+      if (!shown.includes(`${tag} ok`)) {
+        wrong.push(`as a ${place}: ${(shown.match(new RegExp(`${tag} bad.*?(?=P\\d|go |$)`)) || ["nothing drawn"])[0]}`);
+      }
+    });
+    // Last, as it leaves the page: a link in a loop goes where its item
+    // says, not where the click event would.
+    if (places.some(([, src]) => tagOf(src) === "P13") && !refused.includes("P13")) {
+      const link = app.querySelectorAll("a").find((a) => a.textContent.trim() === "to P13 a");
+      if (!link) wrong.push("as a loop item in a link: no link");
+      else {
+        link.dispatchEvent({ type: "click", target: link, currentTarget: link, button: 0, preventDefault() {} });
+        drain();
+        if (!app.textContent.includes("arrived a")) wrong.push(`as a loop item in a link: went to ${globalThis.__wfNamesWindow?.location?.pathname}`);
+      }
+    }
+    if (errors.length) wrong.push(`the page reported: ${errors.join("; ")}`);
+    return wrong;
+  } catch (err) {
+    return [`the page threw: ${err.message}`];
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
 for (const name of [...new Set(NAMES)]) {
   test(`\`${name}\` is the program's own in every place it can be bound`, () => {
     if (!wfBinary()) return;
-    const { dir, refused } = build(name);
-    try {
-      const { app, drain, errors } = mount(dir);
-      const wrong = [];
-      PLACES.forEach(([place, src, clicks = []]) => {
-        const tag = tagOf(src);
-        if (refused.includes(tag)) return;
-        try {
-          for (const step of [...clicks, `go ${tag}`]) {
-            const label = typeof step === "string" ? step : step.type ?? step.change;
-            const el = control(app, label);
-            if (!el && label === `go ${tag}`) continue;
-            if (!el) throw new Error(`nothing is called "${label}"`);
-            if (typeof step !== "string") {
-              el.value = step.value;
-              // What a reader does: types, then leaves the field, which
-              // commits it (an unkeyed loop's field writes back then).
-              for (const kind of step.change ? ["change"] : ["input", "change"]) {
-                el.dispatchEvent({ type: kind, target: el, currentTarget: el, preventDefault() {} });
-              }
-            } else if (el.tagName === "INPUT") {
-              el.checked = !el.checked;
-              el.dispatchEvent({ type: "change", target: el, currentTarget: el, preventDefault() {} });
-            } else {
-              el.dispatchEvent({ type: "click", target: el, currentTarget: el, preventDefault() {} });
-            }
-            drain();
-          }
-        } catch (err) {
-          wrong.push(`as a ${place}: ${err.message}`);
-          return;
-        }
-        const shown = app.textContent;
-        if (!shown.includes(`${tag} ok`)) {
-          wrong.push(`as a ${place}: ${(shown.match(new RegExp(`${tag} bad.*?(?=P\\d|go |$)`)) || ["nothing drawn"])[0]}`);
-        }
-      });
-      // Last, as it leaves the page: a link in a loop goes where its item
-      // says, not where the click event would.
-      if (!refused.includes("P13")) {
-        const link = app.querySelectorAll("a").find((a) => a.textContent.trim() === "to P13 a");
-        if (!link) wrong.push("as a loop item in a link: no link");
-        else {
-          link.dispatchEvent({ type: "click", target: link, currentTarget: link, button: 0, preventDefault() {} });
-          drain();
-          if (!app.textContent.includes("arrived a")) wrong.push(`as a loop item in a link: went to ${globalThis.__wfNamesWindow?.location?.pathname}`);
-        }
-      }
-      if (errors.length) wrong.push(`the page reported: ${errors.join("; ")}`);
-      assert.deepEqual(wrong, [], `\`${name}\` is read as something else`);
-    } finally {
-      rmSync(dir, { recursive: true, force: true });
-    }
+    const wrong = check(name, PLACES);
+    for (const top of TOP_PLACES) wrong.push(...check(name, [top]));
+    assert.deepEqual(wrong, [], `\`${name}\` is read as something else`);
   });
 }

@@ -149,6 +149,30 @@ fn bare(name: &str) -> String {
     }
 }
 
+/// Every name a browser's global object has (`scripts/browser-globals.sh`).
+static BROWSER_GLOBAL_NAMES: std::sync::LazyLock<std::collections::HashSet<&'static str>> =
+    std::sync::LazyLock::new(|| {
+        include_str!("browser_globals.txt")
+            .lines()
+            .filter(|l| !l.is_empty() && !l.starts_with('#'))
+            .collect()
+    });
+
+/// What a program's top-level name — a `const`, a `data` or `image`
+/// constant, a store, a service — is called in the generated code: as
+/// [`bare`] has it, and `name$` when the browser's global object has the
+/// name. Every script's top-level `const` shares one scope with the
+/// runtime's functions, so `const Map = 3` was the runtime's `Map` — "Map
+/// is not a constructor", and no page drew — and a store called `Image` was
+/// a library's.
+fn top_level(name: &str) -> String {
+    if BROWSER_GLOBAL_NAMES.contains(name) {
+        format!("{name}$")
+    } else {
+        bare(name)
+    }
+}
+
 /// A lambda's parameters, `a, b`, each as [`bare`] has it.
 fn bare_list(params: &str) -> String {
     params
@@ -1071,7 +1095,7 @@ impl JsCodegen {
         for decl in &program.declarations {
             if let Declaration::Const(c) = decl {
                 let value = self.emit_expr(&c.value);
-                self.emit_line(&format!("const {} = {};", bare(&c.name), value));
+                self.emit_line(&format!("const {} = {};", top_level(&c.name), value));
             }
         }
 
@@ -1220,7 +1244,7 @@ impl JsCodegen {
     /// callable endpoints, each of which also carries `.invalidate()`,
     /// `.prefetch()` and `.progress`.
     fn emit_api(&mut self, api: &ApiDecl) {
-        self.emit_line(&format!("const {} = WF.api({{", api.name));
+        self.emit_line(&format!("const {} = WF.api({{", top_level(&api.name)));
         self.indent += 1;
         self.emit_line(&format!("name: \"{}\",", api.name));
         for (key, value) in &api.settings {
@@ -1322,7 +1346,8 @@ impl JsCodegen {
         );
         self.emit_line(&format!(
             "const {} = WF.store(\"{}\", () => ({{",
-            store.name, store.name
+            top_level(&store.name),
+            store.name
         ));
         self.indent += 1;
 
@@ -1553,8 +1578,10 @@ impl JsCodegen {
             Expr::Identifier(name) => {
                 if self.is_own_member(name, store_states) {
                     format!("store.{}", name)
-                } else if self.store_locals.borrow().contains(name) || self.consts.contains(name) {
+                } else if self.store_locals.borrow().contains(name) {
                     bare(name)
+                } else if self.consts.contains(name) || self.stores.contains(name) {
+                    top_level(name)
                 } else if BROWSER_VALUES.contains(&name.as_str()) && !self.own_names.contains(name)
                 {
                     format!("WF.{name}()")
@@ -1763,12 +1790,14 @@ impl JsCodegen {
                     format!("WF.{}({})", name, args_str.join(", "))
                 } else if name == "fetch" {
                     format!("WF.request({})", args_str.join(", "))
+                } else if self.store_locals.borrow().contains(name) {
+                    format!("{}({})", bare(name), args_str.join(", "))
+                } else if self.consts.contains(name) {
+                    format!("{}({})", top_level(name), args_str.join(", "))
                 } else if self.script_classes.contains(name)
                     || BROWSER_CLASSES.contains(&name.as_str())
                 {
                     format!("new {}({})", name, args_str.join(", "))
-                } else if self.store_locals.borrow().contains(name) || self.consts.contains(name) {
-                    format!("{}({})", bare(name), args_str.join(", "))
                 } else {
                     format!("{}({})", name, args_str.join(", "))
                 }
@@ -7457,19 +7486,25 @@ impl JsCodegen {
     /// A loop's `for event in events` read in `on click { pick(event) }`
     /// was handed the click, and an action `event()` could not be called.
     fn implicit_param(&self, name: &str) -> String {
+        if self.program_binds(name) {
+            format!("$${name}")
+        } else {
+            name.to_string()
+        }
+    }
+
+    /// Whether the program has `name` in reach where it is being read: the
+    /// body's own, a loop's or a lambda's, an action, a handle, a constant,
+    /// a store or a service.
+    fn program_binds(&self, name: &str) -> bool {
         let n = name.to_string();
-        if self.own_names.contains(&n)
+        self.own_names.contains(&n)
             || self.loop_bindings.contains(&n)
             || self.lambda_params.borrow().contains(&n)
             || self.own_actions.contains(&n)
             || self.consts.contains(&n)
             || self.refs.contains(&n)
             || self.stores.contains(&n)
-        {
-            format!("$${name}")
-        } else {
-            name.to_string()
-        }
     }
 
     /// `key` and `value` are names inside a handler — the checker accepts
@@ -7495,12 +7530,9 @@ impl JsCodegen {
             Expr::Identifier(n) if n == "value" => value = true,
             _ => {}
         });
-        let free = |name: &str| {
-            param != name
-                && !self.own_names.iter().any(|n| n == name)
-                && !self.loop_bindings.iter().any(|n| n == name)
-                && !self.lambda_params.borrow().iter().any(|n| n == name)
-        };
+        // A store, a constant or an action of the name counts too: `store
+        // value` read in `on click { value.add() }` was the input's value.
+        let free = |name: &str| param != name && !self.program_binds(name);
         let mut out = String::new();
         if key && free("key") {
             out.push_str(&format!(", key = {param}?.key"));
@@ -7599,6 +7631,7 @@ impl JsCodegen {
                     && !self.lambda_params.borrow().iter().any(|n| n == name)
                     && !self.consts.contains(name)
                     && !self.refs.contains(name)
+                    && !self.stores.contains(name)
                 {
                     return name.to_string();
                 }
@@ -7654,16 +7687,15 @@ impl JsCodegen {
                 // the script's global, unless the body declares it too. It
                 // was read as a signal, `_VERSION()`, which nothing
                 // declares, so the page threw as it drew.
-                if self.stores.contains(name) {
-                    name.to_string()
-                } else if
-                // A `const`, unless the body declares a signal of its
-                // name: a component's `state label` beside a project's
-                // `const label` read the constant, and never changed.
-                (self.consts.contains(name) && !self.body_signals.contains(name))
-                    || self.refs.contains(name)
-                {
+                if self.refs.contains(name) {
                     bare(name)
+                } else if self.stores.contains(name)
+                    // A `const`, unless the body declares a signal of its
+                    // name: a component's `state label` beside a project's
+                    // `const label` read the constant, and never changed.
+                    || (self.consts.contains(name) && !self.body_signals.contains(name))
+                {
+                    top_level(name)
                 } else if
                 // The project's `env`, unless the page declares its
                 // own: a `state env` read the config's map, and
@@ -7915,13 +7947,14 @@ impl JsCodegen {
                 if self.stores.contains(name) {
                     format!(
                         "{}.{}({})",
-                        name,
+                        top_level(name),
                         args_str.first().unwrap_or(&String::new()),
                         args_str.get(1..).unwrap_or(&[]).join(", ")
                     )
                 } else if (self.script_classes.contains(name)
                     || BROWSER_CLASSES.contains(&name.as_str()))
                     && !self.own_names.contains(name)
+                    && !self.consts.contains(name)
                 {
                     // A class a project script or the browser declares:
                     // constructed, since calling one without `new` throws.
@@ -7939,10 +7972,11 @@ impl JsCodegen {
                 } else if self.own_actions.contains(name)
                     || self.loop_bindings.contains(name)
                     || self.lambda_params.borrow().contains(name)
-                    || self.consts.contains(name)
                 {
                     // The program's own, written as its declaration is.
                     format!("{}({})", bare(name), args_str.join(", "))
+                } else if self.consts.contains(name) {
+                    format!("{}({})", top_level(name), args_str.join(", "))
                 } else {
                     format!("{}({})", name, args_str.join(", "))
                 }
@@ -8239,6 +8273,7 @@ impl JsCodegen {
             && !rest.is_empty()
         {
             let path = self.path_js(rest, &emit);
+            let name = top_level(name);
             return Some(format!(
                 "{name}.{member} = WF.setIn({name}.{member}, {path}, {value});"
             ));
@@ -8348,6 +8383,7 @@ impl JsCodegen {
                     return None;
                 };
                 if self.stores.contains(owner) && !self.loop_bindings.contains(owner) {
+                    let owner = top_level(owner);
                     return Some(BindTarget {
                         read: format!("{owner}.{field}"),
                         write: format!("{owner}.{field} = $V"),
