@@ -36,7 +36,7 @@
         const prev = currentEffect;
         currentEffect = null; // Untrack: don't subscribe to signals during render
         try {
-          const [result, disposer] = scoped(renderFn);
+          const [result, disposer] = scoped(() => _drawnIn(start, renderFn()));
           dispose = disposer;
           // Collect actual child nodes — DocumentFragments lose children when appended
           let nodes;

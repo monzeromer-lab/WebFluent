@@ -534,15 +534,44 @@
     return isFragment ? [...node.childNodes].find((n) => n.nodeType === 1) || null : node;
   }
 
+  // What a component's call writes on it — a handler, motion markers,
+  // attributes — is the root element's. A component whose body opens with
+  // an `if`, a `match` or a slot has a root that region draws, and draws
+  // again: `apply` runs on the element it holds now and on each one it
+  // draws later, inside the scope of what drew it, so what `apply` set up
+  // goes when that element does.
+  function _eachRoot(drawn, apply) {
+    const isFragment = drawn && (drawn.nodeType === 11 || drawn.tagName === "#DOCUMENT-FRAGMENT");
+    const nodes = isFragment ? [...drawn.childNodes] : [].concat(drawn).flat();
+    for (let i = 0; i < nodes.length; i++) {
+      const n = nodes[i];
+      if (!n) continue;
+      if (n.__wfEnd) {
+        (n.__wfDrawn || (n.__wfDrawn = [])).push((next) => _eachRoot(next, apply));
+        const held = [];
+        for (let m = n.nextSibling; m && m !== n.__wfEnd; m = m.nextSibling) held.push(m);
+        _eachRoot(held, apply);
+        return;
+      }
+      if (n.nodeType === 1) { apply(n); return; }
+    }
+  }
+
+  // A region drew `nodes` between its markers: what follows its root
+  // hears of the new one.
+  function _drawnIn(start, nodes) {
+    if (start.__wfDrawn) for (const fn of start.__wfDrawn) fn(nodes);
+    return nodes;
+  }
+
   // Listen on the root element of what a component returned: its fragment's
   // first element. A component that renders several roots gets the handler on
   // the first, which is where a caller expects it.
   function onRoot(frag, event, handler) {
-    const root = _rootOf(frag);
-    if (root) {
+    _eachRoot(frag, (root) => {
       live(root);
       root.addEventListener(event, handler);
-    }
+    });
   }
 
   // The style property each timing marker sets.
@@ -556,8 +585,9 @@
   // element: `data-wf-exit`, `data-wf-delay`, `data-wf-duration`,
   // `data-wf-easing`.
   function mark(frag, attrs) {
-    const root = _rootOf(frag);
-    if (!root) return;
+    _eachRoot(frag, (root) => _mark(root, attrs));
+  }
+  function _mark(root, attrs) {
     for (const [k, v] of Object.entries(attrs)) {
       root.setAttribute(k, v);
       if (TIMING[k]) root.style[TIMING[k]] = v;
@@ -570,8 +600,9 @@
   // state keeps `false` as the string; any other attribute given `false`
   // or nothing is taken off.
   function rootAttrs(frag, attrs) {
-    const root = _rootOf(frag);
-    if (!root) return;
+    _eachRoot(frag, (root) => _rootAttrs(root, attrs));
+  }
+  function _rootAttrs(root, attrs) {
     for (const [k, v] of Object.entries(attrs)) {
       if (k === "class" || typeof v === "function") live(root);
       // `class:` adds to the root's own classes, as on a built-in.

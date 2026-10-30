@@ -17,7 +17,7 @@
       currentEffect = null;
       let result;
       try {
-        [result, dispose] = scoped(() => render(handed));
+        [result, dispose] = scoped(() => _drawnIn(start, render(handed)));
       } finally {
         currentEffect = prev;
       }

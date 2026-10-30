@@ -42,7 +42,7 @@
           if (armOf(key()) === arm) current = arg ? arg() : undefined;
           return current;
         };
-        const [result, disposer] = scoped(() => arm(handed, live));
+        const [result, disposer] = scoped(() => _drawnIn(start, arm(handed, live)));
         dispose = disposer;
         const nodes = result instanceof DocumentFragment
           ? [...result.childNodes]
