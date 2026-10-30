@@ -434,3 +434,34 @@ fn stores_that_use_each_other_keep_the_order_they_are_written_in() {
         "A's first use is B, which comes first; B's use of A is the cycle"
     );
 }
+
+// ─── A program's names beside the generated code's own ───────────────
+
+#[test]
+fn a_programs_names_never_take_the_generated_codes_own() {
+    // `derived p` was `const _p` beside the props' `_p`: the page's script
+    // did not parse and nothing drew.
+    let out = js(&format!(
+        "store Pulls {{\n    state pr: Any = null\n    action live() {{ pr = {{ title: \"t\" }} }}\n}}\n\
+         component PullPage(label: String = \"x\") {{\n    use Pulls\n    derived p: Any = Pulls.pr\n    \
+         state slots = 1\n    state frag = \"f\"\n    state e1 = \"e\"\n    state error = \"none\"\n    \
+         state ready_check = 0\n    \
+         action fail() {{ try {{ let bad = JSON.parse(\"{{\") }} catch {{ error = \"caught\" }} }}\n    \
+         every(5000) {{ Pulls.live() }}\n    \
+         Text(\"{{label}} {{slots}} {{frag}} {{e1}} {{error}} {{ready_check}}\")\n    \
+         if p != null {{ Text(p.title) }}\n    Button(\"Fail\") {{ on click {{ fail() }} }}\n}}\n{}",
+        page("    state idx = 2\n    for it in [\"a\"] { Text(\"{it} {idx}\") }\n    PullPage")
+    ));
+    assert!(
+        out.contains("const _p$ = WF.computed(() => Pulls.pr);"),
+        "{out}"
+    );
+    assert!(out.contains("(_p$() != null)"), "{out}");
+    for name in ["slots", "frag", "e1", "error", "ready_check", "idx"] {
+        assert!(
+            out.contains(&format!("const _{name}$ = WF.signal(")),
+            "{name}: {out}"
+        );
+    }
+    assert!(out.contains("_error$.set(\"caught\")"), "{out}");
+}

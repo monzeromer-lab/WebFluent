@@ -186,7 +186,7 @@ fn try_catch_guards_an_await_that_may_fail() {
     assert!(js.contains("try {"), "{js}");
     assert!(js.contains("} catch (e) {"), "{js}");
     assert!(
-        js.contains("_error.set(e.message);"),
+        js.contains("_error$.set(e.message);"),
         "the error is a plain name: {js}"
     );
 }
@@ -243,11 +243,11 @@ fn enum_cases_carry_payloads_that_match_binds() {
     assert!(html.contains(">done<"), "{html}");
     let js = raw_output(Backend::Spa, &src);
     assert!(js.contains("[\"failed\", \"boom\"]"), "{js}");
-    assert!(js.contains("() => WF.caseOf(_s())"), "{js}");
+    assert!(js.contains("() => WF.caseOf(_s$())"), "{js}");
     // A payload's part is read live, through the arm's accessor.
     assert!(js.contains("const $r = () => $$arm()[1];"), "{js}");
-    assert!(js.contains("WF.payload(_s(), \"failed\")"), "{js}");
-    assert!(js.contains("(WF.caseOf(_s()) === \"done\")"), "{js}");
+    assert!(js.contains("WF.payload(_s$(), \"failed\")"), "{js}");
+    assert!(js.contains("(WF.caseOf(_s$()) === \"done\")"), "{js}");
     let html = templated(body, json!({ "s": ["failed", "nope"] }));
     assert!(
         html.contains(">failed: nope<") && html.contains(">nope<"),

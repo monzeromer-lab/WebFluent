@@ -12,6 +12,43 @@ fn js_component(name: &str) -> String {
     name.replace('.', "_")
 }
 
+/// The names the generated code declares for itself beside a program's
+/// signals: a component's props and slots, the fragment a body is drawn
+/// into, the app's root and router, a form's handle, a handler's event, a
+/// caught error, a scoped slot's values, a loop's index. (`_n`, the node a
+/// component's call marks, holds no program code, so `n` is free.)
+const RESERVED_SIGNALS: &[&str] = &[
+    "p", "slots", "frag", "root", "app", "routes", "routerEl", "error", "wfForm", "ev", "cf", "s",
+    "idx",
+];
+
+/// What a program's state, derived value, resource or connection `name` is
+/// called in the generated code: `_name`, unless that is one of the
+/// generated code's own names — then `_name$`, which nothing else spells. A
+/// `derived p` was `const _p` beside the props' `_p`, so the page's script
+/// did not parse and nothing drew.
+fn sig(name: &str) -> String {
+    // `_e3` and what hangs off it (`_e3_drawn`) are the elements the
+    // generated code makes; `_x_check` and `_x_pending` are what it keeps
+    // for a validated state and an async action.
+    let element = name
+        .strip_prefix('e')
+        .map(|rest| {
+            let digits = rest.len() - rest.trim_start_matches(|c: char| c.is_ascii_digit()).len();
+            digits > 0 && (digits == rest.len() || rest[digits..].starts_with('_'))
+        })
+        .unwrap_or(false);
+    if element
+        || RESERVED_SIGNALS.contains(&name)
+        || name.ends_with("_check")
+        || name.ends_with("_pending")
+    {
+        format!("_{name}$")
+    } else {
+        format!("_{name}")
+    }
+}
+
 /// Every name `body` declares at any depth: state, derived values,
 /// resources, actions and the locals of their bodies.
 fn declared_names(body: &[Statement]) -> Vec<String> {
@@ -1976,7 +2013,7 @@ impl JsCodegen {
             if let StatementKind::State(s) = &stmt.kind {
                 let val = self.emit_expr(&s.value);
                 let init = self.state_init(&comp.name, s, &val);
-                self.emit_line(&format!("const _{} = {};", s.name, init));
+                self.emit_line(&format!("const {} = {};", sig(&s.name), init));
             }
         }
 
@@ -2025,7 +2062,7 @@ impl JsCodegen {
             if let StatementKind::State(s) = &stmt.kind {
                 let val = self.emit_expr(&s.value);
                 let init = self.state_init(&page.name, s, &val);
-                self.emit_line(&format!("const _{} = {};", s.name, init));
+                self.emit_line(&format!("const {} = {};", sig(&s.name), init));
             }
         }
 
@@ -2101,7 +2138,7 @@ impl JsCodegen {
             if let StatementKind::State(s) = &stmt.kind {
                 let val = self.emit_expr(&s.value);
                 let init = self.state_init("App", s, &val);
-                self.emit_line(&format!("const _{} = {};", s.name, init));
+                self.emit_line(&format!("const {} = {};", sig(&s.name), init));
             }
         }
 
@@ -2329,8 +2366,8 @@ impl JsCodegen {
             StatementKind::Derived(d) => {
                 let val = self.emit_expr(&d.value);
                 self.emit_line(&format!(
-                    "const _{} = {};",
-                    d.name,
+                    "const {} = {};",
+                    sig(&d.name),
                     self.computed_init(&d.name, &val)
                 ));
             }
@@ -2389,7 +2426,7 @@ impl JsCodegen {
                 self.emit_line(&format!("{} {}({}) {{", kind, a.name, params.join(", ")));
                 self.indent += 1;
                 if is_async {
-                    self.emit_line(&format!("_{}_pending.set(true);", a.name));
+                    self.emit_line(&format!("{}_pending.set(true);", sig(&a.name)));
                     self.emit_line("try {");
                     self.indent += 1;
                 }
@@ -2420,7 +2457,10 @@ impl JsCodegen {
                 }
                 if is_async {
                     self.indent -= 1;
-                    self.emit_line(&format!("}} finally {{ _{}_pending.set(false); }}", a.name));
+                    self.emit_line(&format!(
+                        "}} finally {{ {}_pending.set(false); }}",
+                        sig(&a.name)
+                    ));
                 }
                 self.indent -= 1;
                 self.emit_line("}");
@@ -2645,7 +2685,7 @@ impl JsCodegen {
                                 }
                                 "checked" => {
                                     if let Expr::Identifier(state_name) = val {
-                                        attrs.push(format!("checked: () => _{}()", state_name));
+                                        attrs.push(format!("checked: () => {}()", sig(state_name)));
                                     } else {
                                         let v = self.emit_expr(val);
                                         attrs.push(format!("checked: {}", v));
@@ -3333,9 +3373,10 @@ impl JsCodegen {
                             .find(|a| matches!(a, Arg::Named(k, _) if k == "bind"))
                         && self.validated.contains(bound)
                     {
-                        opts.push(format!("error: () => _{bound}_check.shown()"));
+                        opts.push(format!("error: () => {}_check.shown()", sig(bound)));
                         self.emit_line(&format!(
-                            "WF.listen({var}, \"blur\", () => _{bound}_check.touched.set(true));"
+                            "WF.listen({var}, \"blur\", () => {}_check.touched.set(true));",
+                            sig(bound)
                         ));
                     }
                     self.emit_line(&format!(
@@ -4635,7 +4676,8 @@ impl JsCodegen {
         }
         let message = self.fresh_var();
         self.emit_line(&format!(
-            "const {message} = WF.choiceError({var}, _{bound}_check);"
+            "const {message} = WF.choiceError({var}, {}_check);",
+            sig(bound)
         ));
         self.emit_line(&format!("{parent}.appendChild({message});"));
     }
@@ -6483,7 +6525,9 @@ impl JsCodegen {
                         .iter()
                         .find(|(k, _)| k.trim_matches('"') == by)
                         .and_then(|(_, v)| match v {
-                            Expr::Identifier(name) => Some(format!(", set: (v) => _{name}.set(v)")),
+                            Expr::Identifier(name) => {
+                                Some(format!(", set: (v) => {}.set(v)", sig(name)))
+                            }
                             _ => None,
                         })
                         .unwrap_or_default();
@@ -6509,8 +6553,8 @@ impl JsCodegen {
                 None => String::new(),
             };
             self.emit_line(&format!(
-                "const _{} = WF.resource({call}, {{ call: true, args: () => ({{ {} }}){on}{paging} }});",
-                r.name,
+                "const {} = WF.resource({call}, {{ call: true, args: () => ({{ {} }}){on}{paging} }});",
+                sig(&r.name),
                 parts.join(", ")
             ));
             return;
@@ -6547,8 +6591,10 @@ impl JsCodegen {
             format!("{{ {} }}", opts.join(", "))
         };
         self.emit_line(&format!(
-            "const _{} = WF.resource({}, {});",
-            r.name, url_js, opts_js
+            "const {} = WF.resource({}, {});",
+            sig(&r.name),
+            url_js,
+            opts_js
         ));
     }
 
@@ -6816,9 +6862,9 @@ impl JsCodegen {
             None => String::new(),
         };
         self.emit_line(&format!(
-            "const _{}_check = WF.validate(() => _{}(), [{}], {{ name: \"{}\"{form} }});",
-            v.name,
-            v.name,
+            "const {}_check = WF.validate(() => {}(), [{}], {{ name: \"{}\"{form} }});",
+            sig(&v.name),
+            sig(&v.name),
             rules.join(", "),
             v.name
         ));
@@ -6912,7 +6958,7 @@ impl JsCodegen {
             Some(url) => format!("{url}, {{ {} }}", options.join(", ")),
             None => format!("{{ {} }}", options.join(", ")),
         };
-        self.emit_line(&format!("const _{} = WF.{opener}({args});", c.name));
+        self.emit_line(&format!("const {} = WF.{opener}({args});", sig(&c.name)));
     }
 
     /// `match x { … }`: one arm shown at a time, chosen by a resource's
@@ -7014,7 +7060,7 @@ impl JsCodegen {
                 }
                 // Check if target is a signal (state variable)
                 if let Expr::Identifier(name) = &a.target {
-                    self.emit_line(&format!("_{}.set({});", name, value));
+                    self.emit_line(&format!("{}.set({});", sig(name), value));
                 } else if let Expr::PropertyAccess(base, prop) = &a.target {
                     let base_str = self.emit_expr(base);
                     self.emit_line(&format!("{}.{} = {};", base_str, prop, value));
@@ -7056,7 +7102,7 @@ impl JsCodegen {
             }
             StatementKind::State(s) => {
                 let val = self.emit_expr(&s.value);
-                self.emit_line(&format!("const _{} = WF.signal({});", s.name, val));
+                self.emit_line(&format!("const {} = WF.signal({});", sig(&s.name), val));
                 self.block_lets.push(s.name.clone());
             }
             StatementKind::If(if_stmt) => {
@@ -7387,14 +7433,14 @@ impl JsCodegen {
                     return name.to_string();
                 }
                 if self.block_lets.contains(name) {
-                    return format!("_{name}()");
+                    return format!("{}()", sig(name));
                 }
                 // Store references, component props, and built-in names stay as-is
                 if self.current_props.contains(name) {
                     return format!("_p.{}", name);
                 }
                 if self.resources.contains(name) {
-                    return format!("_{}", name);
+                    return sig(name);
                 }
                 if self.page_params.contains(name) {
                     return format!("params.{}", name);
@@ -7434,14 +7480,14 @@ impl JsCodegen {
                     name.to_string()
                 } else {
                     // State variable (signal) — access via _name()
-                    format!("_{}()", name)
+                    format!("{}()", sig(name))
                 }
             }
             // `save.pending` and `Store.save.pending`: whether a call of an
             // async action is under way, a signal.
             Expr::PropertyAccess(base, prop) if prop == "pending" && self.is_action_ref(base) => {
                 match base.as_ref() {
-                    Expr::Identifier(name) => format!("_{name}_pending()"),
+                    Expr::Identifier(name) => format!("{}_pending()", sig(name)),
                     other => format!("{}.pending()", self.emit_expr(other)),
                 }
             }
@@ -7979,7 +8025,8 @@ impl JsCodegen {
         if self.is_state_signal(root) {
             let path = self.path_js(&steps, &emit);
             return Some(format!(
-                "_{name}.set(WF.setIn(_{name}(), {path}, {value}));"
+                "{s}.set(WF.setIn({s}(), {path}, {value}));",
+                s = sig(name)
             ));
         }
         if self.stores.contains(name)
@@ -8004,7 +8051,7 @@ impl JsCodegen {
         let replace = format!("(__x) => __x === {item} ? WF.setIn(__x, {path}, {value}) : __x");
         match list {
             Expr::Identifier(l) if self.is_state_signal(list) => {
-                Some(format!("_{l}.set(_{l}().map({replace}));"))
+                Some(format!("{s}.set({s}().map({replace}));", s = sig(l)))
             }
             Expr::PropertyAccess(b, m) if matches!(b.as_ref(), Expr::Identifier(s) if self.stores.contains(s)) =>
             {
@@ -8028,7 +8075,8 @@ impl JsCodegen {
         let args = args.join(", ");
         match obj.as_ref() {
             Expr::Identifier(name) if self.is_state_signal(obj) => Some(format!(
-                "_{name}.set(WF.mutated(_{name}(), \"{method}\", [{args}]));"
+                "{s}.set(WF.mutated({s}(), \"{method}\", [{args}]));",
+                s = sig(name)
             )),
             Expr::PropertyAccess(base, member) if matches!(base.as_ref(), Expr::Identifier(s) if self.stores.contains(s)) =>
             {
@@ -8087,8 +8135,8 @@ impl JsCodegen {
     fn bind_target(&self, expr: &Expr) -> Option<BindTarget> {
         match expr {
             Expr::Identifier(name) if self.is_state_signal(expr) => Some(BindTarget {
-                read: format!("_{name}()"),
-                write: format!("_{name}.set($V)"),
+                read: format!("{}()", sig(name)),
+                write: format!("{}.set($V)", sig(name)),
                 commit: None,
             }),
             Expr::PropertyAccess(base, field) => {
@@ -8109,7 +8157,7 @@ impl JsCodegen {
                     .find(|(item, _, _)| item == owner)?;
                 let touch = match list {
                     Expr::Identifier(l) if self.is_state_signal(list) => {
-                        Some(format!("_{l}.set(_{l}().slice())"))
+                        Some(format!("{s}.set({s}().slice())", s = sig(l)))
                     }
                     Expr::PropertyAccess(b, m) if matches!(b.as_ref(), Expr::Identifier(s) if self.stores.contains(s)) =>
                     {
@@ -8150,7 +8198,10 @@ impl JsCodegen {
             if let StatementKind::Action(a) = &stmt.kind
                 && crate::parser::ast::awaits(&a.body)
             {
-                self.emit_line(&format!("const _{}_pending = WF.signal(false);", a.name));
+                self.emit_line(&format!(
+                    "const {}_pending = WF.signal(false);",
+                    sig(&a.name)
+                ));
             }
         }
     }
@@ -8167,7 +8218,7 @@ impl JsCodegen {
             return false;
         }
         let emitted = self.emit_expr(expr);
-        emitted == format!("_{name}()")
+        emitted == format!("{}()", sig(name))
     }
 
     /// Bind `name` live for the body about to be emitted: it is read as
@@ -8247,7 +8298,7 @@ impl JsCodegen {
             || self
                 .resources
                 .iter()
-                .any(|r| reads_handle(expr_str, &format!("_{r}.")))
+                .any(|r| reads_handle(expr_str, &format!("{}.", sig(r))))
             || expr_str.contains("_p.")
             || self
                 .form_handles
@@ -8306,6 +8357,10 @@ fn is_reactive_expr(expr_str: &str) -> bool {
             // Found _identifier, check if it's followed by ()
             let mut j = i + 1;
             while j < bytes.len() && (bytes[j] as char).is_alphanumeric() {
+                j += 1;
+            }
+            // A signal renamed off one of the generated code's own (`_p$`).
+            if j < bytes.len() && bytes[j] == b'$' {
                 j += 1;
             }
             if j + 1 < bytes.len() && bytes[j] == b'(' && bytes[j + 1] == b')' {

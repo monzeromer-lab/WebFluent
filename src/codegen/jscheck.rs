@@ -11,8 +11,9 @@
 //! checks what a scanner can be sure of: that every string, template,
 //! regular expression and comment is closed, that every bracket closes the
 //! one it should, and that no block declares one name twice with `const`,
-//! `let` or `class` — the `Identifier has already been declared` that a
-//! clash of generated names produces. A fault it finds is the compiler's,
+//! `let` or `class`, nor a function's body one of its parameters — the
+//! `Identifier has already been declared` that a clash of generated names
+//! produces. A fault it finds is the compiler's,
 //! never the author's, and is reported as one.
 
 use crate::codegen::minify::{
@@ -47,6 +48,9 @@ pub fn check_js(source: &str) -> Result<(), JsFault> {
         parens: 0,
     }];
     let mut parens = 0usize;
+    // A `function`'s parameters, and where the `{` of its body is: they are
+    // declared in that block.
+    let mut params: Option<(usize, Vec<String>)> = None;
     let mut last: Option<u8> = None;
     let mut last_was_word = false;
     let mut last_word = String::new();
@@ -119,10 +123,13 @@ pub fn check_js(source: &str) -> Result<(), JsFault> {
                 if c == b'(' {
                     parens += 1;
                 } else if c == b'{' {
-                    blocks.push(Block {
-                        names: HashMap::new(),
-                        parens,
-                    });
+                    let mut names = HashMap::new();
+                    if let Some((_, declared)) = params.take_if(|(at, _)| *at == i) {
+                        for name in declared {
+                            names.insert(name, ("parameter", line));
+                        }
+                    }
+                    blocks.push(Block { names, parens });
                 }
                 i += 1;
                 last = Some(c);
@@ -171,6 +178,9 @@ pub fn check_js(source: &str) -> Result<(), JsFault> {
                     "function" => Some("function"),
                     _ => None,
                 };
+                if word == "function" && !after_dot {
+                    params = function_params(bytes, i);
+                }
                 if let Some(kind) = kind.filter(|_| !after_dot) {
                     let block = blocks.last_mut().expect("the top block is never popped");
                     if block.parens == parens {
@@ -185,10 +195,12 @@ pub fn check_js(source: &str) -> Result<(), JsFault> {
                         let name = &source[name_start..j];
                         let is_name = !name.is_empty() && !name.as_bytes()[0].is_ascii_digit();
                         if is_name {
-                            // Two functions of one name are allowed; any
-                            // other pair in one block is not.
+                            // Two functions of one name are allowed, and a
+                            // function named as a parameter; any other pair
+                            // in one block is not.
                             if let Some(&(first, at)) = block.names.get(name)
                                 && !(first == "function" && kind == "function")
+                                && !(first == "parameter" && kind == "function")
                             {
                                 return fault(
                                     line,
@@ -220,6 +232,51 @@ pub fn check_js(source: &str) -> Result<(), JsFault> {
         );
     }
     Ok(())
+}
+
+/// The plain parameters of the `function` whose keyword ends at `i`, and
+/// where its body's `{` is — `None` for a list with anything but names and
+/// commas in it (a default, a pattern, a rest), which a scanner cannot be
+/// sure of.
+fn function_params(bytes: &[u8], mut i: usize) -> Option<(usize, Vec<String>)> {
+    let skip = |i: &mut usize| {
+        while *i < bytes.len() && bytes[*i].is_ascii_whitespace() {
+            *i += 1;
+        }
+    };
+    skip(&mut i);
+    if bytes.get(i) == Some(&b'*') {
+        i += 1;
+        skip(&mut i);
+    }
+    while i < bytes.len() && is_word_byte(bytes[i]) {
+        i += 1;
+    }
+    skip(&mut i);
+    if bytes.get(i) != Some(&b'(') {
+        return None;
+    }
+    i += 1;
+    let mut names = Vec::new();
+    loop {
+        skip(&mut i);
+        let start = i;
+        while i < bytes.len() && is_word_byte(bytes[i]) {
+            i += 1;
+        }
+        if i > start {
+            names.push(String::from_utf8_lossy(&bytes[start..i]).into_owned());
+        }
+        skip(&mut i);
+        match bytes.get(i) {
+            Some(b',') if i > start => i += 1,
+            Some(b')') => break,
+            _ => return None,
+        }
+    }
+    i += 1;
+    skip(&mut i);
+    (bytes.get(i) == Some(&b'{')).then_some((i, names))
 }
 
 /// The line of `source` a fault points at, trimmed, for a message.
@@ -269,6 +326,23 @@ mod tests {
         assert!(msg.contains("`_a` is declared twice"), "{msg}");
         assert_eq!(check_js("const K = 1;\nlet K = 2;").unwrap_err().line, 2);
         assert!(fault("function f() {}\nconst f = 1;").contains("`f`"));
+    }
+
+    #[test]
+    fn a_body_declaring_one_of_its_parameters_is_found() {
+        let msg = fault("function C(_p, _slots) {\n  _p = 1;\n  const _p = 2;\n}");
+        assert!(msg.contains("`_p` is declared twice"), "{msg}");
+        assert!(msg.contains("`parameter`"), "{msg}");
+        // A parameter's name is free again in a block within, and outside.
+        assert_eq!(
+            check_js("function C(a, b) { if (a) { const a = 1; } }\nconst a = 2;"),
+            Ok(())
+        );
+        // A list with a default is not read; a function may be named as a
+        // parameter.
+        assert_eq!(check_js("function C(a = 1) { const a = 2; }"), Ok(()));
+        assert_eq!(check_js("function C(a) { function a() {} }"), Ok(()));
+        assert_eq!(check_js("function () { const x = 1; }"), Ok(()));
     }
 
     #[test]

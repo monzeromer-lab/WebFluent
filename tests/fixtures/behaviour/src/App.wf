@@ -25,3 +25,24 @@ page Home(path: "/", title: "Home", description: "d") {
 }
 component Shown(fmt: Any, n: Number = 2) { Text("shown {fmt(n)}") }
 store Prefs { state dark = false }
+// A program's names that are also the generated code's own: `_p` (the
+// props), `_slots`, `_frag`, `_e1`, `_error` (a nameless catch), `_ev` (a
+// call's handler), `_s` (a scoped slot), `_idx` (an unkeyed loop), and
+// what a validated state and an async action keep. Each once broke the
+// page's script or read the wrong thing.
+component Clash(label: String = "c") {
+    event pick(n: Number)
+    slot row(s: String)
+    state p = 1
+    derived slots = p * 2
+    state frag = "f"
+    state e1 = "e"
+    state error = "none"
+    action fail() {
+        try { let bad = JSON.parse("{") } catch { error = "caught" }
+    }
+    Text("{label} p {p} slots {slots} frag {frag} e1 {e1} error {error}")
+    Button("Bump") { on click { p = p + 1  emit pick(p) } }
+    Button("Fail") { on click { fail() } }
+    row(s: "r")
+}

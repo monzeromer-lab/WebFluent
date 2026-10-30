@@ -1,0 +1,21 @@
+test "a program's names never take the generated code's own" {
+    state ev = 0
+    state s = "caller"
+    state idx = 7
+    state name_check = "nc"
+    state n = 3
+    Clash {
+        on pick(v) { ev = v }
+        row(x) { Text("row {x} {s}") }
+    }
+    for it in ["a"] { Text("item {it} {idx}") }
+    Text("ev {ev} n {n} {name_check}")
+    expect "c p 1 slots 2 frag f e1 e error none"
+    expect "row r caller"
+    expect "item a 7"
+    click "Bump"
+    expect "c p 2 slots 4"
+    expect "ev 2 n 3 nc"
+    click "Fail"
+    expect "error caught"
+}
