@@ -1890,6 +1890,48 @@ fn a_url_that_only_exists_at_run_time_is_checked_when_it_is_used() {
 }
 
 #[test]
+fn a_picture_carried_in_its_address_is_drawn_where_a_picture_is_and_nowhere_else() {
+    const PNG: &str = "data:image/png;base64,iVBORw0KGgo=";
+    const SVG: &str = "data:image/svg+xml,%3Csvg%2F%3E";
+    // Written: an image's source may carry the picture.
+    for fine in [
+        format!("Image(src: \"{PNG}\", alt: \"\")"),
+        format!("Image(src: \"{SVG}\", alt: \"\")"),
+        format!("Avatar(src: \"{PNG}\", alt: \"A\")"),
+    ] {
+        assert!(sema_errors(&page(&fine)).is_empty(), "{fine}");
+    }
+    // Anything else a data: address names, and a data: address anywhere a
+    // browser follows it, is still refused.
+    for refused in [
+        "Image(src: \"data:text/html,<script>alert(1)</script>\", alt: \"A\")".to_string(),
+        format!("Link(\"x\", to: \"{PNG}\")"),
+        format!("Frame(src: \"{PNG}\", title: \"F\")"),
+    ] {
+        let found = sema_errors(&page(&refused));
+        assert!(found.contains("which a browser runs"), "{refused}: {found}");
+    }
+
+    // Run time: an image's source goes through the picture's check, a
+    // link's through the one every followed address does.
+    let js = spa_generated(&page(&format!(
+        "state thumb = \"{PNG}\"\n    Image(src: thumb, alt: \"\")\n    Avatar(src: thumb, alt: \"A\")\n    Link(\"x\", to: thumb)"
+    )));
+    assert_eq!(js.matches("WF.safePicture(").count(), 2, "{js}");
+    assert!(js.contains("WF.safeUrl("), "the link: {js}");
+
+    // The static paint keeps it, as the live page does.
+    let html = raw_output(
+        Backend::Ssg,
+        &page(&format!(
+            "state thumb = \"{PNG}\"\n    Image(src: thumb, alt: \"\")\n    Image(src: \"{SVG}\", alt: \"\")"
+        )),
+    );
+    assert!(html.contains(&format!("src=\"{PNG}\"")), "{html}");
+    assert!(html.contains(&format!("src=\"{SVG}\"")), "{html}");
+}
+
+#[test]
 fn a_link_that_opens_elsewhere_does_not_hand_it_this_page() {
     let js = spa_generated(&page(
         "Link(\"x\", to: \"https://example.com\", target: \"_blank\")",

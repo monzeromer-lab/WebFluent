@@ -7,8 +7,11 @@
 //!
 //! The rule is an allow-list of schemes, not a block-list of the ones
 //! anybody has thought of: `http`, `https`, `mailto`, `tel`, `sms`, and
-//! anything relative. A `data:` URL is refused everywhere but an image,
-//! and even there it is written `Unsafe.dataUrl(…)` so it greps.
+//! anything relative. A `data:` URL is refused everywhere but where a
+//! picture is drawn — an `<img>`'s `src` — and there only when it holds a
+//! picture (`data:image/…`): an `<img>` never runs what it shows, not even
+//! an SVG's scripts, so a picture carried in its address is as safe there
+//! as one fetched. A link, a frame or a form never takes one ([`is_picture`]).
 //!
 //! The runtime has the twin of this (`WF.safeUrl`), and a pair of tests
 //! holds the two to the same answers — a literal is checked where it is
@@ -77,6 +80,48 @@ pub fn scheme_of(url: &str) -> Option<String> {
 /// of text, which is what a link to a hostile URL should be.
 pub fn guard(url: &str) -> &str {
     if is_safe(url) { url } else { "" }
+}
+
+/// Whether `url` is a picture carried in the address itself:
+/// `data:image/<type>`, then its parameters or the `,` that starts the
+/// data. `data:image/svg+xml` is one too — an `<img>` draws an SVG without
+/// running anything in it. `data:text/html` and every other `data:` are not.
+///
+/// Only for where a picture is drawn ([`is_safe_picture`]); never for a link,
+/// a frame or anything else a browser follows.
+pub fn is_picture(url: &str) -> bool {
+    let cleaned: String = url
+        .chars()
+        .filter(|c| !c.is_control() && !c.is_whitespace())
+        .collect::<String>()
+        .to_ascii_lowercase();
+    let Some(rest) = cleaned.strip_prefix("data:image/") else {
+        return false;
+    };
+    let end = rest.find([';', ',']).unwrap_or(rest.len());
+    let subtype = &rest[..end];
+    end < rest.len()
+        && !subtype.is_empty()
+        && subtype
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || matches!(c, '+' | '-' | '.'))
+}
+
+/// Whether the built-in `name` draws its `src:` as an `<img>`'s, the one
+/// place a picture carried in its address ([`is_picture`]) is taken.
+pub fn draws_picture(name: &str) -> bool {
+    matches!(name, "Image" | "Avatar")
+}
+
+/// [`is_safe`] where a picture is drawn — an `<img>`'s `src` — which also
+/// takes a picture carried in the address ([`is_picture`]).
+pub fn is_safe_picture(url: &str) -> bool {
+    is_safe(url) || is_picture(url)
+}
+
+/// [`guard`] where a picture is drawn ([`is_safe_picture`]).
+pub fn guard_picture(url: &str) -> &str {
+    if is_safe_picture(url) { url } else { "" }
 }
 
 /// [`is_safe`], with the app's own schemes allowed as well — those the
@@ -183,6 +228,38 @@ mod tests {
             assert!(!is_safe(hostile), "{hostile} is not a URL a page may name");
             assert_eq!(guard(hostile), "");
         }
+    }
+
+    #[test]
+    fn a_picture_carried_in_its_address_is_drawn_and_nothing_else_is() {
+        for picture in [
+            "data:image/png;base64,iVBORw0KGgo=",
+            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%2F%3E",
+            "data:image/svg+xml;utf8,<svg/>",
+            "DATA:Image/JPEG;base64,/9j/",
+            " data:image/webp;base64,UklGRg==",
+            "/a.png",
+            "https://example.com/a.png",
+        ] {
+            assert!(is_safe_picture(picture), "{picture} is a picture");
+            assert_eq!(guard_picture(picture), picture);
+        }
+        for refused in [
+            "data:text/html,<script>alert(1)</script>",
+            "data:text/html;base64,PHNjcmlwdD4=",
+            "data:,hello",
+            "data:image/,x",
+            "data:image/png",
+            "data:image/svg+xml<script>,x",
+            "data:application/javascript,alert(1)",
+            "javascript:alert(1)",
+        ] {
+            assert!(!is_safe_picture(refused), "{refused} is not a picture");
+            assert_eq!(guard_picture(refused), "");
+        }
+        // Where a browser follows it, a picture's address is still refused.
+        assert!(!is_safe("data:image/png;base64,iVBORw0KGgo="));
+        assert!(!is_safe("data:image/svg+xml,<svg/>"));
     }
 
     #[test]

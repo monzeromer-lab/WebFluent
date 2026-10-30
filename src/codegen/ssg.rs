@@ -1623,7 +1623,14 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                         if let Some(s) = static_attr(val, &ctx.scope) {
                             // A value the browser follows goes through the
                             // same scheme check the live page applies.
-                            let s = if crate::codegen::url::URL_ATTRS.contains(&key.as_str()) {
+                            // An image's may be a picture carried in its
+                            // address (`data:image/…`), as on the live page.
+                            let s = if key == "src"
+                                && crate::codegen::url::draws_picture(name)
+                                && crate::codegen::url::is_picture(&s)
+                            {
+                                s
+                            } else if crate::codegen::url::URL_ATTRS.contains(&key.as_str()) {
                                 crate::codegen::url::guard_with(&s, &ctx.app_schemes).to_string()
                             } else {
                                 s

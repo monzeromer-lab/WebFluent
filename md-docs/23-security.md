@@ -32,7 +32,12 @@ These are properties of the output, not advice. You do not opt in.
   `sms`, `ftp` or nothing at all. A literal is refused where it is written;
   a value that only exists at run time is refused at the moment it is used.
   `javascript:`, `data:`, `vbscript:`, `blob:` and `file:` are not URLs a
-  page may point at.
+  page may point at. The one exception is a picture carried in its address
+  — `data:image/png;base64,…`, `data:image/svg+xml,…` — where a picture is
+  drawn: an `Image`'s or an `Avatar`'s `src:`, a Markdown picture, an
+  `<img>` that `sanitize` keeps. An img never runs what it shows, not even
+  an SVG's scripts. A link, a frame or a form never takes one, and
+  `data:text/html` is no picture.
 - **No handle on your page.** A link with `target:` carries
   `rel="noopener noreferrer"`, so the page it opens cannot navigate yours.
 - **Markdown is escaped first.** `Markdown(text)` renders the small

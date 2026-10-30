@@ -137,7 +137,9 @@ let pdf: Vec<u8> = templates
   tens of microseconds.
 - **Untrusted data.** Every value the data supplies is escaped as text, and a
   URL from the data that a browser would run — `javascript:`, `data:` — is
-  dropped from `href` and `src`, as the browser build drops it.
+  dropped from `href` and `src`, as the browser build drops it; an
+  `Image`'s `src` keeps a picture carried in its address
+  (`data:image/png;base64,…`), as the browser build keeps it.
 
 `cargo run --example invoice` in the repository renders a directory of
 templates to HTML, a fragment and a PDF.

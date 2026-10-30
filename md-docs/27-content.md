@@ -36,7 +36,9 @@ safe to render.
 A link or a picture goes through the scheme check every other URL does
 ([Security](23-security.md)): one whose URL a browser would run —
 `javascript:`, `vbscript:`, a `data:` URL — is drawn as its words, with no
-link and no picture. A site-relative URL (`/about`, `/img.png`) is
+link and no picture. A picture carried in its address
+(`![dot](data:image/png;base64,…)`, `data:image/svg+xml,…`) is drawn, since
+an img runs nothing it shows; a link to one is still its words. A site-relative URL (`/about`, `/img.png`) is
 addressed from the site's `base_path`, as `Link(to:)`'s is.
 
 ### Backslash escapes

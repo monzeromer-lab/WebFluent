@@ -318,6 +318,19 @@
     return WF_SCHEMES.includes(scheme.toLowerCase()) ? text : "";
   }
 
+  /// `url` where a picture is drawn — an `<img>`'s `src` — and "" where it
+  /// may not be. Beside what `safeUrl` passes, a picture carried in the
+  /// address (`data:image/png;base64,…`, `data:image/svg+xml,…`): an img
+  /// never runs what it shows. Any other `data:` is refused here too, and
+  /// a link, a frame or a form never comes here. The twin of
+  /// `codegen::url::guard_picture`.
+  function safePicture(url) {
+    const kept = safeUrl(url);
+    if (kept || url == null) return kept;
+    const cleaned = String(url).replace(/[\u0000-\u0020\u007f-\u009f\s]/g, "").toLowerCase();
+    return /^data:image\/[a-z0-9+.-]+[;,]/.test(cleaned) ? String(url) : "";
+  }
+
   // ─── DOM Helpers ─────────────────────────────────────
   //
   // An attribute whose meaning belongs to a feature — `markdown`, the

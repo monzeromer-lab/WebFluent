@@ -70,7 +70,9 @@
       for (const [key, value] of attributesOf(body.slice(name.length))) {
         if (!allowed.includes(key)) continue;
         if (key === "href" || key === "src") {
-          const guarded = safeUrl(value);
+          // An img's source may be a picture carried in its address; a
+          // link's may not.
+          const guarded = name === "img" && key === "src" ? safePicture(value) : safeUrl(value);
           if (!guarded) continue;
           kept.push([key, guarded]);
           continue;

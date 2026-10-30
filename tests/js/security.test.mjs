@@ -64,6 +64,36 @@ test("everything a page actually links to is passed through", () => {
   assert.equal(WF.safeUrl(null), "");
 });
 
+test("a picture carried in its address is drawn where a picture is, and nowhere else", () => {
+  const { WF, document } = loadRuntime();
+  const png = "data:image/png;base64,iVBORw0KGgo=";
+  const svg = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%2F%3E";
+  for (const picture of [png, svg, "data:image/svg+xml;utf8,<svg/>", "DATA:Image/JPEG;base64,/9j/", "/a.png", "https://x.y/a.png"]) {
+    assert.equal(WF.safePicture(picture), picture, picture);
+  }
+  for (const refused of [
+    "data:text/html,<script>alert(1)</script>", "data:text/html;base64,PHNjcmlwdD4=", "data:,hi",
+    "data:image/,x", "data:image/png", "data:application/javascript,alert(1)", "javascript:alert(1)",
+  ]) {
+    assert.equal(WF.safePicture(refused), "", refused);
+  }
+  assert.equal(WF.safePicture(null), "");
+  // Where a browser follows it, it is still refused.
+  assert.equal(WF.safeUrl(png), "");
+  assert.equal(WF.safeUrl(svg), "");
+
+  // What `Image(src: thumb)` and `Link("x", to: thumb)` compile to.
+  const img = WF.el("img", { src: WF.safePicture(png), alt: "" });
+  assert.equal(img.getAttribute("src"), png);
+  const vector = WF.el("img", { src: WF.safePicture(svg), alt: "" });
+  assert.equal(vector.getAttribute("src"), svg);
+  const page = WF.el("img", { src: WF.safePicture("data:text/html,<script>alert(1)</script>"), alt: "" });
+  assert.ok(!page.getAttribute("src"), "a page is not a picture");
+  const link = WF.el("a", { href: WF.safeUrl(png) }, "x");
+  assert.ok(!link.getAttribute("href"), "a link never follows a data: address");
+  void document;
+});
+
 test("`Unsafe.Html` puts markup in, and nothing else does", () => {
   const { WF, document } = loadRuntime();
   const el = WF.el("div", { html: "<p>from the CMS</p>" });
@@ -101,7 +131,12 @@ test("a Markdown link or image a browser would run is drawn as its words", () =>
     assert.ok(html.includes("x"), "the words stay");
   }
   assert.equal(WF.markdown("![pic](javascript:alert(1))"), "<p>pic)</p>\n");
-  assert.equal(WF.markdown("[x](vbscript:msgbox(1)) ![d](data:image/png;base64,AA==)"), "<p>x) d</p>\n");
+  assert.equal(WF.markdown("[x](vbscript:msgbox(1)) ![d](data:text/html;base64,AA==)"), "<p>x) d</p>\n");
+  // A picture's address may carry the picture; a link's may not.
+  assert.equal(
+    WF.markdown("![d](data:image/png;base64,AA==) [l](data:image/png;base64,AA==)"),
+    "<p><img src=\"data:image/png;base64,AA==\" alt=\"d\"> l</p>\n",
+  );
   assert.equal(
     WF.markdown("[docs](https://example.com/docs) ![i](https://example.com/i.png)"),
     "<p><a href=\"https://example.com/docs\">docs</a> <img src=\"https://example.com/i.png\" alt=\"i\"></p>\n",

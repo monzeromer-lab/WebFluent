@@ -413,7 +413,7 @@ fn inline(text: &str, options: Options) -> String {
         let safe = |url: &str| super::url::is_safe_with(url, options.schemes);
         let s = image.replace_all(&held_text, |c: &regex::Captures| {
             let url = restore(&c[2], &held, true);
-            if safe(&url) {
+            if safe(&url) || super::url::is_picture(&url) {
                 format!("<img src=\"{}{}\" alt=\"{}\">", at(&url), &c[2], &c[1])
             } else {
                 c[1].to_string()
@@ -532,9 +532,14 @@ mod tests {
             ("[x](vbscript:msgbox(1))", "<p>x)</p>\n"),
             ("[x](data:text/html;base64,PHNjcmlwdD4=)", "<p>x</p>\n"),
             ("![x](javascript:alert(1))", "<p>x)</p>\n"),
+            // A picture's address may carry the picture; a link's may not.
             (
-                "![a dot](data:image/png;base64,iVBORw0KGgo=)",
+                "[a dot](data:image/png;base64,iVBORw0KGgo=)",
                 "<p>a dot</p>\n",
+            ),
+            (
+                "![page](data:text/html;base64,PHNjcmlwdD4=)",
+                "<p>page</p>\n",
             ),
             ("**[bold](javascript:x)**", "<p><strong>bold</strong></p>\n"),
             // Leading whitespace is no URL at all: the text is drawn as written.
@@ -556,6 +561,10 @@ mod tests {
                 "<p><a href=\"mailto:ada@example.com\">mail</a></p>\n",
             ),
             ("[up](../a:b)", "<p><a href=\"../a:b\">up</a></p>\n"),
+            (
+                "![a dot](data:image/png;base64,iVBORw0KGgo=)",
+                "<p><img src=\"data:image/png;base64,iVBORw0KGgo=\" alt=\"a dot\"></p>\n",
+            ),
             (
                 "![i](https://x.y/i.png)",
                 "<p><img src=\"https://x.y/i.png\" alt=\"i\"></p>\n",

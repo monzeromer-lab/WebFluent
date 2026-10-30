@@ -146,7 +146,7 @@
       // with its escaped characters as the characters they are, and
       // written with them still held, so none of them is emphasis.
       const at = (url) => (url.startsWith("/") && !url.startsWith("//") ? _basePath : "");
-      s = s.replace(MD.image, (_, alt, url) => { const u = mdRestore(url, held, true); return safeUrl(u) ? '<img src="' + at(u) + url + '" alt="' + alt + '">' : alt; });
+      s = s.replace(MD.image, (_, alt, url) => { const u = mdRestore(url, held, true); return safePicture(u) ? '<img src="' + at(u) + url + '" alt="' + alt + '">' : alt; });
       s = s.replace(MD.link, (_, label, url) => { const u = mdRestore(url, held, true); return safeUrl(u) ? '<a href="' + at(u) + url + '">' + label + "</a>" : label; });
     }
     s = s.replace(MD.strong, "<strong>$1</strong>");

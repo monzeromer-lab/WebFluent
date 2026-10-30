@@ -533,7 +533,8 @@ The name is a value too: `hero.src`, `.width`, `.height`, `.color`,
 `Image(src: "/hero.jpg", alt: "…")` with a literal path of `public/` to a
 PNG, JPEG, GIF or WebP is processed the same way, without a declaration:
 the same files, the same `<picture>`, `sizes:` and `placeholder:` too. An
-SVG, a URL or a path computed at run time is used as written.
+SVG, a URL or a path computed at run time is used as written, and so is a
+picture carried in its address (`data:image/png;base64,…`).
 
 `media.pipeline: false` copies the file as `public/` always did. The work
 is cached in `.wf-cache/media/` by content hash, so a build that changes no
@@ -1736,7 +1737,7 @@ Button flags: `.sm`, `.lg`, `.full`, `.rounded`, `.pill`, `.outlined`; `type: .s
 | `Code` | `Code("const x = 1").block` — `.block` for multi-line |
 | `Blockquote` | `Blockquote { Text("Quote text") }` |
 | `Unsafe.Html` | `Unsafe.Html(sanitize(body))` — markup, as markup. The one door for HTML a page did not write; every use draws a `V03` |
-| `Markdown` | `Markdown(text)` — a small Markdown rendered as HTML, at build time and live: `#` headings, paragraphs (a line ending in two spaces or `\` breaks, and the paragraph's last line shows its `\`; any other newline is a space, as in CommonMark), fenced code, `>` quotes, one-level `-`/`1.` lists, `---`, `` `code` ``, `**strong**`, `*em*`, `[text](url)` (its words hold no unescaped `[`), `![alt](src)`; a backslash before ASCII punctuation is that character and nothing more, as in CommonMark (`\*not em\*`, `\[not a link\]`, `\#` starting a line is no heading, `\\` is one backslash; in a URL `javascript\:` is checked as `javascript:`), and a backslash before anything else, or in code or a fence, is shown; the text is escaped first, so HTML in it is shown, not run, and a link or picture whose URL a browser would run (`javascript:`, `vbscript:`, `data:`) is drawn as its words; a site-relative one takes the `base_path`. `Markdown(text).inert` is for text somebody else wrote, such as a language server's or a `///` comment's documentation: entities are decoded before escaping (`&lt;T&gt;` shows `<T>`, a `<script>` stays text; in `` `code` `` and fences they stay as written), a link is drawn as its words, a picture is left out with the space after it, and the rest, backslash escapes too, is drawn as plain `Markdown` draws it (a language server's `margin\-top` shows `margin-top`) |
+| `Markdown` | `Markdown(text)` — a small Markdown rendered as HTML, at build time and live: `#` headings, paragraphs (a line ending in two spaces or `\` breaks, and the paragraph's last line shows its `\`; any other newline is a space, as in CommonMark), fenced code, `>` quotes, one-level `-`/`1.` lists, `---`, `` `code` ``, `**strong**`, `*em*`, `[text](url)` (its words hold no unescaped `[`), `![alt](src)`; a backslash before ASCII punctuation is that character and nothing more, as in CommonMark (`\*not em\*`, `\[not a link\]`, `\#` starting a line is no heading, `\\` is one backslash; in a URL `javascript\:` is checked as `javascript:`), and a backslash before anything else, or in code or a fence, is shown; the text is escaped first, so HTML in it is shown, not run, and a link or picture whose URL a browser would run (`javascript:`, `vbscript:`, `data:`) is drawn as its words — a picture carried in its address (`![dot](data:image/png;base64,…)`) is drawn, a link to one is not; a site-relative one takes the `base_path`. `Markdown(text).inert` is for text somebody else wrote, such as a language server's or a `///` comment's documentation: entities are decoded before escaping (`&lt;T&gt;` shows `<T>`, a `<script>` stays text; in `` `code` `` and fences they stay as written), a link is drawn as its words, a picture is left out with the space after it, and the rest, backslash escapes too, is drawn as plain `Markdown` draws it (a language server's `margin\-top` shows `margin-top`) |
 
 Text flags: `.bold`, `.italic`, `.underline`, `.uppercase`, `.lowercase`, `.left`, `.center`, `.right`, `.muted`, `.sm`, `.lg`, `.heading`, `.subtitle`, and the tones `.primary`, `.secondary`, `.danger`, `.success`, `.warning`, `.info`
 
@@ -2453,7 +2454,12 @@ advice:
   `navigate()` take `http`, `https`, `mailto`, `tel`, `sms`, `ftp` or a
   relative URL. A literal is refused where it is written; anything else
   goes through `WF.safeUrl` at the moment it is used. `javascript:`,
-  `data:`, `vbscript:`, `blob:` and `file:` are refused.
+  `data:`, `vbscript:`, `blob:` and `file:` are refused — but for a
+  picture carried in its address (`data:image/png;base64,…`,
+  `data:image/svg+xml,…`), which an `Image`'s or an `Avatar`'s `src:`, a
+  Markdown picture and a sanitised `<img>` take (`WF.safePicture`): an img
+  never runs what it shows. A link, a frame or a form never takes one, and
+  no other `data:` is a picture.
 - **`rel="noopener noreferrer"`** on any link with `target:`.
 - **A `Secret` cannot escape** — shown, spliced, logged or persisted is a
   `T12`.

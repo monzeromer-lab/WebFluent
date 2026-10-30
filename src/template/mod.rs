@@ -1740,7 +1740,11 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                     let resolved = value_to_string(&ctx.eval_expr(val));
                     // A URL from the data: `javascript:` and its kind are
                     // dropped, as `WF.safeUrl` drops them on a live page.
-                    let resolved = if crate::codegen::url::URL_ATTRS.contains(&key.as_str()) {
+                    // An image's may be a picture carried in its address
+                    // (`data:image/…`), as on the live page.
+                    let resolved = if key == "src" && crate::codegen::url::draws_picture(name) {
+                        crate::codegen::url::guard_picture(&resolved).to_string()
+                    } else if crate::codegen::url::URL_ATTRS.contains(&key.as_str()) {
                         crate::codegen::url::guard(&resolved).to_string()
                     } else {
                         resolved
@@ -2464,7 +2468,7 @@ fn render_paged(
             let mut out = with_own(open(ctx, "div", Vec::new()), "div", name, ui, ctx);
             if let Some(src) = named(ctx, "src") {
                 let alt = named(ctx, "alt").unwrap_or_default();
-                let src = crate::codegen::url::guard(&src).to_string();
+                let src = crate::codegen::url::guard_picture(&src).to_string();
                 out.push_str(&format!(
                     "{indent}  <img src=\"{}\" alt=\"{}\">\n",
                     html_escape(&src),

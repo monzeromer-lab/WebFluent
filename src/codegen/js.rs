@@ -2917,12 +2917,16 @@ impl JsCodegen {
                                     // A value that reads state follows it: a
                                     // `placeholder` or `disabled` bound to a
                                     // store used to be painted once.
-                                    let v =
-                                        if crate::codegen::url::URL_ATTRS.contains(&key.as_str()) {
-                                            self.url_value(val)
-                                        } else {
-                                            self.emit_expr(val)
-                                        };
+                                    let v = if key == "src"
+                                        && crate::codegen::url::draws_picture(name)
+                                    {
+                                        self.picture_url_value(val)
+                                    } else if crate::codegen::url::URL_ATTRS.contains(&key.as_str())
+                                    {
+                                        self.url_value(val)
+                                    } else {
+                                        self.emit_expr(val)
+                                    };
                                     if self.is_reactive(&v) {
                                         attrs.push(format!("{}: () => {}", key, v));
                                     } else {
@@ -3894,6 +3898,16 @@ impl JsCodegen {
         match val {
             Expr::StringLiteral(_) => emitted,
             _ => format!("WF.safeUrl({emitted})"),
+        }
+    }
+
+    /// [`Self::url_value`] where a picture is drawn — an `<img>`'s `src` —
+    /// which also takes a picture carried in its address (`data:image/…`).
+    fn picture_url_value(&mut self, val: &Expr) -> String {
+        let emitted = self.emit_expr(val);
+        match val {
+            Expr::StringLiteral(_) => emitted,
+            _ => format!("WF.safePicture({emitted})"),
         }
     }
 
@@ -5750,7 +5764,7 @@ impl JsCodegen {
             Arg::Named(k, v) if k == "src" => Some(v.clone()),
             _ => None,
         });
-        let src = src.map(|v| self.url_value(&v));
+        let src = src.map(|v| self.picture_url_value(&v));
         let alt = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
                 if k == "alt" {

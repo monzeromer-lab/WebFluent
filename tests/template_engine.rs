@@ -178,6 +178,36 @@ fn pdf_settings_are_the_callers() {
 }
 
 #[test]
+fn a_picture_from_the_data_may_carry_itself_and_a_link_may_not() {
+    let tpl = Template::from_str(
+        r#"page P(path: "/") {
+            Image(src: png, alt: "p")
+            Image(src: svg, alt: "s")
+            Image(src: page, alt: "h")
+            Avatar(src: png, alt: "a")
+            Link("Open", to: png)
+        }"#,
+    )
+    .unwrap();
+    let png = "data:image/png;base64,iVBORw0KGgo=";
+    let svg = "data:image/svg+xml,%3Csvg%2F%3E";
+    let html = tpl
+        .render_html_fragment(&json!({
+            "png": png,
+            "svg": svg,
+            "page": "data:text/html,<script>alert(1)</script>",
+        }))
+        .unwrap();
+    assert_eq!(html.matches(&format!("src=\"{png}\"")).count(), 2, "{html}");
+    assert!(html.contains(&format!("src=\"{svg}\"")), "{html}");
+    assert!(
+        !html.contains("text/html"),
+        "a page is not a picture: {html}"
+    );
+    assert!(!html.contains(&format!("href=\"{png}\"")), "{html}");
+}
+
+#[test]
 fn a_url_from_the_data_cannot_run_script() {
     let tpl = Template::from_str(
         r#"page P(path: "/") {

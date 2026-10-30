@@ -557,6 +557,9 @@ impl Checker<'_, '_> {
                     if let Expr::StringLiteral(text) = value
                         && crate::codegen::url::URL_ATTRS.contains(&key.as_str())
                         && !crate::codegen::url::is_safe(text)
+                        && !(key == "src"
+                            && crate::codegen::url::draws_picture(&name)
+                            && crate::codegen::url::is_picture(text))
                     {
                         self.error(
                             at,
