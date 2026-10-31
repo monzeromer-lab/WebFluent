@@ -480,6 +480,12 @@ pub const ICONS: &[&str] = &[
     "git-commit",
     "play",
     "layers",
+    "insert",
+    "grid",
+    "list",
+    "square",
+    "pill",
+    "image",
 ];
 
 /// Whether `name` is a universal DOM event every element accepts.
