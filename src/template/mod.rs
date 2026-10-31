@@ -749,6 +749,9 @@ struct TemplateComponent {
 struct RenderContext<'a> {
     data: &'a Value,
     locals: HashMap<String, Value>,
+    /// The `derived` values that are functions — `derived countOf = (id) =>
+    /// …` — by name, applied where they are called.
+    functions: HashMap<String, Expr>,
     components: HashMap<String, TemplateComponent>,
     indent: usize,
     /// Inside a `Thead`, a `Tcell` is a column header (`<th scope="col">`).
@@ -843,6 +846,7 @@ impl<'a> RenderContext<'a> {
         Self {
             data,
             locals: HashMap::new(),
+            functions: HashMap::new(),
             components: HashMap::new(),
             indent: 1,
             in_thead: false,
@@ -864,6 +868,7 @@ impl<'a> RenderContext<'a> {
         RenderContext {
             data: self.data,
             locals: self.locals.clone(),
+            functions: self.functions.clone(),
             components: self.components.clone(),
             indent: self.indent,
             in_thead: self.in_thead,
@@ -1075,6 +1080,27 @@ impl<'a> RenderContext<'a> {
                 }
             }
             Expr::Regex(..) => self.eval_static(expr),
+            // A derived function: its parameters bound to what it is called
+            // with, its body worked out.
+            Expr::FunctionCall(name, args) if self.functions.contains_key(name) => {
+                let Some(Expr::Lambda(params, body)) = self.functions.get(name).cloned() else {
+                    return Value::Null;
+                };
+                let values: Vec<Value> = args.iter().map(|a| self.eval_expr(a)).collect();
+                let mut inner = self.child();
+                for (i, param) in params
+                    .split(',')
+                    .map(str::trim)
+                    .filter(|p| !p.is_empty())
+                    .enumerate()
+                {
+                    inner.locals.insert(
+                        param.to_string(),
+                        values.get(i).cloned().unwrap_or(Value::Null),
+                    );
+                }
+                inner.eval_expr(&body)
+            }
             Expr::FunctionCall(name, _args) => {
                 // `t("key", { name: v, count: n })`: the message, its plural
                 // form picked by `count` (`key.one` for exactly one, else
@@ -1196,8 +1222,20 @@ impl<'a> RenderContext<'a> {
 /// on paper nothing changes. Data handed to the render wins over either.
 /// Derived values are worked out twice, so one may read one declared below
 /// it. What was shadowed comes back when the body is done.
-fn seed_values(stmts: &[Statement], ctx: &mut RenderContext) -> Vec<(String, Option<Value>)> {
+fn seed_values(stmts: &[Statement], ctx: &mut RenderContext) -> Seeded {
     let mut saved = Vec::new();
+    // A derived value that is a function is held as one, for its calls.
+    let mut functions = Vec::new();
+    for stmt in stmts {
+        if let StatementKind::Derived(d) = &stmt.kind
+            && matches!(d.value, Expr::Lambda(..))
+        {
+            functions.push((
+                d.name.clone(),
+                ctx.functions.insert(d.name.clone(), d.value.clone()),
+            ));
+        }
+    }
     let given = |ctx: &RenderContext, name: &str| matches!(ctx.data, Value::Object(m) if m.contains_key(name));
     for stmt in stmts {
         if let StatementKind::State(st) = &stmt.kind
@@ -1210,7 +1248,11 @@ fn seed_values(stmts: &[Statement], ctx: &mut RenderContext) -> Vec<(String, Opt
     let derived: Vec<&DerivedDecl> = stmts
         .iter()
         .filter_map(|s| match &s.kind {
-            StatementKind::Derived(d) if !given(ctx, &d.name) => Some(d),
+            StatementKind::Derived(d)
+                if !given(ctx, &d.name) && !matches!(d.value, Expr::Lambda(..)) =>
+            {
+                Some(d)
+            }
             _ => None,
         })
         .collect();
@@ -1223,18 +1265,39 @@ fn seed_values(stmts: &[Statement], ctx: &mut RenderContext) -> Vec<(String, Opt
             }
         }
     }
-    saved
+    Seeded {
+        values: saved,
+        functions,
+    }
+}
+
+/// What seeding a body shadowed, to put back when the body is done.
+struct Seeded {
+    values: Vec<(String, Option<Value>)>,
+    functions: Vec<(String, Option<Expr>)>,
+}
+
+impl Seeded {
+    fn restore(self, ctx: &mut RenderContext) {
+        for (name, old) in self.values.into_iter().rev() {
+            match old {
+                Some(v) => ctx.locals.insert(name, v),
+                None => ctx.locals.remove(&name),
+            };
+        }
+        for (name, old) in self.functions.into_iter().rev() {
+            match old {
+                Some(f) => ctx.functions.insert(name, f),
+                None => ctx.functions.remove(&name),
+            };
+        }
+    }
 }
 
 fn render_statements(stmts: &[Statement], ctx: &mut RenderContext) -> String {
-    let saved = seed_values(stmts, ctx);
+    let seeded = seed_values(stmts, ctx);
     let html = render_statements_seeded(stmts, ctx);
-    for (name, old) in saved.into_iter().rev() {
-        match old {
-            Some(v) => ctx.locals.insert(name, v),
-            None => ctx.locals.remove(&name),
-        };
-    }
+    seeded.restore(ctx);
     html
 }
 

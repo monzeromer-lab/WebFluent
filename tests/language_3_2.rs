@@ -408,3 +408,21 @@ fn a_code_with_a_language_is_coloured_by_every_backend() {
         "template: {html}"
     );
 }
+
+#[test]
+fn a_derived_function_paints_what_it_gives_in_every_backend() {
+    // Called in text, and for each item of a loop, through a component's
+    // props; a key the object does not have defaults with `??`.
+    let src = format!(
+        "component Counts(counts: Any = null, ids: [String] = []) {{\n  derived countOf = (id) => if counts == null {{ -1 }} else {{ counts[id] ?? 0 }}\n  Text(\"a {{countOf(\\\"a\\\")}}\")\n  for id in ids {{\n    Text(\"{{id}}={{countOf(id)}}\")\n  }}\n}}\n{}",
+        page("Counts(counts: { a: 7, b: 2 }, ids: [\"b\", \"c\"])")
+    );
+    for (name, out) in [
+        ("ssg", painted(&src)),
+        ("template", templated(&src, json!({}))),
+    ] {
+        assert!(out.contains("a 7"), "{name}: {out}");
+        assert!(out.contains("b=2"), "{name}: {out}");
+        assert!(out.contains("c=0"), "{name}: {out}");
+    }
+}
