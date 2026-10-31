@@ -296,3 +296,26 @@ test("rows handed new items of the same values write nothing to the page", () =>
     Object.defineProperty(textProto, "textContent", textContent);
   }
 });
+
+test("a list fed an item at a time is laid out once in the next frame, with its newest row revealed", () => {
+  const { WF, document, frame, pending } = loadObserved();
+  const box = document.createElement("div");
+  box.clientHeight = 320;
+  box.scrollTop = 0;
+  document.body.appendChild(box);
+  const lines = WF.signal(numbers(20));
+  const rows = () => [...box.children].filter((n) => n.tagName === "P").map((n) => n.textContent);
+  WF.scoped(() => WF.windowed(box, () => lines(), (item) => WF.el("p", {}, [item]), {
+    key: (x) => x, live: true, rowHeight: 32, overscan: 2, reveal: () => lines()[lines().length - 1],
+  }));
+  frame();
+  const before = rows();
+  // A build's log: a line at a time, as fast as it is said.
+  for (let i = 20; i < 220; i++) lines.set([...lines(), `r${i}`]);
+  assert.deepEqual(rows(), before, "nothing laid out while the lines arrive");
+  assert.equal(pending(), 1, "one frame asked for, not one for each line");
+  frame();
+  assert.equal(box.scrollTop, 220 * 32 - 320, "the newest line at the box's bottom");
+  assert.ok(rows().includes("r219"), `the newest line is drawn: ${rows().join(" ")}`);
+  assert.ok(rows().length < 20, "only the window");
+});

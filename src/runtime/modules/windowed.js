@@ -42,6 +42,8 @@
     let rows = new Map();
     let frame = 0;
     let settling = 0;
+    // A key to reveal in the frame that lays out a change of the list.
+    let revealing = null;
 
     const heightOf = (i) => fixed || heights.get(keys[i]) || estimate;
     let offsets = null;
@@ -103,6 +105,11 @@
 
     const layout = () => {
       frame = 0;
+      if (revealing !== null) {
+        const wanted = revealing;
+        revealing = null;
+        reveal(wanted);
+      }
       measureAll();
       const n = items.length;
       const total = offset(n);
@@ -198,7 +205,11 @@
         items = list;
         keys = list.map((item, i) => key(item, i));
         where = new Map(keys.map((k, i) => [k, i]));
-        layout();
+        // Drawn once, a change waits for the frame: a list fed an item at
+        // a time — a log a build writes into — is laid out once for all
+        // of them, not once for each (each layout measures what it drew).
+        if (rows.size > 0) soon();
+        else layout();
       });
     });
 
@@ -225,6 +236,12 @@
           if (wanted === null || wanted === undefined) return;
           if (!viewHeight()) {
             unrevealed = wanted;
+            return;
+          }
+          // The list changed too and is laid out in the next frame: the
+          // row is revealed there, with it.
+          if (frame) {
+            revealing = wanted;
             return;
           }
           reveal(wanted);
