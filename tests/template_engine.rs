@@ -353,3 +353,19 @@ fn a_responsive_layout_carries_the_class_its_rules_are_written_under() {
         "the grid carries {class}: wf-grid{grid}"
     );
 }
+
+#[test]
+fn a_constant_that_is_a_function_is_called() {
+    let tpl = Template::from_str(
+        r#"const bare = (s) => s.split(" ").join("")
+const label = (n, unit) => "{n} {unit}"
+page P(path: "/") {
+    Text("[{bare(who)}] [{label(3, "rows")}]")
+}"#,
+    )
+    .unwrap();
+    let html = tpl
+        .render_html_fragment(&json!({ "who": "a b c" }))
+        .unwrap();
+    assert!(html.contains("[abc] [3 rows]"), "{html}");
+}

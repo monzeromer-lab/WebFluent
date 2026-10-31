@@ -779,6 +779,11 @@ impl<'a> RenderContext<'a> {
         let mut ctx = Self::new(data);
         for decl in &program.declarations {
             match decl {
+                // A constant that is a function is called like a derived
+                // one: `const label = (n) => …`, then `label(3)`.
+                Declaration::Const(c) if matches!(c.value, Expr::Lambda(..)) => {
+                    ctx.functions.insert(c.name.clone(), c.value.clone());
+                }
                 Declaration::Const(c) => {
                     let value = ctx.eval_expr(&c.value);
                     ctx.locals.insert(c.name.clone(), value);

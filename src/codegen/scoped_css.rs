@@ -298,7 +298,7 @@ fn collect_in(
 /// grammar's state words map to a selector; the new grammar writes the
 /// selector itself, `&:hover` or `&[aria-current="page"]`, and it is used
 /// as written with the `&` standing for the element.
-fn selector(state: &str) -> std::borrow::Cow<'static, str> {
+pub(crate) fn selector(state: &str) -> std::borrow::Cow<'static, str> {
     if let Some(raw) = state.strip_prefix('&') {
         return std::borrow::Cow::Owned(raw.to_string());
     }

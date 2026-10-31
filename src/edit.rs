@@ -79,6 +79,23 @@ pub enum EditOp {
     },
     /// Remove a style property from the node's `style { }` block.
     RemoveStyle { node: String, prop: String },
+    /// Set a declaration inside one of the node's nested rules — a width
+    /// (`@media (max-width: 480px)`, `@md`) or a state (`&:hover`,
+    /// `&[aria-current="page"]`) — creating the rule, and the `style { }`
+    /// block, when there is none.
+    SetRuleStyle {
+        node: String,
+        rule: String,
+        prop: String,
+        value: String,
+    },
+    /// Remove a declaration from one of the node's nested rules; the rule
+    /// goes with its last declaration.
+    RemoveRuleStyle {
+        node: String,
+        rule: String,
+        prop: String,
+    },
     /// Insert the `wf` snippet as the node's child at `index` (appends if out of range).
     InsertChild {
         node: String,
@@ -145,6 +162,8 @@ impl EditOp {
             | EditOp::RemoveModifier { node, .. }
             | EditOp::SetStyle { node, .. }
             | EditOp::RemoveStyle { node, .. }
+            | EditOp::SetRuleStyle { node, .. }
+            | EditOp::RemoveRuleStyle { node, .. }
             | EditOp::InsertChild { node, .. }
             | EditOp::AppendChild { node, .. }
             | EditOp::ReplaceNode { node, .. }
@@ -359,24 +378,53 @@ fn compute_patches(
             };
             if let Some(sb) = &ui.style_block {
                 if let Some(p) = sb.properties.iter().find(|p| &p.name == prop) {
-                    one(replace(p.value_span, value.clone()))
+                    one(replace(value_of(source, p), value.clone()))
                 } else {
-                    let indent = match sb.properties.last() {
-                        Some(last) => " ".repeat(last.span.col.saturating_sub(1) as usize),
-                        None => format!("{}  ", line_indent(source, sb.body_span.end as usize)),
-                    };
-                    let at = sb.body_span.end as usize;
-                    one(Patch {
-                        start: at,
-                        end: at,
-                        text: format!("{}{}: {}\n", indent, prop, value),
-                    })
+                    // After the last declaration, before any rule.
+                    let text = format!("{}: {}", prop, value);
+                    match sb.properties.last() {
+                        Some(last) => one(after_declaration(source, last, sb.body_span, text)),
+                        None => {
+                            let indent =
+                                format!("{}    ", line_indent(source, sb.body_span.end as usize));
+                            let at = sb
+                                .media_queries
+                                .iter()
+                                .map(|m| m.span)
+                                .chain(sb.pseudo_blocks.iter().map(|b| b.span))
+                                .min_by_key(|s| s.start)
+                                .map(|first| first.start as usize);
+                            match at {
+                                Some(at) if is_multiline(source, sb.body_span) => {
+                                    let line_start = source[..at].rfind('\n').map_or(0, |n| n + 1);
+                                    one(Patch {
+                                        start: line_start,
+                                        end: line_start,
+                                        text: format!("{indent}{text}\n"),
+                                    })
+                                }
+                                Some(at) => one(Patch {
+                                    start: at,
+                                    end: at,
+                                    text: format!("{text}; "),
+                                }),
+                                None => one(before_closing(
+                                    source,
+                                    sb.body_span.end as usize,
+                                    format!("{indent}{text}\n"),
+                                )),
+                            }
+                        }
+                    }
                 }
             } else {
-                // No style block — create one inside the element body.
-                one(append_child_patch(
+                // No style block — one goes first in the element's block,
+                // where the grammar wants it.
+                one(insert_clause(
                     ui,
-                    &format!("style {{ {}: {} }}", prop, value),
+                    None,
+                    "style",
+                    &format!("{}: {}", prop, value),
                     source,
                 ))
             }
@@ -397,6 +445,117 @@ fn compute_patches(
                     ))
                 })?;
             let (start, end) = removal_range(source, p.span);
+            one(Patch {
+                start,
+                end,
+                text: String::new(),
+            })
+        }
+        EditOp::SetRuleStyle {
+            rule, prop, value, ..
+        } => {
+            let value = if v2 {
+                raw_style_value(value)
+            } else {
+                value.clone()
+            };
+            let Some(sb) = &ui.style_block else {
+                let text = format!("{} {{ {}: {} }}", rule.trim(), prop, value);
+                return one(insert_clause(ui, None, "style", &text, source));
+            };
+            let Some((span, props)) = rule_of(sb, rule) else {
+                // A block written on one line keeps its line: the rule
+                // after its last item, `…; @media (…) { a: b } }`.
+                if !is_multiline(source, sb.body_span) {
+                    let last = sb
+                        .properties
+                        .iter()
+                        .map(|p| (p.span.start, declaration_end(source, p), true))
+                        .chain(
+                            sb.media_queries
+                                .iter()
+                                .map(|m| (m.span.start, m.span.end as usize, false)),
+                        )
+                        .chain(
+                            sb.pseudo_blocks
+                                .iter()
+                                .map(|b| (b.span.start, b.span.end as usize, false)),
+                        )
+                        .max_by_key(|item| item.0);
+                    if let Some((_, end, declaration)) = last {
+                        let sep = if declaration { ";" } else { "" };
+                        return one(Patch {
+                            start: end,
+                            end,
+                            text: format!("{sep} {} {{ {}: {} }}", rule.trim(), prop, value),
+                        });
+                    }
+                }
+                // A new rule goes after everything the block holds.
+                let indent = match block_items_last(sb) {
+                    Some(col) => " ".repeat(col),
+                    None => format!("{}    ", line_indent(source, sb.body_span.end as usize)),
+                };
+                let text = format!(
+                    "{indent}{} {{\n{indent}    {}: {}\n{indent}}}\n",
+                    rule.trim(),
+                    prop,
+                    value
+                );
+                return one(before_closing(source, sb.body_span.end as usize, text));
+            };
+            if let Some(p) = props.iter().find(|p| &p.name == prop) {
+                return one(replace(value_of(source, p), value));
+            }
+            match props.last() {
+                // `&:hover { a: b }` on one line stays on one line.
+                Some(last) => one(after_declaration(
+                    source,
+                    last,
+                    span,
+                    format!("{}: {}", prop, value),
+                )),
+                None => {
+                    let indent = line_indent(source, span.start as usize);
+                    one(replace(
+                        span,
+                        format!(
+                            "{} {{\n{indent}    {}: {}\n{indent}}}",
+                            rule.trim(),
+                            prop,
+                            value
+                        ),
+                    ))
+                }
+            }
+        }
+        EditOp::RemoveRuleStyle { rule, prop, .. } => {
+            let sb = ui
+                .style_block
+                .as_ref()
+                .ok_or_else(|| edit_err("remove_rule_style: node has no style block"))?;
+            let (span, props) = rule_of(sb, rule)
+                .ok_or_else(|| edit_err(format!("remove_rule_style: node has no `{rule}` rule")))?;
+            let p = props.iter().find(|p| &p.name == prop).ok_or_else(|| {
+                edit_err(format!("remove_rule_style: `{rule}` does not set '{prop}'"))
+            })?;
+            let (start, end) = if props.len() == 1 {
+                removal_range(source, span)
+            } else if is_multiline(source, span) {
+                removal_range(source, p.span)
+            } else {
+                // One line: the declaration and the `;` that parts it from
+                // the next, or from the one before.
+                let (s, e) = (p.span.start as usize, declaration_end(source, p));
+                let after = source[e..].trim_start_matches([' ', ';']);
+                let next = source.len() - after.len();
+                if props.last().is_some_and(|l| std::ptr::eq(l, p)) {
+                    let before = source[..s].trim_end_matches([' ', ';']).len();
+                    (before, e)
+                } else {
+                    (s, next)
+                }
+            };
             one(Patch {
                 start,
                 end,
@@ -801,6 +960,117 @@ pub(crate) fn modifier_removal_range(source: &str, span: Span) -> (usize, usize)
         return (s, end);
     }
     (start, end)
+}
+
+/// A declaration's value as written, without the spaces the lexer keeps
+/// after it before a `}`.
+fn value_of(source: &str, p: &crate::parser::ast::StyleProperty) -> Span {
+    let start = p.value_span.start as usize;
+    let end = start + source[start..p.value_span.end as usize].trim_end().len();
+    Span::new(
+        start as u32,
+        end as u32,
+        p.value_span.line,
+        p.value_span.col,
+    )
+}
+
+/// Where a declaration ends: its value's end, before a `;` or a space.
+fn declaration_end(source: &str, p: &crate::parser::ast::StyleProperty) -> usize {
+    value_of(source, p).end as usize
+}
+
+fn is_multiline(source: &str, span: Span) -> bool {
+    span.slice(source).contains('\n')
+}
+
+/// `text`, a declaration, after `last`, the last of a block or a rule
+/// written at `within`: on a line of its own at `last`'s indent, or after
+/// a `;` when the block is written on one line.
+fn after_declaration(
+    source: &str,
+    last: &crate::parser::ast::StyleProperty,
+    within: Span,
+    text: String,
+) -> Patch {
+    let end = declaration_end(source, last);
+    if is_multiline(source, within) {
+        let at = line_end(source, end);
+        let indent = " ".repeat(last.span.col.saturating_sub(1) as usize);
+        Patch {
+            start: at,
+            end: at,
+            text: format!("\n{indent}{text}"),
+        }
+    } else {
+        Patch {
+            start: end,
+            end,
+            text: format!("; {text}"),
+        }
+    }
+}
+
+/// The nested rule of `sb` that `rule` names — written the same, spaces
+/// aside, or the original grammar's word for it (`hover` for `&:hover`) —
+/// with its declarations.
+fn rule_of<'a>(
+    sb: &'a crate::parser::ast::StyleBlock,
+    rule: &str,
+) -> Option<(Span, &'a [crate::parser::ast::StyleProperty])> {
+    let bare = |s: &str| s.chars().filter(|c| !c.is_whitespace()).collect::<String>();
+    let wanted = bare(rule);
+    sb.media_queries
+        .iter()
+        .find(|m| bare(&m.condition) == wanted)
+        .map(|m| (m.span, m.properties.as_slice()))
+        .or_else(|| {
+            sb.pseudo_blocks
+                .iter()
+                .find(|b| {
+                    bare(&b.state) == wanted
+                        || format!("&{}", crate::codegen::scoped_css::selector(&b.state)) == wanted
+                })
+                .map(|b| (b.span, b.properties.as_slice()))
+        })
+}
+
+/// The column (0-based) the last item of a style block starts at: a
+/// declaration or a rule, whichever is written last.
+fn block_items_last(sb: &crate::parser::ast::StyleBlock) -> Option<usize> {
+    sb.properties
+        .iter()
+        .map(|p| p.span)
+        .chain(sb.media_queries.iter().map(|m| m.span))
+        .chain(sb.pseudo_blocks.iter().map(|b| b.span))
+        .max_by_key(|s| s.start)
+        .map(|s| s.col.saturating_sub(1) as usize)
+}
+
+/// Where a line ends: the offset of its `\n`, or of the end.
+fn line_end(source: &str, pos: usize) -> usize {
+    source[pos..].find('\n').map_or(source.len(), |n| pos + n)
+}
+
+/// `text`, whole lines, inserted before the `}` at `close`: at the start of
+/// its line when only indentation is before it there, so the brace keeps
+/// its indent; otherwise on a line of its own.
+fn before_closing(source: &str, close: usize, text: String) -> Patch {
+    let line_start = source[..close].rfind('\n').map_or(0, |n| n + 1);
+    if source[line_start..close].trim().is_empty() {
+        Patch {
+            start: line_start,
+            end: line_start,
+            text,
+        }
+    } else {
+        let indent = line_indent(source, close);
+        Patch {
+            start: close,
+            end: close,
+            text: format!("\n{text}{indent}"),
+        }
+    }
 }
 
 /// The leading whitespace of the line containing byte offset `pos`.
@@ -1501,6 +1771,167 @@ mod tests {
         assert!(out.contains("style"));
         assert!(out.contains("color: red"));
         parse_program(&out).unwrap();
+    }
+
+    const RULE_SRC: &str = "page P(path: \"/\") {\n    Card {\n        style {\n            padding: 12px\n            &:hover { background: $surface }\n        }\n    }\n}\n";
+
+    fn rule_op(src: &str, rule: &str, prop: &str, value: Option<&str>) -> String {
+        let node = id_of(src, "Card");
+        let op = match value {
+            Some(v) => EditOp::SetRuleStyle {
+                node,
+                rule: rule.into(),
+                prop: prop.into(),
+                value: v.into(),
+            },
+            None => EditOp::RemoveRuleStyle {
+                node,
+                rule: rule.into(),
+                prop: prop.into(),
+            },
+        };
+        apply_edits(src, &[op]).unwrap()
+    }
+
+    #[test]
+    fn a_rule_is_added_after_the_last_thing_the_block_holds() {
+        let out = rule_op(
+            RULE_SRC,
+            "@media (max-width: 480px)",
+            "padding",
+            Some("8px"),
+        );
+        assert_eq!(
+            out,
+            "page P(path: \"/\") {\n    Card {\n        style {\n            padding: 12px\n            &:hover { background: $surface }\n            @media (max-width: 480px) {\n                padding: 8px\n            }\n        }\n    }\n}\n"
+        );
+    }
+
+    #[test]
+    fn a_rule_added_to_a_block_on_one_line_keeps_the_line() {
+        let src = "page P(path: \"/\") {\n    Card {\n        style { gap: 12px }\n    }\n}\n";
+        let out = rule_op(src, "@media (max-width: 480px)", "gap", Some("8px"));
+        assert!(
+            out.contains("style { gap: 12px; @media (max-width: 480px) { gap: 8px } }"),
+            "{out}"
+        );
+        let out = rule_op(&out, "&:hover", "gap", Some("20px"));
+        assert!(
+            out.contains(
+                "style { gap: 12px; @media (max-width: 480px) { gap: 8px } &:hover { gap: 20px } }"
+            ),
+            "{out}"
+        );
+        let back = rule_op(&out, "&:hover", "gap", None);
+        assert!(
+            back.contains("style { gap: 12px; @media (max-width: 480px) { gap: 8px } }"),
+            "{back}"
+        );
+    }
+
+    #[test]
+    fn a_rule_is_found_by_its_selector_spaces_aside() {
+        let out = rule_op(RULE_SRC, "&:hover", "background", Some("$surface-raised"));
+        assert!(
+            out.contains("&:hover { background: $surface-raised }"),
+            "{out}"
+        );
+        let out = rule_op(RULE_SRC, "& :hover", "color", Some("$text"));
+        assert!(
+            out.contains("&:hover { background: $surface; color: $text }"),
+            "{out}"
+        );
+    }
+
+    #[test]
+    fn a_declaration_goes_on_its_own_line_in_a_rule_written_over_lines() {
+        let src = "page P(path: \"/\") {\n    Card {\n        style {\n            &:focus-visible {\n                outline: 2px solid $focus\n            }\n        }\n    }\n}\n";
+        let out = rule_op(src, "&:focus-visible", "outline-offset", Some("2px"));
+        assert!(
+            out.contains("&:focus-visible {\n                outline: 2px solid $focus\n                outline-offset: 2px\n            }"),
+            "{out}"
+        );
+        let back = rule_op(&out, "&:focus-visible", "outline-offset", None);
+        assert_eq!(back, src);
+    }
+
+    #[test]
+    fn a_rule_goes_with_its_last_declaration() {
+        let out = rule_op(RULE_SRC, "&:hover", "background", None);
+        assert_eq!(
+            out,
+            "page P(path: \"/\") {\n    Card {\n        style {\n            padding: 12px\n        }\n    }\n}\n"
+        );
+        let two = rule_op(RULE_SRC, "&:hover", "color", Some("$text"));
+        assert_eq!(
+            rule_op(&two, "&:hover", "background", None)
+                .matches("&:hover { color: $text }")
+                .count(),
+            1
+        );
+        assert_eq!(rule_op(&two, "&:hover", "color", None), RULE_SRC);
+    }
+
+    #[test]
+    fn a_rule_on_an_element_without_a_style_block_brings_one() {
+        let src = "page P(path: \"/\") {\n    Card {\n        Text(\"Hi\")\n    }\n}\n";
+        let out = rule_op(src, "&:active", "opacity", Some("0.8"));
+        assert!(out.contains("style { &:active { opacity: 0.8 } }"), "{out}");
+        let program = parse_program(&out).unwrap();
+        let mut rules = 0;
+        node_id::visit_nodes(&program, &mut |ui, _, _| {
+            if let Some(b) = &ui.style_block {
+                rules += b.pseudo_blocks.len();
+            }
+        });
+        assert_eq!(rules, 1);
+    }
+
+    #[test]
+    fn a_declaration_goes_after_the_last_one_and_before_the_rules() {
+        let out = apply_edits(
+            RULE_SRC,
+            &[EditOp::SetStyle {
+                node: id_of(RULE_SRC, "Card"),
+                prop: "gap".into(),
+                value: "8px".into(),
+            }],
+        )
+        .unwrap();
+        assert!(
+            out.contains("            padding: 12px\n            gap: 8px\n            &:hover { background: $surface }\n        }\n    }"),
+            "{out}"
+        );
+        // A block with no declarations yet: before its first rule.
+        let only_rule = RULE_SRC.replace("            padding: 12px\n", "");
+        let out = apply_edits(
+            &only_rule,
+            &[EditOp::SetStyle {
+                node: id_of(&only_rule, "Card"),
+                prop: "gap".into(),
+                value: "8px".into(),
+            }],
+        )
+        .unwrap();
+        assert!(
+            out.contains("style {\n            gap: 8px\n            &:hover"),
+            "{out}"
+        );
+        // An element with children gets its block first.
+        let src = "page P(path: \"/\") {\n    Card {\n        Text(\"Hi\")\n    }\n}\n";
+        let out = apply_edits(
+            src,
+            &[EditOp::SetStyle {
+                node: id_of(src, "Card"),
+                prop: "gap".into(),
+                value: "8px".into(),
+            }],
+        )
+        .unwrap();
+        assert!(
+            out.contains("Card {\n        style { gap: 8px }\n        Text"),
+            "{out}"
+        );
     }
 
     #[test]
