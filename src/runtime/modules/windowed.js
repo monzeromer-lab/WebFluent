@@ -146,13 +146,13 @@
           }
           const first = now.find((x) => x.nodeType === 1);
           if (first) {
-            first.setAttribute("data-wf-index", String(i));
+            setAttr(first, "data-wf-index", i);
             // Only the window is in the page: a list's or a tree's item
             // says where it is in the whole.
             const role = first.getAttribute("role") || (first.tagName === "LI" ? "listitem" : "");
             if (/^(listitem|treeitem|option|row|menuitem|article)$/.test(role)) {
-              first.setAttribute("aria-posinset", String(i + 1));
-              first.setAttribute("aria-setsize", String(n));
+              setAttr(first, "aria-posinset", i + 1);
+              setAttr(first, "aria-setsize", n);
             }
           }
         }

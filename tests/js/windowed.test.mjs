@@ -10,7 +10,7 @@ import { fullRuntime } from "./runtime.mjs";
 function load() {
   const { window, document, Node, Element, DocumentFragment } = makeDom();
   const fn = new Function("window", "document", "Node", "Element", "DocumentFragment", `${fullRuntime()}\nreturn WF;`);
-  return { WF: fn(window, document, Node, Element, DocumentFragment), document, window };
+  return { WF: fn(window, document, Node, Element, DocumentFragment), document, window, Element };
 }
 
 /// A 320 px box of 32 px rows over `list`, each row a `p` saying its item;
@@ -253,4 +253,46 @@ test("without a ResizeObserver, a box not laid out yet stands on the window's he
   // Nothing would say when the box has a size: 640 / 32 = 20, one partial,
   // two overscan.
   assert.deepEqual(rows, numbers(23));
+});
+
+test("rows handed new items of the same values write nothing to the page", () => {
+  const { WF, document, Element } = load();
+  const box = document.createElement("div");
+  box.clientHeight = 320;
+  box.scrollTop = 0;
+  document.body.appendChild(box);
+  const make = (n) => Array.from({ length: n }, (_, i) => ({ id: `r${i}`, name: `row ${i}`, kind: i % 2 ? "odd" : "even", on: i === 3 }));
+  const source = WF.signal(make(40));
+  WF.scoped(() => WF.windowed(box, () => source(), (item, index, itemOf) =>
+    WF.el("p", { role: "option", "aria-selected": () => itemOf().on, "data-kind": () => itemOf().kind, class: () => `row ${itemOf().kind}` },
+      [() => itemOf().name]), { key: (x) => x.id, live: true, rowHeight: 32, overscan: 2 }));
+  const rows = () => [...box.children].filter((n) => n.tagName === "P");
+  // Every write the page would take as a change, from here on.
+  const writes = [];
+  const setAttribute = Element.prototype.setAttribute;
+  Element.prototype.setAttribute = function (k, v) { writes.push(`${k}=${v}`); return setAttribute.call(this, k, v); };
+  const className = Object.getOwnPropertyDescriptor(Element.prototype, "className");
+  Object.defineProperty(Element.prototype, "className", { configurable: true, get: className.get, set(v) { writes.push(`class=${v}`); className.set.call(this, v); } });
+  const text = rows()[0].childNodes.find((n) => n.nodeType === 3);
+  const textProto = Object.getPrototypeOf(text);
+  const textContent = Object.getOwnPropertyDescriptor(textProto, "textContent");
+  Object.defineProperty(textProto, "textContent", { configurable: true, get: textContent.get, set(v) { writes.push(`text=${v}`); textContent.set.call(this, v); } });
+  try {
+    // A store's derived list: new objects, the same values.
+    source.set(make(40));
+    assert.deepEqual(writes, [], "the same values are not written again");
+    assert.equal(rows().length, 13);
+    // What did change is written, and only that.
+    const next = make(40);
+    next[3] = { ...next[3], on: false };
+    next[5] = { ...next[5], name: "five" };
+    source.set(next);
+    assert.deepEqual(writes.sort(), ["aria-selected=false", "text=five"]);
+    assert.equal(rows()[3].getAttribute("aria-selected"), "false");
+    assert.equal(rows()[5].textContent, "five");
+  } finally {
+    Element.prototype.setAttribute = setAttribute;
+    Object.defineProperty(Element.prototype, "className", className);
+    Object.defineProperty(textProto, "textContent", textContent);
+  }
 });

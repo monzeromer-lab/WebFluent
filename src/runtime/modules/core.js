@@ -347,12 +347,27 @@
     if (typeof v === "function") {
       effect(() => {
         const val = v();
-        if (val == null || val === false) el.removeAttribute(k);
-        else el.setAttribute(k, val);
+        if (val == null || val === false) unsetAttr(el, k);
+        else setAttr(el, k, val);
       });
     } else if (v != null && v !== false) {
       el.setAttribute(k, v);
     }
+  }
+  // A binding that runs again with the value it had writes nothing: the
+  // browser takes any write as a change, and styles and lays out again
+  // whatever it may touch. A list handed new items each time (a store's
+  // derived list) runs every row's bindings, mostly to the same values.
+  function setAttr(el, k, val) {
+    const s = String(val);
+    if (el.getAttribute(k) !== s) el.setAttribute(k, s);
+  }
+  function unsetAttr(el, k) {
+    if (el.hasAttribute(k)) el.removeAttribute(k);
+  }
+  function setText(node, val) {
+    const s = String(val);
+    if (node.textContent !== s) node.textContent = s;
   }
   // The studio's signal registry, set by the debug module when it is built in.
   let __regHook = null;
@@ -394,7 +409,10 @@
           el.addEventListener(k.slice(3), v);
         } else if (k === "className" || k === "class") {
           if (typeof v === "function") {
-            effect(() => { el.className = v(); });
+            effect(() => {
+              const c = String(v());
+              if (el.className !== c) el.className = c;
+            });
           } else {
             el.className = v;
           }
@@ -448,8 +466,8 @@
           // An ARIA state is a string: aria-pressed="false" means "not pressed",
           // while a missing attribute means "not a toggle". So false is kept.
           const set = (val) => {
-            if (val == null) el.removeAttribute(k);
-            else el.setAttribute(k, String(val));
+            if (val == null) unsetAttr(el, k);
+            else setAttr(el, k, val);
           };
           if (typeof v === "function") effect(() => set(v()));
           else set(v);
@@ -629,8 +647,8 @@
       // As the same attribute written on an element: `true` is "true",
       // and `false` no attribute but an ARIA state's.
       const set = (val) => {
-        if (val == null || (val === false && !k.startsWith("aria-"))) root.removeAttribute(k);
-        else root.setAttribute(k, String(val));
+        if (val == null || (val === false && !k.startsWith("aria-"))) unsetAttr(root, k);
+        else setAttr(root, k, val);
       };
       if (typeof v === "function") effect(() => set(v()));
       else set(v);
@@ -653,14 +671,14 @@
   function reactiveText(parent, fn) {
     const node = live(document.createTextNode(""));
     parent.appendChild(node);
-    effect(() => { node.textContent = String(fn()); });
+    effect(() => setText(node, fn()));
     return node;
   }
 
   function text(fn) {
     if (typeof fn === "function") {
       const node = live(document.createTextNode(""));
-      effect(() => { node.textContent = String(fn()); });
+      effect(() => setText(node, fn()));
       return node;
     }
     return document.createTextNode(String(fn));
@@ -796,7 +814,7 @@
     effect(() => {
       const next = classNames(get());
       for (const c of prev) if (!next.includes(c)) el.classList.remove(c);
-      for (const c of next) el.classList.add(c);
+      for (const c of next) if (!el.classList.contains(c)) el.classList.add(c);
       prev = next;
     });
   }

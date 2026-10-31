@@ -613,16 +613,28 @@ fn describe_commands() -> serde_json::Value {
                 let values: Vec<String> = a.get_possible_values().iter().map(|v| v.get_name().to_string()).collect();
                 let defaults: Vec<String> = a.get_default_values().iter().map(|v| v.to_string_lossy().to_string()).collect();
                 // What a control for it takes: read from the type the
-                // command line parses the value into.
-                // clap names the type in how it shows the id.
-                let parsed = format!("{:?}", a.get_value_parser().type_id());
+                // command line parses the value into. Compared as types:
+                // clap prints a type's name only in a debug build, and a
+                // release `wf` said every path was text.
+                use std::any::TypeId;
+                let parsed = a.get_value_parser().type_id();
+                let numbers = [
+                    TypeId::of::<u8>(),
+                    TypeId::of::<u16>(),
+                    TypeId::of::<u32>(),
+                    TypeId::of::<u64>(),
+                    TypeId::of::<usize>(),
+                    TypeId::of::<i32>(),
+                    TypeId::of::<i64>(),
+                    TypeId::of::<f64>(),
+                ];
                 let takes = if flag {
                     "nothing"
                 } else if !values.is_empty() {
                     "word"
-                } else if ["u8", "u16", "u32", "u64", "usize", "i32", "i64", "f64"].contains(&parsed.as_str()) {
+                } else if numbers.iter().any(|n| parsed == *n) {
                     "number"
-                } else if parsed.ends_with("PathBuf") {
+                } else if parsed == TypeId::of::<PathBuf>() {
                     "path"
                 } else {
                     "text"
