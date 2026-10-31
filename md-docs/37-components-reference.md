@@ -15,13 +15,12 @@ Every component is written `Name(positional, prop: value).flag { block }`. A **p
 
 - **Layout**: [`Container`](#container), [`Row`](#row), [`Column`](#column), [`Grid`](#grid), [`Stack`](#stack), [`Spacer`](#spacer), [`VirtualList`](#virtuallist), [`Splitter`](#splitter), [`Divider`](#divider), [`Host`](#host), [`Portal`](#portal), [`Element`](#element)
 - **Navigation**: [`Navbar`](#navbar), [`Sidebar`](#sidebar), [`Link`](#link), [`Tabs`](#tabs), [`Breadcrumb`](#breadcrumb), [`Menu`](#menu)
-- **Data display**: [`Card`](#card), [`Table`](#table), [`List`](#list), [`Badge`](#badge), [`Tag`](#tag), [`Avatar`](#avatar), [`Tooltip`](#tooltip)
+- **Data display**: [`Card`](#card), [`Table`](#table), [`List`](#list), [`Badge`](#badge), [`Tag`](#tag), [`Avatar`](#avatar), [`Tooltip`](#tooltip), [`Chart`](#chart), [`QrCode`](#qrcode)
 - **Form**: [`Input`](#input), [`Select`](#select), [`Checkbox`](#checkbox), [`Radio`](#radio), [`Switch`](#switch), [`Slider`](#slider), [`DatePicker`](#datepicker), [`FileUpload`](#fileupload), [`Form`](#form), [`Textarea`](#textarea)
 - **Feedback**: [`Alert`](#alert), [`Toast`](#toast), [`Modal`](#modal), [`Popover`](#popover), [`Dialog`](#dialog), [`Spinner`](#spinner), [`Progress`](#progress), [`Skeleton`](#skeleton)
 - **Actions**: [`Button`](#button), [`IconButton`](#iconbutton), [`ButtonGroup`](#buttongroup), [`Dropdown`](#dropdown)
 - **Media**: [`Image`](#image), [`Video`](#video), [`Audio`](#audio), [`Frame`](#frame), [`Icon`](#icon), [`Carousel`](#carousel)
 - **Typography**: [`Text`](#text), [`Heading`](#heading), [`Code`](#code), [`Markdown`](#markdown), [`Unsafe`](#unsafe), [`Blockquote`](#blockquote)
-- **Data Display**: [`Chart`](#chart), [`QrCode`](#qrcode)
 - **PDF**: [`TableOfContents`](#tableofcontents), [`Document`](#document), [`Section`](#section), [`Paragraph`](#paragraph), [`Header`](#header), [`Footer`](#footer), [`Background`](#background), [`Watermark`](#watermark), [`PageBreak`](#pagebreak)
 - **Slides**: [`Presentation`](#presentation), [`Slide`](#slide), [`TitleSlide`](#titleslide), [`SectionSlide`](#sectionslide), [`TwoColumn`](#twocolumn), [`ImageSlide`](#imageslide)
 - **Routing**: [`Router`](#router)
@@ -777,6 +776,64 @@ Renders with the class `wf-tooltip`.
 **Flags:** `.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd` `.dropInside` `.trapFocus`
 
 Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### Chart
+
+A chart drawn as vector graphics when the page is built: bars, lines, areas, a pie or a donut over a list of records.
+
+```
+Chart(kind: …, data: …, x: …)
+```
+
+```wf
+Chart(kind: .bar, data: [{ month: "Jan", web: 12 }, { month: "Feb", web: 18 }], x: "month", y: "web", unit: "k")
+```
+
+Renders with the class `wf-chart`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `kind:` | `.bar` `.line` `.area` `.pie` `.donut` | What it draws |
+| `data:` | `Any` | The rows: a list of records, or of numbers |
+| `x:` | `String` | The key of each row's label |
+| `y:` | `Any` | The key of each row's value, or a list of keys for several series |
+| `colors:` | `Any` | The series' colours, in order |
+| `width:` | `Number` | Its width in user units (it scales to its box) |
+| `height:` | `Number` | Its height in user units |
+| `ink:` | `String` | The colour of its labels |
+| `grid:` | `String` | The colour of its grid lines |
+| `legend:` | `Bool` | Name the series |
+| `stacked:` | `Bool` | Stack a bar chart's series |
+| `labels:` | `Bool` | Write each bar's or slice's value on it |
+| `unit:` | `String` | A unit after each value on the axis: `ms`, `%` |
+
+**Flags:** `.bar` `.line` `.area` `.pie` `.donut` `.legend` `.stacked` `.labels` `.dropInside` `.trapFocus`
+
+Attribute families: `global`, `aria`, `data`.
+
+### QrCode
+
+A QR code for a URL or any text, drawn as vector graphics when the page is built.
+
+```
+QrCode(value, color: …, background: …)
+```
+
+```wf
+QrCode("https://example.com/report/q1")
+```
+
+Renders with the class `wf-qr`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `value` (positional) | `String` | What it encodes |
+| `color:` | `String` | The colour of the dark modules |
+| `background:` | `String` | The colour behind them |
+
+**Flags:** `.dropInside` `.trapFocus`
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -1791,66 +1848,6 @@ Takes a block of children.
 
 Attribute families: `global`, `aria`, `data`.
 
-## Data Display
-
-### Chart
-
-A chart drawn as vector graphics when the page is built: bars, lines, areas, a pie or a donut over a list of records.
-
-```
-Chart(kind: …, data: …, x: …)
-```
-
-```wf
-Chart(kind: .bar, data: [{ month: "Jan", web: 12 }, { month: "Feb", web: 18 }], x: "month", y: "web", unit: "k")
-```
-
-Renders with the class `wf-chart`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `kind:` | `.bar` `.line` `.area` `.pie` `.donut` | What it draws |
-| `data:` | `Any` | The rows: a list of records, or of numbers |
-| `x:` | `String` | The key of each row's label |
-| `y:` | `Any` | The key of each row's value, or a list of keys for several series |
-| `colors:` | `Any` | The series' colours, in order |
-| `width:` | `Number` | Its width in user units (it scales to its box) |
-| `height:` | `Number` | Its height in user units |
-| `ink:` | `String` | The colour of its labels |
-| `grid:` | `String` | The colour of its grid lines |
-| `legend:` | `Bool` | Name the series |
-| `stacked:` | `Bool` | Stack a bar chart's series |
-| `labels:` | `Bool` | Write each bar's or slice's value on it |
-| `unit:` | `String` | A unit after each value on the axis: `ms`, `%` |
-
-**Flags:** `.bar` `.line` `.area` `.pie` `.donut` `.legend` `.stacked` `.labels` `.dropInside` `.trapFocus`
-
-Attribute families: `global`, `aria`, `data`.
-
-### QrCode
-
-A QR code for a URL or any text, drawn as vector graphics when the page is built.
-
-```
-QrCode(value, color: …, background: …)
-```
-
-```wf
-QrCode("https://example.com/report/q1")
-```
-
-Renders with the class `wf-qr`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `value` (positional) | `String` | What it encodes |
-| `color:` | `String` | The colour of the dark modules |
-| `background:` | `String` | The colour behind them |
-
-**Flags:** `.dropInside` `.trapFocus`
-
-Attribute families: `global`, `aria`, `data`.
-
 ## PDF
 
 ### TableOfContents
@@ -2350,7 +2347,7 @@ Events every element accepts in an `on … { }` handler:
 
 The names `Icon(…)`, `IconButton(icon:)` and `Sidebar.Item(icon:)` draw; any other name shows as the word, and the compiler warns.
 
-`close` `menu` `search` `home` `user` `settings` `check` `plus` `minus` `edit` `trash` `star` `heart` `mail` `bell` `download` `upload` `eye` `link` `calendar` `filter` `chevron-down` `chevron-right` `chevron-left` `info` `warning` `arrow-left` `arrow-right` `logout` `copy` `sun` `moon` `folder` `folder-plus` `folder-off` `file` `file-plus` `refresh` `alert-circle` `clock` `dot` `diff` `book` `git-pull-request` `pin` `git-branch` `more-horizontal` `window-minimize` `window-maximize` `outline` `help-circle` `collapse-all` `locate` `chevron-up` `globe` `external-link` `panel-down` `panel-up` `code` `monitor` `git-commit` `play` `layers`
+`close` `menu` `search` `home` `user` `settings` `check` `plus` `minus` `edit` `trash` `star` `heart` `mail` `bell` `download` `upload` `eye` `link` `calendar` `filter` `chevron-down` `chevron-right` `chevron-left` `info` `warning` `arrow-left` `arrow-right` `logout` `copy` `sun` `moon` `folder` `folder-plus` `folder-off` `file` `file-plus` `refresh` `alert-circle` `clock` `dot` `diff` `book` `git-pull-request` `pin` `git-branch` `more-horizontal` `window-minimize` `window-maximize` `outline` `help-circle` `collapse-all` `locate` `chevron-up` `globe` `external-link` `panel-down` `panel-up` `code` `monitor` `git-commit` `play` `layers` `insert` `grid` `list` `square` `pill` `image`
 
 ## Next
 

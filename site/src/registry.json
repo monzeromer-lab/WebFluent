@@ -8,7 +8,6 @@
   "Actions",
   "Media",
   "Typography",
-  "Data Display",
   "PDF",
   "Slides",
   "Routing"
@@ -3493,7 +3492,7 @@
   {
    "name": "Chart",
    "slug": "chart",
-   "group": "Data Display",
+   "group": "Data display",
    "summary": "A chart drawn as vector graphics when the page is built: bars, lines, areas, a pie or a donut over a list of records.",
    "plain": "A chart drawn as vector graphics when the page is built: bars, lines, areas, a pie or a donut over a list of records.",
    "signature": "Chart(kind: \u2026, data: \u2026, x: \u2026)",
@@ -3585,7 +3584,10 @@
     "data"
    ],
    "nearby": [
-    "QrCode"
+    "Card",
+    "Table",
+    "List",
+    "Badge"
    ],
    "example": "Chart(kind: .bar, data: [{ month: \"Jan\", web: 12 }, { month: \"Feb\", web: 18 }], x: \"month\", y: \"web\", unit: \"k\")",
    "cssClass": "wf-chart"
@@ -3593,7 +3595,7 @@
   {
    "name": "QrCode",
    "slug": "qrcode",
-   "group": "Data Display",
+   "group": "Data display",
    "summary": "A QR code for a URL or any text, drawn as vector graphics when the page is built.",
    "plain": "A QR code for a URL or any text, drawn as vector graphics when the page is built.",
    "signature": "QrCode(value, color: \u2026, background: \u2026)",
@@ -3627,7 +3629,10 @@
     "data"
    ],
    "nearby": [
-    "Chart"
+    "Card",
+    "Table",
+    "List",
+    "Badge"
    ],
    "example": "QrCode(\"https://example.com/report/q1\")",
    "cssClass": "wf-qr"
@@ -4745,7 +4750,13 @@
   "monitor",
   "git-commit",
   "play",
-  "layers"
+  "layers",
+  "insert",
+  "grid",
+  "list",
+  "square",
+  "pill",
+  "image"
  ],
  "count": 77
 }

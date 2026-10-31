@@ -2122,7 +2122,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
     // ─── Charts and codes ─────────────────────────────────────────────────
     comp(
         "Chart",
-        "Data Display",
+        "Data display",
         "A chart drawn as vector graphics when the page is built: bars, lines, areas, a pie or a donut over a list of records.",
         None,
         &[
@@ -2180,7 +2180,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
     ),
     comp(
         "QrCode",
-        "Data Display",
+        "Data display",
         "A QR code for a URL or any text, drawn as vector graphics when the page is built.",
         Some(special("value", PropType::Str, "What it encodes")),
         &[
