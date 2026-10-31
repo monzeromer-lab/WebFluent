@@ -664,7 +664,12 @@ fn element(ui: &UIElement, cx: &mut Ctx, ancestors: &[&UIElement], in_component:
         named(ui, "checked"),
         Some(Expr::Identifier(_)) | Some(Expr::PropertyAccess(..))
     );
+    // A box that is always disabled cannot be clicked, so it shows a state
+    // and is right not to change it.
+    let off = matches!(named(ui, "disabled"), Some(Expr::BoolLiteral(true)))
+        || ui.modifiers.iter().any(|m| m == "disabled");
     if matches!(name, "Checkbox" | "Switch")
+        && !off
         && named(ui, "bind").is_none()
         && named(ui, "checked").is_some()
         && !ui

@@ -712,8 +712,9 @@ fn f03_f04_f05_validation_and_controls_that_cannot_work() {
     );
     assert_eq!(with(&src, "F03").len(), 2, "{:?}", with(&src, "F03"));
     let unbound = page(
-        "    state agree = false\n    Checkbox(checked: agree, label: \"a\")\n    Checkbox(checked: agree, label: \"b\") { on change { agree = !agree } }",
+        "    state agree = false\n    Checkbox(checked: agree, label: \"a\")\n    Checkbox(checked: agree, label: \"b\") { on change { agree = !agree } }\n    Checkbox(checked: false, disabled: true, label: \"c\")",
     );
+    // One that is always disabled cannot be clicked: it only shows.
     assert_eq!(with(&unbound, "F04").len(), 1);
     let select = page(
         "    state plan = \"basic\"\n    state ok = \"pro\"\n    Select(bind: plan, label: \"a\") { Select.Option(\"Free\", value: \"free\")  Select.Option(\"Pro\", value: \"pro\") }\n    Select(bind: ok, label: \"b\") { Select.Option(\"Free\", value: \"free\")  Select.Option(\"Pro\", value: \"pro\") }",
