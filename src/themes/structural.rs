@@ -391,7 +391,7 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 :root[data-wf-resizing="y"], :root[data-wf-resizing="y"] * { cursor: row-resize !important; }
 
 /* ─── Drag ──────────────────────────────────────────── */
-[data-wf-drag] { touch-action: pan-y; }
+[data-wf-drag] { touch-action: pan-y; -webkit-user-select: none; user-select: none; -webkit-user-drag: none; }
 [data-dragging] { opacity: 0.4; }
 .wf-drag-ghost { position: fixed; left: 0; top: 0; margin: 0; pointer-events: none; z-index: 2147483647; opacity: 0.9; }
 :root[data-wf-dragging] { user-select: none; }

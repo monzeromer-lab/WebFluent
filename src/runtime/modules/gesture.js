@@ -249,6 +249,7 @@
     };
 
     const finish = (land) => {
+      unfollow();
       clearTimeout(timer);
       if (frame && typeof cancelAnimationFrame === "function") cancelAnimationFrame(frame);
       frame = 0;
@@ -272,12 +273,20 @@
     el.addEventListener("pointerdown", (e) => {
       if (e.button !== undefined && e.button !== 0) return;
       press = { x: e.clientX, y: e.clientY, touch: (e.pointerType || "mouse") !== "mouse" };
+      // A held mouse's moves are followed on the window until it comes
+      // up: WebKit sends them elsewhere once a press is held, and the drag
+      // never began. Not captured: a click inside — a modal's close button
+      // in a draggable heading — still lands where it is.
+      if (!press.touch && typeof window !== "undefined") {
+        window.addEventListener("pointermove", follow, true);
+        window.addEventListener("pointerup", released, true);
+      }
       if (press.touch) {
         clearTimeout(timer);
         timer = setTimeout(() => { if (press) begin(e); }, LONG_PRESS_MS);
       }
     });
-    el.addEventListener("pointermove", (e) => {
+    const onMove = (e) => {
       if (drag) return move(e);
       if (!press) return;
       const far = Math.hypot(e.clientX - press.x, e.clientY - press.y);
@@ -286,7 +295,27 @@
       } else if (far > DRAG_START) {
         begin(e);
       }
-    });
+    };
+    // The window's moves while a mouse is held, but for the ones the
+    // element hears itself: each move once.
+    const follow = (e) => {
+      if (e.target instanceof Node && el.contains(e.target)) return;
+      onMove(e);
+    };
+    const unfollow = () => {
+      if (typeof window === "undefined") return;
+      window.removeEventListener("pointermove", follow, true);
+      window.removeEventListener("pointerup", released, true);
+    };
+    // Let go before a drag began: the press is over. A drag that began has
+    // the pointer, and ends on the element's own `pointerup`.
+    const released = () => {
+      if (!drag) {
+        press = null;
+        unfollow();
+      }
+    };
+    el.addEventListener("pointermove", onMove);
     el.addEventListener("pointerup", () => finish(true));
     el.addEventListener("pointercancel", () => finish(false));
     // A finger that lifted a drag moves it, not the page.

@@ -141,6 +141,21 @@ async function scenario(label, ssg, port) {
     await drag({ x: pub.cx, y: pub.cy }, { x: src.cx, y: src.y + 2 });
     check("on its top edge it lands before", (await text("rows")) === "public,src", await text("rows"));
 
+    // A hand that moves fast: the press's first move is already past the
+    // row, onto another. It is followed all the same, and lands.
+    const fastFrom = await box("#row-src");
+    const fastTo = await box("#row-public");
+    await page.mouse.move(fastFrom.cx, fastFrom.cy);
+    await page.mouse.down();
+    await page.mouse.move(fastTo.cx, fastTo.y + 2);
+    await page.mouse.move(fastTo.cx, fastTo.y + 3);
+    await page.mouse.up();
+    check("a drag whose first move is already past its row lands too", (await text("rows")) === "src,public", await text("rows"));
+    // Back as it was.
+    const back = await box("#row-public");
+    const srcNow = await box("#row-src");
+    await drag({ x: back.cx, y: back.cy }, { x: srcNow.cx, y: srcNow.y + 2 });
+
     // ── Escape cancels ──
     src = await box("#row-src");
     const top = await box("#row-public");
