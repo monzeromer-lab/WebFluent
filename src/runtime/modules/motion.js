@@ -54,10 +54,15 @@
   // A reader who asked for less motion gets none: nothing starts, and
   // everything that waits on it is already finished. An editor previewing
   // that asks for it on the page's root.
+  // One query, asked again: a keyed `for` asks whenever its items move,
+  // and each `matchMedia` is a list the browser keeps and evaluates again
+  // on every change of style until it is collected.
+  let reduceQuery = null;
   function reducedMotion() {
     if (document.documentElement.getAttribute("data-wf-motion") === "reduce") return true;
-    return typeof window.matchMedia === "function" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (typeof window.matchMedia !== "function") return false;
+    reduceQuery ??= window.matchMedia("(prefers-reduced-motion: reduce)");
+    return reduceQuery.matches;
   }
 
   /// Milliseconds from whatever the author wrote: `"200ms"`, `"0.2s"`, a

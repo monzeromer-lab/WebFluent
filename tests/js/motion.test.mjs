@@ -337,3 +337,14 @@ test("a keyed list measures only the items that move: none as it grows at its en
   assert.equal(log.children[0].textContent, "line 30");
   await settle();
 });
+
+test("the reader's wish for less motion is asked of the browser once, not at every animation", () => {
+  const { WF, document, window } = run();
+  // Each `matchMedia` is a list the browser keeps and evaluates again on
+  // every change of style; a keyed `for` asks whenever its items move.
+  let asked = 0;
+  const query = window.matchMedia;
+  window.matchMedia = (q) => { asked++; return query(q); };
+  for (let i = 0; i < 20; i++) WF.animateIn(document.createElement("div"), "fadeIn", "10ms");
+  assert.equal(asked, 1);
+});
