@@ -251,7 +251,11 @@ fn is_word(c: char) -> bool {
 /// The first occurrence of `needle` at or after `from`, as a whole word at
 /// the edges that are word characters, within `limit` bytes.
 fn find_word(source: &str, from: usize, needle: &str, limit: usize) -> Option<usize> {
-    let end = (from + limit).min(source.len());
+    // A limit in bytes may end inside a character: it stops before it.
+    let mut end = (from + limit).min(source.len());
+    while !source.is_char_boundary(end) {
+        end -= 1;
+    }
     let mut at = from;
     while at < end {
         let i = at + source[at..end].find(needle)?;
@@ -938,6 +942,14 @@ mod tests {
             fix_all(&twice, "V01", "a.wf").unwrap().title,
             "Fix all 1 V01 in a.wf"
         );
+    }
+
+    #[test]
+    fn a_search_that_would_end_inside_a_character_stops_before_it() {
+        // The 400 bytes a search looks through end inside the dash.
+        let source = format!("{}word {}—", " ".repeat(10), "x".repeat(384));
+        assert_eq!(find_word(&source, 0, "word", 400), Some(10));
+        assert_eq!(find_word(&source, 0, "nowhere", 400), None);
     }
 
     #[test]
