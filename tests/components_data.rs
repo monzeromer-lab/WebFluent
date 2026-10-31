@@ -386,6 +386,21 @@ fn a_built_in_says_what_each_prop_takes() {
     let tone = button.props.iter().find(|p| p.name == "tone").unwrap();
     assert_eq!(tone.kind, "enum");
     assert!(tone.cases.iter().any(|c| c.name == "primary" && c.flag));
+    // The default is the case with no class of its own: `size: .md`; a
+    // prop the component writes itself has none.
+    let default_of = |c: &str, p: &str| {
+        let comp = catalog.get(c).unwrap();
+        let prop = comp.props.iter().find(|x| x.name == p).unwrap();
+        prop.cases
+            .iter()
+            .filter(|k| k.default)
+            .map(|k| k.name.clone())
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(default_of("Button", "size"), ["md"]);
+    assert_eq!(default_of("Button", "type"), ["button"]);
+    assert!(default_of("Button", "tone").is_empty());
+    assert!(default_of("Row", "gap").is_empty() && default_of("Row", "justify").is_empty());
     assert_eq!(button.tag, Some("button"));
     let image = catalog.get("Image").unwrap();
     let src = image.props.iter().find(|p| p.name == "src").unwrap();

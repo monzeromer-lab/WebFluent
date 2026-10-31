@@ -179,6 +179,9 @@ fn builtin_prop(p: &'static PropSig, sig: Option<&'static ComponentSig>, positio
         PropType::Enum(_) => ("enum", "Enum"),
     };
     let cases = match p.ty {
+        // The case without a class of its own is the one a prop has when
+        // nothing says otherwise — unless no case has one, as for a prop
+        // the component writes itself (`Row`'s `gap`): then none is.
         PropType::Enum(cases) => cases
             .iter()
             .map(|c| Case {
@@ -186,7 +189,7 @@ fn builtin_prop(p: &'static PropSig, sig: Option<&'static ComponentSig>, positio
                 summary: Some(c.summary.to_string()).filter(|s| !s.is_empty()),
                 flag: p.shorthand
                     && sig.is_none_or(|s| matches!(s.flag(c.name), super::Flag::Case(..))),
-                default: c.legacy.is_empty(),
+                default: c.legacy.is_empty() && cases.iter().any(|o| !o.legacy.is_empty()),
             })
             .collect(),
         _ => Vec::new(),
