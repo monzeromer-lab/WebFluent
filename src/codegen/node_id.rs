@@ -616,7 +616,7 @@ fn bound_args(ui: &UIElement, ctx: &Ctx) -> Vec<Bound> {
 
 /// The names an expression reads from its scope, in order: the root of
 /// each `a.b.c`, a lambda's own parameters left out.
-fn reads(e: &Expr, bound: &mut Vec<String>, out: &mut Vec<String>) {
+pub(crate) fn reads(e: &Expr, bound: &mut Vec<String>, out: &mut Vec<String>) {
     match e {
         Expr::Identifier(n) => {
             if !bound.contains(n) && !out.contains(n) {

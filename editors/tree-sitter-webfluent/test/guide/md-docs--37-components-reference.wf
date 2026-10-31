@@ -190,6 +190,16 @@ page Doc(path: "/") {
 
 // md-docs/37-components-reference.md
 page Doc(path: "/") {
+    Chart(kind: .bar, data: [{ month: "Jan", web: 12 }, { month: "Feb", web: 18 }], x: "month", y: "web", unit: "k")
+}
+
+// md-docs/37-components-reference.md
+page Doc(path: "/") {
+    QrCode("https://example.com/report/q1")
+}
+
+// md-docs/37-components-reference.md
+page Doc(path: "/") {
     state email = ""
     Input(bind: email, label: "Email", hint: "We never share it").email.required
 }
@@ -422,16 +432,6 @@ page Doc(path: "/") {
 // md-docs/37-components-reference.md
 page Doc(path: "/") {
     Blockquote { Text("Make it work, make it right, make it fast.") }
-}
-
-// md-docs/37-components-reference.md
-page Doc(path: "/") {
-    Chart(kind: .bar, data: [{ month: "Jan", web: 12 }, { month: "Feb", web: 18 }], x: "month", y: "web", unit: "k")
-}
-
-// md-docs/37-components-reference.md
-page Doc(path: "/") {
-    QrCode("https://example.com/report/q1")
 }
 
 // md-docs/37-components-reference.md

@@ -2127,6 +2127,66 @@ impl JsCodegen {
         lines
     }
 
+    /// Each `state` of `body`, in the order written, and before each the
+    /// `derived` its first value reads — directly or through another, and
+    /// the states those read: a state starts from its value as it is
+    /// defined, so what it reads is defined first. Returns those `derived`,
+    /// for the body's other statements to leave out.
+    fn emit_states(&mut self, owner: &str, body: &[Statement], parent: &str) -> Vec<String> {
+        let mut done: Vec<String> = Vec::new();
+        let mut early: Vec<String> = Vec::new();
+        for stmt in body {
+            if let StatementKind::State(s) = &stmt.kind {
+                self.emit_state_after_reads(owner, body, &s.name, parent, &mut done, &mut early);
+            }
+        }
+        early
+    }
+
+    /// The state or `derived` `name` of `body`, after what it reads.
+    fn emit_state_after_reads(
+        &mut self,
+        owner: &str,
+        body: &[Statement],
+        name: &str,
+        parent: &str,
+        done: &mut Vec<String>,
+        early: &mut Vec<String>,
+    ) {
+        if done.iter().any(|d| d == name) {
+            return;
+        }
+        let Some(stmt) = body.iter().find(|s| match &s.kind {
+            StatementKind::State(st) => st.name == name,
+            StatementKind::Derived(d) => d.name == name,
+            _ => false,
+        }) else {
+            return;
+        };
+        done.push(name.to_string());
+        let value = match &stmt.kind {
+            StatementKind::State(st) => &st.value,
+            StatementKind::Derived(d) => &d.value,
+            _ => return,
+        };
+        let mut reads = Vec::new();
+        crate::codegen::node_id::reads(value, &mut Vec::new(), &mut reads);
+        for read in reads {
+            self.emit_state_after_reads(owner, body, &read, parent, done, early);
+        }
+        match &stmt.kind {
+            StatementKind::State(s) => {
+                let val = self.emit_expr(&s.value);
+                let init = self.state_init(owner, s, &val);
+                self.emit_line(&format!("const {} = {};", sig(&s.name), init));
+            }
+            _ => {
+                early.push(name.to_string());
+                self.emit_statement_dom(stmt, parent);
+            }
+        }
+    }
+
     fn emit_component(&mut self, comp: &ComponentDecl) {
         self.node_owner = comp.name.clone();
         let params: Vec<String> = comp.props.iter().map(|p| p.name.clone()).collect();
@@ -2182,19 +2242,13 @@ impl JsCodegen {
 
         // Emit state declarations first
         self.resources = resource_names(&comp.body);
-        for stmt in &comp.body {
-            if let StatementKind::State(s) = &stmt.kind {
-                let val = self.emit_expr(&s.value);
-                let init = self.state_init(&comp.name, s, &val);
-                self.emit_line(&format!("const {} = {};", sig(&s.name), init));
-            }
-        }
+        let early = self.emit_states(&comp.name, &comp.body, "_frag");
 
         // Build DOM
         self.emit_line("const _frag = document.createDocumentFragment();");
 
         for stmt in &comp.body {
-            if !matches!(&stmt.kind, StatementKind::State(_)) {
+            if !emitted(stmt, &early) {
                 self.emit_statement_dom(stmt, "_frag");
             }
         }
@@ -2232,19 +2286,13 @@ impl JsCodegen {
 
         // Emit state declarations
         self.resources = resource_names(&page.body);
-        for stmt in &page.body {
-            if let StatementKind::State(s) = &stmt.kind {
-                let val = self.emit_expr(&s.value);
-                let init = self.state_init(&page.name, s, &val);
-                self.emit_line(&format!("const {} = {};", sig(&s.name), init));
-            }
-        }
+        let early = self.emit_states(&page.name, &page.body, "_root");
 
         // Build DOM
         self.emit_line("const _root = document.createDocumentFragment();");
 
         for stmt in &page.body {
-            if !matches!(&stmt.kind, StatementKind::State(_)) {
+            if !emitted(stmt, &early) {
                 self.emit_statement_dom(stmt, "_root");
             }
         }
@@ -9260,6 +9308,16 @@ fn active_link(var: &str, href: &str, prefix: impl std::fmt::Display) -> String 
     }
 }
 
+/// Whether `stmt` was emitted with the states ([`JsCodegen::emit_states`]):
+/// a `state`, or a `derived` one reads as it starts.
+fn emitted(stmt: &Statement, early: &[String]) -> bool {
+    match &stmt.kind {
+        StatementKind::State(_) => true,
+        StatementKind::Derived(d) => early.contains(&d.name),
+        _ => false,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -9267,6 +9325,29 @@ mod tests {
     fn compile(src: &str) -> String {
         let program = crate::syntax::parse_source(src, "<t>").expect("parse");
         JsCodegen::new().generate(&crate::sema::lower(program))
+    }
+
+    #[test]
+    fn a_state_starts_from_a_derived_value_defined_before_it() {
+        let out = compile(
+            "component Level(start: String) {\n    state level: Number = number\n    state other = 1\n    derived unused = other + 1\n    derived number: Number = Number(raw)\n    derived raw = start\n    Text(\"{level}\")\n}\n",
+        );
+        let at = |s: &str| out.find(s).unwrap_or_else(|| panic!("{s} in {out}"));
+        // What `level` reads comes first, and what that reads before it;
+        // what no state reads stays where it was.
+        assert!(at("const _raw = WF.computed") < at("const _number = WF.computed"));
+        assert!(at("const _number = WF.computed") < at("const _level = WF.signal(_number())"));
+        assert!(at("const _level =") < at("const _other ="));
+        assert!(at("const _frag") < at("const _unused = WF.computed"));
+        assert_eq!(out.matches("const _number =").count(), 1);
+        // A page too.
+        let page = compile(
+            "page Home(path: \"/\") {\n    state shown = first\n    derived first = \"a\"\n    Text(shown)\n}\n",
+        );
+        assert!(
+            page.find("const _first =").unwrap() < page.find("const _shown =").unwrap(),
+            "{page}"
+        );
     }
 
     fn compile_ssg(src: &str) -> String {
