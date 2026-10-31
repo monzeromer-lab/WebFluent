@@ -806,16 +806,26 @@ fn replace(span: Span, text: String) -> Patch {
 /// if there is none).
 fn append_child_patch(ui: &UIElement, wf: &str, source: &str) -> Patch {
     if let Some(body) = ui.body_span {
+        // A block on one line keeps its line: `Card { Text("a")  New }`.
+        if !is_multiline(source, body) {
+            return match ui.children.last() {
+                Some(last) => Patch {
+                    start: last.span.end as usize,
+                    end: last.span.end as usize,
+                    text: format!("  {wf}"),
+                },
+                None => Patch {
+                    start: body.start as usize,
+                    end: body.end as usize,
+                    text: format!(" {wf} "),
+                },
+            };
+        }
         let indent = match ui.children.last() {
             Some(last) => " ".repeat(last.span.col.saturating_sub(1) as usize),
-            None => format!("{}  ", line_indent(source, body.end as usize)),
+            None => format!("{}    ", line_indent(source, body.end as usize)),
         };
-        let at = body.end as usize;
-        Patch {
-            start: at,
-            end: at,
-            text: format!("{}{}\n", indent, wf),
-        }
+        before_closing(source, body.end as usize, format!("{indent}{wf}\n"))
     } else {
         let at = ui.span.end as usize;
         Patch {
@@ -1826,6 +1836,36 @@ mod tests {
         assert!(
             back.contains("style { gap: 12px; @media (max-width: 480px) { gap: 8px } }"),
             "{back}"
+        );
+    }
+
+    #[test]
+    fn a_child_appended_keeps_the_block_as_it_is_written() {
+        let src = "page P(path: \"/\") {\n    Card {\n    }\n    Row { Text(\"a\") }\n    Stack {\n        Text(\"b\")\n    }\n}\n";
+        let append = |el: &str| {
+            apply_edits(
+                src,
+                &[EditOp::AppendChild {
+                    node: id_of(src, el),
+                    wf: "Divider".into(),
+                }],
+            )
+            .unwrap()
+        };
+        assert!(
+            append("Card").contains("    Card {\n        Divider\n    }\n"),
+            "{}",
+            append("Card")
+        );
+        assert!(
+            append("Row").contains("    Row { Text(\"a\")  Divider }\n"),
+            "{}",
+            append("Row")
+        );
+        assert!(
+            append("Stack").contains("        Text(\"b\")\n        Divider\n    }\n"),
+            "{}",
+            append("Stack")
         );
     }
 
