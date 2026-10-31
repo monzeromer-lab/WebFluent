@@ -341,6 +341,27 @@ fn an_else_and_an_early_return_narrow_out_null() {
 }
 
 #[test]
+fn a_name_narrowed_out_of_null_may_still_be_set_to_null() {
+    // `if sel == null { return }` proves `sel` holds a value from there on;
+    // it is still a `Sel?`, and `null` is still one of its values.
+    let src = format!(
+        "type Sel {{ title: String }}\n{}",
+        page(
+            "    state sel: Sel? = null\n    action clear() {\n        if sel == null { return }\n        log(sel.title)\n        sel = null\n    }\n    Button(\"x\") { on click { clear() } }"
+        )
+    );
+    clean(&src);
+    // What its type does not hold is refused as before.
+    let wrong = format!(
+        "type Sel {{ title: String }}\n{}",
+        page(
+            "    state sel: Sel? = null\n    action clear() {\n        if sel == null { return }\n        sel = 5\n    }\n    Button(\"x\") { on click { clear() } }"
+        )
+    );
+    assert_eq!(with(&wrong, "T01").len(), 1, "{:?}", with(&wrong, "T01"));
+}
+
+#[test]
 fn t19_a_value_that_may_be_null_shown_as_text_draws_a_warning() {
     let src = format!(
         "type U {{ nick: String? }}\n{}",

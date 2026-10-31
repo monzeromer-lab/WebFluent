@@ -788,6 +788,10 @@ struct Checker<'a, 'p> {
     /// The names in each scope nothing may assign to, and what each is: a
     /// derived value, a prop, a loop variable. Parallel to `scopes`.
     fixed: Vec<HashMap<String, &'static str>>,
+    /// Each name narrowed in a scope, and its type before: what it may be
+    /// assigned, whatever a condition proved it holds now. Parallel to
+    /// `scopes`.
+    widened: Vec<HashMap<String, Type>>,
     /// The component being checked, for `emit`.
     component: Option<&'p ComponentDecl>,
     /// The `return` types met in the action being checked.
@@ -847,6 +851,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             info,
             scopes: Vec::new(),
             fixed: Vec::new(),
+            widened: Vec::new(),
             component: None,
             returns: Vec::new(),
             current_span: Span::dummy(),
@@ -868,11 +873,23 @@ impl<'a, 'p> Checker<'a, 'p> {
     fn push_scope(&mut self) {
         self.scopes.push(HashMap::new());
         self.fixed.push(HashMap::new());
+        self.widened.push(HashMap::new());
     }
 
     fn pop_scope(&mut self) {
         self.scopes.pop();
         self.fixed.pop();
+        self.widened.pop();
+    }
+
+    /// What `name` may be assigned: its type before any condition narrowed
+    /// it. `if x == null { return }` proves `x` holds a value from there on;
+    /// `x = null` after it is still a value of its type.
+    fn assignable(&self, name: &str) -> Option<Type> {
+        self.widened
+            .iter()
+            .find_map(|w| w.get(name).cloned())
+            .or_else(|| self.lookup(name))
     }
 
     /// Bind a name nothing may assign to, saying what it is.
@@ -953,6 +970,11 @@ impl<'a, 'p> Checker<'a, 'p> {
         // A narrowed name is still what it was: a derived value checked
         // for null is still not assignable.
         let what = self.fixed_kind(name);
+        if let Some(before) = self.lookup(name)
+            && let Some(widened) = self.widened.last_mut()
+        {
+            widened.entry(name.to_string()).or_insert(before);
+        }
         if let Some(scope) = self.scopes.last_mut() {
             scope.insert(name.to_string(), ty);
         }
@@ -1666,7 +1688,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                 let target = match &a.target {
                     // A name nothing declares compiles to a signal's
                     // `.set`, `_name.set(…)`, which throws: `T13`.
-                    Expr::Identifier(name) => match self.lookup(name) {
+                    Expr::Identifier(name) => match self.assignable(name) {
                         Some(ty) => ty,
                         None => {
                             if !self.is_known_name(name) {
