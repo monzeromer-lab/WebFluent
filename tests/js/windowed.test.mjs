@@ -301,8 +301,12 @@ test("a list fed an item at a time is laid out once in the next frame, with its 
   const { WF, document, frame, pending } = loadObserved();
   const box = document.createElement("div");
   box.clientHeight = 320;
-  box.scrollTop = 0;
   document.body.appendChild(box);
+  // As a browser does, the box scrolls no further than what it holds: the
+  // spacers and the rows drawn.
+  const holds = () => [...box.children].reduce((h, n) => h + (n.tagName === "P" ? 32 : parseFloat(n.style.height) || 0), 0);
+  let top = 0;
+  Object.defineProperty(box, "scrollTop", { get: () => top, set: (v) => { top = Math.max(0, Math.min(v, holds() - box.clientHeight)); } });
   const lines = WF.signal(numbers(20));
   const rows = () => [...box.children].filter((n) => n.tagName === "P").map((n) => n.textContent);
   WF.scoped(() => WF.windowed(box, () => lines(), (item) => WF.el("p", {}, [item]), {

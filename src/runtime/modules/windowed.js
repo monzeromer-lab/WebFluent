@@ -105,9 +105,13 @@
 
     const layout = () => {
       frame = 0;
+      // A row to reveal with this change: laid out first, so the spacers
+      // stand for the whole list and the browser lets the box scroll that
+      // far, then revealed, then the window it scrolled to is drawn.
       if (revealing !== null) {
         const wanted = revealing;
         revealing = null;
+        layout();
         reveal(wanted);
       }
       measureAll();
