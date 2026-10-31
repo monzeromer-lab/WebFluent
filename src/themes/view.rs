@@ -344,8 +344,12 @@ pub fn view(
     };
     let mut unpaired: Vec<String> = Vec::new();
     if dark.is_some() {
-        for k in theme_values.keys() {
-            if !dark_values.contains_key(k) && k.starts_with("color-") {
+        // A colour the theme declares and its dark pair does not: how a
+        // dark theme ends up with a light border (`line-strong`).
+        for (k, (v, _)) in &theme_values {
+            let colour =
+                k.starts_with("color-") || crate::linter::contrast::ratio(v, "#000000").is_some();
+            if !dark_values.contains_key(k) && colour {
                 unpaired.push(k.clone());
             }
         }
@@ -549,6 +553,13 @@ mod tests {
         assert!(
             v.unpaired.contains(&"color-primary".to_string()),
             "a light colour with no dark one"
+        );
+        // A colour the theme invents counts too: a light surface the dark
+        // theme never darkens.
+        assert!(
+            v.unpaired.contains(&"surface-raised".to_string()),
+            "{:?}",
+            v.unpaired
         );
     }
 

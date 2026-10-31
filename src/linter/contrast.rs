@@ -325,6 +325,14 @@ fn parse_colour(value: &str) -> Option<(u8, u8, u8)> {
     None
 }
 
+/// The WCAG contrast ratio between two colours as a theme writes them
+/// (`#0f766e`, `#fff`, `rgb(…)`): the ratio A13 holds a pairing to, for an
+/// editor that shows it while a value is still being chosen. `None` when
+/// either is not a colour this check reads.
+pub fn ratio(a: &str, b: &str) -> Option<f64> {
+    Some(contrast_ratio(parse_colour(a)?, parse_colour(b)?))
+}
+
 /// Relative luminance, per WCAG 2.2.
 fn luminance((r, g, b): (u8, u8, u8)) -> f64 {
     let channel = |c: u8| {
@@ -352,6 +360,14 @@ pub fn is_colour_literal(expr: &Expr) -> bool {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn a_ratio_is_read_from_two_colours_as_a_theme_writes_them() {
+        let r = ratio("#ffffff", "#000").unwrap();
+        assert!((r - 21.0).abs() < 1e-9, "{r}");
+        assert!((ratio("rgb(255, 255, 255)", "#ffffff").unwrap() - 1.0).abs() < 1e-9);
+        assert_eq!(ratio("var(--x)", "#fff"), None);
+    }
+
     use super::*;
 
     fn parse(src: &str) -> Program {
