@@ -110,7 +110,7 @@ The 62 icons: `home`, `menu`, `search`, `close`, `user`, `settings`,
 `download`, `upload`, `eye`, `link`, `calendar`, `filter`, `info`,
 `warning`, `arrow-left`, `arrow-right`, `chevron-down`, `chevron-right`,
 `chevron-left`, `logout`, `copy`, `sun`, `moon`; and what an editor or a
-tool draws — `folder`, `folder-plus`, `folder-off`, `file`, `file-plus`, `refresh`, `alert-circle`, `clock`, `dot`, `diff`, `book`, `git-pull-request`, `pin`, `git-branch`, `more-horizontal`, `window-minimize`, `window-maximize`, `outline`, `help-circle`, `collapse-all`, `locate`, `chevron-up`, `globe`, `external-link`, `panel-down`, `panel-up`, `code`, `monitor`, `git-commit`, `play`.
+tool draws — `folder`, `folder-plus`, `folder-off`, `file`, `file-plus`, `refresh`, `alert-circle`, `clock`, `dot`, `diff`, `book`, `git-pull-request`, `pin`, `git-branch`, `more-horizontal`, `window-minimize`, `window-maximize`, `outline`, `help-circle`, `collapse-all`, `locate`, `chevron-up`, `globe`, `external-link`, `panel-down`, `panel-up`, `code`, `monitor`, `git-commit`, `play`, `layers`.
 
 A name that is not one of them draws as the word, and the build carries
 only the glyphs the program names — so an icon whose name arrives at run
