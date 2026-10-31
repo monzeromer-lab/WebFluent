@@ -1192,6 +1192,16 @@ impl<'a> RenderContext<'a> {
         for (k, v) in &self.locals {
             names.push((k.clone(), Static::from_json(v)));
         }
+        // The derived functions in reach, so a lambda handed to a method —
+        // `rows.every((r) => countOf(r) == 0)` — may call one.
+        for (k, f) in &self.functions {
+            names.push((
+                k.clone(),
+                Static::Lambda(crate::codegen::static_eval::Lambda(std::sync::Arc::new(
+                    f.clone(),
+                ))),
+            ));
+        }
         eval(expr, &Scope::of(names))
             .map(|v| v.to_json())
             .unwrap_or(Value::Null)
