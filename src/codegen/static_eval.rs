@@ -47,7 +47,20 @@ pub enum Static {
     Map(Vec<(String, Static)>),
     /// A regular expression: its pattern and flags, compiled on use.
     Regex(String, String),
+    /// A lambda held as a value — a `derived` that is a function, `derived
+    /// countOf = (id) => …` — applied where it is called.
+    Lambda(Lambda),
     Null,
+}
+
+/// A lambda as a value: the same lambda is the same value.
+#[derive(Debug, Clone)]
+pub struct Lambda(pub Arc<Expr>);
+
+impl PartialEq for Lambda {
+    fn eq(&self, other: &Self) -> bool {
+        Arc::ptr_eq(&self.0, &other.0)
+    }
 }
 
 impl Static {
@@ -66,8 +79,8 @@ impl Static {
             Static::Null => String::new(),
             Static::Regex(p, f) => format!("/{p}/{f}"),
             // A list or map has no sensible text form; the renderer should be
-            // iterating it, not printing it.
-            Static::List(_) | Static::Map(_) => String::new(),
+            // iterating it, not printing it. Nor has a function.
+            Static::List(_) | Static::Map(_) | Static::Lambda(_) => String::new(),
         }
     }
 
@@ -79,7 +92,7 @@ impl Static {
             Static::Num(n) => *n != 0.0 && !n.is_nan(),
             Static::Str(s) => !s.is_empty(),
             Static::List(items) => !items.is_empty(),
-            Static::Map(_) | Static::Regex(..) => true,
+            Static::Map(_) | Static::Regex(..) | Static::Lambda(_) => true,
             Static::Null => false,
         }
     }
@@ -151,6 +164,7 @@ impl Static {
                 .unwrap_or(serde_json::Value::Null),
             Static::Str(s) => serde_json::Value::String(s.clone()),
             Static::Regex(p, f) => serde_json::Value::String(format!("/{p}/{f}")),
+            Static::Lambda(_) => serde_json::Value::Null,
             Static::List(items) => {
                 serde_json::Value::Array(items.iter().map(Static::to_json).collect())
             }
@@ -571,7 +585,17 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
         }
 
         Expr::BinaryOp(left, op, right) => {
-            let l = eval_in(left, scope, fuel)?;
+            // `xs[i] ?? d`, `m[k] ?? d`: a known list or object that has
+            // nothing there gives `undefined`, and `??` takes the default.
+            let l = match (eval_in(left, scope, fuel), op, left.as_ref()) {
+                (Some(l), _, _) => l,
+                (None, BinOp::NullCoalesce, Expr::IndexAccess(base, index))
+                    if missing(base, index, scope, fuel) =>
+                {
+                    Static::Null
+                }
+                _ => return None,
+            };
             let r = eval_in(right, scope, fuel)?;
             binary(&l, op, &r)
         }
@@ -633,6 +657,11 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
                 .iter()
                 .map(|a| eval_in(a, scope, fuel))
                 .collect::<Option<Vec<_>>>()?;
+            // A name holding a lambda: a `derived` that is a function.
+            if let Some(Static::Lambda(Lambda(lambda))) = scope.get(name) {
+                let lambda = lambda.clone();
+                return apply(&lambda, &args, scope, fuel);
+            }
             match name.as_str() {
                 // `t("key")` and `t("key", { count: n, name: x })`: the
                 // message in the default locale, its plural picked by
@@ -726,8 +755,9 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
             }
         }
 
-        // A bare lambda is not a value the page can show.
-        Expr::Lambda(..) => None,
+        // A lambda is a value: what a call to the name holding it applies.
+        // The page cannot show it, and does not try (`to_text`).
+        Expr::Lambda(..) => Some(Static::Lambda(Lambda(Arc::new(expr.clone())))),
 
         // An enum case is its name at run time; a token is its custom
         // property. A request cannot be awaited at build time.
@@ -760,6 +790,18 @@ fn in_optional_chain(expr: &Expr) -> bool {
 /// stays `$1`, `$&` is the whole match (`$0`), a literal `$` is `$$`.
 fn js_replacement(to: &str) -> String {
     to.replace("$&", "${0}")
+}
+
+/// Whether `base[index]` is known to hold nothing: `base` a list without
+/// that index, or an object without that key, both worked out.
+fn missing(base: &Expr, index: &Expr, scope: &Scope, fuel: &Fuel) -> bool {
+    match (eval_in(base, scope, fuel), eval_in(index, scope, fuel)) {
+        (Some(Static::List(items)), Some(Static::Num(n))) => n < 0.0 || n as usize >= items.len(),
+        (Some(Static::Map(fields)), Some(Static::Str(k))) => {
+            !fields.iter().any(|(key, _)| *key == k)
+        }
+        _ => false,
+    }
 }
 
 /// Apply a lambda to `args`, with its parameters bound over `scope`.
@@ -1617,6 +1659,23 @@ mod interpreter_tests {
                 .map(|(_, v)| v.clone()),
             _ => None,
         }
+    }
+
+    #[test]
+    fn a_derived_that_is_a_function_is_called_where_it_is_used() {
+        let s = store_scope(
+            r#"store S {
+                state counts = { a: 7 }
+                derived countOf = (id) => if counts == null { -1 } else { counts[id] ?? 0 }
+                derived twice = (n, m) => n * 2 + m
+                derived seven = countOf("a")
+                derived none = countOf("b")
+                derived five = twice(2, 1)
+            }"#,
+        );
+        assert_eq!(field(&s, "S", "seven"), Some(Static::Num(7.0)));
+        assert_eq!(field(&s, "S", "none"), Some(Static::Num(0.0)));
+        assert_eq!(field(&s, "S", "five"), Some(Static::Num(5.0)));
     }
 
     #[test]

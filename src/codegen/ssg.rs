@@ -994,6 +994,19 @@ fn substitute_statement(
             }
             out.kind = StatementKind::Match(m);
         }
+        // A component's own state and derived values read its props too: a
+        // `derived countOf = (id) => counts[id] ?? 0` is worked out over the
+        // props it was called with.
+        StatementKind::State(st) => {
+            let mut st = st.clone();
+            st.value = substitute_expr(&st.value, bindings);
+            out.kind = StatementKind::State(st);
+        }
+        StatementKind::Derived(d) => {
+            let mut d = d.clone();
+            d.value = substitute_expr(&d.value, bindings);
+            out.kind = StatementKind::Derived(d);
+        }
         _ => {}
     }
     vec![out]
@@ -3048,6 +3061,15 @@ mod component_expansion_tests {
             rendered, painted,
             "the template engine paints what the pre-render does"
         );
+    }
+
+    #[test]
+    fn a_components_derived_function_paints_what_it_gives() {
+        let html = render(
+            "component Probe(counts: Any = null) {\n  derived countOf = (id) => if counts == null { -1 } else { counts[id] ?? 0 }\n  Text(\"a {countOf(\\\"x\\\")} b {countOf(\\\"y\\\")}\")\n}\n\
+             page Home(path: \"/\") { Probe(counts: { x: 7 }) }\n",
+        );
+        assert!(html.contains("a 7 b 0"), "{html}");
     }
 
     #[test]
