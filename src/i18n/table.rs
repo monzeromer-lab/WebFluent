@@ -312,7 +312,18 @@ pub fn build(
         tables.insert(locale.clone(), parsed);
     }
     let default = config.default_locale.clone();
-    let all_uses = uses(program, file_of);
+    let mut all_uses = uses(program, file_of);
+    // Translated by its own words: each string a reader sees is a key,
+    // and its words are the default locale's message.
+    if config.literals {
+        let literal = super::literals::uses(program, file_of);
+        if let Some(t) = tables.get_mut(&default) {
+            for u in &literal {
+                t.entry(u.key.clone()).or_insert_with(|| u.key.clone());
+            }
+        }
+        all_uses.extend(literal);
+    }
     let implied = implied(program);
 
     // The keys: every base any locale has, a plural one once.

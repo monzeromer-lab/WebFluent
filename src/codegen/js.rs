@@ -2074,9 +2074,10 @@ impl JsCodegen {
             keys.sort();
 
             for key in &keys {
-                let value = &messages[*key];
-                let escaped = value.replace('\\', "\\\\").replace('"', "\\\"");
-                self.emit_line(&format!("\"{}\": \"{}\",", key, escaped));
+                // Each a JSON string: a message may hold a quote, a
+                // backslash or a line break, and a key may too.
+                let quoted = |t: &str| serde_json::to_string(t).unwrap_or_else(|_| "\"\"".into());
+                self.emit_line(&format!("{}: {},", quoted(key), quoted(&messages[*key])));
             }
 
             self.indent -= 1;

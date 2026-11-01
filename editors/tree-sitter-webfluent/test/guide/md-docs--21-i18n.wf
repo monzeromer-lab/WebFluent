@@ -9,6 +9,12 @@ page Home(path: "/", title: "Home", description: "The home page.") {
 }
 
 // md-docs/21-i18n.md
+page Doc(path: "/") {
+    Heading("Problems").h2          // المشاكل, for a reader in ar
+    Text("{l.count} missing")       // one key, `{count} missing`
+}
+
+// md-docs/21-i18n.md
 app {
     state chosen = "en"
     Navbar {

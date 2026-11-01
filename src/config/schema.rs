@@ -550,6 +550,11 @@ pub const FIELDS: &[Field] = &[
         String,
         "The folder the translation files are in.",
     ),
+    f(
+        "i18n.literals",
+        Bool,
+        "Translate by the words themselves: each string a reader sees is its own key.",
+    ),
     // ── Lints ──
     f(
         "lints",

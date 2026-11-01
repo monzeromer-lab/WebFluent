@@ -284,3 +284,99 @@ fn lines_reach_the_caller_as_they_are_printed() {
     assert_eq!(*seen.lock().unwrap(), report.lines);
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+#[test]
+fn a_project_translated_by_its_own_words() {
+    let dir = std::env::temp_dir().join(format!("wf-build-api-literals-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(dir.join("src/pages")).unwrap();
+    std::fs::create_dir_all(dir.join("src/translations")).unwrap();
+    std::fs::write(
+        dir.join("webfluent.app.json"),
+        r#"{ "name": "words", "build": { "output": "build", "ssg": true }, "i18n": { "default_locale": "en", "locales": ["en", "ar"], "literals": true } }"#,
+    )
+    .unwrap();
+    std::fs::write(dir.join("src/translations/en.json"), "{}\n").unwrap();
+    std::fs::write(
+        dir.join("src/translations/ar.json"),
+        "{ \"Problems\": \"المشاكل\", \"{n} missing\": \"{n} مفقودة\" }\n",
+    )
+    .unwrap();
+    std::fs::write(
+        dir.join("src/pages/Home.wf"),
+        "page Home(path: \"/\", title: \"Home\", description: \"Words.\") {\n    state n = 3\n    Heading(\"Problems\").h1\n    Text(\"{n} missing\")\n    Icon(\"warning\")\n}\n",
+    )
+    .unwrap();
+    let vfs = OverlayVfs::over_disk();
+    let report = build(&BuildOptions::new(&dir, &vfs))
+        .unwrap_or_else(|f| panic!("{f}\n{:?}", f.report.lines));
+    assert_eq!(report.errors().count(), 0, "{:?}", report.lines);
+    let i0: Vec<&str> = report
+        .lines
+        .iter()
+        .map(|l| l.text.as_str())
+        .filter(|t| t.contains("[I0"))
+        .collect();
+    assert!(
+        i0.is_empty(),
+        "the words are the default's messages: {i0:?}"
+    );
+    // The page reads the words as written in the default locale, and asks
+    // the table for them in the others.
+    let html = std::fs::read_to_string(dir.join("build/index.html")).unwrap();
+    assert!(
+        html.contains("Problems") && html.contains("3 missing"),
+        "{html}"
+    );
+    let js: String = std::fs::read_dir(dir.join("build"))
+        .unwrap()
+        .filter_map(|e| e.ok())
+        .filter(|e| e.path().extension().is_some_and(|x| x == "js"))
+        .map(|e| std::fs::read_to_string(e.path()).unwrap_or_default())
+        .chain(
+            std::fs::read_dir(dir.join("build/pages"))
+                .into_iter()
+                .flatten()
+                .filter_map(|e| e.ok())
+                .map(|e| std::fs::read_to_string(e.path()).unwrap_or_default()),
+        )
+        .collect();
+    assert!(
+        js.contains("\"Problems\"") && js.contains("\"{n} missing\""),
+        "the keys are asked for"
+    );
+    assert!(js.contains("المشاكل"), "the table is in the build");
+    // The table counts them as used, and what the other locale is missing.
+    let t = webfluent::i18n::table::table_via(&vfs, &dir)
+        .unwrap()
+        .unwrap();
+    assert!(t.keys.iter().any(|k| k.key == "Problems" && !k.unused));
+    let ar = t.locales.iter().find(|l| l.code == "ar").unwrap();
+    assert_eq!(ar.missing, 0);
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn a_message_with_a_line_break_or_a_quote_is_written_as_a_string() {
+    let dir = std::env::temp_dir().join(format!("wf-build-api-breaks-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(dir.join("src/pages")).unwrap();
+    std::fs::create_dir_all(dir.join("src/translations")).unwrap();
+    std::fs::write(dir.join("webfluent.app.json"), r#"{ "name": "breaks", "build": { "output": "build" }, "i18n": { "default_locale": "en", "locales": ["en", "ar"] } }"#).unwrap();
+    std::fs::write(
+        dir.join("src/translations/en.json"),
+        "{ \"two\\nlines\": \"one\\ntwo \\\"quoted\\\" \\\\ end\" }\n",
+    )
+    .unwrap();
+    std::fs::write(
+        dir.join("src/translations/ar.json"),
+        "{ \"two\\nlines\": \"واحد\\nاثنان\" }\n",
+    )
+    .unwrap();
+    std::fs::write(dir.join("src/pages/Home.wf"), "page Home(path: \"/\", title: \"Home\", description: \"Breaks.\") {\n    Text(t(\"two\\nlines\"))\n}\n").unwrap();
+    let vfs = OverlayVfs::over_disk();
+    let report = build(&BuildOptions::new(&dir, &vfs))
+        .unwrap_or_else(|f| panic!("{f}\n{:?}", f.report.lines));
+    assert_eq!(report.errors().count(), 0, "{:?}", report.lines);
+    let _ = std::fs::remove_dir_all(&dir);
+}

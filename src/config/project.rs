@@ -1048,6 +1048,11 @@ pub struct I18nConfig {
     pub locales: Vec<String>,
     #[serde(default = "default_translations_dir")]
     pub dir: String,
+    /// Translated by its own words: every string a reader sees is looked
+    /// up by the text as written, with no `t()` in the source
+    /// (`i18n::literals`).
+    #[serde(default)]
+    pub literals: bool,
 }
 
 fn default_locale() -> String {

@@ -256,6 +256,7 @@ absent unless you add them.
 | `default_locale` | `"en"` | The locale a page opens in. |
 | `locales` | `["en"]` | Every locale; one JSON file each. |
 | `dir` | `"src/translations"` | Where the files are. |
+| `literals` | `false` | Translate by the words themselves: each string a reader sees is its own key (see the i18n chapter). |
 
 [Chapter 21](21-i18n.md).
 

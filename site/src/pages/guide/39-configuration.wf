@@ -607,6 +607,11 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
                     Table.Cell { Markdown("`\"src/translations\"`") }
                     Table.Cell("Where the files are.")
                 }
+                Table.Row {
+                    Table.Cell { Markdown("`literals`") }
+                    Table.Cell { Markdown("`false`") }
+                    Table.Cell("Translate by the words themselves: each string a reader sees is its own key (see the i18n chapter).")
+                }
             }
         }
 

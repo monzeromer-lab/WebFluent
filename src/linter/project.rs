@@ -241,6 +241,20 @@ pub fn translations(
     file_of: &dyn Fn(usize) -> String,
 ) -> Vec<Diagnostic> {
     let mut out = Vec::new();
+    // Translated by its own words: the default locale's message for each
+    // string a reader sees is its words as written.
+    let with_literals;
+    let messages = if config.literals {
+        let mut m = messages.clone();
+        let own = m.entry(config.default_locale.clone()).or_default();
+        for u in crate::i18n::literals::uses(program, file_of) {
+            own.entry(u.key.clone()).or_insert(u.key);
+        }
+        with_literals = m;
+        &with_literals
+    } else {
+        messages
+    };
     let has = |key: &str| -> Option<(&String, &HashMap<String, String>)> {
         messages.iter().find(|(_, m)| {
             m.contains_key(key)

@@ -551,6 +551,11 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     // the pages as a reader who last visited then.
     crate::linter::project::keep_persisted_values(project_dir, &program, &config.env);
     let mut program = lowered;
+    // A project translated by its own words: each string a reader sees is
+    // the `t()` it stands for, from here to the code it is written as.
+    if config.i18n.as_ref().is_some_and(|i| i.literals) {
+        crate::i18n::literals::translate(&mut program);
+    }
     // Under `clean_urls: "directory"`, every link to a page names the
     // address with the slash, as the canonical does.
     crate::codegen::seo::directory_links(&config, &mut program);

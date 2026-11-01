@@ -9,6 +9,7 @@
 use std::collections::HashMap;
 use std::path::Path;
 
+pub mod literals;
 pub mod plurals;
 pub mod table;
 #[rustfmt::skip]
