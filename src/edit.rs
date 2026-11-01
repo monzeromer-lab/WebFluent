@@ -617,7 +617,15 @@ fn compute_patches(
                     text: format!("{sep}{prop}: {value}"),
                 });
             }
-            let at = ident_end(source, ui.span.start as usize);
+            // Right after the name as written — `Card`, `Card.Header` —
+            // and before its flags: `Card(animate: .fadeIn).elevated`.
+            let start = ui.span.start as usize;
+            let name = crate::print::component(&ui.component);
+            let at = if source[start..].starts_with(&name) {
+                start + name.len()
+            } else {
+                ident_end(source, start)
+            };
             one(Patch {
                 start: at,
                 end: at,
@@ -1866,6 +1874,37 @@ mod tests {
             append("Stack").contains("        Text(\"b\")\n        Divider\n    }\n"),
             "{}",
             append("Stack")
+        );
+    }
+
+    #[test]
+    fn a_prop_set_on_a_call_with_flags_and_no_parentheses_goes_before_the_flags() {
+        let src = "page P(path: \"/\") {\n    Card.elevated.fadeIn {\n        Text(\"a\")\n    }\n    Card.Header.big\n}\n";
+        let out = apply_edits(
+            src,
+            &[EditOp::SetProp {
+                node: id_of(src, "Card"),
+                prop: "exit".into(),
+                value: ".fadeOut".into(),
+            }],
+        )
+        .unwrap();
+        assert!(
+            out.contains("    Card(exit: .fadeOut).elevated.fadeIn {"),
+            "{out}"
+        );
+        let out = apply_edits(
+            src,
+            &[EditOp::SetProp {
+                node: id_of(src, "Card.Header"),
+                prop: "delay".into(),
+                value: "\"80ms\"".into(),
+            }],
+        )
+        .unwrap();
+        assert!(
+            out.contains("    Card.Header(delay: \"80ms\").big\n"),
+            "{out}"
         );
     }
 
