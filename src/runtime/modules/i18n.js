@@ -4,12 +4,28 @@
   const RTL_LOCALES = new Set(["ar", "arc", "ckb", "dv", "fa", "he", "iw", "ks", "nqo", "ps", "sd", "syr", "ug", "ur", "yi"]);
   const isRtl = (l) => RTL_LOCALES.has(String(l).split(/[-_]/)[0].toLowerCase());
 
+  /// Whether a table has plural forms of `key`.
+  const PLURAL_FORMS = ["zero", "one", "two", "few", "many", "other"];
+  const hasForms = (m, key) => {
+    for (const f of PLURAL_FORMS) if (m[key + "." + f] !== undefined) return true;
+    return false;
+  };
+
   function locales(defaultLocale, translations) {
     const locale = signal(defaultLocale);
     const dir = signal(isRtl(defaultLocale) ? "rtl" : "ltr");
 
     function t(key, params) {
       const currentLocale = locale();
+      // A plain key, the common case: one lookup, the reader's table then
+      // the default's, else the key itself — no forms to try, nothing to fill.
+      if (params === undefined) {
+        const own = translations[currentLocale];
+        if (own && typeof own[key] === "string") return own[key];
+        const base = translations[defaultLocale];
+        if (base && typeof base[key] === "string" && !(own && hasForms(own, key))) return base[key];
+        if (!(own && hasForms(own, key)) && !(base && hasForms(base, key))) return key;
+      }
       const messages = translations[currentLocale] || translations[defaultLocale] || {};
       const fallback = translations[defaultLocale] || {};
       const FORMS = ["zero", "one", "two", "few", "many", "other"];
