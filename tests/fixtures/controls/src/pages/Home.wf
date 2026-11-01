@@ -1,7 +1,8 @@
 /// The controls fixture: a switch, a box and a choice, each bound, and the
 /// switch and the box given their value and told of a change — a value
 /// down, an event up — pre-rendered with their inputs as the page draws
-/// them.
+/// them; and a select whose options are redrawn keeps the value it was
+/// given.
 page Home(path: "/", title: "Controls", description: "Switches, boxes and choices.") {
     state bound = true
     state given = true
@@ -9,6 +10,9 @@ page Home(path: "/", title: "Controls", description: "Switches, boxes and choice
     state size = "md"
     state kept = false
     state heard = 0
+    state models: [String] = ["opus", "sonnet"]
+    state model = "sonnet"
+    state round = 0
     Heading("Controls").h1
     Switch(bind: bound, label: "Bound switch", id: "bound")
     Switch(checked: given, label: "Given switch", id: "given") {
@@ -24,4 +28,16 @@ page Home(path: "/", title: "Controls", description: "Switches, boxes and choice
     Radio(bind: size, value: "md", label: "Medium", id: "md")
     Text("{bound} {given} {ticked} {size}", id: "said")
     Text("{kept} {heard}", id: "heard")
+    Select(value: model, aria-label: "Model", id: "model") {
+        on change(e) { model = e.target.value }
+        for m in models by "{round}-{m}" {
+            Option(m, value: m)
+        }
+    }
+    Button("More models", id: "more") {
+        on click {
+            round = round + 1
+            models = ["haiku", ...models]
+        }
+    }
 }

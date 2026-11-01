@@ -4756,7 +4756,9 @@
   "list",
   "square",
   "pill",
-  "image"
+  "image",
+  "sparkle",
+  "lock"
  ],
  "count": 77
 }

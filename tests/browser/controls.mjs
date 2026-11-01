@@ -2,7 +2,8 @@
 // and as a single page: a switch, a box and a choice are drawn with their
 // inputs before the script runs, ticked as their state starts; a switch
 // and a box given their value follow it and tell the page of a click; and
-// a bound box with a handler of its own does both.
+// a bound box with a handler of its own does both; a select whose options
+// a `for` redraws keeps the value it was given.
 //
 //   cd tests/browser && npm ci && node controls.mjs
 
@@ -80,6 +81,12 @@ async function scenario(label, ssg, port) {
     const heard = await page.$eval("#heard", (el) => el.textContent.trim());
     check("a bound box with its own handler writes its state and runs the handler", heard === "true 1", heard);
     check("a bound switch and a bound choice write their state", s.said === "false false true sm" && s.inputs.sm?.checked === true && s.inputs.md?.checked === false, JSON.stringify(s));
+    const shown = () => page.$eval("#model", (el) => el.value);
+    const before = await shown();
+    await page.click("#more");
+    await new Promise((r) => setTimeout(r, 30));
+    const after = await shown();
+    check("a select whose options are redrawn keeps the value it was given", before === "sonnet" && after === "sonnet", `${before} → ${after}`);
     check("nothing threw", problems.length === 0, problems.join(" | "));
   } catch (e) {
     check(`the run (${e.message})`, false);

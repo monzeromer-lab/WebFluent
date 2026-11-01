@@ -481,7 +481,9 @@
     // A select ignores a value it has no option for. The options may be
     // passed as children here, or appended by the statements that follow
     // this call; when the assignment does not take, try again once they are.
+    let wanted;
     const applySelectValue = (v) => {
+      wanted = v;
       if (v == null) return;
       el.value = v;
       if (el.value !== String(v)) {
@@ -494,6 +496,14 @@
       effect(() => applySelectValue(selectValue()));
     } else {
       applySelectValue(selectValue);
+    }
+    // Options drawn by a `for` come and go after the value was applied: a
+    // select whose chosen option was redrawn shows the first, or nothing.
+    // Each time its options change, the value it was given is applied again.
+    if (selectValue !== undefined && typeof MutationObserver !== "undefined") {
+      new MutationObserver(() => {
+        if (wanted != null && el.value !== String(wanted)) el.value = wanted;
+      }).observe(el, { childList: true, subtree: true });
     }
     if (tag === "img" && !el.hasAttribute("loading")) _imageDefaults(el);
     return el;
