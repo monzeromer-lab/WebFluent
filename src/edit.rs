@@ -1883,7 +1883,7 @@ mod tests {
         let out = apply_edits(
             src,
             &[EditOp::SetProp {
-                node: id_of(src, "Card"),
+                node: id_of(src, "Card.elevated"),
                 prop: "exit".into(),
                 value: ".fadeOut".into(),
             }],

@@ -369,3 +369,41 @@ page P(path: "/") {
         .unwrap();
     assert!(html.contains("[abc] [3 rows]"), "{html}");
 }
+
+#[test]
+fn a_render_for_the_studio_marks_each_element_with_its_node_id() {
+    let src = r#"page Report(path: "/") {
+    Heading(title).h1
+    for d in deploys {
+        Text(d.service)
+    }
+}"#;
+    let tpl = Template::from_str(src).unwrap();
+    let data = json!({ "title": "Deploy report", "deploys": [{ "service": "api" }, { "service": "web" }] });
+    let plain = tpl.render_html_fragment(&data).unwrap();
+    assert!(!plain.contains("data-wf-node"), "{plain}");
+    let marked = tpl
+        .clone()
+        .with_studio(true)
+        .render_html_fragment(&data)
+        .unwrap();
+    let program = webfluent::parse_source(src, "report.wf").unwrap();
+    let map = webfluent::codegen::node_id::build_node_map(&program);
+    let id = |el: &str| {
+        map.iter()
+            .find(|(_, i)| i.element == el)
+            .map(|(id, _)| id.to_string())
+            .unwrap()
+    };
+    assert!(
+        marked.contains(&format!("data-wf-node=\"{}\"", id("Heading"))),
+        "{marked}"
+    );
+    assert_eq!(
+        marked
+            .matches(&format!("data-wf-node=\"{}\"", id("Text")))
+            .count(),
+        2,
+        "{marked}"
+    );
+}

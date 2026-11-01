@@ -86,6 +86,10 @@ pub struct Template {
     /// Where the template's files are: what an image's address and the
     /// `fonts/` directory are read from.
     root: Option<std::path::PathBuf>,
+    /// Whether each element carries its node id, as the builds' pages do
+    /// for the studio: `data-wf-node`, and `data-wf-call` on what a
+    /// component's call drew.
+    studio: bool,
 }
 
 // `Template::from_str` is documented public API used throughout the README and
@@ -289,6 +293,7 @@ impl Template {
             pdf: PdfConfig::default(),
             slides: SlidesConfig::default(),
             root: root.map(|r| r.to_path_buf()),
+            studio: false,
         })
     }
 
@@ -333,6 +338,15 @@ impl Template {
     /// Only needed when the source declares more than one. A template with a
     /// single `Theme` uses it automatically, and one with none renders on the
     /// baseline tokens.
+    /// Mark each element with its node id — the same ids the builds give a
+    /// page — so an editor showing the render can tell what was drawn by
+    /// what: `data-wf-node="Report:0.1"` on an element, `data-wf-call` on
+    /// the root a component's call drew.
+    pub fn with_studio(mut self, on: bool) -> Self {
+        self.studio = on;
+        self
+    }
+
     pub fn with_theme(mut self, theme: &str) -> Self {
         self.theme = Some(theme.to_string());
         self
@@ -544,7 +558,18 @@ impl Template {
     }
 
     fn render_fragment(&self, data: &Value) -> Result<String> {
-        render_program_fragment(&self.drawn(), data)
+        let drawn = self.drawn();
+        if !self.studio {
+            return render_program_fragment(&drawn, data);
+        }
+        let mut nodes = HashMap::new();
+        crate::codegen::node_id::visit_nodes(&drawn, &mut |ui, id, _| {
+            nodes.insert((ui.span.start, ui.span.end, ui.span.line), id.to_string());
+        });
+        STUDIO.with(|s| *s.borrow_mut() = Some(nodes));
+        let html = render_program_fragment(&drawn, data);
+        STUDIO.with(|s| *s.borrow_mut() = None);
+        html
     }
 
     /// Render to PDF as raw bytes.
@@ -1437,7 +1462,36 @@ fn render_for(for_stmt: &ForStmt, ctx: &mut RenderContext) -> String {
     html
 }
 
+/// Each element's node id, by where it is written: start, end, line.
+type NodeIds = HashMap<(u32, u32, u32), String>;
+
+thread_local! {
+    /// While a template renders with [`Template::with_studio`]: each
+    /// element's node id, by where it is written.
+    static STUDIO: std::cell::RefCell<Option<NodeIds>> = const { std::cell::RefCell::new(None) };
+}
+
 fn render_ui_element(ui: &UIElement, ctx: &mut RenderContext) -> String {
+    let html = render_ui_element_unmarked(ui, ctx);
+    let id = STUDIO.with(|s| {
+        s.borrow()
+            .as_ref()
+            .and_then(|n| n.get(&(ui.span.start, ui.span.end, ui.span.line)).cloned())
+    });
+    match id {
+        Some(id) => {
+            let attr = if matches!(ui.component, ComponentRef::UserDefined(_)) {
+                "data-wf-call"
+            } else {
+                "data-wf-node"
+            };
+            on_root(html, &format!(" {attr}=\"{}\"", html_escape(&id)), &[])
+        }
+        None => html,
+    }
+}
+
+fn render_ui_element_unmarked(ui: &UIElement, ctx: &mut RenderContext) -> String {
     match &ui.component {
         ComponentRef::BuiltIn(name) => render_builtin(name, ui, ctx),
         ComponentRef::SubComponent(parent, sub) => {
