@@ -241,10 +241,39 @@
   /// that fails keeps the data and "ready", and sets `error()` — until the
   /// next answer clears it — so a page can say the data is stale.
   /// `pending()` is true while any request of it runs, either kind.
+  /// The arm an editor's preview holds every resource in — the page's root
+  /// carrying `data-wf-resource="loading"` or `"error"` — so a page can be
+  /// designed as it loads and as it fails without breaking its requests.
+  /// A signal, so the page follows the attribute as it comes and goes.
+  let heldArm = null;
+  function armHeld() {
+    if (typeof document === "undefined" || !document.documentElement) return null;
+    if (!heldArm) {
+      const root = document.documentElement;
+      const read = () => {
+        const v = root.getAttribute("data-wf-resource");
+        return v === "loading" || v === "error" ? v : null;
+      };
+      heldArm = signal(read());
+      if (typeof MutationObserver === "function") {
+        new MutationObserver(() => heldArm.set(read()))
+          .observe(root, { attributes: true, attributeFilter: ["data-wf-resource"] });
+      }
+    }
+    return heldArm();
+  }
+
   function resource(url, options) {
-    const state = signal("loading");
+    const real = signal("loading");
     const data = signal(null);
-    const error = signal(null);
+    const failed = signal(null);
+    // What the page reads: the request's own state and error, unless the
+    // preview holds the arm, when an error it has not met reads as one a
+    // server gives.
+    const state = () => armHeld() || real();
+    state.set = (v) => real.set(v);
+    const error = () => armHeld() === "error" ? failed() || netError("status", "503 Service Unavailable", { status: 503 }) : failed();
+    error.set = (v) => failed.set(v);
     const refreshing = signal(false);
     const pending = signal(false);
     const opts = requestOptions(options);

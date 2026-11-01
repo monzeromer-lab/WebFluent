@@ -23,7 +23,7 @@ function load(fetchImpl, { online = true } = {}) {
     window, document, Node, Element, DocumentFragment, setTimeout, clearTimeout,
     fetchImpl, navigator, globalThis.AbortController, class {},
   );
-  return { WF };
+  return { WF, document };
 }
 
 /// Every microtask the engine has queued, run.
@@ -166,4 +166,32 @@ test("the network is a value a page can read", () => {
   assert.equal(net.online, true);
   assert.equal(typeof net.effectiveType, "string");
   assert.equal(typeof net.saveData, "boolean");
+});
+
+test("an editor's preview holds every resource in its loading or error arm", async () => {
+  {
+    const { WF, document } = load(async () => response([{ id: 1 }]));
+    document.documentElement.setAttribute("data-wf-resource", "error");
+    const rows = WF.resource("/api/rows", null);
+    await settle();
+    assert.equal(rows.state(), "error", "held in the error arm, though the request answered");
+    assert.equal(rows.error().status, 503, "with an error a server gives");
+    assert.equal(rows.error().message, "503 Service Unavailable");
+    assert.deepEqual(rows.data(), [{ id: 1 }], "and the answer kept for when it is let go");
+  }
+  {
+    const { WF, document } = load(async () => response([]));
+    document.documentElement.setAttribute("data-wf-resource", "loading");
+    const rows = WF.resource("/api/rows", null);
+    await settle();
+    assert.equal(rows.state(), "loading");
+    assert.equal(rows.error(), null);
+  }
+  {
+    const { WF, document } = load(async () => response([]));
+    document.documentElement.setAttribute("data-wf-resource", "ready");
+    const rows = WF.resource("/api/rows", null);
+    await settle();
+    assert.equal(rows.state(), "ready", "anything else is the request's own state");
+  }
 });
