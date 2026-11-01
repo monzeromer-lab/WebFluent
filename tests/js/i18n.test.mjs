@@ -62,3 +62,12 @@ test("a locale with a region is written in its language's direction", () => {
   i18n.setLocale("ckb");
   assert.equal(i18n.dir(), "rtl");
 });
+
+test("a key no table has is shown as written, its placeholders filled — a project's words under i18n.literals", () => {
+  const WF = load("");
+  const i18n = WF.locales("en", { en: {}, ar: { "{n} missing": "{n} مفقودة" } });
+  assert.equal(i18n.t("{n} missing", { n: 3 }), "3 missing");
+  i18n.setLocale("ar");
+  assert.equal(i18n.t("{n} missing", { n: 3 }), "3 مفقودة");
+  assert.equal(i18n.t("{a} and {b}", { a: "x", b: "y" }), "x and y");
+});

@@ -1773,6 +1773,9 @@ impl JsCodegen {
                 // call, but `parseInt` is a plain function).
                 if self.is_own_member(name, store_states) {
                     format!("store.{}({})", name, args_str.join(", "))
+                } else if (name == "t" || name == "setLocale") && self.has_i18n() {
+                    // A store's words, translated as a page's are.
+                    format!("WF.i18n.{}({})", name, args_str.join(", "))
                 } else if matches!(
                     name.as_str(),
                     // The same set a page reaches: a store's action is where

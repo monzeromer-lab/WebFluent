@@ -299,12 +299,12 @@ fn a_project_translated_by_its_own_words() {
     std::fs::write(dir.join("src/translations/en.json"), "{}\n").unwrap();
     std::fs::write(
         dir.join("src/translations/ar.json"),
-        "{ \"Problems\": \"المشاكل\", \"{n} missing\": \"{n} مفقودة\" }\n",
+        "{ \"Problems\": \"المشاكل\", \"{n} missing\": \"{n} مفقودة\", \"Ln {line}\": \"سطر {line}\" }\n",
     )
     .unwrap();
     std::fs::write(
         dir.join("src/pages/Home.wf"),
-        "page Home(path: \"/\", title: \"Home\", description: \"Words.\") {\n    state n = 3\n    Heading(\"Problems\").h1\n    Text(\"{n} missing\")\n    Icon(\"warning\")\n}\n",
+        "store Ed {\n    state line = 1\n    derived caretText = \"Ln {line}\"\n}\npage Home(path: \"/\", title: \"Home\", description: \"Words.\") {\n    use Ed\n    state n = 3\n    Heading(\"Problems\").h1\n    Text(\"{n} missing\")\n    Text(Ed.caretText)\n    Icon(\"warning\")\n}\n",
     )
     .unwrap();
     let vfs = OverlayVfs::over_disk();
@@ -346,6 +346,11 @@ fn a_project_translated_by_its_own_words() {
         "the keys are asked for"
     );
     assert!(js.contains("المشاكل"), "the table is in the build");
+    assert!(
+        js.contains("WF.i18n.t(\"Ln {line}\""),
+        "a store's words go through the table too"
+    );
+    assert!(!js.contains(" t(\""), "no bare t()");
     // The table counts them as used, and what the other locale is missing.
     let t = webfluent::i18n::table::table_via(&vfs, &dir)
         .unwrap()

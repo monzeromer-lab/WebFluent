@@ -32,8 +32,9 @@
         if (text === undefined) text = lookup(key + ".other");
       }
       if (text === undefined) text = lookup(key);
-      // Fallback to key itself
-      if (text === undefined) return key;
+      // No table has it: the key itself — under `i18n.literals`, the words
+      // as written — its placeholders filled as a message's are.
+      if (text === undefined) text = key;
       // Interpolate {placeholder} tokens
       if (params && text.includes("{")) {
         for (const [k, v] of Object.entries(params)) {
