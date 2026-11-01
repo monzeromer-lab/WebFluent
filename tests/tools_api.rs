@@ -76,6 +76,35 @@ fn tests_are_collected_rendered_and_held_to_their_snapshots() {
 }
 
 #[test]
+fn a_test_files_name_the_project_already_gives_is_e102() {
+    let dir = scratch("clash");
+    std::fs::write(
+        dir.join("src/App.wf"),
+        "const STATES: [String] = [\"a\"]\npage P(path: \"/\", title: \"T\", description: \"d\") { Heading(\"x\").h1 }\n",
+    )
+    .unwrap();
+    std::fs::write(
+        dir.join("tests/clash.wf"),
+        "const STATES: [String] = [\"b\"]\ntest \"t\" {\n    Text(\"x\")\n    expect \"x\"\n}\n",
+    )
+    .unwrap();
+    match testing::collect(&dir) {
+        Err(webfluent::WebFluentError::Diagnostics(d)) => {
+            assert_eq!(d.len(), 1);
+            assert_eq!(d[0].code, "E102");
+            assert!(
+                d[0].message
+                    .contains("`STATES` is already declared in the project, at src/App.wf:1"),
+                "{}",
+                d[0].message
+            );
+        }
+        Err(other) => panic!("{other}"),
+        Ok(_) => panic!("collected"),
+    }
+}
+
+#[test]
 fn a_render_is_read_as_a_browser_lays_it_out() {
     let dir = scratch("reading");
     std::fs::write(

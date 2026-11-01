@@ -157,6 +157,50 @@ pub fn collect(path: &Path) -> Result<Tests> {
         .filter(|(d, file)| !is_drawn(d) && !own.contains_key(*file))
         .map(|(d, _)| d.clone())
         .collect();
+    // A test file's own declaration may not take a name the project gives
+    // something else: the two would be one name in the test's site, and
+    // the page would stop before any test ran.
+    let project_names: Vec<(&str, &String, crate::parser::ast::Span)> = declarations
+        .iter()
+        .zip(&owners)
+        .filter(|(d, file)| !is_drawn(d) && !own.contains_key(*file))
+        .filter_map(|(d, file)| {
+            Some((
+                crate::edit::declaration_name(d)?,
+                file,
+                crate::scope::decl_span(d).unwrap_or_default(),
+            ))
+        })
+        .collect();
+    let mut clashes = Vec::new();
+    for (file, decls) in &own {
+        for d in decls {
+            let Some(name) = crate::edit::declaration_name(d) else {
+                continue;
+            };
+            if let Some((_, first_file, at)) = project_names.iter().find(|(n, _, _)| *n == name) {
+                let span = crate::scope::decl_span(d).unwrap_or_default();
+                clashes.push(
+                    crate::diagnostics::Diagnostic::coded(
+                        "E102",
+                        format!(
+                            "`{name}` is already declared in the project, at {first_file}:{}",
+                            at.line
+                        ),
+                        file,
+                        span.line as usize,
+                        span.col as usize,
+                    )
+                    .with_hint(format!(
+                        "A test's own declaration is drawn with the project's: rename this `{name}`"
+                    )),
+                );
+            }
+        }
+    }
+    if !clashes.is_empty() {
+        return Err(crate::error::WebFluentError::Diagnostics(clashes));
+    }
     // A page a test can place by its name, as it places a component: `Tasks`
     // draws the Tasks page's body — its state, its stores, its handlers — so
     // a test can click through a page as a reader does. A page that takes a
