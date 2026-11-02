@@ -129,6 +129,13 @@ impl ChangeSet {
         }
     }
 
+    /// Lay the set over `base` from now on: the editor's buffers as they
+    /// are now, for a later turn of the same conversation. What the set
+    /// wrote and read is kept; its diffs are against the new base.
+    pub fn rebase(&mut self, base: Arc<dyn Vfs>) {
+        self.base = base;
+    }
+
     fn on_disk(&self, rel: &str) -> Option<String> {
         self.base.read_to_string(&self.dir.join(rel)).ok()
     }

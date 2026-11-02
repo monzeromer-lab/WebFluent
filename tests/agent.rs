@@ -208,6 +208,28 @@ fn a_set_over_the_editor_s_buffers_sees_them_and_fixes_count() {
 }
 
 #[test]
+fn a_set_rebased_keeps_its_writes_over_the_new_buffers() {
+    let dir = fixture("dashboard", "t2b");
+    let file = dir.join("src/pages/Settings.wf");
+    let saved = std::fs::read_to_string(&file).unwrap();
+    let mut set = ChangeSet::new(Arc::new(FsVfs), &dir);
+    set.write("src/pages/Settings.wf", &format!("{saved}// the agent's\n"))
+        .unwrap();
+    assert_eq!(set.files()[0].added, 1);
+    // The person types into the file the set changes: the set's diff is
+    // against what the editor holds now, and its own text is kept.
+    let mut buffers = OverlayVfs::over_disk();
+    buffers.set(&file, format!("{saved}// the agent's\n"));
+    set.rebase(Arc::new(buffers));
+    assert!(set.files()[0].hunks.is_empty(), "{:?}", set.files());
+    assert_eq!(
+        set.read("src/pages/Settings.wf").unwrap(),
+        format!("{saved}// the agent's\n")
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
 fn what_a_set_may_touch_is_its_to_refuse() {
     let dir = fixture("dashboard", "t3");
     std::fs::write(dir.join(".env"), "SECRET=1\n").unwrap();
