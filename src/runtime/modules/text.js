@@ -1,7 +1,7 @@
   // ─── Markdown ────────────────────────────────────────
   // The same small Markdown the compiler renders at build time (see
   // `src/codegen/markdown.rs`): headings, paragraphs, fenced code, quotes,
-  // one-level lists, rules; code spans, strong, emphasis, links, images.
+  // one-level lists, rules, GFM tables; code spans, strong, emphasis, links, images.
   // The text is escaped first, so HTML in it is shown, not run, and a link
   // or image whose URL a browser would run is drawn as its words. A
   // backslash before ASCII punctuation draws that character and nothing
@@ -70,6 +70,39 @@
   function mdHeading(line) {
     const m = MD.heading.exec(line);
     return m ? [m[1].length, mdTrim(m[2])] : null;
+  }
+  /// A table row's cells: split at each `|` that is not escaped, the pipes
+  /// at either end dropped, each cell trimmed and its `\|` a pipe. The
+  /// twin of the compiler's `cells`.
+  function mdCells(line) {
+    let t = mdTrim(line);
+    if (t.startsWith("|")) t = t.slice(1);
+    if (t.endsWith("|") && !t.endsWith("\\|")) t = t.slice(0, -1);
+    const out = [];
+    let cell = "";
+    for (let k = 0; k < t.length; k++) {
+      if (t[k] === "\\" && t[k + 1] === "|") { cell += "|"; k++; }
+      else if (t[k] === "|") { out.push(mdTrim(cell)); cell = ""; }
+      else cell += t[k];
+    }
+    out.push(mdTrim(cell));
+    return out;
+  }
+  /// A column's alignment from its delimiter cell, or null when it is not one.
+  function mdAlignment(cell) {
+    const dashes = cell.replace(/^:/, "").replace(/:$/, "");
+    if (dashes === "" || !/^-+$/.test(dashes)) return null;
+    const left = cell.startsWith(":"), right = cell.endsWith(":");
+    return left && right ? "center" : left ? "left" : right ? "right" : "";
+  }
+  /// Whether a table starts at `lines[i]`, and its columns' alignments.
+  function mdTableAt(lines, i) {
+    if (i + 1 >= lines.length) return null;
+    const head = mdTrim(lines[i]), rule = mdTrim(lines[i + 1]);
+    if (!head.includes("|") || !rule.includes("|") || !rule.includes("-")) return null;
+    const aligns = mdCells(rule).map(mdAlignment);
+    if (aligns.some((a) => a === null)) return null;
+    return aligns.length === mdCells(head).length ? aligns : null;
   }
   function mdListItem(line) {
     let m = MD.bullet.exec(line);
@@ -371,6 +404,16 @@
     let out = "";
     let i = 0;
     const isBlock = (t) => t === "" || t.startsWith("```") || t === "---" || t === "***" || mdHeading(t) || t.startsWith(">") || mdListItem(t);
+    // A row runs to the first blank line or block; a row short of cells
+    // has empty ones, and one with more drops them, as GFM's does.
+    const row = (line, tag, aligns) => {
+      const cells = mdCells(line);
+      let html = "<tr>\n";
+      aligns.forEach((a, k) => {
+        html += "<" + tag + (a ? ' style="text-align: ' + a + '"' : "") + ">" + mdInline(cells[k] ?? "", inert) + "</" + tag + ">\n";
+      });
+      return html + "</tr>\n";
+    };
     while (i < lines.length) {
       const t = mdTrim(lines[i]);
       if (t === "") { i++; continue; }
@@ -395,6 +438,21 @@
         out += "<blockquote>\n" + markdown(quoted.join("\n"), opts) + "</blockquote>\n";
         continue;
       }
+      const aligns = mdTableAt(lines, i);
+      if (aligns) {
+        out += "<table>\n<thead>\n" + row(lines[i], "th", aligns) + "</thead>\n";
+        i += 2;
+        let body = "";
+        while (i < lines.length) {
+          const r = mdTrim(lines[i]);
+          if (r === "" || r.startsWith("```") || mdHeading(r) || r.startsWith(">") || mdTableAt(lines, i)) break;
+          body += row(lines[i], "td", aligns);
+          i++;
+        }
+        if (body) out += "<tbody>\n" + body + "</tbody>\n";
+        out += "</table>\n";
+        continue;
+      }
       const item = mdListItem(t);
       if (item) {
         const ordered = item[1];
@@ -413,7 +471,7 @@
       // breaks there (`\u0001` marks it), and so does one that ends in a
       // backslash, which `mdHold` sees before the newline.
       const para = [];
-      while (i < lines.length && !isBlock(mdTrim(lines[i]))) {
+      while (i < lines.length && !isBlock(mdTrim(lines[i])) && !mdTableAt(lines, i)) {
         const t = mdTrim(lines[i]);
         para.push(lines[i].endsWith("  ") ? t + "\u0001" : t);
         i++;

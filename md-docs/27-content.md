@@ -28,8 +28,8 @@ page Notes(path: "/") {
 
 Blocks: `#`–`######` headings, paragraphs (their lines run together, as
 in CommonMark — end a line with two spaces or `\` to break it), fenced code with a language
-(`` ```js ``), `>` quotes, `-`/`*` and `1.` lists (one level), `---` rules.
-Inline: `` `code` ``, `**strong**`, `*em*`/`_em_`, links, images. Raw HTML
+(`` ```js ``), `>` quotes, `-`/`*` and `1.` lists (one level), `---` rules,
+and GFM tables. Inline: `` `code` ``, `**strong**`, `*em*`/`_em_`, links, images. Raw HTML
 in the text is shown as text, not run — Markdown from a user or an API is
 safe to render.
 
@@ -40,6 +40,25 @@ link and no picture. A picture carried in its address
 (`![dot](data:image/png;base64,…)`, `data:image/svg+xml,…`) is drawn, since
 an img runs nothing it shows; a link to one is still its words. A site-relative URL (`/about`, `/img.png`) is
 addressed from the site's `base_path`, as `Link(to:)`'s is.
+
+### Tables
+
+A table is a header row, a delimiter row with as many cells, then its
+rows, as in GitHub's Markdown:
+
+```md
+| Function | Does | Where |
+|---|:-:|--:|
+| `log(x)` | Prints to the console | anywhere |
+| `t("key")` | A translation \| a plural | anywhere |
+```
+
+A `:` at the left, both ends or the right of a delimiter cell aligns its
+column left, centre or right. The pipes at either end of a row may be left
+out, and `\|` is a pipe inside a cell. A row with fewer cells than the
+header has empty ones; cells past the header's are dropped. The rows run to
+a blank line or another block, and a table may start right after a
+paragraph's last line. A cell takes the inline Markdown a paragraph does.
 
 ### Backslash escapes
 

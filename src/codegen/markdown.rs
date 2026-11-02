@@ -4,7 +4,8 @@
 //!
 //! Blocks: `#`–`######` headings, paragraphs (lines run together), fenced
 //! code (```` ``` ````), `>` quotes, `-`/`*` and `1.` lists (one level),
-//! `---` rules. Inline: `` `code` ``, `**strong**`, `*em*` or `_em_`,
+//! `---` rules, GFM tables (a header row, a `|---|:-:|` row, then rows; a
+//! cell's `\|` is a pipe). Inline: `` `code` ``, `**strong**`, `*em*` or `_em_`,
 //! `[text](url)`, `![alt](src)`. Every character of the text is escaped
 //! first: raw HTML in the text is shown, not run. A link or picture goes
 //! through the scheme check every other URL does (`codegen::url`), and one
@@ -122,6 +123,10 @@ pub fn render_with(text: &str, options: Options) -> String {
             ));
             continue;
         }
+        if let Some(aligns) = table_at(&lines, i) {
+            out.push_str(&table(&lines, &mut i, &aligns, options));
+            continue;
+        }
         if let Some(item) = list_item(trimmed) {
             let ordered = item.1;
             let tag = if ordered { "ol" } else { "ul" };
@@ -150,6 +155,7 @@ pub fn render_with(text: &str, options: Options) -> String {
                 || heading(t).is_some()
                 || t.starts_with('>')
                 || list_item(t).is_some()
+                || table_at(&lines, i).is_some()
             {
                 break;
             }
@@ -171,6 +177,109 @@ pub fn render_with(text: &str, options: Options) -> String {
         }
         out.push_str(&format!("<p>{body}</p>\n"));
     }
+    out
+}
+
+/// A table row's cells: split at each `|` that is not escaped, the pipes
+/// at either end dropped, each cell trimmed and its `\|` a pipe.
+fn cells(line: &str) -> Vec<String> {
+    let mut t = line.trim();
+    if let Some(rest) = t.strip_prefix('|') {
+        t = rest;
+    }
+    if t.ends_with('|') && !t.ends_with("\\|") {
+        t = &t[..t.len() - 1];
+    }
+    let mut out = vec![];
+    let mut cell = String::new();
+    let mut chars = t.chars().peekable();
+    while let Some(c) = chars.next() {
+        if c == '\\' && chars.peek() == Some(&'|') {
+            cell.push('|');
+            chars.next();
+        } else if c == '|' {
+            out.push(cell.trim().to_string());
+            cell.clear();
+        } else {
+            cell.push(c);
+        }
+    }
+    out.push(cell.trim().to_string());
+    out
+}
+
+/// A column's alignment, from its cell in the delimiter row (`:--`, `:-:`,
+/// `--:`, `---`); none when the cell is not one.
+fn alignment(cell: &str) -> Option<&'static str> {
+    let left = cell.starts_with(':');
+    let right = cell.ends_with(':');
+    let dashes = cell.trim_start_matches(':').trim_end_matches(':');
+    if dashes.is_empty() || !dashes.chars().all(|c| c == '-') {
+        return None;
+    }
+    Some(match (left, right) {
+        (true, true) => "center",
+        (true, false) => "left",
+        (false, true) => "right",
+        _ => "",
+    })
+}
+
+/// Whether a table starts at `lines[i]`: a row with a pipe, then a
+/// delimiter row of as many cells. Its columns' alignments if so.
+fn table_at(lines: &[&str], i: usize) -> Option<Vec<&'static str>> {
+    let head = lines.get(i)?.trim();
+    let rule = lines.get(i + 1)?.trim();
+    if !head.contains('|') || !rule.contains('|') || !rule.contains('-') {
+        return None;
+    }
+    let aligns: Option<Vec<_>> = cells(rule).iter().map(|c| alignment(c)).collect();
+    let aligns = aligns?;
+    (aligns.len() == cells(head).len()).then_some(aligns)
+}
+
+/// The table at `lines[*i]`, which `table_at` found; `*i` moves past it.
+/// A row runs to the first blank line or block; a row short of cells has
+/// empty ones, and one with more drops them, as GFM's does.
+fn table(lines: &[&str], i: &mut usize, aligns: &[&str], options: Options) -> String {
+    let row = |line: &str, tag: &str| {
+        let mut cells = cells(line);
+        cells.resize(aligns.len(), String::new());
+        let mut out = String::from("<tr>\n");
+        for (cell, align) in cells.iter().zip(aligns) {
+            let style = if align.is_empty() {
+                String::new()
+            } else {
+                format!(" style=\"text-align: {align}\"")
+            };
+            out.push_str(&format!(
+                "<{tag}{style}>{}</{tag}>\n",
+                inline(cell, options)
+            ));
+        }
+        out.push_str("</tr>\n");
+        out
+    };
+    let mut out = format!("<table>\n<thead>\n{}</thead>\n", row(lines[*i], "th"));
+    *i += 2;
+    let mut body = String::new();
+    while *i < lines.len() {
+        let t = lines[*i].trim();
+        if t.is_empty()
+            || t.starts_with("```")
+            || heading(t).is_some()
+            || t.starts_with('>')
+            || table_at(lines, *i).is_some()
+        {
+            break;
+        }
+        body.push_str(&row(lines[*i], "td"));
+        *i += 1;
+    }
+    if !body.is_empty() {
+        out.push_str(&format!("<tbody>\n{body}</tbody>\n"));
+    }
+    out.push_str("</table>\n");
     out
 }
 

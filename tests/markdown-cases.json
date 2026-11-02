@@ -72,5 +72,14 @@
   ["# a\u2028b", {}, "<h1>a\u2028b</h1>\n"],
   ["- a\rb", {}, "<ul>\n<li>a\rb</li>\n</ul>\n"],
   ["[a](/x\u0085y)", {}, "<p>[a](/x\u0085y)</p>\n"],
-  ["a\u0085\\\nb", {}, "<p>a<br>\nb</p>\n"]
+  ["a\u0085\\\nb", {}, "<p>a<br>\nb</p>\n"],
+  ["| Function | Does |\n|---|---|\n| `log(x)` | Prints |\n| `t(\"k\")` | A **translation** |", {}, "<table>\n<thead>\n<tr>\n<th>Function</th>\n<th>Does</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>log(x)</code></td>\n<td>Prints</td>\n</tr>\n<tr>\n<td><code>t(&quot;k&quot;)</code></td>\n<td>A <strong>translation</strong></td>\n</tr>\n</tbody>\n</table>\n"],
+  ["a | b | c\n:-- | :-: | --:\n1 | 2 | 3", {}, "<table>\n<thead>\n<tr>\n<th style=\"text-align: left\">a</th>\n<th style=\"text-align: center\">b</th>\n<th style=\"text-align: right\">c</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td style=\"text-align: left\">1</td>\n<td style=\"text-align: center\">2</td>\n<td style=\"text-align: right\">3</td>\n</tr>\n</tbody>\n</table>\n"],
+  ["| x | y |\n|---|---|\n| a \\| b |\n| 1 | 2 | 3 |", {}, "<table>\n<thead>\n<tr>\n<th>x</th>\n<th>y</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>a | b</td>\n<td></td>\n</tr>\n<tr>\n<td>1</td>\n<td>2</td>\n</tr>\n</tbody>\n</table>\n"],
+  ["Before the table\n| h |\n|---|\n| v |\nafter, a row too\n\nA paragraph.", {}, "<p>Before the table</p>\n<table>\n<thead>\n<tr>\n<th>h</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>v</td>\n</tr>\n<tr>\n<td>after, a row too</td>\n</tr>\n</tbody>\n</table>\n<p>A paragraph.</p>\n"],
+  ["| only a head |\n|---|", {}, "<table>\n<thead>\n<tr>\n<th>only a head</th>\n</tr>\n</thead>\n</table>\n"],
+  ["a | b\nnot a rule", {}, "<p>a | b\nnot a rule</p>\n"],
+  ["a | b\n|---|---|---|", {}, "<p>a | b\n|---|---|---|</p>\n"],
+  ["x - y\n---", {}, "<p>x - y</p>\n<hr>\n"],
+  ["| [link](https://x.y) | ![p](/i.png) |\n|---|---|\n| <b>raw</b> | &lt;T&gt; |", {"inert": true}, "<table>\n<thead>\n<tr>\n<th>link</th>\n<th></th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>&lt;b&gt;raw&lt;/b&gt;</td>\n<td>&lt;T&gt;</td>\n</tr>\n</tbody>\n</table>\n"]
 ]
