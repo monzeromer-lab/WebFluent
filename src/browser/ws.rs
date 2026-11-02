@@ -158,6 +158,30 @@ impl Socket {
     }
 
     /// How long to wait for a message before giving up.
+    /// Whether a frame begins within `wait`: what is already read counts,
+    /// and nothing is taken off the stream, so a frame is never cut by the
+    /// wait running out in the middle of it.
+    pub fn ready_within(&mut self, wait: std::time::Duration) -> Result<bool> {
+        if !self.reader.buffer().is_empty() {
+            return Ok(true);
+        }
+        let wait = wait.max(std::time::Duration::from_millis(1));
+        self.stream.set_read_timeout(Some(wait)).map_err(oops)?;
+        let ready = match self.reader.fill_buf() {
+            Ok(buf) => !buf.is_empty(),
+            Err(e)
+                if matches!(
+                    e.kind(),
+                    std::io::ErrorKind::WouldBlock | std::io::ErrorKind::TimedOut
+                ) =>
+            {
+                false
+            }
+            Err(e) => return Err(oops(e)),
+        };
+        Ok(ready)
+    }
+
     pub fn deadline(&self, seconds: u64) -> Result<()> {
         self.stream
             .set_read_timeout(Some(std::time::Duration::from_secs(seconds)))

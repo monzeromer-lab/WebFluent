@@ -271,9 +271,15 @@ impl Browser {
         for event in std::mem::take(&mut self.heard) {
             self.note(&event, &mut page.visit);
         }
-        self.socket.deadline(2)?;
+        // As long as was asked, not longer: a quiet page used to hold every
+        // settle for the socket's two-second wait, whatever `ms` said.
         let until = std::time::Instant::now() + std::time::Duration::from_millis(ms);
-        while std::time::Instant::now() < until {
+        loop {
+            let left = until.saturating_duration_since(std::time::Instant::now());
+            if left.is_zero() || !self.socket.ready_within(left)? {
+                break;
+            }
+            self.socket.deadline(30)?;
             let Ok(text) = self.socket.receive() else {
                 break;
             };
