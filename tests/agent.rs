@@ -220,6 +220,11 @@ fn a_set_rebased_keeps_its_writes_over_the_new_buffers() {
     // against what the editor holds now, and its own text is kept.
     let mut buffers = OverlayVfs::over_disk();
     buffers.set(&file, format!("{saved}// the agent's\n"));
+    assert_eq!(
+        set.original("src/pages/Settings.wf").as_deref(),
+        Some(saved.as_str())
+    );
+    assert_eq!(set.original("src/pages/New.wf"), None);
     set.rebase(Arc::new(buffers));
     assert!(set.files()[0].hunks.is_empty(), "{:?}", set.files());
     assert_eq!(

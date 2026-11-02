@@ -136,6 +136,13 @@ impl ChangeSet {
         self.base = base;
     }
 
+    /// The text `rel` has without the set — what its hunks are against —
+    /// or none for a file the set adds. Private values are not withheld:
+    /// this is for writing the file back, never for the agent.
+    pub fn original(&self, rel: &str) -> Option<String> {
+        self.on_disk(&inside(rel).ok()?)
+    }
+
     fn on_disk(&self, rel: &str) -> Option<String> {
         self.base.read_to_string(&self.dir.join(rel)).ok()
     }
