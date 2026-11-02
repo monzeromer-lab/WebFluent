@@ -8610,10 +8610,13 @@ impl JsCodegen {
                 .form_handles
                 .iter()
                 .any(|f| expr_str.contains(&format!("{f}.")))
+            // A store read in the generated code by the name it has there:
+            // one called like a browser global is `History$`, whose props
+            // were copied once instead of followed.
             || self
                 .stores
                 .iter()
-                .any(|s| expr_str.contains(&format!("{s}.")))
+                .any(|s| expr_str.contains(&format!("{}.", top_level(s))))
     }
 }
 
@@ -10348,6 +10351,35 @@ mod tests {
             "{out}"
         );
         assert!(out.contains("\"aria-pressed\": () => _p.pressed"), "{out}");
+    }
+
+    #[test]
+    fn a_prop_that_reads_a_store_named_like_a_browser_global_is_a_getter_too() {
+        // `History` is the browser's, so the store is `History$` in the
+        // generated code; a prop that read only it was copied once, and a
+        // row made before the store changed kept the old value.
+        let out = compile(
+            r#"
+            store History {
+                state lanes = 1
+            }
+            store Deploys {
+                state wide = 1
+            }
+            component Graph(wide: Number = 1) { Text("{wide}") }
+            page P(path: "/") {
+                use History
+                use Deploys
+                Graph(wide: History.lanes)
+                Graph(wide: Deploys.wide)
+            }
+            "#,
+        );
+        assert!(
+            out.contains("get wide() { return History$.lanes; }"),
+            "{out}"
+        );
+        assert!(out.contains("get wide() { return Deploys.wide; }"), "{out}");
     }
 
     #[test]
