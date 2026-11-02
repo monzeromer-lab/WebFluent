@@ -231,7 +231,7 @@ fn tree(vfs: &dyn Vfs, dir: &Path) -> Vec<String> {
                 .unwrap_or(&p)
                 .to_string_lossy()
                 .replace('\\', "/");
-            if skipped(&rel) {
+            if skipped(&rel) || super::leaves(dir, &p) {
                 continue;
             }
             if vfs.is_dir(&p) {
@@ -290,7 +290,7 @@ pub fn context_via(
     let name = config.as_ref().map(|c| c.name.clone()).unwrap_or_default();
 
     let open = open.and_then(|(file, selection)| {
-        if skipped(file) {
+        if skipped(file) || super::escapes(dir, &dir.join(file)) {
             return None;
         }
         let text = vfs.read_to_string(&dir.join(file)).ok()?;
@@ -314,9 +314,12 @@ pub fn context_via(
         Ok(r) => r,
         Err(f) => *f.report,
     };
+    // A finding in a file that leads out of the project may quote what is
+    // out there: it is not given.
     let problems = report
         .diagnostics
         .iter()
+        .filter(|d| !super::escapes(dir, &dir.join(&d.file)))
         .map(|d| Problem {
             code: d.code.to_string(),
             severity: format!("{:?}", d.severity).to_lowercase(),

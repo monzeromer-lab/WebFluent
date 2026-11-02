@@ -140,7 +140,18 @@ impl ChangeSet {
     /// or none for a file the set adds. Private values are not withheld:
     /// this is for writing the file back, never for the agent.
     pub fn original(&self, rel: &str) -> Option<String> {
-        self.on_disk(&inside(rel).ok()?)
+        self.on_disk(&self.within(rel).ok()?)
+    }
+
+    /// `rel`, checked: inside the project by its words, and on the disk.
+    fn within(&self, rel: &str) -> Result<String> {
+        let rel = inside(rel)?;
+        if super::escapes(&self.dir, &self.dir.join(&rel)) {
+            return Err(refused(format!(
+                "`{rel}` leads outside the project, through a link"
+            )));
+        }
+        Ok(rel)
     }
 
     fn on_disk(&self, rel: &str) -> Option<String> {
@@ -169,7 +180,7 @@ impl ChangeSet {
     /// each private `env` value of the config withheld. It is recorded as
     /// read.
     pub fn read(&mut self, rel: &str) -> Result<String> {
-        let rel = inside(rel)?;
+        let rel = self.within(rel)?;
         let text = match self.changes.get(&rel) {
             Some(Some(t)) => t.clone(),
             Some(None) => return Err(refused(format!("`{rel}` is deleted in this change set"))),
@@ -187,7 +198,7 @@ impl ChangeSet {
     /// Write `text` to `rel` in the set. A private `env` value the agent
     /// was shown as withheld is kept as it is.
     pub fn write(&mut self, rel: &str, text: &str) -> Result<()> {
-        let rel = inside(rel)?;
+        let rel = self.within(rel)?;
         let mut text = text.to_string();
         if rel == CONFIG {
             text = restore(&text, &self.private_env())?;
@@ -202,7 +213,7 @@ impl ChangeSet {
 
     /// Delete `rel` in the set.
     pub fn delete(&mut self, rel: &str) -> Result<()> {
-        let rel = inside(rel)?;
+        let rel = self.within(rel)?;
         if rel == CONFIG {
             return Err(refused(
                 "the project's config is not deleted by a change set",
@@ -278,12 +289,19 @@ impl ChangeSet {
     /// Build the project with the set and without it, and say what the set
     /// did.
     pub fn check(&self) -> Checked {
+        // A finding in a file that leads out of the project may quote what
+        // is out there: the agent is not given it, and the set is not
+        // judged by it.
         let run = |vfs: &dyn Vfs| -> Vec<Diagnostic> {
             let options = crate::build::BuildOptions::new(&self.dir, vfs);
-            match crate::build::check(&options) {
+            let found = match crate::build::check(&options) {
                 Ok(r) => r.diagnostics,
                 Err(f) => f.report.diagnostics,
-            }
+            };
+            found
+                .into_iter()
+                .filter(|d| !super::escapes(&self.dir, &self.dir.join(&d.file)))
+                .collect()
         };
         let before = run(self.base.as_ref());
         let with = self.vfs();

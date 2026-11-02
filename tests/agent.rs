@@ -550,3 +550,74 @@ fn every_file_s_hunks_apply_as_patch_applies_them() {
     let _ = std::fs::remove_dir_all(&scratch);
     assert!(checked > 100, "{checked} files");
 }
+
+#[cfg(unix)]
+#[test]
+fn a_link_out_of_the_project_is_never_read_written_or_shown() {
+    use webfluent::agent::escapes;
+    let dir = fixture("dashboard", "t-links");
+    let outside = dir.with_extension("outside");
+    let _ = std::fs::remove_dir_all(&outside);
+    std::fs::create_dir_all(&outside).unwrap();
+    std::fs::write(outside.join("secret.txt"), "the-outside-secret").unwrap();
+    std::os::unix::fs::symlink(outside.join("secret.txt"), dir.join("src/out.wf")).unwrap();
+    std::os::unix::fs::symlink(&outside, dir.join("src/away")).unwrap();
+    std::os::unix::fs::symlink(outside.join("nothing-yet"), dir.join("src/dangling.wf")).unwrap();
+    // A link that stays inside is a file like any other.
+    std::os::unix::fs::symlink(dir.join("src/pages/Settings.wf"), dir.join("src/same.wf")).unwrap();
+
+    assert!(escapes(&dir, &dir.join("src/out.wf")));
+    assert!(escapes(&dir, &dir.join("src/away/secret.txt")));
+    assert!(
+        escapes(&dir, &dir.join("src/away/new.wf")),
+        "a file not there yet, under a link out"
+    );
+    assert!(
+        escapes(&dir, &dir.join("src/dangling.wf")),
+        "a link to nothing"
+    );
+    assert!(!escapes(&dir, &dir.join("src/same.wf")));
+    assert!(!escapes(&dir, &dir.join("src/pages/New.wf")));
+
+    let mut set = ChangeSet::new(Arc::new(FsVfs), &dir);
+    for rel in ["src/out.wf", "src/away/secret.txt"] {
+        let e = set.read(rel).unwrap_err().to_string();
+        assert!(e.contains("leads outside the project"), "{e}");
+    }
+    assert!(set.write("src/away/new.wf", "x").is_err());
+    assert!(set.write("src/dangling.wf", "x").is_err());
+    assert!(set.delete("src/out.wf").is_err());
+    assert!(set.read("src/same.wf").is_ok());
+    assert!(set.is_empty());
+
+    let context = context_via(
+        &FsVfs,
+        &dir,
+        Some(("src/out.wf", None)),
+        guide(),
+        Depth::Index,
+    )
+    .unwrap();
+    assert!(
+        context.open.is_none(),
+        "an open file out of the project is not given"
+    );
+    let all = serde_json::to_string(&context).unwrap();
+    assert!(!all.contains("the-outside-secret"));
+    assert!(
+        !context
+            .files
+            .iter()
+            .any(|f| f.starts_with("src/away") || f == "src/out.wf" || f == "src/dangling.wf"),
+        "{:?}",
+        context.files
+    );
+    assert!(context.files.iter().any(|f| f == "src/same.wf"));
+    assert_eq!(
+        std::fs::read_to_string(outside.join("secret.txt")).unwrap(),
+        "the-outside-secret"
+    );
+    assert!(!outside.join("nothing-yet").exists());
+    let _ = std::fs::remove_dir_all(&dir);
+    let _ = std::fs::remove_dir_all(&outside);
+}
