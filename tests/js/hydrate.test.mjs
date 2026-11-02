@@ -234,6 +234,18 @@ test("a settings page's code and monitor icons, and a commit button's git-commit
   assert.equal(unknown.innerHTML, "not-an-icon", "an unknown name is still its word");
 });
 
+test("an icon keeps its name on the element, and one whose name reads state follows it", () => {
+  const { WF } = loadRuntime();
+  const fixed = WF.el("span", { className: "wf-icon", "data-icon": "chevron-right" });
+  assert.equal(fixed.getAttribute("data-icon"), "chevron-right", "a style keyed on the name (a mirrored arrow) can match it");
+  const open = WF.signal(false);
+  const live = WF.el("span", { className: "wf-icon", "data-icon": () => (open() ? "chevron-down" : "chevron-right") });
+  assert.equal(live.getAttribute("data-icon"), "chevron-right");
+  assert.match(live.innerHTML, /^<svg /);
+  open.set(true);
+  assert.equal(live.getAttribute("data-icon"), "chevron-down");
+});
+
 test("a route change moves focus to the new page's heading, resets the scroll and announces the title", () => {
   const { WF, document, window } = loadRuntime();
   const container = document.createElement("main");
