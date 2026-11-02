@@ -109,7 +109,8 @@ fn a_finding_carries_its_code_its_place_and_what_the_cli_prints() {
     assert_eq!(error.code, "T06");
     assert_eq!(error.message, "`Deploys` has no member `lve`");
     assert_eq!(error.file, "src/pages/Home.wf");
-    assert_eq!((error.line, error.column), (5, 12));
+    // At the member that is wrong, which the fix renames.
+    assert_eq!((error.line, error.column), (5, 20));
     assert_eq!(
         error.hint.as_deref(),
         Some("Did you mean `live`? Its members are `live`, `queued`")
@@ -123,7 +124,7 @@ fn a_finding_carries_its_code_its_place_and_what_the_cli_prints() {
             .iter()
             .any(|l| l.stream == Stream::Stderr
                 && l.text.contains("T06")
-                && l.text.contains("src/pages/Home.wf:5:12"))
+                && l.text.contains("src/pages/Home.wf:5:20"))
     );
     assert!(matches!(&failure.error, WebFluentError::Diagnostics(found) if found.contains(error)));
 
@@ -173,12 +174,16 @@ fn a_typo_in_a_derived_value_is_one_error() {
         .filter(|e| e.code == "T06")
         .collect();
     assert_eq!(t06.len(), 1, "{:?}", failure.report.diagnostics);
-    assert_eq!((t06[0].line, t06[0].column), (3, 20));
+    assert_eq!(
+        (t06[0].line, t06[0].column),
+        (3, 28),
+        "at `lve`, not `Deploys`"
+    );
     let printed = failure
         .report
         .lines
         .iter()
-        .filter(|l| l.stream == Stream::Stderr && l.text.contains("Home.wf:3:20"))
+        .filter(|l| l.stream == Stream::Stderr && l.text.contains("Home.wf:3:28"))
         .count();
     assert_eq!(printed, 1);
     let _ = std::fs::remove_dir_all(&dir);

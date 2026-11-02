@@ -5204,7 +5204,16 @@ impl<'a, 'p> Checker<'a, 'p> {
             Some(n) => format!("Did you mean `{n}`? {hint}"),
             None => hint.to_string(),
         };
-        let span = self.located(self.current_span, &message);
+        // At the name that is wrong — the member, the field — which is what
+        // the fix renames, not the first name the message gives (`Store`):
+        // the build's line and column and the editor's then agree.
+        let at_wrong = self.located(self.current_span, &format!("`{wrong}`"));
+        let span =
+            if (at_wrong.start, at_wrong.end) != (self.current_span.start, self.current_span.end) {
+                at_wrong
+            } else {
+                self.located(self.current_span, &message)
+            };
         let mut d = Diagnostic::coded(
             code,
             message,
@@ -7500,6 +7509,26 @@ mod tests {
         let line = src.lines().position(|l| l.contains("derived n")).unwrap() + 1;
         assert_eq!(error.line, line, "{error:?}");
         assert_eq!(error.column, "    derived n = 1 + ".len() + 1, "{error:?}");
+    }
+
+    #[test]
+    fn a_member_that_does_not_exist_is_found_at_the_member_not_the_store() {
+        // The fix renames `fieldz`, and the editor marks it: the build's
+        // line and column are the same place, not `S`'s.
+        let src = "store S {\n    state fields = 0\n}\npage P(path: \"/\") {\n    use S\n    Text(\"{S.fieldz}\")\n}\n".to_string();
+        let program = crate::syntax::parse_source(&src, "t.wf").unwrap();
+        let info = check_in(&program, &|_| "t.wf".to_string(), &|_| Some(src.clone()));
+        let error = info
+            .findings
+            .errors
+            .iter()
+            .find(|e| e.code == "T06")
+            .unwrap();
+        assert_eq!(
+            (error.line, error.column),
+            (6, "    Text(\"{S.".len() + 1),
+            "{error:?}"
+        );
     }
 }
 #[cfg(test)]
