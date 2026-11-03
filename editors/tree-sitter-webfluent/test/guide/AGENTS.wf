@@ -930,3 +930,128 @@ page Doc(path: "/") {
     // template.wf
 }
 
+// AGENTS.md
+store Todos { state items: [Map] = [] }
+page List(path: "/todos", title: "Todos") {
+    use Todos
+    if Todos.items.length == 0 {
+        Text("Nothing to do.")
+    } else {
+        for item in Todos.items by item.id {
+            Text(item.title)
+        }
+    }
+}
+
+// AGENTS.md
+page Signup(path: "/signup", title: "Sign up") {
+    state email = ""
+    derived wrong = email != "" && !email.includes("@")
+    Input(bind: email, type: "email", label: "Email address")
+    if wrong {
+        Text("Enter an email address.")
+    }
+}
+
+// AGENTS.md
+store Profile {
+    state name = ""
+    state failed = false
+
+    action load() {
+        try {
+            let me = await fetch("/api/me")
+            name = me.name
+        } catch e {
+            failed = true
+        }
+    }
+}
+
+// AGENTS.md
+page Post(path: "/posts/:slug", slug: String, title: "{slug}") {
+    Heading(slug).h1
+}
+
+// AGENTS.md
+component Tab(_ label: String, active: Bool = false) {
+    Button(label, class: if active { "tab on" } else { "tab" })
+}
+
+// AGENTS.md
+component Choice(_ label: String) {
+    event pick(label: String)
+    Button(label) { on click { emit pick(label) } }
+}
+page Picker(path: "/pick", title: "Pick") {
+    state picked = ""
+    Choice("First") { on pick(l) { picked = l } }
+    Text("Picked: {picked}")
+}
+
+// AGENTS.md
+component Panel(_ title: String) {
+    Card {
+        Heading(title).h3
+        children
+    }
+}
+page Keys(path: "/keys", title: "Keys") {
+    Panel("Keys") { Text("Rotate every 90 days.") }
+}
+
+// AGENTS.md
+store Deploys {
+    state items: [Map] = []
+    derived live = items.filter(d => d.status == "live").length
+}
+page Live(path: "/live", title: "Live") {
+    use Deploys
+    Text("{Deploys.live} live")
+}
+
+// AGENTS.md
+store Prefs { persist scheme = "light" }
+page Theme(path: "/theme", title: "Theme") {
+    use Prefs
+    Button("Switch theme") {
+        on click { Prefs.scheme = if Prefs.scheme == "light" { "dark" } else { "light" } }
+    }
+}
+
+// AGENTS.md
+enum Tone { calm, loud }
+component Banner(tone: Tone = .calm) {
+    match tone {
+        .calm { Text("All is well.") }
+        .loud { Text("Look here!") }
+    }
+}
+
+// AGENTS.md
+store Deploys {
+    state items: [Map] = []
+    state search = ""
+    derived shown = items.filter(d => d.service.includes(search))
+
+    action add(service: String) {
+        items = items.concat([{ id: service, service: service, status: "queued" }])
+    }
+}
+page DeployList(path: "/deploys", title: "Deploys", description: "Every deploy.") {
+    use Deploys
+    Heading("Deploys").h1
+    Input(bind: Deploys.search, placeholder: "Search by service", aria-label: "Search")
+    Button("Add a deploy").primary { on click { Deploys.add("new-service") } }
+    if Deploys.shown.length == 0 {
+        Text("No deploys yet.")
+    } else {
+        for d in Deploys.shown by d.id {
+            Row(gap: .sm) {
+                Text(d.service)
+                Badge(d.status)
+            }
+        }
+    }
+}
+

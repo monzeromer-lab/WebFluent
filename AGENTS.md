@@ -173,6 +173,7 @@ for an enum prop, a toggle for a flag, a handler editor for an event and a
 drop target for a slot from these, and a call site of the project's own
 `UserCard` reads like one of `Button`.
 
+<!-- core -->
 ## Core Syntax
 
 One lexeme, one meaning. Declarations are lowercase keywords; elements are
@@ -188,6 +189,7 @@ then letters, digits, `_` and the marks of its letters (UAX #31), one name
 however it was typed (NFC) — `state عددٌ = 3`, `store المهام`. A hidden
 direction control in the source is E119 (Trojan Source).
 
+<!-- core -->
 ### Pages
 
 ```wf
@@ -243,6 +245,7 @@ page Post(path: "/p/:slug", title: "Post", slug: String) {
 }
 ```
 
+<!-- core -->
 ### Components
 
 ```wf
@@ -685,6 +688,7 @@ new one in on a route change (`.slide` slides them). A page that names a
 `layout:` is framed by that component instead of, or as well as, the app's
 own chrome.
 
+<!-- core -->
 ### Stores (Shared State)
 
 A store is **built the first time something reads it**. Declaring one does
@@ -731,6 +735,7 @@ page Shop(path: "/shop") {
 }
 ```
 
+<!-- core -->
 ### State & Reactivity
 
 ```wf
@@ -767,6 +772,7 @@ timers, listeners, handles — is disposed of when it leaves; an async action's
 `name.pending` is true while a call of it runs (`Button("Save",
 disabled: save.pending)`, `Api.sync.pending` on a store).
 
+<!-- core -->
 ### Events
 
 ```wf
@@ -901,6 +907,7 @@ no rule written for the range; the condition on the type is already one.
 A submit that fails shows every message, moves focus to the first field
 that has one and announces it, and does not run the handler.
 
+<!-- core -->
 ### Actions, `let`, `return` and `await`
 
 ```wf
@@ -970,6 +977,7 @@ setTimeout(callback, 1000)
 // alert, confirm, prompt, RegExp, Map, Set, etc.
 ```
 
+<!-- core -->
 ### Expressions
 
 `x => expr` and `(a, b) => expr` are lambdas with one expression as the
@@ -1032,6 +1040,7 @@ language otherwise. Styles: `.number` (the default), `.integer`,
 and currencies and English names; the browser's `Intl` takes over on
 hydration.
 
+<!-- core -->
 ### Control Flow
 
 ```wf
@@ -3362,6 +3371,217 @@ page Invoice(path: "/", title: "Invoice") {
 
 **Not supported**: `effect`, handlers (`on click`), navigation, stores, animations, `resource` — nothing runs after the render.
 
+<!-- core -->
+## For agents
+
+What a model writing WebFluent for the first time needs before anything
+else: the grammar in a few lines, the idioms it will reach for, and the
+mistakes it is most likely to make. The rest of this file is the reference.
+
+### The grammar in brief
+
+- A file declares `page Name(path: "/x", title: "…") { … }`,
+  `component Name(_ first: String, other: Bool = false) { … }` or
+  `store Name { … }`. Names of declarations are capitalised.
+- Inside: `state x = 0` (changes), `derived y = x * 2` (computed),
+  `action go(n: Number) { … }` (does things), `persist z = ""` (kept).
+- A page or component reads a store after `use Name`, as `Name.member`.
+  Only members the store declares exist.
+- An element is capitalised: its first argument positional, the rest
+  `name: value`, flags after a dot (`Button("Save").primary`), children in
+  a block, handlers as `on click { … }`.
+- `if … { } else { }`, `for item in list by item.id { }`, `match` for an
+  enum or a resource.
+- A string splices `{expression}`; `t("key")` is a translation.
+- Commas separate arguments, never statements; a `style { }` block is CSS.
+
+### Ten idioms
+
+A list with an empty state:
+
+```wf
+store Todos { state items: [Map] = [] }
+
+page List(path: "/todos", title: "Todos") {
+    use Todos
+    if Todos.items.length == 0 {
+        Text("Nothing to do.")
+    } else {
+        for item in Todos.items by item.id {
+            Text(item.title)
+        }
+    }
+}
+```
+
+A field checked as it is typed:
+
+```wf
+page Signup(path: "/signup", title: "Sign up") {
+    state email = ""
+    derived wrong = email != "" && !email.includes("@")
+    Input(bind: email, type: "email", label: "Email address")
+    if wrong {
+        Text("Enter an email address.")
+    }
+}
+```
+
+A store action that waits for the network:
+
+```wf
+store Profile {
+    state name = ""
+    state failed = false
+
+    action load() {
+        try {
+            let me = await fetch("/api/me")
+            name = me.name
+        } catch e {
+            failed = true
+        }
+    }
+}
+```
+
+A route with a parameter:
+
+```wf
+page Post(path: "/posts/:slug", slug: String, title: "{slug}") {
+    Heading(slug).h1
+}
+```
+
+A class that follows state:
+
+```wf
+component Tab(_ label: String, active: Bool = false) {
+    Button(label, class: if active { "tab on" } else { "tab" })
+}
+```
+
+A component that says something happened:
+
+```wf
+component Choice(_ label: String) {
+    event pick(label: String)
+    Button(label) { on click { emit pick(label) } }
+}
+
+page Picker(path: "/pick", title: "Pick") {
+    state picked = ""
+    Choice("First") { on pick(l) { picked = l } }
+    Text("Picked: {picked}")
+}
+```
+
+A component that places what its caller gives it:
+
+```wf
+component Panel(_ title: String) {
+    Card {
+        Heading(title).h3
+        children
+    }
+}
+
+page Keys(path: "/keys", title: "Keys") {
+    Panel("Keys") { Text("Rotate every 90 days.") }
+}
+```
+
+A value worked out from a store:
+
+```wf
+store Deploys {
+    state items: [Map] = []
+    derived live = items.filter(d => d.status == "live").length
+}
+
+page Live(path: "/live", title: "Live") {
+    use Deploys
+    Text("{Deploys.live} live")
+}
+```
+
+A choice kept across visits:
+
+```wf
+store Prefs { persist scheme = "light" }
+
+page Theme(path: "/theme", title: "Theme") {
+    use Prefs
+    Button("Switch theme") {
+        on click { Prefs.scheme = if Prefs.scheme == "light" { "dark" } else { "light" } }
+    }
+}
+```
+
+One arm per case of an enum:
+
+```wf
+enum Tone { calm, loud }
+
+component Banner(tone: Tone = .calm) {
+    match tone {
+        .calm { Text("All is well.") }
+        .loud { Text("Look here!") }
+    }
+}
+```
+
+### The mistakes made most
+
+- **T06, a member the store does not have.** `Cart.total` when the store
+  declares `sum`. Read the store, or ask for its members, before you
+  call one; never guess a name.
+- **C02, a prop the component does not declare.** Read the component's
+  entry in the registry before you pass it a prop you are not sure of.
+- **X05, `use` of a store nothing declares**, and **T13, a name nothing
+  declares**: a store or a value is named exactly as it is declared, with
+  its capital.
+- **E002, a syntax error**: a comma between two statements, a brace left
+  open, a `.flag` before the call's parentheses close. Arguments are
+  separated by commas; statements by new lines.
+- **T17, an async result used before it is awaited**: an action that
+  fetches is awaited where its result is read.
+
+When a diagnostic comes back, its code is in the reference's
+"Compiler diagnostics" and the guide's diagnostics chapter, with the fix.
+
+### A page, whole
+
+```wf
+store Deploys {
+    state items: [Map] = []
+    state search = ""
+    derived shown = items.filter(d => d.service.includes(search))
+
+    action add(service: String) {
+        items = items.concat([{ id: service, service: service, status: "queued" }])
+    }
+}
+
+page DeployList(path: "/deploys", title: "Deploys", description: "Every deploy.") {
+    use Deploys
+    Heading("Deploys").h1
+    Input(bind: Deploys.search, placeholder: "Search by service", aria-label: "Search")
+    Button("Add a deploy").primary { on click { Deploys.add("new-service") } }
+    if Deploys.shown.length == 0 {
+        Text("No deploys yet.")
+    } else {
+        for d in Deploys.shown by d.id {
+            Row(gap: .sm) {
+                Text(d.service)
+                Badge(d.status)
+            }
+        }
+    }
+}
+```
+
+<!-- core -->
 ## Key Rules
 
 1. **Every page needs a path**: `page Name(path: "/route") { ... }`

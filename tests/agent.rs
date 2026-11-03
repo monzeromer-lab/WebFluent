@@ -724,3 +724,41 @@ fn an_edit_to_the_config_keeps_the_private_value_it_was_shown_withheld() {
     );
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+#[test]
+fn the_reference_s_core_is_its_marked_sections_and_the_rest_comes_by_title() {
+    use webfluent::agent::context::{reference_core, reference_section};
+    let core = reference_core();
+    for h in [
+        "## Core Syntax",
+        "### Pages",
+        "### Stores (Shared State)",
+        "### Control Flow",
+        "## For agents",
+        "### Ten idioms",
+        "## Key Rules",
+    ] {
+        assert!(
+            core.contains(&format!("\n{h}\n")) || core.starts_with(&format!("{h}\n")),
+            "{h} is in the core"
+        );
+    }
+    assert!(
+        !core.contains("## CLI\n")
+            && !core.contains("### Data Fetching")
+            && !core.contains("<!-- core -->")
+    );
+    // Under about 8,000 tokens.
+    assert!(
+        core.len() / 4 < 8_000,
+        "the core is {} tokens or so",
+        core.len() / 4
+    );
+    let data = reference_section("Data Fetching").unwrap();
+    assert!(
+        data.starts_with("### Data Fetching") && !data.contains("### A service, described once"),
+        "{data:.80}"
+    );
+    let titles = reference_section("No such section").unwrap_err();
+    assert!(titles.iter().any(|t| t == "Data Fetching"));
+}

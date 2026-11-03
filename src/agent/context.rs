@@ -176,6 +176,98 @@ pub fn chapters(files: &[(&str, &str)], depth: Depth) -> Vec<Chapter> {
     out
 }
 
+/// The language reference this `wf` was built with: the repository's
+/// `AGENTS.md`, which `wf init` writes into every project.
+pub fn reference() -> &'static str {
+    include_str!("../../AGENTS.md")
+}
+
+/// The reference's core: each section marked `<!-- core -->`, from its
+/// heading to the next heading of its level or higher. What an agent is
+/// given whole; the rest it asks for by section.
+pub fn reference_core() -> String {
+    let lines: Vec<&str> = reference().lines().collect();
+    let mut out: Vec<String> = Vec::new();
+    let mut i = 0;
+    while i < lines.len() {
+        if lines[i].trim() == "<!-- core -->" && i + 1 < lines.len() {
+            let level = lines[i + 1].chars().take_while(|c| *c == '#').count();
+            let mut j = i + 1;
+            out.push(lines[j].to_string());
+            let mut fenced = false;
+            j += 1;
+            while j < lines.len() {
+                let l = lines[j];
+                if l.starts_with("```") {
+                    fenced = !fenced;
+                }
+                let depth = l.chars().take_while(|c| *c == '#').count();
+                if !fenced
+                    && ((depth > 0 && depth <= level && l[depth..].starts_with(' '))
+                        || l.trim() == "<!-- core -->")
+                {
+                    break;
+                }
+                out.push(l.to_string());
+                j += 1;
+            }
+            i = j;
+        } else {
+            i += 1;
+        }
+    }
+    out.join("\n").trim().to_string()
+}
+
+/// A section of the reference by its heading's title (`Data Fetching`),
+/// from its heading to the next of its level or higher, and the titles
+/// of all of them when none is named so.
+pub fn reference_section(title: &str) -> std::result::Result<String, Vec<String>> {
+    let lines: Vec<&str> = reference().lines().collect();
+    let mut fenced = false;
+    let mut titles = Vec::new();
+    let mut found: Option<(usize, usize)> = None;
+    for (i, l) in lines.iter().enumerate() {
+        if l.starts_with("```") {
+            fenced = !fenced;
+        }
+        if fenced {
+            continue;
+        }
+        let depth = l.chars().take_while(|c| *c == '#').count();
+        if (2..=3).contains(&depth) && l[depth..].starts_with(' ') {
+            let t = l[depth..].trim().replace('`', "");
+            if found.is_none()
+                && (t.eq_ignore_ascii_case(title.trim()) || anchor(&t) == anchor(title))
+            {
+                found = Some((i, depth));
+            }
+            titles.push(t);
+        }
+    }
+    let Some((start, level)) = found else {
+        return Err(titles);
+    };
+    let mut out = vec![lines[start]];
+    let mut fenced = false;
+    for l in &lines[start + 1..] {
+        if l.starts_with("```") {
+            fenced = !fenced;
+        }
+        let depth = l.chars().take_while(|c| *c == '#').count();
+        if !fenced && depth > 0 && depth <= level && l[depth..].starts_with(' ') {
+            break;
+        }
+        out.push(l);
+    }
+    Ok(out
+        .join("\n")
+        .trim_end()
+        .replace("<!-- core -->", "")
+        .trim_end()
+        .to_string())
+}
+
 mod bundled {
     include!(concat!(env!("OUT_DIR"), "/guide_files.rs"));
 }
