@@ -181,31 +181,52 @@ impl ChangeSet {
             .collect()
     }
 
+    /// The project's folder.
+    pub fn dir(&self) -> &Path {
+        &self.dir
+    }
+
     /// The file at `rel` as the agent may see it: through the set, with
     /// each private `env` value of the config withheld. It is recorded as
     /// read.
     pub fn read(&mut self, rel: &str) -> Result<String> {
         let rel = self.within(rel)?;
-        let text = match self.changes.get(&rel) {
+        let text = self.through(&rel)?;
+        if !self.changes.contains_key(&rel) {
+            self.seen.insert(rel.clone(), hash(&text));
+        }
+        self.read.insert(rel.clone());
+        if rel == CONFIG {
+            return Ok(withhold(&text, &self.private_env()));
+        }
+        Ok(text)
+    }
+
+    /// `rel`'s text through the set, as it is, without recording a read.
+    fn through(&self, rel: &str) -> Result<String> {
+        let text = match self.changes.get(rel) {
             Some(Some(t)) => t.clone(),
             Some(None) => {
                 return Err(WebFluentError::NotFound(format!(
                     "`{rel}` is deleted in this change set"
                 )));
             }
-            None => {
-                let t = self
-                    .on_disk(&rel)
-                    .ok_or_else(|| WebFluentError::NotFound(format!("there is no `{rel}`")))?;
-                self.seen.insert(rel.clone(), hash(&t));
-                t
-            }
+            None => self
+                .on_disk(rel)
+                .ok_or_else(|| WebFluentError::NotFound(format!("there is no `{rel}`")))?,
         };
-        self.read.insert(rel.clone());
-        if rel == CONFIG {
-            return Ok(withhold(&text, &self.private_env()));
-        }
         Ok(text)
+    }
+
+    /// `rel` as the agent was shown it: through the set, a private value
+    /// withheld, without recording a read.
+    fn shown(&self, rel: &str) -> Result<String> {
+        let text = self.through(rel)?;
+        Ok(if rel == CONFIG {
+            withhold(&text, &self.private_env())
+        } else {
+            text
+        })
     }
 
     /// Write `text` to `rel` in the set. A private `env` value the agent
@@ -235,6 +256,14 @@ impl ChangeSet {
     /// have been read, or written, by the set, and not have changed under
     /// it since; every edit is made, or none.
     pub fn edit(&mut self, rel: &str, edits: &[super::edit::Edit]) -> Result<usize> {
+        let (_, new) = self.edited(rel, edits)?;
+        self.write(rel, &new)?;
+        Ok(edits.len())
+    }
+
+    /// What `edits` would make of `rel`, the set unchanged: the text as the
+    /// agent was shown it, and after. The same checks as `edit`.
+    pub fn edited(&self, rel: &str, edits: &[super::edit::Edit]) -> Result<(String, String)> {
         let rel = self.within(rel)?;
         if !self.has_read(&rel) {
             return Err(WebFluentError::NotFound(format!(
@@ -249,11 +278,10 @@ impl ChangeSet {
                 "`{rel}` changed since you read it. Read it again."
             )));
         }
-        let shown = self.read(&rel)?;
+        let shown = self.shown(&rel)?;
         let new = super::edit::apply(&shown, edits)
             .map_err(|e| WebFluentError::NotFound(e.to_string()))?;
-        self.write(&rel, &new)?;
-        Ok(edits.len())
+        Ok((shown, new))
     }
 
     /// Delete `rel` in the set.
