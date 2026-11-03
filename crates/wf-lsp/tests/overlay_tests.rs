@@ -71,7 +71,8 @@ fn a_store_member_typo_in_a_buffer_is_t06_as_the_build_says_it() {
     let printed = failure.report.errors().next().expect("an error");
     assert_eq!(printed.code, "T06");
     assert_eq!(printed.message, "`Deploys` has no member `lve`");
-    assert_eq!((printed.line, printed.column), (5, 12));
+    // At the member the store does not have, as the build underlines it.
+    assert_eq!((printed.line, printed.column), (5, 20));
     assert_eq!(
         t06.message,
         format!("{}\n{}", printed.message, printed.hint.as_deref().unwrap())

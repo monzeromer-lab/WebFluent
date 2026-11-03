@@ -257,6 +257,11 @@ fn build_example(group: &str, name: &str) -> (String, std::path::PathBuf) {
         &tmp.join("documents/fonts"),
     );
     copy(&root.join(name), &tmp.join(group).join(name));
+    run_build(&tmp, group, name)
+}
+
+/// Build the copy of an example at `tmp/<group>/<name>`.
+fn run_build(tmp: &std::path::Path, group: &str, name: &str) -> (String, std::path::PathBuf) {
     let out = std::process::Command::new(env!("CARGO_BIN_EXE_wf"))
         .args(["build", "-d"])
         .arg(tmp.join(group).join(name))
@@ -265,7 +270,7 @@ fn build_example(group: &str, name: &str) -> (String, std::path::PathBuf) {
     let stdout =
         String::from_utf8_lossy(&out.stdout).to_string() + &String::from_utf8_lossy(&out.stderr);
     assert!(out.status.success(), "{stdout}");
-    (stdout, tmp)
+    (stdout, tmp.to_path_buf())
 }
 
 fn pages_in(stdout: &str) -> usize {
@@ -388,8 +393,19 @@ fn the_invoice_builds_with_its_own_fonts_and_nothing_missing() {
 
 #[test]
 fn the_arabic_resume_builds() {
-    let (out, tmp) = build_document("resume");
-    // Its one Japanese line may come from the machine; nothing else does.
+    // Its one Japanese line has no font under fonts/. Built without the
+    // machine's fonts, so every machine reports the same: that line's
+    // characters are missing, and nothing else is.
+    let (_, tmp) = build_document("resume");
+    let config = tmp.join("documents/resume/webfluent.app.json");
+    let text = std::fs::read_to_string(&config).unwrap();
+    std::fs::write(
+        &config,
+        text.replace("\"system_fonts\": true", "\"system_fonts\": false"),
+    )
+    .unwrap();
+    let (out, _) = run_build(&tmp, "documents", "resume");
+    assert!(!out.contains("came from this machine"), "{out}");
     assert!(
         out.lines()
             .filter(|l| l.contains("note:"))
