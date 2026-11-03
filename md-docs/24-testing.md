@@ -45,7 +45,9 @@ test "a list renders each row"(data: { rows: [{ name: "a" }, { name: "b" }] }) {
 
 - Tests live in `tests/*.wf` (or beside the code in `src/`).
 - `expect "text"` must appear in what the page shows; `expect not "text"`
-  must not. It reads the text a reader sees — a class name in the markup
+  must not. In a browser a page still moving — a row on its way out, a
+  fetch on its way in — is read again until the expect holds, for up to a
+  second and a half. It reads the text a reader sees — a class name in the markup
   does not count — laid out as a browser lays it out: runs of white space
   are one space, a block (or anything a `Row`, `Stack` or `Grid` lays out)
   is set apart from what is beside it, and inline elements that touch read

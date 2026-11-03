@@ -393,3 +393,91 @@ fn copy(from: &Path, to: &Path) {
         }
     }
 }
+
+/// A page whose row is on its way out: it shows "Leaving" for the first
+/// `reads` times the test looks, then not; with `reads` past any wait, for
+/// good.
+struct Leaving {
+    reads: usize,
+}
+
+impl Browser for Leaving {
+    fn open(
+        &mut self,
+        _dir: &Path,
+        _settle_ms: u64,
+    ) -> webfluent::error::Result<Box<dyn Page + '_>> {
+        Ok(Box::new(LeavingPage { left: self.reads }))
+    }
+}
+
+struct LeavingPage {
+    left: usize,
+}
+
+impl Page for LeavingPage {
+    fn eval(&mut self, script: &str) -> webfluent::error::Result<serde_json::Value> {
+        if !script.contains("innerText") {
+            return Ok(serde_json::json!("ok"));
+        }
+        if self.left == 0 {
+            return Ok(serde_json::json!("Staying"));
+        }
+        self.left -= 1;
+        Ok(serde_json::json!("Staying Leaving"))
+    }
+    fn settle(&mut self, ms: u64) -> webfluent::error::Result<()> {
+        std::thread::sleep(std::time::Duration::from_millis(ms));
+        Ok(())
+    }
+    fn errors(&self) -> Vec<String> {
+        Vec::new()
+    }
+}
+
+#[test]
+fn an_expect_reads_a_page_still_moving_again_until_it_holds() {
+    let dir = scratch("leaving");
+    std::fs::write(
+        dir.join("webfluent.app.json"),
+        r#"{ "name": "scratch", "build": { "output": "build" } }"#,
+    )
+    .unwrap();
+    std::fs::write(
+        dir.join("src/App.wf"),
+        "page P(path: \"/\", title: \"T\", description: \"d\") { Heading(\"x\").h1 }\n",
+    )
+    .unwrap();
+    std::fs::write(
+        dir.join("tests/leaving.wf"),
+        "test \"the row goes\" {\n    Text(\"Staying\")\n    click \"Staying\"\n    expect not \"Leaving\"\n}\n",
+    )
+    .unwrap();
+    let tests = testing::collect(&dir).unwrap();
+    let (_, goes) = &tests.tests[0];
+    let work = dir.join(".work");
+    // Gone after a few looks: the expect waits for it.
+    let started = std::time::Instant::now();
+    match tests.run_acting(&mut Leaving { reads: 3 }, goes, &work) {
+        Outcome::Passed => {}
+        other => panic!("{other:?}"),
+    }
+    assert!(started.elapsed() < std::time::Duration::from_millis(1000));
+    // Never gone: it fails, after the wait and no longer.
+    let started = std::time::Instant::now();
+    match tests.run_acting(&mut Leaving { reads: 10_000 }, goes, &work) {
+        Outcome::Failed(reasons) => {
+            assert_eq!(
+                reasons[0],
+                "expected not to find \"Leaving\", and the page shows it"
+            )
+        }
+        other => panic!("{other:?}"),
+    }
+    let took = started.elapsed();
+    assert!(
+        took >= std::time::Duration::from_millis(1500)
+            && took < std::time::Duration::from_millis(3000),
+        "{took:?}"
+    );
+}

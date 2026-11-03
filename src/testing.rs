@@ -893,8 +893,15 @@ fn step_one(page: &mut dyn Page, step: &Step) -> Result<std::result::Result<(), 
             // Read as a rendered test reads it: runs of white space are one
             // space, so `expect "Total tasks 3"` finds a card's title and its
             // number on two lines, in a browser as in a render.
-            let shown = visible_text(page)?;
-            let found = squeeze(&shown).contains(&squeeze(&want));
+            // A page still moving — a row on its way out, a fetch on its
+            // way in — is read again until it holds, for up to a second
+            // and a half: a quick page answers at once.
+            let until = std::time::Instant::now() + std::time::Duration::from_millis(1500);
+            let mut found = squeeze(&visible_text(page)?).contains(&squeeze(&want));
+            while found == *negated && std::time::Instant::now() < until {
+                page.settle(50)?;
+                found = squeeze(&visible_text(page)?).contains(&squeeze(&want));
+            }
             if found == *negated {
                 return Ok(Err(if *negated {
                     format!("expected not to find {want:?}, and the page shows it")
