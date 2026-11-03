@@ -45,6 +45,16 @@ test("a layout that gives a Latin letter is read by it; one that does not, by th
   // An Arabic layout sends Arabic letters: the place decides.
   assert.equal(WF.keyIs(key("ح", { code: "KeyP", ctrlKey: true, shiftKey: true }), "mod+shift+p"), true);
   assert.equal(WF.keyIs(key("ح", { code: "KeyP", ctrlKey: true }), "mod+b"), false);
+  // Its punctuation keys send Arabic letters too (the comma key `و`, the
+  // slash key `ظ`, the period key `ز`): the place decides there as well.
+  assert.equal(WF.keyIs(key("و", { code: "Comma", ctrlKey: true }), "mod+,"), true, "Ctrl+, opens Settings on an Arabic layout");
+  assert.equal(WF.keyIs(key("ظ", { code: "Slash", ctrlKey: true }), "mod+/"), true);
+  assert.equal(WF.keyIs(key("ز", { code: "Period", ctrlKey: true }), "mod+."), true);
+  assert.equal(WF.keyIs(key("ج", { code: "BracketLeft", ctrlKey: true }), "mod+["), true);
+  assert.equal(WF.keyIs(key("و", { code: "Comma", ctrlKey: true }), "mod+."), false, "its place is the comma's, not the period's");
+  // AZERTY's comma key sends `;`, which is ASCII: read by what it sends.
+  assert.equal(WF.keyIs(key(";", { code: "Comma", ctrlKey: true }), "mod+,"), false);
+  assert.equal(WF.keyIs(key(";", { code: "Comma", ctrlKey: true }), "mod+;"), true);
 });
 
 test("a combination is written as the system writes it", () => {
