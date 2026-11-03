@@ -123,11 +123,11 @@ Use something else when:
 
 - you depend on a large ecosystem of framework-specific UI libraries. You
   can still embed any library through
-  [JavaScript interop](32-javascript-interop.md), but you write the binding
+  [JavaScript interop](39-javascript-interop.md), but you write the binding
   yourself.
 - you need server-side rendering on every request with per-user data. A
   WebFluent site is static files plus a browser runtime, and your server
-  stays your server. [Server rendering](35-server-rendering.md) of templates
+  stays your server. [Server rendering](38-server-rendering.md) of templates
   does cover emails, invoices and HTML fragments.
 - you need a native mobile app.
 
@@ -143,33 +143,37 @@ different need:
 | **Reference** | need a fact, such as a prop's default | a complete, exact description |
 | **Explanation** | want to understand how something works and why | the ideas, the reasons and the trade-offs |
 
-The guide has six parts. Each part is mostly one kind of page:
+The guide is organised by what you are here to do, in eleven sections:
 
-| Part | Chapters | Kind | What it covers |
-|---|---|---|---|
-| **Start** | 1–4 | explanation (1, 4), quick start (2), tutorial (3) | What WebFluent is, installing it, a first site built step by step, and a map from React, Vue and Svelte |
-| **The basics** | 5–14 | explanation, each ending in a short reference table | The language itself, in the order the ideas build on each other |
-| **Building** | 15–24 | how-to | Styling, forms, data, real-time, offline, motion, translation, accessibility, security and testing |
-| **Shipping** | 25–36 | how-to, with explanation first in 25 and 26; chapter 36 is tutorials | Project structure, static or single-page, content and search, media, deploying, environments, performance, JavaScript interop, desktop apps, PDFs and slides, server rendering, and three whole-project tutorials |
-| **Reference** | 37–44 | reference | Every component, command, configuration key, diagnostic, built-in, design token, runtime function and grammar rule |
-| **Help** | 45–49 | troubleshooting, upgrade notes, glossary | Troubleshooting, upgrading, browser support, a glossary and contributing |
+| Section | Kind | What it covers |
+|---|---|---|
+| **Get started** | explanation, quick start, tutorial | What WebFluent is, installing it, a first site built step by step, and a map from React, Vue and Svelte |
+| **Tutorials and recipes** | tutorial, then how-to | Three whole projects — [Todos](05-tutorial-todos.md), [Field Notes](06-tutorial-field-notes.md) and [Pocket](07-tutorial-pocket.md) — and [recipes](08-recipes.md) for the pieces most projects need |
+| **Concepts** | explanation, each ending in a quick-reference table | The language itself, in the order the ideas build on each other: from [Language basics](09-language-basics.md) to [Expressions](18-expressions.md) |
+| **Guides: interface** | how-to | [Styling](19-styling.md), [motion](20-motion.md), [media](21-media.md) and [accessibility](22-accessibility.md) |
+| **Guides: data** | how-to | [Forms](23-forms.md), [fetching data](24-data.md), [real-time connections](25-realtime.md) and [offline](26-offline.md) |
+| **Guides: content** | how-to | [Content and search](27-content.md) and [translation](28-i18n.md) |
+| **Guides: quality** | how-to | [Testing](29-testing.md), [security](30-security.md) and [performance](31-performance.md) |
+| **Guides: shipping** | explanation, then how-to | [Project structure](32-project-structure.md), [static or single-page](33-static-and-spa.md), [deploying](34-deploying.md), [environments](35-environments.md) and [desktop apps](36-desktop-apps.md) |
+| **Other outputs** | how-to | [PDF and slides](37-pdf-and-slides.md), [server rendering](38-server-rendering.md) and [JavaScript interop](39-javascript-interop.md) |
+| **Reference** | reference | Every [component](40-components-reference.md), [command](41-cli.md), [configuration key](42-configuration.md), [diagnostic](43-diagnostics.md), [built-in](44-built-ins.md), [design token](45-design-tokens.md), [runtime function](46-runtime-api.md) and [grammar rule](47-grammar.md), plus [browser support](48-browser-support.md) and a [glossary](49-glossary.md) |
+| **Help** | troubleshooting and upgrade notes | [Troubleshooting](50-troubleshooting.md), [upgrading](51-upgrading.md) and [contributing](52-contributing.md) |
 
 ## Where to start
 
 - **To learn WebFluent:** read [Getting started](02-getting-started.md),
-  work through the [tutorial](03-tutorial.md), then read chapters 5–12 in
-  order. Every example in them builds. For more practice, try the
-  [three project tutorials](36-tutorials.md).
+  work through the [tutorial](03-tutorial.md), then read the *Concepts* section
+  in order. Every example in them builds. For more practice, try the
+  [three project tutorials](05-tutorial-todos.md).
 - **To understand it coming from a framework:** read
   [Coming from React, Vue or Svelte](04-coming-from.md) first. It maps what
   you know to what is here.
-- **To build a feature:** go to the chapter in *Building* or *Shipping* that
-  names the task.
+- **To build a feature:** go to the *Guides* page that names the task.
 - **To look something up:** use the reference chapters, starting with the
-  [components reference](37-components-reference.md). They are generated
+  [components reference](40-components-reference.md). They are generated
   from the compiler, or checked against it.
-- **To fix a problem:** start at [Troubleshooting](45-troubleshooting.md).
-  Every diagnostic code has an entry in [Diagnostics](40-diagnostics.md).
+- **To fix a problem:** start at [Troubleshooting](50-troubleshooting.md).
+  Every diagnostic code has an entry in [Diagnostics](43-diagnostics.md).
 
 The test suite parses, type-checks and compiles every `wf` code block in
 this guide, so what you read is what the compiler accepts. A block that
@@ -178,7 +182,7 @@ leaves something out says so with a `…`.
 ## Versions
 
 This guide describes WebFluent 5, the stable line. Run `wf --version` to see
-which release you have. [Upgrading](46-upgrading.md) lists what changed in
+which release you have. [Upgrading](51-upgrading.md) lists what changed in
 each release.
 
 ## Next

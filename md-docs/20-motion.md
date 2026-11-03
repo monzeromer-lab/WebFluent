@@ -2,7 +2,7 @@
 
 <!--
 route: guide/motion
-group: building
+group: ui
 blurb: Declare how an element enters and leaves, how a list staggers and how pages change — the runtime plays it, or skips it for readers who asked for less.
 description: Enter and exit animations, list stagger, keyframes, expanding boxes, counting numbers, shared elements, sequences and route transitions.
 -->
@@ -26,7 +26,7 @@ In this chapter you will:
 ## Before you start
 
 You should know how `if`, `for`, `show` and `match` draw and remove
-elements ([Control flow](10-control-flow.md)), and how a keyed `for … by`
+elements ([Control flow](14-control-flow.md)), and how a keyed `for … by`
 keeps an item's nodes. Motion attaches to those: an animation plays when
 one of them brings an element in or takes it away.
 
@@ -329,7 +329,7 @@ page Wizard(path: "/", title: "Wizard", description: "Three steps, animated.") {
 
 To animate a style property that changes with state, rather than an element
 arriving, add a `transition { }` block that names the property and how long
-it takes ([Styling](15-styling.md)):
+it takes ([Styling](19-styling.md)):
 
 ```wf
 page Tween(path: "/", title: "Tween", description: "A panel that grows.") {
@@ -457,7 +457,4 @@ preview sets it when you ask it for reduced motion.
 
 ## Next
 
-- [Internationalisation](21-i18n.md): translate the site and switch its
-  language.
-- [Styling](15-styling.md): transitions, tokens and the theme that tunes
-  every easing.
+[Media](21-media.md): add pictures the build resizes for every screen, video with captions, audio with a transcript, icons, carousels and frames.

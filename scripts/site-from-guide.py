@@ -37,6 +37,22 @@ META = {}  # number → {route, group, blurb, description, slug, title}
 GROUP_ORDER = []
 # The chapter drawn from the registry, not from its Markdown.
 REFERENCE_ROUTE = "reference"
+# The guide's sections, in order, as the sidebar and the contents name them.
+# A chapter's `group:` is one of these; its English name is the site's
+# `nav.group.<key>` (the Arabic one is written by hand).
+GROUP_NAMES = {
+    "start": "Get started",
+    "tutorials": "Tutorials and recipes",
+    "concepts": "Concepts",
+    "ui": "Guides: interface",
+    "data": "Guides: data",
+    "content": "Guides: content",
+    "quality": "Guides: quality",
+    "ship": "Guides: shipping",
+    "outputs": "Other outputs",
+    "reference": "Reference",
+    "help": "Help",
+}
 
 
 def read_meta(num: str, path: Path) -> dict:
@@ -325,7 +341,7 @@ def convert(num: str, md: str):
     header = [
         f'/// Chapter {n} of the guide, written from md-docs/{num}-{{slug}}.md by',
         "/// scripts/site-from-guide.py; edit the guide, not this file.",
-        f'page {name}(path: "/docs/{route}", title: "{wf_string(title)}", description: "{wf_string(description)}", layout: DocsShell("{wf_string(title)}", chapter: t("guide.chapter", {{ n: "{n}" }}), blurb: "{wf_string(blurb)}", source: "md-docs/{num}-{META[num]["slug"]}.md", sections: [{anchors}]' + "PREVNEXT" + ")) {",
+        f'page {name}(path: "/docs/{route}", title: "{wf_string(title)}", description: "{wf_string(description)}", layout: DocsShell("{wf_string(title)}", chapter: t("nav.group.{META[num]["group"]}"), blurb: "{wf_string(blurb)}", source: "md-docs/{num}-{META[num]["slug"]}.md", sections: [{anchors}]' + "PREVNEXT" + ")) {",
         "    Stack(gap: .lg) {",
     ]
     return header, out, prev_num, next_num
@@ -335,7 +351,8 @@ SIDEBAR_HEAD = """/// The guide's chapter nav, written from the chapters' own me
 /// scripts/site-from-guide.py; edit the guide, not this file. 280px, a group
 /// per part of the guide under an overline label, each chapter with its
 /// number in mono; the one whose `to` matches the route carries the rail,
-/// the wash and the bold.
+/// the wash and the bold. Sections, not numbers: the reader finds a page by
+/// what it is for.
 component DocSidebar {
     Sidebar(aria-label: t("nav.chapters")) {
         style {
@@ -349,8 +366,6 @@ component DocSidebar {
             & .wf-sidebar__item { height: 32px; padding: 0 10px; gap: 10px; border-radius: 4px; font-size: 13px; line-height: 20px; color: $color-text-muted }
             & .wf-sidebar__item:hover { background: $surface-hover; color: $color-text }
             & .wf-sidebar__item.active { padding-inline-start: 7px; border-inline-start: 3px solid $color-primary; border-radius: 0 4px 4px 0; background: $brand-subtle; color: $color-text; font-weight: 600 }
-            & .wf-sidebar__item .num { margin: 0; width: 16px; flex-shrink: 0; font-family: $font-family-mono; font-size: 12px; color: $ink-subtle }
-            & .wf-sidebar__item.active .num { color: $brand-ink }
             & .wf-sidebar__item p { margin: 0 }
             & .wf-sidebar__divider { display: none }
             & .group-label { margin: 20px 0 16px; padding: 0 10px; font-size: 12px; line-height: 18px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: $ink-subtle }
@@ -372,7 +387,7 @@ def sidebar() -> str:
             out.append(f'        Text(t("nav.group.{group}"), class: "group-label")')
         prefix = ", active: .prefix" if meta["route"] == REFERENCE_ROUTE else ""
         out.append(
-            f'        Sidebar.Item(to: "/docs/{meta["route"]}"{prefix}) {{ Text("{num}", class: "num")  Text(t("ch.{num}")) }}'
+            f'        Sidebar.Item(to: "/docs/{meta["route"]}"{prefix}) {{ Text(t("ch.{num}")) }}'
         )
     out.append("    }")
     out.append("}")
@@ -381,7 +396,7 @@ def sidebar() -> str:
 
 def contents_table() -> str:
     """The guide's table of contents, for `md-docs/README.md`."""
-    names = {"start": "Start", "basics": "The basics", "building": "Building", "shipping": "Shipping", "reference": "Reference", "help": "Help"}
+    names = GROUP_NAMES
     rows = ["| # | Chapter | What it covers |", "|---|---|---|"]
     group = None
     for num in sorted(META):
@@ -412,9 +427,9 @@ def main():
     for num, (f, (header, body, prev_num, next_num)) in converted.items():
         prevnext = ""
         if prev_num:
-            prevnext += f', prevTo: "/docs/{META[prev_num]["route"]}", prevLabel: "{int(prev_num)}. {{t("ch.{prev_num}")}}"'
+            prevnext += f', prevTo: "/docs/{META[prev_num]["route"]}", prevLabel: t("ch.{prev_num}")'
         if next_num:
-            prevnext += f', nextTo: "/docs/{META[next_num]["route"]}", nextLabel: "{int(next_num)}. {{t("ch.{next_num}")}}"'
+            prevnext += f', nextTo: "/docs/{META[next_num]["route"]}", nextLabel: t("ch.{next_num}")'
         header[0] = header[0].replace("{slug}", f.name[3:-3])
         header[2] = header[2].replace("PREVNEXT", prevnext)
         text = "\n".join(header + body).rstrip() + "\n    }\n}\n"
@@ -438,6 +453,8 @@ def main():
             del en[key]
         for num in sorted(META):
             en[f"ch.{num}"] = META[num]["title"]
+        for key, name in GROUP_NAMES.items():
+            en[f"nav.group.{key}"] = name
         en_path.write_text(json.dumps(en, ensure_ascii=False, indent=2) + "\n")
         readme = GUIDE / "README.md"
         text = readme.read_text()

@@ -1,0 +1,195 @@
+/// Chapter 50 of the guide, written from md-docs/50-troubleshooting.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page TroubleshootingGuide(path: "/docs/guide/troubleshooting", title: "Troubleshooting", description: "What you see when something goes wrong — install errors, build stops, blank pages after deploy, 404s on reload, CSP blocks, styles — the cause and the fix.", layout: DocsShell("Troubleshooting", chapter: t("nav.group.help"), blurb: "The problems people meet, what causes each, and the fix — from installing to deploying, plus the questions that come up most.", source: "md-docs/50-troubleshooting.md", sections: [Anchor(id: "installing", label: "Installing"), Anchor(id: "building", label: "Building"), Anchor(id: "in-the-browser", label: "In the browser"), Anchor(id: "styling", label: "Styling"), Anchor(id: "data", label: "Data"), Anchor(id: "questions-people-ask", label: "Questions people ask")], prevTo: "/docs/guide/glossary", prevLabel: t("ch.49"), nextTo: "/docs/guide/upgrading", nextLabel: t("ch.51"))) {
+    Stack(gap: .lg) {
+        Markdown("This chapter lists the problems people meet with WebFluent, titled by what you see. Each entry gives the cause, then the fix.\n\nA problem that comes with a code in brackets, such as `[T05]`, has its own entry in [Diagnostics](/docs/guide/diagnostics): search that chapter for the code, or run `wf explain T05` to print the entry in your terminal. This chapter covers what goes wrong without one, and the messages that need more context than the entry gives.\n\nIn this chapter:\n\n- [Installing](#installing)\n- [Building](#building)\n- [In the browser](#in-the-browser)\n- [Styling](#styling)\n- [Data](#data)\n- [Questions people ask](#questions-people-ask)")
+
+        Heading("Installing", id: "installing").h2
+
+        Heading("wf: command not found after installing", id: "wf-command-not-found-after-installing").h3
+
+        Markdown("The installer added `~/.webfluent/bin` to your shell's startup file, but the terminal you have open read that file before the line was there.\n\nOpen a new terminal. Or run `wf` by its full path, `~/.webfluent/bin/wf`.")
+
+        Heading("The installer cannot find the latest version", id: "the-installer-cannot-find-the-latest-version").h3
+
+        Markdown("The installer asks GitHub's API for the latest release, and GitHub limits requests that are not signed in.\n\nPin a version instead, and run the installer again with it set: `WF_VERSION=v5.11.0`.")
+
+        Heading("There is no binary for Linux on ARM", id: "there-is-no-binary-for-linux-on-arm").h3
+
+        Markdown("There is no prebuilt binary yet for Linux on ARM, such as a Raspberry Pi or an ARM server, so the installer stops.\n\nInstall from source with Rust:")
+
+        Terminal(lines: [
+                Line(command: "cargo install webfluent")
+            ])
+
+        Heading("On Windows, wf opens the Windows Firewall console", id: "on-windows-wf-opens-the-windows-firewall-console").h3
+
+        Markdown("Windows already has a `wf`: `C:\\Windows\\System32\\WF.msc`, the firewall console, which a bare `wf` finds first whatever your `PATH` says. The installer puts the same binary in place a second time, as `webfluent.exe`.\n\nType `webfluent` (or `wf.exe`) wherever this guide says `wf`.")
+
+        Heading("On Windows, an old version still runs after installing a new one", id: "on-windows-an-old-version-still-runs-after-installing-a-new-one").h3
+
+        Markdown("Each `.msi` before 5.10 had an `UpgradeCode` of its own, so a newer installer cannot replace an older one, and both stay installed and on `PATH`.\n\nUninstall the old version from *Apps*, then check `webfluent --version`.")
+
+        Heading("The editor cannot find wf-lsp", id: "the-editor-cannot-find-wf-lsp").h3
+
+        Markdown("The language server is a separate binary from `wf`, and the editor looks for it on its own.\n\nInstall it as [Getting started](/docs/guide/getting-started#set-up-your-editor) describes.")
+
+        Heading("The editor reports what wf build does not", id: "the-editor-reports-what-wf-build-does-not").h3
+
+        Markdown("The editor calls an element unknown (`Host`, for example), or shows a message that `wf check` never prints. The editor is running an older `wf-lsp` than the `wf` you build with: one on your `PATH` is used before a downloaded release, and `cargo install` does not update it when you update `wf`.\n\n1. Compare `wf-lsp --version` with `wf --version`. The editor's language server log also names the version it started.\n2. Install the `wf-lsp` that matches `wf`.\n3. Restart the language server.")
+
+        Heading("Building", id: "building").h2
+
+        Heading("\"is not an element or a statement a render block can hold\"", id: "is-not-an-element-or-a-statement-a-render-block-can-hold").h3
+
+        Markdown("Code that does something — `n = n + 1`, or a call that is not a store's set-up — is written loose in a page. A page's body describes what to show; it does not run statements.\n\nPut the code in an `on click \{ \}` handler, an `action` or an `effect`.")
+
+        Heading("\"Only the first argument may be positional\"", id: "only-the-first-argument-may-be-positional").h3
+
+        Markdown("An element takes one value without a name, and every other value must be named.\n\nName the rest: `Card(\"Laptop\", price: 999)`.")
+
+        Heading("\"a WebFluent 2 declaration\"", id: "a-webfluent-2-declaration").h3
+
+        Markdown("The file uses the old grammar, with capitalised declarations such as `Page` and `Component`.\n\nRun `wf migrate` to rewrite it ([Upgrading](/docs/guide/upgrading#from-webfluent-2)).")
+
+        Heading("A warning you do not understand", id: "a-warning-you-do-not-understand").h3
+
+        Markdown("Every warning has a code, and the code's entry explains it.\n\nRun `wf explain CODE` to print the entry; every code is also in [Diagnostics](/docs/guide/diagnostics), with an example and a fix. A named argument that the compiler writes to the element \"as an attribute\" (`C04`) is almost always a misspelled prop.")
+
+        Heading("A project that built under 4.x stops on errors", id: "a-project-that-built-under-4-x-stops-on-errors").h3
+
+        Markdown("5.0 refuses what used to compile and then fail in the browser, so a 4.x project may stop on errors it always had.\n\n1. Run `wf check`. It lists every finding and writes nothing.\n2. Apply the fixes your editor offers as quick fixes, where the fix is known.\n3. While you catch up, lower in `lints` the codes that cannot ship a broken page ([Upgrading](/docs/guide/upgrading#5-0)).")
+
+        Heading("A finding you mean to keep", id: "a-finding-you-mean-to-keep").h3
+
+        Markdown("The compiler reports something you have decided is right for this line.\n\nPut `// wf-allow(CODE)` on the line above it, or at the end of its line, to accept that one finding. To silence a warning across a whole project, set it in `lints` instead. An allow that covers nothing is itself reported (`U07`).")
+
+        Heading("CI does not fail on warnings, or does not annotate pull requests", id: "ci-does-not-fail-on-warnings-or-does-not-annotate-pull-requests").h3
+
+        Markdown("By default, warnings do not fail a build, and the output is written for a terminal.\n\n- `wf check --deny-warnings` fails on a warning.\n- `--format github` writes annotations a GitHub workflow shows on the pull request.\n- `--format sarif` writes a file for code scanning.\n\n[Command line](/docs/guide/cli#wf-check) lists every option.")
+
+        Heading("The build is slow", id: "the-build-is-slow").h3
+
+        Markdown("The first build resizes every `image` the project declares. Later builds reuse the work kept in `.wf-cache/`.\n\nKeep `.wf-cache/` between builds. In CI, cache it rather than deleting it.")
+
+        Heading("In the browser", id: "in-the-browser").h2
+
+        Heading("The page is blank after deploying, but works locally", id: "the-page-is-blank-after-deploying-but-works-locally").h3
+
+        Markdown("The site is served under a sub-path, such as `/my-repo/` on GitHub Pages, and the build does not know it, so the page asks for its files at the wrong address.\n\nSet `build.base_path` to the sub-path (`\"/my-repo\"`) and rebuild ([Static sites and SPAs](/docs/guide/static-and-spa#serve-the-site-under-a-sub-path)).")
+
+        Heading("Reloading any page but the home page is a 404", id: "reloading-any-page-but-the-home-page-is-a-404").h3
+
+        Markdown("A single-page build has one HTML file. When the reader reloads `/settings`, the host looks for a file at that path and has none.\n\nConfigure the host to answer every path with `index.html` ([Deploying](/docs/guide/deploying)), or build a static site with `build.ssg: true`, which writes a file for every page.")
+
+        Heading("\"Refused to load the script\" or \"violates the following Content Security Policy\"", id: "refused-to-load-the-script-or-violates-the-following-content-security-policy").h3
+
+        Markdown("`build.csp` ships a strict policy, and the browser blocks a script, font or stylesheet from an origin the policy does not name.\n\nDeclare what the page loads from elsewhere: a library in `meta.scripts`, fonts in `meta.fonts`, stylesheets in `meta.stylesheets`. Each widens the policy for exactly that origin. An inline `<script>` in an HTML file in `public/` is never allowed; move its code to a `.js` file.")
+
+        Heading("An icon shows as a word", id: "an-icon-shows-as-a-word").h3
+
+        Markdown("The name is not one of the 72 built-in icons ([Media](/docs/guide/media#show-an-icon)), or the name is put together at run time, which the build cannot see, so the build left its glyph out.\n\nFix the name, or write it as a literal. If it must be built at run time, set `\"build\": \{ \"runtime\": \"full\" \}`, which ships every icon.")
+
+        Heading("WF.something is not a function from your own script", id: "wf-something-is-not-a-function-from-your-own-script").h3
+
+        Markdown("The build ships only the runtime modules your `.wf` code uses. Your script calls one that nothing in the `.wf` code reaches, so the build left it out.\n\nSet `\"build\": \{ \"runtime\": \"full\" \}` to ship the whole runtime.")
+
+        Heading("The page shows old content after a deploy", id: "the-page-shows-old-content-after-a-deploy").h3
+
+        Markdown("Either an HTTP cache is holding `app.js`, or — on a site with `offline` — the service worker is serving what it stored until the reader takes the new version.\n\n- Serve `app.js` with `Cache-Control: no-cache` ([Deploying](/docs/guide/deploying#set-cache-headers)).\n- On an offline site, show an update button when `update.available` holds ([Offline](/docs/guide/offline#offer-a-new-version)), or reload twice.")
+
+        Heading("Changes do not show under wf serve", id: "changes-do-not-show-under-wf-serve").h3
+
+        Markdown("Either the last build failed, or an old service worker is holding pages.\n\n- Look at the terminal. A failed build keeps the last good page and draws the error over it until a build passes.\n- A service worker from a production build served on the same port can hold pages. `wf serve` removes it on the next load.")
+
+        Heading("A request is a 404 under wf serve or wf verify", id: "a-request-is-a-404-under-wf-serve-or-wf-verify").h3
+
+        Markdown("Only a page navigation gets the single-page shell. A `fetch`, or a file the build did not write, gets a `404` and a line in the terminal. The dev server does not serve your API.\n\nPoint the page at the server that has the API — an `api`'s `base:` read from `env` — or put a fixture file in `public/`.")
+
+        Heading("\"The response of … is not the type the program declares\"", id: "the-response-of-is-not-the-type-the-program-declares").h3
+
+        Markdown("Under `wf serve`, a response is held to the type its `resource` or `api` endpoint declares. One that differs takes the `error` arm, as a `.parse` error that names the first place it differs, such as `$[1].name is missing`.\n\nFix the declared type, or the server.")
+
+        Heading("\"Item N could not be drawn\"", id: "item-n-could-not-be-drawn").h3
+
+        Markdown("One item of a `for` threw while it was drawn — usually a field read on a value that is `null`. Under `wf serve` the item shows the message; on a deployed page it leaves a gap, and the browser console says why. The rest of the list draws either way.\n\nRead the field through `?.`, or wrap the item's body in `if let`, so a `null` value draws nothing instead of throwing.")
+
+        Heading("\"404 — no page has the route …\"", id: "404-no-page-has-the-route").h3
+
+        Markdown("No page's `path` matches the address, and no `*` page catches what nothing else does. A deployed page shows nothing there.\n\nDeclare a catch-all page, `page NotFound(path: \"*\", …)` ([Static sites and SPAs](/docs/guide/static-and-spa#add-a-404-page)).")
+
+        Heading("\"an effect changes something it reads, every time it runs\"", id: "an-effect-changes-something-it-reads-every-time-it-runs").h3
+
+        Markdown("The effect writes, every time it runs, a state it also reads, so it never settles. The runtime stopped it after 100 runs.\n\nGuard the write (`if x != wanted \{ x = wanted \}`), or move it to an action. `X02` reports the plain cases at build time.")
+
+        Heading("An api call stays loading", id: "an-api-call-stays-loading").h3
+
+        Markdown("A parameter that the endpoint's path names is empty — `Backend.user(id: \"\")` for `users/:id` — so nothing was requested: `users/` would ask for the whole collection.\n\nNothing to fix if the value is still on its way: the call is sent when the value arrives. Otherwise, pass the value.")
+
+        Heading("The layout jumps as the page loads", id: "the-layout-jumps-as-the-page-loads").h3
+
+        Markdown("Something in the layout depends on `viewport`, which is unknown until the script runs, so the first paint is drawn for the wrong width.\n\nUse [responsive values](/docs/guide/styling#responsive-values) for layout. They compile to media queries, so the first paint is already right.")
+
+        Heading("Styling", id: "styling").h2
+
+        Heading("A style \{ \} block does not apply", id: "a-style-block-does-not-apply").h3
+
+        Markdown("Either a property name is misspelt, or a token does not exist.\n\n- A style block is real CSS. A misspelt property is a `V05` warning, with the nearest real one.\n- A token no theme declares, such as `$brand-colour`, is a `V06` error.\n- A value ends at a newline, a `;`, or two spaces before the next declaration. A `,` between two declarations is an `E002` error.")
+
+        Heading("Your stylesheet does not override a built-in", id: "your-stylesheet-does-not-override-a-built-in").h3
+
+        Markdown("Your `.css` files come after the built-ins' rules, so on equal specificity yours win. But a built-in's selector may be more specific: `.wf-btn--primary` beats `.button`.\n\nMatch the built-in's selector, change the design tokens it reads, or use `style \{ \}` on the element.")
+
+        Heading("Dark mode does not switch", id: "dark-mode-does-not-switch").h3
+
+        Markdown("Either the dark theme is not named in the config, or a colour is written raw instead of as a token.\n\nName the dark theme: `\"theme\": \{ \"name\": \"Light\", \"dark\": \"Night\" \}`. Write colours as tokens (`$surface`, `var(--color-surface)`): a raw colour does not change with the theme.")
+
+        Heading("Data", id: "data").h2
+
+        Heading("A request fails with a CORS error", id: "a-request-fails-with-a-cors-error").h3
+
+        Markdown("The API is on another origin, and that server does not allow requests from yours.\n\nAllow your origin on the server, or serve the API from the same origin ([Fetching data](/docs/guide/data#call-an-api-on-another-origin), [Deploying](/docs/guide/deploying#serve-an-api-on-the-same-origin)).")
+
+        Heading("env.MYVALUE is a compile error", id: "env-myvalue-is-a-compile-error").h3
+
+        Markdown("A page may only read public names, because every value it reads ends up in the bundle, where anyone can read it (`E108`).\n\nIf anyone may see the value, rename it `PUBLIC_MY_VALUE` or list it in `public_env` ([Environments](/docs/guide/environments)). If not, keep it on the server.")
+
+        Heading("A value from .env or the shell is not used", id: "a-value-from-env-or-the-shell-is-not-used").h3
+
+        Markdown("Values are fixed at build time. The shell also supplies only names that the config or `.env` declares, or that begin `PUBLIC_`.\n\nRebuild after changing a value, and declare the name in the config or `.env`.")
+
+        Heading("Questions people ask", id: "questions-people-ask").h2
+
+        Heading("Can I use npm packages?", id: "can-i-use-npm-packages").h3
+
+        Markdown("A library, yes: list its CDN address in `meta.scripts` ([JavaScript interop](/docs/guide/interop)). Your own JavaScript is a plain `.js` file under `src/`. There is no package manager for WebFluent code itself.")
+
+        Heading("Can I use it with React or Vue?", id: "can-i-use-it-with-react-or-vue").h3
+
+        Markdown("Yes. Publish your components as custom elements, and place their tags from React, Vue or any other page ([JavaScript interop](/docs/guide/interop#publish-your-components-as-custom-elements)).")
+
+        Heading("Is there server-side rendering?", id: "is-there-server-side-rendering").h3
+
+        Markdown("Pages are pre-rendered at build time with `build.ssg`. For HTML made per request, render templates from your own server with the [template engine](/docs/guide/server-rendering).")
+
+        Heading("Does it support TypeScript?", id: "does-it-support-typescript").h3
+
+        Markdown("WebFluent has its own type checker, gradual and built in ([Types](/docs/guide/types)). There is nothing to configure.")
+
+        Heading("Can I write CSS the usual way?", id: "can-i-write-css-the-usual-way").h3
+
+        Markdown("Yes. Any `.css` file under `src/` is bundled, and `class:` adds its classes to an element ([Styling](/docs/guide/styling)).")
+
+        Heading("How big is the output?", id: "how-big-is-the-output").h3
+
+        Markdown("A page of static text ships about 4 kB of script, gzipped; a full application, a few tens of kilobytes. `wf build --stats` shows what yours weighs.")
+
+        Heading("Which browsers does it support?", id: "which-browsers-does-it-support").h3
+
+        Markdown("The current versions of Chrome, Edge, Firefox and Safari ([Browser support](/docs/guide/browser-support)).")
+
+        Heading("Where do I report a bug?", id: "where-do-i-report-a-bug").h3
+
+        Markdown("Open an issue on [GitHub](https://github.com/monzeromer-lab/WebFluent/issues). Include the smallest `.wf` file that shows the bug, and the output of `wf --version`.")
+    }
+}

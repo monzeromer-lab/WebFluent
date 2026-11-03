@@ -1,0 +1,328 @@
+/// Chapter 7 of the guide, written from md-docs/07-tutorial-pocket.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page PocketGuide(path: "/docs/tutorials/pocket", title: "Tutorial: Pocket", description: "An advanced WebFluent tutorial: a budget tracker with Money, a persist migration, validation, shortcuts, Arabic and English, and offline support.", layout: DocsShell("Tutorial: Pocket", chapter: t("nav.group.tutorials"), blurb: "Build a budget tracker: money and dates, derived totals, a storage migration, validated forms, a dialog and shortcuts, two languages and offline.", source: "md-docs/07-tutorial-pocket.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "step-1-configure-the-project", label: "Step 1: Configure the project"), Anchor(id: "step-2-describe-money", label: "Step 2: Describe money"), Anchor(id: "step-3-add-up-the-ledger", label: "Step 3: Add up the ledger"), Anchor(id: "step-4-change-the-stored-shape-without-losing-data", label: "Step 4: Change the stored shape without losing data"), Anchor(id: "step-5-fit-the-shell-to-the-screen", label: "Step 5: Fit the shell to the screen"), Anchor(id: "step-6-draw-a-dashboard-from-elements", label: "Step 6: Draw a dashboard from elements"), Anchor(id: "step-7-keep-the-filters-in-the-address", label: "Step 7: Keep the filters in the address"), Anchor(id: "step-8-use-one-form-for-new-and-for-edit", label: "Step 8: Use one form for new and for edit"), Anchor(id: "step-9-add-a-dialog-and-a-shortcut", label: "Step 9: Add a dialog and a shortcut"), Anchor(id: "step-10-speak-two-languages", label: "Step 10: Speak two languages"), Anchor(id: "step-11-export-and-import-the-data", label: "Step 11: Export and import the data"), Anchor(id: "step-12-test-it-and-run-the-checks", label: "Step 12: Test it, and run the checks"), Anchor(id: "what-you-built", label: "What you built")], prevTo: "/docs/tutorials/field-notes", prevLabel: t("ch.06"), nextTo: "/docs/guide/recipes", nextLabel: t("ch.08"))) {
+    Stack(gap: .lg) {
+        Markdown("**What you will build.** A personal budget tracker that lives entirely in the reader's browser: money in and money out, a budget per category, what is left of it this month, six months of bars, two languages, a CSV export and import, and a page that keeps working offline. There is no server and no account. The finished project is [`examples/tutorials/hard-pocket`](https://github.com/monzeromer-lab/WebFluent/tree/master/examples/tutorials/hard-pocket).\n\n**Time:** a couple of hours.")
+
+        Heading("Before you start", id: "before-you-start").h2
+
+        Markdown("You need `wf`, Chrome and a copy of the repository (see [Before you start](/docs/tutorials/todos#before-you-start) in the Todos tutorial). This tutorial assumes the Todos tutorial, and each step links the chapter that goes deeper. Like Field Notes, it shows the part of each file that teaches something new, so work in the finished project:")
+
+        Terminal(lines: [
+                Line(command: "cd WebFluent/examples/tutorials/hard-pocket"),
+                Line(command: "wf serve")
+            ])
+
+        Heading("Step 1: Configure the project", id: "step-1-configure-the-project").h2
+
+        Markdown("The project's `webfluent.app.json`:")
+
+        CodeBlock(#"{
+  "name": "pocket",
+  "version": "1.0.0",
+  "author": "WebFluent tutorials",
+  "theme": { "name": "Pocket", "dark": "PocketNight" },
+  "build": {
+    "output": "./build",
+    "output_type": "spa",
+    "csp": true
+  },
+  "meta": {
+    "title": "Pocket",
+    "description": "A budget that lives in your browser: income, spending and what is left, month by month.",
+    "lang": "en"
+  },
+  "i18n": {
+    "default_locale": "en",
+    "locales": ["en", "ar"],
+    "dir": "src/translations"
+  },
+  "offline": {
+    "precache": ["/", "/entries", "/categories", "/settings"],
+    "fallback": "/"
+  }
+}"#, title: "json")
+
+        Markdown("It adds three things to the Todos config:\n\n- `i18n` names the languages and the folder their messages live in ([Internationalization](/docs/guide/i18n)).\n- `offline` makes `wf build` write a service worker that stores the four pages, so a second visit opens with no network ([Offline](/docs/guide/offline)).\n- `theme` names two themes, light and dark, and the build ships both.\n\n**Check it:** `wf build` prints a line that starts `Offline: sw.js`, then `2 locales` in its summary.")
+
+        Heading("Step 2: Describe money", id: "step-2-describe-money").h2
+
+        Markdown("The ledger's types use four of the types the language brings:")
+
+        CodeBlock(#"// src/types.wf
+/// Which way the money went.
+enum Kind { income, expense }
+
+/// Something money is spent on, with what the reader means to spend on it
+/// in a month.
+type Category {
+    id: String
+    name: String
+    color: Color
+    budget: Money
+}
+
+/// One line of the ledger: money in, or money out.
+type Entry {
+    id: Uuid
+    date: Date
+    amount: Money
+    kind: Kind
+    category: String
+    note: String = ""
+}"#, title: "wf")
+
+        Markdown("`Money`, `Date`, `Color` and `Uuid` are each a plain JSON value at run time ([Types](/docs/guide/types)). Money is kept in minor units, `\{ amount: 1299, currency: \"USD\" \}`, so a sum never drifts by a fraction of a cent. You write it `$12.99` and show it with `format(m)`. What the language works out is a call — `a.plus(b)`, `a.minus(b)`, `ONE.times(12.5)` — and what the value carries is a field: `m.amount`. Two constants give every sum a starting point:")
+
+        CodeBlock(#"// src/types.wf
+/// Nothing yet: the starting point every sum adds to.
+const ZERO: Money = $0.00
+
+/// One dollar — `ONE.times(12.5)` is $12.50, rounded to the cent.
+const ONE: Money = $1.00"#, title: "wf")
+
+        Markdown("**Check it:** `wf check` prints `No problems in pocket.` Change `$0.00` to `$0.001`, and the check refuses it: money has two decimals in dollars. Change it back.")
+
+        Heading("Step 3: Add up the ledger", id: "step-3-add-up-the-ledger").h2
+
+        Markdown("Every figure on every page is a `derived` value of the `Ledger` store:")
+
+        CodeBlock(#"// src/stores/Ledger.wf
+    derived today = now.date()
+    derived newestFirst = entries.sortBy(e => e.date).reverse()
+
+    derived income = sum(entries.filter(e => e.kind == .income))
+    derived spent = sum(entries.filter(e => e.kind == .expense))
+    derived balance = income.minus(spent)
+
+    derived thisMonth = entries.filter(e => e.date.startOfMonth().isSame(today.startOfMonth()))
+    derived monthIncome = sum(thisMonth.filter(e => e.kind == .income))
+    derived monthSpent = sum(thisMonth.filter(e => e.kind == .expense))
+    derived monthBudget = categories.reduce((s, c) => s.plus(c.budget), ZERO)
+    derived budgetLeft = monthBudget.minus(monthSpent)"#, title: "wf")
+
+        Markdown("Add an entry, and the balance, this month's spending, each budget bar and the chart all follow, with no code written to keep them in step ([Stores](/docs/guide/stores)). `now` is the browser's clock as a value, so `today` turns over at midnight. `sum` is an action that only returns a value, which a derived value may call:")
+
+        CodeBlock(#"// src/stores/Ledger.wf
+    // The money in a list of entries, added up.
+    action sum(list: [Entry]) {
+        return list.reduce((total, e) => total.plus(e.amount), ZERO)
+    }"#, title: "wf")
+
+        Markdown("**Check it:** the dashboard shows a balance, this month's income and spending, and what is left of the budget. Each is a sum of the sample ledger.")
+
+        Heading("Step 4: Change the stored shape without losing data", id: "step-4-change-the-stored-shape-without-losing-data").h2
+
+        Markdown("What a `persist` keeps outlives the build that wrote it: a reader who visited last month has last month's shape in their browser. The entries declare which version of the shape this build writes, and how to bring an older one forward:")
+
+        CodeBlock(#"// src/stores/Ledger.wf
+    // Version 1 of Pocket kept an amount as a plain, signed number of
+    // dollars (`-52.4` was money out). Version 2 keeps a `Money` and a
+    // `Kind`, so `migrate 1 -> 2` turns what a returning reader's browser
+    // holds into the new shape instead of throwing it away.
+    persist entries: [Entry] = SAMPLE_ENTRIES.map(s => Entry(
+            id: s.id,
+            date: now.date().minus(days: s.ago),
+            amount: s.amount,
+            kind: s.kind,
+            category: s.category,
+            note: s.note,
+        )) {
+        version: 2
+        migrate 1 -> 2 {
+            old.map(e => Entry(
+                    id: e.id,
+                    date: e.date,
+                    amount: ONE.times(Math.abs(e.amount)),
+                    kind: if e.amount < 0 { .expense } else { .income },
+                    category: e.category,
+                    note: e.note ?? "",
+                ))
+        }
+    }"#, title: "wf")
+
+        Markdown("- `version: 2` says which shape this build writes.\n- `migrate 1 -> 2` brings an older value forward. Its body receives the stored value as `old`.\n- If you raise the version with no migration, the build warns (`P01`). If you change the shape without raising the version, it warns too (`D04`), from the shapes it keeps in `.wf-cache/` ([Stores](/docs/guide/stores)).\n- A first visit opens on a sample ledger dated from today, so the dashboard is never empty.\n\n**Check it:** `wf check --deny-warnings` passes. Delete the `migrate` block and check again: the check reports `P01`. Put the block back.")
+
+        Heading("Step 5: Fit the shell to the screen", id: "step-5-fit-the-shell-to-the-screen").h2
+
+        Markdown("The shell draws a `Sidebar` when `viewport.lg` holds, and a top bar with a drawer when it does not. This is the drawer:")
+
+        CodeBlock(#"// src/App.wf
+            if Ui.menuOpen {
+                Host(tag: "div", class: "scrim") { on click { Ui.closeAll() } }
+                Stack(gap: .md, class: "drawer", animate: .slideRight, exit: .fadeOut) {
+                    on click { Ui.menuOpen = false }
+                    Brand
+                    NavLinks
+                }
+            }"#, title: "wf")
+
+        Markdown("- `viewport` is the window's size as a value. It follows `matchMedia`, so the switch happens once, as the window crosses the breakpoint ([Styling](/docs/guide/styling)).\n- The layout itself — grids that are one column on a phone — uses responsive values, `Grid(columns: \{ base: 1, lg: 2 \})`, which need no script.\n- A second store, `Ui`, holds what the interface is doing — the dialog, the menu, the notices — apart from what the ledger holds.\n\n**Check it:** on a wide window, the sidebar shows. Narrow the window: a top bar replaces it, and its menu button opens the drawer, which a click on the dimmed page behind it closes.")
+
+        Heading("Step 6: Draw a dashboard from elements", id: "step-6-draw-a-dashboard-from-elements").h2
+
+        Markdown("The built-in `Chart` draws at build time, from data the build can see. This ledger exists only in the reader's browser, so the chart is made of plain elements whose heights follow the store:")
+
+        CodeBlock(#"// src/components/MonthChart.wf
+/// Six months of money in and money out, as pairs of bars.
+///
+/// The built-in `Chart` draws at build time, from data the build can see.
+/// This ledger only exists in the reader's browser, so the chart is made of
+/// plain elements whose heights follow the store: `height: {share}%` is a
+/// style value that reads state, and repaints when it changes.
+component MonthChart(months: [MonthTotal], top: Number) {
+    Stack(gap: .sm) {
+        Row(class: "chart", align: .end, role: "img", aria-label: t("chart.label")) {
+            for m in months by m.month {
+                Stack(gap: .xs, align: .center, class: "chart__month") {
+                    Row(gap: .xs, align: .end, class: "chart__bars") {
+                        Host(tag: "span", class: "chart__bar chart__bar--in") {
+                            style { height: {m.income.amount / top * 100}% }
+                        }
+                        Host(tag: "span", class: "chart__bar chart__bar--out") {
+                            style { height: {m.spent.amount / top * 100}% }
+                        }
+                    }"#, title: "wf")
+
+        Markdown("- A `\{…\}` in a style value reads state, and the property follows it ([Styling](/docs/guide/styling)).\n- The chart is one `role=\"img\"` with a label, so a screen reader hears what it shows rather than twelve unnamed boxes ([Accessibility](/docs/guide/accessibility)).\n\nThe figures above the chart are one component, placed four times:")
+
+        CodeBlock(#"// src/pages/Dashboard.wf
+    Grid(columns: { base: 2, xl: 4 }, gap: .md) {
+        KpiCard(t("kpi.balance"), value: Ledger.balance, note: t("kpi.balanceNote"))
+        KpiCard(t("kpi.income"), value: Ledger.monthIncome, note: t("kpi.thisMonth"), lean: .good)
+        KpiCard(t("kpi.spent"), value: Ledger.monthSpent, note: t("kpi.thisMonth"), lean: .bad)
+        KpiCard(t("kpi.left"), value: Ledger.budgetLeft, note: t("kpi.leftNote", { budget: format(Ledger.monthBudget) }),
+            lean: if Ledger.budgetLeft.amount < 0 { .bad } else { .good })
+    }"#, title: "wf")
+
+        Markdown("`lean` is an enum prop. A component writes its enum props to its root element, here as `data-lean=\"good\"`, and `pocket.css` colours the card by that attribute ([Components](/docs/guide/components)).\n\n**Check it:** the dashboard shows four cards and six pairs of bars. Add an expense in step 9's dialog, and this month's bar and the **Spent** card grow at once.")
+
+        Heading("Step 7: Keep the filters in the address", id: "step-7-keep-the-filters-in-the-address").h2
+
+        Markdown("The Entries page reads its filters from the address:")
+
+        CodeBlock(#"// src/pages/Entries.wf
+    // The filters live in the address — `/entries?month=2026-09&category=dining` —
+    // so they survive a reload, a shared link and the back button.
+    derived month = query.month ?? ""
+    derived category = query.category ?? ""
+    derived shown = Ledger.newestFirst.filter(e => (month == "" || e.date.slice(0, 7) == month) && (category == "" || e.category == category))"#, title: "wf")
+
+        Markdown("Choosing a month calls `navigate(\"/entries?month=…\")`. The address changes, `query` follows it, and so does the list.\n\nAn entry also has a page of its own at `/entries/:id`, where `id` is a typed parameter. The page looks the entry up with `Ledger.entries.find(…)` and draws it inside `if let e = entry`. `if let` binds the value only when it is there, which the checker requires before the page reads its fields ([Pages and routing](/docs/guide/pages-and-routing)).\n\n**Check it:** on `/entries`, pick a month. The address gains `?month=…` and the list narrows. Press the browser's back button: the filter goes.")
+
+        Heading("Step 8: Use one form for new and for edit", id: "step-8-use-one-form-for-new-and-for-edit").h2
+
+        Markdown("`EntryForm` adds an entry or, given one, changes it:")
+
+        CodeBlock(#"// src/components/EntryForm.wf
+/// The form for a new entry — or, given one, for changing it. It checks what
+/// the reader typed, writes it to the ledger, and says so with `saved`.
+component EntryForm(entry: Entry? = null) {
+    use Ledger
+    event saved()
+
+    state kind: Kind = entry?.kind ?? .expense
+    state amount: Number? = if let e = entry { e.amount.amount / 100 } else { null }
+    state date: Date? = entry?.date ?? Ledger.today
+    state category = entry?.category ?? "groceries"
+    state note = entry?.note ?? ""
+
+    validate amount {
+        required
+        min(0.01)
+    }
+    // Not in the future. With no message of its own, the rule shows the
+    // translation of `form.max`; `Ledger.today` is read each time it checks.
+    validate date {
+        required
+        max(Ledger.today)
+    }
+    validate note { maxLength(60) }"#, title: "wf")
+
+        Markdown("- A `validate` block sits beside the state it guards. The control bound to that state shows what the rules say — the message, `aria-invalid` and the link between them — with nothing more written ([Forms](/docs/guide/forms)).\n- A rule with no message of its own shows the translation of `form.<rule>`, so `en.json` and `ar.json` each say \"that date has not happened yet\" once.\n- The form says it is done with an event, `saved`. The caller decides what that means: close the dialog, or go back to the entry.\n\nThe submit button follows the form:")
+
+        CodeBlock(#"// src/components/EntryForm.wf
+        Row(justify: .end, gap: .sm) {
+            Button(if entry != null { t("action.save") } else { t("action.add") }, type: .submit, disabled: !form.valid).primary
+        }"#, title: "wf")
+
+        Markdown("`Form(bind: form)` hands the component a handle on the form. `form.valid` is whether every rule holds, and the button follows it as the reader types.\n\n**Check it:** in the new-entry dialog, type `0` as the amount and leave the field: it says *Enter an amount above zero*, and **Add entry** stays disabled. Type `12.50`, and the button turns on.")
+
+        Heading("Step 9: Add a dialog and a shortcut", id: "step-9-add-a-dialog-and-a-shortcut").h2
+
+        Markdown("The app listens for two keys at the top of `src/App.wf`:")
+
+        CodeBlock(#"// src/App.wf
+    // `n` opens a new entry from anywhere. A key with no modifier is left to
+    // the field the reader is typing in, so an `n` in a note is just a letter.
+    on key("n") { Ui.compose() }
+    on key("Escape") { Ui.closeAll() }"#, title: "wf")
+
+        Markdown("`on key` at the top of the app listens on the document for as long as the page shows ([Events](/docs/guide/events)). The dialog is a `Modal` whose `title:` is its accessible name. It keeps focus inside while it is open, and Escape closes it:")
+
+        CodeBlock(#"// src/App.wf
+    Modal(visible: Ui.composing, title: t("compose.title")) {
+        if Ui.composing {
+            EntryForm {
+                on saved {
+                    Ui.composing = false
+                    Ui.notify(t("toast.added"))
+                }
+            }
+        }
+    }"#, title: "wf")
+
+        Markdown("**Check it:** press `n` anywhere outside a field, and the new-entry dialog opens with focus inside it. Press Escape, and it closes. Add an entry, and the dialog closes and a notice says it was added.")
+
+        Heading("Step 10: Speak two languages", id: "step-10-speak-two-languages").h2
+
+        Markdown("Every word on screen is `t(\"key\")`, read from `src/translations/en.json` or `ar.json`. A message with plural forms is several keys:")
+
+        CodeBlock(#"{
+  "entries.zero": "No entries",
+  "entries.one": "{count} entry",
+  "entries.other": "{count} entries"
+}"#, title: "json")
+
+        Markdown("- `t(\"entries\", \{ count: n \})` picks the form the language's rules call for. English needs two forms and a zero; Arabic has six ([Internationalization](/docs/guide/i18n)).\n- Switching to Arabic sets `dir=\"rtl\"` on the page, and the sidebar, the rows and the grids mirror themselves.\n- `format(m)` and dates follow the language too.\n- The reader's choice is a `persist` in a small `Prefs` store, and an `effect` in the app shell applies it on every visit.\n\n**Check it:** on **Settings**, choose Arabic. The page reads right to left, and every label is in Arabic. Reload: it stays in Arabic.\n\nIf a key shows on screen instead of its words, it is missing from a translation file; `wf check` reports it as `I01`, and `wf translations` lists what each locale lacks.")
+
+        Heading("Step 11: Export and import the data", id: "step-11-export-and-import-the-data").h2
+
+        Markdown("The Settings page writes the ledger out as a CSV file:")
+
+        CodeBlock(#"// src/pages/Settings.wf
+    action exportCsv() {
+        let lines = Ledger.newestFirst.map(e => csvLine(e))
+        saveTextFile("pocket-{Ledger.today}.csv", [CSV_HEADER, ...lines].join("\n"), "text/csv")
+    }"#, title: "wf")
+
+        Markdown("`saveTextFile` is not WebFluent. It is a function in `src/files.js`, a plain browser script that the build links on every page. Its JSDoc types the call, so `saveTextFile(1)` is an error where it is written ([JavaScript interop](/docs/guide/interop)).\n\nImporting reads a file from a `FileUpload` with `await f.text()`, parses each line and merges what is new. Then it tells every other open tab:")
+
+        CodeBlock(#"// src/pages/Settings.wf
+        let added = Ledger.merge(parsed)
+        news.post({ count: added })"#, title: "wf")
+
+        Markdown("`news` is `channel news = broadcast(\"pocket\")`, a channel every tab of the site hears. The app shell listens on it and shows a notice ([Realtime](/docs/guide/realtime)). The ledger itself needs no channel: `persist` already keeps every tab in step.\n\n**Check it:** on **Settings**, export the ledger, and the browser saves `pocket-<today's date>.csv`. Open a second tab, import the file in the first: the second tab shows a notice of how many entries were added.")
+
+        Heading("Step 12: Test it, and run the checks", id: "step-12-test-it-and-run-the-checks").h2
+
+        Markdown("A test drives the real form by the labels a reader sees — the English ones, since a test reads the project's default locale ([Testing](/docs/guide/testing)):")
+
+        CodeBlock("// tests/pocket.wf\ntest \"an entry added through the form moves the balance\" \{\n    use Ledger\n    Text(\"Balance \{format(Ledger.balance)\}\")\n    EntryForm\n\n    expect \"Balance $16,533.56\"\n    click \"Money in\"\n    type \"250\" into \"Amount\"\n    click \"Add entry\"\n    expect \"Balance $16,783.56\"", title: "wf")
+
+        Markdown("Pocket has eight tests: the cards and rows draw what they should, a blank amount is refused, `n` opens the dialog and Escape closes it, and removing an entry takes it out of every total. Run them and the checks:")
+
+        Terminal(lines: [
+                Line(command: "wf test"),
+                Line(command: "wf check --deny-warnings"),
+                Line(command: "wf build"),
+                Line(command: "wf verify")
+            ])
+
+        Markdown("**Check it:** `wf test` reports `8 passed`, and `wf verify` ends with `0 problem(s)`. `build/` is a single-page app with a service worker, `sw.js`, beside it. Put it on a host that answers every path with `index.html` ([Deploying](/docs/guide/deploying)), and the second visit works with no network.")
+
+        Heading("What you built", id: "what-you-built").h2
+
+        Markdown("- A ledger typed with `Money`, `Date`, `Color` and `Uuid` ([Types](/docs/guide/types)).\n- Totals that are all `derived` values of one store, and a `persist` migration that keeps returning readers' data ([Stores](/docs/guide/stores)).\n- A shell that changes with the window, and responsive grids ([Styling](/docs/guide/styling)).\n- A form that validates itself, a dialog and keyboard shortcuts ([Forms](/docs/guide/forms), [Events](/docs/guide/events)).\n- Two languages, plural forms and right-to-left layout ([Internationalization](/docs/guide/i18n)).\n- A script of your own, and a channel between tabs ([JavaScript interop](/docs/guide/interop), [Realtime](/docs/guide/realtime)).\n- A site that works offline ([Offline](/docs/guide/offline)).")
+    }
+}

@@ -18,8 +18,8 @@ use std::path::{Path, PathBuf};
 const EXEMPT: &[&str] = &[
     "RELEASE_NOTES.md",
     "CHANGELOG.md",
-    "46-upgrading.md",
-    "46-upgrading.wf",
+    "51-upgrading.md",
+    "51-upgrading.wf",
 ];
 
 fn root() -> PathBuf {

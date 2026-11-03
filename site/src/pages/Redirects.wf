@@ -8,22 +8,29 @@ page GuideIndex(path: "/docs/guide", title: "Guide", description: "The WebFluent
 /// Chapters that moved when the guide was reorganised, so an old link still
 /// lands on the page that holds what it pointed at.
 page OldEventsAndForms(path: "/docs/guide/events-and-forms", title: "Events", description: "This chapter moved.", guard: false, redirect: "/docs/guide/events", noindex: true) {
-    Heading(t("ch.09")).h1
-    Link(t("ch.09"), to: "/docs/guide/events")
+    Heading(t("ch.13")).h1
+    Link(t("ch.13"), to: "/docs/guide/events")
 }
 
 page OldOutputs(path: "/docs/guide/outputs", title: "PDF and slides", description: "This chapter moved.", guard: false, redirect: "/docs/guide/pdf-and-slides", noindex: true) {
-    Heading(t("ch.34")).h1
-    Link(t("ch.34"), to: "/docs/guide/pdf-and-slides")
+    Heading(t("ch.37")).h1
+    Link(t("ch.37"), to: "/docs/guide/pdf-and-slides")
 }
 
 page OldTooling(path: "/docs/guide/tooling", title: "Command line and editors", description: "This chapter moved.", guard: false, redirect: "/docs/guide/cli", noindex: true) {
-    Heading(t("ch.38")).h1
-    Link(t("ch.38"), to: "/docs/guide/cli")
+    Heading(t("ch.41")).h1
+    Link(t("ch.41"), to: "/docs/guide/cli")
 }
 
 /// The cookbook became the tutorials: three projects built step by step.
-page OldCookbook(path: "/docs/cookbook", title: "Tutorials", description: "This chapter moved.", guard: false, redirect: "/docs/tutorials", noindex: true) {
-    Heading(t("ch.36")).h1
-    Link(t("ch.36"), to: "/docs/tutorials")
+page OldCookbook(path: "/docs/cookbook", title: "Tutorials", description: "This chapter moved.", guard: false, redirect: "/docs/tutorials/todos", noindex: true) {
+    Heading(t("ch.05")).h1
+    Link(t("ch.05"), to: "/docs/tutorials/todos")
+}
+
+/// The tutorials were one chapter; each is its own page now, and the
+/// first one is where the section starts.
+page OldTutorials(path: "/docs/tutorials", title: "Tutorials", description: "This chapter moved.", guard: false, redirect: "/docs/tutorials/todos", noindex: true) {
+    Heading(t("ch.05")).h1
+    Link(t("ch.05"), to: "/docs/tutorials/todos")
 }

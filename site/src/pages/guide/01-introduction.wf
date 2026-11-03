@@ -1,6 +1,6 @@
 /// Chapter 1 of the guide, written from md-docs/01-introduction.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page IntroductionGuide(path: "/docs/guide/introduction", title: "Introduction", description: "What WebFluent is, the five ideas behind it, when to use it and when not to, and how the guide is organised by what you need.", layout: DocsShell("Introduction", chapter: t("guide.chapter", { n: "1" }), blurb: "What WebFluent is, what it does for you, where it fits and where it does not, and how to find your way around this guide.", source: "md-docs/01-introduction.md", sections: [Anchor(id: "a-first-page", label: "A first page"), Anchor(id: "what-you-get", label: "What you get"), Anchor(id: "the-five-ideas", label: "The five ideas"), Anchor(id: "when-to-use-webfluent", label: "When to use WebFluent"), Anchor(id: "how-this-guide-is-organised", label: "How this guide is organised"), Anchor(id: "where-to-start", label: "Where to start"), Anchor(id: "versions", label: "Versions")], nextTo: "/docs/guide/getting-started", nextLabel: "2. {t("ch.02")}")) {
+page IntroductionGuide(path: "/docs/guide/introduction", title: "Introduction", description: "What WebFluent is, the five ideas behind it, when to use it and when not to, and how the guide is organised by what you need.", layout: DocsShell("Introduction", chapter: t("nav.group.start"), blurb: "What WebFluent is, what it does for you, where it fits and where it does not, and how to find your way around this guide.", source: "md-docs/01-introduction.md", sections: [Anchor(id: "a-first-page", label: "A first page"), Anchor(id: "what-you-get", label: "What you get"), Anchor(id: "the-five-ideas", label: "The five ideas"), Anchor(id: "when-to-use-webfluent", label: "When to use WebFluent"), Anchor(id: "how-this-guide-is-organised", label: "How this guide is organised"), Anchor(id: "where-to-start", label: "Where to start"), Anchor(id: "versions", label: "Versions")], nextTo: "/docs/guide/getting-started", nextLabel: t("ch.02"))) {
     Stack(gap: .lg) {
         Markdown("WebFluent is a programming language for websites, PDFs and slide decks. You write `.wf` files that say what each page shows, the state behind it, and what happens when the reader acts. The compiler, `wf`, turns those files into a finished site — HTML, CSS and a small JavaScript runtime — or into a PDF or a slide deck from the same source.\n\nThe one thing to remember: the compiler knows every element, prop and type in your program, so most mistakes stop the build with a line number instead of failing quietly in the browser.\n\nIn this chapter:\n\n- [A first page](#a-first-page), and what each line of it does\n- [What you get](#what-you-get) from the compiler\n- [The five ideas](#the-five-ideas) the language is built on\n- [When to use WebFluent](#when-to-use-webfluent), and when to use something else\n- [How this guide is organised](#how-this-guide-is-organised), and where to start")
 
@@ -67,60 +67,78 @@ page IntroductionGuide(path: "/docs/guide/introduction", title: "Introduction", 
             }
         }
 
-        Markdown("The guide has six parts. Each part is mostly one kind of page:")
+        Markdown("The guide is organised by what you are here to do, in eleven sections:")
 
         Table(caption: "How this guide is organised") {
             Table.Head {
                 Table.Row {
-                    Table.Cell("Part").header
-                    Table.Cell("Chapters").header
+                    Table.Cell("Section").header
                     Table.Cell("Kind").header
                     Table.Cell("What it covers").header
                 }
             }
             Table.Body {
                 Table.Row {
-                    Table.Cell { Markdown("**Start**") }
-                    Table.Cell("1–4")
-                    Table.Cell("explanation (1, 4), quick start (2), tutorial (3)")
+                    Table.Cell { Markdown("**Get started**") }
+                    Table.Cell("explanation, quick start, tutorial")
                     Table.Cell("What WebFluent is, installing it, a first site built step by step, and a map from React, Vue and Svelte")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("**The basics**") }
-                    Table.Cell("5–14")
-                    Table.Cell("explanation, each ending in a short reference table")
-                    Table.Cell("The language itself, in the order the ideas build on each other")
+                    Table.Cell { Markdown("**Tutorials and recipes**") }
+                    Table.Cell("tutorial, then how-to")
+                    Table.Cell { Markdown("Three whole projects — [Todos](/docs/tutorials/todos), [Field Notes](/docs/tutorials/field-notes) and [Pocket](/docs/tutorials/pocket) — and [recipes](/docs/guide/recipes) for the pieces most projects need") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("**Building**") }
-                    Table.Cell("15–24")
+                    Table.Cell { Markdown("**Concepts**") }
+                    Table.Cell("explanation, each ending in a quick-reference table")
+                    Table.Cell { Markdown("The language itself, in the order the ideas build on each other: from [Language basics](/docs/guide/language-basics) to [Expressions](/docs/guide/expressions)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("**Guides: interface**") }
                     Table.Cell("how-to")
-                    Table.Cell("Styling, forms, data, real-time, offline, motion, translation, accessibility, security and testing")
+                    Table.Cell { Markdown("[Styling](/docs/guide/styling), [motion](/docs/guide/motion), [media](/docs/guide/media) and [accessibility](/docs/guide/accessibility)") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("**Shipping**") }
-                    Table.Cell("25–36")
-                    Table.Cell("how-to, with explanation first in 25 and 26; chapter 36 is tutorials")
-                    Table.Cell("Project structure, static or single-page, content and search, media, deploying, environments, performance, JavaScript interop, desktop apps, PDFs and slides, server rendering, and three whole-project tutorials")
+                    Table.Cell { Markdown("**Guides: data**") }
+                    Table.Cell("how-to")
+                    Table.Cell { Markdown("[Forms](/docs/guide/forms), [fetching data](/docs/guide/data), [real-time connections](/docs/guide/realtime) and [offline](/docs/guide/offline)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("**Guides: content**") }
+                    Table.Cell("how-to")
+                    Table.Cell { Markdown("[Content and search](/docs/guide/content) and [translation](/docs/guide/i18n)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("**Guides: quality**") }
+                    Table.Cell("how-to")
+                    Table.Cell { Markdown("[Testing](/docs/guide/testing), [security](/docs/guide/security) and [performance](/docs/guide/performance)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("**Guides: shipping**") }
+                    Table.Cell("explanation, then how-to")
+                    Table.Cell { Markdown("[Project structure](/docs/guide/project-structure), [static or single-page](/docs/guide/static-and-spa), [deploying](/docs/guide/deploying), [environments](/docs/guide/environments) and [desktop apps](/docs/guide/desktop)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("**Other outputs**") }
+                    Table.Cell("how-to")
+                    Table.Cell { Markdown("[PDF and slides](/docs/guide/pdf-and-slides), [server rendering](/docs/guide/server-rendering) and [JavaScript interop](/docs/guide/interop)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("**Reference**") }
-                    Table.Cell("37–44")
                     Table.Cell("reference")
-                    Table.Cell("Every component, command, configuration key, diagnostic, built-in, design token, runtime function and grammar rule")
+                    Table.Cell { Markdown("Every [component](/docs/reference), [command](/docs/guide/cli), [configuration key](/docs/guide/config), [diagnostic](/docs/guide/diagnostics), [built-in](/docs/guide/built-ins), [design token](/docs/guide/tokens), [runtime function](/docs/guide/runtime) and [grammar rule](/docs/guide/grammar), plus [browser support](/docs/guide/browser-support) and a [glossary](/docs/guide/glossary)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("**Help**") }
-                    Table.Cell("45–49")
-                    Table.Cell("troubleshooting, upgrade notes, glossary")
-                    Table.Cell("Troubleshooting, upgrading, browser support, a glossary and contributing")
+                    Table.Cell("troubleshooting and upgrade notes")
+                    Table.Cell { Markdown("[Troubleshooting](/docs/guide/troubleshooting), [upgrading](/docs/guide/upgrading) and [contributing](/docs/guide/contributing)") }
                 }
             }
         }
 
         Heading("Where to start", id: "where-to-start").h2
 
-        Markdown("- **To learn WebFluent:** read [Getting started](/docs/guide/getting-started), work through the [tutorial](/docs/guide/tutorial), then read chapters 5–12 in order. Every example in them builds. For more practice, try the [three project tutorials](/docs/tutorials).\n- **To understand it coming from a framework:** read [Coming from React, Vue or Svelte](/docs/guide/coming-from) first. It maps what you know to what is here.\n- **To build a feature:** go to the chapter in *Building* or *Shipping* that names the task.\n- **To look something up:** use the reference chapters, starting with the [components reference](/docs/reference). They are generated from the compiler, or checked against it.\n- **To fix a problem:** start at [Troubleshooting](/docs/guide/troubleshooting). Every diagnostic code has an entry in [Diagnostics](/docs/guide/diagnostics).\n\nThe test suite parses, type-checks and compiles every `wf` code block in this guide, so what you read is what the compiler accepts. A block that leaves something out says so with a `…`.")
+        Markdown("- **To learn WebFluent:** read [Getting started](/docs/guide/getting-started), work through the [tutorial](/docs/guide/tutorial), then read the *Concepts* section in order. Every example in them builds. For more practice, try the [three project tutorials](/docs/tutorials/todos).\n- **To understand it coming from a framework:** read [Coming from React, Vue or Svelte](/docs/guide/coming-from) first. It maps what you know to what is here.\n- **To build a feature:** go to the *Guides* page that names the task.\n- **To look something up:** use the reference chapters, starting with the [components reference](/docs/reference). They are generated from the compiler, or checked against it.\n- **To fix a problem:** start at [Troubleshooting](/docs/guide/troubleshooting). Every diagnostic code has an entry in [Diagnostics](/docs/guide/diagnostics).\n\nThe test suite parses, type-checks and compiles every `wf` code block in this guide, so what you read is what the compiler accepts. A block that leaves something out says so with a `…`.")
 
         Heading("Versions", id: "versions").h2
 

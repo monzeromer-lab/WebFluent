@@ -150,7 +150,7 @@ Change it back, save, and the page returns.
 
 You have a working project. Stop the server with Ctrl+C when you are done.
 Run `wf build` to write the finished site to `build/`, ready for any static
-host ([Deploying](29-deploying.md)).
+host ([Deploying](34-deploying.md)).
 
 The rest of this chapter is optional set-up. To keep learning, go to the
 [tutorial](03-tutorial.md).
@@ -183,7 +183,7 @@ Then connect your editor:
   **zed: install dev extension**, pointed at that folder.
 - **Neovim, Helix, Emacs, or any other editor with LSP** — run `wf-lsp`
   over stdio for the `webfluent` file type (`*.wf`, `*.wfx`).
-  [Editors](38-cli.md#editors) has the configuration for each.
+  [Editors](41-cli.md#editors) has the configuration for each.
 
 ## Change how `wf` is installed
 
@@ -217,12 +217,12 @@ cd WebFluent && cargo install --path .
 
 `--locales en,ar` starts an `spa` or `static` project translated: its text
 is in `src/translations/`, one file per language, and the first locale is
-the default ([Internationalisation](21-i18n.md#start-a-project-translated)).
+the default ([Internationalisation](28-i18n.md#start-a-project-translated)).
 
 If you are unsure between `spa` and `static`, start with `static`. Every
 page is real HTML before any script runs, which is better for search and for
 the first paint, and the page is still fully interactive once the script
-loads. [Static or single-page](26-static-and-spa.md) explains the
+loads. [Static or single-page](33-static-and-spa.md) explains the
 difference.
 
 ## Write a site from scratch
@@ -282,7 +282,7 @@ Save, and the dev server shows a navigation bar with **Home** and
   positional argument, `.primary` is a flag (a case of the button's `tone`
   prop), and the block holds the click handler.
 - `Container`, `Heading`, `Text`, `Paragraph`, `Navbar` and `Link` are
-  built-ins. The [components reference](37-components-reference.md) lists
+  built-ins. The [components reference](40-components-reference.md) lists
   all of them.
 
 ## What a build produces
@@ -339,8 +339,8 @@ tests/*.wf            `test "…" { }` declarations for `wf test`
 The compiler reads every `.wf` or `.wfx` file under `src/` and merges them
 into one program, so a page in one file uses a component from another
 without importing it. The folders are a convention, not a rule.
-[Project structure](25-project-structure.md) covers naming, organisation
-and the config, and the [configuration reference](39-configuration.md)
+[Project structure](32-project-structure.md) covers naming, organisation
+and the config, and the [configuration reference](42-configuration.md)
 lists every key.
 
 The config needs only a name:
@@ -351,4 +351,4 @@ The config needs only a name:
 
 ## Next
 
-[Tutorial](03-tutorial.md): build a reading-list site, start to finish.
+[Tutorial: Shelf](03-tutorial.md): build a reading-list site, start to finish.

@@ -1,0 +1,168 @@
+// md-docs/18-expressions.md
+page Basket(path: "/basket", title: "Basket", description: "What the basket holds.") {
+    state prices = [4.5, 12, 3.5]
+    state member = true
+    derived subtotal = prices.sum()
+    derived total = if member { subtotal * 0.9 } else { subtotal }
+    Heading("Basket").h1
+    Text("{prices.length} items, {total:.currency}")
+    Text(if member { "Member price" } else { "Join to save 10%" }).muted
+}
+
+// md-docs/18-expressions.md
+page Literals(path: "/literals", title: "Literals", description: "One value of each kind.") {
+    state label = "Draft"                         // String
+    state count = 42                              // Number
+    state ratio = 3.14                            // Number
+    state open = true                             // Bool
+    state note: String? = null                    // null
+    state sizes = [1, 2, 3]                       // [Number]
+    state owner = { name: "Sam", age: 30 }        // a map with those fields
+    state slug = /^[a-z]+$/i                      // a regular expression
+    state accent = $primary                       // a design token
+    Heading("Literals").h1
+    Text("{label} {count} {ratio} {open} {sizes.length} {owner.name}")
+}
+
+// md-docs/18-expressions.md
+page Typed(path: "/typed", title: "Typed", description: "Literals of the built-in types.") {
+    state due: Date = @2026-03-14             // a Date
+    state opens: Time = @09:30                // a Time
+    state at: DateTime = @2026-03-14T09:30Z   // a DateTime
+    state wait: Duration = 90.minutes         // a Duration: ms, seconds, minutes, hours, days, weeks
+    state price: Money = €12.99               // Money, in minor units; $ and £ too
+    state brand: Color = #0F766E              // a Color
+    Heading("Typed").h1
+    Text("{due} {opens} {at} {wait.minutes()} {format(price)} {brand}")
+}
+
+// md-docs/18-expressions.md
+page Greeting(path: "/greeting", title: "Greeting", description: "Text built from state.") {
+    state name = "Sam"
+    state count = 3
+    derived noun = if count == 1 { "item" } else { "items" }
+    Heading("Hello, {name}").h1
+    Text("You have {count} {noun}")
+    Text("Total: {format(count * 9.99, .currency)}")
+    Text("Next: {count + 1}")
+}
+
+// md-docs/18-expressions.md
+page Receipt(path: "/receipt", title: "Receipt", description: "An order, formatted.") {
+    state total = 1234.5
+    state count = 1235
+    state shipped = "2026-03-05T10:00:00Z"
+    state discount = 0.256
+    Heading("Receipt").h1
+    Text("Total: {total:.currency}")            // Total: $1,234.50
+    Text("{count:.integer} items")              // 1,235 items
+    Text("Shipped {shipped:.date(long)}")       // Shipped March 5, 2026
+    Text("Saved {discount:.percent(1)}")        // Saved 25.6%
+}
+
+// md-docs/18-expressions.md
+page Scores(path: "/scores", title: "Scores", description: "Two numbers compared.") {
+    state home = 7
+    state away = 2
+    state player: Map? = null
+    Heading("Scores").h1
+    Text("{home + away} {home - away} {home * away} {home / away} {home % away}")
+    Text(if home > away && away != 0 { "Home leads" } else { "Away leads" })
+    Text(player?.name ?? "No player picked")
+    for round in 1..=3 { Badge("Round {round}") }
+}
+
+// md-docs/18-expressions.md
+enum Level { low, mid, high }
+page Grades(path: "/grades", title: "Grades", description: "A score, graded.") {
+    state score = 72
+    state level: Level = .mid
+    derived grade = if score >= 90 { "A" } else if score >= 70 { "B" } else { "C" }
+    derived tone = match level { .low { "calm" } .mid { "steady" } else { "loud" } }
+    Heading("Grade {grade}").h1
+    Text("The room is {tone}")
+    Badge(grade, tone: if score >= 70 { .success } else { .danger })
+}
+
+// md-docs/18-expressions.md
+type Todo { id: String, title: String, done: Bool = false }
+page Todos(path: "/todos", title: "Todos", description: "A list, filtered and joined.") {
+    state todos: [Todo] = [Todo(id: "1", title: "milk"), Todo(id: "2", title: "eggs", done: true)]
+    state search = "M"
+    derived open = todos.filter(todo => !todo.done)
+    derived titles = todos.map(todo => todo.title.capitalize())
+    derived hits = todos.filter(todo => todo.title.toLowerCase().includes(search.toLowerCase()))
+    derived first = todos.first()
+    derived summary = titles.join(", ")
+    Heading("{todos.length} todos").h1
+    Text("{open.length} open, {hits.length} match: {summary}")
+    if let f = first { Text("First: {f.title}") }
+}
+
+// md-docs/18-expressions.md
+page Formats(path: "/formats", title: "Formats", description: "Every style of format.") {
+    state price = 1234.5
+    state ratio = 0.256
+    state visitors = 1200000
+    state when = "2026-03-14T09:30:00"
+    Heading("Formats").h1
+    Text(format(price, .currency))                 // $1,234.50
+    Text(format(price, .currency, "EUR"))          // €1,234.50
+    Text(format(ratio, .percent))                  // 26%
+    Text(format(ratio, .percent, 1))               // 25.6%
+    Text(format(price, .decimal, 1))               // 1,234.5
+    Text(format(visitors, .integer))               // 1,200,000
+    Text(format(visitors, .compact))               // 1.2M
+    Text(format(when, .date))                      // Mar 14, 2026
+    Text(format(when, .date, "long"))              // March 14, 2026
+    Text(format(when, .time))                      // 9:30 AM
+    Text(format(when, .datetime))                  // Mar 14, 2026, 9:30 AM
+    Text(format(when, "EEEE d MMMM yyyy, HH:mm"))  // Saturday 14 March 2026, 09:30
+    Text(ago(when))                                // 3 days ago
+    Text(format(when, .relative))                  // the same
+}
+
+// md-docs/18-expressions.md
+page Signup(path: "/signup", title: "Sign up", description: "An address, checked as it is typed.") {
+    state email = ""
+    derived valid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)
+    derived domain = email.split("@").last() ?? ""
+    Heading("Sign up").h1
+    Input(bind: email, label: "Email")
+    if email != "" && !valid { Text("That does not look like an email.").danger.sm }
+    Text("Domain: {domain}")
+}
+
+// md-docs/18-expressions.md
+page Callout(path: "/callout", title: "Callout", description: "A border coloured by a token.") {
+    state accent = $primary
+    Heading("Callout").h1
+    Card {
+        style { border-left: 4px solid {accent} }
+        Text("The border takes its colour from the theme.")
+    }
+}
+
+// md-docs/18-expressions.md
+page Report(path: "/report", title: "Report", description: "Rows loaded on request.") {
+    state rows: [Map] = []
+    state note = ""
+    action load() {
+        rows = await fetch("/api/rows")
+        let answer = await fetch("/api/note", { method: "GET" })
+        note = answer.text ?? ""
+    }
+    Heading("Report").h1
+    Button("Load", disabled: load.pending) { on click { load() } }
+    Text("{rows.length} rows, note: {note}")
+}
+
+// md-docs/18-expressions.md
+const MAX_ROWS = 50
+const PAGE_SIZE: Number = 20
+const API = env.PUBLIC_API_URL ?? "/api"
+page Settings(path: "/settings", title: "Settings", description: "The limits this site runs with.") {
+    Heading("Settings").h1
+    Text("Up to {MAX_ROWS} rows, {PAGE_SIZE} a page, from {API}")
+}
+

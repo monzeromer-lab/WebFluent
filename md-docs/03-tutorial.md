@@ -1,4 +1,4 @@
-# 3. Tutorial
+# 3. Tutorial: Shelf
 
 <!--
 route: guide/tutorial
@@ -66,7 +66,7 @@ and its tests under `tests/` (they test the starter's pages). Then replace
 ```
 
 `ssg` pre-renders each page. `csp` ships a Content-Security-Policy and makes
-the build check its own output against it. [Configuration](39-configuration.md)
+the build check its own output against it. [Configuration](42-configuration.md)
 lists every key.
 
 **Check it:** run `wf check`. It prints `No .wf files found in src/` —
@@ -113,8 +113,8 @@ data books: [Book] = "books.json"
 `type Book` is a record that the type checker holds every use to: writing
 `book.titel` is an error where you write it. `data books` reads the file **at
 build time** and makes it a constant every page can read, so nothing is
-fetched when the page loads. ([Types](13-types.md),
-[Data](17-data.md#read-a-file-at-build-time-with-data).)
+fetched when the page loads. ([Types](17-types.md),
+[Fetching data](24-data.md#read-a-file-at-build-time-with-data).)
 
 **Check it:** run `wf check`. It prints `No problems in shelf.`
 
@@ -142,7 +142,7 @@ store Shelf {
 
 `persist` is a `state` that is kept in the browser's storage and read back on
 the next visit; a change made in another tab arrives here too. `derived
-count` recomputes whenever `saved` changes. ([Stores](12-stores.md).)
+count` recomputes whenever `saved` changes. ([Stores](16-stores.md).)
 
 **Check it:** run `wf check`. It prints two `U04` warnings:
 `` `Shelf.count` is declared but never read `` and the same for
@@ -184,7 +184,7 @@ component BookCard(_ book: Book) {
   used as a value, and it follows the store: when the reader clicks, the
   label changes and nothing else re-renders.
 
-([Components](11-components.md), [Elements](07-elements.md).)
+([Components](15-components.md), [Elements](11-elements.md).)
 
 **Check it:** run `wf check`. It reports one error:
 `` error[R01]: `/books/{…}` is not a route ``. The card links to a book's
@@ -260,7 +260,7 @@ page BookPage(path: "/books/:slug", slug: String, title: "Book", description: "O
 - `head { … }` adds tags to this page's `<head>` — here, the title that a
   shared link previews with.
 
-([Pages and routing](06-pages-and-routing.md).)
+([Pages and routing](10-pages-and-routing.md).)
 
 **Check it:** run `wf serve` and open `http://localhost:3000`. You see
 **Books worth reading**, `3 of 3 books` and three cards. Type `norman` in
@@ -366,7 +366,7 @@ page Suggest(path: "/suggest", title: "Suggest a book", description: "Tell us wh
 A `validate` block sits beside the state it guards, and the control bound to
 that state shows its messages accessibly: the field gets `aria-invalid`, and
 the message is announced. A submit that fails moves focus to the first field
-with a problem and does not run `on submit`. ([Forms](16-forms.md).)
+with a problem and does not run `on submit`. ([Forms](23-forms.md).)
 
 Then link the page from the shell. Add the third link to `src/App.wf`:
 
@@ -406,7 +406,7 @@ on submit {
 }
 ```
 
-([Data and APIs](17-data.md), [Environments](30-environments.md).)
+([Data and APIs](24-data.md), [Environments](35-environments.md).)
 
 ## Step 8: Give the site a theme
 
@@ -447,7 +447,7 @@ Then name the themes in `webfluent.app.json` — `Paper` as the theme and
 
 A reader whose system is set to dark mode gets `Ink`, before the first paint
 and with no flash of the light theme. A token you do not name keeps its
-baseline value. ([Styling](15-styling.md).)
+baseline value. ([Styling](19-styling.md).)
 
 **Check it:** the links and the **Send the suggestion** button are purple,
 and the text is a serif face. Switch
@@ -486,7 +486,7 @@ The first test renders the card and reads what it shows. It also writes a
 snapshot that the next run compares against. The second test **clicks**, so
 it runs in a headless Chrome, with the same compiler and runtime a reader
 gets. Buttons are found by their text, as a reader finds them.
-([Testing](24-testing.md).)
+([Testing](29-testing.md).)
 
 **Check it:** the first run ends:
 
@@ -573,7 +573,7 @@ Push the project to your `shelf` repository. In the repository's
 
 **Check it:** the **Actions** tab shows the **Deploy** workflow passing, and
 `https://<you>.github.io/shelf/` shows **Books worth reading**.
-[Deploying](29-deploying.md) covers Netlify, Vercel, Cloudflare Pages,
+[Deploying](34-deploying.md) covers Netlify, Vercel, Cloudflare Pages,
 nginx and other hosts.
 
 ## The whole program
@@ -754,24 +754,24 @@ Shelf is a whole site, and each part of it uses one idea of the language:
 
 | You wrote | The idea | Read more |
 |---|---|---|
-| `type Book` and `data books` | Typed data read at build time | [Types](13-types.md), [Data](17-data.md#read-a-file-at-build-time-with-data) |
-| `store Shelf` with `persist` | Shared state kept across visits | [Stores](12-stores.md) |
-| `component BookCard` | A reusable component with a positional prop | [Components](11-components.md) |
-| `state`, `derived`, `bind:` and `for … by` on the home page | Reactivity and keyed lists | [State and reactivity](08-state-and-reactivity.md), [Control flow](10-control-flow.md) |
-| `path: "/books/:slug"` with `paths:`, and `if let` | Route parameters, static paths and optional values | [Pages and routing](06-pages-and-routing.md) |
-| `app { … Router … }` | The shell every page shares | [Pages and routing](06-pages-and-routing.md) |
-| `validate` and `Form(bind: form)` | Validated forms | [Forms](16-forms.md) |
-| `theme Paper` and `theme Ink` | Design tokens and dark mode | [Styling](15-styling.md) |
-| `test "…" { … click … expect … }` | Tests that render and click | [Testing](24-testing.md) |
-| `wf build`, `wf verify` and a workflow | Building, checking and deploying | [Deploying](29-deploying.md) |
+| `type Book` and `data books` | Typed data read at build time | [Types](17-types.md), [Fetching data](24-data.md#read-a-file-at-build-time-with-data) |
+| `store Shelf` with `persist` | Shared state kept across visits | [Stores](16-stores.md) |
+| `component BookCard` | A reusable component with a positional prop | [Components](15-components.md) |
+| `state`, `derived`, `bind:` and `for … by` on the home page | Reactivity and keyed lists | [State and reactivity](12-state-and-reactivity.md), [Control flow](14-control-flow.md) |
+| `path: "/books/:slug"` with `paths:`, and `if let` | Route parameters, static paths and optional values | [Pages and routing](10-pages-and-routing.md) |
+| `app { … Router … }` | The shell every page shares | [Pages and routing](10-pages-and-routing.md) |
+| `validate` and `Form(bind: form)` | Validated forms | [Forms](23-forms.md) |
+| `theme Paper` and `theme Ink` | Design tokens and dark mode | [Styling](19-styling.md) |
+| `test "…" { … click … expect … }` | Tests that render and click | [Testing](29-testing.md) |
+| `wf build`, `wf verify` and a workflow | Building, checking and deploying | [Deploying](34-deploying.md) |
 
 To go further:
 
-- Read the language properly, starting at [Language basics](05-language-basics.md).
-- Talk to a real server: [Data and APIs](17-data.md).
-- Make the site work offline: [Offline](19-offline.md).
-- Translate it: [Internationalisation](21-i18n.md).
-- Build a bigger project: [Tutorials](36-tutorials.md).
+- Read the language properly, starting at [Language basics](09-language-basics.md).
+- Talk to a real server: [Data and APIs](24-data.md).
+- Make the site work offline: [Offline](26-offline.md).
+- Translate it: [Internationalisation](28-i18n.md).
+- Build a bigger project: [Tutorials](05-tutorial-todos.md).
 
 ## Next
 

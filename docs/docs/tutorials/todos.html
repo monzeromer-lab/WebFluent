@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial: Todos</title>
+    <meta name="description" content="A beginner WebFluent tutorial: a todo app with a persisted store, a component, a keyed list, a filter in the address and tests, in 20 minutes.">
+    <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/tutorials/todos">
+    <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/tutorials/todos?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/tutorials/todos?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://webfluent.monzeromer.dev/docs/tutorials/todos">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Tutorial: Todos">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="A beginner WebFluent tutorial: a todo app with a persisted store, a component, a keyed list, a filter in the address and tests, in 20 minutes.">
+    <meta property="og:url" content="https://webfluent.monzeromer.dev/docs/tutorials/todos">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="ar_AR">
+    <meta property="og:image" content="https://webfluent.monzeromer.dev/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Tutorial: Todos">
+    <meta name="twitter:description" content="A beginner WebFluent tutorial: a todo app with a persisted store, a component, a keyed list, a filter in the address and tests, in 20 minutes.">
+    <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/tutorials/todos#webpage","url":"https://webfluent.monzeromer.dev/docs/tutorials/todos","name":"Tutorial: Todos","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"A beginner WebFluent tutorial: a todo app with a persisted store, a component, a keyed list, a filter in the address and tests, in 20 minutes."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/tutorials/todos#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Tutorials","item":"https://webfluent.monzeromer.dev/docs/tutorials"},{"@type":"ListItem","position":4,"name":"Tutorial: Todos","item":"https://webfluent.monzeromer.dev/docs/tutorials/todos"}]}]}</script>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/js/analytics.js" defer></script>
+    <script src="/js/video.js" defer></script>
+    <script src="/app.js" defer></script>
+    <script src="/pages/TodosGuide.js" data-wf-page="TodosGuide" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--lg wf-sbdfa5493">
+                    <a class="wf-link" href="/">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
+                            <p class="wf-text wf-sb993cc9b">wf</p>
+                            <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
+                            <p class="wf-text wf-s859a58d7">5.11</p>
+                        </div>
+                    </a>
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
+                        <a class="wf-link" href="/docs/guide">Guide</a>
+                        <a class="wf-link" href="/docs/reference">Components</a>
+                        <a class="wf-link active" href="/docs/tutorials" aria-current="page">Tutorials</a>
+                        <a class="wf-link" href="/showcase">See it</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-sfe922990 site-search">
+                        <i class="wf-icon" data-icon="search"></i>
+                        <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
+                        <p class="wf-text wf-s8947c952">/</p>
+                    </div>
+                    <button class="wf-icon-btn site-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
+                    <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
+                    <button class="wf-btn site-button site-button-outlined" data-track="select_content" data-track-content-type="language" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
+                </div>
+            </div>
+            <div class="wf-row wf-align--stretch wf-s8fba8729">
+                <aside class="wf-sidebar wf-s2d03fcea" aria-label="Chapters">
+                    <a class="wf-sidebar__item" href="/docs">
+                        <p class="wf-text">Overview</p>
+                    </a>
+                    <p class="wf-text group-label">Get started</p>
+                    <a class="wf-sidebar__item" href="/docs/guide/introduction">
+                        <p class="wf-text">Introduction</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/getting-started">
+                        <p class="wf-text">Getting started</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/tutorial">
+                        <p class="wf-text">Tutorial: Shelf</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/coming-from">
+                        <p class="wf-text">Coming from React, Vue or Svelte</p>
+                    </a>
+                    <p class="wf-text group-label">Tutorials and recipes</p>
+                    <a class="wf-sidebar__item active" href="/docs/tutorials/todos" aria-current="page">
+                        <p class="wf-text">Tutorial: Todos</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/tutorials/field-notes">
+                        <p class="wf-text">Tutorial: Field Notes</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/tutorials/pocket">
+                        <p class="wf-text">Tutorial: Pocket</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/recipes">
+                        <p class="wf-text">Recipes</p>
+                    </a>
+                    <p class="wf-text group-label">Concepts</p>
+                    <a class="wf-sidebar__item" href="/docs/guide/language-basics">
+                        <p class="wf-text">Language basics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/pages-and-routing">
+                        <p class="wf-text">Pages and routing</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/elements">
+                        <p class="wf-text">Elements</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/state">
+                        <p class="wf-text">State and reactivity</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/events">
+                        <p class="wf-text">Events</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/control-flow">
+                        <p class="wf-text">Control flow</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/components">
+                        <p class="wf-text">Components</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/stores">
+                        <p class="wf-text">Stores</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/types">
+                        <p class="wf-text">Types</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/expressions">
+                        <p class="wf-text">Expressions</p>
+                    </a>
+                    <p class="wf-text group-label">Guides: interface</p>
+                    <a class="wf-sidebar__item" href="/docs/guide/styling">
+                        <p class="wf-text">Styling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/motion">
+                        <p class="wf-text">Motion</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/media">
+                        <p class="wf-text">Media</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/accessibility">
+                        <p class="wf-text">Accessibility</p>
+                    </a>
+                    <p class="wf-text group-label">Guides: data</p>
+                    <a class="wf-sidebar__item" href="/docs/guide/forms">
+                        <p class="wf-text">Forms and validation</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/data">
+                        <p class="wf-text">Fetching data</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/realtime">
+                        <p class="wf-text">Real-time</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/offline">
+                        <p class="wf-text">Offline</p>
+                    </a>
+                    <p class="wf-text group-label">Guides: content</p>
+                    <a class="wf-sidebar__item" href="/docs/guide/content">
+                        <p class="wf-text">Content</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/i18n">
+                        <p class="wf-text">Internationalisation</p>
+                    </a>
+                    <p class="wf-text group-label">Guides: quality</p>
+                    <a class="wf-sidebar__item" href="/docs/guide/testing">
+                        <p class="wf-text">Testing</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/security">
+                        <p class="wf-text">Security</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/performance">
+                        <p class="wf-text">Performance</p>
+                    </a>
+                    <p class="wf-text group-label">Guides: shipping</p>
+                    <a class="wf-sidebar__item" href="/docs/guide/project-structure">
+                        <p class="wf-text">Project structure</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/static-and-spa">
+                        <p class="wf-text">Static or single-page</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/deploying">
+                        <p class="wf-text">Deploying</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/environments">
+                        <p class="wf-text">Environments</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/desktop">
+                        <p class="wf-text">Desktop apps</p>
+                    </a>
+                    <p class="wf-text group-label">Other outputs</p>
+                    <a class="wf-sidebar__item" href="/docs/guide/pdf-and-slides">
+                        <p class="wf-text">PDF and slides</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/server-rendering">
+                        <p class="wf-text">Server rendering</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/interop">
+                        <p class="wf-text">JavaScript interop</p>
+                    </a>
+                    <p class="wf-text group-label">Reference</p>
+                    <a class="wf-sidebar__item" href="/docs/reference">
+                        <p class="wf-text">Components reference</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/cli">
+                        <p class="wf-text">Command line and editors</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/config">
+                        <p class="wf-text">Configuration</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/diagnostics">
+                        <p class="wf-text">Diagnostics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/built-ins">
+                        <p class="wf-text">Built-ins</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/tokens">
+                        <p class="wf-text">Design tokens</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/runtime">
+                        <p class="wf-text">Runtime API</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/grammar">
+                        <p class="wf-text">Grammar</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/browser-support">
+                        <p class="wf-text">Browser support</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/glossary">
+                        <p class="wf-text">Glossary</p>
+                    </a>
+                    <p class="wf-text group-label">Help</p>
+                    <a class="wf-sidebar__item" href="/docs/guide/troubleshooting">
+                        <p class="wf-text">Troubleshooting</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/upgrading">
+                        <p class="wf-text">Upgrading</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/contributing">
+                        <p class="wf-text">Contributing</p>
+                    </a>
+                </aside>
+                <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
+                        <a class="wf-link" href="/docs">Guide</a>
+                        <p class="wf-text">/</p>
+                        <p class="wf-text wf-s8c71c534">Tutorials and recipes</p>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s28a8547f">
+                        <h1 class="wf-heading wf-sa3503382">Tutorial: Todos</h1>
+                        <p class="wf-text wf-sfd35f593">Build a todo list kept in the reader&#x27;s browser — types, a store that remembers, a component, a filter in the address and tests that click.</p>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
+                            <div class="wf-markdown">
+<p>This is the first of three tutorials that each build a whole project, step by step. Each project is complete in the repository under <code>examples/tutorials/</code>, and none needs a server: what a project keeps, it keeps in the reader's browser.</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Tutorial: Todos</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Tutorial</th>
+                                        <th scope="col">What you build</th>
+                                        <th scope="col">What it teaches</th>
+                                        <th scope="col">Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="/docs/tutorials/todos">Todos</a></p>
+                                            </div>
+                                        </td>
+                                        <td>A list of things to do: add, tick, rename, filter</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Types, a store with <code>persist</code>, a component, a keyed list, a filter in the address, tests that click</p>
+                                            </div>
+                                        </td>
+                                        <td>20 minutes</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="/docs/tutorials/field-notes">Field Notes</a></p>
+                                            </div>
+                                        </td>
+                                        <td>A notebook site, statically built, a page per note</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>data</code> files, a layout, <code>:slug</code> pages with <code>paths:</code>, Markdown pages, search and tags, what a pre-rendered page can know</p>
+                                            </div>
+                                        </td>
+                                        <td>An hour</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="/docs/tutorials/pocket">Pocket</a></p>
+                                            </div>
+                                        </td>
+                                        <td>A budget tracker with a dashboard, forms and two languages</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Money</code> and <code>Date</code>, derived totals, a <code>persist</code> migration, <code>validate</code>, a dialog and shortcuts, i18n and right-to-left text, a script of your own, offline</p>
+                                            </div>
+                                        </td>
+                                        <td>A couple of hours</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>If you have not written WebFluent before, start with <a href="/docs/guide/tutorial">the Shelf tutorial</a>: it is a gentler first half hour.</p>
+<p><strong>What you will build.</strong> A list of things to do, kept in the reader's browser: add a todo, tick it, rename it, remove it, and show only the open ones. It is one page, one store and one component. The finished project is <a href="https://github.com/monzeromer-lab/WebFluent/tree/master/examples/tutorials/easy-todos"><code>examples/tutorials/easy-todos</code></a>.</p>
+<p><strong>Time:</strong> about 20 minutes.</p>
+                            </div>
+                            <h2 class="wf-heading" id="before-you-start">Before you start</h2>
+                            <div class="wf-markdown">
+<p>You need:</p>
+<ul>
+<li><code>wf</code> installed and on your <code>PATH</code> — <code>wf --version</code> prints <code>wf 5.11.0</code> or later (<a href="/docs/guide/getting-started">Getting started</a>).</li>
+<li>Chrome or Chromium on the machine, for the tests that click and for <code>wf verify</code>. Set <code>WF_CHROME</code> to its path when it is not in a usual place.</li>
+<li>Git, to fetch the finished projects.</li>
+</ul>
+<p>Every code block whose first line names a file — <code>// src/stores/Todos.wf</code> — is that file, or a run of lines from it, exactly as the project has it. A test holds this chapter to the projects, so the code you read here is the code that builds.</p>
+<p>To start from a finished project instead, clone the repository and serve one:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>git clone https://github.com/monzeromer-lab/WebFluent
+<span class="wf-tok-prompt">$ </span>cd WebFluent/examples/tutorials/easy-todos
+<span class="wf-tok-prompt">$ </span>wf serve</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Check it:</strong> the terminal prints <code>Starting dev server at http://localhost:3000/</code>, and that address shows the project.</p>
+<p>For this tutorial you need only <code>wf</code> and Chrome. You write every file of this project yourself, and the blocks below hold each file whole, except the tests, where one of six is shown.</p>
+                            </div>
+                            <h2 class="wf-heading" id="step-1-create-the-project">Step 1: Create the project</h2>
+                            <div class="wf-markdown">
+<p>Make a single-page project and go into it:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>wf init todos -t spa
+<span class="wf-tok-prompt">$ </span>cd todos</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Delete everything the template put in <code>src/</code> and in <code>tests/</code>: you write every file yourself, and the template's tests would fail without its pages. Then replace <code>webfluent.app.json</code> with this:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{
+  <span class="wf-tok-prop">&quot;name&quot;</span>: <span class="wf-tok-str">&quot;todos&quot;</span>,
+  <span class="wf-tok-prop">&quot;version&quot;</span>: <span class="wf-tok-str">&quot;1.0.0&quot;</span>,
+  <span class="wf-tok-prop">&quot;theme&quot;</span>: { <span class="wf-tok-prop">&quot;name&quot;</span>: <span class="wf-tok-str">&quot;Paper&quot;</span>, <span class="wf-tok-prop">&quot;dark&quot;</span>: <span class="wf-tok-str">&quot;Night&quot;</span> },
+  <span class="wf-tok-prop">&quot;build&quot;</span>: { <span class="wf-tok-prop">&quot;output&quot;</span>: <span class="wf-tok-str">&quot;./build&quot;</span>, <span class="wf-tok-prop">&quot;output_type&quot;</span>: <span class="wf-tok-str">&quot;spa&quot;</span>, <span class="wf-tok-prop">&quot;csp&quot;</span>: <span class="wf-tok-kw">true</span> },
+  <span class="wf-tok-prop">&quot;meta&quot;</span>: {
+    <span class="wf-tok-prop">&quot;title&quot;</span>: <span class="wf-tok-str">&quot;Todos&quot;</span>,
+    <span class="wf-tok-prop">&quot;description&quot;</span>: <span class="wf-tok-str">&quot;A small list of things to do, kept in your browser.&quot;</span>,
+    <span class="wf-tok-prop">&quot;lang&quot;</span>: <span class="wf-tok-str">&quot;en&quot;</span>,
+    <span class="wf-tok-prop">&quot;favicon&quot;</span>: <span class="wf-tok-str">&quot;/favicon.svg&quot;</span>
+  }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><code>&quot;output_type&quot;: &quot;spa&quot;</code> makes a single-page app: one HTML shell, with pages swapped without a reload (<a href="/docs/guide/static-and-spa">Static sites and SPAs</a>).</li>
+<li><code>&quot;csp&quot;: true</code> ships a content security policy and holds the build to it (<a href="/docs/guide/security">Security</a>).</li>
+<li><code>theme</code> names two themes, <code>Paper</code> and <code>Night</code>, which you write in the next step.</li>
+</ul>
+<p><strong>Check it:</strong> <code>wf check</code> prints <code>IO Error: No .wf files found in src/</code>. That is expected: <code>src/</code> is empty until the next step.</p>
+                            </div>
+                            <h2 class="wf-heading" id="step-2-give-it-a-look-of-its-own">Step 2: Give it a look of its own</h2>
+                            <div class="wf-markdown">
+<p>The config names a theme, so declare it first. A theme names only the design tokens it changes; every other token keeps its default (<a href="/docs/guide/styling">Styling</a>). <code>Night</code> is the theme named as <code>&quot;dark&quot;</code> in the config, and the page uses it when the reader's system is set to dark:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-cmt">// src/theme.wf</span>
+<span class="wf-tok-cmt">/// Warm paper and ink, with one teal for what you can act on.</span>
+<span class="wf-tok-kw">theme</span> <span class="wf-tok-name">Paper</span> {
+    color-<span class="wf-tok-prop">primary</span>: <span class="wf-tok-num">#0F766E</span>
+    color-<span class="wf-tok-prop">background</span>: <span class="wf-tok-num">#F6F4EF</span>
+    color-<span class="wf-tok-prop">surface</span>: <span class="wf-tok-num">#FFFFFF</span>
+    color-<span class="wf-tok-prop">text</span>: <span class="wf-tok-num">#1F2328</span>
+    color-text-<span class="wf-tok-prop">muted</span>: <span class="wf-tok-num">#5E6670</span>
+    color-<span class="wf-tok-prop">border</span>: <span class="wf-tok-num">#E4E0D8</span>
+    font-<span class="wf-tok-prop">family</span>: system-ui, -apple-system, <span class="wf-tok-str">&quot;Segoe UI&quot;</span>, <span class="wf-tok-name">Roboto</span>, sans-serif
+    radius-<span class="wf-tok-prop">md</span>: <span class="wf-tok-num">10px</span>
+}
+
+<span class="wf-tok-cmt">/// The same page after dark.</span>
+<span class="wf-tok-kw">theme</span> <span class="wf-tok-name">Night</span> {
+    color-<span class="wf-tok-prop">primary</span>: <span class="wf-tok-num">#2DD4BF</span>
+    color-<span class="wf-tok-prop">background</span>: <span class="wf-tok-num">#14171A</span>
+    color-<span class="wf-tok-prop">surface</span>: <span class="wf-tok-num">#1C2024</span>
+    color-<span class="wf-tok-prop">text</span>: <span class="wf-tok-num">#ECEEF0</span>
+    color-text-<span class="wf-tok-prop">muted</span>: <span class="wf-tok-num">#A3ABB3</span>
+    color-<span class="wf-tok-prop">border</span>: <span class="wf-tok-num">#2C3238</span>
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The page you write in step 6 names classes — <code>card</code>, <code>todo</code>, <code>is-done</code>, <code>filters</code> — and <code>src/todos.css</code> styles them. The build bundles every <code>.css</code> file under <code>src/</code>, so the file needs no link. These are four of its rules; copy the whole file from the <a href="https://github.com/monzeromer-lab/WebFluent/blob/master/examples/tutorials/easy-todos/src/todos.css">finished project</a>:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">css</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="css" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">.todo { <span class="wf-tok-prop">flex-wrap</span>: nowrap; <span class="wf-tok-prop">padding</span>: <span class="wf-tok-num">0.6rem</span> <span class="wf-tok-num">0.25rem</span>; <span class="wf-tok-prop">border-top</span>: <span class="wf-tok-num">1px</span> solid var(--color-border); }
+.todo__title { <span class="wf-tok-prop">flex</span>: <span class="wf-tok-num">1</span>; }
+.todo.is-done .todo__title { <span class="wf-tok-prop">text-decoration</span>: line-through; <span class="wf-tok-prop">color</span>: var(--color-text-muted); }
+.filters a.is-on { <span class="wf-tok-prop">background</span>: var(--color-background); <span class="wf-tok-prop">color</span>: var(--color-text); <span class="wf-tok-prop">font-weight</span>: <span class="wf-tok-num">600</span>; }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Each colour is a token, <code>var(--color-border)</code>, so the dark theme recolours the page with no rule of its own.</p>
+<p><strong>Check it:</strong> <code>wf check</code> prints <code>No problems in todos.</code></p>
+                            </div>
+                            <h2 class="wf-heading" id="step-3-describe-a-todo">Step 3: Describe a todo</h2>
+                            <div class="wf-markdown">
+<p>A <code>type</code> names the fields a value has, and the checker holds every use to them (<a href="/docs/guide/types">Types</a>). An <code>enum</code> is a fixed set of cases:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-cmt">// src/types.wf</span>
+<span class="wf-tok-cmt">/// One thing to do.</span>
+<span class="wf-tok-kw">type</span> <span class="wf-tok-name">Todo</span> {
+    <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">Uuid</span>
+    <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>
+    <span class="wf-tok-prop">done</span>: <span class="wf-tok-name">Bool</span> = <span class="wf-tok-kw">false</span>
+}
+
+<span class="wf-tok-cmt">/// Which todos the list shows.</span>
+<span class="wf-tok-kw">enum</span> <span class="wf-tok-name">Filter</span> { all, open, done }</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><code>Uuid</code> is one of the types the language brings; <code>uuid()</code> makes one.</li>
+<li><code>done</code> has a default, so a new todo can leave it out.</li>
+<li>A case is written with a dot, <code>.open</code>, wherever a <code>Filter</code> is wanted.</li>
+</ul>
+<p>Because the checker knows the fields, <code>todo.titel</code> is an error where it is written, and the message names the field you meant.</p>
+<p><strong>Check it:</strong> <code>wf check</code> prints <code>No problems in todos.</code></p>
+                            </div>
+                            <h2 class="wf-heading" id="step-4-write-a-store-that-remembers">Step 4: Write a store that remembers</h2>
+                            <div class="wf-markdown">
+<p>A store holds state that any page or component can read (<a href="/docs/guide/stores">Stores</a>). This one keeps the list:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-cmt">// src/stores/Todos.wf</span>
+<span class="wf-tok-cmt">/// The list, kept in the browser between visits.</span>
+<span class="wf-tok-kw">store</span> <span class="wf-tok-name">Todos</span> {
+    <span class="wf-tok-kw">persist</span> <span class="wf-tok-prop">items</span>: [<span class="wf-tok-name">Todo</span>] = []
+
+    <span class="wf-tok-kw">derived</span> open = items.filter(todo =&gt; !todo.done)
+    <span class="wf-tok-kw">derived</span> done = items.filter(todo =&gt; todo.done)
+
+    <span class="wf-tok-kw">action</span> add(<span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>) {
+        <span class="wf-tok-kw">let</span> text = title.trim()
+        <span class="wf-tok-kw">if</span> text == <span class="wf-tok-str">&quot;&quot;</span> { <span class="wf-tok-kw">return</span> }
+        items = items.concat([<span class="wf-tok-name">Todo</span>(<span class="wf-tok-prop">id</span>: uuid(), <span class="wf-tok-prop">title</span>: text)])
+    }
+
+    <span class="wf-tok-kw">action</span> toggle(<span class="wf-tok-prop">id</span>: <span class="wf-tok-name">Uuid</span>) {
+        items = items.map(todo =&gt; <span class="wf-tok-kw">if</span> todo.id == id { { ...todo, <span class="wf-tok-prop">done</span>: !todo.done } } <span class="wf-tok-kw">else</span> { todo })
+    }
+
+    <span class="wf-tok-kw">action</span> rename(<span class="wf-tok-prop">id</span>: <span class="wf-tok-name">Uuid</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>) {
+        <span class="wf-tok-kw">let</span> text = title.trim()
+        <span class="wf-tok-kw">if</span> text == <span class="wf-tok-str">&quot;&quot;</span> { <span class="wf-tok-kw">return</span> }
+        items = items.map(todo =&gt; <span class="wf-tok-kw">if</span> todo.id == id { { ...todo, <span class="wf-tok-prop">title</span>: text } } <span class="wf-tok-kw">else</span> { todo })
+    }
+
+    <span class="wf-tok-kw">action</span> remove(<span class="wf-tok-prop">id</span>: <span class="wf-tok-name">Uuid</span>) {
+        items = items.filter(todo =&gt; todo.id != id)
+    }
+
+    <span class="wf-tok-kw">action</span> clearDone() {
+        items = items.filter(todo =&gt; !todo.done)
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><code>persist</code> is a <code>state</code> kept in the browser's storage. The list is still there after a reload, and a second tab follows the first, with no storage code written.</li>
+<li>A <code>derived</code> value follows what it reads: <code>open</code> is always the todos not yet done.</li>
+<li>An action is the one place state changes. <code>{ ...todo, done: !todo.done }</code> is the todo with one field changed.</li>
+<li><code>rename</code>, <code>remove</code> and <code>clearDone</code> change the list in the same way.</li>
+</ul>
+<p><strong>Check it:</strong> <code>wf check</code> prints seven <code>U04</code> warnings, such as `<code>warning[U04]: </code>Todos.open<code> is declared but never read</code>`. That is expected: nothing reads the store yet. The page in step 6 reads every member, and the warnings go.</p>
+                            </div>
+                            <h2 class="wf-heading" id="step-5-build-one-row">Step 5: Build one row</h2>
+                            <div class="wf-markdown">
+<p>A component is an element of your own (<a href="/docs/guide/components">Components</a>). This one draws a single todo, and lets the reader rename it in place:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-cmt">// src/components/TodoRow.wf</span>
+<span class="wf-tok-cmt">/// One row of the list: a box to tick, the title, and buttons to rename and</span>
+<span class="wf-tok-cmt">/// remove it.</span>
+<span class="wf-tok-kw">component</span> <span class="wf-tok-name">TodoRow</span>(_ <span class="wf-tok-prop">todo</span>: <span class="wf-tok-name">Todo</span>) {
+    <span class="wf-tok-kw">use</span> <span class="wf-tok-name">Todos</span>
+    <span class="wf-tok-kw">state</span> editing = <span class="wf-tok-kw">false</span>
+    <span class="wf-tok-kw">state</span> draft = todo.title
+
+    <span class="wf-tok-kw">action</span> save() {
+        <span class="wf-tok-name">Todos</span>.rename(todo.id, draft)
+        editing = <span class="wf-tok-kw">false</span>
+    }
+
+    <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">class</span>: [<span class="wf-tok-str">&quot;todo&quot;</span>, <span class="wf-tok-kw">if</span> todo.done { <span class="wf-tok-str">&quot;is-done&quot;</span> }], <span class="wf-tok-prop">align</span>: .center, <span class="wf-tok-prop">gap</span>: .sm) {
+        <span class="wf-tok-name">Checkbox</span>(<span class="wf-tok-prop">checked</span>: todo.done, aria-<span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Done: {todo.title}&quot;</span>) {
+            <span class="wf-tok-kw">on</span> change { <span class="wf-tok-name">Todos</span>.toggle(todo.id) }
+        }
+        <span class="wf-tok-kw">if</span> editing {
+            <span class="wf-tok-cmt">// `mount:` runs when the input is made: the cursor goes straight in.</span>
+            <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: draft, aria-<span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;New title for {todo.title}&quot;</span>, <span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;todo__edit&quot;</span>, <span class="wf-tok-prop">mount</span>: (n) =&gt; n.focus()) {
+                <span class="wf-tok-kw">on</span> key(<span class="wf-tok-str">&quot;Enter&quot;</span>) { save() }
+                <span class="wf-tok-kw">on</span> key(<span class="wf-tok-str">&quot;Escape&quot;</span>) { draft = todo.title  editing = <span class="wf-tok-kw">false</span> }
+                <span class="wf-tok-kw">on</span> blur { save() }
+            }
+        } <span class="wf-tok-kw">else</span> {
+            <span class="wf-tok-name">Text</span>(todo.title, <span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;todo__title&quot;</span>)
+            <span class="wf-tok-name">IconButton</span>(<span class="wf-tok-prop">icon</span>: <span class="wf-tok-str">&quot;edit&quot;</span>, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Rename {todo.title}&quot;</span>, <span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;todo__action&quot;</span>).sm {
+                <span class="wf-tok-kw">on</span> click { draft = todo.title  editing = <span class="wf-tok-kw">true</span> }
+            }
+        }
+        <span class="wf-tok-name">IconButton</span>(<span class="wf-tok-prop">icon</span>: <span class="wf-tok-str">&quot;trash&quot;</span>, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Remove {todo.title}&quot;</span>, <span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;todo__action&quot;</span>).sm {
+            <span class="wf-tok-kw">on</span> click { <span class="wf-tok-name">Todos</span>.remove(todo.id) }
+        }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><code>_ todo</code> is the component's one positional prop, so a call reads <code>TodoRow(todo)</code>.</li>
+<li>Its <code>state</code> belongs to each row: renaming one row does not put the others in edit mode.</li>
+<li><code>class:</code> adds classes to the element's own. The list form may hold an <code>if</code>, which adds <code>is-done</code> only while the todo is done.</li>
+<li>Every control has an accessible name. The checkbox and the icon buttons say which todo they act on, so a screen reader — and the tests in step 7 — can tell them apart (<a href="/docs/guide/accessibility">Accessibility</a>).</li>
+</ul>
+<p><strong>Check it:</strong> <code>wf check</code> prints <code>U03</code> for <code>TodoRow</code> (nothing places it yet) and four <code>U04</code> warnings. The store's <code>toggle</code>, <code>rename</code> and <code>remove</code> no longer appear: the row calls them.</p>
+                            </div>
+                            <h2 class="wf-heading" id="step-6-write-the-page">Step 6: Write the page</h2>
+                            <div class="wf-markdown">
+<p>The page holds the box for a new todo, the filters and the list. Here is its first half:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-cmt">// src/pages/Home.wf</span>
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Home</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Todos&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A small list of things to do, kept in your browser.&quot;</span>) {
+    <span class="wf-tok-kw">use</span> <span class="wf-tok-name">Todos</span>
+    <span class="wf-tok-kw">state</span> draft = <span class="wf-tok-str">&quot;&quot;</span>
+
+    <span class="wf-tok-cmt">// The filter lives in the address — `/?show=open` — so a reload or a</span>
+    <span class="wf-tok-cmt">// shared link keeps it.</span>
+    <span class="wf-tok-kw">derived</span> <span class="wf-tok-prop">filter</span>: <span class="wf-tok-name">Filter</span> = <span class="wf-tok-kw">if</span> query.show == <span class="wf-tok-str">&quot;open&quot;</span> { .open } <span class="wf-tok-kw">else</span> <span class="wf-tok-kw">if</span> query.show == <span class="wf-tok-str">&quot;done&quot;</span> { .done } <span class="wf-tok-kw">else</span> { .all }
+    <span class="wf-tok-kw">derived</span> shown = <span class="wf-tok-kw">match</span> filter {
+        .open { <span class="wf-tok-name">Todos</span>.open }
+        .done { <span class="wf-tok-name">Todos</span>.done }
+        .all { <span class="wf-tok-name">Todos</span>.items }
+    }
+
+    <span class="wf-tok-kw">action</span> add() {
+        <span class="wf-tok-name">Todos</span>.add(draft)
+        draft = <span class="wf-tok-str">&quot;&quot;</span>
+    }
+
+    <span class="wf-tok-name">Stack</span>(<span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;card&quot;</span>, <span class="wf-tok-prop">gap</span>: .md) {
+        <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">justify</span>: .between, <span class="wf-tok-prop">align</span>: .baseline) {
+            <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Todos&quot;</span>).h1
+            <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{Todos.open.length} left&quot;</span>, <span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;count&quot;</span>)
+        }
+
+        <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;new&quot;</span>, <span class="wf-tok-prop">gap</span>: .sm) {
+            <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: draft, <span class="wf-tok-prop">placeholder</span>: <span class="wf-tok-str">&quot;What needs doing?&quot;</span>, aria-<span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;New todo&quot;</span>) {
+                <span class="wf-tok-kw">on</span> key(<span class="wf-tok-str">&quot;Enter&quot;</span>) { add() }
+            }
+            <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Add&quot;</span>, <span class="wf-tok-prop">disabled</span>: draft.trim() == <span class="wf-tok-str">&quot;&quot;</span>).primary {
+                <span class="wf-tok-kw">on</span> click { add() }
+            }
+        }</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><code>bind: draft</code> ties the input to the state both ways: typing changes <code>draft</code>, and <code>draft = &quot;&quot;</code> empties the box.</li>
+<li><code>query</code> is the address's query string as a value, kept current. So <code>filter</code> follows the address, and <code>shown</code> follows <code>filter</code>.</li>
+<li>A <code>match</code> over an enum must cover every case. If you add a fourth case to <code>Filter</code>, this <code>match</code> is an error until it handles it.</li>
+</ul>
+<p>The second half draws the filters and the list, and closes the page. Add it below the first, after a blank line:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-cmt">// src/pages/Home.wf</span>
+        <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;filters&quot;</span>, <span class="wf-tok-prop">gap</span>: .xs, <span class="wf-tok-prop">align</span>: .center) {
+            <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;All&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/?show=all&quot;</span>, <span class="wf-tok-prop">class</span>: { <span class="wf-tok-str">&quot;is-on&quot;</span>: filter == .all })
+            <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Open&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/?show=open&quot;</span>, <span class="wf-tok-prop">class</span>: { <span class="wf-tok-str">&quot;is-on&quot;</span>: filter == .open })
+            <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Done&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/?show=done&quot;</span>, <span class="wf-tok-prop">class</span>: { <span class="wf-tok-str">&quot;is-on&quot;</span>: filter == .done })
+            <span class="wf-tok-name">Spacer</span>
+            <span class="wf-tok-kw">if</span> <span class="wf-tok-name">Todos</span>.done.length &gt; <span class="wf-tok-num">0</span> {
+                <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Clear done&quot;</span>).sm {
+                    <span class="wf-tok-kw">on</span> click { <span class="wf-tok-name">Todos</span>.clearDone() }
+                }
+            }
+        }
+
+        <span class="wf-tok-kw">if</span> shown.length == <span class="wf-tok-num">0</span> {
+            <span class="wf-tok-name">Text</span>(<span class="wf-tok-kw">if</span> <span class="wf-tok-name">Todos</span>.items.length == <span class="wf-tok-num">0</span> { <span class="wf-tok-str">&quot;Nothing yet — add your first todo above.&quot;</span> } <span class="wf-tok-kw">else</span> { <span class="wf-tok-str">&quot;Nothing here.&quot;</span> }, <span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;empty&quot;</span>)
+        }
+        <span class="wf-tok-name">Stack</span>(<span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;list&quot;</span>) {
+            <span class="wf-tok-kw">for</span> todo <span class="wf-tok-kw">in</span> shown <span class="wf-tok-kw">by</span> todo.id {
+                <span class="wf-tok-name">TodoRow</span>(todo, <span class="wf-tok-prop">animate</span>: .fadeIn, <span class="wf-tok-prop">exit</span>: .fadeOut)
+            }
+        }
+    }
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Your list stays in this browser, and nowhere else.&quot;</span>, <span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;hint&quot;</span>)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><code>for … by todo.id</code> is a keyed list. When a todo is renamed, or the filter hides it, only its row changes; the other rows keep their elements, and the row being edited keeps its cursor (<a href="/docs/guide/control-flow">Control flow</a>).</li>
+<li><code>animate:</code> and <code>exit:</code> fade a row in and out.</li>
+<li>A class map, <code>{ &quot;is-on&quot;: filter == .all }</code>, turns a class on while its condition holds.</li>
+</ul>
+<p>Last, the <code>app</code> declaration is the frame every page sits in. <code>Router</code> marks where the current page is drawn:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-cmt">// src/App.wf</span>
+<span class="wf-tok-cmt">// The frame every page sits in: a narrow column, centred.</span>
+<span class="wf-tok-kw">app</span> {
+    <span class="wf-tok-name">Container</span>(<span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;shell&quot;</span>) {
+        <span class="wf-tok-name">Router</span>
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Now start the development server in a second terminal, and leave it running. Every save rebuilds the project and reloads the page:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>wf serve</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Check it:</strong> <code>wf check</code> prints <code>No problems in todos.</code>, and &lt;http://localhost:3000/&gt; shows a card headed <strong>Todos</strong> with <code>0 left</code> and <em>Nothing yet — add your first todo above.</em> Type a todo and press Enter: it appears, and the count reads <code>1 left</code>. Reload the page, and the todo is still there. Click <strong>Open</strong>, and the address becomes <code>/?show=open</code>.</p>
+<p>If the server prints <code>No theme Paper is declared in this project</code>, you probably skipped <code>src/theme.wf</code> in step 2. If a store member shows as <code>U04</code> here, you probably left out part of the page.</p>
+                            </div>
+                            <h2 class="wf-heading" id="step-7-write-tests">Step 7: Write tests</h2>
+                            <div class="wf-markdown">
+<p>A test draws what it declares, then follows its steps in order. It types into the control named <strong>New todo</strong> and clicks the button named <strong>Add</strong>, the way a reader would (<a href="/docs/guide/testing">Testing</a>). Create <code>tests/todos.wf</code> with this test:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-cmt">// tests/todos.wf</span>
+<span class="wf-tok-kw">test</span> <span class="wf-tok-str">&quot;adding a todo puts it in the list&quot;</span> {
+    <span class="wf-tok-kw">use</span> <span class="wf-tok-name">Todos</span>
+    <span class="wf-tok-kw">state</span> draft = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: draft, aria-<span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;New todo&quot;</span>)
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Add&quot;</span>) { <span class="wf-tok-kw">on</span> click { <span class="wf-tok-name">Todos</span>.add(draft)  draft = <span class="wf-tok-str">&quot;&quot;</span> } }
+    <span class="wf-tok-kw">for</span> todo <span class="wf-tok-kw">in</span> <span class="wf-tok-name">Todos</span>.items <span class="wf-tok-kw">by</span> todo.id { <span class="wf-tok-name">TodoRow</span>(todo) }
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{Todos.open.length} left&quot;</span>)
+
+    <span class="wf-tok-kw">expect</span> <span class="wf-tok-str">&quot;0 left&quot;</span>
+    <span class="wf-tok-kw">type</span> <span class="wf-tok-str">&quot;Buy bread&quot;</span> into <span class="wf-tok-str">&quot;New todo&quot;</span>
+    click <span class="wf-tok-str">&quot;Add&quot;</span>
+    <span class="wf-tok-kw">expect</span> <span class="wf-tok-str">&quot;Buy bread&quot;</span>
+    <span class="wf-tok-kw">expect</span> <span class="wf-tok-str">&quot;1 left&quot;</span>
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A test that clicks or types runs in a headless Chrome. The finished project has six tests in <a href="https://github.com/monzeromer-lab/WebFluent/blob/master/examples/tutorials/easy-todos/tests/todos.wf"><code>tests/todos.wf</code></a>: two that only look at a row, and four that click — adding a todo, refusing a blank one, ticking and clearing, and renaming that keeps one row for each. Copy the file to have them all, then run them:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>wf test</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Check it:</strong> with the whole file, <code>wf test</code> ends with <code>6 passed, 0 failed, 2 snapshot(s) written</code>. The two tests that only look write a snapshot of what they drew under <code>tests/__snapshots__/</code>, and later runs compare against it.</p>
+<p>If a test that clicks reports that no browser was found, Chrome is not where <code>wf</code> looks: set <code>WF_CHROME</code> to its path.</p>
+                            </div>
+                            <h2 class="wf-heading" id="step-8-build-it">Step 8: Build it</h2>
+                            <div class="wf-markdown">
+<p>Check, test and build the project:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>wf check
+<span class="wf-tok-prompt">$ </span>wf test
+<span class="wf-tok-prompt">$ </span>wf build</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>wf check</code> reports every finding and writes nothing. <code>wf build</code> writes <code>build/</code>, which any static host serves — <a href="/docs/guide/deploying">Deploying</a> covers GitHub Pages, Netlify and the rest. To load the built page in a real browser before you deploy, run <code>wf verify</code>: it fails on an error, a missing file or a page that draws nothing.</p>
+<p><strong>Check it:</strong> <code>wf build</code> ends with <code>Build complete.</code>, and <code>build/</code> holds <code>index.html</code>, <code>app.js</code> and <code>styles.css</code>.</p>
+                            </div>
+                            <h2 class="wf-heading" id="what-you-built">What you built</h2>
+                            <div class="wf-markdown">
+<ul>
+<li>A <code>type</code> and an <code>enum</code>, held to every use (<a href="/docs/guide/types">Types</a>).</li>
+<li>A store whose list survives a reload with <code>persist</code>, and <code>derived</code> values that follow it (<a href="/docs/guide/stores">Stores</a>).</li>
+<li>A component with state of its own, and accessible names on every control (<a href="/docs/guide/components">Components</a>).</li>
+<li>A keyed list, and a filter kept in the address with <code>query</code> (<a href="/docs/guide/control-flow">Control flow</a>).</li>
+<li>A theme with a dark variant, and the project's own stylesheet (<a href="/docs/guide/styling">Styling</a>).</li>
+<li>Tests that look and tests that click (<a href="/docs/guide/testing">Testing</a>).</li>
+</ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
+                        <a class="wf-link wf-seeb37b6c" href="/docs/guide/coming-from">
+                            <p class="wf-text wf-s3e0c6c38">Previous</p>
+                            <p class="wf-text wf-s2c78daf6">Coming from React, Vue or Svelte</p>
+                        </a>
+                        <a class="wf-link wf-sc144b15a" href="/docs/tutorials/field-notes">
+                            <p class="wf-text wf-s3e0c6c38">Next</p>
+                            <p class="wf-text wf-s2c78daf6">Tutorial: Field Notes</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-sac91c322" aria-label="On this page">
+                    <div class="wf-stack wf-gap--xs wf-se43b90d0">
+                        <p class="wf-text overline">On this page</p>
+                        <a class="wf-link wf-s3e136ca4" href="#before-you-start">Before you start</a>
+                        <a class="wf-link wf-s3e136ca4" href="#step-1-create-the-project">Step 1: Create the project</a>
+                        <a class="wf-link wf-s3e136ca4" href="#step-2-give-it-a-look-of-its-own">Step 2: Give it a look of its own</a>
+                        <a class="wf-link wf-s3e136ca4" href="#step-3-describe-a-todo">Step 3: Describe a todo</a>
+                        <a class="wf-link wf-s3e136ca4" href="#step-4-write-a-store-that-remembers">Step 4: Write a store that remembers</a>
+                        <a class="wf-link wf-s3e136ca4" href="#step-5-build-one-row">Step 5: Build one row</a>
+                        <a class="wf-link wf-s3e136ca4" href="#step-6-write-the-page">Step 6: Write the page</a>
+                        <a class="wf-link wf-s3e136ca4" href="#step-7-write-tests">Step 7: Write tests</a>
+                        <a class="wf-link wf-s3e136ca4" href="#step-8-build-it">Step 8: Build it</a>
+                        <a class="wf-link wf-s3e136ca4" href="#what-you-built">What you built</a>
+                    </div>
+                    <hr class="wf-divider wf-se3c90f45">
+                    <div class="wf-stack wf-gap--xs wf-s614f8b98">
+                        <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/05-tutorial-todos.md">
+                            <i class="wf-icon" data-icon="edit"></i>
+                            <p class="wf-text wf-s5c9c3c02">Edit this page</p>
+                        </a>
+                        <a class="wf-link" href="/docs/reference">
+                            <i class="wf-icon" data-icon="menu"></i>
+                            <p class="wf-text wf-s5c9c3c02">Components reference</p>
+                        </a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-sa5763942">
+                        <p class="wf-text wf-s2880cc3a">Checked by the test suite</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is parsed, checked and type-checked on each release.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s2a0a6f19">
+            <div class="wf-stack wf-gap--lg wf-sc70179bd">
+                <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-seacec3bd">
+                    <div class="wf-stack wf-gap--sm wf-s1f90318e">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s02873871">
+                            <p class="wf-text wf-s7c2fb5e9">wf</p>
+                            <p class="wf-text wf-s312df231">WebFluent</p>
+                        </div>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.11, parsed, type-checked and compiled by the test suite.</p>
+                    </div>
+                    <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
+                        <div class="wf-stack wf-gap--xs wf-sf27948d8">
+                            <p class="wf-text overline">Guide</p>
+                            <a class="wf-link" href="/docs/guide/getting-started">Getting started</a>
+                            <a class="wf-link" href="/docs/guide/tutorial">Tutorial: Shelf</a>
+                            <a class="wf-link" href="/docs/guide/deploying">Deploying</a>
+                            <a class="wf-link" href="/docs/guide/troubleshooting">Troubleshooting</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-sf27948d8">
+                            <p class="wf-text overline">Reference</p>
+                            <a class="wf-link" href="/docs/reference">Built-in components</a>
+                            <a class="wf-link" href="/docs/guide/cli">Command line and editors</a>
+                            <a class="wf-link" href="/docs/guide/config">Configuration</a>
+                            <a class="wf-link" href="/docs/guide/diagnostics">Diagnostics</a>
+                            <a class="wf-link active" href="/docs/tutorials/todos" aria-current="page">Tutorials</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-sf27948d8">
+                            <p class="wf-text overline">Project</p>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/releases">Releases</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/issues">Issues</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
+                    <p class="wf-text">WebFluent 5.11 — MPL-2.0</p>
+                    <div class="wf-row wf-align--center wf-gap--md">
+                        <button class="wf-btn link-button" type="button">Cookie settings</button>
+                        <p class="wf-text">© 2026 Monzer Omer</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

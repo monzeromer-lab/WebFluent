@@ -2,7 +2,7 @@
 
 <!--
 route: guide/content
-group: shipping
+group: content
 blurb: Markdown, pages written as .md files, code on the page, and what the build writes for search engines and link previews.
 description: How to render Markdown, write .md pages with front matter, set search and sharing tags, canonical links, sitemaps, JSON-LD, and show code.
 -->
@@ -19,8 +19,8 @@ In this chapter:
 - describe each page to search engines and link previews;
 - show code with syntax colouring.
 
-Pre-rendering is covered in [Static or single-page](26-static-and-spa.md);
-pictures and video in [Media](28-media.md).
+Pre-rendering is covered in [Static or single-page](33-static-and-spa.md);
+pictures and video in [Media](21-media.md).
 
 ## Render Markdown with the `Markdown` element
 
@@ -55,7 +55,7 @@ with two spaces or a `\`.
 
 Raw HTML in the text is shown as text, not run, so Markdown from a user or
 an API is safe to render. A link or a picture goes through the scheme check
-every other URL does ([Security](23-security.md#what-the-compiler-guarantees)):
+every other URL does ([Security](30-security.md#what-the-compiler-guarantees)):
 
 - A link or picture whose URL a browser would run — `javascript:`,
   `vbscript:`, a `data:` URL — is drawn as its words, with no link and no
@@ -216,7 +216,7 @@ layout's default slot when the front matter names a layout.
 
 `layout: DocsShell` frames the body in a component with a default slot —
 the same kind of component a `.wf` page names as its `layout:`
-([Pages and routing](06-pages-and-routing.md#layouts)):
+([Pages and routing](10-pages-and-routing.md#layouts)):
 
 ```wf
 component DocsShell {
@@ -233,7 +233,7 @@ component DocsShell {
 
 A docs site is then a folder of `.md` files, one layout, and a `.wf` file
 for the `app`. (`wf docs` is something else: a gallery of every component
-the project can use — [CLI](38-cli.md#wf-docs).)
+the project can use — [CLI](41-cli.md#wf-docs).)
 
 ## Describe each page to search engines and link previews
 
@@ -286,7 +286,7 @@ What the build writes into each page's head:
   breadcrumb is a page a reader can open; a level no route answers is left
   out.
 - **`hreflang` alternates** for each locale, when the project has several
-  ([Internationalization](21-i18n.md)).
+  ([Internationalization](28-i18n.md)).
 - **The icons**: `<link rel="icon">` for `favicon` (typed, so an SVG is
   read as one) and `<link rel="apple-touch-icon">` for `touch_icon`. Each
   is linked from the site's root under the `base_path`
@@ -298,7 +298,7 @@ What the build writes into each page's head:
 ### Add tags for one page
 
 To add tags of a page's own — an article's cover, its publication date —
-write them in `head { }` ([Pages and routing](06-pages-and-routing.md#per-page-head-tags)).
+write them in `head { }` ([Pages and routing](10-pages-and-routing.md#per-page-head-tags)).
 This blog post page sets its own Open Graph tags from the post:
 
 ```wf
@@ -481,5 +481,4 @@ page Snippets(path: "/", title: "Snippets", description: "Code on the page.") {
 
 ## Next
 
-- [Media](28-media.md): pictures, video and audio.
-- [Deploying](29-deploying.md): put the site on a host.
+[Internationalisation](28-i18n.md): keep one JSON file per locale, read it with t(), and switch the whole site's language — and its direction — at once.

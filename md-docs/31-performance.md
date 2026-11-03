@@ -2,7 +2,7 @@
 
 <!--
 route: guide/performance
-group: shipping
+group: quality
 blurb: Learn what a build already does to be fast, see what it weighs, set budgets that warn, time pages in a browser, and avoid what makes a site slow.
 description: What a build does to be fast, wf build --stats, size budgets, paint timings from wf verify, and the few things that make a site slow.
 -->
@@ -39,7 +39,7 @@ You get these without setting anything:
   against the dev server measures what a deploy sends.
 - **Images at every width**, with `width` and `height` so nothing shifts, a
   placeholder while they load, the first image eager and the rest lazy
-  ([Media](28-media.md)).
+  ([Media](21-media.md)).
 - **Minified output.** `build.minify` (on by default) strips comments and
   white space.
 
@@ -96,7 +96,7 @@ next `--stats` shows how each file moved since the last build (for example,
 `+20 B`).
 
 The project's own scripts are listed by their path under `js/`, such as
-`js/tilt.js` ([JavaScript interop](32-javascript-interop.md)). The build
+`js/tilt.js` ([JavaScript interop](39-javascript-interop.md)). The build
 copies them as written: it does not minify a file it promises to ship byte
 for byte.
 
@@ -137,12 +137,12 @@ instead:
 |---|---|---|
 | A large `data` file | `data posts = "posts.json"` is inlined into the bundle, so a 2 MB file is 2 MB of JavaScript | Keep build-time data to what pages show. Fetch the rest, or split it across pages that each read one file |
 | A waterfall of fetches | A resource whose URL depends on another's answer waits for that answer | Ask for both at once, or have the server send them together |
-| Layout decided by `viewport` | `viewport` is unknown until the script runs, so the page paints one branch and then swaps it | Use [responsive values](15-styling.md#responsive-values), which are CSS |
+| Layout decided by `viewport` | `viewport` is unknown until the script runs, so the page paints one branch and then swaps it | Use [responsive values](19-styling.md#responsive-values), which are CSS |
 | `"runtime": "full"` | It ships every module | Use it only when a hand-written script calls `WF` in ways the build cannot see, or an icon's name arrives at run time |
 | Web fonts | Each weight is a download | Use `display=swap` and few weights, or the baseline's system fonts |
 | An unkeyed list that changes | `for item in items` rebuilds the list | Key it: `for item in items by item.id` moves the nodes that stayed |
-| Pictures the build cannot process | An SVG, a URL or a path built at run time is used as written: one size, no placeholder | Use a literal `src:` into `public/`, or declare the picture with `image` ([Media](28-media.md)) |
+| Pictures the build cannot process | An SVG, a URL or a path built at run time is used as written: one size, no placeholder | Use a literal `src:` into `public/`, or declare the picture with `image` ([Media](21-media.md)) |
 
 ## Next
 
-[JavaScript interop](32-javascript-interop.md).
+[Project structure](32-project-structure.md): where files go, how the compiler reads them, how names work across a project, and how a project grows without getting lost.

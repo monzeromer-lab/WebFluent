@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipes</title>
+    <meta name="description" content="WebFluent recipes: debounced search, pagination, optimistic updates, confirm dialogs, sessions, load more, dark mode, clipboard and charts.">
+    <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/recipes">
+    <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/recipes?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/recipes?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://webfluent.monzeromer.dev/docs/guide/recipes">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Recipes">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="WebFluent recipes: debounced search, pagination, optimistic updates, confirm dialogs, sessions, load more, dark mode, clipboard and charts.">
+    <meta property="og:url" content="https://webfluent.monzeromer.dev/docs/guide/recipes">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="ar_AR">
+    <meta property="og:image" content="https://webfluent.monzeromer.dev/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Recipes">
+    <meta name="twitter:description" content="WebFluent recipes: debounced search, pagination, optimistic updates, confirm dialogs, sessions, load more, dark mode, clipboard and charts.">
+    <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/recipes#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/recipes","name":"Recipes","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"WebFluent recipes: debounced search, pagination, optimistic updates, confirm dialogs, sessions, load more, dark mode, clipboard and charts."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/recipes#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Recipes","item":"https://webfluent.monzeromer.dev/docs/guide/recipes"}]}]}</script>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/js/analytics.js" defer></script>
+    <script src="/js/video.js" defer></script>
+    <script src="/app.js" defer></script>
+    <script src="/pages/RecipesGuide.js" data-wf-page="RecipesGuide" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--lg wf-sbdfa5493">
+                    <a class="wf-link" href="/">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
+                            <p class="wf-text wf-sb993cc9b">wf</p>
+                            <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
+                            <p class="wf-text wf-s859a58d7">5.11</p>
+                        </div>
+                    </a>
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
+                        <a class="wf-link active" href="/docs/guide" aria-current="page">Guide</a>
+                        <a class="wf-link" href="/docs/reference">Components</a>
+                        <a class="wf-link" href="/docs/tutorials">Tutorials</a>
+                        <a class="wf-link" href="/showcase">See it</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-sfe922990 site-search">
+                        <i class="wf-icon" data-icon="search"></i>
+                        <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
+                        <p class="wf-text wf-s8947c952">/</p>
+                    </div>
+                    <button class="wf-icon-btn site-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
+                    <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
+                    <button class="wf-btn site-button site-button-outlined" data-track="select_content" data-track-content-type="language" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
+                </div>
+            </div>
+            <div class="wf-row wf-align--stretch wf-s8fba8729">
+                <aside class="wf-sidebar wf-s2d03fcea" aria-label="Chapters">
+                    <a class="wf-sidebar__item" href="/docs">
+                        <p class="wf-text">Overview</p>
+                    </a>
+                    <p class="wf-text group-label">Get started</p>
+                    <a class="wf-sidebar__item" href="/docs/guide/introduction">
+                        <p class="wf-text">Introduction</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/getting-started">
+                        <p class="wf-text">Getting started</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/tutorial">
+                        <p class="wf-text">Tutorial: Shelf</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/coming-from">
+                        <p class="wf-text">Coming from React, Vue or Svelte</p>
+                    </a>
+                    <p class="wf-text group-label">Tutorials and recipes</p>
+                    <a class="wf-sidebar__item" href="/docs/tutorials/todos">
+                        <p class="wf-text">Tutorial: Todos</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/tutorials/field-notes">
+                        <p class="wf-text">Tutorial: Field Notes</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/tutorials/pocket">
+                        <p class="wf-text">Tutorial: Pocket</p>
+                    </a>
+                    <a class="wf-sidebar__item active" href="/docs/guide/recipes" aria-current="page">
+                        <p class="wf-text">Recipes</p>
+                    </a>
+                    <p class="wf-text group-label">Concepts</p>
+                    <a class="wf-sidebar__item" href="/docs/guide/language-basics">
+                        <p class="wf-text">Language basics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/pages-and-routing">
+                        <p class="wf-text">Pages and routing</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/elements">
+                        <p class="wf-text">Elements</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/state">
+                        <p class="wf-text">State and reactivity</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/events">
+                        <p class="wf-text">Events</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/control-flow">
+                        <p class="wf-text">Control flow</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/components">
+                        <p class="wf-text">Components</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/stores">
+                        <p class="wf-text">Stores</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/types">
+                        <p class="wf-text">Types</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/expressions">
+                        <p class="wf-text">Expressions</p>
+                    </a>
+                    <p class="wf-text group-label">Guides: interface</p>
+                    <a class="wf-sidebar__item" href="/docs/guide/styling">
+                        <p class="wf-text">Styling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/motion">
+                        <p class="wf-text">Motion</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/media">
+                        <p class="wf-text">Media</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/accessibility">
+                        <p class="wf-text">Accessibility</p>
+                    </a>
+                    <p class="wf-text group-label">Guides: data</p>
+                    <a class="wf-sidebar__item" href="/docs/guide/forms">
+                        <p class="wf-text">Forms and validation</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/data">
+                        <p class="wf-text">Fetching data</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/realtime">
+                        <p class="wf-text">Real-time</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/offline">
+                        <p class="wf-text">Offline</p>
+                    </a>
+                    <p class="wf-text group-label">Guides: content</p>
+                    <a class="wf-sidebar__item" href="/docs/guide/content">
+                        <p class="wf-text">Content</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/i18n">
+                        <p class="wf-text">Internationalisation</p>
+                    </a>
+                    <p class="wf-text group-label">Guides: quality</p>
+                    <a class="wf-sidebar__item" href="/docs/guide/testing">
+                        <p class="wf-text">Testing</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/security">
+                        <p class="wf-text">Security</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/performance">
+                        <p class="wf-text">Performance</p>
+                    </a>
+                    <p class="wf-text group-label">Guides: shipping</p>
+                    <a class="wf-sidebar__item" href="/docs/guide/project-structure">
+                        <p class="wf-text">Project structure</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/static-and-spa">
+                        <p class="wf-text">Static or single-page</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/deploying">
+                        <p class="wf-text">Deploying</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/environments">
+                        <p class="wf-text">Environments</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/desktop">
+                        <p class="wf-text">Desktop apps</p>
+                    </a>
+                    <p class="wf-text group-label">Other outputs</p>
+                    <a class="wf-sidebar__item" href="/docs/guide/pdf-and-slides">
+                        <p class="wf-text">PDF and slides</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/server-rendering">
+                        <p class="wf-text">Server rendering</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/interop">
+                        <p class="wf-text">JavaScript interop</p>
+                    </a>
+                    <p class="wf-text group-label">Reference</p>
+                    <a class="wf-sidebar__item" href="/docs/reference">
+                        <p class="wf-text">Components reference</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/cli">
+                        <p class="wf-text">Command line and editors</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/config">
+                        <p class="wf-text">Configuration</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/diagnostics">
+                        <p class="wf-text">Diagnostics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/built-ins">
+                        <p class="wf-text">Built-ins</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/tokens">
+                        <p class="wf-text">Design tokens</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/runtime">
+                        <p class="wf-text">Runtime API</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/grammar">
+                        <p class="wf-text">Grammar</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/browser-support">
+                        <p class="wf-text">Browser support</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/glossary">
+                        <p class="wf-text">Glossary</p>
+                    </a>
+                    <p class="wf-text group-label">Help</p>
+                    <a class="wf-sidebar__item" href="/docs/guide/troubleshooting">
+                        <p class="wf-text">Troubleshooting</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/upgrading">
+                        <p class="wf-text">Upgrading</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/guide/contributing">
+                        <p class="wf-text">Contributing</p>
+                    </a>
+                </aside>
+                <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
+                        <a class="wf-link" href="/docs">Guide</a>
+                        <p class="wf-text">/</p>
+                        <p class="wf-text wf-s8c71c534">Tutorials and recipes</p>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s28a8547f">
+                        <h1 class="wf-heading wf-sa3503382">Recipes</h1>
+                        <p class="wf-text wf-sfd35f593">Small, complete pages for the jobs most projects meet: debounced search, paging, optimistic updates, a confirm dialog, dark mode and more.</p>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
+                            <div class="wf-markdown">
+<p>These are smaller pieces that most projects need. Each is a whole page you can build and adapt.</p>
+                            </div>
+                            <h2 class="wf-heading" id="debounce-a-search">Debounce a search</h2>
+                            <div class="wf-markdown">
+<p>To wait until the reader stops typing before you search, keep what they typed apart from what you search for:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Search</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Search&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Search as you type, without a request per key.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> typed = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">state</span> q = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">action</span> commit(<span class="wf-tok-prop">value</span>: <span class="wf-tok-name">String</span>) { <span class="wf-tok-kw">if</span> value == typed { q = value } }
+    <span class="wf-tok-kw">effect</span> {
+        <span class="wf-tok-kw">let</span> pending = typed
+        setTimeout(() =&gt; commit(pending), <span class="wf-tok-num">300</span>)
+    }
+    <span class="wf-tok-kw">resource</span> hits = fetch(<span class="wf-tok-str">&quot;/api/search?q={q}&quot;</span>)
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Search&quot;</span>).h1
+    <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: typed, <span class="wf-tok-prop">placeholder</span>: <span class="wf-tok-str">&quot;Search&quot;</span>, aria-<span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Search&quot;</span>)
+    <span class="wf-tok-kw">match</span> hits {
+        <span class="wf-tok-kw">loading</span> { <span class="wf-tok-name">Spinner</span>.sm }
+        <span class="wf-tok-kw">error</span>(e) { <span class="wf-tok-name">Text</span>(e.message).danger }
+        <span class="wf-tok-kw">ready</span>(list) { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{list.length} results for {q}&quot;</span>) }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The effect runs again on every keystroke, and each run schedules a check. Only the check whose value is still current writes <code>q</code>, and the resource follows <code>q</code>. The timer is the browser's <code>setTimeout</code>, because <code>after(ms)</code> is a declaration with a body, not a statement an effect can hold.</p>
+                            </div>
+                            <h2 class="wf-heading" id="page-through-results">Page through results</h2>
+                            <div class="wf-markdown">
+<p>To show a long list a page at a time, keep the page number in state and splice it into the address:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Rows</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Rows&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Every row, twenty at a time.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-kw">page</span> = <span class="wf-tok-num">1</span>
+    <span class="wf-tok-kw">state</span> perPage = <span class="wf-tok-num">20</span>
+    <span class="wf-tok-kw">resource</span> rows = fetch(<span class="wf-tok-str">&quot;/api/rows?page={page}&amp;per={perPage}&quot;</span>)
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Rows&quot;</span>).h1
+    <span class="wf-tok-kw">match</span> rows {
+        <span class="wf-tok-kw">loading</span> { <span class="wf-tok-name">Spinner</span> }
+        <span class="wf-tok-kw">error</span>(e) { <span class="wf-tok-name">Text</span>(e.message).danger }
+        <span class="wf-tok-kw">ready</span>(r) {
+            <span class="wf-tok-kw">for</span> row <span class="wf-tok-kw">in</span> r.items <span class="wf-tok-kw">by</span> row.id { <span class="wf-tok-name">Text</span>(row.name) }
+            <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">gap</span>: .sm, <span class="wf-tok-prop">align</span>: .center) {
+                <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Previous&quot;</span>, <span class="wf-tok-prop">disabled</span>: <span class="wf-tok-kw">page</span> == <span class="wf-tok-num">1</span>) { <span class="wf-tok-kw">on</span> click { <span class="wf-tok-kw">page</span> = <span class="wf-tok-kw">page</span> - <span class="wf-tok-num">1</span> } }
+                <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Page {page} of {r.pages}&quot;</span>)
+                <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Next&quot;</span>, <span class="wf-tok-prop">disabled</span>: <span class="wf-tok-kw">page</span> &gt;= r.pages) { <span class="wf-tok-kw">on</span> click { <span class="wf-tok-kw">page</span> = <span class="wf-tok-kw">page</span> + <span class="wf-tok-num">1</span> } }
+            }
+        }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A change of <code>page</code> changes the address, so the resource asks again.</p>
+                            </div>
+                            <h2 class="wf-heading" id="update-at-once-and-roll-back-on-failure">Update at once, and roll back on failure</h2>
+                            <div class="wf-markdown">
+<p>To show a change before the server agrees, keep the old value and put it back if the request fails:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Item</span> { <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">liked</span>: <span class="wf-tok-name">Bool</span> }
+
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Likes</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Likes&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A like that shows at once.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">items</span>: [<span class="wf-tok-name">Item</span>] = [<span class="wf-tok-name">Item</span>(<span class="wf-tok-prop">id</span>: <span class="wf-tok-str">&quot;a&quot;</span>, <span class="wf-tok-prop">liked</span>: <span class="wf-tok-kw">false</span>)]
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-kw">error</span> = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">action</span> like(<span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>) {
+        <span class="wf-tok-kw">let</span> before = items
+        items = items.map(i =&gt; <span class="wf-tok-kw">if</span> i.id == id { <span class="wf-tok-name">Item</span>(<span class="wf-tok-prop">id</span>: i.id, <span class="wf-tok-prop">liked</span>: !i.liked) } <span class="wf-tok-kw">else</span> { i })
+        <span class="wf-tok-kw">try</span> {
+            <span class="wf-tok-kw">await</span> fetch(<span class="wf-tok-str">&quot;/api/like/{id}&quot;</span>, { <span class="wf-tok-prop">method</span>: <span class="wf-tok-str">&quot;POST&quot;</span> })
+        } <span class="wf-tok-kw">catch</span> e {
+            items = before
+            <span class="wf-tok-kw">error</span> = <span class="wf-tok-str">&quot;Could not save. Try again.&quot;</span>
+        }
+    }
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Likes&quot;</span>).h1
+    <span class="wf-tok-kw">for</span> i <span class="wf-tok-kw">in</span> items <span class="wf-tok-kw">by</span> i.id {
+        <span class="wf-tok-name">Button</span>(<span class="wf-tok-kw">if</span> i.liked { <span class="wf-tok-str">&quot;♥&quot;</span> } <span class="wf-tok-kw">else</span> { <span class="wf-tok-str">&quot;♡&quot;</span> }, aria-<span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Like&quot;</span>).sm { <span class="wf-tok-kw">on</span> click { like(i.id) } }
+    }
+    <span class="wf-tok-kw">if</span> <span class="wf-tok-kw">error</span> != <span class="wf-tok-str">&quot;&quot;</span> { <span class="wf-tok-name">Toast</span>(<span class="wf-tok-kw">error</span>).danger }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>optimistic(holder, change)</code> does the same with less code inside an action; see <a href="/docs/guide/data#show-a-change-before-the-server-agrees">Fetching data</a>.</p>
+                            </div>
+                            <h2 class="wf-heading" id="build-a-confirm-dialog-component">Build a confirm dialog component</h2>
+                            <div class="wf-markdown">
+<p>To ask before a destructive action, wrap a <code>Dialog</code> in a component that fires <code>confirm</code> or <code>cancel</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Confirm</span>(_ <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">visible</span>: <span class="wf-tok-name">Bool</span>, <span class="wf-tok-prop">danger</span>: <span class="wf-tok-name">Bool</span> = <span class="wf-tok-kw">false</span>) {
+    <span class="wf-tok-kw">event</span> confirm()
+    <span class="wf-tok-kw">event</span> cancel()
+    <span class="wf-tok-kw">slot</span>
+    <span class="wf-tok-name">Dialog</span>(<span class="wf-tok-prop">visible</span>: visible, <span class="wf-tok-prop">title</span>: title) {
+        <span class="wf-tok-kw">children</span>
+        <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">gap</span>: .sm, <span class="wf-tok-prop">justify</span>: .end) {
+            <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Cancel&quot;</span>) { <span class="wf-tok-kw">on</span> click { <span class="wf-tok-kw">emit</span> cancel() } }
+            <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Confirm&quot;</span>, <span class="wf-tok-prop">tone</span>: <span class="wf-tok-kw">if</span> danger { .danger } <span class="wf-tok-kw">else</span> { .primary }) { <span class="wf-tok-kw">on</span> click { <span class="wf-tok-kw">emit</span> confirm() } }
+        }
+    }
+}
+
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Account</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Account&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Close your account.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> asking = <span class="wf-tok-kw">false</span>
+    <span class="wf-tok-kw">state</span> gone = <span class="wf-tok-kw">false</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Account&quot;</span>).h1
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Delete account&quot;</span>).danger { <span class="wf-tok-kw">on</span> click { asking = <span class="wf-tok-kw">true</span> } }
+    <span class="wf-tok-name">Confirm</span>(<span class="wf-tok-str">&quot;Delete your account?&quot;</span>, <span class="wf-tok-prop">visible</span>: asking, <span class="wf-tok-prop">danger</span>: <span class="wf-tok-kw">true</span>) {
+        <span class="wf-tok-kw">on</span> confirm { gone = <span class="wf-tok-kw">true</span>  asking = <span class="wf-tok-kw">false</span> }
+        <span class="wf-tok-kw">on</span> cancel { asking = <span class="wf-tok-kw">false</span> }
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Everything goes. This cannot be undone.&quot;</span>)
+    }
+    <span class="wf-tok-kw">if</span> gone { <span class="wf-tok-name">Alert</span>(<span class="wf-tok-str">&quot;Account deleted.&quot;</span>).info }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The caller's block fills the default slot, so the question's detail is the caller's to write.</p>
+                            </div>
+                            <h2 class="wf-heading" id="make-navigation-responsive">Make navigation responsive</h2>
+                            <div class="wf-markdown">
+<p>To show links on a wide screen and a menu button on a narrow one, branch on <code>viewport</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Nav</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Home&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Navigation that fits the screen.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> open = <span class="wf-tok-kw">false</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Home&quot;</span>).h1
+    <span class="wf-tok-kw">if</span> viewport.md {
+        <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">gap</span>: .md) {
+            <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Home&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/&quot;</span>)
+            <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Docs&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/docs&quot;</span>)
+            <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Pricing&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/pricing&quot;</span>)
+        }
+    } <span class="wf-tok-kw">else</span> {
+        <span class="wf-tok-name">IconButton</span>(<span class="wf-tok-prop">icon</span>: <span class="wf-tok-str">&quot;menu&quot;</span>, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Open navigation&quot;</span>) { <span class="wf-tok-kw">on</span> click { open = !open } }
+        <span class="wf-tok-kw">show</span> open {
+            <span class="wf-tok-name">Stack</span>(<span class="wf-tok-prop">gap</span>: .sm, <span class="wf-tok-prop">animate</span>: .slideDown) {
+                <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Home&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/&quot;</span>)
+                <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Docs&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/docs&quot;</span>)
+                <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Pricing&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/pricing&quot;</span>)
+            }
+        }
+    }
+}</code>
+                            </div>
+                            <h2 class="wf-heading" id="show-validation-messages-on-a-form">Show validation messages on a form</h2>
+                            <div class="wf-markdown">
+<p>To check a form as the reader fills it in, put a <code>validate</code> block beside each state:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Signup</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Sign up&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Make an account.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> email = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">state</span> password = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">state</span> confirm = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">state</span> sent = <span class="wf-tok-kw">false</span>
+    validate email { required  email <span class="wf-tok-str">&quot;Enter a valid email&quot;</span> }
+    validate password { required  minLength(<span class="wf-tok-num">8</span>) <span class="wf-tok-str">&quot;At least 8 characters&quot;</span> }
+    validate confirm { matches(password) <span class="wf-tok-str">&quot;The passwords differ&quot;</span> }
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Sign up&quot;</span>).h1
+    <span class="wf-tok-name">Form</span>(<span class="wf-tok-prop">bind</span>: form) {
+        <span class="wf-tok-kw">on</span> submit { sent = <span class="wf-tok-kw">true</span>  form.reset() }
+        <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: email, <span class="wf-tok-prop">name</span>: <span class="wf-tok-str">&quot;email&quot;</span>, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Email&quot;</span>).email
+        <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: password, <span class="wf-tok-prop">name</span>: <span class="wf-tok-str">&quot;password&quot;</span>, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Password&quot;</span>).password
+        <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: confirm, <span class="wf-tok-prop">name</span>: <span class="wf-tok-str">&quot;confirm&quot;</span>, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Confirm password&quot;</span>).password
+        <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Create account&quot;</span>, <span class="wf-tok-prop">type</span>: .submit, <span class="wf-tok-prop">disabled</span>: !form.valid).primary
+    }
+    <span class="wf-tok-kw">if</span> sent { <span class="wf-tok-name">Alert</span>(<span class="wf-tok-str">&quot;Welcome aboard.&quot;</span>).success }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Each control shows its own message when the reader leaves it, and a submit that fails moves focus to the first problem. <a href="/docs/guide/forms">Forms</a> lists every rule.</p>
+                            </div>
+                            <h2 class="wf-heading" id="keep-the-active-tab-in-the-address">Keep the active tab in the address</h2>
+                            <div class="wf-markdown">
+<p>To make a tab survive a reload, read it from <code>hash</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Account</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/account&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Account&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Your profile and billing.&quot;</span>) {
+    <span class="wf-tok-kw">derived</span> tab = <span class="wf-tok-kw">if</span> hash != <span class="wf-tok-str">&quot;&quot;</span> { hash } <span class="wf-tok-kw">else</span> { <span class="wf-tok-str">&quot;profile&quot;</span> }
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Account&quot;</span>).h1
+    <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">gap</span>: .sm) {
+        <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Profile&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/account#profile&quot;</span>)
+        <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Billing&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/account#billing&quot;</span>)
+    }
+    <span class="wf-tok-kw">if</span> tab == <span class="wf-tok-str">&quot;profile&quot;</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Profile settings&quot;</span>) }
+    <span class="wf-tok-kw">if</span> tab == <span class="wf-tok-str">&quot;billing&quot;</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Billing settings&quot;</span>) }
+}</code>
+                            </div>
+                            <h2 class="wf-heading" id="pass-a-store-s-value-to-a-component-as-a-prop">Pass a store&#x27;s value to a component as a prop</h2>
+                            <div class="wf-markdown">
+<p>A component that needs only one value from a store can take it as a prop instead of using the store. That keeps the component reusable outside that store:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">store</span> <span class="wf-tok-name">Cart</span> { <span class="wf-tok-kw">state</span> count = <span class="wf-tok-num">0</span> }
+
+<span class="wf-tok-kw">component</span> <span class="wf-tok-name">CartBadge</span>(<span class="wf-tok-prop">count</span>: <span class="wf-tok-name">Number</span>) {
+    <span class="wf-tok-kw">if</span> count &gt; <span class="wf-tok-num">0</span> { <span class="wf-tok-name">Badge</span>(<span class="wf-tok-str">&quot;{count}&quot;</span>).primary }
+}
+
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Shop</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Shop&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Everything we sell.&quot;</span>) {
+    <span class="wf-tok-kw">use</span> <span class="wf-tok-name">Cart</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Shop&quot;</span>).h1
+    <span class="wf-tok-name">CartBadge</span>(<span class="wf-tok-prop">count</span>: <span class="wf-tok-name">Cart</span>.count)
+}</code>
+                            </div>
+                            <h2 class="wf-heading" id="count-down">Count down</h2>
+                            <div class="wf-markdown">
+<p>To count down once a second, change a state in an <code>every</code> timer:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Countdown</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Countdown&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Ten seconds, counted down.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> left = <span class="wf-tok-num">10</span>
+    <span class="wf-tok-kw">every</span>(<span class="wf-tok-num">1000</span>) { <span class="wf-tok-kw">if</span> left &gt; <span class="wf-tok-num">0</span> { left = left - <span class="wf-tok-num">1</span> } }
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Countdown&quot;</span>).h1
+    <span class="wf-tok-name">Progress</span>(<span class="wf-tok-prop">value</span>: <span class="wf-tok-num">10</span> - left, <span class="wf-tok-prop">max</span>: <span class="wf-tok-num">10</span>)
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-kw">if</span> left == <span class="wf-tok-num">0</span> { <span class="wf-tok-str">&quot;Done&quot;</span> } <span class="wf-tok-kw">else</span> { <span class="wf-tok-str">&quot;{left}s&quot;</span> })
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The timer stops when the page leaves.</p>
+                            </div>
+                            <h2 class="wf-heading" id="sign-in-with-a-session-cookie">Sign in with a session cookie</h2>
+                            <div class="wf-markdown">
+<p>To sign a reader in without holding a token in the page, describe the service with <code>credentials: .sameOrigin</code> and keep the user in a store:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">User</span> { <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">name</span>: <span class="wf-tok-name">String</span> }
+
+api <span class="wf-tok-name">Auth</span>(<span class="wf-tok-prop">base</span>: <span class="wf-tok-str">&quot;/api&quot;</span>) {
+    <span class="wf-tok-prop">credentials</span>: .sameOrigin
+    get me() -&gt; <span class="wf-tok-name">User</span>
+    post signIn(<span class="wf-tok-prop">body</span>: <span class="wf-tok-name">Map</span>) -&gt; <span class="wf-tok-name">User</span>
+        errors { <span class="wf-tok-num">401</span> -&gt; <span class="wf-tok-name">Map</span> }
+    post signOut()
+}
+
+<span class="wf-tok-kw">store</span> <span class="wf-tok-name">Session</span> {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">user</span>: <span class="wf-tok-name">User</span>? = <span class="wf-tok-kw">null</span>
+    <span class="wf-tok-kw">state</span> checked = <span class="wf-tok-kw">false</span>
+    <span class="wf-tok-kw">derived</span> signedIn = user != <span class="wf-tok-kw">null</span>
+    <span class="wf-tok-kw">action</span> load() {
+        <span class="wf-tok-kw">try</span> { user = <span class="wf-tok-kw">await</span> <span class="wf-tok-name">Auth</span>.me() } <span class="wf-tok-kw">catch</span> e { user = <span class="wf-tok-kw">null</span> }
+        checked = <span class="wf-tok-kw">true</span>
+    }
+    <span class="wf-tok-kw">action</span> signIn(<span class="wf-tok-prop">email</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">password</span>: <span class="wf-tok-name">String</span>) {
+        user = <span class="wf-tok-kw">await</span> <span class="wf-tok-name">Auth</span>.signIn(<span class="wf-tok-prop">body</span>: { <span class="wf-tok-prop">email</span>: email, <span class="wf-tok-prop">password</span>: password })
+        <span class="wf-tok-kw">navigate</span>(<span class="wf-tok-str">&quot;/account&quot;</span>)
+    }
+    <span class="wf-tok-kw">action</span> signOut() {
+        <span class="wf-tok-kw">await</span> <span class="wf-tok-name">Auth</span>.signOut()
+        user = <span class="wf-tok-kw">null</span>
+        <span class="wf-tok-kw">navigate</span>(<span class="wf-tok-str">&quot;/&quot;</span>)
+    }
+}
+
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">SignIn</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/sign-in&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Sign in&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Sign in to your account.&quot;</span>, <span class="wf-tok-prop">noindex</span>: <span class="wf-tok-kw">true</span>) {
+    <span class="wf-tok-kw">state</span> email = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">state</span> password = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">state</span> problem = <span class="wf-tok-str">&quot;&quot;</span>
+    validate email { required  email }
+    validate password { required }
+    <span class="wf-tok-kw">action</span> send() {
+        problem = <span class="wf-tok-str">&quot;&quot;</span>
+        <span class="wf-tok-kw">try</span> { <span class="wf-tok-kw">await</span> <span class="wf-tok-name">Session</span>.signIn(email, password) } <span class="wf-tok-kw">catch</span> e { problem = <span class="wf-tok-str">&quot;That email and password do not match.&quot;</span> }
+    }
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Sign in&quot;</span>).h1
+    <span class="wf-tok-kw">if</span> problem != <span class="wf-tok-str">&quot;&quot;</span> { <span class="wf-tok-name">Alert</span>(problem).danger }
+    <span class="wf-tok-name">Form</span>(<span class="wf-tok-prop">bind</span>: form) {
+        <span class="wf-tok-kw">on</span> submit { send() }
+        <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: email, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Email&quot;</span>).email
+        <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: password, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Password&quot;</span>).password
+        <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Sign in&quot;</span>, <span class="wf-tok-prop">type</span>: .submit, <span class="wf-tok-prop">disabled</span>: send.pending).primary
+    }
+}
+
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Account</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/account&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Your account&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Your account.&quot;</span>, <span class="wf-tok-prop">guard</span>: <span class="wf-tok-name">Session</span>.signedIn, <span class="wf-tok-prop">redirect</span>: <span class="wf-tok-str">&quot;/sign-in&quot;</span>) {
+    <span class="wf-tok-kw">use</span> <span class="wf-tok-name">Session</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Your account&quot;</span>).h1
+    <span class="wf-tok-kw">if</span> <span class="wf-tok-kw">let</span> u = <span class="wf-tok-name">Session</span>.user { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Signed in as {u.name}&quot;</span>) }
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Sign out&quot;</span>) { <span class="wf-tok-kw">on</span> click { <span class="wf-tok-name">Session</span>.signOut() } }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The session is an httpOnly cookie the server sets, so the page never holds a token. <code>guard:</code> hides the page from a reader who is signed out, and the server still checks every request (<a href="/docs/guide/security#keep-the-session-in-a-cookie">Security</a>). Call <code>Session.load()</code> from the app's set-up, so a returning reader is signed in.</p>
+                            </div>
+                            <h2 class="wf-heading" id="load-more">Load more</h2>
+                            <div class="wf-markdown">
+<p>To add the next page of results below the ones shown, call an endpoint with <code>paginate: .page</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Item</span> { <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">name</span>: <span class="wf-tok-name">String</span> }
+
+api <span class="wf-tok-name">Catalog</span>(<span class="wf-tok-prop">base</span>: <span class="wf-tok-str">&quot;/api&quot;</span>) {
+    get items(<span class="wf-tok-prop">page</span>: <span class="wf-tok-name">Number</span> = <span class="wf-tok-num">1</span>) -&gt; [<span class="wf-tok-name">Item</span>]
+}
+
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Items</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/items&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Items&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Everything, a page at a time.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-kw">page</span> = <span class="wf-tok-num">1</span>
+    <span class="wf-tok-kw">resource</span> list = <span class="wf-tok-name">Catalog</span>.items(<span class="wf-tok-prop">page</span>: <span class="wf-tok-kw">page</span>, <span class="wf-tok-prop">paginate</span>: .page)
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Items&quot;</span>).h1
+    <span class="wf-tok-kw">for</span> item <span class="wf-tok-kw">in</span> list.items <span class="wf-tok-kw">by</span> item.id { <span class="wf-tok-name">Text</span>(item.name) }
+    <span class="wf-tok-kw">if</span> list.hasMore {
+        <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Load more&quot;</span>, <span class="wf-tok-prop">disabled</span>: list.state == <span class="wf-tok-str">&quot;loading&quot;</span>) { <span class="wf-tok-kw">on</span> click { list.loadMore() } }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>list.items</code> is every item loaded so far, and <code>list.loadMore()</code> asks for the next page.</p>
+                            </div>
+                            <h2 class="wf-heading" id="keep-filters-in-the-address">Keep filters in the address</h2>
+                            <div class="wf-markdown">
+<p>To make a filter survive a reload, a shared link and the back button, read it from <code>query</code> instead of holding it in a <code>state</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Products</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/products&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Products&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Everything we sell.&quot;</span>) {
+    <span class="wf-tok-kw">derived</span> sort = query.sort ?? <span class="wf-tok-str">&quot;name&quot;</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Products&quot;</span>).h1
+    <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">gap</span>: .sm) {
+        <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;By name&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/products?sort=name&quot;</span>)
+        <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;By price&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/products?sort=price&quot;</span>)
+    }
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Sorted by {sort}&quot;</span>)
+}</code>
+                            </div>
+                            <h2 class="wf-heading" id="add-a-dark-mode-switch">Add a dark-mode switch</h2>
+                            <div class="wf-markdown">
+<p>To let the reader pick light, dark or the system's choice, call <code>setTheme</code> and read <code>theme</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Settings</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/settings&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Settings&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;How the site looks.&quot;</span>) {
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Settings&quot;</span>).h1
+    <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">gap</span>: .sm) {
+        <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Light&quot;</span>, <span class="wf-tok-prop">outlined</span>: <span class="wf-tok-kw">theme</span> != <span class="wf-tok-str">&quot;light&quot;</span>) { <span class="wf-tok-kw">on</span> click { setTheme(<span class="wf-tok-str">&quot;light&quot;</span>) } }
+        <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Dark&quot;</span>, <span class="wf-tok-prop">outlined</span>: <span class="wf-tok-kw">theme</span> != <span class="wf-tok-str">&quot;dark&quot;</span>) { <span class="wf-tok-kw">on</span> click { setTheme(<span class="wf-tok-str">&quot;dark&quot;</span>) } }
+        <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Match the system&quot;</span>, <span class="wf-tok-prop">outlined</span>: <span class="wf-tok-kw">theme</span> != <span class="wf-tok-str">&quot;system&quot;</span>) { <span class="wf-tok-kw">on</span> click { setTheme(<span class="wf-tok-str">&quot;system&quot;</span>) } }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The switch needs a dark theme named in the config (<a href="/docs/guide/styling#dark-mode">Styling</a>).</p>
+                            </div>
+                            <h2 class="wf-heading" id="copy-to-the-clipboard">Copy to the clipboard</h2>
+                            <div class="wf-markdown">
+<p>To copy text, call the browser's clipboard from an action:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Share</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/share&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Share&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Copy the link.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> copied = <span class="wf-tok-kw">false</span>
+    <span class="wf-tok-kw">action</span> copy(<span class="wf-tok-prop">text</span>: <span class="wf-tok-name">String</span>) {
+        <span class="wf-tok-kw">await</span> navigator.clipboard.writeText(text)
+        copied = <span class="wf-tok-kw">true</span>
+    }
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Share&quot;</span>).h1
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Copy the link&quot;</span>) { <span class="wf-tok-kw">on</span> click { copy(location.href) } }
+    <span class="wf-tok-kw">if</span> copied { <span class="wf-tok-name">Toast</span>(<span class="wf-tok-str">&quot;Copied&quot;</span>).success }
+}</code>
+                            </div>
+                            <h2 class="wf-heading" id="draw-a-chart-from-a-library">Draw a chart from a library</h2>
+                            <div class="wf-markdown">
+<p>To use a charting library, list its URL in <code>meta.scripts</code>, call it from a script of your own, and hand it a canvas with <code>Host</code>. The full example is in <a href="/docs/guide/interop#load-a-library-from-a-cdn">JavaScript interop</a>.</p>
+                            </div>
+                            <h2 class="wf-heading" id="where-to-go-next">Where to go next</h2>
+                            <div class="wf-markdown">
+<ul>
+<li>The <a href="/docs/reference">components reference</a>, for every prop and flag.</li>
+<li><code>examples/</code> in the repository: the tutorials, reference PDFs and slide decks, and the <code>tests/fixtures/</code> projects — a gallery, a dashboard, a docs site, an offline site — each complete.</li>
+<li><code>wf docs</code> in your own project, for what <em>your</em> components take.</li>
+</ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
+                        <a class="wf-link wf-seeb37b6c" href="/docs/tutorials/pocket">
+                            <p class="wf-text wf-s3e0c6c38">Previous</p>
+                            <p class="wf-text wf-s2c78daf6">Tutorial: Pocket</p>
+                        </a>
+                        <a class="wf-link wf-sc144b15a" href="/docs/guide/language-basics">
+                            <p class="wf-text wf-s3e0c6c38">Next</p>
+                            <p class="wf-text wf-s2c78daf6">Language basics</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-sac91c322" aria-label="On this page">
+                    <div class="wf-stack wf-gap--xs wf-se43b90d0">
+                        <p class="wf-text overline">On this page</p>
+                        <a class="wf-link wf-s3e136ca4" href="#debounce-a-search">Debounce a search</a>
+                        <a class="wf-link wf-s3e136ca4" href="#page-through-results">Page through results</a>
+                        <a class="wf-link wf-s3e136ca4" href="#update-at-once-and-roll-back-on-failure">Update at once, and roll back on failure</a>
+                        <a class="wf-link wf-s3e136ca4" href="#build-a-confirm-dialog-component">Build a confirm dialog component</a>
+                        <a class="wf-link wf-s3e136ca4" href="#make-navigation-responsive">Make navigation responsive</a>
+                        <a class="wf-link wf-s3e136ca4" href="#show-validation-messages-on-a-form">Show validation messages on a form</a>
+                        <a class="wf-link wf-s3e136ca4" href="#keep-the-active-tab-in-the-address">Keep the active tab in the address</a>
+                        <a class="wf-link wf-s3e136ca4" href="#pass-a-store-s-value-to-a-component-as-a-prop">Pass a store&#x27;s value to a component as a prop</a>
+                        <a class="wf-link wf-s3e136ca4" href="#count-down">Count down</a>
+                        <a class="wf-link wf-s3e136ca4" href="#sign-in-with-a-session-cookie">Sign in with a session cookie</a>
+                        <a class="wf-link wf-s3e136ca4" href="#load-more">Load more</a>
+                        <a class="wf-link wf-s3e136ca4" href="#keep-filters-in-the-address">Keep filters in the address</a>
+                        <a class="wf-link wf-s3e136ca4" href="#add-a-dark-mode-switch">Add a dark-mode switch</a>
+                        <a class="wf-link wf-s3e136ca4" href="#copy-to-the-clipboard">Copy to the clipboard</a>
+                        <a class="wf-link wf-s3e136ca4" href="#draw-a-chart-from-a-library">Draw a chart from a library</a>
+                        <a class="wf-link wf-s3e136ca4" href="#where-to-go-next">Where to go next</a>
+                    </div>
+                    <hr class="wf-divider wf-se3c90f45">
+                    <div class="wf-stack wf-gap--xs wf-s614f8b98">
+                        <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/08-recipes.md">
+                            <i class="wf-icon" data-icon="edit"></i>
+                            <p class="wf-text wf-s5c9c3c02">Edit this page</p>
+                        </a>
+                        <a class="wf-link" href="/docs/reference">
+                            <i class="wf-icon" data-icon="menu"></i>
+                            <p class="wf-text wf-s5c9c3c02">Components reference</p>
+                        </a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-sa5763942">
+                        <p class="wf-text wf-s2880cc3a">Checked by the test suite</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is parsed, checked and type-checked on each release.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s2a0a6f19">
+            <div class="wf-stack wf-gap--lg wf-sc70179bd">
+                <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-seacec3bd">
+                    <div class="wf-stack wf-gap--sm wf-s1f90318e">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s02873871">
+                            <p class="wf-text wf-s7c2fb5e9">wf</p>
+                            <p class="wf-text wf-s312df231">WebFluent</p>
+                        </div>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.11, parsed, type-checked and compiled by the test suite.</p>
+                    </div>
+                    <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
+                        <div class="wf-stack wf-gap--xs wf-sf27948d8">
+                            <p class="wf-text overline">Guide</p>
+                            <a class="wf-link" href="/docs/guide/getting-started">Getting started</a>
+                            <a class="wf-link" href="/docs/guide/tutorial">Tutorial: Shelf</a>
+                            <a class="wf-link" href="/docs/guide/deploying">Deploying</a>
+                            <a class="wf-link" href="/docs/guide/troubleshooting">Troubleshooting</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-sf27948d8">
+                            <p class="wf-text overline">Reference</p>
+                            <a class="wf-link" href="/docs/reference">Built-in components</a>
+                            <a class="wf-link" href="/docs/guide/cli">Command line and editors</a>
+                            <a class="wf-link" href="/docs/guide/config">Configuration</a>
+                            <a class="wf-link" href="/docs/guide/diagnostics">Diagnostics</a>
+                            <a class="wf-link" href="/docs/tutorials/todos">Tutorials</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-sf27948d8">
+                            <p class="wf-text overline">Project</p>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/releases">Releases</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/issues">Issues</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
+                    <p class="wf-text">WebFluent 5.11 — MPL-2.0</p>
+                    <div class="wf-row wf-align--center wf-gap--md">
+                        <button class="wf-btn link-button" type="button">Cookie settings</button>
+                        <p class="wf-text">© 2026 Monzer Omer</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

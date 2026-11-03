@@ -234,21 +234,27 @@ dive*) rather than by alarm. A page that is half callouts has none.
 
 ## 2. The shape of the guide
 
-### 2.1 The parts, and the kind each is
+### 2.1 The sections, and the kind each is
 
-The guide keeps the six parts it has always had — their URLs are linked
-from all over the web, and a cool URI does not change — and each part is
-one kind of page:
+The guide is organised by what the reader is here to do. Each section is
+one kind of page, and the sidebar shows sections, not chapter numbers. A
+chapter's URL never changes when it moves between sections: released
+compilers link to `/docs/guide/diagnostics#…`, and a cool URI does not
+change.
 
-| Part | Chapters | Kind | Reader |
-|---|---|---|---|
-| Start | 1–4 | 1 and 4 explanation; 2 quick start; 3 tutorial | new to WebFluent |
-| The basics | 5–14 | explanation, with a short reference table at the end | learning the language |
-| Building | 15–24 | how-to | building a feature |
-| Shipping | 25–35 | how-to (25, 26 explanation first) | putting it in front of people |
-| Tutorials | 36 | tutorial | practising on a whole project |
-| Reference | 37–44 | reference | looking something up |
-| Help | 45–49 | troubleshooting, upgrade notes, glossary | stuck, or upgrading |
+| Section (`group:`) | Kind | Reader |
+|---|---|---|
+| Get started (`start`) | explanation, quick start, tutorial | new to WebFluent |
+| Tutorials and recipes (`tutorials`) | tutorial; recipes are how-to | practising on a whole project |
+| Concepts (`concepts`) | explanation, with a quick-reference table at the end | learning the language |
+| Guides: interface, data, content, quality, shipping (`ui`, `data`, `content`, `quality`, `ship`) | how-to | building a feature, or putting it in front of people |
+| Other outputs (`outputs`) | how-to | making a PDF, a deck, a server-rendered template, or working with JavaScript |
+| Reference (`reference`) | reference | looking something up |
+| Help (`help`) | troubleshooting, upgrade notes | stuck, or upgrading |
+
+The file's number orders the chapters (`NN-slug.md`); to move a chapter,
+renumber it and update the links to it. The sections' names live in
+`GROUP_NAMES` in `scripts/site-from-guide.py`.
 
 The documentation's landing page (`/docs`, `site/src/pages/Docs.wf`) routes
 a reader by need — *Learn*, *Understand*, *Build*, *Look up*, *Fix* —
@@ -261,7 +267,7 @@ rather than by chapter number.
 
 <!--                               ← metadata the generator and search read
 route: guide/slug                  ← never changes once published
-group: start|basics|building|shipping|reference|help
+group: start|tutorials|concepts|ui|data|content|quality|ship|outputs|reference|help
 blurb: one sentence under the title on the site
 description: ≤ 158 characters, for the search result
 -->
@@ -278,7 +284,7 @@ Opening: one or two sentences — what this is and why the reader cares.
 
 ### 2.3 Templates
 
-**Explanation chapter** (the basics, and the explanatory openings of
+**Explanation chapter** (the concepts, and the explanatory openings of
 others):
 
 1. Opening: the idea in one or two sentences, and the one thing to remember.
@@ -291,7 +297,7 @@ others):
    introduced, linking to the reference.
 6. *Next*.
 
-**How-to chapter** (building and shipping):
+**How-to chapter** (the guides and other outputs):
 
 1. Opening: what the reader will be able to do.
 2. *Before you start*, when there are prerequisites.
@@ -301,7 +307,7 @@ others):
 4. A checklist or *Troubleshooting* section for the job as a whole.
 5. *Next*.
 
-**Tutorial** (chapters 3 and 36):
+**Tutorial** (chapter 3 and the three project tutorials):
 
 1. *What you will build* — the result, and how long it takes.
 2. *Before you start* — what must be installed or known.
@@ -317,7 +323,7 @@ signature → a table of its options with type, default and meaning → one
 example → *See also*. Entries in alphabetical or grouped order, never in
 the order they were added.
 
-**Diagnostic entry** (chapter 40): `### CODE — Title` (the heading is the
+**Diagnostic entry** (the diagnostics reference): `### CODE — Title` (the heading is the
 anchor the compiler links to; it must equal the code's title in
 `src/diagnostics/codes.rs`) → what it means → a program that draws it
 (`wf expect CODE`) → the message the compiler prints (a `text` block the
@@ -359,9 +365,9 @@ The guide is tested like code (`tests/docs_parse.rs`,
 - Every `env.NAME` an example reads begins `PUBLIC_`.
 - Every link to a chapter lands on the chapter and on a heading it has.
 - The metadata is complete; the description fits a search result.
-- The chapters that list everything — the declarations (5), keywords
-  (44), built-ins (41), configuration keys and defaults (39), commands and
-  flags (38), icons (28), tokens (42), diagnostics (40) — are held to the
+- The chapters that list everything — the declarations (language
+  basics), keywords (grammar), built-ins, configuration keys and defaults,
+  commands and flags (CLI), icons (media), tokens and diagnostics — are held to the
   compiler.
 - The site's generated pages, sidebar and search index match what the
   scripts write from `md-docs/`.
@@ -377,7 +383,7 @@ The guide is tested like code (`tests/docs_parse.rs`,
       *obviously*, *of course*, *note that*.
 - [ ] *This* is followed by the noun it means ("this prop", not "this").
 - [ ] One term per idea, used every time (see the
-      [glossary](../md-docs/48-glossary.md)): *page*, *element*,
+      [glossary](../md-docs/49-glossary.md)): *page*, *element*,
       *component*, *prop*, *flag*, *case*, *block*, *state*, *derived
       value*, *action*, *store*, *pre-rendered page* (the *static paint*).
 - [ ] A term the reader has not met is defined, or linked, the first time.
@@ -415,5 +421,5 @@ The guide is tested like code (`tests/docs_parse.rs`,
 - [ ] Descriptive text; never *here* or *this*.
 - [ ] To the chapter that covers the idea, at its first mention in a
       section — not every mention.
-- [ ] Relative links between chapters (`17-data.md#resource`), so they
+- [ ] Relative links between chapters (`24-data.md#resource`), so they
       work on GitHub and the generator rewrites them for the site.

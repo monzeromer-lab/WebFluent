@@ -1,6 +1,6 @@
 /// Chapter 4 of the guide, written from md-docs/04-coming-from.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page ComingFromGuide(path: "/docs/guide/coming-from", title: "Coming from React, Vue or Svelte", description: "A map from React, Vue, Svelte and HTMX concepts to WebFluent: state, effects, components, props, slots, context, routing, fetching and styling.", layout: DocsShell("Coming from React, Vue or Svelte", chapter: t("guide.chapter", { n: "4" }), blurb: "What you already know, mapped to what is here — and the few places WebFluent works differently.", source: "md-docs/04-coming-from.md", sections: [Anchor(id: "the-map", label: "The map"), Anchor(id: "one-component-side-by-side", label: "One component, side by side"), Anchor(id: "what-works-differently", label: "What works differently"), Anchor(id: "things-you-might-look-for", label: "Things you might look for")], prevTo: "/docs/guide/tutorial", prevLabel: "3. {t("ch.03")}", nextTo: "/docs/guide/language-basics", nextLabel: "5. {t("ch.05")}")) {
+page ComingFromGuide(path: "/docs/guide/coming-from", title: "Coming from React, Vue or Svelte", description: "A map from React, Vue, Svelte and HTMX concepts to WebFluent: state, effects, components, props, slots, context, routing, fetching and styling.", layout: DocsShell("Coming from React, Vue or Svelte", chapter: t("nav.group.start"), blurb: "What you already know, mapped to what is here — and the few places WebFluent works differently.", source: "md-docs/04-coming-from.md", sections: [Anchor(id: "the-map", label: "The map"), Anchor(id: "one-component-side-by-side", label: "One component, side by side"), Anchor(id: "what-works-differently", label: "What works differently"), Anchor(id: "things-you-might-look-for", label: "Things you might look for")], prevTo: "/docs/guide/tutorial", prevLabel: t("ch.03"), nextTo: "/docs/tutorials/todos", nextLabel: t("ch.05"))) {
     Stack(gap: .lg) {
         Markdown("If you have built with a JavaScript framework, most of WebFluent will feel familiar: components with props, reactive state, a router, a store. This chapter maps those ideas across, then explains the places where WebFluent works differently.\n\nThe one thing to remember: WebFluent is a compiler with typed markup, not a library, so a component's body runs once and only the parts that read a changed value update.\n\nIn this chapter:\n\n- [The map](#the-map) from framework concepts to WebFluent\n- [One component, side by side](#one-component-side-by-side) in React, Vue, Svelte and WebFluent\n- [What works differently](#what-works-differently)\n- [Things you might look for](#things-you-might-look-for), such as npm packages and server rendering")
 
@@ -105,7 +105,7 @@ page ComingFromGuide(path: "/docs/guide/coming-from", title: "Coming from React,
                 Table.Row {
                     Table.Cell("TanStack Query / SWR")
                     Table.Cell { Markdown("`resource` and `api` with cache, retry, dedupe") }
-                    Table.Cell { Markdown("[Data](/docs/guide/data)") }
+                    Table.Cell { Markdown("[Fetching data](/docs/guide/data)") }
                 }
                 Table.Row {
                     Table.Cell("TypeScript")

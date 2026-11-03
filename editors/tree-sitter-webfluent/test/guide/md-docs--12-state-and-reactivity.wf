@@ -1,0 +1,114 @@
+// md-docs/12-state-and-reactivity.md
+page Counter(path: "/", title: "Counter", description: "A state, read and written.") {
+    state count = 0                  // inferred: Number
+    state name: String = "Sam"       // declared
+    state items: [String] = []       // a list of strings
+    state selected: String? = null   // may be null
+    state user = { name: "Sam", tags: ["admin"] }   // a map literal: its fields are its type
+
+    Heading("Counter").h1
+    Text("{name} has clicked {count} times")
+    Button("+1") { on click { count = count + 1 } }
+}
+
+// md-docs/12-state-and-reactivity.md
+page Cart(path: "/", title: "Cart", description: "Totals worked out from state.") {
+    state items = [{ name: "Pen", price: 2.5, qty: 4 }, { name: "Pad", price: 6, qty: 1 }]
+    state taxRate = 0.2
+    derived subtotal = items.reduce((sum, i) => sum + i.price * i.qty, 0)
+    derived total = subtotal * (1 + taxRate)
+    derived empty = items.length == 0
+
+    Heading("Your cart").h1
+    Text("Subtotal: {format(subtotal, .currency)}")
+    Text("Total: {format(total, .currency)}")
+    if empty { Text("Your cart is empty.").muted }
+}
+
+// md-docs/12-state-and-reactivity.md
+page Watch(path: "/", title: "Watch", description: "Effects that follow a search.") {
+    state search = ""
+    effect {
+        log("search is now {search}")
+    }
+    effect {
+        document.title = "Search: {search}"
+        cleanup { document.title = "Search" }
+    }
+    Heading("Watch").h1
+    Input(bind: search, placeholder: "Search")
+}
+
+// md-docs/12-state-and-reactivity.md
+page Todos(path: "/", title: "To-dos", description: "Actions that change a list.") {
+    state items: [String] = []
+    state draft = ""
+
+    action add() {
+        let text = draft.trim()
+        if text == "" { return }
+        items.push(text)
+        draft = ""
+    }
+
+    action remove(index: Number) {
+        items = items.filter((_, i) => i != index)
+    }
+
+    action load() {
+        let r = await fetch("/api/todos")
+        let { todos } = r
+        items = todos
+    }
+
+    Heading("To-dos").h1
+    Input(bind: draft, placeholder: "What needs doing?") { on keydown(e) { if e.key == "Enter" { add() } } }
+    Button("Add").primary { on click { add() } }
+    for item, i in items {
+        Row { Text(item)  IconButton(icon: "trash", label: "Remove") { on click { remove(i) } } }
+    }
+}
+
+// md-docs/12-state-and-reactivity.md
+page Prefs(path: "/", title: "Preferences", description: "Settings kept across visits.") {
+    persist scheme = "light"
+    persist perPage = 20
+    Heading("Preferences").h1
+    Select(bind: scheme, label: "Theme") {
+        Select.Option("Light", value: "light")
+        Select.Option("Dark", value: "dark")
+    }
+    Slider(bind: perPage, min: 10, max: 100, step: 10, label: "Rows per page")
+}
+
+// md-docs/12-state-and-reactivity.md
+page Clock(path: "/", title: "Clock", description: "A timer and a one-off delay.") {
+    state seconds = 0
+    state toast: String? = "Welcome"
+    every(1000) { seconds = seconds + 1 }
+    after(3000) { toast = null }
+    Heading("Clock").h1
+    Text("{seconds}s on this page")
+    if let message = toast { Alert(message).info }
+}
+
+// md-docs/12-state-and-reactivity.md
+page Search(path: "/", title: "Search", description: "A handle on an input.") {
+    state q = ""
+    Heading("Search").h1
+    Input(bind: q, ref: box, placeholder: "Search")
+    Button("Focus the box") { on click { box.focus() } }
+    Button("Clear") { on click { q = ""  box.focus() } }
+    on key("/") { box.focus() }
+}
+
+// md-docs/12-state-and-reactivity.md
+page Where(path: "/", title: "Where", description: "The browser, read as values.") {
+    Heading("Where am I?").h1
+    Text(if viewport.md { "A wide window" } else { "A narrow window" })
+    derived tab = query.tab ?? "all"
+    Text("Tab: {tab}, section: {hash}")
+    Text("Theme: {theme}")
+    if !network.online { Alert("You are offline.").warning }
+}
+

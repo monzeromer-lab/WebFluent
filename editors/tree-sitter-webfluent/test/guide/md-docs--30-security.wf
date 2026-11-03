@@ -1,0 +1,30 @@
+// md-docs/30-security.md
+type Post { title: String, body: String }
+api Backend(base: "/api") {
+    get post(slug: String) at "posts/:slug" -> Post
+}
+page PostPage(path: "/p/:slug", title: "Post", description: "One post.", slug: String) {
+    resource post = Backend.post(slug: slug)
+    match post {
+        ready(p) {
+            Heading(p.title).h1
+            Unsafe.Html(sanitize(p.body))
+        }
+        else { Skeleton }
+    }
+}
+
+// md-docs/30-security.md
+type User { id: String, name: String }
+api Backend(base: "/api/v1") {
+    credentials: .sameOrigin
+    get me() -> User
+    post signIn(body: Map) -> User
+    post signOut()
+}
+store Session {
+    state user: User? = null
+    action load() { user = await Backend.me() }
+    action out() { await Backend.signOut()  user = null  navigate("/") }
+}
+

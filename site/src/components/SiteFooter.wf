@@ -51,18 +51,18 @@ component SiteFooter {
                         Text(t("footer.guide"), class: "overline")
                         Link(t("ch.02"), to: "/docs/guide/getting-started")
                         Link(t("ch.03"), to: "/docs/guide/tutorial")
-                        Link(t("ch.29"), to: "/docs/guide/deploying")
-                        Link(t("ch.45"), to: "/docs/guide/troubleshooting")
+                        Link(t("ch.34"), to: "/docs/guide/deploying")
+                        Link(t("ch.50"), to: "/docs/guide/troubleshooting")
                     }
 
                     Stack(gap: .xs) {
                         style { gap: 2px; min-width: 140px; @md { gap: 6px } }
                         Text(t("footer.reference"), class: "overline")
                         Link(t("footer.builtins"), to: "/docs/reference")
-                        Link(t("ch.38"), to: "/docs/guide/cli")
-                        Link(t("ch.39"), to: "/docs/guide/config")
+                        Link(t("ch.41"), to: "/docs/guide/cli")
+                        Link(t("ch.42"), to: "/docs/guide/config")
                         Link(t("footer.diagnostics"), to: "/docs/guide/diagnostics")
-                        Link(t("ch.36"), to: "/docs/tutorials")
+                        Link(t("nav.tutorials"), to: "/docs/tutorials/todos")
                     }
 
                     Stack(gap: .xs) {

@@ -304,7 +304,7 @@ script changes how an element looks: one owner per class.
 **Files:** `src/codegen/js.rs` (`class:` forms), `src/codegen/builtin.rs`
 (`class_arg`, `author_classes`), `src/codegen/ssg.rs` and the static evaluator
 (the paint), `src/sema/types.rs` (the checks), `src/linter/` (the `wf-`
-warning), `src/project_js/jsdoc.rs` (function types), `md-docs/15-styling.md`.
+warning), `src/project_js/jsdoc.rs` (function types), `md-docs/19-styling.md`.
 
 ## 7. The editor
 

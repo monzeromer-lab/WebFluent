@@ -557,7 +557,7 @@ fn the_guide_parses() {
 /// with `WF_WRITE_TOKENS=1` to rewrite it after the baseline changes.
 #[test]
 fn the_design_tokens_chapter_is_the_baseline() {
-    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("md-docs/42-design-tokens.md");
+    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("md-docs/45-design-tokens.md");
     let chapter = std::fs::read_to_string(&path).unwrap();
     let tokens = webfluent::themes::tokens::default_tokens();
     let groups: &[(&str, &[&str])] = &[
@@ -618,7 +618,7 @@ fn the_design_tokens_chapter_is_the_baseline() {
     assert_eq!(
         &chapter[start..end],
         want,
-        "md-docs/42-design-tokens.md is behind the baseline; run with WF_WRITE_TOKENS=1"
+        "md-docs/45-design-tokens.md is behind the baseline; run with WF_WRITE_TOKENS=1"
     );
 }
 
@@ -656,12 +656,8 @@ fn the_sidebar_lists_every_chapter_of_the_guide() {
         .expect("DocSidebar.wf");
 
     for (num, stem) in &chapters {
-        // Every chapter is numbered in the rail, and its number is the one
-        // the file carries.
-        assert!(
-            sidebar.contains(&format!("Text(\"{num}\", class: \"num\")")),
-            "chapter {num} ({stem}) is not in the sidebar"
-        );
+        // Every chapter is in the rail, by its title: the rail shows
+        // sections rather than numbers.
         assert!(
             sidebar.contains(&format!("t(\"ch.{num}\")")),
             "chapter {num} ({stem}) has no title in the sidebar"
@@ -695,7 +691,7 @@ fn the_sidebar_lists_every_chapter_of_the_guide() {
 /// The guide's pages on the site are generated from `md-docs/` by
 /// `scripts/site-from-guide.py`, and nothing held the committed pages to what
 /// the script would write. They fell behind: the documentation audit added
-/// five rows to the design-token table in `md-docs/12-styling.md`, and the
+/// five rows to the design-token table in `md-docs/19-styling.md`, and the
 /// published Styling chapter never got them.
 ///
 /// This runs the script into a scratch directory, formatted by the binary
@@ -1019,7 +1015,7 @@ fn every_finding(src: &str) -> Vec<String> {
 #[test]
 fn every_diagnostic_example_shows_what_the_build_prints() {
     let write = std::env::var_os("WF_WRITE_DIAGNOSTICS").is_some();
-    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("md-docs/40-diagnostics.md");
+    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("md-docs/43-diagnostics.md");
     let text = std::fs::read_to_string(&path).unwrap();
     let lines: Vec<&str> = text.lines().collect();
     let mut out: Vec<String> = Vec::new();
@@ -1072,7 +1068,7 @@ fn every_diagnostic_example_shows_what_the_build_prints() {
     }
     assert!(
         stale.is_empty(),
-        "md-docs/40-diagnostics.md shows output the compiler no longer prints for {stale:?}; \
+        "md-docs/43-diagnostics.md shows output the compiler no longer prints for {stale:?}; \
          rewrite it with `WF_WRITE_DIAGNOSTICS=1 cargo test --test docs_parse every_diagnostic_example_shows`"
     );
 }
@@ -1303,9 +1299,14 @@ fn a_link_that_names_a_chapter_number_goes_to_that_chapter() {
 fn every_chapter_says_where_it_lives() {
     let groups = [
         "start",
-        "basics",
-        "building",
-        "shipping",
+        "tutorials",
+        "concepts",
+        "ui",
+        "data",
+        "content",
+        "quality",
+        "ship",
+        "outputs",
         "reference",
         "help",
     ];
@@ -1368,7 +1369,7 @@ fn the_configuration_chapter_prints_the_real_defaults() {
     }
     assert_eq!(
         printed, real,
-        "md-docs/39-configuration.md prints defaults the compiler does not have"
+        "md-docs/42-configuration.md prints defaults the compiler does not have"
     );
 }
 

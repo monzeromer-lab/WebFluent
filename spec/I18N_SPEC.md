@@ -1,6 +1,6 @@
 # WebFluent Internationalization (i18n) Specification
 
-> **Status: a design note, kept for its reasoning.** The current, tested description is the guide — [`md-docs/`](../md-docs/README.md), here 21-i18n.md. Where the two differ, the guide is right.
+> **Status: a design note, kept for its reasoning.** The current, tested description is the guide — [`md-docs/`](../md-docs/README.md), here 28-i18n.md. Where the two differ, the guide is right.
 
 > Version 1.0 — Draft
 > Author: Monzer Omer

@@ -1,0 +1,46 @@
+// md-docs/25-realtime.md
+page Chat(path: "/chat", title: "Chat", description: "Talk to the team.") {
+    state draft = ""
+    socket chat = ws("wss://example.com/chat", heartbeat: 20.seconds) {
+        on message(m) { log(m) }
+    }
+
+    Heading("Chat").h1
+    match chat {
+        connecting { Spinner.sm }
+        open       { for m in chat.messages by m.id { Text(m.text) } }
+        closed(c)  { Alert("Disconnected ({c.code})").warning }
+        error(e)   { Alert(e.message).danger }
+    }
+    Input(bind: draft, label: "Message").text
+    Button("Send").primary { on click { chat.send({ text: draft })  draft = "" } }
+}
+
+// md-docs/25-realtime.md
+type Incoming { id: String, text: String }
+type Outgoing { text: String }
+page Room(path: "/room", title: "Room", description: "A typed conversation.") {
+    state draft = ""
+    socket chat = ws("wss://example.com/chat", heartbeat: 20.seconds) {
+        send    Outgoing
+        receive Incoming
+    }
+    Heading("Room").h1
+    for m in chat.messages by m.id { Text(m.text) }
+    Input(bind: draft, label: "Message")
+    Button("Send") { on click { chat.send(Outgoing(text: draft))  draft = "" } }
+}
+
+// md-docs/25-realtime.md
+page Checkout(path: "/checkout", title: "Checkout", description: "Pay for the order.") {
+    Heading("Checkout").h1
+    Button("Pay").primary { on click { beacon("/analytics", { event: "checkout", value: 42 }) } }
+}
+
+// md-docs/25-realtime.md
+page Inbox(path: "/inbox", title: "Inbox", description: "Your messages.") {
+    Heading("Inbox").h1
+    if !network.online { Alert("You are offline — changes are queued.").warning }
+    if network.saveData { Text("Data saver is on.").muted }
+}
+

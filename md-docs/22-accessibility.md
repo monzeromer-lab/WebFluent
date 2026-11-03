@@ -2,7 +2,7 @@
 
 <!--
 route: guide/accessibility
-group: building
+group: ui
 blurb: Build pages that work with a keyboard, a screen reader or voice control: what the built-ins do, what the compiler checks, and what is still yours to do.
 description: What the built-ins do for keyboard and screen-reader users, the A01–A17 checks, what is still yours to do, and how to test it.
 -->
@@ -39,7 +39,7 @@ elements rather than rebuilding them:
   announced.
 - **Labelled fields.** `label:` is a real `<label for>`. `hint:` and the
   error are tied to the control with `aria-describedby`. An error sets
-  `aria-invalid` and is announced when it appears ([Forms](16-forms.md)).
+  `aria-invalid` and is announced when it appears ([Forms](23-forms.md)).
 - **Forms that point at the problem.** A submit that fails moves focus to
   the first field with an error and announces it.
 - **Dialogs that hold focus.** `Modal` and `Dialog` are real `<dialog>`
@@ -70,7 +70,7 @@ elements rather than rebuilding them:
 
 The compiler checks every page for the mistakes it can see in the markup,
 and reports each as a warning on every build and in the editor. Each code
-has a full entry, with a fix, in [Diagnostics](40-diagnostics.md#accessibility),
+has a full entry, with a fix, in [Diagnostics](43-diagnostics.md#accessibility),
 and `wf explain CODE` prints it in your terminal.
 
 | Code | What it checks |
@@ -185,7 +185,7 @@ its readers do:
 You can also automate part of this. `wf test`'s `click "Save"` and
 `type "…" into "Email"` find controls by the name a reader sees, the way
 assistive technology does, so a test that passes is a page someone can
-operate ([Testing](24-testing.md)).
+operate ([Testing](29-testing.md)).
 
 ## Checklist
 
@@ -203,7 +203,4 @@ operate ([Testing](24-testing.md)).
 
 ## Next
 
-- [Security](23-security.md): what the compiler guarantees about what a
-  page can run.
-- [Testing](24-testing.md): tests that find controls the way assistive
-  technology does.
+[Forms and validation](23-forms.md): bind controls to state, validate what the reader types, upload files, and show what the server said.

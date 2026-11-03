@@ -1,6 +1,6 @@
 # WebFluent 3 — Types
 
-> **Status: a design note, kept for its reasoning.** The current, tested description is the guide — [`md-docs/`](../md-docs/README.md), here 13-types.md. Where the two differ, the guide is right.
+> **Status: a design note, kept for its reasoning.** The current, tested description is the guide — [`md-docs/`](../md-docs/README.md), here 17-types.md. Where the two differ, the guide is right.
 
 > Version 3.0
 > Author: Monzer Omer

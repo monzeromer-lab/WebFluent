@@ -111,23 +111,31 @@ fn file_blocks(markdown: &str) -> Vec<(usize, String, String)> {
 }
 
 #[test]
-fn the_chapter_shows_the_projects_as_they_are() {
-    let chapter = std::fs::read_to_string(root().join("md-docs/36-tutorials.md")).unwrap();
-    let blocks = file_blocks(&chapter);
-    assert!(
-        blocks.len() >= 12,
-        "the tutorials show their files: {}",
-        blocks.len()
-    );
+fn the_chapters_show_the_projects_as_they_are() {
+    // One chapter per tutorial: `md-docs/NN-tutorial-<project>.md`.
     let mut stale = Vec::new();
-    for (line, path, body) in blocks {
-        let found = projects()
-            .iter()
-            .any(|p| std::fs::read_to_string(p.join(&path)).is_ok_and(|file| file.contains(&body)));
-        if !found {
-            stale.push(format!("36-tutorials.md:{line} — {path}"));
+    let mut shown = 0;
+    let mut chapters: Vec<_> = std::fs::read_dir(root().join("md-docs"))
+        .unwrap()
+        .flatten()
+        .map(|e| e.file_name().to_string_lossy().to_string())
+        .filter(|n| n.contains("-tutorial-") && n.ends_with(".md"))
+        .collect();
+    chapters.sort();
+    assert_eq!(chapters.len(), 3, "{chapters:?}");
+    for name in chapters {
+        let chapter = std::fs::read_to_string(root().join("md-docs").join(&name)).unwrap();
+        for (line, path, body) in file_blocks(&chapter) {
+            shown += 1;
+            let found = projects().iter().any(|p| {
+                std::fs::read_to_string(p.join(&path)).is_ok_and(|file| file.contains(&body))
+            });
+            if !found {
+                stale.push(format!("{name}:{line} — {path}"));
+            }
         }
     }
+    assert!(shown >= 12, "the tutorials show their files: {shown}");
     assert!(
         stale.is_empty(),
         "these blocks differ from the project files they name: {stale:#?}"

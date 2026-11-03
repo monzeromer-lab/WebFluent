@@ -31,31 +31,31 @@ Find the idea you know in the first column:
 
 | You know | In WebFluent | Chapter |
 |---|---|---|
-| `useState`, `ref()`, `let x` (Svelte) | `state count = 0` | [State](08-state-and-reactivity.md) |
-| `useMemo`, `computed()`, `$:` / `$derived` | `derived total = …` | [State](08-state-and-reactivity.md#derived) |
-| `useEffect`, `watchEffect`, `$effect` | `effect { … cleanup { … } }` | [State](08-state-and-reactivity.md#effect) |
-| `useRef` on an element | `Input(ref: box)`, then `box.focus()` | [State](08-state-and-reactivity.md#element-handles) |
-| a component function / SFC | `component Name(props) { … }` | [Components](11-components.md) |
-| props | typed props: `component Card(_ title: String, tone: Tone = .calm)` | [Components](11-components.md) |
-| `children`, default slot | `slot` + `children` | [Components](11-components.md#slots) |
-| named slots, render props | `slot trailing`, scoped slots `slot row(item: T)` | [Components](11-components.md#slots) |
-| callback props, `$emit`, `createEventDispatcher` | `event change(value: Number)` + `emit change(n)` | [Components](11-components.md#events) |
-| `v-model`, `bind:value` | `Input(bind: name)` | [Forms](16-forms.md) |
-| context, provide/inject, a global store | `store Cart { … }`, read as `Cart.items` | [Stores](12-stores.md) |
-| Redux / Pinia / Zustand | a `store` with `action`s; `wf serve` shows every action | [Stores](12-stores.md) |
-| React Router / Vue Router / SvelteKit routes | `page Name(path: "/users/:id")` — pages own their routes | [Pages](06-pages-and-routing.md) |
-| layouts | `page P(layout: Shell)` | [Pages](06-pages-and-routing.md#layouts) |
-| route guards | `page P(guard: Auth.loggedIn, redirect: "/login")` | [Pages](06-pages-and-routing.md#guards) |
-| `{cond && <X/>}`, `v-if`, `{#if}` | `if cond { X }` | [Control flow](10-control-flow.md) |
-| `.map()` in JSX, `v-for`, `{#each}` | `for item in items by item.id { … }` | [Control flow](10-control-flow.md#for) |
-| TanStack Query / SWR | `resource` and `api` with cache, retry, dedupe | [Data](17-data.md) |
-| TypeScript | a built-in, gradual type checker; types are optional | [Types](13-types.md) |
-| CSS modules / scoped styles | `style { }` on the element, with tokens and nesting | [Styling](15-styling.md) |
-| Tailwind utility classes | flags (`.primary.lg`), layout props, design tokens | [Styling](15-styling.md) |
+| `useState`, `ref()`, `let x` (Svelte) | `state count = 0` | [State](12-state-and-reactivity.md) |
+| `useMemo`, `computed()`, `$:` / `$derived` | `derived total = …` | [State](12-state-and-reactivity.md#derived) |
+| `useEffect`, `watchEffect`, `$effect` | `effect { … cleanup { … } }` | [State](12-state-and-reactivity.md#effect) |
+| `useRef` on an element | `Input(ref: box)`, then `box.focus()` | [State](12-state-and-reactivity.md#element-handles) |
+| a component function / SFC | `component Name(props) { … }` | [Components](15-components.md) |
+| props | typed props: `component Card(_ title: String, tone: Tone = .calm)` | [Components](15-components.md) |
+| `children`, default slot | `slot` + `children` | [Components](15-components.md#slots) |
+| named slots, render props | `slot trailing`, scoped slots `slot row(item: T)` | [Components](15-components.md#slots) |
+| callback props, `$emit`, `createEventDispatcher` | `event change(value: Number)` + `emit change(n)` | [Components](15-components.md#events) |
+| `v-model`, `bind:value` | `Input(bind: name)` | [Forms](23-forms.md) |
+| context, provide/inject, a global store | `store Cart { … }`, read as `Cart.items` | [Stores](16-stores.md) |
+| Redux / Pinia / Zustand | a `store` with `action`s; `wf serve` shows every action | [Stores](16-stores.md) |
+| React Router / Vue Router / SvelteKit routes | `page Name(path: "/users/:id")` — pages own their routes | [Pages](10-pages-and-routing.md) |
+| layouts | `page P(layout: Shell)` | [Pages](10-pages-and-routing.md#layouts) |
+| route guards | `page P(guard: Auth.loggedIn, redirect: "/login")` | [Pages](10-pages-and-routing.md#guards) |
+| `{cond && <X/>}`, `v-if`, `{#if}` | `if cond { X }` | [Control flow](14-control-flow.md) |
+| `.map()` in JSX, `v-for`, `{#each}` | `for item in items by item.id { … }` | [Control flow](14-control-flow.md#for) |
+| TanStack Query / SWR | `resource` and `api` with cache, retry, dedupe | [Fetching data](24-data.md) |
+| TypeScript | a built-in, gradual type checker; types are optional | [Types](17-types.md) |
+| CSS modules / scoped styles | `style { }` on the element, with tokens and nesting | [Styling](19-styling.md) |
+| Tailwind utility classes | flags (`.primary.lg`), layout props, design tokens | [Styling](19-styling.md) |
 | Framer Motion / transitions | `animate:`, `exit:`, `stagger:`, route transitions | [Motion](20-motion.md) |
-| react-i18next / vue-i18n | `t("key", { name: x })`, `setLocale("ar")` | [i18n](21-i18n.md) |
-| Next.js static export / Astro | `build.ssg: true` | [Static or SPA](26-static-and-spa.md) |
-| Testing Library + Playwright | `test "…" { … click "Save"  expect "Saved" }` | [Testing](24-testing.md) |
+| react-i18next / vue-i18n | `t("key", { name: x })`, `setLocale("ar")` | [i18n](28-i18n.md) |
+| Next.js static export / Astro | `build.ssg: true` | [Static or SPA](33-static-and-spa.md) |
+| Testing Library + Playwright | `test "…" { … click "Save"  expect "Saved" }` | [Testing](29-testing.md) |
 | ESLint a11y plugin | accessibility checks on every build | [Accessibility](22-accessibility.md) |
 
 ## One component, side by side
@@ -207,7 +207,7 @@ come from `wf build`, with no plugins to choose.
 
 **Safe by construction.** Text is always text. The only way to put markup
 on a page is `Unsafe.Html(…)`, which the build flags every time. Inline
-handlers and `javascript:` URLs do not compile. See [Security](23-security.md).
+handlers and `javascript:` URLs do not compile. See [Security](30-security.md).
 
 ## Things you might look for
 
@@ -215,16 +215,16 @@ handlers and `javascript:` URLs do not compile. See [Security](23-security.md).
   JavaScript library is a URL in `meta.scripts`. Your own JavaScript is a
   plain `.js` file under `src/`, and `.wf` code calls its functions by name.
   `mount:` and `cleanup:` hand any element to a script for as long as the
-  element exists. [JavaScript interop](32-javascript-interop.md) shows a
+  element exists. [JavaScript interop](39-javascript-interop.md) shows a
   chart library end to end.
 - **Server components, or rendering on every request.** WebFluent does not
   do this. A WebFluent site is static files plus a browser runtime, served
   by any host and talking to your API. For HTML generated on a server, such
   as emails, invoices and fragments, see
-  [Server rendering](35-server-rendering.md).
+  [Server rendering](38-server-rendering.md).
 - **WebFluent inside an existing React or Vue app.** Publish components as
   custom elements and place their tags:
-  [Custom elements](32-javascript-interop.md#publish-your-components-as-custom-elements).
+  [Custom elements](39-javascript-interop.md#publish-your-components-as-custom-elements).
 - **HTMX.** The closest thing to `hx-get` is a `resource` whose URL reads
   state, and the closest thing to `hx-post` is an action that `await`s an
   `api` endpoint. The page stays static HTML until its script arrives, then
@@ -232,5 +232,4 @@ handlers and `javascript:` URLs do not compile. See [Security](23-security.md).
 
 ## Next
 
-[Language basics](05-language-basics.md): the declarations, elements and
-values every WebFluent file is made of.
+[Tutorial: Todos](05-tutorial-todos.md): build a todo list kept in the reader's browser — types, a store that remembers, a component, a filter in the address and tests that click.

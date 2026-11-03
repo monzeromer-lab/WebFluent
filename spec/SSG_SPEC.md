@@ -1,6 +1,6 @@
 # WebFluent Static Site Generation (SSG) Specification
 
-> **Status: a design note, kept for its reasoning.** The current, tested description is the guide — [`md-docs/`](../md-docs/README.md), here 26-static-and-spa.md. Where the two differ, the guide is right.
+> **Status: a design note, kept for its reasoning.** The current, tested description is the guide — [`md-docs/`](../md-docs/README.md), here 33-static-and-spa.md. Where the two differ, the guide is right.
 
 > Version 1.0 — Draft
 > Author: Monzer Omer

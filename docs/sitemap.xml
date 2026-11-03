@@ -256,6 +256,18 @@
     <loc>https://webfluent.monzeromer.dev/docs/guide/coming-from</loc>
   </url>
   <url>
+    <loc>https://webfluent.monzeromer.dev/docs/tutorials/todos</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/docs/tutorials/field-notes</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/docs/tutorials/pocket</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/docs/guide/recipes</loc>
+  </url>
+  <url>
     <loc>https://webfluent.monzeromer.dev/docs/guide/language-basics</loc>
   </url>
   <url>
@@ -289,6 +301,15 @@
     <loc>https://webfluent.monzeromer.dev/docs/guide/styling</loc>
   </url>
   <url>
+    <loc>https://webfluent.monzeromer.dev/docs/guide/motion</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/docs/guide/media</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/docs/guide/accessibility</loc>
+  </url>
+  <url>
     <loc>https://webfluent.monzeromer.dev/docs/guide/forms</loc>
   </url>
   <url>
@@ -301,19 +322,19 @@
     <loc>https://webfluent.monzeromer.dev/docs/guide/offline</loc>
   </url>
   <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/motion</loc>
+    <loc>https://webfluent.monzeromer.dev/docs/guide/content</loc>
   </url>
   <url>
     <loc>https://webfluent.monzeromer.dev/docs/guide/i18n</loc>
   </url>
   <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/accessibility</loc>
+    <loc>https://webfluent.monzeromer.dev/docs/guide/testing</loc>
   </url>
   <url>
     <loc>https://webfluent.monzeromer.dev/docs/guide/security</loc>
   </url>
   <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/testing</loc>
+    <loc>https://webfluent.monzeromer.dev/docs/guide/performance</loc>
   </url>
   <url>
     <loc>https://webfluent.monzeromer.dev/docs/guide/project-structure</loc>
@@ -322,22 +343,10 @@
     <loc>https://webfluent.monzeromer.dev/docs/guide/static-and-spa</loc>
   </url>
   <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/content</loc>
-  </url>
-  <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/media</loc>
-  </url>
-  <url>
     <loc>https://webfluent.monzeromer.dev/docs/guide/deploying</loc>
   </url>
   <url>
     <loc>https://webfluent.monzeromer.dev/docs/guide/environments</loc>
-  </url>
-  <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/performance</loc>
-  </url>
-  <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/interop</loc>
   </url>
   <url>
     <loc>https://webfluent.monzeromer.dev/docs/guide/desktop</loc>
@@ -349,7 +358,7 @@
     <loc>https://webfluent.monzeromer.dev/docs/guide/server-rendering</loc>
   </url>
   <url>
-    <loc>https://webfluent.monzeromer.dev/docs/tutorials</loc>
+    <loc>https://webfluent.monzeromer.dev/docs/guide/interop</loc>
   </url>
   <url>
     <loc>https://webfluent.monzeromer.dev/docs/guide/cli</loc>
@@ -373,16 +382,16 @@
     <loc>https://webfluent.monzeromer.dev/docs/guide/grammar</loc>
   </url>
   <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/troubleshooting</loc>
-  </url>
-  <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/upgrading</loc>
-  </url>
-  <url>
     <loc>https://webfluent.monzeromer.dev/docs/guide/browser-support</loc>
   </url>
   <url>
     <loc>https://webfluent.monzeromer.dev/docs/guide/glossary</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/docs/guide/troubleshooting</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/docs/guide/upgrading</loc>
   </url>
   <url>
     <loc>https://webfluent.monzeromer.dev/docs/guide/contributing</loc>

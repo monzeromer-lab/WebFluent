@@ -6,7 +6,7 @@ server, no account — the ledger is `persist`ed, opens on a sample of five
 months of a plausible life, and stays in step across every open tab.
 
 It is the finished project of the third tutorial in the guide's
-[Tutorials chapter](../../../md-docs/36-tutorials.md#hard-pocket), which
+[Tutorials chapter](../../../md-docs/07-tutorial-pocket.md), which
 builds it step by step.
 
 What it teaches:
@@ -57,4 +57,4 @@ Saving the CSV is three lines of DOM work — make a `Blob`, point a link at
 it, click the link — which reads best as plain JavaScript. `src/files.js`
 declares `saveTextFile(name, text)` with a JSDoc comment, so the `.wf` that
 calls it is checked like any other call ([JavaScript
-interop](../../../md-docs/32-javascript-interop.md)).
+interop](../../../md-docs/39-javascript-interop.md)).

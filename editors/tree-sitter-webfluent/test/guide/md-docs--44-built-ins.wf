@@ -1,0 +1,189 @@
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    after(3.seconds) { banner = null }
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    Text("Posted {ago(post.published)}").muted
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    Card(ref: panel) { on mouseenter { animate(panel, "pulse", "400ms") } }
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    beacon("/analytics", { event: "checkout", value: total })
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    channel cart = broadcast("cart") { on message(m) { Cart.merge(m) } }
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    every(1.seconds) { elapsed = elapsed + 1 }
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    action doc() {
+        let rows = await fetch("/api/rows?page={page}", { method: "GET" })
+    }
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    Text(format(price, .currency, "EUR"))
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    Input(bind: draft, label: "Note") { on keydown(e) { if keyIs(e, "mod+s") { save() } } }
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    Text("Search: {keyLabel("mod+k")}").muted
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    log("saved {items.length} items")
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    Button("Open") { on click { navigate("/orders/{order.id}") } }
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    optimistic(Todos.items, items => items.filter(i => i.id != id))
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    Card.outlined.fadeIn { on mouseenter(e) { replayAnimation(e.currentTarget, "fadeIn") } }
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    peer link = rtc(signal: m => lobby.post(m), initiator: query.host == "1") { on message(m) { heard = m.text } }
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    Unsafe.Html(sanitize(post.body))
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    Button("العربية") { on click { setLocale("ar") } }
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    Button("Dark") { on click { setTheme("dark") } }
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    worker css = spawn("/workers/css.js", restart: 1) { on message(m) { problems = m.items } }
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    stream ticks = sse("/events", events: ["price", "status"])
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    Text(t("cart.items", { count: Cart.count }))
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    action doc() {
+        items = items.concat([Todo(id: uuid(), title: draft)])
+    }
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    socket chat = ws("wss://example.com/chat", heartbeat: 20.seconds) { on message(m) { Feed.add(m) } }
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    if viewport.md { Sidebar { Sidebar.Item(to: "/", icon: "home") { Text("Home") } } }
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    Text("Showing {query.tab ?? "all"}")
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    if hash == "pricing" { Text("You followed a link to pricing.") }
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    Button("Light", outlined: theme != "light") { on click { setTheme("light") } }
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    Text("It is {now(every: 1.seconds).time()}")
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    if !network.online { Alert("You are offline — changes are queued.").warning }
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    if update.available { Button("Reload for the new version") { on click { update.apply() } } }
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    Text("Reading in {locale}, {dir}")
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    Text("Order {params.id}")
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    derived preview = post.body.dedent().lines().first() ?? ""
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    derived leaders = players.sortBy(p => -p.score).take(3)
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    derived share = (part / whole * 100).toFixed(1)
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    derived checkout = arrival.plus(days: nights)
+}
+
+// md-docs/44-built-ins.md
+page Doc(path: "/") {
+    localStorage.setItem("last-seen", now.date())
+}
+

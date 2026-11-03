@@ -1,0 +1,100 @@
+// md-docs/11-elements.md
+page Editor(path: "/", title: "Editor", description: "A save button, fully dressed.") {
+    Heading("Editor").h1
+    Button("Save", disabled: false).primary.lg {
+        style { min-width: 120px }
+        transition { background: 150ms ease-out }
+        on click { log("saved") }
+        Icon("check")
+    }
+}
+
+// md-docs/11-elements.md
+page Toolbar(path: "/", title: "Toolbar", description: "Two labels, spaced apart.") {
+    Heading("Toolbar").h1
+    Row(gap: .md, align: .center, justify: .between) {
+        Text("Drafts")
+        Text("3 unsent")
+    }
+}
+
+// md-docs/11-elements.md
+page Search(path: "/", title: "Search", description: "A search box and two buttons.") {
+    state term = ""
+    Heading("Search").h1
+    Button("Delete").danger                                // tone: .danger
+    Button("Continue").full.outlined                       // width: .full, outlined: true
+    Input(bind: term, label: "Search").search.required     // type: .search, required: true
+}
+
+// md-docs/11-elements.md
+page Signup(path: "/", title: "Sign up", description: "A name field and a menu button.") {
+    state name = ""
+    Heading("Sign up").h1
+    Button("More", aria-expanded: "false", aria-controls: "panel", data-track: "more")
+    Input(bind: name, label: "Name", id: "name", autocomplete: "name", maxlength: 40)
+}
+
+// md-docs/11-elements.md
+page References(path: "/", title: "References", description: "A list box of references.") {
+    state refs = [{ id: "a" }, { id: "b" }, { id: "c" }]
+    state current = 0
+    Heading("References").h1
+    VirtualList(rowHeight: 24, label: "References", role: "listbox", tabindex: "0", aria-activedescendant: "ref-{current}") {
+        style { height: 240px }
+        on keydown(e) { if e.key == "ArrowDown" { current = current + 1 } }
+        for r in refs by r.id { Text(r.id, id: "ref-{r.id}", role: "option") }
+    }
+}
+
+// md-docs/11-elements.md
+page Regions(path: "/", title: "Regions", description: "A card, a table, a select and tabs.") {
+    state region = "fra1"
+    Heading("Regions").h1
+    Card.elevated {
+        Card.Header { Heading("Frankfurt").h2 }
+        Card.Body { Text("Our main region.") }
+        Card.Footer { Button("Open").primary }
+    }
+    Table(caption: "Regions") {
+        Table.Head { Table.Row { Table.Cell("Region").header  Table.Cell("Latency").header } }
+        Table.Body { Table.Row { Table.Cell("fra1")  Table.Cell("34 ms") } }
+    }
+    Select(bind: region, label: "Region") {
+        Select.Option("Frankfurt", value: "fra1")
+        Select.Option("Iowa", value: "iad1")
+    }
+    Tabs {
+        Tabs.Page("Summary") { Text("Two regions.") }
+        Tabs.Page("Details") { Text("fra1 and iad1.") }
+    }
+}
+
+// md-docs/11-elements.md
+page Article(path: "/", title: "Article", description: "Every kind of text.") {
+    state count = 3
+    Heading("Release notes").h1                // a real <h1>; .h2 is the default
+    Text("{count} changes").bold.muted         // a run of text
+    Paragraph("Prose, as a <p>.")
+    Code("let x = 1").block
+    Blockquote("A quotation.")
+    Markdown("**Bold** and a [link](/docs)")   // see Content
+}
+
+// md-docs/11-elements.md
+page Dashboard(path: "/", title: "Dashboard", description: "Every layout element at once.") {
+    Header { Heading("Dashboard").h1 }
+    Container {                                  // centred, with a max width
+        Row(gap: .md, align: .center) {          // horizontal flex
+            Column(span: 8) { Text("main") }     // a child of a 12-column grid
+            Column(span: 4) { Text("aside") }
+        }
+        Grid(columns: 3, gap: .lg) { Card { Text("a") }  Card { Text("b") }  Card { Text("c") } }
+        Stack(gap: .sm) { Text("one")  Text("two") }   // vertical flex
+        Spacer.lg
+        Divider
+    }
+    Section { Text("another region") }
+    Footer { Text("the last region") }
+}
+

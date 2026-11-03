@@ -2,7 +2,7 @@
 /// to learn, to get a job done, to look something up, or to fix something —
 /// and this page sends each to the chapters written for it, after a quick
 /// start that has a site running in a few minutes.
-page DocsHome(path: "/docs", title: "Documentation", description: "Learn WebFluent, build with it, look up every element, command and setting, and fix what went wrong — start here.", layout: DocsShell("Documentation", blurb: "Everything you need to build websites, PDFs and slide decks with WebFluent — organised by what you are here to do.", sections: [Anchor(id: "quick-start", label: "Quick start"), Anchor(id: "find-your-way", label: "Find your way"), Anchor(id: "how-these-docs-work", label: "How these docs work")], nextTo: "/docs/guide/introduction", nextLabel: "1. {t("ch.01")}")) {
+page DocsHome(path: "/docs", title: "Documentation", description: "Learn WebFluent, build with it, look up every element, command and setting, and fix what went wrong — start here.", layout: DocsShell("Documentation", blurb: "Everything you need to build websites, PDFs and slide decks with WebFluent — organised by what you are here to do.", sections: [Anchor(id: "quick-start", label: "Quick start"), Anchor(id: "find-your-way", label: "Find your way"), Anchor(id: "how-these-docs-work", label: "How these docs work")], nextTo: "/docs/guide/introduction", nextLabel: t("ch.01"))) {
     Stack(gap: .lg) {
         Heading("Quick start", id: "quick-start").h2
 
@@ -25,8 +25,10 @@ page DocsHome(path: "/docs", title: "Documentation", description: "Learn WebFlue
             DocPath("Learn", overline: "Tutorials", body: "Lessons that take you from nothing to a working, deployed site. Follow the steps in order; each one ends with something you can see.", links: [
                 DocLink(label: "Getting started", to: "/docs/guide/getting-started"),
                 DocLink(label: "Tutorial: a reading list, start to finish", to: "/docs/guide/tutorial"),
-                DocLink(label: "Three more projects, easy to hard", to: "/docs/tutorials"),
-                DocLink(label: "Coming from React, Vue or Svelte", to: "/docs/guide/coming-from")
+                DocLink(label: "Todos: a first app, 20 minutes", to: "/docs/tutorials/todos"),
+                DocLink(label: "Field Notes: a static site", to: "/docs/tutorials/field-notes"),
+                DocLink(label: "Pocket: a full application", to: "/docs/tutorials/pocket"),
+                DocLink(label: "Recipes for common jobs", to: "/docs/guide/recipes")
             ])
             DocPath("Understand", overline: "Concepts", body: "How the language works and why: pages, elements, state, components, stores and types. Read these in order once; come back when something surprises you.", links: [
                 DocLink(label: "Language basics", to: "/docs/guide/language-basics"),
@@ -39,6 +41,7 @@ page DocsHome(path: "/docs", title: "Documentation", description: "Learn WebFlue
                 DocLink(label: "Data from an API", to: "/docs/guide/data"),
                 DocLink(label: "Styling and themes", to: "/docs/guide/styling"),
                 DocLink(label: "Testing", to: "/docs/guide/testing"),
+                DocLink(label: "Translation and right-to-left", to: "/docs/guide/i18n"),
                 DocLink(label: "Deploying", to: "/docs/guide/deploying"),
                 DocLink(label: "PDF documents and slide decks", to: "/docs/guide/pdf-and-slides")
             ])
