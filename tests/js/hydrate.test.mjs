@@ -1206,6 +1206,29 @@ test("t() picks a plural form by count under the locale's rules", () => {
   assert.equal(i18n.t("items", { count: 11 }), "11 عنصرًا", "many");
 });
 
+test("a locale that names its digits reads its language's table and writes its counts in them", () => {
+  const { WF } = loadRuntime();
+  const i18n = WF.locales("en", {
+    en: { "{files} files.one": "{files} file", "{files} files.other": "{files} files", "Ln {line}": "Ln {line}" },
+    ar: { "{files} files.few": "{files} ملفات", "{files} files.many": "{files} ملفًا", "{files} files.other": "{files} ملف", "Ln {line}": "سطر {line}" },
+  });
+  i18n.setLocale("ar-u-nu-arab");
+  assert.equal(i18n.t("{files} files", { files: 11 }), "١١ ملفًا");
+  assert.equal(i18n.t("{files} files", { files: 1000 }), "١٠٠٠ ملف");
+  // A line number is not a count: it stays as it is.
+  assert.equal(i18n.t("Ln {line}", { line: 12 }), "سطر 12");
+  assert.equal(i18n.dir(), "rtl");
+  i18n.setLocale("ar-u-nu-latn");
+  assert.equal(i18n.t("{files} files", { files: 11 }), "11 ملفًا");
+  i18n.setLocale("ar");
+  assert.equal(i18n.t("{files} files", { files: 3 }), "3 ملفات", "a bare locale's counts are written as given");
+  // `format` and `ago` speak the whole tag: its digits too.
+  i18n.setLocale("ar-u-nu-arab");
+  assert.equal(WF.format(1234, "integer"), "١٬٢٣٤");
+  i18n.setLocale("ar-u-nu-latn");
+  assert.equal(WF.format(1234, "integer"), "1,234");
+});
+
 test("literal text with a number picks its plural form by that number", () => {
   // Under `i18n.literals` the key is the words as written and the number is
   // named after its expression: `{files} files`.

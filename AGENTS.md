@@ -2601,6 +2601,8 @@ literals a text is keyed by the names it splices (`{item?.name ?? ""}` is
 `{name}`); a `derived`, `state` or action-written value is looked up only
 when its name says it is words (`countText`, `emptyLabel`, `saidNote`);
 I05 warns of shown words that are neither. `format` and `ago` speak the locale too.
+`setLocale("ar-u-nu-arab")` (or `-u-nu-latn`) reads the `ar` table and
+names the digits `format`, `ago` and counts are written in.
 `wf translations` is the table: what each locale lacks, what nothing names.
 
 RTL locales (automatic `dir="rtl"`, from the first paint when the default

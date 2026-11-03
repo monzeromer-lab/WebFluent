@@ -366,8 +366,12 @@ pub fn translations(
                 return;
             };
             match (name.as_str(), args.first()) {
+                // `ar-u-nu-arab` is `ar`, with its digits named.
                 ("setLocale", Some(Expr::StringLiteral(locale)))
-                    if !config.locales.contains(locale) =>
+                    if !config
+                        .locales
+                        .iter()
+                        .any(|l| l == locale.split("-u-").next().unwrap_or(locale)) =>
                 {
                     let near = crate::diagnostics::fixes::nearest(
                         locale,
