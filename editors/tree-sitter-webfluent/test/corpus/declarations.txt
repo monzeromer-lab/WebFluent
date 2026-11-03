@@ -605,3 +605,32 @@ page Post(path: "/p/:slug", slug: String, paths: posts.map(p => p.slug)) {
         (builtin_component)
         (argument_list
           (identifier))))))
+
+================================================================================
+A name in Arabic, with the marks of its letters
+================================================================================
+
+page Home(path: "/") {
+    state عددٌ = 3
+    Text(عددٌ)
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (page_declaration
+    (component_identifier)
+    (page_attributes
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (state_declaration
+        (identifier)
+        (number))
+      (element
+        (builtin_component)
+        (argument_list
+          (identifier))))))

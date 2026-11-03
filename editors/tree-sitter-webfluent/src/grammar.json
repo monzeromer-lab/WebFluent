@@ -7139,7 +7139,7 @@
     },
     "identifier": {
       "type": "PATTERN",
-      "value": "[a-z_][a-zA-Z0-9_]*"
+      "value": "[a-z_\\p{Lo}][a-zA-Z0-9_\\p{Lo}\\p{Lm}\\p{Mn}\\p{Mc}\\p{Nd}]*"
     },
     "component_identifier": {
       "type": "PATTERN",

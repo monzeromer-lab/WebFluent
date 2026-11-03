@@ -1276,7 +1276,8 @@ module.exports = grammar({
 
     // ─── Names ──────────────────────────────────────────────────────────
 
-    identifier: (_) => /[a-z_][a-zA-Z0-9_]*/,
+    // A name in any script, as the compiler reads one (UAX #31): عددٌ.
+    identifier: (_) => /[a-z_\p{Lo}][a-zA-Z0-9_\p{Lo}\p{Lm}\p{Mn}\p{Mc}\p{Nd}]*/,
 
     component_identifier: (_) => /[A-Z][a-zA-Z0-9_]*/,
 
