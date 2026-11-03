@@ -35,6 +35,8 @@ pub const TEXT_PROPS: &[&str] = &[
     "trigger",
     "emptyText",
     "why",
+    // A list of words, one for each of a control's options.
+    "labels",
 ];
 
 /// The endings of a `derived` (or `state`) name that say it is words a
@@ -55,7 +57,7 @@ pub fn text_name(name: &str) -> bool {
 /// key, a source.
 pub const NOT_WORDS: &[&str] = &[
     "Icon", "Code", "Kbd", "Image", "Picture", "Video", "Audio", "Svg", "Script", "Style",
-    "Children", "Element", "Host", "Markdown", "Embed", "Iframe",
+    "Children", "Element", "Host", "Embed", "Iframe",
 ];
 
 /// The name a placeholder is given for a spliced path: its last part.
@@ -164,6 +166,12 @@ fn each_shown(e: &mut Expr, f: &mut dyn FnMut(&mut Expr)) {
             }
         }
         Expr::BinaryOp(_, crate::parser::ast::BinOp::NullCoalesce, right) => each_shown(right, f),
+        // `labels: ["Light", "Dark"]`: each a string a reader sees.
+        Expr::ListLiteral(items) => {
+            for item in items {
+                each_shown(item, f);
+            }
+        }
         other => f(other),
     }
 }
@@ -578,6 +586,28 @@ mod tests {
                 (9, Untranslated::Splices("n + 1".into())),
             ]
         );
+    }
+
+    #[test]
+    fn a_list_of_labels_is_a_list_of_words() {
+        let mut p = page(
+            "page P(path: \"/\") {\n    Segmented(chosen: \"a\", options: [\"a\", \"b\"], labels: [\"Light\", \"Dark\"])\n}\n",
+        );
+        translate(&mut p);
+        let out = printed(&p);
+        assert!(
+            out.contains("t(\"Light\")") && out.contains("t(\"Dark\")"),
+            "{out}"
+        );
+        assert!(!out.contains("t(\"a\")"), "options are values: {out}");
+    }
+
+    #[test]
+    fn markdown_written_in_place_is_words_too() {
+        let mut p = page("page P(path: \"/\") {\n    Markdown(\"Read **this** first.\")\n}\n");
+        translate(&mut p);
+        let out = printed(&p);
+        assert!(out.contains("t(\"Read **this** first.\")"), "{out}");
     }
 
     #[test]

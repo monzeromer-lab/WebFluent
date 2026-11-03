@@ -140,7 +140,7 @@ page Home(path: "/") {
 
         Heading("Translating a Markdown page or a .md page", id: "translating-a-markdown-page-or-a-md-page").h2
 
-        Markdown("Text inside a `.md` page is not passed through `t`; keep one Markdown file per locale and route by a `:locale` parameter, or keep the long-form text in the translation file under a key and render `Markdown(t(\"about.body\"))`.")
+        Markdown("A `labels:` list is a list of words, one translated for each option of a control whose options are values: `Segmented(options: [\"2\", \"4\"], labels: [\"2 spaces\", \"4 spaces\"])`.\n\nUnder `\"literals\": true`, `Markdown(\"…\")` written in place is words like any other text: its whole source, `**` and all, is the key. Text inside a `.md` page is not passed through `t`; keep one Markdown file per locale and route by a `:locale` parameter, or keep the long-form text in the translation file under a key and render `Markdown(t(\"about.body\"))`.")
 
         Heading("Checklist", id: "checklist").h2
 

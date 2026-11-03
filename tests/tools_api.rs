@@ -481,3 +481,40 @@ fn an_expect_reads_a_page_still_moving_again_until_it_holds() {
         "{took:?}"
     );
 }
+
+#[test]
+fn a_project_translated_by_its_own_words_is_tested_through_its_default_table() {
+    let dir = scratch("literal-forms");
+    std::fs::write(
+        dir.join("webfluent.app.json"),
+        r#"{ "name": "scratch", "build": { "output": "build" }, "i18n": { "default_locale": "en", "locales": ["en", "ar"], "dir": "src/translations", "literals": true } }"#,
+    )
+    .unwrap();
+    std::fs::create_dir_all(dir.join("src/translations")).unwrap();
+    std::fs::write(
+        dir.join("src/translations/en.json"),
+        r#"{ "{files} files.one": "{files} file", "{files} files.other": "{files} files" }"#,
+    )
+    .unwrap();
+    std::fs::write(
+        dir.join("src/translations/ar.json"),
+        r#"{ "{files} files.one": "ملف واحد", "{files} files.other": "{files} ملف" }"#,
+    )
+    .unwrap();
+    std::fs::write(
+        dir.join("src/App.wf"),
+        "component Count(files: Number) {\n    Text(\"{files} files\")\n}\n",
+    )
+    .unwrap();
+    std::fs::write(
+        dir.join("tests/count.wf"),
+        "test \"one file\" {\n    Count(files: 1)\n    expect \"1 file\"\n    expect not \"1 files\"\n}\n",
+    )
+    .unwrap();
+    let tests = testing::collect(&dir).unwrap();
+    let (file, one) = &tests.tests[0];
+    match tests.run_rendered(file, one, true) {
+        Outcome::Passed | Outcome::Written => {}
+        other => panic!("{other:?}"),
+    }
+}

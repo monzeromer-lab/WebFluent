@@ -322,6 +322,7 @@ impl Tests {
     pub fn run_rendered(&self, file: &str, test: &TestDecl, update: bool) -> Outcome {
         let messages = self.messages();
         let locale = self.locale();
+        let literals = self.i18n.as_ref().is_some_and(|(i, _)| i.literals);
         match run_one(
             &self.declarations_in(Some(file)),
             test,
@@ -330,6 +331,7 @@ impl Tests {
             update,
             &messages,
             &locale,
+            literals,
         ) {
             Ok(written) if written => Outcome::Written,
             Ok(_) => Outcome::Passed,
@@ -426,6 +428,7 @@ pub fn render_test(
     test: &TestDecl,
     messages: &HashMap<String, String>,
     locale: &str,
+    literals: bool,
 ) -> Result<String> {
     let mut declarations = shared.to_vec();
     declarations.push(Declaration::Page(PageDecl {
@@ -450,7 +453,12 @@ pub fn render_test(
         header_span: test.span,
         body_span: test.span,
     }));
-    let program = crate::sema::lower(Program { declarations });
+    let mut program = crate::sema::lower(Program { declarations });
+    // Translated by its own words, as the build translates the page: the
+    // default locale's table, its plural forms too, are what a test sees.
+    if literals {
+        crate::i18n::literals::translate(&mut program);
+    }
     // The data: the test's own, and the body's initial state on top.
     let mut data = match &test.data {
         Some(expr) => {
@@ -701,8 +709,10 @@ fn run_one(
     update: bool,
     messages: &HashMap<String, String>,
     locale: &str,
+    literals: bool,
 ) -> std::result::Result<bool, Vec<String>> {
-    let html = render_test(shared, test, messages, locale).map_err(|e| vec![e.to_string()])?;
+    let html =
+        render_test(shared, test, messages, locale, literals).map_err(|e| vec![e.to_string()])?;
     let mut reasons = Vec::new();
     let empty = crate::codegen::static_eval::Scope::of([]);
     // What a reader sees: the text, not the markup — `expect "wf-text"` is
@@ -835,7 +845,10 @@ pub fn act(
     // compiled here rather than written back out as source: there is no
     // printer from the tree to the text, and a test does not need one — the
     // compiler takes the tree.
-    let program = crate::sema::lower(as_program(shared, test));
+    let mut program = crate::sema::lower(as_program(shared, test));
+    if site.i18n.is_some_and(|(i, _)| i.literals) {
+        crate::i18n::literals::translate(&mut program);
+    }
     write_site(&program, &dir, site)?;
     let outcome = match browser.open(&dir, 600) {
         Ok(mut page) => play(page.as_mut(), test),
