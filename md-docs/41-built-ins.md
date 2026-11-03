@@ -48,8 +48,9 @@ The functions, in alphabetical order:
 | `uuid()` | A fresh `Uuid` |
 | `ws(url)` | Opens a WebSocket |
 
-Every name in this list belongs to the language: a `state`, prop,
-parameter, loop item or `const` with one of these names is an `E118`.
+Every name in this list but `spawn` belongs to the language: a `state`,
+prop, parameter, loop item or `const` with one of these names is an
+`E118`. `spawn` means something only after `worker name =`.
 
 ### `after`
 
@@ -141,7 +142,7 @@ Signature: `channel name = broadcast(channelName) { on message(m) { … } }`
 Returns a channel handle with `.post(value)`, `.messages`, `.last(kind)`,
 `.state` and `.close()`. Where: only after `channel name =`, in a page, a
 component or a store. The channel closes when its scope leaves. See
-[Talk to the site's other tabs](18-realtime.md#talk-to-the-sites-other-tabs).
+[Talk to the site's other tabs](18-realtime.md#talk-to-the-site-s-other-tabs).
 
 ```wf
 channel cart = broadcast("cart") { on message(m) { Cart.merge(m) } }
@@ -181,7 +182,7 @@ Returns the parsed JSON body, and throws when the response fails. Where:
 `await fetch(…)` in an action or a handler, or `resource name = fetch(…)`,
 which adds `on:` and the other options of a resource. `window.fetch` is the
 browser's own, untouched. See
-[`await fetch` in an action](17-data.md#await-fetch-in-an-action).
+[Fetch on demand with `await fetch`](17-data.md#fetch-on-demand-with-await-fetch).
 
 ```wf
 let rows = await fetch("/api/rows?page={page}", { method: "GET" })
@@ -297,7 +298,7 @@ Signature: `optimistic(holder, change)`
 | `change` | a lambda from the old value to the new one | The change to show |
 
 Returns a handle with `rollback()`. Where: actions. See
-[Showing a change before the server agrees](17-data.md#showing-a-change-before-the-server-agrees).
+[Show a change before the server agrees](17-data.md#show-a-change-before-the-server-agrees).
 
 ```wf
 optimistic(Todos.items, items => items.filter(i => i.id != id))
@@ -456,7 +457,7 @@ Signature: `t(key)`, `t(key, values)` → `String`
 
 Returns the message. A literal key no locale has is an `I01`; a value the
 message does not use, or a placeholder the call does not pass, is an
-`I02`. Where: anywhere. See [`t("key")`](21-i18n.md#tkey).
+`I02`. Where: anywhere. See [`t("key")`](21-i18n.md#t-key).
 
 ```wf
 Text(t("cart.items", { count: Cart.count }))

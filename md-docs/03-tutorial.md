@@ -114,7 +114,7 @@ data books: [Book] = "books.json"
 `book.titel` is an error where you write it. `data books` reads the file **at
 build time** and makes it a constant every page can read, so nothing is
 fetched when the page loads. ([Types](13-types.md),
-[Data](17-data.md#data-a-file-at-build-time).)
+[Data](17-data.md#read-a-file-at-build-time-with-data).)
 
 **Check it:** run `wf check`. It prints `No problems in shelf.`
 
@@ -754,7 +754,7 @@ Shelf is a whole site, and each part of it uses one idea of the language:
 
 | You wrote | The idea | Read more |
 |---|---|---|
-| `type Book` and `data books` | Typed data read at build time | [Types](13-types.md), [Data](17-data.md#data-a-file-at-build-time) |
+| `type Book` and `data books` | Typed data read at build time | [Types](13-types.md), [Data](17-data.md#read-a-file-at-build-time-with-data) |
 | `store Shelf` with `persist` | Shared state kept across visits | [Stores](12-stores.md) |
 | `component BookCard` | A reusable component with a positional prop | [Components](11-components.md) |
 | `state`, `derived`, `bind:` and `for … by` on the home page | Reactivity and keyed lists | [State and reactivity](08-state-and-reactivity.md), [Control flow](10-control-flow.md) |

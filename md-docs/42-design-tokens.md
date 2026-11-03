@@ -4,28 +4,79 @@
 route: guide/tokens
 group: reference
 blurb: Every token of the baseline theme, with its value: the colours, type, spacing, radii, shadows, motion and breakpoints every built-in is drawn with.
-description: Every baseline design token with its default value, how a theme overrides them, and how styles and stylesheets read them.
+description: Every baseline design token with its default value, how a theme overrides one, and how a style block or a stylesheet reads it, by full or short name.
 -->
 
-A design token is a named value — a colour, a size, a duration — that every
-built-in is drawn with. A `theme` changes the ones it names and keeps the
-rest; each becomes a CSS custom property on `:root`.
+This chapter lists every design token of the baseline theme with its value,
+and how a style reads one. A *design token* is a named value — a colour, a
+size, a duration — that every built-in is drawn with. Change a token and
+every element drawn with it changes.
+
+A `theme` declaration changes the tokens it names and keeps the baseline
+value of every other one. A theme may also add tokens of its own. Each
+token becomes a CSS custom property on `:root`:
 
 ```wf
 theme Brand {
     color-primary: #0F766E
     radius-md: 14px
     screen-md: 900px
+    surface-raised: #F1F5F9
 }
 ```
 
-Read one in a `style { }` block as `$name` — `background: $color-surface`,
-or the short form the property's group resolves, `padding: $lg` for
-`spacing-lg` — and in a stylesheet as `var(--color-surface)`. A theme may add
-tokens of its own (`surface-raised: #131519`) and read them the same way. The
-build writes only the tokens something in the output names.
+The build writes to `:root` only the tokens something in the output names,
+and the tokens those name in turn.
+
+## Reading a token
+
+A token has two spellings, one for each place a style is written:
+
+| Where | Syntax | Example |
+|---|---|---|
+| A `style { }` block | `$name` | `background: $color-surface` |
+| A `style { }` block, short form | `$suffix`, resolved by the property's group ([below](#short-names)) | `padding: $lg` is `spacing-lg` |
+| A `.css` file under `src/` | `var(--name)` | `color: var(--color-text-muted)` |
+
+This page reads the tokens of the theme above — one the theme adds, one it
+changes, one it keeps, and a breakpoint it moves:
+
+```wf
+theme Brand {
+    color-primary: #0F766E
+    radius-md: 14px
+    screen-md: 900px
+    surface-raised: #F1F5F9
+}
+
+page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices for every team.") {
+    Heading("Pricing").h1
+    Card {
+        style {
+            background: $surface-raised
+            padding: $lg
+            border-radius: $md
+            border: 1px solid $border
+            @md { padding: $xl }
+        }
+        Text("Team plan").bold
+    }
+}
+```
+
+The card's background is `#F1F5F9`, its radius `14px` and its border the
+baseline `color-border`. Its padding grows to `spacing-xl` from `900px`
+wide, because `@md` reads `screen-md`.
+
+A `$token` the resolved theme does not declare draws the `V06` warning,
+since the property would fall back to nothing. `wf theme` lists every token
+the build uses, where each is read, and the contrast of the colour pairs
+([Command line](38-cli.md#wf-theme)).
 
 ## The baseline
+
+The tables below are written from the compiler's baseline theme, and the
+test suite checks them against it.
 
 <!-- tokens -->
 
@@ -161,21 +212,27 @@ build writes only the tokens something in the output names.
 
 ## Short names
 
-In a style block, a short name is resolved by the property it is given to:
+In a `style { }` block, a short name is resolved through the group of the
+property it is given to: `$lg` on `padding` is `spacing-lg`, and on
+`border-radius` it is `radius-lg`.
 
-| Property | Group | So `$…` means |
-|---|---|---|
-| `padding`, `margin` and their sides, `gap`, `row-gap`, `column-gap`, `width`, `height`, `min-`/`max-` sizes, `top`/`right`/`bottom`/`left`, `inset` | spacing | `$lg` is `spacing-lg` (`xs` … `3xl`) |
-| `color`, `background`, `background-color`, `border-color`, `fill`, `stroke` | colour | `$primary` is `color-primary` (`primary`, `secondary`, `success`, `danger`, `warning`, `info`, `background`, `surface`, `text`, `border`) |
-| `font-size` | font size | `$xl` is `font-size-xl` (`xs`, `sm`, `base`, `lg`, `xl`, `2xl`, `3xl`) |
-| `line-height` | line height | `$tight` is `line-height-tight` |
-| `border-radius` | radius | `$lg` is `radius-lg` |
-| `box-shadow` | shadow | `$md` is `shadow-md` |
-| `transition` | transition | `$fast` is `transition-fast` |
+| Property | Group | Short names | Example |
+|---|---|---|---|
+| `padding`, `margin` and every `padding-*` and `margin-*` property (physical and logical), `gap`, `row-gap`, `column-gap`, `width`, `height`, `min-width`, `max-width`, `min-height`, `max-height`, `top`, `right`, `bottom`, `left`, `inset` and `inset-*` | spacing | `xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl` | `$lg` is `spacing-lg` |
+| `color`, `background`, `background-color`, `border-color`, `fill`, `stroke`, `outline`, `outline-color`, `text-decoration-color`, `caret-color`, `accent-color`, and the `border` shorthands (`border`, `border-top` … `border-inline-end`) | colour | `primary`, `secondary`, `success`, `danger`, `warning`, `info`, `background`, `surface`, `text`, `text-muted`, `border` | `$primary` is `color-primary` |
+| `font-size` | font size | `xs`, `sm`, `base`, `lg`, `xl`, `2xl`, `3xl` | `$xl` is `font-size-xl` |
+| `line-height` | line height | `tight`, `normal`, `loose` | `$tight` is `line-height-tight` |
+| `border-radius` | radius | `none`, `sm`, `md`, `lg`, `xl`, `full` | `$lg` is `radius-lg` |
+| `box-shadow` | shadow | `none`, `sm`, `md`, `lg`, `xl` | `$md` is `shadow-md` |
+| `transition` | transition | `fast`, `normal`, `slow` | `$fast` is `transition-fast` |
 
-A full name — `$color-text-muted`, `$spacing-lg`, a token of your own —
-works in any property.
+A short name your theme declares as a token of its own means that token,
+not the group's: with `md: 20px` in the theme, `$md` is `md` everywhere.
+
+A full name — `$color-text-muted`, `$spacing-lg`, a token of your own — works
+in any property.
 
 ## Next
 
-[Runtime API](43-runtime-api.md).
+[Runtime API](43-runtime-api.md) — `window.WF`, the runtime every compiled
+page calls.

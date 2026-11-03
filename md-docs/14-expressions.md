@@ -475,11 +475,11 @@ has an entry for each.
 | `keyIs(e, "mod+s")`, `keyLabel("mod+s")` | Tests a key event against a shortcut, and writes a shortcut for this system |
 | `every(ms) { }`, `after(ms) { }` | Timers ([State and reactivity](08-state-and-reactivity.md#timers)) |
 | `animate(el, name, ms)`, `replayAnimation(el, name)` | Plays an animation by hand ([Motion](20-motion.md#driving-one-yourself)) |
-| `optimistic(holder, change)` | Shows a change before the server agrees ([Data](17-data.md#showing-a-change-before-the-server-agrees)) |
+| `optimistic(holder, change)` | Shows a change before the server agrees ([Data](17-data.md#show-a-change-before-the-server-agrees)) |
 | `beacon(url, data)` | Sends data in a way that outlives the page ([Real-time](18-realtime.md)) |
 | `sanitize(html)` | Passes markup through an allow-list ([Security](23-security.md#show-markup-you-did-not-write)) |
 | `uuid()` | Makes a fresh `Uuid` ([Types](13-types.md#the-types-the-language-brings-with-it)) |
-| `fetch(url, options)` | Sends a request, through the same engine as `api` ([Data](17-data.md#await-fetch-in-an-action)) |
+| `fetch(url, options)` | Sends a request, through the same engine as `api` ([Data](17-data.md#fetch-on-demand-with-await-fetch)) |
 | `ws(…)`, `sse(…)`, `broadcast(…)`, `rtc(…)`, `spawn(…)` | Open a socket, a stream, a channel, a peer or a worker, after `socket x =` and the rest ([Real-time](18-realtime.md)) |
 
 The browser's own globals need no prefix and compile to themselves:

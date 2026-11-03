@@ -22,7 +22,7 @@ not write the worker or name any cache by hand.
 - **Serve `sw.js` fresh.** The page registers the worker with
   `updateViaCache: "none"`, so the browser asks for it on every visit — but
   a CDN in front can still hold a copy. Give `sw.js` the header
-  `Cache-Control: no-cache` ([Deploying](29-deploying.md#cache-headers)).
+  `Cache-Control: no-cache` ([Deploying](29-deploying.md#set-cache-headers)).
 - **Deploy everything in `build/` together.** The worker's version is a
   hash of every file the build wrote, so deploying half a build confuses it.
 

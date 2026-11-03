@@ -27,7 +27,7 @@ In this chapter you will:
 ## Before you start
 
 You should know how a `resource` is read with `match` and its arms
-([Data](17-data.md#resource)), and how `state` and `effect` work
+([Data](17-data.md#show-a-request-with-resource)), and how `state` and `effect` work
 ([State and reactivity](08-state-and-reactivity.md)). A connection is read
 the same way a resource is.
 
@@ -178,6 +178,7 @@ page Shop(path: "/", title: "Shop", description: "A cart every tab agrees on.") 
     channel cart = broadcast("cart") { on message(m) { Cart.merge(m) } }
 
     Heading("Shop").h1
+    …
     Text("{Cart.count} in the cart")
     Button("Add to cart") { on click { Cart.add()  cart.post({ items: Cart.count }) } }
 }

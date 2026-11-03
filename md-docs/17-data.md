@@ -107,7 +107,8 @@ splice, an attribute — with no `derived` in between:
 | `name.refreshing` | `true` while a refresh runs ([Refresh without clearing the page](#refresh-without-clearing-the-page)) |
 | `name.pending` | `true` while any request of it runs, the first load included |
 | `name.reload()` | Makes the request again |
-| `name.invalidate()` | Marks what is held as stale, and asks again |
+| `name.invalidate()` | Drops what the cache holds for it, and asks again |
+| `name.cancel()` | Aborts the request that is running |
 
 So `Button(if plan.data != null { "Request approval" } else { "Deploy" })`
 changes its label when the plan arrives.
@@ -306,7 +307,7 @@ page Users(path: "/users", title: "Users", description: "Everyone.") {
 
 To send the same headers with every call, add a `headers { }` block. Each
 value is read at the moment of the request, not when the service is
-declared, so a token that was just refreshed is the one that is sent.
+declared, so a token refreshed a moment ago is the one that is sent.
 
 This service sends a bearer token and the reader's language, tags each
 request with an ID, logs each response, and refreshes the token on a `401`:
@@ -523,7 +524,7 @@ and has no proxy, so an API on `localhost:8080` must allow that origin.
 
 The alternative is to serve the API and the site from one origin behind a
 reverse proxy, where `base: "/api"` needs no CORS at all
-([Deploying](29-deploying.md#an-api-on-the-same-origin)).
+([Deploying](29-deploying.md#serve-an-api-on-the-same-origin)).
 
 If the page's build ships a content security policy, list the API's origin
 in `meta.connect` too ([Security](23-security.md)).
