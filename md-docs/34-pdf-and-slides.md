@@ -3,57 +3,96 @@
 <!--
 route: guide/pdf-and-slides
 group: shipping
-blurb: The same language, compiled to a paginated PDF document or a slide deck — invoices, reports and talks, laid out like the web.
-description: PDF documents and slide decks — the paged engine, CSS layout, fonts, Arabic, headers, page numbers, contents, charts and QR codes.
+blurb: Compile the same language to a paginated PDF document or a slide deck — invoices, reports and talks, laid out with CSS as on the web.
+description: Make PDF documents and slide decks: the paged engine, CSS layout, page breaks, fonts, Arabic, headers, page numbers, contents, charts and QR codes.
 -->
 
-The same language compiles to paper. `build.output_type` in
-`webfluent.app.json` chooses what `wf build` writes:
+This chapter shows you how to compile a WebFluent project to paper: a
+paginated PDF document, such as an invoice or a report, or a slide deck for
+a talk. You write the pages with the same elements and the same CSS as a
+website, and `wf build` lays them out on pages.
+
+In this chapter:
+
+- choosing what the build writes;
+- how the paged engine lays out a page;
+- making a PDF document: paper, headers, page breaks, contents, charts,
+  fonts and right-to-left text;
+- making a slide deck.
+
+## Before you start
+
+You need a WebFluent project. To start one already set up for paper, run
+one of these commands:
+
+```bash
+wf init my-report --template pdf
+wf init my-deck --template slides
+```
+
+Then run `wf build` in the project's folder. The build prints the page
+count and writes one file, `build/<name>.pdf`, named after the project
+unless `output_filename` says otherwise:
+
+```text
+  PDF: 45586 bytes, 3 page(s)
+  Output: ./build/my-report.pdf
+Build complete.
+```
+
+To produce one PDF per invoice from data, use the same templates with
+[server rendering](35-server-rendering.md) instead.
+
+## Choose what the build writes
+
+`build.output_type` in `webfluent.app.json` chooses what `wf build` writes:
 
 | Output | `output_type` | Writes |
 |---|---|---|
-| A website | `spa` (default), with `build.ssg` for static pages; or `static`, which is the same as `ssg` | HTML, CSS and JavaScript ([chapter 26](26-static-and-spa.md)) |
+| A website | `spa` (default), with `build.ssg` for pre-rendered pages; or `static`, which is the same as `ssg` | HTML, CSS and JavaScript ([Static sites and SPAs](26-static-and-spa.md)) |
 | PDF document | `pdf` | One `.pdf`, paginated |
-| Slide deck | `slides` | One `.pdf`, a slide per page |
-| Custom elements | `elements` | `elements.js` for other frameworks ([chapter 32](32-javascript-interop.md#publishing-your-components-as-custom-elements)) |
+| Slide deck | `slides` | One `.pdf`, one slide per page |
+| Custom elements | `elements` | `elements.js` for other frameworks ([JavaScript interop](32-javascript-interop.md#publishing-your-components-as-custom-elements)) |
 
-To produce one PDF per invoice from data, use
-[server rendering](35-server-rendering.md) with the same templates.
-
-## The engine
+## The paged engine
 
 A PDF is the page, printed. The compiler renders the program to the same
-static HTML and CSS a template renders, then lays that out on paper
-itself — no browser, no external tool:
+static HTML and CSS a template renders, then lays that HTML out on paper
+itself, with no browser and no external tool. The engine covers five
+areas:
 
 - **The page's own stylesheet.** The engine's rules for every built-in, the
   theme's tokens, every `.css` file under `src/` and every `style { }`
-  block, through a real CSS cascade: selectors with descendant, child and
-  sibling combinators, attribute selectors, `:first-child`/`:nth-child`,
-  `:not()`, `:is()` and `:where()`, specificity, inheritance, `var()`,
-  `em`, `rem` and `%`. A `Card` in a
+  block go through a real CSS cascade. It supports selectors with
+  descendant, child and sibling combinators, attribute selectors,
+  `:first-child`/`:nth-child`, `:not()`, `:is()` and `:where()`;
+  specificity; inheritance; `var()`; and `em`, `rem` and `%`. A `Card` in a
   PDF looks like the `Card` on the page, and a class of your own
   (`class: "callout"`) brings its rules with it. `@media print` applies;
   rules only a screen has (`:hover`, a media query on width) do not.
-- **Layout.** Block, flex and grid as CSS defines them — `Row`, `Stack`,
-  `Grid` and `Column` side by side exactly as on the web — with absolute
-  positioning, `gap`, `min-`/`max-` sizes, `aspect-ratio`, inline-blocks on
-  a line of text (a badge in a sentence), tables sized by their content,
-  and list markers.
-- **Text.** Every run shaped (ligatures, kerning, Arabic joining, combining
-  marks), set right to left where the language is, broken at Unicode's
-  line-break opportunities, aligned or justified. A word too long for its
-  line is cut rather than overflowing.
+- **Layout.** Block, flex and grid work as CSS defines them — `Row`,
+  `Stack`, `Grid` and `Column` sit side by side exactly as on the web —
+  with absolute positioning, `gap`, `min-`/`max-` sizes, `aspect-ratio`,
+  inline-blocks on a line of text (a badge in a sentence), tables sized by
+  their content, and list markers.
+- **Text.** Every run is shaped (ligatures, kerning, Arabic joining,
+  combining marks), set right to left where the language is, broken at
+  Unicode's line-break opportunities, and aligned or justified. A word too
+  long for its line is cut rather than overflowing.
 - **Paint.** Backgrounds (colours, linear and radial gradients with any
   number of stops, pictures), borders per side (solid, dashed, dotted) with
   rounded corners, shadows, opacity, `overflow: hidden`, `transform:
   rotate()`, and pictures with their transparency — PNG, JPEG (embedded
-  as it is), WebP, GIF and SVG, which stays vector.
-- **The file.** Fonts embedded as subsets with the text attached, so a
-  reader copies and searches it; compressed; with its title and author;
-  an outline of its headings in the reader's sidebar; links that work.
+  as it is), WebP, GIF, and SVG, which stays vector.
+- **The file.** Fonts are embedded as subsets with the text attached, so a
+  reader can copy and search it. The file is compressed, carries its title
+  and author, has an outline of its headings in the reader's sidebar, and
+  its links work.
 
-## PDF documents
+## Make a PDF document
+
+To build a PDF, set `output_type` to `pdf`. The `pdf` key sets the paper,
+margins (in points) and default font for every document in the project:
 
 ```json
 {
@@ -70,8 +109,9 @@ itself — no browser, no external tool:
 }
 ```
 
-A PDF page holds a `Document`; everything inside it flows from page to
-page:
+A PDF page holds a `Document`, and everything inside it flows from page to
+page. This invoice has a header on every page but the first, a page number
+in the footer, a watermark, a table, and a totals card that is never split:
 
 ```wf
 type Line { item: String, qty: Number, price: Number }
@@ -82,7 +122,7 @@ const LINES: [Line] = [
 ]
 
 page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
-    derived total = LINES.reduce((sum, l) => sum + l.qty * l.price, 0)
+    derived total = LINES.map(l => l.qty * l.price).sum()
     Document(size: "A4", title: "Invoice 2026-014", author: "Acme Studio") {
         Header(on: .rest) { Text("Acme Studio · invoice 2026-014").muted.sm.right }
         Footer { Text("Page {page} of {pages}").muted.sm.center }
@@ -121,32 +161,31 @@ page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
 }
 ```
 
-### Pages
+The result is a two-page PDF: the invoice on the first page, ending with
+`Total: $5,480.00`, and the terms on the second, under the header.
 
-- **`Document(size:, landscape, margin:, title:, author:, subject:,
-  keywords:, lang:)`** — the paper (`A4`, `A3`, `A5`, `Letter`, `Legal`,
-  `Tabloid`, or two lengths: `"210mm 297mm"`), its margins (one length or
-  four, `"20mm 25mm"`), and what the file says about itself. Without them,
-  `build.pdf` decides.
-- **`Header`** and **`Footer`** are drawn in the top and bottom margins of
-  every page, or of those `on:` names — `.all` (the default), `.first`,
-  `.rest`, `.odd`, `.even`. Inside them, `page` and `pages` are the page's
-  number and the count: `Text("Page {page} of {pages}")`.
-- **`Background`** is drawn behind each page's content, the size of the
-  whole page, margins and all: a cover's full-bleed gradient, a coloured
-  band, a sidebar strip that runs down every page. It takes `on:` too.
-- **`Watermark("DRAFT")`** — large, faint, rotated text behind each page;
-  its look is the rule `.wf-watermark`, which a stylesheet may change.
-- **`PageBreak`** starts a new page; so do `break-before: page` and
-  `break-after: page` in a style.
+### Set the paper, headers and footers
+
+These elements shape every page of a document:
+
+| Element | What it does |
+|---|---|
+| `Document(size:, landscape, margin:, title:, author:, subject:, keywords:, lang:)` | The paper (`A4`, `A3`, `A5`, `Letter`, `Legal`, `Tabloid`, or two lengths: `"210mm 297mm"`), its margins (one length or four, `"20mm 25mm"`), and what the file says about itself. What it leaves out, `build.pdf` decides |
+| `Header`, `Footer` | Drawn in the top and bottom margins of every page, or of the pages `on:` names: `.all` (the default), `.first`, `.rest`, `.odd`, `.even` |
+| `Background` | Drawn behind each page's content, the size of the whole page, margins and all: a cover's full-bleed gradient, a coloured band, a sidebar strip that runs down every page. It takes `on:` too |
+| `Watermark("DRAFT")` | Large, faint, rotated text behind each page. Its look is the rule `.wf-watermark`, which a stylesheet may change |
+| `PageBreak` | Starts a new page; so do `break-before: page` and `break-after: page` in a style |
+
+Inside a `Header`, `Footer` or `Background`, `page` and `pages` are the
+page's number and the page count: `Text("Page {page} of {pages}")`.
 
 The page's background — the `html` or `body` rule's — fills every page,
 edge to edge, so a dark theme prints dark.
 
-### Breaking across pages
+### Control where pages break
 
-Content flows onto as many pages as it needs, and never through the middle
-of a line of text:
+Content flows onto as many pages as it needs, and never breaks through the
+middle of a line of text. The engine follows these rules:
 
 - Paragraphs break between lines, keeping at least two on each side
   (`orphans`, `widows`).
@@ -155,24 +194,30 @@ of a line of text:
 - A grid breaks between its rows; a row of cards moves to the next page
   together.
 - Side-by-side columns taller than a page break each on its own, and what
-  follows waits for the longer.
+  follows waits for the longer column.
 - A heading never ends a page: it moves with what follows.
-- `break-inside: avoid` keeps a box whole (a totals block, a signature).
 - A box that runs onto the next page is painted on both, its border open
   at the break.
 
-### Tables of contents, links and the outline
+To keep a box whole — a totals block, a signature — give it
+`break-inside: avoid`, as the invoice's totals card does. To start a new
+page, place `PageBreak`.
+
+### Add a table of contents, links and an outline
 
 `TableOfContents(levels: 2)` lists the document's headings with the page
-each one lands on, dotted leaders between them, each entry a link to its
-heading. The engine lays the document out, learns where every heading
-landed, and fills the numbers in. `title:` puts a heading above it.
+each one lands on, dotted leaders between them, and each entry a link to
+its heading. The engine lays the document out, learns where every heading
+landed, and fills in the numbers. `title:` puts a heading above the list.
 
-A `Link` is a link: to a URL, or `to: "#terms"` to the element whose `id:`
-is `terms`. Every heading appears in the reader's outline, nested by
-level.
+A `Link` is a link in the PDF too: to a URL, or `to: "#terms"` to the
+element whose `id:` is `terms`. Every heading appears in the reader's
+outline, nested by level.
 
-### Charts and QR codes
+### Draw charts and QR codes
+
+This report draws a grouped bar chart, a donut chart and a QR code from a
+constant list of records:
 
 ```wf
 const SALES = [
@@ -191,61 +236,81 @@ page Report(path: "/", title: "Sales", description: "The quarter.") {
 }
 ```
 
-`Chart` draws `.bar` (grouped, or `stacked`), `.line`, `.area`, `.pie` and
-`.donut` over a list of records, as vector graphics: `x` names each row's
-label, `y` its value or a list of values (one series each); `colors`,
-`ink` (labels), `grid`, `legend`, `labels` (values on bars and slices),
-`unit`, and `width`/`height` in user units — it scales to its box, so
-draw a narrow chart narrower for larger text. `QrCode(value, color:,
-background:)` encodes a URL or any text. Both work on a web page too, as an
-SVG drawn when the page is built — there, what they read must be known at
-build time (a literal, a `const`, a `data` file).
+`Chart` draws a list of records as vector graphics. It takes these props:
 
-### Fonts and languages
+| Prop | What it sets |
+|---|---|
+| `kind` | `.bar` (grouped, or `stacked`), `.line`, `.area`, `.pie` or `.donut` |
+| `x` | The field that names each row's label |
+| `y` | The field that holds each row's value, or a list of fields (one series each) |
+| `colors`, `ink` | The series' colours, and the colour of the labels |
+| `grid`, `legend` | Whether to draw grid lines and a legend |
+| `labels` | Values written on bars and slices |
+| `unit` | A unit after each value |
+| `width`, `height` | The size in user units. The chart scales to its box, so draw a narrow chart narrower for larger text |
+
+`QrCode(value, color:, background:)` encodes a URL or any text.
+
+Both work on a web page too, as an SVG drawn when the page is built. There,
+what they read must be known at build time — a literal, a `const` or a
+`data` file — or the build reports `E109`.
+
+### Use your own fonts
 
 The default faces are Liberation Sans, Serif and Mono — the metric twins of
-Helvetica, Times and Courier — built into `wf`, so `Helvetica`, `Arial`,
+Helvetica, Times and Courier — built into `wf`. So `Helvetica`, `Arial`,
 `system-ui`, `sans-serif`, `Times`, `serif`, `Courier` and `monospace` all
-resolve without anything installed, with Latin, Greek and Cyrillic.
+resolve with nothing installed, and cover Latin, Greek and Cyrillic.
 
-Any other family is a file: put `.ttf` or `.otf` files under the project's
-`fonts/` (or `src/fonts/`, or name them in `pdf.fonts`), and the theme's
-`font-family: Manrope, sans-serif` uses them by the family name inside the
-file. Variable fonts are drawn at the weight a style asks for; a weight or
-an italic a family does not have is synthesised. A font a stylesheet's
+To use any other family, add its file:
+
+1. Put `.ttf` or `.otf` files under the project's `fonts/` folder (or
+   `src/fonts/`, or name them in `pdf.fonts`).
+2. Name the family as the file names it, for example in the theme:
+   `font-family: Manrope, sans-serif`.
+
+Variable fonts are drawn at the weight a style asks for. A weight or an
+italic a family does not have is synthesised. A font a stylesheet's
 `@font-face` names, from a local file, is used too.
 
-A character no named face has is drawn from one that has it — the
-project's fonts first, then the machine's. The build says which families
-came from the machine, so a document can be made the same everywhere by
-copying them into `fonts/`; `"system_fonts": false` forbids it, and a
-character no font has is reported, never drawn as `?`.
+A character no named face has is drawn from a face that has it — the
+project's fonts first, then the machine's. The build names, in a `note:`
+line, each family it took from the machine, so you can make the document
+the same everywhere by copying those fonts into `fonts/`. To forbid the
+machine's fonts, set `"system_fonts": false`. A character no font has is
+reported, never drawn as `?`.
+
+### Lay out a right-to-left document
 
 A document whose `lang` is right to left (`ar`, `he`, `fa`, `ur`) is laid
-out right to left — text, flex rows, grids, table columns, list markers —
-and a run of the other direction inside it is ordered by the Unicode
+out right to left — text, flex rows, grids, table columns, list markers.
+A run of the other direction inside it is ordered by the Unicode
 bidirectional algorithm.
 
 A code or a figure written in Latin characters inside Arabic text — an
 invoice number like `2026-0417`, a product code — can come out with its
-parts in the wrong order, because the bidirectional algorithm reads the
-hyphen as part of the right-to-left text around it. Give it a run of its own
-that says it is left to right: `Text("2026-0417", class: "ltr")` with
-`.ltr { direction: ltr; unicode-bidi: isolate; }` in the project's CSS, on
-a page and in a PDF alike.
+parts in the wrong order. The bidirectional algorithm reads the hyphen as
+part of the right-to-left text around it. To fix it, give the code a run of
+its own that says it is left to right: `Text("2026-0417", class: "ltr")`,
+with `.ltr { direction: ltr; unicode-bidi: isolate; }` in the project's
+CSS. The fix works on a web page and in a PDF alike.
 
 ### What a PDF does not draw
 
 Everything static draws. What only means something in a browser is refused
-where it is written (`E109`): controls (`Button`, `Input`, `Form`, …),
-navigation (`Router`, `Navbar`, `Tabs`, `Menu`), overlays (`Modal`,
-`Dialog`, `Toast`, `Tooltip`), media that plays (`Video`, `Audio`,
-`Carousel`), elements a script draws (`Host`, `Element`, `Portal`), handlers,
-`resource`, motion.
+where it is written, with `E109`:
 
-`wf init my-report --template pdf` scaffolds one.
+- controls (`Button`, `Input`, `Form`, …);
+- navigation (`Router`, `Navbar`, `Tabs`, `Menu`);
+- overlays (`Modal`, `Dialog`, `Toast`, `Tooltip`);
+- media that plays (`Video`, `Audio`, `Carousel`);
+- elements a script draws (`Host`, `Element`, `Portal`);
+- handlers, `resource` and motion.
 
-## Slide decks
+## Make a slide deck
+
+To build a deck, set `output_type` to `slides`. The `slides` key sets the
+deck's size and its chrome:
 
 ```json
 {
@@ -260,6 +325,9 @@ navigation (`Router`, `Navbar`, `Tabs`, `Menu`), overlays (`Modal`,
   }
 }
 ```
+
+A deck is a `Presentation` inside a page. This deck uses every kind of
+slide, and restyles the last one with a gradient:
 
 ```wf
 page Deck(path: "/", title: "Q4 review", description: "The quarter in slides.") {
@@ -293,33 +361,64 @@ page Deck(path: "/", title: "Q4 review", description: "The quarter in slides.") 
 }
 ```
 
-- A deck is laid out by the same engine, a slide to a page: a slide is a
-  box the size of the page, its `slides.margin` its padding (which a rule
-  of the deck's own overrides), and what runs past its edge is clipped,
-  with a note naming the slide.
-- A `Presentation` holds slides, a `for` or an `if` over them, and
-  components whose body is a slide: a deck writes its section openers,
-  headings and footers once, and makes a slide per item of its data. A
-  page's `derived` values are worked out before it is drawn, so a slide can
-  show a figure computed from a `data` file.
-- Kinds: `Slide { }` freeform (a column); `TitleSlide(title, subtitle:)`
-  centred; `SectionSlide(label).primary/.success/.danger/.warning/.info`
-  full-bleed; `TwoColumn { … }` two equal columns; `ImageSlide(src:,
-  caption:)`. Each is styled by the engine's sheet, and a project's rules or
-  a `style { }` change it as anywhere.
-- `slides.size`: `16:9` (default, 960×540pt), `4:3` (720×540), `A4-landscape`
-  (841.89×595.28), or `WIDTHxHEIGHT` in points; `slides.width` and
-  `slides.height` override it outright.
-- `show_slide_numbers`, `footer_text` and `chrome_color` add the chrome (the
-  colour flips between dark and light on the slide's background when
-  unset). `default_font`, `default_font_size` (24pt — every size in the
-  engine's slide rules is relative to it) and `output_filename` are the
-  deck's own.
-- Everything a document draws, a slide draws: layout, charts, pictures,
-  tables, Arabic.
+The result is a six-page PDF, one slide per page.
 
-`wf init my-deck --template slides` scaffolds one.
+### Write the slides
+
+A deck is laid out by the same engine, one slide to a page. A slide is a
+box the size of the page, with `slides.margin` as its padding (a rule of
+the deck's own overrides it). What runs past a slide's edge is clipped,
+with a note naming the slide.
+
+The slide kinds:
+
+| Element | What it draws |
+|---|---|
+| `Slide { … }` | A freeform slide, laid out as a column from the top |
+| `TitleSlide(title, subtitle:)` | A cover, centred |
+| `SectionSlide(label)` | A full-bleed band; `.primary`, `.success`, `.danger`, `.warning` or `.info` |
+| `TwoColumn { … }` | Two equal columns |
+| `ImageSlide(src:, caption:)` | A picture with an optional caption |
+
+Each kind is styled by the engine's sheet, and a project's rules or a
+`style { }` block change it as anywhere. Everything a document draws, a
+slide draws: layout, charts, pictures, tables, Arabic.
+
+A `Presentation` holds slides, a `for` or an `if` over them, and components
+whose body is a slide. So a deck writes its section openers, headings and
+footers once, and makes a slide per item of its data. A page's `derived`
+values are worked out before the deck is drawn, so a slide can show a
+figure computed from a `data` file.
+
+### Size and frame the deck
+
+These keys under `build.slides` set the deck's size and chrome:
+
+| Key | What it sets |
+|---|---|
+| `size` | `16:9` (default, 960×540pt), `4:3` (720×540), `A4-landscape` (841.89×595.28), or `WIDTHxHEIGHT` in points |
+| `width`, `height` | Override `size` outright |
+| `show_slide_numbers` | Draws `n / total` in the bottom right |
+| `footer_text` | Text in the bottom left |
+| `chrome_color` | The colour of the numbers and footer; when unset, it flips between dark and light on each slide's background |
+| `background_color` | Paints every slide |
+| `default_font`, `default_font_size` | The deck's font, and its size (24pt). Every size in the engine's slide rules is relative to it |
+| `output_filename` | The file the build writes |
+
+## Troubleshooting
+
+| What you see | What to do |
+|---|---|
+| `E109` on a `Button`, a handler or a `resource` | Remove it from the document or deck: a PDF has nothing to run it |
+| `E109` on a `Chart` or `QrCode` in a web page | Give it data known at build time: a literal, a `const` or a `data` file |
+| A `note:` names a family taken from the machine | Copy that font into `fonts/` so the document is the same on every machine |
+| A note says a slide was clipped | Shorten the slide, or split it in two |
+| A totals block or signature is split across two pages | Add `break-inside: avoid` to its `style { }` |
+| A Latin code in Arabic text shows its parts out of order | Give it a left-to-right run (see [Lay out a right-to-left document](#lay-out-a-right-to-left-document)) |
 
 ## Next
 
-[Server rendering](35-server-rendering.md).
+- [Server rendering](35-server-rendering.md) — render the same templates
+  with data, one PDF per record.
+- [Styling](15-styling.md) — the CSS a document and a deck are laid out
+  with.
