@@ -54,6 +54,11 @@
       }
     });
     el.addEventListener("close", () => {
+      // The event comes a task after the dialog shut. If it was opened
+      // again in between — the close button wrote the state at once, and
+      // a press set it back — this one is stale: writing `false` now
+      // would shut the dialog the reader just opened.
+      if (el.open) return;
       unstacked();
       if (write && read()) write(false);
     });

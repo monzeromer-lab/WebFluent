@@ -9,20 +9,8 @@ enum CalloutKind { note, tip, important, warning, caution }
 /// rail in the kind's ink, an overline naming it, then the body as Markdown
 /// so code and links read as they do in the paragraph around it.
 component Callout(_ body: String, kind: CalloutKind = .note) {
-    derived label = match kind {
-        .note { "Note" }
-        .tip { "Tip" }
-        .important { "Important" }
-        .warning { "Warning" }
-        .caution { "Caution" }
-    }
-    derived glyph = match kind {
-        .note { "info" }
-        .tip { "sparkle" }
-        .important { "alert-circle" }
-        .warning { "warning" }
-        .caution { "lock" }
-    }
+    derived label = match kind { .note { "Note" } .tip { "Tip" } .important { "Important" } .warning { "Warning" } .caution { "Caution" } }
+    derived glyph = match kind { .note { "info" } .tip { "sparkle" } .important { "alert-circle" } .warning { "warning" } .caution { "lock" } }
 
     Stack(gap: .xs, role: "note", aria-label: label, class: "callout") {
         style {
