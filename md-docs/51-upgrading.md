@@ -4,7 +4,7 @@
 route: guide/upgrading
 group: help
 blurb: What changed in each release, what to do when you upgrade, and how wf migrate carries an older project forward.
-description: How to upgrade wf, what each release from 4.0 to 5.11 asks of a project, and moving a WebFluent 2 or 3 project forward with wf migrate.
+description: How to upgrade wf, what each release from 4.0 to 5.12 asks of a project, and moving a WebFluent 2 or 3 project forward with wf migrate.
 -->
 
 This chapter tells you what each release asks of your project when you
@@ -19,13 +19,14 @@ In this chapter:
 
 - [Install a newer version](#install-a-newer-version)
 - [Upgrade a project](#upgrade-a-project)
-- The notes for each release, from [5.11](#5-11) back to
+- The notes for each release, from [5.12](#5-12) back to
   [WebFluent 2](#from-webfluent-2)
 
 ## At a glance
 
 | Release | What to do |
 |---|---|
+| [5.12](#5-12) | Run `wf check` (`E118`, `E102`); rename a store member called `valueOf` or `toString` |
 | [5.11](#5-11) | Run `wf check` (`C07`, `T22`), then `wf test --update` once you have read the new snapshots |
 | [5.10](#5-10) | Run `wf check` and `wf test --update`; check `Column` spans, `Menu` labels and bound checkboxes with their own `on change` |
 | [5.9](#5-9) | Separate style declarations with a newline or `;`, never `,` |
@@ -65,6 +66,37 @@ After installing, bring each project forward:
 3. Run `wf test`. If snapshots changed, look at each difference, then run
    `wf test --update`.
 4. Build, and load the result with `wf verify`.
+
+## 5.12
+
+5.12 adds names in any script and translation by a project's own words,
+and makes every name a program binds its own. Your project may notice
+these:
+
+- **A store member may not be named like what every object has.**
+  `valueOf`, `toString`, `constructor` and the other names every
+  JavaScript object has are `E118` as a store's member, because the page
+  threw as soon as it drew one. Rename the member. The same names now work
+  as a component's props; `__proto__` as a prop is `E118`.
+- **A test file may not declare a name the project declares.** The two
+  were one name on the test's page, and every browser test failed with a
+  SyntaxError. It is now `E102` at the test's declaration. Rename the
+  test's own.
+- **`T06` is reported at the member's name.** "`Store` has no member
+  `x`" underlines `x`, not `Store`. A tool that reads the line and column
+  sees the new place.
+- **`output_type: "static"` pre-renders every page**, as `ssg: true`
+  does. It used to build a single-page app. A project that set it and
+  relied on that sets `"spa"` instead.
+- **WebP is lossy at `build.media.quality`**, and a file no smaller than
+  its original is not written. Pictures are smaller; a width that saved
+  nothing is served from the original.
+- **A name that clashed now works.** A program's own name that was one of
+  the generated code's, or a browser global's, used to read the wrong
+  value; it reads its own now. A page that leaned on the wrong value
+  changes.
+
+Run `wf check`, then `wf test`.
 
 ## 5.11
 
