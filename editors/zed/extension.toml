@@ -13,14 +13,14 @@ snippets = ["snippets/webfluent.json"]
 # it after the grammar changes land (`just zed-pin-grammar`).
 [grammars.webfluent]
 repository = "https://github.com/monzeromer-lab/WebFluent"
-rev = "a8bcfab195475b8c460c7b8a2b0f58a89345c9f5"
+rev = "e77845d8bbf752666ba10f1d2f82250788262461"
 path = "editors/tree-sitter-webfluent"
 
 # The indented layout, `.wfx`: the same grammar generated with its layout
 # tokens on, from the same commit.
 [grammars.webfluentx]
 repository = "https://github.com/monzeromer-lab/WebFluent"
-rev = "a8bcfab195475b8c460c7b8a2b0f58a89345c9f5"
+rev = "e77845d8bbf752666ba10f1d2f82250788262461"
 path = "editors/tree-sitter-webfluentx"
 
 [language_servers.wf-lsp]

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upgrading</title>
-    <meta name="description" content="How to upgrade wf, what each release from 4.0 to 5.11 asks of a project, and moving a WebFluent 2 or 3 project forward with wf migrate.">
+    <meta name="description" content="How to upgrade wf, what each release from 4.0 to 5.12 asks of a project, and moving a WebFluent 2 or 3 project forward with wf migrate.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/upgrading">
     <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/upgrading?lang=en">
     <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/upgrading?lang=ar">
@@ -12,7 +12,7 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Upgrading">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="How to upgrade wf, what each release from 4.0 to 5.11 asks of a project, and moving a WebFluent 2 or 3 project forward with wf migrate.">
+    <meta property="og:description" content="How to upgrade wf, what each release from 4.0 to 5.12 asks of a project, and moving a WebFluent 2 or 3 project forward with wf migrate.">
     <meta property="og:url" content="https://webfluent.monzeromer.dev/docs/guide/upgrading">
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="ar_AR">
@@ -21,9 +21,9 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Upgrading">
-    <meta name="twitter:description" content="How to upgrade wf, what each release from 4.0 to 5.11 asks of a project, and moving a WebFluent 2 or 3 project forward with wf migrate.">
+    <meta name="twitter:description" content="How to upgrade wf, what each release from 4.0 to 5.12 asks of a project, and moving a WebFluent 2 or 3 project forward with wf migrate.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/upgrading#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/upgrading","name":"Upgrading","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"How to upgrade wf, what each release from 4.0 to 5.11 asks of a project, and moving a WebFluent 2 or 3 project forward with wf migrate."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/upgrading#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Upgrading","item":"https://webfluent.monzeromer.dev/docs/guide/upgrading"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/upgrading#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/upgrading","name":"Upgrading","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"How to upgrade wf, what each release from 4.0 to 5.12 asks of a project, and moving a WebFluent 2 or 3 project forward with wf migrate."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/upgrading#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Upgrading","item":"https://webfluent.monzeromer.dev/docs/guide/upgrading"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.11</p>
+                            <p class="wf-text wf-s859a58d7">5.12</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -259,7 +259,7 @@
 <ul>
 <li><a href="#install-a-newer-version">Install a newer version</a></li>
 <li><a href="#upgrade-a-project">Upgrade a project</a></li>
-<li>The notes for each release, from <a href="#5-11">5.11</a> back to <a href="#from-webfluent-2">WebFluent 2</a></li>
+<li>The notes for each release, from <a href="#5-12">5.12</a> back to <a href="#from-webfluent-2">WebFluent 2</a></li>
 </ul>
                             </div>
                             <h2 class="wf-heading" id="at-a-glance">At a glance</h2>
@@ -272,6 +272,18 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#5-12">5.12</a></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Run <code>wf check</code> (<code>E118</code>, <code>E102</code>); rename a store member called <code>valueOf</code> or <code>toString</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
@@ -447,6 +459,19 @@
 <li>Run <code>wf test</code>. If snapshots changed, look at each difference, then run <code>wf test --update</code>.</li>
 <li>Build, and load the result with <code>wf verify</code>.</li>
 </ol>
+                            </div>
+                            <h2 class="wf-heading" id="5-12">5.12</h2>
+                            <div class="wf-markdown">
+<p>5.12 adds names in any script and translation by a project's own words, and makes every name a program binds its own. Your project may notice these:</p>
+<ul>
+<li><strong>A store member may not be named like what every object has.</strong> <code>valueOf</code>, <code>toString</code>, <code>constructor</code> and the other names every JavaScript object has are <code>E118</code> as a store's member, because the page threw as soon as it drew one. Rename the member. The same names now work as a component's props; <code>__proto__</code> as a prop is <code>E118</code>.</li>
+<li><strong>A test file may not declare a name the project declares.</strong> The two were one name on the test's page, and every browser test failed with a SyntaxError. It is now <code>E102</code> at the test's declaration. Rename the test's own.</li>
+<li><strong><code>T06</code> is reported at the member's name.</strong> &quot;<code>Store</code> has no member <code>x</code>&quot; underlines <code>x</code>, not <code>Store</code>. A tool that reads the line and column sees the new place.</li>
+<li><strong><code>output_type: &quot;static&quot;</code> pre-renders every page</strong>, as <code>ssg: true</code> does. It used to build a single-page app. A project that set it and relied on that sets <code>&quot;spa&quot;</code> instead.</li>
+<li><strong>WebP is lossy at <code>build.media.quality</code></strong>, and a file no smaller than its original is not written. Pictures are smaller; a width that saved nothing is served from the original.</li>
+<li><strong>A name that clashed now works.</strong> A program's own name that was one of the generated code's, or a browser global's, used to read the wrong value; it reads its own now. A page that leaned on the wrong value changes.</li>
+</ul>
+<p>Run <code>wf check</code>, then <code>wf test</code>.</p>
                             </div>
                             <h2 class="wf-heading" id="5-11">5.11</h2>
                             <div class="wf-markdown">
@@ -775,6 +800,7 @@
                         <a class="wf-link wf-s3e136ca4" href="#at-a-glance">At a glance</a>
                         <a class="wf-link wf-s3e136ca4" href="#install-a-newer-version">Install a newer version</a>
                         <a class="wf-link wf-s3e136ca4" href="#upgrade-a-project">Upgrade a project</a>
+                        <a class="wf-link wf-s3e136ca4" href="#5-12">5.12</a>
                         <a class="wf-link wf-s3e136ca4" href="#5-11">5.11</a>
                         <a class="wf-link wf-s3e136ca4" href="#5-10">5.10</a>
                         <a class="wf-link wf-s3e136ca4" href="#5-9">5.9</a>
@@ -814,7 +840,7 @@
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.11, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.12, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -841,7 +867,7 @@
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.11 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.12 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

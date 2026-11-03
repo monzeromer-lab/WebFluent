@@ -192,7 +192,7 @@ Both installers read two environment variables:
 | Variable | Effect | Example |
 |---|---|---|
 | `WF_INSTALL_DIR` | Installs the binary somewhere other than `~/.webfluent/bin` | `WF_INSTALL_DIR=/opt/wf/bin` |
-| `WF_VERSION` | Installs that release instead of the latest | `WF_VERSION=v5.11.0` |
+| `WF_VERSION` | Installs that release instead of the latest | `WF_VERSION=v5.12.0` |
 
 Running the installer again upgrades `wf` in place.
 

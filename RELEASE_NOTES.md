@@ -1,3 +1,168 @@
+# WebFluent v5.12.0 Release Notes
+
+A project written in Arabic, and translated by its own words: names in
+any script, every string a reader sees looked up by the text as written,
+plural forms chosen by the number in the text, and a locale that names its
+digits. Every name a program binds is now its own, whatever the generated
+code or the browser calls its own things. And the guide is rewritten,
+chapter by chapter, by what a reader is there to do.
+
+## Additions
+
+- **Translate a project by its own words** ([chapter 28](md-docs/28-i18n.md#translate-by-the-words-as-written)).
+  With `"literals": true` in `i18n`, every string a reader sees (an
+  element's text, its `label:`, `title:`, `placeholder:`, `aria-label:`
+  and `alt:`, a record's text field, a value whose name says it is words,
+  such as `caretText` or `emptyLabel`) is looked up in the locale's table
+  by the text as written, and the source stays in the language it was
+  written in. A string that splices a value is one key, with a placeholder
+  named after it; Markdown written in place and a control's `labels:` are
+  words too. `wf test` translates the program as the build does. What no
+  table can translate (a text splicing more than a name) is the new
+  warning `I05`, where it is shown.
+- **Plural forms by the number in the text** ([chapter 28](md-docs/28-i18n.md#count-by-the-number-in-the-text)).
+  A message with plural forms and exactly one number among its values
+  takes its form by that number, so `Text("{files} files")` reads right
+  in Arabic's two, few and many. With two numbers none is guessed.
+- **A locale may name its digits** ([chapter 28](md-docs/28-i18n.md#switch-the-locale)).
+  `setLocale("ar-u-nu-arab")` reads the `ar` table and writes `format`,
+  `ago` and every count in Arabic-Indic digits; `ar-u-nu-latn` is 0–9
+  whatever the browser would pick. A date pattern's figures follow, and
+  `a` is AM or PM in the locale's words. The document's `lang` stays the
+  language, so a stylesheet's `[lang="ar"]` still matches.
+- **`t()` in a store**, and `setLocale()` with it, where both compiled to
+  calls the page could not find.
+- **Names in any script** ([chapter 9](md-docs/09-language-basics.md#naming)).
+  A program's own names start and go on as Unicode's UAX #31 says, with
+  the marks of their letters, and are one name however they were typed:
+  `state عددٌ = 3`, `store المهام`, `action أضف`. The editor grammar
+  reads them the same way. A bidirectional embedding, override or isolate
+  control in the source, which draws code one way while it runs another,
+  is the new warning `E119`.
+- **Markdown draws GFM tables** ([chapter 27](md-docs/27-content.md#write-a-table)),
+  the same at build time and in the browser: a header row, a delimiter row
+  whose colons align each column, and `\|` for a pipe inside a cell.
+- **`Frame(srcdoc: html, sandbox: "")`** ([chapter 21](md-docs/21-media.md#draw-html-you-give-the-frame))
+  is a declared prop, where it was an attribute passed through with a
+  `C04` warning. A value that reads state is followed, so the frame
+  redraws as it changes.
+- **A picture may carry itself**: a `data:image/…` address on an
+  `Image`'s or an `Avatar`'s `src:`, a Markdown picture or a sanitized
+  `<img>` is kept, in the live page, the pre-render and the template
+  engine alike. A link, a frame, a form, and any `data:` that is not an
+  image, are still refused.
+- **Fourteen icons** ([chapter 21](md-docs/21-media.md#show-an-icon)), 72 in all:
+  `code`, `monitor`, `git-commit`, `play`, `layers`, `insert`, `grid`,
+  `list`, `square`, `pill`, `image`, `sparkle`, `lock` and `type`. An icon
+  drawn in the browser now carries `data-icon`, as a pre-rendered one did,
+  so a style keyed on the name matches both.
+- **WebP is lossy at `build.media.quality`** ([chapter 42](md-docs/42-configuration.md#buildmedia)),
+  through libwebp, keeping alpha: a 23 kB PNG that came out as 189 kB of
+  WebP is now 5 kB. A file that would be no smaller than its original is
+  not written, and `wf assets --plan` says which widths were dropped.
+- **`output_type: "static"` pre-renders every page**, as `ssg: true`
+  does. The config accepted it and built a single-page app.
+
+## For tools
+
+Each is for a tool built on the compiler
+([chapter 41](md-docs/41-cli.md#building-a-tool-on-the-compiler)); paths
+are under `webfluent::`.
+
+- **`agent::edit`** replaces each `old_text` where it is found exactly
+  once: exactly, then ignoring line endings, then the indent, then with
+  typographic quotes and dashes read as ASCII. Text found twice names its
+  lines, text found nowhere the three nearest, and the edits apply all or
+  none. `ChangeSet::edit` makes them on a file the set has read, and
+  refuses one that moved since; a missing file is `WebFluentError::NotFound`.
+  `ChangeSet::edited` shows what the edits would make of a file, before
+  and after, without changing the set, and `ChangeSet::dir` names the
+  project's folder.
+- **A change set over newer buffers**: it can be laid over buffers that
+  moved on, keeping what it wrote and read, and hands back a file's text
+  without its own change, for writing the hunks a reader accepted. It
+  never reaches outside the project through a link.
+- **Editing a style block's nested rules**: `SetRuleStyle` and
+  `RemoveRuleStyle` reach an `@media` or `&:state` rule, making it when
+  there is none. `SetStyle` and `AppendChild` keep the block as it is
+  written, and `SetProp` on `Card.elevated` writes the prop before the
+  flags, where it wrote a call that did not parse.
+- **`Template::with_studio`** writes each element's node id on what it
+  draws (`data-wf-node`, `data-wf-call`), as the builds do for an editor.
+- **A preview's resources held in an arm**: `data-wf-resource="loading"`
+  or `"error"` on a page's root makes every resource read as in that arm.
+- **`contrast::ratio`** is public, and a theme's view names as unpaired
+  every colour token the dark theme leaves alone, not only `color-*`.
+- **`wf commands --json`** reads each value's kind in a release build,
+  where it said every path was text.
+
+## Fixes
+
+- **A program's names are its own wherever it binds them.** A loop's item,
+  a lambda's parameter, a `let`, a caught error, an action, a `const`, a
+  store or a service named like the generated code's own things (`_p`,
+  `e`, `event`, `document`) or a browser global (`Map`, `Set`, `Node`,
+  `setTimeout`) used to read the wrong value or stop the page from
+  drawing: `for e in entries { Link(to: "/e/{e.id}") }` went to
+  `/e/undefined`, and `const Map = 3` threw before any page drew. Each is
+  now spelt apart in the generated code, and the build's read-back of its
+  own JavaScript (`E901`) catches a clash that slips past.
+- **A store member named like what every object has** (`valueOf`,
+  `toString`, `constructor`) is `E118`, where the page threw as it drew;
+  such a name now works as a prop, and `__proto__` as a prop is `E118`.
+- **A component call's handlers and attributes follow its root** when the
+  body's `if` or `match` draws a new one: a button wrapped in a tooltip
+  while disabled kept its click once enabled.
+- **A state may start from a derived value defined before it**, where it
+  threw as the page drew.
+- **A derived function works everywhere**: the pre-render, `wf test` and
+  `wf render` painted every call to `derived countOf = (id) => …` blank,
+  inside a lambda too.
+- **A select keeps its value when its options are redrawn.**
+- **A modal reopened before its close event arrives stays open.**
+- **A drag whose first move leaves its element still begins**, in WebKit
+  too, and a draggable element selects no text.
+- **A shortcut on a punctuation key is found by its place** on a layout
+  that types no ASCII there, so `mod+,` works on an Arabic keyboard.
+- **A name narrowed out of null may still be set to null.**
+- **A member or field that does not exist is reported at its name**
+  (`T06` underlines `x`, not the store), so the build and the editor agree.
+- **`V01` offers the dot for a flag written without it**
+  (`Button(primary)`), and no longer matches a two-letter word to any
+  short name.
+- **`F04` no longer warns** about a checkbox that is always disabled.
+- **A binding that runs again with its value writes nothing**, the
+  browser asks about reduced motion once, and a windowed list fed an item
+  at a time lays out once a frame, revealing after it is laid out.
+- **A test's settle waits as long as it asks**, not two seconds each, and
+  an `expect` reads a page still moving again until it holds, for up to
+  a second and a half. A file of fifteen browser tests went from two
+  minutes to eighteen seconds.
+- **A test file's declaration named like one of the project's** is `E102`
+  where the tests are collected, where every browser test failed with a
+  SyntaxError.
+- **A prop that reads a store named like a browser global is followed**,
+  not copied once.
+- **A fix's word search no longer panics** on a character it would end
+  inside.
+- **Chart and QrCode are in the Data display group**, so a list of the
+  registry by group draws it once.
+
+## The guide
+
+Every chapter is rewritten to a house style drawn from a study of
+developer documentation, and the chapters are ordered by what a reader is
+there to do: start, learn the language, build the parts of an app, ship,
+and look things up. The site has a front page that answers a visitor's
+questions in order, and its pages, sidebar and search come from the guide.
+
+## Upgrading
+
+See [chapter 51](md-docs/51-upgrading.md#5-12): store members named like
+an object's own (`E118`), a test declaration named like the project's
+(`E102`), where `T06` is reported, `output_type: "static"`, and smaller
+WebP. Run `wf check`.
+
 # WebFluent v5.11.0 Release Notes
 
 What an editor written in WebFluent asked of the language: a handler that
