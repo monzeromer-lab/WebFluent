@@ -76,7 +76,7 @@ one in this list wins:
    every variable the build happens to run with, such as `HOME`.
 
 > [!NOTE]
-> Before WebFluent 4.1, the build read only the config's `env` map.
+> Versions before 4.1 read only the config's `env` map.
 
 ## Keep a private value out of the bundle
 

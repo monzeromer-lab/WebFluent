@@ -1,4 +1,19 @@
 // md-docs/19-offline.md
+page Offline(path: "/offline", title: "Offline", description: "Shown when a page was not stored.") {
+    Heading("You are offline").h1
+    Text("This page was not saved for offline use. It will load when you are back online.")
+    Link("Go to the home page", to: "/")
+}
+
+// md-docs/19-offline.md
+page Notes(path: "/notes", title: "Notes", description: "Notes that save offline.") {
+    Heading("Notes").h1
+    if network.queued > 0 {
+        Text("{network.queued} change(s) will be sent when you are back online").muted
+    }
+}
+
+// md-docs/19-offline.md
 page Home(path: "/", title: "Home", description: "The front page.") {
     if update.available {
         Button("A new version is ready — reload") { on click { update.apply() } }

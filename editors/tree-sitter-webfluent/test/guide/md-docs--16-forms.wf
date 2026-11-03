@@ -1,5 +1,5 @@
 // md-docs/16-forms.md
-page Signup(path: "/") {
+page Signup(path: "/signup", title: "Sign up", description: "Every control, bound to state.") {
     state name = ""
     state email = ""
     state plan = "free"
@@ -7,6 +7,7 @@ page Signup(path: "/") {
     state seats = 1
     state when: Date? = null
 
+    Heading("Sign up").h1
     Input(bind: name, label: "Name", placeholder: "Ada Lovelace").required
     Input(bind: email, label: "Email").email.required
     Select(bind: plan, label: "Plan") {
@@ -19,11 +20,21 @@ page Signup(path: "/") {
     Switch(bind: agree, label: "Same thing, as a switch")
     Slider(bind: seats, min: 1, max: 50, label: "Seats")
     DatePicker(bind: when, label: "Start date")
-    Text("{name} <{email}> wants {seats} {plan} seats from {when}")
+    Text("{name} <{email}> wants {seats} {plan} seats")
+    if let start = when { Text("Starting {start}") }
 }
 
 // md-docs/16-forms.md
 page Doc(path: "/") {
+    Textarea(bind: note, label: "Notes", rows: 4, maxLength: 200)
+}
+
+// md-docs/16-forms.md
+type Todo { id: String, title: String, done: Bool = false }
+page Todos(path: "/todos", title: "Todos", description: "Edit each todo in place.") {
+    state todos: [Todo] = [Todo(id: "1", title: "Water the plants"), Todo(id: "2", title: "Post the letter")]
+
+    Heading("Todos").h1
     for todo in todos by todo.id {
         Input(bind: todo.title, label: "Title")
         Checkbox(bind: todo.done, label: "Done")
@@ -32,15 +43,16 @@ page Doc(path: "/") {
 }
 
 // md-docs/16-forms.md
-page Handle(path: "/", title: "Handle", description: "Pick a handle.") {
+page Handle(path: "/handle", title: "Handle", description: "Pick a handle.") {
     state handle = ""
     derived problem = if handle.length > 0 && handle.length < 3 { "At least three characters" } else { "" }
+
     Heading("Pick a handle").h1
     Input(bind: handle, label: "Handle", hint: "Letters, numbers and dashes", error: problem)
 }
 
 // md-docs/16-forms.md
-page Contact(path: "/") {
+page Contact(path: "/contact", title: "Contact", description: "Send us a message.") {
     state name = ""
     state email = ""
     state message = ""
@@ -52,6 +64,7 @@ page Contact(path: "/") {
         form.reset()
     }
 
+    Heading("Contact us").h1
     Form(bind: form) {
         on submit { send() }
         Input(bind: name, name: "name", label: "Name").required
@@ -64,7 +77,7 @@ page Contact(path: "/") {
 }
 
 // md-docs/16-forms.md
-page Signup(path: "/join", title: "Join", description: "Make an account.") {
+page Join(path: "/join", title: "Join", description: "Make an account.") {
     state email = ""
     state password = ""
     state confirm = ""
@@ -89,6 +102,27 @@ page Signup(path: "/join", title: "Join", description: "Make an account.") {
         Input(bind: password, label: "Password").password
         Input(bind: confirm, label: "Confirm").password
         Button("Join", type: .submit, disabled: !form.valid).primary
+    }
+}
+
+// md-docs/16-forms.md
+api Backend(base: "/api") {
+    get emailTaken(email: String) -> Bool
+}
+page Register(path: "/register", title: "Register", description: "Check an address is free.") {
+    state email = ""
+
+    validate email {
+        required
+        email
+        async "That address is taken" { !(await Backend.emailTaken(email: email)) }
+    }
+
+    Heading("Register").h1
+    Form(bind: form) {
+        on submit { log("registering") }
+        Input(bind: email, label: "Email").email
+        Button("Register", type: .submit, disabled: !form.valid || form.pending).primary
     }
 }
 
@@ -142,7 +176,7 @@ api Backend(base: "/api") {
     post signUp(body: Map) -> Map
         errors { 422 -> Map }
 }
-page Join(path: "/join", title: "Join", description: "Make an account.") {
+page Welcome(path: "/welcome", title: "Join", description: "Make an account.") {
     state email = ""
     state password = ""
     state joined = false
@@ -177,9 +211,11 @@ store Api {
         saved = saved + 1
     }
 }
-page Save(path: "/") {
+page Notes(path: "/notes", title: "Notes", description: "Save a note.") {
     use Api
     state text = ""
+
+    Heading("Notes").h1
     Input(bind: text, label: "Note")
     Button("Save", disabled: Api.save.pending).primary { on click { Api.save({ text: text }) } }
     if Api.save.pending { Spinner.sm }

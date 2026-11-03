@@ -1,5 +1,5 @@
 // md-docs/18-realtime.md
-page Chat(path: "/chat", title: "Chat", description: "Talk.") {
+page Chat(path: "/chat", title: "Chat", description: "Talk to the team.") {
     state draft = ""
     socket chat = ws("wss://example.com/chat", heartbeat: 20.seconds) {
         on message(m) { log(m) }
@@ -14,19 +14,6 @@ page Chat(path: "/chat", title: "Chat", description: "Talk.") {
     }
     Input(bind: draft, label: "Message").text
     Button("Send").primary { on click { chat.send({ text: draft })  draft = "" } }
-}
-
-// md-docs/18-realtime.md
-page Doc(path: "/") {
-    stream ticks = sse("/events", events: ["price"])
-    channel cart = broadcast("cart") { on message(m) { Cart.merge(m) } }
-    beacon("/analytics", { event: "checkout" })     // survives the page unloading
-}
-
-// md-docs/18-realtime.md
-page Doc(path: "/") {
-    effect { if let p = ticks.last("price") { price = p } }
-    Button("Sync") { on click { cart.post({ items: Cart.count }) } }
 }
 
 // md-docs/18-realtime.md
@@ -45,12 +32,15 @@ page Room(path: "/room", title: "Room", description: "A typed conversation.") {
 }
 
 // md-docs/18-realtime.md
-page Doc(path: "/") {
-    beacon("/analytics", { event: "checkout", value: 42 })
+page Checkout(path: "/checkout", title: "Checkout", description: "Pay for the order.") {
+    Heading("Checkout").h1
+    Button("Pay").primary { on click { beacon("/analytics", { event: "checkout", value: 42 }) } }
 }
 
 // md-docs/18-realtime.md
-page Doc(path: "/") {
+page Inbox(path: "/inbox", title: "Inbox", description: "Your messages.") {
+    Heading("Inbox").h1
     if !network.online { Alert("You are offline — changes are queued.").warning }
+    if network.saveData { Text("Data saver is on.").muted }
 }
 

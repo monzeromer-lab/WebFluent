@@ -5,7 +5,7 @@ const LINES: [Line] = [
     Line(item: "Build", qty: 40, price: 110),
 ]
 page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
-    derived total = LINES.reduce((sum, l) => sum + l.qty * l.price, 0)
+    derived total = LINES.map(l => l.qty * l.price).sum()
     Document(size: "A4", title: "Invoice 2026-014", author: "Acme Studio") {
         Header(on: .rest) { Text("Acme Studio · invoice 2026-014").muted.sm.right }
         Footer { Text("Page {page} of {pages}").muted.sm.center }

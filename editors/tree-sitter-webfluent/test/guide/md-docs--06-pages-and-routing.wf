@@ -21,11 +21,14 @@ app {
 }
 
 // md-docs/06-pages-and-routing.md
-page Nav(path: "/nav") {
-    Link("Home", to: "/")                       // an <a>; the router handles the click
+page Start(path: "/", title: "Start", description: "Where the tour begins.") {
+    Heading("Start here").h1
+    Link("Home", to: "/")
     Link("Guide", to: "/docs").prefix           // also active on /docs/anything
-    Button("Go") { on click { navigate("/about") } }
+    Button("Take the tour") { on click { navigate("/about") } }
 }
+page Guide(path: "/docs", title: "Guide", description: "The guide.") { Heading("Guide").h1 }
+page About(path: "/about", title: "About", description: "Who we are.") { Heading("About").h1 }
 
 // md-docs/06-pages-and-routing.md
 type Post { slug: String, title: String, body: String }
@@ -97,6 +100,7 @@ page Account(path: "/account", title: "Your account", description: "Your account
 }
 page Login(path: "/login", title: "Sign in", description: "Sign in.") {
     use Auth
+    Heading("Sign in").h1
     Button("Sign in").primary { on click { Auth.login()  navigate("/account") } }
 }
 
@@ -127,6 +131,7 @@ store Deploys {
 page Deploy(path: "/deploys/:id", title: "Deploy", description: "One deploy.", id: String) {
     use Deploys
     Deploys.load(id)
+    Heading("Deploy {id}").h1
     for row in Deploys.rows by row.id {
         Text("{row.id}: {row.ok}")
     }

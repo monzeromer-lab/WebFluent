@@ -1,4 +1,13 @@
 // md-docs/11-components.md
+component Greeting(_ name: String) {
+    Text("Hello, {name}!")
+}
+page Home(path: "/", title: "Home", description: "A greeting.") {
+    Heading("Welcome").h1
+    Greeting("Ada")
+}
+
+// md-docs/11-components.md
 /// A person, at a glance.
 component UserCard(_ name: String, role: String, active: Bool = true, avatar: String? = null) {
     Card.elevated {
@@ -154,6 +163,15 @@ page Shop(path: "/") {
 }
 
 // md-docs/11-components.md
+component Chip(_ label: String, extra: String = "", note: String = "") {
+    Badge(label, class: extra, aria-description: note)
+}
+page Chips(path: "/", title: "Chips", description: "Styled by the caller.") {
+    Heading("Chips").h1
+    Chip("Beta", extra: "chip-beta", note: "Not finished yet") { on click { log("beta") } }
+}
+
+// md-docs/11-components.md
 component Stepper(_ value: Number, label: String, min: Number = 0) {
     event change(value: Number)
     Row(gap: .sm, align: .center) {
@@ -166,14 +184,5 @@ page Booking(path: "/", title: "Booking", description: "How many seats.") {
     state seats = 1
     Heading("Book").h1
     Stepper(seats, label: "Seats", min: 1) { on change(v) { seats = v } }
-}
-
-// md-docs/11-components.md
-component Chip(_ label: String, extra: String = "", note: String = "") {
-    Badge(label, class: extra, aria-description: note)
-}
-page Chips(path: "/", title: "Chips", description: "Styled by the caller.") {
-    Heading("Chips").h1
-    Chip("Beta", extra: "chip-beta", note: "Not finished yet") { on click { log("beta") } }
 }
 

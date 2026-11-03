@@ -15,30 +15,49 @@ theme Brand {
 }
 
 // md-docs/15-styling.md
-page Styled(path: "/") {
+page Styled(path: "/styled", title: "Styled card", description: "A card with its own style.") {
     state accent = "#D97706"
     state wide = false
+
+    Heading("Styled card").h1
     Card {
         style {
-            padding: $lg                       // a token, resolved by the property: spacing-lg
-            background: $surface               // color-surface
+            padding: $lg                       // spacing-lg, from the property
+            background: $surface              // color-surface
             border: 1px solid $border
             border-radius: $radius-lg
             box-shadow: $shadow-md
-            border-left: 4px solid {accent}    // a live value: repaints when `accent` changes
+            border-left: 4px solid {accent}    // repaints when `accent` changes
             max-width: {if wide { "100%" } else { "40rem" }}
             &:hover { box-shadow: $shadow-lg }
             & > p { margin: 0 }
             @media (max-width: 640px) { padding: $sm }
         }
-        Text("Styled card")
+        Text("Hover me, or widen me.")
         Button("Widen") { on click { wide = !wide } }
+        Button("Make it blue") { on click { accent = "#2563EB" } }
     }
 }
 
 // md-docs/15-styling.md
-page Fade(path: "/") {
+page Swatch(path: "/swatch", title: "Swatch", description: "A hover colour that follows state.") {
+    state hoverColor = "#0F766E"
+
+    Heading("Swatch").h1
+    Button("Hover me") {
+        style {
+            --hover-bg: {hoverColor}
+            &:hover { background: var(--hover-bg) }
+        }
+    }
+    Button("Use amber") { on click { hoverColor = "#D97706" } }
+}
+
+// md-docs/15-styling.md
+page Fade(path: "/fade", title: "Fade", description: "A card that fades in and out.") {
     state active = false
+
+    Heading("Fade").h1
     Card {
         style { opacity: {if active { 1 } else { 0.4 }}; transform: {if active { "none" } else { "scale(0.98)" }} }
         transition { opacity: $fast; transform: 200ms ease-out }
@@ -48,11 +67,25 @@ page Fade(path: "/") {
 }
 
 // md-docs/15-styling.md
-page Classes(path: "/") {
+page Welcome(path: "/welcome", title: "Welcome", description: "A heading whose class follows state.") {
     state active = true
+
     Container(class: "hero") {
         Heading("Welcome", class: if active { "title is-on" } else { "title" }).h1
+        Button("Switch") { on click { active = !active } }
     }
+}
+
+// md-docs/15-styling.md
+page Chores(path: "/chores", title: "Chores", description: "Classes that follow state.") {
+    state done = false
+    state urgent = true
+    state tone = "calm"
+
+    Heading("Chores").h1
+    Text("Water the plants", class: { "is-done": done, "is-urgent": urgent })
+    Container(class: ["panel", tone, if urgent { "is-loud" }]) { Text("Due today") }
+    Button("Done") { on click { done = !done } }
 }
 
 // md-docs/15-styling.md
@@ -67,7 +100,8 @@ theme Night {
     color-text-muted: #9CA3AF
     color-border: #1F2937
 }
-page Prefs(path: "/") {
+page Prefs(path: "/prefs", title: "Appearance", description: "Choose light or dark.") {
+    Heading("Appearance").h1
     Text("You are on the {theme} theme")
     Row(gap: .sm) {
         Button("Light") { on click { setTheme("light") } }
@@ -77,11 +111,11 @@ page Prefs(path: "/") {
 }
 
 // md-docs/15-styling.md
-page Layout(path: "/", title: "Layout", description: "A grid of projects.") {
+page Layout(path: "/projects", title: "Projects", description: "A grid of projects.") {
     Container {
         Stack(gap: .lg) {
             Row(justify: .between, align: .center) {
-                Heading("Projects").h2
+                Heading("Projects").h1
                 Button("New").primary.sm
             }
             Grid(columns: { base: 1, md: 2, lg: 3 }, gap: .md) {

@@ -12,3 +12,9 @@ page PostPage(path: "/posts/:slug", slug: String, title: "Post", description: "A
     }
 }
 
+// md-docs/26-static-and-spa.md
+page NotFound(path: "*", title: "Not found", description: "There is no page at this address.") {
+    Heading("Page not found").h1
+    Link("Go to the home page", to: "/")
+}
+

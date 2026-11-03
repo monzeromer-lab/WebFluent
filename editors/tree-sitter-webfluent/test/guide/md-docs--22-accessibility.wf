@@ -1,4 +1,17 @@
 // md-docs/22-accessibility.md
+page Plans(path: "/plans", title: "Plans", description: "Choose a plan.") {
+    state chosen = ""
+    Heading("Plans").h1
+    Card(role: "button", tabindex: "0") {
+        on click { chosen = "Team" }
+        on key("Enter") { chosen = "Team" }
+        on key("space") { chosen = "Team" }
+        Text("Team plan")
+    }
+    Text("Chosen: {chosen}")
+}
+
+// md-docs/22-accessibility.md
 page Search(path: "/", title: "Search", description: "Find a page.") {
     state q = ""
     Heading("Search").h1

@@ -1,13 +1,14 @@
 // md-docs/27-content.md
-page Notes(path: "/") {
+page Notes(path: "/", title: "Release notes", description: "What changed in this release.") {
     state body = "# Release notes\n\nVersion **3.3** adds:\n\n- Markdown pages\n- `wf docs`\n\n> Ship it."
     Markdown(body)
     Markdown("Inline *emphasis*, a [link](/about) and an ![image](/img.png).")
 }
 
 // md-docs/27-content.md
-page Hover(path: "/") {
+page Hover(path: "/", title: "Hover", description: "Documentation from a language server.") {
     state docs = "Returns a list of &lt;T&gt; &mdash; see [the guide](https://example.com/guide).\n\n![build](https://ci.example.com/badge.svg)"
+    Heading("Hover").h1
     Markdown(docs).inert
 }
 
@@ -26,7 +27,7 @@ component DocsShell {
 // md-docs/27-content.md
 type Post { slug: String, title: String, summary: String, cover: String, date: String, body: String }
 data posts: [Post] = "posts.json"
-page PostPage(path: "/posts/:slug", slug: String, type: "article", paths: posts.map(p => p.slug)) {
+page PostPage(path: "/posts/:slug", slug: String, title: "Post", description: "A post from the blog.", type: "article", paths: posts.map(p => p.slug)) {
     derived post = posts.find(p => p.slug == slug)
     head {
         meta(property: "og:title", content: post?.title ?? "Post")
@@ -42,7 +43,8 @@ page PostPage(path: "/posts/:slug", slug: String, type: "article", paths: posts.
 }
 
 // md-docs/27-content.md
-page Snippets(path: "/") {
+page Snippets(path: "/", title: "Snippets", description: "Code on the page.") {
+    Heading("Snippets").h1
     Text("Run ")  Code("wf serve")  Text(" to start.")
     Code("page Home(path: \"/\") {\n    Text(\"Hi\")\n}", language: "wf").block
     Code("$ wf build", language: "bash").block

@@ -1,5 +1,5 @@
 // md-docs/36-tutorials.md
-page Search(path: "/") {
+page Search(path: "/", title: "Search", description: "Search as you type, without a request per key.") {
     state typed = ""
     state q = ""
     action commit(value: String) { if value == typed { q = value } }
@@ -8,6 +8,7 @@ page Search(path: "/") {
         setTimeout(() => commit(pending), 300)
     }
     resource hits = fetch("/api/search?q={q}")
+    Heading("Search").h1
     Input(bind: typed, placeholder: "Search", aria-label: "Search")
     match hits {
         loading { Spinner.sm }
@@ -17,10 +18,11 @@ page Search(path: "/") {
 }
 
 // md-docs/36-tutorials.md
-page Rows(path: "/") {
+page Rows(path: "/", title: "Rows", description: "Every row, twenty at a time.") {
     state page = 1
     state perPage = 20
     resource rows = fetch("/api/rows?page={page}&per={perPage}")
+    Heading("Rows").h1
     match rows {
         loading { Spinner }
         error(e) { Text(e.message).danger }
@@ -37,7 +39,7 @@ page Rows(path: "/") {
 
 // md-docs/36-tutorials.md
 type Item { id: String, liked: Bool }
-page Likes(path: "/") {
+page Likes(path: "/", title: "Likes", description: "A like that shows at once.") {
     state items: [Item] = [Item(id: "a", liked: false)]
     state error = ""
     action like(id: String) {
@@ -50,6 +52,7 @@ page Likes(path: "/") {
             error = "Could not save. Try again."
         }
     }
+    Heading("Likes").h1
     for i in items by i.id {
         Button(if i.liked { "♥" } else { "♡" }, aria-label: "Like").sm { on click { like(i.id) } }
     }
@@ -69,9 +72,10 @@ component Confirm(_ title: String, visible: Bool, danger: Bool = false) {
         }
     }
 }
-page Use(path: "/") {
+page Account(path: "/", title: "Account", description: "Close your account.") {
     state asking = false
     state gone = false
+    Heading("Account").h1
     Button("Delete account").danger { on click { asking = true } }
     Confirm("Delete your account?", visible: asking, danger: true) {
         on confirm { gone = true  asking = false }
@@ -82,8 +86,9 @@ page Use(path: "/") {
 }
 
 // md-docs/36-tutorials.md
-page Nav(path: "/") {
+page Nav(path: "/", title: "Home", description: "Navigation that fits the screen.") {
     state open = false
+    Heading("Home").h1
     if viewport.md {
         Row(gap: .md) {
             Link("Home", to: "/")
@@ -103,7 +108,7 @@ page Nav(path: "/") {
 }
 
 // md-docs/36-tutorials.md
-page Signup(path: "/") {
+page Signup(path: "/", title: "Sign up", description: "Make an account.") {
     state email = ""
     state password = ""
     state confirm = ""
@@ -111,6 +116,7 @@ page Signup(path: "/") {
     validate email { required  email "Enter a valid email" }
     validate password { required  minLength(8) "At least 8 characters" }
     validate confirm { matches(password) "The passwords differ" }
+    Heading("Sign up").h1
     Form(bind: form) {
         on submit { sent = true  form.reset() }
         Input(bind: email, name: "email", label: "Email").email
@@ -122,8 +128,9 @@ page Signup(path: "/") {
 }
 
 // md-docs/36-tutorials.md
-page Account(path: "/account") {
+page Account(path: "/account", title: "Account", description: "Your profile and billing.") {
     derived tab = if hash != "" { hash } else { "profile" }
+    Heading("Account").h1
     Row(gap: .sm) {
         Link("Profile", to: "/account#profile")
         Link("Billing", to: "/account#billing")
@@ -137,15 +144,17 @@ store Cart { state count = 0 }
 component CartBadge(count: Number) {
     if count > 0 { Badge("{count}").primary }
 }
-page Shop(path: "/") {
+page Shop(path: "/", title: "Shop", description: "Everything we sell.") {
     use Cart
+    Heading("Shop").h1
     CartBadge(count: Cart.count)
 }
 
 // md-docs/36-tutorials.md
-page Countdown(path: "/") {
+page Countdown(path: "/", title: "Countdown", description: "Ten seconds, counted down.") {
     state left = 10
     every(1000) { if left > 0 { left = left - 1 } }
+    Heading("Countdown").h1
     Progress(value: 10 - left, max: 10)
     Text(if left == 0 { "Done" } else { "{left}s" })
 }

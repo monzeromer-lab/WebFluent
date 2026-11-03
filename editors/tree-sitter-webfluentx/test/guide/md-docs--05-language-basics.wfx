@@ -1,14 +1,15 @@
 // md-docs/05-language-basics.md
-page Home(path: "/")
+page Home(path: "/", title: "Home", description: "A panel that opens and closes.")
     state open = true
+    Heading("Home").h1
     Row(gap: .sm)
         style
             padding: 6px 0
             &:hover
                 background: $surface
         on click { open = !open }
-        Text("a").bold
+        Text("Details").bold
     if open
         Spinner
     else
-        Text("b")
+        Text("Closed")

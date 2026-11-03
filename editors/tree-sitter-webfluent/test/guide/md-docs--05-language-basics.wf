@@ -1,5 +1,5 @@
 // md-docs/05-language-basics.md
-page Home(path: "/", title: "Home", description: "The front page.") { Text("hi") }
+page Home(path: "/", title: "Home", description: "The front page.") { Heading("Welcome").h1 }
 component Chip(_ label: String, tone: Tone = .calm) { Badge(label) }
 store Cart { state items = []  derived count = items.length }
 theme Brand { color-primary: #0F766E  radius-md: 14px }
@@ -14,7 +14,7 @@ animation Pulse { from { opacity: 1 } to { opacity: 0.5 } }
 test "chip shows its label" { Chip("Beta")  expect "Beta" }
 
 // md-docs/05-language-basics.md
-/// A doc comment: attaches to the declaration that follows it.
+/// A person's initials, in a circle.
 component Avatar(_ initials: String) { Text(initials).bold }
 page Doc(path: "/") {
     // A line comment.
@@ -23,41 +23,46 @@ page Doc(path: "/") {
 }
 
 // md-docs/05-language-basics.md
-page P(path: "/") {
-    state n = 0
-    Text("{n}")                          // an element: fine in a render block
-    Button("+") {
-        on click { n = n + 1 }           // an assignment: fine in a handler
+page Counter(path: "/", title: "Counter", description: "A number that goes up.") {
+    state clicks = 0
+    Heading("Counter").h1
+    Text("Clicked {clicks} times")
+    Button("Add one") {
+        on click { clicks = clicks + 1 }
     }
 }
 
 // md-docs/05-language-basics.md
-page P(path: "/") {
-    state a = 1  state b = 2
-    Button("x") { on click { a = a + 1; b = b + 1 } }
+page Score(path: "/", title: "Score", description: "Two teams, two numbers.") {
+    state home = 1  state away = 2
+    Heading("Score").h1
+    Text("{home} – {away}")
+    Button("Both score") { on click { home = home + 1; away = away + 1 } }
 }
 
 // md-docs/05-language-basics.md
-page Home(path: "/") {
+page Home(path: "/", title: "Home", description: "A panel that opens and closes.") {
     state open = true
+    Heading("Home").h1
     Row(gap: .sm) {
         style {
             padding: 6px 0
             &:hover { background: $surface }
         }
         on click { open = !open }
-        Text("a").bold
+        Text("Details").bold
     }
     if open {
         Spinner
     } else {
-        Text("b")
+        Text("Closed")
     }
 }
 
 // md-docs/05-language-basics.md
-page Home(path: "/") {
+page Home(path: "/", title: "Home", description: "A panel that opens and closes.") {
     state open = true
+    Heading("Home").h1
     Row(gap: .sm) {
         style {
             padding: 6px 0
@@ -66,21 +71,22 @@ page Home(path: "/") {
             }
         }
         on click { open = !open }
-        Text("a").bold
+        Text("Details").bold
     }
     if open {
         Spinner
     } else {
-        Text("b")
+        Text("Closed")
     }
 }
 
 // md-docs/05-language-basics.md
-page P(path: "/") {
+page Greeting(path: "/", title: "Greeting", description: "A greeting that knows your age.") {
     state user = { name: "Sam", age: 41 }
-    Text("Hello, {user.name}! You are {user.age * 12} months old.")
+    Heading("Hello, {user.name}!").h1
+    Text("You are {user.age * 12} months old.")
     Text("A literal brace: \{ and \}")
-    Text("A literal dollar: ${user.age}")     // `$` alone is plain text
+    Text("A literal dollar: ${user.age}")     // `$` alone is plain text: "$41"
 }
 
 // md-docs/05-language-basics.md

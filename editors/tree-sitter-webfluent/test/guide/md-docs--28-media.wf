@@ -16,6 +16,19 @@ page Home(path: "/", title: "Home", description: "The front page.") {
 }
 
 // md-docs/28-media.md
+page Inbox(path: "/", title: "Inbox", description: "Messages, with icons.") {
+    Heading("Inbox").h1
+    Row(gap: .sm) {
+        Icon("mail")
+        Icon("bell").lg.primary
+        IconButton(icon: "close", label: "Close the inbox")
+    }
+    Sidebar {
+        Sidebar.Item(to: "/", icon: "home") { Text("Home") }
+    }
+}
+
+// md-docs/28-media.md
 page Gallery(path: "/", title: "Gallery", description: "Three pictures.") {
     Heading("Gallery").h1
     Carousel(label: "Recent work", autoplay: true, interval: 5000) {

@@ -1,6 +1,7 @@
 // md-docs/10-control-flow.md
-page Status(path: "/") {
+page Status(path: "/", title: "Status", description: "A message chosen by a count.") {
     state count = 0
+    Heading("Status").h1
     if count == 0 {
         Text("Nothing yet.").muted
     } else if count < 10 {
@@ -8,13 +9,14 @@ page Status(path: "/") {
     } else {
         Text("Many: {count}").bold
     }
-    Button("+") { on click { count = count + 1 } }
+    Button("+1") { on click { count = count + 1 } }
 }
 
 // md-docs/10-control-flow.md
 type User { name: String, email: String? }
-page Profile(path: "/") {
+page Profile(path: "/", title: "Profile", description: "A user who may not be signed in.") {
     state user: User? = null
+    Heading("Profile").h1
     if let u = user {
         Text("Signed in as {u.name}")
         if let mail = u.email { Text(mail).muted } else { Text("No email on file").muted }
@@ -25,12 +27,13 @@ page Profile(path: "/") {
 
 // md-docs/10-control-flow.md
 type Todo { id: String, title: String, done: Bool = false }
-page List(path: "/") {
+page Checklist(path: "/", title: "Checklist", description: "Three kinds of loop.") {
     state todos: [Todo] = [Todo(id: "a", title: "Write"), Todo(id: "b", title: "Ship", done: true)]
+    Heading("Checklist").h1
 
     for todo in todos by todo.id {                      // keyed: each item keeps its nodes
         Row(gap: .sm) {
-            Checkbox(checked: todo.done, label: todo.title)
+            Checkbox(checked: todo.done, label: todo.title) { on change { todo.done = !todo.done } }
         }
     }
     for todo, i in todos {                              // with the index
@@ -59,8 +62,9 @@ page Search(path: "/", title: "Search", description: "Results, a window at a tim
 }
 
 // md-docs/10-control-flow.md
-page Panel(path: "/") {
+page Panel(path: "/", title: "Panel", description: "A panel hidden, not removed.") {
     state open = true
+    Heading("Panel").h1
     Button("Toggle") { on click { open = !open } }
     show open {
         Card { Text("Still here when hidden; my state survives.") }
@@ -69,8 +73,9 @@ page Panel(path: "/") {
 
 // md-docs/10-control-flow.md
 enum Status { idle, running(job: String), failed(reason: String), done(count: Number) }
-page Job(path: "/") {
+page Job(path: "/", title: "Job", description: "One arm per case of an enum.") {
     state s: Status = .idle
+    Heading("Job").h1
     match s {
         .idle { Button("Start") { on click { s = .running("build-42") } } }
         .running(job) { Row { Spinner.sm  Text("Running {job}")  Button("Fail") { on click { s = .failed("timed out") } } } }
@@ -81,16 +86,17 @@ page Job(path: "/") {
 }
 
 // md-docs/10-control-flow.md
-page Choose(path: "/") {
+page Choose(path: "/", title: "Choose", description: "Values picked by a condition.") {
     state n = 5
     state nick: String? = null
     derived size = if n > 10 { "big" } else { "small" }
     derived label = nick ?? "anonymous"
+    Heading("Choose").h1
     Text("{size} {label}")
 }
 
 // md-docs/10-control-flow.md
-page Sync(path: "/") {
+page Sync(path: "/", title: "Sync", description: "Control flow inside an action.") {
     state rows: [Map] = []
     state error = ""
     action pull() {
@@ -106,6 +112,7 @@ page Sync(path: "/") {
             error = e.message
         }
     }
+    Heading("Sync").h1
     Button("Pull") { on click { pull() } }
     if error != "" { Alert(error).danger }
     Text("{rows.length} rows")

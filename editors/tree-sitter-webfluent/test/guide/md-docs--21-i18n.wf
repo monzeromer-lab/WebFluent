@@ -39,7 +39,8 @@ app {
     }
     Router
 }
-page Home(path: "/") {
+page Home(path: "/", title: "Home", description: "The home page.") {
+    Heading("Home").h1
     Text("Locale: {locale}, direction: {dir}")
     if locale == "ar" { Text("النسخة العربية") }
 }

@@ -3,5 +3,27 @@ theme Brand {
     color-primary: #0F766E
     radius-md: 14px
     screen-md: 900px
+    surface-raised: #F1F5F9
+}
+
+// md-docs/42-design-tokens.md
+theme Brand {
+    color-primary: #0F766E
+    radius-md: 14px
+    screen-md: 900px
+    surface-raised: #F1F5F9
+}
+page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices for every team.") {
+    Heading("Pricing").h1
+    Card {
+        style {
+            background: $surface-raised
+            padding: $lg
+            border-radius: $md
+            border: 1px solid $border
+            @md { padding: $xl }
+        }
+        Text("Team plan").bold
+    }
 }
 

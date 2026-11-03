@@ -41,7 +41,7 @@ page Doc(path: "/") {
 }
 
 // md-docs/13-types.md
-page Feed(path: "/", title: "Feed", description: "What just happened.") {
+page Feed(path: "/", title: "Feed", description: "What happened lately.") {
     state posted: DateTime = @2026-03-14T09:30:00Z
     derived age = posted.until(now)
     Text("{ago(posted)} — {age.minutes()} minutes")

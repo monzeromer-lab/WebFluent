@@ -1,6 +1,7 @@
 // md-docs/20-motion.md
-page Enter(path: "/") {
+page Enter(path: "/", title: "Enter", description: "Four ways to arrive.") {
     state open = false
+    Heading("Enter").h1
     Button("Open") { on click { open = !open } }
     if open {
         Card.fadeIn { Text("Faded in") }
@@ -11,13 +12,16 @@ page Enter(path: "/") {
 }
 
 // md-docs/20-motion.md
-page Doc(path: "/") {
+page Story(path: "/", title: "Story", description: "Sections that arrive as you read.") {
+    Heading("Our story").h1
+    Text("Scroll down.")
     Section(animate: .fadeIn, on: .enterView) { Heading("Further down").h2 }
 }
 
 // md-docs/20-motion.md
-page Exit(path: "/") {
+page Exit(path: "/", title: "Exit", description: "An alert that fades away.") {
     state toast: String? = "Saved"
+    Heading("Exit").h1
     if let message = toast {
         Alert(message, animate: .slideDown, exit: .fadeOut).success {
             Button("Dismiss").sm { on click { toast = null } }
@@ -28,11 +32,12 @@ page Exit(path: "/") {
 
 // md-docs/20-motion.md
 type Item { id: Number, text: String }
-page List(path: "/") {
+page Tasks(path: "/", title: "Tasks", description: "A list that animates.") {
     state items: [Item] = [Item(id: 1, text: "First"), Item(id: 2, text: "Second")]
     state next = 3
     action add() { items.push(Item(id: next, text: "Item {next}"))  next = next + 1 }
     action shuffle() { items = items.reverse() }
+    Heading("Tasks").h1
     Row(gap: .sm) {
         Button("Add") { on click { add() } }
         Button("Reverse") { on click { shuffle() } }
@@ -41,7 +46,7 @@ page List(path: "/") {
         Card(animate: .fadeIn, exit: .fadeOut, stagger: "40ms") {
             Row(justify: .between) {
                 Text(item.text)
-                Button("×").sm { on click { items = items.filter(i => i.id != item.id) } }
+                Button("Remove").sm { on click { items = items.filter(i => i.id != item.id) } }
             }
         }
     }
@@ -57,8 +62,9 @@ animation Drop {
     from { transform: translateY(-12px); opacity: 0 }
     to { transform: none; opacity: 1 }
 }
-page Custom(path: "/") {
+page Custom(path: "/", title: "Custom", description: "Keyframes of your own.") {
     state saving = false
+    Heading("Custom").h1
     Card(animate: .Drop) {
         Button("Save") { on click { saving = !saving } }
         if saving { Badge("Saving", animate: .Pulse).info }
@@ -66,8 +72,9 @@ page Custom(path: "/") {
 }
 
 // md-docs/20-motion.md
-page Details(path: "/") {
+page Details(path: "/", title: "Details", description: "A box that opens smoothly.") {
     state open = false
+    Heading("Details").h1
     Button("Details") { on click { open = !open } }
     show open {
         Stack(animate: .expand) { Text("As much text as there is.") }
@@ -75,54 +82,33 @@ page Details(path: "/") {
 }
 
 // md-docs/20-motion.md
-page Revenue(path: "/") {
+page Revenue(path: "/", title: "Revenue", description: "A figure that counts up.") {
     state revenue = 0
+    Heading("Revenue").h1
     Text(format(revenue, .currency), count: "600ms")
     Button("Load") { on click { revenue = 1200 } }
 }
 
 // md-docs/20-motion.md
-page Post(path: "/p/:slug", slug: String) {
-    derived post = posts.find(p => p.slug == slug)
-    Image(post?.cover ?? "", alt: post?.title ?? "", shared: "cover-{post?.id}")
-}
-page Doc(path: "/") {
+type Post { id: String, slug: String, title: String, cover: String }
+const posts: [Post] = [
+    Post(id: "1", slug: "slow-roasting", title: "Slow roasting", cover: "/roast.jpg"),
+]
+page Blog(path: "/", title: "Blog", description: "Every post.") {
+    Heading("Blog").h1
     for post in posts by post.id {
-        Link(to: "/p/{post.slug}") { Image(post.cover, alt: post.title, shared: "cover-{post.id}") }
+        Link(to: "/p/{post.slug}") {
+            Image(src: post.cover, alt: post.title, shared: "cover-{post.id}")
+            Text(post.title)
+        }
     }
 }
-
-// md-docs/20-motion.md
-page Landing(path: "/") {
-    sequence {
-        step { Heading("Welcome").h1.fadeIn }
-        step(after: "120ms") { Text("What we do.").slideUp }
-        step(after: "120ms") { Button("Start").primary.slideUp }
-    }
-}
-
-// md-docs/20-motion.md
-page Doc(path: "/") {
-    Card(ref: panel) {
-        on mouseenter { animate(panel, "pulse", "400ms") }
-    }
-}
-
-// md-docs/20-motion.md
-page Doc(path: "/") {
-    Card.outlined.fadeIn {
-        on mouseenter(e) { replayAnimation(e.currentTarget, "fadeIn") }
-    }
-}
-
-// md-docs/20-motion.md
-page Tween(path: "/") {
-    state open = false
-    Card {
-        style { max-height: {if open { "20rem" } else { "3rem" }}; overflow: hidden }
-        transition { max-height: 250ms ease-in-out }
-        Button("Toggle") { on click { open = !open } }
-        Text("Long content that reveals itself.")
+page Article(path: "/p/:slug", title: "Post", description: "One post.", slug: String) {
+    if let post = posts.find(p => p.slug == slug) {
+        Heading(post.title).h1
+        Image(src: post.cover, alt: post.title, shared: "cover-{post.id}")
+    } else {
+        Heading("Not found").h1
     }
 }
 
@@ -134,17 +120,57 @@ app {
     }
     Router(transition: .fade, duration: "200ms")
 }
-page Home(path: "/") { Heading("Home").h1 }
-page About(path: "/about") { Heading("About").h1 }
+page Home(path: "/", title: "Home", description: "The front page.") { Heading("Home").h1 }
+page About(path: "/about", title: "About", description: "Who we are.") { Heading("About").h1 }
 
 // md-docs/20-motion.md
 enum Step { one, two, three }
-page Wizard(path: "/") {
+page Wizard(path: "/", title: "Wizard", description: "Three steps, animated.") {
     state step: Step = .one
+    Heading("Set up").h1
     match step {
         .one { Card(animate: .slideLeft, exit: .fadeOut) { Text("Step one")  Button("Next") { on click { step = .two } } } }
         .two { Card(animate: .slideLeft, exit: .fadeOut) { Text("Step two")  Button("Next") { on click { step = .three } } } }
         .three { Card(animate: .scaleIn) { Text("Done") } }
+    }
+}
+
+// md-docs/20-motion.md
+page Tween(path: "/", title: "Tween", description: "A panel that grows.") {
+    state open = false
+    Heading("Tween").h1
+    Card {
+        style { max-height: {if open { "20rem" } else { "3rem" }}; overflow: hidden }
+        transition { max-height: 250ms ease-in-out }
+        Button("Toggle") { on click { open = !open } }
+        Text("Long content that reveals itself.")
+    }
+}
+
+// md-docs/20-motion.md
+page Landing(path: "/", title: "Welcome", description: "A page that introduces itself.") {
+    sequence {
+        step { Heading("Welcome").h1.fadeIn }
+        step(after: "120ms") { Text("What we do.").slideUp }
+        step(after: "120ms") { Button("Start").primary.slideUp }
+    }
+}
+
+// md-docs/20-motion.md
+page Hover(path: "/", title: "Hover", description: "A card that pulses on hover.") {
+    Heading("Hover").h1
+    Card(ref: panel) {
+        on mouseenter { animate(panel, "pulse", "400ms") }
+        Text("Point at me.")
+    }
+}
+
+// md-docs/20-motion.md
+page Replay(path: "/", title: "Replay", description: "A card that fades in again on hover.") {
+    Heading("Replay").h1
+    Card.outlined.fadeIn {
+        on mouseenter(e) { replayAnimation(e.currentTarget, "fadeIn") }
+        Text("Point at me.")
     }
 }
 

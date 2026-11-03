@@ -28,7 +28,7 @@ page Rows(path: "/", title: "Rows", description: "Rows from the API.") {
 
         Markdown("You can set a value in three places. When two set the same name, the later one in this list wins:\n\n1. **The config's `env` map**, committed with the project:\n\n   ```json \{ \"env\": \{ \"PUBLIC_API\": \"/api\", \"PUBLIC_BILLING\": \"off\" \} \} ```\n\n2. **A `.env` file** beside `webfluent.app.json`, which you do not commit. `wf init` adds `.env` to `.gitignore`. Each line is `NAME=value`. A line that starts with `#` is a comment, a line may start with `export `, and a value may be in single or double quotes:\n\n   ```bash PUBLIC_API=http://localhost:8080/api PUBLIC_BILLING=on ```\n\n3. **The shell** that runs the build, for CI and one-off builds:\n\n   ```bash PUBLIC_API=https://api.example.com wf build ```\n\n   The shell supplies a name that the config or `.env` already declares, or any name that is public (see the next section). It does not bring in every variable the build happens to run with, such as `HOME`.")
 
-        Callout("Before WebFluent 4.1, the build read only the config's `env` map.", kind: .note)
+        Callout("Versions before 4.1 read only the config's `env` map.", kind: .note)
 
         Heading("Keep a private value out of the bundle", id: "keep-a-private-value-out-of-the-bundle").h2
 

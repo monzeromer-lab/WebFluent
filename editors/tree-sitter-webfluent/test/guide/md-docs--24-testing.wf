@@ -14,13 +14,18 @@ test "a sale tag carries the badge" {
     PriceTag(10, sale: true)
     expect "Sale"
 }
-test "a list renders each row"(data: { rows: [{ name: "a" }, { name: "b" }] }) {
+test "a list renders each row"(data: { rows: [{ name: "Ada" }, { name: "Grace" }] }) {
     for r in rows { Text(r.name) }
-    expect "a"
-    expect "b"
+    expect "Ada"
+    expect "Grace"
 }
 
 // md-docs/24-testing.md
+store IncidentStore {
+    state titles: [String] = ["Disk full", "Login slow"]
+    derived open = titles.length
+    action report(title: String) { titles = titles.concat([title]) }
+}
 test "reporting an incident opens one more" {
     use IncidentStore
     state draft = ""
@@ -42,6 +47,14 @@ test "a portal draws into the element a handle names" {
 }
 
 // md-docs/24-testing.md
+type CartItem { id: String, qty: Number }
+store Cart {
+    state items: [CartItem] = []
+    derived count = items.map(i => i.qty).sum()
+}
+component CartSummary {
+    Text("{Cart.count} items")
+}
 test "the cart shows what is in it"(data: { Cart: { items: [{ id: "a", qty: 2 }] } }) {
     CartSummary()
     expect "2 items"

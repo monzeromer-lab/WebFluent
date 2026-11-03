@@ -6,14 +6,18 @@ api Backend(base: "/api") {
 page PostPage(path: "/p/:slug", title: "Post", description: "One post.", slug: String) {
     resource post = Backend.post(slug: slug)
     match post {
-        ready(p) { Unsafe.Html(sanitize(p.body)) }
+        ready(p) {
+            Heading(p.title).h1
+            Unsafe.Html(sanitize(p.body))
+        }
         else { Skeleton }
     }
 }
 
 // md-docs/23-security.md
+type User { id: String, name: String }
 api Backend(base: "/api/v1") {
-    credentials: .sameOrigin      // the cookie goes with every call
+    credentials: .sameOrigin
     get me() -> User
     post signIn(body: Map) -> User
     post signOut()

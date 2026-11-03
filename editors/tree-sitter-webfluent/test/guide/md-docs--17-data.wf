@@ -1,7 +1,9 @@
 // md-docs/17-data.md
 type Deploy { id: String, status: String, startedAt: String }
-page Deploys(path: "/", title: "Deploys", description: "Recent deploys.") {
+page Deploys(path: "/deploys", title: "Deploys", description: "Recent deploys.") {
     resource deploys: [Deploy] = fetch("/api/deploys")
+
+    Heading("Deploys").h1
     match deploys {
         loading { Spinner }
         error(e) { Alert("Could not load: {e.message}").danger }
@@ -24,6 +26,7 @@ type Server { id: String, name: String, status: String }
 page Servers(path: "/servers", title: "Servers", description: "Every server, kept current.") {
     state stage = "test"
     resource servers: [Server] = fetch("/api/servers?env={stage}", on: .interval(30.seconds))
+
     Heading("Servers").h1
     Button("Production") { on click { stage = "prod" } }
     match servers {
@@ -38,11 +41,14 @@ page Servers(path: "/servers", title: "Servers", description: "Every server, kep
 }
 
 // md-docs/17-data.md
-page Search(path: "/") {
+page Search(path: "/search", title: "Search", description: "Search the catalogue.") {
     state q = ""
-    state token = "abc"
-    resource hits = fetch("/api/search?q={q}", headers: { Authorization: "Bearer {token}" })
-    resource created = fetch("/api/items", method: "POST", body: { name: q })
+    state token = "demo-token"
+    resource hits = fetch("/api/search", method: "POST",
+        headers: { Authorization: "Bearer {token}" },
+        body: { query: q, limit: 20 })
+
+    Heading("Search").h1
     Input(bind: q, label: "Search")
     match hits {
         loading { Spinner.sm }
@@ -53,7 +59,7 @@ page Search(path: "/") {
 
 // md-docs/17-data.md
 type Post { slug: String, title: String, body: String }
-page PostPage(path: "/posts/:slug", slug: String) {
+page PostPage(path: "/posts/:slug", title: "Post", description: "One post.", slug: String) {
     resource post: Post = fetch("/api/posts/{slug}")
     match post {
         loading { Skeleton }
@@ -62,6 +68,21 @@ page PostPage(path: "/posts/:slug", slug: String) {
             Heading(p.title).h1
             Markdown(p.body)
         }
+    }
+}
+
+// md-docs/17-data.md
+page Lookup(path: "/lookup", title: "Lookup", description: "Search when you press Enter.") {
+    state draft = ""
+    state submitted = ""
+    resource hits = fetch("/api/search?q={submitted}")
+
+    Heading("Lookup").h1
+    Input(bind: draft, label: "Search") { on key("Enter") { submitted = draft } }
+    match hits {
+        loading { Spinner.sm }
+        error(e) { Text(e.message).danger }
+        ready(list) { Text("{list.length} results for {submitted}") }
     }
 }
 
@@ -128,6 +149,7 @@ api Catalog(base: "/api") {
 page Items(path: "/items", title: "Items", description: "Everything, a page at a time.") {
     state page = 1
     resource list = Catalog.items(page: page, paginate: .page)
+
     Heading("Items").h1
     for item in list.items by item.id { Text(item.name) }
     if list.hasMore {
@@ -146,7 +168,7 @@ page Doc(path: "/") {
 
 // md-docs/17-data.md
 type Todo { id: String, title: String, done: Bool = false }
-page Todos(path: "/") {
+page Todos(path: "/todos", title: "Todos", description: "Todos saved to a server.") {
     state todos: [Todo] = []
     state draft = ""
     state error = ""
@@ -176,6 +198,7 @@ page Todos(path: "/") {
     }
 
     load()
+    Heading("Todos").h1
     Input(bind: draft, label: "New todo") { on key("Enter") { add() } }
     Button("Add", disabled: add.pending).primary { on click { add() } }
     if error != "" { Alert(error).danger }
@@ -189,6 +212,8 @@ type Post { slug: String, title: String, date: String, body: String }
 data posts: [Post] = "posts.json"
 page Blog(path: "/", title: "Blog", description: "Every post.") {
     derived sorted = posts.sortBy(p => p.date).reverse()
+
+    Heading("Blog").h1
     for p in sorted by p.slug {
         Card {
             Link(p.title, to: "/posts/{p.slug}")

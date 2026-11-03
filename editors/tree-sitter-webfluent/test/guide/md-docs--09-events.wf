@@ -1,9 +1,10 @@
 // md-docs/09-events.md
-page Clicks(path: "/") {
+page Clicks(path: "/", title: "Clicks", description: "Handlers on a button and a field.") {
     state n = 0
     state last = ""
+    Heading("Clicks").h1
     Button("+1") { on click { n = n + 1 } }
-    Input(bind: last, placeholder: "type") {
+    Input(bind: last, placeholder: "Type here") {
         on input { log(last) }
         on keydown(e) { if e.key == "Enter" { log("submitted {last}") } }
         on focus { log("in") }
@@ -27,14 +28,15 @@ page Drop(path: "/", title: "Drop", description: "A place to drop files.") {
 }
 
 // md-docs/09-events.md
-page Keys(path: "/") {
+page Keys(path: "/", title: "Keys", description: "Keys on a field and on the page.") {
     state open = false
     state q = ""
+    Heading("Keys").h1
     Input(bind: q, ref: box, placeholder: "Search") {
-        on key("Escape") { q = "" }            // on the element: fires while it has focus
+        on key("Escape") { q = "" }            // on the element: while it has focus
         on key("Enter", e) { log(e.target.value) }
     }
-    on key("ctrl+k") { box.focus() }           // on the page: fires anywhere on the page
+    on key("ctrl+k") { box.focus() }           // on the page: anywhere on the page
     on key("cmd+k") { box.focus() }
     on key("?") { open = !open }
     if open { Alert("Shortcuts: ctrl+k to search, ? for this.").info }
@@ -80,8 +82,9 @@ component Counter(_ start: Number) {
         Button("+") { on click { n = n + 1  emit change(n) } }
     }
 }
-page Use(path: "/") {
+page Tally(path: "/", title: "Tally", description: "A component that reports its count.") {
     state total = 0
+    Heading("Tally").h1
     Counter(10) { on change(v) { total = v } }
     Text("Now {total}")
 }
@@ -202,8 +205,9 @@ page Files(path: "/", title: "Files", description: "Reorder, move and resize.") 
 component TreeRow(_ name: String) {
     Row { Icon("file")  Text(name) }
 }
-page Files(path: "/files", title: "Files") {
+page Files(path: "/files", title: "Files", description: "Tree rows you can drag.") {
     state rows = ["src", "README.md"]
+    Heading("Files").h1
     Stack {
         for r in rows {
             TreeRow(r, drag: r, dragGroup: "tree", dropValue: r, dropInside: r == "src") {
@@ -217,12 +221,20 @@ page Files(path: "/files", title: "Files") {
 // md-docs/09-events.md
 page Scrolled(path: "/", title: "Scrolled", description: "How far down the reader is.") {
     state y = 0
-    action track() { y = window.scrollY }
-    effect {
-        window.addEventListener("scroll", track)
-        cleanup { window.removeEventListener("scroll", track) }
-    }
+    on scroll { y = window.scrollY }
     Heading("Scrolled").h1
     Text("{y}px down")
+}
+
+// md-docs/09-events.md
+page Selection(path: "/", title: "Selection", description: "What the reader has selected.") {
+    state picked = ""
+    action track() { picked = document.getSelection().toString() }
+    effect {
+        document.addEventListener("selectionchange", track)
+        cleanup { document.removeEventListener("selectionchange", track) }
+    }
+    Heading("Selection").h1
+    Text("Selected: {picked}")
 }
 
