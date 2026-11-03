@@ -165,6 +165,7 @@
   "showcase.slides.other": "{count} slides",
   "showcase.more": "Each one is a folder under [`examples/`](https://github.com/monzeromer-lab/WebFluent/tree/master/examples) that builds with `wf build`. [PDF and slides](/docs/guide/pdf-and-slides) in the guide says how to write your own.",
   "outputs.see": "See the PDFs and decks it writes",
+  "nav.overview": "Overview",
   "ch.01": "Introduction",
   "ch.02": "Getting started",
   "ch.03": "Tutorial",
@@ -213,6 +214,5 @@
   "ch.46": "Upgrading",
   "ch.47": "Browser support",
   "ch.48": "Glossary",
-  "ch.49": "Contributing",
-  "nav.overview": "Overview"
+  "ch.49": "Contributing"
 }

@@ -24,6 +24,8 @@ component DocSidebar {
             & .group-label:first-child { margin-top: 0 }
         }
 
+        Sidebar.Item(to: "/docs", icon: "home") { Text(t("nav.overview")) }
+
         Text(t("nav.group.start"), class: "group-label")
         Sidebar.Item(to: "/docs/guide/introduction") { Text("01", class: "num")  Text(t("ch.01")) }
         Sidebar.Item(to: "/docs/guide/getting-started") { Text("02", class: "num")  Text(t("ch.02")) }

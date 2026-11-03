@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expressions</title>
-    <meta name="description" content="Literals, interpolation and formatted splices, operators and precedence, if and match as values, lambdas, methods, format and ago, regexes, tokens and await.">
+    <meta name="description" content="Literals, interpolation and formatted splices, operators and precedence, if and match as values, lambdas, methods, format and ago, regexes, tokens, await.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/expressions">
     <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/expressions?lang=en">
     <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/expressions?lang=ar">
@@ -12,7 +12,7 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Expressions">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="Literals, interpolation and formatted splices, operators and precedence, if and match as values, lambdas, methods, format and ago, regexes, tokens and await.">
+    <meta property="og:description" content="Literals, interpolation and formatted splices, operators and precedence, if and match as values, lambdas, methods, format and ago, regexes, tokens, await.">
     <meta property="og:url" content="https://webfluent.monzeromer.dev/docs/guide/expressions">
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="ar_AR">
@@ -21,9 +21,9 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Expressions">
-    <meta name="twitter:description" content="Literals, interpolation and formatted splices, operators and precedence, if and match as values, lambdas, methods, format and ago, regexes, tokens and await.">
+    <meta name="twitter:description" content="Literals, interpolation and formatted splices, operators and precedence, if and match as values, lambdas, methods, format and ago, regexes, tokens, await.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/expressions#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/expressions","name":"Expressions","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Literals, interpolation and formatted splices, operators and precedence, if and match as values, lambdas, methods, format and ago, regexes, tokens and await."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/expressions#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Expressions","item":"https://webfluent.monzeromer.dev/docs/guide/expressions"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/expressions#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/expressions","name":"Expressions","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Literals, interpolation and formatted splices, operators and precedence, if and match as values, lambdas, methods, format and ago, regexes, tokens, await."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/expressions#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Expressions","item":"https://webfluent.monzeromer.dev/docs/guide/expressions"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -69,6 +69,9 @@
             </div>
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
+                    <a class="wf-sidebar__item" href="/docs">
+                        <p class="wf-text">Overview</p>
+                    </a>
                     <p class="wf-text group-label">Start</p>
                     <a class="wf-sidebar__item" href="/docs/guide/introduction">
                         <p class="wf-text num">01</p>
@@ -274,20 +277,33 @@
                 </aside>
                 <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
-                        <a class="wf-link" href="/docs/guide/introduction">Guide</a>
+                        <a class="wf-link" href="/docs">Guide</a>
                         <p class="wf-text">/</p>
                         <p class="wf-text wf-s8c71c534">Chapter 14</p>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s28a8547f">
                         <h1 class="wf-heading wf-sa3503382">Expressions</h1>
-                        <p class="wf-text wf-sfd35f593">The whole expression language: literals, interpolation, operators, values that choose, calls, methods, formatting and await.</p>
+                        <p class="wf-text wf-sfd35f593">The expression language: literals, interpolation, operators, values that choose, calls, methods, formatting, regexes, tokens and await.</p>
                     </div>
                     <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
-<p>An expression is a value: a prop's value, a condition, the right side of a <code>state</code> or <code>derived</code>, the inside of <code>{…}</code> in a string. This chapter is the full expression language.</p>
+<p>An expression is anything that has a value: a prop's value, a condition, the right side of a <code>state</code> or a <code>derived</code>, or the inside of <code>{…}</code> in a string. Remember one thing: wherever WebFluent wants a value, any expression in this chapter can stand there, and it stays live when it reads state.</p>
+<p>In this chapter:</p>
+<ul>
+<li>literals, including the literals of the language's own types;</li>
+<li>interpolation, and how a splice formats its value;</li>
+<li>operators and their precedence;</li>
+<li><code>if</code> and <code>match</code> used as values;</li>
+<li>fields, calls, lambdas and the methods of strings, lists and numbers;</li>
+<li><code>format</code> and <code>ago</code>, regular expressions, design tokens as values;</li>
+<li><code>await</code>, constants, and the functions the language adds.</li>
+</ul>
                             </div>
-                            <h2 class="wf-heading" id="literals">Literals</h2>
+                            <h2 class="wf-heading" id="a-first-example">A first example</h2>
+                            <div class="wf-markdown">
+<p>This page works out a total from state and shows it. It uses a list literal, a lambda, a method, arithmetic, an <code>if</code> expression and a formatted splice:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -295,22 +311,28 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Literals(path: &quot;/&quot;) {
-    state s = &quot;text&quot;                        // String
-    state n = 42                            // Number
-    state f = 3.14                          // Number
-    state b = true                          // Bool
-    state nothing: String? = null           // null
-    state list = [1, 2, 3]                  // [Number]
-    state map = { name: &quot;Sam&quot;, age: 30 }    // a shape with those fields
-    state re = /^[a-z]+$/i                  // a regex
-    state color = $primary                  // a design token
-    Text(&quot;{s} {n} {f} {b} {list.length} {map.name}&quot;)
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Basket</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/basket&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Basket&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;What the basket holds.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> prices = [<span class="wf-tok-num">4.5</span>, <span class="wf-tok-num">12</span>, <span class="wf-tok-num">3.5</span>]
+    <span class="wf-tok-kw">state</span> member = <span class="wf-tok-kw">true</span>
+    <span class="wf-tok-kw">derived</span> subtotal = prices.sum()
+    <span class="wf-tok-kw">derived</span> total = <span class="wf-tok-kw">if</span> member { subtotal * <span class="wf-tok-num">0.9</span> } <span class="wf-tok-kw">else</span> { subtotal }
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Basket&quot;</span>).h1
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{prices.length} items, {total:.currency}&quot;</span>)
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-kw">if</span> member { <span class="wf-tok-str">&quot;Member price&quot;</span> } <span class="wf-tok-kw">else</span> { <span class="wf-tok-str">&quot;Join to save 10%&quot;</span> }).muted
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Strings are double-quoted and read the escapes <code>\n</code>, <code>\t</code>, <code>\r</code>, <code>\\</code>, <code>\&quot;</code>, <code>\{</code> and <code>\}</code>; a raw string <code>#&quot;…&quot;#</code> and a block string <code>&quot;&quot;&quot;…&quot;&quot;&quot;</code> are in <a href="/docs/guide/language-basics#three-ways-to-write-one">Language basics</a>. Lists and map literals may span lines and take a trailing comma.</p>
-<p>The language's own types have literals of their own (<a href="/docs/guide/types#the-types-the-language-brings-with-it">Types</a>):</p>
+<p>The page shows <code>3 items, $18.00</code> and <code>Member price</code>:</p>
+<ul>
+<li><code>[4.5, 12, 3.5]</code> is a list literal, and <code>prices.sum()</code> is one of the helpers lists have.</li>
+<li><code>if member { … } else { … }</code> is a value: the block that runs gives it.</li>
+<li><code>{total:.currency}</code> is a splice that formats its value as money.</li>
+</ul>
+<p>When <code>member</code> or <code>prices</code> changes, <code>subtotal</code>, <code>total</code> and both texts follow.</p>
+                            </div>
+                            <h2 class="wf-heading" id="literals">Literals</h2>
+                            <div class="wf-markdown">
+<p>A literal writes a value directly. This page declares one of each of the everyday kinds:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -319,20 +341,50 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Typed(path: &quot;/&quot;, title: &quot;Typed&quot;, description: &quot;Literals of the built-in types.&quot;) {
-    state due: Date = @2026-03-14             // a Date
-    state opens: Time = @09:30                // a Time
-    state at: DateTime = @2026-03-14T09:30Z   // a DateTime
-    state wait: Duration = 90.minutes         // a Duration: ms, seconds, minutes, hours, days, weeks
-    state price: Money = €12.99               // Money, in minor units; $ and £ too
-    state brand: Color = #0F766E              // a Color
-    Heading(&quot;Typed&quot;).h1
-    Text(&quot;{due} {opens} {at} {wait.minutes()} {format(price)} {brand}&quot;)
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Literals</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/literals&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Literals&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;One value of each kind.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> label = <span class="wf-tok-str">&quot;Draft&quot;</span>                         <span class="wf-tok-cmt">// String</span>
+    <span class="wf-tok-kw">state</span> count = <span class="wf-tok-num">42</span>                              <span class="wf-tok-cmt">// Number</span>
+    <span class="wf-tok-kw">state</span> ratio = <span class="wf-tok-num">3.14</span>                            <span class="wf-tok-cmt">// Number</span>
+    <span class="wf-tok-kw">state</span> open = <span class="wf-tok-kw">true</span>                             <span class="wf-tok-cmt">// Bool</span>
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">note</span>: <span class="wf-tok-name">String</span>? = <span class="wf-tok-kw">null</span>                    <span class="wf-tok-cmt">// null</span>
+    <span class="wf-tok-kw">state</span> sizes = [<span class="wf-tok-num">1</span>, <span class="wf-tok-num">2</span>, <span class="wf-tok-num">3</span>]                       <span class="wf-tok-cmt">// [Number]</span>
+    <span class="wf-tok-kw">state</span> owner = { <span class="wf-tok-prop">name</span>: <span class="wf-tok-str">&quot;Sam&quot;</span>, <span class="wf-tok-prop">age</span>: <span class="wf-tok-num">30</span> }        <span class="wf-tok-cmt">// a map with those fields</span>
+    <span class="wf-tok-kw">state</span> slug = /^[a-z]+$/i                      <span class="wf-tok-cmt">// a regular expression</span>
+    <span class="wf-tok-kw">state</span> accent = <span class="wf-tok-tok">$primary</span>                       <span class="wf-tok-cmt">// a design token</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Literals&quot;</span>).h1
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{label} {count} {ratio} {open} {sizes.length} {owner.name}&quot;</span>)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>How each kind behaves:</p>
+<ul>
+<li><strong>Strings</strong> are double-quoted and read the escapes <code>\n</code>, <code>\t</code>, <code>\r</code>, <code>\\</code>, <code>\&quot;</code>, <code>\{</code> and <code>\}</code>. A raw string <code>#&quot;…&quot;#</code> and a block string <code>&quot;&quot;&quot;…&quot;&quot;&quot;</code> are in <a href="/docs/guide/language-basics#three-ways-to-write-one">Language basics</a>.</li>
+<li><strong>Lists and maps</strong> may span lines and take a trailing comma. A map literal has the shape it was written with, so the checker can read <code>owner.name</code> and refuse a misspelled field.</li>
+<li><strong><code>null</code></strong> is the absence of a value. Only a type that ends in <code>?</code> holds it.</li>
+</ul>
+<p>The language's own types have literals too (<a href="/docs/guide/types#the-types-the-language-brings-with-it">Types</a>):</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Typed</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/typed&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Typed&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Literals of the built-in types.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">due</span>: <span class="wf-tok-name">Date</span> = @<span class="wf-tok-num">2026</span>-<span class="wf-tok-num">03</span>-<span class="wf-tok-num">14</span>             <span class="wf-tok-cmt">// a Date</span>
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">opens</span>: <span class="wf-tok-name">Time</span> = @<span class="wf-tok-num">09</span>:<span class="wf-tok-num">30</span>                <span class="wf-tok-cmt">// a Time</span>
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">at</span>: <span class="wf-tok-name">DateTime</span> = @<span class="wf-tok-num">2026</span>-<span class="wf-tok-num">03</span>-<span class="wf-tok-num">14T</span>09:<span class="wf-tok-num">30Z</span>   <span class="wf-tok-cmt">// a DateTime</span>
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">wait</span>: <span class="wf-tok-name">Duration</span> = <span class="wf-tok-num">90.minutes</span>         <span class="wf-tok-cmt">// a Duration: ms, seconds, minutes, hours, days, weeks</span>
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">price</span>: <span class="wf-tok-name">Money</span> = €<span class="wf-tok-num">12.99</span>               <span class="wf-tok-cmt">// Money, in minor units; $ and £ too</span>
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">brand</span>: <span class="wf-tok-name">Color</span> = <span class="wf-tok-num">#0F766E</span>              <span class="wf-tok-cmt">// a Color</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Typed&quot;</span>).h1
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{due} {opens} {at} {wait.minutes()} {format(price)} {brand}&quot;</span>)
 }</code>
                             </div>
                             <h2 class="wf-heading" id="interpolation">Interpolation</h2>
                             <div class="wf-markdown">
-<p><code>&quot;{expr}&quot;</code> puts a value into a string; anything that shows text accepts one:</p>
+<p><code>&quot;{expr}&quot;</code> puts the value of an expression into a string. Anything that shows text accepts one, and the text follows the state it reads:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -341,21 +393,28 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Interp(path: &quot;/&quot;) {
-    state name = &quot;Sam&quot;
-    state n = 3
-    derived items = if n == 1 { &quot;item&quot; } else { &quot;items&quot; }
-    Text(&quot;Hello, {name}: {n} {items}&quot;)
-    Text(&quot;Total: {format(n * 9.99, .currency)}&quot;)
-    Text(&quot;Next: {n + 1}&quot;)
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Greeting</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/greeting&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Greeting&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Text built from state.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> name = <span class="wf-tok-str">&quot;Sam&quot;</span>
+    <span class="wf-tok-kw">state</span> count = <span class="wf-tok-num">3</span>
+    <span class="wf-tok-kw">derived</span> noun = <span class="wf-tok-kw">if</span> count == <span class="wf-tok-num">1</span> { <span class="wf-tok-str">&quot;item&quot;</span> } <span class="wf-tok-kw">else</span> { <span class="wf-tok-str">&quot;items&quot;</span> }
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Hello, {name}&quot;</span>).h1
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;You have {count} {noun}&quot;</span>)
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Total: {format(count * 9.99, .currency)}&quot;</span>)
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Next: {count + 1}&quot;</span>)
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Anything that is an expression goes inside <code>{…}</code> — a call, a method chain, an <code>if</code>, even a string of its own: <code>&quot;{n ?? &quot;none&quot;}&quot;</code> and <code>&quot;{if ok { &quot;yes&quot; } else { &quot;no&quot; }}&quot;</code> both work, as long as the group closes on the same line. A brace group that is not an expression (<code>&quot;{key: value}&quot;</code> in prose, a fragment of code) stays text. For anything long, a <code>derived</code> reads better, as <code>items</code> above.</p>
+<p>The page shows <code>Hello, Sam</code>, <code>You have 3 items</code>, <code>Total: $29.97</code> and <code>Next: 4</code>.</p>
+<p>Any expression may go inside <code>{…}</code>: a call, a method chain, an <code>if</code>, even a string of its own. <code>&quot;{n ?? &quot;none&quot;}&quot;</code> and <code>&quot;{if ok { &quot;yes&quot; } else { &quot;no&quot; }}&quot;</code> both work. The rules:</p>
+<ul>
+<li>The group must close on the same line.</li>
+<li>A splice opens with a name, a <code>(</code> or a <code>[</code>. Anything else in braces — <code>&quot;{key: value}&quot;</code> in prose, a fragment of code, <code>&quot;{&quot;</code> alone — stays text.</li>
+<li>For a long expression, declare a <code>derived</code> value and splice its name, as <code>noun</code> above. It reads better and the checker names it in a message.</li>
+</ul>
                             </div>
                             <h3 class="wf-heading" id="showing-a-value-a-particular-way">Showing a value a particular way</h3>
                             <div class="wf-markdown">
-<p>A splice may say how to show its value: <code>{value:.style}</code>, or <code>{value:.style(option)}</code>, which is <code>format(value, .style, option)</code> written where it is read.</p>
+<p>A splice may say how to show its value: <code>{value:.style}</code>, or <code>{value:.style(option)}</code>. It is <code>format(value, .style, option)</code> written where the value is read.</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -364,20 +423,34 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Receipt(path: &quot;/&quot;) {
-    state total = 1234.5
-    state count = 1235
-    state when = &quot;2026-03-05T10:00:00Z&quot;
-    Text(&quot;Total: {total:.currency}&quot;)            // Total: $1,234.50
-    Text(&quot;{count:.integer} items&quot;)              // 1,235 items
-    Text(&quot;Shipped {when:.date(long)}&quot;)          // Shipped March 5, 2026
-    Text(&quot;Down {0.256:.percent(1)}&quot;)            // — see below
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Receipt</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/receipt&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Receipt&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;An order, formatted.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> total = <span class="wf-tok-num">1234.5</span>
+    <span class="wf-tok-kw">state</span> count = <span class="wf-tok-num">1235</span>
+    <span class="wf-tok-kw">state</span> shipped = <span class="wf-tok-str">&quot;2026-03-05T10:00:00Z&quot;</span>
+    <span class="wf-tok-kw">state</span> discount = <span class="wf-tok-num">0.256</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Receipt&quot;</span>).h1
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Total: {total:.currency}&quot;</span>)            <span class="wf-tok-cmt">// Total: $1,234.50</span>
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{count:.integer} items&quot;</span>)              <span class="wf-tok-cmt">// 1,235 items</span>
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Shipped {shipped:.date(long)}&quot;</span>)       <span class="wf-tok-cmt">// Shipped March 5, 2026</span>
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Saved {discount:.percent(1)}&quot;</span>)        <span class="wf-tok-cmt">// Saved 25.6%</span>
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>The styles and their options are <code>format</code>'s, listed under <a href="#format-and-ago"><code>format</code> and <code>ago</code></a>. The value is an expression like any other, so <code>{order.total:.currency}</code> and <code>{sum(rows):.compact}</code> both work — but a splice has to open with a name, a <code>(</code> or a <code>[</code>, so a bare number takes a name first (<code>derived ratio = 0.256</code>, then <code>{ratio:.percent(1)}</code>).</p>
+<p>The styles and their options are those of <code>format</code>, listed under <a href="#format-and-ago"><code>format</code> and <code>ago</code></a>. The value is an expression like any other, so <code>{order.total:.currency}</code> and <code>{rows.sum():.compact}</code> both work.</p>
+                            </div>
+                            <div class="wf-stack wf-gap--xs wf-s39f8973e callout" role="note" aria-label="Warning" data-kind="warning">
+                                <div class="wf-row wf-align--center wf-gap--xs callout-label">
+                                    <i class="wf-icon" data-icon="warning"></i>
+                                    <p class="wf-text">Warning</p>
+                                </div>
+                                <div class="wf-markdown">
+<p>A splice must open with a name, a <code>(</code> or a <code>[</code>, so <code>&quot;{0.256:.percent}&quot;</code> shows as written. Give the number a name first — <code>derived ratio = 0.256</code>, then <code>{ratio:.percent}</code> — or wrap it: <code>{(0.256):.percent}</code>.</p>
+                                </div>
                             </div>
                             <h2 class="wf-heading" id="operators">Operators</h2>
+                            <div class="wf-markdown">
+<p>The operators, by kind:</p>
+                            </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">Operators</caption>
                                 <thead>
@@ -399,7 +472,7 @@
                                         <td>Comparison</td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>== != &lt; &lt;= &gt; &gt;=</code></p>
+<p><code>== != &lt; &lt;= &gt; &gt;=</code> (<code>!==</code> too)</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -446,7 +519,7 @@
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p><code>+</code> joins strings when either side is a <code>String</code>, and adds numbers otherwise. <code>==</code> compares values; two records with the same fields are not <code>==</code> unless they are the same object, so compare ids. Precedence, strongest first: <code>!</code> and unary <code>-</code>, then <code>* / %</code>, <code>+ -</code>, comparisons, equality, <code>&amp;&amp;</code>, <code>||</code>, <code>??</code>, and ranges last (<a href="/docs/guide/grammar#expressions">Grammar</a>).</p>
+<p>This page uses most of them:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -455,19 +528,31 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Ops(path: &quot;/&quot;) {
-    state a = 7
-    state b = 2
-    state user: Map? = null
-    Text(&quot;{a + b} {a - b} {a * b} {a / b} {a % b}&quot;)
-    Text(if a &gt; b &amp;&amp; b != 0 { &quot;a wins&quot; } else { &quot;b wins&quot; })
-    Text(user?.name ?? &quot;guest&quot;)
-    for n in 1..=3 { Badge(&quot;{n}&quot;) }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Scores</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/scores&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Scores&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Two numbers compared.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> home = <span class="wf-tok-num">7</span>
+    <span class="wf-tok-kw">state</span> away = <span class="wf-tok-num">2</span>
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">player</span>: <span class="wf-tok-name">Map</span>? = <span class="wf-tok-kw">null</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Scores&quot;</span>).h1
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{home + away} {home - away} {home * away} {home / away} {home % away}&quot;</span>)
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-kw">if</span> home &gt; away &amp;&amp; away != <span class="wf-tok-num">0</span> { <span class="wf-tok-str">&quot;Home leads&quot;</span> } <span class="wf-tok-kw">else</span> { <span class="wf-tok-str">&quot;Away leads&quot;</span> })
+    <span class="wf-tok-name">Text</span>(player?.name ?? <span class="wf-tok-str">&quot;No player picked&quot;</span>)
+    <span class="wf-tok-kw">for</span> round <span class="wf-tok-kw">in</span> <span class="wf-tok-num">1..</span>=<span class="wf-tok-num">3</span> { <span class="wf-tok-name">Badge</span>(<span class="wf-tok-str">&quot;Round {round}&quot;</span>) }
 }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>How they behave:</p>
+<ul>
+<li><code>+</code> joins strings when either side is a <code>String</code>, and adds numbers otherwise. Arithmetic on anything else is a <code>T18</code>.</li>
+<li><code>==</code> compares values. Two records with the same fields are not <code>==</code> unless they are the same object, so compare their ids.</li>
+<li>Against a <code>null</code> literal, <code>==</code> and <code>!=</code> also match a value that is absent, such as a query key the address does not have.</li>
+<li><code>a ?? b</code> is <code>b</code> when <code>a</code> is <code>null</code>. <code>a?.b</code>, <code>a?.m()</code> and <code>a?.[i]</code> read through a <code>null</code> and give <code>null</code> instead of failing.</li>
+<li>A range is the whole numbers from <code>a</code> up to <code>b</code>, without <code>b</code> for <code>..</code> and with it for <code>..=</code>.</li>
+</ul>
+<p>Precedence, strongest first: <code>!</code>, unary <code>-</code> and <code>await</code>; then <code>* / %</code>; <code>+ -</code>; the comparisons; <code>==</code> and <code>!=</code>; <code>&amp;&amp;</code>; <code>||</code>; <code>??</code>; and ranges last. So <code>1..n + 1</code> is <code>1..(n + 1)</code>, and <code>a ?? b || c</code> is <code>a ?? (b || c)</code>. The full table is in <a href="/docs/guide/grammar#expressions">Grammar</a>.</p>
                             </div>
                             <h2 class="wf-heading" id="choosing-a-value">Choosing a value</h2>
                             <div class="wf-markdown">
-<p><code>if</code> and <code>match</code> are expressions when they stand where a value is expected; each arm's block is its value:</p>
+<p><code>if</code> and <code>match</code> are expressions when they stand where a value is expected. Each arm's block is its value:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -476,21 +561,31 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">enum Level { low, mid, high }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">enum</span> <span class="wf-tok-name">Level</span> { low, mid, high }
 
-page Choose(path: &quot;/&quot;) {
-    state score = 72
-    state level: Level = .mid
-    derived grade = if score &gt;= 90 { &quot;A&quot; } else if score &gt;= 70 { &quot;B&quot; } else { &quot;C&quot; }
-    derived tone = match level { .low { &quot;calm&quot; } .mid { &quot;steady&quot; } else { &quot;loud&quot; } }
-    Text(&quot;{grade} {tone}&quot;)
-    Badge(grade, tone: if score &gt;= 70 { .success } else { .danger })
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Grades</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/grades&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Grades&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A score, graded.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> score = <span class="wf-tok-num">72</span>
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">level</span>: <span class="wf-tok-name">Level</span> = .mid
+    <span class="wf-tok-kw">derived</span> grade = <span class="wf-tok-kw">if</span> score &gt;= <span class="wf-tok-num">90</span> { <span class="wf-tok-str">&quot;A&quot;</span> } <span class="wf-tok-kw">else</span> <span class="wf-tok-kw">if</span> score &gt;= <span class="wf-tok-num">70</span> { <span class="wf-tok-str">&quot;B&quot;</span> } <span class="wf-tok-kw">else</span> { <span class="wf-tok-str">&quot;C&quot;</span> }
+    <span class="wf-tok-kw">derived</span> tone = <span class="wf-tok-kw">match</span> level { .low { <span class="wf-tok-str">&quot;calm&quot;</span> } .mid { <span class="wf-tok-str">&quot;steady&quot;</span> } <span class="wf-tok-kw">else</span> { <span class="wf-tok-str">&quot;loud&quot;</span> } }
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Grade {grade}&quot;</span>).h1
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;The room is {tone}&quot;</span>)
+    <span class="wf-tok-name">Badge</span>(grade, <span class="wf-tok-prop">tone</span>: <span class="wf-tok-kw">if</span> score &gt;= <span class="wf-tok-num">70</span> { .success } <span class="wf-tok-kw">else</span> { .danger })
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>A <code>match</code> expression always ends with an <code>else</code> arm, so it has a value whatever comes; a <code>match</code> statement may list only the arms it shows.</p>
+<p>The rules:</p>
+<ul>
+<li>An <code>if</code> with no <code>else</code> is <code>null</code> when its condition fails.</li>
+<li><code>if let x = v { a } else { b }</code> binds <code>x</code> when <code>v</code> is not <code>null</code>.</li>
+<li>A <code>match</code> on an enum, as a value or as a statement, needs an arm for every case or an <code>else</code> (<code>T15</code>). One that covers every case needs no <code>else</code>.</li>
+<li>A case with a payload binds one name in a <code>match</code> expression: <code>match status { .failed(reason) { reason } else { &quot;&quot; } }</code>.</li>
+</ul>
                             </div>
                             <h2 class="wf-heading" id="fields-calls-and-methods">Fields, calls and methods</h2>
+                            <div class="wf-markdown">
+<p>A field is read with <code>.</code>, an item with <code>[i]</code>, and a method is called with <code>.name(…)</code>. This page filters, maps and joins a list of records:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -498,42 +593,43 @@ page Choose(path: &quot;/&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">type Todo { id: String, title: String, done: Bool = false }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Todo</span> { <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">done</span>: <span class="wf-tok-name">Bool</span> = <span class="wf-tok-kw">false</span> }
 
-page Calls(path: &quot;/&quot;) {
-    state todos: [Todo] = [Todo(id: &quot;1&quot;, title: &quot;milk&quot;), Todo(id: &quot;2&quot;, title: &quot;eggs&quot;, done: true)]
-    state q = &quot;M&quot;
-    derived open = todos.filter(todo =&gt; !todo.done)
-    derived titles = todos.map(todo =&gt; todo.title.capitalize())
-    derived hits = todos.filter(todo =&gt; todo.title.toLowerCase().includes(q.toLowerCase()))
-    derived first = todos.first()
-    derived count = todos.length
-    derived summary = titles.join(&quot;, &quot;)
-    Text(&quot;{count} todos, {open.length} open, {hits.length} match: {summary}&quot;)
-    if let f = first { Text(&quot;First: {f.title}&quot;) }
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Todos</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/todos&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Todos&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A list, filtered and joined.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">todos</span>: [<span class="wf-tok-name">Todo</span>] = [<span class="wf-tok-name">Todo</span>(<span class="wf-tok-prop">id</span>: <span class="wf-tok-str">&quot;1&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;milk&quot;</span>), <span class="wf-tok-name">Todo</span>(<span class="wf-tok-prop">id</span>: <span class="wf-tok-str">&quot;2&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;eggs&quot;</span>, <span class="wf-tok-prop">done</span>: <span class="wf-tok-kw">true</span>)]
+    <span class="wf-tok-kw">state</span> search = <span class="wf-tok-str">&quot;M&quot;</span>
+    <span class="wf-tok-kw">derived</span> open = todos.filter(todo =&gt; !todo.done)
+    <span class="wf-tok-kw">derived</span> titles = todos.map(todo =&gt; todo.title.capitalize())
+    <span class="wf-tok-kw">derived</span> hits = todos.filter(todo =&gt; todo.title.toLowerCase().includes(search.toLowerCase()))
+    <span class="wf-tok-kw">derived</span> first = todos.first()
+    <span class="wf-tok-kw">derived</span> summary = titles.join(<span class="wf-tok-str">&quot;, &quot;</span>)
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;{todos.length} todos&quot;</span>).h1
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{open.length} open, {hits.length} match: {summary}&quot;</span>)
+    <span class="wf-tok-kw">if</span> <span class="wf-tok-kw">let</span> f = first { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;First: {f.title}&quot;</span>) }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Lambdas are <code>x =&gt; expr</code>, <code>(a, b) =&gt; expr</code> or <code>() =&gt; expr</code> — an expression body, which may call an action when it needs to do more; a parameter's type comes from what the method expects.</p>
+<p>A lambda is written <code>x =&gt; expr</code>, <code>(a, b) =&gt; expr</code> or <code>() =&gt; expr</code>. Its body is one expression; when it must do more, it calls an action. To return a map, write the parameters in parentheses: <code>(x) =&gt; { key: x }</code>. A parameter's type comes from what the method expects, so <code>todo</code> above is a <code>Todo</code>.</p>
+<p>A member something declares wins over a helper of the same name. A store may name an action <code>preview</code>, <code>first</code> or <code>truncate</code>: <code>OpenFiles.preview(path)</code> calls that action, with its arguments, from a page or from another store, and a worker's <code>css.last(kind)</code> is the worker's own <code>last</code>. The helpers below are for lists and strings.</p>
                             </div>
                             <h3 class="wf-heading" id="string-methods">String methods</h3>
                             <div class="wf-markdown">
 <p><code>length</code>, <code>trim()</code>, <code>trimStart()</code>, <code>trimEnd()</code>, <code>toLowerCase()</code>, <code>toUpperCase()</code>, <code>capitalize()</code>, <code>truncate(n)</code>, <code>dedent()</code>, <code>lines()</code>, <code>words()</code>, <code>includes(s)</code>, <code>startsWith(s)</code>, <code>endsWith(s)</code>, <code>indexOf(s)</code>, <code>lastIndexOf(s)</code>, <code>slice(a, b)</code>, <code>substring(a, b)</code>, <code>charAt(i)</code>, <code>at(i)</code>, <code>replace(a, b)</code>, <code>replaceAll(a, b)</code>, <code>split(sep)</code>, <code>padStart(n, c)</code>, <code>padEnd(n, c)</code>, <code>repeat(n)</code>, <code>normalize()</code>, <code>localeCompare(other)</code>, <code>match(re)</code>, <code>search(re)</code>.</p>
-<p><code>dedent()</code> takes the common indentation off a block of text — what a string carried in from a file or an API keeps and a reader does not want. <code>lines()</code> and <code>words()</code> split it: by line ending, and by runs of whitespace.</p>
+<p><code>dedent()</code> takes the common indentation off a block of text — the indentation a string carried in from a file or an API keeps and a reader does not want. <code>lines()</code> splits a text by line ending, and <code>words()</code> by runs of whitespace.</p>
                             </div>
                             <h3 class="wf-heading" id="list-methods">List methods</h3>
                             <div class="wf-markdown">
-<p><code>length</code>, <code>map(f)</code>, <code>filter(f)</code>, <code>find(f)</code>, <code>findIndex(f)</code>, <code>some(f)</code>, <code>every(f)</code>, <code>includes(x)</code>, <code>indexOf(x)</code>, <code>reduce(f, init)</code>, <code>join(sep)</code>, <code>slice(a, b)</code>, <code>concat(other)</code>, <code>reverse()</code>, <code>sort(f)</code>, <code>sortBy(f)</code>, <code>groupBy(f)</code>, <code>unique()</code>, <code>take(n)</code>, <code>first()</code>, <code>last()</code>, <code>sum()</code>, <code>flatMap(f)</code>, and, in an imperative block, <code>push(x)</code>.</p>
-<p><code>sortBy</code>, <code>groupBy</code>, <code>unique</code>, <code>take</code>, <code>first</code>, <code>last</code>, <code>sum</code>, <code>capitalize</code>, <code>truncate</code>, <code>dedent</code>, <code>lines</code> and <code>words</code> are WebFluent's own; the rest are the browser's.</p>
-<p>A member something declares wins over a helper of the same name. A store may name an action <code>preview</code>, <code>first</code> or <code>truncate</code>: <code>OpenFiles.preview(path)</code> calls that action, with its arguments, from a page or from another store; a worker's <code>css.last(kind)</code> is the worker's own <code>last</code>. The helpers are for lists and strings.</p>
+<p><code>length</code>, <code>map(f)</code>, <code>filter(f)</code>, <code>find(f)</code>, <code>findIndex(f)</code>, <code>some(f)</code>, <code>every(f)</code>, <code>includes(x)</code>, <code>indexOf(x)</code>, <code>reduce(f, init)</code>, <code>join(sep)</code>, <code>slice(a, b)</code>, <code>concat(other)</code>, <code>reverse()</code>, <code>sort(f)</code>, <code>sortBy(f)</code>, <code>groupBy(f)</code>, <code>unique()</code>, <code>take(n)</code>, <code>first()</code>, <code>last()</code>, <code>sum()</code>, <code>flatMap(f)</code>, and, in an action or a handler, <code>push(x)</code> and <code>remove(i)</code>.</p>
+<p><code>sortBy</code>, <code>groupBy</code>, <code>unique</code>, <code>take</code>, <code>first</code>, <code>last</code>, <code>sum</code>, <code>capitalize</code>, <code>truncate</code>, <code>dedent</code>, <code>lines</code> and <code>words</code> are WebFluent's own; the rest are the browser's. Every one of them also runs at build time, so the pre-rendered page shows the result. <a href="/docs/guide/built-ins#list-methods">Built-ins</a> says what each returns.</p>
+<p>On a state, <code>sort</code> and <code>reverse</code> read in an expression work on a copy, so reading a sorted list never changes the list. As a statement, <code>push</code>, <code>remove</code> and <code>sort</code> give the state a new list, so whatever reads it repaints.</p>
                             </div>
                             <h3 class="wf-heading" id="number-methods">Number methods</h3>
                             <div class="wf-markdown">
-<p><code>toFixed(n)</code>, <code>toString()</code>. <code>Number(&quot;12&quot;)</code> converts a string; <code>&quot;{n}&quot;</code> or <code>String(n)</code> converts a number. <code>Math.round</code>, <code>Math.max</code> and friends are available as <code>Math.*</code>.</p>
+<p><code>toFixed(n)</code>, <code>toPrecision(n)</code>, <code>toString()</code>. To convert, use <code>Number(&quot;12&quot;)</code> for a string to a number, and <code>&quot;{n}&quot;</code> or <code>String(n)</code> for a number to a string. <code>Math.round</code>, <code>Math.max</code> and the rest are available as <code>Math.*</code>.</p>
                             </div>
                             <h2 class="wf-heading" id="format-and-ago">format and ago</h2>
                             <div class="wf-markdown">
-<p><code>format(value, style, option)</code> formats numbers and dates in the reader's locale (the <code>locale</code> of the app, or the browser's):</p>
+<p><code>format(value, .style, option)</code> writes a number, a date or money as text in the reader's locale. The locale is the i18n locale when the project has one, and the document's language otherwise. This page shows each style:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -542,31 +638,172 @@ page Calls(path: &quot;/&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Format(path: &quot;/&quot;) {
-    state price = 1234.5
-    state ratio = 0.256
-    state big = 1200000
-    state when = &quot;2026-03-14T09:30:00&quot;
-    Text(format(price, .currency))                 // $1,234.50
-    Text(format(price, .currency, &quot;EUR&quot;))          // €1,234.50
-    Text(format(ratio, .percent))                  // 26%
-    Text(format(ratio, .percent, 1))               // 25.6%
-    Text(format(price, .decimal, 1))               // 1,234.5
-    Text(format(big, .integer))                    // 1,200,000
-    Text(format(big, .compact))                    // 1.2M
-    Text(format(when, .date))                      // Mar 14, 2026
-    Text(format(when, .date, &quot;long&quot;))              // March 14, 2026
-    Text(format(when, .time))                      // 9:30 AM
-    Text(format(when, .datetime))                  // Mar 14, 2026, 9:30 AM
-    Text(format(when, &quot;EEEE d MMMM yyyy, HH:mm&quot;))  // Saturday 14 March 2026, 09:30
-    Text(ago(when))                                // 3 days ago
-    Text(format(when, .relative))                  // the same
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Formats</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/formats&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Formats&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Every style of format.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> price = <span class="wf-tok-num">1234.5</span>
+    <span class="wf-tok-kw">state</span> ratio = <span class="wf-tok-num">0.256</span>
+    <span class="wf-tok-kw">state</span> visitors = <span class="wf-tok-num">1200000</span>
+    <span class="wf-tok-kw">state</span> when = <span class="wf-tok-str">&quot;2026-03-14T09:30:00&quot;</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Formats&quot;</span>).h1
+    <span class="wf-tok-name">Text</span>(format(price, .currency))                 <span class="wf-tok-cmt">// $1,234.50</span>
+    <span class="wf-tok-name">Text</span>(format(price, .currency, <span class="wf-tok-str">&quot;EUR&quot;</span>))          <span class="wf-tok-cmt">// €1,234.50</span>
+    <span class="wf-tok-name">Text</span>(format(ratio, .percent))                  <span class="wf-tok-cmt">// 26%</span>
+    <span class="wf-tok-name">Text</span>(format(ratio, .percent, <span class="wf-tok-num">1</span>))               <span class="wf-tok-cmt">// 25.6%</span>
+    <span class="wf-tok-name">Text</span>(format(price, .decimal, <span class="wf-tok-num">1</span>))               <span class="wf-tok-cmt">// 1,234.5</span>
+    <span class="wf-tok-name">Text</span>(format(visitors, .integer))               <span class="wf-tok-cmt">// 1,200,000</span>
+    <span class="wf-tok-name">Text</span>(format(visitors, .compact))               <span class="wf-tok-cmt">// 1.2M</span>
+    <span class="wf-tok-name">Text</span>(format(when, .date))                      <span class="wf-tok-cmt">// Mar 14, 2026</span>
+    <span class="wf-tok-name">Text</span>(format(when, .date, <span class="wf-tok-str">&quot;long&quot;</span>))              <span class="wf-tok-cmt">// March 14, 2026</span>
+    <span class="wf-tok-name">Text</span>(format(when, .time))                      <span class="wf-tok-cmt">// 9:30 AM</span>
+    <span class="wf-tok-name">Text</span>(format(when, .datetime))                  <span class="wf-tok-cmt">// Mar 14, 2026, 9:30 AM</span>
+    <span class="wf-tok-name">Text</span>(format(when, <span class="wf-tok-str">&quot;EEEE d MMMM yyyy, HH:mm&quot;</span>))  <span class="wf-tok-cmt">// Saturday 14 March 2026, 09:30</span>
+    <span class="wf-tok-name">Text</span>(ago(when))                                <span class="wf-tok-cmt">// 3 days ago</span>
+    <span class="wf-tok-name">Text</span>(format(when, .relative))                  <span class="wf-tok-cmt">// the same</span>
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Styles: <code>.integer</code>, <code>.decimal(places)</code>, <code>.currency(code)</code>, <code>.percent(places)</code>, <code>.compact</code>, <code>.date(short|medium|long|full)</code>, <code>.time</code>, <code>.datetime</code>, <code>.relative</code>, or a pattern string of <code>yyyy yy MMMM MMM MM M dd d EEEE EEE HH H hh h mm ss a</code>. <code>ago(date)</code> gives &quot;just now&quot;, &quot;5 minutes ago&quot;, &quot;in 2 days&quot;. The static paint formats with a built-in table for the common locales and currencies; the live page uses <code>Intl</code> and corrects any difference.</p>
+<p>The styles, and the option each takes:</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">format and ago</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Style</th>
+                                        <th scope="col">Gives</th>
+                                        <th scope="col">Option</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.number</code> (the default)</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>1,234.5</code></p>
+                                            </div>
+                                        </td>
+                                        <td>—</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.integer</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>1,235</code></p>
+                                            </div>
+                                        </td>
+                                        <td>—</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.decimal</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>1,234.50</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>places, <code>2</code> when omitted</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.currency</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>$1,234.50</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>the currency code, <code>&quot;USD&quot;</code> when omitted</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.percent</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>26%</code>, of a fraction</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>places, <code>0</code> when omitted</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.compact</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>1.2K</code>, <code>1.2M</code></p>
+                                            </div>
+                                        </td>
+                                        <td>—</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.date</code>, <code>.time</code>, <code>.datetime</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Mar 14, 2026</code>, <code>9:30 AM</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&quot;short&quot;</code>, <code>&quot;medium&quot;</code>, <code>&quot;long&quot;</code> or <code>&quot;full&quot;</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.relative</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>3 days ago</code></p>
+                                            </div>
+                                        </td>
+                                        <td>—</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>A pattern string in place of a style writes a date with these letters: <code>yyyy yy MMMM MMM MM M dd d EEEE EEE HH H hh h mm ss a</code>. A <code>Money</code> value needs no style: <code>format(price)</code> writes it in its own currency.</p>
+<p><code>ago(date)</code> gives the distance from now in words: <code>now</code> under 45 seconds, then <code>5 minutes ago</code>, <code>yesterday</code>, <code>in 2 days</code>. <code>ago(date, moment)</code> measures from a moment of your own.</p>
+<p>The pre-rendered page formats with a built-in table of the common locales and currencies. Once the page's script runs, the browser's <code>Intl</code> takes over and corrects any difference. A change of locale redraws every formatted text.</p>
                             </div>
                             <h2 class="wf-heading" id="regular-expressions">Regular expressions</h2>
+                            <div class="wf-markdown">
+<p><code>/…/flags</code> is a regular expression. This page checks an address as the reader types it:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -574,21 +811,27 @@ page Calls(path: &quot;/&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Regex(path: &quot;/&quot;) {
-    state email = &quot;&quot;
-    derived valid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)
-    derived domain = email.split(&quot;@&quot;).last() ?? &quot;&quot;
-    Input(bind: email, label: &quot;Email&quot;)
-    if email != &quot;&quot; &amp;&amp; !valid { Text(&quot;That does not look like an email.&quot;).danger.sm }
-    Text(&quot;Domain: {domain}&quot;)
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Signup</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/signup&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Sign up&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;An address, checked as it is typed.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> email = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">derived</span> valid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)
+    <span class="wf-tok-kw">derived</span> domain = email.split(<span class="wf-tok-str">&quot;@&quot;</span>).last() ?? <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Sign up&quot;</span>).h1
+    <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: email, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Email&quot;</span>)
+    <span class="wf-tok-kw">if</span> email != <span class="wf-tok-str">&quot;&quot;</span> &amp;&amp; !valid { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;That does not look like an email.&quot;</span>).danger.sm }
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Domain: {domain}&quot;</span>)
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>/…/flags</code> is a regex; <code>re.test(s)</code> is a <code>Bool</code>, <code>s.match(re)</code> and <code>re.exec(s)</code> a <code>[String]?</code>, <code>s.replace(re, &quot;x&quot;)</code> a <code>String</code>.</p>
+<p>What each use gives:</p>
+<ul>
+<li><code>re.test(s)</code> is a <code>Bool</code>.</li>
+<li><code>s.match(re)</code> and <code>re.exec(s)</code> are a <code>[String]?</code>: the match and its groups, or <code>null</code>.</li>
+<li><code>s.replace(re, &quot;x&quot;)</code> and <code>s.replaceAll(re, &quot;x&quot;)</code> are a <code>String</code>; <code>s.split(re)</code> is a <code>[String]</code>; <code>s.search(re)</code> is a <code>Number</code>.</li>
+</ul>
                             </div>
                             <h2 class="wf-heading" id="tokens-as-values">Tokens as values</h2>
                             <div class="wf-markdown">
-<p><code>$name</code> names a design token from the theme (<a href="/docs/guide/styling">chapter 15</a>). In a style it becomes the CSS variable; as a value it is the variable reference, so a prop that takes a color takes a token:</p>
+<p><code>$name</code> names a design token from the theme (<a href="/docs/guide/styling">Styling</a>). In a style it becomes the token's CSS variable. As a value it is a reference to that variable, so a prop or a state that takes a colour takes a token:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -597,17 +840,21 @@ page Calls(path: &quot;/&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Tokens(path: &quot;/&quot;) {
-    state accent = $primary
-    Card {
-        style { border-left: 4px solid {accent} }
-        Text(&quot;Accent from a token&quot;)
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Callout</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/callout&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Callout&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A border coloured by a token.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> accent = <span class="wf-tok-tok">$primary</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Callout&quot;</span>).h1
+    <span class="wf-tok-name">Card</span> {
+        <span class="wf-tok-kw">style</span> { border-<span class="wf-tok-prop">left</span>: <span class="wf-tok-num">4px</span> solid {accent} }
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;The border takes its colour from the theme.&quot;</span>)
     }
 }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>When the theme changes <code>color-primary</code>, the border changes with it.</p>
                             </div>
                             <h2 class="wf-heading" id="await">await</h2>
                             <div class="wf-markdown">
-<p><code>await</code> waits for a promise in an action or handler, and makes the action asynchronous:</p>
+<p><code>await</code> waits for a promise inside an action or a handler, and makes the action asynchronous. While a call of it runs, <code>name.pending</code> is <code>true</code>:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -616,22 +863,26 @@ page Calls(path: &quot;/&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Await(path: &quot;/&quot;) {
-    state rows: [Map] = []
-    state note = &quot;&quot;
-    action load() {
-        rows = await fetch(&quot;/api/rows&quot;)
-        let answer = await fetch(&quot;/api/note&quot;, { method: &quot;GET&quot; })
-        note = answer.text ?? &quot;&quot;
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Report</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/report&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Report&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Rows loaded on request.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">rows</span>: [<span class="wf-tok-name">Map</span>] = []
+    <span class="wf-tok-kw">state</span> note = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">action</span> load() {
+        rows = <span class="wf-tok-kw">await</span> fetch(<span class="wf-tok-str">&quot;/api/rows&quot;</span>)
+        <span class="wf-tok-kw">let</span> answer = <span class="wf-tok-kw">await</span> fetch(<span class="wf-tok-str">&quot;/api/note&quot;</span>, { <span class="wf-tok-prop">method</span>: <span class="wf-tok-str">&quot;GET&quot;</span> })
+        note = answer.text ?? <span class="wf-tok-str">&quot;&quot;</span>
     }
-    Button(&quot;Load&quot;, disabled: load.pending) { on click { load() } }
-    Text(&quot;{rows.length} rows, note: {note}&quot;)
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Report&quot;</span>).h1
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Load&quot;</span>, <span class="wf-tok-prop">disabled</span>: load.pending) { <span class="wf-tok-kw">on</span> click { load() } }
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{rows.length} rows, note: {note}&quot;</span>)
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>fetch(url, options)</code> returns the parsed JSON body (or throws on a failed response); <code>options</code> is a map with <code>method</code>, <code>headers</code>, <code>body</code> (a map is sent as JSON). <a href="/docs/guide/data">Chapter 17</a> has <code>resource</code>, the declarative form.</p>
+<p><code>fetch(url, options)</code> returns the parsed JSON body, or throws when the response fails. <code>options</code> is a map with <code>method</code>, <code>headers</code> and <code>body</code>; a map given as <code>body</code> is sent as JSON. <code>await</code> outside an action, a handler, a timer or a hook is a <code>T17</code>. <a href="/docs/guide/data">Data</a> has <code>resource</code>, the declarative way to load data.</p>
                             </div>
                             <h2 class="wf-heading" id="constants">Constants</h2>
+                            <div class="wf-markdown">
+<p><code>const</code> declares a value for the whole project. Every page, component and store reads it by name, and the build inlines it into the bundle:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -639,19 +890,21 @@ page Calls(path: &quot;/&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">const MAX_ROWS = 50
-const API = env.PUBLIC_API_URL ?? &quot;/api&quot;
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">const</span> <span class="wf-tok-name">MAX_ROWS</span> = <span class="wf-tok-num">50</span>
+<span class="wf-tok-kw">const</span> <span class="wf-tok-prop">PAGE_SIZE</span>: <span class="wf-tok-name">Number</span> = <span class="wf-tok-num">20</span>
+<span class="wf-tok-kw">const</span> <span class="wf-tok-name">API</span> = env.<span class="wf-tok-name">PUBLIC_API_URL</span> ?? <span class="wf-tok-str">&quot;/api&quot;</span>
 
-page Consts(path: &quot;/&quot;) {
-    Text(&quot;Up to {MAX_ROWS} rows from {API}&quot;)
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Settings</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/settings&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Settings&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;The limits this site runs with.&quot;</span>) {
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Settings&quot;</span>).h1
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Up to {MAX_ROWS} rows, {PAGE_SIZE} a page, from {API}&quot;</span>)
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>const</code> declares a project-wide value, read by name everywhere and inlined into the bundle. It may carry a type: <code>const PAGE_SIZE: Number = 20</code>. <code>env.NAME</code> reads a value fixed at build time — from the config's <code>env</code> map, a <code>.env</code> file, or the shell — and only a public name may be read from a page; <a href="/docs/guide/environments">Environments</a> has the rules.</p>
+<p>A constant may carry a type, as <code>PAGE_SIZE</code> does. Assigning to one is an <code>X01</code>. <code>env.NAME</code> reads a value fixed at build time — from the config's <code>env</code> map, a <code>.env</code> file or the shell. A page may read only a public name, one that begins <code>PUBLIC_</code> or that <code>public_env</code> lists; <a href="/docs/guide/environments">Environments</a> has the rules.</p>
                             </div>
                             <h2 class="wf-heading" id="built-in-functions">Built-in functions</h2>
                             <div class="wf-markdown">
-<p>These are the whole of what the language adds to what the browser already has. Everything else with parentheses after it is a method, an action, a component or one of the browser's own globals.</p>
+<p>These functions are everything the language adds to what the browser already has. Anything else followed by parentheses is a method, an action, a component or one of the browser's own globals. <a href="/docs/guide/built-ins#functions">Built-ins</a> has an entry for each.</p>
                             </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">Built-in functions</caption>
@@ -678,7 +931,7 @@ page Consts(path: &quot;/&quot;) {
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Changes the route (<a href="/docs/guide/pages-and-routing#links-and-navigation">chapter 6</a>)</p>
+<p>Changes the route (<a href="/docs/guide/pages-and-routing#links-and-navigation">Pages and routing</a>)</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -690,7 +943,7 @@ page Consts(path: &quot;/&quot;) {
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p><a href="#format-and-ago">Above</a></p>
+<p>Formats a value (<a href="#format-and-ago">above</a>)</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -702,7 +955,7 @@ page Consts(path: &quot;/&quot;) {
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Translates, and switches locale (<a href="/docs/guide/i18n">chapter 21</a>)</p>
+<p>Translates, and switches the locale (<a href="/docs/guide/i18n">i18n</a>)</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -714,9 +967,17 @@ page Consts(path: &quot;/&quot;) {
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>&quot;dark&quot;</code>, <code>&quot;light&quot;</code> or <code>&quot;system&quot;</code>, kept across visits (<a href="/docs/guide/styling#dark-mode">chapter 15</a>)</p>
+<p><code>&quot;dark&quot;</code>, <code>&quot;light&quot;</code> or <code>&quot;system&quot;</code>, kept across visits (<a href="/docs/guide/styling#dark-mode">Styling</a>)</p>
                                             </div>
                                         </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>keyIs(e, &quot;mod+s&quot;)</code>, <code>keyLabel(&quot;mod+s&quot;)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Tests a key event against a shortcut, and writes a shortcut for this system</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -726,7 +987,7 @@ page Consts(path: &quot;/&quot;) {
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Timers (<a href="/docs/guide/state#timers">chapter 8</a>)</p>
+<p>Timers (<a href="/docs/guide/state#timers">State and reactivity</a>)</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -738,7 +999,7 @@ page Consts(path: &quot;/&quot;) {
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Plays one by hand (<a href="/docs/guide/motion#driving-one-yourself">chapter 20</a>)</p>
+<p>Plays an animation by hand (<a href="/docs/guide/motion#drive-an-animation-yourself">Motion</a>)</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -750,7 +1011,7 @@ page Consts(path: &quot;/&quot;) {
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Shows a change before the server agrees (<a href="/docs/guide/data#showing-a-change-before-the-server-agrees">chapter 17</a>)</p>
+<p>Shows a change before the server agrees (<a href="/docs/guide/data#show-a-change-before-the-server-agrees">Data</a>)</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -762,7 +1023,7 @@ page Consts(path: &quot;/&quot;) {
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>A send that outlives the page (<a href="/docs/guide/realtime">chapter 18</a>)</p>
+<p>Sends data in a way that outlives the page (<a href="/docs/guide/realtime">Real-time</a>)</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -774,7 +1035,7 @@ page Consts(path: &quot;/&quot;) {
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Markup, through an allow-list (<a href="/docs/guide/security#markup-you-did-not-write">chapter 23</a>)</p>
+<p>Passes markup through an allow-list (<a href="/docs/guide/security#show-markup-you-did-not-write">Security</a>)</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -786,7 +1047,7 @@ page Consts(path: &quot;/&quot;) {
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>A fresh <code>Uuid</code> (<a href="/docs/guide/types#the-types-the-language-brings-with-it">chapter 13</a>)</p>
+<p>Makes a fresh <code>Uuid</code> (<a href="/docs/guide/types#the-types-the-language-brings-with-it">Types</a>)</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -798,26 +1059,145 @@ page Consts(path: &quot;/&quot;) {
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>A request, through the same engine as <code>api</code> (<a href="/docs/guide/data#await-fetch-in-an-action">Data</a>)</p>
+<p>Sends a request, through the same engine as <code>api</code> (<a href="/docs/guide/data#fetch-on-demand-with-await-fetch">Data</a>)</p>
                                             </div>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>ws(…)</code>, <code>sse(…)</code>, <code>broadcast(…)</code>, <code>rtc(…)</code></p>
+<p><code>ws(…)</code>, <code>sse(…)</code>, <code>broadcast(…)</code>, <code>rtc(…)</code>, <code>spawn(…)</code></p>
                                             </div>
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Open a socket, a stream, a channel or a peer, after <code>socket x =</code> and the rest (<a href="/docs/guide/realtime">Real-time</a>)</p>
+<p>Open a socket, a stream, a channel, a peer or a worker, after <code>socket x =</code> and the rest (<a href="/docs/guide/realtime">Real-time</a>)</p>
                                             </div>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>The browser's own globals need no prefix and compile to themselves: <code>window</code>, <code>document</code>, <code>console</code>, <code>localStorage</code>, <code>sessionStorage</code>, <code>JSON</code>, <code>Math</code>, <code>Date</code>, <code>setTimeout</code>, <code>setInterval</code>, <code>clearTimeout</code>, <code>clearInterval</code>, <code>parseInt</code>, <code>parseFloat</code>, <code>Array</code>, <code>Object</code>, <code>String</code>, <code>Number</code>, <code>Boolean</code>, <code>Promise</code>, <code>Error</code>, <code>Map</code>, <code>Set</code>, <code>RegExp</code>, <code>Infinity</code>, <code>NaN</code>, <code>undefined</code>, <code>encodeURIComponent</code>, <code>decodeURIComponent</code>, <code>encodeURI</code>, <code>decodeURI</code>, <code>atob</code>, <code>btoa</code>, <code>fetch</code>, <code>alert</code>, <code>confirm</code>, <code>prompt</code>, <code>requestAnimationFrame</code>, <code>cancelAnimationFrame</code>, <code>navigator</code>, <code>location</code> and the other platform names <a href="/docs/guide/built-ins#browser-globals">Built-ins</a> lists.</p>
+<p>The browser's own globals need no prefix and compile to themselves: <code>window</code>, <code>document</code>, <code>console</code>, <code>localStorage</code>, <code>sessionStorage</code>, <code>JSON</code>, <code>Math</code>, <code>Date</code>, <code>setTimeout</code>, <code>setInterval</code>, <code>clearTimeout</code>, <code>clearInterval</code>, <code>parseInt</code>, <code>parseFloat</code>, <code>Array</code>, <code>Object</code>, <code>String</code>, <code>Number</code>, <code>Boolean</code>, <code>Promise</code>, <code>Error</code>, <code>Map</code>, <code>Set</code>, <code>RegExp</code>, <code>Infinity</code>, <code>NaN</code>, <code>undefined</code>, <code>encodeURIComponent</code>, <code>decodeURIComponent</code>, <code>encodeURI</code>, <code>decodeURI</code>, <code>atob</code>, <code>btoa</code>, <code>fetch</code>, <code>alert</code>, <code>confirm</code>, <code>prompt</code>, <code>requestAnimationFrame</code>, <code>cancelAnimationFrame</code>, <code>navigator</code>, <code>location</code>, and the other platform names that <a href="/docs/guide/built-ins#browser-globals">Built-ins</a> lists.</p>
+                            </div>
+                            <h2 class="wf-heading" id="summary">Summary</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Summary</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Syntax</th>
+                                        <th scope="col">Meaning</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&quot;text {expr}&quot;</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A string with a live value spliced in</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&quot;{value:.style(option)}&quot;</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A splice formatted as <code>format</code> would</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>a ?? b</code>, <code>a?.b</code>, <code>a?.[i]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A fallback for <code>null</code>, and reading through one</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>a..b</code>, <code>a..=b</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A range, without and with its end</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>[...xs, x]</code>, <code>{ ...m, key: v }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A list or map spread into a new one</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>if c { a } else { b }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The value of the arm that runs</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>match v { .case { a } else { b } }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The value of the arm that matches</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>x =&gt; expr</code>, <code>(a, b) =&gt; expr</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A lambda</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>/pattern/flags</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A regular expression</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>$name</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A design token</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>await expr</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The result of a promise, in an action or a handler</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>const NAME = expr</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A value the whole project reads</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p><a href="/docs/guide/grammar#expressions">Grammar</a> has the full precedence table, and <a href="/docs/guide/built-ins">Built-ins</a> every function, value and method.</p>
                             </div>
                         </div>
                     </div>
@@ -835,6 +1215,7 @@ page Consts(path: &quot;/&quot;) {
                 <div class="wf-stack wf-gap--lg wf-sac91c322" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
+                        <a class="wf-link wf-s3e136ca4" href="#a-first-example">A first example</a>
                         <a class="wf-link wf-s3e136ca4" href="#literals">Literals</a>
                         <a class="wf-link wf-s3e136ca4" href="#interpolation">Interpolation</a>
                         <a class="wf-link wf-s3e136ca4" href="#operators">Operators</a>
@@ -846,6 +1227,7 @@ page Consts(path: &quot;/&quot;) {
                         <a class="wf-link wf-s3e136ca4" href="#await">await</a>
                         <a class="wf-link wf-s3e136ca4" href="#constants">Constants</a>
                         <a class="wf-link wf-s3e136ca4" href="#built-in-functions">Built-in functions</a>
+                        <a class="wf-link wf-s3e136ca4" href="#summary">Summary</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-s614f8b98">

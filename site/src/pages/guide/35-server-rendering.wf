@@ -1,12 +1,16 @@
 /// Chapter 35 of the guide, written from md-docs/35-server-rendering.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page ServerRenderingGuide(path: "/docs/guide/server-rendering", title: "Server rendering", description: "WebFluent as a template engine: wf render, the Rust API, the Node binding, HTML, fragment and PDF output, pages, themes and the data context.", layout: DocsShell("Server rendering", chapter: t("guide.chapter", { n: "35" }), blurb: "Render a .wf template with JSON on a server — an email, an invoice, a report, an HTML fragment — from the CLI, Rust or Node.", source: "md-docs/35-server-rendering.md", sections: [Anchor(id: "a-template-and-its-data", label: "A template and its data"), Anchor(id: "what-a-template-may-use", label: "What a template may use"), Anchor(id: "uses", label: "Uses")], prevTo: "/docs/guide/pdf-and-slides", prevLabel: "34. {t("ch.34")}", nextTo: "/docs/tutorials", nextLabel: "36. {t("ch.36")}")) {
+page ServerRenderingGuide(path: "/docs/guide/server-rendering", title: "Server rendering", description: "Use WebFluent as a template engine: wf render, the Rust API and the Node binding, with HTML, fragment and PDF output, pages, themes and data.", layout: DocsShell("Server rendering", chapter: t("guide.chapter", { n: "35" }), blurb: "Render a .wf template with JSON on a server — an email, an invoice, a report, an HTML fragment — from the CLI, Rust or Node.", source: "md-docs/35-server-rendering.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "write-a-template-and-its-data", label: "Write a template and its data"), Anchor(id: "render-from-the-command-line", label: "Render from the command line"), Anchor(id: "render-from-rust", label: "Render from Rust"), Anchor(id: "render-from-node", label: "Render from Node"), Anchor(id: "what-a-template-may-use", label: "What a template may use"), Anchor(id: "pick-an-output-for-the-job", label: "Pick an output for the job"), Anchor(id: "troubleshooting", label: "Troubleshooting")], prevTo: "/docs/guide/pdf-and-slides", prevLabel: "34. {t("ch.34")}", nextTo: "/docs/tutorials", nextLabel: "36. {t("ch.36")}")) {
     Stack(gap: .lg) {
-        Markdown("A WebFluent site is static files. When HTML has to be made on a server — an email, an invoice PDF per order, a fragment for an existing page — the same language renders a template with JSON data, from the command line, from Rust or from Node.")
+        Markdown("This chapter shows you how to render a `.wf` template with JSON data on a server — an email, an invoice PDF per order, a fragment for an existing page — from the command line, from Rust or from Node.\n\nA WebFluent site is static files, and most projects need nothing more. When HTML or a PDF has to be made on a server for each request or each record, the same language works as a *template engine*: you hand it a template and data, and it hands back HTML or PDF bytes. Nothing runs in a browser afterwards.")
 
-        Heading("A template and its data", id: "a-template-and-its-data").h2
+        Heading("Before you start", id: "before-you-start").h2
 
-        Markdown("A `.wf` file can be rendered with JSON data — an invoice, an email, a report — from the CLI or from Rust and Node. The data's top-level keys are in scope by name; the static subset of the language applies (no `state`, handlers, stores, `resource`, motion).")
+        Markdown("You need the `wf` command installed ([Getting started](/docs/guide/getting-started#install)). For the Rust API you need a Rust project; for the Node binding, Node.js and npm.")
+
+        Heading("Write a template and its data", id: "write-a-template-and-its-data").h2
+
+        Markdown("A template is a `.wf` file with a `page`. The data's top-level keys are in scope by name, so the template reads `number`, `customer` and `items` without declaring them. This invoice template shows a table of items and a badge for whether it is paid:")
 
         CodeBlock(#"page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
     Heading("Invoice #{number}").h1
@@ -27,6 +31,8 @@ page ServerRenderingGuide(path: "/docs/guide/server-rendering", title: "Server r
     Text("Total: {format(total, .currency)}").bold.lg
 }"#, title: "wf")
 
+        Markdown("The data is a JSON object, saved here as `invoice.json`:")
+
         CodeBlock(#"{
   "number": "INV-001",
   "customer": { "name": "Acme Corp" },
@@ -36,23 +42,74 @@ page ServerRenderingGuide(path: "/docs/guide/server-rendering", title: "Server r
   "locale": "en"
 }"#, title: "json")
 
-        Heading("From the command line", id: "from-the-command-line").h3
+        Markdown("Rendered, the page reads `Invoice #INV-001`, `Bill to: Acme Corp`, one table row (`Widget`, `5`, `$49.95`), the badge `Due` and `Total: $49.95`.\n\nA template uses the static subset of the language: no handlers, stores, `resource` or motion (see [What a template may use](#what-a-template-may-use)).")
+
+        Heading("Render from the command line", id: "render-from-the-command-line").h2
+
+        Markdown("To render a template, run `wf render` with the template and its data:")
 
         Terminal(lines: [
                 Line(command: "wf render invoice.wf --data invoice.json --format html-fragment")
             ])
 
-        Markdown("`--format` is `html` (a whole document with its CSS), `html-fragment` (the body only), `pdf` or `slides`; `-o file` writes instead of printing; `--theme Name` picks one of several `theme` declarations; `--token NAME=VALUE` sets a design token over the theme's; `--lang ar` sets the document's language; the data is read from stdin when `--data` is omitted. The template may be a directory — every `.wf` and `.wfx` under it as one, components shared — with `--page Name` choosing the page to render. A template that names a component nothing declares, or a flag a component does not take, is refused, as a build would refuse it.")
+        Markdown("The command prints the markup to standard output. Its options:")
 
-        Heading("From Rust", id: "from-rust").h3
+        Table(caption: "Render from the command line") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Option").header
+                    Table.Cell("What it does").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`--data FILE`") }
+                    Table.Cell("The JSON data. When it is omitted, the data is read from standard input")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`--format`, `-f`") }
+                    Table.Cell { Markdown("`html` (a whole document with its CSS; the default), `html-fragment` (the body only), `pdf` or `slides`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`-o FILE`, `--output`") }
+                    Table.Cell("Writes to a file instead of printing")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`--theme Name`") }
+                    Table.Cell { Markdown("Picks one of several `theme` declarations") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`--token NAME=VALUE`") }
+                    Table.Cell("Sets a design token over the theme's; repeat it for more")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`--lang ar`") }
+                    Table.Cell { Markdown("Sets the document's language, `<html lang>` (default `en`)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`--page Name`") }
+                    Table.Cell("Chooses the page to render when the template has several")
+                }
+            }
+        }
 
-        Markdown("The template engine is the `webfluent` crate. Without the `wf` command's own dependencies (its argument parser and dev server):")
+        Markdown("The template may also be a directory. Every `.wf` and `.wfx` file under it renders as one template, with components shared, and `--page Name` chooses the page. This command renders the `Invoice` page of `templates/` to a PDF, in Arabic:")
+
+        Terminal(lines: [
+                Line(command: "wf render templates/ --page Invoice --lang ar --data invoice.json --format pdf -o invoice.pdf")
+            ])
+
+        Markdown("A template that names a component nothing declares, or a flag a component does not take, is refused, as a build would refuse it.")
+
+        Heading("Render from Rust", id: "render-from-rust").h2
+
+        Markdown("The template engine is the `webfluent` crate. To use it without the `wf` command's own dependencies (its argument parser and dev server), turn off the default features:")
 
         CodeBlock(#"[dependencies]
 webfluent = { version = "5", default-features = false }
 serde = { version = "1", features = ["derive"] }"#, title: "toml")
 
-        Markdown("Load the templates once, at start-up; render on every request:")
+        Markdown("Load the templates once, at start-up, and render on every request. This code loads a directory of templates and renders its `Invoice` page three ways:")
 
         CodeBlock(#"use serde::Serialize;
 use webfluent::{PdfConfig, Template};
@@ -78,11 +135,105 @@ let pdf: Vec<u8> = templates
     .with_pdf(PdfConfig { page_size: "Letter".into(), ..PdfConfig::default() })
     .render_pdf(&invoice)?;"#, title: "rust")
 
-        Markdown("- **Loading.** `Template::from_str(source)`, `from_file(path)` (a `.wfx` file is read as its indented layout), `from_files(&[..])`, `from_dir(dir)`, and `from_sources(&[(name, source), ..])` for templates embedded in the binary with `include_str!`. Each parses and checks once; an error names the file and line. `pages()` lists the pages, `page(name)` picks one — without it, every page of the template renders.\n- **Data** is anything `serde` serializes: your own `#[derive(Serialize)]` structs, or a `serde_json::Value`. Its top-level fields are the names the template reads; a `const` and a `data` file are in scope too.\n- **Output.** `render_html` is a whole document: `<html lang>`, a `<title>` from the page's (its `\{…\}` filled from the data), the CSS in a `<style>` block. `render_html_parts` hands the CSS and the markup back separately, for a server that links its stylesheet and keeps a strict Content-Security-Policy. `render_html_fragment` is the markup alone; `render_pdf` and `render_slides` are PDF bytes, laid out by the paged engine of [chapter 34](/docs/guide/pdf-and-slides); `render_pdf_report` and `render_slides_report` return a `PdfReport` — the bytes, the page count, each page's text in reading order (for a test that holds a document to what it says) and the notes (a font taken from the machine, a character no font had). A template loaded from files reads its fonts from `fonts/` beside it, and its pictures from there too.\n- **Settings.** `with_theme(name)`, `with_tokens(&[(name, value)])`, `with_lang(\"ar\")` (an RTL language also sets `dir=\"rtl\"`), `with_pdf(PdfConfig \{ .. \})` for page size, margins and fonts, and `with_slides(SlidesConfig \{ .. \})`.\n- **In a server.** A `Template` is `Send + Sync` and cheap to clone — the parsed program is shared — so keep it in your framework's state (an `Arc`, or a clone per handler) and render from any thread. A render takes tens of microseconds.\n- **Untrusted data.** Every value the data supplies is escaped as text, and a URL from the data that a browser would run — `javascript:`, `data:` — is dropped from `href` and `src`, as the browser build drops it; an `Image`'s `src` keeps a picture carried in its address (`data:image/png;base64,…`), as the browser build keeps it.\n\n`cargo run --example invoice` in the repository renders a directory of templates to HTML, a fragment and a PDF.")
+        Markdown("To try it, run `cargo run --example invoice` in the WebFluent repository. The example renders a directory of templates to HTML, a fragment and a PDF.")
 
-        Heading("From Node", id: "from-node").h3
+        Heading("Load templates", id: "load-templates").h3
 
-        Markdown("`npm install webfluent` — a small wrapper around `wf render`. It needs `wf` itself installed: it looks on `PATH`, in `~/.webfluent/bin` and `~/.cargo/bin`, or at `WF_BIN`. Its version is the compiler's.")
+        Markdown("Each loader parses and checks the template once. An error names the file and the line.")
+
+        Table(caption: "Load templates") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Loader").header
+                    Table.Cell("Reads").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`Template::from_str(source)`") }
+                    Table.Cell("One template from a string")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Template::from_file(path)`") }
+                    Table.Cell { Markdown("One file; a `.wfx` file is read in its indented layout") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Template::from_files(&[..])`") }
+                    Table.Cell("Several files, as one template")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Template::from_dir(dir)`") }
+                    Table.Cell { Markdown("Every `.wf` and `.wfx` under a directory, as one template") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Template::from_sources(&[(name, source), ..])`") }
+                    Table.Cell { Markdown("Templates embedded in the binary with `include_str!`") }
+                }
+            }
+        }
+
+        Markdown("`pages()` lists the template's pages, and `page(name)` picks one. Without `page(name)`, every page of the template renders. A name the template does not have is an error that lists the pages it does have:")
+
+        CodeBlock(#"no page called `Receipt`; the template has `Invoice`"#, title: "text")
+
+        Heading("Pass data", id: "pass-data").h3
+
+        Markdown("The data is anything `serde` serializes: your own `#[derive(Serialize)]` structs, or a `serde_json::Value`. Its top-level fields are the names the template reads. A `const` and a `data` file are in scope too.")
+
+        Heading("Choose the output", id: "choose-the-output").h3
+
+        Table(caption: "Choose the output") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Method").header
+                    Table.Cell("Returns").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`render_html`") }
+                    Table.Cell { Markdown("A whole document: `<html lang>`, a `<title>` from the page's (its `\{…\}` filled from the data), and the CSS in a `<style>` block") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`render_html_parts`") }
+                    Table.Cell("The CSS and the markup separately, for a server that links its stylesheet and keeps a strict Content-Security-Policy")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`render_html_fragment`") }
+                    Table.Cell("The markup alone")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`render_pdf`, `render_slides`") }
+                    Table.Cell { Markdown("PDF bytes, laid out by the paged engine of [PDF and slides](/docs/guide/pdf-and-slides)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`render_pdf_report`, `render_slides_report`") }
+                    Table.Cell { Markdown("A `PdfReport`: the bytes, the page count, each page's text in reading order, and the notes (a font taken from the machine, a character no font had)") }
+                }
+            }
+        }
+
+        Markdown("A `PdfReport`'s page text lets a test hold a document to what it says. A template loaded from files reads its fonts from `fonts/` beside it, and its pictures from there too.")
+
+        Heading("Configure a render", id: "configure-a-render").h3
+
+        Markdown("Each setting returns the `Template`, so you can chain them before a render:\n\n- `with_theme(name)` picks a theme;\n- `with_tokens(&[(name, value)])` sets design tokens over the theme's;\n- `with_lang(\"ar\")` sets the language (a right-to-left language also sets `dir=\"rtl\"`);\n- `with_pdf(PdfConfig \{ .. \})` sets page size, margins and fonts;\n- `with_slides(SlidesConfig \{ .. \})` sets a deck's options.")
+
+        Heading("Use it in a server", id: "use-it-in-a-server").h3
+
+        Markdown("A `Template` is `Send + Sync` and cheap to clone, because the parsed program is shared. Keep it in your framework's state — an `Arc`, or a clone per handler — and render from any thread. A render takes tens of microseconds.")
+
+        Callout("Every value the data supplies is escaped as text. A URL from the data that a browser would run — `javascript:`, `data:` — is dropped from `href` and `src`, as the browser build drops it. An `Image`'s `src` keeps a picture carried in its address (`data:image/png;base64,…`), as the browser build keeps it.", kind: .note)
+
+        Heading("Render from Node", id: "render-from-node").h2
+
+        Markdown("The Node binding is a small wrapper around `wf render`. Install it with npm:")
+
+        Terminal(lines: [
+                Line(command: "npm install webfluent")
+            ])
+
+        Markdown("The binding needs `wf` itself installed. It looks for it at `WF_BIN`, then on `PATH`, then in `~/.webfluent/bin` and `~/.cargo/bin` (and, outside Windows, `/usr/local/bin` and `/usr/bin`). Its version is the compiler's.\n\nThis Express app renders an invoice as HTML and as a PDF:")
 
         CodeBlock(#"const { Template } = require("webfluent");
 
@@ -97,14 +248,105 @@ app.get("/invoices/:id.pdf", async (req, res) => {
   res.type("application/pdf").send(await invoice.renderPdfAsync(await loadInvoice(req.params.id)));
 });"#, title: "js")
 
-        Markdown("Every render has a synchronous form (`renderHtml`, `renderHtmlFragment`, `renderPdf`, `renderSlides`) and an `…Async` one that does not block the event loop — use those in a server. `withTheme`, `withTokens` and `withLang` set what the Rust API sets. A render runs `wf` once, a few milliseconds; the data goes over stdin, so nothing is written to disk.\n\nA template may declare `type`s and a `theme` like any file; `data` files are read relative to the template. `format` and `ago` speak the data's `locale` when it has one, else English.")
+        Markdown("Every render has a synchronous form (`renderHtml`, `renderHtmlFragment`, `renderPdf`, `renderSlides`) and an `…Async` form that does not block the event loop. Use the `…Async` forms in a server. `withTheme`, `withTokens` and `withLang` set what the Rust API sets.\n\nA render runs `wf` once and takes a few milliseconds. The data goes over standard input, so nothing is written to disk.")
 
         Heading("What a template may use", id: "what-a-template-may-use").h2
 
-        Markdown("The static subset of the language: every layout, typography and data-display element, `for` loops, `if`/`else`, string interpolation, `format` and `ago`, `style \{ \}` blocks, flags, themes, `type`s, `const`s and components. A `state` is its first value and a `derived` value what that works out to — a page may work out its totals once, in order, and show them anywhere — and a value the data hands over wins over either. Not: `effect`, handlers, navigation, stores, animations, `resource` — there is no browser to run them in.\n\nA template may read private `env` names ([Environments](/docs/guide/environments)): it runs on your server, where a secret stays secret.")
+        Markdown("A template uses the static subset of the language, because there is no browser to run the rest:")
 
-        Heading("Uses", id: "uses").h2
+        Table(caption: "What a template may use") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Supported").header
+                    Table.Cell("Not supported").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell("Every layout, typography and data-display element")
+                    Table.Cell { Markdown("`effect`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`for` loops, `if`/`else`, string interpolation") }
+                    Table.Cell { Markdown("Handlers (`on click`)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`format` and `ago`") }
+                    Table.Cell("Navigation")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`style \{ \}` blocks, flags, themes") }
+                    Table.Cell("Stores")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`type`s, `const`s, `data` files and components") }
+                    Table.Cell("Animations")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`state` and `derived` values (see below)") }
+                    Table.Cell { Markdown("`resource`") }
+                }
+            }
+        }
 
-        Markdown("- **Email**: render with `--format html`; inline the styles with your mailer if it needs them.\n- **Invoices and reports**: `--format pdf`, one per record, from a job queue.\n- **Fragments**: `--format html-fragment` for a piece of an existing page — an HTMX response, a CMS block.")
+        Markdown("A `state` is its first value, and a `derived` value is what that works out to. So a page may work out its totals once, in order, and show them anywhere. A value the data hands over wins over either.\n\nA template may declare `type`s and a `theme` like any file. `data` files are read relative to the template. `format` and `ago` speak the data's `locale` key when it has one, and English otherwise.\n\nA template may read private `env` names ([Environments](/docs/guide/environments)): it runs on your server, where a secret stays secret.")
+
+        Heading("Pick an output for the job", id: "pick-an-output-for-the-job").h2
+
+        Table(caption: "Pick an output for the job") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Job").header
+                    Table.Cell("Output").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell("An email")
+                    Table.Cell { Markdown("`--format html`; inline the styles with your mailer if it needs them") }
+                }
+                Table.Row {
+                    Table.Cell("Invoices and reports")
+                    Table.Cell { Markdown("`--format pdf`, one per record, from a job queue") }
+                }
+                Table.Row {
+                    Table.Cell("A piece of an existing page — an HTMX response, a CMS block")
+                    Table.Cell { Markdown("`--format html-fragment`") }
+                }
+            }
+        }
+
+        Heading("Troubleshooting", id: "troubleshooting").h2
+
+        Table(caption: "Troubleshooting") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("What you see").header
+                    Table.Cell("What to do").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell("The render fails with \"no page called …\"")
+                    Table.Cell { Markdown("Pass one of the page names the message lists to `page(name)` or `--page`") }
+                }
+                Table.Row {
+                    Table.Cell("A render refuses a component or a flag")
+                    Table.Cell { Markdown("Declare the component in the template's files, or use a flag the component takes — the same checks as `wf build`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`WebFluent CLI (wf) not found` from Node") }
+                    Table.Cell { Markdown("Install `wf`, or set `WF_BIN` to the binary's path") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("A `\{name\}` renders empty") }
+                    Table.Cell { Markdown("The data has no top-level key `name`; check the JSON's spelling and nesting") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`format` writes the wrong language") }
+                    Table.Cell { Markdown("Add a `locale` key to the data") }
+                }
+            }
+        }
     }
 }

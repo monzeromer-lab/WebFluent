@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Real-time</title>
-    <meta name="description" content="WebSockets, server-sent events, broadcast channels and WebRTC peers: opening, matching, sending, options, reconnection and typed messages.">
+    <meta name="description" content="WebSockets, server-sent events, broadcast channels, WebRTC peers and workers: opening, matching, sending, options, reconnection and typed messages.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/realtime">
     <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/realtime?lang=en">
     <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/realtime?lang=ar">
@@ -12,7 +12,7 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Real-time">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="WebSockets, server-sent events, broadcast channels and WebRTC peers: opening, matching, sending, options, reconnection and typed messages.">
+    <meta property="og:description" content="WebSockets, server-sent events, broadcast channels, WebRTC peers and workers: opening, matching, sending, options, reconnection and typed messages.">
     <meta property="og:url" content="https://webfluent.monzeromer.dev/docs/guide/realtime">
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="ar_AR">
@@ -21,9 +21,9 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Real-time">
-    <meta name="twitter:description" content="WebSockets, server-sent events, broadcast channels and WebRTC peers: opening, matching, sending, options, reconnection and typed messages.">
+    <meta name="twitter:description" content="WebSockets, server-sent events, broadcast channels, WebRTC peers and workers: opening, matching, sending, options, reconnection and typed messages.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/realtime#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/realtime","name":"Real-time","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"WebSockets, server-sent events, broadcast channels and WebRTC peers: opening, matching, sending, options, reconnection and typed messages."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/realtime#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Real-time","item":"https://webfluent.monzeromer.dev/docs/guide/realtime"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/realtime#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/realtime","name":"Real-time","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"WebSockets, server-sent events, broadcast channels, WebRTC peers and workers: opening, matching, sending, options, reconnection and typed messages."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/realtime#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Real-time","item":"https://webfluent.monzeromer.dev/docs/guide/realtime"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -69,6 +69,9 @@
             </div>
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
+                    <a class="wf-sidebar__item" href="/docs">
+                        <p class="wf-text">Overview</p>
+                    </a>
                     <p class="wf-text group-label">Start</p>
                     <a class="wf-sidebar__item" href="/docs/guide/introduction">
                         <p class="wf-text num">01</p>
@@ -274,22 +277,114 @@
                 </aside>
                 <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
-                        <a class="wf-link" href="/docs/guide/introduction">Guide</a>
+                        <a class="wf-link" href="/docs">Guide</a>
                         <p class="wf-text">/</p>
                         <p class="wf-text wf-s8c71c534">Chapter 18</p>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s28a8547f">
                         <h1 class="wf-heading wf-sa3503382">Real-time</h1>
-                        <p class="wf-text wf-sfd35f593">Sockets, server-sent events, a channel every tab hears, a direct line to another reader&#x27;s page — and the network itself as a value.</p>
+                        <p class="wf-text wf-sfd35f593">Hold a connection open — a socket, server-sent events, a channel every tab hears, a line to another reader&#x27;s page, a worker — and read the network itself.</p>
                     </div>
                     <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
-<p>A page can hold a connection open: a <strong>socket</strong> to a server, a <strong>stream</strong> of server-sent events, a <strong>channel</strong> every tab of the site hears, or a <strong>peer</strong> — a WebRTC data channel straight to another reader's page. Each is declared like a <code>resource</code>, matched on its state, and closed when the page that opened it leaves, so a route change can never leak one.</p>
+<p>This chapter shows you how to keep a page in touch with the world while it is open: a chat that updates as messages arrive, prices pushed from a server, a cart that stays in step across tabs, two readers talking page to page, and heavy work moved off the page's thread. Every connection is declared like a <code>resource</code>, read with a <code>match</code>, and closed for you when the page that opened it leaves, so a route change can never leak one.</p>
+<p>In this chapter you will:</p>
+<ul>
+<li>open a WebSocket and send and receive typed messages;</li>
+<li>listen to server-sent events;</li>
+<li>talk to the site's other tabs;</li>
+<li>connect two readers' pages directly over WebRTC;</li>
+<li>run a script in a worker beside the page;</li>
+<li>send a last message as the page unloads;</li>
+<li>show what the network is doing.</li>
+</ul>
                             </div>
-                            <h2 class="wf-heading" id="four-kinds-of-connection">Four kinds of connection</h2>
+                            <h2 class="wf-heading" id="before-you-start">Before you start</h2>
                             <div class="wf-markdown">
-<p>A socket, a stream of server-sent events, a channel every tab of the origin hears, or a peer — a line straight to another reader's page. Each is closed when the page that opened it leaves.</p>
+<p>You should know how a <code>resource</code> is read with <code>match</code> and its arms (<a href="/docs/guide/data#show-a-request-with-resource">Data</a>), and how <code>state</code> and <code>effect</code> work (<a href="/docs/guide/state">State and reactivity</a>). A connection is read the same way a resource is.</p>
+<p>There are five kinds of connection. Pick the one that fits the job:</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Before you start</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Declaration</th>
+                                        <th scope="col">Opened with</th>
+                                        <th scope="col">Use it for</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>socket</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>ws(url, …)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Two-way messages with a server: chat, live editing, notifications</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>stream</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>sse(url, …)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>One-way messages from a server: prices, progress, a log</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>channel</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>broadcast(name)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Messages between tabs of your site in one browser</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>peer</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>rtc(signal:, …)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A direct line to another reader&#x27;s page, with no server in the middle</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>worker</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>spawn(url, …)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A script of your site running beside the page, off its thread</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h2 class="wf-heading" id="open-a-socket">Open a socket</h2>
+                            <div class="wf-markdown">
+<p>To hold a two-way connection to a server, declare a <code>socket</code> with <code>ws(…)</code> and <code>match</code> on it. This chat page shows a spinner while the socket connects, the messages once it is open, and why it stopped when it closes:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -298,55 +393,331 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Chat(path: &quot;/chat&quot;, title: &quot;Chat&quot;, description: &quot;Talk.&quot;) {
-    state draft = &quot;&quot;
-    socket chat = ws(&quot;wss://example.com/chat&quot;, heartbeat: 20.seconds) {
-        on message(m) { log(m) }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Chat</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/chat&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Chat&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Talk to the team.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> draft = <span class="wf-tok-str">&quot;&quot;</span>
+    socket chat = ws(<span class="wf-tok-str">&quot;wss://example.com/chat&quot;</span>, <span class="wf-tok-prop">heartbeat</span>: <span class="wf-tok-num">20.seconds</span>) {
+        <span class="wf-tok-kw">on</span> message(m) { <span class="wf-tok-kw">log</span>(m) }
     }
 
-    Heading(&quot;Chat&quot;).h1
-    match chat {
-        connecting { Spinner.sm }
-        open       { for m in chat.messages by m.id { Text(m.text) } }
-        closed(c)  { Alert(&quot;Disconnected ({c.code})&quot;).warning }
-        error(e)   { Alert(e.message).danger }
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Chat&quot;</span>).h1
+    <span class="wf-tok-kw">match</span> chat {
+        connecting { <span class="wf-tok-name">Spinner</span>.sm }
+        open       { <span class="wf-tok-kw">for</span> m <span class="wf-tok-kw">in</span> chat.messages <span class="wf-tok-kw">by</span> m.id { <span class="wf-tok-name">Text</span>(m.text) } }
+        closed(c)  { <span class="wf-tok-name">Alert</span>(<span class="wf-tok-str">&quot;Disconnected ({c.code})&quot;</span>).warning }
+        <span class="wf-tok-kw">error</span>(e)   { <span class="wf-tok-name">Alert</span>(e.message).danger }
     }
-    Input(bind: draft, label: &quot;Message&quot;).text
-    Button(&quot;Send&quot;).primary { on click { chat.send({ text: draft })  draft = &quot;&quot; } }
+    <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: draft, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Message&quot;</span>).text
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Send&quot;</span>).primary { <span class="wf-tok-kw">on</span> click { chat.send({ <span class="wf-tok-prop">text</span>: draft })  draft = <span class="wf-tok-str">&quot;&quot;</span> } }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>A socket reconnects with backoff, keeps itself alive with a heartbeat, and holds what was sent while it was down.</p>
+<p>The page opens the socket when it is drawn and closes it when the reader leaves. Inside the socket's block, <code>on message(m) { }</code> handles each message that arrives and <code>on open { }</code> runs each time the line opens — the first time and after every reconnection.</p>
+<p>A socket looks after itself:</p>
+<ul>
+<li><strong>It reconnects.</strong> When the line drops, it waits and tries again, doubling the wait each time up to a limit. A server that closes the line normally (code <code>1000</code>) is not reconnected to.</li>
+<li><strong>It keeps itself alive.</strong> With <code>heartbeat:</code>, it sends a ping that often and treats a missing answer as a dead line, which it closes and reopens.</li>
+<li><strong>It holds what you send while it is down.</strong> <code>chat.send(…)</code> while the socket is reconnecting queues the message and sends it when the line opens again.</li>
+<li><strong>It reads JSON.</strong> A text message that parses as JSON arrives as a value; any other text arrives as a string. A value you send is sent as JSON, unless it is already a string.</li>
+</ul>
+<p>A <code>match</code> on a socket takes the arms <code>connecting</code>, <code>open</code>, <code>closed(c)</code> and <code>error(e)</code>, and an <code>else</code> for the rest. <code>closed(c)</code> is handed the close, with <code>c.code</code> and <code>c.reason</code>; <code>error(e)</code> is handed the failure, with <code>e.message</code>.</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">wf</p>
-                                    </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
-                                </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">stream ticks = sse(&quot;/events&quot;, events: [&quot;price&quot;])
-channel cart = broadcast(&quot;cart&quot;) { on message(m) { Cart.merge(m) } }
-beacon(&quot;/analytics&quot;, { event: &quot;checkout&quot; })     // survives the page unloading</code>
-                            </div>
+                            <h3 class="wf-heading" id="tune-a-socket">Tune a socket</h3>
                             <div class="wf-markdown">
-<p><code>ticks</code> and <code>cart</code> are handles too — a <code>match</code> reads the state, and an <code>effect</code> reads what arrived:</p>
-                            </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">wf</p>
-                                    </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
-                                </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">effect { if let p = ticks.last(&quot;price&quot;) { price = p } }
-Button(&quot;Sync&quot;) { on click { cart.post({ items: Cart.count }) } }</code>
-                            </div>
-                            <div class="wf-markdown">
-<p>What each handle holds:</p>
+<p>Pass options after the address to change how a socket connects and reconnects:</p>
                             </div>
                             <table class="wf-table">
-                                <caption class="wf-visually-hidden">Four kinds of connection</caption>
+                                <caption class="wf-visually-hidden">Tune a socket</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Option</th>
+                                        <th scope="col">Does</th>
+                                        <th scope="col">Default</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>protocols:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The subprotocols to ask for: <code>[&quot;v2&quot;]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>none</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>heartbeat:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Sends a ping this often, and reconnects when no pong comes back: <code>20.seconds</code></p>
+                                            </div>
+                                        </td>
+                                        <td>off</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>ping:</code>, <code>pong:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The heartbeat&#x27;s messages</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&quot;ping&quot;</code>, <code>&quot;pong&quot;</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>reconnect:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>false</code> to stay closed after the server closes the line</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>true</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>delay:</code>, <code>max:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The first wait before reconnecting, in milliseconds, and the longest; the wait doubles each time</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>500</code>, <code>30000</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>queue:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>false</code> to drop, rather than hold, what is sent while the socket is down</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>true</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>binaryType:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&quot;blob&quot;</code> or <code>&quot;arraybuffer&quot;</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&quot;blob&quot;</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h3 class="wf-heading" id="type-the-messages">Type the messages</h3>
+                            <div class="wf-markdown">
+<p>To have the compiler check what you send and type what you receive, name a type for each direction inside the socket's block with <code>send</code> and <code>receive</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Incoming</span> { <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">text</span>: <span class="wf-tok-name">String</span> }
+<span class="wf-tok-kw">type</span> <span class="wf-tok-name">Outgoing</span> { <span class="wf-tok-prop">text</span>: <span class="wf-tok-name">String</span> }
+
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Room</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/room&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Room&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A typed conversation.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> draft = <span class="wf-tok-str">&quot;&quot;</span>
+    socket chat = ws(<span class="wf-tok-str">&quot;wss://example.com/chat&quot;</span>, <span class="wf-tok-prop">heartbeat</span>: <span class="wf-tok-num">20.seconds</span>) {
+        send    <span class="wf-tok-name">Outgoing</span>
+        receive <span class="wf-tok-name">Incoming</span>
+    }
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Room&quot;</span>).h1
+    <span class="wf-tok-kw">for</span> m <span class="wf-tok-kw">in</span> chat.messages <span class="wf-tok-kw">by</span> m.id { <span class="wf-tok-name">Text</span>(m.text) }
+    <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: draft, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Message&quot;</span>)
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Send&quot;</span>) { <span class="wf-tok-kw">on</span> click { chat.send(<span class="wf-tok-name">Outgoing</span>(<span class="wf-tok-prop">text</span>: draft))  draft = <span class="wf-tok-str">&quot;&quot;</span> } }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>With <code>send</code> and <code>receive</code> declared, <code>chat.send(…)</code> is checked against <code>Outgoing</code>, and each message in <code>chat.messages</code> is an <code>Incoming</code>, so <code>m.text</code> is a <code>String</code> and <code>m.txet</code> is an error.</p>
+                            </div>
+                            <h2 class="wf-heading" id="listen-to-server-sent-events">Listen to server-sent events</h2>
+                            <div class="wf-markdown">
+<p>To receive a one-way flow of events from a server, declare a <code>stream</code> with <code>sse(…)</code>. <code>events:</code> names the event types to listen for, and <code>ticks.last(&quot;price&quot;)</code> is the latest event of that name:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Prices</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/prices&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Prices&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Live prices.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> price = <span class="wf-tok-num">0</span>
+    stream ticks = sse(<span class="wf-tok-str">&quot;/events&quot;</span>, <span class="wf-tok-prop">events</span>: [<span class="wf-tok-str">&quot;price&quot;</span>])
+    <span class="wf-tok-kw">effect</span> { <span class="wf-tok-kw">if</span> <span class="wf-tok-kw">let</span> p = ticks.last(<span class="wf-tok-str">&quot;price&quot;</span>) { price = p } }
+
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Prices&quot;</span>).h1
+    <span class="wf-tok-kw">match</span> ticks {
+        open { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Price: {price}&quot;</span>) }
+        <span class="wf-tok-kw">else</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Connecting…&quot;</span>).muted }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Each event name is kept apart, so <code>ticks.last(&quot;price&quot;)</code> is the last price and not the last event of any kind; <code>ticks.last()</code> is the last unnamed message. <code>ticks.messages</code> holds every message in order. A message whose data parses as JSON arrives as a value.</p>
+<p>The browser reconnects a stream on its own and resumes from the last event id the server sent. Pass <code>credentials: true</code> to send the site's cookies with the request.</p>
+                            </div>
+                            <h2 class="wf-heading" id="talk-to-the-site-s-other-tabs">Talk to the site&#x27;s other tabs</h2>
+                            <div class="wf-markdown">
+<p>To keep tabs of the same site in step — a cart, a sign-in, a setting — declare a <code>channel</code> with <code>broadcast(name)</code>. Every tab that opens a channel of that name hears what the others post with <code>.post(value)</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">store</span> <span class="wf-tok-name">Cart</span> {
+    <span class="wf-tok-kw">state</span> count = <span class="wf-tok-num">0</span>
+    <span class="wf-tok-kw">action</span> add() { count = count + <span class="wf-tok-num">1</span> }
+    <span class="wf-tok-kw">action</span> merge(<span class="wf-tok-prop">m</span>: <span class="wf-tok-name">Map</span>) { count = m.items }
+}
+
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Shop</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Shop&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A cart every tab agrees on.&quot;</span>) {
+    channel cart = broadcast(<span class="wf-tok-str">&quot;cart&quot;</span>) { <span class="wf-tok-kw">on</span> message(m) { <span class="wf-tok-name">Cart</span>.merge(m) } }
+
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Shop&quot;</span>).h1
+    …
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{Cart.count} in the cart&quot;</span>)
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Add to cart&quot;</span>) { <span class="wf-tok-kw">on</span> click { <span class="wf-tok-name">Cart</span>.add()  cart.post({ <span class="wf-tok-prop">items</span>: <span class="wf-tok-name">Cart</span>.count }) } }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Open the page in two tabs and add to the cart in one: the other tab's count follows. A tab does not hear its own posts. <code>cart.last</code> is the last message another tab posted. A channel's state is <code>open</code>, or <code>closed</code> in a browser without <code>BroadcastChannel</code>.</p>
+                            </div>
+                            <h2 class="wf-heading" id="connect-two-readers-pages">Connect two readers&#x27; pages</h2>
+                            <div class="wf-markdown">
+<p>To send messages straight from one reader's page to another's, with no server relaying them, declare a <code>peer</code> with <code>rtc(…)</code>. It opens a WebRTC data channel between the two pages.</p>
+<p>The language supplies the channel, not a server. Before two pages can connect, they must tell each other how — an offer, an answer, and the network routes each can be reached by. This exchange is called <em>signalling</em>. Your page sends its side out through the <code>signal:</code> function, over whatever connection the app already has, and hands what the other side sent to <code>link.signal(m)</code>. One side is the <code>initiator</code>.</p>
+<p>This page signals over a <code>broadcast</code> channel, so it connects two tabs of one browser. Open <code>/room?host=1</code> in one tab and <code>/room</code> in another:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Room</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/room&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Room&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Two readers, one line.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> heard = <span class="wf-tok-str">&quot;&quot;</span>
+    channel lobby = broadcast(<span class="wf-tok-str">&quot;room&quot;</span>) { <span class="wf-tok-kw">on</span> message(m) { link.signal(m) } }
+    peer link = rtc(<span class="wf-tok-prop">signal</span>: m =&gt; lobby.post(m), <span class="wf-tok-prop">initiator</span>: query.host == <span class="wf-tok-str">&quot;1&quot;</span>) {
+        <span class="wf-tok-kw">on</span> message(m) { heard = m.text }
+    }
+
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Room&quot;</span>).h1
+    <span class="wf-tok-kw">match</span> link {
+        connecting { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Waiting for the other side…&quot;</span>).muted }
+        open       { <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Wave&quot;</span>) { <span class="wf-tok-kw">on</span> click { link.send({ <span class="wf-tok-prop">text</span>: <span class="wf-tok-str">&quot;hello&quot;</span> }) } } }
+        closed(c)  { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;They left.&quot;</span>) }
+        <span class="wf-tok-kw">error</span>(e)   { <span class="wf-tok-name">Alert</span>(e.message).danger }
+    }
+    <span class="wf-tok-name">Text</span>(heard)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Between two readers on different machines, the signal rides the app's own socket or <code>api</code> instead of a <code>broadcast</code> channel.</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Connect two readers&#x27; pages</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Option</th>
+                                        <th scope="col">Does</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>signal:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Required. A function handed each message the other side must receive.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>initiator:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Whether this side makes the offer. Exactly one side does.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>ice:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The servers that help two readers on different networks find each other: <code>[{ urls: &quot;stun:…&quot; }]</code>. None by default, which connects readers on the same network only.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>ordered:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>false</code> for a channel that may deliver messages out of order.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>A peer is matched like a socket. <code>link.send(value)</code> sends a message, and holds it until the channel opens. When a page leaves, it closes its peer, and the other side reads <code>closed</code> at once rather than when the connection times out.</p>
+                            </div>
+                            <h2 class="wf-heading" id="read-a-connection-s-state-and-messages">Read a connection&#x27;s state and messages</h2>
+                            <div class="wf-markdown">
+<p>Every connection is a <em>handle</em>: a value whose members follow the connection. A <code>match</code> reads its state, and text, an <code>if</code> or an <code>effect</code> reads what arrived:</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Read a connection&#x27;s state and messages</caption>
                                 <thead>
                                     <tr>
                                         <th scope="col"></th>
@@ -381,7 +752,7 @@ Button(&quot;Sync&quot;) { on click { cart.post({ items: Cart.count }) } }</code
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>connecting</code> <code>open</code> <code>closed</code> <code>error</code> — the arms of a <code>match</code></p>
+<p><code>connecting</code>, <code>open</code>, <code>closed</code>, <code>error</code> — the arms of a <code>match</code></p>
                                             </div>
                                         </td>
                                         <td>the same</td>
@@ -409,9 +780,17 @@ Button(&quot;Sync&quot;) { on click { cart.post({ items: Cart.count }) } }</code
 <p><code>.last(kind)</code></p>
                                             </div>
                                         </td>
-                                        <td>the last message, or the last of a kind</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>the last message, or the last whose <code>type</code> is <code>kind</code></p>
+                                            </div>
+                                        </td>
                                         <td>the last under an event&#x27;s name</td>
-                                        <td>the last posted</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.last</code>: the last posted</p>
+                                            </div>
+                                        </td>
                                         <td>as a socket</td>
                                     </tr>
                                     <tr>
@@ -488,11 +867,11 @@ Button(&quot;Sync&quot;) { on click { cart.post({ items: Cart.count }) } }</code
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>A <code>match</code> over one takes <code>connecting</code>, <code>open</code>, <code>closed(c)</code> and <code>error(e)</code>, and an <code>else</code> for the rest. The page closing closes the connection, so a route change cannot leak one.</p>
+<p>A store may hold any of these too. It opens the connection when the store is first read and closes it with the store; a page reads it as <code>Lang.css.state</code>, and the store's actions read it by its name.</p>
                             </div>
-                            <h2 class="wf-heading" id="a-peer">A peer</h2>
+                            <h2 class="wf-heading" id="run-a-script-in-a-worker">Run a script in a worker</h2>
                             <div class="wf-markdown">
-<p><code>peer</code> is a WebRTC data channel to another page. The language supplies the channel, not a server: what the two sides must tell each other to connect — an offer, an answer, the routes each can be reached by — goes out through <code>signal:</code>, over whatever the app already has, and what the other side sent is handed back to <code>link.signal(m)</code>. One side is the <code>initiator</code>.</p>
+<p>To keep slow work — a language service, a parser, anything that would make typing stutter — off the page's own thread, declare a <code>worker</code> with <code>spawn(…)</code>. A worker runs a script of your site beside the page and is held like a socket: owned by what opened it, and stopped when that leaves. A store holds one for the whole app:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -501,266 +880,33 @@ Button(&quot;Sync&quot;) { on click { cart.post({ items: Cart.count }) } }</code
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Room(path: &quot;/room&quot;, title: &quot;Room&quot;, description: &quot;Two readers, one line.&quot;) {
-    state heard = &quot;&quot;
-    channel lobby = broadcast(&quot;room&quot;) { on message(m) { link.signal(m) } }
-    peer link = rtc(signal: m =&gt; lobby.post(m), initiator: query.host == &quot;1&quot;) {
-        on message(m) { heard = m.text }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">store</span> <span class="wf-tok-name">Lang</span> {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">problems</span>: [<span class="wf-tok-name">Map</span>] = []
+    <span class="wf-tok-kw">state</span> restarts = <span class="wf-tok-num">0</span>
+    worker css = spawn(<span class="wf-tok-str">&quot;/workers/css.js&quot;</span>, <span class="wf-tok-prop">restart</span>: <span class="wf-tok-num">1</span>, <span class="wf-tok-prop">timeout</span>: <span class="wf-tok-num">5000</span>) {
+        <span class="wf-tok-kw">on</span> message(m) { <span class="wf-tok-kw">if</span> m.type == <span class="wf-tok-str">&quot;diagnostics&quot;</span> { problems = m.items } }
+        <span class="wf-tok-kw">on</span> restart(e) { restarts = restarts + <span class="wf-tok-num">1</span> }
     }
-
-    Heading(&quot;Room&quot;).h1
-    match link {
-        connecting { Text(&quot;Waiting for the other side…&quot;).muted }
-        open       { Button(&quot;Wave&quot;) { on click { link.send({ text: &quot;hello&quot; }) } } }
-        closed(c)  { Text(&quot;They left.&quot;) }
-        error(e)   { Alert(e.message).danger }
+    <span class="wf-tok-kw">action</span> complete(<span class="wf-tok-prop">text</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">at</span>: <span class="wf-tok-name">Number</span>) {
+        <span class="wf-tok-kw">return</span> <span class="wf-tok-kw">await</span> css.request(<span class="wf-tok-str">&quot;complete&quot;</span>, { <span class="wf-tok-prop">text</span>: text, <span class="wf-tok-prop">at</span>: at }, { <span class="wf-tok-prop">supersede</span>: <span class="wf-tok-kw">true</span> })
     }
-    Text(heard)
-}</code>
-                            </div>
-                            <div class="wf-markdown">
-<p>A <code>broadcast</code> channel signals between two tabs of one browser, as here; between two readers the signal rides the app's own socket or <code>api</code>.</p>
-                            </div>
-                            <table class="wf-table">
-                                <caption class="wf-visually-hidden">A peer</caption>
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Option</th>
-                                        <th scope="col"></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>signal:</code></p>
-                                            </div>
-                                        </td>
-                                        <td>Required: a function handed each message the other side must receive.</td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>initiator:</code></p>
-                                            </div>
-                                        </td>
-                                        <td>Whether this side offers. Exactly one side does.</td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>ice:</code></p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p>The servers that help two readers on different networks find each other — <code>[{ urls: &quot;stun:…&quot; }]</code>. None by default, which connects readers on the same network only.</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>ordered:</code></p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>false</code> for a channel that may deliver out of order.</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <div class="wf-markdown">
-<p>A page that leaves closes its peer, and the other side reads <code>closed</code> at once rather than when the connection times out.</p>
-                            </div>
-                            <h2 class="wf-heading" id="options">Options</h2>
-                            <div class="wf-markdown">
-<p>A socket takes, after its address:</p>
-                            </div>
-                            <table class="wf-table">
-                                <caption class="wf-visually-hidden">Options</caption>
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Option</th>
-                                        <th scope="col">Does</th>
-                                        <th scope="col">Default</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>protocols:</code></p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p>Subprotocols to ask for: <code>[&quot;v2&quot;]</code></p>
-                                            </div>
-                                        </td>
-                                        <td>none</td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>heartbeat:</code></p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p>Sends a ping this often and reconnects when no pong comes back: <code>20.seconds</code></p>
-                                            </div>
-                                        </td>
-                                        <td>off</td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>ping:</code>, <code>pong:</code></p>
-                                            </div>
-                                        </td>
-                                        <td>The heartbeat&#x27;s messages</td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>&quot;ping&quot;</code>, <code>&quot;pong&quot;</code></p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>reconnect:</code></p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>false</code> to stay closed after the server closes</p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>true</code></p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>delay:</code>, <code>max:</code></p>
-                                            </div>
-                                        </td>
-                                        <td>The first wait before reconnecting, in ms, and the longest; it doubles each time</td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>500</code>, <code>30000</code></p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>queue:</code></p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>false</code> to drop, rather than hold, what is sent while the socket is down</p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>true</code></p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>binaryType:</code></p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>&quot;blob&quot;</code> or <code>&quot;arraybuffer&quot;</code></p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>&quot;blob&quot;</code></p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <div class="wf-markdown">
-<p>A stream takes <code>events:</code> — the event names to listen for, each kept apart so <code>ticks.last(&quot;price&quot;)</code> is the last price — and <code>credentials: true</code> to send cookies. A stream reconnects on its own and resumes from the last event id the server sent.</p>
-<p>Inside the block, <code>on message(m) { }</code> handles what arrives and <code>on open { }</code> runs when the line opens. A socket may also say what it sends and receives:</p>
-                            </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">wf</p>
-                                    </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
-                                </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">type Incoming { id: String, text: String }
-type Outgoing { text: String }
-
-page Room(path: &quot;/room&quot;, title: &quot;Room&quot;, description: &quot;A typed conversation.&quot;) {
-    state draft = &quot;&quot;
-    socket chat = ws(&quot;wss://example.com/chat&quot;, heartbeat: 20.seconds) {
-        send    Outgoing
-        receive Incoming
-    }
-    Heading(&quot;Room&quot;).h1
-    for m in chat.messages by m.id { Text(m.text) }
-    Input(bind: draft, label: &quot;Message&quot;)
-    Button(&quot;Send&quot;) { on click { chat.send(Outgoing(text: draft))  draft = &quot;&quot; } }
-}</code>
-                            </div>
-                            <div class="wf-markdown">
-<p>With <code>send</code> and <code>receive</code> declared, <code>chat.send(…)</code> is checked against <code>Outgoing</code> and each message is an <code>Incoming</code>.</p>
-                            </div>
-                            <h2 class="wf-heading" id="a-worker">A worker</h2>
-                            <div class="wf-markdown">
-<p>A <strong>worker</strong> runs a script of the site's beside the page — a language service, a parser, anything that would make typing stutter on the page's own thread — and is held like a socket: owned by what opened it, stopped when that leaves. A store holds one for the whole app.</p>
-                            </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">wf</p>
-                                    </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
-                                </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">store Lang {
-    state problems: [Map] = []
-    state restarts = 0
-    worker css = spawn(&quot;/workers/css.js&quot;, restart: 1, timeout: 5000) {
-        on message(m) { if m.type == &quot;diagnostics&quot; { problems = m.items } }
-        on restart(e) { restarts = restarts + 1 }
-    }
-    action complete(text: String, at: Number) {
-        return await css.request(&quot;complete&quot;, { text: text, at: at }, { supersede: true })
-    }
-    action check(text: String) { css.send({ method: &quot;check&quot;, params: { text: text } }) }
+    <span class="wf-tok-kw">action</span> check(<span class="wf-tok-prop">text</span>: <span class="wf-tok-name">String</span>) { css.send({ <span class="wf-tok-prop">method</span>: <span class="wf-tok-str">&quot;check&quot;</span>, <span class="wf-tok-prop">params</span>: { <span class="wf-tok-prop">text</span>: text } }) }
 }
 
-page Editor(path: &quot;/&quot;, title: &quot;Editor&quot;, description: &quot;A worker beside the page.&quot;) {
-    Heading(&quot;Editor&quot;).h1
-    match Lang.css {
-        open     { Text(if Lang.css.pending &gt; 0 { &quot;Checking…&quot; } else { &quot;Checked&quot; }) }
-        error(e) { Alert(&quot;The CSS service stopped: {e.message}&quot;).danger }
-        else     { Text(&quot;Stopped&quot;) }
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Editor</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Editor&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A worker beside the page.&quot;</span>) {
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Editor&quot;</span>).h1
+    <span class="wf-tok-kw">match</span> <span class="wf-tok-name">Lang</span>.css {
+        open     { <span class="wf-tok-name">Text</span>(<span class="wf-tok-kw">if</span> <span class="wf-tok-name">Lang</span>.css.pending &gt; <span class="wf-tok-num">0</span> { <span class="wf-tok-str">&quot;Checking…&quot;</span> } <span class="wf-tok-kw">else</span> { <span class="wf-tok-str">&quot;Checked&quot;</span> }) }
+        <span class="wf-tok-kw">error</span>(e) { <span class="wf-tok-name">Alert</span>(<span class="wf-tok-str">&quot;The CSS service stopped: {e.message}&quot;</span>).danger }
+        <span class="wf-tok-kw">else</span>     { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Stopped&quot;</span>) }
     }
-    Text(&quot;{Lang.problems.length} problems, {Lang.restarts} restarts&quot;)
-    Button(&quot;Complete&quot;) { on click { Lang.complete(&quot;a { col&quot;, 7) } }
-    Button(&quot;Check&quot;) { on click { Lang.check(&quot;a { col&quot;) } }
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{Lang.problems.length} problems, {Lang.restarts} restarts&quot;</span>)
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Complete&quot;</span>) { <span class="wf-tok-kw">on</span> click { <span class="wf-tok-name">Lang</span>.complete(<span class="wf-tok-str">&quot;a { col&quot;</span>, <span class="wf-tok-num">7</span>) } }
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Check&quot;</span>) { <span class="wf-tok-kw">on</span> click { <span class="wf-tok-name">Lang</span>.check(<span class="wf-tok-str">&quot;a { col&quot;</span>) } }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>The worker's side is a plain script under <code>public/</code> — the one place besides a project script where hand-written JavaScript belongs:</p>
+<p>The worker's side is a plain script under <code>public/</code> — the one place, besides a project script, where you write JavaScript by hand:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -778,16 +924,20 @@ self.onmessage = ({ data }) =&gt; {
 };</code>
                             </div>
                             <div class="wf-markdown">
+<p>The page and the worker talk in three ways:</p>
 <ul>
-<li><strong><code>.request(method, params)</code></strong> posts <code>{ id, method, params }</code> and is a promise of what the worker posts back as <code>{ id, result }</code>; <code>{ id, error }</code> rejects it, with the error's <code>message</code> and its <code>data</code>. A request not answered in <code>timeout:</code> (10 s unset, or <code>{ timeout }</code> on the request) fails. With <code>{ supersede: true }</code>, a newer request of the same method fails the older one and the worker is posted <code>{ cancel: id }</code>.</li>
-<li><strong><code>.send(value)</code></strong> posts and expects nothing.</li>
-<li>What it posts with <strong>no <code>id</code></strong> is a message: <code>on message(m)</code> hears it, and <code>.last(kind)</code> is the last of a kind — its <code>type</code>, or its <code>method</code>.</li>
-<li><strong><code>.pending</code></strong> is how many requests are out; <strong><code>.state</code></strong> is <code>open</code>, <code>error</code> (a <code>match</code>'s <code>error(e)</code>) or <code>closed</code>.</li>
-<li>A worker that <strong>crashes</strong> — an error nothing in it caught — fails what was out and is started again <code>restart:</code> times (<code>on restart(e)</code>); past that it is <code>error</code> (<code>on error(e)</code>). <code>.restart()</code> starts it again by hand, <code>.close()</code> stops it.</li>
-<li><code>type: .module</code> starts a module worker. The script is a file of the site, so it is asked for under the base path, and a name <code>public/</code> does not have is a <code>D01</code>.</li>
+<li><strong>Ask and wait: <code>.request(method, params)</code>.</strong> It posts <code>{ id, method, params }</code> and returns a promise of what the worker posts back as <code>{ id, result }</code>. A reply of <code>{ id, error }</code> rejects it, with the error's <code>message</code> and its <code>data</code>. A request not answered within <code>timeout:</code> fails — 10 seconds when unset, or <code>{ timeout }</code> on the request. With <code>{ supersede: true }</code>, a newer request of the same method fails the older one, and the worker is posted <code>{ cancel: id }</code>.</li>
+<li><strong>Tell: <code>.send(value)</code>.</strong> It posts the value and expects nothing.</li>
+<li><strong>Listen: messages with no <code>id</code>.</strong> What the worker posts without an <code>id</code> is a message: <code>on message(m)</code> hears it, and <code>.last(kind)</code> is the last of a kind, by its <code>type</code> or its <code>method</code>.</li>
 </ul>
+<p><code>.pending</code> is how many requests are out. <code>.state</code> is <code>open</code>, <code>error</code> (a <code>match</code>'s <code>error(e)</code> arm) or <code>closed</code>.</p>
+<p>A worker that crashes — an error nothing in it caught — fails every request that was out and is started again, up to <code>restart:</code> times, running <code>on restart(e)</code> each time. Past that it is <code>error</code>, and <code>on error(e)</code> runs. <code>.restart()</code> starts it again by hand, and <code>.close()</code> stops it.</p>
+<p>Pass <code>type: .module</code> to start a module worker. The script is a file of the site, so it is asked for under the base path, and a name <code>public/</code> does not have is a <code>D01</code>.</p>
                             </div>
-                            <h2 class="wf-heading" id="a-message-that-must-arrive-beacon">A message that must arrive: beacon</h2>
+                            <h2 class="wf-heading" id="send-a-message-as-the-page-unloads">Send a message as the page unloads</h2>
+                            <div class="wf-markdown">
+<p>To record that something happened even when the reader is leaving — an analytics event, a &quot;reader left&quot; signal — call <code>beacon(url, data)</code>:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -795,12 +945,18 @@ self.onmessage = ({ data }) =&gt; {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">beacon(&quot;/analytics&quot;, { event: &quot;checkout&quot;, value: 42 })</code>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Checkout</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/checkout&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Checkout&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Pay for the order.&quot;</span>) {
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Checkout&quot;</span>).h1
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Pay&quot;</span>).primary { <span class="wf-tok-kw">on</span> click { beacon(<span class="wf-tok-str">&quot;/analytics&quot;</span>, { <span class="wf-tok-prop">event</span>: <span class="wf-tok-str">&quot;checkout&quot;</span>, <span class="wf-tok-prop">value</span>: <span class="wf-tok-num">42</span> }) } }
+}</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>beacon(url, data)</code> posts a small body with <code>navigator.sendBeacon</code>, which the browser delivers even as the page unloads — for analytics and &quot;the reader left&quot; signals, where a <code>fetch</code> would be cancelled.</p>
+<p><code>beacon</code> posts a small body with <code>navigator.sendBeacon</code>, which the browser delivers even as the page unloads, where a <code>fetch</code> would be cancelled.</p>
                             </div>
-                            <h2 class="wf-heading" id="the-network-as-a-value">The network as a value</h2>
+                            <h2 class="wf-heading" id="show-what-the-network-is-doing">Show what the network is doing</h2>
+                            <div class="wf-markdown">
+<p>To change what a page does on a slow line or none at all, read <code>network</code>. Like <code>viewport</code>, it is a browser value that keeps itself current:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -808,10 +964,82 @@ self.onmessage = ({ data }) =&gt; {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">if !network.online { Alert(&quot;You are offline — changes are queued.&quot;).warning }</code>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Inbox</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/inbox&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Inbox&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Your messages.&quot;</span>) {
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Inbox&quot;</span>).h1
+    <span class="wf-tok-kw">if</span> !network.online { <span class="wf-tok-name">Alert</span>(<span class="wf-tok-str">&quot;You are offline — changes are queued.&quot;</span>).warning }
+    <span class="wf-tok-kw">if</span> network.saveData { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Data saver is on.&quot;</span>).muted }
+}</code>
                             </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Show what the network is doing</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Member</th>
+                                        <th scope="col">What it is</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>network.online</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Whether the browser has a connection</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>network.effectiveType</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>How fast it is: <code>4g</code>, <code>3g</code>, …</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>network.saveData</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Whether the reader asked to save data</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>network.downlink</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The estimated bandwidth, in megabits per second</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>network.queued</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>How many writes wait for the connection, when the site works offline (<a href="/docs/guide/offline#keep-writes-made-offline">Offline</a>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h2 class="wf-heading" id="troubleshooting">Troubleshooting</h2>
                             <div class="wf-markdown">
-<p><code>network.online</code>, <code>.effectiveType</code> (<code>4g</code>, <code>3g</code>, …), <code>.saveData</code>, <code>.downlink</code> — live, so a page can say what it does on a slow line or none at all — and <code>.queued</code>, the writes waiting for the connection when the site works offline.</p>
+<ul>
+<li><strong>The socket never leaves <code>connecting</code>.</strong> The server is not answering at that address. Check the scheme: a page served over HTTPS must use <code>wss://</code>, not <code>ws://</code>.</li>
+<li><strong>The socket closes and does not come back.</strong> The server closed it with code <code>1000</code>, or you set <code>reconnect: false</code>. A normal close is final; any other close reconnects.</li>
+<li><strong>The socket reconnects every few seconds.</strong> With <code>heartbeat:</code> set, the server must answer each <code>ping:</code> with the <code>pong:</code> text. A server that does not answer looks dead, and the socket reopens.</li>
+<li><strong><code>stream.last(&quot;name&quot;)</code> is always null.</strong> The event name is not in <code>events:</code>. Only the names listed there are listened to.</li>
+<li><strong>The other tab does not hear a <code>channel</code> post.</strong> A tab does not hear its own posts, and both tabs must be on the same origin and use the same channel name.</li>
+<li><strong>Two peers on different networks never open.</strong> Give <code>ice:</code> a STUN server. With none, only readers on the same network can connect.</li>
+<li><strong>A worker request fails after 10 seconds.</strong> The worker did not post back an answer with the request's <code>id</code>. Raise <code>timeout:</code> for slow work, or check the script answers every method it is sent.</li>
+</ul>
                             </div>
                         </div>
                     </div>
@@ -829,12 +1057,16 @@ self.onmessage = ({ data }) =&gt; {
                 <div class="wf-stack wf-gap--lg wf-sac91c322" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
-                        <a class="wf-link wf-s3e136ca4" href="#four-kinds-of-connection">Four kinds of connection</a>
-                        <a class="wf-link wf-s3e136ca4" href="#a-peer">A peer</a>
-                        <a class="wf-link wf-s3e136ca4" href="#options">Options</a>
-                        <a class="wf-link wf-s3e136ca4" href="#a-worker">A worker</a>
-                        <a class="wf-link wf-s3e136ca4" href="#a-message-that-must-arrive-beacon">A message that must arrive: beacon</a>
-                        <a class="wf-link wf-s3e136ca4" href="#the-network-as-a-value">The network as a value</a>
+                        <a class="wf-link wf-s3e136ca4" href="#before-you-start">Before you start</a>
+                        <a class="wf-link wf-s3e136ca4" href="#open-a-socket">Open a socket</a>
+                        <a class="wf-link wf-s3e136ca4" href="#listen-to-server-sent-events">Listen to server-sent events</a>
+                        <a class="wf-link wf-s3e136ca4" href="#talk-to-the-site-s-other-tabs">Talk to the site&#x27;s other tabs</a>
+                        <a class="wf-link wf-s3e136ca4" href="#connect-two-readers-pages">Connect two readers&#x27; pages</a>
+                        <a class="wf-link wf-s3e136ca4" href="#read-a-connection-s-state-and-messages">Read a connection&#x27;s state and messages</a>
+                        <a class="wf-link wf-s3e136ca4" href="#run-a-script-in-a-worker">Run a script in a worker</a>
+                        <a class="wf-link wf-s3e136ca4" href="#send-a-message-as-the-page-unloads">Send a message as the page unloads</a>
+                        <a class="wf-link wf-s3e136ca4" href="#show-what-the-network-is-doing">Show what the network is doing</a>
+                        <a class="wf-link wf-s3e136ca4" href="#troubleshooting">Troubleshooting</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-s614f8b98">

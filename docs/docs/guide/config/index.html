@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuration</title>
-    <meta name="description" content="Every key of webfluent.app.json with its default: project, build, media, PDF, slides, dev, motion, meta, theme, i18n, env and offline.">
+    <meta name="description" content="Every key of webfluent.app.json, its type and default: project, build, media, PDF, slides, dev, motion, meta, theme, i18n, env, offline and lints.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/config">
     <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/config?lang=en">
     <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/config?lang=ar">
@@ -12,7 +12,7 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Configuration">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="Every key of webfluent.app.json with its default: project, build, media, PDF, slides, dev, motion, meta, theme, i18n, env and offline.">
+    <meta property="og:description" content="Every key of webfluent.app.json, its type and default: project, build, media, PDF, slides, dev, motion, meta, theme, i18n, env, offline and lints.">
     <meta property="og:url" content="https://webfluent.monzeromer.dev/docs/guide/config">
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="ar_AR">
@@ -21,9 +21,9 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Configuration">
-    <meta name="twitter:description" content="Every key of webfluent.app.json with its default: project, build, media, PDF, slides, dev, motion, meta, theme, i18n, env and offline.">
+    <meta name="twitter:description" content="Every key of webfluent.app.json, its type and default: project, build, media, PDF, slides, dev, motion, meta, theme, i18n, env, offline and lints.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/config#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/config","name":"Configuration","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Every key of webfluent.app.json with its default: project, build, media, PDF, slides, dev, motion, meta, theme, i18n, env and offline."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/config#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Configuration","item":"https://webfluent.monzeromer.dev/docs/guide/config"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/config#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/config","name":"Configuration","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Every key of webfluent.app.json, its type and default: project, build, media, PDF, slides, dev, motion, meta, theme, i18n, env, offline and lints."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/config#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Configuration","item":"https://webfluent.monzeromer.dev/docs/guide/config"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -69,6 +69,9 @@
             </div>
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
+                    <a class="wf-sidebar__item" href="/docs">
+                        <p class="wf-text">Overview</p>
+                    </a>
                     <p class="wf-text group-label">Start</p>
                     <a class="wf-sidebar__item" href="/docs/guide/introduction">
                         <p class="wf-text num">01</p>
@@ -274,7 +277,7 @@
                 </aside>
                 <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
-                        <a class="wf-link" href="/docs/guide/introduction">Guide</a>
+                        <a class="wf-link" href="/docs">Guide</a>
                         <p class="wf-text">/</p>
                         <p class="wf-text wf-s8c71c534">Chapter 39</p>
                     </div>
@@ -285,7 +288,8 @@
                     <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
-<p>A project's settings live in <code>webfluent.app.json</code> beside <code>src/</code>. Every key is optional except <code>name</code>, so the smallest config is:</p>
+<p>This chapter is the reference for <code>webfluent.app.json</code>, the file beside <code>src/</code> that holds a project's settings. Look up a key here to find its type, its default and what it changes.</p>
+<p>Every key is optional except <code>name</code>, so the smallest config is one line:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -294,11 +298,20 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">{ &quot;name&quot;: &quot;my-site&quot; }</code>
+                                <code class="wf-code wf-code--block wf-sa8223565">{ <span class="wf-tok-prop">&quot;name&quot;</span>: <span class="wf-tok-str">&quot;my-site&quot;</span> }</code>
                             </div>
                             <div class="wf-markdown">
-<p>A key the build does not know is reported with a warning — and the key it most likely meant, so <code>&quot;defaultLocale&quot;</code> says to write <code>default_locale</code> — rather than silently ignored (<strong>4.1</strong>).</p>
-<p><code>wf config schema</code> lists every setting with its type, its default and what it does (<code>--json</code> for a tool, which is what an editor's settings window is built from), and <code>wf config set</code>, <code>get</code> and <code>unset</code> change the file without reformatting it: a value is replaced in place, a new key goes at the end of its section in the section's own style, and a section an unset leaves empty goes with it. A value is held to its setting's type before anything is written:</p>
+<p>A key the build does not know draws the <code>E112</code> warning, with the key it most likely meant — <code>&quot;defaultLocale&quot;</code> says to write <code>default_locale</code> — instead of being ignored (since <strong>4.1</strong>).</p>
+                            </div>
+                            <h2 class="wf-heading" id="reading-and-changing-the-config">Reading and changing the config</h2>
+                            <div class="wf-markdown">
+<p><code>wf config</code> lists every setting and edits the file without reformatting it (<a href="/docs/guide/cli#wf-config">Command line</a>):</p>
+<ul>
+<li><code>wf config schema</code> lists every setting with its type, the values it takes, its default and what it does. <code>--json</code> prints the same for a tool; an editor's settings window is built from it.</li>
+<li><code>wf config get PATH</code> prints what the project sets at a dotted path, or the default.</li>
+<li><code>wf config set PATH VALUE</code> checks the value against the setting's type before it writes anything. It replaces a value in place, and adds a new key at the end of its section, in the section's own style.</li>
+<li><code>wf config unset PATH</code> removes a setting, so its default applies, and removes a section it leaves empty.</li>
+</ul>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -307,11 +320,17 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>wf config set build.base_path /Docs
+<span class="wf-tok-prompt">$ </span>wf config set build.budget.app.js &quot;40 kB&quot;
+<span class="wf-tok-prompt">$ </span>wf config get dev.port
+<span class="wf-tok-prompt">$ </span>wf config unset build.base_path</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Under a map such as <code>build.budget</code>, the rest of the path is one key, so <code>build.budget.app.js</code> names the <code>app.js</code> entry.</p>
                             </div>
                             <h2 class="wf-heading" id="the-defaults">The defaults</h2>
                             <div class="wf-markdown">
-<p>This is what a config with only a name means. <code>i18n</code> and <code>offline</code> are absent unless you add them.</p>
+<p>This block is what a config holding only a name means. The compiler's test suite checks it against the compiler's own defaults. <code>i18n</code> and <code>offline</code> are absent unless you add them.</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -321,101 +340,105 @@
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{
-  &quot;name&quot;: &quot;my-site&quot;,
-  &quot;version&quot;: &quot;0.1.0&quot;,
-  &quot;author&quot;: &quot;&quot;,
-  &quot;theme&quot;: {
-    &quot;name&quot;: null,
-    &quot;tokens&quot;: {},
-    &quot;builtin&quot;: &quot;full&quot;,
-    &quot;dark&quot;: null
+  <span class="wf-tok-prop">&quot;name&quot;</span>: <span class="wf-tok-str">&quot;my-site&quot;</span>,
+  <span class="wf-tok-prop">&quot;version&quot;</span>: <span class="wf-tok-str">&quot;0.1.0&quot;</span>,
+  <span class="wf-tok-prop">&quot;author&quot;</span>: <span class="wf-tok-str">&quot;&quot;</span>,
+  <span class="wf-tok-prop">&quot;theme&quot;</span>: {
+    <span class="wf-tok-prop">&quot;name&quot;</span>: <span class="wf-tok-kw">null</span>,
+    <span class="wf-tok-prop">&quot;tokens&quot;</span>: {},
+    <span class="wf-tok-prop">&quot;builtin&quot;</span>: <span class="wf-tok-str">&quot;full&quot;</span>,
+    <span class="wf-tok-prop">&quot;dark&quot;</span>: <span class="wf-tok-kw">null</span>
   },
-  &quot;build&quot;: {
-    &quot;elements&quot;: [],
-    &quot;output&quot;: &quot;./build&quot;,
-    &quot;minify&quot;: true,
-    &quot;sourcemap&quot;: false,
-    &quot;ssg&quot;: false,
-    &quot;base_path&quot;: &quot;&quot;,
-    &quot;clean_urls&quot;: null,
-    &quot;csp&quot;: false,
-    &quot;split&quot;: true,
-    &quot;compress&quot;: true,
-    &quot;budget&quot;: {},
-    &quot;runtime&quot;: &quot;auto&quot;,
-    &quot;media&quot;: {
-      &quot;formats&quot;: [&quot;webp&quot;],
-      &quot;widths&quot;: [480, 960, 1440, 1920],
-      &quot;quality&quot;: 78,
-      &quot;pipeline&quot;: true
+  <span class="wf-tok-prop">&quot;build&quot;</span>: {
+    <span class="wf-tok-prop">&quot;elements&quot;</span>: [],
+    <span class="wf-tok-prop">&quot;output&quot;</span>: <span class="wf-tok-str">&quot;./build&quot;</span>,
+    <span class="wf-tok-prop">&quot;minify&quot;</span>: <span class="wf-tok-kw">true</span>,
+    <span class="wf-tok-prop">&quot;sourcemap&quot;</span>: <span class="wf-tok-kw">false</span>,
+    <span class="wf-tok-prop">&quot;ssg&quot;</span>: <span class="wf-tok-kw">false</span>,
+    <span class="wf-tok-prop">&quot;base_path&quot;</span>: <span class="wf-tok-str">&quot;&quot;</span>,
+    <span class="wf-tok-prop">&quot;clean_urls&quot;</span>: <span class="wf-tok-kw">null</span>,
+    <span class="wf-tok-prop">&quot;csp&quot;</span>: <span class="wf-tok-kw">false</span>,
+    <span class="wf-tok-prop">&quot;split&quot;</span>: <span class="wf-tok-kw">true</span>,
+    <span class="wf-tok-prop">&quot;compress&quot;</span>: <span class="wf-tok-kw">true</span>,
+    <span class="wf-tok-prop">&quot;budget&quot;</span>: {},
+    <span class="wf-tok-prop">&quot;runtime&quot;</span>: <span class="wf-tok-str">&quot;auto&quot;</span>,
+    <span class="wf-tok-prop">&quot;media&quot;</span>: {
+      <span class="wf-tok-prop">&quot;formats&quot;</span>: [<span class="wf-tok-str">&quot;webp&quot;</span>],
+      <span class="wf-tok-prop">&quot;widths&quot;</span>: [<span class="wf-tok-num">480</span>, <span class="wf-tok-num">960</span>, <span class="wf-tok-num">1440</span>, <span class="wf-tok-num">1920</span>],
+      <span class="wf-tok-prop">&quot;quality&quot;</span>: <span class="wf-tok-num">78</span>,
+      <span class="wf-tok-prop">&quot;pipeline&quot;</span>: <span class="wf-tok-kw">true</span>
     },
-    &quot;output_type&quot;: &quot;spa&quot;,
-    &quot;pdf&quot;: {
-      &quot;page_size&quot;: &quot;A4&quot;,
-      &quot;margins&quot;: { &quot;top&quot;: 72.0, &quot;bottom&quot;: 72.0, &quot;left&quot;: 72.0, &quot;right&quot;: 72.0 },
-      &quot;default_font&quot;: &quot;Helvetica&quot;,
-      &quot;default_font_size&quot;: 12.0,
-      &quot;output_filename&quot;: null,
-      &quot;fonts&quot;: [],
-      &quot;system_fonts&quot;: true
+    <span class="wf-tok-prop">&quot;output_type&quot;</span>: <span class="wf-tok-str">&quot;spa&quot;</span>,
+    <span class="wf-tok-prop">&quot;pdf&quot;</span>: {
+      <span class="wf-tok-prop">&quot;page_size&quot;</span>: <span class="wf-tok-str">&quot;A4&quot;</span>,
+      <span class="wf-tok-prop">&quot;margins&quot;</span>: { <span class="wf-tok-prop">&quot;top&quot;</span>: <span class="wf-tok-num">72.0</span>, <span class="wf-tok-prop">&quot;bottom&quot;</span>: <span class="wf-tok-num">72.0</span>, <span class="wf-tok-prop">&quot;left&quot;</span>: <span class="wf-tok-num">72.0</span>, <span class="wf-tok-prop">&quot;right&quot;</span>: <span class="wf-tok-num">72.0</span> },
+      <span class="wf-tok-prop">&quot;default_font&quot;</span>: <span class="wf-tok-str">&quot;Helvetica&quot;</span>,
+      <span class="wf-tok-prop">&quot;default_font_size&quot;</span>: <span class="wf-tok-num">12.0</span>,
+      <span class="wf-tok-prop">&quot;output_filename&quot;</span>: <span class="wf-tok-kw">null</span>,
+      <span class="wf-tok-prop">&quot;fonts&quot;</span>: [],
+      <span class="wf-tok-prop">&quot;system_fonts&quot;</span>: <span class="wf-tok-kw">true</span>
     },
-    &quot;slides&quot;: {
-      &quot;size&quot;: &quot;16:9&quot;,
-      &quot;width&quot;: null,
-      &quot;height&quot;: null,
-      &quot;default_font&quot;: &quot;Helvetica&quot;,
-      &quot;default_font_size&quot;: 24.0,
-      &quot;margin&quot;: 60.0,
-      &quot;show_slide_numbers&quot;: false,
-      &quot;footer_text&quot;: null,
-      &quot;background_color&quot;: null,
-      &quot;chrome_color&quot;: null,
-      &quot;output_filename&quot;: null,
-      &quot;fonts&quot;: [],
-      &quot;system_fonts&quot;: true
+    <span class="wf-tok-prop">&quot;slides&quot;</span>: {
+      <span class="wf-tok-prop">&quot;size&quot;</span>: <span class="wf-tok-str">&quot;16:9&quot;</span>,
+      <span class="wf-tok-prop">&quot;width&quot;</span>: <span class="wf-tok-kw">null</span>,
+      <span class="wf-tok-prop">&quot;height&quot;</span>: <span class="wf-tok-kw">null</span>,
+      <span class="wf-tok-prop">&quot;default_font&quot;</span>: <span class="wf-tok-str">&quot;Helvetica&quot;</span>,
+      <span class="wf-tok-prop">&quot;default_font_size&quot;</span>: <span class="wf-tok-num">24.0</span>,
+      <span class="wf-tok-prop">&quot;margin&quot;</span>: <span class="wf-tok-num">60.0</span>,
+      <span class="wf-tok-prop">&quot;show_slide_numbers&quot;</span>: <span class="wf-tok-kw">false</span>,
+      <span class="wf-tok-prop">&quot;footer_text&quot;</span>: <span class="wf-tok-kw">null</span>,
+      <span class="wf-tok-prop">&quot;background_color&quot;</span>: <span class="wf-tok-kw">null</span>,
+      <span class="wf-tok-prop">&quot;chrome_color&quot;</span>: <span class="wf-tok-kw">null</span>,
+      <span class="wf-tok-prop">&quot;output_filename&quot;</span>: <span class="wf-tok-kw">null</span>,
+      <span class="wf-tok-prop">&quot;fonts&quot;</span>: [],
+      <span class="wf-tok-prop">&quot;system_fonts&quot;</span>: <span class="wf-tok-kw">true</span>
     }
   },
-  &quot;dev&quot;: { &quot;port&quot;: 3000, &quot;hot_reload&quot;: true },
-  &quot;meta&quot;: {
-    &quot;integrity&quot;: {},
-    &quot;title&quot;: &quot;my-site&quot;,
-    &quot;description&quot;: &quot;&quot;,
-    &quot;favicon&quot;: &quot;&quot;,
-    &quot;touch_icon&quot;: &quot;&quot;,
-    &quot;lang&quot;: &quot;en&quot;,
-    &quot;site_url&quot;: &quot;&quot;,
-    &quot;site_name&quot;: &quot;&quot;,
-    &quot;owner&quot;: &quot;organization&quot;,
-    &quot;same_as&quot;: [],
-    &quot;job_title&quot;: &quot;&quot;,
-    &quot;image&quot;: &quot;&quot;,
-    &quot;image_alt&quot;: &quot;&quot;,
-    &quot;sitemap&quot;: true,
-    &quot;fonts&quot;: [],
-    &quot;preload&quot;: [],
-    &quot;stylesheets&quot;: [],
-    &quot;scripts&quot;: [],
-    &quot;connect&quot;: [],
-    &quot;img&quot;: [],
-    &quot;frame&quot;: [],
-    &quot;wasm&quot;: false,
-    &quot;style_elements&quot;: false
+  <span class="wf-tok-prop">&quot;dev&quot;</span>: { <span class="wf-tok-prop">&quot;port&quot;</span>: <span class="wf-tok-num">3000</span>, <span class="wf-tok-prop">&quot;hot_reload&quot;</span>: <span class="wf-tok-kw">true</span> },
+  <span class="wf-tok-prop">&quot;meta&quot;</span>: {
+    <span class="wf-tok-prop">&quot;integrity&quot;</span>: {},
+    <span class="wf-tok-prop">&quot;title&quot;</span>: <span class="wf-tok-str">&quot;my-site&quot;</span>,
+    <span class="wf-tok-prop">&quot;description&quot;</span>: <span class="wf-tok-str">&quot;&quot;</span>,
+    <span class="wf-tok-prop">&quot;favicon&quot;</span>: <span class="wf-tok-str">&quot;&quot;</span>,
+    <span class="wf-tok-prop">&quot;touch_icon&quot;</span>: <span class="wf-tok-str">&quot;&quot;</span>,
+    <span class="wf-tok-prop">&quot;lang&quot;</span>: <span class="wf-tok-str">&quot;en&quot;</span>,
+    <span class="wf-tok-prop">&quot;site_url&quot;</span>: <span class="wf-tok-str">&quot;&quot;</span>,
+    <span class="wf-tok-prop">&quot;site_name&quot;</span>: <span class="wf-tok-str">&quot;&quot;</span>,
+    <span class="wf-tok-prop">&quot;owner&quot;</span>: <span class="wf-tok-str">&quot;organization&quot;</span>,
+    <span class="wf-tok-prop">&quot;same_as&quot;</span>: [],
+    <span class="wf-tok-prop">&quot;job_title&quot;</span>: <span class="wf-tok-str">&quot;&quot;</span>,
+    <span class="wf-tok-prop">&quot;image&quot;</span>: <span class="wf-tok-str">&quot;&quot;</span>,
+    <span class="wf-tok-prop">&quot;image_alt&quot;</span>: <span class="wf-tok-str">&quot;&quot;</span>,
+    <span class="wf-tok-prop">&quot;sitemap&quot;</span>: <span class="wf-tok-kw">true</span>,
+    <span class="wf-tok-prop">&quot;fonts&quot;</span>: [],
+    <span class="wf-tok-prop">&quot;preload&quot;</span>: [],
+    <span class="wf-tok-prop">&quot;stylesheets&quot;</span>: [],
+    <span class="wf-tok-prop">&quot;scripts&quot;</span>: [],
+    <span class="wf-tok-prop">&quot;connect&quot;</span>: [],
+    <span class="wf-tok-prop">&quot;img&quot;</span>: [],
+    <span class="wf-tok-prop">&quot;frame&quot;</span>: [],
+    <span class="wf-tok-prop">&quot;wasm&quot;</span>: <span class="wf-tok-kw">false</span>,
+    <span class="wf-tok-prop">&quot;style_elements&quot;</span>: <span class="wf-tok-kw">false</span>
   },
-  &quot;motion&quot;: { &quot;duration&quot;: null, &quot;easing&quot;: null },
-  &quot;env&quot;: {},
-  &quot;lints&quot;: {},
-  &quot;public_env&quot;: []
+  <span class="wf-tok-prop">&quot;motion&quot;</span>: { <span class="wf-tok-prop">&quot;duration&quot;</span>: <span class="wf-tok-kw">null</span>, <span class="wf-tok-prop">&quot;easing&quot;</span>: <span class="wf-tok-kw">null</span> },
+  <span class="wf-tok-prop">&quot;env&quot;</span>: {},
+  <span class="wf-tok-prop">&quot;lints&quot;</span>: {},
+  <span class="wf-tok-prop">&quot;public_env&quot;</span>: []
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>wf init</code> writes a shorter file and turns <code>build.csp</code> on.</p>
+<p><code>wf init</code> writes a shorter file than this one, and turns <code>build.csp</code> on.</p>
                             </div>
                             <h2 class="wf-heading" id="the-project">The project</h2>
+                            <div class="wf-markdown">
+<p>The top-level keys that describe the project itself.</p>
+                            </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">The project</caption>
                                 <thead>
                                     <tr>
                                         <th scope="col">Key</th>
+                                        <th scope="col">Type</th>
                                         <th scope="col">Default</th>
                                         <th scope="col">Meaning</th>
                                     </tr>
@@ -427,34 +450,54 @@
 <p><code>name</code></p>
                                             </div>
                                         </td>
+                                        <td>string</td>
                                         <td>—</td>
                                         <td>
                                             <div class="wf-markdown">
-<p>The only required key. The site's name, the PDF's file name when none is given, and <code>meta.title</code>'s fallback.</p>
+<p>The only required key. The site's name, the PDF's file name when none is given, and the fallback for <code>meta.title</code>.</p>
                                             </div>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>version</code>, <code>author</code></p>
+<p><code>version</code></p>
                                             </div>
                                         </td>
+                                        <td>string</td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>&quot;0.1.0&quot;</code>, <code>&quot;&quot;</code></p>
+<p><code>&quot;0.1.0&quot;</code></p>
                                             </div>
                                         </td>
-                                        <td>Yours; nothing in the build reads them.</td>
+                                        <td>The project&#x27;s version, as you number it. Nothing in the build reads it.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>author</code></p>
+                                            </div>
+                                        </td>
+                                        <td>string</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&quot;&quot;</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Who wrote it. Nothing in the build reads it.</td>
                                     </tr>
                                 </tbody>
                             </table>
                             <h2 class="wf-heading" id="build">build</h2>
+                            <div class="wf-markdown">
+<p>How the project is compiled, and what the build writes.</p>
+                            </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">build</caption>
                                 <thead>
                                     <tr>
                                         <th scope="col">Key</th>
+                                        <th scope="col">Type</th>
                                         <th scope="col">Default</th>
                                         <th scope="col">Meaning</th>
                                     </tr>
@@ -466,6 +509,7 @@
 <p><code>output</code></p>
                                             </div>
                                         </td>
+                                        <td>string</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>&quot;./build&quot;</code></p>
@@ -481,12 +525,17 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
+<p><code>spa</code>, <code>static</code>, <code>pdf</code>, <code>slides</code>, <code>elements</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
 <p><code>&quot;spa&quot;</code></p>
                                             </div>
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>spa</code> (a website), <code>pdf</code>, <code>slides</code> or <code>elements</code> (<a href="/docs/guide/pdf-and-slides">chapter 34</a>).</p>
+<p>What the project builds: <code>spa</code> is a website; <code>static</code> is a website whose every page is pre-rendered, as <code>ssg: true</code> builds it; <code>pdf</code> a document; <code>slides</code> a deck; <code>elements</code> custom elements (<a href="/docs/guide/pdf-and-slides">PDF and slides</a>, <a href="/docs/guide/interop#publish-your-components-as-custom-elements">custom elements</a>).</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -496,6 +545,7 @@
 <p><code>ssg</code></p>
                                             </div>
                                         </td>
+                                        <td>boolean</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>false</code></p>
@@ -503,7 +553,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Pre-render every page to its own HTML (<a href="/docs/guide/static-and-spa">chapter 26</a>).</p>
+<p>Pre-renders every page to its own HTML file, so it is read before any script runs (<a href="/docs/guide/static-and-spa">Static sites and SPAs</a>).</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -513,6 +563,7 @@
 <p><code>base_path</code></p>
                                             </div>
                                         </td>
+                                        <td>string</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>&quot;&quot;</code></p>
@@ -520,7 +571,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>The sub-path the site is served under, such as <code>&quot;/docs&quot;</code>. Every link and asset is prefixed.</p>
+<p>The sub-path the site is served under, such as <code>&quot;/docs&quot;</code>. Every link and asset is prefixed with it.</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -530,10 +581,15 @@
 <p><code>clean_urls</code></p>
                                             </div>
                                         </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>file</code>, <code>directory</code></p>
+                                            </div>
+                                        </td>
                                         <td>unset</td>
                                         <td>
                                             <div class="wf-markdown">
-<p>How a route's address avoids a redirect on a host that adds the slash: <code>&quot;file&quot;</code> also writes <code>contact.html</code> beside <code>contact/index.html</code>; <code>&quot;directory&quot;</code> names every route <code>/contact/</code> in canonical links, the sitemap and links to pages (<a href="/docs/guide/content#addresses-that-do-not-redirect">chapter 27</a>).</p>
+<p>How a route's address avoids a redirect on a host that adds a trailing slash. <code>&quot;file&quot;</code> also writes <code>contact.html</code> beside <code>contact/index.html</code>; <code>&quot;directory&quot;</code> names every route <code>/contact/</code> in canonical links, the sitemap and links to pages (<a href="/docs/guide/content#keep-addresses-from-redirecting">Content</a>).</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -543,12 +599,17 @@
 <p><code>split</code></p>
                                             </div>
                                         </td>
+                                        <td>boolean</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>true</code></p>
                                             </div>
                                         </td>
-                                        <td>One script and stylesheet chunk per page, loaded when its route shows.</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Writes one script and stylesheet chunk per page, loaded when its route shows. Off, every page ships in <code>app.js</code>.</p>
+                                            </div>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -556,12 +617,13 @@
 <p><code>minify</code></p>
                                             </div>
                                         </td>
+                                        <td>boolean</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>true</code></p>
                                             </div>
                                         </td>
-                                        <td>Strip comments and whitespace from the scripts and stylesheets.</td>
+                                        <td>Strips comments and whitespace from the scripts and stylesheets. Off, the output is readable and larger.</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -569,6 +631,7 @@
 <p><code>sourcemap</code></p>
                                             </div>
                                         </td>
+                                        <td>boolean</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>false</code></p>
@@ -576,7 +639,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Write a source map (version 3) beside the bundle and each page's chunk, <code>app.js.map</code>, <code>pages/Home.js.map</code>, so a stack trace from the running site reads back to the <code>.wf</code> line each statement came from; the scripts are otherwise unchanged.</p>
+<p>Writes a source map (version 3) beside the bundle and each page's chunk — <code>app.js.map</code>, <code>pages/Home.js.map</code> — so a stack trace from the running site reads back to the <code>.wf</code> line each statement came from. The scripts are otherwise unchanged.</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -586,6 +649,7 @@
 <p><code>compress</code></p>
                                             </div>
                                         </td>
+                                        <td>boolean</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>true</code></p>
@@ -593,7 +657,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Write a <code>.gz</code> beside every text output over a kilobyte.</p>
+<p>Writes a gzipped <code>.gz</code> copy beside every text output over a kilobyte, for hosts that serve one.</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -605,12 +669,17 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
+<p><code>auto</code>, <code>full</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
 <p><code>&quot;auto&quot;</code></p>
                                             </div>
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>auto</code> ships the runtime modules the program reaches; <code>full</code> ships every one, for a hand-written script that calls <code>WF</code> (<a href="/docs/guide/interop">chapter 32</a>).</p>
+<p><code>auto</code> ships only the runtime modules the program reaches; <code>full</code> ships every one, for a hand-written script that calls <code>WF</code> in ways the build cannot see (<a href="/docs/guide/interop">JavaScript interop</a>).</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -620,6 +689,7 @@
 <p><code>csp</code></p>
                                             </div>
                                         </td>
+                                        <td>boolean</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>false</code> (<code>true</code> in a project <code>wf init</code> makes)</p>
@@ -627,7 +697,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Emit a Content-Security-Policy and <code>_headers</code>, and check the output against the policy (<a href="/docs/guide/security#content-security-policy">chapter 23</a>).</p>
+<p>Emits a Content-Security-Policy and a <code>_headers</code> file, and checks the output against the policy (<a href="/docs/guide/security#ship-a-content-security-policy">Security</a>).</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -637,6 +707,7 @@
 <p><code>budget</code></p>
                                             </div>
                                         </td>
+                                        <td>map of file to size</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>{}</code></p>
@@ -644,7 +715,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>A gzipped size each named output should stay under: <code>{ &quot;app.js&quot;: &quot;40 kB&quot; }</code>. Over it, the build warns.</p>
+<p>A gzipped size each named output should stay under: <code>{ &quot;app.js&quot;: &quot;40 kB&quot; }</code>. A build over it warns and goes on.</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -654,6 +725,7 @@
 <p><code>elements</code></p>
                                             </div>
                                         </td>
+                                        <td>list of component names</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>[]</code></p>
@@ -671,6 +743,7 @@
 <p><code>media</code></p>
                                             </div>
                                         </td>
+                                        <td>object</td>
                                         <td>below</td>
                                         <td>The image pipeline.</td>
                                     </tr>
@@ -680,17 +753,22 @@
 <p><code>pdf</code>, <code>slides</code></p>
                                             </div>
                                         </td>
+                                        <td>object</td>
                                         <td>below</td>
                                         <td>The paper outputs.</td>
                                     </tr>
                                 </tbody>
                             </table>
                             <h3 class="wf-heading" id="build-media">build.media</h3>
+                            <div class="wf-markdown">
+<p>The image pipeline: how the build resizes and re-encodes the pictures a program names (<a href="/docs/guide/media">Media</a>).</p>
+                            </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">build.media</caption>
                                 <thead>
                                     <tr>
                                         <th scope="col">Key</th>
+                                        <th scope="col">Type</th>
                                         <th scope="col">Default</th>
                                         <th scope="col">Meaning</th>
                                     </tr>
@@ -704,12 +782,17 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
+<p>list of <code>webp</code>, <code>png</code>, <code>jpeg</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
 <p><code>[&quot;webp&quot;]</code></p>
                                             </div>
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>The formats every <code>image</code> is written in, as well as its original.</p>
+<p>The formats every <code>image</code> is written in, best first, as well as its original.</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -719,6 +802,7 @@
 <p><code>widths</code></p>
                                             </div>
                                         </td>
+                                        <td>list of integers</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>[480, 960, 1440, 1920]</code></p>
@@ -732,12 +816,13 @@
 <p><code>quality</code></p>
                                             </div>
                                         </td>
+                                        <td>integer, 1–100</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>78</code></p>
                                             </div>
                                         </td>
-                                        <td>The encoding quality, 1–100.</td>
+                                        <td>The encoding quality. WebP and JPEG are lossy at it. A file no smaller than the original is not written.</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -745,6 +830,7 @@
 <p><code>pipeline</code></p>
                                             </div>
                                         </td>
+                                        <td>boolean</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>true</code></p>
@@ -752,18 +838,22 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>false</code> copies images as <code>public/</code> does, without resizing.</p>
+<p><code>false</code> copies images as <code>public/</code> is copied, without resizing.</p>
                                             </div>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
                             <h3 class="wf-heading" id="build-pdf">build.pdf</h3>
+                            <div class="wf-markdown">
+<p>The page and type of a PDF build (<a href="/docs/guide/pdf-and-slides">PDF and slides</a>).</p>
+                            </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">build.pdf</caption>
                                 <thead>
                                     <tr>
                                         <th scope="col">Key</th>
+                                        <th scope="col">Type</th>
                                         <th scope="col">Default</th>
                                         <th scope="col">Meaning</th>
                                     </tr>
@@ -775,6 +865,7 @@
 <p><code>page_size</code></p>
                                             </div>
                                         </td>
+                                        <td>string</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>&quot;A4&quot;</code></p>
@@ -792,6 +883,7 @@
 <p><code>margins</code></p>
                                             </div>
                                         </td>
+                                        <td>object of numbers</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>72</code> each</p>
@@ -799,7 +891,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>top</code>, <code>bottom</code>, <code>left</code>, <code>right</code>, in points (72 to the inch); the header and footer are drawn in them.</p>
+<p><code>top</code>, <code>bottom</code>, <code>left</code>, <code>right</code>, in points (72 to the inch). The header and footer are drawn in them.</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -809,6 +901,7 @@
 <p><code>default_font</code></p>
                                             </div>
                                         </td>
+                                        <td>string</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>&quot;Helvetica&quot;</code></p>
@@ -816,7 +909,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>The document's family when its sheets name none: a standard name (<code>Helvetica</code>, <code>Times</code>, <code>Courier</code> — Liberation, built in) or a family under <code>fonts/</code>.</p>
+<p>The document's family when its stylesheets name none: a standard name (<code>Helvetica</code>, <code>Times</code>, <code>Courier</code> — Liberation, built in) or a family under <code>fonts/</code>.</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -826,6 +919,7 @@
 <p><code>default_font_size</code></p>
                                             </div>
                                         </td>
+                                        <td>number</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>12</code></p>
@@ -843,6 +937,7 @@
 <p><code>output_filename</code></p>
                                             </div>
                                         </td>
+                                        <td>string</td>
                                         <td>the project&#x27;s name</td>
                                         <td>The file written.</td>
                                     </tr>
@@ -852,6 +947,7 @@
 <p><code>fonts</code></p>
                                             </div>
                                         </td>
+                                        <td>list of paths</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>[]</code></p>
@@ -859,7 +955,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Font files or directories beside the project's <code>fonts/</code>, <code>src/fonts/</code> and <code>public/fonts/</code>, which are always read.</p>
+<p>Font files or directories, read as well as the project's <code>fonts/</code>, <code>src/fonts/</code> and <code>public/fonts/</code>, which are always read.</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -869,21 +965,26 @@
 <p><code>system_fonts</code></p>
                                             </div>
                                         </td>
+                                        <td>boolean</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>true</code></p>
                                             </div>
                                         </td>
-                                        <td>Whether this machine&#x27;s fonts may stand in for a family or a character nothing in the project has; the build names each one used.</td>
+                                        <td>Whether this machine&#x27;s fonts may stand in for a family or a character nothing in the project has. The build names each one it uses.</td>
                                     </tr>
                                 </tbody>
                             </table>
                             <h3 class="wf-heading" id="build-slides">build.slides</h3>
+                            <div class="wf-markdown">
+<p>The page and type of a slide deck (<a href="/docs/guide/pdf-and-slides">PDF and slides</a>).</p>
+                            </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">build.slides</caption>
                                 <thead>
                                     <tr>
                                         <th scope="col">Key</th>
+                                        <th scope="col">Type</th>
                                         <th scope="col">Default</th>
                                         <th scope="col">Meaning</th>
                                     </tr>
@@ -895,6 +996,7 @@
 <p><code>size</code></p>
                                             </div>
                                         </td>
+                                        <td>string</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>&quot;16:9&quot;</code></p>
@@ -912,6 +1014,7 @@
 <p><code>width</code>, <code>height</code></p>
                                             </div>
                                         </td>
+                                        <td>number</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>null</code></p>
@@ -929,25 +1032,41 @@
 <p><code>margin</code></p>
                                             </div>
                                         </td>
+                                        <td>number</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>60</code></p>
                                             </div>
                                         </td>
-                                        <td>The space around each slide&#x27;s content; what runs past it is clipped.</td>
+                                        <td>The space around each slide&#x27;s content, in points. What runs past it is clipped.</td>
                                     </tr>
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>default_font</code>, <code>default_font_size</code></p>
+<p><code>default_font</code></p>
                                             </div>
                                         </td>
+                                        <td>string</td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>&quot;Helvetica&quot;</code>, <code>24</code></p>
+<p><code>&quot;Helvetica&quot;</code></p>
                                             </div>
                                         </td>
-                                        <td>The deck&#x27;s text.</td>
+                                        <td>The family a slide&#x27;s text is set in when nothing says otherwise.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>default_font_size</code></p>
+                                            </div>
+                                        </td>
+                                        <td>number</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>24</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The size a slide&#x27;s text is set at, in points.</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -955,6 +1074,7 @@
 <p><code>show_slide_numbers</code></p>
                                             </div>
                                         </td>
+                                        <td>boolean</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>false</code></p>
@@ -962,7 +1082,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>n / total</code> in the bottom corner.</p>
+<p>Draws <code>n / total</code> in the bottom-right corner.</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -972,12 +1092,13 @@
 <p><code>footer_text</code></p>
                                             </div>
                                         </td>
+                                        <td>string</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>null</code></p>
                                             </div>
                                         </td>
-                                        <td>Text in the bottom-left of every slide.</td>
+                                        <td>Text in the bottom-left corner of every slide.</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -985,12 +1106,13 @@
 <p><code>background_color</code></p>
                                             </div>
                                         </td>
+                                        <td>string</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>null</code></p>
                                             </div>
                                         </td>
-                                        <td>A full-bleed colour for every slide.</td>
+                                        <td>A full-bleed colour for every slide; a slide&#x27;s own style overrides it.</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -998,12 +1120,13 @@
 <p><code>chrome_color</code></p>
                                             </div>
                                         </td>
+                                        <td>string</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>null</code></p>
                                             </div>
                                         </td>
-                                        <td>The colour of the numbers and footer; unset, it flips between dark and light on the slide&#x27;s background.</td>
+                                        <td>The colour of the numbers and the footer. Unset, it flips between dark and light on each slide&#x27;s background.</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -1011,6 +1134,7 @@
 <p><code>output_filename</code></p>
                                             </div>
                                         </td>
+                                        <td>string</td>
                                         <td>the project&#x27;s name</td>
                                         <td>The file written.</td>
                                     </tr>
@@ -1020,6 +1144,7 @@
 <p><code>fonts</code>, <code>system_fonts</code></p>
                                             </div>
                                         </td>
+                                        <td>list of paths, boolean</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>[]</code>, <code>true</code></p>
@@ -1034,11 +1159,15 @@
                                 </tbody>
                             </table>
                             <h2 class="wf-heading" id="dev">dev</h2>
+                            <div class="wf-markdown">
+<p>The development server, <code>wf serve</code> (<a href="/docs/guide/cli#wf-serve">Command line</a>).</p>
+                            </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">dev</caption>
                                 <thead>
                                     <tr>
                                         <th scope="col">Key</th>
+                                        <th scope="col">Type</th>
                                         <th scope="col">Default</th>
                                         <th scope="col">Meaning</th>
                                     </tr>
@@ -1050,6 +1179,7 @@
 <p><code>port</code></p>
                                             </div>
                                         </td>
+                                        <td>integer</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>3000</code></p>
@@ -1067,21 +1197,26 @@
 <p><code>hot_reload</code></p>
                                             </div>
                                         </td>
+                                        <td>boolean</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>true</code></p>
                                             </div>
                                         </td>
-                                        <td>Rebuild on a save, reload open tabs, and draw a failed build&#x27;s error over the page.</td>
+                                        <td>Rebuilds on a save, reloads open tabs, and draws a failed build&#x27;s error over the page.</td>
                                     </tr>
                                 </tbody>
                             </table>
                             <h2 class="wf-heading" id="motion">motion</h2>
+                            <div class="wf-markdown">
+<p>What an animation does when the element says nothing (<a href="/docs/guide/motion">Motion</a>).</p>
+                            </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">motion</caption>
                                 <thead>
                                     <tr>
                                         <th scope="col">Key</th>
+                                        <th scope="col">Type</th>
                                         <th scope="col">Default</th>
                                         <th scope="col">Meaning</th>
                                     </tr>
@@ -1093,10 +1228,11 @@
 <p><code>duration</code></p>
                                             </div>
                                         </td>
+                                        <td>string</td>
                                         <td>unset</td>
                                         <td>
                                             <div class="wf-markdown">
-<p>How long an animation runs when the element does not say: <code>&quot;180ms&quot;</code>.</p>
+<p>How long an animation runs: <code>&quot;180ms&quot;</code>.</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -1106,6 +1242,7 @@
 <p><code>easing</code></p>
                                             </div>
                                         </td>
+                                        <td>string</td>
                                         <td>unset</td>
                                         <td>
                                             <div class="wf-markdown">
@@ -1116,11 +1253,15 @@
                                 </tbody>
                             </table>
                             <h2 class="wf-heading" id="meta">meta</h2>
+                            <div class="wf-markdown">
+<p>What every page's head carries: its fallbacks, its search and sharing tags, and the other origins the content security policy allows.</p>
+                            </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">meta</caption>
                                 <thead>
                                     <tr>
                                         <th scope="col">Key</th>
+                                        <th scope="col">Type</th>
                                         <th scope="col">Default</th>
                                         <th scope="col">Meaning</th>
                                     </tr>
@@ -1129,15 +1270,26 @@
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>title</code>, <code>description</code></p>
+<p><code>title</code></p>
                                             </div>
                                         </td>
+                                        <td>string</td>
+                                        <td>the project&#x27;s name</td>
+                                        <td>The title a page falls back to when it declares none.</td>
+                                    </tr>
+                                    <tr>
                                         <td>
                                             <div class="wf-markdown">
-<p>the name, <code>&quot;&quot;</code></p>
+<p><code>description</code></p>
                                             </div>
                                         </td>
-                                        <td>What a page falls back to when it declares none.</td>
+                                        <td>string</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&quot;&quot;</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The description a page falls back to when it declares none.</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -1145,12 +1297,17 @@
 <p><code>lang</code></p>
                                             </div>
                                         </td>
+                                        <td>language tag</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>&quot;en&quot;</code></p>
                                             </div>
                                         </td>
-                                        <td>The document&#x27;s language.</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The document's language: <code>en</code>, <code>ar</code>, <code>pt-BR</code>.</p>
+                                            </div>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -1158,12 +1315,17 @@
 <p><code>site_url</code></p>
                                             </div>
                                         </td>
+                                        <td>string</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>&quot;&quot;</code></p>
                                             </div>
                                         </td>
-                                        <td>The absolute address. Without it, canonical links, the sitemap&#x27;s URLs and absolute sharing URLs are left out rather than guessed.</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The site's absolute address, such as <code>https://example.com</code>. Without it, canonical links, the sitemap's URLs and absolute sharing URLs are left out rather than guessed.</p>
+                                            </div>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -1171,6 +1333,7 @@
 <p><code>site_name</code></p>
                                             </div>
                                         </td>
+                                        <td>string</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>&quot;&quot;</code></p>
@@ -1186,12 +1349,17 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
+<p><code>organization</code>, <code>person</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
 <p><code>&quot;organization&quot;</code></p>
                                             </div>
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Whether the owner is an <code>&quot;organization&quot;</code> or a <code>&quot;person&quot;</code> — the JSON-LD node the site is published by (<a href="/docs/guide/content#who-the-site-belongs-to">chapter 27</a>).</p>
+<p>Whether the site belongs to an organisation or a person: the JSON-LD node the site is published by (<a href="/docs/guide/content#say-who-the-site-belongs-to">Content</a>).</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -1201,6 +1369,7 @@
 <p><code>same_as</code></p>
                                             </div>
                                         </td>
+                                        <td>list of URLs</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>[]</code></p>
@@ -1218,6 +1387,7 @@
 <p><code>job_title</code></p>
                                             </div>
                                         </td>
+                                        <td>string</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>&quot;&quot;</code></p>
@@ -1235,6 +1405,7 @@
 <p><code>owner_details</code></p>
                                             </div>
                                         </td>
+                                        <td>map</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>{}</code></p>
@@ -1242,7 +1413,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>More of the owner, as schema.org properties merged into its node as written: <code>alternateName</code>, <code>email</code>, <code>worksFor</code>, <code>alumniOf</code>, <code>knowsAbout</code>, <code>logo</code>… The node's <code>@type</code>, <code>@id</code>, <code>name</code>, <code>url</code>, <code>jobTitle</code> and <code>sameAs</code> come from the settings above (<code>E111</code>).</p>
+<p>More about the owner, as schema.org properties merged into its node as written: <code>alternateName</code>, <code>email</code>, <code>worksFor</code>, <code>alumniOf</code>, <code>knowsAbout</code>, <code>logo</code>… The node's <code>@type</code>, <code>@id</code>, <code>name</code>, <code>url</code>, <code>jobTitle</code> and <code>sameAs</code> come from the settings above; naming one here is <code>E111</code>.</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -1252,6 +1423,7 @@
 <p><code>image</code></p>
                                             </div>
                                         </td>
+                                        <td>file</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>&quot;&quot;</code></p>
@@ -1259,7 +1431,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>The sharing image for pages that set none; one in <code>public/</code> has its size read into <code>og:image:width</code>/<code>height</code>.</p>
+<p>The sharing image for pages that set none. For an image in <code>public/</code>, its size is read into <code>og:image:width</code> and <code>og:image:height</code>.</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -1269,6 +1441,7 @@
 <p><code>image_alt</code></p>
                                             </div>
                                         </td>
+                                        <td>string</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>&quot;&quot;</code></p>
@@ -1276,7 +1449,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>What that image shows: <code>og:image:alt</code> and <code>twitter:image:alt</code>. A page's <code>image_alt:</code> wins.</p>
+<p>What that image shows, as <code>og:image:alt</code> and <code>twitter:image:alt</code>. A page's <code>image_alt:</code> wins.</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -1286,6 +1459,7 @@
 <p><code>favicon</code></p>
                                             </div>
                                         </td>
+                                        <td>file</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>&quot;&quot;</code></p>
@@ -1293,7 +1467,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>The icon a tab shows: a file in <code>public/</code> — an SVG scales to every size — or a URL.</p>
+<p>The icon a browser tab shows: a file in <code>public/</code> — an SVG scales to every size — or a URL.</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -1303,6 +1477,7 @@
 <p><code>touch_icon</code></p>
                                             </div>
                                         </td>
+                                        <td>file</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>&quot;&quot;</code></p>
@@ -1320,6 +1495,7 @@
 <p><code>sitemap</code></p>
                                             </div>
                                         </td>
+                                        <td>boolean</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>true</code></p>
@@ -1327,7 +1503,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Write <code>sitemap.xml</code> and <code>robots.txt</code>.</p>
+<p>Writes <code>sitemap.xml</code> and <code>robots.txt</code>.</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -1337,6 +1513,7 @@
 <p><code>fonts</code></p>
                                             </div>
                                         </td>
+                                        <td>list of URLs</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>[]</code></p>
@@ -1344,7 +1521,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Web-font stylesheet URLs to link, each with a <code>preconnect</code>; their origins join the policy.</p>
+<p>Web-font stylesheets to link, each with a <code>preconnect</code>. Their origins join the policy.</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -1354,6 +1531,7 @@
 <p><code>preload</code></p>
                                             </div>
                                         </td>
+                                        <td>list of paths</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>[]</code></p>
@@ -1361,7 +1539,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Files on this site to fetch with the page, ahead of the stylesheets: a font a project <code>.css</code> file's <code>@font-face</code> names, the first screen's picture. <code>as</code> comes from the extension (a font is also <code>crossorigin</code>); a file on another origin is <code>E111</code> (<a href="/docs/guide/content#fonts-served-from-the-site">chapter 27</a>).</p>
+<p>Files on this site to fetch with the page, ahead of the stylesheets: a font a project <code>.css</code> file's <code>@font-face</code> names, the first screen's picture. <code>as</code> comes from the extension (a font is also <code>crossorigin</code>). A file on another origin is <code>E111</code> (<a href="/docs/guide/content#preload-fonts-served-from-the-site">Content</a>).</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -1371,6 +1549,7 @@
 <p><code>stylesheets</code></p>
                                             </div>
                                         </td>
+                                        <td>list of paths or URLs</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>[]</code></p>
@@ -1388,6 +1567,7 @@
 <p><code>scripts</code></p>
                                             </div>
                                         </td>
+                                        <td>list of scripts</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>[]</code></p>
@@ -1395,92 +1575,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Libraries to load before the project's own scripts: a URL or a file in <code>public/</code>, or <code>{ &quot;src&quot;, &quot;module&quot;: true, &quot;as&quot;: &quot;Name&quot; }</code> for an ES module, or <code>{ &quot;src&quot;, &quot;globals&quot;: [&quot;Chart&quot;] }</code> to call a library's names from <code>.wf</code>. <code>&quot;async&quot;: true</code> loads one nothing waits for — analytics — without holding up the page's code, and <code>&quot;load&quot;: &quot;after&quot;</code> asks for it only once the page has loaded and painted. Their origins join the policy (<a href="/docs/guide/interop#a-library-from-a-cdn">JavaScript interop</a>).</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>connect</code></p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>[]</code></p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p>Origins a page may send requests to besides its own — an API elsewhere, an analytics endpoint — as the policy's <code>connect-src</code>: <code>&quot;https://api.example.com&quot;</code>, <code>&quot;https://*.google-analytics.com&quot;</code>, or an app's own scheme alone, <code>&quot;ipc:&quot;</code>. An entry with a path or a keyword is <code>E111</code> (<a href="/docs/guide/security">chapter 23</a>).</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>img</code></p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>[]</code></p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p>Origins a page may load images from besides its own and <code>data:</code> — a CDN, a tag's tracking pixel — as the policy's <code>img-src</code>: <code>&quot;https://images.example.com&quot;</code>, <code>&quot;https://www.googletagmanager.com&quot;</code>. An entry with a path or a keyword is <code>E111</code> (<a href="/docs/guide/security">chapter 23</a>).</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>frame</code></p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>[]</code></p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p>Origins a page may embed in a frame besides its own — a video player, a map — as the policy's <code>frame-src</code>: <code>&quot;https://www.youtube-nocookie.com&quot;</code>, or an app's own scheme alone, <code>&quot;wfpreview:&quot;</code>. An entry with a path or a keyword is <code>E111</code> (<a href="/docs/guide/security">chapter 23</a>).</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>wasm</code></p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>false</code></p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p>The pages compile WebAssembly: <code>script-src</code> gains <code>'wasm-unsafe-eval'</code>, which allows that and not <code>eval</code> (<a href="/docs/guide/security">chapter 23</a>).</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>style_elements</code></p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>false</code></p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p>A script on the page writes <code>&lt;style&gt;</code> elements (an editor, a chart library): <code>style-src</code> gains <code>'unsafe-inline'</code>, for styles only (<a href="/docs/guide/security">chapter 23</a>).</p>
+<p>Libraries to load before the project's own scripts (below). Their origins join the policy (<a href="/docs/guide/interop#load-a-library-from-a-cdn">JavaScript interop</a>).</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -1490,6 +1585,7 @@
 <p><code>integrity</code></p>
                                             </div>
                                         </td>
+                                        <td>map of URL to hash</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>{}</code></p>
@@ -1497,14 +1593,175 @@
                                         </td>
                                         <td>Subresource-integrity hashes of external assets, by URL.</td>
                                     </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>connect</code></p>
+                                            </div>
+                                        </td>
+                                        <td>list of origins</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>[]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Origins a page may send requests to besides its own — an API elsewhere, an analytics endpoint — as the policy's <code>connect-src</code>: <code>&quot;https://api.example.com&quot;</code>, <code>&quot;https://*.google-analytics.com&quot;</code>, or an app's own scheme alone, <code>&quot;ipc:&quot;</code>.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>img</code></p>
+                                            </div>
+                                        </td>
+                                        <td>list of origins</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>[]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Origins a page may load images from besides its own and <code>data:</code> — a CDN, a tag's tracking pixel — as the policy's <code>img-src</code>: <code>&quot;https://images.example.com&quot;</code>, <code>&quot;https://www.googletagmanager.com&quot;</code>.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>frame</code></p>
+                                            </div>
+                                        </td>
+                                        <td>list of origins</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>[]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Origins a page may embed in a frame besides its own — a video player, a map — as the policy's <code>frame-src</code>: <code>&quot;https://www.youtube-nocookie.com&quot;</code>, or an app's own scheme alone, <code>&quot;wfpreview:&quot;</code>.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wasm</code></p>
+                                            </div>
+                                        </td>
+                                        <td>boolean</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>false</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The pages compile WebAssembly: <code>script-src</code> gains <code>'wasm-unsafe-eval'</code>, which allows that and not <code>eval</code>.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>style_elements</code></p>
+                                            </div>
+                                        </td>
+                                        <td>boolean</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>false</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A script on the page writes <code>&lt;style&gt;</code> elements (an editor, a chart library): <code>style-src</code> gains <code>'unsafe-inline'</code>, for styles only.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>An entry of <code>connect</code>, <code>img</code> or <code>frame</code> that has a path, or that is a keyword, is <code>E111</code>. <a href="/docs/guide/security#allow-requests-images-and-frames-from-other-origins">Security</a> covers these settings and <code>wasm</code> and <code>style_elements</code>.</p>
+<p>An entry of <code>meta.scripts</code> takes one of these forms:</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">meta</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Form</th>
+                                        <th scope="col">Meaning</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&quot;https://…&quot;</code> or a file in <code>public/</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A classic script, linked <code>defer</code>.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>{ &quot;src&quot;: &quot;…&quot;, &quot;module&quot;: true, &quot;as&quot;: &quot;Name&quot; }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>An ES module, whose exports are put on <code>window.Name</code>.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>{ &quot;src&quot;: &quot;…&quot;, &quot;globals&quot;: [&quot;Chart&quot;] }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A script whose names <code>.wf</code> may call directly.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>{ &quot;src&quot;: &quot;…&quot;, &quot;async&quot;: true }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A script nothing waits for — analytics — loaded without holding up the page&#x27;s code.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>{ &quot;src&quot;: &quot;…&quot;, &quot;load&quot;: &quot;after&quot; }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A script the page asks for only once it has loaded and painted.</td>
+                                    </tr>
                                 </tbody>
                             </table>
                             <h2 class="wf-heading" id="theme">theme</h2>
+                            <div class="wf-markdown">
+<p>Which theme the site uses, and token values set over it (<a href="/docs/guide/tokens">Design tokens</a>).</p>
+                            </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">theme</caption>
                                 <thead>
                                     <tr>
                                         <th scope="col">Key</th>
+                                        <th scope="col">Type</th>
                                         <th scope="col">Default</th>
                                         <th scope="col">Meaning</th>
                                     </tr>
@@ -1516,10 +1773,11 @@
 <p><code>name</code></p>
                                             </div>
                                         </td>
+                                        <td>string</td>
                                         <td>unset</td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Which <code>theme</code> declaration is the site's. A project with exactly one need not name it.</p>
+<p>Which <code>theme</code> declaration is the site's. A project with exactly one need not name it; with none, the baseline applies.</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -1529,10 +1787,11 @@
 <p><code>dark</code></p>
                                             </div>
                                         </td>
+                                        <td>string</td>
                                         <td>unset</td>
                                         <td>
                                             <div class="wf-markdown">
-<p>The theme that stands in for dark mode (<a href="/docs/guide/styling#dark-mode">chapter 15</a>).</p>
+<p>The <code>theme</code> declaration that stands in for dark mode: when the reader prefers dark, or <code>setTheme(&quot;dark&quot;)</code> asks (<a href="/docs/guide/styling#dark-mode">Styling</a>).</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -1544,12 +1803,17 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
+<p><code>full</code>, <code>structural</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
 <p><code>&quot;full&quot;</code></p>
                                             </div>
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>full</code> ships the built-ins' designed look; <code>structural</code> only their layout and mechanics.</p>
+<p><code>full</code> ships the built-ins' designed look; <code>structural</code> ships only their layout and mechanics, for a design of your own.</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -1559,16 +1823,20 @@
 <p><code>tokens</code></p>
                                             </div>
                                         </td>
+                                        <td>map of token to value</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>{}</code></p>
                                             </div>
                                         </td>
-                                        <td>Token values on top of the theme, for a pipeline to supply.</td>
+                                        <td>Token values applied over the theme, for a pipeline to supply — a colour a deploy injects.</td>
                                     </tr>
                                 </tbody>
                             </table>
                             <h2 class="wf-heading" id="i18n">i18n</h2>
+                            <div class="wf-markdown">
+<p>The project's translations. Absent, the project has one language.</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -1576,13 +1844,14 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">{ &quot;i18n&quot;: { &quot;default_locale&quot;: &quot;en&quot;, &quot;locales&quot;: [&quot;en&quot;, &quot;ar&quot;], &quot;dir&quot;: &quot;src/translations&quot; } }</code>
+                                <code class="wf-code wf-code--block wf-sa8223565">{ <span class="wf-tok-prop">&quot;i18n&quot;</span>: { <span class="wf-tok-prop">&quot;default_locale&quot;</span>: <span class="wf-tok-str">&quot;en&quot;</span>, <span class="wf-tok-prop">&quot;locales&quot;</span>: [<span class="wf-tok-str">&quot;en&quot;</span>, <span class="wf-tok-str">&quot;ar&quot;</span>], <span class="wf-tok-prop">&quot;dir&quot;</span>: <span class="wf-tok-str">&quot;src/translations&quot;</span> } }</code>
                             </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">i18n</caption>
                                 <thead>
                                     <tr>
                                         <th scope="col">Key</th>
+                                        <th scope="col">Type</th>
                                         <th scope="col">Default</th>
                                         <th scope="col">Meaning</th>
                                     </tr>
@@ -1594,12 +1863,13 @@
 <p><code>default_locale</code></p>
                                             </div>
                                         </td>
+                                        <td>language tag</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>&quot;en&quot;</code></p>
                                             </div>
                                         </td>
-                                        <td>The locale a page opens in.</td>
+                                        <td>The locale a page opens in, and the one a message falls back to when the current locale has no translation of it.</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -1607,12 +1877,17 @@
 <p><code>locales</code></p>
                                             </div>
                                         </td>
+                                        <td>list of language tags</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>[&quot;en&quot;]</code></p>
                                             </div>
                                         </td>
-                                        <td>Every locale; one JSON file each.</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Every locale; one JSON file each, under <code>dir</code>.</p>
+                                            </div>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -1620,24 +1895,43 @@
 <p><code>dir</code></p>
                                             </div>
                                         </td>
+                                        <td>string</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>&quot;src/translations&quot;</code></p>
                                             </div>
                                         </td>
-                                        <td>Where the files are.</td>
+                                        <td>The folder the translation files are in.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>literals</code></p>
+                                            </div>
+                                        </td>
+                                        <td>boolean</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>false</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Translates by the words themselves: each string a reader sees is its own key.</td>
                                     </tr>
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p><a href="/docs/guide/i18n">Chapter 21</a>.</p>
+<p>See also: <a href="/docs/guide/i18n">Internationalisation</a>.</p>
                             </div>
                             <h2 class="wf-heading" id="env-and-publicenv">env and publicenv</h2>
+                            <div class="wf-markdown">
+<p>Values the program reads as <code>env.NAME</code>, and which of them may reach the browser.</p>
+                            </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">env and publicenv</caption>
                                 <thead>
                                     <tr>
                                         <th scope="col">Key</th>
+                                        <th scope="col">Type</th>
                                         <th scope="col">Default</th>
                                         <th scope="col">Meaning</th>
                                     </tr>
@@ -1649,6 +1943,7 @@
 <p><code>env</code></p>
                                             </div>
                                         </td>
+                                        <td>map</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>{}</code></p>
@@ -1656,7 +1951,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Values read as <code>env.NAME</code>, fixed at build time. A <code>.env</code> file and the shell add to them.</p>
+<p>Values read as <code>env.NAME</code>, fixed at build time. A <code>.env</code> file and the shell's variables add to them.</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -1666,6 +1961,7 @@
 <p><code>public_env</code></p>
                                             </div>
                                         </td>
+                                        <td>list of names</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>[]</code></p>
@@ -1673,18 +1969,18 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Names a page may read beyond those beginning <code>PUBLIC_</code>.</p>
+<p>The <code>env</code> names a page may read — and so ships to the browser — beyond those beginning <code>PUBLIC_</code>.</p>
                                             </div>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p><a href="/docs/guide/environments">Chapter 30</a>.</p>
+<p>See also: <a href="/docs/guide/environments">Environments</a>.</p>
                             </div>
                             <h2 class="wf-heading" id="offline">offline</h2>
                             <div class="wf-markdown">
-<p><strong>4.1.</strong> Absent, no service worker is written.</p>
+<p>The service worker that stores the site for when the network is gone. Added in <strong>4.1</strong>. Absent, no service worker is written.</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -1693,13 +1989,14 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">{ &quot;offline&quot;: { &quot;precache&quot;: [&quot;/&quot;, &quot;/docs/*&quot;], &quot;fallback&quot;: &quot;/offline&quot;, &quot;cache&quot;: { &quot;/api/*&quot;: &quot;network-first&quot; }, &quot;sync&quot;: true } }</code>
+                                <code class="wf-code wf-code--block wf-sa8223565">{ <span class="wf-tok-prop">&quot;offline&quot;</span>: { <span class="wf-tok-prop">&quot;precache&quot;</span>: [<span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-str">&quot;/docs/*&quot;</span>], <span class="wf-tok-prop">&quot;fallback&quot;</span>: <span class="wf-tok-str">&quot;/offline&quot;</span>, <span class="wf-tok-prop">&quot;cache&quot;</span>: { <span class="wf-tok-prop">&quot;/api/*&quot;</span>: <span class="wf-tok-str">&quot;network-first&quot;</span> }, <span class="wf-tok-prop">&quot;sync&quot;</span>: <span class="wf-tok-kw">true</span> } }</code>
                             </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">offline</caption>
                                 <thead>
                                     <tr>
                                         <th scope="col">Key</th>
+                                        <th scope="col">Type</th>
                                         <th scope="col">Default</th>
                                         <th scope="col">Meaning</th>
                                     </tr>
@@ -1711,6 +2008,7 @@
 <p><code>precache</code></p>
                                             </div>
                                         </td>
+                                        <td>list of globs</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>[&quot;/&quot;]</code></p>
@@ -1718,7 +2016,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>The routes a first visit stores, as globs; <code>&quot;*&quot;</code> for every route.</p>
+<p>The routes a first visit stores; <code>&quot;*&quot;</code> for every route.</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -1728,6 +2026,7 @@
 <p><code>fallback</code></p>
                                             </div>
                                         </td>
+                                        <td>string</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>null</code></p>
@@ -1741,6 +2040,7 @@
 <p><code>cache</code></p>
                                             </div>
                                         </td>
+                                        <td>map of glob to strategy</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>{}</code></p>
@@ -1758,21 +2058,22 @@
 <p><code>sync</code></p>
                                             </div>
                                         </td>
+                                        <td>boolean</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>false</code></p>
                                             </div>
                                         </td>
-                                        <td>Keep writes made offline and send them later.</td>
+                                        <td>Keeps writes made offline and sends them when the connection returns.</td>
                                     </tr>
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p><a href="/docs/guide/offline">Chapter 19</a>.</p>
+<p>See also: <a href="/docs/guide/offline">Offline</a>.</p>
                             </div>
                             <h2 class="wf-heading" id="lints">lints</h2>
                             <div class="wf-markdown">
-<p>What a finding counts as, by its code or its family — <code>&quot;off&quot;</code>, <code>&quot;warn&quot;</code> or <code>&quot;error&quot;</code>, the code first, then the family:</p>
+<p>What a finding counts as, by its code or its family: <code>&quot;off&quot;</code>, <code>&quot;warn&quot;</code> or <code>&quot;error&quot;</code>. A code's setting wins over its family's.</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -1781,10 +2082,17 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">{ &quot;lints&quot;: { &quot;A11&quot;: &quot;off&quot;, &quot;U&quot;: &quot;error&quot;, &quot;R01&quot;: &quot;warn&quot; } }</code>
+                                <code class="wf-code wf-code--block wf-sa8223565">{ <span class="wf-tok-prop">&quot;lints&quot;</span>: { <span class="wf-tok-prop">&quot;A11&quot;</span>: <span class="wf-tok-str">&quot;off&quot;</span>, <span class="wf-tok-prop">&quot;U&quot;</span>: <span class="wf-tok-str">&quot;error&quot;</span>, <span class="wf-tok-prop">&quot;R01&quot;</span>: <span class="wf-tok-str">&quot;warn&quot;</span> } }</code>
                             </div>
                             <div class="wf-markdown">
-<p>A warning may be turned off or made an error. An error may be lowered only when it cannot ship a broken page — <code>R01</code> (a link to a route that is missing), <code>C02</code> (a prop nothing reads), <code>S04</code> (two pages on one route) and <code>I01</code>, <code>I02</code>, <code>I04</code> (a message that shows its key or a placeholder); asking to lower any other is itself refused, and so is a key that is no code or family. Every code is in <a href="/docs/guide/diagnostics">Diagnostics</a>. One finding on one line is allowed with a <code>// wf-allow(CODE)</code> comment instead, under the same rule.</p>
+<p>You can turn a warning off or make it an error. You can lower an error only when it cannot ship a broken page:</p>
+<ul>
+<li><code>R01</code> — a link to a route that is missing;</li>
+<li><code>C02</code> — a prop nothing reads;</li>
+<li><code>S04</code> — two pages on one route;</li>
+<li><code>I01</code>, <code>I02</code>, <code>I04</code> — a message that shows its key or a placeholder.</li>
+</ul>
+<p>Asking to lower any other error is itself refused, and so is a key that is not a code or a family. To accept one finding on one line instead, write a <code>// wf-allow(CODE)</code> comment; the same rule applies. Every code is listed in <a href="/docs/guide/diagnostics">Diagnostics</a>.</p>
                             </div>
                         </div>
                     </div>
@@ -1802,6 +2110,7 @@
                 <div class="wf-stack wf-gap--lg wf-sac91c322" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
+                        <a class="wf-link wf-s3e136ca4" href="#reading-and-changing-the-config">Reading and changing the config</a>
                         <a class="wf-link wf-s3e136ca4" href="#the-defaults">The defaults</a>
                         <a class="wf-link wf-s3e136ca4" href="#the-project">The project</a>
                         <a class="wf-link wf-s3e136ca4" href="#build">build</a>

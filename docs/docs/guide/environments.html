@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Environments</title>
-    <meta name="description" content="env values from the config, a .env file and the shell; their precedence; public and private names; and a build per environment.">
+    <meta name="description" content="Set env values from the config, a .env file or the shell; learn which wins; keep private names out of the bundle; and build once per environment.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/environments">
     <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/environments?lang=en">
     <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/environments?lang=ar">
@@ -12,7 +12,7 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Environments">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="env values from the config, a .env file and the shell; their precedence; public and private names; and a build per environment.">
+    <meta property="og:description" content="Set env values from the config, a .env file or the shell; learn which wins; keep private names out of the bundle; and build once per environment.">
     <meta property="og:url" content="https://webfluent.monzeromer.dev/docs/guide/environments">
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="ar_AR">
@@ -21,9 +21,9 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Environments">
-    <meta name="twitter:description" content="env values from the config, a .env file and the shell; their precedence; public and private names; and a build per environment.">
+    <meta name="twitter:description" content="Set env values from the config, a .env file or the shell; learn which wins; keep private names out of the bundle; and build once per environment.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/environments#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/environments","name":"Environments","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"env values from the config, a .env file and the shell; their precedence; public and private names; and a build per environment."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/environments#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Environments","item":"https://webfluent.monzeromer.dev/docs/guide/environments"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/environments#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/environments","name":"Environments","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Set env values from the config, a .env file or the shell; learn which wins; keep private names out of the bundle; and build once per environment."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/environments#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Environments","item":"https://webfluent.monzeromer.dev/docs/guide/environments"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -69,6 +69,9 @@
             </div>
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
+                    <a class="wf-sidebar__item" href="/docs">
+                        <p class="wf-text">Overview</p>
+                    </a>
                     <p class="wf-text group-label">Start</p>
                     <a class="wf-sidebar__item" href="/docs/guide/introduction">
                         <p class="wf-text num">01</p>
@@ -274,18 +277,28 @@
                 </aside>
                 <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
-                        <a class="wf-link" href="/docs/guide/introduction">Guide</a>
+                        <a class="wf-link" href="/docs">Guide</a>
                         <p class="wf-text">/</p>
                         <p class="wf-text wf-s8c71c534">Chapter 30</p>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s28a8547f">
                         <h1 class="wf-heading wf-sa3503382">Environments</h1>
-                        <p class="wf-text wf-sfd35f593">Values fixed per build — an API address, a feature switch, a public key — from the config, a .env file or the shell, and which of them a page may read.</p>
+                        <p class="wf-text wf-sfd35f593">Set values that change per build (an API address, a feature switch, a public key) from the config, a .env file or the shell, and choose which a page may read.</p>
                     </div>
                     <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
-<p>A site usually needs a few values that differ between your machine, staging and production: the API's address, an analytics key, a feature switch. In WebFluent they are read as <code>env.NAME</code> and fixed <strong>at build time</strong> — the build writes the value into the output, so there is nothing to configure on the host.</p>
+<p>This chapter shows you how to give a site values that differ between your machine, staging and production: the API's address, an analytics key, a feature switch. A page reads each one as <code>env.NAME</code>. The build fixes the value <strong>at build time</strong>: it writes the value into the output, so there is nothing to configure on the host.</p>
+<p>In this chapter:</p>
+<ul>
+<li>Set a value in the config, a <code>.env</code> file or the shell.</li>
+<li>Choose which names a page may read, and keep the rest out of the bundle.</li>
+<li>Build the same source once per environment.</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading" id="read-a-value-in-a-page">Read a value in a page</h2>
+                            <div class="wf-markdown">
+<p>To read a value, write <code>env.NAME</code>. This page reads the API's address and a feature switch, and falls back to defaults when nothing sets them:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -294,50 +307,58 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">const API = env.PUBLIC_API ?? &quot;/api&quot;
-const FEATURES = { billing: env.PUBLIC_BILLING == &quot;on&quot; }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">const</span> <span class="wf-tok-name">API</span> = env.<span class="wf-tok-name">PUBLIC_API</span> ?? <span class="wf-tok-str">&quot;/api&quot;</span>
+<span class="wf-tok-kw">const</span> <span class="wf-tok-name">FEATURES</span> = { <span class="wf-tok-prop">billing</span>: env.<span class="wf-tok-name">PUBLIC_BILLING</span> == <span class="wf-tok-str">&quot;on&quot;</span> }
 
-page Rows(path: &quot;/&quot;, title: &quot;Rows&quot;, description: &quot;Rows from the API.&quot;) {
-    resource rows = fetch(&quot;{API}/rows&quot;)
-    Heading(&quot;Rows&quot;).h1
-    if FEATURES.billing { Link(&quot;Billing&quot;, to: &quot;/billing&quot;) }
-    match rows {
-        loading { Spinner }
-        error(e) { Text(e.message).danger }
-        ready(r) { Text(&quot;{r.length} rows&quot;) }
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Rows</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Rows&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Rows from the API.&quot;</span>) {
+    <span class="wf-tok-kw">resource</span> rows = fetch(<span class="wf-tok-str">&quot;{API}/rows&quot;</span>)
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Rows&quot;</span>).h1
+    <span class="wf-tok-kw">if</span> <span class="wf-tok-name">FEATURES</span>.billing { <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Billing&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/billing&quot;</span>) }
+    <span class="wf-tok-kw">match</span> rows {
+        <span class="wf-tok-kw">loading</span> { <span class="wf-tok-name">Spinner</span> }
+        <span class="wf-tok-kw">error</span>(e) { <span class="wf-tok-name">Text</span>(e.message).danger }
+        <span class="wf-tok-kw">ready</span>(r) { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{r.length} rows&quot;</span>) }
     }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>A name nothing sets reads as nothing, so <code>??</code> supplies a default.</p>
+<p>A name that nothing sets reads as nothing (<code>null</code>), so <code>??</code> supplies the default. Keep the values in <code>const</code>s at the top of the file, as above, so every page reads them from one place.</p>
                             </div>
-                            <h2 class="wf-heading" id="where-values-come-from">Where values come from</h2>
+                            <h2 class="wf-heading" id="set-a-value">Set a value</h2>
                             <div class="wf-markdown">
-<p>Three places, later ones winning:</p>
+<p>You can set a value in three places. When two set the same name, the later one in this list wins:</p>
 <ol>
 <li><strong>The config's <code>env</code> map</strong>, committed with the project:</li>
 </ol>
 <pre><code class="language-json { &quot;env&quot;: { &quot;PUBLIC_API&quot;: &quot;/api&quot;, &quot;PUBLIC_BILLING&quot;: &quot;off&quot; } } ```">
-2. **A `.env` file** beside the config — `NAME=value` lines, `#` comments, an optional `export ` and quotes. Not committed (`wf init` puts it in `.gitignore`):
+2. **A `.env` file** beside `webfluent.app.json`, which you do not commit. `wf init` adds `.env` to `.gitignore`. Each line is `NAME=value`. A line that starts with `#` is a comment, a line may start with `export `, and a value may be in single or double quotes:
 
    ```bash PUBLIC_API=http://localhost:8080/api PUBLIC_BILLING=on ```
 
-3. **The shell** the build runs in — for CI and one-off builds:
+3. **The shell** that runs the build, for CI and one-off builds:
 
    ```bash PUBLIC_API=https://api.example.com wf build ```
 
-   The shell supplies a name the config or `.env` already declares, or any name that is public (below). It does not bring in every variable the build happens to run with.
-
-**4.1.** Earlier versions read only the config's `env` map.
+   The shell supplies a name that the config or `.env` already declares, or any name that is public (see the next section). It does not bring in every variable the build happens to run with, such as `HOME`.
 </code></pre>
                             </div>
-                            <h2 class="wf-heading" id="public-and-private-names">Public and private names</h2>
+                            <div class="wf-stack wf-gap--xs wf-s39f8973e callout" role="note" aria-label="Note" data-kind="note">
+                                <div class="wf-row wf-align--center wf-gap--xs callout-label">
+                                    <i class="wf-icon" data-icon="info"></i>
+                                    <p class="wf-text">Note</p>
+                                </div>
+                                <div class="wf-markdown">
+<p>Before WebFluent 4.1, the build read only the config's <code>env</code> map.</p>
+                                </div>
+                            </div>
+                            <h2 class="wf-heading" id="keep-a-private-value-out-of-the-bundle">Keep a private value out of the bundle</h2>
                             <div class="wf-markdown">
-<p><code>env.NAME</code> is replaced by its value in the JavaScript and HTML every reader downloads. That is right for an API address and wrong for an API key — so a page, a component, a store or an <code>api</code> block may only read a name that says it is public:</p>
+<p>The build replaces <code>env.NAME</code> with its value in the JavaScript and HTML that every reader downloads. That is right for an API address and wrong for an API key. So a page, a component, a store or an <code>api</code> block may read only a name that says it is public:</p>
 <ul>
-<li>a name beginning <strong><code>PUBLIC_</code></strong>, or</li>
-<li>a name listed in the config's <strong><code>public_env</code></strong>:</li>
+<li>a name that begins with <strong><code>PUBLIC_</code></strong>, or</li>
+<li>a name listed in the config's <strong><code>public_env</code></strong>.</li>
 </ul>
+<p>In this config, <code>env.PUBLIC_API</code> and <code>env.ANALYTICS_ID</code> are public, and <code>env.STRIPE_SECRET</code> is private:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -347,18 +368,30 @@ page Rows(path: &quot;/&quot;, title: &quot;Rows&quot;, description: &quot;Rows 
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{
-  &quot;env&quot;: { &quot;PUBLIC_API&quot;: &quot;/api/v1&quot;, &quot;ANALYTICS_ID&quot;: &quot;UA-1&quot;, &quot;STRIPE_SECRET&quot;: &quot;sk_…&quot; },
-  &quot;public_env&quot;: [&quot;ANALYTICS_ID&quot;]
+  <span class="wf-tok-prop">&quot;env&quot;</span>: { <span class="wf-tok-prop">&quot;PUBLIC_API&quot;</span>: <span class="wf-tok-str">&quot;/api/v1&quot;</span>, <span class="wf-tok-prop">&quot;ANALYTICS_ID&quot;</span>: <span class="wf-tok-str">&quot;UA-1&quot;</span>, <span class="wf-tok-prop">&quot;STRIPE_SECRET&quot;</span>: <span class="wf-tok-str">&quot;sk_…&quot;</span> },
+  <span class="wf-tok-prop">&quot;public_env&quot;</span>: [<span class="wf-tok-str">&quot;ANALYTICS_ID&quot;</span>]
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>env.PUBLIC_API</code> and <code>env.ANALYTICS_ID</code> may be read from a page; <code>env.STRIPE_SECRET</code> read from one is a <strong>compile error</strong>, naming the file and the line. A private value is still there for <a href="/docs/guide/server-rendering">server rendering</a>, which runs where a secret stays secret — and it never reaches the bundle: the build writes only public values into it.</p>
-<p>A secret a third party needs belongs in a request your server makes, not in a page (<a href="/docs/guide/security#sessions-and-tokens">Security</a>).</p>
-<p><code>env</code> is the language's name for these settings, and only theirs: nothing a program declares may be called <code>env</code> — not a <code>state</code>, a prop, a route parameter, a loop item, nor a top-level <code>const</code> (<a href="/docs/guide/diagnostics#e118-a-name-the-language-already-has"><code>E118</code></a>). A value that says which stage a page is about is a <code>target</code> or a <code>stage</code>.</p>
+<p>A page may read <code>env.PUBLIC_API</code> and <code>env.ANALYTICS_ID</code>. Reading <code>env.STRIPE_SECRET</code> from a page is a compile error (<a href="/docs/guide/diagnostics#e108-an-env-name-that-is-not-public"><code>E108</code></a>) that names the file and the line.</p>
+<p>A private value is still available to <a href="/docs/guide/server-rendering">server rendering</a>, which runs on a server, where a secret stays secret. It never reaches the bundle: the build writes only public values into it.</p>
                             </div>
-                            <h2 class="wf-heading" id="a-build-per-environment">A build per environment</h2>
+                            <div class="wf-stack wf-gap--xs wf-s39f8973e callout" role="note" aria-label="Caution" data-kind="caution">
+                                <div class="wf-row wf-align--center wf-gap--xs callout-label">
+                                    <i class="wf-icon" data-icon="lock"></i>
+                                    <p class="wf-text">Caution</p>
+                                </div>
+                                <div class="wf-markdown">
+<p>Adding a name to <code>public_env</code> publishes its value to every reader of the site. A secret that a third party needs belongs in a request your server makes, not in a page (<a href="/docs/guide/security#keep-secrets-out-of-the-bundle">Security</a>).</p>
+                                </div>
+                            </div>
+                            <h2 class="wf-heading" id="name-your-own-values-something-other-than-env">Name your own values something other than env</h2>
                             <div class="wf-markdown">
-<p>The same source, different values:</p>
+<p><code>env</code> is the language's name for these settings, and nothing else may use it. A <code>state</code>, a prop, a route parameter, a loop item or a top-level <code>const</code> called <code>env</code> is an error (<a href="/docs/guide/diagnostics#e118-a-name-the-language-already-has"><code>E118</code></a>). For a value that says which stage a page is about, use a name such as <code>target</code> or <code>stage</code>.</p>
+                            </div>
+                            <h2 class="wf-heading" id="build-once-per-environment">Build once per environment</h2>
+                            <div class="wf-markdown">
+<p>To deploy the same source to several environments, run one build per environment, each with its own values:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -367,10 +400,12 @@ page Rows(path: &quot;/&quot;, title: &quot;Rows&quot;, description: &quot;Rows 
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>wf build                                              # .env on your machine
+<span class="wf-tok-prompt">$ </span>PUBLIC_API=https://staging.example.com/api wf build   # staging
+<span class="wf-tok-prompt">$ </span>PUBLIC_API=https://api.example.com wf build           # production</code>
                             </div>
                             <div class="wf-markdown">
-<p>In CI, set the variables in the job:</p>
+<p>In CI, set the variables on the job's build step:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -384,16 +419,59 @@ page Rows(path: &quot;/&quot;, title: &quot;Rows&quot;, description: &quot;Rows 
     PUBLIC_API: https://api.example.com
     PUBLIC_ANALYTICS_ID: ${{ vars.ANALYTICS_ID }}</code>
                             </div>
-                            <h2 class="wf-heading" id="other-settings-that-change-per-deploy">Other settings that change per deploy</h2>
                             <div class="wf-markdown">
-<ul>
-<li><strong><code>build.base_path</code></strong> — the sub-path the site is served under. Every link, asset and route is prefixed (<a href="/docs/guide/deploying">Deploying</a>).</li>
-<li><strong><code>meta.site_url</code></strong> — the absolute address, for canonical links, the sitemap and sharing tags.</li>
-<li><strong><code>theme.tokens</code></strong> — design tokens a pipeline supplies, on top of the theme: <code>{ &quot;theme&quot;: { &quot;tokens&quot;: { &quot;color-primary&quot;: &quot;#8B5CF6&quot; } } }</code>.</li>
-</ul>
-<p>These live in <code>webfluent.app.json</code>. There is no separate config per environment; a pipeline that needs one writes the file before building.</p>
+<p>Each build writes its own <code>build/</code> folder. Deploy each one to its own host (<a href="/docs/guide/deploying">Deploying</a>).</p>
                             </div>
-                            <h2 class="wf-heading" id="what-a-review-asks">What a review asks</h2>
+                            <h2 class="wf-heading" id="change-other-settings-per-deploy">Change other settings per deploy</h2>
+                            <div class="wf-markdown">
+<p>A few settings outside <code>env</code> also change between deploys:</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Change other settings per deploy</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Setting</th>
+                                        <th scope="col">What it is</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>build.base_path</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The sub-path the site is served under. The build prefixes every link, asset and route with it (<a href="/docs/guide/deploying">Deploying</a>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>meta.site_url</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The site&#x27;s absolute address, for canonical links, the sitemap and sharing tags</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>theme.tokens</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Design tokens a pipeline supplies, on top of the theme: <code>{ &quot;theme&quot;: { &quot;tokens&quot;: { &quot;color-primary&quot;: &quot;#8B5CF6&quot; } } }</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>These settings live in <code>webfluent.app.json</code>. There is no separate config file per environment. A pipeline that needs different settings writes the file before it builds; <code>wf config set</code> edits it from a script:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -401,10 +479,23 @@ page Rows(path: &quot;/&quot;, title: &quot;Rows&quot;, description: &quot;Rows 
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>wf config set build.base_path /staging</code>
+                            </div>
+                            <h2 class="wf-heading" id="audit-what-the-project-reads">Audit what the project reads</h2>
+                            <div class="wf-markdown">
+<p>To list every <code>env</code> name the project has, run <code>wf audit</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>wf audit</code>
                             </div>
                             <div class="wf-markdown">
-<p>lists every <code>env</code> name the project has, where it is read, and whether it is public — beside every other thing the site trusts (<a href="/docs/guide/security#wf-audit">Security</a>).</p>
+<p>It prints each name, where it is read, and whether it is public, beside everything else the site trusts (<a href="/docs/guide/security#audit-the-project">Security</a>). Run it before a release, and when you review a change that adds a name.</p>
                             </div>
                         </div>
                     </div>
@@ -422,11 +513,13 @@ page Rows(path: &quot;/&quot;, title: &quot;Rows&quot;, description: &quot;Rows 
                 <div class="wf-stack wf-gap--lg wf-sac91c322" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
-                        <a class="wf-link wf-s3e136ca4" href="#where-values-come-from">Where values come from</a>
-                        <a class="wf-link wf-s3e136ca4" href="#public-and-private-names">Public and private names</a>
-                        <a class="wf-link wf-s3e136ca4" href="#a-build-per-environment">A build per environment</a>
-                        <a class="wf-link wf-s3e136ca4" href="#other-settings-that-change-per-deploy">Other settings that change per deploy</a>
-                        <a class="wf-link wf-s3e136ca4" href="#what-a-review-asks">What a review asks</a>
+                        <a class="wf-link wf-s3e136ca4" href="#read-a-value-in-a-page">Read a value in a page</a>
+                        <a class="wf-link wf-s3e136ca4" href="#set-a-value">Set a value</a>
+                        <a class="wf-link wf-s3e136ca4" href="#keep-a-private-value-out-of-the-bundle">Keep a private value out of the bundle</a>
+                        <a class="wf-link wf-s3e136ca4" href="#name-your-own-values-something-other-than-env">Name your own values something other than env</a>
+                        <a class="wf-link wf-s3e136ca4" href="#build-once-per-environment">Build once per environment</a>
+                        <a class="wf-link wf-s3e136ca4" href="#change-other-settings-per-deploy">Change other settings per deploy</a>
+                        <a class="wf-link wf-s3e136ca4" href="#audit-what-the-project-reads">Audit what the project reads</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-s614f8b98">

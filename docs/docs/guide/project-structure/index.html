@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project structure</title>
-    <meta name="description" content="Where files go, how they merge into one program, naming in a global namespace, wf generate, what to commit, and growing a project.">
+    <meta name="description" content="Where files go, how they merge into one program, naming in a global namespace, wf generate, what to commit, and how to grow a project.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/project-structure">
     <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/project-structure?lang=en">
     <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/project-structure?lang=ar">
@@ -12,7 +12,7 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Project structure">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="Where files go, how they merge into one program, naming in a global namespace, wf generate, what to commit, and growing a project.">
+    <meta property="og:description" content="Where files go, how they merge into one program, naming in a global namespace, wf generate, what to commit, and how to grow a project.">
     <meta property="og:url" content="https://webfluent.monzeromer.dev/docs/guide/project-structure">
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="ar_AR">
@@ -21,9 +21,9 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Project structure">
-    <meta name="twitter:description" content="Where files go, how they merge into one program, naming in a global namespace, wf generate, what to commit, and growing a project.">
+    <meta name="twitter:description" content="Where files go, how they merge into one program, naming in a global namespace, wf generate, what to commit, and how to grow a project.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/project-structure#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/project-structure","name":"Project structure","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Where files go, how they merge into one program, naming in a global namespace, wf generate, what to commit, and growing a project."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/project-structure#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Project structure","item":"https://webfluent.monzeromer.dev/docs/guide/project-structure"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/project-structure#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/project-structure","name":"Project structure","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Where files go, how they merge into one program, naming in a global namespace, wf generate, what to commit, and how to grow a project."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/project-structure#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Project structure","item":"https://webfluent.monzeromer.dev/docs/guide/project-structure"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -69,6 +69,9 @@
             </div>
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
+                    <a class="wf-sidebar__item" href="/docs">
+                        <p class="wf-text">Overview</p>
+                    </a>
                     <p class="wf-text group-label">Start</p>
                     <a class="wf-sidebar__item" href="/docs/guide/introduction">
                         <p class="wf-text num">01</p>
@@ -274,7 +277,7 @@
                 </aside>
                 <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
-                        <a class="wf-link" href="/docs/guide/introduction">Guide</a>
+                        <a class="wf-link" href="/docs">Guide</a>
                         <p class="wf-text">/</p>
                         <p class="wf-text wf-s8c71c534">Chapter 25</p>
                     </div>
@@ -284,7 +287,20 @@
                     </div>
                     <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
+                            <div class="wf-markdown">
+<p>A WebFluent project is a config file and a folder of sources that the compiler reads as one program. The folders are a convention for you and your team; the compiler does not care where a declaration lives. This chapter explains how a project is laid out and read, then shows you how to add files, choose what to commit and keep a growing project in order.</p>
+<p>In this chapter:</p>
+<ul>
+<li>the conventional layout, and which files are required;</li>
+<li>how the compiler merges every file into one program, and what that means for names;</li>
+<li>what happens to the files that are not <code>.wf</code>;</li>
+<li>how to generate starter files, what to commit, and how to organise a project as it grows.</li>
+</ul>
+                            </div>
                             <h2 class="wf-heading" id="the-layout">The layout</h2>
+                            <div class="wf-markdown">
+<p>This is the layout <code>wf init</code> starts from, with every kind of file a project can hold:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -309,26 +325,58 @@
 │   ├── translations/       en.json, ar.json (with &quot;i18n&quot; in the config)
 │   ├── posts.json          data files a `data` declaration reads
 │   └── about.md            Markdown pages
-├── public/                 copied to the build&#x27;s root: favicon, fonts, images
+├── public/                 copied to the build's root: favicon, fonts, images
 ├── tests/                  `test` declarations, and __snapshots__/
 └── build/                  what `wf build` writes (not committed)</code>
                             </div>
                             <div class="wf-markdown">
-<p>Only <code>webfluent.app.json</code> and one <code>.wf</code> or <code>.wfx</code> file under <code>src/</code> are required. The folders are convention: the compiler does not care where a declaration lives.</p>
+<p>Only two things are required: <code>webfluent.app.json</code> and one <code>.wf</code> or <code>.wfx</code> file under <code>src/</code>. Everything else is convention. The config is covered in <a href="/docs/guide/config">Configuration</a>, and <code>.env</code> in <a href="/docs/guide/environments">Environments</a>.</p>
                             </div>
-                            <h2 class="wf-heading" id="one-program-no-imports">One program, no imports</h2>
+                            <h2 class="wf-heading" id="one-program-with-no-imports">One program, with no imports</h2>
                             <div class="wf-markdown">
-<p>Every <code>.wf</code> and <code>.wfx</code> file under <code>src/</code> is read and merged into a single program. A page uses a component declared in another file, and a component a store, by name, with nothing to import. <code>App.wf</code> is read first; the rest in path order, which matters for nothing but the order of equal things in the output.</p>
-<p>That makes the namespace global: two components, two pages, two stores, two types or two constants with one name is an error, naming both places.</p>
+<p>The compiler reads every <code>.wf</code> and <code>.wfx</code> file under <code>src/</code> and merges them into a single program. A page uses a component declared in another file, and a component uses a store, by name. There is nothing to import.</p>
+<p>For example, a component declared in <code>src/components/PriceCard.wf</code> and a page in <code>src/pages/Pricing.wf</code> work together with no import between them. Here they are in one block:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-cmt">// In src/components/PriceCard.wf</span>
+<span class="wf-tok-kw">component</span> <span class="wf-tok-name">PriceCard</span>(_ <span class="wf-tok-prop">plan</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">price</span>: <span class="wf-tok-name">Number</span>) {
+    <span class="wf-tok-name">Card</span> {
+        <span class="wf-tok-name">Text</span>(plan).bold
+        <span class="wf-tok-name">Text</span>(format(price, .currency))
+    }
+}
+
+<span class="wf-tok-cmt">// In src/pages/Pricing.wf</span>
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Pricing</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/pricing&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Pricing&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Plans and prices.&quot;</span>) {
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Pricing&quot;</span>).h1
+    <span class="wf-tok-name">PriceCard</span>(<span class="wf-tok-str">&quot;Team&quot;</span>, <span class="wf-tok-prop">price</span>: <span class="wf-tok-num">49</span>)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The compiler reads <code>App.wf</code> (or <code>App.wfx</code>) first, then the rest in path order. The order matters for nothing but the order of equal things in the output.</p>
+<p><code>use Store</code> at the top of a page or component says that it reads that store. It documents the dependency for the reader and the editor; it does not scope anything, and a page reads a store by name with or without it.</p>
+                            </div>
+                            <h2 class="wf-heading" id="names-across-a-project">Names across a project</h2>
+                            <div class="wf-markdown">
+<p>Because every file is one program, the namespace is global. Two components, two pages, two stores, two types or two constants with one name is an <code>E102</code> error, naming both places.</p>
+<p>The conventions that keep names apart:</p>
 <ul>
-<li><strong>Names that declare</strong> — pages, components, stores, types, enums, themes, services, externals, animations — are PascalCase.</li>
-<li><strong>Constants</strong> are conventionally UPPER_SNAKE: <code>API</code>, <code>PAGE_SIZE</code>.</li>
-<li><strong>A page's name is its identity, not its title.</strong> Suffix it when it would collide with a component: <code>page PostPage</code> beside <code>component Post</code>.</li>
-<li><strong>A component used by one page</strong> can live in that page's file.</li>
+<li><strong>Declared names are PascalCase</strong>: pages, components, stores, types, enums, themes, services and animations.</li>
+<li><strong>Constants are UPPER_SNAKE</strong> by convention: <code>API</code>, <code>PAGE_SIZE</code>.</li>
+<li><strong>A page's name is its identity, not its title.</strong> Add a suffix when the name would collide with a component: <code>page PostPage</code> beside <code>component Post</code>.</li>
+<li><strong>A component that one page uses</strong> can live in that page's file.</li>
 </ul>
-<p><code>use Store</code> at the top of a page or component says it reads that store. It is documentation for the reader and the editor; it scopes nothing.</p>
                             </div>
                             <h2 class="wf-heading" id="files-that-are-not-wf">Files that are not .wf</h2>
+                            <div class="wf-markdown">
+<p>The build reads other files too. What each becomes:</p>
+                            </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">Files that are not .wf</caption>
                                 <thead>
@@ -386,7 +434,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>a page (<a href="/docs/guide/content#md-pages">Content</a>)</p>
+<p>a page (<a href="/docs/guide/content#write-a-page-as-a-md-file">Content</a>)</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -427,7 +475,11 @@
 <p>the <code>i18n.dir</code></p>
                                             </div>
                                         </td>
-                                        <td>the locale tables</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>the locale tables (<a href="/docs/guide/i18n">Internationalization</a>)</p>
+                                            </div>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>anything</td>
@@ -444,7 +496,10 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <h2 class="wf-heading" id="starting-files-wf-generate">Starting files: wf generate</h2>
+                            <h2 class="wf-heading" id="generate-a-starter-file">Generate a starter file</h2>
+                            <div class="wf-markdown">
+<p>To add a page, a component or a store with the boilerplate written for you, run <code>wf generate</code>:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -452,14 +507,73 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>wf generate page Pricing
+<span class="wf-tok-prompt">$ </span>wf generate component PriceCard
+<span class="wf-tok-prompt">$ </span>wf generate store Cart</code>
                             </div>
                             <div class="wf-markdown">
-<p>Each writes a starter declaration in the conventional folder — <code>src/pages/Pricing.wf</code> with <code>path: &quot;/pricing&quot;</code>, a title, a description and an <code>h1</code>; <code>src/components/PriceCard.wf</code>; <code>src/stores/Cart.wf</code> — in <code>.wfx</code> when the project is written that way. It never overwrites a file.</p>
+<p>Each command writes a starter declaration in the conventional folder:</p>
                             </div>
-                            <h2 class="wf-heading" id="what-to-commit">What to commit</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Generate a starter file</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Command</th>
+                                        <th scope="col">Writes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf generate page Pricing</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>src/pages/Pricing.wf</code>, with <code>path: &quot;/pricing&quot;</code>, a title, a description and an <code>h1</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf generate component PriceCard</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>src/components/PriceCard.wf</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf generate store Cart</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>src/stores/cart.wf</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                             <div class="wf-markdown">
-<p>Commit <code>webfluent.app.json</code>, <code>src/</code>, <code>public/</code>, <code>tests/</code> (with <code>__snapshots__/</code>). Do not commit:</p>
+<p>In a project written in <code>.wfx</code>, the files are <code>.wfx</code>. <code>wf generate</code> never overwrites a file: when one exists, it says so and stops. Add <code>-d DIR</code> to generate into a project other than the current directory.</p>
+                            </div>
+                            <h2 class="wf-heading" id="choose-what-to-commit">Choose what to commit</h2>
+                            <div class="wf-markdown">
+<p>Commit the sources and the config:</p>
+<ul>
+<li><code>webfluent.app.json</code></li>
+<li><code>src/</code></li>
+<li><code>public/</code></li>
+<li><code>tests/</code>, with its <code>__snapshots__/</code></li>
+</ul>
+<p>Leave out what the build writes and what is private. Add these lines to <code>.gitignore</code>:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -474,18 +588,91 @@
 .env</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>.wf-cache/</code> holds resized images between builds; <code>.wf-sizes.json</code> what the last build weighed, for <code>wf build --stats</code> to compare against.</p>
+<p><code>.wf-cache/</code> holds resized images between builds. <code>.wf-sizes.json</code> records what the last build weighed, for <code>wf build --stats</code> to compare against. <code>.env</code> holds build-time values that may be private.</p>
                             </div>
-                            <h2 class="wf-heading" id="as-a-project-grows">As a project grows</h2>
+                            <h2 class="wf-heading" id="organise-a-growing-project">Organise a growing project</h2>
                             <div class="wf-markdown">
+<p>As a project grows, these habits keep it readable:</p>
 <ul>
-<li><strong>Group by feature once folders get long.</strong> <code>src/billing/</code> holding the billing pages, components, store and types reads better than four folders each holding a slice of it. The compiler does not mind either way.</li>
-<li><strong>Put a service in one place.</strong> One <code>api</code> per backend, in its own file, with the types its endpoints return beside it.</li>
+<li><strong>Group by feature once folders get long.</strong> A <code>src/billing/</code> folder that holds the billing pages, components, store and types reads better than four folders that each hold a slice of it. The compiler does not mind either way.</li>
+<li><strong>Put each service in one place.</strong> Write one <code>api</code> per backend, in its own file, with the types its endpoints return beside it.</li>
 <li><strong>Keep shared types together</strong>, in a <code>types.wf</code> per area, so the editor's go-to-definition lands somewhere predictable.</li>
-<li><strong>Write docs as you declare.</strong> A <code>///</code> comment above a component, a prop, an event or a type is shown on hover and in <code>wf docs</code>, the gallery of everything the project declares.</li>
-<li><strong>Hold it to the formatter.</strong> <code>wf fmt --check</code> in CI keeps every file in one layout.</li>
+<li><strong>Document as you declare.</strong> A <code>///</code> comment above a component, a prop, an event or a type shows on hover and in <code>wf docs</code>, the gallery of everything the project declares.</li>
+<li><strong>Hold every file to the formatter.</strong> <code>wf fmt --check</code> in CI keeps every file in one layout (<a href="/docs/guide/testing#run-the-checks-in-ci">Testing</a>).</li>
 </ul>
                             </div>
+                            <h2 class="wf-heading" id="quick-reference">Quick reference</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Quick reference</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Topic</th>
+                                        <th scope="col">Rule</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Required files</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>webfluent.app.json</code> and one <code>.wf</code> or <code>.wfx</code> file under <code>src/</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Reading order</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>App.wf</code> first, then the rest in path order</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Imports</td>
+                                        <td>none: every declaration is in scope by name</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>use Store</code></p>
+                                            </div>
+                                        </td>
+                                        <td>documents a dependency; scopes nothing</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Duplicate names</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>E102</code>, naming both places</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>public/</code></p>
+                                            </div>
+                                        </td>
+                                        <td>copied to the build&#x27;s root as it is</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Starter files</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf generate page</code>, <code>component</code> or <code>store</code>, then the name</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Not committed</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>build/</code>, <code>.wf-cache/</code>, <code>.wf-sizes.json</code>, <code>.env</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                     <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
@@ -503,11 +690,13 @@
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
                         <a class="wf-link wf-s3e136ca4" href="#the-layout">The layout</a>
-                        <a class="wf-link wf-s3e136ca4" href="#one-program-no-imports">One program, no imports</a>
+                        <a class="wf-link wf-s3e136ca4" href="#one-program-with-no-imports">One program, with no imports</a>
+                        <a class="wf-link wf-s3e136ca4" href="#names-across-a-project">Names across a project</a>
                         <a class="wf-link wf-s3e136ca4" href="#files-that-are-not-wf">Files that are not .wf</a>
-                        <a class="wf-link wf-s3e136ca4" href="#starting-files-wf-generate">Starting files: wf generate</a>
-                        <a class="wf-link wf-s3e136ca4" href="#what-to-commit">What to commit</a>
-                        <a class="wf-link wf-s3e136ca4" href="#as-a-project-grows">As a project grows</a>
+                        <a class="wf-link wf-s3e136ca4" href="#generate-a-starter-file">Generate a starter file</a>
+                        <a class="wf-link wf-s3e136ca4" href="#choose-what-to-commit">Choose what to commit</a>
+                        <a class="wf-link wf-s3e136ca4" href="#organise-a-growing-project">Organise a growing project</a>
+                        <a class="wf-link wf-s3e136ca4" href="#quick-reference">Quick reference</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-s614f8b98">

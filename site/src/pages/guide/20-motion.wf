@@ -1,15 +1,20 @@
 /// Chapter 20 of the guide, written from md-docs/20-motion.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page MotionGuide(path: "/docs/guide/motion", title: "Motion", description: "Enter and exit animations, list stagger, keyframes, expanding boxes, counting numbers, shared elements, sequences and route transitions.", layout: DocsShell("Motion", chapter: t("guide.chapter", { n: "20" }), blurb: "Motion is declared, not scripted: how an element enters and leaves, how a list staggers, how pages change.", source: "md-docs/20-motion.md", sections: [Anchor(id: "enter-animations", label: "Enter animations"), Anchor(id: "exit-animations", label: "Exit animations"), Anchor(id: "lists", label: "Lists"), Anchor(id: "custom-animations", label: "Custom animations"), Anchor(id: "opening-to-the-height-of-the-content", label: "Opening to the height of the content"), Anchor(id: "a-number-that-counts", label: "A number that counts"), Anchor(id: "the-same-element-across-a-route-change", label: "The same element across a route change"), Anchor(id: "orchestration", label: "Orchestration"), Anchor(id: "driving-one-yourself", label: "Driving one yourself"), Anchor(id: "the-defaults", label: "The defaults"), Anchor(id: "transitions-on-state", label: "Transitions on state"), Anchor(id: "route-transitions", label: "Route transitions"), Anchor(id: "show-and-match", label: "show and match"), Anchor(id: "reduced-motion", label: "Reduced motion")], prevTo: "/docs/guide/offline", prevLabel: "19. {t("ch.19")}", nextTo: "/docs/guide/i18n", nextLabel: "21. {t("ch.21")}")) {
+page MotionGuide(path: "/docs/guide/motion", title: "Motion", description: "Enter and exit animations, list stagger, keyframes, expanding boxes, counting numbers, shared elements, sequences and route transitions.", layout: DocsShell("Motion", chapter: t("guide.chapter", { n: "20" }), blurb: "Declare how an element enters and leaves, how a list staggers and how pages change — the runtime plays it, or skips it for readers who asked for less.", source: "md-docs/20-motion.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "animate-an-element-in", label: "Animate an element in"), Anchor(id: "animate-an-element-out", label: "Animate an element out"), Anchor(id: "animate-a-list", label: "Animate a list"), Anchor(id: "declare-your-own-keyframes", label: "Declare your own keyframes"), Anchor(id: "open-a-box-to-the-height-of-its-content", label: "Open a box to the height of its content"), Anchor(id: "count-a-number-to-its-new-value", label: "Count a number to its new value"), Anchor(id: "carry-an-element-across-a-route-change", label: "Carry an element across a route change"), Anchor(id: "animate-route-changes", label: "Animate route changes"), Anchor(id: "animate-show-and-match-branches", label: "Animate show and match branches"), Anchor(id: "tween-a-property-when-state-changes", label: "Tween a property when state changes"), Anchor(id: "run-a-sequence-of-animations", label: "Run a sequence of animations"), Anchor(id: "drive-an-animation-yourself", label: "Drive an animation yourself"), Anchor(id: "set-the-default-duration-and-easing", label: "Set the default duration and easing"), Anchor(id: "respect-reduced-motion", label: "Respect reduced motion"), Anchor(id: "troubleshooting", label: "Troubleshooting")], prevTo: "/docs/guide/offline", prevLabel: "19. {t("ch.19")}", nextTo: "/docs/guide/i18n", nextLabel: "21. {t("ch.21")}")) {
     Stack(gap: .lg) {
-        Markdown("Motion in WebFluent is declared, not scripted: an element says how it enters and leaves, a list says how its items stagger, the router says how pages change, and the runtime plays it — or skips it for a reader who asked for less motion.")
+        Markdown("This chapter shows you how to animate a page by declaring the motion, not by scripting it. An element says how it enters and leaves, a list says how its items stagger, the router says how pages change, and the runtime plays it all. A reader who asked their system for less motion gets none, and you never have to check for that yourself.\n\nIn this chapter you will:\n\n- animate an element in and out, and when it is scrolled to;\n- animate a list as items arrive, leave and move;\n- declare your own keyframes;\n- open a box to the height of its content, and count a number up;\n- carry an element across a route change, and animate the route change;\n- run a sequence of animations, or drive one yourself;\n- check what a reader who wants reduced motion sees.")
 
-        Heading("Enter animations", id: "enter-animations").h2
+        Heading("Before you start", id: "before-you-start").h2
 
-        Markdown("Every element takes `animate:` (or the animation's name as a flag):")
+        Markdown("You should know how `if`, `for`, `show` and `match` draw and remove elements ([Control flow](/docs/guide/control-flow)), and how a keyed `for … by` keeps an item's nodes. Motion attaches to those: an animation plays when one of them brings an element in or takes it away.")
 
-        CodeBlock(#"page Enter(path: "/") {
+        Heading("Animate an element in", id: "animate-an-element-in").h2
+
+        Markdown("To play an animation when an element appears, give it `animate:`, or write the animation's name as a flag. This page shows four cards when you press **Open**, each entering a different way:")
+
+        CodeBlock(#"page Enter(path: "/", title: "Enter", description: "Four ways to arrive.") {
     state open = false
+    Heading("Enter").h1
     Button("Open") { on click { open = !open } }
     if open {
         Card.fadeIn { Text("Faded in") }
@@ -19,22 +24,61 @@ page MotionGuide(path: "/docs/guide/motion", title: "Motion", description: "Ente
     }
 }"#, title: "wf")
 
-        Markdown("The animations: `fadeIn`, `fadeOut`, `slideUp`, `slideDown`, `slideLeft`, `slideRight`, `scaleIn`, `scaleOut`, `bounce`, `shake`, `pulse`, `spin`, and `expand`/`collapse`, which open and close a box to the height of what is inside it. Speeds: `.fast` (150ms), `.normal`, `.slow` (500ms); or `duration:` and `delay:` as lengths of time.\n\n`easing:` is how it is paced: a named one — `.standard`, `.spring`, `.ease`, `.easeIn`, `.easeOut`, `.easeInOut`, `.linear`, `.bouncy`, `.smooth` — or any CSS timing function written as a string. A named easing is a design token (`$ease-standard`, `$ease-spring`), so a theme retunes every animation at once. A spring is not a curve CSS can name: the engine samples the solver into a `linear()` easing, so it overshoots and settles the way a spring does.\n\nAn animation plays when the element appears — on the first paint and each time the `if`, `for`, `match` or `show` around it brings it back. An element that stands still plays it as a stylesheet rule, with no JavaScript, so a static page animates before its script has loaded; everything the runtime plays — a branch arriving or leaving, a list reordering, a route changing — goes through the Web Animations API, where an animation that is interrupted gives way to the one that replaced it instead of jumping.")
+        Markdown("An animation plays when the element appears: on the first paint, and each time the `if`, `for`, `match` or `show` around it brings it back.\n\nThe built-in animations are `fadeIn`, `fadeOut`, `slideUp`, `slideDown`, `slideLeft`, `slideRight`, `scaleIn`, `scaleOut`, `bounce`, `shake`, `pulse`, `spin`, and `expand` and `collapse`, which open and close a box to the height of what is inside it.\n\nTo change how long it takes and how it is paced:")
 
-        Heading("Playing when it is scrolled to", id: "playing-when-it-is-scrolled-to").h3
+        Table(caption: "Animate an element in") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Prop").header
+                    Table.Cell("What it sets").header
+                    Table.Cell("Values").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`speed:`") }
+                    Table.Cell("A preset length")
+                    Table.Cell { Markdown("`.fast` (150ms), `.normal`, `.slow` (500ms); `.fast` and `.slow` are also flags") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`duration:`") }
+                    Table.Cell("An exact length")
+                    Table.Cell { Markdown("a length of time: `\"600ms\"`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`delay:`") }
+                    Table.Cell("A wait before it starts")
+                    Table.Cell { Markdown("a length of time: `\"200ms\"`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`easing:`") }
+                    Table.Cell("How it is paced")
+                    Table.Cell("a named easing, or any CSS timing function as a string")
+                }
+            }
+        }
 
-        Markdown("`on: .enterView` holds the animation until the reader has reached the element, and plays it once:")
+        Markdown("The named easings are `.standard`, `.spring`, `.ease`, `.easeIn`, `.easeOut`, `.easeInOut`, `.linear`, `.bouncy` and `.smooth`. Each is a design token (`$ease-standard`, `$ease-spring`, …), so a theme retunes every animation at once. A spring is not a curve CSS can name, so the engine samples the spring into a `linear()` easing: it overshoots and settles the way a spring does.\n\nAn element that stands still plays its enter animation as a stylesheet rule, with no JavaScript, so a pre-rendered page animates before its script has loaded. Everything the runtime plays — a branch arriving or leaving, a list reordering, a route changing — goes through the Web Animations API, where an animation that is interrupted gives way to the one that replaced it instead of jumping.")
 
-        CodeBlock(#"Section(animate: .fadeIn, on: .enterView) { Heading("Further down").h2 }"#, title: "wf")
+        Heading("Play an animation when it is scrolled to", id: "play-an-animation-when-it-is-scrolled-to").h3
 
-        Markdown("`on: .mount` is the default, and says what already happens.")
+        Markdown("To hold an animation until the reader has scrolled to the element, add `on: .enterView`. It plays once:")
 
-        Heading("Exit animations", id: "exit-animations").h2
+        CodeBlock(#"page Story(path: "/", title: "Story", description: "Sections that arrive as you read.") {
+    Heading("Our story").h1
+    Text("Scroll down.")
+    Section(animate: .fadeIn, on: .enterView) { Heading("Further down").h2 }
+}"#, title: "wf")
 
-        Markdown("`exit:` plays when the element leaves, and the runtime waits for it before removing the node:")
+        Markdown("`on: .mount`, the default, plays the animation when the element appears.")
 
-        CodeBlock(#"page Exit(path: "/") {
+        Heading("Animate an element out", id: "animate-an-element-out").h2
+
+        Markdown("To play an animation when an element leaves, give it `exit:`. The runtime waits for the animation to finish before it removes the node. Here the alert slides in, and fades out when you dismiss it:")
+
+        CodeBlock(#"page Exit(path: "/", title: "Exit", description: "An alert that fades away.") {
     state toast: String? = "Saved"
+    Heading("Exit").h1
     if let message = toast {
         Alert(message, animate: .slideDown, exit: .fadeOut).success {
             Button("Dismiss").sm { on click { toast = null } }
@@ -43,19 +87,20 @@ page MotionGuide(path: "/docs/guide/motion", title: "Motion", description: "Ente
     Button("Show") { on click { toast = "Saved again" } }
 }"#, title: "wf")
 
-        Markdown("Any element may carry `exit:`, not only the root of a branch; whichever elements are leaving animate out together, and removal follows the longest.")
+        Markdown("Any element may carry `exit:`, not only the root of a branch. All the elements that are leaving animate out together, and the removal waits for the longest.")
 
-        Heading("Lists", id: "lists").h2
+        Heading("Animate a list", id: "animate-a-list").h2
 
-        Markdown("A keyed `for` animates insertions, removals and moves:")
+        Markdown("To animate the items of a list as they are added, removed and moved, use a keyed `for … by` and give the item's element `animate:`, `exit:` and `stagger:`:")
 
         CodeBlock(#"type Item { id: Number, text: String }
 
-page List(path: "/") {
+page Tasks(path: "/", title: "Tasks", description: "A list that animates.") {
     state items: [Item] = [Item(id: 1, text: "First"), Item(id: 2, text: "Second")]
     state next = 3
     action add() { items.push(Item(id: next, text: "Item {next}"))  next = next + 1 }
     action shuffle() { items = items.reverse() }
+    Heading("Tasks").h1
     Row(gap: .sm) {
         Button("Add") { on click { add() } }
         Button("Reverse") { on click { shuffle() } }
@@ -64,17 +109,17 @@ page List(path: "/") {
         Card(animate: .fadeIn, exit: .fadeOut, stagger: "40ms") {
             Row(justify: .between) {
                 Text(item.text)
-                Button("×").sm { on click { items = items.filter(i => i.id != item.id) } }
+                Button("Remove").sm { on click { items = items.filter(i => i.id != item.id) } }
             }
         }
     }
 }"#, title: "wf")
 
-        Markdown("- `stagger: \"40ms\"` delays each item's enter by its index × 40ms.\n- An item that moves (a sort, a reverse, an insert above it) slides to its new place — a FLIP transform on the node, which `by` keeps alive.\n- An item that leaves plays its `exit:` first.")
+        Markdown("What each change does:\n\n- **An item arrives.** It plays its `animate:`. `stagger: \"40ms\"` delays each item's enter by its index × 40ms, so a list fills in one item after another.\n- **An item moves** — a sort, a reverse, an insert above it. It slides to its new place. This is a *FLIP* transform: the runtime measures where the node was and where it is, and animates between them. It works because `by` keeps the item's node alive.\n- **An item leaves.** It plays its `exit:` first.")
 
-        Heading("Custom animations", id: "custom-animations").h2
+        Heading("Declare your own keyframes", id: "declare-your-own-keyframes").h2
 
-        Markdown("`animation Name \{ \}` declares keyframes; use the name where a built-in animation goes:")
+        Markdown("To animate in a way the built-ins do not, declare keyframes with `animation Name \{ \}` and use the name where a built-in animation goes:")
 
         CodeBlock(#"animation Pulse {
     from { opacity: 1 }
@@ -87,108 +132,79 @@ animation Drop {
     to { transform: none; opacity: 1 }
 }
 
-page Custom(path: "/") {
+page Custom(path: "/", title: "Custom", description: "Keyframes of your own.") {
     state saving = false
+    Heading("Custom").h1
     Card(animate: .Drop) {
         Button("Save") { on click { saving = !saving } }
         if saving { Badge("Saving", animate: .Pulse).info }
     }
 }"#, title: "wf")
 
-        Markdown("Keyframe steps are `from`, `to` or a percentage; each holds raw CSS. The declaration is emitted as `@keyframes Name` once, in the shared stylesheet. A project's animation is always written `animate: .Name`: the flags are the engine's. It plays wherever a built-in one would — on an element that stands still, from the stylesheet, before any script has loaded.")
+        Markdown("The rules for keyframes:\n\n- A step is `from`, `to` or a percentage, and holds raw CSS.\n- The declaration is written once to the shared stylesheet as `@keyframes Name`.\n- Your own animation is always written `animate: .Name` (or `exit: .Name`). The flags belong to the built-in animations.\n- It plays wherever a built-in one would — on an element that stands still, from the stylesheet, before any script has loaded.\n\nYou can also name your keyframes in a style, as CSS does: `animation: Pulse 1s infinite`.")
 
-        Heading("Opening to the height of the content", id: "opening-to-the-height-of-the-content").h2
+        Heading("Open a box to the height of its content", id: "open-a-box-to-the-height-of-its-content").h2
 
-        Markdown("CSS cannot animate to `height: auto`, so `.expand` measures what auto would be and animates to that number, then hands the height back so the box grows with its content afterwards:")
+        Markdown("CSS cannot animate to `height: auto`. To open a box to whatever height its content needs, use `.expand`: it measures the height `auto` would give, animates to that number, then hands the height back so the box keeps growing with its content:")
 
-        CodeBlock(#"page Details(path: "/") {
+        CodeBlock(#"page Details(path: "/", title: "Details", description: "A box that opens smoothly.") {
     state open = false
+    Heading("Details").h1
     Button("Details") { on click { open = !open } }
     show open {
         Stack(animate: .expand) { Text("As much text as there is.") }
     }
 }"#, title: "wf")
 
-        Markdown("`.expand` on the way in is `.collapse` on the way out, so `exit:` needs no second name.")
+        Markdown("`.expand` on the way in is `.collapse` on the way out, so the box needs no `exit:`.")
 
-        Heading("A number that counts", id: "a-number-that-counts").h2
+        Heading("Count a number to its new value", id: "count-a-number-to-its-new-value").h2
 
-        Markdown("`count:` makes a number arrive rather than jump — over the length of time it names, easing out as it gets there:")
+        Markdown("To make a number arrive rather than jump, give its element `count:` with a length of time. The number eases out as it gets there:")
 
-        CodeBlock(#"page Revenue(path: "/") {
+        CodeBlock(#"page Revenue(path: "/", title: "Revenue", description: "A figure that counts up.") {
     state revenue = 0
+    Heading("Revenue").h1
     Text(format(revenue, .currency), count: "600ms")
     Button("Load") { on click { revenue = 1200 } }
 }"#, title: "wf")
 
-        Markdown("The first value is written as it is: a page does not open by counting up from nothing. Every value after it is counted to from the one before, and each step is formatted the way the first was — a currency counts as a currency.")
+        Markdown("Press **Load** and the figure counts from `$0.00` to `$1,200.00`. The first value is shown as it is, so a page does not open by counting up from nothing. Every later value is counted to from the one before, and each step is formatted the way the first was: a currency counts as a currency.")
 
-        Heading("The same element across a route change", id: "the-same-element-across-a-route-change").h2
+        Heading("Carry an element across a route change", id: "carry-an-element-across-a-route-change").h2
 
-        Markdown("`shared:` gives an element a name it keeps from one page to the next, so the browser carries it rather than crossfading it away and back:")
+        Markdown("To have the browser carry one element from one page to the next — a cover picture that grows into the article's header — give it the same `shared:` name on both pages. The browser moves it instead of fading it out and back in:")
 
-        CodeBlock(#"for post in posts by post.id {
-    Link(to: "/p/{post.slug}") { Image(post.cover, alt: post.title, shared: "cover-{post.id}") }
+        CodeBlock(#"type Post { id: String, slug: String, title: String, cover: String }
+
+const posts: [Post] = [
+    Post(id: "1", slug: "slow-roasting", title: "Slow roasting", cover: "/roast.jpg"),
+]
+
+page Blog(path: "/", title: "Blog", description: "Every post.") {
+    Heading("Blog").h1
+    for post in posts by post.id {
+        Link(to: "/p/{post.slug}") {
+            Image(src: post.cover, alt: post.title, shared: "cover-{post.id}")
+            Text(post.title)
+        }
+    }
 }
 
-page Post(path: "/p/:slug", slug: String) {
-    derived post = posts.find(p => p.slug == slug)
-    Image(post?.cover ?? "", alt: post?.title ?? "", shared: "cover-{post?.id}")
-}"#, title: "wf")
-
-        Markdown("The two must carry the same name, and only one element on a page may carry each name.")
-
-        Heading("Orchestration", id: "orchestration").h2
-
-        Markdown("`sequence` starts a group of elements on a clock:")
-
-        CodeBlock(#"page Landing(path: "/") {
-    sequence {
-        step { Heading("Welcome").h1.fadeIn }
-        step(after: "120ms") { Text("What we do.").slideUp }
-        step(after: "120ms") { Button("Start").primary.slideUp }
+page Article(path: "/p/:slug", title: "Post", description: "One post.", slug: String) {
+    if let post = posts.find(p => p.slug == slug) {
+        Heading(post.title).h1
+        Image(src: post.cover, alt: post.title, shared: "cover-{post.id}")
+    } else {
+        Heading("Not found").h1
     }
 }"#, title: "wf")
 
-        Markdown("`after:` is measured from the step before it, so the three start at 0ms, 120ms and 240ms. A step with no `after:` starts when the step before it does, which is how several elements move together. A sequence is orchestration and nothing else: it writes the clock onto the elements as `delay:`, and what the rest of the build sees is the program you would have written by hand.")
+        Markdown("Both elements must carry the same name, and only one element on a page may carry each name — which is why the name here includes the post's `id`.")
 
-        Heading("Driving one yourself", id: "driving-one-yourself").h2
+        Heading("Animate route changes", id: "animate-route-changes").h2
 
-        Markdown("`animate(element, name, duration)` is a handle: it plays when you make it, and `play()`, `cancel()` and `finished` are yours.")
-
-        CodeBlock(#"Card(ref: panel) {
-    on mouseenter { animate(panel, "pulse", "400ms") }
-}"#, title: "wf")
-
-        Markdown("`replayAnimation(element, name)` plays an animation the element already carries again, from the start — the one case a flag cannot express, since a flag plays once on arrival:")
-
-        CodeBlock(#"Card.outlined.fadeIn {
-    on mouseenter(e) { replayAnimation(e.currentTarget, "fadeIn") }
-}"#, title: "wf")
-
-        Heading("The defaults", id: "the-defaults").h2
-
-        Markdown("`motion` in `webfluent.app.json` sets what an animation does when the element says nothing:")
-
-        CodeBlock(#"{ "motion": { "duration": "180ms", "easing": "$ease-standard" } }"#, title: "json")
-
-        Markdown("They are the `animation-duration-normal` and `animation-easing-default` tokens, so a theme may set them instead, and a style block reads the same values.")
-
-        Heading("Transitions on state", id: "transitions-on-state").h2
-
-        Markdown("For a property that changes with state, `transition \{ \}` sets what to tween and how long ([chapter 15](/docs/guide/styling#transition)):")
-
-        CodeBlock(#"page Tween(path: "/") {
-    state open = false
-    Card {
-        style { max-height: {if open { "20rem" } else { "3rem" }}; overflow: hidden }
-        transition { max-height: 250ms ease-in-out }
-        Button("Toggle") { on click { open = !open } }
-        Text("Long content that reveals itself.")
-    }
-}"#, title: "wf")
-
-        Heading("Route transitions", id: "route-transitions").h2
+        Markdown("To animate every change of page, give the `Router` a `transition:` and a `duration:`:")
 
         CodeBlock(#"app {
     Navbar {
@@ -198,19 +214,20 @@ page Post(path: "/p/:slug", slug: String) {
     Router(transition: .fade, duration: "200ms")
 }
 
-page Home(path: "/") { Heading("Home").h1 }
-page About(path: "/about") { Heading("About").h1 }"#, title: "wf")
+page Home(path: "/", title: "Home", description: "The front page.") { Heading("Home").h1 }
+page About(path: "/about", title: "About", description: "Who we are.") { Heading("About").h1 }"#, title: "wf")
 
-        Markdown("`Router(transition: .fade | .slide | .none, duration:)` animates every route change: the old page out, the new one in, then focus and scroll settle and the title is announced. Where the browser has the View Transitions API the change plays through it — the browser's crossfade, or the slide the stylesheet defines for `[data-wf-transition=\"slide\"]`, which your own `::view-transition-*` rules may restyle. Elsewhere the class-based animation is the fallback.")
+        Markdown("`transition:` is `.fade`, `.slide` or `.none` (the next page replaces the last at once). On each route change the old page plays out and the new one in; then focus and scroll settle and the new title is announced.\n\nWhere the browser has the View Transitions API, the change plays through it: the browser's own crossfade, or the slide the engine's stylesheet defines for `[data-wf-transition=\"slide\"]`. Your own `::view-transition-*` rules in a project stylesheet may restyle either. In other browsers, a class-based animation plays instead.")
 
-        Heading("show and match", id: "show-and-match").h2
+        Heading("Animate show and match branches", id: "animate-show-and-match-branches").h2
 
-        Markdown("`show` toggles visibility, so its content animates with `animate:`/`exit:` the same way; a `match` arm's elements animate as they swap.")
+        Markdown("`show` toggles whether its content is visible, so that content animates with `animate:` and `exit:` as an `if` branch does. A `match` arm's elements animate as one arm replaces another. This wizard slides each step in:")
 
         CodeBlock(#"enum Step { one, two, three }
 
-page Wizard(path: "/") {
+page Wizard(path: "/", title: "Wizard", description: "Three steps, animated.") {
     state step: Step = .one
+    Heading("Set up").h1
     match step {
         .one { Card(animate: .slideLeft, exit: .fadeOut) { Text("Step one")  Button("Next") { on click { step = .two } } } }
         .two { Card(animate: .slideLeft, exit: .fadeOut) { Text("Step two")  Button("Next") { on click { step = .three } } } }
@@ -218,12 +235,81 @@ page Wizard(path: "/") {
     }
 }"#, title: "wf")
 
-        Heading("Reduced motion", id: "reduced-motion").h2
+        Heading("Tween a property when state changes", id: "tween-a-property-when-state-changes").h2
 
-        Markdown("A reader whose system asks for reduced motion gets none of the above: no animation started, no wait before removal, no FLIP, no route transition, no `transition \{ \}` tween — a box that expands is simply open, and a number that counts is simply there. You never check for it; the runtime and the stylesheet do. An `animation:` or `transition:` you write by hand in a `style` block has no such path unless you wrap it in `@media (prefers-reduced-motion: no-preference) \{ \}` — prefer the declared forms, which have one.\n\nTo see a page as that reader does without changing your system's setting, set `data-wf-motion=\"reduce\"` on its root:")
+        Markdown("To animate a style property that changes with state, rather than an element arriving, add a `transition \{ \}` block that names the property and how long it takes ([Styling](/docs/guide/styling)):")
+
+        CodeBlock(#"page Tween(path: "/", title: "Tween", description: "A panel that grows.") {
+    state open = false
+    Heading("Tween").h1
+    Card {
+        style { max-height: {if open { "20rem" } else { "3rem" }}; overflow: hidden }
+        transition { max-height: 250ms ease-in-out }
+        Button("Toggle") { on click { open = !open } }
+        Text("Long content that reveals itself.")
+    }
+}"#, title: "wf")
+
+        Heading("Run a sequence of animations", id: "run-a-sequence-of-animations").h2
+
+        Markdown("To start a group of elements one after another on a clock, wrap them in `sequence` and put each in a `step`:")
+
+        CodeBlock(#"page Landing(path: "/", title: "Welcome", description: "A page that introduces itself.") {
+    sequence {
+        step { Heading("Welcome").h1.fadeIn }
+        step(after: "120ms") { Text("What we do.").slideUp }
+        step(after: "120ms") { Button("Start").primary.slideUp }
+    }
+}"#, title: "wf")
+
+        Markdown("`after:` is measured from the step before it, so the three start at 0ms, 120ms and 240ms. A step with no `after:` starts when the step before it does, which is how several elements move together.\n\nA `sequence` does nothing but timing: it writes the clock onto its elements as `delay:` and leaves nothing of itself behind. What the rest of the build sees is the program you would have written by hand.")
+
+        Heading("Drive an animation yourself", id: "drive-an-animation-yourself").h2
+
+        Markdown("To play an animation from a handler, call `animate(element, name, duration)` with a `ref:` handle. It returns a handle that plays as soon as it is made, and its `play()`, `cancel()` and `finished` are yours:")
+
+        CodeBlock(#"page Hover(path: "/", title: "Hover", description: "A card that pulses on hover.") {
+    Heading("Hover").h1
+    Card(ref: panel) {
+        on mouseenter { animate(panel, "pulse", "400ms") }
+        Text("Point at me.")
+    }
+}"#, title: "wf")
+
+        Markdown("A flag plays once, when the element arrives. To play an animation the element already carries again, from the start, call `replayAnimation(element, name)`:")
+
+        CodeBlock(#"page Replay(path: "/", title: "Replay", description: "A card that fades in again on hover.") {
+    Heading("Replay").h1
+    Card.outlined.fadeIn {
+        on mouseenter(e) { replayAnimation(e.currentTarget, "fadeIn") }
+        Text("Point at me.")
+    }
+}"#, title: "wf")
+
+        Heading("Set the default duration and easing", id: "set-the-default-duration-and-easing").h2
+
+        Markdown("To change what an animation does when the element names no duration or easing, set `motion` in `webfluent.app.json`:")
+
+        CodeBlock(#"{ "motion": { "duration": "180ms", "easing": "$ease-standard" } }"#, title: "json")
+
+        Markdown("These set the `animation-duration-normal` and `animation-easing-default` design tokens, so a theme may set them instead, and a style block reads the same values.")
+
+        Heading("Respect reduced motion", id: "respect-reduced-motion").h2
+
+        Markdown("A reader whose system asks for reduced motion (`prefers-reduced-motion`) gets none of the motion in this chapter: no animation started, no wait before removal, no FLIP, no route transition and no `transition \{ \}` tween. A box that expands is open at once, and a number that counts is shown at its value. The runtime and the engine's stylesheet do this for you.")
+
+        Callout("An `animation:` or `transition:` you write by hand in a `style \{ \}` block has no reduced-motion path. Wrap it in `@media (prefers-reduced-motion: no-preference) \{ \}`, or use the declared forms in this chapter, which have one.", kind: .warning)
+
+        Heading("Preview reduced motion", id: "preview-reduced-motion").h3
+
+        Markdown("To see a page as that reader does without changing your system's setting, set `data-wf-motion=\"reduce\"` on the document's root element, for example from the browser's console:")
 
         CodeBlock(#"document.documentElement.setAttribute("data-wf-motion", "reduce")"#, title: "js")
 
-        Markdown("The stylesheet and the runtime honour it exactly as they honour the reader's setting, and taking it off plays everything again. It is what an editor's preview sets when you ask it for reduced motion.")
+        Markdown("The stylesheet and the runtime honour the attribute exactly as they honour the reader's setting, and removing it plays everything again. An editor's preview sets it when you ask it for reduced motion.")
+
+        Heading("Troubleshooting", id: "troubleshooting").h2
+
+        Markdown("- **An enter animation does not play.** It plays only when the element appears. An element that is already on the page and changes does not re-enter: use `replayAnimation`, `animate(…)` or a `transition \{ \}`.\n- **A list item fades out and in again instead of moving.** The `for` has no `by`, or its key changes, so the runtime makes a new node. Key the list by what identifies the item.\n- **A leaving element disappears at once.** Give it `exit:`. Without one, nothing delays the removal.\n- **A `shared:` element crossfades instead of moving.** The two pages give it different names, or two elements on one page carry the same name.\n- **Nothing animates at all.** Your system, or the page's root (`data-wf-motion=\"reduce\"`), asks for reduced motion.\n- **Your own keyframes are an error as a flag.** Write `animate: .Name`; only the built-in animations are flags.")
     }
 }

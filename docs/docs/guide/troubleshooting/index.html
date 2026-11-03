@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Troubleshooting</title>
-    <meta name="description" content="Install problems, build errors, blank pages after deploying, 404s on reload, CSP blocks, styles that do not apply, and a FAQ.">
+    <meta name="description" content="What you see when something goes wrong — install errors, build stops, blank pages after deploy, 404s on reload, CSP blocks, styles — the cause and the fix.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/troubleshooting">
     <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/troubleshooting?lang=en">
     <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/troubleshooting?lang=ar">
@@ -12,7 +12,7 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Troubleshooting">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="Install problems, build errors, blank pages after deploying, 404s on reload, CSP blocks, styles that do not apply, and a FAQ.">
+    <meta property="og:description" content="What you see when something goes wrong — install errors, build stops, blank pages after deploy, 404s on reload, CSP blocks, styles — the cause and the fix.">
     <meta property="og:url" content="https://webfluent.monzeromer.dev/docs/guide/troubleshooting">
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="ar_AR">
@@ -21,9 +21,9 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Troubleshooting">
-    <meta name="twitter:description" content="Install problems, build errors, blank pages after deploying, 404s on reload, CSP blocks, styles that do not apply, and a FAQ.">
+    <meta name="twitter:description" content="What you see when something goes wrong — install errors, build stops, blank pages after deploy, 404s on reload, CSP blocks, styles — the cause and the fix.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/troubleshooting#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/troubleshooting","name":"Troubleshooting","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Install problems, build errors, blank pages after deploying, 404s on reload, CSP blocks, styles that do not apply, and a FAQ."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/troubleshooting#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Troubleshooting","item":"https://webfluent.monzeromer.dev/docs/guide/troubleshooting"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/troubleshooting#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/troubleshooting","name":"Troubleshooting","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"What you see when something goes wrong — install errors, build stops, blank pages after deploy, 404s on reload, CSP blocks, styles — the cause and the fix."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/troubleshooting#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Troubleshooting","item":"https://webfluent.monzeromer.dev/docs/guide/troubleshooting"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -69,6 +69,9 @@
             </div>
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
+                    <a class="wf-sidebar__item" href="/docs">
+                        <p class="wf-text">Overview</p>
+                    </a>
                     <p class="wf-text group-label">Start</p>
                     <a class="wf-sidebar__item" href="/docs/guide/introduction">
                         <p class="wf-text num">01</p>
@@ -274,7 +277,7 @@
                 </aside>
                 <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
-                        <a class="wf-link" href="/docs/guide/introduction">Guide</a>
+                        <a class="wf-link" href="/docs">Guide</a>
                         <p class="wf-text">/</p>
                         <p class="wf-text wf-s8c71c534">Chapter 45</p>
                     </div>
@@ -285,66 +288,262 @@
                     <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
-<p>Every diagnostic has its own entry in <a href="/docs/guide/diagnostics">Diagnostics</a>; search it for the code in brackets. This chapter covers what goes wrong without one.</p>
+<p>This chapter lists the problems people meet with WebFluent, titled by what you see. Each entry gives the cause, then the fix.</p>
+<p>A problem that comes with a code in brackets, such as <code>[T05]</code>, has its own entry in <a href="/docs/guide/diagnostics">Diagnostics</a>: search that chapter for the code, or run <code>wf explain T05</code> to print the entry in your terminal. This chapter covers what goes wrong without one, and the messages that need more context than the entry gives.</p>
+<p>In this chapter:</p>
+<ul>
+<li><a href="#installing">Installing</a></li>
+<li><a href="#building">Building</a></li>
+<li><a href="#in-the-browser">In the browser</a></li>
+<li><a href="#styling">Styling</a></li>
+<li><a href="#data">Data</a></li>
+<li><a href="#questions-people-ask">Questions people ask</a></li>
+</ul>
                             </div>
                             <h2 class="wf-heading" id="installing">Installing</h2>
+                            <h3 class="wf-heading" id="wf-command-not-found-after-installing">wf: command not found after installing</h3>
                             <div class="wf-markdown">
-<p><strong><code>wf: command not found</code> after installing.</strong> Open a new terminal: the installer added <code>~/.webfluent/bin</code> to your shell's startup file, which the open session read before. Or run it by its full path, <code>~/.webfluent/bin/wf</code>.</p>
-<p><strong>The installer says it cannot find the latest version.</strong> GitHub's API limits unauthenticated requests. Pin one: <code>WF_VERSION=v5.11.0</code>.</p>
-<p><strong>Linux on ARM (a Raspberry Pi, an ARM server).</strong> There is no prebuilt binary yet: <code>cargo install webfluent</code>.</p>
-<p><strong><code>wf-lsp</code> not found by the editor.</strong> It is a separate binary; see <a href="/docs/guide/getting-started#set-up-your-editor">Getting started</a>.</p>
-<p><strong>The editor reports what <code>wf build</code> does not</strong> — an element it calls unknown (<code>Host</code>), a message <code>wf check</code> never prints. The editor is running an older <code>wf-lsp</code> than the <code>wf</code> you build with: one on your <code>PATH</code> is used before a downloaded release, and <code>cargo install</code> does not update it when <code>wf</code> is updated. Compare <code>wf-lsp --version</code> with <code>wf --version</code> (the editor's language server log names the version it started, too), install the matching one, and restart the language server.</p>
+<p>The installer added <code>~/.webfluent/bin</code> to your shell's startup file, but the terminal you have open read that file before the line was there.</p>
+<p>Open a new terminal. Or run <code>wf</code> by its full path, <code>~/.webfluent/bin/wf</code>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="the-installer-cannot-find-the-latest-version">The installer cannot find the latest version</h3>
+                            <div class="wf-markdown">
+<p>The installer asks GitHub's API for the latest release, and GitHub limits requests that are not signed in.</p>
+<p>Pin a version instead, and run the installer again with it set: <code>WF_VERSION=v5.11.0</code>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="there-is-no-binary-for-linux-on-arm">There is no binary for Linux on ARM</h3>
+                            <div class="wf-markdown">
+<p>There is no prebuilt binary yet for Linux on ARM, such as a Raspberry Pi or an ARM server, so the installer stops.</p>
+<p>Install from source with Rust:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>cargo install webfluent</code>
+                            </div>
+                            <h3 class="wf-heading" id="on-windows-wf-opens-the-windows-firewall-console">On Windows, wf opens the Windows Firewall console</h3>
+                            <div class="wf-markdown">
+<p>Windows already has a <code>wf</code>: <code>C:\Windows\System32\WF.msc</code>, the firewall console, which a bare <code>wf</code> finds first whatever your <code>PATH</code> says. The installer puts the same binary in place a second time, as <code>webfluent.exe</code>.</p>
+<p>Type <code>webfluent</code> (or <code>wf.exe</code>) wherever this guide says <code>wf</code>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="on-windows-an-old-version-still-runs-after-installing-a-new-one">On Windows, an old version still runs after installing a new one</h3>
+                            <div class="wf-markdown">
+<p>Each <code>.msi</code> before 5.10 had an <code>UpgradeCode</code> of its own, so a newer installer cannot replace an older one, and both stay installed and on <code>PATH</code>.</p>
+<p>Uninstall the old version from <em>Apps</em>, then check <code>webfluent --version</code>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="the-editor-cannot-find-wf-lsp">The editor cannot find wf-lsp</h3>
+                            <div class="wf-markdown">
+<p>The language server is a separate binary from <code>wf</code>, and the editor looks for it on its own.</p>
+<p>Install it as <a href="/docs/guide/getting-started#set-up-your-editor">Getting started</a> describes.</p>
+                            </div>
+                            <h3 class="wf-heading" id="the-editor-reports-what-wf-build-does-not">The editor reports what wf build does not</h3>
+                            <div class="wf-markdown">
+<p>The editor calls an element unknown (<code>Host</code>, for example), or shows a message that <code>wf check</code> never prints. The editor is running an older <code>wf-lsp</code> than the <code>wf</code> you build with: one on your <code>PATH</code> is used before a downloaded release, and <code>cargo install</code> does not update it when you update <code>wf</code>.</p>
+<ol>
+<li>Compare <code>wf-lsp --version</code> with <code>wf --version</code>. The editor's language server log also names the version it started.</li>
+<li>Install the <code>wf-lsp</code> that matches <code>wf</code>.</li>
+<li>Restart the language server.</li>
+</ol>
                             </div>
                             <h2 class="wf-heading" id="building">Building</h2>
+                            <h3 class="wf-heading" id="is-not-an-element-or-a-statement-a-render-block-can-hold">&quot;is not an element or a statement a render block can hold&quot;</h3>
                             <div class="wf-markdown">
-<p><strong>&quot;is not an element or a statement a render block can hold&quot;.</strong> Code that does something — <code>n = n + 1</code>, a call that is not a store's set-up — was written loose in a page. Put it in <code>on click { }</code>, an <code>action</code> or an <code>effect</code>.</p>
-<p><strong>&quot;Only the first argument may be positional&quot;.</strong> An element takes one unnamed value; name the rest: <code>Card(&quot;Laptop&quot;, price: 999)</code>.</p>
-<p><strong>&quot;a WebFluent 2 declaration&quot;.</strong> The file uses the old grammar (<code>Page</code>, <code>Component</code>). Run <code>wf migrate</code>.</p>
-<p><strong>A warning I do not understand.</strong> <code>wf explain CODE</code> prints its entry; every code is in <a href="/docs/guide/diagnostics">Diagnostics</a> with an example and a fix. A named argument written to the element &quot;as an attribute&quot; is almost always a misspelled prop.</p>
-<p><strong>A project that built under 4.x stops on errors.</strong> 5.0 refuses what used to compile and then fail in the browser. <code>wf check</code> lists every finding without building; your editor's quick fixes apply the ones with a known fix; <code>lints</code> lowers what cannot ship a broken page while you catch up (<a href="/docs/guide/upgrading#5-0">Upgrading</a>).</p>
-<p><strong>A finding I mean to keep.</strong> <code>// wf-allow(CODE)</code> on the line above it (or at the end of its line) accepts that one; a warning a whole project does not want goes in <code>lints</code>. An allow that covers nothing is itself reported (<code>U07</code>).</p>
-<p><strong>Failing CI on warnings, or annotating a pull request.</strong> <code>wf check --deny-warnings</code> fails on a warning; <code>--format github</code> writes annotations a workflow shows on the pull request, and <code>--format sarif</code> a file for code scanning (<a href="/docs/guide/cli#wf-check">Command line</a>).</p>
-<p><strong>The build is slow.</strong> The first build resizes every <code>image</code>; later builds reuse <code>.wf-cache/</code>. Do not delete it in CI if you can cache it.</p>
+<p>Code that does something — <code>n = n + 1</code>, or a call that is not a store's set-up — is written loose in a page. A page's body describes what to show; it does not run statements.</p>
+<p>Put the code in an <code>on click { }</code> handler, an <code>action</code> or an <code>effect</code>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="only-the-first-argument-may-be-positional">&quot;Only the first argument may be positional&quot;</h3>
+                            <div class="wf-markdown">
+<p>An element takes one value without a name, and every other value must be named.</p>
+<p>Name the rest: <code>Card(&quot;Laptop&quot;, price: 999)</code>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="a-webfluent-2-declaration">&quot;a WebFluent 2 declaration&quot;</h3>
+                            <div class="wf-markdown">
+<p>The file uses the old grammar, with capitalised declarations such as <code>Page</code> and <code>Component</code>.</p>
+<p>Run <code>wf migrate</code> to rewrite it (<a href="/docs/guide/upgrading#from-webfluent-2">Upgrading</a>).</p>
+                            </div>
+                            <h3 class="wf-heading" id="a-warning-you-do-not-understand">A warning you do not understand</h3>
+                            <div class="wf-markdown">
+<p>Every warning has a code, and the code's entry explains it.</p>
+<p>Run <code>wf explain CODE</code> to print the entry; every code is also in <a href="/docs/guide/diagnostics">Diagnostics</a>, with an example and a fix. A named argument that the compiler writes to the element &quot;as an attribute&quot; (<code>C04</code>) is almost always a misspelled prop.</p>
+                            </div>
+                            <h3 class="wf-heading" id="a-project-that-built-under-4-x-stops-on-errors">A project that built under 4.x stops on errors</h3>
+                            <div class="wf-markdown">
+<p>5.0 refuses what used to compile and then fail in the browser, so a 4.x project may stop on errors it always had.</p>
+<ol>
+<li>Run <code>wf check</code>. It lists every finding and writes nothing.</li>
+<li>Apply the fixes your editor offers as quick fixes, where the fix is known.</li>
+<li>While you catch up, lower in <code>lints</code> the codes that cannot ship a broken page (<a href="/docs/guide/upgrading#5-0">Upgrading</a>).</li>
+</ol>
+                            </div>
+                            <h3 class="wf-heading" id="a-finding-you-mean-to-keep">A finding you mean to keep</h3>
+                            <div class="wf-markdown">
+<p>The compiler reports something you have decided is right for this line.</p>
+<p>Put <code>// wf-allow(CODE)</code> on the line above it, or at the end of its line, to accept that one finding. To silence a warning across a whole project, set it in <code>lints</code> instead. An allow that covers nothing is itself reported (<code>U07</code>).</p>
+                            </div>
+                            <h3 class="wf-heading" id="ci-does-not-fail-on-warnings-or-does-not-annotate-pull-requests">CI does not fail on warnings, or does not annotate pull requests</h3>
+                            <div class="wf-markdown">
+<p>By default, warnings do not fail a build, and the output is written for a terminal.</p>
+<ul>
+<li><code>wf check --deny-warnings</code> fails on a warning.</li>
+<li><code>--format github</code> writes annotations a GitHub workflow shows on the pull request.</li>
+<li><code>--format sarif</code> writes a file for code scanning.</li>
+</ul>
+<p><a href="/docs/guide/cli#wf-check">Command line</a> lists every option.</p>
+                            </div>
+                            <h3 class="wf-heading" id="the-build-is-slow">The build is slow</h3>
+                            <div class="wf-markdown">
+<p>The first build resizes every <code>image</code> the project declares. Later builds reuse the work kept in <code>.wf-cache/</code>.</p>
+<p>Keep <code>.wf-cache/</code> between builds. In CI, cache it rather than deleting it.</p>
                             </div>
                             <h2 class="wf-heading" id="in-the-browser">In the browser</h2>
+                            <h3 class="wf-heading" id="the-page-is-blank-after-deploying-but-works-locally">The page is blank after deploying, but works locally</h3>
                             <div class="wf-markdown">
-<p><strong>The page is blank after deploying, but works locally.</strong> The site is served under a sub-path and the build does not know it. Set <code>build.base_path</code> to the path (<code>&quot;/my-repo&quot;</code> on GitHub Pages) and rebuild.</p>
-<p><strong>Reloading any page but the home page is a 404.</strong> A single-page build needs the host to answer every path with <code>index.html</code> (<a href="/docs/guide/deploying">Deploying</a>), or build static with <code>build.ssg: true</code>.</p>
-<p><strong>&quot;Refused to load the script&quot; / &quot;violates the following Content Security Policy&quot;.</strong> <code>build.csp</code> ships a strict policy. A script from another origin has to be declared: a library in <code>meta.scripts</code>, fonts and stylesheets in <code>meta.fonts</code> and <code>meta.stylesheets</code> — each widens the policy for exactly that origin. An inline <code>&lt;script&gt;</code> in <code>public/</code> HTML is never allowed; move it to a file.</p>
-<p><strong>An icon shows as a word.</strong> Its name is not one of the 55 built-in icons (<a href="/docs/guide/media#icons">Media</a>), or it is built at run time, which the build cannot see — set <code>&quot;build&quot;: { &quot;runtime&quot;: &quot;full&quot; }</code> or name it literally.</p>
-<p><strong><code>WF.something is not a function</code> from my own script.</strong> The build left that runtime module out because nothing in your <code>.wf</code> code uses it. Set <code>&quot;build&quot;: { &quot;runtime&quot;: &quot;full&quot; }</code>.</p>
-<p><strong>The page shows old content after a deploy.</strong> Either an HTTP cache held <code>app.js</code> (serve it with <code>Cache-Control: no-cache</code>), or — on a site with <code>offline</code> — the service worker is serving its store until the new version is taken. Show an update button (<code>update.available</code>), or reload twice.</p>
-<p><strong>My changes do not show under <code>wf serve</code>.</strong> Check the terminal: a failed build keeps the last good page and draws the error over it. An old service worker from a production build on the same port can also hold pages; <code>wf serve</code> removes it on the next load.</p>
-<p><strong>A request is a 404 under <code>wf serve</code> (or <code>wf verify</code>).</strong> Only a page navigation gets the single-page shell; a <code>fetch</code> or a file the build did not write gets a 404 and a line in the terminal. The API is not served by the dev server: point the page at the server that has it (an <code>api</code>'s <code>base:</code> from <code>env</code>), or put a fixture file in <code>public/</code>.</p>
-<p><strong>&quot;The response of … is not the type the program declares&quot;.</strong> Under <code>wf serve</code>, a response is held to the type its <code>resource</code> or <code>api</code> endpoint declares, and one that differs takes the <code>error</code> arm as a <code>.parse</code> error naming the first place it differs — <code>$[1].name is missing</code>. Fix the type, or the server.</p>
-<p><strong>&quot;Item N could not be drawn&quot;.</strong> One item of a <code>for</code> threw while it was drawn — usually a field read on a value that is <code>null</code>. Under <code>wf serve</code> the item shows the message; on a deployed page it leaves a gap and the console says why. The rest of the list draws either way.</p>
-<p><strong>&quot;404 — no page has the route …&quot;.</strong> No page's <code>path</code> matches the address and no <code>page NotFound(path: &quot;*&quot;)</code> catches what nothing else does. A deployed page shows nothing there; declare a <code>*</code> page.</p>
-<p><strong>&quot;an effect changes something it reads, every time it runs&quot;.</strong> The effect writes a state it also reads, unconditionally, so it never settles; it was stopped after 100 runs. Guard the write (<code>if x != wanted { x = wanted }</code>) or move it to an action. <code>X02</code> reports the plain cases at build time.</p>
-<p><strong>An <code>api</code> call stays loading.</strong> A parameter its path names is empty — <code>Backend.user(id: &quot;&quot;)</code> for <code>users/:id</code> — so nothing was requested: <code>users/</code> would be the whole collection. It loads when the value arrives.</p>
-<p><strong>A layout that is right after the page loads jumps first.</strong> Something depends on <code>viewport</code>, which is unknown until the script runs. Use <a href="/docs/guide/styling#responsive-values">responsive values</a> for layout.</p>
+<p>The site is served under a sub-path, such as <code>/my-repo/</code> on GitHub Pages, and the build does not know it, so the page asks for its files at the wrong address.</p>
+<p>Set <code>build.base_path</code> to the sub-path (<code>&quot;/my-repo&quot;</code>) and rebuild (<a href="/docs/guide/static-and-spa#serve-the-site-under-a-sub-path">Static sites and SPAs</a>).</p>
+                            </div>
+                            <h3 class="wf-heading" id="reloading-any-page-but-the-home-page-is-a-404">Reloading any page but the home page is a 404</h3>
+                            <div class="wf-markdown">
+<p>A single-page build has one HTML file. When the reader reloads <code>/settings</code>, the host looks for a file at that path and has none.</p>
+<p>Configure the host to answer every path with <code>index.html</code> (<a href="/docs/guide/deploying">Deploying</a>), or build a static site with <code>build.ssg: true</code>, which writes a file for every page.</p>
+                            </div>
+                            <h3 class="wf-heading" id="refused-to-load-the-script-or-violates-the-following-content-security-policy">&quot;Refused to load the script&quot; or &quot;violates the following Content Security Policy&quot;</h3>
+                            <div class="wf-markdown">
+<p><code>build.csp</code> ships a strict policy, and the browser blocks a script, font or stylesheet from an origin the policy does not name.</p>
+<p>Declare what the page loads from elsewhere: a library in <code>meta.scripts</code>, fonts in <code>meta.fonts</code>, stylesheets in <code>meta.stylesheets</code>. Each widens the policy for exactly that origin. An inline <code>&lt;script&gt;</code> in an HTML file in <code>public/</code> is never allowed; move its code to a <code>.js</code> file.</p>
+                            </div>
+                            <h3 class="wf-heading" id="an-icon-shows-as-a-word">An icon shows as a word</h3>
+                            <div class="wf-markdown">
+<p>The name is not one of the 72 built-in icons (<a href="/docs/guide/media#show-an-icon">Media</a>), or the name is put together at run time, which the build cannot see, so the build left its glyph out.</p>
+<p>Fix the name, or write it as a literal. If it must be built at run time, set <code>&quot;build&quot;: { &quot;runtime&quot;: &quot;full&quot; }</code>, which ships every icon.</p>
+                            </div>
+                            <h3 class="wf-heading" id="wf-something-is-not-a-function-from-your-own-script">WF.something is not a function from your own script</h3>
+                            <div class="wf-markdown">
+<p>The build ships only the runtime modules your <code>.wf</code> code uses. Your script calls one that nothing in the <code>.wf</code> code reaches, so the build left it out.</p>
+<p>Set <code>&quot;build&quot;: { &quot;runtime&quot;: &quot;full&quot; }</code> to ship the whole runtime.</p>
+                            </div>
+                            <h3 class="wf-heading" id="the-page-shows-old-content-after-a-deploy">The page shows old content after a deploy</h3>
+                            <div class="wf-markdown">
+<p>Either an HTTP cache is holding <code>app.js</code>, or — on a site with <code>offline</code> — the service worker is serving what it stored until the reader takes the new version.</p>
+<ul>
+<li>Serve <code>app.js</code> with <code>Cache-Control: no-cache</code> (<a href="/docs/guide/deploying#set-cache-headers">Deploying</a>).</li>
+<li>On an offline site, show an update button when <code>update.available</code> holds (<a href="/docs/guide/offline#offer-a-new-version">Offline</a>), or reload twice.</li>
+</ul>
+                            </div>
+                            <h3 class="wf-heading" id="changes-do-not-show-under-wf-serve">Changes do not show under wf serve</h3>
+                            <div class="wf-markdown">
+<p>Either the last build failed, or an old service worker is holding pages.</p>
+<ul>
+<li>Look at the terminal. A failed build keeps the last good page and draws the error over it until a build passes.</li>
+<li>A service worker from a production build served on the same port can hold pages. <code>wf serve</code> removes it on the next load.</li>
+</ul>
+                            </div>
+                            <h3 class="wf-heading" id="a-request-is-a-404-under-wf-serve-or-wf-verify">A request is a 404 under wf serve or wf verify</h3>
+                            <div class="wf-markdown">
+<p>Only a page navigation gets the single-page shell. A <code>fetch</code>, or a file the build did not write, gets a <code>404</code> and a line in the terminal. The dev server does not serve your API.</p>
+<p>Point the page at the server that has the API — an <code>api</code>'s <code>base:</code> read from <code>env</code> — or put a fixture file in <code>public/</code>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="the-response-of-is-not-the-type-the-program-declares">&quot;The response of … is not the type the program declares&quot;</h3>
+                            <div class="wf-markdown">
+<p>Under <code>wf serve</code>, a response is held to the type its <code>resource</code> or <code>api</code> endpoint declares. One that differs takes the <code>error</code> arm, as a <code>.parse</code> error that names the first place it differs, such as <code>$[1].name is missing</code>.</p>
+<p>Fix the declared type, or the server.</p>
+                            </div>
+                            <h3 class="wf-heading" id="item-n-could-not-be-drawn">&quot;Item N could not be drawn&quot;</h3>
+                            <div class="wf-markdown">
+<p>One item of a <code>for</code> threw while it was drawn — usually a field read on a value that is <code>null</code>. Under <code>wf serve</code> the item shows the message; on a deployed page it leaves a gap, and the browser console says why. The rest of the list draws either way.</p>
+<p>Read the field through <code>?.</code>, or wrap the item's body in <code>if let</code>, so a <code>null</code> value draws nothing instead of throwing.</p>
+                            </div>
+                            <h3 class="wf-heading" id="404-no-page-has-the-route">&quot;404 — no page has the route …&quot;</h3>
+                            <div class="wf-markdown">
+<p>No page's <code>path</code> matches the address, and no <code>*</code> page catches what nothing else does. A deployed page shows nothing there.</p>
+<p>Declare a catch-all page, <code>page NotFound(path: &quot;*&quot;, …)</code> (<a href="/docs/guide/static-and-spa#add-a-404-page">Static sites and SPAs</a>).</p>
+                            </div>
+                            <h3 class="wf-heading" id="an-effect-changes-something-it-reads-every-time-it-runs">&quot;an effect changes something it reads, every time it runs&quot;</h3>
+                            <div class="wf-markdown">
+<p>The effect writes, every time it runs, a state it also reads, so it never settles. The runtime stopped it after 100 runs.</p>
+<p>Guard the write (<code>if x != wanted { x = wanted }</code>), or move it to an action. <code>X02</code> reports the plain cases at build time.</p>
+                            </div>
+                            <h3 class="wf-heading" id="an-api-call-stays-loading">An api call stays loading</h3>
+                            <div class="wf-markdown">
+<p>A parameter that the endpoint's path names is empty — <code>Backend.user(id: &quot;&quot;)</code> for <code>users/:id</code> — so nothing was requested: <code>users/</code> would ask for the whole collection.</p>
+<p>Nothing to fix if the value is still on its way: the call is sent when the value arrives. Otherwise, pass the value.</p>
+                            </div>
+                            <h3 class="wf-heading" id="the-layout-jumps-as-the-page-loads">The layout jumps as the page loads</h3>
+                            <div class="wf-markdown">
+<p>Something in the layout depends on <code>viewport</code>, which is unknown until the script runs, so the first paint is drawn for the wrong width.</p>
+<p>Use <a href="/docs/guide/styling#responsive-values">responsive values</a> for layout. They compile to media queries, so the first paint is already right.</p>
                             </div>
                             <h2 class="wf-heading" id="styling">Styling</h2>
+                            <h3 class="wf-heading" id="a-style-block-does-not-apply">A style { } block does not apply</h3>
                             <div class="wf-markdown">
-<p><strong>My <code>style { }</code> does not apply.</strong> Check the property name (a style block is real CSS; a misspelt one is a <code>V05</code> warning) and the token (<code>$brand-colour</code> that no theme defines is a <code>V06</code> error). Values end at a newline, a <code>;</code>, or two spaces before the next declaration.</p>
-<p><strong>My stylesheet does not override a built-in.</strong> Your <code>.css</code> files come after the built-ins' rules, so on equal specificity they win — but <code>.wf-btn--primary</code> beats <code>.button</code>. Match the built-in's selector, or change the tokens it reads, or use <code>style { }</code> on the element.</p>
-<p><strong>Dark mode does not switch.</strong> Name the dark theme in the config: <code>&quot;theme&quot;: { &quot;name&quot;: &quot;Light&quot;, &quot;dark&quot;: &quot;Night&quot; }</code>. A colour written raw instead of a token does not change with the theme.</p>
+<p>Either a property name is misspelt, or a token does not exist.</p>
+<ul>
+<li>A style block is real CSS. A misspelt property is a <code>V05</code> warning, with the nearest real one.</li>
+<li>A token no theme declares, such as <code>$brand-colour</code>, is a <code>V06</code> error.</li>
+<li>A value ends at a newline, a <code>;</code>, or two spaces before the next declaration. A <code>,</code> between two declarations is an <code>E002</code> error.</li>
+</ul>
+                            </div>
+                            <h3 class="wf-heading" id="your-stylesheet-does-not-override-a-built-in">Your stylesheet does not override a built-in</h3>
+                            <div class="wf-markdown">
+<p>Your <code>.css</code> files come after the built-ins' rules, so on equal specificity yours win. But a built-in's selector may be more specific: <code>.wf-btn--primary</code> beats <code>.button</code>.</p>
+<p>Match the built-in's selector, change the design tokens it reads, or use <code>style { }</code> on the element.</p>
+                            </div>
+                            <h3 class="wf-heading" id="dark-mode-does-not-switch">Dark mode does not switch</h3>
+                            <div class="wf-markdown">
+<p>Either the dark theme is not named in the config, or a colour is written raw instead of as a token.</p>
+<p>Name the dark theme: <code>&quot;theme&quot;: { &quot;name&quot;: &quot;Light&quot;, &quot;dark&quot;: &quot;Night&quot; }</code>. Write colours as tokens (<code>$surface</code>, <code>var(--color-surface)</code>): a raw colour does not change with the theme.</p>
                             </div>
                             <h2 class="wf-heading" id="data">Data</h2>
+                            <h3 class="wf-heading" id="a-request-fails-with-a-cors-error">A request fails with a CORS error</h3>
                             <div class="wf-markdown">
-<p><strong>A request fails with a CORS error.</strong> The API is on another origin and does not allow this one. Allow it on the server, or serve the API from the same origin (<a href="/docs/guide/data#an-api-on-another-origin">Data</a>).</p>
-<p><strong><code>env.MY_VALUE</code> is a compile error.</strong> A page may only read public names: rename it <code>PUBLIC_MY_VALUE</code> or list it in <code>public_env</code> — only if anyone may see it (<a href="/docs/guide/environments">Environments</a>).</p>
-<p><strong>A value from <code>.env</code> or the shell is not used.</strong> Values are fixed at build time: rebuild after changing them. The shell supplies only names the config or <code>.env</code> declares, or <code>PUBLIC_</code> ones.</p>
+<p>The API is on another origin, and that server does not allow requests from yours.</p>
+<p>Allow your origin on the server, or serve the API from the same origin (<a href="/docs/guide/data#call-an-api-on-another-origin">Data</a>, <a href="/docs/guide/deploying#serve-an-api-on-the-same-origin">Deploying</a>).</p>
+                            </div>
+                            <h3 class="wf-heading" id="env-myvalue-is-a-compile-error">env.MYVALUE is a compile error</h3>
+                            <div class="wf-markdown">
+<p>A page may only read public names, because every value it reads ends up in the bundle, where anyone can read it (<code>E108</code>).</p>
+<p>If anyone may see the value, rename it <code>PUBLIC_MY_VALUE</code> or list it in <code>public_env</code> (<a href="/docs/guide/environments">Environments</a>). If not, keep it on the server.</p>
+                            </div>
+                            <h3 class="wf-heading" id="a-value-from-env-or-the-shell-is-not-used">A value from .env or the shell is not used</h3>
+                            <div class="wf-markdown">
+<p>Values are fixed at build time. The shell also supplies only names that the config or <code>.env</code> declares, or that begin <code>PUBLIC_</code>.</p>
+<p>Rebuild after changing a value, and declare the name in the config or <code>.env</code>.</p>
                             </div>
                             <h2 class="wf-heading" id="questions-people-ask">Questions people ask</h2>
+                            <h3 class="wf-heading" id="can-i-use-npm-packages">Can I use npm packages?</h3>
                             <div class="wf-markdown">
-<p><strong>Can I use npm packages?</strong> A library, yes, by its CDN URL in <code>meta.scripts</code> (<a href="/docs/guide/interop">JavaScript interop</a>); your own JavaScript is a plain <code>.js</code> file under <code>src/</code>. There is no package manager for WebFluent code itself.</p>
-<p><strong>Can I use it with React or Vue?</strong> Publish components as custom elements and place the tags (<a href="/docs/guide/interop#publishing-your-components-as-custom-elements">chapter 32</a>).</p>
-<p><strong>Is there server-side rendering?</strong> Pages are pre-rendered at build time (<code>build.ssg</code>). Per-request HTML is <a href="/docs/guide/server-rendering">server rendering</a> of templates, from your own server.</p>
-<p><strong>Does it support TypeScript?</strong> It has its own type checker, gradual and built in (<a href="/docs/guide/types">Types</a>). There is nothing to configure.</p>
-<p><strong>Can I write CSS the normal way?</strong> Yes: any <code>.css</code> file under <code>src/</code> is bundled, and <code>class:</code> adds its classes to an element.</p>
-<p><strong>How big is it?</strong> A page of static text ships about 4 kB of script, gzipped; a full application a few tens of kilobytes. <code>wf build --stats</code> shows yours.</p>
-<p><strong>Which browsers?</strong> The current versions of Chrome, Edge, Firefox and Safari (<a href="/docs/guide/browser-support">Browser support</a>).</p>
-<p><strong>Where do I report a bug?</strong> <a href="https://github.com/monzeromer-lab/WebFluent/issues">GitHub issues</a>, with the smallest <code>.wf</code> file that shows it and the output of <code>wf --version</code>.</p>
+<p>A library, yes: list its CDN address in <code>meta.scripts</code> (<a href="/docs/guide/interop">JavaScript interop</a>). Your own JavaScript is a plain <code>.js</code> file under <code>src/</code>. There is no package manager for WebFluent code itself.</p>
+                            </div>
+                            <h3 class="wf-heading" id="can-i-use-it-with-react-or-vue">Can I use it with React or Vue?</h3>
+                            <div class="wf-markdown">
+<p>Yes. Publish your components as custom elements, and place their tags from React, Vue or any other page (<a href="/docs/guide/interop#publish-your-components-as-custom-elements">JavaScript interop</a>).</p>
+                            </div>
+                            <h3 class="wf-heading" id="is-there-server-side-rendering">Is there server-side rendering?</h3>
+                            <div class="wf-markdown">
+<p>Pages are pre-rendered at build time with <code>build.ssg</code>. For HTML made per request, render templates from your own server with the <a href="/docs/guide/server-rendering">template engine</a>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="does-it-support-typescript">Does it support TypeScript?</h3>
+                            <div class="wf-markdown">
+<p>WebFluent has its own type checker, gradual and built in (<a href="/docs/guide/types">Types</a>). There is nothing to configure.</p>
+                            </div>
+                            <h3 class="wf-heading" id="can-i-write-css-the-usual-way">Can I write CSS the usual way?</h3>
+                            <div class="wf-markdown">
+<p>Yes. Any <code>.css</code> file under <code>src/</code> is bundled, and <code>class:</code> adds its classes to an element (<a href="/docs/guide/styling">Styling</a>).</p>
+                            </div>
+                            <h3 class="wf-heading" id="how-big-is-the-output">How big is the output?</h3>
+                            <div class="wf-markdown">
+<p>A page of static text ships about 4 kB of script, gzipped; a full application, a few tens of kilobytes. <code>wf build --stats</code> shows what yours weighs.</p>
+                            </div>
+                            <h3 class="wf-heading" id="which-browsers-does-it-support">Which browsers does it support?</h3>
+                            <div class="wf-markdown">
+<p>The current versions of Chrome, Edge, Firefox and Safari (<a href="/docs/guide/browser-support">Browser support</a>).</p>
+                            </div>
+                            <h3 class="wf-heading" id="where-do-i-report-a-bug">Where do I report a bug?</h3>
+                            <div class="wf-markdown">
+<p>Open an issue on <a href="https://github.com/monzeromer-lab/WebFluent/issues">GitHub</a>. Include the smallest <code>.wf</code> file that shows the bug, and the output of <code>wf --version</code>.</p>
                             </div>
                         </div>
                     </div>

@@ -23,7 +23,7 @@
     <meta name="twitter:title" content="Tutorial">
     <meta name="twitter:description" content="A step-by-step tutorial: build a reading-list site with WebFluent, test it, and deploy it to GitHub Pages.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/tutorial#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/tutorial","name":"Tutorial","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"A step-by-step tutorial: build a reading-list site with WebFluent, test it, and deploy it to GitHub Pages."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/tutorial#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Tutorial","item":"https://webfluent.monzeromer.dev/docs/guide/tutorial"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/tutorial#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/tutorial","name":"Tutorial","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"A step-by-step tutorial: build a reading-list site with WebFluent, test it, and deploy it to GitHub Pages."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/tutorial#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Tutorial","item":"https://webfluent.monzeromer.dev/docs/guide/tutorial"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -69,6 +69,9 @@
             </div>
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
+                    <a class="wf-sidebar__item" href="/docs">
+                        <p class="wf-text">Overview</p>
+                    </a>
                     <p class="wf-text group-label">Start</p>
                     <a class="wf-sidebar__item" href="/docs/guide/introduction">
                         <p class="wf-text num">01</p>
@@ -274,7 +277,7 @@
                 </aside>
                 <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
-                        <a class="wf-link" href="/docs/guide/introduction">Guide</a>
+                        <a class="wf-link" href="/docs">Guide</a>
                         <p class="wf-text">/</p>
                         <p class="wf-text wf-s8c71c534">Chapter 3</p>
                     </div>
@@ -285,11 +288,28 @@
                     <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
-<p>In this chapter you build <strong>Shelf</strong>, a small site that lists books worth reading and lets a reader keep the ones they want. Along the way you use most of what a real site needs: typed data read at build time, a reusable component, a page per book, a store the reader's choices are kept in, a validated form, a theme with a dark mode, a test that clicks, and a deploy.</p>
-<p>Each step says what to write and why, and links the chapter that covers the idea in depth. It takes about half an hour.</p>
-<p>You need <code>wf</code> installed (<a href="/docs/guide/getting-started">Getting started</a>).</p>
+<p>In this tutorial you build <strong>Shelf</strong>, a small site that lists books worth reading and lets a reader keep the ones they want. Each step adds one piece, and ends with what you should see.</p>
                             </div>
-                            <h2 class="wf-heading" id="step-1-a-project">Step 1: a project</h2>
+                            <h2 class="wf-heading" id="what-you-will-build">What you will build</h2>
+                            <div class="wf-markdown">
+<p>Shelf has a home page that lists books with a search box, a page for each book, a <strong>Your shelf</strong> page with the books the reader saved, a form to suggest a book, a theme with a dark mode, a test that clicks, and a deploy to GitHub Pages.</p>
+<p>Along the way you use most of what a real site needs: typed data read at build time, a reusable component, a page per book, a store that keeps the reader's choices, a validated form, a theme, a test and a deploy. Each step links the chapter that covers its idea in depth.</p>
+<p>It takes about half an hour, plus the deploy.</p>
+                            </div>
+                            <h2 class="wf-heading" id="before-you-start">Before you start</h2>
+                            <div class="wf-markdown">
+<p>You need:</p>
+<ul>
+<li><code>wf</code> installed and on your <code>PATH</code> (<a href="/docs/guide/getting-started">Getting started</a>). On Windows, type <code>webfluent</code> where this tutorial types <code>wf</code>.</li>
+<li>Chrome or Chromium on the machine, for the test that clicks (<a href="#step-9-test-the-book-card">step 9</a>) and for <code>wf verify</code> (<a href="#step-10-build-and-verify-the-site">step 10</a>). If it is installed somewhere unusual, point the <code>WF_CHROME</code> environment variable at it.</li>
+<li>For the deploy, a GitHub account and a repository called <code>shelf</code>.</li>
+</ul>
+<p>You do not need to know WebFluent yet.</p>
+                            </div>
+                            <h2 class="wf-heading" id="step-1-create-the-project">Step 1: Create the project</h2>
+                            <div class="wf-markdown">
+<p>Start from the <code>static</code> template, which pre-renders every page to HTML — right for a site people find through search:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -297,10 +317,11 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>wf init shelf -t static
+<span class="wf-tok-prompt">$ </span>cd shelf</code>
                             </div>
                             <div class="wf-markdown">
-<p>The <code>static</code> template pre-renders every page to HTML — right for a site people find through search. Delete what the template put in <code>src/</code>; you will write every file yourself. Replace <code>webfluent.app.json</code> with:</p>
+<p>You write every file yourself, so delete what the template put in <code>src/</code> and its tests under <code>tests/</code> (they test the starter's pages). Then replace <code>webfluent.app.json</code> with:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -310,20 +331,20 @@
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{
-  &quot;name&quot;: &quot;shelf&quot;,
-  &quot;build&quot;: { &quot;ssg&quot;: true, &quot;csp&quot;: true },
-  &quot;theme&quot;: { &quot;name&quot;: &quot;Paper&quot;, &quot;dark&quot;: &quot;Ink&quot; },
-  &quot;meta&quot;: {
-    &quot;title&quot;: &quot;Shelf&quot;,
-    &quot;description&quot;: &quot;Books worth reading, and the ones you want to.&quot;,
-    &quot;lang&quot;: &quot;en&quot;
+  <span class="wf-tok-prop">&quot;name&quot;</span>: <span class="wf-tok-str">&quot;shelf&quot;</span>,
+  <span class="wf-tok-prop">&quot;build&quot;</span>: { <span class="wf-tok-prop">&quot;ssg&quot;</span>: <span class="wf-tok-kw">true</span>, <span class="wf-tok-prop">&quot;csp&quot;</span>: <span class="wf-tok-kw">true</span> },
+  <span class="wf-tok-prop">&quot;meta&quot;</span>: {
+    <span class="wf-tok-prop">&quot;title&quot;</span>: <span class="wf-tok-str">&quot;Shelf&quot;</span>,
+    <span class="wf-tok-prop">&quot;description&quot;</span>: <span class="wf-tok-str">&quot;Books worth reading, and the ones you want to.&quot;</span>,
+    <span class="wf-tok-prop">&quot;lang&quot;</span>: <span class="wf-tok-str">&quot;en&quot;</span>
   }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>ssg</code> pre-renders; <code>csp</code> ships a Content-Security-Policy and makes the build check its own output against it; <code>theme</code> names the themes you will declare in step 7. <a href="/docs/guide/config">Configuration</a> lists every key.</p>
+<p><code>ssg</code> pre-renders each page. <code>csp</code> ships a Content-Security-Policy and makes the build check its own output against it. <a href="/docs/guide/config">Configuration</a> lists every key.</p>
+<p><strong>Check it:</strong> run <code>wf check</code>. It prints <code>No .wf files found in src/</code> — correct, because <code>src/</code> is empty until the next step.</p>
                             </div>
-                            <h2 class="wf-heading" id="step-2-the-data">Step 2: the data</h2>
+                            <h2 class="wf-heading" id="step-2-describe-the-books">Step 2: Describe the books</h2>
                             <div class="wf-markdown">
 <p>The books are data, not code. Put them in <code>src/books.json</code>:</p>
                             </div>
@@ -335,22 +356,22 @@
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">[
-  { &quot;slug&quot;: &quot;notes-on-the-analytical-engine&quot;, &quot;title&quot;: &quot;Notes on the Analytical Engine&quot;,
-    &quot;author&quot;: &quot;Ada Lovelace&quot;, &quot;year&quot;: 1843, &quot;pages&quot;: 66,
-    &quot;summary&quot;: &quot;The first published algorithm, and a view of what a machine might do beyond arithmetic.&quot;,
-    &quot;tags&quot;: [&quot;computing&quot;, &quot;history&quot;] },
-  { &quot;slug&quot;: &quot;the-design-of-everyday-things&quot;, &quot;title&quot;: &quot;The Design of Everyday Things&quot;,
-    &quot;author&quot;: &quot;Don Norman&quot;, &quot;year&quot;: 1988, &quot;pages&quot;: 368,
-    &quot;summary&quot;: &quot;Why doors confuse us, and what that says about everything else we make.&quot;,
-    &quot;tags&quot;: [&quot;design&quot;] },
-  { &quot;slug&quot;: &quot;a-pattern-language&quot;, &quot;title&quot;: &quot;A Pattern Language&quot;,
-    &quot;author&quot;: &quot;Christopher Alexander&quot;, &quot;year&quot;: 1977, &quot;pages&quot;: 1171,
-    &quot;summary&quot;: &quot;Two hundred and fifty-three patterns for towns, buildings and rooms people want to live in.&quot;,
-    &quot;tags&quot;: [&quot;design&quot;, &quot;architecture&quot;] }
+  { <span class="wf-tok-prop">&quot;slug&quot;</span>: <span class="wf-tok-str">&quot;notes-on-the-analytical-engine&quot;</span>, <span class="wf-tok-prop">&quot;title&quot;</span>: <span class="wf-tok-str">&quot;Notes on the Analytical Engine&quot;</span>,
+    <span class="wf-tok-prop">&quot;author&quot;</span>: <span class="wf-tok-str">&quot;Ada Lovelace&quot;</span>, <span class="wf-tok-prop">&quot;year&quot;</span>: <span class="wf-tok-num">1843</span>, <span class="wf-tok-prop">&quot;pages&quot;</span>: <span class="wf-tok-num">66</span>,
+    <span class="wf-tok-prop">&quot;summary&quot;</span>: <span class="wf-tok-str">&quot;The first published algorithm, and a view of what a machine might do beyond arithmetic.&quot;</span>,
+    <span class="wf-tok-prop">&quot;tags&quot;</span>: [<span class="wf-tok-str">&quot;computing&quot;</span>, <span class="wf-tok-str">&quot;history&quot;</span>] },
+  { <span class="wf-tok-prop">&quot;slug&quot;</span>: <span class="wf-tok-str">&quot;the-design-of-everyday-things&quot;</span>, <span class="wf-tok-prop">&quot;title&quot;</span>: <span class="wf-tok-str">&quot;The Design of Everyday Things&quot;</span>,
+    <span class="wf-tok-prop">&quot;author&quot;</span>: <span class="wf-tok-str">&quot;Don Norman&quot;</span>, <span class="wf-tok-prop">&quot;year&quot;</span>: <span class="wf-tok-num">1988</span>, <span class="wf-tok-prop">&quot;pages&quot;</span>: <span class="wf-tok-num">368</span>,
+    <span class="wf-tok-prop">&quot;summary&quot;</span>: <span class="wf-tok-str">&quot;Why doors confuse us, and what that says about everything else we make.&quot;</span>,
+    <span class="wf-tok-prop">&quot;tags&quot;</span>: [<span class="wf-tok-str">&quot;design&quot;</span>] },
+  { <span class="wf-tok-prop">&quot;slug&quot;</span>: <span class="wf-tok-str">&quot;a-pattern-language&quot;</span>, <span class="wf-tok-prop">&quot;title&quot;</span>: <span class="wf-tok-str">&quot;A Pattern Language&quot;</span>,
+    <span class="wf-tok-prop">&quot;author&quot;</span>: <span class="wf-tok-str">&quot;Christopher Alexander&quot;</span>, <span class="wf-tok-prop">&quot;year&quot;</span>: <span class="wf-tok-num">1977</span>, <span class="wf-tok-prop">&quot;pages&quot;</span>: <span class="wf-tok-num">1171</span>,
+    <span class="wf-tok-prop">&quot;summary&quot;</span>: <span class="wf-tok-str">&quot;Two hundred and fifty-three patterns for towns, buildings and rooms people want to live in.&quot;</span>,
+    <span class="wf-tok-prop">&quot;tags&quot;</span>: [<span class="wf-tok-str">&quot;design&quot;</span>, <span class="wf-tok-str">&quot;architecture&quot;</span>] }
 ]</code>
                             </div>
                             <div class="wf-markdown">
-<p>Then describe it, in <code>src/types.wf</code>:</p>
+<p>Then describe the data's shape and read the file, in <code>src/types.wf</code>:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -359,25 +380,26 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">/// One book on the list.
-type Book {
-    slug: String
-    title: String
-    author: String
-    year: Number
-    pages: Number
-    summary: String
-    tags: [String] = []
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-cmt">/// One book on the list.</span>
+<span class="wf-tok-kw">type</span> <span class="wf-tok-name">Book</span> {
+    <span class="wf-tok-prop">slug</span>: <span class="wf-tok-name">String</span>
+    <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>
+    <span class="wf-tok-prop">author</span>: <span class="wf-tok-name">String</span>
+    <span class="wf-tok-prop">year</span>: <span class="wf-tok-name">Number</span>
+    <span class="wf-tok-prop">pages</span>: <span class="wf-tok-name">Number</span>
+    <span class="wf-tok-prop">summary</span>: <span class="wf-tok-name">String</span>
+    <span class="wf-tok-prop">tags</span>: [<span class="wf-tok-name">String</span>] = []
 }
 
-data books: [Book] = &quot;books.json&quot;</code>
+<span class="wf-tok-kw">data</span> <span class="wf-tok-prop">books</span>: [<span class="wf-tok-name">Book</span>] = <span class="wf-tok-str">&quot;books.json&quot;</span></code>
                             </div>
                             <div class="wf-markdown">
-<p><code>type Book</code> is a record the type checker holds every use to: <code>book.titel</code> is an error where you write it. <code>data books</code> reads the file <strong>at build time</strong> and makes it a constant every page can read — nothing is fetched when the page loads. (<a href="/docs/guide/types">Types</a>, <a href="/docs/guide/data#data-a-file-at-build-time">Data</a>.)</p>
+<p><code>type Book</code> is a record that the type checker holds every use to: writing <code>book.titel</code> is an error where you write it. <code>data books</code> reads the file <strong>at build time</strong> and makes it a constant every page can read, so nothing is fetched when the page loads. (<a href="/docs/guide/types">Types</a>, <a href="/docs/guide/data#read-a-file-at-build-time-with-data">Data</a>.)</p>
+<p><strong>Check it:</strong> run <code>wf check</code>. It prints <code>No problems in shelf.</code></p>
                             </div>
-                            <h2 class="wf-heading" id="step-3-a-component">Step 3: a component</h2>
+                            <h2 class="wf-heading" id="step-3-keep-the-reader-s-shelf-in-a-store">Step 3: Keep the reader&#x27;s shelf in a store</h2>
                             <div class="wf-markdown">
-<p>Every book is shown the same way, so it is a component. <code>src/components/BookCard.wf</code>:</p>
+<p>What the reader keeps must survive a reload and be the same on every page, so it goes in a store, with its value kept by <code>persist</code>. Create <code>src/stores/Shelf.wf</code>:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -386,20 +408,49 @@ data books: [Book] = &quot;books.json&quot;</code>
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">// … reads what the other steps declare
-/// A book at a glance, with the button that puts it on the shelf.
-component BookCard(_ book: Book) {
-    use Shelf
-    Card.outlined {
-        Stack(gap: .sm) {
-            Link(book.title, to: &quot;/books/{book.slug}&quot;)
-            Text(&quot;{book.author} · {book.year}&quot;).muted.sm
-            Text(book.summary)
-            Row(gap: .xs) {
-                for tag in book.tags { Tag(tag) }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-cmt">/// The books the reader wants to read, kept across visits.</span>
+<span class="wf-tok-kw">store</span> <span class="wf-tok-name">Shelf</span> {
+    <span class="wf-tok-kw">persist</span> <span class="wf-tok-prop">saved</span>: [<span class="wf-tok-name">String</span>] = []
+    <span class="wf-tok-kw">derived</span> count = saved.length
+
+    <span class="wf-tok-kw">action</span> toggle(<span class="wf-tok-prop">slug</span>: <span class="wf-tok-name">String</span>) {
+        <span class="wf-tok-kw">if</span> saved.includes(slug) {
+            saved = saved.filter(s =&gt; s != slug)
+        } <span class="wf-tok-kw">else</span> {
+            saved = [...saved, slug]
+        }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>persist</code> is a <code>state</code> that is kept in the browser's storage and read back on the next visit; a change made in another tab arrives here too. <code>derived count</code> recomputes whenever <code>saved</code> changes. (<a href="/docs/guide/stores">Stores</a>.)</p>
+<p><strong>Check it:</strong> run <code>wf check</code>. It prints two <code>U04</code> warnings: `<code> </code>Shelf.count<code> is declared but never read </code><code> and the same for </code>Shelf.toggle`. Nothing uses the store yet; the next steps do, and the warnings go away.</p>
+                            </div>
+                            <h2 class="wf-heading" id="step-4-show-a-book-with-a-component">Step 4: Show a book with a component</h2>
+                            <div class="wf-markdown">
+<p>Every book is shown the same way, so it is a component. Create <code>src/components/BookCard.wf</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-cmt">// … reads what the other steps declare</span>
+<span class="wf-tok-cmt">/// A book at a glance, with the button that puts it on the shelf.</span>
+<span class="wf-tok-kw">component</span> <span class="wf-tok-name">BookCard</span>(_ <span class="wf-tok-prop">book</span>: <span class="wf-tok-name">Book</span>) {
+    <span class="wf-tok-kw">use</span> <span class="wf-tok-name">Shelf</span>
+    <span class="wf-tok-name">Card</span>.outlined {
+        <span class="wf-tok-name">Stack</span>(<span class="wf-tok-prop">gap</span>: .sm) {
+            <span class="wf-tok-name">Link</span>(book.title, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/books/{book.slug}&quot;</span>)
+            <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{book.author} · {book.year}&quot;</span>).muted.sm
+            <span class="wf-tok-name">Text</span>(book.summary)
+            <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">gap</span>: .xs) {
+                <span class="wf-tok-kw">for</span> tag <span class="wf-tok-kw">in</span> book.tags { <span class="wf-tok-name">Tag</span>(tag) }
             }
-            Button(if Shelf.saved.includes(book.slug) { &quot;On your shelf&quot; } else { &quot;Want to read&quot; }).sm {
-                on click { Shelf.toggle(book.slug) }
+            <span class="wf-tok-name">Button</span>(<span class="wf-tok-kw">if</span> <span class="wf-tok-name">Shelf</span>.saved.includes(book.slug) { <span class="wf-tok-str">&quot;On your shelf&quot;</span> } <span class="wf-tok-kw">else</span> { <span class="wf-tok-str">&quot;Want to read&quot;</span> }).sm {
+                <span class="wf-tok-kw">on</span> click { <span class="wf-tok-name">Shelf</span>.toggle(book.slug) }
             }
         }
     }
@@ -408,14 +459,15 @@ component BookCard(_ book: Book) {
                             <div class="wf-markdown">
 <ul>
 <li><code>_ book: Book</code> is the one prop a caller may pass without its name: <code>BookCard(book)</code>.</li>
-<li><code>Card.outlined</code>, <code>Stack(gap: .sm)</code>, <code>Text(…).muted.sm</code> are built-ins with flags; the compiler knows each one's props and refuses a flag it does not take.</li>
-<li><code>use Shelf</code> reads a store you write next. The button's label is an <code>if</code> used as a value, and it follows the store: when the reader clicks, the label changes without anything else re-rendering.</li>
+<li><code>Card.outlined</code>, <code>Stack(gap: .sm)</code> and <code>Text(…).muted.sm</code> are built-ins with flags. The compiler knows each one's props and refuses a flag it does not take.</li>
+<li><code>use Shelf</code> reads the store from step 3. The button's label is an <code>if</code> used as a value, and it follows the store: when the reader clicks, the label changes and nothing else re-renders.</li>
 </ul>
 <p>(<a href="/docs/guide/components">Components</a>, <a href="/docs/guide/elements">Elements</a>.)</p>
+<p><strong>Check it:</strong> run <code>wf check</code>. It reports one error: `<code> error[R01]: </code>/books/{…}<code> is not a route </code>`. The card links to a book's page, and no page answers that address yet. The compiler checks every link against the pages you declare; the next step adds the page.</p>
                             </div>
-                            <h2 class="wf-heading" id="step-4-the-reader-s-shelf">Step 4: the reader&#x27;s shelf</h2>
+                            <h2 class="wf-heading" id="step-5-add-the-home-page-and-a-page-per-book">Step 5: Add the home page and a page per book</h2>
                             <div class="wf-markdown">
-<p>What the reader keeps must survive a reload and be the same on every page — a store with a <code>persist</code>ed value. <code>src/stores/Shelf.wf</code>:</p>
+<p>The home page lists the books with a search box. Create <code>src/pages/Home.wf</code>:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -424,85 +476,33 @@ component BookCard(_ book: Book) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">/// The books the reader wants to read, kept across visits.
-store Shelf {
-    persist saved: [String] = []
-    derived count = saved.length
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-cmt">// … reads what the other steps declare</span>
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Home</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Shelf&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Books worth reading, and the ones you want to.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> q = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">derived</span> needle = q.trim().toLowerCase()
+    <span class="wf-tok-kw">derived</span> found = books.filter(b =&gt; b.title.toLowerCase().includes(needle) || b.author.toLowerCase().includes(needle))
 
-    action toggle(slug: String) {
-        if saved.includes(slug) {
-            saved = saved.filter(s =&gt; s != slug)
-        } else {
-            saved = [...saved, slug]
-        }
-    }
-}</code>
-                            </div>
-                            <div class="wf-markdown">
-<p><code>persist</code> is a <code>state</code> kept in the browser's storage and read back on the next visit; a change in another tab arrives here too. <code>derived count</code> recomputes whenever <code>saved</code> changes. (<a href="/docs/guide/stores">Stores</a>.)</p>
-                            </div>
-                            <h2 class="wf-heading" id="step-5-pages">Step 5: pages</h2>
-                            <div class="wf-markdown">
-<p>The shell every page shares, <code>src/App.wf</code>:</p>
-                            </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">wf</p>
-                                    </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
-                                </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">// … reads what the other steps declare
-app {
-    Navbar {
-        Navbar.Brand { Link(&quot;Shelf&quot;, to: &quot;/&quot;) }
-        Navbar.Links {
-            Link(&quot;Books&quot;, to: &quot;/&quot;)
-            Link(&quot;Your shelf ({Shelf.count})&quot;, to: &quot;/shelf&quot;)
-            Link(&quot;Suggest a book&quot;, to: &quot;/suggest&quot;)
-        }
-    }
-    Router
-    Footer { Text(&quot;Built with WebFluent&quot;).muted.sm }
-}</code>
-                            </div>
-                            <div class="wf-markdown">
-<p>The home page lists the books with a search box, <code>src/pages/Home.wf</code>:</p>
-                            </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">wf</p>
-                                    </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
-                                </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">// … reads what the other steps declare
-page Home(path: &quot;/&quot;, title: &quot;Shelf&quot;, description: &quot;Books worth reading, and the ones you want to.&quot;) {
-    state q = &quot;&quot;
-    derived needle = q.trim().toLowerCase()
-    derived found = books.filter(b =&gt; b.title.toLowerCase().includes(needle) || b.author.toLowerCase().includes(needle))
-
-    Container {
-        Stack(gap: .lg) {
-            Heading(&quot;Books worth reading&quot;).h1
-            Input(bind: q, label: &quot;Search by title or author&quot;).search
-            Text(&quot;{found.length} of {books.length} books&quot;).muted.sm
-            Grid(columns: { base: 1, md: 2 }, gap: .md) {
-                for book in found by book.slug { BookCard(book) }
+    <span class="wf-tok-name">Container</span> {
+        <span class="wf-tok-name">Stack</span>(<span class="wf-tok-prop">gap</span>: .lg) {
+            <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Books worth reading&quot;</span>).h1
+            <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: q, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Search by title or author&quot;</span>).search
+            <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{found.length} of {books.length} books&quot;</span>).muted.sm
+            <span class="wf-tok-name">Grid</span>(<span class="wf-tok-prop">columns</span>: { <span class="wf-tok-prop">base</span>: <span class="wf-tok-num">1</span>, <span class="wf-tok-prop">md</span>: <span class="wf-tok-num">2</span> }, <span class="wf-tok-prop">gap</span>: .md) {
+                <span class="wf-tok-kw">for</span> book <span class="wf-tok-kw">in</span> found <span class="wf-tok-kw">by</span> book.slug { <span class="wf-tok-name">BookCard</span>(book) }
             }
-            if found.length == 0 { Text(&quot;Nothing matches “{q}”.&quot;).muted }
+            <span class="wf-tok-kw">if</span> found.length == <span class="wf-tok-num">0</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Nothing matches “{q}”.&quot;</span>).muted }
         }
     }
 }</code>
                             </div>
                             <div class="wf-markdown">
 <ul>
-<li><code>bind: q</code> keeps the input and the state in step both ways.</li>
+<li><code>bind: q</code> keeps the input and the state in step, both ways.</li>
 <li><code>found</code> is derived from <code>q</code>, so typing narrows the list as you go.</li>
-<li><code>for … by book.slug</code> is a keyed loop: a card that stays in the list keeps its element, rather than being rebuilt.</li>
-<li><code>Grid(columns: { base: 1, md: 2 })</code> is one column on a phone and two from the <code>md</code> breakpoint — written in the first paint, no script needed.</li>
+<li><code>for … by book.slug</code> is a keyed loop: a card that stays in the list keeps its element instead of being rebuilt.</li>
+<li><code>Grid(columns: { base: 1, md: 2 })</code> is one column on a phone and two from the <code>md</code> breakpoint. The pre-rendered HTML already has this layout, so no script is needed.</li>
 </ul>
-<p>A page per book, <code>src/pages/BookPage.wf</code>:</p>
+<p>Then add a page for each book, <code>src/pages/BookPage.wf</code>:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -511,24 +511,24 @@ page Home(path: &quot;/&quot;, title: &quot;Shelf&quot;, description: &quot;Book
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">// … reads what the other steps declare
-page BookPage(path: &quot;/books/:slug&quot;, slug: String, title: &quot;Book&quot;, description: &quot;One book on the shelf.&quot;, type: &quot;article&quot;, paths: books.map(b =&gt; b.slug)) {
-    derived book = books.find(b =&gt; b.slug == slug)
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-cmt">// … reads what the other steps declare</span>
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">BookPage</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/books/:slug&quot;</span>, <span class="wf-tok-prop">slug</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Book&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;One book on the shelf.&quot;</span>, <span class="wf-tok-prop">type</span>: <span class="wf-tok-str">&quot;article&quot;</span>, <span class="wf-tok-prop">paths</span>: books.map(b =&gt; b.slug)) {
+    <span class="wf-tok-kw">derived</span> book = books.find(b =&gt; b.slug == slug)
     head {
-        meta(property: &quot;og:title&quot;, content: book?.title ?? &quot;Book&quot;)
+        meta(<span class="wf-tok-prop">property</span>: <span class="wf-tok-str">&quot;og:title&quot;</span>, <span class="wf-tok-prop">content</span>: book?.title ?? <span class="wf-tok-str">&quot;Book&quot;</span>)
     }
-    Container {
-        if let b = book {
-            Breadcrumb {
-                Breadcrumb.Item(to: &quot;/&quot;) { Text(&quot;Books&quot;) }
-                Breadcrumb.Item { Text(b.title) }
+    <span class="wf-tok-name">Container</span> {
+        <span class="wf-tok-kw">if</span> <span class="wf-tok-kw">let</span> b = book {
+            <span class="wf-tok-name">Breadcrumb</span> {
+                <span class="wf-tok-name">Breadcrumb</span>.<span class="wf-tok-name">Item</span>(<span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/&quot;</span>) { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Books&quot;</span>) }
+                <span class="wf-tok-name">Breadcrumb</span>.<span class="wf-tok-name">Item</span> { <span class="wf-tok-name">Text</span>(b.title) }
             }
-            Heading(b.title).h1
-            Text(&quot;{b.author}, {b.year} · {b.pages} pages&quot;).muted
-            Paragraph(b.summary)
-        } else {
-            Heading(&quot;No such book&quot;).h1
-            Link(&quot;Back to the list&quot;, to: &quot;/&quot;)
+            <span class="wf-tok-name">Heading</span>(b.title).h1
+            <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{b.author}, {b.year} · {b.pages} pages&quot;</span>).muted
+            <span class="wf-tok-name">Paragraph</span>(b.summary)
+        } <span class="wf-tok-kw">else</span> {
+            <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;No such book&quot;</span>).h1
+            <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Back to the list&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/&quot;</span>)
         }
     }
 }</code>
@@ -537,10 +537,15 @@ page BookPage(path: &quot;/books/:slug&quot;, slug: String, title: &quot;Book&qu
 <ul>
 <li><code>:slug</code> in the path is a typed parameter of the page.</li>
 <li><code>paths:</code> tells the static build which values to render: one HTML file per book, <code>books/a-pattern-language/index.html</code> and so on.</li>
-<li><code>books.find(…)</code> may find nothing, so <code>book</code> is a <code>Book?</code>. <code>if let b = book</code> binds it only when it is there — reading <code>book.title</code> without it is a compile error (<code>T04</code>).</li>
-<li><code>head { … }</code> adds tags to this page's <code>&lt;head&gt;</code>, here the title a shared link previews with.</li>
+<li><code>books.find(…)</code> may find nothing, so <code>book</code> is a <code>Book?</code> (a <code>Book</code> or <code>null</code>). <code>if let b = book</code> binds it only when it is there. Reading <code>book.title</code> without that check is a compile error (<code>T04</code>).</li>
+<li><code>head { … }</code> adds tags to this page's <code>&lt;head&gt;</code> — here, the title that a shared link previews with.</li>
 </ul>
-<p>The shelf itself, <code>src/pages/ShelfPage.wf</code>:</p>
+<p>(<a href="/docs/guide/pages-and-routing">Pages and routing</a>.)</p>
+<p><strong>Check it:</strong> run <code>wf serve</code> and open <code>http://localhost:3000</code>. You see <strong>Books worth reading</strong>, <code>3 of 3 books</code> and three cards. Type <code>norman</code> in the search box: one card stays, and the count reads <code>1 of 3 books</code>. Click <strong>Want to read</strong> on a card and its label changes to <strong>On your shelf</strong>. Click a book's title and its page opens, with a breadcrumb back to the list. <code>wf check</code> now reports only the <code>U04</code> warning about <code>Shelf.count</code>; step 6 uses it.</p>
+                            </div>
+                            <h2 class="wf-heading" id="step-6-add-the-shelf-page-and-the-site-s-shell">Step 6: Add the shelf page and the site&#x27;s shell</h2>
+                            <div class="wf-markdown">
+<p>The shelf page shows the books the reader saved. Create <code>src/pages/ShelfPage.wf</code>:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -549,25 +554,25 @@ page BookPage(path: &quot;/books/:slug&quot;, slug: String, title: &quot;Book&qu
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">// … reads what the other steps declare
-page ShelfPage(path: &quot;/shelf&quot;, title: &quot;Your shelf&quot;, description: &quot;The books you want to read.&quot;) {
-    use Shelf
-    derived mine = books.filter(b =&gt; Shelf.saved.includes(b.slug))
-    Container {
-        Stack(gap: .lg) {
-            Heading(&quot;Your shelf&quot;).h1
-            if mine.length == 0 {
-                Text(&quot;Nothing yet. Pick something from the list.&quot;).muted
-                Link(&quot;Browse the books&quot;, to: &quot;/&quot;)
-            } else {
-                for book in mine by book.slug { BookCard(book) }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-cmt">// … reads what the other steps declare</span>
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">ShelfPage</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/shelf&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Your shelf&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;The books you want to read.&quot;</span>) {
+    <span class="wf-tok-kw">use</span> <span class="wf-tok-name">Shelf</span>
+    <span class="wf-tok-kw">derived</span> mine = books.filter(b =&gt; <span class="wf-tok-name">Shelf</span>.saved.includes(b.slug))
+    <span class="wf-tok-name">Container</span> {
+        <span class="wf-tok-name">Stack</span>(<span class="wf-tok-prop">gap</span>: .lg) {
+            <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Your shelf&quot;</span>).h1
+            <span class="wf-tok-kw">if</span> mine.length == <span class="wf-tok-num">0</span> {
+                <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Nothing yet. Pick something from the list.&quot;</span>).muted
+                <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Browse the books&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/&quot;</span>)
+            } <span class="wf-tok-kw">else</span> {
+                <span class="wf-tok-kw">for</span> book <span class="wf-tok-kw">in</span> mine <span class="wf-tok-kw">by</span> book.slug { <span class="wf-tok-name">BookCard</span>(book) }
             }
         }
     }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>And a page for addresses nobody claims, <code>src/pages/NotFound.wf</code>:</p>
+<p>Add a page for addresses no other page claims, <code>src/pages/NotFound.wf</code>. <code>path: &quot;*&quot;</code> matches anything, and the static build writes it as <code>404.html</code>:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -576,19 +581,15 @@ page ShelfPage(path: &quot;/shelf&quot;, title: &quot;Your shelf&quot;, descript
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page NotFound(path: &quot;*&quot;, title: &quot;Not found&quot;, description: &quot;Nothing lives at this address.&quot;, noindex: true) {
-    Container {
-        Heading(&quot;Nothing lives here&quot;).h1
-        Link(&quot;Back to the books&quot;, to: &quot;/&quot;)
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">NotFound</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;*&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Not found&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Nothing lives at this address.&quot;</span>, <span class="wf-tok-prop">noindex</span>: <span class="wf-tok-kw">true</span>) {
+    <span class="wf-tok-name">Container</span> {
+        <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Nothing lives here&quot;</span>).h1
+        <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Back to the books&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/&quot;</span>)
     }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Run <code>wf serve</code> and open <code>http://localhost:3000</code>: search, open a book, put two on your shelf, reload — they are still there. (<a href="/docs/guide/pages-and-routing">Pages and routing</a>.)</p>
-                            </div>
-                            <h2 class="wf-heading" id="step-6-a-form">Step 6: a form</h2>
-                            <div class="wf-markdown">
-<p>Readers suggest books. <code>src/pages/Suggest.wf</code>:</p>
+<p>Last, the shell every page shares, <code>src/App.wf</code>. <code>Router</code> is where the current page is drawn:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -597,37 +598,64 @@ page ShelfPage(path: &quot;/shelf&quot;, title: &quot;Your shelf&quot;, descript
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Suggest(path: &quot;/suggest&quot;, title: &quot;Suggest a book&quot;, description: &quot;Tell us what belongs on the shelf.&quot;) {
-    state title = &quot;&quot;
-    state author = &quot;&quot;
-    state why = &quot;&quot;
-    state sent = false
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-cmt">// … reads what the other steps declare</span>
+<span class="wf-tok-kw">app</span> {
+    <span class="wf-tok-name">Navbar</span> {
+        <span class="wf-tok-name">Navbar</span>.<span class="wf-tok-name">Brand</span> { <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Shelf&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/&quot;</span>) }
+        <span class="wf-tok-name">Navbar</span>.<span class="wf-tok-name">Links</span> {
+            <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Books&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/&quot;</span>)
+            <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Your shelf ({Shelf.count})&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/shelf&quot;</span>)
+        }
+    }
+    <span class="wf-tok-name">Router</span>
+    <span class="wf-tok-name">Footer</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Built with WebFluent&quot;</span>).muted.sm }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Check it:</strong> <code>wf check</code> prints <code>No problems in shelf.</code> Every page now has a navigation bar. Put two books on your shelf: the link reads <strong>Your shelf (2)</strong>. Open it, then reload the page — the two books are still there. Open <code>http://localhost:3000/nowhere</code> and you see <strong>Nothing lives here</strong>.</p>
+                            </div>
+                            <h2 class="wf-heading" id="step-7-add-a-form-to-suggest-a-book">Step 7: Add a form to suggest a book</h2>
+                            <div class="wf-markdown">
+<p>Readers can suggest books. Create <code>src/pages/Suggest.wf</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Suggest</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/suggest&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Suggest a book&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Tell us what belongs on the shelf.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> title = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">state</span> author = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">state</span> why = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">state</span> sent = <span class="wf-tok-kw">false</span>
 
-    validate title { required &quot;Which book?&quot; }
-    validate author { required &quot;Who wrote it?&quot; }
-    validate why { maxLength(280) &quot;Keep it under 280 characters&quot; }
+    validate title { required <span class="wf-tok-str">&quot;Which book?&quot;</span> }
+    validate author { required <span class="wf-tok-str">&quot;Who wrote it?&quot;</span> }
+    validate why { maxLength(<span class="wf-tok-num">280</span>) <span class="wf-tok-str">&quot;Keep it under 280 characters&quot;</span> }
 
-    Container {
-        Stack(gap: .lg) {
-            Heading(&quot;Suggest a book&quot;).h1
-            if sent { Alert(&quot;Thank you — we will take a look.&quot;).success }
-            Form(bind: form) {
-                on submit {
-                    sent = true
+    <span class="wf-tok-name">Container</span> {
+        <span class="wf-tok-name">Stack</span>(<span class="wf-tok-prop">gap</span>: .lg) {
+            <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Suggest a book&quot;</span>).h1
+            <span class="wf-tok-kw">if</span> sent { <span class="wf-tok-name">Alert</span>(<span class="wf-tok-str">&quot;Thank you — we will take a look.&quot;</span>).success }
+            <span class="wf-tok-name">Form</span>(<span class="wf-tok-prop">bind</span>: form) {
+                <span class="wf-tok-kw">on</span> submit {
+                    sent = <span class="wf-tok-kw">true</span>
                     form.reset()
                 }
-                Input(bind: title, label: &quot;Title&quot;)
-                Input(bind: author, label: &quot;Author&quot;)
-                Textarea(bind: why, label: &quot;Why it belongs here&quot;, rows: 4, maxLength: 280)
-                Button(&quot;Send the suggestion&quot;, type: .submit).primary
+                <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: title, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Title&quot;</span>)
+                <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: author, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Author&quot;</span>)
+                <span class="wf-tok-name">Textarea</span>(<span class="wf-tok-prop">bind</span>: why, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Why it belongs here&quot;</span>, <span class="wf-tok-prop">rows</span>: <span class="wf-tok-num">4</span>, <span class="wf-tok-prop">maxLength</span>: <span class="wf-tok-num">280</span>)
+                <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Send the suggestion&quot;</span>, <span class="wf-tok-prop">type</span>: .submit).primary
             }
         }
     }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>A <code>validate</code> block sits beside the state it guards, and the control bound to that state shows its messages — accessibly, with <code>aria-invalid</code> and the message announced. A submit that fails moves focus to the first field with a problem and does not run <code>on submit</code>. (<a href="/docs/guide/forms">Forms</a>.)</p>
-<p>A real site would send the suggestion somewhere. With a backend, describe it once and call it:</p>
+<p>A <code>validate</code> block sits beside the state it guards, and the control bound to that state shows its messages accessibly: the field gets <code>aria-invalid</code>, and the message is announced. A submit that fails moves focus to the first field with a problem and does not run <code>on submit</code>. (<a href="/docs/guide/forms">Forms</a>.)</p>
+<p>Then link the page from the shell. Add the third link to <code>src/App.wf</code>:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -636,22 +664,47 @@ page ShelfPage(path: &quot;/shelf&quot;, title: &quot;Your shelf&quot;, descript
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">api Suggestions(base: env.PUBLIC_API ?? &quot;/api&quot;) {
-    post suggest(body: Map)
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-cmt">// … reads what the other steps declare</span>
+<span class="wf-tok-kw">app</span> {
+    <span class="wf-tok-name">Navbar</span> {
+        <span class="wf-tok-name">Navbar</span>.<span class="wf-tok-name">Brand</span> { <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Shelf&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/&quot;</span>) }
+        <span class="wf-tok-name">Navbar</span>.<span class="wf-tok-name">Links</span> {
+            <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Books&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/&quot;</span>)
+            <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Your shelf ({Shelf.count})&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/shelf&quot;</span>)
+            <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Suggest a book&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/suggest&quot;</span>)
+        }
+    }
+    <span class="wf-tok-name">Router</span>
+    <span class="wf-tok-name">Footer</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Built with WebFluent&quot;</span>).muted.sm }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Check it:</strong> click <strong>Suggest a book</strong>, then <strong>Send the suggestion</strong> with the form empty. The form does not send: <strong>Which book?</strong> appears under <strong>Title</strong>, and <strong>Who wrote it?</strong> under <strong>Author</strong>. Fill in both and send again. You see <strong>Thank you — we will take a look.</strong>, and the form is empty.</p>
+<p>A real site sends the suggestion somewhere. With a backend, you describe the service once and call it from the handler:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">api <span class="wf-tok-name">Suggestions</span>(<span class="wf-tok-prop">base</span>: env.<span class="wf-tok-name">PUBLIC_API</span> ?? <span class="wf-tok-str">&quot;/api&quot;</span>) {
+    post suggest(<span class="wf-tok-prop">body</span>: <span class="wf-tok-name">Map</span>)
 }
 …
-on submit {
-    await Suggestions.suggest(body: { title: title, author: author, why: why })
-    sent = true
+<span class="wf-tok-kw">on</span> submit {
+    <span class="wf-tok-kw">await</span> <span class="wf-tok-name">Suggestions</span>.suggest(<span class="wf-tok-prop">body</span>: { <span class="wf-tok-prop">title</span>: title, <span class="wf-tok-prop">author</span>: author, <span class="wf-tok-prop">why</span>: why })
+    sent = <span class="wf-tok-kw">true</span>
     form.reset()
 }</code>
                             </div>
                             <div class="wf-markdown">
 <p>(<a href="/docs/guide/data">Data and APIs</a>, <a href="/docs/guide/environments">Environments</a>.)</p>
                             </div>
-                            <h2 class="wf-heading" id="step-7-a-look-of-its-own">Step 7: a look of its own</h2>
+                            <h2 class="wf-heading" id="step-8-give-the-site-a-theme">Step 8: Give the site a theme</h2>
                             <div class="wf-markdown">
-<p>A theme changes the design tokens every built-in is drawn with. <code>src/theme.wf</code>:</p>
+<p>A theme changes the design tokens that every built-in is drawn with. Create <code>src/theme.wf</code>:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -660,77 +713,22 @@ on submit {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">theme Paper {
-    color-primary: #6D28D9
-    font-family: Charter, Georgia, serif
-    radius-md: 10px
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">theme</span> <span class="wf-tok-name">Paper</span> {
+    color-<span class="wf-tok-prop">primary</span>: <span class="wf-tok-num">#6D28D9</span>
+    font-<span class="wf-tok-prop">family</span>: <span class="wf-tok-name">Charter</span>, <span class="wf-tok-name">Georgia</span>, serif
+    radius-<span class="wf-tok-prop">md</span>: <span class="wf-tok-num">10px</span>
 }
 
-theme Ink {
-    color-background: #111014
-    color-surface: #1A1820
-    color-text: #ECEAF2
-    color-text-muted: #A8A3B5
-    color-border: #2B2833
+<span class="wf-tok-kw">theme</span> <span class="wf-tok-name">Ink</span> {
+    color-<span class="wf-tok-prop">background</span>: <span class="wf-tok-num">#111014</span>
+    color-<span class="wf-tok-prop">surface</span>: <span class="wf-tok-num">#1A1820</span>
+    color-<span class="wf-tok-prop">text</span>: <span class="wf-tok-num">#ECEAF2</span>
+    color-text-<span class="wf-tok-prop">muted</span>: <span class="wf-tok-num">#A8A3B5</span>
+    color-<span class="wf-tok-prop">border</span>: <span class="wf-tok-num">#2B2833</span>
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>The config named <code>Paper</code> as the theme and <code>Ink</code> as the dark one, so a reader whose system is dark gets <code>Ink</code> — before the first paint, with no flash. A token you do not name keeps its baseline value. (<a href="/docs/guide/styling">Styling</a>.)</p>
-                            </div>
-                            <h2 class="wf-heading" id="step-8-a-test">Step 8: a test</h2>
-                            <div class="wf-markdown">
-<p><code>tests/BookCard.wf</code>:</p>
-                            </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">wf</p>
-                                    </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
-                                </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">// … reads what the other steps declare
-test &quot;a card shows who wrote the book, and when&quot; {
-    BookCard(Book(slug: &quot;x&quot;, title: &quot;X&quot;, author: &quot;Ada Lovelace&quot;, year: 1843, pages: 66, summary: &quot;Notes.&quot;))
-    expect &quot;Ada Lovelace · 1843&quot;
-    expect &quot;Want to read&quot;
-}
-
-test &quot;a book goes on the shelf, and comes off again&quot; {
-    BookCard(Book(slug: &quot;x&quot;, title: &quot;X&quot;, author: &quot;Ada Lovelace&quot;, year: 1843, pages: 66, summary: &quot;Notes.&quot;))
-    click &quot;Want to read&quot;
-    expect &quot;On your shelf&quot;
-    click &quot;On your shelf&quot;
-    expect &quot;Want to read&quot;
-}</code>
-                            </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">bash</p>
-                                    </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
-                                </div>
-                                <code class="wf-code wf-code--block wf-sa8223565"></code>
-                            </div>
-                            <div class="wf-markdown">
-<p>The first test renders the card and reads what it shows; it also writes a snapshot the next run compares against. The second <strong>clicks</strong>, so it runs in a headless Chrome — the same compiler and runtime a reader gets. Buttons are found by their text, as a reader finds them. (<a href="/docs/guide/testing">Testing</a>.)</p>
-                            </div>
-                            <h2 class="wf-heading" id="step-9-build-and-check">Step 9: build and check</h2>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">bash</p>
-                                    </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
-                                </div>
-                                <code class="wf-code wf-code--block wf-sa8223565"></code>
-                            </div>
-                            <div class="wf-markdown">
-<p><code>wf build</code> writes <code>build/</code> — a folder of HTML, CSS and JavaScript any static host can serve — and prints every warning: a missing <code>alt</code>, a page without a description, a state nothing reads. <code>wf verify</code> loads every page in a real browser and fails on a script error, a failed request or a blank page.</p>
-                            </div>
-                            <h2 class="wf-heading" id="step-10-deploy">Step 10: deploy</h2>
-                            <div class="wf-markdown">
-<p>Any static host serves <code>build/</code>. For GitHub Pages, a project site lives under <code>https://&lt;you&gt;.github.io/shelf/</code>, so tell the build its sub-path and its address — add to <code>webfluent.app.json</code>:</p>
+<p>Then name the themes in <code>webfluent.app.json</code> — <code>Paper</code> as the theme and <code>Ink</code> as the dark one:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -740,12 +738,114 @@ test &quot;a book goes on the shelf, and comes off again&quot; {
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{
-  &quot;build&quot;: { &quot;ssg&quot;: true, &quot;csp&quot;: true, &quot;base_path&quot;: &quot;/shelf&quot; },
-  &quot;meta&quot;: { &quot;site_url&quot;: &quot;https://you.github.io/shelf&quot; }
+  <span class="wf-tok-prop">&quot;name&quot;</span>: <span class="wf-tok-str">&quot;shelf&quot;</span>,
+  <span class="wf-tok-prop">&quot;build&quot;</span>: { <span class="wf-tok-prop">&quot;ssg&quot;</span>: <span class="wf-tok-kw">true</span>, <span class="wf-tok-prop">&quot;csp&quot;</span>: <span class="wf-tok-kw">true</span> },
+  <span class="wf-tok-prop">&quot;theme&quot;</span>: { <span class="wf-tok-prop">&quot;name&quot;</span>: <span class="wf-tok-str">&quot;Paper&quot;</span>, <span class="wf-tok-prop">&quot;dark&quot;</span>: <span class="wf-tok-str">&quot;Ink&quot;</span> },
+  <span class="wf-tok-prop">&quot;meta&quot;</span>: {
+    <span class="wf-tok-prop">&quot;title&quot;</span>: <span class="wf-tok-str">&quot;Shelf&quot;</span>,
+    <span class="wf-tok-prop">&quot;description&quot;</span>: <span class="wf-tok-str">&quot;Books worth reading, and the ones you want to.&quot;</span>,
+    <span class="wf-tok-prop">&quot;lang&quot;</span>: <span class="wf-tok-str">&quot;en&quot;</span>
+  }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>base_path</code> prefixes every link and asset; <code>site_url</code> turns on canonical links, the sitemap and absolute Open Graph URLs. Then add <code>.github/workflows/pages.yml</code>:</p>
+<p>A reader whose system is set to dark mode gets <code>Ink</code>, before the first paint and with no flash of the light theme. A token you do not name keeps its baseline value. (<a href="/docs/guide/styling">Styling</a>.)</p>
+<p><strong>Check it:</strong> the links and the <strong>Send the suggestion</strong> button are purple, and the text is a serif face. Switch your system to dark mode and the page turns dark. If the build stops with `<code>No </code>theme Paper<code> is declared in this project</code><code>, the config names a theme that </code>src/theme.wf` does not declare: check the file name and the spelling.</p>
+                            </div>
+                            <h2 class="wf-heading" id="step-9-test-the-book-card">Step 9: Test the book card</h2>
+                            <div class="wf-markdown">
+<p>Tests live in <code>tests/</code>. Create <code>tests/BookCard.wf</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-cmt">// … reads what the other steps declare</span>
+<span class="wf-tok-kw">test</span> <span class="wf-tok-str">&quot;a card shows who wrote the book, and when&quot;</span> {
+    <span class="wf-tok-name">BookCard</span>(<span class="wf-tok-name">Book</span>(<span class="wf-tok-prop">slug</span>: <span class="wf-tok-str">&quot;x&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;X&quot;</span>, <span class="wf-tok-prop">author</span>: <span class="wf-tok-str">&quot;Ada Lovelace&quot;</span>, <span class="wf-tok-prop">year</span>: <span class="wf-tok-num">1843</span>, <span class="wf-tok-prop">pages</span>: <span class="wf-tok-num">66</span>, <span class="wf-tok-prop">summary</span>: <span class="wf-tok-str">&quot;Notes.&quot;</span>))
+    <span class="wf-tok-kw">expect</span> <span class="wf-tok-str">&quot;Ada Lovelace · 1843&quot;</span>
+    <span class="wf-tok-kw">expect</span> <span class="wf-tok-str">&quot;Want to read&quot;</span>
+}
+
+<span class="wf-tok-kw">test</span> <span class="wf-tok-str">&quot;a book goes on the shelf, and comes off again&quot;</span> {
+    <span class="wf-tok-name">BookCard</span>(<span class="wf-tok-name">Book</span>(<span class="wf-tok-prop">slug</span>: <span class="wf-tok-str">&quot;x&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;X&quot;</span>, <span class="wf-tok-prop">author</span>: <span class="wf-tok-str">&quot;Ada Lovelace&quot;</span>, <span class="wf-tok-prop">year</span>: <span class="wf-tok-num">1843</span>, <span class="wf-tok-prop">pages</span>: <span class="wf-tok-num">66</span>, <span class="wf-tok-prop">summary</span>: <span class="wf-tok-str">&quot;Notes.&quot;</span>))
+    click <span class="wf-tok-str">&quot;Want to read&quot;</span>
+    <span class="wf-tok-kw">expect</span> <span class="wf-tok-str">&quot;On your shelf&quot;</span>
+    click <span class="wf-tok-str">&quot;On your shelf&quot;</span>
+    <span class="wf-tok-kw">expect</span> <span class="wf-tok-str">&quot;Want to read&quot;</span>
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Run them:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>wf test</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The first test renders the card and reads what it shows. It also writes a snapshot that the next run compares against. The second test <strong>clicks</strong>, so it runs in a headless Chrome, with the same compiler and runtime a reader gets. Buttons are found by their text, as a reader finds them. (<a href="/docs/guide/testing">Testing</a>.)</p>
+<p><strong>Check it:</strong> the first run ends:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">  new   tests/BookCard.wf — a card shows who wrote the book, and when (snapshot written)
+  ok    tests/BookCard.wf — a book goes on the shelf, and comes off again (in a browser)
+2 passed, 0 failed, 1 snapshot(s) written</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Run <code>wf test</code> again and the first line reads <code>ok</code>: the render matches its snapshot.</p>
+<p>If the second test says there is no browser, install Chrome or Chromium, or set <code>WF_CHROME</code> to its path.</p>
+                            </div>
+                            <h2 class="wf-heading" id="step-10-build-and-verify-the-site">Step 10: Build and verify the site</h2>
+                            <div class="wf-markdown">
+<p>Stop the dev server, then build the site and load every page in a real browser:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>wf build
+<span class="wf-tok-prompt">$ </span>wf verify</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>wf build</code> writes <code>build/</code>, a folder of HTML, CSS and JavaScript that any static host can serve, and prints every warning, such as a missing <code>alt</code>, a page without a description, or a state nothing reads. <code>wf verify</code> loads every page in a real browser and fails on a script error, a failed request or a blank page.</p>
+<p><strong>Check it:</strong> <code>wf build</code> ends with <code>Build complete.</code>, and <code>build/</code> holds <code>index.html</code>, <code>shelf/index.html</code>, <code>suggest/index.html</code>, <code>404.html</code> and one <code>books/&lt;slug&gt;/index.html</code> per book. <code>wf verify</code> lists six routes, each <code>ok</code>, and ends with <code>6 page(s), 0 problem(s)</code>.</p>
+                            </div>
+                            <h2 class="wf-heading" id="step-11-deploy-to-github-pages">Step 11: Deploy to GitHub Pages</h2>
+                            <div class="wf-markdown">
+<p>Any static host serves <code>build/</code>. On GitHub Pages, a project site lives under <code>https://&lt;you&gt;.github.io/shelf/</code>, so tell the build its sub-path and its address. Add these keys to <code>webfluent.app.json</code>, keeping the others:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{
+  <span class="wf-tok-prop">&quot;build&quot;</span>: { <span class="wf-tok-prop">&quot;ssg&quot;</span>: <span class="wf-tok-kw">true</span>, <span class="wf-tok-prop">&quot;csp&quot;</span>: <span class="wf-tok-kw">true</span>, <span class="wf-tok-prop">&quot;base_path&quot;</span>: <span class="wf-tok-str">&quot;/shelf&quot;</span> },
+  <span class="wf-tok-prop">&quot;meta&quot;</span>: { <span class="wf-tok-prop">&quot;site_url&quot;</span>: <span class="wf-tok-str">&quot;https://you.github.io/shelf&quot;</span> }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>base_path</code> prefixes every link and asset. <code>site_url</code> turns on canonical links, the sitemap and absolute Open Graph URLs.</p>
+<p>Then add a workflow that builds and publishes the site on every push to <code>main</code>, <code>.github/workflows/pages.yml</code>:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -779,11 +879,12 @@ jobs:
         uses: actions/deploy-pages@v4</code>
                             </div>
                             <div class="wf-markdown">
-<p>Push, and in the repository's <em>Settings → Pages</em> choose <em>GitHub Actions</em> as the source. <a href="/docs/guide/deploying">Deploying</a> covers Netlify, Vercel, Cloudflare Pages, nginx and the rest.</p>
+<p>Push the project to your <code>shelf</code> repository. In the repository's <strong>Settings → Pages</strong>, choose <strong>GitHub Actions</strong> as the source.</p>
+<p><strong>Check it:</strong> the <strong>Actions</strong> tab shows the <strong>Deploy</strong> workflow passing, and <code>https://&lt;you&gt;.github.io/shelf/</code> shows <strong>Books worth reading</strong>. <a href="/docs/guide/deploying">Deploying</a> covers Netlify, Vercel, Cloudflare Pages, nginx and other hosts.</p>
                             </div>
                             <h2 class="wf-heading" id="the-whole-program">The whole program</h2>
                             <div class="wf-markdown">
-<p>Every file above, as one listing — this is exactly what the steps built:</p>
+<p>Every <code>.wf</code> file above, as one listing. This is the program the steps built, with the first of the two tests:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -792,178 +893,325 @@ jobs:
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">type Book {
-    slug: String
-    title: String
-    author: String
-    year: Number
-    pages: Number
-    summary: String
-    tags: [String] = []
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Book</span> {
+    <span class="wf-tok-prop">slug</span>: <span class="wf-tok-name">String</span>
+    <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>
+    <span class="wf-tok-prop">author</span>: <span class="wf-tok-name">String</span>
+    <span class="wf-tok-prop">year</span>: <span class="wf-tok-name">Number</span>
+    <span class="wf-tok-prop">pages</span>: <span class="wf-tok-name">Number</span>
+    <span class="wf-tok-prop">summary</span>: <span class="wf-tok-name">String</span>
+    <span class="wf-tok-prop">tags</span>: [<span class="wf-tok-name">String</span>] = []
 }
 
-data books: [Book] = &quot;books.json&quot;
+<span class="wf-tok-kw">data</span> <span class="wf-tok-prop">books</span>: [<span class="wf-tok-name">Book</span>] = <span class="wf-tok-str">&quot;books.json&quot;</span>
 
-store Shelf {
-    persist saved: [String] = []
-    derived count = saved.length
+<span class="wf-tok-kw">store</span> <span class="wf-tok-name">Shelf</span> {
+    <span class="wf-tok-kw">persist</span> <span class="wf-tok-prop">saved</span>: [<span class="wf-tok-name">String</span>] = []
+    <span class="wf-tok-kw">derived</span> count = saved.length
 
-    action toggle(slug: String) {
-        if saved.includes(slug) {
+    <span class="wf-tok-kw">action</span> toggle(<span class="wf-tok-prop">slug</span>: <span class="wf-tok-name">String</span>) {
+        <span class="wf-tok-kw">if</span> saved.includes(slug) {
             saved = saved.filter(s =&gt; s != slug)
-        } else {
+        } <span class="wf-tok-kw">else</span> {
             saved = [...saved, slug]
         }
     }
 }
 
-component BookCard(_ book: Book) {
-    use Shelf
-    Card.outlined {
-        Stack(gap: .sm) {
-            Link(book.title, to: &quot;/books/{book.slug}&quot;)
-            Text(&quot;{book.author} · {book.year}&quot;).muted.sm
-            Text(book.summary)
-            Row(gap: .xs) {
-                for tag in book.tags { Tag(tag) }
+<span class="wf-tok-kw">component</span> <span class="wf-tok-name">BookCard</span>(_ <span class="wf-tok-prop">book</span>: <span class="wf-tok-name">Book</span>) {
+    <span class="wf-tok-kw">use</span> <span class="wf-tok-name">Shelf</span>
+    <span class="wf-tok-name">Card</span>.outlined {
+        <span class="wf-tok-name">Stack</span>(<span class="wf-tok-prop">gap</span>: .sm) {
+            <span class="wf-tok-name">Link</span>(book.title, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/books/{book.slug}&quot;</span>)
+            <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{book.author} · {book.year}&quot;</span>).muted.sm
+            <span class="wf-tok-name">Text</span>(book.summary)
+            <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">gap</span>: .xs) {
+                <span class="wf-tok-kw">for</span> tag <span class="wf-tok-kw">in</span> book.tags { <span class="wf-tok-name">Tag</span>(tag) }
             }
-            Button(if Shelf.saved.includes(book.slug) { &quot;On your shelf&quot; } else { &quot;Want to read&quot; }).sm {
-                on click { Shelf.toggle(book.slug) }
+            <span class="wf-tok-name">Button</span>(<span class="wf-tok-kw">if</span> <span class="wf-tok-name">Shelf</span>.saved.includes(book.slug) { <span class="wf-tok-str">&quot;On your shelf&quot;</span> } <span class="wf-tok-kw">else</span> { <span class="wf-tok-str">&quot;Want to read&quot;</span> }).sm {
+                <span class="wf-tok-kw">on</span> click { <span class="wf-tok-name">Shelf</span>.toggle(book.slug) }
             }
         }
     }
 }
 
-app {
-    Navbar {
-        Navbar.Brand { Link(&quot;Shelf&quot;, to: &quot;/&quot;) }
-        Navbar.Links {
-            Link(&quot;Books&quot;, to: &quot;/&quot;)
-            Link(&quot;Your shelf ({Shelf.count})&quot;, to: &quot;/shelf&quot;)
-            Link(&quot;Suggest a book&quot;, to: &quot;/suggest&quot;)
+<span class="wf-tok-kw">app</span> {
+    <span class="wf-tok-name">Navbar</span> {
+        <span class="wf-tok-name">Navbar</span>.<span class="wf-tok-name">Brand</span> { <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Shelf&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/&quot;</span>) }
+        <span class="wf-tok-name">Navbar</span>.<span class="wf-tok-name">Links</span> {
+            <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Books&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/&quot;</span>)
+            <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Your shelf ({Shelf.count})&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/shelf&quot;</span>)
+            <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Suggest a book&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/suggest&quot;</span>)
         }
     }
-    Router
-    Footer { Text(&quot;Built with WebFluent&quot;).muted.sm }
+    <span class="wf-tok-name">Router</span>
+    <span class="wf-tok-name">Footer</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Built with WebFluent&quot;</span>).muted.sm }
 }
 
-page Home(path: &quot;/&quot;, title: &quot;Shelf&quot;, description: &quot;Books worth reading, and the ones you want to.&quot;) {
-    state q = &quot;&quot;
-    derived needle = q.trim().toLowerCase()
-    derived found = books.filter(b =&gt; b.title.toLowerCase().includes(needle) || b.author.toLowerCase().includes(needle))
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Home</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Shelf&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Books worth reading, and the ones you want to.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> q = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">derived</span> needle = q.trim().toLowerCase()
+    <span class="wf-tok-kw">derived</span> found = books.filter(b =&gt; b.title.toLowerCase().includes(needle) || b.author.toLowerCase().includes(needle))
 
-    Container {
-        Stack(gap: .lg) {
-            Heading(&quot;Books worth reading&quot;).h1
-            Input(bind: q, label: &quot;Search by title or author&quot;).search
-            Text(&quot;{found.length} of {books.length} books&quot;).muted.sm
-            Grid(columns: { base: 1, md: 2 }, gap: .md) {
-                for book in found by book.slug { BookCard(book) }
+    <span class="wf-tok-name">Container</span> {
+        <span class="wf-tok-name">Stack</span>(<span class="wf-tok-prop">gap</span>: .lg) {
+            <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Books worth reading&quot;</span>).h1
+            <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: q, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Search by title or author&quot;</span>).search
+            <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{found.length} of {books.length} books&quot;</span>).muted.sm
+            <span class="wf-tok-name">Grid</span>(<span class="wf-tok-prop">columns</span>: { <span class="wf-tok-prop">base</span>: <span class="wf-tok-num">1</span>, <span class="wf-tok-prop">md</span>: <span class="wf-tok-num">2</span> }, <span class="wf-tok-prop">gap</span>: .md) {
+                <span class="wf-tok-kw">for</span> book <span class="wf-tok-kw">in</span> found <span class="wf-tok-kw">by</span> book.slug { <span class="wf-tok-name">BookCard</span>(book) }
             }
-            if found.length == 0 { Text(&quot;Nothing matches “{q}”.&quot;).muted }
+            <span class="wf-tok-kw">if</span> found.length == <span class="wf-tok-num">0</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Nothing matches “{q}”.&quot;</span>).muted }
         }
     }
 }
 
-page BookPage(path: &quot;/books/:slug&quot;, slug: String, title: &quot;Book&quot;, description: &quot;One book on the shelf.&quot;, type: &quot;article&quot;, paths: books.map(b =&gt; b.slug)) {
-    derived book = books.find(b =&gt; b.slug == slug)
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">BookPage</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/books/:slug&quot;</span>, <span class="wf-tok-prop">slug</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Book&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;One book on the shelf.&quot;</span>, <span class="wf-tok-prop">type</span>: <span class="wf-tok-str">&quot;article&quot;</span>, <span class="wf-tok-prop">paths</span>: books.map(b =&gt; b.slug)) {
+    <span class="wf-tok-kw">derived</span> book = books.find(b =&gt; b.slug == slug)
     head {
-        meta(property: &quot;og:title&quot;, content: book?.title ?? &quot;Book&quot;)
+        meta(<span class="wf-tok-prop">property</span>: <span class="wf-tok-str">&quot;og:title&quot;</span>, <span class="wf-tok-prop">content</span>: book?.title ?? <span class="wf-tok-str">&quot;Book&quot;</span>)
     }
-    Container {
-        if let b = book {
-            Breadcrumb {
-                Breadcrumb.Item(to: &quot;/&quot;) { Text(&quot;Books&quot;) }
-                Breadcrumb.Item { Text(b.title) }
+    <span class="wf-tok-name">Container</span> {
+        <span class="wf-tok-kw">if</span> <span class="wf-tok-kw">let</span> b = book {
+            <span class="wf-tok-name">Breadcrumb</span> {
+                <span class="wf-tok-name">Breadcrumb</span>.<span class="wf-tok-name">Item</span>(<span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/&quot;</span>) { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Books&quot;</span>) }
+                <span class="wf-tok-name">Breadcrumb</span>.<span class="wf-tok-name">Item</span> { <span class="wf-tok-name">Text</span>(b.title) }
             }
-            Heading(b.title).h1
-            Text(&quot;{b.author}, {b.year} · {b.pages} pages&quot;).muted
-            Paragraph(b.summary)
-        } else {
-            Heading(&quot;No such book&quot;).h1
-            Link(&quot;Back to the list&quot;, to: &quot;/&quot;)
+            <span class="wf-tok-name">Heading</span>(b.title).h1
+            <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{b.author}, {b.year} · {b.pages} pages&quot;</span>).muted
+            <span class="wf-tok-name">Paragraph</span>(b.summary)
+        } <span class="wf-tok-kw">else</span> {
+            <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;No such book&quot;</span>).h1
+            <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Back to the list&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/&quot;</span>)
         }
     }
 }
 
-page ShelfPage(path: &quot;/shelf&quot;, title: &quot;Your shelf&quot;, description: &quot;The books you want to read.&quot;) {
-    use Shelf
-    derived mine = books.filter(b =&gt; Shelf.saved.includes(b.slug))
-    Container {
-        Stack(gap: .lg) {
-            Heading(&quot;Your shelf&quot;).h1
-            if mine.length == 0 {
-                Text(&quot;Nothing yet. Pick something from the list.&quot;).muted
-                Link(&quot;Browse the books&quot;, to: &quot;/&quot;)
-            } else {
-                for book in mine by book.slug { BookCard(book) }
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">ShelfPage</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/shelf&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Your shelf&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;The books you want to read.&quot;</span>) {
+    <span class="wf-tok-kw">use</span> <span class="wf-tok-name">Shelf</span>
+    <span class="wf-tok-kw">derived</span> mine = books.filter(b =&gt; <span class="wf-tok-name">Shelf</span>.saved.includes(b.slug))
+    <span class="wf-tok-name">Container</span> {
+        <span class="wf-tok-name">Stack</span>(<span class="wf-tok-prop">gap</span>: .lg) {
+            <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Your shelf&quot;</span>).h1
+            <span class="wf-tok-kw">if</span> mine.length == <span class="wf-tok-num">0</span> {
+                <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Nothing yet. Pick something from the list.&quot;</span>).muted
+                <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Browse the books&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/&quot;</span>)
+            } <span class="wf-tok-kw">else</span> {
+                <span class="wf-tok-kw">for</span> book <span class="wf-tok-kw">in</span> mine <span class="wf-tok-kw">by</span> book.slug { <span class="wf-tok-name">BookCard</span>(book) }
             }
         }
     }
 }
 
-page Suggest(path: &quot;/suggest&quot;, title: &quot;Suggest a book&quot;, description: &quot;Tell us what belongs on the shelf.&quot;) {
-    state title = &quot;&quot;
-    state author = &quot;&quot;
-    state why = &quot;&quot;
-    state sent = false
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Suggest</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/suggest&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Suggest a book&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Tell us what belongs on the shelf.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> title = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">state</span> author = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">state</span> why = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">state</span> sent = <span class="wf-tok-kw">false</span>
 
-    validate title { required &quot;Which book?&quot; }
-    validate author { required &quot;Who wrote it?&quot; }
-    validate why { maxLength(280) &quot;Keep it under 280 characters&quot; }
+    validate title { required <span class="wf-tok-str">&quot;Which book?&quot;</span> }
+    validate author { required <span class="wf-tok-str">&quot;Who wrote it?&quot;</span> }
+    validate why { maxLength(<span class="wf-tok-num">280</span>) <span class="wf-tok-str">&quot;Keep it under 280 characters&quot;</span> }
 
-    Container {
-        Stack(gap: .lg) {
-            Heading(&quot;Suggest a book&quot;).h1
-            if sent { Alert(&quot;Thank you — we will take a look.&quot;).success }
-            Form(bind: form) {
-                on submit {
-                    sent = true
+    <span class="wf-tok-name">Container</span> {
+        <span class="wf-tok-name">Stack</span>(<span class="wf-tok-prop">gap</span>: .lg) {
+            <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Suggest a book&quot;</span>).h1
+            <span class="wf-tok-kw">if</span> sent { <span class="wf-tok-name">Alert</span>(<span class="wf-tok-str">&quot;Thank you — we will take a look.&quot;</span>).success }
+            <span class="wf-tok-name">Form</span>(<span class="wf-tok-prop">bind</span>: form) {
+                <span class="wf-tok-kw">on</span> submit {
+                    sent = <span class="wf-tok-kw">true</span>
                     form.reset()
                 }
-                Input(bind: title, label: &quot;Title&quot;)
-                Input(bind: author, label: &quot;Author&quot;)
-                Textarea(bind: why, label: &quot;Why it belongs here&quot;, rows: 4, maxLength: 280)
-                Button(&quot;Send the suggestion&quot;, type: .submit).primary
+                <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: title, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Title&quot;</span>)
+                <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: author, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Author&quot;</span>)
+                <span class="wf-tok-name">Textarea</span>(<span class="wf-tok-prop">bind</span>: why, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Why it belongs here&quot;</span>, <span class="wf-tok-prop">rows</span>: <span class="wf-tok-num">4</span>, <span class="wf-tok-prop">maxLength</span>: <span class="wf-tok-num">280</span>)
+                <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Send the suggestion&quot;</span>, <span class="wf-tok-prop">type</span>: .submit).primary
             }
         }
     }
 }
 
-page NotFound(path: &quot;*&quot;, title: &quot;Not found&quot;, description: &quot;Nothing lives at this address.&quot;, noindex: true) {
-    Container {
-        Heading(&quot;Nothing lives here&quot;).h1
-        Link(&quot;Back to the books&quot;, to: &quot;/&quot;)
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">NotFound</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;*&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Not found&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Nothing lives at this address.&quot;</span>, <span class="wf-tok-prop">noindex</span>: <span class="wf-tok-kw">true</span>) {
+    <span class="wf-tok-name">Container</span> {
+        <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Nothing lives here&quot;</span>).h1
+        <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Back to the books&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/&quot;</span>)
     }
 }
 
-theme Paper {
-    color-primary: #6D28D9
-    font-family: Charter, Georgia, serif
-    radius-md: 10px
+<span class="wf-tok-kw">theme</span> <span class="wf-tok-name">Paper</span> {
+    color-<span class="wf-tok-prop">primary</span>: <span class="wf-tok-num">#6D28D9</span>
+    font-<span class="wf-tok-prop">family</span>: <span class="wf-tok-name">Charter</span>, <span class="wf-tok-name">Georgia</span>, serif
+    radius-<span class="wf-tok-prop">md</span>: <span class="wf-tok-num">10px</span>
 }
 
-theme Ink {
-    color-background: #111014
-    color-surface: #1A1820
-    color-text: #ECEAF2
-    color-text-muted: #A8A3B5
-    color-border: #2B2833
+<span class="wf-tok-kw">theme</span> <span class="wf-tok-name">Ink</span> {
+    color-<span class="wf-tok-prop">background</span>: <span class="wf-tok-num">#111014</span>
+    color-<span class="wf-tok-prop">surface</span>: <span class="wf-tok-num">#1A1820</span>
+    color-<span class="wf-tok-prop">text</span>: <span class="wf-tok-num">#ECEAF2</span>
+    color-text-<span class="wf-tok-prop">muted</span>: <span class="wf-tok-num">#A8A3B5</span>
+    color-<span class="wf-tok-prop">border</span>: <span class="wf-tok-num">#2B2833</span>
 }
 
-test &quot;a card shows who wrote the book, and when&quot; {
-    BookCard(Book(slug: &quot;x&quot;, title: &quot;X&quot;, author: &quot;Ada Lovelace&quot;, year: 1843, pages: 66, summary: &quot;Notes.&quot;))
-    expect &quot;Ada Lovelace · 1843&quot;
-    expect &quot;Want to read&quot;
+<span class="wf-tok-kw">test</span> <span class="wf-tok-str">&quot;a card shows who wrote the book, and when&quot;</span> {
+    <span class="wf-tok-name">BookCard</span>(<span class="wf-tok-name">Book</span>(<span class="wf-tok-prop">slug</span>: <span class="wf-tok-str">&quot;x&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;X&quot;</span>, <span class="wf-tok-prop">author</span>: <span class="wf-tok-str">&quot;Ada Lovelace&quot;</span>, <span class="wf-tok-prop">year</span>: <span class="wf-tok-num">1843</span>, <span class="wf-tok-prop">pages</span>: <span class="wf-tok-num">66</span>, <span class="wf-tok-prop">summary</span>: <span class="wf-tok-str">&quot;Notes.&quot;</span>))
+    <span class="wf-tok-kw">expect</span> <span class="wf-tok-str">&quot;Ada Lovelace · 1843&quot;</span>
+    <span class="wf-tok-kw">expect</span> <span class="wf-tok-str">&quot;Want to read&quot;</span>
 }</code>
                             </div>
-                            <h2 class="wf-heading" id="where-to-go-from-here">Where to go from here</h2>
+                            <h2 class="wf-heading" id="what-you-built">What you built</h2>
                             <div class="wf-markdown">
+<p>Shelf is a whole site, and each part of it uses one idea of the language:</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">What you built</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">You wrote</th>
+                                        <th scope="col">The idea</th>
+                                        <th scope="col">Read more</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>type Book</code> and <code>data books</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Typed data read at build time</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="/docs/guide/types">Types</a>, <a href="/docs/guide/data#read-a-file-at-build-time-with-data">Data</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>store Shelf</code> with <code>persist</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Shared state kept across visits</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="/docs/guide/stores">Stores</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>component BookCard</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A reusable component with a positional prop</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="/docs/guide/components">Components</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>state</code>, <code>derived</code>, <code>bind:</code> and <code>for … by</code> on the home page</p>
+                                            </div>
+                                        </td>
+                                        <td>Reactivity and keyed lists</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="/docs/guide/state">State and reactivity</a>, <a href="/docs/guide/control-flow">Control flow</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>path: &quot;/books/:slug&quot;</code> with <code>paths:</code>, and <code>if let</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Route parameters, static paths and optional values</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="/docs/guide/pages-and-routing">Pages and routing</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>app { … Router … }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The shell every page shares</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="/docs/guide/pages-and-routing">Pages and routing</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>validate</code> and <code>Form(bind: form)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Validated forms</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="/docs/guide/forms">Forms</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>theme Paper</code> and <code>theme Ink</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Design tokens and dark mode</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="/docs/guide/styling">Styling</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>test &quot;…&quot; { … click … expect … }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Tests that render and click</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="/docs/guide/testing">Testing</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf build</code>, <code>wf verify</code> and a workflow</p>
+                                            </div>
+                                        </td>
+                                        <td>Building, checking and deploying</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="/docs/guide/deploying">Deploying</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>To go further:</p>
 <ul>
-<li>Read the language properly, from <a href="/docs/guide/language-basics">Language basics</a>.</li>
+<li>Read the language properly, starting at <a href="/docs/guide/language-basics">Language basics</a>.</li>
 <li>Talk to a real server: <a href="/docs/guide/data">Data and APIs</a>.</li>
-<li>Make it work offline: <a href="/docs/guide/offline">Offline</a>.</li>
+<li>Make the site work offline: <a href="/docs/guide/offline">Offline</a>.</li>
 <li>Translate it: <a href="/docs/guide/i18n">Internationalisation</a>.</li>
+<li>Build a bigger project: <a href="/docs/tutorials">Tutorials</a>.</li>
 </ul>
                             </div>
                         </div>
@@ -982,18 +1230,21 @@ test &quot;a card shows who wrote the book, and when&quot; {
                 <div class="wf-stack wf-gap--lg wf-sac91c322" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
-                        <a class="wf-link wf-s3e136ca4" href="#step-1-a-project">Step 1: a project</a>
-                        <a class="wf-link wf-s3e136ca4" href="#step-2-the-data">Step 2: the data</a>
-                        <a class="wf-link wf-s3e136ca4" href="#step-3-a-component">Step 3: a component</a>
-                        <a class="wf-link wf-s3e136ca4" href="#step-4-the-reader-s-shelf">Step 4: the reader&#x27;s shelf</a>
-                        <a class="wf-link wf-s3e136ca4" href="#step-5-pages">Step 5: pages</a>
-                        <a class="wf-link wf-s3e136ca4" href="#step-6-a-form">Step 6: a form</a>
-                        <a class="wf-link wf-s3e136ca4" href="#step-7-a-look-of-its-own">Step 7: a look of its own</a>
-                        <a class="wf-link wf-s3e136ca4" href="#step-8-a-test">Step 8: a test</a>
-                        <a class="wf-link wf-s3e136ca4" href="#step-9-build-and-check">Step 9: build and check</a>
-                        <a class="wf-link wf-s3e136ca4" href="#step-10-deploy">Step 10: deploy</a>
+                        <a class="wf-link wf-s3e136ca4" href="#what-you-will-build">What you will build</a>
+                        <a class="wf-link wf-s3e136ca4" href="#before-you-start">Before you start</a>
+                        <a class="wf-link wf-s3e136ca4" href="#step-1-create-the-project">Step 1: Create the project</a>
+                        <a class="wf-link wf-s3e136ca4" href="#step-2-describe-the-books">Step 2: Describe the books</a>
+                        <a class="wf-link wf-s3e136ca4" href="#step-3-keep-the-reader-s-shelf-in-a-store">Step 3: Keep the reader&#x27;s shelf in a store</a>
+                        <a class="wf-link wf-s3e136ca4" href="#step-4-show-a-book-with-a-component">Step 4: Show a book with a component</a>
+                        <a class="wf-link wf-s3e136ca4" href="#step-5-add-the-home-page-and-a-page-per-book">Step 5: Add the home page and a page per book</a>
+                        <a class="wf-link wf-s3e136ca4" href="#step-6-add-the-shelf-page-and-the-site-s-shell">Step 6: Add the shelf page and the site&#x27;s shell</a>
+                        <a class="wf-link wf-s3e136ca4" href="#step-7-add-a-form-to-suggest-a-book">Step 7: Add a form to suggest a book</a>
+                        <a class="wf-link wf-s3e136ca4" href="#step-8-give-the-site-a-theme">Step 8: Give the site a theme</a>
+                        <a class="wf-link wf-s3e136ca4" href="#step-9-test-the-book-card">Step 9: Test the book card</a>
+                        <a class="wf-link wf-s3e136ca4" href="#step-10-build-and-verify-the-site">Step 10: Build and verify the site</a>
+                        <a class="wf-link wf-s3e136ca4" href="#step-11-deploy-to-github-pages">Step 11: Deploy to GitHub Pages</a>
                         <a class="wf-link wf-s3e136ca4" href="#the-whole-program">The whole program</a>
-                        <a class="wf-link wf-s3e136ca4" href="#where-to-go-from-here">Where to go from here</a>
+                        <a class="wf-link wf-s3e136ca4" href="#what-you-built">What you built</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-s614f8b98">

@@ -1,18 +1,77 @@
 /// Chapter 42 of the guide, written from md-docs/42-design-tokens.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page TokensGuide(path: "/docs/guide/tokens", title: "Design tokens", description: "Every baseline design token with its default value, how a theme overrides them, and how styles and stylesheets read them.", layout: DocsShell("Design tokens", chapter: t("guide.chapter", { n: "42" }), blurb: "Every token of the baseline theme, with its value: the colours, type, spacing, radii, shadows, motion and breakpoints every built-in is drawn with.", source: "md-docs/42-design-tokens.md", sections: [Anchor(id: "the-baseline", label: "The baseline"), Anchor(id: "short-names", label: "Short names")], prevTo: "/docs/guide/built-ins", prevLabel: "41. {t("ch.41")}", nextTo: "/docs/guide/runtime", nextLabel: "43. {t("ch.43")}")) {
+page TokensGuide(path: "/docs/guide/tokens", title: "Design tokens", description: "Every baseline design token with its default value, how a theme overrides one, and how a style block or a stylesheet reads it, by full or short name.", layout: DocsShell("Design tokens", chapter: t("guide.chapter", { n: "42" }), blurb: "Every token of the baseline theme, with its value: the colours, type, spacing, radii, shadows, motion and breakpoints every built-in is drawn with.", source: "md-docs/42-design-tokens.md", sections: [Anchor(id: "reading-a-token", label: "Reading a token"), Anchor(id: "the-baseline", label: "The baseline"), Anchor(id: "short-names", label: "Short names")], prevTo: "/docs/guide/built-ins", prevLabel: "41. {t("ch.41")}", nextTo: "/docs/guide/runtime", nextLabel: "43. {t("ch.43")}")) {
     Stack(gap: .lg) {
-        Markdown("A design token is a named value — a colour, a size, a duration — that every built-in is drawn with. A `theme` changes the ones it names and keeps the rest; each becomes a CSS custom property on `:root`.")
+        Markdown("This chapter lists every design token of the baseline theme with its value, and how a style reads one. A *design token* is a named value — a colour, a size, a duration — that every built-in is drawn with. Change a token and every element drawn with it changes.\n\nA `theme` declaration changes the tokens it names and keeps the baseline value of every other one. A theme may also add tokens of its own. Each token becomes a CSS custom property on `:root`:")
 
         CodeBlock(#"theme Brand {
     color-primary: #0F766E
     radius-md: 14px
     screen-md: 900px
+    surface-raised: #F1F5F9
 }"#, title: "wf")
 
-        Markdown("Read one in a `style \{ \}` block as `$name` — `background: $color-surface`, or the short form the property's group resolves, `padding: $lg` for `spacing-lg` — and in a stylesheet as `var(--color-surface)`. A theme may add tokens of its own (`surface-raised: #131519`) and read them the same way. The build writes only the tokens something in the output names.")
+        Markdown("The build writes to `:root` only the tokens something in the output names, and the tokens those name in turn.")
+
+        Heading("Reading a token", id: "reading-a-token").h2
+
+        Markdown("A token has two spellings, one for each place a style is written:")
+
+        Table(caption: "Reading a token") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Where").header
+                    Table.Cell("Syntax").header
+                    Table.Cell("Example").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("A `style \{ \}` block") }
+                    Table.Cell { Markdown("`$name`") }
+                    Table.Cell { Markdown("`background: $color-surface`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("A `style \{ \}` block, short form") }
+                    Table.Cell { Markdown("`$suffix`, resolved by the property's group ([below](#short-names))") }
+                    Table.Cell { Markdown("`padding: $lg` is `spacing-lg`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("A `.css` file under `src/`") }
+                    Table.Cell { Markdown("`var(--name)`") }
+                    Table.Cell { Markdown("`color: var(--color-text-muted)`") }
+                }
+            }
+        }
+
+        Markdown("This page reads the tokens of the theme above — one the theme adds, one it changes, one it keeps, and a breakpoint it moves:")
+
+        CodeBlock(#"theme Brand {
+    color-primary: #0F766E
+    radius-md: 14px
+    screen-md: 900px
+    surface-raised: #F1F5F9
+}
+
+page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices for every team.") {
+    Heading("Pricing").h1
+    Card {
+        style {
+            background: $surface-raised
+            padding: $lg
+            border-radius: $md
+            border: 1px solid $border
+            @md { padding: $xl }
+        }
+        Text("Team plan").bold
+    }
+}"#, title: "wf")
+
+        Markdown("The card's background is `#F1F5F9`, its radius `14px` and its border the baseline `color-border`. Its padding grows to `spacing-xl` from `900px` wide, because `@md` reads `screen-md`.\n\nA `$token` the resolved theme does not declare draws the `V06` warning, since the property would fall back to nothing. `wf theme` lists every token the build uses, where each is read, and the contrast of the colour pairs ([Command line](/docs/guide/cli#wf-theme)).")
 
         Heading("The baseline", id: "the-baseline").h2
+
+        Markdown("The tables below are written from the compiler's baseline theme, and the test suite checks them against it.")
 
         Heading("Colour", id: "colour").h3
 
@@ -445,55 +504,63 @@ page TokensGuide(path: "/docs/guide/tokens", title: "Design tokens", description
 
         Heading("Short names", id: "short-names").h2
 
-        Markdown("In a style block, a short name is resolved by the property it is given to:")
+        Markdown("In a `style \{ \}` block, a short name is resolved through the group of the property it is given to: `$lg` on `padding` is `spacing-lg`, and on `border-radius` it is `radius-lg`.")
 
         Table(caption: "Short names") {
             Table.Head {
                 Table.Row {
                     Table.Cell("Property").header
                     Table.Cell("Group").header
-                    Table.Cell.header { Markdown("So `$…` means") }
+                    Table.Cell("Short names").header
+                    Table.Cell("Example").header
                 }
             }
             Table.Body {
                 Table.Row {
-                    Table.Cell { Markdown("`padding`, `margin` and their sides, `gap`, `row-gap`, `column-gap`, `width`, `height`, `min-`/`max-` sizes, `top`/`right`/`bottom`/`left`, `inset`") }
+                    Table.Cell { Markdown("`padding`, `margin` and every `padding-*` and `margin-*` property (physical and logical), `gap`, `row-gap`, `column-gap`, `width`, `height`, `min-width`, `max-width`, `min-height`, `max-height`, `top`, `right`, `bottom`, `left`, `inset` and `inset-*`") }
                     Table.Cell("spacing")
-                    Table.Cell { Markdown("`$lg` is `spacing-lg` (`xs` … `3xl`)") }
+                    Table.Cell { Markdown("`xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`") }
+                    Table.Cell { Markdown("`$lg` is `spacing-lg`") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`color`, `background`, `background-color`, `border-color`, `fill`, `stroke`") }
+                    Table.Cell { Markdown("`color`, `background`, `background-color`, `border-color`, `fill`, `stroke`, `outline`, `outline-color`, `text-decoration-color`, `caret-color`, `accent-color`, and the `border` shorthands (`border`, `border-top` … `border-inline-end`)") }
                     Table.Cell("colour")
-                    Table.Cell { Markdown("`$primary` is `color-primary` (`primary`, `secondary`, `success`, `danger`, `warning`, `info`, `background`, `surface`, `text`, `border`)") }
+                    Table.Cell { Markdown("`primary`, `secondary`, `success`, `danger`, `warning`, `info`, `background`, `surface`, `text`, `text-muted`, `border`") }
+                    Table.Cell { Markdown("`$primary` is `color-primary`") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`font-size`") }
                     Table.Cell("font size")
-                    Table.Cell { Markdown("`$xl` is `font-size-xl` (`xs`, `sm`, `base`, `lg`, `xl`, `2xl`, `3xl`)") }
+                    Table.Cell { Markdown("`xs`, `sm`, `base`, `lg`, `xl`, `2xl`, `3xl`") }
+                    Table.Cell { Markdown("`$xl` is `font-size-xl`") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`line-height`") }
                     Table.Cell("line height")
+                    Table.Cell { Markdown("`tight`, `normal`, `loose`") }
                     Table.Cell { Markdown("`$tight` is `line-height-tight`") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`border-radius`") }
                     Table.Cell("radius")
+                    Table.Cell { Markdown("`none`, `sm`, `md`, `lg`, `xl`, `full`") }
                     Table.Cell { Markdown("`$lg` is `radius-lg`") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`box-shadow`") }
                     Table.Cell("shadow")
+                    Table.Cell { Markdown("`none`, `sm`, `md`, `lg`, `xl`") }
                     Table.Cell { Markdown("`$md` is `shadow-md`") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`transition`") }
                     Table.Cell("transition")
+                    Table.Cell { Markdown("`fast`, `normal`, `slow`") }
                     Table.Cell { Markdown("`$fast` is `transition-fast`") }
                 }
             }
         }
 
-        Markdown("A full name — `$color-text-muted`, `$spacing-lg`, a token of your own — works in any property.")
+        Markdown("A short name your theme declares as a token of its own means that token, not the group's: with `md: 20px` in the theme, `$md` is `md` everywhere.\n\nA full name — `$color-text-muted`, `$spacing-lg`, a token of your own — works in any property.")
     }
 }

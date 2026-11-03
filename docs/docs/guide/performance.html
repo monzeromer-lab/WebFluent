@@ -23,7 +23,7 @@
     <meta name="twitter:title" content="Performance">
     <meta name="twitter:description" content="What a build does to be fast, wf build --stats, size budgets, paint timings from wf verify, and the few things that make a site slow.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/performance#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/performance","name":"Performance","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"What a build does to be fast, wf build --stats, size budgets, paint timings from wf verify, and the few things that make a site slow."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/performance#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Performance","item":"https://webfluent.monzeromer.dev/docs/guide/performance"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/performance#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/performance","name":"Performance","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"What a build does to be fast, wf build --stats, size budgets, paint timings from wf verify, and the few things that make a site slow."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/performance#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Performance","item":"https://webfluent.monzeromer.dev/docs/guide/performance"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -69,6 +69,9 @@
             </div>
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
+                    <a class="wf-sidebar__item" href="/docs">
+                        <p class="wf-text">Overview</p>
+                    </a>
                     <p class="wf-text group-label">Start</p>
                     <a class="wf-sidebar__item" href="/docs/guide/introduction">
                         <p class="wf-text num">01</p>
@@ -274,29 +277,43 @@
                 </aside>
                 <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
-                        <a class="wf-link" href="/docs/guide/introduction">Guide</a>
+                        <a class="wf-link" href="/docs">Guide</a>
                         <p class="wf-text">/</p>
                         <p class="wf-text wf-s8c71c534">Chapter 31</p>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s28a8547f">
                         <h1 class="wf-heading wf-sa3503382">Performance</h1>
-                        <p class="wf-text wf-sfd35f593">What a build already does to be fast, how to see what it weighs, budgets that warn, and the few things that make a site slow.</p>
+                        <p class="wf-text wf-sfd35f593">Learn what a build already does to be fast, see what it weighs, set budgets that warn, time pages in a browser, and avoid what makes a site slow.</p>
                     </div>
                     <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
-                            <h2 class="wf-heading" id="what-the-build-does-already">What the build does already</h2>
                             <div class="wf-markdown">
+<p>This chapter shows you how to keep a WebFluent site fast. Most of the work is already done by the build. Your part is to measure what it writes, set a limit that warns you when it grows, and avoid the few patterns that make a page slow.</p>
+<p>In this chapter:</p>
 <ul>
-<li><strong>Only the runtime you use.</strong> The runtime is a set of modules; a build keeps the ones its code reaches. A page of static text carries 3 of its 37 modules: an <code>app.js</code> of 11 kB, 3.7 kB gzipped.</li>
-<li><strong>A chunk per page.</strong> <code>build.split</code> (on by default) writes each page's code and styles as their own files, loaded when its route is first shown.</li>
-<li><strong>Pre-rendered HTML</strong> with <code>build.ssg</code>: the first paint needs no script.</li>
-<li><strong>One pruned stylesheet.</strong> Only the built-ins you use, only the tokens something names.</li>
-<li><strong>Precompressed.</strong> A <code>.gz</code> beside every text file, for a host that serves it; <code>wf serve</code> sends the same bytes, so Lighthouse against the dev server measures what a deploy sends.</li>
-<li><strong>Images at every width</strong>, with <code>width</code>/<code>height</code> so nothing shifts, a placeholder while they load, the first one eager and the rest lazy (<a href="/docs/guide/media">Media</a>).</li>
-<li><strong>Minified</strong> output (<code>build.minify</code>).</li>
+<li>What the build already does for you.</li>
+<li>See what a build weighs, and why each runtime module is in it.</li>
+<li>Set a size budget, and time each page in a real browser.</li>
+<li>Avoid the patterns that make a site slow.</li>
 </ul>
                             </div>
-                            <h2 class="wf-heading" id="seeing-what-it-weighs">Seeing what it weighs</h2>
+                            <h2 class="wf-heading" id="what-the-build-already-does">What the build already does</h2>
+                            <div class="wf-markdown">
+<p>You get these without setting anything:</p>
+<ul>
+<li><strong>Only the runtime you use.</strong> The <em>runtime</em> is the JavaScript the compiled pages call. It is a set of modules, and a build keeps only the ones its code reaches. A single-page build of one page of static text carries 2 of the 41 modules: an <code>app.js</code> of 18.9 kB, 6.5 kB gzipped.</li>
+<li><strong>A chunk per page.</strong> <code>build.split</code> (on by default) writes each page's code and styles as their own files, loaded the first time its route is shown.</li>
+<li><strong>Pre-rendered HTML.</strong> With <code>build.ssg</code>, each page's HTML is written at build time, so the first paint needs no script.</li>
+<li><strong>One pruned stylesheet.</strong> It holds the rules of only the built-ins you use, and only the design tokens something names.</li>
+<li><strong>Precompressed files.</strong> A <code>.gz</code> file sits beside every text file, for a host that serves it. <code>wf serve</code> sends the same bytes, so Lighthouse run against the dev server measures what a deploy sends.</li>
+<li><strong>Images at every width</strong>, with <code>width</code> and <code>height</code> so nothing shifts, a placeholder while they load, the first image eager and the rest lazy (<a href="/docs/guide/media">Media</a>).</li>
+<li><strong>Minified output.</strong> <code>build.minify</code> (on by default) strips comments and white space.</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading" id="see-what-a-build-weighs">See what a build weighs</h2>
+                            <div class="wf-markdown">
+<p>To see the size of everything a build writes, run the build with <code>--stats</code>:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -304,7 +321,10 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>wf build --stats</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>This is the output for the <a href="/docs/guide/tutorial">tutorial</a>'s site, trimmed:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -314,32 +334,44 @@
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">  What it weighs
-    app.js                               47.6 kB  (14.6 kB gzipped)  +20 B
-    styles.css                           16.9 kB  (3.7 kB gzipped)
-    index.html                            5.1 kB  (1.3 kB gzipped)
-    pages/Suggest.js                      2.2 kB  (0.8 kB gzipped)
-    pages/Home.js                         1.4 kB  (0.6 kB gzipped)
-    js/tilt.js                            0.6 kB  (0.4 kB gzipped)
+    app.js                               70.6 kB  (21.7 kB gzipped)
+    styles.css                           21.7 kB  (4.5 kB gzipped)
+    index.html                            5.2 kB  (1.3 kB gzipped)
+    suggest/index.html                    2.8 kB  (0.9 kB gzipped)
+    pages/Suggest.js                      2.2 kB  (0.9 kB gzipped)
+    pages/Home.js                         1.4 kB  (0.7 kB gzipped)
     …
-    total                                90.7 kB
+    total                               118.7 kB
 
-  Runtime: 14 of 37 modules, 89.3 kB of 220.3 kB (before minifying)
-    core          19.6 kB  always
-    motion        16.6 kB  needed by when, match, each, router
-    form          12.1 kB  WF.form
-    router        10.7 kB  WF.router
-    store          6.5 kB  WF.store
+  Runtime: 15 of 41 modules, 142.6 kB of 377.6 kB (before minifying)
+    core          38.1 kB  always
+    motion        19.5 kB  needed by when, match, each, router
+    router        15.4 kB  WF.router
+    form          13.4 kB  WF.form
+    hydrate       12.0 kB  WF.hydrating
+    each          10.3 kB  WF.each
+    store          9.0 kB  WF.store
+    keep           7.3 kB  needed by store
+    field          5.2 kB  WF.field
     …
     left out: helpers format offline peer scalars text slot show browser …
 
   Tokens: 26 nothing in the output names, left out</code>
                             </div>
                             <div class="wf-markdown">
-<p>The project's own scripts are listed by their path under <code>js/</code>, and <code>build.budget</code> may name one. They are copied as written — the build does not minify a file it promises to ship byte for byte.</p>
-<p>That is the <a href="/docs/guide/tutorial">tutorial</a>'s site: a form brings <code>form</code> and <code>field</code>, a store <code>store</code> and <code>keep</code>, a second page <code>router</code>.</p>
-<p>Each build records its sizes in <code>.wf-sizes.json</code>, so the next <code>--stats</code> shows what moved. Each runtime module is listed with what reached it — the first place to look when a module you did not expect is in.</p>
+<p>Read it in three parts:</p>
+<ul>
+<li><strong>What it weighs</strong> lists every text file with its gzipped size. The tutorial's form brings in <code>form</code> and <code>field</code>, its store brings in <code>store</code> and <code>keep</code>, and its second page brings in <code>router</code>.</li>
+<li><strong>Runtime</strong> lists each module with what reached it. When a module you did not expect is in the build, look here first.</li>
+<li><strong>Tokens</strong> counts the design tokens the build left out because nothing names them.</li>
+</ul>
+<p>Each build records its sizes in <code>.wf-sizes.json</code> beside the project, so the next <code>--stats</code> shows how each file moved since the last build (for example, <code>+20 B</code>).</p>
+<p>The project's own scripts are listed by their path under <code>js/</code>, such as <code>js/tilt.js</code> (<a href="/docs/guide/interop">JavaScript interop</a>). The build copies them as written: it does not minify a file it promises to ship byte for byte.</p>
                             </div>
-                            <h2 class="wf-heading" id="budgets">Budgets</h2>
+                            <h2 class="wf-heading" id="set-a-size-budget">Set a size budget</h2>
+                            <div class="wf-markdown">
+<p>To be warned when a file grows past a size, name its gzipped limit in <code>build.budget</code>:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -347,12 +379,15 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">{ &quot;build&quot;: { &quot;budget&quot;: { &quot;app.js&quot;: &quot;40 kB&quot;, &quot;styles.css&quot;: &quot;30 kB&quot;, &quot;pages/Home.js&quot;: &quot;10 kB&quot; } } }</code>
+                                <code class="wf-code wf-code--block wf-sa8223565">{ <span class="wf-tok-prop">&quot;build&quot;</span>: { <span class="wf-tok-prop">&quot;budget&quot;</span>: { <span class="wf-tok-prop">&quot;app.js&quot;</span>: <span class="wf-tok-str">&quot;40 kB&quot;</span>, <span class="wf-tok-prop">&quot;styles.css&quot;</span>: <span class="wf-tok-str">&quot;30 kB&quot;</span>, <span class="wf-tok-prop">&quot;pages/Home.js&quot;</span>: <span class="wf-tok-str">&quot;10 kB&quot;</span> } } }</code>
                             </div>
                             <div class="wf-markdown">
-<p>A gzipped size an output should stay under. Going over prints a warning and the build goes on; a CI job that wants to fail on it can read the same numbers.</p>
+<p>Any output may have a budget, including a page's chunk and one of your own scripts under <code>js/</code>. A build over budget prints a warning and goes on. A CI job that should fail on it can read the same numbers.</p>
                             </div>
-                            <h2 class="wf-heading" id="timing-it-in-a-browser">Timing it in a browser</h2>
+                            <h2 class="wf-heading" id="time-pages-in-a-browser">Time pages in a browser</h2>
+                            <div class="wf-markdown">
+<p>To measure how fast each page paints, build the site and run <code>wf verify</code> with a budget in milliseconds:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -360,23 +395,106 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>wf build &amp;&amp; wf verify --budget 800</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>wf verify</code> loads every route in headless Chrome and prints its first contentful paint, the nodes in the document and the bytes and requests it took; <code>--budget</code> fails a route slower than that. Lighthouse and the browser's performance panel work on the build as on any site.</p>
+<p><code>wf verify</code> loads every route in headless Chrome. For each route it prints the first contentful paint, the number of nodes in the document, and the bytes and requests it took. <code>--budget 800</code> fails a route whose first paint is slower than 800 ms. Lighthouse and the browser's performance panel work on the build as on any other site.</p>
                             </div>
-                            <h2 class="wf-heading" id="what-makes-a-site-slow">What makes a site slow</h2>
+                            <h2 class="wf-heading" id="avoid-what-makes-a-site-slow">Avoid what makes a site slow</h2>
                             <div class="wf-markdown">
-<ul>
-<li><strong>A large <code>data</code> file.</strong> <code>data posts = &quot;posts.json&quot;</code> is inlined into the bundle, so a 2 MB file is 2 MB of JavaScript. Keep build-time data to what pages show; fetch the rest, or split it across pages that each read one.</li>
-<li><strong>A waterfall of fetches.</strong> A resource whose URL depends on another's answer waits for it. Where you can, ask for both at once, or have the server send them together.</li>
-<li><strong>Layout decided by <code>viewport</code>.</strong> It is unknown until the script runs, so the page paints one branch and swaps. Use responsive values, which are CSS.</li>
-<li><strong><code>runtime: &quot;full&quot;</code>.</strong> It ships every module. Only needed when a hand-written script calls <code>WF</code> in ways the build cannot see.</li>
-<li><strong>Web fonts.</strong> Each weight is a download. Use <code>display=swap</code>, few weights, or the baseline's system fonts.</li>
-<li><strong>Unkeyed lists that change.</strong> <code>for item in items</code> rebuilds the list; <code>for item in items by item.id</code> moves the nodes that stayed.</li>
-<li><strong>Pictures from <code>public/</code>.</strong> They are copied as they are. Declare them with <code>image</code> to get every width and a placeholder.</li>
-</ul>
+<p>These are the patterns that slow a WebFluent site down, and what to do instead:</p>
                             </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Avoid what makes a site slow</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Pattern</th>
+                                        <th scope="col">Why it is slow</th>
+                                        <th scope="col">Do this instead</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A large <code>data</code> file</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>data posts = &quot;posts.json&quot;</code> is inlined into the bundle, so a 2 MB file is 2 MB of JavaScript</p>
+                                            </div>
+                                        </td>
+                                        <td>Keep build-time data to what pages show. Fetch the rest, or split it across pages that each read one file</td>
+                                    </tr>
+                                    <tr>
+                                        <td>A waterfall of fetches</td>
+                                        <td>A resource whose URL depends on another&#x27;s answer waits for that answer</td>
+                                        <td>Ask for both at once, or have the server send them together</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Layout decided by <code>viewport</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>viewport</code> is unknown until the script runs, so the page paints one branch and then swaps it</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Use <a href="/docs/guide/styling#responsive-values">responsive values</a>, which are CSS</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&quot;runtime&quot;: &quot;full&quot;</code></p>
+                                            </div>
+                                        </td>
+                                        <td>It ships every module</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Use it only when a hand-written script calls <code>WF</code> in ways the build cannot see, or an icon's name arrives at run time</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Web fonts</td>
+                                        <td>Each weight is a download</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Use <code>display=swap</code> and few weights, or the baseline's system fonts</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>An unkeyed list that changes</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>for item in items</code> rebuilds the list</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Key it: <code>for item in items by item.id</code> moves the nodes that stayed</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Pictures the build cannot process</td>
+                                        <td>An SVG, a URL or a path built at run time is used as written: one size, no placeholder</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Use a literal <code>src:</code> into <code>public/</code>, or declare the picture with <code>image</code> (<a href="/docs/guide/media">Media</a>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                     <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
@@ -393,11 +511,11 @@
                 <div class="wf-stack wf-gap--lg wf-sac91c322" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
-                        <a class="wf-link wf-s3e136ca4" href="#what-the-build-does-already">What the build does already</a>
-                        <a class="wf-link wf-s3e136ca4" href="#seeing-what-it-weighs">Seeing what it weighs</a>
-                        <a class="wf-link wf-s3e136ca4" href="#budgets">Budgets</a>
-                        <a class="wf-link wf-s3e136ca4" href="#timing-it-in-a-browser">Timing it in a browser</a>
-                        <a class="wf-link wf-s3e136ca4" href="#what-makes-a-site-slow">What makes a site slow</a>
+                        <a class="wf-link wf-s3e136ca4" href="#what-the-build-already-does">What the build already does</a>
+                        <a class="wf-link wf-s3e136ca4" href="#see-what-a-build-weighs">See what a build weighs</a>
+                        <a class="wf-link wf-s3e136ca4" href="#set-a-size-budget">Set a size budget</a>
+                        <a class="wf-link wf-s3e136ca4" href="#time-pages-in-a-browser">Time pages in a browser</a>
+                        <a class="wf-link wf-s3e136ca4" href="#avoid-what-makes-a-site-slow">Avoid what makes a site slow</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-s614f8b98">

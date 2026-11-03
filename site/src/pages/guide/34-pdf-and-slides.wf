@@ -1,10 +1,31 @@
 /// Chapter 34 of the guide, written from md-docs/34-pdf-and-slides.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page PdfAndSlidesGuide(path: "/docs/guide/pdf-and-slides", title: "PDF and slides", description: "PDF documents and slide decks — the paged engine, CSS layout, fonts, Arabic, headers, page numbers, contents, charts and QR codes.", layout: DocsShell("PDF and slides", chapter: t("guide.chapter", { n: "34" }), blurb: "The same language, compiled to a paginated PDF document or a slide deck — invoices, reports and talks, laid out like the web.", source: "md-docs/34-pdf-and-slides.md", sections: [Anchor(id: "the-engine", label: "The engine"), Anchor(id: "pdf-documents", label: "PDF documents"), Anchor(id: "slide-decks", label: "Slide decks")], prevTo: "/docs/guide/desktop", prevLabel: "33. {t("ch.33")}", nextTo: "/docs/guide/server-rendering", nextLabel: "35. {t("ch.35")}")) {
+page PdfAndSlidesGuide(path: "/docs/guide/pdf-and-slides", title: "PDF and slides", description: "Make PDF documents and slide decks: the paged engine, CSS layout, page breaks, fonts, Arabic, headers, page numbers, contents, charts and QR codes.", layout: DocsShell("PDF and slides", chapter: t("guide.chapter", { n: "34" }), blurb: "Compile the same language to a paginated PDF document or a slide deck — invoices, reports and talks, laid out with CSS as on the web.", source: "md-docs/34-pdf-and-slides.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "choose-what-the-build-writes", label: "Choose what the build writes"), Anchor(id: "the-paged-engine", label: "The paged engine"), Anchor(id: "make-a-pdf-document", label: "Make a PDF document"), Anchor(id: "make-a-slide-deck", label: "Make a slide deck"), Anchor(id: "troubleshooting", label: "Troubleshooting")], prevTo: "/docs/guide/desktop", prevLabel: "33. {t("ch.33")}", nextTo: "/docs/guide/server-rendering", nextLabel: "35. {t("ch.35")}")) {
     Stack(gap: .lg) {
-        Markdown("The same language compiles to paper. `build.output_type` in `webfluent.app.json` chooses what `wf build` writes:")
+        Markdown("This chapter shows you how to compile a WebFluent project to paper: a paginated PDF document, such as an invoice or a report, or a slide deck for a talk. You write the pages with the same elements and the same CSS as a website, and `wf build` lays them out on pages.\n\nIn this chapter:\n\n- choosing what the build writes;\n- how the paged engine lays out a page;\n- making a PDF document: paper, headers, page breaks, contents, charts, fonts and right-to-left text;\n- making a slide deck.")
 
-        Table(caption: "PDF and slides") {
+        Heading("Before you start", id: "before-you-start").h2
+
+        Markdown("You need a WebFluent project. To start one already set up for paper, run one of these commands:")
+
+        Terminal(lines: [
+                Line(command: "wf init my-report --template pdf"),
+                Line(command: "wf init my-deck --template slides")
+            ])
+
+        Markdown("Then run `wf build` in the project's folder. The build prints the page count and writes one file, `build/<name>.pdf`, named after the project unless `output_filename` says otherwise:")
+
+        CodeBlock(#"  PDF: 45586 bytes, 3 page(s)
+  Output: ./build/my-report.pdf
+Build complete."#, title: "text")
+
+        Markdown("To produce one PDF per invoice from data, use the same templates with [server rendering](/docs/guide/server-rendering) instead.")
+
+        Heading("Choose what the build writes", id: "choose-what-the-build-writes").h2
+
+        Markdown("`build.output_type` in `webfluent.app.json` chooses what `wf build` writes:")
+
+        Table(caption: "Choose what the build writes") {
             Table.Head {
                 Table.Row {
                     Table.Cell("Output").header
@@ -15,8 +36,8 @@ page PdfAndSlidesGuide(path: "/docs/guide/pdf-and-slides", title: "PDF and slide
             Table.Body {
                 Table.Row {
                     Table.Cell("A website")
-                    Table.Cell { Markdown("`spa` (default), with `build.ssg` for static pages; or `static`, which is the same as `ssg`") }
-                    Table.Cell { Markdown("HTML, CSS and JavaScript ([chapter 26](/docs/guide/static-and-spa))") }
+                    Table.Cell { Markdown("`spa` (default), with `build.ssg` for pre-rendered pages; or `static`, which is the same as `ssg`") }
+                    Table.Cell { Markdown("HTML, CSS and JavaScript ([Static sites and SPAs](/docs/guide/static-and-spa))") }
                 }
                 Table.Row {
                     Table.Cell("PDF document")
@@ -26,23 +47,23 @@ page PdfAndSlidesGuide(path: "/docs/guide/pdf-and-slides", title: "PDF and slide
                 Table.Row {
                     Table.Cell("Slide deck")
                     Table.Cell { Markdown("`slides`") }
-                    Table.Cell { Markdown("One `.pdf`, a slide per page") }
+                    Table.Cell { Markdown("One `.pdf`, one slide per page") }
                 }
                 Table.Row {
                     Table.Cell("Custom elements")
                     Table.Cell { Markdown("`elements`") }
-                    Table.Cell { Markdown("`elements.js` for other frameworks ([chapter 32](/docs/guide/interop#publishing-your-components-as-custom-elements))") }
+                    Table.Cell { Markdown("`elements.js` for other frameworks ([JavaScript interop](/docs/guide/interop#publish-your-components-as-custom-elements))") }
                 }
             }
         }
 
-        Markdown("To produce one PDF per invoice from data, use [server rendering](/docs/guide/server-rendering) with the same templates.")
+        Heading("The paged engine", id: "the-paged-engine").h2
 
-        Heading("The engine", id: "the-engine").h2
+        Markdown("A PDF is the page, printed. The compiler renders the program to the same static HTML and CSS a template renders, then lays that HTML out on paper itself, with no browser and no external tool. The engine covers five areas:\n\n- **The page's own stylesheet.** The engine's rules for every built-in, the theme's tokens, every `.css` file under `src/` and every `style \{ \}` block go through a real CSS cascade. It supports selectors with descendant, child and sibling combinators, attribute selectors, `:first-child`/`:nth-child`, `:not()`, `:is()` and `:where()`; specificity; inheritance; `var()`; and `em`, `rem` and `%`. A `Card` in a PDF looks like the `Card` on the page, and a class of your own (`class: \"callout\"`) brings its rules with it. `@media print` applies; rules only a screen has (`:hover`, a media query on width) do not.\n- **Layout.** Block, flex and grid work as CSS defines them — `Row`, `Stack`, `Grid` and `Column` sit side by side exactly as on the web — with absolute positioning, `gap`, `min-`/`max-` sizes, `aspect-ratio`, inline-blocks on a line of text (a badge in a sentence), tables sized by their content, and list markers.\n- **Text.** Every run is shaped (ligatures, kerning, Arabic joining, combining marks), set right to left where the language is, broken at Unicode's line-break opportunities, and aligned or justified. A word too long for its line is cut rather than overflowing.\n- **Paint.** Backgrounds (colours, linear and radial gradients with any number of stops, pictures), borders per side (solid, dashed, dotted) with rounded corners, shadows, opacity, `overflow: hidden`, `transform: rotate()`, and pictures with their transparency — PNG, JPEG (embedded as it is), WebP, GIF, and SVG, which stays vector.\n- **The file.** Fonts are embedded as subsets with the text attached, so a reader can copy and search it. The file is compressed, carries its title and author, has an outline of its headings in the reader's sidebar, and its links work.")
 
-        Markdown("A PDF is the page, printed. The compiler renders the program to the same static HTML and CSS a template renders, then lays that out on paper itself — no browser, no external tool:\n\n- **The page's own stylesheet.** The engine's rules for every built-in, the theme's tokens, every `.css` file under `src/` and every `style \{ \}` block, through a real CSS cascade: selectors with descendant, child and sibling combinators, attribute selectors, `:first-child`/`:nth-child`, `:not()`, `:is()` and `:where()`, specificity, inheritance, `var()`, `em`, `rem` and `%`. A `Card` in a PDF looks like the `Card` on the page, and a class of your own (`class: \"callout\"`) brings its rules with it. `@media print` applies; rules only a screen has (`:hover`, a media query on width) do not.\n- **Layout.** Block, flex and grid as CSS defines them — `Row`, `Stack`, `Grid` and `Column` side by side exactly as on the web — with absolute positioning, `gap`, `min-`/`max-` sizes, `aspect-ratio`, inline-blocks on a line of text (a badge in a sentence), tables sized by their content, and list markers.\n- **Text.** Every run shaped (ligatures, kerning, Arabic joining, combining marks), set right to left where the language is, broken at Unicode's line-break opportunities, aligned or justified. A word too long for its line is cut rather than overflowing.\n- **Paint.** Backgrounds (colours, linear and radial gradients with any number of stops, pictures), borders per side (solid, dashed, dotted) with rounded corners, shadows, opacity, `overflow: hidden`, `transform: rotate()`, and pictures with their transparency — PNG, JPEG (embedded as it is), WebP, GIF and SVG, which stays vector.\n- **The file.** Fonts embedded as subsets with the text attached, so a reader copies and searches it; compressed; with its title and author; an outline of its headings in the reader's sidebar; links that work.")
+        Heading("Make a PDF document", id: "make-a-pdf-document").h2
 
-        Heading("PDF documents", id: "pdf-documents").h2
+        Markdown("To build a PDF, set `output_type` to `pdf`. The `pdf` key sets the paper, margins (in points) and default font for every document in the project:")
 
         CodeBlock(#"{
   "build": {
@@ -57,7 +78,7 @@ page PdfAndSlidesGuide(path: "/docs/guide/pdf-and-slides", title: "PDF and slide
   }
 }"#, title: "json")
 
-        Markdown("A PDF page holds a `Document`; everything inside it flows from page to page:")
+        Markdown("A PDF page holds a `Document`, and everything inside it flows from page to page. This invoice has a header on every page but the first, a page number in the footer, a watermark, a table, and a totals card that is never split:")
 
         CodeBlock(#"type Line { item: String, qty: Number, price: Number }
 
@@ -67,7 +88,7 @@ const LINES: [Line] = [
 ]
 
 page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
-    derived total = LINES.reduce((sum, l) => sum + l.qty * l.price, 0)
+    derived total = LINES.map(l => l.qty * l.price).sum()
     Document(size: "A4", title: "Invoice 2026-014", author: "Acme Studio") {
         Header(on: .rest) { Text("Acme Studio · invoice 2026-014").muted.sm.right }
         Footer { Text("Page {page} of {pages}").muted.sm.center }
@@ -105,19 +126,56 @@ page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
     }
 }"#, title: "wf")
 
-        Heading("Pages", id: "pages").h3
+        Markdown("The result is a two-page PDF: the invoice on the first page, ending with `Total: $5,480.00`, and the terms on the second, under the header.")
 
-        Markdown("- **`Document(size:, landscape, margin:, title:, author:, subject:, keywords:, lang:)`** — the paper (`A4`, `A3`, `A5`, `Letter`, `Legal`, `Tabloid`, or two lengths: `\"210mm 297mm\"`), its margins (one length or four, `\"20mm 25mm\"`), and what the file says about itself. Without them, `build.pdf` decides.\n- **`Header`** and **`Footer`** are drawn in the top and bottom margins of every page, or of those `on:` names — `.all` (the default), `.first`, `.rest`, `.odd`, `.even`. Inside them, `page` and `pages` are the page's number and the count: `Text(\"Page \{page\} of \{pages\}\")`.\n- **`Background`** is drawn behind each page's content, the size of the whole page, margins and all: a cover's full-bleed gradient, a coloured band, a sidebar strip that runs down every page. It takes `on:` too.\n- **`Watermark(\"DRAFT\")`** — large, faint, rotated text behind each page; its look is the rule `.wf-watermark`, which a stylesheet may change.\n- **`PageBreak`** starts a new page; so do `break-before: page` and `break-after: page` in a style.\n\nThe page's background — the `html` or `body` rule's — fills every page, edge to edge, so a dark theme prints dark.")
+        Heading("Set the paper, headers and footers", id: "set-the-paper-headers-and-footers").h3
 
-        Heading("Breaking across pages", id: "breaking-across-pages").h3
+        Markdown("These elements shape every page of a document:")
 
-        Markdown("Content flows onto as many pages as it needs, and never through the middle of a line of text:\n\n- Paragraphs break between lines, keeping at least two on each side (`orphans`, `widows`).\n- Tables break between rows, and **the header row is drawn again** at the top of every page the table continues on.\n- A grid breaks between its rows; a row of cards moves to the next page together.\n- Side-by-side columns taller than a page break each on its own, and what follows waits for the longer.\n- A heading never ends a page: it moves with what follows.\n- `break-inside: avoid` keeps a box whole (a totals block, a signature).\n- A box that runs onto the next page is painted on both, its border open at the break.")
+        Table(caption: "Set the paper, headers and footers") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Element").header
+                    Table.Cell("What it does").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`Document(size:, landscape, margin:, title:, author:, subject:, keywords:, lang:)`") }
+                    Table.Cell { Markdown("The paper (`A4`, `A3`, `A5`, `Letter`, `Legal`, `Tabloid`, or two lengths: `\"210mm 297mm\"`), its margins (one length or four, `\"20mm 25mm\"`), and what the file says about itself. What it leaves out, `build.pdf` decides") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Header`, `Footer`") }
+                    Table.Cell { Markdown("Drawn in the top and bottom margins of every page, or of the pages `on:` names: `.all` (the default), `.first`, `.rest`, `.odd`, `.even`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Background`") }
+                    Table.Cell { Markdown("Drawn behind each page's content, the size of the whole page, margins and all: a cover's full-bleed gradient, a coloured band, a sidebar strip that runs down every page. It takes `on:` too") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Watermark(\"DRAFT\")`") }
+                    Table.Cell { Markdown("Large, faint, rotated text behind each page. Its look is the rule `.wf-watermark`, which a stylesheet may change") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`PageBreak`") }
+                    Table.Cell { Markdown("Starts a new page; so do `break-before: page` and `break-after: page` in a style") }
+                }
+            }
+        }
 
-        Heading("Tables of contents, links and the outline", id: "tables-of-contents-links-and-the-outline").h3
+        Markdown("Inside a `Header`, `Footer` or `Background`, `page` and `pages` are the page's number and the page count: `Text(\"Page \{page\} of \{pages\}\")`.\n\nThe page's background — the `html` or `body` rule's — fills every page, edge to edge, so a dark theme prints dark.")
 
-        Markdown("`TableOfContents(levels: 2)` lists the document's headings with the page each one lands on, dotted leaders between them, each entry a link to its heading. The engine lays the document out, learns where every heading landed, and fills the numbers in. `title:` puts a heading above it.\n\nA `Link` is a link: to a URL, or `to: \"#terms\"` to the element whose `id:` is `terms`. Every heading appears in the reader's outline, nested by level.")
+        Heading("Control where pages break", id: "control-where-pages-break").h3
 
-        Heading("Charts and QR codes", id: "charts-and-qr-codes").h3
+        Markdown("Content flows onto as many pages as it needs, and never breaks through the middle of a line of text. The engine follows these rules:\n\n- Paragraphs break between lines, keeping at least two on each side (`orphans`, `widows`).\n- Tables break between rows, and **the header row is drawn again** at the top of every page the table continues on.\n- A grid breaks between its rows; a row of cards moves to the next page together.\n- Side-by-side columns taller than a page break each on its own, and what follows waits for the longer column.\n- A heading never ends a page: it moves with what follows.\n- A box that runs onto the next page is painted on both, its border open at the break.\n\nTo keep a box whole — a totals block, a signature — give it `break-inside: avoid`, as the invoice's totals card does. To start a new page, place `PageBreak`.")
+
+        Heading("Add a table of contents, links and an outline", id: "add-a-table-of-contents-links-and-an-outline").h3
+
+        Markdown("`TableOfContents(levels: 2)` lists the document's headings with the page each one lands on, dotted leaders between them, and each entry a link to its heading. The engine lays the document out, learns where every heading landed, and fills in the numbers. `title:` puts a heading above the list.\n\nA `Link` is a link in the PDF too: to a URL, or `to: \"#terms\"` to the element whose `id:` is `terms`. Every heading appears in the reader's outline, nested by level.")
+
+        Heading("Draw charts and QR codes", id: "draw-charts-and-qr-codes").h3
+
+        Markdown("This report draws a grouped bar chart, a donut chart and a QR code from a constant list of records:")
 
         CodeBlock(#"const SALES = [
     { month: "Jan", web: 41, store: 22 },
@@ -134,17 +192,68 @@ page Report(path: "/", title: "Sales", description: "The quarter.") {
     }
 }"#, title: "wf")
 
-        Markdown("`Chart` draws `.bar` (grouped, or `stacked`), `.line`, `.area`, `.pie` and `.donut` over a list of records, as vector graphics: `x` names each row's label, `y` its value or a list of values (one series each); `colors`, `ink` (labels), `grid`, `legend`, `labels` (values on bars and slices), `unit`, and `width`/`height` in user units — it scales to its box, so draw a narrow chart narrower for larger text. `QrCode(value, color:, background:)` encodes a URL or any text. Both work on a web page too, as an SVG drawn when the page is built — there, what they read must be known at build time (a literal, a `const`, a `data` file).")
+        Markdown("`Chart` draws a list of records as vector graphics. It takes these props:")
 
-        Heading("Fonts and languages", id: "fonts-and-languages").h3
+        Table(caption: "Draw charts and QR codes") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Prop").header
+                    Table.Cell("What it sets").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`kind`") }
+                    Table.Cell { Markdown("`.bar` (grouped, or `stacked`), `.line`, `.area`, `.pie` or `.donut`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`x`") }
+                    Table.Cell("The field that names each row's label")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`y`") }
+                    Table.Cell("The field that holds each row's value, or a list of fields (one series each)")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`colors`, `ink`") }
+                    Table.Cell("The series' colours, and the colour of the labels")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`grid`, `legend`") }
+                    Table.Cell("Whether to draw grid lines and a legend")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`labels`") }
+                    Table.Cell("Values written on bars and slices")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`unit`") }
+                    Table.Cell("A unit after each value")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`width`, `height`") }
+                    Table.Cell("The size in user units. The chart scales to its box, so draw a narrow chart narrower for larger text")
+                }
+            }
+        }
 
-        Markdown("The default faces are Liberation Sans, Serif and Mono — the metric twins of Helvetica, Times and Courier — built into `wf`, so `Helvetica`, `Arial`, `system-ui`, `sans-serif`, `Times`, `serif`, `Courier` and `monospace` all resolve without anything installed, with Latin, Greek and Cyrillic.\n\nAny other family is a file: put `.ttf` or `.otf` files under the project's `fonts/` (or `src/fonts/`, or name them in `pdf.fonts`), and the theme's `font-family: Manrope, sans-serif` uses them by the family name inside the file. Variable fonts are drawn at the weight a style asks for; a weight or an italic a family does not have is synthesised. A font a stylesheet's `@font-face` names, from a local file, is used too.\n\nA character no named face has is drawn from one that has it — the project's fonts first, then the machine's. The build says which families came from the machine, so a document can be made the same everywhere by copying them into `fonts/`; `\"system_fonts\": false` forbids it, and a character no font has is reported, never drawn as `?`.\n\nA document whose `lang` is right to left (`ar`, `he`, `fa`, `ur`) is laid out right to left — text, flex rows, grids, table columns, list markers — and a run of the other direction inside it is ordered by the Unicode bidirectional algorithm.\n\nA code or a figure written in Latin characters inside Arabic text — an invoice number like `2026-0417`, a product code — can come out with its parts in the wrong order, because the bidirectional algorithm reads the hyphen as part of the right-to-left text around it. Give it a run of its own that says it is left to right: `Text(\"2026-0417\", class: \"ltr\")` with `.ltr \{ direction: ltr; unicode-bidi: isolate; \}` in the project's CSS, on a page and in a PDF alike.")
+        Markdown("`QrCode(value, color:, background:)` encodes a URL or any text.\n\nBoth work on a web page too, as an SVG drawn when the page is built. There, what they read must be known at build time — a literal, a `const` or a `data` file — or the build reports `E109`.")
+
+        Heading("Use your own fonts", id: "use-your-own-fonts").h3
+
+        Markdown("The default faces are Liberation Sans, Serif and Mono — the metric twins of Helvetica, Times and Courier — built into `wf`. So `Helvetica`, `Arial`, `system-ui`, `sans-serif`, `Times`, `serif`, `Courier` and `monospace` all resolve with nothing installed, and cover Latin, Greek and Cyrillic.\n\nTo use any other family, add its file:\n\n1. Put `.ttf` or `.otf` files under the project's `fonts/` folder (or `src/fonts/`, or name them in `pdf.fonts`).\n2. Name the family as the file names it, for example in the theme: `font-family: Manrope, sans-serif`.\n\nVariable fonts are drawn at the weight a style asks for. A weight or an italic a family does not have is synthesised. A font a stylesheet's `@font-face` names, from a local file, is used too.\n\nA character no named face has is drawn from a face that has it — the project's fonts first, then the machine's. The build names, in a `note:` line, each family it took from the machine, so you can make the document the same everywhere by copying those fonts into `fonts/`. To forbid the machine's fonts, set `\"system_fonts\": false`. A character no font has is reported, never drawn as `?`.")
+
+        Heading("Lay out a right-to-left document", id: "lay-out-a-right-to-left-document").h3
+
+        Markdown("A document whose `lang` is right to left (`ar`, `he`, `fa`, `ur`) is laid out right to left — text, flex rows, grids, table columns, list markers. A run of the other direction inside it is ordered by the Unicode bidirectional algorithm.\n\nA code or a figure written in Latin characters inside Arabic text — an invoice number like `2026-0417`, a product code — can come out with its parts in the wrong order. The bidirectional algorithm reads the hyphen as part of the right-to-left text around it. To fix it, give the code a run of its own that says it is left to right: `Text(\"2026-0417\", class: \"ltr\")`, with `.ltr \{ direction: ltr; unicode-bidi: isolate; \}` in the project's CSS. The fix works on a web page and in a PDF alike.")
 
         Heading("What a PDF does not draw", id: "what-a-pdf-does-not-draw").h3
 
-        Markdown("Everything static draws. What only means something in a browser is refused where it is written (`E109`): controls (`Button`, `Input`, `Form`, …), navigation (`Router`, `Navbar`, `Tabs`, `Menu`), overlays (`Modal`, `Dialog`, `Toast`, `Tooltip`), media that plays (`Video`, `Audio`, `Carousel`), elements a script draws (`Host`, `Element`, `Portal`), handlers, `resource`, motion.\n\n`wf init my-report --template pdf` scaffolds one.")
+        Markdown("Everything static draws. What only means something in a browser is refused where it is written, with `E109`:\n\n- controls (`Button`, `Input`, `Form`, …);\n- navigation (`Router`, `Navbar`, `Tabs`, `Menu`);\n- overlays (`Modal`, `Dialog`, `Toast`, `Tooltip`);\n- media that plays (`Video`, `Audio`, `Carousel`);\n- elements a script draws (`Host`, `Element`, `Portal`);\n- handlers, `resource` and motion.")
 
-        Heading("Slide decks", id: "slide-decks").h2
+        Heading("Make a slide deck", id: "make-a-slide-deck").h2
+
+        Markdown("To build a deck, set `output_type` to `slides`. The `slides` key sets the deck's size and its chrome:")
 
         CodeBlock(##"{
   "build": {
@@ -157,6 +266,8 @@ page Report(path: "/", title: "Sales", description: "The quarter.") {
     }
   }
 }"##, title: "json")
+
+        Markdown("A deck is a `Presentation` inside a page. This deck uses every kind of slide, and restyles the last one with a gradient:")
 
         CodeBlock(#"page Deck(path: "/", title: "Q4 review", description: "The quarter in slides.") {
     Presentation {
@@ -188,6 +299,127 @@ page Report(path: "/", title: "Sales", description: "The quarter.") {
     }
 }"#, title: "wf")
 
-        Markdown("- A deck is laid out by the same engine, a slide to a page: a slide is a box the size of the page, its `slides.margin` its padding (which a rule of the deck's own overrides), and what runs past its edge is clipped, with a note naming the slide.\n- A `Presentation` holds slides, a `for` or an `if` over them, and components whose body is a slide: a deck writes its section openers, headings and footers once, and makes a slide per item of its data. A page's `derived` values are worked out before it is drawn, so a slide can show a figure computed from a `data` file.\n- Kinds: `Slide \{ \}` freeform (a column); `TitleSlide(title, subtitle:)` centred; `SectionSlide(label).primary/.success/.danger/.warning/.info` full-bleed; `TwoColumn \{ … \}` two equal columns; `ImageSlide(src:, caption:)`. Each is styled by the engine's sheet, and a project's rules or a `style \{ \}` change it as anywhere.\n- `slides.size`: `16:9` (default, 960×540pt), `4:3` (720×540), `A4-landscape` (841.89×595.28), or `WIDTHxHEIGHT` in points; `slides.width` and `slides.height` override it outright.\n- `show_slide_numbers`, `footer_text` and `chrome_color` add the chrome (the colour flips between dark and light on the slide's background when unset). `default_font`, `default_font_size` (24pt — every size in the engine's slide rules is relative to it) and `output_filename` are the deck's own.\n- Everything a document draws, a slide draws: layout, charts, pictures, tables, Arabic.\n\n`wf init my-deck --template slides` scaffolds one.")
+        Markdown("The result is a six-page PDF, one slide per page.")
+
+        Heading("Write the slides", id: "write-the-slides").h3
+
+        Markdown("A deck is laid out by the same engine, one slide to a page. A slide is a box the size of the page, with `slides.margin` as its padding (a rule of the deck's own overrides it). What runs past a slide's edge is clipped, with a note naming the slide.\n\nThe slide kinds:")
+
+        Table(caption: "Write the slides") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Element").header
+                    Table.Cell("What it draws").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`Slide \{ … \}`") }
+                    Table.Cell("A freeform slide, laid out as a column from the top")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`TitleSlide(title, subtitle:)`") }
+                    Table.Cell("A cover, centred")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`SectionSlide(label)`") }
+                    Table.Cell { Markdown("A full-bleed band; `.primary`, `.success`, `.danger`, `.warning` or `.info`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`TwoColumn \{ … \}`") }
+                    Table.Cell("Two equal columns")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`ImageSlide(src:, caption:)`") }
+                    Table.Cell("A picture with an optional caption")
+                }
+            }
+        }
+
+        Markdown("Each kind is styled by the engine's sheet, and a project's rules or a `style \{ \}` block change it as anywhere. Everything a document draws, a slide draws: layout, charts, pictures, tables, Arabic.\n\nA `Presentation` holds slides, a `for` or an `if` over them, and components whose body is a slide. So a deck writes its section openers, headings and footers once, and makes a slide per item of its data. A page's `derived` values are worked out before the deck is drawn, so a slide can show a figure computed from a `data` file.")
+
+        Heading("Size and frame the deck", id: "size-and-frame-the-deck").h3
+
+        Markdown("These keys under `build.slides` set the deck's size and chrome:")
+
+        Table(caption: "Size and frame the deck") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Key").header
+                    Table.Cell("What it sets").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`size`") }
+                    Table.Cell { Markdown("`16:9` (default, 960×540pt), `4:3` (720×540), `A4-landscape` (841.89×595.28), or `WIDTHxHEIGHT` in points") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`width`, `height`") }
+                    Table.Cell { Markdown("Override `size` outright") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`show_slide_numbers`") }
+                    Table.Cell { Markdown("Draws `n / total` in the bottom right") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`footer_text`") }
+                    Table.Cell("Text in the bottom left")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`chrome_color`") }
+                    Table.Cell("The colour of the numbers and footer; when unset, it flips between dark and light on each slide's background")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`background_color`") }
+                    Table.Cell("Paints every slide")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`default_font`, `default_font_size`") }
+                    Table.Cell("The deck's font, and its size (24pt). Every size in the engine's slide rules is relative to it")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`output_filename`") }
+                    Table.Cell("The file the build writes")
+                }
+            }
+        }
+
+        Heading("Troubleshooting", id: "troubleshooting").h2
+
+        Table(caption: "Troubleshooting") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("What you see").header
+                    Table.Cell("What to do").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`E109` on a `Button`, a handler or a `resource`") }
+                    Table.Cell("Remove it from the document or deck: a PDF has nothing to run it")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`E109` on a `Chart` or `QrCode` in a web page") }
+                    Table.Cell { Markdown("Give it data known at build time: a literal, a `const` or a `data` file") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("A `note:` names a family taken from the machine") }
+                    Table.Cell { Markdown("Copy that font into `fonts/` so the document is the same on every machine") }
+                }
+                Table.Row {
+                    Table.Cell("A note says a slide was clipped")
+                    Table.Cell("Shorten the slide, or split it in two")
+                }
+                Table.Row {
+                    Table.Cell("A totals block or signature is split across two pages")
+                    Table.Cell { Markdown("Add `break-inside: avoid` to its `style \{ \}`") }
+                }
+                Table.Row {
+                    Table.Cell("A Latin code in Arabic text shows its parts out of order")
+                    Table.Cell { Markdown("Give it a left-to-right run (see [Lay out a right-to-left document](#lay-out-a-right-to-left-document))") }
+                }
+            }
+        }
     }
 }

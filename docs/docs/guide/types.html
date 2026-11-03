@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Types</title>
-    <meta name="description" content="The type language, built-in types, records and enums, refinements, inference and narrowing, typed network data, and every check.">
+    <meta name="description" content="The type language, built-in types, records and enums, refinements, inference and narrowing, typed network data, and the checks the compiler runs.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/types">
     <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/types?lang=en">
     <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/types?lang=ar">
@@ -12,7 +12,7 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Types">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="The type language, built-in types, records and enums, refinements, inference and narrowing, typed network data, and every check.">
+    <meta property="og:description" content="The type language, built-in types, records and enums, refinements, inference and narrowing, typed network data, and the checks the compiler runs.">
     <meta property="og:url" content="https://webfluent.monzeromer.dev/docs/guide/types">
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="ar_AR">
@@ -21,9 +21,9 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Types">
-    <meta name="twitter:description" content="The type language, built-in types, records and enums, refinements, inference and narrowing, typed network data, and every check.">
+    <meta name="twitter:description" content="The type language, built-in types, records and enums, refinements, inference and narrowing, typed network data, and the checks the compiler runs.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/types#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/types","name":"Types","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"The type language, built-in types, records and enums, refinements, inference and narrowing, typed network data, and every check."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/types#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Types","item":"https://webfluent.monzeromer.dev/docs/guide/types"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/types#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/types","name":"Types","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"The type language, built-in types, records and enums, refinements, inference and narrowing, typed network data, and the checks the compiler runs."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/types#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Types","item":"https://webfluent.monzeromer.dev/docs/guide/types"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -69,6 +69,9 @@
             </div>
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
+                    <a class="wf-sidebar__item" href="/docs">
+                        <p class="wf-text">Overview</p>
+                    </a>
                     <p class="wf-text group-label">Start</p>
                     <a class="wf-sidebar__item" href="/docs/guide/introduction">
                         <p class="wf-text num">01</p>
@@ -274,18 +277,62 @@
                 </aside>
                 <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
-                        <a class="wf-link" href="/docs/guide/introduction">Guide</a>
+                        <a class="wf-link" href="/docs">Guide</a>
                         <p class="wf-text">/</p>
                         <p class="wf-text wf-s8c71c534">Chapter 13</p>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s28a8547f">
                         <h1 class="wf-heading wf-sa3503382">Types</h1>
-                        <p class="wf-text wf-sfd35f593">A gradual, structural type checker that changes no output and names every mistake with a hint.</p>
+                        <p class="wf-text wf-sfd35f593">A gradual, structural type checker that changes no output and names every mistake where you wrote it.</p>
                     </div>
                     <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
-<p>WebFluent has a gradual, structural type checker. It runs in <code>wf build</code> and in the editor, before anything is emitted, and its findings are errors with a hint. A program that declares no types checks as it always did — what the checker cannot resolve is <code>Any</code>, and <code>Any</code> agrees with everything — and every annotation you add narrows what it can say.</p>
+<p>WebFluent has a type checker that runs in <code>wf build</code>, <code>wf check</code> and the editor, before any output is written. It is <em>gradual</em>: a program that declares no types still checks, because whatever the checker cannot work out has the type <code>Any</code>, and <code>Any</code> agrees with everything. Every annotation you add lets the checker say more. It is also <em>structural</em>: a value fits a type when it has the right fields, whatever it was declared as. The checker changes nothing in the output; it only reports.</p>
+<p><strong>In this chapter</strong></p>
+<ul>
+<li>The type language, and the types that come with the language</li>
+<li>Records (<code>type</code>), enums and the shapes of map literals</li>
+<li>Where the checker gets a type from, and how it infers one</li>
+<li>Narrowing a value that may be <code>null</code></li>
+<li>Typing data from the network</li>
+<li>The checks, and what the checker does not check</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading" id="a-first-type-error">A first type error</h2>
+                            <div class="wf-markdown">
+<p>This page declares an <code>Invoice</code> record and builds one with the wrong kind of value for <code>total</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws T01</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws T01" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">type Invoice { id: String, total: Number, paid: Bool = false }
+
+page Invoices(path: &quot;/&quot;, title: &quot;Invoices&quot;, description: &quot;What is owed.&quot;) {
+    state invoice: Invoice = Invoice(id: &quot;INV-001&quot;, total: &quot;120&quot;)
+    Heading(&quot;Invoice {invoice.id}&quot;).h1
+    Text(&quot;Owed: {invoice.total}&quot;)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The build stops, pointing at the field:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">error[T01]: `total` of `Invoice` is `Number`, but `&quot;120&quot;` is `String`
+ --&gt; src/App.wf:4:53</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Writing <code>total: 120</code> fixes it. Had the invoice been an untyped map, <code>{ id: &quot;INV-001&quot;, total: &quot;120&quot; }</code>, the page would build, and <code>invoice.total</code> would be a string at run time.</p>
                             </div>
                             <h2 class="wf-heading" id="the-type-language">The type language</h2>
                             <table class="wf-table">
@@ -414,7 +461,7 @@
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>A type is written after a colon on a <code>state</code>, a prop, an action parameter, a <code>type</code> field, a route parameter, a <code>let</code>, or a <code>resource</code>.</p>
+<p>You write a type after a colon on a <code>state</code>, a prop, an action parameter, a <code>type</code> field, a route parameter, a <code>let</code> or a <code>resource</code>. This page uses several:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -423,21 +470,21 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Typed(path: &quot;/&quot;) {
-    state name: String = &quot;&quot;
-    state count: Number = 0
-    state tags: [String] = []
-    state picked: String? = null
-    state profile: Map = {}
-    action greet(who: String, times: Number) { log(&quot;hi {who} × {times}&quot;) }
-    derived pick = picked ?? &quot;none&quot;
-    Text(&quot;{name} {count} {tags.length} {pick}&quot;)
-    Button(&quot;Go&quot;) { on click { greet(name, count) } }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Typed</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>) {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">name</span>: <span class="wf-tok-name">String</span> = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">count</span>: <span class="wf-tok-name">Number</span> = <span class="wf-tok-num">0</span>
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">tags</span>: [<span class="wf-tok-name">String</span>] = []
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">picked</span>: <span class="wf-tok-name">String</span>? = <span class="wf-tok-kw">null</span>
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">profile</span>: <span class="wf-tok-name">Map</span> = {}
+    <span class="wf-tok-kw">action</span> greet(<span class="wf-tok-prop">who</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">times</span>: <span class="wf-tok-name">Number</span>) { <span class="wf-tok-kw">log</span>(<span class="wf-tok-str">&quot;hi {who} × {times}&quot;</span>) }
+    <span class="wf-tok-kw">derived</span> pick = picked ?? <span class="wf-tok-str">&quot;none&quot;</span>
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{name} {count} {tags.length} {pick}&quot;</span>)
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Go&quot;</span>) { <span class="wf-tok-kw">on</span> click { greet(name, count) } }
 }</code>
                             </div>
                             <h2 class="wf-heading" id="the-types-the-language-brings-with-it">The types the language brings with it</h2>
                             <div class="wf-markdown">
-<p>Eleven more come with the language. Each is a <strong>plain JSON value at run time</strong> — no wrapper object — so it crosses a <code>fetch</code>, a <code>persist</code>, the static paint and the template engine unchanged; <code>.native()</code> hands a real platform object to a library that wants one.</p>
+<p>Eleven more types come with the language. Each is a <strong>plain JSON value at run time</strong>, with no wrapper object, so it crosses a <code>fetch</code>, a <code>persist</code>, the static paint (the HTML the build pre-renders for a page) and the template engine unchanged. <code>.native()</code> hands a real platform object to a library that wants one.</p>
                             </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">The types the language brings with it</caption>
@@ -607,7 +654,8 @@
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>Money is in <strong>minor units</strong> — cents, pence — so the arithmetic is a whole number's and nothing drifts. A duration is milliseconds, so it adds to a moment. <code>uuid()</code> is where a <code>Uuid</code> comes from: the platform's own generator where there is one, a version-4 layout from the best randomness available where there is not.</p>
+<p>Money is held in <strong>minor units</strong> — cents, pence — so its arithmetic is whole-number arithmetic and nothing drifts. A duration is milliseconds, so it adds to a moment. <code>uuid()</code> is where a <code>Uuid</code> comes from: it uses the platform's own generator where there is one, and otherwise builds a version-4 UUID from the best randomness available.</p>
+<p>This page books a stay with dates, money and a refined number:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -616,27 +664,27 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">type Booking {
-    id: Uuid
-    guest: Email
-    from: Date
-    nights: Number(1..=30)
-    total: Money
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Booking</span> {
+    <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">Uuid</span>
+    <span class="wf-tok-prop">guest</span>: <span class="wf-tok-name">Email</span>
+    <span class="wf-tok-prop">from</span>: <span class="wf-tok-name">Date</span>
+    <span class="wf-tok-prop">nights</span>: <span class="wf-tok-name">Number</span>(<span class="wf-tok-num">1..</span>=<span class="wf-tok-num">30</span>)
+    <span class="wf-tok-prop">total</span>: <span class="wf-tok-name">Money</span>
 }
 
-page Stay(path: &quot;/&quot;, title: &quot;Stay&quot;, description: &quot;One booking.&quot;) {
-    state from: Date = @2026-03-14
-    state nights: Number = 5
-    state total: Money = €249.00
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Stay</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Stay&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;One booking.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">from</span>: <span class="wf-tok-name">Date</span> = @<span class="wf-tok-num">2026</span>-<span class="wf-tok-num">03</span>-<span class="wf-tok-num">14</span>
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">nights</span>: <span class="wf-tok-name">Number</span> = <span class="wf-tok-num">5</span>
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">total</span>: <span class="wf-tok-name">Money</span> = €<span class="wf-tok-num">249.00</span>
 
-    derived checkout = from.plus(days: nights)
-    derived weekday = checkout.weekday()
-    derived late = now.date().isAfter(checkout)
+    <span class="wf-tok-kw">derived</span> checkout = <span class="wf-tok-kw">from</span>.plus(<span class="wf-tok-prop">days</span>: nights)
+    <span class="wf-tok-kw">derived</span> weekday = checkout.weekday()
+    <span class="wf-tok-kw">derived</span> late = now.date().isAfter(checkout)
 
-    Heading(&quot;Your stay&quot;).h1
-    Text(&quot;Out on {checkout}, a weekday of {weekday}&quot;)
-    Text(&quot;Due {format(total)}&quot;)
-    if late { Alert(&quot;Checkout has passed&quot;).warning }
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Your stay&quot;</span>).h1
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Out on {checkout}, a weekday of {weekday}&quot;</span>)
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Due {format(total)}&quot;</span>)
+    <span class="wf-tok-kw">if</span> late { <span class="wf-tok-name">Alert</span>(<span class="wf-tok-str">&quot;Checkout has passed&quot;</span>).warning }
 }</code>
                             </div>
                             <div class="wf-markdown">
@@ -646,8 +694,8 @@ page Stay(path: &quot;/&quot;, title: &quot;Stay&quot;, description: &quot;One b
                                 <caption class="wf-visually-hidden">The types the language brings with it</caption>
                                 <thead>
                                     <tr>
-                                        <th scope="col"></th>
-                                        <th scope="col"></th>
+                                        <th scope="col">Type</th>
+                                        <th scope="col">Methods</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -731,18 +779,18 @@ page Stay(path: &quot;/&quot;, title: &quot;Stay&quot;, description: &quot;One b
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>.preview()</code> — an object URL, revoked when the scope that made it leaves</p>
+<p><code>.preview()</code> — an object URL, revoked when the scope that made it leaves; the fields <code>.name .size .type</code></p>
                                             </div>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>Adding a month lands on a day that exists: <code>@2026-01-31.plus(months: 1)</code> is the 28th of February, not the 3rd of March. All of it runs at build time too, so the static paint shows the answer rather than a blank that fills in when the page hydrates.</p>
+<p>Adding a month lands on a day that exists: <code>@2026-01-31.plus(months: 1)</code> is the 28th of February, not the 3rd of March. All of these methods also run at build time, so the static paint shows the answer instead of a blank that fills in when the page hydrates.</p>
                             </div>
                             <h3 class="wf-heading" id="a-literal-is-held-to-its-type">A literal is held to its type</h3>
                             <div class="wf-markdown">
-<p>A string written where one of these is wanted is read as one, and checked where it is written:</p>
+<p>A string written where one of these types is wanted is read as that type, and checked where you wrote it:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -751,12 +799,12 @@ page Stay(path: &quot;/&quot;, title: &quot;Stay&quot;, description: &quot;One b
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">state site: Url = &quot;https://example.com&quot;     // fine
-state bad: Url = &quot;example&quot;                  // T01: A URL has a scheme</code>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">state</span> <span class="wf-tok-prop">site</span>: <span class="wf-tok-name">Url</span> = <span class="wf-tok-str">&quot;https://example.com&quot;</span>     <span class="wf-tok-cmt">// fine</span>
+<span class="wf-tok-kw">state</span> <span class="wf-tok-prop">bad</span>: <span class="wf-tok-name">Url</span> = <span class="wf-tok-str">&quot;example&quot;</span>                  <span class="wf-tok-cmt">// T01: A URL has a scheme</span></code>
                             </div>
                             <h3 class="wf-heading" id="now">now</h3>
                             <div class="wf-markdown">
-<p><code>now</code> is a <code>DateTime</code> that keeps itself current — every minute by default, or as often as a page asks:</p>
+<p><code>now</code> is a <code>DateTime</code> that keeps itself current. It updates every minute by default, or as often as a page asks with <code>now(every: …)</code>:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -765,16 +813,19 @@ state bad: Url = &quot;example&quot;                  // T01: A URL has a scheme
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Feed(path: &quot;/&quot;, title: &quot;Feed&quot;, description: &quot;What just happened.&quot;) {
-    state posted: DateTime = @2026-03-14T09:30:00Z
-    derived age = posted.until(now)
-    Text(&quot;{ago(posted)} — {age.minutes()} minutes&quot;)
-    Text(&quot;ticking: {now(every: 1.seconds)}&quot;)
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Feed</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Feed&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;What happened lately.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">posted</span>: <span class="wf-tok-name">DateTime</span> = @<span class="wf-tok-num">2026</span>-<span class="wf-tok-num">03</span>-<span class="wf-tok-num">14T</span>09:<span class="wf-tok-num">30</span>:<span class="wf-tok-num">00Z</span>
+    <span class="wf-tok-kw">derived</span> age = posted.until(now)
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{ago(posted)} — {age.minutes()} minutes&quot;</span>)
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;ticking: {now(every: 1.seconds)}&quot;</span>)
 }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Read <code>now</code> where it is shown or in a <code>derived</code> value. A <code>state</code> takes its initial value once, so <code>state clock = now(every: 1.seconds)</code> stays at the moment the page opened (<code>X06</code>; see <a href="/docs/guide/state">State and reactivity</a>).</p>
                             </div>
                             <h3 class="wf-heading" id="a-condition-on-a-type">A condition on a type</h3>
                             <div class="wf-markdown">
-<p>Any type may say what its values must be, and every value the compiler can read is held to it:</p>
+<p>Any type may say what its values must be. The compiler holds every value it can read to that condition:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -783,16 +834,16 @@ state bad: Url = &quot;example&quot;                  // T01: A URL has a scheme
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">state nights: Number(1..=30) = 12
-state pass: String(minLength: 8) = &quot;correcthorse&quot;
-state start: Date(after: @2026-01-01) = @2026-03-14</code>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">state</span> <span class="wf-tok-prop">nights</span>: <span class="wf-tok-name">Number</span>(<span class="wf-tok-num">1..</span>=<span class="wf-tok-num">30</span>) = <span class="wf-tok-num">12</span>
+<span class="wf-tok-kw">state</span> <span class="wf-tok-prop">pass</span>: <span class="wf-tok-name">String</span>(<span class="wf-tok-prop">minLength</span>: <span class="wf-tok-num">8</span>) = <span class="wf-tok-str">&quot;correcthorse&quot;</span>
+<span class="wf-tok-kw">state</span> <span class="wf-tok-prop">start</span>: <span class="wf-tok-name">Date</span>(<span class="wf-tok-prop">after</span>: @<span class="wf-tok-num">2026</span>-<span class="wf-tok-num">01</span>-<span class="wf-tok-num">01</span>) = @<span class="wf-tok-num">2026</span>-<span class="wf-tok-num">03</span>-<span class="wf-tok-num">14</span></code>
                             </div>
                             <div class="wf-markdown">
-<p><code>min</code>, <code>max</code>, <code>minLength</code>, <code>maxLength</code>, <code>pattern</code>, <code>after</code>, <code>before</code>, and a range (<code>1..=30</code> inclusive, <code>0..10</code> exclusive of the end) for the two ends. A value that arrives at run time is validation's to refuse, from the same condition.</p>
+<p>The conditions are <code>min</code>, <code>max</code>, <code>minLength</code>, <code>maxLength</code>, <code>pattern</code>, <code>after</code> and <code>before</code>, and a range for the two ends at once: <code>1..=30</code> includes the end, <code>0..10</code> excludes it. A value that arrives at run time — typed into a field, say — is refused by validation, from the same condition, so a refined type needs no <code>validate</code> rule for it (see <a href="/docs/guide/forms">Forms</a>).</p>
                             </div>
                             <h3 class="wf-heading" id="secret-is-not-a-string">Secret is not a string</h3>
                             <div class="wf-markdown">
-<p>A <code>Secret</code> is a string the compiler will not let escape. Each of these is a <code>T12</code>:</p>
+<p>A <code>Secret</code> is a string the compiler will not let escape. Each of these lines is a <code>T12</code>:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -801,20 +852,23 @@ state start: Date(after: @2026-01-01) = @2026-03-14</code>
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">state token: Secret = &quot;&quot;
-Text(token)                     // shown
-Text(&quot;Bearer {token}&quot;)          // in text — which is how it ends up in a URL
-persist token: Secret = &quot;&quot;      // kept in the browser
-log(token)                      // in the console, and often in a log service</code>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">state</span> <span class="wf-tok-prop">token</span>: <span class="wf-tok-name">Secret</span> = <span class="wf-tok-str">&quot;&quot;</span>
+<span class="wf-tok-name">Text</span>(token)                     <span class="wf-tok-cmt">// shown</span>
+<span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Bearer {token}&quot;</span>)          <span class="wf-tok-cmt">// in text — which is how it ends up in a URL</span>
+<span class="wf-tok-kw">persist</span> <span class="wf-tok-prop">token</span>: <span class="wf-tok-name">Secret</span> = <span class="wf-tok-str">&quot;&quot;</span>      <span class="wf-tok-cmt">// kept in the browser</span>
+<span class="wf-tok-kw">log</span>(token)                      <span class="wf-tok-cmt">// in the console, and often in a log service</span></code>
                             </div>
                             <div class="wf-markdown">
-<p>Hold it in <code>state</code>, which the visit ends; what must outlive the visit belongs on the server.</p>
+<p>Joining it with <code>+</code> or handing it to a browser global such as <code>console</code>, a storage or a <code>fetch</code> address is a <code>T12</code> too, and a secret has no string members to read. Hold it in <code>state</code>, which ends with the visit; what must outlive the visit belongs on the server.</p>
                             </div>
                             <h3 class="wf-heading" id="your-own-name-wins">Your own name wins</h3>
                             <div class="wf-markdown">
-<p>A <code>type</code> the program declares takes the name back. A project with its own <code>type Color { name: String }</code> means that one everywhere.</p>
+<p>A <code>type</code> the program declares takes the name back from the language. A project with its own <code>type Color { name: String }</code> means that record everywhere it writes <code>Color</code>.</p>
                             </div>
                             <h2 class="wf-heading" id="records-type">Records: type</h2>
+                            <div class="wf-markdown">
+<p>A <em>record</em> is a value with named, typed fields, declared with <code>type</code>:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -822,43 +876,47 @@ log(token)                      // in the console, and often in a log service</c
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">enum Tone { neutral, info, danger }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">enum</span> <span class="wf-tok-name">Tone</span> { neutral, info, danger }
 
-type Todo {
-    id: String
-    title: String
-    done: Bool = false
-    tone: Tone = .neutral
-    note: String?
+<span class="wf-tok-kw">type</span> <span class="wf-tok-name">Todo</span> {
+    <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>
+    <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>
+    <span class="wf-tok-prop">done</span>: <span class="wf-tok-name">Bool</span> = <span class="wf-tok-kw">false</span>
+    <span class="wf-tok-prop">tone</span>: <span class="wf-tok-name">Tone</span> = .neutral
+    <span class="wf-tok-prop">note</span>: <span class="wf-tok-name">String</span>?
 }
 
-type Admin = Todo { owner: String }
+<span class="wf-tok-kw">type</span> <span class="wf-tok-name">Admin</span> = <span class="wf-tok-name">Todo</span> { <span class="wf-tok-prop">owner</span>: <span class="wf-tok-name">String</span> }
 
-page Records(path: &quot;/&quot;) {
-    state todos: [Todo] = [
-        Todo(id: &quot;1&quot;, title: &quot;Write the docs&quot;),
-        Todo(id: &quot;2&quot;, title: &quot;Ship&quot;, done: true, tone: .info, note: &quot;Friday&quot;),
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Records</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>) {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">todos</span>: [<span class="wf-tok-name">Todo</span>] = [
+        <span class="wf-tok-name">Todo</span>(<span class="wf-tok-prop">id</span>: <span class="wf-tok-str">&quot;1&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Write the docs&quot;</span>),
+        <span class="wf-tok-name">Todo</span>(<span class="wf-tok-prop">id</span>: <span class="wf-tok-str">&quot;2&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Ship&quot;</span>, <span class="wf-tok-prop">done</span>: <span class="wf-tok-kw">true</span>, <span class="wf-tok-prop">tone</span>: .info, <span class="wf-tok-prop">note</span>: <span class="wf-tok-str">&quot;Friday&quot;</span>),
     ]
-    state special: Admin = Admin(id: &quot;3&quot;, title: &quot;Review&quot;, owner: &quot;sam&quot;)
-    for todo in todos by todo.id {
-        Row(gap: .sm) {
-            Text(todo.title)
-            if let n = todo.note { Badge(n).info }
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">special</span>: <span class="wf-tok-name">Admin</span> = <span class="wf-tok-name">Admin</span>(<span class="wf-tok-prop">id</span>: <span class="wf-tok-str">&quot;3&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Review&quot;</span>, <span class="wf-tok-prop">owner</span>: <span class="wf-tok-str">&quot;sam&quot;</span>)
+    <span class="wf-tok-kw">for</span> todo <span class="wf-tok-kw">in</span> todos <span class="wf-tok-kw">by</span> todo.id {
+        <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">gap</span>: .sm) {
+            <span class="wf-tok-name">Text</span>(todo.title)
+            <span class="wf-tok-kw">if</span> <span class="wf-tok-kw">let</span> n = todo.note { <span class="wf-tok-name">Badge</span>(n).info }
         }
     }
-    Text(&quot;{special.owner} owns {special.title}&quot;)
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{special.owner} owns {special.title}&quot;</span>)
 }</code>
                             </div>
                             <div class="wf-markdown">
 <ul>
-<li>Fields may be separated by newlines or commas.</li>
-<li>A field with a default may be left out of a construction; a <code>T?</code> field defaults to <code>null</code>. A record whose fields can all be left out is built with none given, <code>Offers()</code>, wherever a value goes — a prop's default (<code>component Card(offers: Offers = Offers())</code>), a field's, a <code>const</code>, a <code>state</code>, an argument.</li>
-<li><code>type Admin = Todo { owner: String }</code> extends a record: an <code>Admin</code> has every field of <code>Todo</code> and then its own.</li>
+<li>You may separate fields with newlines or commas.</li>
+<li>You build a record by naming its fields: <code>Todo(id: &quot;1&quot;, title: &quot;x&quot;)</code>. A field with a default may be left out, and a <code>T?</code> field defaults to <code>null</code>. Leaving out a field with no default is <code>C01</code>.</li>
+<li>A record whose fields can all be left out is built with none given, <code>Offers()</code>, wherever a value goes: a prop's default (<code>component Card(offers: Offers = Offers())</code>), a field's default, a <code>const</code>, a <code>state</code>, an argument.</li>
+<li><code>type Admin = Todo { owner: String }</code> extends a record: an <code>Admin</code> has every field of <code>Todo</code>, then its own.</li>
 <li>Records are structural: <code>{ id: &quot;a&quot;, title: &quot;b&quot; }</code> given where a <code>Todo</code> is wanted is a <code>Todo</code>, and its fields are checked against the record's.</li>
-<li>A <code>Map</code> fits any record and a record fits a <code>Map</code>: JSON from <code>fetch</code> fits a <code>type</code> it was never declared as.</li>
+<li>A <code>Map</code> fits any record, and a record fits a <code>Map</code>. So JSON from <code>fetch</code> fits a <code>type</code> it was never declared as.</li>
 </ul>
                             </div>
                             <h2 class="wf-heading" id="enums">Enums</h2>
+                            <div class="wf-markdown">
+<p>An <em>enum</em> is a type with a fixed set of <em>cases</em>. A case may carry a <em>payload</em> — values that travel with it:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -866,33 +924,35 @@ page Records(path: &quot;/&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">enum Size { sm, md, lg }
-enum Status { idle, running(job: String), failed(reason: String), done(count: Number) }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">enum</span> <span class="wf-tok-name">Size</span> { sm, md, lg }
+<span class="wf-tok-kw">enum</span> <span class="wf-tok-name">Status</span> { idle, running(<span class="wf-tok-prop">job</span>: <span class="wf-tok-name">String</span>), failed(<span class="wf-tok-prop">reason</span>: <span class="wf-tok-name">String</span>), done(<span class="wf-tok-prop">count</span>: <span class="wf-tok-name">Number</span>) }
 
-page Enums(path: &quot;/&quot;) {
-    state size: Size = .md
-    state s: Status = .idle
-    Button(&quot;Bigger&quot;) { on click { size = .lg } }
-    Button(&quot;Start&quot;) { on click { s = .running(&quot;build-42&quot;) } }
-    Text(match size { .sm { &quot;small&quot; } .md { &quot;medium&quot; } else { &quot;large&quot; } })
-    match s {
-        .running(job) { Text(&quot;Running {job}&quot;) }
-        .failed(reason) { Alert(reason).danger }
-        .done(n) { Text(&quot;{n} done&quot;) }
-        else { Text(&quot;Idle&quot;) }
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Enums</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>) {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">size</span>: <span class="wf-tok-name">Size</span> = .md
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">s</span>: <span class="wf-tok-name">Status</span> = .idle
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Bigger&quot;</span>) { <span class="wf-tok-kw">on</span> click { size = .lg } }
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Start&quot;</span>) { <span class="wf-tok-kw">on</span> click { s = .running(<span class="wf-tok-str">&quot;build-42&quot;</span>) } }
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-kw">match</span> size { .sm { <span class="wf-tok-str">&quot;small&quot;</span> } .md { <span class="wf-tok-str">&quot;medium&quot;</span> } <span class="wf-tok-kw">else</span> { <span class="wf-tok-str">&quot;large&quot;</span> } })
+    <span class="wf-tok-kw">match</span> s {
+        .running(job) { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Running {job}&quot;</span>) }
+        .failed(reason) { <span class="wf-tok-name">Alert</span>(reason).danger }
+        .done(n) { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{n} done&quot;</span>) }
+        <span class="wf-tok-kw">else</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Idle&quot;</span>) }
     }
 }</code>
                             </div>
                             <div class="wf-markdown">
 <ul>
-<li>A case is written <code>.name</code>; on its own it is a case of an enum not yet known, and where a <code>Size</code> is wanted it becomes a <code>Size</code> — <code>.huge</code> is <code>T02</code>.</li>
-<li>A case may carry a payload: <code>.failed(&quot;x&quot;)</code> is checked like a call, and a <code>match</code> arm binds it: <code>.failed(r)</code> gives <code>r: String</code>.</li>
-<li><code>size == .lg</code> compares cases; an enum is written to a component's root as <code>data-&lt;prop&gt;</code> (<a href="/docs/guide/components#enum-props">chapter 11</a>).</li>
+<li>You write a case as <code>.name</code>. On its own it is a case of an enum not yet known; where a <code>Size</code> is wanted it becomes a <code>Size</code>, and <code>.huge</code> there is <code>T02</code>.</li>
+<li>A case with a payload, <code>.failed(&quot;x&quot;)</code>, is checked like a call. A <code>match</code> arm binds the payload: <code>.failed(r)</code> gives <code>r</code> the type <code>String</code>.</li>
+<li>At run time a bare case is its name and a case with a payload is a list, <code>[&quot;failed&quot;, &quot;timed out&quot;]</code>, so <code>size == .lg</code> still compares cases.</li>
+<li>A <code>match</code> with no <code>else</code> must give every case an arm (<code>T15</code>).</li>
+<li>An enum prop is written to a component's root element as <code>data-&lt;prop&gt;</code> (see <a href="/docs/guide/components#enum-props">Enum props</a>).</li>
 </ul>
                             </div>
-                            <h2 class="wf-heading" id="map-literals-are-shapes">Map literals are shapes</h2>
+                            <h2 class="wf-heading" id="shapes-of-map-literals">Shapes of map literals</h2>
                             <div class="wf-markdown">
-<p>A map literal has the fields it was written with: <code>{ name: &quot;&quot;, age: 0 }</code> is <code>{ name: String, age: Number }</code>, and reading <code>form.nam</code> is <code>T05</code> with the fields it does have. A shape fits a <code>Map</code>, a record with the same fields, and any shape it agrees with. <code>{}</code> and a literal with a spread are plain <code>Map</code>s.</p>
+<p>A map literal has the fields it was written with. <code>{ name: &quot;&quot;, age: 0 }</code> has the <em>shape</em> <code>{ name: String, age: Number }</code>, and reading <code>form.nam</code> is <code>T05</code>, with the fields it does have. A shape fits a <code>Map</code>, a record with the same fields, and any shape it agrees with. An empty <code>{}</code> and a literal with a spread say nothing about their keys, so they are plain <code>Map</code>s.</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -901,24 +961,31 @@ page Enums(path: &quot;/&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Shapes(path: &quot;/&quot;) {
-    state form = { name: &quot;&quot;, age: 0, tags: [&quot;new&quot;] }
-    Input(bind: form.name, label: &quot;Name&quot;)
-    Text(&quot;{form.name} is {form.age} with {form.tags.length} tags&quot;)
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Shapes</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>) {
+    <span class="wf-tok-kw">state</span> form = { <span class="wf-tok-prop">name</span>: <span class="wf-tok-str">&quot;&quot;</span>, <span class="wf-tok-prop">age</span>: <span class="wf-tok-num">0</span>, <span class="wf-tok-prop">tags</span>: [<span class="wf-tok-str">&quot;new&quot;</span>] }
+    <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: form.name, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Name&quot;</span>)
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{form.name} is {form.age} with {form.tags.length} tags&quot;</span>)
 }</code>
                             </div>
                             <h2 class="wf-heading" id="where-types-come-from">Where types come from</h2>
                             <div class="wf-markdown">
-<p><strong>Declared</strong> — annotations, a <code>type</code>'s fields, an <code>enum</code>'s cases, a page's route parameters, an event's parameters, a component's props.</p>
-<p><strong>Inferred</strong> — a literal; a list of literals (<code>[1, 2]</code> is <code>[Number]</code>, <code>[]</code> is <code>[Any]</code>); a record construction; a <code>derived</code> from its expression; a <code>state</code> from its initial value (one that starts as <code>null</code> is <code>Any?</code>); a <code>for</code> binding from the list's element type; a <code>match</code> arm's binding; an <code>if let</code> binding; a lambda's parameters from what the method expects (<code>items.filter(item =&gt; …)</code> gives <code>item</code> the item type).</p>
-<p><strong>From the registry</strong> — the type of every built-in prop; what a <code>bind:</code> needs (<code>Checkbox</code> and <code>Switch</code> a <code>Bool</code>, <code>Slider</code> a <code>Number</code>, <code>Input</code> a <code>String</code> or a <code>Number</code> by its type).</p>
-<p><strong>From the method tables</strong> — on a <code>String</code>: <code>trim</code>, <code>toLowerCase</code>, <code>toUpperCase</code>, <code>replace</code>, <code>slice</code>, <code>padStart</code>, <code>repeat</code>, <code>capitalize</code>, <code>truncate(n)</code> → <code>String</code>; <code>length</code>, <code>indexOf</code> → <code>Number</code>; <code>includes</code>, <code>startsWith</code>, <code>endsWith</code> → <code>Bool</code>; <code>split</code> → <code>[String]</code>. On a list: <code>map</code> → <code>[U]</code> from the lambda; <code>filter</code>, <code>slice</code>, <code>concat</code>, <code>sort</code>, <code>sortBy</code>, <code>unique</code>, <code>take</code>, <code>flatMap</code> → <code>[T]</code>; <code>find</code>, <code>first</code>, <code>last</code> → <code>T?</code>; <code>some</code>, <code>every</code>, <code>includes</code> → <code>Bool</code>; <code>length</code>, <code>sum</code>, <code>indexOf</code>, <code>findIndex</code> → <code>Number</code>; <code>join</code> → <code>String</code>; <code>groupBy</code> → <code>Map</code>; <code>reduce</code> → the initial value's type. On a <code>Number</code>: <code>toFixed</code>, <code>toString</code> → <code>String</code>. Anything else is <code>Any</code>. The full lists are in <a href="/docs/guide/built-ins">Built-ins</a>.</p>
-<p><strong>From stores</strong> — <code>Todos.items</code> has the type of the store's state, <code>Todos.add</code> the signature of its action.</p>
+<p>The checker reads a type from five places.</p>
+<p><strong>Declared:</strong> annotations, a <code>type</code>'s fields, an <code>enum</code>'s cases, a page's route parameters, an event's parameters, a component's props.</p>
+<p><strong>Inferred:</strong> a literal; a list of literals (<code>[1, 2]</code> is <code>[Number]</code>, <code>[]</code> is <code>[Any]</code>); a record construction; a <code>derived</code> value from its expression; a <code>state</code> from its initial value (one that starts as <code>null</code> is <code>Any?</code>); a <code>for</code> binding from the list's item type; a <code>match</code> arm's binding; an <code>if let</code> binding; a lambda's parameters from what the method expects (<code>items.filter(item =&gt; …)</code> gives <code>item</code> the item type).</p>
+<p><strong>From the registry:</strong> the type of every built-in prop, and what a <code>bind:</code> needs — <code>Checkbox</code> and <code>Switch</code> a <code>Bool</code>, <code>Slider</code> a <code>Number</code>, <code>Input</code> a <code>String</code> or a <code>Number</code> by its input type.</p>
+<p><strong>From the method tables:</strong></p>
+<ul>
+<li>On a <code>String</code>: <code>trim</code>, <code>toLowerCase</code>, <code>toUpperCase</code>, <code>replace</code>, <code>slice</code>, <code>padStart</code>, <code>repeat</code>, <code>capitalize</code>, <code>truncate(n)</code> → <code>String</code>; <code>length</code>, <code>indexOf</code> → <code>Number</code>; <code>includes</code>, <code>startsWith</code>, <code>endsWith</code> → <code>Bool</code>; <code>split</code> → <code>[String]</code>.</li>
+<li>On a list: <code>map</code> → <code>[U]</code> from the lambda; <code>filter</code>, <code>slice</code>, <code>concat</code>, <code>sort</code>, <code>sortBy</code>, <code>unique</code>, <code>take</code>, <code>flatMap</code> → <code>[T]</code>; <code>find</code>, <code>first</code>, <code>last</code> → <code>T?</code>; <code>some</code>, <code>every</code>, <code>includes</code> → <code>Bool</code>; <code>length</code>, <code>sum</code>, <code>indexOf</code>, <code>findIndex</code> → <code>Number</code>; <code>join</code> → <code>String</code>; <code>groupBy</code> → <code>Map</code>; <code>reduce</code> → the initial value's type.</li>
+<li>On a <code>Number</code>: <code>toFixed</code>, <code>toString</code> → <code>String</code>.</li>
+</ul>
+<p>Any other method is <code>Any</code>. The full lists are in <a href="/docs/guide/built-ins">Built-ins</a>.</p>
+<p><strong>From stores:</strong> <code>Todos.items</code> has the type of the store's state, and <code>Todos.add</code> the signature of its action.</p>
 <p>Browser globals (<code>window</code>, <code>document</code>, <code>JSON</code>, <code>Math</code>, <code>Date</code>, …) are <code>Any</code>.</p>
                             </div>
-                            <h2 class="wf-heading" id="inference-is-bidirectional">Inference is bidirectional</h2>
+                            <h2 class="wf-heading" id="bidirectional-inference">Bidirectional inference</h2>
                             <div class="wf-markdown">
-<p>An expression is checked against the type its context wants when there is one, and its type is read off it otherwise:</p>
+<p>The checker works in both directions. When the context wants a type, it checks the expression against that type; otherwise it reads the type off the expression. The comments show what each <code>derived</code> value is inferred to be:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -927,32 +994,33 @@ page Enums(path: &quot;/&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">type Row { id: Number, label: String, score: Number? }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Row</span> { <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">Number</span>, <span class="wf-tok-prop">label</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">score</span>: <span class="wf-tok-name">Number</span>? }
 
-page Infer(path: &quot;/&quot;) {
-    state rows: [Row] = [Row(id: 1, label: &quot;a&quot;), Row(id: 2, label: &quot;b&quot;, score: 9)]
-    derived labels = rows.map(r =&gt; r.label)                 // [String]
-    derived best = rows.find(r =&gt; r.score != null)          // Row?
-    derived total = rows.reduce((n, r) =&gt; n + (r.score ?? 0), 0)   // Number
-    derived kind = if total &gt; 5 { &quot;high&quot; } else { &quot;low&quot; }   // String
-    derived firstScore = best?.score ?? 0                   // Number
-    derived joined = labels.join(&quot;, &quot;)                      // String
-    Text(&quot;{joined} {kind} {firstScore}&quot;)
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Infer</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>) {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">rows</span>: [<span class="wf-tok-name">Row</span>] = [<span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">id</span>: <span class="wf-tok-num">1</span>, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;a&quot;</span>), <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">id</span>: <span class="wf-tok-num">2</span>, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;b&quot;</span>, <span class="wf-tok-prop">score</span>: <span class="wf-tok-num">9</span>)]
+    <span class="wf-tok-kw">derived</span> labels = rows.map(r =&gt; r.label)                 <span class="wf-tok-cmt">// [String]</span>
+    <span class="wf-tok-kw">derived</span> best = rows.find(r =&gt; r.score != <span class="wf-tok-kw">null</span>)          <span class="wf-tok-cmt">// Row?</span>
+    <span class="wf-tok-kw">derived</span> total = rows.reduce((n, r) =&gt; n + (r.score ?? <span class="wf-tok-num">0</span>), <span class="wf-tok-num">0</span>)   <span class="wf-tok-cmt">// Number</span>
+    <span class="wf-tok-kw">derived</span> kind = <span class="wf-tok-kw">if</span> total &gt; <span class="wf-tok-num">5</span> { <span class="wf-tok-str">&quot;high&quot;</span> } <span class="wf-tok-kw">else</span> { <span class="wf-tok-str">&quot;low&quot;</span> }   <span class="wf-tok-cmt">// String</span>
+    <span class="wf-tok-kw">derived</span> firstScore = best?.score ?? <span class="wf-tok-num">0</span>                   <span class="wf-tok-cmt">// Number</span>
+    <span class="wf-tok-kw">derived</span> joined = labels.join(<span class="wf-tok-str">&quot;, &quot;</span>)                      <span class="wf-tok-cmt">// String</span>
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{joined} {kind} {firstScore}&quot;</span>)
 }</code>
                             </div>
                             <div class="wf-markdown">
+<p>The rules for operators and forms:</p>
 <ul>
 <li><code>a ?? b</code> is <code>a</code> without its <code>null</code>, joined with <code>b</code>.</li>
 <li><code>a?.b</code> is <code>b</code>'s type made optional, and the rest of the chain with it.</li>
-<li><code>if</code>/<code>match</code> as values have the type both arms fit: the same type, <code>T?</code> when one arm is <code>null</code>, else <code>Any</code>.</li>
-<li><code>-</code>, <code>*</code>, <code>/</code>, <code>%</code> are <code>Number</code>; <code>+</code> is a <code>String</code> when either side is one; comparisons and <code>&amp;&amp;</code>, <code>||</code>, <code>!</code> are <code>Bool</code>.</li>
-<li><code>await e</code> on a <code>fetch</code> is <code>Any</code> unless annotated: <code>let r: [Row] = await fetch(…)</code>.</li>
-<li><code>let { a, b } = m</code> and <code>let [x, y] = l</code> bind the fields and items.</li>
+<li><code>if</code> and <code>match</code> used as values have the type both arms fit: the same type, <code>T?</code> when one arm is <code>null</code>, and <code>Any</code> otherwise.</li>
+<li><code>-</code>, <code>*</code>, <code>/</code> and <code>%</code> give a <code>Number</code>; <code>+</code> gives a <code>String</code> when either side is one; comparisons and <code>&amp;&amp;</code>, <code>||</code>, <code>!</code> give a <code>Bool</code>.</li>
+<li><code>await e</code> on a <code>fetch</code> is <code>Any</code> unless you annotate it: <code>let r: [Row] = await fetch(…)</code>.</li>
+<li><code>let { a, b } = m</code> and <code>let [x, y] = l</code> bind the fields and the items.</li>
 </ul>
                             </div>
                             <h2 class="wf-heading" id="narrowing-optionals">Narrowing optionals</h2>
                             <div class="wf-markdown">
-<p>A <code>T?</code> must be unwrapped before a field or method is read off it (<code>T04</code>). Each of these proves a name non-null within its branch:</p>
+<p>A value of type <code>T?</code> may be <code>null</code>, so you must <em>narrow</em> it — prove it is not <code>null</code> — before you read a field or method off it. Reading one without narrowing is <code>T04</code>. Each of these forms narrows a name within its branch:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -961,26 +1029,36 @@ page Infer(path: &quot;/&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">type Todo { id: String, title: String, note: String? }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Todo</span> { <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">note</span>: <span class="wf-tok-name">String</span>? }
 
-page Narrow(path: &quot;/&quot;) {
-    state sel: Todo? = null
-    state todo: Todo = Todo(id: &quot;1&quot;, title: &quot;x&quot;)
-    if let n = todo.note { Text(&quot;{n.length} chars&quot;) }
-    if sel != null { Text(sel.title) }
-    if sel { Text(sel.title) }
-    derived label = if sel != null { sel.title } else { &quot;none&quot; }
-    Text(todo.note ?? &quot;no note&quot;)
-    Text(sel?.title ?? &quot;nothing selected&quot;)
-    Button(&quot;Pick&quot;) { on click { sel = todo } }
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Narrow</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>) {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">sel</span>: <span class="wf-tok-name">Todo</span>? = <span class="wf-tok-kw">null</span>
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">todo</span>: <span class="wf-tok-name">Todo</span> = <span class="wf-tok-name">Todo</span>(<span class="wf-tok-prop">id</span>: <span class="wf-tok-str">&quot;1&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;x&quot;</span>)
+    <span class="wf-tok-kw">if</span> <span class="wf-tok-kw">let</span> n = todo.note { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{n.length} chars&quot;</span>) }
+    <span class="wf-tok-kw">if</span> sel != <span class="wf-tok-kw">null</span> { <span class="wf-tok-name">Text</span>(sel.title) }
+    <span class="wf-tok-kw">if</span> sel { <span class="wf-tok-name">Text</span>(sel.title) }
+    <span class="wf-tok-kw">derived</span> label = <span class="wf-tok-kw">if</span> sel != <span class="wf-tok-kw">null</span> { sel.title } <span class="wf-tok-kw">else</span> { <span class="wf-tok-str">&quot;none&quot;</span> }
+    <span class="wf-tok-name">Text</span>(todo.note ?? <span class="wf-tok-str">&quot;no note&quot;</span>)
+    <span class="wf-tok-name">Text</span>(sel?.title ?? <span class="wf-tok-str">&quot;nothing selected&quot;</span>)
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Pick&quot;</span>) { <span class="wf-tok-kw">on</span> click { sel = todo } }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Narrowing is flow-sensitive within a block: it holds in the branch the condition guards, not after it. A list narrows too: <code>xs.filter(x =&gt; x != null)</code> is a list of what is there, so a <code>[Todo?]</code> filtered that way is a <code>[Todo]</code> whose items need no <code>?.</code>.</p>
+<p>Narrowing follows the flow of a block: it holds in the branch the condition guards, not after it. A check for <code>null</code> also narrows the <code>else</code> branch, and the code after <code>if x == null { return }</code>. An item at a fixed index, such as <code>todos[0]</code>, may be missing, so it counts as <code>T?</code> unless a condition like <code>todos.length &gt; 0</code> encloses it.</p>
+<p>A list narrows too: <code>xs.filter(x =&gt; x != null)</code> is a list of the items that are there, so a <code>[Todo?]</code> filtered that way is a <code>[Todo]</code> whose items need no <code>?.</code>.</p>
                             </div>
-                            <h2 class="wf-heading" id="typing-what-comes-from-the-network">Typing what comes from the network</h2>
+                            <div class="wf-stack wf-gap--xs wf-s39f8973e callout" role="note" aria-label="Warning" data-kind="warning">
+                                <div class="wf-row wf-align--center wf-gap--xs callout-label">
+                                    <i class="wf-icon" data-icon="warning"></i>
+                                    <p class="wf-text">Warning</p>
+                                </div>
+                                <div class="wf-markdown">
+<p>Splicing a value that may be <code>null</code> into text shows the word <code>null</code> on the page. The checker warns (<code>T19</code>); say what to show instead with <code>??</code>, as in <code>Text(todo.note ?? &quot;no note&quot;)</code>.</p>
+                                </div>
+                            </div>
+                            <h2 class="wf-heading" id="typing-data-from-the-network">Typing data from the network</h2>
                             <div class="wf-markdown">
-<p><code>fetch</code> returns <code>Any</code>. Annotate the resource or the local to type its value:</p>
+<p><code>fetch</code> returns <code>Any</code>, because the checker cannot see what a URL will return. Annotate the resource or the local variable to type its value:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -989,23 +1067,27 @@ page Narrow(path: &quot;/&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">type Deploy { id: String, status: String, startedAt: String }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Deploy</span> { <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">status</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">startedAt</span>: <span class="wf-tok-name">String</span> }
 
-page Deploys(path: &quot;/&quot;) {
-    resource deploys: [Deploy] = fetch(&quot;/api/deploys&quot;)
-    match deploys {
-        loading { Spinner }
-        error(e) { Alert(&quot;Failed: {e.message}&quot;).danger }
-        ready(rows) {
-            for d in rows by d.id { Text(&quot;{d.id} {d.status} {ago(d.startedAt)}&quot;) }
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Deploys</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>) {
+    <span class="wf-tok-kw">resource</span> <span class="wf-tok-prop">deploys</span>: [<span class="wf-tok-name">Deploy</span>] = fetch(<span class="wf-tok-str">&quot;/api/deploys&quot;</span>)
+    <span class="wf-tok-kw">match</span> deploys {
+        <span class="wf-tok-kw">loading</span> { <span class="wf-tok-name">Spinner</span> }
+        <span class="wf-tok-kw">error</span>(e) { <span class="wf-tok-name">Alert</span>(<span class="wf-tok-str">&quot;Failed: {e.message}&quot;</span>).danger }
+        <span class="wf-tok-kw">ready</span>(rows) {
+            <span class="wf-tok-kw">for</span> d <span class="wf-tok-kw">in</span> rows <span class="wf-tok-kw">by</span> d.id { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{d.id} {d.status} {ago(d.startedAt)}&quot;</span>) }
         }
     }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>The checker trusts the annotation: it cannot see what a URL will return. When the server publishes an OpenAPI specification, let the compiler read it instead — <code>api Backend from &quot;openapi.json&quot;</code> types every endpoint, parameter, response and error from the file, and turns each named schema into a <code>type</code>, or an <code>enum</code> for a string with cases (<a href="/docs/guide/data#from-a-specification">Data and APIs</a>). An <code>api</code> written by hand types its calls the same way: <code>get users() -&gt; [User]</code>.</p>
+<p>The checker trusts the annotation. A development build (<code>wf serve</code>) also holds each response to its declared type, and a mismatch is a <code>.parse</code> error that names the place, such as <code>$[1].status is missing</code>.</p>
+<p>When the server publishes an OpenAPI specification, let the compiler read it instead: <code>api Backend from &quot;openapi.json&quot;</code> types every endpoint, parameter, response and error from the file, and turns each named schema into a <code>type</code>, or an <code>enum</code> for a string with cases (see <a href="/docs/guide/data#read-the-service-from-an-openapi-file">Data and APIs</a>). An <code>api</code> you write by hand types its calls the same way: <code>get users() -&gt; [User]</code>.</p>
                             </div>
                             <h2 class="wf-heading" id="the-checks">The checks</h2>
+                            <div class="wf-markdown">
+<p>The type checker reports these codes. All are errors except <code>T19</code>, <code>T20</code> and <code>T21</code>, which are warnings.</p>
+                            </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">The checks</caption>
                                 <thead>
@@ -1061,7 +1143,7 @@ page Deploys(path: &quot;/&quot;) {
 <p><code>T06</code></p>
                                             </div>
                                         </td>
-                                        <td>A member or action a store does not have</td>
+                                        <td>A member or action a store does not have, or an endpoint a service does not have</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -1101,7 +1183,7 @@ page Deploys(path: &quot;/&quot;) {
 <p><code>T10</code></p>
                                             </div>
                                         </td>
-                                        <td>A call with the wrong number of arguments</td>
+                                        <td>A call with the wrong arguments: too many or too few, a name the callee does not take, or one of the wrong kind</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -1123,7 +1205,7 @@ page Deploys(path: &quot;/&quot;) {
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>A <code>Secret</code> where it would escape — shown, spliced into text, logged, or kept with <code>persist</code></p>
+<p>A <code>Secret</code> where it would escape — shown, spliced into text, joined with <code>+</code>, handed to a browser global, logged, or kept with <code>persist</code></p>
                                             </div>
                                         </td>
                                     </tr>
@@ -1135,16 +1217,219 @@ page Deploys(path: &quot;/&quot;) {
                                         </td>
                                         <td>A name, or a function called, that nothing declares — which the browser would throw on</td>
                                     </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>T14</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A comparison that is always the same: <code>&quot;1&quot; == 1</code>, a record against a string, an enum against a case it does not have</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>T15</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A <code>match</code> with no <code>else</code> that misses a case of the enum, or has a case twice</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>T16</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A method a number, a string or a list does not have, with the nearest one it does</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>T17</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>An async action's result used before it is awaited, or <code>await</code> where it cannot run</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>T18</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Arithmetic on something that is not a number</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>T19</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A value that may be <code>null</code> spliced into text (warning)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>T20</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A list or a record shown as text (warning)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>T21</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A resource <code>match</code> with no <code>error</code> arm and no <code>else</code> (warning)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>T22</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A handler that names more values than its event sends</td>
+                                    </tr>
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>Each comes with a hint: a conversion (<code>Number(value)</code>, <code>&quot;{value}&quot;</code>), the cases an enum takes, the fields a record has, the unwrapping forms above.</p>
-<p>What the checker does not do: it does not check a lambda's body against a return type, does not change a name's type across assignments (<code>state x = 1</code> stays a <code>Number</code>; assigning a string to it is <code>T01</code>), and does not know what a plain <code>fetch</code> returns (annotate it, or use an <code>api</code>).</p>
+<p>Most findings come with a hint: a conversion (<code>Number(value)</code>, <code>&quot;{value}&quot;</code>), the cases an enum takes, the fields a record has, or one of the narrowing forms above. <code>wf explain T05</code> prints a code's full entry, and <a href="/docs/guide/diagnostics">Diagnostics</a> has every code with an example.</p>
+                            </div>
+                            <h2 class="wf-heading" id="what-the-checker-does-not-check">What the checker does not check</h2>
+                            <div class="wf-markdown">
+<ul>
+<li>It does not check a lambda's body against a return type.</li>
+<li>It does not change a name's type across assignments: <code>state x = 1</code> stays a <code>Number</code>, and assigning a string to it is <code>T01</code>.</li>
+<li>It does not know what a plain <code>fetch</code> returns. Annotate it, or describe the service with an <code>api</code>.</li>
+</ul>
                             </div>
                             <h2 class="wf-heading" id="in-the-editor">In the editor</h2>
                             <div class="wf-markdown">
-<p>Hover shows a name's inferred type (<code>state draft: String</code>, <code>derived remaining: Number</code>, <code>Todos.add: action(String)</code>); completion after <code>.</code> offers a record's fields, an enum's cases where one is wanted, and the methods of a <code>String</code>, a <code>Number</code> or a list. A type error is a diagnostic at the argument it belongs to. <a href="/docs/guide/cli#editors">Chapter 38</a> sets it up.</p>
+<p>Hover shows a name's inferred type: <code>state draft: String</code>, <code>derived remaining: Number</code>, <code>Todos.add: action(String)</code>. Completion after <code>.</code> offers a record's fields, an enum's cases where one is wanted, and the methods of a <code>String</code>, a <code>Number</code> or a list. A type error appears as a diagnostic on the argument it belongs to. To set up the editor, see <a href="/docs/guide/cli#editors">Editors</a>.</p>
                             </div>
+                            <h2 class="wf-heading" id="quick-reference">Quick reference</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Quick reference</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Syntax</th>
+                                        <th scope="col">Meaning</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>state x: T = v</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Annotate a state; props, parameters, fields and <code>let</code> take <code>: T</code> the same way</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>[T]</code> · <code>T?</code> · <code>Map</code> · <code>Any</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A list, a value that may be <code>null</code>, an object with unknown keys, anything</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>type Name { field: T = default }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Declare a record</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>type B = A { extra: T }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Extend a record</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Name(field: v)</code> · <code>Name()</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Build a record</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>enum Name { a, b(x: T) }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Declare an enum, with an optional payload per case</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.case</code> · <code>.case(v)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Write a case</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Number(1..=30)</code> · <code>String(minLength: 8)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A type with a condition</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>if let x = v { … }</code> · <code>v ?? d</code> · <code>v?.f</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Narrow or read through <code>null</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>resource r: [T] = fetch(…)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Type data from the network</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                     <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
@@ -1161,17 +1446,20 @@ page Deploys(path: &quot;/&quot;) {
                 <div class="wf-stack wf-gap--lg wf-sac91c322" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
+                        <a class="wf-link wf-s3e136ca4" href="#a-first-type-error">A first type error</a>
                         <a class="wf-link wf-s3e136ca4" href="#the-type-language">The type language</a>
                         <a class="wf-link wf-s3e136ca4" href="#the-types-the-language-brings-with-it">The types the language brings with it</a>
                         <a class="wf-link wf-s3e136ca4" href="#records-type">Records: type</a>
                         <a class="wf-link wf-s3e136ca4" href="#enums">Enums</a>
-                        <a class="wf-link wf-s3e136ca4" href="#map-literals-are-shapes">Map literals are shapes</a>
+                        <a class="wf-link wf-s3e136ca4" href="#shapes-of-map-literals">Shapes of map literals</a>
                         <a class="wf-link wf-s3e136ca4" href="#where-types-come-from">Where types come from</a>
-                        <a class="wf-link wf-s3e136ca4" href="#inference-is-bidirectional">Inference is bidirectional</a>
+                        <a class="wf-link wf-s3e136ca4" href="#bidirectional-inference">Bidirectional inference</a>
                         <a class="wf-link wf-s3e136ca4" href="#narrowing-optionals">Narrowing optionals</a>
-                        <a class="wf-link wf-s3e136ca4" href="#typing-what-comes-from-the-network">Typing what comes from the network</a>
+                        <a class="wf-link wf-s3e136ca4" href="#typing-data-from-the-network">Typing data from the network</a>
                         <a class="wf-link wf-s3e136ca4" href="#the-checks">The checks</a>
+                        <a class="wf-link wf-s3e136ca4" href="#what-the-checker-does-not-check">What the checker does not check</a>
                         <a class="wf-link wf-s3e136ca4" href="#in-the-editor">In the editor</a>
+                        <a class="wf-link wf-s3e136ca4" href="#quick-reference">Quick reference</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-s614f8b98">

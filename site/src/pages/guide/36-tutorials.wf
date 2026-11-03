@@ -1,13 +1,13 @@
 /// Chapter 36 of the guide, written from md-docs/36-tutorials.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page TutorialsGuide(path: "/docs/tutorials", title: "Tutorials", description: "Three WebFluent tutorials, easy to hard — Todos, Field Notes and Pocket — each a complete project with no backend, built step by step.", layout: DocsShell("Tutorials", chapter: t("guide.chapter", { n: "36" }), blurb: "Three projects built step by step — a todo app, a statically built notes site, a budget tracker — none needing a server.", source: "md-docs/36-tutorials.md", sections: [Anchor(id: "easy-todos", label: "Easy: Todos"), Anchor(id: "medium-field-notes", label: "Medium: Field Notes"), Anchor(id: "hard-pocket", label: "Hard: Pocket"), Anchor(id: "recipes", label: "Recipes"), Anchor(id: "where-to-go-next", label: "Where to go next")], prevTo: "/docs/guide/server-rendering", prevLabel: "35. {t("ch.35")}", nextTo: "/docs/reference", nextLabel: "37. {t("ch.37")}")) {
+page TutorialsGuide(path: "/docs/tutorials", title: "Tutorials", description: "Three WebFluent tutorials, from beginner to advanced — Todos, Field Notes and Pocket — each a complete project with no backend, built step by step.", layout: DocsShell("Tutorials", chapter: t("guide.chapter", { n: "36" }), blurb: "Three projects built step by step — a todo app, a statically built notes site, a budget tracker — none needing a server.", source: "md-docs/36-tutorials.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "easy-todos", label: "Easy: Todos"), Anchor(id: "medium-field-notes", label: "Medium: Field Notes"), Anchor(id: "hard-pocket", label: "Hard: Pocket"), Anchor(id: "recipes", label: "Recipes"), Anchor(id: "where-to-go-next", label: "Where to go next")], prevTo: "/docs/guide/server-rendering", prevLabel: "35. {t("ch.35")}", nextTo: "/docs/reference", nextLabel: "37. {t("ch.37")}")) {
     Stack(gap: .lg) {
-        Markdown("Three projects, each built step by step and each complete in the repository under `examples/tutorials/`. None needs a server: what they keep, they keep in the reader's browser. Pick the one that matches where you are — each stands on its own — or do them in order.")
+        Markdown("These three tutorials each build a whole project, step by step, and each project is complete in the repository under `examples/tutorials/`. None needs a server: what a project keeps, it keeps in the reader's browser. Each tutorial stands on its own, so pick the one that matches where you are, or do them in order.")
 
         Table(caption: "Tutorials") {
             Table.Head {
                 Table.Row {
-                    Table.Cell("").header
+                    Table.Cell("Level").header
                     Table.Cell("Project").header
                     Table.Cell("What you build").header
                     Table.Cell("What it teaches").header
@@ -26,20 +26,24 @@ page TutorialsGuide(path: "/docs/tutorials", title: "Tutorials", description: "T
                     Table.Cell { Markdown("**Medium**") }
                     Table.Cell { Markdown("[Field Notes](#medium-field-notes)") }
                     Table.Cell("A notebook site, statically built, a page per note")
-                    Table.Cell { Markdown("`data` files, a layout, `:slug` pages with `paths:`, Markdown pages, search and tags, what a static page can know") }
+                    Table.Cell { Markdown("`data` files, a layout, `:slug` pages with `paths:`, Markdown pages, search and tags, what a pre-rendered page can know") }
                     Table.Cell("An hour")
                 }
                 Table.Row {
                     Table.Cell { Markdown("**Hard**") }
                     Table.Cell { Markdown("[Pocket](#hard-pocket)") }
                     Table.Cell("A budget tracker with a dashboard, forms and two languages")
-                    Table.Cell { Markdown("`Money` and `Date`, derived totals, a `persist` migration, `validate`, a dialog and shortcuts, i18n and RTL, a script of your own, offline") }
+                    Table.Cell { Markdown("`Money` and `Date`, derived totals, a `persist` migration, `validate`, a dialog and shortcuts, i18n and right-to-left text, a script of your own, offline") }
                     Table.Cell("A couple of hours")
                 }
             }
         }
 
-        Markdown("Every block that names a file — `// src/stores/Todos.wf` on its first line — is that file, or a run of it, word for word: a test holds the chapter to the projects. To start from a finished one:")
+        Markdown("If you have not written WebFluent before, start with [the Shelf tutorial](/docs/guide/tutorial): it is a gentler first half hour.")
+
+        Heading("Before you start", id: "before-you-start").h2
+
+        Markdown("You need:\n\n- `wf` installed and on your `PATH` — `wf --version` prints `wf 5.11.0` or later ([Getting started](/docs/guide/getting-started)).\n- Chrome or Chromium on the machine, for the tests that click and for `wf verify`. Set `WF_CHROME` to its path when it is not in a usual place.\n- Git, to fetch the finished projects.\n\nEvery code block whose first line names a file — `// src/stores/Todos.wf` — is that file, or a run of lines from it, exactly as the project has it. A test holds this chapter to the projects, so the code you read here is the code that builds.\n\nTo start from a finished project instead, clone the repository and serve one:")
 
         Terminal(lines: [
                 Line(command: "git clone https://github.com/monzeromer-lab/WebFluent"),
@@ -47,20 +51,22 @@ page TutorialsGuide(path: "/docs/tutorials", title: "Tutorials", description: "T
                 Line(command: "wf serve")
             ])
 
-        Markdown("If you have not written WebFluent before, [the Shelf tutorial](/docs/guide/tutorial) is a gentler first half hour.")
+        Markdown("**Check it:** the terminal prints `Starting dev server at http://localhost:3000/`, and that address shows the project.")
 
         Heading("Easy: Todos", id: "easy-todos").h2
 
-        Markdown("A list of things to do, kept in the reader's browser: add one, tick it, rename it, remove it, show the open ones. One page, one store, one component — about twenty minutes. The finished project is [`examples/tutorials/easy-todos`](https://github.com/monzeromer-lab/WebFluent/tree/master/examples/tutorials/easy-todos).")
+        Markdown("**What you will build.** A list of things to do, kept in the reader's browser: add a todo, tick it, rename it, remove it, and show only the open ones. It is one page, one store and one component. The finished project is [`examples/tutorials/easy-todos`](https://github.com/monzeromer-lab/WebFluent/tree/master/examples/tutorials/easy-todos).\n\n**Time:** about 20 minutes.\n\n**Before you start.** You need only `wf` and Chrome. You write every file of this project yourself, and the blocks below hold each file whole, except the tests, where one of six is shown.")
 
-        Heading("Step 1: a project", id: "step-1-a-project").h3
+        Heading("Step 1: Create the project", id: "step-1-create-the-project").h3
+
+        Markdown("Make a single-page project and go into it:")
 
         Terminal(lines: [
                 Line(command: "wf init todos -t spa"),
                 Line(command: "cd todos")
             ])
 
-        Markdown("Delete what the template put in `src/` — you write every file yourself — and replace `webfluent.app.json`:")
+        Markdown("Delete everything the template put in `src/` and in `tests/`: you write every file yourself, and the template's tests would fail without its pages. Then replace `webfluent.app.json` with this:")
 
         CodeBlock(#"{
   "name": "todos",
@@ -75,9 +81,47 @@ page TutorialsGuide(path: "/docs/tutorials", title: "Tutorials", description: "T
   }
 }"#, title: "json")
 
-        Markdown("`spa` is a single-page app: one HTML shell, pages swapped without a reload ([Static sites and SPAs](/docs/guide/static-and-spa)). `csp` ships a content security policy and holds the build to it ([Security](/docs/guide/security)). Run `wf serve` in another terminal and leave it running: every save rebuilds and reloads the page.")
+        Markdown("- `\"output_type\": \"spa\"` makes a single-page app: one HTML shell, with pages swapped without a reload ([Static sites and SPAs](/docs/guide/static-and-spa)).\n- `\"csp\": true` ships a content security policy and holds the build to it ([Security](/docs/guide/security)).\n- `theme` names two themes, `Paper` and `Night`, which you write in the next step.\n\n**Check it:** `wf check` prints `IO Error: No .wf files found in src/`. That is expected: `src/` is empty until the next step.")
 
-        Heading("Step 2: what a todo is", id: "step-2-what-a-todo-is").h3
+        Heading("Step 2: Give it a look of its own", id: "step-2-give-it-a-look-of-its-own").h3
+
+        Markdown("The config names a theme, so declare it first. A theme names only the design tokens it changes; every other token keeps its default ([Styling](/docs/guide/styling)). `Night` is the theme named as `\"dark\"` in the config, and the page uses it when the reader's system is set to dark:")
+
+        CodeBlock(#"// src/theme.wf
+/// Warm paper and ink, with one teal for what you can act on.
+theme Paper {
+    color-primary: #0F766E
+    color-background: #F6F4EF
+    color-surface: #FFFFFF
+    color-text: #1F2328
+    color-text-muted: #5E6670
+    color-border: #E4E0D8
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif
+    radius-md: 10px
+}
+
+/// The same page after dark.
+theme Night {
+    color-primary: #2DD4BF
+    color-background: #14171A
+    color-surface: #1C2024
+    color-text: #ECEEF0
+    color-text-muted: #A3ABB3
+    color-border: #2C3238
+}"#, title: "wf")
+
+        Markdown("The page you write in step 6 names classes — `card`, `todo`, `is-done`, `filters` — and `src/todos.css` styles them. The build bundles every `.css` file under `src/`, so the file needs no link. These are four of its rules; copy the whole file from the [finished project](https://github.com/monzeromer-lab/WebFluent/blob/master/examples/tutorials/easy-todos/src/todos.css):")
+
+        CodeBlock(#".todo { flex-wrap: nowrap; padding: 0.6rem 0.25rem; border-top: 1px solid var(--color-border); }
+.todo__title { flex: 1; }
+.todo.is-done .todo__title { text-decoration: line-through; color: var(--color-text-muted); }
+.filters a.is-on { background: var(--color-background); color: var(--color-text); font-weight: 600; }"#, title: "css")
+
+        Markdown("Each colour is a token, `var(--color-border)`, so the dark theme recolours the page with no rule of its own.\n\n**Check it:** `wf check` prints `No problems in todos.`")
+
+        Heading("Step 3: Describe a todo", id: "step-3-describe-a-todo").h3
+
+        Markdown("A `type` names the fields a value has, and the checker holds every use to them ([Types](/docs/guide/types)). An `enum` is a fixed set of cases:")
 
         CodeBlock(#"// src/types.wf
 /// One thing to do.
@@ -90,9 +134,11 @@ type Todo {
 /// Which todos the list shows.
 enum Filter { all, open, done }"#, title: "wf")
 
-        Markdown("A `type` names the fields a value has, and the checker holds every use to them: `todo.titel` is an error where it is written, with the field you meant ([Types](/docs/guide/types)). `Uuid` is one of the types the language brings; `uuid()` makes one. `done` has a default, so a new todo can leave it out. An `enum` is a fixed set of cases, written `.open` where a `Filter` is wanted.")
+        Markdown("- `Uuid` is one of the types the language brings; `uuid()` makes one.\n- `done` has a default, so a new todo can leave it out.\n- A case is written with a dot, `.open`, wherever a `Filter` is wanted.\n\nBecause the checker knows the fields, `todo.titel` is an error where it is written, and the message names the field you meant.\n\n**Check it:** `wf check` prints `No problems in todos.`")
 
-        Heading("Step 3: a store that remembers", id: "step-3-a-store-that-remembers").h3
+        Heading("Step 4: Write a store that remembers", id: "step-4-write-a-store-that-remembers").h3
+
+        Markdown("A store holds state that any page or component can read ([Stores](/docs/guide/stores)). This one keeps the list:")
 
         CodeBlock(#"// src/stores/Todos.wf
 /// The list, kept in the browser between visits.
@@ -110,11 +156,28 @@ store Todos {
 
     action toggle(id: Uuid) {
         items = items.map(todo => if todo.id == id { { ...todo, done: !todo.done } } else { todo })
-    }"#, title: "wf")
+    }
 
-        Markdown("A store is state any page or component can read ([Stores](/docs/guide/stores)). `persist` is `state` that is kept in the browser's storage: the list is there after a reload, and a second tab follows the first, with no storage code written. `derived` values follow what they read — `open` is always the todos not done. An action is the only place state changes; `\{ ...todo, done: !todo.done \}` is the todo with one field changed.\n\nThe rest of the store renames, removes and clears in the same way — see the [whole file](https://github.com/monzeromer-lab/WebFluent/blob/master/examples/tutorials/easy-todos/src/stores/Todos.wf).")
+    action rename(id: Uuid, title: String) {
+        let text = title.trim()
+        if text == "" { return }
+        items = items.map(todo => if todo.id == id { { ...todo, title: text } } else { todo })
+    }
 
-        Heading("Step 4: one row", id: "step-4-one-row").h3
+    action remove(id: Uuid) {
+        items = items.filter(todo => todo.id != id)
+    }
+
+    action clearDone() {
+        items = items.filter(todo => !todo.done)
+    }
+}"#, title: "wf")
+
+        Markdown("- `persist` is a `state` kept in the browser's storage. The list is still there after a reload, and a second tab follows the first, with no storage code written.\n- A `derived` value follows what it reads: `open` is always the todos not yet done.\n- An action is the one place state changes. `\{ ...todo, done: !todo.done \}` is the todo with one field changed.\n- `rename`, `remove` and `clearDone` change the list in the same way.\n\n**Check it:** `wf check` prints seven `U04` warnings, such as ``warning[U04]: `Todos.open` is declared but never read``. That is expected: nothing reads the store yet. The page in step 6 reads every member, and the warnings go.")
+
+        Heading("Step 5: Build one row", id: "step-5-build-one-row").h3
+
+        Markdown("A component is an element of your own ([Components](/docs/guide/components)). This one draws a single todo, and lets the reader rename it in place:")
 
         CodeBlock(#"// src/components/TodoRow.wf
 /// One row of the list: a box to tick, the title, and buttons to rename and
@@ -152,9 +215,11 @@ component TodoRow(_ todo: Todo) {
     }
 }"#, title: "wf")
 
-        Markdown("A component is an element of your own ([Components](/docs/guide/components)). `_ todo` is its one positional prop, so a call reads `TodoRow(todo)`. Its `state` belongs to each row: one row being renamed does not put the others in edit mode. `class:` adds classes to the element's own — a list may hold an `if`, which adds `is-done` only while the todo is done. Every control has an accessible name: the checkbox and the icon buttons say which todo they act on, so a screen reader — and the tests in step 7 — can tell them apart ([Accessibility](/docs/guide/accessibility)).")
+        Markdown("- `_ todo` is the component's one positional prop, so a call reads `TodoRow(todo)`.\n- Its `state` belongs to each row: renaming one row does not put the others in edit mode.\n- `class:` adds classes to the element's own. The list form may hold an `if`, which adds `is-done` only while the todo is done.\n- Every control has an accessible name. The checkbox and the icon buttons say which todo they act on, so a screen reader — and the tests in step 7 — can tell them apart ([Accessibility](/docs/guide/accessibility)).\n\n**Check it:** `wf check` prints `U03` for `TodoRow` (nothing places it yet) and four `U04` warnings. The store's `toggle`, `rename` and `remove` no longer appear: the row calls them.")
 
-        Heading("Step 5: the page", id: "step-5-the-page").h3
+        Heading("Step 6: Write the page", id: "step-6-write-the-page").h3
+
+        Markdown("The page holds the box for a new todo, the filters and the list. Here is its first half:")
 
         CodeBlock(#"// src/pages/Home.wf
 page Home(path: "/", title: "Todos", description: "A small list of things to do, kept in your browser.") {
@@ -190,7 +255,7 @@ page Home(path: "/", title: "Todos", description: "A small list of things to do,
             }
         }"#, title: "wf")
 
-        Markdown("`bind: draft` ties the input to the state both ways: typing changes `draft`, and `draft = \"\"` empties the box. `query` is the address's query string as a value, kept current, so `filter` follows the address and `shown` follows `filter`. A `match` over an enum must cover every case — a fourth filter added to `Filter` would be an error here until it is handled. The rest of the page draws the list:")
+        Markdown("- `bind: draft` ties the input to the state both ways: typing changes `draft`, and `draft = \"\"` empties the box.\n- `query` is the address's query string as a value, kept current. So `filter` follows the address, and `shown` follows `filter`.\n- A `match` over an enum must cover every case. If you add a fourth case to `Filter`, this `match` is an error until it handles it.\n\nThe second half draws the filters and the list, and closes the page. Add it below the first, after a blank line:")
 
         CodeBlock(#"// src/pages/Home.wf
         Row(class: "filters", gap: .xs, align: .center) {
@@ -213,9 +278,11 @@ page Home(path: "/", title: "Todos", description: "A small list of things to do,
                 TodoRow(todo, animate: .fadeIn, exit: .fadeOut)
             }
         }
-    }"#, title: "wf")
+    }
+    Text("Your list stays in this browser, and nowhere else.", class: "hint")
+}"#, title: "wf")
 
-        Markdown("`for … by todo.id` is a keyed list: when a todo is ticked away by the filter or renamed, only its row changes — the others keep their nodes, and the row being edited keeps its cursor ([Control flow](/docs/guide/control-flow)). `animate:` and `exit:` fade a row in and out. A class map, `\{ \"is-on\": filter == .all \}`, turns a class on while its condition holds.\n\nAnd the frame every page sits in:")
+        Markdown("- `for … by todo.id` is a keyed list. When a todo is renamed, or the filter hides it, only its row changes; the other rows keep their elements, and the row being edited keeps its cursor ([Control flow](/docs/guide/control-flow)).\n- `animate:` and `exit:` fade a row in and out.\n- A class map, `\{ \"is-on\": filter == .all \}`, turns a class on while its condition holds.\n\nLast, the `app` declaration is the frame every page sits in. `Router` marks where the current page is drawn:")
 
         CodeBlock(#"// src/App.wf
 // The frame every page sits in: a narrow column, centred.
@@ -225,29 +292,17 @@ app {
     }
 }"#, title: "wf")
 
-        Heading("Step 6: a look of its own", id: "step-6-a-look-of-its-own").h3
+        Markdown("Now start the development server in a second terminal, and leave it running. Every save rebuilds the project and reloads the page:")
 
-        CodeBlock(#"// src/theme.wf
-/// Warm paper and ink, with one teal for what you can act on.
-theme Paper {
-    color-primary: #0F766E
-    color-background: #F6F4EF
-    color-surface: #FFFFFF
-    color-text: #1F2328
-    color-text-muted: #5E6670
-    color-border: #E4E0D8
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif
-    radius-md: 10px
-}"#, title: "wf")
+        Terminal(lines: [
+                Line(command: "wf serve")
+            ])
 
-        Markdown("A theme names only the design tokens it changes ([Styling](/docs/guide/styling)); `Night`, named as `\"dark\"` in the config, is used when the reader's system is dark. The classes the page names — `card`, `todo`, `is-done`, `filters` — are styled in `src/todos.css`, which the build bundles because it is under `src/`:")
+        Markdown("**Check it:** `wf check` prints `No problems in todos.`, and <http://localhost:3000/> shows a card headed **Todos** with `0 left` and *Nothing yet — add your first todo above.* Type a todo and press Enter: it appears, and the count reads `1 left`. Reload the page, and the todo is still there. Click **Open**, and the address becomes `/?show=open`.\n\nIf the server prints `No theme Paper is declared in this project`, you probably skipped `src/theme.wf` in step 2. If a store member shows as `U04` here, you probably left out part of the page.")
 
-        CodeBlock(#".todo { flex-wrap: nowrap; padding: 0.6rem 0.25rem; border-top: 1px solid var(--color-border); }
-.todo__title { flex: 1; }
-.todo.is-done .todo__title { text-decoration: line-through; color: var(--color-text-muted); }
-.filters a.is-on { background: var(--color-background); color: var(--color-text); font-weight: 600; }"#, title: "css")
+        Heading("Step 7: Write tests", id: "step-7-write-tests").h3
 
-        Heading("Step 7: tests", id: "step-7-tests").h3
+        Markdown("A test draws what it declares, then follows its steps in order. It types into the control named **New todo** and clicks the button named **Add**, the way a reader would ([Testing](/docs/guide/testing)). Create `tests/todos.wf` with this test:")
 
         CodeBlock(#"// tests/todos.wf
 test "adding a todo puts it in the list" {
@@ -265,9 +320,17 @@ test "adding a todo puts it in the list" {
     expect "1 left"
 }"#, title: "wf")
 
-        Markdown("A test draws what it declares and then follows its steps in order: it types into the control named \"New todo\" and clicks the button named \"Add\", the way a reader would, in a headless Chrome ([Testing](/docs/guide/testing)). `wf test` runs every test under `tests/`; the project has six — a blank todo is refused, ticking and clearing empties the list, renaming keeps one row for each.")
+        Markdown("A test that clicks or types runs in a headless Chrome. The finished project has six tests in [`tests/todos.wf`](https://github.com/monzeromer-lab/WebFluent/blob/master/examples/tutorials/easy-todos/tests/todos.wf): two that only look at a row, and four that click — adding a todo, refusing a blank one, ticking and clearing, and renaming that keeps one row for each. Copy the file to have them all, then run them:")
 
-        Heading("Step 8: build it", id: "step-8-build-it").h3
+        Terminal(lines: [
+                Line(command: "wf test")
+            ])
+
+        Markdown("**Check it:** with the whole file, `wf test` ends with `6 passed, 0 failed, 2 snapshot(s) written`. The two tests that only look write a snapshot of what they drew under `tests/__snapshots__/`, and later runs compare against it.\n\nIf a test that clicks reports that no browser was found, Chrome is not where `wf` looks: set `WF_CHROME` to its path.")
+
+        Heading("Step 8: Build it", id: "step-8-build-it").h3
+
+        Markdown("Check, test and build the project:")
 
         Terminal(lines: [
                 Line(command: "wf check"),
@@ -275,18 +338,33 @@ test "adding a todo puts it in the list" {
                 Line(command: "wf build")
             ])
 
-        Markdown("`wf check` reports every finding with nothing written; `wf build` writes `build/`, which any static host serves — [Deploying](/docs/guide/deploying) has GitHub Pages, Netlify and the rest. `wf verify` loads the built page in a real browser and fails on an error, a missing file or a page that draws nothing.")
+        Markdown("`wf check` reports every finding and writes nothing. `wf build` writes `build/`, which any static host serves — [Deploying](/docs/guide/deploying) covers GitHub Pages, Netlify and the rest. To load the built page in a real browser before you deploy, run `wf verify`: it fails on an error, a missing file or a page that draws nothing.\n\n**Check it:** `wf build` ends with `Build complete.`, and `build/` holds `index.html`, `app.js` and `styles.css`.")
+
+        Heading("What you built in Todos", id: "what-you-built-in-todos").h3
+
+        Markdown("- A `type` and an `enum`, held to every use ([Types](/docs/guide/types)).\n- A store whose list survives a reload with `persist`, and `derived` values that follow it ([Stores](/docs/guide/stores)).\n- A component with state of its own, and accessible names on every control ([Components](/docs/guide/components)).\n- A keyed list, and a filter kept in the address with `query` ([Control flow](/docs/guide/control-flow)).\n- A theme with a dark variant, and the project's own stylesheet ([Styling](/docs/guide/styling)).\n- Tests that look and tests that click ([Testing](/docs/guide/testing)).")
 
         Heading("Medium: Field Notes", id: "medium-field-notes").h2
 
-        Markdown("A notebook kept in public — notes from a garden, a kitchen and a few trips — built as a static site. The notes are a JSON file read when the site is built; every page, one per note included, is written out as HTML a search engine reads; the one thing a reader changes, the notes they save for later, stays in their browser. About an hour. The finished project is [`examples/tutorials/medium-field-notes`](https://github.com/monzeromer-lab/WebFluent/tree/master/examples/tutorials/medium-field-notes).")
+        Markdown("**What you will build.** A notebook kept in public — notes from a garden, a kitchen and a few trips — built as a static site. The notes are a JSON file the build reads. Every page, including one page per note, is written out as HTML that a search engine can read. The one thing a reader changes, the notes they save for later, stays in their browser. The finished project is [`examples/tutorials/medium-field-notes`](https://github.com/monzeromer-lab/WebFluent/tree/master/examples/tutorials/medium-field-notes).\n\n**Time:** about an hour.\n\n**Before you start.** You need `wf`, Chrome and a copy of the repository (see [Before you start](#before-you-start) above). This tutorial shows the part of each file that teaches something new, so work in the finished project and read each file as its step comes up:")
 
-        Heading("Step 1: a static project and its look", id: "step-1-a-static-project-and-its-look").h3
+        Terminal(lines: [
+                Line(command: "cd WebFluent/examples/tutorials/medium-field-notes"),
+                Line(command: "wf serve")
+            ])
+
+        Markdown("The Todos tutorial explains state, stores and components; this one assumes them.")
+
+        Heading("Step 1: Create a static project and its look", id: "step-1-create-a-static-project-and-its-look").h3
+
+        Markdown("A new project of this kind starts from the `static` template:")
 
         Terminal(lines: [
                 Line(command: "wf init field-notes -t static"),
                 Line(command: "cd field-notes")
             ])
+
+        Markdown("The project's `webfluent.app.json`:")
 
         CodeBlock(#"{
   "name": "field-notes",
@@ -310,7 +388,7 @@ test "adding a todo puts it in the list" {
   }
 }"#, title: "json")
 
-        Markdown("`ssg` pre-renders every page to its own `index.html`, and the script takes the page over when it loads ([Static sites and SPAs](/docs/guide/static-and-spa)). `site_url` lets the build write what search engines and link previews read: a canonical address, Open Graph tags, JSON-LD, `sitemap.xml` and `robots.txt` ([Content](/docs/guide/content)).")
+        Markdown("- `\"ssg\": true` pre-renders every page to its own `index.html`. When the page loads, the script takes it over in place — *hydration* ([Static sites and SPAs](/docs/guide/static-and-spa)).\n- `site_url` lets the build write what search engines and link previews read: a canonical address, Open Graph tags, JSON-LD, `sitemap.xml` and `robots.txt` ([Content](/docs/guide/content)).\n\nThe dark theme names only the tokens that change:")
 
         CodeBlock(#"// src/theme.wf
 /// The dark theme: only the tokens that change.
@@ -327,15 +405,19 @@ theme Dusk {
     tag-text: #A9DCC1
 }"#, title: "wf")
 
-        Markdown("The light theme, `Meadow`, sets the same names. A theme may declare tokens of its own — `paper-raised`, `tag-bg` — and the project's stylesheet, `src/styles.css`, reads every colour as a token (`var(--tag-bg)`), so the dark theme needs no rule of its own ([Design tokens](/docs/guide/tokens)).")
+        Markdown("The light theme, `Meadow`, sets the same names. A theme may declare tokens of its own, such as `paper-raised` and `tag-bg`. The project's stylesheet, `src/styles.css`, reads every colour as a token (`var(--tag-bg)`), so the dark theme needs no rule of its own ([Design tokens](/docs/guide/tokens)).\n\n**Check it:** with `wf serve` running, set your system to dark mode. The page turns dark green and cream without a reload.")
 
-        Heading("Step 2: typed data", id: "step-2-typed-data").h3
+        Heading("Step 2: Type the data", id: "step-2-type-the-data").h3
+
+        Markdown("The notes are data, and a `type` says what each one holds:")
 
         CodeBlock("// src/types.wf\n/// One note in the notebook.\ntype Note \{\n    slug: String\n    title: String\n    date: Date\n    tags: [String]\n    summary: String\n    minutes: Number\n    body: String\n\}\n\n/// Every note, read from `notes.json` when the site is built.\ndata notes: [Note] = \"notes.json\"", title: "wf")
 
-        Markdown("`data` reads a JSON file at build time: it is a constant, typed by the annotation, inlined into the bundle and seeded into every pre-rendered page ([Data](/docs/guide/data)). The checker holds the program to `Note`: a page that reads `note.titel` is an error where it is written. `date` is a `Date`, a plain `\"2026-03-08\"` string the language knows how to format — `\{note.date:.date(long)\}` is \"March 8, 2026\". `src/notes.json` holds seven notes, each with a Markdown `body`.")
+        Markdown("- `data` reads a JSON file at build time. The result is a constant, typed by the annotation, inlined into the bundle and seeded into every pre-rendered page ([Data](/docs/guide/data)).\n- The checker holds the program to `Note`: a page that reads `note.titel` is an error where it is written.\n- `date` is a `Date`: a plain `\"2026-03-08\"` string the language knows how to format. `\{note.date:.date(long)\}` shows `March 8, 2026`.\n\n`src/notes.json` holds seven notes, each with a Markdown `body`.\n\n**Check it:** `wf check` prints `No problems in field-notes.` If one note in `notes.json` has a field that `Note` does not declare, the check reports `T05` at the `data` line and names the field; if a note leaves out a field `Note` requires, it reports `C01`.")
 
-        Heading("Step 3: the shell and a layout", id: "step-3-the-shell-and-a-layout").h3
+        Heading("Step 3: Write the shell and a layout", id: "step-3-write-the-shell-and-a-layout").h3
+
+        Markdown("The `app` declaration wraps every page. The current page is drawn where `Router` stands, inside `<main>`, so the skip link each page carries jumps past the navigation ([Pages and routing](/docs/guide/pages-and-routing)). The start of `src/App.wf`:")
 
         CodeBlock(#"// src/App.wf
 app {
@@ -363,7 +445,7 @@ app {
 
     Router(transition: .fade, duration: "160ms")"#, title: "wf")
 
-        Markdown("`app` is what wraps every page; the current page is drawn where `Router` stands, inside `<main>`, so the skip link a page carries jumps past the navigation ([Pages and routing](/docs/guide/pages-and-routing)). The link whose `to:` is the page shown is marked `aria-current=\"page\"`. Each page names the column it is set in with `layout:` — a component whose default slot is the page:")
+        Markdown("- The link whose `to:` is the page shown is marked `aria-current=\"page\"`.\n- `ThemeToggle` is two icon buttons that call `setTheme(\"dark\")` and `setTheme(\"light\")`. The reader's choice is kept across visits.\n- `Router(transition: .fade, duration: \"160ms\")` fades one page out and the next in.\n\nEach page names the column it is set in with `layout:` — a component whose default slot is the page:")
 
         CodeBlock(#"// src/components/Sheet.wf
 /// The column a page is set in, and the frame every page names with
@@ -375,9 +457,11 @@ component Sheet(wide: Bool = false) {
     }
 }"#, title: "wf")
 
-        Markdown("`ThemeToggle` is two icon buttons that call `setTheme(\"dark\")` and `setTheme(\"light\")`; the choice is kept across visits.")
+        Markdown("**Check it:** the navbar shows **Notes**, **Tags**, **Saved** and **About**. Click **Tags**: the page fades over, and the **Tags** link is marked as the current page.")
 
-        Heading("Step 4: a card", id: "step-4-a-card").h3
+        Heading("Step 4: Build a card", id: "step-4-build-a-card").h3
+
+        Markdown("A card shows a note at a glance:")
 
         CodeBlock(#"// src/components/NoteCard.wf
 /// A note at a glance: when it was written, its title, a summary, its tags
@@ -402,9 +486,11 @@ component NoteCard(
     }
 }"#, title: "wf")
 
-        Markdown("A `///` comment above a component or a prop is its documentation, shown when the editor hovers a call ([Components](/docs/guide/components)). A splice may say how to show its value: `\{note.date:.date(long)\}` is `format(note.date, .date, \"long\")` written where it is read ([Expressions](/docs/guide/expressions)). `TagList` is a row of `#tag` links to `/?tag=…`.")
+        Markdown("- A `///` comment above a component or a prop is its documentation. Your editor shows it when you hover a call ([Components](/docs/guide/components)).\n- A splice may say how to show its value: `\{note.date:.date(long)\}` is `format(note.date, .date, \"long\")`, written where it is read ([Expressions](/docs/guide/expressions)).\n- `TagList` is a row of `#tag` links to `/?tag=…`.\n\n**Check it:** the front page shows a card per note, each with a line such as `March 8, 2026 · 4 min read`, a title, a summary and its tags.")
 
-        Heading("Step 5: the front page — a search and a filter in the address", id: "step-5-the-front-page-a-search-and-a-filter-in-the-address").h3
+        Heading("Step 5: Search and filter the front page", id: "step-5-search-and-filter-the-front-page").h3
+
+        Markdown("The front page lists every note, narrowed by a search box and by the tag in the address. `NoteFinder` works the list out:")
 
         CodeBlock(#"// src/components/NoteFinder.wf
     state q = ""
@@ -419,7 +505,7 @@ component NoteCard(
     derived visible = shown.map(n => n.slug)
     derived allTags = all.flatMap(n => n.tags).unique().sort()"#, title: "wf")
 
-        Markdown("`q` is bound to the search box; everything else follows it. `sortBy`, `flatMap` and `unique` are list helpers the language brings, and each runs at build time too, so the pre-rendered page shows the sorted list ([State and reactivity](/docs/guide/state)).")
+        Markdown("`q` is bound to the search box, and everything else follows it. `sortBy`, `flatMap` and `unique` are list helpers the language brings. Each also runs at build time, so the pre-rendered page shows the sorted list ([State and reactivity](/docs/guide/state)).\n\nA static site adds one idea here. Its HTML is written once, before any reader arrives, so the HTML cannot depend on what only the browser knows, such as the address's query or what is in storage. So the finder draws every note and hides the ones that do not match:")
 
         CodeBlock(#"// src/components/NoteFinder.wf
             // Every note is drawn, and the ones that do not match are hidden.
@@ -430,14 +516,18 @@ component NoteCard(
                 NoteCard(note, hidden: !visible.includes(note.slug))
             }"#, title: "wf")
 
-        Markdown("This is the one idea a static site adds: the HTML is written once, before any reader arrives, so it cannot depend on what only the browser knows — the address's query, what is in storage. Drawing every note and hiding the misses means the HTML holds them all, for a reader without script and for a search engine, and the filter applies the moment the page is live. The front page hands the finder the address's tag:")
+        Markdown("The HTML then holds every note, for a reader without script and for a search engine, and the filter applies the moment the page is live. The front page hands the finder the address's tag:")
 
         CodeBlock(#"// src/pages/Home.wf
         // `query.tag` is the URL's `?tag=…`; it is missing when the URL has
         // none, and `?? ""` turns that into the finder's "every note".
         NoteFinder(notes, tag: query.tag ?? "")"#, title: "wf")
 
-        Heading("Step 6: a page per note", id: "step-6-a-page-per-note").h3
+        Markdown("**Check it:** the front page reads `7 of 7 notes`. Type `tomato` in the search box, and the count and the cards narrow as you type. Open `/?tag=garden`, and only the notes tagged `garden` show. Run `wf build` and open `build/index.html` in a text editor: all seven notes are in it.\n\nIf a filtered list is empty in the built HTML, you probably filtered the `for` itself by `query`; hide the cards instead, as above.")
+
+        Heading("Step 6: Give each note a page", id: "step-6-give-each-note-a-page").h3
+
+        Markdown("Each note gets a page at `/notes/<slug>`:")
 
         CodeBlock(#"// src/pages/NotePage.wf
 page NotePage(path: "/notes/:slug", slug: String,
@@ -449,21 +539,23 @@ page NotePage(path: "/notes/:slug", slug: String,
 
     derived note = notes.find(n => n.slug == slug)"#, title: "wf")
 
-        Markdown("`:slug` in the path is a typed parameter of the page. `paths:` names the values a static build renders it for — one `notes/<slug>/index.html` per note, each listed in the sitemap ([Content](/docs/guide/content)). `title:` and `description:` may compute from the parameters, so each note's search result shows its own title and summary. The body is the note's Markdown:")
+        Markdown("- `:slug` in the path is a typed parameter of the page.\n- `paths:` names the values a static build renders the page for: one `notes/<slug>/index.html` per note, each listed in the sitemap ([Content](/docs/guide/content)).\n- `title:` and `description:` may be worked out from the parameters, so each note's search result shows its own title and summary.\n\nThe body of the page is the note's Markdown:")
 
         CodeBlock(#"// src/pages/NotePage.wf
             Markdown(n.body)"#, title: "wf")
 
-        Markdown("`Markdown` renders headings, lists, quotes, emphasis and links, at build time and live; the text is escaped first, so HTML in a note is shown, not run ([Elements](/docs/guide/elements)). Below it, `related` is the three newest notes that share a tag — a `derived` value like any other.")
+        Markdown("`Markdown` renders headings, lists, quotes, emphasis and links, at build time and live. It escapes the text first, so HTML in a note is shown, not run ([Elements](/docs/guide/elements)). Below the note, `related` lists the three newest notes that share a tag with it — a `derived` value like any other.\n\n**Check it:** click a note's title. Its page shows the whole note, and the browser tab shows its title followed by `— Field Notes`. After `wf build`, `build/notes/` holds seven folders, one per note.")
 
-        Heading("Step 7: tags, and a page written in Markdown", id: "step-7-tags-and-a-page-written-in-markdown").h3
+        Heading("Step 7: List the tags, and write a page in Markdown", id: "step-7-list-the-tags-and-write-a-page-in-markdown").h3
+
+        Markdown("The Tags page groups the notes under each tag:")
 
         CodeBlock(#"// src/pages/Tags.wf
         Grid(columns: { base: 1, md: 2 }, gap: .md, align: .start) {
             for tag in allTags by tag {
                 derived filed = notes.filter(n => n.tags.includes(tag)).sortBy(n => n.date).reverse()"#, title: "wf")
 
-        Markdown("A layout prop takes one value per breakpoint — one column on a phone, two from `md` up — compiled to a media query, so the first paint is right ([Styling](/docs/guide/styling)). A `derived` value inside a `for` is worked out per item.\n\nThe About page is not a `.wf` file at all: `src/about.md` is a page, its front matter naming its path, title, description and layout:")
+        Markdown("- A layout prop takes one value per breakpoint: one column on a phone, two from `md` up. It compiles to a media query, so the first paint is already right ([Styling](/docs/guide/styling)).\n- A `derived` value inside a `for` is worked out for each item.\n\nThe About page is not a `.wf` file at all. `src/about.md` is a page: its front matter names its path, title, description and layout, and the rest is its Markdown:")
 
         CodeBlock(#"---
 path: /about
@@ -473,7 +565,11 @@ layout: Sheet
 ---
 # About"#, title: "markdown")
 
-        Heading("Step 8: the reader's saved notes", id: "step-8-the-reader-s-saved-notes").h3
+        Markdown("**Check it:** `/tags` shows one card per tag, in one column on a narrow window and two on a wide one. `/about` shows the About page in the same column as the others.")
+
+        Heading("Step 8: Keep the reader's saved notes", id: "step-8-keep-the-reader-s-saved-notes").h3
+
+        Markdown("A store keeps the notes this reader saves:")
 
         CodeBlock(#"// src/stores/Saved.wf
 /// The notes this reader has saved for later, kept in their browser.
@@ -482,7 +578,7 @@ store Saved {
 
     derived count = slugs.length"#, title: "wf")
 
-        Markdown("`persist` keeps the list in the browser across visits — there is no account and nothing is sent anywhere ([Stores](/docs/guide/stores)). The button that saves a note says whether it is pressed, the way assistive technology reads it:")
+        Markdown("`persist` keeps the list in the browser across visits. There is no account, and nothing is sent anywhere ([Stores](/docs/guide/stores)).\n\nThe button that saves a note says whether it is pressed, the way assistive technology reads it:")
 
         CodeBlock(#"// src/components/SaveButton.wf
 /// Saves a note for later, or takes it off the saved list.
@@ -497,9 +593,11 @@ component SaveButton(_ slug: String, title: String) {
     }
 }"#, title: "wf")
 
-        Markdown("`aria-pressed` follows the state, and `styles.css` styles the pressed button with `[aria-pressed=\"true\"]` — the look and the meaning are one attribute ([Accessibility](/docs/guide/accessibility)). The Saved page lists `notes.filter(n => Saved.slugs.includes(n.slug))`, and the navbar's badge is `Saved.count`.")
+        Markdown("`aria-pressed` follows the state, and `styles.css` styles the pressed button with `[aria-pressed=\"true\"]`, so the look and the meaning are one attribute ([Accessibility](/docs/guide/accessibility)). The Saved page lists `notes.filter(n => Saved.slugs.includes(n.slug))`, and the navbar's badge shows `Saved.count`.\n\n**Check it:** click **Save** on a card. It reads **Saved**, and the navbar shows a `1` badge beside **Saved**. Reload the page: the note is still saved, and `/saved` lists it.")
 
-        Heading("Step 9: tests, and the checks a static site deserves", id: "step-9-tests-and-the-checks-a-static-site-deserves").h3
+        Heading("Step 9: Test it, and run the checks a static site needs", id: "step-9-test-it-and-run-the-checks-a-static-site-needs").h3
+
+        Markdown("A test reads the project's `data` file, as any page does ([Testing](/docs/guide/testing)):")
 
         CodeBlock(#"// tests/NoteFinder.wf
 test "a search that matches nothing says so, and clears" {
@@ -512,7 +610,7 @@ test "a search that matches nothing says so, and clears" {
     expect not "Nothing matches"
 }"#, title: "wf")
 
-        Markdown("A test reads the project's `data` file like any page does ([Testing](/docs/guide/testing)). Then:")
+        Markdown("The project has six tests. Run them, check with warnings counted as failures, build, and load the result in a browser:")
 
         Terminal(lines: [
                 Line(command: "wf test"),
@@ -521,13 +619,24 @@ test "a search that matches nothing says so, and clears" {
                 Line(command: "wf verify")
             ])
 
-        Markdown("`wf verify` loads every route of the built site in a headless Chrome — each note's page at its `paths:` value — and fails on an error, a missing file or a page that draws nothing ([Command line](/docs/guide/cli)). `build/` is ready for any static host.")
+        Markdown("`wf verify` loads every route of the built site in a headless Chrome — each note's page at its `paths:` value — and fails on an error, a missing file or a page that draws nothing ([Command line](/docs/guide/cli)).\n\n**Check it:** `wf test` reports `6 passed`, `wf build` reports `SSG: pre-rendered static pages`, and `wf verify` ends with `0 problem(s)`. `build/` is ready for any static host.")
+
+        Heading("What you built in Field Notes", id: "what-you-built-in-field-notes").h3
+
+        Markdown("- A static build, with canonical addresses, a sitemap and link previews ([Content](/docs/guide/content)).\n- Typed data read from a JSON file at build time ([Data](/docs/guide/data)).\n- A shell, and a layout every page names ([Pages and routing](/docs/guide/pages-and-routing)).\n- A page per note from one `:slug` page and `paths:`, and a page written in Markdown ([Content](/docs/guide/content)).\n- A search and a filter that work in pre-rendered HTML ([Static sites and SPAs](/docs/guide/static-and-spa)).\n- A reader's saved list, with a pressed state assistive technology reads ([Accessibility](/docs/guide/accessibility)).")
 
         Heading("Hard: Pocket", id: "hard-pocket").h2
 
-        Markdown("A personal budget tracker that lives entirely in the reader's browser: money in and money out, a budget per category, what is left of it this month, six months of bars, two languages, a CSV out and back in, and a page that keeps working offline. No server and no account. A couple of hours; it assumes the easy tutorial, and every step links the chapter that goes deeper. The finished project is [`examples/tutorials/hard-pocket`](https://github.com/monzeromer-lab/WebFluent/tree/master/examples/tutorials/hard-pocket).")
+        Markdown("**What you will build.** A personal budget tracker that lives entirely in the reader's browser: money in and money out, a budget per category, what is left of it this month, six months of bars, two languages, a CSV export and import, and a page that keeps working offline. There is no server and no account. The finished project is [`examples/tutorials/hard-pocket`](https://github.com/monzeromer-lab/WebFluent/tree/master/examples/tutorials/hard-pocket).\n\n**Time:** a couple of hours.\n\n**Before you start.** You need `wf`, Chrome and a copy of the repository (see [Before you start](#before-you-start) above). This tutorial assumes the Todos tutorial, and each step links the chapter that goes deeper. Like Field Notes, it shows the part of each file that teaches something new, so work in the finished project:")
 
-        Heading("Step 1: a project", id: "step-1-a-project").h3
+        Terminal(lines: [
+                Line(command: "cd WebFluent/examples/tutorials/hard-pocket"),
+                Line(command: "wf serve")
+            ])
+
+        Heading("Step 1: Configure the project", id: "step-1-configure-the-project").h3
+
+        Markdown("The project's `webfluent.app.json`:")
 
         CodeBlock(#"{
   "name": "pocket",
@@ -555,9 +664,11 @@ test "a search that matches nothing says so, and clears" {
   }
 }"#, title: "json")
 
-        Markdown("Three settings this project adds to the easy one: `i18n` names the languages and where their messages live ([Internationalization](/docs/guide/i18n)); `offline` makes `wf build` write a service worker that stores the four pages, so a second visit opens with no network ([Offline](/docs/guide/offline)); and the two themes, light and dark, both of which the build ships.")
+        Markdown("It adds three things to the Todos config:\n\n- `i18n` names the languages and the folder their messages live in ([Internationalization](/docs/guide/i18n)).\n- `offline` makes `wf build` write a service worker that stores the four pages, so a second visit opens with no network ([Offline](/docs/guide/offline)).\n- `theme` names two themes, light and dark, and the build ships both.\n\n**Check it:** `wf build` prints a line that starts `Offline: sw.js`, then `2 locales` in its summary.")
 
-        Heading("Step 2: what money is", id: "step-2-what-money-is").h3
+        Heading("Step 2: Describe money", id: "step-2-describe-money").h3
+
+        Markdown("The ledger's types use four of the types the language brings:")
 
         CodeBlock(#"// src/types.wf
 /// Which way the money went.
@@ -582,7 +693,7 @@ type Entry {
     note: String = ""
 }"#, title: "wf")
 
-        Markdown("`Money`, `Date`, `Color` and `Uuid` are types the language brings, each a plain JSON value at run time ([Types](/docs/guide/types)). Money is kept in minor units, `\{ amount: 1299, currency: \"USD\" \}`, so a sum never drifts by a fraction of a cent; it is written `$12.99` and shown with `format(m)`. Its methods are calls — `a.plus(b)`, `a.minus(b)`, `ONE.times(12.5)` — and its carrier's fields are fields: `m.amount`.")
+        Markdown("`Money`, `Date`, `Color` and `Uuid` are each a plain JSON value at run time ([Types](/docs/guide/types)). Money is kept in minor units, `\{ amount: 1299, currency: \"USD\" \}`, so a sum never drifts by a fraction of a cent. You write it `$12.99` and show it with `format(m)`. What the language works out is a call — `a.plus(b)`, `a.minus(b)`, `ONE.times(12.5)` — and what the value carries is a field: `m.amount`. Two constants give every sum a starting point:")
 
         CodeBlock(#"// src/types.wf
 /// Nothing yet: the starting point every sum adds to.
@@ -591,7 +702,11 @@ const ZERO: Money = $0.00
 /// One dollar — `ONE.times(12.5)` is $12.50, rounded to the cent.
 const ONE: Money = $1.00"#, title: "wf")
 
-        Heading("Step 3: a ledger that adds itself up", id: "step-3-a-ledger-that-adds-itself-up").h3
+        Markdown("**Check it:** `wf check` prints `No problems in pocket.` Change `$0.00` to `$0.001`, and the check refuses it: money has two decimals in dollars. Change it back.")
+
+        Heading("Step 3: Add up the ledger", id: "step-3-add-up-the-ledger").h3
+
+        Markdown("Every figure on every page is a `derived` value of the `Ledger` store:")
 
         CodeBlock(#"// src/stores/Ledger.wf
     derived today = now.date()
@@ -607,7 +722,7 @@ const ONE: Money = $1.00"#, title: "wf")
     derived monthBudget = categories.reduce((s, c) => s.plus(c.budget), ZERO)
     derived budgetLeft = monthBudget.minus(monthSpent)"#, title: "wf")
 
-        Markdown("Every figure on every page is a `derived` value of the store: add an entry and the balance, this month's spending, each budget bar and the chart all follow, with nothing written to keep them in step ([Stores](/docs/guide/stores)). `now` is the browser's clock as a value, so `today` turns over at midnight. `sum` is an action that only returns a value, which a derived value may call:")
+        Markdown("Add an entry, and the balance, this month's spending, each budget bar and the chart all follow, with no code written to keep them in step ([Stores](/docs/guide/stores)). `now` is the browser's clock as a value, so `today` turns over at midnight. `sum` is an action that only returns a value, which a derived value may call:")
 
         CodeBlock(#"// src/stores/Ledger.wf
     // The money in a list of entries, added up.
@@ -615,7 +730,11 @@ const ONE: Money = $1.00"#, title: "wf")
         return list.reduce((total, e) => total.plus(e.amount), ZERO)
     }"#, title: "wf")
 
-        Heading("Step 4: changing the shape without losing anyone's data", id: "step-4-changing-the-shape-without-losing-anyone-s-data").h3
+        Markdown("**Check it:** the dashboard shows a balance, this month's income and spending, and what is left of the budget. Each is a sum of the sample ledger.")
+
+        Heading("Step 4: Change the stored shape without losing data", id: "step-4-change-the-stored-shape-without-losing-data").h3
+
+        Markdown("What a `persist` keeps outlives the build that wrote it: a reader who visited last month has last month's shape in their browser. The entries declare which version of the shape this build writes, and how to bring an older one forward:")
 
         CodeBlock(#"// src/stores/Ledger.wf
     // Version 1 of Pocket kept an amount as a plain, signed number of
@@ -643,9 +762,11 @@ const ONE: Money = $1.00"#, title: "wf")
         }
     }"#, title: "wf")
 
-        Markdown("What a `persist` keeps outlives the build that wrote it: a reader who visited last month has last month's shape in their browser. `version: 2` says what this build writes; `migrate 1 -> 2` brings an older value forward, given as `old`. Raise the version without a migration and the build warns (`P01`); change the shape without raising it and it warns too (`D04`), from the shapes it keeps in `.wf-cache/` ([Stores](/docs/guide/stores)). A first visit opens on a sample ledger dated from today, so the dashboard is never empty.")
+        Markdown("- `version: 2` says which shape this build writes.\n- `migrate 1 -> 2` brings an older value forward. Its body receives the stored value as `old`.\n- If you raise the version with no migration, the build warns (`P01`). If you change the shape without raising the version, it warns too (`D04`), from the shapes it keeps in `.wf-cache/` ([Stores](/docs/guide/stores)).\n- A first visit opens on a sample ledger dated from today, so the dashboard is never empty.\n\n**Check it:** `wf check --deny-warnings` passes. Delete the `migrate` block and check again: the check reports `P01`. Put the block back.")
 
-        Heading("Step 5: a shell that fits the screen", id: "step-5-a-shell-that-fits-the-screen").h3
+        Heading("Step 5: Fit the shell to the screen", id: "step-5-fit-the-shell-to-the-screen").h3
+
+        Markdown("The shell draws a `Sidebar` when `viewport.lg` holds, and a top bar with a drawer when it does not. This is the drawer:")
 
         CodeBlock(#"// src/App.wf
             if Ui.menuOpen {
@@ -657,9 +778,11 @@ const ONE: Money = $1.00"#, title: "wf")
                 }
             }"#, title: "wf")
 
-        Markdown("The shell draws a `Sidebar` when `viewport.lg` holds and a top bar with this drawer when it does not. `viewport` is the window's size as a value, following `matchMedia`, so the switch happens once as the window crosses the breakpoint ([Styling](/docs/guide/styling)). The layout itself — grids that are one column on a phone — is responsive values, `Grid(columns: \{ base: 1, lg: 2 \})`, which need no script. A second store, `Ui`, holds what the interface is doing — the dialog, the menu, the notices — apart from what the ledger holds.")
+        Markdown("- `viewport` is the window's size as a value. It follows `matchMedia`, so the switch happens once, as the window crosses the breakpoint ([Styling](/docs/guide/styling)).\n- The layout itself — grids that are one column on a phone — uses responsive values, `Grid(columns: \{ base: 1, lg: 2 \})`, which need no script.\n- A second store, `Ui`, holds what the interface is doing — the dialog, the menu, the notices — apart from what the ledger holds.\n\n**Check it:** on a wide window, the sidebar shows. Narrow the window: a top bar replaces it, and its menu button opens the drawer, which a click on the dimmed page behind it closes.")
 
-        Heading("Step 6: a dashboard drawn from elements", id: "step-6-a-dashboard-drawn-from-elements").h3
+        Heading("Step 6: Draw a dashboard from elements", id: "step-6-draw-a-dashboard-from-elements").h3
+
+        Markdown("The built-in `Chart` draws at build time, from data the build can see. This ledger exists only in the reader's browser, so the chart is made of plain elements whose heights follow the store:")
 
         CodeBlock(#"// src/components/MonthChart.wf
 /// Six months of money in and money out, as pairs of bars.
@@ -682,7 +805,7 @@ component MonthChart(months: [MonthTotal], top: Number) {
                         }
                     }"#, title: "wf")
 
-        Markdown("A `\{…\}` in a style value reads state, and the property follows it ([Styling](/docs/guide/styling)). The chart is one `role=\"img\"` with a label, so a screen reader hears what it shows rather than twelve unnamed boxes ([Accessibility](/docs/guide/accessibility)). The figures above it are one component placed four times:")
+        Markdown("- A `\{…\}` in a style value reads state, and the property follows it ([Styling](/docs/guide/styling)).\n- The chart is one `role=\"img\"` with a label, so a screen reader hears what it shows rather than twelve unnamed boxes ([Accessibility](/docs/guide/accessibility)).\n\nThe figures above the chart are one component, placed four times:")
 
         CodeBlock(#"// src/pages/Dashboard.wf
     Grid(columns: { base: 2, xl: 4 }, gap: .md) {
@@ -693,9 +816,11 @@ component MonthChart(months: [MonthTotal], top: Number) {
             lean: if Ledger.budgetLeft.amount < 0 { .bad } else { .good })
     }"#, title: "wf")
 
-        Markdown("`lean` is an enum prop, and a component's enum props are written to its root element as `data-lean=\"good\"`, which `pocket.css` colours by ([Components](/docs/guide/components)).")
+        Markdown("`lean` is an enum prop. A component writes its enum props to its root element, here as `data-lean=\"good\"`, and `pocket.css` colours the card by that attribute ([Components](/docs/guide/components)).\n\n**Check it:** the dashboard shows four cards and six pairs of bars. Add an expense in step 9's dialog, and this month's bar and the **Spent** card grow at once.")
 
-        Heading("Step 7: filters in the address", id: "step-7-filters-in-the-address").h3
+        Heading("Step 7: Keep the filters in the address", id: "step-7-keep-the-filters-in-the-address").h3
+
+        Markdown("The Entries page reads its filters from the address:")
 
         CodeBlock(#"// src/pages/Entries.wf
     // The filters live in the address — `/entries?month=2026-09&category=dining` —
@@ -704,9 +829,11 @@ component MonthChart(months: [MonthTotal], top: Number) {
     derived category = query.category ?? ""
     derived shown = Ledger.newestFirst.filter(e => (month == "" || e.date.slice(0, 7) == month) && (category == "" || e.category == category))"#, title: "wf")
 
-        Markdown("Choosing a month calls `navigate(\"/entries?month=…\")`; the address changes, `query` follows it, and so does the list. An entry has a page of its own at `/entries/:id`, where `id` is a typed parameter; the page looks the entry up with `Ledger.entries.find(…)` and draws it inside `if let e = entry` — `if let` binds the value only when it is there, which the checker requires before reading its fields ([Pages and routing](/docs/guide/pages-and-routing)).")
+        Markdown("Choosing a month calls `navigate(\"/entries?month=…\")`. The address changes, `query` follows it, and so does the list.\n\nAn entry also has a page of its own at `/entries/:id`, where `id` is a typed parameter. The page looks the entry up with `Ledger.entries.find(…)` and draws it inside `if let e = entry`. `if let` binds the value only when it is there, which the checker requires before the page reads its fields ([Pages and routing](/docs/guide/pages-and-routing)).\n\n**Check it:** on `/entries`, pick a month. The address gains `?month=…` and the list narrows. Press the browser's back button: the filter goes.")
 
-        Heading("Step 8: one form for new and for edit", id: "step-8-one-form-for-new-and-for-edit").h3
+        Heading("Step 8: Use one form for new and for edit", id: "step-8-use-one-form-for-new-and-for-edit").h3
+
+        Markdown("`EntryForm` adds an entry or, given one, changes it:")
 
         CodeBlock(#"// src/components/EntryForm.wf
 /// The form for a new entry — or, given one, for changing it. It checks what
@@ -733,16 +860,18 @@ component EntryForm(entry: Entry? = null) {
     }
     validate note { maxLength(60) }"#, title: "wf")
 
-        Markdown("A `validate` block sits beside the state it guards, and the control bound to that state shows what the rules say — the message, `aria-invalid`, the link between them — with nothing written ([Forms](/docs/guide/forms)). A rule without a message of its own shows the translation of `form.<rule>`, so `en.json` and `ar.json` each say \"that date has not happened yet\" once. The form says when it is done with an event; the caller decides what that means — close the dialog, or go back to the entry:")
+        Markdown("- A `validate` block sits beside the state it guards. The control bound to that state shows what the rules say — the message, `aria-invalid` and the link between them — with nothing more written ([Forms](/docs/guide/forms)).\n- A rule with no message of its own shows the translation of `form.<rule>`, so `en.json` and `ar.json` each say \"that date has not happened yet\" once.\n- The form says it is done with an event, `saved`. The caller decides what that means: close the dialog, or go back to the entry.\n\nThe submit button follows the form:")
 
         CodeBlock(#"// src/components/EntryForm.wf
         Row(justify: .end, gap: .sm) {
             Button(if entry != null { t("action.save") } else { t("action.add") }, type: .submit, disabled: !form.valid).primary
         }"#, title: "wf")
 
-        Markdown("`Form(bind: form)` hands a handle on the form; `form.valid` is whether every rule holds, and the button follows it as the reader types.")
+        Markdown("`Form(bind: form)` hands the component a handle on the form. `form.valid` is whether every rule holds, and the button follows it as the reader types.\n\n**Check it:** in the new-entry dialog, type `0` as the amount and leave the field: it says *Enter an amount above zero*, and **Add entry** stays disabled. Type `12.50`, and the button turns on.")
 
-        Heading("Step 9: a dialog and a shortcut", id: "step-9-a-dialog-and-a-shortcut").h3
+        Heading("Step 9: Add a dialog and a shortcut", id: "step-9-add-a-dialog-and-a-shortcut").h3
+
+        Markdown("The app listens for two keys at the top of `src/App.wf`:")
 
         CodeBlock(#"// src/App.wf
     // `n` opens a new entry from anywhere. A key with no modifier is left to
@@ -750,7 +879,7 @@ component EntryForm(entry: Entry? = null) {
     on key("n") { Ui.compose() }
     on key("Escape") { Ui.closeAll() }"#, title: "wf")
 
-        Markdown("`on key` at the top of the app listens on the document for as long as the page shows ([Events](/docs/guide/events)). The dialog is a `Modal` whose `title:` is its accessible name; it traps focus while open, and `Escape` closes it:")
+        Markdown("`on key` at the top of the app listens on the document for as long as the page shows ([Events](/docs/guide/events)). The dialog is a `Modal` whose `title:` is its accessible name. It keeps focus inside while it is open, and Escape closes it:")
 
         CodeBlock(#"// src/App.wf
     Modal(visible: Ui.composing, title: t("compose.title")) {
@@ -764,7 +893,11 @@ component EntryForm(entry: Entry? = null) {
         }
     }"#, title: "wf")
 
-        Heading("Step 10: two languages", id: "step-10-two-languages").h3
+        Markdown("**Check it:** press `n` anywhere outside a field, and the new-entry dialog opens with focus inside it. Press Escape, and it closes. Add an entry, and the dialog closes and a notice says it was added.")
+
+        Heading("Step 10: Speak two languages", id: "step-10-speak-two-languages").h3
+
+        Markdown("Every word on screen is `t(\"key\")`, read from `src/translations/en.json` or `ar.json`. A message with plural forms is several keys:")
 
         CodeBlock(#"{
   "entries.zero": "No entries",
@@ -772,9 +905,11 @@ component EntryForm(entry: Entry? = null) {
   "entries.other": "{count} entries"
 }"#, title: "json")
 
-        Markdown("Every word on screen is `t(\"key\")`, read from `src/translations/en.json` or `ar.json`. A message with plural forms is several keys, and `t(\"entries\", \{ count: n \})` picks the form the language's rules call for — Arabic has six ([Internationalization](/docs/guide/i18n)). Switching to Arabic sets `dir=\"rtl\"` on the page, and the sidebar, the rows and the grids mirror themselves. `format(m)` and dates follow the language too. The reader's choice is a `persist` in a small `Prefs` store, applied on every visit by an `effect` in the app shell.")
+        Markdown("- `t(\"entries\", \{ count: n \})` picks the form the language's rules call for. English needs two forms and a zero; Arabic has six ([Internationalization](/docs/guide/i18n)).\n- Switching to Arabic sets `dir=\"rtl\"` on the page, and the sidebar, the rows and the grids mirror themselves.\n- `format(m)` and dates follow the language too.\n- The reader's choice is a `persist` in a small `Prefs` store, and an `effect` in the app shell applies it on every visit.\n\n**Check it:** on **Settings**, choose Arabic. The page reads right to left, and every label is in Arabic. Reload: it stays in Arabic.\n\nIf a key shows on screen instead of its words, it is missing from a translation file; `wf check` reports it as `I01`, and `wf translations` lists what each locale lacks.")
 
-        Heading("Step 11: your data out, and back in", id: "step-11-your-data-out-and-back-in").h3
+        Heading("Step 11: Export and import the data", id: "step-11-export-and-import-the-data").h3
+
+        Markdown("The Settings page writes the ledger out as a CSV file:")
 
         CodeBlock(#"// src/pages/Settings.wf
     action exportCsv() {
@@ -782,19 +917,21 @@ component EntryForm(entry: Entry? = null) {
         saveTextFile("pocket-{Ledger.today}.csv", [CSV_HEADER, ...lines].join("\n"), "text/csv")
     }"#, title: "wf")
 
-        Markdown("`saveTextFile` is not WebFluent: it is a function in `src/files.js`, a plain browser script the build links on every page and whose JSDoc types the call, so `saveTextFile(1)` is an error where it is written ([JavaScript interop](/docs/guide/interop)). Importing reads a file from a `FileUpload` with `await f.text()`, parses each line, and merges what is new; then it tells every other open tab:")
+        Markdown("`saveTextFile` is not WebFluent. It is a function in `src/files.js`, a plain browser script that the build links on every page. Its JSDoc types the call, so `saveTextFile(1)` is an error where it is written ([JavaScript interop](/docs/guide/interop)).\n\nImporting reads a file from a `FileUpload` with `await f.text()`, parses each line and merges what is new. Then it tells every other open tab:")
 
         CodeBlock(#"// src/pages/Settings.wf
         let added = Ledger.merge(parsed)
         news.post({ count: added })"#, title: "wf")
 
-        Markdown("`news` is `channel news = broadcast(\"pocket\")`, a channel every tab of the site hears; the app shell listens on it and shows a toast ([Realtime](/docs/guide/realtime)). The ledger itself needs no channel — `persist` already keeps every tab in step.")
+        Markdown("`news` is `channel news = broadcast(\"pocket\")`, a channel every tab of the site hears. The app shell listens on it and shows a notice ([Realtime](/docs/guide/realtime)). The ledger itself needs no channel: `persist` already keeps every tab in step.\n\n**Check it:** on **Settings**, export the ledger, and the browser saves `pocket-<today's date>.csv`. Open a second tab, import the file in the first: the second tab shows a notice of how many entries were added.")
 
-        Heading("Step 12: tests, and the checks", id: "step-12-tests-and-the-checks").h3
+        Heading("Step 12: Test it, and run the checks", id: "step-12-test-it-and-run-the-checks").h3
+
+        Markdown("A test drives the real form by the labels a reader sees — the English ones, since a test reads the project's default locale ([Testing](/docs/guide/testing)):")
 
         CodeBlock("// tests/pocket.wf\ntest \"an entry added through the form moves the balance\" \{\n    use Ledger\n    Text(\"Balance \{format(Ledger.balance)\}\")\n    EntryForm\n\n    expect \"Balance $16,533.56\"\n    click \"Money in\"\n    type \"250\" into \"Amount\"\n    click \"Add entry\"\n    expect \"Balance $16,783.56\"", title: "wf")
 
-        Markdown("The test drives the real form by the labels a reader sees — the English ones, since a test reads the project's default locale — in a headless Chrome ([Testing](/docs/guide/testing)). Pocket has eight: the cards and rows render what they should, a blank amount is refused, `n` opens the dialog and `Escape` closes it, removing an entry takes it out of every total.")
+        Markdown("Pocket has eight tests: the cards and rows draw what they should, a blank amount is refused, `n` opens the dialog and Escape closes it, and removing an entry takes it out of every total. Run them and the checks:")
 
         Terminal(lines: [
                 Line(command: "wf test"),
@@ -803,15 +940,21 @@ component EntryForm(entry: Entry? = null) {
                 Line(command: "wf verify")
             ])
 
-        Markdown("`build/` is a single-page app with a service worker beside it: put it on a host that serves `index.html` for every path ([Deploying](/docs/guide/deploying)), and the second visit works on a plane.")
+        Markdown("**Check it:** `wf test` reports `8 passed`, and `wf verify` ends with `0 problem(s)`. `build/` is a single-page app with a service worker, `sw.js`, beside it. Put it on a host that answers every path with `index.html` ([Deploying](/docs/guide/deploying)), and the second visit works with no network.")
+
+        Heading("What you built in Pocket", id: "what-you-built-in-pocket").h3
+
+        Markdown("- A ledger typed with `Money`, `Date`, `Color` and `Uuid` ([Types](/docs/guide/types)).\n- Totals that are all `derived` values of one store, and a `persist` migration that keeps returning readers' data ([Stores](/docs/guide/stores)).\n- A shell that changes with the window, and responsive grids ([Styling](/docs/guide/styling)).\n- A form that validates itself, a dialog and keyboard shortcuts ([Forms](/docs/guide/forms), [Events](/docs/guide/events)).\n- Two languages, plural forms and right-to-left layout ([Internationalization](/docs/guide/i18n)).\n- A script of your own, and a channel between tabs ([JavaScript interop](/docs/guide/interop), [Realtime](/docs/guide/realtime)).\n- A site that works offline ([Offline](/docs/guide/offline)).")
 
         Heading("Recipes", id: "recipes").h2
 
-        Markdown("Smaller pieces every project meets, each a block you can drop into a page.")
+        Markdown("These are smaller pieces that most projects need. Each is a whole page you can build and adapt.")
 
-        Heading("Debounced search", id: "debounced-search").h3
+        Heading("Debounce a search", id: "debounce-a-search").h3
 
-        CodeBlock(#"page Search(path: "/") {
+        Markdown("To wait until the reader stops typing before you search, keep what they typed apart from what you search for:")
+
+        CodeBlock(#"page Search(path: "/", title: "Search", description: "Search as you type, without a request per key.") {
     state typed = ""
     state q = ""
     action commit(value: String) { if value == typed { q = value } }
@@ -820,6 +963,7 @@ component EntryForm(entry: Entry? = null) {
         setTimeout(() => commit(pending), 300)
     }
     resource hits = fetch("/api/search?q={q}")
+    Heading("Search").h1
     Input(bind: typed, placeholder: "Search", aria-label: "Search")
     match hits {
         loading { Spinner.sm }
@@ -828,14 +972,17 @@ component EntryForm(entry: Entry? = null) {
     }
 }"#, title: "wf")
 
-        Markdown("The effect re-runs on every keystroke; each run schedules a check, and only the one whose value is still current commits to `q`, which the resource follows. (`after(ms)` is a declaration of a body, not a statement, so a timer inside an effect is the browser's `setTimeout`.)")
+        Markdown("The effect runs again on every keystroke, and each run schedules a check. Only the check whose value is still current writes `q`, and the resource follows `q`. The timer is the browser's `setTimeout`, because `after(ms)` is a declaration with a body, not a statement an effect can hold.")
 
-        Heading("Pagination", id: "pagination").h3
+        Heading("Page through results", id: "page-through-results").h3
 
-        CodeBlock(#"page Rows(path: "/") {
+        Markdown("To show a long list a page at a time, keep the page number in state and splice it into the address:")
+
+        CodeBlock(#"page Rows(path: "/", title: "Rows", description: "Every row, twenty at a time.") {
     state page = 1
     state perPage = 20
     resource rows = fetch("/api/rows?page={page}&per={perPage}")
+    Heading("Rows").h1
     match rows {
         loading { Spinner }
         error(e) { Text(e.message).danger }
@@ -850,11 +997,15 @@ component EntryForm(entry: Entry? = null) {
     }
 }"#, title: "wf")
 
-        Heading("Optimistic update with rollback", id: "optimistic-update-with-rollback").h3
+        Markdown("A change of `page` changes the address, so the resource asks again.")
+
+        Heading("Update at once, and roll back on failure", id: "update-at-once-and-roll-back-on-failure").h3
+
+        Markdown("To show a change before the server agrees, keep the old value and put it back if the request fails:")
 
         CodeBlock(#"type Item { id: String, liked: Bool }
 
-page Likes(path: "/") {
+page Likes(path: "/", title: "Likes", description: "A like that shows at once.") {
     state items: [Item] = [Item(id: "a", liked: false)]
     state error = ""
     action like(id: String) {
@@ -867,13 +1018,18 @@ page Likes(path: "/") {
             error = "Could not save. Try again."
         }
     }
+    Heading("Likes").h1
     for i in items by i.id {
         Button(if i.liked { "♥" } else { "♡" }, aria-label: "Like").sm { on click { like(i.id) } }
     }
     if error != "" { Toast(error).danger }
 }"#, title: "wf")
 
-        Heading("A confirm dialog component", id: "a-confirm-dialog-component").h3
+        Markdown("`optimistic(holder, change)` does the same with less code inside an action; see [Data](/docs/guide/data#show-a-change-before-the-server-agrees).")
+
+        Heading("Build a confirm dialog component", id: "build-a-confirm-dialog-component").h3
+
+        Markdown("To ask before a destructive action, wrap a `Dialog` in a component that fires `confirm` or `cancel`:")
 
         CodeBlock(#"component Confirm(_ title: String, visible: Bool, danger: Bool = false) {
     event confirm()
@@ -888,9 +1044,10 @@ page Likes(path: "/") {
     }
 }
 
-page Use(path: "/") {
+page Account(path: "/", title: "Account", description: "Close your account.") {
     state asking = false
     state gone = false
+    Heading("Account").h1
     Button("Delete account").danger { on click { asking = true } }
     Confirm("Delete your account?", visible: asking, danger: true) {
         on confirm { gone = true  asking = false }
@@ -900,10 +1057,15 @@ page Use(path: "/") {
     if gone { Alert("Account deleted.").info }
 }"#, title: "wf")
 
-        Heading("Responsive navigation", id: "responsive-navigation").h3
+        Markdown("The caller's block fills the default slot, so the question's detail is the caller's to write.")
 
-        CodeBlock(#"page Nav(path: "/") {
+        Heading("Make navigation responsive", id: "make-navigation-responsive").h3
+
+        Markdown("To show links on a wide screen and a menu button on a narrow one, branch on `viewport`:")
+
+        CodeBlock(#"page Nav(path: "/", title: "Home", description: "Navigation that fits the screen.") {
     state open = false
+    Heading("Home").h1
     if viewport.md {
         Row(gap: .md) {
             Link("Home", to: "/")
@@ -922,9 +1084,11 @@ page Use(path: "/") {
     }
 }"#, title: "wf")
 
-        Heading("A form with validation messages", id: "a-form-with-validation-messages").h3
+        Heading("Show validation messages on a form", id: "show-validation-messages-on-a-form").h3
 
-        CodeBlock(#"page Signup(path: "/") {
+        Markdown("To check a form as the reader fills it in, put a `validate` block beside each state:")
+
+        CodeBlock(#"page Signup(path: "/", title: "Sign up", description: "Make an account.") {
     state email = ""
     state password = ""
     state confirm = ""
@@ -932,6 +1096,7 @@ page Use(path: "/") {
     validate email { required  email "Enter a valid email" }
     validate password { required  minLength(8) "At least 8 characters" }
     validate confirm { matches(password) "The passwords differ" }
+    Heading("Sign up").h1
     Form(bind: form) {
         on submit { sent = true  form.reset() }
         Input(bind: email, name: "email", label: "Email").email
@@ -942,12 +1107,15 @@ page Use(path: "/") {
     if sent { Alert("Welcome aboard.").success }
 }"#, title: "wf")
 
-        Markdown("Each control shows its own message when the reader leaves it, and a submit that fails focuses the first problem. [Forms](/docs/guide/forms) has every rule.")
+        Markdown("Each control shows its own message when the reader leaves it, and a submit that fails moves focus to the first problem. [Forms](/docs/guide/forms) lists every rule.")
 
-        Heading("Tabs with the active tab in the URL", id: "tabs-with-the-active-tab-in-the-url").h3
+        Heading("Keep the active tab in the address", id: "keep-the-active-tab-in-the-address").h3
 
-        CodeBlock(#"page Account(path: "/account") {
+        Markdown("To make a tab survive a reload, read it from `hash`:")
+
+        CodeBlock(#"page Account(path: "/account", title: "Account", description: "Your profile and billing.") {
     derived tab = if hash != "" { hash } else { "profile" }
+    Heading("Account").h1
     Row(gap: .sm) {
         Link("Profile", to: "/account#profile")
         Link("Billing", to: "/account#billing")
@@ -956,9 +1124,9 @@ page Use(path: "/") {
     if tab == "billing" { Text("Billing settings") }
 }"#, title: "wf")
 
-        Heading("Reading a store from a component without use", id: "reading-a-store-from-a-component-without-use").h3
+        Heading("Pass a store's value to a component as a prop", id: "pass-a-store-s-value-to-a-component-as-a-prop").h3
 
-        Markdown("A component that only needs one value takes it as a prop, which keeps it reusable outside that store:")
+        Markdown("A component that needs only one value from a store can take it as a prop instead of using the store. That keeps the component reusable outside that store:")
 
         CodeBlock(#"store Cart { state count = 0 }
 
@@ -966,21 +1134,29 @@ component CartBadge(count: Number) {
     if count > 0 { Badge("{count}").primary }
 }
 
-page Shop(path: "/") {
+page Shop(path: "/", title: "Shop", description: "Everything we sell.") {
     use Cart
+    Heading("Shop").h1
     CartBadge(count: Cart.count)
 }"#, title: "wf")
 
-        Heading("Countdown", id: "countdown").h3
+        Heading("Count down", id: "count-down").h3
 
-        CodeBlock(#"page Countdown(path: "/") {
+        Markdown("To count down once a second, change a state in an `every` timer:")
+
+        CodeBlock(#"page Countdown(path: "/", title: "Countdown", description: "Ten seconds, counted down.") {
     state left = 10
     every(1000) { if left > 0 { left = left - 1 } }
+    Heading("Countdown").h1
     Progress(value: 10 - left, max: 10)
     Text(if left == 0 { "Done" } else { "{left}s" })
 }"#, title: "wf")
 
-        Heading("Signing in with a session cookie", id: "signing-in-with-a-session-cookie").h3
+        Markdown("The timer stops when the page leaves.")
+
+        Heading("Sign in with a session cookie", id: "sign-in-with-a-session-cookie").h3
+
+        Markdown("To sign a reader in without holding a token in the page, describe the service with `credentials: .sameOrigin` and keep the user in a store:")
 
         CodeBlock(#"type User { id: String, name: String }
 
@@ -1038,9 +1214,11 @@ page Account(path: "/account", title: "Your account", description: "Your account
     Button("Sign out") { on click { Session.signOut() } }
 }"#, title: "wf")
 
-        Markdown("The session is an httpOnly cookie the server sets; the page never holds a token. `guard:` hides the page from the signed-out, and the server still checks every request ([Security](/docs/guide/security#sessions-and-tokens)). Call `Session.load()` from the app's set-up so a returning reader is signed in.")
+        Markdown("The session is an httpOnly cookie the server sets, so the page never holds a token. `guard:` hides the page from a reader who is signed out, and the server still checks every request ([Security](/docs/guide/security#keep-the-session-in-a-cookie)). Call `Session.load()` from the app's set-up, so a returning reader is signed in.")
 
         Heading("Load more", id: "load-more").h3
+
+        Markdown("To add the next page of results below the ones shown, call an endpoint with `paginate: .page`:")
 
         CodeBlock(#"type Item { id: String, name: String }
 
@@ -1058,7 +1236,11 @@ page Items(path: "/items", title: "Items", description: "Everything, a page at a
     }
 }"#, title: "wf")
 
-        Heading("Filters in the URL", id: "filters-in-the-url").h3
+        Markdown("`list.items` is every item loaded so far, and `list.loadMore()` asks for the next page.")
+
+        Heading("Keep filters in the address", id: "keep-filters-in-the-address").h3
+
+        Markdown("To make a filter survive a reload, a shared link and the back button, read it from `query` instead of holding it in a `state`:")
 
         CodeBlock(#"page Products(path: "/products", title: "Products", description: "Everything we sell.") {
     derived sort = query.sort ?? "name"
@@ -1070,9 +1252,9 @@ page Items(path: "/items", title: "Items", description: "Everything, a page at a
     Text("Sorted by {sort}")
 }"#, title: "wf")
 
-        Markdown("A filter in the query string survives a reload, a shared link and the back button, where a `state` would not.")
+        Heading("Add a dark-mode switch", id: "add-a-dark-mode-switch").h3
 
-        Heading("A dark-mode switch", id: "a-dark-mode-switch").h3
+        Markdown("To let the reader pick light, dark or the system's choice, call `setTheme` and read `theme`:")
 
         CodeBlock(#"page Settings(path: "/settings", title: "Settings", description: "How the site looks.") {
     Heading("Settings").h1
@@ -1083,9 +1265,11 @@ page Items(path: "/items", title: "Items", description: "Everything, a page at a
     }
 }"#, title: "wf")
 
-        Markdown("It needs a dark theme named in the config ([Styling](/docs/guide/styling#dark-mode)).")
+        Markdown("The switch needs a dark theme named in the config ([Styling](/docs/guide/styling#dark-mode)).")
 
         Heading("Copy to the clipboard", id: "copy-to-the-clipboard").h3
+
+        Markdown("To copy text, call the browser's clipboard from an action:")
 
         CodeBlock(#"page Share(path: "/share", title: "Share", description: "Copy the link.") {
     state copied = false
@@ -1098,12 +1282,12 @@ page Items(path: "/items", title: "Items", description: "Everything, a page at a
     if copied { Toast("Copied").success }
 }"#, title: "wf")
 
-        Heading("A chart", id: "a-chart").h3
+        Heading("Draw a chart from a library", id: "draw-a-chart-from-a-library").h3
 
-        Markdown("A charting library is a URL in `meta.scripts`, called from a script of your own and handed a canvas with `Host`; the full example is in [JavaScript interop](/docs/guide/interop#a-library-from-a-cdn).")
+        Markdown("To use a charting library, list its URL in `meta.scripts`, call it from a script of your own, and hand it a canvas with `Host`. The full example is in [JavaScript interop](/docs/guide/interop#load-a-library-from-a-cdn).")
 
         Heading("Where to go next", id: "where-to-go-next").h2
 
-        Markdown("- The [components reference](/docs/reference) for every prop and flag.\n- `examples/` in the repository: the tutorials, reference PDFs and slide decks, and the `tests/fixtures/` projects — a gallery, a dashboard, a docs site, an offline site — each complete.\n- `wf docs` in your own project, for what *your* components take.")
+        Markdown("- The [components reference](/docs/reference), for every prop and flag.\n- `examples/` in the repository: the tutorials, reference PDFs and slide decks, and the `tests/fixtures/` projects — a gallery, a dashboard, a docs site, an offline site — each complete.\n- `wf docs` in your own project, for what *your* components take.")
     }
 }

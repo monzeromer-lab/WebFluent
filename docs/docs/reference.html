@@ -23,7 +23,7 @@
     <meta name="twitter:title" content="Components reference">
     <meta name="twitter:description" content="Every built-in element, its props, flags, events, slots and parts — from the compiler&#x27;s own registry.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/reference#webpage","url":"https://webfluent.monzeromer.dev/docs/reference","name":"Components reference","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Every built-in element, its props, flags, events, slots and parts — from the compiler's own registry."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/reference#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Components reference","item":"https://webfluent.monzeromer.dev/docs/reference"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/reference#webpage","url":"https://webfluent.monzeromer.dev/docs/reference","name":"Components reference","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Every built-in element, its props, flags, events, slots and parts — from the compiler's own registry."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/reference#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Components reference","item":"https://webfluent.monzeromer.dev/docs/reference"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -152,6 +152,12 @@
                     <a class="wf-sidebar__item" href="/docs/reference/tooltip">
                         <p class="wf-text">Tooltip</p>
                     </a>
+                    <a class="wf-sidebar__item" href="/docs/reference/chart">
+                        <p class="wf-text">Chart</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/reference/qrcode">
+                        <p class="wf-text">QrCode</p>
+                    </a>
                     <p class="wf-text group-label">Form</p>
                     <a class="wf-sidebar__item" href="/docs/reference/input">
                         <p class="wf-text">Input</p>
@@ -258,13 +264,6 @@
                     </a>
                     <a class="wf-sidebar__item" href="/docs/reference/blockquote">
                         <p class="wf-text">Blockquote</p>
-                    </a>
-                    <p class="wf-text group-label">Data Display</p>
-                    <a class="wf-sidebar__item" href="/docs/reference/chart">
-                        <p class="wf-text">Chart</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/reference/qrcode">
-                        <p class="wf-text">QrCode</p>
                     </a>
                     <p class="wf-text group-label">PDF</p>
                     <a class="wf-sidebar__item" href="/docs/reference/tableofcontents">
@@ -443,6 +442,14 @@
                                 <p class="wf-text wf-s778fc8aa">Tooltip</p>
                                 <p class="wf-text wf-s36513411">Shows text above everything when its child is hovered (after delay:) or focused from the keyboard.</p>
                             </a>
+                            <a class="wf-link wf-s6662a90f" href="/docs/reference/chart">
+                                <p class="wf-text wf-s778fc8aa">Chart</p>
+                                <p class="wf-text wf-s36513411">A chart drawn as vector graphics when the page is built: bars, lines, areas, a pie or a donut over a list of records.</p>
+                            </a>
+                            <a class="wf-link wf-s6662a90f" href="/docs/reference/qrcode">
+                                <p class="wf-text wf-s778fc8aa">QrCode</p>
+                                <p class="wf-text wf-s36513411">A QR code for a URL or any text, drawn as vector graphics when the page is built.</p>
+                            </a>
                         </div>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s982ede03" id="form">
@@ -565,7 +572,7 @@
                             </a>
                             <a class="wf-link wf-s6662a90f" href="/docs/reference/frame">
                                 <p class="wf-text wf-s778fc8aa">Frame</p>
-                                <p class="wf-text wf-s36513411">Another page, shown inside this one: an iframe. on message(m) hears what that page posts to this one (m.data), and nothing any other page posts. Without title: it draws an A17 warning: a frame is announced by its title.</p>
+                                <p class="wf-text wf-s36513411">Another page, shown inside this one: an iframe — the page at src:, or the HTML srcdoc: gives it, sandboxed as sandbox: says. on message(m) hears what that page posts to this one (m.data), and nothing any other page posts. Without title: it draws an A17 warning: a frame is announced by its title.</p>
                             </a>
                             <a class="wf-link wf-s6662a90f" href="/docs/reference/icon">
                                 <p class="wf-text wf-s778fc8aa">Icon</p>
@@ -603,19 +610,6 @@
                             <a class="wf-link wf-s6662a90f" href="/docs/reference/blockquote">
                                 <p class="wf-text wf-s778fc8aa">Blockquote</p>
                                 <p class="wf-text wf-s36513411">Quotation: the text, or its block as the quoted content.</p>
-                            </a>
-                        </div>
-                    </div>
-                    <div class="wf-stack wf-gap--sm wf-s982ede03" id="data-display">
-                        <h2 class="wf-heading wf-sff66c3ff">Data Display</h2>
-                        <div class="wf-grid wf-gap--md wf-s982ede03 wf-rdc64ac23 entry-grid">
-                            <a class="wf-link wf-s6662a90f" href="/docs/reference/chart">
-                                <p class="wf-text wf-s778fc8aa">Chart</p>
-                                <p class="wf-text wf-s36513411">A chart drawn as vector graphics when the page is built: bars, lines, areas, a pie or a donut over a list of records.</p>
-                            </a>
-                            <a class="wf-link wf-s6662a90f" href="/docs/reference/qrcode">
-                                <p class="wf-text wf-s778fc8aa">QrCode</p>
-                                <p class="wf-text wf-s36513411">A QR code for a URL or any text, drawn as vector graphics when the page is built.</p>
                             </a>
                         </div>
                     </div>
@@ -1385,6 +1379,62 @@
                             <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
                                 <i class="wf-icon" data-icon="panel-up"></i>
                                 <p class="wf-text">panel-up</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="code"></i>
+                                <p class="wf-text">code</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="monitor"></i>
+                                <p class="wf-text">monitor</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="git-commit"></i>
+                                <p class="wf-text">git-commit</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="play"></i>
+                                <p class="wf-text">play</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="layers"></i>
+                                <p class="wf-text">layers</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="insert"></i>
+                                <p class="wf-text">insert</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="grid"></i>
+                                <p class="wf-text">grid</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="list"></i>
+                                <p class="wf-text">list</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="square"></i>
+                                <p class="wf-text">square</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="pill"></i>
+                                <p class="wf-text">pill</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="image"></i>
+                                <p class="wf-text">image</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="sparkle"></i>
+                                <p class="wf-text">sparkle</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="lock"></i>
+                                <p class="wf-text">lock</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="type"></i>
+                                <p class="wf-text">type</p>
                             </div>
                         </div>
                     </div>

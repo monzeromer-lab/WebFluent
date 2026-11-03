@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Static or single-page</title>
-    <meta name="description" content="Static pages or a single-page app: build.ssg, hydration, what the static paint knows, paths for dynamic routes, and hosting needs.">
+    <meta name="description" content="Static pages or a single-page app: build.ssg, hydration, what the pre-rendered HTML holds, paths for dynamic routes, 404s and hosting needs.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/static-and-spa">
     <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/static-and-spa?lang=en">
     <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/static-and-spa?lang=ar">
@@ -12,7 +12,7 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Static or single-page">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="Static pages or a single-page app: build.ssg, hydration, what the static paint knows, paths for dynamic routes, and hosting needs.">
+    <meta property="og:description" content="Static pages or a single-page app: build.ssg, hydration, what the pre-rendered HTML holds, paths for dynamic routes, 404s and hosting needs.">
     <meta property="og:url" content="https://webfluent.monzeromer.dev/docs/guide/static-and-spa">
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="ar_AR">
@@ -21,9 +21,9 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Static or single-page">
-    <meta name="twitter:description" content="Static pages or a single-page app: build.ssg, hydration, what the static paint knows, paths for dynamic routes, and hosting needs.">
+    <meta name="twitter:description" content="Static pages or a single-page app: build.ssg, hydration, what the pre-rendered HTML holds, paths for dynamic routes, 404s and hosting needs.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/static-and-spa#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/static-and-spa","name":"Static or single-page","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Static pages or a single-page app: build.ssg, hydration, what the static paint knows, paths for dynamic routes, and hosting needs."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/static-and-spa#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Static or single-page","item":"https://webfluent.monzeromer.dev/docs/guide/static-and-spa"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/static-and-spa#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/static-and-spa","name":"Static or single-page","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Static pages or a single-page app: build.ssg, hydration, what the pre-rendered HTML holds, paths for dynamic routes, 404s and hosting needs."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/static-and-spa#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Static or single-page","item":"https://webfluent.monzeromer.dev/docs/guide/static-and-spa"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -69,6 +69,9 @@
             </div>
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
+                    <a class="wf-sidebar__item" href="/docs">
+                        <p class="wf-text">Overview</p>
+                    </a>
                     <p class="wf-text group-label">Start</p>
                     <a class="wf-sidebar__item" href="/docs/guide/introduction">
                         <p class="wf-text num">01</p>
@@ -274,21 +277,32 @@
                 </aside>
                 <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
-                        <a class="wf-link" href="/docs/guide/introduction">Guide</a>
+                        <a class="wf-link" href="/docs">Guide</a>
                         <p class="wf-text">/</p>
                         <p class="wf-text wf-s8c71c534">Chapter 26</p>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s28a8547f">
                         <h1 class="wf-heading wf-sa3503382">Static or single-page</h1>
-                        <p class="wf-text wf-sfd35f593">The same source builds as pre-rendered pages or as one app shell. What each gives you, what the static paint knows, and how dynamic routes are rendered.</p>
+                        <p class="wf-text wf-sfd35f593">The same source builds as pre-rendered pages or as one app shell. What each gives you, what the pre-rendered page holds, and how dynamic routes are rendered.</p>
                     </div>
                     <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
-<p>A web build comes in two shapes, chosen by one switch, <code>build.ssg</code>:</p>
+<p>The same WebFluent source builds a site in one of two shapes: a static site, with a pre-rendered HTML file for every route, or a single-page app, with one shell that draws every page in the browser. One setting, <code>build.ssg</code>, picks the shape, and you can change it at any time. This chapter explains what each shape gives you and how a static page comes to life, then shows you how to pre-render dynamic routes, add a 404 page and host either shape.</p>
+<p>In this chapter:</p>
+<ul>
+<li>what the two shapes write, and when to choose each;</li>
+<li>how hydration takes over a pre-rendered page;</li>
+<li>what the build can and cannot know when it pre-renders;</li>
+<li>how to switch shapes, pre-render dynamic routes, add a 404 page, serve a single-page build and serve the site under a sub-path.</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading" id="two-shapes-of-build">Two shapes of build</h2>
+                            <div class="wf-markdown">
+<p><code>build.ssg</code> decides what <code>wf build</code> writes:</p>
                             </div>
                             <table class="wf-table">
-                                <caption class="wf-visually-hidden">Static or single-page</caption>
+                                <caption class="wf-visually-hidden">Two shapes of build</caption>
                                 <thead>
                                     <tr>
                                         <th scope="col"></th>
@@ -331,7 +345,7 @@
                                     <tr>
                                         <td>Moving between pages</td>
                                         <td>A real page load</td>
-                                        <td>Instant, no reload; focus and scroll handled, title announced</td>
+                                        <td>Instant, with no reload; focus and scroll handled, the title announced</td>
                                     </tr>
                                     <tr>
                                         <td>The host</td>
@@ -346,7 +360,7 @@
                                         <td>Interactive</td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Yes, once the script <em>hydrates</em> the paint in place</p>
+<p>Yes, once the script <em>hydrates</em> the page in place</p>
                                             </div>
                                         </td>
                                         <td>Yes</td>
@@ -354,17 +368,28 @@
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p><code>wf init -t static</code> starts with <code>ssg</code> on; <code>-t spa</code> with it off. Change your mind at any time — the source is the same.</p>
-<p><strong>Choose static</strong> for anything people find by searching or share by link: marketing sites, docs, blogs, shops. <strong>Choose single-page</strong> for an app behind a login, where every page is personal and navigation speed matters more than a first paint — or when your host cannot serve a file per route.</p>
+<p>The source is the same either way. Only the output changes.</p>
+                            </div>
+                            <h2 class="wf-heading" id="when-to-choose-each">When to choose each</h2>
+                            <div class="wf-markdown">
+<p><strong>Choose static</strong> for anything people find by searching or share by link: marketing sites, docs, blogs, shops. The text is in the HTML, so search engines and link previews see the real page.</p>
+<p><strong>Choose single-page</strong> for an app behind a sign-in, where every page is personal and moving between pages fast matters more than the first paint. Choose it too when your host cannot serve a file per route.</p>
                             </div>
                             <h2 class="wf-heading" id="hydration">Hydration</h2>
                             <div class="wf-markdown">
-<p>A static page is readable before any script runs. When <code>app.js</code> arrives it <strong>hydrates</strong> the page: it draws the page beside the one already there, then takes the painted one over in place. An element nothing holds on to stays exactly as it was painted — its attributes brought up to date, never moved or drawn again — and an element a handler, an effect, a <code>ref</code> or a widget holds is put where the painted one stood, inside the painted parent. Text a signal keeps current changes inside the painted element. The reader never sees the page flash or re-draw, and keeps their scroll, focus and anything they had selected. The page's largest paint stays the first one, which is what a search engine's speed score measures.</p>
-<p>Under <code>wf serve</code>, the runtime compares the page it took over with the one it drew and says so in the console when they differ — a WebFluent bug, never yours.</p>
+<p>A static page is readable before any script runs. When <code>app.js</code> arrives, it <em>hydrates</em> the page: it draws the page beside the one already there, then takes the painted one over in place.</p>
+<p>What happens to each part of the page:</p>
+<ul>
+<li>An element nothing holds on to stays exactly as it was painted. Its attributes are brought up to date; it is never moved or drawn again.</li>
+<li>An element that a handler, an effect, a <code>ref</code> or a widget holds is put where the painted one stood, inside the painted parent.</li>
+<li>Text that a signal keeps current changes inside the painted element.</li>
+</ul>
+<p>The reader never sees the page flash or redraw, and keeps their scroll position, their focus and anything they had selected. The page's largest paint stays the first one, which is what a search engine's speed score measures.</p>
+<p>Under <code>wf serve</code>, the runtime compares the page it took over with the one it drew, and says so in the console when they differ. A difference is a WebFluent bug, never yours.</p>
                             </div>
                             <h2 class="wf-heading" id="what-the-static-paint-knows">What the static paint knows</h2>
                             <div class="wf-markdown">
-<p>The build evaluates the page to paint it, as far as it can know the values:</p>
+<p>The <em>static paint</em> is the HTML the build pre-renders for a page. To paint it, the build evaluates the page as far as it can know the values:</p>
                             </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">What the static paint knows</caption>
@@ -386,7 +411,7 @@
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>state</code> initial values, and <code>derived</code> over them</p>
+<p><code>state</code> initial values, and <code>derived</code> values over them</p>
                                             </div>
                                         </td>
                                         <td>Painted</td>
@@ -397,7 +422,7 @@
                                     </tr>
                                     <tr>
                                         <td>Components</td>
-                                        <td>Expanded, props substituted, slots filled</td>
+                                        <td>Expanded, with props substituted and slots filled</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -441,12 +466,12 @@
 <p><code>viewport</code>, <code>query</code>, <code>hash</code>, <code>theme</code>, <code>network</code></p>
                                             </div>
                                         </td>
-                                        <td>Unknown — a condition on them is drawn once live</td>
+                                        <td>Unknown — a condition on them is drawn once the page is live</td>
                                     </tr>
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
-<p>anything read from <code>window</code>, <code>document</code>, <code>localStorage</code></p>
+<p>Anything read from <code>window</code>, <code>document</code>, <code>localStorage</code></p>
                                             </div>
                                         </td>
                                         <td>Unknown</td>
@@ -454,11 +479,33 @@
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>So for the first paint to be right, prefer what the build can see: data files over fetches for content that changes at deploy time, and <a href="/docs/guide/styling#responsive-values">responsive values</a> over <code>viewport</code> for layout.</p>
+<p>For the first paint to be right, prefer what the build can see:</p>
+<ul>
+<li><strong>Data files over fetches</strong> for content that changes only when you deploy (<a href="/docs/guide/data">Data</a>).</li>
+<li><strong><a href="/docs/guide/styling#responsive-values">Responsive values</a> over <code>viewport</code></strong> for layout.</li>
+</ul>
                             </div>
-                            <h2 class="wf-heading" id="static-paths">Static paths</h2>
+                            <h2 class="wf-heading" id="switch-between-static-and-single-page">Switch between static and single-page</h2>
                             <div class="wf-markdown">
-<p>A page on a <code>:param</code> route is written once per value its <code>paths:</code> names — one HTML file per post:</p>
+<p>To build a static site, set <code>ssg</code> in the config:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{ <span class="wf-tok-prop">&quot;build&quot;</span>: { <span class="wf-tok-prop">&quot;ssg&quot;</span>: <span class="wf-tok-kw">true</span> } }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>&quot;output_type&quot;: &quot;static&quot;</code> means the same as <code>&quot;ssg&quot;: true</code>. Set <code>ssg</code> to <code>false</code>, or leave it out, for a single-page build.</p>
+<p><code>wf init -t static</code> starts a project with <code>ssg</code> on; <code>wf init -t spa</code> starts one with it off. You can change your mind at any time — the source does not change.</p>
+                            </div>
+                            <h2 class="wf-heading" id="pre-render-a-dynamic-route-with-paths">Pre-render a dynamic route with paths:</h2>
+                            <div class="wf-markdown">
+<p>A page on a <code>:param</code> route, such as <code>/posts/:slug</code>, has no single file to write. To pre-render it, list the values in <code>paths:</code>, and the build writes one HTML file for each.</p>
+<p>This blog writes one file per post in <code>posts.json</code>:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -467,37 +514,58 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">type Post { slug: String, title: String, date: String, body: String }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Post</span> { <span class="wf-tok-prop">slug</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">date</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">body</span>: <span class="wf-tok-name">String</span> }
 
-data posts: [Post] = &quot;posts.json&quot;
+<span class="wf-tok-kw">data</span> <span class="wf-tok-prop">posts</span>: [<span class="wf-tok-name">Post</span>] = <span class="wf-tok-str">&quot;posts.json&quot;</span>
 
-page PostPage(path: &quot;/posts/:slug&quot;, slug: String, title: &quot;Post&quot;, description: &quot;A post.&quot;, paths: posts.map(p =&gt; p.slug)) {
-    derived post = posts.find(p =&gt; p.slug == slug)
-    head { meta(property: &quot;og:title&quot;, content: post?.title ?? &quot;Post&quot;) }
-    if let p = post {
-        Heading(p.title).h1
-        Markdown(p.body)
-    } else {
-        Alert(&quot;No such post&quot;).warning
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">PostPage</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/posts/:slug&quot;</span>, <span class="wf-tok-prop">slug</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Post&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A post.&quot;</span>, <span class="wf-tok-prop">paths</span>: posts.map(p =&gt; p.slug)) {
+    <span class="wf-tok-kw">derived</span> post = posts.find(p =&gt; p.slug == slug)
+    head { meta(<span class="wf-tok-prop">property</span>: <span class="wf-tok-str">&quot;og:title&quot;</span>, <span class="wf-tok-prop">content</span>: post?.title ?? <span class="wf-tok-str">&quot;Post&quot;</span>) }
+    <span class="wf-tok-kw">if</span> <span class="wf-tok-kw">let</span> p = post {
+        <span class="wf-tok-name">Heading</span>(p.title).h1
+        <span class="wf-tok-name">Markdown</span>(p.body)
+    } <span class="wf-tok-kw">else</span> {
+        <span class="wf-tok-name">Alert</span>(<span class="wf-tok-str">&quot;No such post&quot;</span>).warning
     }
 }</code>
                             </div>
                             <div class="wf-markdown">
+<p>For a post whose slug is <code>hello</code>, the build writes <code>posts/hello/index.html</code>, with that post painted and listed in the sitemap.</p>
+<p>The rules for <code>paths:</code>:</p>
 <ul>
-<li><code>paths:</code> must be knowable at build time: a <code>data</code> file, a <code>const</code>, a literal list.</li>
-<li>For a route with several parameters, each value is a map naming them: <code>paths: pairs.map(x =&gt; { year: x.y, slug: x.s })</code>.</li>
-<li>Each value is seeded as the parameter (and <code>params.slug</code>), painted, and listed in the sitemap.</li>
-<li><code>title:</code> and <code>description:</code> may name the page's parameters — <code>title: &quot;{slug} — Blog&quot;</code> — and each file gets its own. A title may also look the entry up — <code>title: &quot;{posts.find(p =&gt; p.slug == slug)?.title ?? slug} — Blog&quot;</code> (<a href="/docs/guide/content#search-and-sharing">Content</a>).</li>
-<li>A value that is not in <code>paths:</code> has no file, so a static host answers with <code>404.html</code>. In a single-page build <code>paths:</code> is not needed at all.</li>
+<li>It must be known at build time: a <code>data</code> file, a <code>const</code> or a literal list.</li>
+<li>For a route with several parameters, each value is a map that names them: <code>paths: pairs.map(x =&gt; { year: x.y, slug: x.s })</code>.</li>
+<li>Each value is seeded as the parameter (and as <code>params.slug</code>), painted, and listed in the sitemap.</li>
+<li>A value that is not in <code>paths:</code> has no file, so a static host answers with <code>404.html</code>.</li>
+<li>A single-page build does not need <code>paths:</code> at all.</li>
 </ul>
                             </div>
-                            <h2 class="wf-heading" id="the-404-page">The 404 page</h2>
+                            <h3 class="wf-heading" id="give-each-file-its-own-title">Give each file its own title</h3>
                             <div class="wf-markdown">
-<p><code>page NotFound(path: &quot;*&quot;)</code> is what the router shows for a route no page claims, and in a static build it is also written as <code>404.html</code>, which GitHub Pages, Netlify, Cloudflare Pages and most static hosts serve for a path they have no file for.</p>
+<p><code>title:</code> and <code>description:</code> may name the page's parameters — <code>title: &quot;{slug} — Blog&quot;</code> — and each file gets its own. A title may also look the entry up: <code>title: &quot;{posts.find(p =&gt; p.slug == slug)?.title ?? slug} — Blog&quot;</code>. Tags beyond the title and description go in <code>head { }</code> (<a href="/docs/guide/content#describe-each-page-to-search-engines-and-link-previews">Content</a>).</p>
                             </div>
-                            <h2 class="wf-heading" id="serving-a-single-page-build">Serving a single-page build</h2>
+                            <h2 class="wf-heading" id="add-a-404-page">Add a 404 page</h2>
                             <div class="wf-markdown">
-<p>Every path a reader might open — <code>/users/42</code> — has to reach <code>index.html</code>. Most hosts need one line for it; <a href="/docs/guide/deploying">Deploying</a> has each:</p>
+<p>To show a page for a route no other page claims, declare a page on the <code>*</code> route:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">NotFound</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;*&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Not found&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;There is no page at this address.&quot;</span>) {
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Page not found&quot;</span>).h1
+    <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Go to the home page&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/&quot;</span>)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The router shows it for any address no page claims. In a static build it is also written as <code>404.html</code>, which GitHub Pages, Netlify, Cloudflare Pages and most static hosts serve for a path they have no file for.</p>
+                            </div>
+                            <h2 class="wf-heading" id="serve-a-single-page-build">Serve a single-page build</h2>
+                            <div class="wf-markdown">
+<p>A single-page build has one file, <code>index.html</code>, so every path a reader might open — <code>/users/42</code> — has to reach it. Most hosts need one line for this; <a href="/docs/guide/deploying">Deploying</a> has each in full:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -510,13 +578,103 @@ page PostPage(path: &quot;/posts/:slug&quot;, slug: String, title: &quot;Post&qu
 nginx                        try_files $uri $uri/ /index.html;
 Vercel                       &quot;rewrites&quot;: [{ &quot;source&quot;: &quot;/(.*)&quot;, &quot;destination&quot;: &quot;/index.html&quot; }]</code>
                             </div>
-                            <div class="wf-markdown">
-<p>Without it, the home page works and a reload anywhere else is a 404.</p>
+                            <div class="wf-stack wf-gap--xs wf-s39f8973e callout" role="note" aria-label="Warning" data-kind="warning">
+                                <div class="wf-row wf-align--center wf-gap--xs callout-label">
+                                    <i class="wf-icon" data-icon="warning"></i>
+                                    <p class="wf-text">Warning</p>
+                                </div>
+                                <div class="wf-markdown">
+<p>Without this rule, the home page works, but a reload on any other address is a 404.</p>
+                                </div>
                             </div>
-                            <h2 class="wf-heading" id="under-a-sub-path">Under a sub-path</h2>
+                            <h2 class="wf-heading" id="serve-the-site-under-a-sub-path">Serve the site under a sub-path</h2>
                             <div class="wf-markdown">
-<p><code>build.base_path</code> — <code>&quot;/my-site&quot;</code> for a GitHub Pages project site — prefixes every link, every asset and the router's paths. Write your paths from the site's root as if there were no prefix: <code>Link(&quot;About&quot;, to: &quot;/about&quot;)</code>.</p>
+<p>To serve the site under a path such as <code>/my-site</code> — a GitHub Pages project site — set <code>build.base_path</code>:</p>
                             </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{ <span class="wf-tok-prop">&quot;build&quot;</span>: { <span class="wf-tok-prop">&quot;ssg&quot;</span>: <span class="wf-tok-kw">true</span>, <span class="wf-tok-prop">&quot;base_path&quot;</span>: <span class="wf-tok-str">&quot;/my-site&quot;</span> } }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The build prefixes every link, every asset and the router's paths with it. Write your paths from the site's root as if there were no prefix: <code>Link(&quot;About&quot;, to: &quot;/about&quot;)</code> links to <code>/my-site/about</code>.</p>
+                            </div>
+                            <h2 class="wf-heading" id="quick-reference">Quick reference</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Quick reference</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Goal</th>
+                                        <th scope="col">Setting or syntax</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Pre-render every route</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&quot;build&quot;: { &quot;ssg&quot;: true }</code> or <code>&quot;output_type&quot;: &quot;static&quot;</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>One app shell</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&quot;build&quot;: { &quot;ssg&quot;: false }</code> (the default)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Pre-render a <code>:param</code> route</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>paths:</code> on the page, known at build time</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>A title per pre-rendered file</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>title: &quot;{slug} — Blog&quot;</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>A 404 page</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>page NotFound(path: &quot;*&quot;, …)</code>, written as <code>404.html</code> when static</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>A single-page build on a host</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Answer every path with <code>index.html</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>A site under a sub-path</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&quot;build&quot;: { &quot;base_path&quot;: &quot;/my-site&quot; }</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                     <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
@@ -533,12 +691,16 @@ Vercel                       &quot;rewrites&quot;: [{ &quot;source&quot;: &quot;
                 <div class="wf-stack wf-gap--lg wf-sac91c322" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
+                        <a class="wf-link wf-s3e136ca4" href="#two-shapes-of-build">Two shapes of build</a>
+                        <a class="wf-link wf-s3e136ca4" href="#when-to-choose-each">When to choose each</a>
                         <a class="wf-link wf-s3e136ca4" href="#hydration">Hydration</a>
                         <a class="wf-link wf-s3e136ca4" href="#what-the-static-paint-knows">What the static paint knows</a>
-                        <a class="wf-link wf-s3e136ca4" href="#static-paths">Static paths</a>
-                        <a class="wf-link wf-s3e136ca4" href="#the-404-page">The 404 page</a>
-                        <a class="wf-link wf-s3e136ca4" href="#serving-a-single-page-build">Serving a single-page build</a>
-                        <a class="wf-link wf-s3e136ca4" href="#under-a-sub-path">Under a sub-path</a>
+                        <a class="wf-link wf-s3e136ca4" href="#switch-between-static-and-single-page">Switch between static and single-page</a>
+                        <a class="wf-link wf-s3e136ca4" href="#pre-render-a-dynamic-route-with-paths">Pre-render a dynamic route with paths:</a>
+                        <a class="wf-link wf-s3e136ca4" href="#add-a-404-page">Add a 404 page</a>
+                        <a class="wf-link wf-s3e136ca4" href="#serve-a-single-page-build">Serve a single-page build</a>
+                        <a class="wf-link wf-s3e136ca4" href="#serve-the-site-under-a-sub-path">Serve the site under a sub-path</a>
+                        <a class="wf-link wf-s3e136ca4" href="#quick-reference">Quick reference</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-s614f8b98">

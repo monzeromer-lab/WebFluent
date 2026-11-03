@@ -1,12 +1,16 @@
 /// Chapter 39 of the guide, written from md-docs/39-configuration.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description: "Every key of webfluent.app.json with its default: project, build, media, PDF, slides, dev, motion, meta, theme, i18n, env and offline.", layout: DocsShell("Configuration", chapter: t("guide.chapter", { n: "39" }), blurb: "Every key of webfluent.app.json, its default, and what it changes.", source: "md-docs/39-configuration.md", sections: [Anchor(id: "the-defaults", label: "The defaults"), Anchor(id: "the-project", label: "The project"), Anchor(id: "build", label: "build"), Anchor(id: "dev", label: "dev"), Anchor(id: "motion", label: "motion"), Anchor(id: "meta", label: "meta"), Anchor(id: "theme", label: "theme"), Anchor(id: "i18n", label: "i18n"), Anchor(id: "env-and-publicenv", label: "env and publicenv"), Anchor(id: "offline", label: "offline"), Anchor(id: "lints", label: "lints")], prevTo: "/docs/guide/cli", prevLabel: "38. {t("ch.38")}", nextTo: "/docs/guide/diagnostics", nextLabel: "40. {t("ch.40")}")) {
+page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description: "Every key of webfluent.app.json, its type and default: project, build, media, PDF, slides, dev, motion, meta, theme, i18n, env, offline and lints.", layout: DocsShell("Configuration", chapter: t("guide.chapter", { n: "39" }), blurb: "Every key of webfluent.app.json, its default, and what it changes.", source: "md-docs/39-configuration.md", sections: [Anchor(id: "reading-and-changing-the-config", label: "Reading and changing the config"), Anchor(id: "the-defaults", label: "The defaults"), Anchor(id: "the-project", label: "The project"), Anchor(id: "build", label: "build"), Anchor(id: "dev", label: "dev"), Anchor(id: "motion", label: "motion"), Anchor(id: "meta", label: "meta"), Anchor(id: "theme", label: "theme"), Anchor(id: "i18n", label: "i18n"), Anchor(id: "env-and-publicenv", label: "env and publicenv"), Anchor(id: "offline", label: "offline"), Anchor(id: "lints", label: "lints")], prevTo: "/docs/guide/cli", prevLabel: "38. {t("ch.38")}", nextTo: "/docs/guide/diagnostics", nextLabel: "40. {t("ch.40")}")) {
     Stack(gap: .lg) {
-        Markdown("A project's settings live in `webfluent.app.json` beside `src/`. Every key is optional except `name`, so the smallest config is:")
+        Markdown("This chapter is the reference for `webfluent.app.json`, the file beside `src/` that holds a project's settings. Look up a key here to find its type, its default and what it changes.\n\nEvery key is optional except `name`, so the smallest config is one line:")
 
         CodeBlock(#"{ "name": "my-site" }"#, title: "json")
 
-        Markdown("A key the build does not know is reported with a warning — and the key it most likely meant, so `\"defaultLocale\"` says to write `default_locale` — rather than silently ignored (**4.1**).\n\n`wf config schema` lists every setting with its type, its default and what it does (`--json` for a tool, which is what an editor's settings window is built from), and `wf config set`, `get` and `unset` change the file without reformatting it: a value is replaced in place, a new key goes at the end of its section in the section's own style, and a section an unset leaves empty goes with it. A value is held to its setting's type before anything is written:")
+        Markdown("A key the build does not know draws the `E112` warning, with the key it most likely meant — `\"defaultLocale\"` says to write `default_locale` — instead of being ignored (since **4.1**).")
+
+        Heading("Reading and changing the config", id: "reading-and-changing-the-config").h2
+
+        Markdown("`wf config` lists every setting and edits the file without reformatting it ([Command line](/docs/guide/cli#wf-config)):\n\n- `wf config schema` lists every setting with its type, the values it takes, its default and what it does. `--json` prints the same for a tool; an editor's settings window is built from it.\n- `wf config get PATH` prints what the project sets at a dotted path, or the default.\n- `wf config set PATH VALUE` checks the value against the setting's type before it writes anything. It replaces a value in place, and adds a new key at the end of its section, in the section's own style.\n- `wf config unset PATH` removes a setting, so its default applies, and removes a section it leaves empty.")
 
         Terminal(lines: [
                 Line(command: "wf config set build.base_path /Docs"),
@@ -15,9 +19,11 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
                 Line(command: "wf config unset build.base_path")
             ])
 
+        Markdown("Under a map such as `build.budget`, the rest of the path is one key, so `build.budget.app.js` names the `app.js` entry.")
+
         Heading("The defaults", id: "the-defaults").h2
 
-        Markdown("This is what a config with only a name means. `i18n` and `offline` are absent unless you add them.")
+        Markdown("This block is what a config holding only a name means. The compiler's test suite checks it against the compiler's own defaults. `i18n` and `offline` are absent unless you add them.")
 
         CodeBlock(#"{
   "name": "my-site",
@@ -106,14 +112,17 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
   "public_env": []
 }"#, title: "json")
 
-        Markdown("`wf init` writes a shorter file and turns `build.csp` on.")
+        Markdown("`wf init` writes a shorter file than this one, and turns `build.csp` on.")
 
         Heading("The project", id: "the-project").h2
+
+        Markdown("The top-level keys that describe the project itself.")
 
         Table(caption: "The project") {
             Table.Head {
                 Table.Row {
                     Table.Cell("Key").header
+                    Table.Cell("Type").header
                     Table.Cell("Default").header
                     Table.Cell("Meaning").header
                 }
@@ -121,23 +130,34 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
             Table.Body {
                 Table.Row {
                     Table.Cell { Markdown("`name`") }
+                    Table.Cell("string")
                     Table.Cell("—")
-                    Table.Cell { Markdown("The only required key. The site's name, the PDF's file name when none is given, and `meta.title`'s fallback.") }
+                    Table.Cell { Markdown("The only required key. The site's name, the PDF's file name when none is given, and the fallback for `meta.title`.") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`version`, `author`") }
-                    Table.Cell { Markdown("`\"0.1.0\"`, `\"\"`") }
-                    Table.Cell("Yours; nothing in the build reads them.")
+                    Table.Cell { Markdown("`version`") }
+                    Table.Cell("string")
+                    Table.Cell { Markdown("`\"0.1.0\"`") }
+                    Table.Cell("The project's version, as you number it. Nothing in the build reads it.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`author`") }
+                    Table.Cell("string")
+                    Table.Cell { Markdown("`\"\"`") }
+                    Table.Cell("Who wrote it. Nothing in the build reads it.")
                 }
             }
         }
 
         Heading("build", id: "build").h2
 
+        Markdown("How the project is compiled, and what the build writes.")
+
         Table(caption: "build") {
             Table.Head {
                 Table.Row {
                     Table.Cell("Key").header
+                    Table.Cell("Type").header
                     Table.Cell("Default").header
                     Table.Cell("Meaning").header
                 }
@@ -145,76 +165,91 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
             Table.Body {
                 Table.Row {
                     Table.Cell { Markdown("`output`") }
+                    Table.Cell("string")
                     Table.Cell { Markdown("`\"./build\"`") }
                     Table.Cell("Where the build is written, relative to the project.")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`output_type`") }
+                    Table.Cell { Markdown("`spa`, `static`, `pdf`, `slides`, `elements`") }
                     Table.Cell { Markdown("`\"spa\"`") }
-                    Table.Cell { Markdown("`spa` (a website), `static` (a website whose every page is pre-rendered, as `ssg: true` builds it), `pdf`, `slides` or `elements` ([chapter 34](/docs/guide/pdf-and-slides)).") }
+                    Table.Cell { Markdown("What the project builds: `spa` is a website; `static` is a website whose every page is pre-rendered, as `ssg: true` builds it; `pdf` a document; `slides` a deck; `elements` custom elements ([PDF and slides](/docs/guide/pdf-and-slides), [custom elements](/docs/guide/interop#publish-your-components-as-custom-elements)).") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`ssg`") }
+                    Table.Cell("boolean")
                     Table.Cell { Markdown("`false`") }
-                    Table.Cell { Markdown("Pre-render every page to its own HTML ([chapter 26](/docs/guide/static-and-spa)).") }
+                    Table.Cell { Markdown("Pre-renders every page to its own HTML file, so it is read before any script runs ([Static sites and SPAs](/docs/guide/static-and-spa)).") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`base_path`") }
+                    Table.Cell("string")
                     Table.Cell { Markdown("`\"\"`") }
-                    Table.Cell { Markdown("The sub-path the site is served under, such as `\"/docs\"`. Every link and asset is prefixed.") }
+                    Table.Cell { Markdown("The sub-path the site is served under, such as `\"/docs\"`. Every link and asset is prefixed with it.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`clean_urls`") }
+                    Table.Cell { Markdown("`file`, `directory`") }
                     Table.Cell("unset")
-                    Table.Cell { Markdown("How a route's address avoids a redirect on a host that adds the slash: `\"file\"` also writes `contact.html` beside `contact/index.html`; `\"directory\"` names every route `/contact/` in canonical links, the sitemap and links to pages ([chapter 27](/docs/guide/content#addresses-that-do-not-redirect)).") }
+                    Table.Cell { Markdown("How a route's address avoids a redirect on a host that adds a trailing slash. `\"file\"` also writes `contact.html` beside `contact/index.html`; `\"directory\"` names every route `/contact/` in canonical links, the sitemap and links to pages ([Content](/docs/guide/content#keep-addresses-from-redirecting)).") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`split`") }
+                    Table.Cell("boolean")
                     Table.Cell { Markdown("`true`") }
-                    Table.Cell("One script and stylesheet chunk per page, loaded when its route shows.")
+                    Table.Cell { Markdown("Writes one script and stylesheet chunk per page, loaded when its route shows. Off, every page ships in `app.js`.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`minify`") }
+                    Table.Cell("boolean")
                     Table.Cell { Markdown("`true`") }
-                    Table.Cell("Strip comments and whitespace from the scripts and stylesheets.")
+                    Table.Cell("Strips comments and whitespace from the scripts and stylesheets. Off, the output is readable and larger.")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`sourcemap`") }
+                    Table.Cell("boolean")
                     Table.Cell { Markdown("`false`") }
-                    Table.Cell { Markdown("Write a source map (version 3) beside the bundle and each page's chunk, `app.js.map`, `pages/Home.js.map`, so a stack trace from the running site reads back to the `.wf` line each statement came from; the scripts are otherwise unchanged.") }
+                    Table.Cell { Markdown("Writes a source map (version 3) beside the bundle and each page's chunk — `app.js.map`, `pages/Home.js.map` — so a stack trace from the running site reads back to the `.wf` line each statement came from. The scripts are otherwise unchanged.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`compress`") }
+                    Table.Cell("boolean")
                     Table.Cell { Markdown("`true`") }
-                    Table.Cell { Markdown("Write a `.gz` beside every text output over a kilobyte.") }
+                    Table.Cell { Markdown("Writes a gzipped `.gz` copy beside every text output over a kilobyte, for hosts that serve one.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`runtime`") }
+                    Table.Cell { Markdown("`auto`, `full`") }
                     Table.Cell { Markdown("`\"auto\"`") }
-                    Table.Cell { Markdown("`auto` ships the runtime modules the program reaches; `full` ships every one, for a hand-written script that calls `WF` ([chapter 32](/docs/guide/interop)).") }
+                    Table.Cell { Markdown("`auto` ships only the runtime modules the program reaches; `full` ships every one, for a hand-written script that calls `WF` in ways the build cannot see ([JavaScript interop](/docs/guide/interop)).") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`csp`") }
+                    Table.Cell("boolean")
                     Table.Cell { Markdown("`false` (`true` in a project `wf init` makes)") }
-                    Table.Cell { Markdown("Emit a Content-Security-Policy and `_headers`, and check the output against the policy ([chapter 23](/docs/guide/security#content-security-policy)).") }
+                    Table.Cell { Markdown("Emits a Content-Security-Policy and a `_headers` file, and checks the output against the policy ([Security](/docs/guide/security#ship-a-content-security-policy)).") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`budget`") }
+                    Table.Cell("map of file to size")
                     Table.Cell { Markdown("`\{\}`") }
-                    Table.Cell { Markdown("A gzipped size each named output should stay under: `\{ \"app.js\": \"40 kB\" \}`. Over it, the build warns.") }
+                    Table.Cell { Markdown("A gzipped size each named output should stay under: `\{ \"app.js\": \"40 kB\" \}`. A build over it warns and goes on.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`elements`") }
+                    Table.Cell("list of component names")
                     Table.Cell { Markdown("`[]`") }
                     Table.Cell { Markdown("With `output_type: \"elements\"`, the components to publish as custom elements.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`media`") }
+                    Table.Cell("object")
                     Table.Cell("below")
                     Table.Cell("The image pipeline.")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`pdf`, `slides`") }
+                    Table.Cell("object")
                     Table.Cell("below")
                     Table.Cell("The paper outputs.")
                 }
@@ -223,10 +258,13 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
 
         Heading("build.media", id: "build-media").h3
 
+        Markdown("The image pipeline: how the build resizes and re-encodes the pictures a program names ([Media](/docs/guide/media)).")
+
         Table(caption: "build.media") {
             Table.Head {
                 Table.Row {
                     Table.Cell("Key").header
+                    Table.Cell("Type").header
                     Table.Cell("Default").header
                     Table.Cell("Meaning").header
                 }
@@ -234,33 +272,40 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
             Table.Body {
                 Table.Row {
                     Table.Cell { Markdown("`formats`") }
+                    Table.Cell { Markdown("list of `webp`, `png`, `jpeg`") }
                     Table.Cell { Markdown("`[\"webp\"]`") }
-                    Table.Cell { Markdown("The formats every `image` is written in, as well as its original.") }
+                    Table.Cell { Markdown("The formats every `image` is written in, best first, as well as its original.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`widths`") }
+                    Table.Cell("list of integers")
                     Table.Cell { Markdown("`[480, 960, 1440, 1920]`") }
                     Table.Cell("The widths written, where smaller than the original.")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`quality`") }
+                    Table.Cell("integer, 1–100")
                     Table.Cell { Markdown("`78`") }
-                    Table.Cell("The encoding quality, 1–100: WebP and JPEG are lossy at it. A file no smaller than the original is not written.")
+                    Table.Cell("The encoding quality. WebP and JPEG are lossy at it. A file no smaller than the original is not written.")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`pipeline`") }
+                    Table.Cell("boolean")
                     Table.Cell { Markdown("`true`") }
-                    Table.Cell { Markdown("`false` copies images as `public/` does, without resizing.") }
+                    Table.Cell { Markdown("`false` copies images as `public/` is copied, without resizing.") }
                 }
             }
         }
 
         Heading("build.pdf", id: "build-pdf").h3
 
+        Markdown("The page and type of a PDF build ([PDF and slides](/docs/guide/pdf-and-slides)).")
+
         Table(caption: "build.pdf") {
             Table.Head {
                 Table.Row {
                     Table.Cell("Key").header
+                    Table.Cell("Type").header
                     Table.Cell("Default").header
                     Table.Cell("Meaning").header
                 }
@@ -268,48 +313,58 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
             Table.Body {
                 Table.Row {
                     Table.Cell { Markdown("`page_size`") }
+                    Table.Cell("string")
                     Table.Cell { Markdown("`\"A4\"`") }
                     Table.Cell { Markdown("`A4`, `A3`, `A5`, `A6`, `Letter`, `Legal`, `Tabloid`, `Executive`, or two lengths (`\"210mm 297mm\"`). A `Document(size:)` overrides it.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`margins`") }
+                    Table.Cell("object of numbers")
                     Table.Cell { Markdown("`72` each") }
-                    Table.Cell { Markdown("`top`, `bottom`, `left`, `right`, in points (72 to the inch); the header and footer are drawn in them.") }
+                    Table.Cell { Markdown("`top`, `bottom`, `left`, `right`, in points (72 to the inch). The header and footer are drawn in them.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`default_font`") }
+                    Table.Cell("string")
                     Table.Cell { Markdown("`\"Helvetica\"`") }
-                    Table.Cell { Markdown("The document's family when its sheets name none: a standard name (`Helvetica`, `Times`, `Courier` — Liberation, built in) or a family under `fonts/`.") }
+                    Table.Cell { Markdown("The document's family when its stylesheets name none: a standard name (`Helvetica`, `Times`, `Courier` — Liberation, built in) or a family under `fonts/`.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`default_font_size`") }
+                    Table.Cell("number")
                     Table.Cell { Markdown("`12`") }
                     Table.Cell { Markdown("In points; `rem` in a style is this size.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`output_filename`") }
+                    Table.Cell("string")
                     Table.Cell("the project's name")
                     Table.Cell("The file written.")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`fonts`") }
+                    Table.Cell("list of paths")
                     Table.Cell { Markdown("`[]`") }
-                    Table.Cell { Markdown("Font files or directories beside the project's `fonts/`, `src/fonts/` and `public/fonts/`, which are always read.") }
+                    Table.Cell { Markdown("Font files or directories, read as well as the project's `fonts/`, `src/fonts/` and `public/fonts/`, which are always read.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`system_fonts`") }
+                    Table.Cell("boolean")
                     Table.Cell { Markdown("`true`") }
-                    Table.Cell("Whether this machine's fonts may stand in for a family or a character nothing in the project has; the build names each one used.")
+                    Table.Cell("Whether this machine's fonts may stand in for a family or a character nothing in the project has. The build names each one it uses.")
                 }
             }
         }
 
         Heading("build.slides", id: "build-slides").h3
 
+        Markdown("The page and type of a slide deck ([PDF and slides](/docs/guide/pdf-and-slides)).")
+
         Table(caption: "build.slides") {
             Table.Head {
                 Table.Row {
                     Table.Cell("Key").header
+                    Table.Cell("Type").header
                     Table.Cell("Default").header
                     Table.Cell("Meaning").header
                 }
@@ -317,51 +372,67 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
             Table.Body {
                 Table.Row {
                     Table.Cell { Markdown("`size`") }
+                    Table.Cell("string")
                     Table.Cell { Markdown("`\"16:9\"`") }
                     Table.Cell { Markdown("`16:9` (960 × 540 pt), `4:3`, `A4-landscape`, or `\"WIDTHxHEIGHT\"` in points.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`width`, `height`") }
+                    Table.Cell("number")
                     Table.Cell { Markdown("`null`") }
                     Table.Cell { Markdown("Explicit points, overriding `size`.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`margin`") }
+                    Table.Cell("number")
                     Table.Cell { Markdown("`60`") }
-                    Table.Cell("The space around each slide's content; what runs past it is clipped.")
+                    Table.Cell("The space around each slide's content, in points. What runs past it is clipped.")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`default_font`, `default_font_size`") }
-                    Table.Cell { Markdown("`\"Helvetica\"`, `24`") }
-                    Table.Cell("The deck's text.")
+                    Table.Cell { Markdown("`default_font`") }
+                    Table.Cell("string")
+                    Table.Cell { Markdown("`\"Helvetica\"`") }
+                    Table.Cell("The family a slide's text is set in when nothing says otherwise.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`default_font_size`") }
+                    Table.Cell("number")
+                    Table.Cell { Markdown("`24`") }
+                    Table.Cell("The size a slide's text is set at, in points.")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`show_slide_numbers`") }
+                    Table.Cell("boolean")
                     Table.Cell { Markdown("`false`") }
-                    Table.Cell { Markdown("`n / total` in the bottom corner.") }
+                    Table.Cell { Markdown("Draws `n / total` in the bottom-right corner.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`footer_text`") }
+                    Table.Cell("string")
                     Table.Cell { Markdown("`null`") }
-                    Table.Cell("Text in the bottom-left of every slide.")
+                    Table.Cell("Text in the bottom-left corner of every slide.")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`background_color`") }
+                    Table.Cell("string")
                     Table.Cell { Markdown("`null`") }
-                    Table.Cell("A full-bleed colour for every slide.")
+                    Table.Cell("A full-bleed colour for every slide; a slide's own style overrides it.")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`chrome_color`") }
+                    Table.Cell("string")
                     Table.Cell { Markdown("`null`") }
-                    Table.Cell("The colour of the numbers and footer; unset, it flips between dark and light on the slide's background.")
+                    Table.Cell("The colour of the numbers and the footer. Unset, it flips between dark and light on each slide's background.")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`output_filename`") }
+                    Table.Cell("string")
                     Table.Cell("the project's name")
                     Table.Cell("The file written.")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`fonts`, `system_fonts`") }
+                    Table.Cell("list of paths, boolean")
                     Table.Cell { Markdown("`[]`, `true`") }
                     Table.Cell { Markdown("As for `build.pdf`.") }
                 }
@@ -370,10 +441,13 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
 
         Heading("dev", id: "dev").h2
 
+        Markdown("The development server, `wf serve` ([Command line](/docs/guide/cli#wf-serve)).")
+
         Table(caption: "dev") {
             Table.Head {
                 Table.Row {
                     Table.Cell("Key").header
+                    Table.Cell("Type").header
                     Table.Cell("Default").header
                     Table.Cell("Meaning").header
                 }
@@ -381,23 +455,28 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
             Table.Body {
                 Table.Row {
                     Table.Cell { Markdown("`port`") }
+                    Table.Cell("integer")
                     Table.Cell { Markdown("`3000`") }
                     Table.Cell { Markdown("The port `wf serve` listens on.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`hot_reload`") }
+                    Table.Cell("boolean")
                     Table.Cell { Markdown("`true`") }
-                    Table.Cell("Rebuild on a save, reload open tabs, and draw a failed build's error over the page.")
+                    Table.Cell("Rebuilds on a save, reloads open tabs, and draws a failed build's error over the page.")
                 }
             }
         }
 
         Heading("motion", id: "motion").h2
 
+        Markdown("What an animation does when the element says nothing ([Motion](/docs/guide/motion)).")
+
         Table(caption: "motion") {
             Table.Head {
                 Table.Row {
                     Table.Cell("Key").header
+                    Table.Cell("Type").header
                     Table.Cell("Default").header
                     Table.Cell("Meaning").header
                 }
@@ -405,11 +484,13 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
             Table.Body {
                 Table.Row {
                     Table.Cell { Markdown("`duration`") }
+                    Table.Cell("string")
                     Table.Cell("unset")
-                    Table.Cell { Markdown("How long an animation runs when the element does not say: `\"180ms\"`.") }
+                    Table.Cell { Markdown("How long an animation runs: `\"180ms\"`.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`easing`") }
+                    Table.Cell("string")
                     Table.Cell("unset")
                     Table.Cell { Markdown("How it is paced: a CSS timing function, or a token such as `\"$ease-standard\"`.") }
                 }
@@ -418,139 +499,207 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
 
         Heading("meta", id: "meta").h2
 
+        Markdown("What every page's head carries: its fallbacks, its search and sharing tags, and the other origins the content security policy allows.")
+
         Table(caption: "meta") {
             Table.Head {
                 Table.Row {
                     Table.Cell("Key").header
+                    Table.Cell("Type").header
                     Table.Cell("Default").header
                     Table.Cell("Meaning").header
                 }
             }
             Table.Body {
                 Table.Row {
-                    Table.Cell { Markdown("`title`, `description`") }
-                    Table.Cell { Markdown("the name, `\"\"`") }
-                    Table.Cell("What a page falls back to when it declares none.")
+                    Table.Cell { Markdown("`title`") }
+                    Table.Cell("string")
+                    Table.Cell("the project's name")
+                    Table.Cell("The title a page falls back to when it declares none.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`description`") }
+                    Table.Cell("string")
+                    Table.Cell { Markdown("`\"\"`") }
+                    Table.Cell("The description a page falls back to when it declares none.")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`lang`") }
+                    Table.Cell("language tag")
                     Table.Cell { Markdown("`\"en\"`") }
-                    Table.Cell("The document's language.")
+                    Table.Cell { Markdown("The document's language: `en`, `ar`, `pt-BR`.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`site_url`") }
+                    Table.Cell("string")
                     Table.Cell { Markdown("`\"\"`") }
-                    Table.Cell("The absolute address. Without it, canonical links, the sitemap's URLs and absolute sharing URLs are left out rather than guessed.")
+                    Table.Cell { Markdown("The site's absolute address, such as `https://example.com`. Without it, canonical links, the sitemap's URLs and absolute sharing URLs are left out rather than guessed.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`site_name`") }
+                    Table.Cell("string")
                     Table.Cell { Markdown("`\"\"`") }
                     Table.Cell("The name a link preview shows, and the site's owner in the structured data.")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`owner`") }
+                    Table.Cell { Markdown("`organization`, `person`") }
                     Table.Cell { Markdown("`\"organization\"`") }
-                    Table.Cell { Markdown("Whether the owner is an `\"organization\"` or a `\"person\"` — the JSON-LD node the site is published by ([chapter 27](/docs/guide/content#who-the-site-belongs-to)).") }
+                    Table.Cell { Markdown("Whether the site belongs to an organisation or a person: the JSON-LD node the site is published by ([Content](/docs/guide/content#say-who-the-site-belongs-to)).") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`same_as`") }
+                    Table.Cell("list of URLs")
                     Table.Cell { Markdown("`[]`") }
                     Table.Cell { Markdown("The owner's profiles elsewhere, as its `sameAs`.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`job_title`") }
+                    Table.Cell("string")
                     Table.Cell { Markdown("`\"\"`") }
                     Table.Cell { Markdown("A person's `jobTitle`.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`owner_details`") }
+                    Table.Cell("map")
                     Table.Cell { Markdown("`\{\}`") }
-                    Table.Cell { Markdown("More of the owner, as schema.org properties merged into its node as written: `alternateName`, `email`, `worksFor`, `alumniOf`, `knowsAbout`, `logo`… The node's `@type`, `@id`, `name`, `url`, `jobTitle` and `sameAs` come from the settings above (`E111`).") }
+                    Table.Cell { Markdown("More about the owner, as schema.org properties merged into its node as written: `alternateName`, `email`, `worksFor`, `alumniOf`, `knowsAbout`, `logo`… The node's `@type`, `@id`, `name`, `url`, `jobTitle` and `sameAs` come from the settings above; naming one here is `E111`.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`image`") }
+                    Table.Cell("file")
                     Table.Cell { Markdown("`\"\"`") }
-                    Table.Cell { Markdown("The sharing image for pages that set none; one in `public/` has its size read into `og:image:width`/`height`.") }
+                    Table.Cell { Markdown("The sharing image for pages that set none. For an image in `public/`, its size is read into `og:image:width` and `og:image:height`.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`image_alt`") }
+                    Table.Cell("string")
                     Table.Cell { Markdown("`\"\"`") }
-                    Table.Cell { Markdown("What that image shows: `og:image:alt` and `twitter:image:alt`. A page's `image_alt:` wins.") }
+                    Table.Cell { Markdown("What that image shows, as `og:image:alt` and `twitter:image:alt`. A page's `image_alt:` wins.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`favicon`") }
+                    Table.Cell("file")
                     Table.Cell { Markdown("`\"\"`") }
-                    Table.Cell { Markdown("The icon a tab shows: a file in `public/` — an SVG scales to every size — or a URL.") }
+                    Table.Cell { Markdown("The icon a browser tab shows: a file in `public/` — an SVG scales to every size — or a URL.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`touch_icon`") }
+                    Table.Cell("file")
                     Table.Cell { Markdown("`\"\"`") }
                     Table.Cell { Markdown("The icon a phone puts on its home screen: a 180×180 PNG in `public/`. iOS reads this, not an SVG `favicon`.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`sitemap`") }
+                    Table.Cell("boolean")
                     Table.Cell { Markdown("`true`") }
-                    Table.Cell { Markdown("Write `sitemap.xml` and `robots.txt`.") }
+                    Table.Cell { Markdown("Writes `sitemap.xml` and `robots.txt`.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`fonts`") }
+                    Table.Cell("list of URLs")
                     Table.Cell { Markdown("`[]`") }
-                    Table.Cell { Markdown("Web-font stylesheet URLs to link, each with a `preconnect`; their origins join the policy.") }
+                    Table.Cell { Markdown("Web-font stylesheets to link, each with a `preconnect`. Their origins join the policy.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`preload`") }
+                    Table.Cell("list of paths")
                     Table.Cell { Markdown("`[]`") }
-                    Table.Cell { Markdown("Files on this site to fetch with the page, ahead of the stylesheets: a font a project `.css` file's `@font-face` names, the first screen's picture. `as` comes from the extension (a font is also `crossorigin`); a file on another origin is `E111` ([chapter 27](/docs/guide/content#fonts-served-from-the-site)).") }
+                    Table.Cell { Markdown("Files on this site to fetch with the page, ahead of the stylesheets: a font a project `.css` file's `@font-face` names, the first screen's picture. `as` comes from the extension (a font is also `crossorigin`). A file on another origin is `E111` ([Content](/docs/guide/content#preload-fonts-served-from-the-site)).") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`stylesheets`") }
+                    Table.Cell("list of paths or URLs")
                     Table.Cell { Markdown("`[]`") }
                     Table.Cell { Markdown("Extra stylesheets to link ahead of `styles.css`: a file in `public/` or a URL.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`scripts`") }
+                    Table.Cell("list of scripts")
                     Table.Cell { Markdown("`[]`") }
-                    Table.Cell { Markdown("Libraries to load before the project's own scripts: a URL or a file in `public/`, or `\{ \"src\", \"module\": true, \"as\": \"Name\" \}` for an ES module, or `\{ \"src\", \"globals\": [\"Chart\"] \}` to call a library's names from `.wf`. `\"async\": true` loads one nothing waits for — analytics — without holding up the page's code, and `\"load\": \"after\"` asks for it only once the page has loaded and painted. Their origins join the policy ([JavaScript interop](/docs/guide/interop#a-library-from-a-cdn)).") }
-                }
-                Table.Row {
-                    Table.Cell { Markdown("`connect`") }
-                    Table.Cell { Markdown("`[]`") }
-                    Table.Cell { Markdown("Origins a page may send requests to besides its own — an API elsewhere, an analytics endpoint — as the policy's `connect-src`: `\"https://api.example.com\"`, `\"https://*.google-analytics.com\"`, or an app's own scheme alone, `\"ipc:\"`. An entry with a path or a keyword is `E111` ([chapter 23](/docs/guide/security)).") }
-                }
-                Table.Row {
-                    Table.Cell { Markdown("`img`") }
-                    Table.Cell { Markdown("`[]`") }
-                    Table.Cell { Markdown("Origins a page may load images from besides its own and `data:` — a CDN, a tag's tracking pixel — as the policy's `img-src`: `\"https://images.example.com\"`, `\"https://www.googletagmanager.com\"`. An entry with a path or a keyword is `E111` ([chapter 23](/docs/guide/security)).") }
-                }
-                Table.Row {
-                    Table.Cell { Markdown("`frame`") }
-                    Table.Cell { Markdown("`[]`") }
-                    Table.Cell { Markdown("Origins a page may embed in a frame besides its own — a video player, a map — as the policy's `frame-src`: `\"https://www.youtube-nocookie.com\"`, or an app's own scheme alone, `\"wfpreview:\"`. An entry with a path or a keyword is `E111` ([chapter 23](/docs/guide/security)).") }
-                }
-                Table.Row {
-                    Table.Cell { Markdown("`wasm`") }
-                    Table.Cell { Markdown("`false`") }
-                    Table.Cell { Markdown("The pages compile WebAssembly: `script-src` gains `'wasm-unsafe-eval'`, which allows that and not `eval` ([chapter 23](/docs/guide/security)).") }
-                }
-                Table.Row {
-                    Table.Cell { Markdown("`style_elements`") }
-                    Table.Cell { Markdown("`false`") }
-                    Table.Cell { Markdown("A script on the page writes `<style>` elements (an editor, a chart library): `style-src` gains `'unsafe-inline'`, for styles only ([chapter 23](/docs/guide/security)).") }
+                    Table.Cell { Markdown("Libraries to load before the project's own scripts (below). Their origins join the policy ([JavaScript interop](/docs/guide/interop#load-a-library-from-a-cdn)).") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`integrity`") }
+                    Table.Cell("map of URL to hash")
                     Table.Cell { Markdown("`\{\}`") }
                     Table.Cell("Subresource-integrity hashes of external assets, by URL.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`connect`") }
+                    Table.Cell("list of origins")
+                    Table.Cell { Markdown("`[]`") }
+                    Table.Cell { Markdown("Origins a page may send requests to besides its own — an API elsewhere, an analytics endpoint — as the policy's `connect-src`: `\"https://api.example.com\"`, `\"https://*.google-analytics.com\"`, or an app's own scheme alone, `\"ipc:\"`.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`img`") }
+                    Table.Cell("list of origins")
+                    Table.Cell { Markdown("`[]`") }
+                    Table.Cell { Markdown("Origins a page may load images from besides its own and `data:` — a CDN, a tag's tracking pixel — as the policy's `img-src`: `\"https://images.example.com\"`, `\"https://www.googletagmanager.com\"`.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`frame`") }
+                    Table.Cell("list of origins")
+                    Table.Cell { Markdown("`[]`") }
+                    Table.Cell { Markdown("Origins a page may embed in a frame besides its own — a video player, a map — as the policy's `frame-src`: `\"https://www.youtube-nocookie.com\"`, or an app's own scheme alone, `\"wfpreview:\"`.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wasm`") }
+                    Table.Cell("boolean")
+                    Table.Cell { Markdown("`false`") }
+                    Table.Cell { Markdown("The pages compile WebAssembly: `script-src` gains `'wasm-unsafe-eval'`, which allows that and not `eval`.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`style_elements`") }
+                    Table.Cell("boolean")
+                    Table.Cell { Markdown("`false`") }
+                    Table.Cell { Markdown("A script on the page writes `<style>` elements (an editor, a chart library): `style-src` gains `'unsafe-inline'`, for styles only.") }
+                }
+            }
+        }
+
+        Markdown("An entry of `connect`, `img` or `frame` that has a path, or that is a keyword, is `E111`. [Security](/docs/guide/security#allow-requests-images-and-frames-from-other-origins) covers these settings and `wasm` and `style_elements`.\n\nAn entry of `meta.scripts` takes one of these forms:")
+
+        Table(caption: "meta") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Form").header
+                    Table.Cell("Meaning").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`\"https://…\"` or a file in `public/`") }
+                    Table.Cell { Markdown("A classic script, linked `defer`.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`\{ \"src\": \"…\", \"module\": true, \"as\": \"Name\" \}`") }
+                    Table.Cell { Markdown("An ES module, whose exports are put on `window.Name`.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`\{ \"src\": \"…\", \"globals\": [\"Chart\"] \}`") }
+                    Table.Cell { Markdown("A script whose names `.wf` may call directly.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`\{ \"src\": \"…\", \"async\": true \}`") }
+                    Table.Cell("A script nothing waits for — analytics — loaded without holding up the page's code.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`\{ \"src\": \"…\", \"load\": \"after\" \}`") }
+                    Table.Cell("A script the page asks for only once it has loaded and painted.")
                 }
             }
         }
 
         Heading("theme", id: "theme").h2
 
+        Markdown("Which theme the site uses, and token values set over it ([Design tokens](/docs/guide/tokens)).")
+
         Table(caption: "theme") {
             Table.Head {
                 Table.Row {
                     Table.Cell("Key").header
+                    Table.Cell("Type").header
                     Table.Cell("Default").header
                     Table.Cell("Meaning").header
                 }
@@ -558,28 +707,34 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
             Table.Body {
                 Table.Row {
                     Table.Cell { Markdown("`name`") }
+                    Table.Cell("string")
                     Table.Cell("unset")
-                    Table.Cell { Markdown("Which `theme` declaration is the site's. A project with exactly one need not name it.") }
+                    Table.Cell { Markdown("Which `theme` declaration is the site's. A project with exactly one need not name it; with none, the baseline applies.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`dark`") }
+                    Table.Cell("string")
                     Table.Cell("unset")
-                    Table.Cell { Markdown("The theme that stands in for dark mode ([chapter 15](/docs/guide/styling#dark-mode)).") }
+                    Table.Cell { Markdown("The `theme` declaration that stands in for dark mode: when the reader prefers dark, or `setTheme(\"dark\")` asks ([Styling](/docs/guide/styling#dark-mode)).") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`builtin`") }
+                    Table.Cell { Markdown("`full`, `structural`") }
                     Table.Cell { Markdown("`\"full\"`") }
-                    Table.Cell { Markdown("`full` ships the built-ins' designed look; `structural` only their layout and mechanics.") }
+                    Table.Cell { Markdown("`full` ships the built-ins' designed look; `structural` ships only their layout and mechanics, for a design of your own.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`tokens`") }
+                    Table.Cell("map of token to value")
                     Table.Cell { Markdown("`\{\}`") }
-                    Table.Cell("Token values on top of the theme, for a pipeline to supply.")
+                    Table.Cell("Token values applied over the theme, for a pipeline to supply — a colour a deploy injects.")
                 }
             }
         }
 
         Heading("i18n", id: "i18n").h2
+
+        Markdown("The project's translations. Absent, the project has one language.")
 
         CodeBlock(#"{ "i18n": { "default_locale": "en", "locales": ["en", "ar"], "dir": "src/translations" } }"#, title: "json")
 
@@ -587,6 +742,7 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
             Table.Head {
                 Table.Row {
                     Table.Cell("Key").header
+                    Table.Cell("Type").header
                     Table.Cell("Default").header
                     Table.Cell("Meaning").header
                 }
@@ -594,35 +750,42 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
             Table.Body {
                 Table.Row {
                     Table.Cell { Markdown("`default_locale`") }
+                    Table.Cell("language tag")
                     Table.Cell { Markdown("`\"en\"`") }
-                    Table.Cell("The locale a page opens in.")
+                    Table.Cell("The locale a page opens in, and the one a message falls back to when the current locale has no translation of it.")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`locales`") }
+                    Table.Cell("list of language tags")
                     Table.Cell { Markdown("`[\"en\"]`") }
-                    Table.Cell("Every locale; one JSON file each.")
+                    Table.Cell { Markdown("Every locale; one JSON file each, under `dir`.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`dir`") }
+                    Table.Cell("string")
                     Table.Cell { Markdown("`\"src/translations\"`") }
-                    Table.Cell("Where the files are.")
+                    Table.Cell("The folder the translation files are in.")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`literals`") }
+                    Table.Cell("boolean")
                     Table.Cell { Markdown("`false`") }
-                    Table.Cell("Translate by the words themselves: each string a reader sees is its own key (see the i18n chapter).")
+                    Table.Cell("Translates by the words themselves: each string a reader sees is its own key.")
                 }
             }
         }
 
-        Markdown("[Chapter 21](/docs/guide/i18n).")
+        Markdown("See also: [Internationalisation](/docs/guide/i18n).")
 
         Heading("env and publicenv", id: "env-and-publicenv").h2
+
+        Markdown("Values the program reads as `env.NAME`, and which of them may reach the browser.")
 
         Table(caption: "env and publicenv") {
             Table.Head {
                 Table.Row {
                     Table.Cell("Key").header
+                    Table.Cell("Type").header
                     Table.Cell("Default").header
                     Table.Cell("Meaning").header
                 }
@@ -630,22 +793,24 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
             Table.Body {
                 Table.Row {
                     Table.Cell { Markdown("`env`") }
+                    Table.Cell("map")
                     Table.Cell { Markdown("`\{\}`") }
-                    Table.Cell { Markdown("Values read as `env.NAME`, fixed at build time. A `.env` file and the shell add to them.") }
+                    Table.Cell { Markdown("Values read as `env.NAME`, fixed at build time. A `.env` file and the shell's variables add to them.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`public_env`") }
+                    Table.Cell("list of names")
                     Table.Cell { Markdown("`[]`") }
-                    Table.Cell { Markdown("Names a page may read beyond those beginning `PUBLIC_`.") }
+                    Table.Cell { Markdown("The `env` names a page may read — and so ships to the browser — beyond those beginning `PUBLIC_`.") }
                 }
             }
         }
 
-        Markdown("[Chapter 30](/docs/guide/environments).")
+        Markdown("See also: [Environments](/docs/guide/environments).")
 
         Heading("offline", id: "offline").h2
 
-        Markdown("**4.1.** Absent, no service worker is written.")
+        Markdown("The service worker that stores the site for when the network is gone. Added in **4.1**. Absent, no service worker is written.")
 
         CodeBlock(#"{ "offline": { "precache": ["/", "/docs/*"], "fallback": "/offline", "cache": { "/api/*": "network-first" }, "sync": true } }"#, title: "json")
 
@@ -653,6 +818,7 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
             Table.Head {
                 Table.Row {
                     Table.Cell("Key").header
+                    Table.Cell("Type").header
                     Table.Cell("Default").header
                     Table.Cell("Meaning").header
                 }
@@ -660,35 +826,39 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
             Table.Body {
                 Table.Row {
                     Table.Cell { Markdown("`precache`") }
+                    Table.Cell("list of globs")
                     Table.Cell { Markdown("`[\"/\"]`") }
-                    Table.Cell { Markdown("The routes a first visit stores, as globs; `\"*\"` for every route.") }
+                    Table.Cell { Markdown("The routes a first visit stores; `\"*\"` for every route.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`fallback`") }
+                    Table.Cell("string")
                     Table.Cell { Markdown("`null`") }
                     Table.Cell("A page's path, shown for a route that was not stored.")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`cache`") }
+                    Table.Cell("map of glob to strategy")
                     Table.Cell { Markdown("`\{\}`") }
                     Table.Cell { Markdown("How paths the build did not write are fetched: `network-first`, `cache-first`, `stale-while-revalidate` or `network-only`.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`sync`") }
+                    Table.Cell("boolean")
                     Table.Cell { Markdown("`false`") }
-                    Table.Cell("Keep writes made offline and send them later.")
+                    Table.Cell("Keeps writes made offline and sends them when the connection returns.")
                 }
             }
         }
 
-        Markdown("[Chapter 19](/docs/guide/offline).")
+        Markdown("See also: [Offline](/docs/guide/offline).")
 
         Heading("lints", id: "lints").h2
 
-        Markdown("What a finding counts as, by its code or its family — `\"off\"`, `\"warn\"` or `\"error\"`, the code first, then the family:")
+        Markdown("What a finding counts as, by its code or its family: `\"off\"`, `\"warn\"` or `\"error\"`. A code's setting wins over its family's.")
 
         CodeBlock(#"{ "lints": { "A11": "off", "U": "error", "R01": "warn" } }"#, title: "json")
 
-        Markdown("A warning may be turned off or made an error. An error may be lowered only when it cannot ship a broken page — `R01` (a link to a route that is missing), `C02` (a prop nothing reads), `S04` (two pages on one route) and `I01`, `I02`, `I04` (a message that shows its key or a placeholder); asking to lower any other is itself refused, and so is a key that is no code or family. Every code is in [Diagnostics](/docs/guide/diagnostics). One finding on one line is allowed with a `// wf-allow(CODE)` comment instead, under the same rule.")
+        Markdown("You can turn a warning off or make it an error. You can lower an error only when it cannot ship a broken page:\n\n- `R01` — a link to a route that is missing;\n- `C02` — a prop nothing reads;\n- `S04` — two pages on one route;\n- `I01`, `I02`, `I04` — a message that shows its key or a placeholder.\n\nAsking to lower any other error is itself refused, and so is a key that is not a code or a family. To accept one finding on one line instead, write a `// wf-allow(CODE)` comment; the same rule applies. Every code is listed in [Diagnostics](/docs/guide/diagnostics).")
     }
 }

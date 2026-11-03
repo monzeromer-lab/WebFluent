@@ -1,56 +1,117 @@
 /// Chapter 31 of the guide, written from md-docs/31-performance.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page PerformanceGuide(path: "/docs/guide/performance", title: "Performance", description: "What a build does to be fast, wf build --stats, size budgets, paint timings from wf verify, and the few things that make a site slow.", layout: DocsShell("Performance", chapter: t("guide.chapter", { n: "31" }), blurb: "What a build already does to be fast, how to see what it weighs, budgets that warn, and the few things that make a site slow.", source: "md-docs/31-performance.md", sections: [Anchor(id: "what-the-build-does-already", label: "What the build does already"), Anchor(id: "seeing-what-it-weighs", label: "Seeing what it weighs"), Anchor(id: "budgets", label: "Budgets"), Anchor(id: "timing-it-in-a-browser", label: "Timing it in a browser"), Anchor(id: "what-makes-a-site-slow", label: "What makes a site slow")], prevTo: "/docs/guide/environments", prevLabel: "30. {t("ch.30")}", nextTo: "/docs/guide/interop", nextLabel: "32. {t("ch.32")}")) {
+page PerformanceGuide(path: "/docs/guide/performance", title: "Performance", description: "What a build does to be fast, wf build --stats, size budgets, paint timings from wf verify, and the few things that make a site slow.", layout: DocsShell("Performance", chapter: t("guide.chapter", { n: "31" }), blurb: "Learn what a build already does to be fast, see what it weighs, set budgets that warn, time pages in a browser, and avoid what makes a site slow.", source: "md-docs/31-performance.md", sections: [Anchor(id: "what-the-build-already-does", label: "What the build already does"), Anchor(id: "see-what-a-build-weighs", label: "See what a build weighs"), Anchor(id: "set-a-size-budget", label: "Set a size budget"), Anchor(id: "time-pages-in-a-browser", label: "Time pages in a browser"), Anchor(id: "avoid-what-makes-a-site-slow", label: "Avoid what makes a site slow")], prevTo: "/docs/guide/environments", prevLabel: "30. {t("ch.30")}", nextTo: "/docs/guide/interop", nextLabel: "32. {t("ch.32")}")) {
     Stack(gap: .lg) {
-        Heading("What the build does already", id: "what-the-build-does-already").h2
+        Markdown("This chapter shows you how to keep a WebFluent site fast. Most of the work is already done by the build. Your part is to measure what it writes, set a limit that warns you when it grows, and avoid the few patterns that make a page slow.\n\nIn this chapter:\n\n- What the build already does for you.\n- See what a build weighs, and why each runtime module is in it.\n- Set a size budget, and time each page in a real browser.\n- Avoid the patterns that make a site slow.")
 
-        Markdown("- **Only the runtime you use.** The runtime is a set of modules; a build keeps the ones its code reaches. A page of static text carries 3 of its 37 modules: an `app.js` of 11 kB, 3.7 kB gzipped.\n- **A chunk per page.** `build.split` (on by default) writes each page's code and styles as their own files, loaded when its route is first shown.\n- **Pre-rendered HTML** with `build.ssg`: the first paint needs no script.\n- **One pruned stylesheet.** Only the built-ins you use, only the tokens something names.\n- **Precompressed.** A `.gz` beside every text file, for a host that serves it; `wf serve` sends the same bytes, so Lighthouse against the dev server measures what a deploy sends.\n- **Images at every width**, with `width`/`height` so nothing shifts, a placeholder while they load, the first one eager and the rest lazy ([Media](/docs/guide/media)).\n- **Minified** output (`build.minify`).")
+        Heading("What the build already does", id: "what-the-build-already-does").h2
 
-        Heading("Seeing what it weighs", id: "seeing-what-it-weighs").h2
+        Markdown("You get these without setting anything:\n\n- **Only the runtime you use.** The *runtime* is the JavaScript the compiled pages call. It is a set of modules, and a build keeps only the ones its code reaches. A single-page build of one page of static text carries 2 of the 41 modules: an `app.js` of 18.9 kB, 6.5 kB gzipped.\n- **A chunk per page.** `build.split` (on by default) writes each page's code and styles as their own files, loaded the first time its route is shown.\n- **Pre-rendered HTML.** With `build.ssg`, each page's HTML is written at build time, so the first paint needs no script.\n- **One pruned stylesheet.** It holds the rules of only the built-ins you use, and only the design tokens something names.\n- **Precompressed files.** A `.gz` file sits beside every text file, for a host that serves it. `wf serve` sends the same bytes, so Lighthouse run against the dev server measures what a deploy sends.\n- **Images at every width**, with `width` and `height` so nothing shifts, a placeholder while they load, the first image eager and the rest lazy ([Media](/docs/guide/media)).\n- **Minified output.** `build.minify` (on by default) strips comments and white space.")
+
+        Heading("See what a build weighs", id: "see-what-a-build-weighs").h2
+
+        Markdown("To see the size of everything a build writes, run the build with `--stats`:")
 
         Terminal(lines: [
                 Line(command: "wf build --stats")
             ])
 
-        CodeBlock(#"  What it weighs
-    app.js                               47.6 kB  (14.6 kB gzipped)  +20 B
-    styles.css                           16.9 kB  (3.7 kB gzipped)
-    index.html                            5.1 kB  (1.3 kB gzipped)
-    pages/Suggest.js                      2.2 kB  (0.8 kB gzipped)
-    pages/Home.js                         1.4 kB  (0.6 kB gzipped)
-    js/tilt.js                            0.6 kB  (0.4 kB gzipped)
-    …
-    total                                90.7 kB
+        Markdown("This is the output for the [tutorial](/docs/guide/tutorial)'s site, trimmed:")
 
-  Runtime: 14 of 37 modules, 89.3 kB of 220.3 kB (before minifying)
-    core          19.6 kB  always
-    motion        16.6 kB  needed by when, match, each, router
-    form          12.1 kB  WF.form
-    router        10.7 kB  WF.router
-    store          6.5 kB  WF.store
+        CodeBlock(#"  What it weighs
+    app.js                               70.6 kB  (21.7 kB gzipped)
+    styles.css                           21.7 kB  (4.5 kB gzipped)
+    index.html                            5.2 kB  (1.3 kB gzipped)
+    suggest/index.html                    2.8 kB  (0.9 kB gzipped)
+    pages/Suggest.js                      2.2 kB  (0.9 kB gzipped)
+    pages/Home.js                         1.4 kB  (0.7 kB gzipped)
+    …
+    total                               118.7 kB
+
+  Runtime: 15 of 41 modules, 142.6 kB of 377.6 kB (before minifying)
+    core          38.1 kB  always
+    motion        19.5 kB  needed by when, match, each, router
+    router        15.4 kB  WF.router
+    form          13.4 kB  WF.form
+    hydrate       12.0 kB  WF.hydrating
+    each          10.3 kB  WF.each
+    store          9.0 kB  WF.store
+    keep           7.3 kB  needed by store
+    field          5.2 kB  WF.field
     …
     left out: helpers format offline peer scalars text slot show browser …
 
   Tokens: 26 nothing in the output names, left out"#, title: "text")
 
-        Markdown("The project's own scripts are listed by their path under `js/`, and `build.budget` may name one. They are copied as written — the build does not minify a file it promises to ship byte for byte.\n\nThat is the [tutorial](/docs/guide/tutorial)'s site: a form brings `form` and `field`, a store `store` and `keep`, a second page `router`.\n\nEach build records its sizes in `.wf-sizes.json`, so the next `--stats` shows what moved. Each runtime module is listed with what reached it — the first place to look when a module you did not expect is in.")
+        Markdown("Read it in three parts:\n\n- **What it weighs** lists every text file with its gzipped size. The tutorial's form brings in `form` and `field`, its store brings in `store` and `keep`, and its second page brings in `router`.\n- **Runtime** lists each module with what reached it. When a module you did not expect is in the build, look here first.\n- **Tokens** counts the design tokens the build left out because nothing names them.\n\nEach build records its sizes in `.wf-sizes.json` beside the project, so the next `--stats` shows how each file moved since the last build (for example, `+20 B`).\n\nThe project's own scripts are listed by their path under `js/`, such as `js/tilt.js` ([JavaScript interop](/docs/guide/interop)). The build copies them as written: it does not minify a file it promises to ship byte for byte.")
 
-        Heading("Budgets", id: "budgets").h2
+        Heading("Set a size budget", id: "set-a-size-budget").h2
+
+        Markdown("To be warned when a file grows past a size, name its gzipped limit in `build.budget`:")
 
         CodeBlock(#"{ "build": { "budget": { "app.js": "40 kB", "styles.css": "30 kB", "pages/Home.js": "10 kB" } } }"#, title: "json")
 
-        Markdown("A gzipped size an output should stay under. Going over prints a warning and the build goes on; a CI job that wants to fail on it can read the same numbers.")
+        Markdown("Any output may have a budget, including a page's chunk and one of your own scripts under `js/`. A build over budget prints a warning and goes on. A CI job that should fail on it can read the same numbers.")
 
-        Heading("Timing it in a browser", id: "timing-it-in-a-browser").h2
+        Heading("Time pages in a browser", id: "time-pages-in-a-browser").h2
+
+        Markdown("To measure how fast each page paints, build the site and run `wf verify` with a budget in milliseconds:")
 
         Terminal(lines: [
                 Line(command: "wf build && wf verify --budget 800")
             ])
 
-        Markdown("`wf verify` loads every route in headless Chrome and prints its first contentful paint, the nodes in the document and the bytes and requests it took; `--budget` fails a route slower than that. Lighthouse and the browser's performance panel work on the build as on any site.")
+        Markdown("`wf verify` loads every route in headless Chrome. For each route it prints the first contentful paint, the number of nodes in the document, and the bytes and requests it took. `--budget 800` fails a route whose first paint is slower than 800 ms. Lighthouse and the browser's performance panel work on the build as on any other site.")
 
-        Heading("What makes a site slow", id: "what-makes-a-site-slow").h2
+        Heading("Avoid what makes a site slow", id: "avoid-what-makes-a-site-slow").h2
 
-        Markdown("- **A large `data` file.** `data posts = \"posts.json\"` is inlined into the bundle, so a 2 MB file is 2 MB of JavaScript. Keep build-time data to what pages show; fetch the rest, or split it across pages that each read one.\n- **A waterfall of fetches.** A resource whose URL depends on another's answer waits for it. Where you can, ask for both at once, or have the server send them together.\n- **Layout decided by `viewport`.** It is unknown until the script runs, so the page paints one branch and swaps. Use responsive values, which are CSS.\n- **`runtime: \"full\"`.** It ships every module. Only needed when a hand-written script calls `WF` in ways the build cannot see.\n- **Web fonts.** Each weight is a download. Use `display=swap`, few weights, or the baseline's system fonts.\n- **Unkeyed lists that change.** `for item in items` rebuilds the list; `for item in items by item.id` moves the nodes that stayed.\n- **Pictures from `public/`.** They are copied as they are. Declare them with `image` to get every width and a placeholder.")
+        Markdown("These are the patterns that slow a WebFluent site down, and what to do instead:")
+
+        Table(caption: "Avoid what makes a site slow") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Pattern").header
+                    Table.Cell("Why it is slow").header
+                    Table.Cell("Do this instead").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("A large `data` file") }
+                    Table.Cell { Markdown("`data posts = \"posts.json\"` is inlined into the bundle, so a 2 MB file is 2 MB of JavaScript") }
+                    Table.Cell("Keep build-time data to what pages show. Fetch the rest, or split it across pages that each read one file")
+                }
+                Table.Row {
+                    Table.Cell("A waterfall of fetches")
+                    Table.Cell("A resource whose URL depends on another's answer waits for that answer")
+                    Table.Cell("Ask for both at once, or have the server send them together")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("Layout decided by `viewport`") }
+                    Table.Cell { Markdown("`viewport` is unknown until the script runs, so the page paints one branch and then swaps it") }
+                    Table.Cell { Markdown("Use [responsive values](/docs/guide/styling#responsive-values), which are CSS") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`\"runtime\": \"full\"`") }
+                    Table.Cell("It ships every module")
+                    Table.Cell { Markdown("Use it only when a hand-written script calls `WF` in ways the build cannot see, or an icon's name arrives at run time") }
+                }
+                Table.Row {
+                    Table.Cell("Web fonts")
+                    Table.Cell("Each weight is a download")
+                    Table.Cell { Markdown("Use `display=swap` and few weights, or the baseline's system fonts") }
+                }
+                Table.Row {
+                    Table.Cell("An unkeyed list that changes")
+                    Table.Cell { Markdown("`for item in items` rebuilds the list") }
+                    Table.Cell { Markdown("Key it: `for item in items by item.id` moves the nodes that stayed") }
+                }
+                Table.Row {
+                    Table.Cell("Pictures the build cannot process")
+                    Table.Cell("An SVG, a URL or a path built at run time is used as written: one size, no placeholder")
+                    Table.Cell { Markdown("Use a literal `src:` into `public/`, or declare the picture with `image` ([Media](/docs/guide/media))") }
+                }
+            }
+        }
     }
 }

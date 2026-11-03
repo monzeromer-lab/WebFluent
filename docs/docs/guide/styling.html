@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Styling</title>
-    <meta name="description" content="Themes and tokens, style blocks with splices, nesting and media queries, transitions, classes and stylesheets, dark mode, responsive layout.">
+    <meta name="description" content="Themes and tokens, style blocks with live values, nested rules and media queries, transitions, classes and stylesheets, dark mode, responsive layout.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/styling">
     <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/styling?lang=en">
     <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/styling?lang=ar">
@@ -12,7 +12,7 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Styling">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="Themes and tokens, style blocks with splices, nesting and media queries, transitions, classes and stylesheets, dark mode, responsive layout.">
+    <meta property="og:description" content="Themes and tokens, style blocks with live values, nested rules and media queries, transitions, classes and stylesheets, dark mode, responsive layout.">
     <meta property="og:url" content="https://webfluent.monzeromer.dev/docs/guide/styling">
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="ar_AR">
@@ -21,9 +21,9 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Styling">
-    <meta name="twitter:description" content="Themes and tokens, style blocks with splices, nesting and media queries, transitions, classes and stylesheets, dark mode, responsive layout.">
+    <meta name="twitter:description" content="Themes and tokens, style blocks with live values, nested rules and media queries, transitions, classes and stylesheets, dark mode, responsive layout.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/styling#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/styling","name":"Styling","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Themes and tokens, style blocks with splices, nesting and media queries, transitions, classes and stylesheets, dark mode, responsive layout."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/styling#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Styling","item":"https://webfluent.monzeromer.dev/docs/guide/styling"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/styling#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/styling","name":"Styling","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Themes and tokens, style blocks with live values, nested rules and media queries, transitions, classes and stylesheets, dark mode, responsive layout."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/styling#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Styling","item":"https://webfluent.monzeromer.dev/docs/guide/styling"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -69,6 +69,9 @@
             </div>
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
+                    <a class="wf-sidebar__item" href="/docs">
+                        <p class="wf-text">Overview</p>
+                    </a>
                     <p class="wf-text group-label">Start</p>
                     <a class="wf-sidebar__item" href="/docs/guide/introduction">
                         <p class="wf-text num">01</p>
@@ -274,22 +277,87 @@
                 </aside>
                 <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
-                        <a class="wf-link" href="/docs/guide/introduction">Guide</a>
+                        <a class="wf-link" href="/docs">Guide</a>
                         <p class="wf-text">/</p>
                         <p class="wf-text wf-s8c71c534">Chapter 15</p>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s28a8547f">
                         <h1 class="wf-heading wf-sa3503382">Styling</h1>
-                        <p class="wf-text wf-sfd35f593">Every built-in ships styled; a theme changes the whole site; a style block is real CSS scoped to its element.</p>
+                        <p class="wf-text wf-sfd35f593">Restyle the whole site with a theme, one element with a style block, and many elements with your own stylesheet — and make the layout responsive.</p>
                     </div>
                     <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
-<p>Every built-in ships styled, and a theme changes the whole site by changing its tokens. When you need more, an element takes a <code>style { }</code> block of real CSS, scoped to that element, with tokens and live values spliced in.</p>
+<p>This chapter shows you how to change the way your site looks, from the whole site down to one element. Every built-in element already ships styled, so you only write styles for what you want to change.</p>
+<p>You will be able to:</p>
+<ul>
+<li>change colours, fonts and spacing across the site with a <code>theme</code>;</li>
+<li>style one element with a <code>style { }</code> block, including live values, hover states and media queries;</li>
+<li>share rules between elements with classes and your own <code>.css</code> files;</li>
+<li>add dark mode;</li>
+<li>make a layout change with the width of the screen.</li>
+</ul>
                             </div>
-                            <h2 class="wf-heading" id="design-tokens-and-the-theme">Design tokens and the theme</h2>
+                            <h2 class="wf-heading" id="before-you-start">Before you start</h2>
                             <div class="wf-markdown">
-<p>A theme is a set of tokens, each of which becomes a CSS custom property (<code>--color-primary</code>). A <code>theme</code> declaration overrides what the baseline carries; every token not listed keeps its baseline value:</p>
+<p>You need a project that builds (see <a href="/docs/guide/getting-started">Getting started</a>) and you should know how to place elements and pass them props (<a href="/docs/guide/elements">Elements</a>). Styles that follow state use <code>state</code> values (<a href="/docs/guide/state">State and reactivity</a>).</p>
+<p>Three tools cover almost everything. Pick the narrowest one that does the job:</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Before you start</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">To change…</th>
+                                        <th scope="col">Use</th>
+                                        <th scope="col">Section</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>The whole site: every button, card and link</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>a <code>theme</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#change-the-whole-site-with-a-theme">Change the whole site with a theme</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>One element</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>a <code>style { }</code> block on it</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#style-one-element">Style one element</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>A group of elements, or something a block cannot say</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>a class and a <code>.css</code> file</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#classes-and-your-own-stylesheet">Classes and your own stylesheet</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h2 class="wf-heading" id="change-the-whole-site-with-a-theme">Change the whole site with a theme</h2>
+                            <div class="wf-markdown">
+<p>To change the colours, fonts, spacing or corner radius of everything at once, declare a <code>theme</code>. A theme sets <em>design tokens</em> — named values such as <code>color-primary</code> or <code>radius-md</code> that every built-in reads.</p>
+<p>This theme gives the site a teal brand colour, the Inter font and rounder corners:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -298,28 +366,83 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">theme Brand {
-    color-primary: #0F766E
-    color-secondary: #134E4A
-    color-background: #FFFFFF
-    color-surface: #F8FAFC
-    color-text: #0F172A
-    color-text-muted: #64748B
-    color-border: #E2E8F0
-    font-family: &#x27;Inter&#x27;, system-ui, sans-serif
-    font-family-mono: &#x27;JetBrains Mono&#x27;, monospace
-    radius-md: 14px
-    spacing-lg: 2.5rem
-    shadow-md: 0 4px 12px rgba(0,0,0,0.08)
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">theme</span> <span class="wf-tok-name">Brand</span> {
+    color-<span class="wf-tok-prop">primary</span>: <span class="wf-tok-num">#0F766E</span>
+    color-<span class="wf-tok-prop">secondary</span>: <span class="wf-tok-num">#134E4A</span>
+    color-<span class="wf-tok-prop">background</span>: <span class="wf-tok-num">#FFFFFF</span>
+    color-<span class="wf-tok-prop">surface</span>: <span class="wf-tok-num">#F8FAFC</span>
+    color-<span class="wf-tok-prop">text</span>: <span class="wf-tok-num">#0F172A</span>
+    color-text-<span class="wf-tok-prop">muted</span>: <span class="wf-tok-num">#64748B</span>
+    color-<span class="wf-tok-prop">border</span>: <span class="wf-tok-num">#E2E8F0</span>
+    font-<span class="wf-tok-prop">family</span>: '<span class="wf-tok-name">Inter</span>', system-ui, sans-serif
+    font-family-<span class="wf-tok-prop">mono</span>: '<span class="wf-tok-name">JetBrains</span> <span class="wf-tok-name">Mono</span>', monospace
+    radius-<span class="wf-tok-prop">md</span>: <span class="wf-tok-num">14px</span>
+    spacing-<span class="wf-tok-prop">lg</span>: <span class="wf-tok-num">2.5rem</span>
+    shadow-<span class="wf-tok-prop">md</span>: <span class="wf-tok-num">0</span> <span class="wf-tok-num">4px</span> <span class="wf-tok-num">12px</span> rgba(<span class="wf-tok-num">0</span>,<span class="wf-tok-num">0</span>,<span class="wf-tok-num">0</span>,<span class="wf-tok-num">0.08</span>)
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>A project with one theme uses it; with several, <code>webfluent.app.json</code> chooses: <code>&quot;theme&quot;: { &quot;name&quot;: &quot;Brand&quot; }</code>. Values are raw CSS to the end of the line.</p>
-<p>The baseline carries 71 tokens in groups — colour, font, spacing, radius, shadow, motion, easing, breakpoints, code and layout — every one a CSS custom property on <code>:root</code>, readable from a style block as <code>$name</code> and from a stylesheet as <code>var(--name)</code>. <a href="/docs/guide/tokens">Design tokens</a> lists each with its baseline value. Moving a breakpoint moves every media query the build writes with it.</p>
-<p>A theme may add tokens of its own (<code>surface-raised: #131519</code>); they become custom properties like the rest. The contrast lint (<code>A13</code>) checks text against background pairs in the theme and warns below WCAG AA.</p>
-<p><code>theme.builtin</code> in <code>webfluent.app.json</code>: <code>full</code> (default) ships the baseline look of every built-in you use; <code>structural</code> ships only their layout and mechanics — focus rings, overlays, the grid — for a site that brings its whole design.</p>
+<p>Every primary button, link and focus ring now uses <code>#0F766E</code>, because the built-ins read <code>color-primary</code> rather than a fixed colour.</p>
+<p>How a theme works:</p>
+<ul>
+<li>Each value is raw CSS, to the end of its line. Do not quote it.</li>
+<li>You list only the tokens you change. Every token you leave out keeps its <em>baseline</em> value — the default the compiler ships.</li>
+<li>The baseline has 71 tokens, in groups: colour, font, spacing, radius, shadow, motion, easing, breakpoints, code and layout. <a href="/docs/guide/tokens">Design tokens</a> lists each one with its baseline value.</li>
+<li>Every token becomes a CSS custom property on <code>:root</code> (<code>--color-primary</code>). You read it from a style block as <code>$color-primary</code> and from a stylesheet as <code>var(--color-primary)</code>.</li>
+<li>A theme may add tokens of its own, such as <code>surface-raised: #131519</code>. They become custom properties like the rest.</li>
+<li>The breakpoints are tokens too, so moving one moves every media query the build writes (see <a href="#responsive-values">Responsive values</a>).</li>
+</ul>
+<p>If the project declares one theme, the build uses it. If it declares several, choose one in <code>webfluent.app.json</code>:</p>
                             </div>
-                            <h2 class="wf-heading" id="style">style { }</h2>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{ <span class="wf-tok-prop">&quot;theme&quot;</span>: { <span class="wf-tok-prop">&quot;name&quot;</span>: <span class="wf-tok-str">&quot;Brand&quot;</span> } }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The contrast lint, <code>A13</code>, checks the text and background pairs of your theme and warns when one falls below the WCAG AA contrast ratio. Run <code>wf theme</code> to see every token, where it comes from and which pairs it checked.</p>
+<p>To keep the built-ins' layout and mechanics but drop their look — for a site that brings its whole design — set <code>theme.builtin</code> in <code>webfluent.app.json</code>:</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Change the whole site with a theme</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">
+                                            <div class="wf-markdown">
+<p><code>theme.builtin</code></p>
+                                            </div>
+                                        </th>
+                                        <th scope="col">What the build ships for each built-in you use</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&quot;full&quot;</code> (default)</p>
+                                            </div>
+                                        </td>
+                                        <td>Its layout, its mechanics and its baseline look</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&quot;structural&quot;</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Only its layout and mechanics: focus rings, overlays, the grid</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h2 class="wf-heading" id="style-one-element">Style one element</h2>
+                            <div class="wf-markdown">
+<p>To change one element, give it a <code>style { }</code> block. The block holds CSS declarations, and they apply to that element only.</p>
+<p>This card uses tokens for its spacing and colours, a live value for its accent border and width, a hover rule, a rule for its paragraphs and a media query:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -327,38 +450,147 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Styled(path: &quot;/&quot;) {
-    state accent = &quot;#D97706&quot;
-    state wide = false
-    Card {
-        style {
-            padding: $lg                       // a token, resolved by the property: spacing-lg
-            background: $surface               // color-surface
-            border: 1px solid $border
-            border-radius: $radius-lg
-            box-shadow: $shadow-md
-            border-left: 4px solid {accent}    // a live value: repaints when `accent` changes
-            max-width: {if wide { &quot;100%&quot; } else { &quot;40rem&quot; }}
-            &amp;:hover { box-shadow: $shadow-lg }
-            &amp; &gt; p { margin: 0 }
-            @media (max-width: 640px) { padding: $sm }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Styled</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/styled&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Styled card&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A card with its own style.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> accent = <span class="wf-tok-str">&quot;#D97706&quot;</span>
+    <span class="wf-tok-kw">state</span> wide = <span class="wf-tok-kw">false</span>
+
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Styled card&quot;</span>).h1
+    <span class="wf-tok-name">Card</span> {
+        <span class="wf-tok-kw">style</span> {
+            <span class="wf-tok-prop">padding</span>: <span class="wf-tok-tok">$lg</span>                       <span class="wf-tok-cmt">// spacing-lg, from the property</span>
+            <span class="wf-tok-prop">background</span>: <span class="wf-tok-tok">$surface</span>              <span class="wf-tok-cmt">// color-surface</span>
+            <span class="wf-tok-prop">border</span>: <span class="wf-tok-num">1px</span> solid <span class="wf-tok-tok">$border</span>
+            border-<span class="wf-tok-prop">radius</span>: <span class="wf-tok-tok">$radius-lg</span>
+            box-<span class="wf-tok-prop">shadow</span>: <span class="wf-tok-tok">$shadow-md</span>
+            border-<span class="wf-tok-prop">left</span>: <span class="wf-tok-num">4px</span> solid {accent}    <span class="wf-tok-cmt">// repaints when `accent` changes</span>
+            max-<span class="wf-tok-prop">width</span>: {<span class="wf-tok-kw">if</span> wide { <span class="wf-tok-str">&quot;100%&quot;</span> } <span class="wf-tok-kw">else</span> { <span class="wf-tok-str">&quot;40rem&quot;</span> }}
+            &amp;:hover { box-<span class="wf-tok-prop">shadow</span>: <span class="wf-tok-tok">$shadow-lg</span> }
+            &amp; &gt; p { <span class="wf-tok-prop">margin</span>: <span class="wf-tok-num">0</span> }
+            @media (max-<span class="wf-tok-prop">width</span>: <span class="wf-tok-num">640px</span>) { <span class="wf-tok-prop">padding</span>: <span class="wf-tok-tok">$sm</span> }
         }
-        Text(&quot;Styled card&quot;)
-        Button(&quot;Widen&quot;) { on click { wide = !wide } }
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Hover me, or widen me.&quot;</span>)
+        <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Widen&quot;</span>) { <span class="wf-tok-kw">on</span> click { wide = !wide } }
+        <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Make it blue&quot;</span>) { <span class="wf-tok-kw">on</span> click { accent = <span class="wf-tok-str">&quot;#2563EB&quot;</span> } }
     }
 }</code>
                             </div>
+                            <div class="wf-markdown">
+<p>The card gets a deeper shadow on hover. <strong>Widen</strong> lets it fill the page, and <strong>Make it blue</strong> recolours its left border at once.</p>
+                            </div>
+                            <h3 class="wf-heading" id="write-declarations">Write declarations</h3>
                             <div class="wf-markdown">
 <ul>
-<li>A style block holds CSS declarations, one per line or <code>;</code>-separated. No quotes around values — <code>padding: 2rem</code>, not <code>&quot;2rem&quot;</code>. A comma between two declarations (<code>width: 2rem, flex: none</code>) is an error: it is CSS, not a map.</li>
-<li><code>$token</code> names a token. A short name is resolved by the property: <code>padding: $lg</code> is <code>spacing-lg</code>, <code>color: $primary</code> is <code>color-primary</code>, <code>border-radius: $lg</code> is <code>radius-lg</code>, <code>box-shadow: $md</code> is <code>shadow-md</code>, <code>font-size: $xl</code> is <code>font-size-xl</code>, <code>transition: $fast</code>. A full name (<code>$color-primary</code>, <code>$surface-raised</code>) works anywhere. Check a token's spelling: one no theme defines resolves to nothing, and the browser drops the declaration.</li>
-<li><code>{expr}</code> splices a live value; the declaration updates when the value changes. A whole value or a part of one (<code>{n}px</code>).</li>
-<li><code>&amp;:hover</code>, <code>&amp;:focus-visible</code>, <code>&amp;.active</code>, <code>&amp; &gt; p</code>, <code>&amp;[aria-current]</code> nest as CSS nesting does; <code>@media (…) { }</code> nests too.</li>
-<li>The block is scoped: it becomes a class on that element alone, written to the page's stylesheet at build time. Splices become custom properties set by the runtime.</li>
+<li>Write one declaration per line, or several on one line separated by <code>;</code>.</li>
+<li>Write values as CSS, with no quotes: <code>padding: 2rem</code>, not <code>&quot;2rem&quot;</code>.</li>
+<li>Never separate two declarations with a comma. <code>width: 2rem, flex: none</code> is <code>E002</code>, because a style block is CSS, not a map.</li>
 </ul>
-<p>The static parts of every <code>style { }</code> are compiled to CSS; the linter warns when a declaration is invalid CSS.</p>
                             </div>
-                            <h2 class="wf-heading" id="transition">transition { }</h2>
+                            <h3 class="wf-heading" id="use-a-token">Use a token</h3>
+                            <div class="wf-markdown">
+<p><code>$name</code> reads a design token. A full name, such as <code>$color-primary</code> or <code>$surface-raised</code>, works on any property. A short name is resolved by the property it is written on:</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Use a token</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">You write</th>
+                                        <th scope="col">It means</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>padding: $lg</code> (and <code>margin</code>, <code>gap</code>, <code>width</code>, <code>height</code>, <code>top</code> …)</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>spacing-lg</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>color: $primary</code>, <code>background: $surface</code>, <code>border: 1px solid $border</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>color-primary</code>, <code>color-surface</code>, <code>color-border</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>border-radius: $lg</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>radius-lg</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>box-shadow: $md</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>shadow-md</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>font-size: $xl</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>font-size-xl</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>transition: $fast</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>transition-fast</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>A token that the theme does not declare is <code>V06</code>, an error, because the browser would drop the declaration. A property name that CSS does not have, such as <code>colr:</code>, is <code>V05</code>, a warning that suggests the nearest property.</p>
+                            </div>
+                            <h3 class="wf-heading" id="splice-a-live-value">Splice a live value</h3>
+                            <div class="wf-markdown">
+<p><code>{expr}</code> puts a value into a declaration. When the value reads state, the declaration updates whenever that state changes. A splice may be the whole value (<code>{accent}</code>) or part of one (<code>{pct}%</code>).</p>
+<p>A splice that is a bare number for a length, such as <code>width: {pct}</code>, is <code>V07</code>: the browser drops a length with no unit. Write <code>width: {pct}%</code> or <code>width: {pct}px</code>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="style-a-state-with-a-nested-rule">Style a state with a nested rule</h3>
+                            <div class="wf-markdown">
+<p>A nested rule styles the element while it is in some state. <code>&amp;</code> is the element itself, as in CSS nesting:</p>
+<ul>
+<li><code>&amp;:hover</code>, <code>&amp;:focus-visible</code> (the keyboard focus ring), <code>&amp;:active</code>, <code>&amp;:disabled</code>, <code>&amp;::placeholder</code>, <code>&amp;:focus-within</code>;</li>
+<li><code>&amp;.active</code>, <code>&amp; &gt; p</code>;</li>
+<li>the ARIA states a control keeps in its attributes: <code>&amp;[aria-current=&quot;page&quot;]</code>, which the router sets on the current <code>Link</code>, and <code>&amp;[aria-pressed=&quot;true&quot;]</code>, <code>&amp;[aria-selected=&quot;true&quot;]</code>, <code>&amp;[aria-checked=&quot;true&quot;]</code>, <code>&amp;[aria-expanded=&quot;true&quot;]</code>, <code>&amp;[aria-invalid=&quot;true&quot;]</code>.</li>
+</ul>
+<p><code>@media (…) { }</code> and <code>@container (…) { }</code> nest the same way.</p>
+<p>A nested rule is compiled into the stylesheet, so its values must be known at build time: literals and tokens, not state. To make a hover colour follow state, set a custom property on the element and read it in the rule:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -366,72 +598,84 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Fade(path: &quot;/&quot;) {
-    state active = false
-    Card {
-        style { opacity: {if active { 1 } else { 0.4 }}; transform: {if active { &quot;none&quot; } else { &quot;scale(0.98)&quot; }} }
-        transition { opacity: $fast; transform: 200ms ease-out }
-        Text(&quot;Fades&quot;)
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Swatch</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/swatch&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Swatch&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A hover colour that follows state.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> hoverColor = <span class="wf-tok-str">&quot;#0F766E&quot;</span>
+
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Swatch&quot;</span>).h1
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Hover me&quot;</span>) {
+        <span class="wf-tok-kw">style</span> {
+            --hover-<span class="wf-tok-prop">bg</span>: {hoverColor}
+            &amp;:hover { <span class="wf-tok-prop">background</span>: var(--hover-bg) }
+        }
     }
-    Button(&quot;Toggle&quot;) { on click { active = !active } }
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Use amber&quot;</span>) { <span class="wf-tok-kw">on</span> click { hoverColor = <span class="wf-tok-str">&quot;#D97706&quot;</span> } }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>transition { prop: duration easing }</code> sets CSS transitions for the element; a <code>$fast/$normal/$slow</code> token or a raw value. Reduced-motion readers get none (<a href="/docs/guide/motion">chapter 20</a>).</p>
+<p>Read your own custom property with <code>var(--name)</code>. <code>$name</code> is only for design tokens.</p>
+                            </div>
+                            <h3 class="wf-heading" id="how-the-build-compiles-a-style-block">How the build compiles a style block</h3>
+                            <div class="wf-markdown">
+<ul>
+<li>The parts of a block that do not read state become a stylesheet rule, under a class named by the block's content. The element carries the class, so a hundred identical cards share one rule and the pre-rendered page has it before any script runs.</li>
+<li>A declaration that reads state is set on the element by the runtime and updated when the state changes.</li>
+<li>Nested state rules and media rules are marked <code>!important</code>, so they win over the element's base declarations while they apply. When a state rule and a media rule set the same property, the media rule wins.</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading" id="animate-a-style-change">Animate a style change</h2>
+                            <div class="wf-markdown">
+<p>To make a property change smoothly instead of jumping, add a <code>transition { }</code> block. Each line names a property, a duration and an optional easing.</p>
+<p>This card fades and grows when you press <strong>Toggle</strong>:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Fade</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/fade&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Fade&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A card that fades in and out.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> active = <span class="wf-tok-kw">false</span>
+
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Fade&quot;</span>).h1
+    <span class="wf-tok-name">Card</span> {
+        <span class="wf-tok-kw">style</span> { <span class="wf-tok-prop">opacity</span>: {<span class="wf-tok-kw">if</span> active { <span class="wf-tok-num">1</span> } <span class="wf-tok-kw">else</span> { <span class="wf-tok-num">0.4</span> }}; <span class="wf-tok-prop">transform</span>: {<span class="wf-tok-kw">if</span> active { <span class="wf-tok-str">&quot;none&quot;</span> } <span class="wf-tok-kw">else</span> { <span class="wf-tok-str">&quot;scale(0.98)&quot;</span> }} }
+        <span class="wf-tok-kw">transition</span> { <span class="wf-tok-prop">opacity</span>: <span class="wf-tok-tok">$fast</span>; <span class="wf-tok-prop">transform</span>: <span class="wf-tok-num">200ms</span> ease-out }
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Fades&quot;</span>)
+    }
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Toggle&quot;</span>) { <span class="wf-tok-kw">on</span> click { active = !active } }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A duration may be a token — <code>$fast</code>, <code>$normal</code> or <code>$slow</code> — or a raw value such as <code>200ms ease-out</code>. A reader who asked their system for less motion gets no transition. Enter and exit animations, and other motion, are in <a href="/docs/guide/motion">Motion</a>.</p>
                             </div>
                             <h2 class="wf-heading" id="classes-and-your-own-stylesheet">Classes and your own stylesheet</h2>
                             <div class="wf-markdown">
-<p><code>class: &quot;name&quot;</code> adds a class from your own stylesheet; a <code>.css</code> file in <code>src/</code> is bundled into <code>styles.css</code>, and <code>meta.stylesheets</code> in <code>webfluent.app.json</code> links external ones.</p>
+<p>To share a rule between many elements, or to write what a <code>style { }</code> block cannot say, put it in a <code>.css</code> file and add its class with <code>class:</code>.</p>
+<p>Use a stylesheet for:</p>
+<ul>
+<li>a selector over several elements;</li>
+<li>a <code>@keyframes</code> or a <code>@font-face</code>;</li>
+<li>a class that a dozen elements share by name;</li>
+<li>a rule on <code>html</code>, <code>body</code> or <code>::selection</code>.</li>
+</ul>
+                            </div>
+                            <h3 class="wf-heading" id="add-a-stylesheet">Add a stylesheet</h3>
+                            <div class="wf-markdown">
+<p>Every <code>.css</code> file anywhere under <code>src/</code> is part of the build. You can keep one global file, or put a file beside the component it styles:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                        <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Classes(path: &quot;/&quot;) {
-    state active = true
-    Container(class: &quot;hero&quot;) {
-        Heading(&quot;Welcome&quot;, class: if active { &quot;title is-on&quot; } else { &quot;title&quot; }).h1
-    }
-}</code>
-                            </div>
-                            <div class="wf-markdown">
-<p>The value may be an expression, so a class can follow state. When several classes each have their own condition, give a map — each key is a class, on while its value is true — or a list, which joins strings and maps and skips what is <code>null</code>:</p>
-                            </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">wf</p>
-                                    </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
-                                </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Todos(path: &quot;/&quot;) {
-    state done = false
-    state urgent = true
-    state tone = &quot;calm&quot;
-    Text(&quot;Water the plants&quot;, class: { &quot;is-done&quot;: done, &quot;is-urgent&quot;: urgent })
-    Container(class: [&quot;panel&quot;, tone, if urgent { &quot;is-loud&quot; }]) { Text(&quot;…&quot;) }
-}</code>
-                            </div>
-                            <div class="wf-markdown">
-<p>A map's values must be conditions (<code>Bool</code>), and a bare condition is not a class (<code>T01</code>) — <code>{ &quot;is-on&quot;: on }</code> says what <code>on</code> turns on. Only the classes <code>class:</code> itself named come off when its value changes, so a class a script added with <code>classList.add</code> stays where it is.</p>
-<p>Built-ins wear <code>wf-*</code> classes (<code>wf-btn</code>, <code>wf-btn--primary</code>, <code>wf-card</code>), stable across releases, so a stylesheet may target them. Adding one to an element with <code>class:</code> brings another built-in's rules with it, and draws a <code>V04</code>.</p>
-                            </div>
-                            <h2 class="wf-heading" id="when-your-rule-and-a-built-in-s-disagree">When your rule and a built-in&#x27;s disagree</h2>
-                            <div class="wf-markdown">
-<p>Three layers of CSS meet on a page, in this order of strength:</p>
-<ol>
-<li><strong>The built-ins' own rules</strong> (<code>.wf-btn</code>, <code>.wf-card</code>), shipped in <code>styles.css</code>.</li>
-<li><strong>Your stylesheets</strong> (<code>src/**/*.css</code>), bundled after them — so on equal specificity, yours win.</li>
-<li><strong><code>style { }</code> blocks</strong>, compiled to rules with tripled specificity, and nested state and media rules marked <code>!important</code> — so an element's own block beats any sheet, as the inline style it replaces would.</li>
-</ol>
-<p>So: to restyle one element, use its <code>style { }</code>. To restyle every button, write <code>.wf-btn { … }</code> in a stylesheet, or change the tokens in a theme — the built-ins read tokens, so <code>color-primary</code> recolours every primary button, link and focus ring at once. <code>theme.builtin: &quot;structural&quot;</code> drops the built-ins' look entirely and keeps only their layout and mechanics, for a project that brings its whole design.</p>
-                            </div>
-                            <h2 class="wf-heading" id="enum-props-as-hooks">Enum props as hooks</h2>
-                            <div class="wf-markdown">
-<p>A component's enum props are written to its root element as <code>data-&lt;prop&gt;</code>, so one stylesheet rule styles every variant (<a href="/docs/guide/components#enum-props">chapter 11</a>):</p>
+                                <code class="wf-code wf-code--block wf-sa8223565">src/
+├── styles.css            # global rules
+└── components/
+    ├── Card.wf
+    └── card.css          # beside the component it styles</code>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -440,11 +684,23 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="css" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">.note[data-tone=&quot;loud&quot;] { font-weight: 700; color: var(--color-danger) }</code>
+                                <code class="wf-code wf-code--block wf-sa8223565">/* src/components/card.css */
+.feature {
+  <span class="wf-tok-prop">container-type</span>: inline-size;
+}
+.feature--first::before {
+  <span class="wf-tok-prop">content</span>: counter(feature, upper-roman);
+  <span class="wf-tok-prop">color</span>: var(--color-text-muted);
+}</code>
                             </div>
-                            <h2 class="wf-heading" id="dark-mode">Dark mode</h2>
                             <div class="wf-markdown">
-<p>A second <code>theme</code> declaration named in <code>webfluent.app.json</code> as <code>&quot;theme&quot;: { &quot;name&quot;: &quot;Light&quot;, &quot;dark&quot;: &quot;Night&quot; }</code> stands in for dark mode. Its tokens override the light theme's under the reader's system preference (<code>prefers-color-scheme: dark</code>) and whenever <code>setTheme(&quot;dark&quot;)</code> was called; <code>setTheme(&quot;light&quot;)</code> forces light, <code>setTheme(&quot;system&quot;)</code> follows the system again. The choice is remembered across visits and applied before the first paint, so a dark reader never sees a light flash.</p>
+<p>The build reads the files in path order, minifies them and bundles them into <code>styles.css</code>. <code>var(--token)</code> reaches every design token. There is no scoping: a class is global, so name it on purpose.</p>
+<p>To link a sheet the build does not compile — a file in <code>public/</code> or a URL — list it in <code>meta.stylesheets</code> in <code>webfluent.app.json</code>. It is linked ahead of <code>styles.css</code>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="add-a-class">Add a class</h3>
+                            <div class="wf-markdown">
+<p><code>class: &quot;name&quot;</code> adds a class to the element. It does not replace the element's own classes: <code>Container(class: &quot;hero&quot;)</code> renders <code>class=&quot;wf-container hero&quot;</code>.</p>
+<p>The value may be an expression, so a class can follow state:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -453,34 +709,21 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">theme Light {
-    color-background: #FFFFFF
-    color-text: #0F172A
-}
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Welcome</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/welcome&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Welcome&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A heading whose class follows state.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> active = <span class="wf-tok-kw">true</span>
 
-theme Night {
-    color-background: #0B1220
-    color-surface: #111827
-    color-text: #E5E7EB
-    color-text-muted: #9CA3AF
-    color-border: #1F2937
-}
-
-page Prefs(path: &quot;/&quot;) {
-    Text(&quot;You are on the {theme} theme&quot;)
-    Row(gap: .sm) {
-        Button(&quot;Light&quot;) { on click { setTheme(&quot;light&quot;) } }
-        Button(&quot;Dark&quot;) { on click { setTheme(&quot;dark&quot;) } }
-        Button(&quot;System&quot;) { on click { setTheme(&quot;system&quot;) } }
+    <span class="wf-tok-name">Container</span>(<span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;hero&quot;</span>) {
+        <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Welcome&quot;</span>, <span class="wf-tok-prop">class</span>: <span class="wf-tok-kw">if</span> active { <span class="wf-tok-str">&quot;title is-on&quot;</span> } <span class="wf-tok-kw">else</span> { <span class="wf-tok-str">&quot;title&quot;</span> }).h1
+        <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Switch&quot;</span>) { <span class="wf-tok-kw">on</span> click { active = !active } }
     }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Everything that uses tokens — the built-ins, your <code>$token</code> styles — switches with it; a color written raw does not, so prefer tokens. The <code>theme</code> value is <code>&quot;light&quot;</code>, <code>&quot;dark&quot;</code> or <code>&quot;system&quot;</code>.</p>
-                            </div>
-                            <h2 class="wf-heading" id="layout-without-css">Layout without CSS</h2>
-                            <div class="wf-markdown">
-<p>Most layout needs no <code>style</code> at all: <code>Stack</code>, <code>Row</code>, <code>Grid</code>, <code>Container</code>, <code>Spacer</code> and <code>Divider</code> with their <code>gap:</code>, <code>align:</code>, <code>justify:</code> and <code>columns:</code> props (<a href="/docs/guide/elements#layout-elements">chapter 7</a>).</p>
+<p>When several classes each have their own condition, pass a map or a list:</p>
+<ul>
+<li>In a <strong>map</strong>, each key is a class, and it is on while its value is true.</li>
+<li>A <strong>list</strong> joins strings and maps, and skips anything that is <code>null</code>.</li>
+</ul>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -489,15 +732,147 @@ page Prefs(path: &quot;/&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Layout(path: &quot;/&quot;, title: &quot;Layout&quot;, description: &quot;A grid of projects.&quot;) {
-    Container {
-        Stack(gap: .lg) {
-            Row(justify: .between, align: .center) {
-                Heading(&quot;Projects&quot;).h2
-                Button(&quot;New&quot;).primary.sm
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Chores</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/chores&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Chores&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Classes that follow state.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> done = <span class="wf-tok-kw">false</span>
+    <span class="wf-tok-kw">state</span> urgent = <span class="wf-tok-kw">true</span>
+    <span class="wf-tok-kw">state</span> tone = <span class="wf-tok-str">&quot;calm&quot;</span>
+
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Chores&quot;</span>).h1
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Water the plants&quot;</span>, <span class="wf-tok-prop">class</span>: { <span class="wf-tok-str">&quot;is-done&quot;</span>: done, <span class="wf-tok-str">&quot;is-urgent&quot;</span>: urgent })
+    <span class="wf-tok-name">Container</span>(<span class="wf-tok-prop">class</span>: [<span class="wf-tok-str">&quot;panel&quot;</span>, tone, <span class="wf-tok-kw">if</span> urgent { <span class="wf-tok-str">&quot;is-loud&quot;</span> }]) { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Due today&quot;</span>) }
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Done&quot;</span>) { <span class="wf-tok-kw">on</span> click { done = !done } }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The rules for a class value:</p>
+<ul>
+<li>A map's values must be conditions (<code>Bool</code>).</li>
+<li>A bare condition is not a class: <code>class: active</code> is <code>T01</code>. Write <code>{ &quot;is-active&quot;: active }</code>, which says what <code>active</code> turns on.</li>
+<li>When the value changes, only the classes that <code>class:</code> itself named come off. A class a script added with <code>classList.add</code> stays.</li>
+</ul>
+                            </div>
+                            <h3 class="wf-heading" id="target-the-built-ins">Target the built-ins</h3>
+                            <div class="wf-markdown">
+<p>Each built-in wears <code>wf-*</code> classes, such as <code>wf-btn</code>, <code>wf-btn--primary</code> and <code>wf-card</code>. They are stable across releases, so a stylesheet may target them.</p>
+<p>Do not add another built-in's class to an element with <code>class:</code>. It brings that built-in's rules with it, and draws <code>V04</code>.</p>
+                            </div>
+                            <h2 class="wf-heading" id="override-a-built-in-s-look">Override a built-in&#x27;s look</h2>
+                            <div class="wf-markdown">
+<p>To decide which rule wins, know the three layers of CSS on a page. From weakest to strongest:</p>
+<ol>
+<li><strong>The built-ins' own rules</strong> (<code>.wf-btn</code>, <code>.wf-card</code>), shipped in <code>styles.css</code>.</li>
+<li><strong>Your stylesheets</strong> (<code>src/**/*.css</code>), bundled after them. On equal specificity, yours win.</li>
+<li><strong><code>style { }</code> blocks</strong>, compiled to rules with tripled specificity, with nested state and media rules marked <code>!important</code>. An element's own block beats any stylesheet, as the inline style it replaces would.</li>
+</ol>
+<p>So choose the tool by how far the change reaches:</p>
+<ul>
+<li>To restyle <strong>one element</strong>, use its <code>style { }</code> block.</li>
+<li>To restyle <strong>every button</strong>, write <code>.wf-btn { … }</code> in a stylesheet, or change the tokens in a theme. Because the built-ins read tokens, <code>color-primary</code> recolours every primary button, link and focus ring at once.</li>
+<li>To drop the built-ins' look entirely, set <code>theme.builtin: &quot;structural&quot;</code> (see <a href="#change-the-whole-site-with-a-theme">Change the whole site with a theme</a>).</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading" id="style-a-component-s-variants">Style a component&#x27;s variants</h2>
+                            <div class="wf-markdown">
+<p>To style each variant of your own component from a stylesheet, use its enum props. A component writes each enum prop to its root element as a <code>data-&lt;prop&gt;</code> attribute, such as <code>data-tone=&quot;loud&quot;</code>, so one rule styles one variant (<a href="/docs/guide/components#enum-props">Components</a>):</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">css</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="css" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">.note[data-tone=<span class="wf-tok-str">&quot;loud&quot;</span>] { <span class="wf-tok-prop">font-weight</span>: <span class="wf-tok-num">700</span>; <span class="wf-tok-prop">color</span>: var(--color-danger) }</code>
+                            </div>
+                            <h2 class="wf-heading" id="dark-mode">Dark mode</h2>
+                            <div class="wf-markdown">
+<p>To add dark mode, declare a second theme with the tokens that change, and name both themes in <code>webfluent.app.json</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{ <span class="wf-tok-prop">&quot;theme&quot;</span>: { <span class="wf-tok-prop">&quot;name&quot;</span>: <span class="wf-tok-str">&quot;Light&quot;</span>, <span class="wf-tok-prop">&quot;dark&quot;</span>: <span class="wf-tok-str">&quot;Night&quot;</span> } }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The dark theme's tokens replace the light theme's in two cases:</p>
+<ul>
+<li>when the reader's system prefers dark (<code>prefers-color-scheme: dark</code>) and the reader has not chosen light;</li>
+<li>whenever the reader chose dark with <code>setTheme(&quot;dark&quot;)</code>.</li>
+</ul>
+<p>This page declares both themes and lets the reader choose:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">theme</span> <span class="wf-tok-name">Light</span> {
+    color-<span class="wf-tok-prop">background</span>: <span class="wf-tok-num">#FFFFFF</span>
+    color-<span class="wf-tok-prop">text</span>: <span class="wf-tok-num">#0F172A</span>
+}
+
+<span class="wf-tok-kw">theme</span> <span class="wf-tok-name">Night</span> {
+    color-<span class="wf-tok-prop">background</span>: <span class="wf-tok-num">#0B1220</span>
+    color-<span class="wf-tok-prop">surface</span>: <span class="wf-tok-num">#111827</span>
+    color-<span class="wf-tok-prop">text</span>: <span class="wf-tok-num">#E5E7EB</span>
+    color-text-<span class="wf-tok-prop">muted</span>: <span class="wf-tok-num">#9CA3AF</span>
+    color-<span class="wf-tok-prop">border</span>: <span class="wf-tok-num">#1F2937</span>
+}
+
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Prefs</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/prefs&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Appearance&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Choose light or dark.&quot;</span>) {
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Appearance&quot;</span>).h1
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;You are on the {theme} theme&quot;</span>)
+    <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">gap</span>: .sm) {
+        <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Light&quot;</span>) { <span class="wf-tok-kw">on</span> click { setTheme(<span class="wf-tok-str">&quot;light&quot;</span>) } }
+        <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Dark&quot;</span>) { <span class="wf-tok-kw">on</span> click { setTheme(<span class="wf-tok-str">&quot;dark&quot;</span>) } }
+        <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;System&quot;</span>) { <span class="wf-tok-kw">on</span> click { setTheme(<span class="wf-tok-str">&quot;system&quot;</span>) } }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The text under the heading reads <code>You are on the dark theme</code> after you press <strong>Dark</strong>.</p>
+<ul>
+<li><code>setTheme(&quot;light&quot;)</code> forces light, <code>setTheme(&quot;dark&quot;)</code> forces dark, and <code>setTheme(&quot;system&quot;)</code> follows the system again.</li>
+<li><code>theme</code> reads the reader's choice: <code>&quot;light&quot;</code>, <code>&quot;dark&quot;</code> or <code>&quot;system&quot;</code>.</li>
+<li>The choice is kept in the browser's storage across visits. The page's script applies it before it draws the page. The system preference needs no script: it is a media query in the stylesheet, so it applies from the first paint.</li>
+</ul>
+                            </div>
+                            <div class="wf-stack wf-gap--xs wf-s39f8973e callout" role="note" aria-label="Warning" data-kind="warning">
+                                <div class="wf-row wf-align--center wf-gap--xs callout-label">
+                                    <i class="wf-icon" data-icon="warning"></i>
+                                    <p class="wf-text">Warning</p>
+                                </div>
+                                <div class="wf-markdown">
+<p>Only what reads tokens switches with the theme. A colour written raw, such as <code>background: #FFFFFF</code>, stays the same in dark mode. Use tokens such as <code>$surface</code> and <code>$text</code> for anything that should change.</p>
+                                </div>
+                            </div>
+                            <h2 class="wf-heading" id="lay-out-a-page-without-css">Lay out a page without CSS</h2>
+                            <div class="wf-markdown">
+<p>Most layout needs no <code>style</code> at all. <code>Stack</code>, <code>Row</code>, <code>Grid</code>, <code>Container</code>, <code>Spacer</code> and <code>Divider</code> take <code>gap:</code>, <code>align:</code>, <code>justify:</code> and <code>columns:</code> props (<a href="/docs/guide/elements#layout-elements">Elements</a>).</p>
+<p>This page puts a title and a button on one line, with a grid of cards below that has one, two or three columns depending on the screen:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Layout</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/projects&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Projects&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A grid of projects.&quot;</span>) {
+    <span class="wf-tok-name">Container</span> {
+        <span class="wf-tok-name">Stack</span>(<span class="wf-tok-prop">gap</span>: .lg) {
+            <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">justify</span>: .between, <span class="wf-tok-prop">align</span>: .center) {
+                <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Projects&quot;</span>).h1
+                <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;New&quot;</span>).primary.sm
             }
-            Grid(columns: { base: 1, md: 2, lg: 3 }, gap: .md) {
-                for n in 1..=6 { Card { Text(&quot;Project {n}&quot;) } }
+            <span class="wf-tok-name">Grid</span>(<span class="wf-tok-prop">columns</span>: { <span class="wf-tok-prop">base</span>: <span class="wf-tok-num">1</span>, <span class="wf-tok-prop">md</span>: <span class="wf-tok-num">2</span>, <span class="wf-tok-prop">lg</span>: <span class="wf-tok-num">3</span> }, <span class="wf-tok-prop">gap</span>: .md) {
+                <span class="wf-tok-kw">for</span> n <span class="wf-tok-kw">in</span> <span class="wf-tok-num">1..</span>=<span class="wf-tok-num">6</span> { <span class="wf-tok-name">Card</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Project {n}&quot;</span>) } }
             }
         }
     }
@@ -505,7 +880,7 @@ page Prefs(path: &quot;/&quot;) {
                             </div>
                             <h2 class="wf-heading" id="responsive-values">Responsive values</h2>
                             <div class="wf-markdown">
-<p>Any layout prop takes <strong>one value per breakpoint</strong>:</p>
+<p>To make a layout prop change with the screen width, give it one value per breakpoint instead of one value:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -514,13 +889,17 @@ page Prefs(path: &quot;/&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">Grid(columns: { base: 1, md: 2, lg: 3 }, gap: { base: .sm, lg: .lg }) { … }
-Row(direction: { base: .column, md: .row }) { … }
-Column(span: { base: 12, md: 6 }) { … }</code>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-name">Grid</span>(<span class="wf-tok-prop">columns</span>: { <span class="wf-tok-prop">base</span>: <span class="wf-tok-num">1</span>, <span class="wf-tok-prop">md</span>: <span class="wf-tok-num">2</span>, <span class="wf-tok-prop">lg</span>: <span class="wf-tok-num">3</span> }, <span class="wf-tok-prop">gap</span>: { <span class="wf-tok-prop">base</span>: .sm, <span class="wf-tok-prop">lg</span>: .lg }) { … }
+<span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">direction</span>: { <span class="wf-tok-prop">base</span>: .column, <span class="wf-tok-prop">md</span>: .row }) { … }
+<span class="wf-tok-name">Column</span>(<span class="wf-tok-prop">span</span>: { <span class="wf-tok-prop">base</span>: <span class="wf-tok-num">12</span>, <span class="wf-tok-prop">md</span>: <span class="wf-tok-num">6</span> }) { … }</code>
                             </div>
                             <div class="wf-markdown">
-<p>That compiles to one class and one media query per step — no JavaScript, no resize listener, and <strong>the right layout in the very first paint</strong>, where a <code>viewport</code> test could only paint one branch and swap after hydration.</p>
-<p>The steps are <code>base</code>, <code>sm</code>, <code>md</code>, <code>lg</code>, <code>xl</code>, and each is a design token — <code>screen-sm</code> … <code>screen-xl</code>. Move one in your theme and every media query moves with it, including <code>viewport.md</code>:</p>
+<p>The build compiles each step to a class and a media query. No JavaScript runs and no resize listener is added, so the first paint already has the right layout. A <code>viewport</code> test, by contrast, paints one branch and swaps it after the page's script starts.</p>
+<ul>
+<li>The steps are <code>base</code>, <code>sm</code>, <code>md</code>, <code>lg</code> and <code>xl</code>.</li>
+<li>A step you leave out keeps the value of the step below it, so <code>{ base: 1, lg: 3 }</code> is one column until <code>lg</code>.</li>
+<li>Each step is a design token, <code>screen-sm</code> to <code>screen-xl</code>. Move one in your theme and every media query moves with it, <code>viewport.md</code> included:</li>
+</ul>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -529,11 +908,10 @@ Column(span: { base: 12, md: 6 }) { … }</code>
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">theme Brand { screen-md: 900px }</code>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">theme</span> <span class="wf-tok-name">Brand</span> { screen-<span class="wf-tok-prop">md</span>: <span class="wf-tok-num">900px</span> }</code>
                             </div>
                             <div class="wf-markdown">
-<p>A step a value omits keeps whatever the step below it said, so <code>{ base: 1, lg: 3 }</code> is one column until <code>lg</code>.</p>
-<p>The same names are sugar inside a <code>style { }</code> block:</p>
+<p>The same names work inside a <code>style { }</code> block: <code>@md { … }</code> means <code>@media (min-width: $screen-md)</code>.</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -542,16 +920,16 @@ Column(span: { base: 12, md: 6 }) { … }</code>
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">Heading(&quot;Title&quot;).h1 {
-    style {
-        font-size: 24px
-        @md { font-size: 34px }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Title&quot;</span>).h1 {
+    <span class="wf-tok-kw">style</span> {
+        font-<span class="wf-tok-prop">size</span>: <span class="wf-tok-num">24px</span>
+        @md { font-<span class="wf-tok-prop">size</span>: <span class="wf-tok-num">34px</span> }
     }
 }</code>
                             </div>
-                            <h3 class="wf-heading" id="a-layout-stays-as-it-is-written">A layout stays as it is written</h3>
+                            <h3 class="wf-heading" id="make-a-layout-reflow-on-a-narrow-screen">Make a layout reflow on a narrow screen</h3>
                             <div class="wf-markdown">
-<p>The engine used to reflow <strong>every</strong> <code>Row</code> into a column and <strong>every</strong> <code>Grid</code> into one column below 768px, with <code>!important</code>. It does not any more. A layout that should reflow says so:</p>
+<p>A <code>Row</code>, <code>Grid</code> or <code>Column</code> stays as you write it at every width. To make one reflow on a narrow screen, add the <code>.stacks</code> flag, or say what it does at each width with a responsive value:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -560,18 +938,161 @@ Column(span: { base: 12, md: 6 }) { … }</code>
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">Row.stacks { … }                          // a column on a narrow screen
-Grid.stacks { … }                         // one column on a narrow screen
-Grid(columns: { base: 1, md: 3 }) { … }   // or say what it does at each width</code>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-name">Row</span>.stacks { … }                          <span class="wf-tok-cmt">// a column on a narrow screen</span>
+<span class="wf-tok-name">Grid</span>.stacks { … }                         <span class="wf-tok-cmt">// one column on a narrow screen</span>
+<span class="wf-tok-name">Grid</span>(<span class="wf-tok-prop">columns</span>: { <span class="wf-tok-prop">base</span>: <span class="wf-tok-num">1</span>, <span class="wf-tok-prop">md</span>: <span class="wf-tok-num">3</span> }) { … }   <span class="wf-tok-cmt">// or say what it does at each width</span></code>
                             </div>
                             <div class="wf-markdown">
-<p><code>wf migrate</code> adds <code>.stacks</code> to every <code>Row</code>, <code>Grid</code> and <code>Column</code> of a WebFluent 2 project, so the old behaviour carries over — written down, where you can see it and change it.</p>
-<p><code>viewport</code> (<a href="/docs/guide/state#the-browser-as-values">chapter 8</a>) stays for what is genuinely behavioural — a drawer instead of a sidebar — and follows <code>matchMedia</code>, which fires once when the answer changes rather than on every pixel of a drag.</p>
+<p>What <code>.stacks</code> does:</p>
                             </div>
-                            <h2 class="wf-heading" id="what-the-build-emits">What the build emits</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Make a layout reflow on a narrow screen</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Element</th>
+                                        <th scope="col">Below 1024px</th>
+                                        <th scope="col">Below 768px</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Row.stacks</code></p>
+                                            </div>
+                                        </td>
+                                        <td>unchanged</td>
+                                        <td>a column</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Grid.stacks</code></p>
+                                            </div>
+                                        </td>
+                                        <td>two columns</td>
+                                        <td>one column</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Column.stacks</code></p>
+                                            </div>
+                                        </td>
+                                        <td>half width, when its span is 3 or 4</td>
+                                        <td>full width</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                             <div class="wf-markdown">
-<p><code>styles.css</code> holds the tokens something in the output uses (<code>:root { --color-primary: … }</code>), the dark overrides, the CSS of the built-ins you used (and only those), your bundled stylesheets, and the compiled <code>style { }</code> rules that more than one page reaches. A rule only one page can reach goes to <code>pages/&lt;Name&gt;.css</code>, loaded with that page. <a href="/docs/guide/performance">Performance</a> shows how to see what each weighs.</p>
+<p>Older versions of the engine reflowed every <code>Row</code> and <code>Grid</code> this way below 768px, with <code>!important</code>, whether you asked or not. They no longer do. <code>wf migrate</code> adds <code>.stacks</code> to every <code>Row</code>, <code>Grid</code> and <code>Column</code> of a WebFluent 2 project, so the old behaviour carries over, written where you can see and change it.</p>
+<p>Keep <code>viewport</code> (<a href="/docs/guide/state#the-browser-as-values">State and reactivity</a>) for what changes behaviour, such as a drawer instead of a sidebar. It follows <code>matchMedia</code>, which fires once when the answer changes, not on every pixel of a drag.</p>
                             </div>
+                            <h2 class="wf-heading" id="find-your-styles-in-the-build-output">Find your styles in the build output</h2>
+                            <div class="wf-markdown">
+<p>The build writes your styles to two places:</p>
+<ul>
+<li><code>styles.css</code> holds the tokens something in the output uses (<code>:root { --color-primary: … }</code>), the dark theme's overrides, the rules of the built-ins you used (and only those), your bundled stylesheets, and the compiled <code>style { }</code> rules that more than one page reaches.</li>
+<li><code>pages/&lt;Name&gt;.css</code> holds the <code>style { }</code> rules that only one page can reach. The page loads it after <code>styles.css</code>.</li>
+</ul>
+<p><a href="/docs/guide/performance">Performance</a> shows how to see what each file weighs.</p>
+                            </div>
+                            <h2 class="wf-heading" id="troubleshooting">Troubleshooting</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Troubleshooting</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">What you see</th>
+                                        <th scope="col">Why, and what to do</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>E002</code>: a <code>,</code> after the value of a property</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Declarations are separated by a new line or <code>;</code>, never <code>,</code>.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>V06</code>: a token the theme does not declare</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Check the token's spelling against <code>wf theme</code>, or declare it in your theme.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>V05</code>: a property CSS does not have</p>
+                                            </div>
+                                        </td>
+                                        <td>Fix the property name; the warning names the nearest one.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>V07</code>: a bare number spliced as a length</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Add the unit: <code>width: {pct}%</code>.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>A hover rule ignores a state value</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Nested rules are compiled at build time. Set a custom property from state and read it with <code>var(--…)</code> in the rule.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Your stylesheet rule loses to an element</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The element's <code>style { }</code> block is stronger than any stylesheet. Move the rule into the block, or remove the declaration from the block.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Part of the page stays light in dark mode</td>
+                                        <td>That part uses a raw colour. Replace it with a token.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>V04</code>: a <code>wf-*</code> class in <code>class:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Give your element its own class instead of a built-in&#x27;s.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A <code>Row</code> or <code>Grid</code> does not reflow on a phone</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Add <code>.stacks</code>, or give the prop a responsive value.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                     <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
@@ -588,16 +1109,18 @@ Grid(columns: { base: 1, md: 3 }) { … }   // or say what it does at each width
                 <div class="wf-stack wf-gap--lg wf-sac91c322" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
-                        <a class="wf-link wf-s3e136ca4" href="#design-tokens-and-the-theme">Design tokens and the theme</a>
-                        <a class="wf-link wf-s3e136ca4" href="#style">style { }</a>
-                        <a class="wf-link wf-s3e136ca4" href="#transition">transition { }</a>
+                        <a class="wf-link wf-s3e136ca4" href="#before-you-start">Before you start</a>
+                        <a class="wf-link wf-s3e136ca4" href="#change-the-whole-site-with-a-theme">Change the whole site with a theme</a>
+                        <a class="wf-link wf-s3e136ca4" href="#style-one-element">Style one element</a>
+                        <a class="wf-link wf-s3e136ca4" href="#animate-a-style-change">Animate a style change</a>
                         <a class="wf-link wf-s3e136ca4" href="#classes-and-your-own-stylesheet">Classes and your own stylesheet</a>
-                        <a class="wf-link wf-s3e136ca4" href="#when-your-rule-and-a-built-in-s-disagree">When your rule and a built-in&#x27;s disagree</a>
-                        <a class="wf-link wf-s3e136ca4" href="#enum-props-as-hooks">Enum props as hooks</a>
+                        <a class="wf-link wf-s3e136ca4" href="#override-a-built-in-s-look">Override a built-in&#x27;s look</a>
+                        <a class="wf-link wf-s3e136ca4" href="#style-a-component-s-variants">Style a component&#x27;s variants</a>
                         <a class="wf-link wf-s3e136ca4" href="#dark-mode">Dark mode</a>
-                        <a class="wf-link wf-s3e136ca4" href="#layout-without-css">Layout without CSS</a>
+                        <a class="wf-link wf-s3e136ca4" href="#lay-out-a-page-without-css">Lay out a page without CSS</a>
                         <a class="wf-link wf-s3e136ca4" href="#responsive-values">Responsive values</a>
-                        <a class="wf-link wf-s3e136ca4" href="#what-the-build-emits">What the build emits</a>
+                        <a class="wf-link wf-s3e136ca4" href="#find-your-styles-in-the-build-output">Find your styles in the build output</a>
+                        <a class="wf-link wf-s3e136ca4" href="#troubleshooting">Troubleshooting</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-s614f8b98">

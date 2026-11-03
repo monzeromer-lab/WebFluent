@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Control flow</title>
-    <meta name="description" content="if, if let, for … by, show and match, in render blocks and in actions.">
+    <meta name="description" content="if, if let, for … by, VirtualList, show and match, in render blocks and in actions, and if and match as values.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/control-flow">
     <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/control-flow?lang=en">
     <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/control-flow?lang=ar">
@@ -12,7 +12,7 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Control flow">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="if, if let, for … by, show and match, in render blocks and in actions.">
+    <meta property="og:description" content="if, if let, for … by, VirtualList, show and match, in render blocks and in actions, and if and match as values.">
     <meta property="og:url" content="https://webfluent.monzeromer.dev/docs/guide/control-flow">
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="ar_AR">
@@ -21,9 +21,9 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Control flow">
-    <meta name="twitter:description" content="if, if let, for … by, show and match, in render blocks and in actions.">
+    <meta name="twitter:description" content="if, if let, for … by, VirtualList, show and match, in render blocks and in actions, and if and match as values.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/control-flow#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/control-flow","name":"Control flow","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"if, if let, for … by, show and match, in render blocks and in actions."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/control-flow#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Control flow","item":"https://webfluent.monzeromer.dev/docs/guide/control-flow"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/control-flow#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/control-flow","name":"Control flow","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"if, if let, for … by, VirtualList, show and match, in render blocks and in actions, and if and match as values."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/control-flow#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Control flow","item":"https://webfluent.monzeromer.dev/docs/guide/control-flow"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -69,6 +69,9 @@
             </div>
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
+                    <a class="wf-sidebar__item" href="/docs">
+                        <p class="wf-text">Overview</p>
+                    </a>
                     <p class="wf-text group-label">Start</p>
                     <a class="wf-sidebar__item" href="/docs/guide/introduction">
                         <p class="wf-text num">01</p>
@@ -274,20 +277,32 @@
                 </aside>
                 <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
-                        <a class="wf-link" href="/docs/guide/introduction">Guide</a>
+                        <a class="wf-link" href="/docs">Guide</a>
                         <p class="wf-text">/</p>
                         <p class="wf-text wf-s8c71c534">Chapter 10</p>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s28a8547f">
                         <h1 class="wf-heading wf-sa3503382">Control flow</h1>
-                        <p class="wf-text wf-sfd35f593">Five statements decide what shows: if, if let, for, show and match. Each creates and removes elements as its condition changes.</p>
+                        <p class="wf-text wf-sfd35f593">Five statements decide what a page shows: if, if let, for, show and match. Each adds and removes elements as its condition changes.</p>
                     </div>
                     <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
-<p>Inside a render block, five statements decide what shows: <code>if</code>, <code>if let</code>, <code>for</code>, <code>show</code> and <code>match</code>. Each creates and removes elements as its condition changes, and each animates if you ask it to (<a href="/docs/guide/motion">chapter 20</a>).</p>
+<p>Five statements decide what a page shows: <code>if</code>, <code>if let</code>, <code>for</code>, <code>show</code> and <code>match</code>. Each one follows the state it reads, adding and removing elements as its condition changes, so you never update the page by hand. Each animates when you ask it to (<a href="/docs/guide/motion">Motion</a>).</p>
+<p>In this chapter:</p>
+<ul>
+<li><code>if</code>, <code>else if</code> and <code>else</code>, and <code>if let</code> for a value that may be null</li>
+<li><code>for</code> over a list, with a key — and <code>VirtualList</code> for thousands of rows</li>
+<li><code>show</code>, which hides elements without removing them</li>
+<li><code>match</code>, which shows one arm by an enum's case</li>
+<li><code>if</code> and <code>match</code> as values, and the same statements in actions</li>
+</ul>
+<p>The statements in this chapter appear in a <em>render block</em> — the body of a page, component or element, which says what to draw. The last section shows them in an <em>imperative block</em> — a handler or an action, which runs code.</p>
                             </div>
                             <h2 class="wf-heading" id="if-else-if-else">if / else if / else</h2>
+                            <div class="wf-markdown">
+<p><code>if</code> shows a branch while its condition holds. This page shows one of three messages, by how many times the button was pressed:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -295,24 +310,31 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Status(path: &quot;/&quot;) {
-    state count = 0
-    if count == 0 {
-        Text(&quot;Nothing yet.&quot;).muted
-    } else if count &lt; 10 {
-        Text(&quot;A few: {count}&quot;)
-    } else {
-        Text(&quot;Many: {count}&quot;).bold
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Status</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Status&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A message chosen by a count.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> count = <span class="wf-tok-num">0</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Status&quot;</span>).h1
+    <span class="wf-tok-kw">if</span> count == <span class="wf-tok-num">0</span> {
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Nothing yet.&quot;</span>).muted
+    } <span class="wf-tok-kw">else</span> <span class="wf-tok-kw">if</span> count &lt; <span class="wf-tok-num">10</span> {
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;A few: {count}&quot;</span>)
+    } <span class="wf-tok-kw">else</span> {
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Many: {count}&quot;</span>).bold
     }
-    Button(&quot;+&quot;) { on click { count = count + 1 } }
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;+1&quot;</span>) { <span class="wf-tok-kw">on</span> click { count = count + <span class="wf-tok-num">1</span> } }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>The branch's elements are created when the condition turns true and removed when it turns false; state declared inside a component in the branch starts over each time. A condition must be a <code>Bool</code> (or a value that may be null, which is <code>false</code> when null); a list or a record as a condition is an error (<code>T07</code>), since it would always be true.</p>
+<p>How it behaves:</p>
+<ul>
+<li>A branch's elements are created when its condition turns true, and removed when it turns false.</li>
+<li>State declared inside a component in the branch starts over each time the branch is created.</li>
+<li>A condition must be a <code>Bool</code>, or a value that may be null, which counts as <code>false</code> when it is null.</li>
+<li>A list or a record as a condition is an error (<code>T07</code>), since it would always be true.</li>
+</ul>
                             </div>
                             <h2 class="wf-heading" id="if-let">if let</h2>
                             <div class="wf-markdown">
-<p><code>if let name = value { }</code> binds the non-null value inside the branch — the way to read a <code>T?</code> without the checker objecting:</p>
+<p><code>if let name = value { }</code> binds the value inside the branch when it is not null. It is the way to read a value of type <code>T?</code> (one that may be null) without the type checker objecting:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -321,22 +343,31 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">type User { name: String, email: String? }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">User</span> { <span class="wf-tok-prop">name</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">email</span>: <span class="wf-tok-name">String</span>? }
 
-page Profile(path: &quot;/&quot;) {
-    state user: User? = null
-    if let u = user {
-        Text(&quot;Signed in as {u.name}&quot;)
-        if let mail = u.email { Text(mail).muted } else { Text(&quot;No email on file&quot;).muted }
-    } else {
-        Button(&quot;Sign in&quot;) { on click { user = User(name: &quot;Sam&quot;, email: null) } }
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Profile</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Profile&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A user who may not be signed in.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">user</span>: <span class="wf-tok-name">User</span>? = <span class="wf-tok-kw">null</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Profile&quot;</span>).h1
+    <span class="wf-tok-kw">if</span> <span class="wf-tok-kw">let</span> u = user {
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Signed in as {u.name}&quot;</span>)
+        <span class="wf-tok-kw">if</span> <span class="wf-tok-kw">let</span> mail = u.email { <span class="wf-tok-name">Text</span>(mail).muted } <span class="wf-tok-kw">else</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;No email on file&quot;</span>).muted }
+    } <span class="wf-tok-kw">else</span> {
+        <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Sign in&quot;</span>) { <span class="wf-tok-kw">on</span> click { user = <span class="wf-tok-name">User</span>(<span class="wf-tok-prop">name</span>: <span class="wf-tok-str">&quot;Sam&quot;</span>, <span class="wf-tok-prop">email</span>: <span class="wf-tok-kw">null</span>) } }
     }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>if let x { }</code> (no <code>=</code>) is the same for a name already in scope. The narrowing holds inside the branch only; <code>x != null</code> and <code>x &amp;&amp; …</code> narrow the same way. The binding follows the value: when <code>user</code> becomes another user, the branch shows the new one in place; it is drawn again only when the value goes to <code>null</code> and back.</p>
+<p>The rules:</p>
+<ul>
+<li><code>if let x { }</code>, with no <code>=</code>, does the same for a name already in scope.</li>
+<li>The narrowing holds inside the branch only. <code>if x != null { }</code> and <code>if x &amp;&amp; … { }</code> narrow <code>x</code> inside their branch the same way; the right-hand side of the <code>&amp;&amp;</code> is not narrowed.</li>
+<li>The binding follows the value. When <code>user</code> becomes another user, the branch shows the new one in place. It is drawn again only when the value goes to <code>null</code> and back.</li>
+</ul>
                             </div>
                             <h2 class="wf-heading" id="for">for</h2>
+                            <div class="wf-markdown">
+<p><code>for</code> draws its block once for each item of a list. This page loops three ways — by key, with the index, and over a range:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -344,28 +375,46 @@ page Profile(path: &quot;/&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">type Todo { id: String, title: String, done: Bool = false }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Todo</span> { <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">done</span>: <span class="wf-tok-name">Bool</span> = <span class="wf-tok-kw">false</span> }
 
-page List(path: &quot;/&quot;) {
-    state todos: [Todo] = [Todo(id: &quot;a&quot;, title: &quot;Write&quot;), Todo(id: &quot;b&quot;, title: &quot;Ship&quot;, done: true)]
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Checklist</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Checklist&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Three kinds of loop.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">todos</span>: [<span class="wf-tok-name">Todo</span>] = [<span class="wf-tok-name">Todo</span>(<span class="wf-tok-prop">id</span>: <span class="wf-tok-str">&quot;a&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Write&quot;</span>), <span class="wf-tok-name">Todo</span>(<span class="wf-tok-prop">id</span>: <span class="wf-tok-str">&quot;b&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Ship&quot;</span>, <span class="wf-tok-prop">done</span>: <span class="wf-tok-kw">true</span>)]
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Checklist&quot;</span>).h1
 
-    for todo in todos by todo.id {                      // keyed: each item keeps its nodes
-        Row(gap: .sm) {
-            Checkbox(checked: todo.done, label: todo.title)
+    <span class="wf-tok-kw">for</span> todo <span class="wf-tok-kw">in</span> todos <span class="wf-tok-kw">by</span> todo.id {                      <span class="wf-tok-cmt">// keyed: each item keeps its nodes</span>
+        <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">gap</span>: .sm) {
+            <span class="wf-tok-name">Checkbox</span>(<span class="wf-tok-prop">checked</span>: todo.done, <span class="wf-tok-prop">label</span>: todo.title) { <span class="wf-tok-kw">on</span> change { todo.done = !todo.done } }
         }
     }
-    for todo, i in todos {                              // with the index
-        Text(&quot;{i + 1}. {todo.title}&quot;)
+    <span class="wf-tok-kw">for</span> todo, i <span class="wf-tok-kw">in</span> todos {                              <span class="wf-tok-cmt">// with the index</span>
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{i + 1}. {todo.title}&quot;</span>)
     }
-    for n in 1..=3 { Badge(&quot;{n}&quot;) }                     // over a range
+    <span class="wf-tok-kw">for</span> n <span class="wf-tok-kw">in</span> <span class="wf-tok-num">1..</span>=<span class="wf-tok-num">3</span> { <span class="wf-tok-name">Badge</span>(<span class="wf-tok-str">&quot;{n}&quot;</span>) }                     <span class="wf-tok-cmt">// over a range</span>
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>by expr</code> names the key: with it, an item that stays in the list keeps its nodes — focus, scroll and animation state survive an insert, a removal or a move, and moves slide. An item keeps them under a new value too (a refreshed response's rows are all new objects): its body reads the item and the index live, so a changed row changes in place, its components' state with it. Without a key the list is rebuilt when it changes. Keys must be unique; the runtime warns once when two items share one. A key may read the index as well as the item (<code>for t, i in rows by &quot;{t.id}-{i}&quot;</code>), but a key of the index alone moves with the position, not the item: after an insert every item has another's key, and nothing is kept. Key by what identifies the item. Looping over something that is not a list is an error (<code>T08</code>).</p>
+<p><code>by expr</code> names the <em>key</em>: the value that tells one item from another. With a key:</p>
+<ul>
+<li>An item that stays in the list keeps its nodes. Focus, scroll position and animation state survive an insert, a removal or a move, and moves slide.</li>
+<li>An item keeps its nodes under a new value too — a refreshed response's rows are all new objects. Its body reads the item and the index live, so a changed row changes in place, and its components' state with it.</li>
+<li>Keys must be unique. The runtime warns once when two items share one.</li>
+<li>A key may read the index as well as the item (<code>for t, i in rows by &quot;{t.id}-{i}&quot;</code>).</li>
+</ul>
+<p>Without a key, the list is rebuilt whenever it changes. Looping over something that is not a list is an error (<code>T08</code>).</p>
+                            </div>
+                            <div class="wf-stack wf-gap--xs wf-s39f8973e callout" role="note" aria-label="Warning" data-kind="warning">
+                                <div class="wf-row wf-align--center wf-gap--xs callout-label">
+                                    <i class="wf-icon" data-icon="warning"></i>
+                                    <p class="wf-text">Warning</p>
+                                </div>
+                                <div class="wf-markdown">
+<p>Do not key by the index alone. A key of the index moves with the position, not the item: after an insert every item has another's key, and nothing is kept. Key by what identifies the item.</p>
+                                </div>
                             </div>
                             <h3 class="wf-heading" id="long-lists">Long lists</h3>
                             <div class="wf-markdown">
-<p>A list of thousands of rows — a project's files, a search's results, a long diff — is drawn a window at a time inside a <strong><code>VirtualList</code></strong>: the box scrolls, only the rows in view and a few either side are drawn, and two spacers stand for the rest, so the scrollbar is the whole list's. Its body is one keyed <code>for</code>.</p>
+<p>A list of thousands of rows — a project's files, a search's results, a long diff — belongs inside a <strong><code>VirtualList</code></strong>. The box scrolls, and only the rows in view and a few either side are drawn; two spacers stand for the rest, so the scrollbar is the whole list's. Its body is one keyed <code>for</code>.</p>
+<p>This page windows ten thousand file paths of a fixed height, and a list of search hits whose rows are measured:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -374,41 +423,56 @@ page List(path: &quot;/&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">type Hit { id: String, heading: Bool, text: String }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Hit</span> { <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">heading</span>: <span class="wf-tok-name">Bool</span>, <span class="wf-tok-prop">text</span>: <span class="wf-tok-name">String</span> }
 
-page Search(path: &quot;/&quot;, title: &quot;Search&quot;, description: &quot;Results, a window at a time.&quot;) {
-    state rows = (0..10000).map((i) =&gt; &quot;src/file{i}.wf&quot;)
-    state hits: [Hit] = []
-    state current = &quot;&quot;
-    Heading(&quot;Search&quot;).h1
-    VirtualList(rowHeight: 32, label: &quot;Files&quot;) {
-        style { height: 400px }
-        for path in rows by path { Text(path) { style { height: 32px; margin: 0 } } }
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Search</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Search&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Results, a window at a time.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> rows = (<span class="wf-tok-num">0..10000</span>).map((i) =&gt; <span class="wf-tok-str">&quot;src/file{i}.wf&quot;</span>)
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">hits</span>: [<span class="wf-tok-name">Hit</span>] = []
+    <span class="wf-tok-kw">state</span> current = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Search&quot;</span>).h1
+    <span class="wf-tok-name">VirtualList</span>(<span class="wf-tok-prop">rowHeight</span>: <span class="wf-tok-num">32</span>, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Files&quot;</span>) {
+        <span class="wf-tok-kw">style</span> { <span class="wf-tok-prop">height</span>: <span class="wf-tok-num">400px</span> }
+        <span class="wf-tok-kw">for</span> path <span class="wf-tok-kw">in</span> rows <span class="wf-tok-kw">by</span> path { <span class="wf-tok-name">Text</span>(path) { <span class="wf-tok-kw">style</span> { <span class="wf-tok-prop">height</span>: <span class="wf-tok-num">32px</span>; <span class="wf-tok-prop">margin</span>: <span class="wf-tok-num">0</span> } } }
     }
-    VirtualList(estimate: 24, reveal: current, label: &quot;Results&quot;) {
-        style { height: 400px }
-        for h in hits by h.id {
-            if h.heading { Heading(h.text).h2 } else { Text(h.text) }
+    <span class="wf-tok-name">VirtualList</span>(<span class="wf-tok-prop">estimate</span>: <span class="wf-tok-num">24</span>, <span class="wf-tok-prop">reveal</span>: current, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Results&quot;</span>) {
+        <span class="wf-tok-kw">style</span> { <span class="wf-tok-prop">height</span>: <span class="wf-tok-num">400px</span> }
+        <span class="wf-tok-kw">for</span> h <span class="wf-tok-kw">in</span> hits <span class="wf-tok-kw">by</span> h.id {
+            <span class="wf-tok-kw">if</span> h.heading { <span class="wf-tok-name">Heading</span>(h.text).h2 } <span class="wf-tok-kw">else</span> { <span class="wf-tok-name">Text</span>(h.text) }
         }
     }
 }</code>
                             </div>
                             <div class="wf-markdown">
+<p>Its props:</p>
 <ul>
-<li><strong><code>rowHeight:</code></strong> says every row is that tall: the fast path. Without it each row is measured once drawn, and <strong><code>estimate:</code></strong> stands for the rows not yet drawn; when a row above what is in view turns out taller or shorter, the scroll moves by as much, so what the reader is looking at stays put.</li>
-<li><strong><code>reveal:</code></strong> reads a row's key: when it changes, that row is scrolled into view — the selected file as the arrow keys move, the current match.</li>
-<li>A row keeps its nodes while it stays in the window and is told in place when its item changes, as a keyed <code>for</code>'s are; a row scrolled out of the window is let go. Give rows no vertical margins: a row's height is its box's.</li>
-<li>A tree is a list of the rows that are showing: flatten it in a <code>derived</code> (the open folders' children after each folder) and window that.</li>
-<li>The box needs a height that does not come from its rows — <code>style { height: 400px }</code>, a <code>max-height:</code>, a cell of a grid or a flex row that sets one; a box as tall as what it holds grows until every row is drawn.</li>
-<li>A list drawn before its box is laid out — inside an <code>if</code> that just turned true, in a panel not shown yet — draws only the few rows past the window until the box has a height, and the first height it has is laid out before that frame is painted: the first frame shows the rows in view, not a guess at them trimmed a frame later. A row <code>reveal:</code> asks for in the meantime is scrolled to then, so that frame shows it. A list hidden and shown again is laid out the same way.</li>
-<li>The box takes what any element takes (chapter 7): a <code>role: &quot;listbox&quot;</code>, a <code>tabindex:</code>, an <code>aria-activedescendant:</code> that follows the current row, <code>data-*</code>, and its <code>on</code> handlers — an <code>on keydown</code> that moves through a references list. <code>label:</code> is its accessible name.</li>
-<li>The pre-rendered page paints the first 60 rows; the runtime draws the window when it takes over.</li>
+<li><strong><code>rowHeight:</code></strong> says every row is that tall. It is the fast path.</li>
+<li>Without <code>rowHeight:</code>, each row is measured once drawn, and <strong><code>estimate:</code></strong> stands for the rows not yet drawn. When a row above what is in view turns out taller or shorter, the scroll moves by as much, so what the reader is looking at stays put.</li>
+<li><strong><code>reveal:</code></strong> reads a row's key. When it changes, that row is scrolled into view — the selected file as the arrow keys move, the current match.</li>
+<li><strong><code>label:</code></strong> is the box's accessible name.</li>
+</ul>
+<p>How it draws:</p>
+<ul>
+<li>A row keeps its nodes while it stays in the window, and is updated in place when its item changes, as a keyed <code>for</code>'s rows are. A row scrolled out of the window is let go.</li>
+<li>Give rows no vertical margins: a row's height is its box's.</li>
+<li>A tree is a list of the rows that are showing. Flatten it in a <code>derived</code> (each open folder followed by its children) and window that.</li>
+<li>A list drawn before its box is laid out — inside an <code>if</code> that has turned true, in a panel not shown yet — draws only the few rows it keeps past the window until the box has a height. The first height it has is laid out before that frame is painted, so the first frame shows the rows in view, not a guess at them trimmed a frame later. A row <code>reveal:</code> asks for in the meantime is scrolled to then, so that frame shows it. A list hidden and shown again is laid out the same way.</li>
+<li>The box takes what any element takes (<a href="/docs/guide/elements">Elements</a>): a <code>role: &quot;listbox&quot;</code>, a <code>tabindex:</code>, an <code>aria-activedescendant:</code> that follows the current row, <code>data-*</code>, and its <code>on</code> handlers — an <code>on keydown</code> that moves through a list of references, for example.</li>
+<li>The pre-rendered page paints the first 60 rows. The runtime draws the window when it takes over.</li>
 <li>With anything else in its body, or a <code>for</code> with no <code>by</code>, it draws every row (<code>V12</code>).</li>
 </ul>
                             </div>
+                            <div class="wf-stack wf-gap--xs wf-s39f8973e callout" role="note" aria-label="Important" data-kind="important">
+                                <div class="wf-row wf-align--center wf-gap--xs callout-label">
+                                    <i class="wf-icon" data-icon="alert-circle"></i>
+                                    <p class="wf-text">Important</p>
+                                </div>
+                                <div class="wf-markdown">
+<p>The box needs a height that does not come from its rows — <code>style { height: 400px }</code>, a <code>max-height:</code>, or a grid cell or flex row that sets one. A box as tall as what it holds grows until every row is drawn.</p>
+                                </div>
+                            </div>
                             <h2 class="wf-heading" id="show">show</h2>
                             <div class="wf-markdown">
-<p><code>show</code> keeps the elements in the DOM and toggles their visibility, where <code>if</code> creates and destroys them. Use it for something expensive to rebuild or whose state must survive being hidden:</p>
+<p><code>show</code> keeps its elements in the page and toggles whether they are visible; <code>if</code> creates and destroys them. Use <code>show</code> for something expensive to rebuild, or whose state must survive being hidden:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -417,17 +481,18 @@ page Search(path: &quot;/&quot;, title: &quot;Search&quot;, description: &quot;R
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Panel(path: &quot;/&quot;) {
-    state open = true
-    Button(&quot;Toggle&quot;) { on click { open = !open } }
-    show open {
-        Card { Text(&quot;Still here when hidden; my state survives.&quot;) }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Panel</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Panel&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A panel hidden, not removed.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> open = <span class="wf-tok-kw">true</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Panel&quot;</span>).h1
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Toggle&quot;</span>) { <span class="wf-tok-kw">on</span> click { open = !open } }
+    <span class="wf-tok-kw">show</span> open {
+        <span class="wf-tok-name">Card</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Still here when hidden; my state survives.&quot;</span>) }
     }
 }</code>
                             </div>
                             <h2 class="wf-heading" id="match">match</h2>
                             <div class="wf-markdown">
-<p><code>match</code> shows one arm at a time. Over an <strong>enum</strong> it chooses by case; a case with a payload hands it to the arm:</p>
+<p><code>match</code> shows one arm at a time. Over an <strong>enum</strong> it chooses by case, and a case with a <em>payload</em> — values carried by the case — hands them to its arm. This job moves through its cases as the buttons are pressed:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -436,26 +501,33 @@ page Search(path: &quot;/&quot;, title: &quot;Search&quot;, description: &quot;R
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">enum Status { idle, running(job: String), failed(reason: String), done(count: Number) }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">enum</span> <span class="wf-tok-name">Status</span> { idle, running(<span class="wf-tok-prop">job</span>: <span class="wf-tok-name">String</span>), failed(<span class="wf-tok-prop">reason</span>: <span class="wf-tok-name">String</span>), done(<span class="wf-tok-prop">count</span>: <span class="wf-tok-name">Number</span>) }
 
-page Job(path: &quot;/&quot;) {
-    state s: Status = .idle
-    match s {
-        .idle { Button(&quot;Start&quot;) { on click { s = .running(&quot;build-42&quot;) } } }
-        .running(job) { Row { Spinner.sm  Text(&quot;Running {job}&quot;)  Button(&quot;Fail&quot;) { on click { s = .failed(&quot;timed out&quot;) } } } }
-        .failed(reason) { Alert(&quot;Failed: {reason}&quot;).danger }
-        .done(n) { Text(&quot;Done, {n} steps&quot;) }
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Job</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Job&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;One arm per case of an enum.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">s</span>: <span class="wf-tok-name">Status</span> = .idle
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Job&quot;</span>).h1
+    <span class="wf-tok-kw">match</span> s {
+        .idle { <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Start&quot;</span>) { <span class="wf-tok-kw">on</span> click { s = .running(<span class="wf-tok-str">&quot;build-42&quot;</span>) } } }
+        .running(job) { <span class="wf-tok-name">Row</span> { <span class="wf-tok-name">Spinner</span>.sm  <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Running {job}&quot;</span>)  <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Fail&quot;</span>) { <span class="wf-tok-kw">on</span> click { s = .failed(<span class="wf-tok-str">&quot;timed out&quot;</span>) } } } }
+        .failed(reason) { <span class="wf-tok-name">Alert</span>(<span class="wf-tok-str">&quot;Failed: {reason}&quot;</span>).danger }
+        .done(n) { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Done, {n} steps&quot;</span>) }
     }
-    Text(match s { .idle { &quot;waiting&quot; } .failed(r) { r } else { &quot;busy&quot; } })   // as a value
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-kw">match</span> s { .idle { <span class="wf-tok-str">&quot;waiting&quot;</span> } .failed(r) { r } <span class="wf-tok-kw">else</span> { <span class="wf-tok-str">&quot;busy&quot;</span> } })   <span class="wf-tok-cmt">// as a value</span>
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Over a <strong>resource</strong> it chooses by the request's state — <a href="/docs/guide/data">chapter 17</a>.</p>
-<p>An arm binds one name per part of the payload; <code>else</code> covers the rest. An arm is drawn again when the arm changes, not when its value does: a new payload of the same case — <code>.failed(&quot;refused&quot;)</code> after <code>.failed(&quot;timed out&quot;)</code> — reaches what the arm drew in place. Every case of an enum has to be handled or covered by <code>else</code> only in a match <em>expression</em> (which needs an <code>else</code> to have a value); a <code>match</code> statement may list only the arms it shows.</p>
+<p>Over a <strong>resource</strong> it chooses by the request's state — loading, error or ready (<a href="/docs/guide/data">Data</a>).</p>
+<p>The rules:</p>
+<ul>
+<li>An arm binds one name per part of the payload: <code>.failed(reason)</code>.</li>
+<li><code>else</code> covers every case without an arm of its own.</li>
+<li>Without an <code>else</code>, a <code>match</code> must give every case of the enum an arm, or it is an error (<code>T15</code>). That holds for a <code>match</code> statement and a <code>match</code> expression alike; an expression that covers every case needs no <code>else</code>.</li>
+<li>An arm is drawn again when the arm changes, not when its value does. A new payload of the same case — <code>.failed(&quot;refused&quot;)</code> after <code>.failed(&quot;timed out&quot;)</code> — reaches what the arm drew in place.</li>
+</ul>
                             </div>
                             <h2 class="wf-heading" id="expressions-that-choose">Expressions that choose</h2>
                             <div class="wf-markdown">
-<p><code>if</code> and <code>match</code> are also values, and <code>??</code> picks a fallback:</p>
+<p><code>if</code> and <code>match</code> are also values, and <code>??</code> picks a fallback for a value that may be null:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -464,17 +536,21 @@ page Job(path: &quot;/&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Choose(path: &quot;/&quot;) {
-    state n = 5
-    state nick: String? = null
-    derived size = if n &gt; 10 { &quot;big&quot; } else { &quot;small&quot; }
-    derived label = nick ?? &quot;anonymous&quot;
-    Text(&quot;{size} {label}&quot;)
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Choose</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Choose&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Values picked by a condition.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> n = <span class="wf-tok-num">5</span>
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">nick</span>: <span class="wf-tok-name">String</span>? = <span class="wf-tok-kw">null</span>
+    <span class="wf-tok-kw">derived</span> size = <span class="wf-tok-kw">if</span> n &gt; <span class="wf-tok-num">10</span> { <span class="wf-tok-str">&quot;big&quot;</span> } <span class="wf-tok-kw">else</span> { <span class="wf-tok-str">&quot;small&quot;</span> }
+    <span class="wf-tok-kw">derived</span> label = nick ?? <span class="wf-tok-str">&quot;anonymous&quot;</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Choose&quot;</span>).h1
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{size} {label}&quot;</span>)
 }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>An <code>if</code> value with no <code>else</code> is <code>null</code> when its condition fails. <a href="/docs/guide/expressions">Expressions</a> has the rest.</p>
                             </div>
                             <h2 class="wf-heading" id="in-actions-and-handlers">In actions and handlers</h2>
                             <div class="wf-markdown">
-<p>The same statements work in an imperative block, on values rather than elements, plus <code>try</code>/<code>catch</code>:</p>
+<p>The same statements work in an imperative block, on values rather than elements, plus <code>try</code>/<code>catch</code>. This action fetches rows and keeps the first hundred:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -483,27 +559,158 @@ page Job(path: &quot;/&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Sync(path: &quot;/&quot;) {
-    state rows: [Map] = []
-    state error = &quot;&quot;
-    action pull() {
-        try {
-            let r = await fetch(&quot;/api/rows&quot;)
-            let { items } = r
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Sync</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Sync&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Control flow inside an action.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">rows</span>: [<span class="wf-tok-name">Map</span>] = []
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-kw">error</span> = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">action</span> pull() {
+        <span class="wf-tok-kw">try</span> {
+            <span class="wf-tok-kw">let</span> r = <span class="wf-tok-kw">await</span> fetch(<span class="wf-tok-str">&quot;/api/rows&quot;</span>)
+            <span class="wf-tok-kw">let</span> { items } = r
             rows = []
-            for item, i in items {
-                if i &gt;= 100 { return }
+            <span class="wf-tok-kw">for</span> item, i <span class="wf-tok-kw">in</span> items {
+                <span class="wf-tok-kw">if</span> i &gt;= <span class="wf-tok-num">100</span> { <span class="wf-tok-kw">return</span> }
                 rows.push(item)
             }
-        } catch e {
-            error = e.message
+        } <span class="wf-tok-kw">catch</span> e {
+            <span class="wf-tok-kw">error</span> = e.message
         }
     }
-    Button(&quot;Pull&quot;) { on click { pull() } }
-    if error != &quot;&quot; { Alert(error).danger }
-    Text(&quot;{rows.length} rows&quot;)
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Sync&quot;</span>).h1
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Pull&quot;</span>) { <span class="wf-tok-kw">on</span> click { pull() } }
+    <span class="wf-tok-kw">if</span> <span class="wf-tok-kw">error</span> != <span class="wf-tok-str">&quot;&quot;</span> { <span class="wf-tok-name">Alert</span>(<span class="wf-tok-kw">error</span>).danger }
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{rows.length} rows&quot;</span>)
 }</code>
                             </div>
+                            <h2 class="wf-heading" id="summary">Summary</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Summary</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">You write</th>
+                                        <th scope="col">It shows</th>
+                                        <th scope="col">Section</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>if c { … } else if d { … } else { … }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>the first branch whose condition holds</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#if-else-if-else"><code>if</code></a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>if let u = user { … }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>a branch with the value, when it is not null</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#if-let"><code>if let</code></a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>for t in todos by t.id { … }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>the block once per item, keyed</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#for"><code>for</code></a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>for t, i in todos { … }</code>, <code>for n in 1..=3 { … }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>with the index; over a range</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#for"><code>for</code></a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>VirtualList(rowHeight: 32) { for … by … }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>only the rows in view</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#long-lists">Long lists</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>show open { … }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>its block, hidden rather than removed</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#show"><code>show</code></a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>match s { .idle { … } else { … } }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>one arm by case, or by a resource&#x27;s state</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#match"><code>match</code></a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>if c { a } else { b }</code>, <code>match s { … }</code>, <code>a ?? b</code></p>
+                                            </div>
+                                        </td>
+                                        <td>a value</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#expressions-that-choose">Expressions that choose</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>try { … } catch e { … }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>in an action: a guard on what may fail</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#in-actions-and-handlers">In actions and handlers</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                     <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
@@ -527,6 +734,7 @@ page Job(path: &quot;/&quot;) {
                         <a class="wf-link wf-s3e136ca4" href="#match">match</a>
                         <a class="wf-link wf-s3e136ca4" href="#expressions-that-choose">Expressions that choose</a>
                         <a class="wf-link wf-s3e136ca4" href="#in-actions-and-handlers">In actions and handlers</a>
+                        <a class="wf-link wf-s3e136ca4" href="#summary">Summary</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-s614f8b98">

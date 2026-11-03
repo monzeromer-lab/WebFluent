@@ -23,7 +23,7 @@
     <meta name="twitter:title" content="Pages and routing">
     <meta name="twitter:description" content="Page attributes, routes and typed parameters, query strings, layouts, guards, the app shell, per-page head tags and the 404 page.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/pages-and-routing#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/pages-and-routing","name":"Pages and routing","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Page attributes, routes and typed parameters, query strings, layouts, guards, the app shell, per-page head tags and the 404 page."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/pages-and-routing#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Pages and routing","item":"https://webfluent.monzeromer.dev/docs/guide/pages-and-routing"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/pages-and-routing#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/pages-and-routing","name":"Pages and routing","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Page attributes, routes and typed parameters, query strings, layouts, guards, the app shell, per-page head tags and the 404 page."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/pages-and-routing#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Pages and routing","item":"https://webfluent.monzeromer.dev/docs/guide/pages-and-routing"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -69,6 +69,9 @@
             </div>
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
+                    <a class="wf-sidebar__item" href="/docs">
+                        <p class="wf-text">Overview</p>
+                    </a>
                     <p class="wf-text group-label">Start</p>
                     <a class="wf-sidebar__item" href="/docs/guide/introduction">
                         <p class="wf-text num">01</p>
@@ -274,20 +277,33 @@
                 </aside>
                 <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
-                        <a class="wf-link" href="/docs/guide/introduction">Guide</a>
+                        <a class="wf-link" href="/docs">Guide</a>
                         <p class="wf-text">/</p>
                         <p class="wf-text wf-s8c71c534">Chapter 6</p>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s28a8547f">
                         <h1 class="wf-heading wf-sa3503382">Pages and routing</h1>
-                        <p class="wf-text wf-sfd35f593">A page is a route and what it shows. Pages own their paths; the app shell frames them; a layout wraps them.</p>
+                        <p class="wf-text wf-sfd35f593">A page is a route and what it shows. Each page names its own path, the app shell frames every page, and a layout frames a section.</p>
                     </div>
                     <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
-<p>A page is a route and what it shows. Pages own their paths: there is no route table to keep in step with them.</p>
+<p>A page is a route and what it shows. Each page names its own path, so there is no separate route table to keep in step with your pages.</p>
+<p>In this chapter:</p>
+<ul>
+<li>the attributes a page takes</li>
+<li>the <code>app</code> shell that frames every page, and the <code>Router</code></li>
+<li>links, <code>navigate()</code> and how the active link is marked</li>
+<li>route parameters, query strings and fragments</li>
+<li>layouts, guards and per-page head tags</li>
+<li>the catch-all page</li>
+<li>what runs, and in what order, when a page opens</li>
+</ul>
                             </div>
                             <h2 class="wf-heading" id="declaring-a-page">Declaring a page</h2>
+                            <div class="wf-markdown">
+<p>A page is a <code>page</code> declaration with a name, a <code>path:</code> and a body. This page answers <code>/about</code>:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -295,15 +311,15 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page About(path: &quot;/about&quot;, title: &quot;About us&quot;, description: &quot;Who we are and why we build this.&quot;) {
-    Container {
-        Heading(&quot;About us&quot;).h1
-        Paragraph(&quot;We are three people and a dog.&quot;)
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">About</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/about&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;About us&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Who we are and why we build this.&quot;</span>) {
+    <span class="wf-tok-name">Container</span> {
+        <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;About us&quot;</span>).h1
+        <span class="wf-tok-name">Paragraph</span>(<span class="wf-tok-str">&quot;We are three people and a dog.&quot;</span>)
     }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>The header takes these attributes:</p>
+<p>The page's header takes these attributes:</p>
                             </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">Declaring a page</caption>
@@ -334,10 +350,10 @@
 <p><code>title:</code></p>
                                             </div>
                                         </td>
-                                        <td>strongly</td>
+                                        <td>strongly advised</td>
                                         <td>
                                             <div class="wf-markdown">
-<p>The <code>&lt;title&gt;</code>, the history entry, what a screen reader announces on arrival; may name the page's parameters, <code>&quot;{slug} — Blog&quot;</code>, or splice an expression over them and the program's constants</p>
+<p>The <code>&lt;title&gt;</code>, the history entry, and what a screen reader announces on arrival. It may name the page's parameters, <code>&quot;{slug} — Blog&quot;</code>, or splice an expression over them and the program's constants</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -347,8 +363,12 @@
 <p><code>description:</code></p>
                                             </div>
                                         </td>
-                                        <td>strongly</td>
-                                        <td>The meta description and the snippet a search result and a link preview show (~150 characters)</td>
+                                        <td>strongly advised</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The meta description: the snippet a search result and a link preview show. Keep it under about 160 characters (<code>S03</code>)</p>
+                                            </div>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -368,7 +388,7 @@
                                         <td></td>
                                         <td>
                                             <div class="wf-markdown">
-<p>What that image shows, for a reader who cannot see it (<code>og:image:alt</code>); <code>meta.image_alt</code> describes the site's image</p>
+<p>What that image shows, for a reader who cannot see it (<code>og:image:alt</code>). <code>meta.image_alt</code> in the config describes the site's image</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -381,7 +401,7 @@
                                         <td></td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>og:type</code> — <code>website</code> (default) or <code>article</code></p>
+<p><code>og:type</code>: <code>&quot;website&quot;</code> (the default) or <code>&quot;article&quot;</code></p>
                                             </div>
                                         </td>
                                     </tr>
@@ -394,7 +414,7 @@
                                         <td></td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>true</code> keeps the page out of search results and the sitemap</p>
+<p><code>true</code> keeps the page out of search results and out of the sitemap</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -405,7 +425,11 @@
                                             </div>
                                         </td>
                                         <td></td>
-                                        <td>The component that frames the page (below)</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The component that frames the page (<a href="#layouts">Layouts</a>)</p>
+                                            </div>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -414,7 +438,11 @@
                                             </div>
                                         </td>
                                         <td></td>
-                                        <td>An expression that must hold for the route to render</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>An expression that must hold for the route to render (<a href="#guards">Guards</a>)</p>
+                                            </div>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -425,7 +453,7 @@
                                         <td></td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Where the reader goes when the guard fails (default <code>/</code>)</p>
+<p>Where the reader goes when the guard fails. The default is <code>/</code></p>
                                             </div>
                                         </td>
                                     </tr>
@@ -438,7 +466,7 @@
                                         <td></td>
                                         <td>
                                             <div class="wf-markdown">
-<p>The values a static build renders a <code>:param</code> page for (<a href="/docs/guide/static-and-spa#static-paths">chapter 26</a>)</p>
+<p>The values a static build renders a <code>:param</code> page for (<a href="/docs/guide/static-and-spa#pre-render-a-dynamic-route-with-paths">chapter 26</a>)</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -449,16 +477,20 @@
                                             </div>
                                         </td>
                                         <td></td>
-                                        <td>A route parameter, typed (below)</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A route parameter, typed (<a href="#route-parameters">Route parameters</a>)</p>
+                                            </div>
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>A page without a <code>title</code> or <code>description</code> builds with a warning (<code>S01</code>, <code>S02</code>); the compiler cannot write those for you, and a page without them ships unshareable.</p>
+<p>A page without a <code>title:</code> builds with warning <code>S01</code>, and one without a <code>description:</code> with warning <code>S02</code>. The compiler cannot write those for you, and a page without them looks bare when someone shares or searches for it.</p>
                             </div>
                             <h2 class="wf-heading" id="the-app-shell">The app shell</h2>
                             <div class="wf-markdown">
-<p><code>app</code> declares what every page renders inside — a navbar, a footer, the <code>Router</code> where the current page goes:</p>
+<p>The <code>app</code> declaration is the shell: what every page renders inside, such as a navbar and a footer. The <code>Router</code> marks where the current page goes:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -467,24 +499,32 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">app {
-    Navbar {
-        Navbar.Brand { Link(&quot;Acme&quot;, to: &quot;/&quot;) }
-        Navbar.Links {
-            Link(&quot;Docs&quot;, to: &quot;/docs&quot;).prefix
-            Link(&quot;Pricing&quot;, to: &quot;/pricing&quot;)
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">app</span> {
+    <span class="wf-tok-name">Navbar</span> {
+        <span class="wf-tok-name">Navbar</span>.<span class="wf-tok-name">Brand</span> { <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Acme&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/&quot;</span>) }
+        <span class="wf-tok-name">Navbar</span>.<span class="wf-tok-name">Links</span> {
+            <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Docs&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/docs&quot;</span>).prefix
+            <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Pricing&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/pricing&quot;</span>)
         }
-        Navbar.Actions { Button(&quot;Sign in&quot;).sm { on click { navigate(&quot;/login&quot;) } } }
+        <span class="wf-tok-name">Navbar</span>.<span class="wf-tok-name">Actions</span> { <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Sign in&quot;</span>).sm { <span class="wf-tok-kw">on</span> click { <span class="wf-tok-kw">navigate</span>(<span class="wf-tok-str">&quot;/login&quot;</span>) } } }
     }
-    Router
-    Footer { Text(&quot;© Acme&quot;).muted.sm }
+    <span class="wf-tok-name">Router</span>
+    <span class="wf-tok-name">Footer</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;© Acme&quot;</span>).muted.sm }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>Router</code> is bare — it takes no children — and the table is built from every page's <code>path</code>, ordered by specificity (static segments before <code>:params</code>, <code>*</code> last), so declaration order can never shadow a route. A project with no <code>app</code> declaration gets a bare router.</p>
-<p><code>Router(transition: .fade, duration: &quot;200ms&quot;)</code> animates page changes (<a href="/docs/guide/motion#route-transitions">chapter 20</a>).</p>
+<p>The <code>Router</code> behaves like this:</p>
+<ul>
+<li>It is bare: it takes no children, and it may sit at any depth inside <code>app</code> (in a <code>Row</code>, a <code>Container</code>, a <code>Stack</code>).</li>
+<li>Its route table is built from every page's <code>path:</code>, ordered by specificity: static segments before <code>:params</code>, and <code>*</code> last. The order you declare pages in can never shadow a route.</li>
+<li>A project with no <code>app</code> declaration gets a bare router.</li>
+<li><code>Router(transition: .fade, duration: &quot;200ms&quot;)</code> animates page changes (<a href="/docs/guide/motion#animate-route-changes">chapter 20</a>).</li>
+</ul>
                             </div>
                             <h2 class="wf-heading" id="links-and-navigation">Links and navigation</h2>
+                            <div class="wf-markdown">
+<p>A <code>Link</code> is an <code>&lt;a&gt;</code> whose clicks the router handles. To move from code, for example after a button press, call <code>navigate(path)</code>:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -492,18 +532,39 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Nav(path: &quot;/nav&quot;) {
-    Link(&quot;Home&quot;, to: &quot;/&quot;)                       // an &lt;a&gt;; the router handles the click
-    Link(&quot;Guide&quot;, to: &quot;/docs&quot;).prefix           // also active on /docs/anything
-    Button(&quot;Go&quot;) { on click { navigate(&quot;/about&quot;) } }
-}</code>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Start</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Start&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Where the tour begins.&quot;</span>) {
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Start here&quot;</span>).h1
+    <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Home&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/&quot;</span>)
+    <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Guide&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/docs&quot;</span>).prefix           <span class="wf-tok-cmt">// also active on /docs/anything</span>
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Take the tour&quot;</span>) { <span class="wf-tok-kw">on</span> click { <span class="wf-tok-kw">navigate</span>(<span class="wf-tok-str">&quot;/about&quot;</span>) } }
+}
+
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Guide</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/docs&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Guide&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;The guide.&quot;</span>) { <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Guide&quot;</span>).h1 }
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">About</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/about&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;About&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Who we are.&quot;</span>) { <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;About&quot;</span>).h1 }</code>
                             </div>
+                            <h3 class="wf-heading" id="the-active-link">The active link</h3>
                             <div class="wf-markdown">
-<p>The link whose <code>to:</code> matches the current route carries the class <code>.active</code> and <code>aria-current=&quot;page&quot;</code>; <code>.prefix</code> makes a section link active for the routes beneath it. A <code>to:</code> with a query — <code>&quot;/?show=open&quot;</code> — is active only when the address carries those values too, so a row of filter links marks the one that is on — a plain link to the same path gives way to it. <code>navigate(path)</code> moves in code. Write paths from the site's root — <code>&quot;/about&quot;</code> — even when the site is served under a sub-path: with <code>build.base_path</code> set to <code>&quot;/docs&quot;</code>, every <code>Link</code>, <code>navigate</code> and asset is prefixed for you. In a static build, links are real page loads and <code>navigate</code> is too; in a single-page app they swap pages without a reload, move focus to the new page's heading, reset the scroll and announce the title.</p>
+<p>The link whose <code>to:</code> matches the current route carries the class <code>.active</code> and <code>aria-current=&quot;page&quot;</code>, so you can style it and a screen reader announces it. Two rules widen or narrow the match:</p>
+<ul>
+<li><code>.prefix</code> (the flag for <code>active: .prefix</code>) also makes a link active on the routes beneath it, which suits a section link such as <strong>Guide</strong>.</li>
+<li>A <code>to:</code> with a query, such as <code>&quot;/?show=open&quot;</code>, is active only when the address carries those values too. A row of filter links then marks the one that is on, and a plain link to the same path gives way to it.</li>
+</ul>
+                            </div>
+                            <h3 class="wf-heading" id="paths-under-a-sub-path">Paths under a sub-path</h3>
+                            <div class="wf-markdown">
+<p>Write every path from the site's root, <code>&quot;/about&quot;</code>, even when the site is served under a sub-path. With <code>build.base_path</code> set to <code>&quot;/docs&quot;</code>, the compiler prefixes every <code>Link</code>, every <code>navigate()</code> and every asset for you.</p>
+                            </div>
+                            <h3 class="wf-heading" id="static-and-single-page-navigation">Static and single-page navigation</h3>
+                            <div class="wf-markdown">
+<p>How a link moves depends on the build:</p>
+<ul>
+<li>In a static build, a link is a real page load, and so is <code>navigate()</code>.</li>
+<li>In a single-page app, a link swaps the page without a reload. Focus moves to the new page's heading, the scroll goes back to the top (or to the <code>#fragment</code> the address names), and the new title is announced.</li>
+</ul>
                             </div>
                             <h2 class="wf-heading" id="route-parameters">Route parameters</h2>
                             <div class="wf-markdown">
-<p>A <code>:name</code> segment is declared as a typed parameter of the page and read as a plain name, or as <code>params.name</code>:</p>
+<p>A <code>:name</code> segment in the path is a typed parameter of the page. You read it as a plain name, or as <code>params.name</code>:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -512,33 +573,33 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">type Post { slug: String, title: String, body: String }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Post</span> { <span class="wf-tok-prop">slug</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">body</span>: <span class="wf-tok-name">String</span> }
 
-store Posts {
-    state all: [Post] = [
-        Post(slug: &quot;hello&quot;, title: &quot;Hello&quot;, body: &quot;First post.&quot;),
-        Post(slug: &quot;again&quot;, title: &quot;Again&quot;, body: &quot;Second post.&quot;)
+<span class="wf-tok-kw">store</span> <span class="wf-tok-name">Posts</span> {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">all</span>: [<span class="wf-tok-name">Post</span>] = [
+        <span class="wf-tok-name">Post</span>(<span class="wf-tok-prop">slug</span>: <span class="wf-tok-str">&quot;hello&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Hello&quot;</span>, <span class="wf-tok-prop">body</span>: <span class="wf-tok-str">&quot;First post.&quot;</span>),
+        <span class="wf-tok-name">Post</span>(<span class="wf-tok-prop">slug</span>: <span class="wf-tok-str">&quot;again&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Again&quot;</span>, <span class="wf-tok-prop">body</span>: <span class="wf-tok-str">&quot;Second post.&quot;</span>)
     ]
 }
 
-page PostPage(path: &quot;/posts/:slug&quot;, title: &quot;Post&quot;, description: &quot;One post.&quot;, slug: String) {
-    use Posts
-    derived post = Posts.all.find(p =&gt; p.slug == slug)
-    if let p = post {
-        Heading(p.title).h1
-        Paragraph(p.body)
-    } else {
-        Heading(&quot;No such post&quot;).h1
-        Text(&quot;Nothing lives at /posts/{params.slug}.&quot;)
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">PostPage</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/posts/:slug&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Post&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;One post.&quot;</span>, <span class="wf-tok-prop">slug</span>: <span class="wf-tok-name">String</span>) {
+    <span class="wf-tok-kw">use</span> <span class="wf-tok-name">Posts</span>
+    <span class="wf-tok-kw">derived</span> post = <span class="wf-tok-name">Posts</span>.all.find(p =&gt; p.slug == slug)
+    <span class="wf-tok-kw">if</span> <span class="wf-tok-kw">let</span> p = post {
+        <span class="wf-tok-name">Heading</span>(p.title).h1
+        <span class="wf-tok-name">Paragraph</span>(p.body)
+    } <span class="wf-tok-kw">else</span> {
+        <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;No such post&quot;</span>).h1
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Nothing lives at /posts/{params.slug}.&quot;</span>)
     }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>A parameter is a <code>String</code> unless you say otherwise (<code>id: Number</code>). A static build renders a <code>:param</code> page once per value named in <code>paths:</code> — see <a href="/docs/guide/static-and-spa#static-paths">Data</a>.</p>
+<p>A parameter is a <code>String</code> unless you declare another type, such as <code>id: Number</code>. A static build renders a <code>:param</code> page once for each value its <code>paths:</code> names (<a href="/docs/guide/static-and-spa#pre-render-a-dynamic-route-with-paths">Pre-render a dynamic route</a>).</p>
                             </div>
                             <h2 class="wf-heading" id="query-strings-and-fragments">Query strings and fragments</h2>
                             <div class="wf-markdown">
-<p><code>query</code> is the URL's query string as a map, and <code>hash</code> its <code>#fragment</code>; both are kept current by the runtime, so a page that reads them follows the address:</p>
+<p><code>query</code> is the URL's query string as a map, and <code>hash</code> is its <code>#fragment</code>. The runtime keeps both current, so a page that reads them follows the address:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -547,23 +608,25 @@ page PostPage(path: &quot;/posts/:slug&quot;, title: &quot;Post&quot;, descripti
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Products(path: &quot;/products&quot;, title: &quot;Products&quot;, description: &quot;Everything we sell.&quot;) {
-    derived tab = query.tab ?? &quot;all&quot;
-    derived sort = query.sort ?? &quot;name&quot;
-    Heading(&quot;Products&quot;).h1
-    Row(gap: .sm) {
-        Link(&quot;All&quot;, to: &quot;/products?tab=all&quot;)
-        Link(&quot;On sale&quot;, to: &quot;/products?tab=sale&quot;)
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Products</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/products&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Products&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Everything we sell.&quot;</span>) {
+    <span class="wf-tok-kw">derived</span> tab = query.tab ?? <span class="wf-tok-str">&quot;all&quot;</span>
+    <span class="wf-tok-kw">derived</span> sort = query.sort ?? <span class="wf-tok-str">&quot;name&quot;</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Products&quot;</span>).h1
+    <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">gap</span>: .sm) {
+        <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;All&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/products?tab=all&quot;</span>)
+        <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;On sale&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/products?tab=sale&quot;</span>)
     }
-    Text(&quot;Showing {tab}, sorted by {sort}; section: {hash}&quot;)
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Showing {tab}, sorted by {sort}; section: {hash}&quot;</span>)
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>A query string is not part of the route: <code>/products?tab=sale</code> is the <code>/products</code> page. To change it from code, <code>navigate(&quot;/products?tab=sale&quot;)</code>. In the static paint <code>query</code> and <code>hash</code> are unknown, so what depends on them is drawn once the page is live.</p>
+<p>A query string is not part of the route: <code>/products?tab=sale</code> is the <code>/products</code> page. To change the query from code, call <code>navigate(&quot;/products?tab=sale&quot;)</code>.</p>
+<p>The <em>static paint</em> is the HTML the build pre-renders for a page. In it, <code>query</code> and <code>hash</code> are unknown, so anything that depends on them is drawn once the page is live in the browser.</p>
                             </div>
                             <h2 class="wf-heading" id="layouts">Layouts</h2>
                             <div class="wf-markdown">
-<p>A <code>layout:</code> is a component with a default slot; the page renders in it. Use it for a section's own chrome — a docs sidebar, an app rail — where the <code>app</code> shell is the site's. The page's skip link jumps past that chrome to the page's first element, which is given <code>id=&quot;wf-content&quot;</code> when it has no id of its own.</p>
+<p>A layout is a component that frames a page. You name it with <code>layout:</code>, and the page renders in its default slot. Use a layout for one section's chrome, such as a docs sidebar or an app rail; the <code>app</code> shell is for the whole site's.</p>
+<p>In this example, two docs pages share one sidebar and breadcrumb:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -572,37 +635,42 @@ page PostPage(path: &quot;/posts/:slug&quot;, title: &quot;Post&quot;, descripti
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">component DocsShell(_ crumb: String) {
-    slot
-    Row(gap: .lg) {
-        Sidebar {
-            Sidebar.Item(to: &quot;/docs&quot;) { Text(&quot;Guide&quot;) }
-            Sidebar.Item(to: &quot;/docs/reference&quot;) { Text(&quot;Reference&quot;) }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">DocsShell</span>(_ <span class="wf-tok-prop">crumb</span>: <span class="wf-tok-name">String</span>) {
+    <span class="wf-tok-kw">slot</span>
+    <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">gap</span>: .lg) {
+        <span class="wf-tok-name">Sidebar</span> {
+            <span class="wf-tok-name">Sidebar</span>.<span class="wf-tok-name">Item</span>(<span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/docs&quot;</span>) { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Guide&quot;</span>) }
+            <span class="wf-tok-name">Sidebar</span>.<span class="wf-tok-name">Item</span>(<span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/docs/reference&quot;</span>) { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Reference&quot;</span>) }
         }
-        Stack {
-            Breadcrumb {
-                Breadcrumb.Item(to: &quot;/docs&quot;) { Text(&quot;Docs&quot;) }
-                Breadcrumb.Item { Text(crumb) }
+        <span class="wf-tok-name">Stack</span> {
+            <span class="wf-tok-name">Breadcrumb</span> {
+                <span class="wf-tok-name">Breadcrumb</span>.<span class="wf-tok-name">Item</span>(<span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/docs&quot;</span>) { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Docs&quot;</span>) }
+                <span class="wf-tok-name">Breadcrumb</span>.<span class="wf-tok-name">Item</span> { <span class="wf-tok-name">Text</span>(crumb) }
             }
-            children
+            <span class="wf-tok-kw">children</span>
         }
     }
 }
 
-page Guide(path: &quot;/docs&quot;, title: &quot;Guide&quot;, description: &quot;The guide.&quot;, layout: DocsShell(&quot;Guide&quot;)) {
-    Heading(&quot;Guide&quot;).h1
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Guide</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/docs&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Guide&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;The guide.&quot;</span>, <span class="wf-tok-prop">layout</span>: <span class="wf-tok-name">DocsShell</span>(<span class="wf-tok-str">&quot;Guide&quot;</span>)) {
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Guide&quot;</span>).h1
 }
 
-page Reference(path: &quot;/docs/reference&quot;, title: &quot;Reference&quot;, description: &quot;The reference.&quot;, layout: DocsShell(&quot;Reference&quot;)) {
-    Heading(&quot;Reference&quot;).h1
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Reference</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/docs/reference&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Reference&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;The reference.&quot;</span>, <span class="wf-tok-prop">layout</span>: <span class="wf-tok-name">DocsShell</span>(<span class="wf-tok-str">&quot;Reference&quot;</span>)) {
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Reference&quot;</span>).h1
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>The layout's arguments are checked like any component call. The layout component is required to declare a <code>slot</code> (its default slot); a layout without one is an error, since the page would have nowhere to go.</p>
+<p>A layout follows these rules:</p>
+<ul>
+<li>The compiler checks the layout's arguments like any component call (<code>DocsShell(&quot;Guide&quot;)</code>).</li>
+<li>The layout component must declare a default <code>slot</code>. Without one, the page has nowhere to go, and the build stops with error <code>E104</code>.</li>
+<li>The page's skip link jumps past the layout's chrome to the page's first element. That element gets <code>id=&quot;wf-content&quot;</code> when it has no id of its own.</li>
+</ul>
                             </div>
                             <h2 class="wf-heading" id="guards">Guards</h2>
                             <div class="wf-markdown">
-<p><code>guard:</code> names an expression — usually a store's derived value — that must be true for the route to render; otherwise the reader is sent to <code>redirect:</code>.</p>
+<p>A guard keeps a route from rendering until a condition holds. <code>guard:</code> names an expression, usually a store's derived value. When it is false, the reader is sent to <code>redirect:</code> (by default, <code>/</code>):</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -611,30 +679,40 @@ page Reference(path: &quot;/docs/reference&quot;, title: &quot;Reference&quot;, 
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">store Auth {
-    state user = null
-    derived loggedIn = user != null
-    action login() { user = { name: &quot;Sam&quot; } }
-    action logout() { user = null }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">store</span> <span class="wf-tok-name">Auth</span> {
+    <span class="wf-tok-kw">state</span> user = <span class="wf-tok-kw">null</span>
+    <span class="wf-tok-kw">derived</span> loggedIn = user != <span class="wf-tok-kw">null</span>
+    <span class="wf-tok-kw">action</span> login() { user = { <span class="wf-tok-prop">name</span>: <span class="wf-tok-str">&quot;Sam&quot;</span> } }
+    <span class="wf-tok-kw">action</span> logout() { user = <span class="wf-tok-kw">null</span> }
 }
 
-page Account(path: &quot;/account&quot;, title: &quot;Your account&quot;, description: &quot;Your account.&quot;, guard: Auth.loggedIn, redirect: &quot;/login&quot;) {
-    use Auth
-    Heading(&quot;Welcome back&quot;).h1
-    Button(&quot;Sign out&quot;) { on click { Auth.logout() } }
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Account</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/account&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Your account&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Your account.&quot;</span>, <span class="wf-tok-prop">guard</span>: <span class="wf-tok-name">Auth</span>.loggedIn, <span class="wf-tok-prop">redirect</span>: <span class="wf-tok-str">&quot;/login&quot;</span>) {
+    <span class="wf-tok-kw">use</span> <span class="wf-tok-name">Auth</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Welcome back&quot;</span>).h1
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Sign out&quot;</span>) { <span class="wf-tok-kw">on</span> click { <span class="wf-tok-name">Auth</span>.logout() } }
 }
 
-page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &quot;Sign in.&quot;) {
-    use Auth
-    Button(&quot;Sign in&quot;).primary { on click { Auth.login()  navigate(&quot;/account&quot;) } }
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Login</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/login&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Sign in&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Sign in.&quot;</span>) {
+    <span class="wf-tok-kw">use</span> <span class="wf-tok-name">Auth</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Sign in&quot;</span>).h1
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Sign in&quot;</span>).primary { <span class="wf-tok-kw">on</span> click { <span class="wf-tok-name">Auth</span>.login()  <span class="wf-tok-kw">navigate</span>(<span class="wf-tok-str">&quot;/account&quot;</span>) } }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>The guard is evaluated on every navigation, in the browser. A static build still pre-renders the page's HTML (the guard is a client-side gate, not a secret), so keep anything private behind an API the page fetches.</p>
+<p>The browser evaluates the guard on every navigation.</p>
+                            </div>
+                            <div class="wf-stack wf-gap--xs wf-s39f8973e callout" role="note" aria-label="Caution" data-kind="caution">
+                                <div class="wf-row wf-align--center wf-gap--xs callout-label">
+                                    <i class="wf-icon" data-icon="lock"></i>
+                                    <p class="wf-text">Caution</p>
+                                </div>
+                                <div class="wf-markdown">
+<p>A guard is a gate in the browser, not a secret. A static build still pre-renders the guarded page's HTML, so keep anything private behind an API that the page fetches.</p>
+                                </div>
                             </div>
                             <h2 class="wf-heading" id="per-page-head-tags">Per-page head tags</h2>
                             <div class="wf-markdown">
-<p>A page may add tags of its own to the document's <code>&lt;head&gt;</code>; they are painted at build time where the value is known, kept current on the live page, and gone when the page is:</p>
+<p>A <code>head { }</code> block adds tags of the page's own to the document's <code>&lt;head&gt;</code>. The build writes them into the static paint where it knows the value, the live page keeps them current, and they are removed when the reader leaves the page:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -643,22 +721,22 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Share(path: &quot;/share&quot;, title: &quot;Share&quot;, description: &quot;A page with its own tags.&quot;) {
-    state image = &quot;/og-share.png&quot;
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Share</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/share&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Share&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A page with its own tags.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> image = <span class="wf-tok-str">&quot;/og-share.png&quot;</span>
     head {
-        meta(property: &quot;og:image&quot;, content: image)
-        link(rel: &quot;canonical&quot;, href: &quot;https://example.com/share&quot;)
-        script(src: &quot;/analytics.js&quot;, defer: true)
+        meta(<span class="wf-tok-prop">property</span>: <span class="wf-tok-str">&quot;og:image&quot;</span>, <span class="wf-tok-prop">content</span>: image)
+        link(<span class="wf-tok-prop">rel</span>: <span class="wf-tok-str">&quot;canonical&quot;</span>, <span class="wf-tok-prop">href</span>: <span class="wf-tok-str">&quot;https://example.com/share&quot;</span>)
+        script(<span class="wf-tok-prop">src</span>: <span class="wf-tok-str">&quot;/analytics.js&quot;</span>, <span class="wf-tok-prop">defer</span>: <span class="wf-tok-kw">true</span>)
     }
-    Heading(&quot;Share&quot;).h1
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Share&quot;</span>).h1
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>title</code> and <code>description</code> are page attributes, not head tags; the compiler writes the standard tags (charset, viewport, description, canonical, Open Graph, Twitter card, JSON-LD) from them and the config.</p>
+<p><code>title:</code> and <code>description:</code> are page attributes, not head tags. From them and the config, the compiler writes the standard tags itself: charset, viewport, description, canonical, Open Graph, Twitter card and JSON-LD.</p>
                             </div>
                             <h2 class="wf-heading" id="the-catch-all-page">The catch-all page</h2>
                             <div class="wf-markdown">
-<p><code>path: &quot;*&quot;</code> is the page a static host serves as <code>404.html</code> and the router shows for a route no page claims:</p>
+<p>A page with <code>path: &quot;*&quot;</code> answers every route no other page claims. The router shows it in the browser, and a static host serves it as <code>404.html</code>:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -667,16 +745,16 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page NotFound(path: &quot;*&quot;, title: &quot;Not found&quot;, description: &quot;Nothing lives here.&quot;, noindex: true) {
-    Container {
-        Heading(&quot;Nothing here&quot;).h1
-        Link(&quot;Back home&quot;, to: &quot;/&quot;)
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">NotFound</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;*&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Not found&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Nothing lives here.&quot;</span>, <span class="wf-tok-prop">noindex</span>: <span class="wf-tok-kw">true</span>) {
+    <span class="wf-tok-name">Container</span> {
+        <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Nothing here&quot;</span>).h1
+        <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Back home&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/&quot;</span>)
     }
 }</code>
                             </div>
                             <h2 class="wf-heading" id="set-up-code-what-runs-when-a-page-opens">Set-up code: what runs when a page opens</h2>
                             <div class="wf-markdown">
-<p>A page's body is a render block: it declares state, derived values and actions, and lists what to show. Everything at the top of the body runs once when the page renders; a call at the top — <code>Store.load(id)</code> — is set-up code.</p>
+<p>A page's body is a render block: it declares state, derived values and actions, and lists what to show. The top of the body runs once, when the page renders. A call written there, such as <code>Deploys.load(id)</code>, is <em>set-up code</em>: it runs once as the page opens.</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -685,29 +763,138 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">store Deploys {
-    state rows = []
-    action load(id: String) { rows = [{ id: id, ok: true }] }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">store</span> <span class="wf-tok-name">Deploys</span> {
+    <span class="wf-tok-kw">state</span> rows = []
+    <span class="wf-tok-kw">action</span> load(<span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>) { rows = [{ <span class="wf-tok-prop">id</span>: id, <span class="wf-tok-prop">ok</span>: <span class="wf-tok-kw">true</span> }] }
 }
 
-page Deploy(path: &quot;/deploys/:id&quot;, title: &quot;Deploy&quot;, description: &quot;One deploy.&quot;, id: String) {
-    use Deploys
-    Deploys.load(id)
-    for row in Deploys.rows by row.id {
-        Text(&quot;{row.id}: {row.ok}&quot;)
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Deploy</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/deploys/:id&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Deploy&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;One deploy.&quot;</span>, <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>) {
+    <span class="wf-tok-kw">use</span> <span class="wf-tok-name">Deploys</span>
+    <span class="wf-tok-name">Deploys</span>.load(id)
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Deploy {id}&quot;</span>).h1
+    <span class="wf-tok-kw">for</span> row <span class="wf-tok-kw">in</span> <span class="wf-tok-name">Deploys</span>.rows <span class="wf-tok-kw">by</span> row.id {
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{row.id}: {row.ok}&quot;</span>)
     }
 }</code>
                             </div>
+                            <h3 class="wf-heading" id="the-life-of-a-page">The life of a page</h3>
                             <div class="wf-markdown">
-<p>The life of a page, in order:</p>
+<p>A page goes through these stages, in order:</p>
 <ol>
-<li>The route matches, the page's chunk loads (in a split build) and its stylesheet with it.</li>
-<li>The body runs <strong>once</strong>: <code>state</code>s take their initial values, set-up calls run, elements are created. There is no re-render after this — what reads a state updates on its own.</li>
-<li><code>effect</code>s run, and run again when what they read changes; timers start.</li>
+<li>The route matches. In a split build, the page's chunk loads, and its stylesheet with it.</li>
+<li>The body runs <strong>once</strong>: each <code>state</code> takes its initial value, set-up calls run, and the elements are created. Nothing re-renders after this; whatever reads a state updates on its own.</li>
+<li>Each <code>effect</code> runs, and runs again when what it reads changes. Timers start.</li>
 <li>The page is placed. In a single-page app, focus moves to its heading, the scroll goes to the top and the title is announced.</li>
-<li>When the route changes, everything the page created — effects, timers, listeners, connections, <code>.route</code> stores — is disposed of, and their <code>cleanup { }</code> blocks run.</li>
+<li>When the route changes, everything the page created is disposed of: effects, timers, listeners, connections and <code>.route</code> stores. Their <code>cleanup { }</code> blocks run.</li>
 </ol>
-<p>There is no <code>onMount</code> to write: set-up code runs at step 2, an <code>effect</code> at step 3, and <code>after(0) { … }</code> once the page is on screen.</p>
+<p>There is no <code>onMount</code> to write. Set-up code runs at stage 2, an <code>effect</code> at stage 3, and <code>after(0) { … }</code> once the page is on screen.</p>
+                            </div>
+                            <h2 class="wf-heading" id="quick-reference">Quick reference</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Quick reference</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Syntax</th>
+                                        <th scope="col">Meaning</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>page Name(path: &quot;/x&quot;, title: &quot;…&quot;, description: &quot;…&quot;) { … }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A page and its route</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>path: &quot;/posts/:slug&quot;</code>, <code>slug: String</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A typed route parameter, read as <code>slug</code> or <code>params.slug</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>path: &quot;*&quot;</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The catch-all page, served as <code>404.html</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>app { … Router … }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The shell around every page, and where the page goes</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Link(&quot;Docs&quot;, to: &quot;/docs&quot;).prefix</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A link, active on its route and the routes beneath it</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>navigate(&quot;/about&quot;)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Move to a route from code</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>query.tab</code>, <code>hash</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The query string and the fragment, kept current</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>layout: Shell(&quot;Crumb&quot;)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Frame the page with a component&#x27;s default slot</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>guard: Auth.loggedIn, redirect: &quot;/login&quot;</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Render only while a condition holds</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>head { meta(…) link(…) script(…) }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Tags of the page's own in <code>&lt;head&gt;</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>The <a href="/docs/guide/config">configuration reference</a> covers <code>build.base_path</code>, and <a href="/docs/guide/static-and-spa">Static or single-page</a> covers how each build serves pages.</p>
                             </div>
                         </div>
                     </div>
@@ -735,6 +922,7 @@ page Deploy(path: &quot;/deploys/:id&quot;, title: &quot;Deploy&quot;, descripti
                         <a class="wf-link wf-s3e136ca4" href="#per-page-head-tags">Per-page head tags</a>
                         <a class="wf-link wf-s3e136ca4" href="#the-catch-all-page">The catch-all page</a>
                         <a class="wf-link wf-s3e136ca4" href="#set-up-code-what-runs-when-a-page-opens">Set-up code: what runs when a page opens</a>
+                        <a class="wf-link wf-s3e136ca4" href="#quick-reference">Quick reference</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-s614f8b98">

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Language basics</title>
-    <meta name="description" content="Declarations, naming, comments, render and imperative bodies, the braced and the indented layout, and how strings are written.">
+    <meta name="description" content="Declarations, naming, comments, render and imperative bodies, the braced and the indented layout, and how to write strings in WebFluent.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/language-basics">
     <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/language-basics?lang=en">
     <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/language-basics?lang=ar">
@@ -12,7 +12,7 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Language basics">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="Declarations, naming, comments, render and imperative bodies, the braced and the indented layout, and how strings are written.">
+    <meta property="og:description" content="Declarations, naming, comments, render and imperative bodies, the braced and the indented layout, and how to write strings in WebFluent.">
     <meta property="og:url" content="https://webfluent.monzeromer.dev/docs/guide/language-basics">
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="ar_AR">
@@ -21,9 +21,9 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Language basics">
-    <meta name="twitter:description" content="Declarations, naming, comments, render and imperative bodies, the braced and the indented layout, and how strings are written.">
+    <meta name="twitter:description" content="Declarations, naming, comments, render and imperative bodies, the braced and the indented layout, and how to write strings in WebFluent.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/language-basics#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/language-basics","name":"Language basics","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Declarations, naming, comments, render and imperative bodies, the braced and the indented layout, and how strings are written."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/language-basics#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Language basics","item":"https://webfluent.monzeromer.dev/docs/guide/language-basics"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/language-basics#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/language-basics","name":"Language basics","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Declarations, naming, comments, render and imperative bodies, the braced and the indented layout, and how to write strings in WebFluent."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/language-basics#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Language basics","item":"https://webfluent.monzeromer.dev/docs/guide/language-basics"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -69,6 +69,9 @@
             </div>
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
+                    <a class="wf-sidebar__item" href="/docs">
+                        <p class="wf-text">Overview</p>
+                    </a>
                     <p class="wf-text group-label">Start</p>
                     <a class="wf-sidebar__item" href="/docs/guide/introduction">
                         <p class="wf-text num">01</p>
@@ -274,19 +277,31 @@
                 </aside>
                 <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
-                        <a class="wf-link" href="/docs/guide/introduction">Guide</a>
+                        <a class="wf-link" href="/docs">Guide</a>
                         <p class="wf-text">/</p>
                         <p class="wf-text wf-s8c71c534">Chapter 5</p>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s28a8547f">
                         <h1 class="wf-heading wf-sa3503382">Language basics</h1>
-                        <p class="wf-text wf-sfd35f593">A file is a list of declarations. This chapter covers all thirteen kinds, naming, comments, bodies, strings and the two layouts.</p>
+                        <p class="wf-text wf-sfd35f593">The shape of every .wf file: the thirteen kinds of declaration, naming, comments, the two kinds of body, the two layouts and how strings are written.</p>
                     </div>
                     <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
-                            <h2 class="wf-heading" id="a-file-is-a-list-of-declarations">A file is a list of declarations</h2>
                             <div class="wf-markdown">
-<p>Every <code>.wf</code> file holds top-level declarations and nothing else — no loose elements, no statements outside a body. There are thirteen kinds:</p>
+<p>A WebFluent program is a set of declarations: pages, components, stores and the rest, each a keyword followed by a name and a body. Learn the thirteen kinds and the two kinds of body, and you can read any <code>.wf</code> file.</p>
+<p>In this chapter:</p>
+<ul>
+<li>the thirteen declarations, and the chapter that covers each</li>
+<li>how names are written</li>
+<li>comments, including the doc comments the editor shows</li>
+<li>render blocks and imperative blocks, and what goes in each</li>
+<li>the braced <code>.wf</code> layout and the indented <code>.wfx</code> layout</li>
+<li>the three ways to write a string, and how a string splices in values</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading" id="declarations">Declarations</h2>
+                            <div class="wf-markdown">
+<p>A <code>.wf</code> file holds top-level declarations and nothing else. You cannot put an element or a statement loose in a file; it belongs in the body of a declaration. This file uses all thirteen kinds:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -295,22 +310,25 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Home(path: &quot;/&quot;, title: &quot;Home&quot;, description: &quot;The front page.&quot;) { Text(&quot;hi&quot;) }
-component Chip(_ label: String, tone: Tone = .calm) { Badge(label) }
-store Cart { state items = []  derived count = items.length }
-theme Brand { color-primary: #0F766E  radius-md: 14px }
-app { Navbar { Text(&quot;Shop&quot;).heading }  Router }
-type Todo { id: String, title: String, done: Bool = false }
-enum Tone { calm, loud }
-api Backend(base: &quot;/api/v1&quot;) { get todos() -&gt; [Todo] }
-const API = &quot;/api/v1&quot;
-data posts = &quot;posts.json&quot;
-image hero = &quot;hero.jpg&quot;
-animation Pulse { from { opacity: 1 } to { opacity: 0.5 } }
-test &quot;chip shows its label&quot; { Chip(&quot;Beta&quot;)  expect &quot;Beta&quot; }</code>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Home</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Home&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;The front page.&quot;</span>) { <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Welcome&quot;</span>).h1 }
+<span class="wf-tok-kw">component</span> <span class="wf-tok-name">Chip</span>(_ <span class="wf-tok-prop">label</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">tone</span>: <span class="wf-tok-name">Tone</span> = .calm) { <span class="wf-tok-name">Badge</span>(label) }
+<span class="wf-tok-kw">store</span> <span class="wf-tok-name">Cart</span> { <span class="wf-tok-kw">state</span> items = []  <span class="wf-tok-kw">derived</span> count = items.length }
+<span class="wf-tok-kw">theme</span> <span class="wf-tok-name">Brand</span> { color-<span class="wf-tok-prop">primary</span>: <span class="wf-tok-num">#0F766E</span>  radius-<span class="wf-tok-prop">md</span>: <span class="wf-tok-num">14px</span> }
+<span class="wf-tok-kw">app</span> { <span class="wf-tok-name">Navbar</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Shop&quot;</span>).heading }  <span class="wf-tok-name">Router</span> }
+<span class="wf-tok-kw">type</span> <span class="wf-tok-name">Todo</span> { <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">done</span>: <span class="wf-tok-name">Bool</span> = <span class="wf-tok-kw">false</span> }
+<span class="wf-tok-kw">enum</span> <span class="wf-tok-name">Tone</span> { calm, loud }
+api <span class="wf-tok-name">Backend</span>(<span class="wf-tok-prop">base</span>: <span class="wf-tok-str">&quot;/api/v1&quot;</span>) { get todos() -&gt; [<span class="wf-tok-name">Todo</span>] }
+<span class="wf-tok-kw">const</span> <span class="wf-tok-name">API</span> = <span class="wf-tok-str">&quot;/api/v1&quot;</span>
+<span class="wf-tok-kw">data</span> posts = <span class="wf-tok-str">&quot;posts.json&quot;</span>
+image hero = <span class="wf-tok-str">&quot;hero.jpg&quot;</span>
+<span class="wf-tok-kw">animation</span> <span class="wf-tok-name">Pulse</span> { <span class="wf-tok-kw">from</span> { <span class="wf-tok-prop">opacity</span>: <span class="wf-tok-num">1</span> } <span class="wf-tok-kw">to</span> { <span class="wf-tok-prop">opacity</span>: <span class="wf-tok-num">0.5</span> } }
+<span class="wf-tok-kw">test</span> <span class="wf-tok-str">&quot;chip shows its label&quot;</span> { <span class="wf-tok-name">Chip</span>(<span class="wf-tok-str">&quot;Beta&quot;</span>)  <span class="wf-tok-kw">expect</span> <span class="wf-tok-str">&quot;Beta&quot;</span> }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Each keyword declares one kind of thing:</p>
                             </div>
                             <table class="wf-table">
-                                <caption class="wf-visually-hidden">A file is a list of declarations</caption>
+                                <caption class="wf-visually-hidden">Declarations</caption>
                                 <thead>
                                     <tr>
                                         <th scope="col">Declaration</th>
@@ -394,7 +412,7 @@ test &quot;chip shows its label&quot; { Chip(&quot;Beta&quot;)  expect &quot;Bet
 <p><code>type</code>, <code>enum</code></p>
                                             </div>
                                         </td>
-                                        <td>Records and enumerations the checker enforces</td>
+                                        <td>Records and enumerations the type checker enforces</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><a href="/docs/guide/types">13</a></p>
@@ -410,7 +428,7 @@ test &quot;chip shows its label&quot; { Chip(&quot;Beta&quot;)  expect &quot;Bet
                                         <td>An HTTP service: its address, its endpoints and what they return</td>
                                         <td>
                                             <div class="wf-markdown">
-<p><a href="/docs/guide/data#api-a-service-described-once">17</a></p>
+<p><a href="/docs/guide/data#describe-a-service-with-api">17</a></p>
                                             </div>
                                         </td>
                                     </tr>
@@ -436,7 +454,7 @@ test &quot;chip shows its label&quot; { Chip(&quot;Beta&quot;)  expect &quot;Bet
                                         <td>A JSON file read at build time, as a constant</td>
                                         <td>
                                             <div class="wf-markdown">
-<p><a href="/docs/guide/data#data-a-file-at-build-time">17</a></p>
+<p><a href="/docs/guide/data#read-a-file-at-build-time-with-data">17</a></p>
                                             </div>
                                         </td>
                                     </tr>
@@ -466,7 +484,7 @@ test &quot;chip shows its label&quot; { Chip(&quot;Beta&quot;)  expect &quot;Bet
                                         <td>Keyframes</td>
                                         <td>
                                             <div class="wf-markdown">
-<p><a href="/docs/guide/motion#custom-animations">20</a></p>
+<p><a href="/docs/guide/motion#declare-your-own-keyframes">20</a></p>
                                             </div>
                                         </td>
                                     </tr>
@@ -486,23 +504,29 @@ test &quot;chip shows its label&quot; { Chip(&quot;Beta&quot;)  expect &quot;Bet
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>Beside them, a <code>.css</code> file under <code>src/</code> is a stylesheet the build bundles, and a <code>.js</code> file under <code>src/</code> is a plain browser script whose top-level functions are in scope by name (<a href="/docs/guide/interop">32</a>).</p>
-<p>Inside a body there are more statements — <code>state</code>, <code>derived</code>, <code>effect</code>, <code>action</code>, <code>persist</code>, <code>resource</code>, <code>validate</code>, <code>socket</code>, <code>if</code>, <code>for</code>, <code>match</code> and the rest. <a href="/docs/guide/grammar">Grammar</a> lists every keyword and where it may appear.</p>
-<p>All the files under <code>src/</code> merge into one program, so a component declared in <code>components/Chip.wf</code> is usable from every page. <code>App.wf</code> is read first; the rest in name order.</p>
+<p>Two other kinds of file under <code>src/</code> join the program. A <code>.css</code> file is a stylesheet the build bundles. A <code>.js</code> file is a plain browser script, and its top-level functions are in scope by name in your <code>.wf</code> code (<a href="/docs/guide/interop">chapter 32</a>).</p>
+<p>Inside a body you write statements: <code>state</code>, <code>derived</code>, <code>effect</code>, <code>action</code>, <code>persist</code>, <code>resource</code>, <code>validate</code>, <code>socket</code>, <code>if</code>, <code>for</code>, <code>match</code> and more. The <a href="/docs/guide/grammar">grammar</a> lists every keyword and where it may appear.</p>
+                            </div>
+                            <h3 class="wf-heading" id="one-program-from-many-files">One program from many files</h3>
+                            <div class="wf-markdown">
+<p>All the files under <code>src/</code> merge into one program. A component declared in <code>components/Chip.wf</code> is usable from every page without an import. The compiler reads <code>App.wf</code> (or <code>App.wfx</code>) first, then the other files in name order, so a build is the same on every machine.</p>
                             </div>
                             <h2 class="wf-heading" id="naming">Naming</h2>
                             <div class="wf-markdown">
+<p>Names follow fixed conventions, so you can tell what a word is from how it is written:</p>
 <ul>
 <li>Declaration keywords are lowercase: <code>page</code>, <code>component</code>, <code>store</code>.</li>
 <li>The names they declare, and every element, are <strong>PascalCase</strong>: <code>Home</code>, <code>UserCard</code>, <code>Button</code>, <code>Table.Row</code>.</li>
 <li>State, props, actions, variables and flags are <strong>camelCase</strong>: <code>count</code>, <code>isOpen</code>, <code>save</code>, <code>.primary</code>.</li>
-<li>Enum cases are written with a leading dot: <code>.calm</code>, <code>.md</code>.</li>
-<li>Design tokens are written with a dollar: <code>$primary</code>, <code>$spacing-md</code>.</li>
-<li>A <code>///</code> comment above a declaration, a prop or an event is its documentation, shown on hover in the editor and in <code>wf docs</code>. Above a <code>state</code>, <code>persist</code>, <code>derived</code> or <code>action</code>, it is that member's, which an editor shows where the member is used.</li>
+<li>Enum cases start with a dot: <code>.calm</code>, <code>.md</code>.</li>
+<li>Design tokens start with a dollar sign: <code>$primary</code>, <code>$spacing-md</code>.</li>
 </ul>
-<p>Nothing resolves silently. A name the compiler does not know — a misspelled element, a flag the element lacks, a case the enum lacks — is an error with a hint, never a no-op.</p>
+<p>The compiler resolves every name. A name it does not know — a misspelled element, a flag the element does not take, a case the enum does not have — is an error with a hint, never a silent no-op.</p>
                             </div>
                             <h2 class="wf-heading" id="comments">Comments</h2>
+                            <div class="wf-markdown">
+<p>WebFluent has three kinds of comment. A <code>//</code> comment runs to the end of the line, a <code>/* … */</code> comment may span lines, and a <code>///</code> comment documents the declaration that follows it:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -510,15 +534,23 @@ test &quot;chip shows its label&quot; { Chip(&quot;Beta&quot;)  expect &quot;Bet
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">// A line comment.
-/* A block
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-cmt">// A line comment.</span>
+/* <span class="wf-tok-name">A</span> block
    comment. */
-/// A doc comment: attaches to the declaration that follows it.
-component Avatar(_ initials: String) { Text(initials).bold }</code>
+<span class="wf-tok-cmt">/// A person's initials, in a circle.</span>
+<span class="wf-tok-kw">component</span> <span class="wf-tok-name">Avatar</span>(_ <span class="wf-tok-prop">initials</span>: <span class="wf-tok-name">String</span>) { <span class="wf-tok-name">Text</span>(initials).bold }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A <code>///</code> comment above a declaration, a prop or an event is its documentation. The editor shows it on hover, and <code>wf docs</code> prints it in the component gallery. Above a <code>state</code>, <code>persist</code>, <code>derived</code> or <code>action</code>, it documents that member, and the editor shows it wherever the member is used.</p>
                             </div>
                             <h2 class="wf-heading" id="bodies">Bodies</h2>
                             <div class="wf-markdown">
-<p>A declaration's body is a <strong>render block</strong>: elements, and the statements that shape them (<code>state</code>, <code>derived</code>, <code>if</code>, <code>for</code>, …). A handler or an action's body is an <strong>imperative block</strong>: statements that do something (assignments, calls, <code>let</code>, <code>if</code>, <code>for</code>, <code>try</code>). The two are separate grammars, and the compiler tells you when a statement is in the wrong kind of block:</p>
+<p>A body is one of two kinds of block, and each holds different statements:</p>
+<ul>
+<li>A <strong>render block</strong> is the body of a page, a component or <code>app</code>. It holds elements, and the statements that shape them: <code>state</code>, <code>derived</code>, <code>if</code>, <code>for</code> and the like.</li>
+<li>An <strong>imperative block</strong> is the body of a handler or an action. It holds statements that do something: assignments, calls, <code>let</code>, <code>if</code>, <code>for</code>, <code>try</code>.</li>
+</ul>
+<p>The two blocks have separate grammars. In this page, the <code>Text</code> is an element in the render block, and the assignment sits inside an <code>on click</code> handler:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -527,17 +559,27 @@ component Avatar(_ initials: String) { Text(initials).bold }</code>
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;) {
-    state n = 0
-    Text(&quot;{n}&quot;)                          // an element: fine in a render block
-    Button(&quot;+&quot;) {
-        on click { n = n + 1 }           // an assignment: fine in a handler
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Counter</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Counter&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A number that goes up.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> clicks = <span class="wf-tok-num">0</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Counter&quot;</span>).h1
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Clicked {clicks} times&quot;</span>)
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Add one&quot;</span>) {
+        <span class="wf-tok-kw">on</span> click { clicks = clicks + <span class="wf-tok-num">1</span> }
     }
 }</code>
                             </div>
+                            <div class="wf-stack wf-gap--xs wf-s39f8973e callout" role="note" aria-label="Warning" data-kind="warning">
+                                <div class="wf-row wf-align--center wf-gap--xs callout-label">
+                                    <i class="wf-icon" data-icon="warning"></i>
+                                    <p class="wf-text">Warning</p>
+                                </div>
+                                <div class="wf-markdown">
+<p>An assignment written loose in a page body, such as <code>clicks = clicks + 1</code> next to the <code>Text</code>, is error <code>E105</code>. Its hint says where the line belongs: <em>&quot;Code that does something goes in <code>on click { … }</code>, an <code>action</code> or an <code>effect</code>&quot;</em>.</p>
+                                </div>
+                            </div>
+                            <h3 class="wf-heading" id="separating-statements">Separating statements</h3>
                             <div class="wf-markdown">
-<p>Writing <code>n = n + 1</code> loose inside the page body is an error: <em>&quot;Code that does something goes in <code>on click { … }</code>, an <code>action</code> or an <code>effect</code>&quot;</em>.</p>
-<p>Statements need no separator. A newline is usual; on one line, a <code>;</code> or nothing at all works — two spaces is the house style, because it reads:</p>
+<p>Statements need no separator. You usually put one per line. To put two on one line, separate them with <code>;</code> or with nothing at all; the house style is two spaces, because it reads well:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -546,14 +588,17 @@ component Avatar(_ initials: String) { Text(initials).bold }</code>
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;) {
-    state a = 1  state b = 2
-    Button(&quot;x&quot;) { on click { a = a + 1; b = b + 1 } }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Score</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Score&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Two teams, two numbers.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> home = <span class="wf-tok-num">1</span>  <span class="wf-tok-kw">state</span> away = <span class="wf-tok-num">2</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Score&quot;</span>).h1
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{home} – {away}&quot;</span>)
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Both score&quot;</span>) { <span class="wf-tok-kw">on</span> click { home = home + <span class="wf-tok-num">1</span>; away = away + <span class="wf-tok-num">1</span> } }
 }</code>
                             </div>
                             <h2 class="wf-heading" id="two-layouts-wf-and-wfx">Two layouts: .wf and .wfx</h2>
                             <div class="wf-markdown">
-<p>The same grammar can be written with braces or with indentation. A <code>.wf</code> file opens a block with <code>{</code> and closes it with <code>}</code>; a <code>.wfx</code> file opens a block with a line indented deeper than the one before it and closes it with a dedent.</p>
+<p>You can write the same grammar with braces or with indentation. A <code>.wf</code> file opens a block with <code>{</code> and closes it with <code>}</code>. A <code>.wfx</code> file opens a block with a line indented deeper than the one before it, and closes it when the indentation returns.</p>
+<p>This page is written in the braced layout:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -562,25 +607,26 @@ component Avatar(_ initials: String) { Text(initials).bold }</code>
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Home(path: &quot;/&quot;) {
-    state open = true
-    Row(gap: .sm) {
-        style {
-            padding: 6px 0
-            &amp;:hover { background: $surface }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Home</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Home&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A panel that opens and closes.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> open = <span class="wf-tok-kw">true</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Home&quot;</span>).h1
+    <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">gap</span>: .sm) {
+        <span class="wf-tok-kw">style</span> {
+            <span class="wf-tok-prop">padding</span>: <span class="wf-tok-num">6px</span> <span class="wf-tok-num">0</span>
+            &amp;:hover { <span class="wf-tok-prop">background</span>: <span class="wf-tok-tok">$surface</span> }
         }
-        on click { open = !open }
-        Text(&quot;a&quot;).bold
+        <span class="wf-tok-kw">on</span> click { open = !open }
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Details&quot;</span>).bold
     }
-    if open {
-        Spinner
-    } else {
-        Text(&quot;b&quot;)
+    <span class="wf-tok-kw">if</span> open {
+        <span class="wf-tok-name">Spinner</span>
+    } <span class="wf-tok-kw">else</span> {
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Closed&quot;</span>)
     }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>The same in <code>.wfx</code>:</p>
+<p>The same page in the indented layout:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -589,33 +635,35 @@ component Avatar(_ initials: String) { Text(initials).bold }</code>
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wfx" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Home(path: &quot;/&quot;)
-    state open = true
-    Row(gap: .sm)
-        style
-            padding: 6px 0
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Home</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Home&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A panel that opens and closes.&quot;</span>)
+    <span class="wf-tok-kw">state</span> open = <span class="wf-tok-kw">true</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Home&quot;</span>).h1
+    <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">gap</span>: .sm)
+        <span class="wf-tok-kw">style</span>
+            <span class="wf-tok-prop">padding</span>: <span class="wf-tok-num">6px</span> <span class="wf-tok-num">0</span>
             &amp;:hover
-                background: $surface
-        on click { open = !open }
-        Text(&quot;a&quot;).bold
-    if open
-        Spinner
-    else
-        Text(&quot;b&quot;)</code>
+                <span class="wf-tok-prop">background</span>: <span class="wf-tok-tok">$surface</span>
+        <span class="wf-tok-kw">on</span> click { open = !open }
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Details&quot;</span>).bold
+    <span class="wf-tok-kw">if</span> open
+        <span class="wf-tok-name">Spinner</span>
+    <span class="wf-tok-kw">else</span>
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Closed&quot;</span>)</code>
                             </div>
                             <div class="wf-markdown">
-<p>Rules of the indented layout:</p>
+<p>The indented layout follows these rules:</p>
 <ul>
-<li>Four spaces (or one tab) per level, consistently; a line that lines up with no enclosing block is an error.</li>
-<li>Braces you write yourself are still allowed, and everything inside them is free-form: <code>on click { open = !open }</code> on one line, a map literal across several, an argument list across several.</li>
+<li>A line indented deeper than the line before it opens a block. Indent with the same spaces or tabs as the lines around it; four spaces per level is the house style, and what <code>wf fmt</code> writes.</li>
+<li>A line whose indentation lines up with no enclosing block is error <code>E003</code>. The first line of a file is not indented.</li>
+<li>You may still write braces yourself, and everything inside them is laid out freely: <code>on click { open = !open }</code> on one line, or a map literal or an argument list across several lines. Inside parentheses and brackets, layout is free too.</li>
 <li>An empty block is written <code>{ }</code>.</li>
-<li>Blank lines and comment lines count for nothing.</li>
+<li>Blank lines and comment lines do not count.</li>
 </ul>
-<p>Both layouts compile to the same output, are read by every tool, and a project may mix them. <code>wf fmt --to wfx</code> converts a project one way and <code>--to wf</code> the other, losslessly. This guide writes <code>.wf</code>; every example has an <code>.wfx</code> spelling.</p>
+<p>Both layouts compile to the same output and every tool reads both, so a project may mix them. <code>wf fmt --to wfx</code> converts a project to the indented layout and <code>wf fmt --to wf</code> converts it back, without changing what any file says. This guide writes <code>.wf</code>; every example has a <code>.wfx</code> spelling.</p>
                             </div>
                             <h2 class="wf-heading" id="strings">Strings</h2>
                             <div class="wf-markdown">
-<p>Strings are double-quoted and interpolate with <code>{expr}</code>:</p>
+<p>A string is written in double quotes and splices in a value with <code>{expr}</code>:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -624,19 +672,21 @@ component Avatar(_ initials: String) { Text(initials).bold }</code>
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;) {
-    state user = { name: &quot;Sam&quot;, age: 41 }
-    Text(&quot;Hello, {user.name}! You are {user.age * 12} months old.&quot;)
-    Text(&quot;A literal brace: \{ and \}&quot;)
-    Text(&quot;A literal dollar: ${user.age}&quot;)     // `$` alone is plain text
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Greeting</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Greeting&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A greeting that knows your age.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> user = { <span class="wf-tok-prop">name</span>: <span class="wf-tok-str">&quot;Sam&quot;</span>, <span class="wf-tok-prop">age</span>: <span class="wf-tok-num">41</span> }
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Hello, {user.name}!&quot;</span>).h1
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;You are {user.age * 12} months old.&quot;</span>)
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;A literal brace: \{ and \}&quot;</span>)
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;A literal dollar: ${user.age}&quot;</span>)     <span class="wf-tok-cmt">// `$` alone is plain text: &quot;$41&quot;</span>
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Interpolated text is live: when <code>user</code> changes, the text changes. A splice may also say how to show its value — <code>{total:.currency}</code>, <code>{when:.date(long)}</code> — which is <a href="/docs/guide/expressions#showing-a-value-a-particular-way">formatting</a> written where it is read.</p>
+<p>Spliced text is live: when <code>user</code> changes, the text changes with it. A splice opens with a name, a <code>(</code> or a <code>[</code>, and closes on the same line; anything else, such as <code>{key: value}</code> in prose, is plain text.</p>
+<p>A splice may also say how to show its value: <code>{total:.currency}</code>, <code>{when:.date(long)}</code>. This is <a href="/docs/guide/expressions#showing-a-value-a-particular-way">formatting</a>, written where the value is read.</p>
                             </div>
                             <h3 class="wf-heading" id="three-ways-to-write-one">Three ways to write one</h3>
                             <div class="wf-markdown">
-<p>A plain <code>&quot;…&quot;</code> string reads escapes (<code>\n</code>, <code>\t</code>, <code>\&quot;</code>, <code>\\</code>, <code>\{</code>, <code>\}</code>) and <code>{…}</code> splices. Two other forms exist for text that a plain string makes you spell twice:</p>
+<p>A plain <code>&quot;…&quot;</code> string reads the escapes <code>\n</code>, <code>\t</code>, <code>\r</code>, <code>\&quot;</code>, <code>\\</code>, <code>\{</code> and <code>\}</code>, and splices <code>{…}</code>. For text that a plain string makes you escape over and over, there are two other forms:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -645,23 +695,131 @@ component Avatar(_ initials: String) { Text(initials).bold }</code>
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">// Raw: no escapes, no splices. The text is what is written.
-const SAMPLE = #&quot;page Home(path: &quot;/&quot;) { state n = 0 }&quot;#
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-cmt">// Raw: no escapes, no splices. The text is what is written.</span>
+<span class="wf-tok-kw">const</span> <span class="wf-tok-name">SAMPLE</span> = <span class="wf-tok-str">#&quot;page Home(path: &quot;/&quot;) { state n = 0 }&quot;#</span>
 
-// As many # as the text needs, when it holds a `&quot;#` of its own.
-const TRICKY = ##&quot;a raw string ends with &quot;# — like that&quot;##
+<span class="wf-tok-cmt">// As many # as the text needs, when it holds a `&quot;#` of its own.</span>
+<span class="wf-tok-kw">const</span> <span class="wf-tok-name">TRICKY</span> = <span class="wf-tok-str">##&quot;a raw string ends with &quot;# — like that&quot;##</span>
 
-// Block: over as many lines as it likes, escapes and splices on, and
-// the indentation the source gave it removed.
-const name = &quot;Ada&quot;
-const LETTER = &quot;&quot;&quot;
+<span class="wf-tok-cmt">// Block: over as many lines as it likes, escapes and splices on, and</span>
+<span class="wf-tok-cmt">// the indentation the source gave it removed.</span>
+<span class="wf-tok-kw">const</span> name = <span class="wf-tok-str">&quot;Ada&quot;</span>
+<span class="wf-tok-kw">const</span> <span class="wf-tok-name">LETTER</span> = <span class="wf-tok-str">&quot;&quot;&quot;
     Dear {name},
       thank you.
-    &quot;&quot;&quot;                       // &quot;Dear Ada,\n  thank you.&quot;</code>
+    &quot;&quot;&quot;</span>                       <span class="wf-tok-cmt">// &quot;Dear Ada,\n  thank you.&quot;</span></code>
                             </div>
                             <div class="wf-markdown">
-<p>A raw string is for a sample of code, a regular expression, a Windows path — anything with quotes or braces in it. A block string is for a paragraph, a template, a query: the closing <code>&quot;&quot;&quot;</code> says how far the text was indented, and that much comes off every line.</p>
+<p>Use each form for a different kind of text:</p>
+<ul>
+<li>A <strong>raw string</strong> (<code>#&quot;…&quot;#</code>) suits a sample of code, a regular expression or a Windows path: anything full of quotes, braces or backslashes.</li>
+<li>A <strong>block string</strong> (<code>&quot;&quot;&quot;…&quot;&quot;&quot;</code>) suits a paragraph, a template or a query. The closing <code>&quot;&quot;&quot;</code> sets how far the text was indented, and the compiler removes that much from every line.</li>
+</ul>
                             </div>
+                            <h2 class="wf-heading" id="quick-reference">Quick reference</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Quick reference</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Syntax</th>
+                                        <th scope="col">Meaning</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>page Name(path: &quot;/…&quot;) { … }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A declaration: keyword, name, arguments, body</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>// …</code>, <code>/* … */</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Comments</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>/// …</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Documentation for the declaration, prop, event or member below</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>PascalCase</code>, <code>camelCase</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Declared names and elements; state, props, actions and flags</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.case</code>, <code>$token</code></p>
+                                            </div>
+                                        </td>
+                                        <td>An enum case; a design token</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>on click { … }</code>, <code>action save() { … }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Imperative blocks, where assignments go</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>a = 1; b = 2</code> or <code>a = 1  b = 2</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Two statements on one line</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.wf</code>, <code>.wfx</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Braced layout; indented layout (<a href="/docs/guide/grammar">grammar</a>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&quot;Hi, {name}&quot;</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A string with a live splice</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&quot;{total:.currency}&quot;</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A splice with a format</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>#&quot;…&quot;#</code>, <code>&quot;&quot;&quot;…&quot;&quot;&quot;</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A raw string; a block string</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                     <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
@@ -678,12 +836,13 @@ const LETTER = &quot;&quot;&quot;
                 <div class="wf-stack wf-gap--lg wf-sac91c322" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
-                        <a class="wf-link wf-s3e136ca4" href="#a-file-is-a-list-of-declarations">A file is a list of declarations</a>
+                        <a class="wf-link wf-s3e136ca4" href="#declarations">Declarations</a>
                         <a class="wf-link wf-s3e136ca4" href="#naming">Naming</a>
                         <a class="wf-link wf-s3e136ca4" href="#comments">Comments</a>
                         <a class="wf-link wf-s3e136ca4" href="#bodies">Bodies</a>
                         <a class="wf-link wf-s3e136ca4" href="#two-layouts-wf-and-wfx">Two layouts: .wf and .wfx</a>
                         <a class="wf-link wf-s3e136ca4" href="#strings">Strings</a>
+                        <a class="wf-link wf-s3e136ca4" href="#quick-reference">Quick reference</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-s614f8b98">

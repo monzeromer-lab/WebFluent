@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>State and reactivity</title>
-    <meta name="description" content="state, derived, effect, actions and let, persist, timers, clean-up, element handles and the browser&#x27;s values.">
+    <meta name="description" content="state, derived, effect, actions and let, persist, timers, automatic clean-up, element handles and the browser&#x27;s values.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/state">
     <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/state?lang=en">
     <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/state?lang=ar">
@@ -12,7 +12,7 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="State and reactivity">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="state, derived, effect, actions and let, persist, timers, clean-up, element handles and the browser&#x27;s values.">
+    <meta property="og:description" content="state, derived, effect, actions and let, persist, timers, automatic clean-up, element handles and the browser&#x27;s values.">
     <meta property="og:url" content="https://webfluent.monzeromer.dev/docs/guide/state">
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="ar_AR">
@@ -21,9 +21,9 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="State and reactivity">
-    <meta name="twitter:description" content="state, derived, effect, actions and let, persist, timers, clean-up, element handles and the browser&#x27;s values.">
+    <meta name="twitter:description" content="state, derived, effect, actions and let, persist, timers, automatic clean-up, element handles and the browser&#x27;s values.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/state#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/state","name":"State and reactivity","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"state, derived, effect, actions and let, persist, timers, clean-up, element handles and the browser's values."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/state#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"State and reactivity","item":"https://webfluent.monzeromer.dev/docs/guide/state"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/state#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/state","name":"State and reactivity","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"state, derived, effect, actions and let, persist, timers, automatic clean-up, element handles and the browser's values."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/state#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"State and reactivity","item":"https://webfluent.monzeromer.dev/docs/guide/state"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -69,6 +69,9 @@
             </div>
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
+                    <a class="wf-sidebar__item" href="/docs">
+                        <p class="wf-text">Overview</p>
+                    </a>
                     <p class="wf-text group-label">Start</p>
                     <a class="wf-sidebar__item" href="/docs/guide/introduction">
                         <p class="wf-text num">01</p>
@@ -274,20 +277,32 @@
                 </aside>
                 <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
-                        <a class="wf-link" href="/docs/guide/introduction">Guide</a>
+                        <a class="wf-link" href="/docs">Guide</a>
                         <p class="wf-text">/</p>
                         <p class="wf-text wf-s8c71c534">Chapter 8</p>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s28a8547f">
                         <h1 class="wf-heading wf-sa3503382">State and reactivity</h1>
-                        <p class="wf-text wf-sfd35f593">Reactivity here is fine-grained: a state is a signal, and only the thing that read it updates.</p>
+                        <p class="wf-text wf-sfd35f593">A state is a signal, and only what reads it updates: no tree re-renders, no subscriptions to manage.</p>
                     </div>
                     <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
-<p>WebFluent's reactivity is fine-grained: a <code>state</code> is a signal, and anything that reads it — a text, an attribute, a <code>derived</code> value, an <code>effect</code>, a style splice — follows it. There is no re-render of a tree; the thing that read the value is what updates.</p>
+<p>A <code>state</code> is a value the page can change. Anything that reads it — a text, an attribute, a <code>derived</code> value, an <code>effect</code>, a style splice — updates when it changes, and nothing else does. This is <em>fine-grained reactivity</em>: there is no re-render of a component tree, and you never subscribe or unsubscribe by hand.</p>
+<p>In this chapter:</p>
+<ul>
+<li><code>state</code>, <code>derived</code> and <code>effect</code> — the three kinds of reactive value</li>
+<li>actions and <code>let</code> locals — the code that changes state</li>
+<li><code>persist</code>, timers and element handles</li>
+<li>how the runtime cleans up after a page, a branch or a list item</li>
+<li>the browser's own values: <code>viewport</code>, <code>query</code>, <code>now</code> and the rest</li>
+<li>the mistakes people make, and where a name is looked up</li>
+</ul>
                             </div>
                             <h2 class="wf-heading" id="state">state</h2>
+                            <div class="wf-markdown">
+<p>You declare a state at the top of a page, component or store body, with an initial value. This counter shows the whole idea — one state, a text that reads it, and a button that writes it:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -295,24 +310,33 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Counter(path: &quot;/&quot;) {
-    state count = 0                  // inferred: Number
-    state name: String = &quot;&quot;          // declared
-    state items: [String] = []       // a list of strings
-    state selected: String? = null   // may be null
-    state user = { name: &quot;Sam&quot;, tags: [&quot;a&quot;] }   // a map literal: its fields are its type
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Counter</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Counter&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A state, read and written.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> count = <span class="wf-tok-num">0</span>                  <span class="wf-tok-cmt">// inferred: Number</span>
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">name</span>: <span class="wf-tok-name">String</span> = <span class="wf-tok-str">&quot;Sam&quot;</span>       <span class="wf-tok-cmt">// declared</span>
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">items</span>: [<span class="wf-tok-name">String</span>] = []       <span class="wf-tok-cmt">// a list of strings</span>
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">selected</span>: <span class="wf-tok-name">String</span>? = <span class="wf-tok-kw">null</span>   <span class="wf-tok-cmt">// may be null</span>
+    <span class="wf-tok-kw">state</span> user = { <span class="wf-tok-prop">name</span>: <span class="wf-tok-str">&quot;Sam&quot;</span>, <span class="wf-tok-prop">tags</span>: [<span class="wf-tok-str">&quot;admin&quot;</span>] }   <span class="wf-tok-cmt">// a map literal: its fields are its type</span>
 
-    Text(&quot;{name} has clicked {count} times&quot;)
-    Button(&quot;+&quot;) { on click { count = count + 1 } }
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Counter&quot;</span>).h1
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{name} has clicked {count} times&quot;</span>)
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;+1&quot;</span>) { <span class="wf-tok-kw">on</span> click { count = count + <span class="wf-tok-num">1</span> } }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>A <code>state</code> is declared at the top of a page, component or store body, with an initial value. Its type is read off the value, or written after a colon; <a href="/docs/guide/types">chapter 13</a> has the type language. Assigning a value of another type is an error (<code>T01</code>).</p>
-<p>State is written only in an imperative block — a handler, an action, an effect: <code>count = count + 1</code>, <code>user.name = &quot;Ann&quot;</code>, <code>items[0] = &quot;x&quot;</code>, or through a method that changes it in place (<code>items.push(&quot;x&quot;)</code>). The static paint seeds every state with its initial value, so a pre-rendered page shows what the first paint would.</p>
+<p>Each click sets <code>count</code>, and only the <code>Text</code> that reads it changes.</p>
+<p>The type of a state is read off its initial value, or written after a colon. <a href="/docs/guide/types">Types</a> has the type language. Assigning a value of another type is an error (<code>T01</code>).</p>
+<p>You write state only in an imperative block — a handler, an action or an effect. You can:</p>
+<ul>
+<li>assign it: <code>count = count + 1</code></li>
+<li>change a place inside it: <code>user.name = &quot;Ann&quot;</code>, <code>items[0] = &quot;Pen&quot;</code></li>
+<li>call a method that changes it: <code>items.push(&quot;Pen&quot;)</code>, <code>items.sort()</code></li>
+</ul>
+<p>A change inside a value gives the state a new copy with that place changed, so everything that reads it repaints, and a <code>persist</code> value is written.</p>
+<p>The <em>static paint</em> — the HTML the build pre-renders for a page — seeds every state with its initial value, so a pre-rendered page shows what the first paint in the browser would.</p>
                             </div>
                             <h2 class="wf-heading" id="derived">derived</h2>
                             <div class="wf-markdown">
-<p>A derived value is computed from state and recomputed when any state it read changes:</p>
+<p>A derived value is computed from state, and computed again when any state it read changes. This cart works out its subtotal, total and whether it is empty:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -321,24 +345,30 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Cart(path: &quot;/&quot;) {
-    state items = [{ name: &quot;Pen&quot;, price: 2.5, qty: 4 }, { name: &quot;Pad&quot;, price: 6, qty: 1 }]
-    state taxRate = 0.2
-    derived subtotal = items.reduce((sum, i) =&gt; sum + i.price * i.qty, 0)
-    derived total = subtotal * (1 + taxRate)
-    derived empty = items.length == 0
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Cart</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Cart&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Totals worked out from state.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> items = [{ <span class="wf-tok-prop">name</span>: <span class="wf-tok-str">&quot;Pen&quot;</span>, <span class="wf-tok-prop">price</span>: <span class="wf-tok-num">2.5</span>, <span class="wf-tok-prop">qty</span>: <span class="wf-tok-num">4</span> }, { <span class="wf-tok-prop">name</span>: <span class="wf-tok-str">&quot;Pad&quot;</span>, <span class="wf-tok-prop">price</span>: <span class="wf-tok-num">6</span>, <span class="wf-tok-prop">qty</span>: <span class="wf-tok-num">1</span> }]
+    <span class="wf-tok-kw">state</span> taxRate = <span class="wf-tok-num">0.2</span>
+    <span class="wf-tok-kw">derived</span> subtotal = items.reduce((sum, i) =&gt; sum + i.price * i.qty, <span class="wf-tok-num">0</span>)
+    <span class="wf-tok-kw">derived</span> total = subtotal * (<span class="wf-tok-num">1</span> + taxRate)
+    <span class="wf-tok-kw">derived</span> empty = items.length == <span class="wf-tok-num">0</span>
 
-    Text(&quot;Subtotal: {format(subtotal, .currency)}&quot;)
-    Text(&quot;Total: {format(total, .currency)}&quot;)
-    if empty { Text(&quot;Your cart is empty.&quot;).muted }
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Your cart&quot;</span>).h1
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Subtotal: {format(subtotal, .currency)}&quot;</span>)
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Total: {format(total, .currency)}&quot;</span>)
+    <span class="wf-tok-kw">if</span> empty { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Your cart is empty.&quot;</span>).muted }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>A derived value may read other derived values and call actions. It is never assigned to. It is seeded in the static paint from the initial state.</p>
+<p>The rules:</p>
+<ul>
+<li>A derived value may read state, other derived values and the browser's values, and may call an action that returns a value.</li>
+<li>It is never assigned to (<code>X01</code>), and an action it calls may not assign state (<code>X04</code>).</li>
+<li>The static paint seeds it from the initial state.</li>
+</ul>
                             </div>
                             <h2 class="wf-heading" id="effect">effect</h2>
                             <div class="wf-markdown">
-<p>An effect runs once, and again whenever a state it read changes. Its <code>cleanup { }</code> block runs before the next run and when the page (or the branch the effect lives in) leaves:</p>
+<p>An effect runs once, then again whenever a state it read changes. Its <code>cleanup { }</code> block runs before the next run, and when the page — or the branch the effect lives in — leaves:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -347,24 +377,34 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Watch(path: &quot;/&quot;) {
-    state search = &quot;&quot;
-    effect {
-        log(&quot;search is now {search}&quot;)
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Watch</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Watch&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Effects that follow a search.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> search = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">effect</span> {
+        <span class="wf-tok-kw">log</span>(<span class="wf-tok-str">&quot;search is now {search}&quot;</span>)
     }
-    effect {
-        document.title = &quot;Search: {search}&quot;
-        cleanup { document.title = &quot;Search&quot; }
+    <span class="wf-tok-kw">effect</span> {
+        document.title = <span class="wf-tok-str">&quot;Search: {search}&quot;</span>
+        <span class="wf-tok-kw">cleanup</span> { document.title = <span class="wf-tok-str">&quot;Search&quot;</span> }
     }
-    Input(bind: search, placeholder: &quot;Search&quot;)
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Watch&quot;</span>).h1
+    <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: search, <span class="wf-tok-prop">placeholder</span>: <span class="wf-tok-str">&quot;Search&quot;</span>)
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Use effects for the world outside the page — the document title, a third-party widget, a subscription. Keep computation in <code>derived</code>.</p>
+<p>Use an effect for the world outside the page: the document title, a third-party widget, a subscription. Keep computation in <code>derived</code>.</p>
+                            </div>
+                            <div class="wf-stack wf-gap--xs wf-s39f8973e callout" role="note" aria-label="Warning" data-kind="warning">
+                                <div class="wf-row wf-align--center wf-gap--xs callout-label">
+                                    <i class="wf-icon" data-icon="warning"></i>
+                                    <p class="wf-text">Warning</p>
+                                </div>
+                                <div class="wf-markdown">
+<p>An effect that writes what it reads — <code>effect { n = n + 1 }</code> — starts its own next run and never settles. The compiler refuses it (<code>X02</code>). Compute the value with <code>derived</code> instead.</p>
+                                </div>
                             </div>
                             <h2 class="wf-heading" id="actions-and-locals">Actions and locals</h2>
                             <div class="wf-markdown">
-<p>An action is a named function of the page, component or store. Its body is an imperative block: assignments, <code>let</code> locals, calls, <code>if</code>, <code>for</code>, <code>try</code>, <code>return</code>, <code>await</code>.</p>
+<p>An action is a named function of a page, component or store. Its body is an imperative block: assignments, <code>let</code> locals, calls, <code>if</code>, <code>for</code>, <code>try</code>, <code>return</code> and <code>await</code>. This to-do list adds, removes and loads items with three actions:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -373,45 +413,49 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Todos(path: &quot;/&quot;) {
-    state items: [String] = []
-    state draft = &quot;&quot;
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Todos</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;To-dos&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Actions that change a list.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">items</span>: [<span class="wf-tok-name">String</span>] = []
+    <span class="wf-tok-kw">state</span> draft = <span class="wf-tok-str">&quot;&quot;</span>
 
-    action add() {
-        let text = draft.trim()
-        if text == &quot;&quot; { return }
+    <span class="wf-tok-kw">action</span> add() {
+        <span class="wf-tok-kw">let</span> text = draft.trim()
+        <span class="wf-tok-kw">if</span> text == <span class="wf-tok-str">&quot;&quot;</span> { <span class="wf-tok-kw">return</span> }
         items.push(text)
-        draft = &quot;&quot;
+        draft = <span class="wf-tok-str">&quot;&quot;</span>
     }
 
-    action remove(index: Number) {
+    <span class="wf-tok-kw">action</span> remove(<span class="wf-tok-prop">index</span>: <span class="wf-tok-name">Number</span>) {
         items = items.filter((_, i) =&gt; i != index)
     }
 
-    action load() {
-        let r = await fetch(&quot;/api/todos&quot;)
-        let { todos } = r
+    <span class="wf-tok-kw">action</span> load() {
+        <span class="wf-tok-kw">let</span> r = <span class="wf-tok-kw">await</span> fetch(<span class="wf-tok-str">&quot;/api/todos&quot;</span>)
+        <span class="wf-tok-kw">let</span> { todos } = r
         items = todos
     }
 
-    Input(bind: draft, placeholder: &quot;What needs doing?&quot;) { on keydown(e) { if e.key == &quot;Enter&quot; { add() } } }
-    Button(&quot;Add&quot;).primary { on click { add() } }
-    for item, i in items {
-        Row { Text(item)  IconButton(icon: &quot;trash&quot;, label: &quot;Remove&quot;) { on click { remove(i) } } }
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;To-dos&quot;</span>).h1
+    <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: draft, <span class="wf-tok-prop">placeholder</span>: <span class="wf-tok-str">&quot;What needs doing?&quot;</span>) { <span class="wf-tok-kw">on</span> keydown(e) { <span class="wf-tok-kw">if</span> e.key == <span class="wf-tok-str">&quot;Enter&quot;</span> { add() } } }
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Add&quot;</span>).primary { <span class="wf-tok-kw">on</span> click { add() } }
+    <span class="wf-tok-kw">for</span> item, i <span class="wf-tok-kw">in</span> items {
+        <span class="wf-tok-name">Row</span> { <span class="wf-tok-name">Text</span>(item)  <span class="wf-tok-name">IconButton</span>(<span class="wf-tok-prop">icon</span>: <span class="wf-tok-str">&quot;trash&quot;</span>, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Remove&quot;</span>) { <span class="wf-tok-kw">on</span> click { remove(i) } } }
     }
 }</code>
                             </div>
                             <div class="wf-markdown">
+<p>What an action's body can hold:</p>
 <ul>
-<li><code>let x = …</code> declares a local of the action (or handler). <code>let { a, b } = m</code> and <code>let [x, y] = l</code> destructure.</li>
-<li><code>await</code> inside an action makes it asynchronous; <code>name.pending</code> is <code>true</code> while a call of it runs (<a href="/docs/guide/forms#pending-actions">chapter 16</a>).</li>
-<li><code>for item in list { }</code>, <code>for item, i in list { }</code> and <code>for n in 1..=10 { }</code> loop; <code>try { } catch e { }</code> guards a call that may fail; <code>return x</code> leaves with a value.</li>
-<li>A page's action is called by name, <code>add()</code>; a store's through the store, <code>Todos.add()</code>.</li>
+<li><strong>Locals.</strong> <code>let x = …</code> declares a local of the action or handler. <code>let { a, b } = m</code> and <code>let [x, y] = l</code> destructure a map and a list.</li>
+<li><strong><code>await</code>.</strong> Using it makes the action asynchronous, and <code>name.pending</code> is <code>true</code> while a call of it runs (<a href="/docs/guide/forms#show-that-a-request-is-running">Forms</a>).</li>
+<li><strong>Loops.</strong> <code>for item in list { }</code>, <code>for item, i in list { }</code> and <code>for n in 1..=10 { }</code>.</li>
+<li><strong>Errors.</strong> <code>try { } catch e { }</code> guards a call that may fail.</li>
+<li><strong><code>return</code>.</strong> <code>return</code> leaves the action; <code>return x</code> leaves with a value.</li>
 </ul>
+<p>You call a page's action by name, <code>add()</code>, and a store's through the store, <code>Todos.add()</code>.</p>
                             </div>
                             <h2 class="wf-heading" id="persist">persist</h2>
                             <div class="wf-markdown">
-<p><code>persist</code> is a <code>state</code> kept in the browser's storage across visits. It is read back on the next visit and written on every change:</p>
+<p><code>persist</code> declares a state kept in the browser's storage across visits. It is read back on the next visit and written on every change. These two preferences survive a reload:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -420,22 +464,29 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Prefs(path: &quot;/&quot;) {
-    persist scheme = &quot;light&quot;
-    persist perPage = 20
-    Select(bind: scheme, label: &quot;Theme&quot;) {
-        Select.Option(&quot;Light&quot;, value: &quot;light&quot;)
-        Select.Option(&quot;Dark&quot;, value: &quot;dark&quot;)
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Prefs</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Preferences&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Settings kept across visits.&quot;</span>) {
+    <span class="wf-tok-kw">persist</span> scheme = <span class="wf-tok-str">&quot;light&quot;</span>
+    <span class="wf-tok-kw">persist</span> perPage = <span class="wf-tok-num">20</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Preferences&quot;</span>).h1
+    <span class="wf-tok-name">Select</span>(<span class="wf-tok-prop">bind</span>: scheme, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Theme&quot;</span>) {
+        <span class="wf-tok-name">Select</span>.<span class="wf-tok-name">Option</span>(<span class="wf-tok-str">&quot;Light&quot;</span>, <span class="wf-tok-prop">value</span>: <span class="wf-tok-str">&quot;light&quot;</span>)
+        <span class="wf-tok-name">Select</span>.<span class="wf-tok-name">Option</span>(<span class="wf-tok-str">&quot;Dark&quot;</span>, <span class="wf-tok-prop">value</span>: <span class="wf-tok-str">&quot;dark&quot;</span>)
     }
-    Slider(bind: perPage, min: 10, max: 100, step: 10, label: &quot;Rows per page&quot;)
+    <span class="wf-tok-name">Slider</span>(<span class="wf-tok-prop">bind</span>: perPage, <span class="wf-tok-prop">min</span>: <span class="wf-tok-num">10</span>, <span class="wf-tok-prop">max</span>: <span class="wf-tok-num">100</span>, <span class="wf-tok-prop">step</span>: <span class="wf-tok-num">10</span>, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Rows per page&quot;</span>)
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>A <code>persist</code> may say more about itself — which storage, a version with migrations, whether to follow other tabs — in a block after it; that and the rest of the policy are in <a href="/docs/guide/stores#keeping-a-value-across-visits">Stores</a>. It works in a store too, where every page shares it. The key is the owner's name and the state's (<code>Prefs.theme</code>), so a page and a store may each have a <code>theme</code>. Storage that is blocked or full falls back to the initial value.</p>
+<p>How it behaves:</p>
+<ul>
+<li>The storage key is the owner's name and the state's (<code>Prefs.scheme</code>), so a page and a store may each have a value of the same name.</li>
+<li>It works in a store too, where every page shares it.</li>
+<li>When storage is blocked or full, the value falls back to its initial value.</li>
+<li>A block after the declaration can say which storage to use, give a version with migrations, and choose whether to follow other tabs. That block and the rest of the policy are in <a href="/docs/guide/stores#keeping-a-value-across-visits">Stores</a>.</li>
+</ul>
                             </div>
                             <h2 class="wf-heading" id="timers">Timers</h2>
                             <div class="wf-markdown">
-<p><code>every(ms) { }</code> repeats; <code>after(ms) { }</code> fires once. The interval is a number of milliseconds, or a duration: <code>every(5.seconds)</code>, <code>after(2.minutes)</code>. Both stop when what declared them leaves the page — a branch that closes, a list item that is removed, a route that changes:</p>
+<p><code>every(ms) { }</code> repeats, and <code>after(ms) { }</code> fires once. The interval is a number of milliseconds or a duration: <code>every(5.seconds)</code>, <code>after(2.minutes)</code>. This page counts the seconds it has been open and hides a welcome message after three:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -444,22 +495,31 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Clock(path: &quot;/&quot;) {
-    state seconds = 0
-    state toast: String? = &quot;Welcome&quot;
-    every(1000) { seconds = seconds + 1 }
-    after(3000) { toast = null }
-    Text(&quot;{seconds}s on this page&quot;)
-    if let message = toast { Alert(message).info }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Clock</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Clock&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A timer and a one-off delay.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> seconds = <span class="wf-tok-num">0</span>
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">toast</span>: <span class="wf-tok-name">String</span>? = <span class="wf-tok-str">&quot;Welcome&quot;</span>
+    <span class="wf-tok-kw">every</span>(<span class="wf-tok-num">1000</span>) { seconds = seconds + <span class="wf-tok-num">1</span> }
+    <span class="wf-tok-kw">after</span>(<span class="wf-tok-num">3000</span>) { toast = <span class="wf-tok-kw">null</span> }
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Clock&quot;</span>).h1
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{seconds}s on this page&quot;</span>)
+    <span class="wf-tok-kw">if</span> <span class="wf-tok-kw">let</span> message = toast { <span class="wf-tok-name">Alert</span>(message).info }
 }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Both stop when what declared them leaves the page: a branch that closes, a list item that is removed, a route that changes.</p>
                             </div>
                             <h2 class="wf-heading" id="automatic-clean-up">Automatic clean-up</h2>
                             <div class="wf-markdown">
-<p>Everything a body creates — effects, timers, listeners, handles — belongs to the scope it was created in. When that scope's nodes leave (an <code>if</code> branch turns false, an item drops out of a <code>for</code>, a <code>match</code> arm changes, a route changes), the runtime disposes of them: intervals are cleared, effects fall silent, cleanups run. You never unsubscribe by hand.</p>
+<p>Everything a body creates — effects, timers, listeners, element handles — belongs to the <em>scope</em> it was created in: the page, branch, list item, <code>match</code> arm or slot whose nodes it sits among. When that scope's nodes leave, the runtime disposes of what it created:</p>
+<ul>
+<li>an <code>if</code> branch turns false, an item drops out of a <code>for</code>, a <code>match</code> arm changes, or the route changes;</li>
+<li>intervals are cleared, effects stop running, and <code>cleanup { }</code> blocks run.</li>
+</ul>
+<p>You never unsubscribe by hand.</p>
                             </div>
                             <h2 class="wf-heading" id="element-handles">Element handles</h2>
                             <div class="wf-markdown">
-<p><code>ref: name</code> on an element gives you a handle, read as the element itself:</p>
+<p><code>ref: name</code> on an element gives you a <em>handle</em>: a name that reads as the element itself. Here a button and the <code>/</code> key both put the cursor in the search box:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -468,20 +528,21 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Search(path: &quot;/&quot;) {
-    state q = &quot;&quot;
-    Input(bind: q, ref: box, placeholder: &quot;Search&quot;)
-    Button(&quot;Focus the box&quot;) { on click { box.focus() } }
-    Button(&quot;Clear&quot;) { on click { q = &quot;&quot;  box.focus() } }
-    on key(&quot;/&quot;) { box.focus() }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Search</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Search&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A handle on an input.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> q = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Search&quot;</span>).h1
+    <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: q, <span class="wf-tok-prop">ref</span>: box, <span class="wf-tok-prop">placeholder</span>: <span class="wf-tok-str">&quot;Search&quot;</span>)
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Focus the box&quot;</span>) { <span class="wf-tok-kw">on</span> click { box.focus() } }
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Clear&quot;</span>) { <span class="wf-tok-kw">on</span> click { q = <span class="wf-tok-str">&quot;&quot;</span>  box.focus() } }
+    <span class="wf-tok-kw">on</span> key(<span class="wf-tok-str">&quot;/&quot;</span>) { box.focus() }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>The name is declared by its use; <code>box.value</code>, <code>box.scrollIntoView()</code>, anything the element has.</p>
+<p>The <code>ref:</code> declares the name; you do not declare it anywhere else. Anything the element has is there: <code>box.value</code>, <code>box.scrollIntoView()</code>.</p>
                             </div>
                             <h2 class="wf-heading" id="the-browser-as-values">The browser as values</h2>
                             <div class="wf-markdown">
-<p>Some names are always in scope, kept current by the runtime, so a page reads the browser the way it reads its own state:</p>
+<p>Some names are always in scope and kept current by the runtime, so a page reads the browser the way it reads its own state:</p>
                             </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">The browser as values</caption>
@@ -574,7 +635,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>.online</code>, <code>.effectiveType</code>, <code>.saveData</code>, <code>.downlink</code>, <code>.queued</code> (<a href="/docs/guide/realtime#the-network-as-a-value">Real-time</a>)</p>
+<p><code>.online</code>, <code>.effectiveType</code>, <code>.saveData</code>, <code>.downlink</code>, <code>.queued</code> (<a href="/docs/guide/realtime#show-what-the-network-is-doing">Real-time</a>)</p>
                                             </div>
                                         </td>
                                         <td>the connection changes</td>
@@ -611,6 +672,9 @@
                                     </tr>
                                 </tbody>
                             </table>
+                            <div class="wf-markdown">
+<p>This page reads four of them:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -618,39 +682,178 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Where(path: &quot;/&quot;, title: &quot;Where&quot;, description: &quot;The browser, read as values.&quot;) {
-    Heading(&quot;Where am I?&quot;).h1
-    Text(if viewport.md { &quot;A wide window&quot; } else { &quot;A narrow window&quot; })
-    derived tab = query.tab ?? &quot;all&quot;
-    Text(&quot;Tab: {tab}, section: {hash}&quot;)
-    Text(&quot;Theme: {theme}&quot;)
-    if !network.online { Alert(&quot;You are offline.&quot;).warning }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Where</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Where&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;The browser, read as values.&quot;</span>) {
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Where am I?&quot;</span>).h1
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-kw">if</span> viewport.md { <span class="wf-tok-str">&quot;A wide window&quot;</span> } <span class="wf-tok-kw">else</span> { <span class="wf-tok-str">&quot;A narrow window&quot;</span> })
+    <span class="wf-tok-kw">derived</span> tab = query.tab ?? <span class="wf-tok-str">&quot;all&quot;</span>
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Tab: {tab}, section: {hash}&quot;</span>)
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Theme: {theme}&quot;</span>)
+    <span class="wf-tok-kw">if</span> !network.online { <span class="wf-tok-name">Alert</span>(<span class="wf-tok-str">&quot;You are offline.&quot;</span>).warning }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Breakpoints are the <code>screen-sm</code> … <code>screen-xl</code> design tokens — 640, 768, 1024 and 1280px unless a theme moves them. A <code>state</code> you declare with one of these names shadows it. In the static paint they are unknown, so what depends on them is drawn once the page is live — for layout, prefer <a href="/docs/guide/styling#responsive-values">responsive values</a>, which are right in the first paint.</p>
+<p>The rules:</p>
+<ul>
+<li>The breakpoints are the <code>screen-sm</code> … <code>screen-xl</code> design tokens: 640, 768, 1024 and 1280px unless a theme moves them.</li>
+<li>A <code>state</code> you declare with one of these names shadows it.</li>
+<li>The static paint does not know them, so what depends on them is drawn once the page is live. For layout, prefer <a href="/docs/guide/styling#responsive-values">responsive values</a>, which are right in the first paint.</li>
+</ul>
                             </div>
                             <h2 class="wf-heading" id="common-mistakes">Common mistakes</h2>
                             <div class="wf-markdown">
 <ul>
-<li><strong>Writing state in a <code>derived</code>.</strong> A derived value computes; it never assigns. Put the assignment in an action or an <code>effect</code>.</li>
-<li><strong>An effect that writes what it reads.</strong> <code>effect { n = n + 1 }</code> reads <code>n</code>, so it runs again, forever. Compute it with <code>derived</code> instead.</li>
-<li><strong>Mutating a list and expecting a copy.</strong> <code>items.push(x)</code> changes <code>items</code> in place and notifies its readers; <code>let copy = items</code> is the same list. Use <code>items.slice()</code> or <code>[...items]</code> for a copy.</li>
-<li><strong>Reading an element handle during set-up.</strong> A <code>ref:</code> is filled once the element exists; read it in a handler, an <code>effect</code> or <code>after(0) { }</code>.</li>
-<li><strong>Expecting a component to re-run.</strong> A component's body runs once. A value that should follow a prop or a state is a <code>derived</code>, or an expression written where it is shown.</li>
-<li><strong>Copying a browser value into a <code>state</code>.</strong> <code>state clock = now(every: 1.seconds)</code> takes the time once, when the page opens, and keeps it — every &quot;… ago&quot; worked out from it stays where it started. <code>derived clock = now(every: 1.seconds)</code> ticks. The same holds for <code>viewport</code>, <code>query</code>, <code>hash</code>, <code>theme</code>, <code>network</code> and <code>update</code>; the compiler says so (<code>X06</code>) for a state nothing changes.</li>
+<li><strong>Writing state in a <code>derived</code>.</strong> A derived value computes; it never assigns, and an action it calls may not either (<code>X04</code>). Put the assignment in an action or an <code>effect</code>.</li>
+<li><strong>An effect that writes what it reads.</strong> <code>effect { n = n + 1 }</code> reads <code>n</code>, so it would run again forever (<code>X02</code>). Compute the value with <code>derived</code>.</li>
+<li><strong>Changing a local copy and expecting the state to change.</strong> <code>items.push(x)</code> on a state gives it a new list, and its readers repaint. A <code>let</code> is the action's own: after <code>let list = items</code>, <code>list.push(x)</code> changes <code>list</code> and leaves <code>items</code> as it was. Assign it back with <code>items = list</code>.</li>
+<li><strong>Reading an element handle during set-up.</strong> A <code>ref:</code> is filled once the element exists. Read it in a handler, an <code>effect</code> or <code>after(0) { }</code>.</li>
+<li><strong>Expecting a component to run again.</strong> A component's body runs once. A value that should follow a prop or a state is a <code>derived</code>, or an expression written where it is shown.</li>
+<li><strong>Copying a browser value into a <code>state</code>.</strong> <code>state clock = now(every: 1.seconds)</code> takes the time once, when the page opens, and keeps it — every &quot;… ago&quot; worked out from it stays where it started. <code>derived clock = now(every: 1.seconds)</code> ticks. The same holds for <code>viewport</code>, <code>query</code>, <code>hash</code>, <code>theme</code>, <code>network</code> and <code>update</code>; the compiler warns (<code>X06</code>) about a state nothing changes.</li>
 </ul>
                             </div>
                             <h2 class="wf-heading" id="where-values-come-from-in-order">Where values come from, in order</h2>
                             <div class="wf-markdown">
+<p>When a body reads a name, it is looked up in this order:</p>
 <ol>
 <li>Route parameters and props (<code>slug</code>, <code>_ label</code>).</li>
-<li><code>state</code>, <code>persist</code>, <code>derived</code>, <code>resource</code>, actions of the body.</li>
+<li><code>state</code>, <code>persist</code>, <code>derived</code>, <code>resource</code> and actions of the body.</li>
 <li>A <code>use</code>d store's members, through the store's name (<code>Cart.total</code>).</li>
-<li>Loop variables and arm bindings inside their block.</li>
+<li>Loop variables and arm bindings, inside their block.</li>
 <li>Constants, <code>data</code> and <code>image</code> declarations, <code>env.X</code>, and the browser's values above.</li>
 <li>Browser globals: <code>window</code>, <code>document</code>, <code>localStorage</code>, <code>JSON</code>, <code>Math</code>, <code>Date</code>, <code>fetch</code>, <code>setTimeout</code>, <code>console</code>, <code>navigator</code>, <code>location</code>.</li>
 </ol>
+                            </div>
+                            <h2 class="wf-heading" id="summary">Summary</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Summary</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">You write</th>
+                                        <th scope="col">It is</th>
+                                        <th scope="col">Section</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>state count = 0</code></p>
+                                            </div>
+                                        </td>
+                                        <td>a value the page changes; its readers update</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#state"><code>state</code></a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>derived total = …</code></p>
+                                            </div>
+                                        </td>
+                                        <td>a value computed from state, never assigned</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#derived"><code>derived</code></a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>effect { … cleanup { … } }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>code that runs when what it read changes</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#effect"><code>effect</code></a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>action add() { … }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>a named function that changes state</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#actions-and-locals">Actions and locals</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>let x = …</code></p>
+                                            </div>
+                                        </td>
+                                        <td>a local of an action or handler</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#actions-and-locals">Actions and locals</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>persist scheme = &quot;light&quot;</code></p>
+                                            </div>
+                                        </td>
+                                        <td>a state kept across visits</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#persist"><code>persist</code></a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>every(1000) { … }</code>, <code>after(3000) { … }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>a repeating timer and a one-off delay</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#timers">Timers</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>ref: box</code></p>
+                                            </div>
+                                        </td>
+                                        <td>a handle on an element</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#element-handles">Element handles</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>viewport</code>, <code>query</code>, <code>hash</code>, <code>theme</code>, <code>now</code>, <code>network</code>, <code>update</code>, <code>locale</code>, <code>dir</code></p>
+                                            </div>
+                                        </td>
+                                        <td>the browser, read as values</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#the-browser-as-values">The browser as values</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p><a href="/docs/guide/grammar">Grammar</a> and <a href="/docs/guide/built-ins">Built-in functions</a> are the reference for each.</p>
                             </div>
                         </div>
                     </div>
@@ -679,6 +882,7 @@
                         <a class="wf-link wf-s3e136ca4" href="#the-browser-as-values">The browser as values</a>
                         <a class="wf-link wf-s3e136ca4" href="#common-mistakes">Common mistakes</a>
                         <a class="wf-link wf-s3e136ca4" href="#where-values-come-from-in-order">Where values come from, in order</a>
+                        <a class="wf-link wf-s3e136ca4" href="#summary">Summary</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-s614f8b98">

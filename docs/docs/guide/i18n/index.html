@@ -23,7 +23,7 @@
     <meta name="twitter:title" content="Internationalisation">
     <meta name="twitter:description" content="Translation files, t() with placeholders and plurals, choosing and switching the locale, right-to-left, and locale-aware formatting.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/i18n#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/i18n","name":"Internationalisation","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Translation files, t() with placeholders and plurals, choosing and switching the locale, right-to-left, and locale-aware formatting."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/i18n#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Internationalisation","item":"https://webfluent.monzeromer.dev/docs/guide/i18n"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/i18n#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/i18n","name":"Internationalisation","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Translation files, t() with placeholders and plurals, choosing and switching the locale, right-to-left, and locale-aware formatting."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/i18n#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Internationalisation","item":"https://webfluent.monzeromer.dev/docs/guide/i18n"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -69,6 +69,9 @@
             </div>
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
+                    <a class="wf-sidebar__item" href="/docs">
+                        <p class="wf-text">Overview</p>
+                    </a>
                     <p class="wf-text group-label">Start</p>
                     <a class="wf-sidebar__item" href="/docs/guide/introduction">
                         <p class="wf-text num">01</p>
@@ -274,22 +277,31 @@
                 </aside>
                 <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
-                        <a class="wf-link" href="/docs/guide/introduction">Guide</a>
+                        <a class="wf-link" href="/docs">Guide</a>
                         <p class="wf-text">/</p>
                         <p class="wf-text wf-s8c71c534">Chapter 21</p>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s28a8547f">
                         <h1 class="wf-heading wf-sa3503382">Internationalisation</h1>
-                        <p class="wf-text wf-sfd35f593">One JSON file per locale, t() to read it, and a switch that flips the whole site — direction included.</p>
+                        <p class="wf-text wf-sfd35f593">Keep one JSON file per locale, read it with t(), and switch the whole site&#x27;s language — and its direction — at once.</p>
                     </div>
                     <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
-<p>A site speaks several languages by keeping its text in one JSON file per locale and reading it with <code>t(&quot;key&quot;)</code>. Switching the locale re-renders every translated string, flips the document to right-to-left where the language reads that way, and changes how <code>format</code> and <code>ago</code> spell numbers and dates.</p>
+<p>This chapter shows you how to make your site speak several languages. You keep its text in one JSON file per <em>locale</em> — a language, and optionally a region, named by a tag such as <code>en</code>, <code>ar</code> or <code>pt-BR</code> — and read it with <code>t(&quot;key&quot;)</code>. Switching the locale redraws every translated string, turns the document right to left where the language reads that way, and changes how <code>format</code> and <code>ago</code> write numbers and dates.</p>
+<p>In this chapter you will:</p>
+<ul>
+<li>set up the translation files, or start a project already translated;</li>
+<li>translate text with <code>t()</code>, with placeholders and plural forms;</li>
+<li>translate a project by the words it is written in;</li>
+<li>switch the locale, and choose the one a page opens in;</li>
+<li>format numbers and dates for the reader's locale;</li>
+<li>check what each locale lacks.</li>
+</ul>
                             </div>
-                            <h2 class="wf-heading" id="setting-up">Setting up</h2>
+                            <h2 class="wf-heading" id="set-up-the-translation-files">Set up the translation files</h2>
                             <div class="wf-markdown">
-<p>In <code>webfluent.app.json</code>:</p>
+<p>To translate a site, list its locales in <code>webfluent.app.json</code> under <code>i18n</code>. <code>default_locale</code> names the language the site is written in, and <code>dir</code> the directory that holds the files:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -299,15 +311,15 @@
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{
-  &quot;i18n&quot;: {
-    &quot;default_locale&quot;: &quot;en&quot;,
-    &quot;locales&quot;: [&quot;en&quot;, &quot;ar&quot;, &quot;es&quot;],
-    &quot;dir&quot;: &quot;src/translations&quot;
+  <span class="wf-tok-prop">&quot;i18n&quot;</span>: {
+    <span class="wf-tok-prop">&quot;default_locale&quot;</span>: <span class="wf-tok-str">&quot;en&quot;</span>,
+    <span class="wf-tok-prop">&quot;locales&quot;</span>: [<span class="wf-tok-str">&quot;en&quot;</span>, <span class="wf-tok-str">&quot;ar&quot;</span>, <span class="wf-tok-str">&quot;es&quot;</span>],
+    <span class="wf-tok-prop">&quot;dir&quot;</span>: <span class="wf-tok-str">&quot;src/translations&quot;</span>
   }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>One file per locale in that directory, flat keys with dots by convention:</p>
+<p>Then put one file per locale in that directory — <code>en.json</code>, <code>ar.json</code>, <code>es.json</code>. Each is a flat map of keys to messages; by convention a key has dots in it to group related messages. This is <code>src/translations/en.json</code>:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -317,38 +329,44 @@
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{
-  &quot;nav.home&quot;: &quot;Home&quot;,
-  &quot;nav.about&quot;: &quot;About&quot;,
-  &quot;welcome&quot;: &quot;Welcome, {name}!&quot;,
-  &quot;items.one&quot;: &quot;{count} item&quot;,
-  &quot;items.other&quot;: &quot;{count} items&quot;,
-  &quot;actions.save&quot;: &quot;Save&quot;
-}</code>
-                            </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">json</p>
-                                    </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
-                                </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">{
-  &quot;nav.home&quot;: &quot;الرئيسية&quot;,
-  &quot;nav.about&quot;: &quot;حول&quot;,
-  &quot;welcome&quot;: &quot;أهلاً، {name}!&quot;,
-  &quot;items.zero&quot;: &quot;لا عناصر&quot;,
-  &quot;items.one&quot;: &quot;عنصر واحد&quot;,
-  &quot;items.two&quot;: &quot;عنصران&quot;,
-  &quot;items.few&quot;: &quot;{count} عناصر&quot;,
-  &quot;items.many&quot;: &quot;{count} عنصراً&quot;,
-  &quot;items.other&quot;: &quot;{count} عنصر&quot;,
-  &quot;actions.save&quot;: &quot;حفظ&quot;
+  <span class="wf-tok-prop">&quot;nav.home&quot;</span>: <span class="wf-tok-str">&quot;Home&quot;</span>,
+  <span class="wf-tok-prop">&quot;nav.about&quot;</span>: <span class="wf-tok-str">&quot;About&quot;</span>,
+  <span class="wf-tok-prop">&quot;welcome&quot;</span>: <span class="wf-tok-str">&quot;Welcome, {name}!&quot;</span>,
+  <span class="wf-tok-prop">&quot;items.one&quot;</span>: <span class="wf-tok-str">&quot;{count} item&quot;</span>,
+  <span class="wf-tok-prop">&quot;items.other&quot;</span>: <span class="wf-tok-str">&quot;{count} items&quot;</span>,
+  <span class="wf-tok-prop">&quot;actions.save&quot;</span>: <span class="wf-tok-str">&quot;Save&quot;</span>
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>A missing file is a build warning; a key missing from a locale falls back to the default locale, then to the key itself.</p>
+<p>And this is <code>src/translations/ar.json</code>, with the six plural forms Arabic uses:</p>
                             </div>
-                            <h2 class="wf-heading" id="starting-translated">Starting translated</h2>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{
+  <span class="wf-tok-prop">&quot;nav.home&quot;</span>: <span class="wf-tok-str">&quot;الرئيسية&quot;</span>,
+  <span class="wf-tok-prop">&quot;nav.about&quot;</span>: <span class="wf-tok-str">&quot;حول&quot;</span>,
+  <span class="wf-tok-prop">&quot;welcome&quot;</span>: <span class="wf-tok-str">&quot;أهلاً، {name}!&quot;</span>,
+  <span class="wf-tok-prop">&quot;items.zero&quot;</span>: <span class="wf-tok-str">&quot;لا عناصر&quot;</span>,
+  <span class="wf-tok-prop">&quot;items.one&quot;</span>: <span class="wf-tok-str">&quot;عنصر واحد&quot;</span>,
+  <span class="wf-tok-prop">&quot;items.two&quot;</span>: <span class="wf-tok-str">&quot;عنصران&quot;</span>,
+  <span class="wf-tok-prop">&quot;items.few&quot;</span>: <span class="wf-tok-str">&quot;{count} عناصر&quot;</span>,
+  <span class="wf-tok-prop">&quot;items.many&quot;</span>: <span class="wf-tok-str">&quot;{count} عنصراً&quot;</span>,
+  <span class="wf-tok-prop">&quot;items.other&quot;</span>: <span class="wf-tok-str">&quot;{count} عنصر&quot;</span>,
+  <span class="wf-tok-prop">&quot;actions.save&quot;</span>: <span class="wf-tok-str">&quot;حفظ&quot;</span>
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A locale with no file, and a key one locale has and another lacks, are build warnings (<code>I03</code>). At run time a key missing from the reader's locale falls back to the default locale's message, then to the key itself.</p>
+                            </div>
+                            <h2 class="wf-heading" id="start-a-project-translated">Start a project translated</h2>
+                            <div class="wf-markdown">
+<p>To begin a new project in several languages, pass <code>--locales</code> to <code>wf init</code>, with the default locale first:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -356,12 +374,22 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>wf init my-app --locales en,ar</code>
                             </div>
                             <div class="wf-markdown">
-<p>starts a project — <code>spa</code> or <code>static</code> — in those languages, the first the default: the <code>i18n</code> config above, <code>meta.lang</code> the default, every visible string through <code>t(&quot;…&quot;)</code>, a language switch with one entry per locale, and a file for each in <code>src/translations/</code>. The default's holds the starter's English, which its pages and tests are written in; Arabic holds the starter's Arabic; any other locale starts as the same English, for you to translate. Each locale is a language tag (<code>en</code>, <code>ar</code>, <code>pt-BR</code>); <code>--locales ar,en</code> makes Arabic the default, so the page is right to left from the first paint. From a program it is <code>webfluent::init::create_with(dir, name, &amp;Options { template, locales })</code>.</p>
+<p>This works for the <code>spa</code> and <code>static</code> templates. The new project has:</p>
+<ul>
+<li>the <code>i18n</code> config above, and <code>meta.lang</code> set to the default locale;</li>
+<li>every visible string of the starter passed through <code>t(&quot;…&quot;)</code>;</li>
+<li>a language switch with one entry per locale;</li>
+<li>a file for each locale in <code>src/translations/</code>. The default locale's holds the starter's English, which its pages and tests are written in. Arabic holds the starter's Arabic. Any other locale starts as a copy of the English, for you to translate.</li>
+</ul>
+<p>Each locale is a language tag (<code>en</code>, <code>ar</code>, <code>pt-BR</code>). <code>--locales ar,en</code> makes Arabic the default, so the page is right to left from the first paint. From Rust, the same is <code>webfluent::init::create_with(dir, name, &amp;Options { template, locales })</code>.</p>
                             </div>
-                            <h2 class="wf-heading" id="t-key">t(&quot;key&quot;)</h2>
+                            <h2 class="wf-heading" id="translate-text-with-t">Translate text with t()</h2>
+                            <div class="wf-markdown">
+<p>To show a message in the reader's language, call <code>t(&quot;key&quot;)</code> wherever a string goes. Pass a map as the second argument to fill placeholders and to pick a plural form:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -369,26 +397,52 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">type User { name: String }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">User</span> { <span class="wf-tok-prop">name</span>: <span class="wf-tok-name">String</span> }
 
-page Home(path: &quot;/&quot;, title: &quot;Home&quot;, description: &quot;The home page.&quot;) {
-    state user = User(name: &quot;Sam&quot;)
-    state items: [String] = [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]
-    Heading(t(&quot;welcome&quot;, { name: user.name })).h1
-    Text(t(&quot;items&quot;, { count: items.length }))
-    Button(t(&quot;actions.save&quot;)).primary
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Home</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Home&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;The home page.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> user = <span class="wf-tok-name">User</span>(<span class="wf-tok-prop">name</span>: <span class="wf-tok-str">&quot;Sam&quot;</span>)
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">items</span>: [<span class="wf-tok-name">String</span>] = [<span class="wf-tok-str">&quot;a&quot;</span>, <span class="wf-tok-str">&quot;b&quot;</span>, <span class="wf-tok-str">&quot;c&quot;</span>]
+    <span class="wf-tok-name">Heading</span>(t(<span class="wf-tok-str">&quot;welcome&quot;</span>, { <span class="wf-tok-prop">name</span>: user.name })).h1
+    <span class="wf-tok-name">Text</span>(t(<span class="wf-tok-str">&quot;items&quot;</span>, { <span class="wf-tok-prop">count</span>: items.length }))
+    <span class="wf-tok-name">Button</span>(t(<span class="wf-tok-str">&quot;actions.save&quot;</span>)).primary
 }</code>
                             </div>
                             <div class="wf-markdown">
+<p>In English this page reads <strong>Welcome, Sam!</strong>, <strong>3 items</strong> and a <strong>Save</strong> button; in Arabic, <strong>أهلاً، Sam!</strong>, <strong>3 عناصر</strong> and <strong>حفظ</strong>.</p>
+<p>How <code>t()</code> behaves:</p>
 <ul>
-<li><code>t(&quot;key&quot;)</code> is the string for the current locale, reactive: every call re-evaluates when the locale changes.</li>
-<li><code>t(&quot;key&quot;, { name: value })</code> fills <code>{name}</code> placeholders from the map.</li>
-<li>A <code>count</code> picks the plural form the locale's rules give it — CLDR's rules, which the browser's <code>Intl.PluralRules</code> follows too: Arabic has <code>zero</code>, <code>one</code>, <code>two</code>, <code>few</code>, <code>many</code> and <code>other</code>; English <code>one</code> and <code>other</code>; Japanese only <code>other</code>. Exactly none is <code>key.zero</code> wherever the file has one, in any language, so English can say &quot;No files&quot; rather than &quot;0 files&quot;. Falls back to <code>key.other</code>, then <code>key</code>.</li>
-<li>A key's forms all come from one language: the reader's, when its file has the key at all, otherwise the default locale's — never one form from each.</li>
-<li>The static paint resolves <code>t</code> for the default locale at build time, by the same rules, so the pre-rendered HTML is already in the default language, its counts in that language's forms.</li>
+<li><strong>It follows the locale.</strong> <code>t(&quot;key&quot;)</code> is the message for the current locale, and every call is evaluated again when the locale changes.</li>
+<li><strong>It fills placeholders.</strong> <code>t(&quot;key&quot;, { name: value })</code> replaces each <code>{name}</code> in the message with the map's value.</li>
+<li><strong>A <code>count</code> picks the plural form.</strong> The form comes from the locale's CLDR plural rules, which the browser's <code>Intl.PluralRules</code> follows too: Arabic has <code>zero</code>, <code>one</code>, <code>two</code>, <code>few</code>, <code>many</code> and <code>other</code>; English has <code>one</code> and <code>other</code>; Japanese has only <code>other</code>. A count of exactly 0 uses <code>key.zero</code> wherever the file has one, in any language, so English can say &quot;No files&quot; rather than &quot;0 files&quot;. Without the form it wants, <code>t()</code> falls back to <code>key.other</code>, then to <code>key</code>.</li>
+<li><strong>A key's forms all come from one language</strong> — the reader's, when its file has the key at all, otherwise the default locale's. It never mixes one form from each.</li>
+<li><strong>The pre-rendered page is already translated.</strong> The build resolves <code>t</code> for the default locale when it pre-renders a page, by the same rules, so the HTML is in the default language, its counts in that language's forms.</li>
 </ul>
                             </div>
-                            <h2 class="wf-heading" id="switching-the-locale">Switching the locale</h2>
+                            <div class="wf-stack wf-gap--xs wf-s39f8973e callout" role="note" aria-label="Warning" data-kind="warning">
+                                <div class="wf-row wf-align--center wf-gap--xs callout-label">
+                                    <i class="wf-icon" data-icon="warning"></i>
+                                    <p class="wf-text">Warning</p>
+                                </div>
+                                <div class="wf-markdown">
+<p>Never build a sentence from pieces (<code>t(&quot;greeting&quot;) + name</code>). Word order differs between languages. Put a placeholder in the message, so a translator can move it.</p>
+                                </div>
+                            </div>
+                            <h2 class="wf-heading" id="translate-by-the-words-as-written">Translate by the words as written</h2>
+                            <div class="wf-markdown">
+<p>To translate a project that was written in one language from the start, without inventing keys, set <code>&quot;literals&quot;: true</code> in its <code>i18n</code> config. Every string a reader sees is then looked up in the reader's table by its text as written — an element's text, and props such as <code>label:</code>, <code>title:</code>, <code>placeholder:</code>, <code>aria-label:</code> and <code>alt:</code>. The Arabic table maps the English words to their translation:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{ <span class="wf-tok-prop">&quot;Problems&quot;</span>: <span class="wf-tok-str">&quot;المشاكل&quot;</span>, <span class="wf-tok-prop">&quot;{count} missing&quot;</span>: <span class="wf-tok-str">&quot;{count} مفقودة&quot;</span> }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The page keeps its English words:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -396,39 +450,103 @@ page Home(path: &quot;/&quot;, title: &quot;Home&quot;, description: &quot;The h
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">app {
-    state chosen = &quot;en&quot;
-    Navbar {
-        Navbar.Brand { Link(&quot;i18n&quot;, to: &quot;/&quot;) }
-        Navbar.Links {
-            Link(t(&quot;nav.home&quot;), to: &quot;/&quot;)
-            Link(t(&quot;nav.about&quot;), to: &quot;/about&quot;)
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Problems&quot;</span>).h2          <span class="wf-tok-cmt">// المشاكل, for a reader in ar</span>
+<span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{l.count} missing&quot;</span>)       <span class="wf-tok-cmt">// one key, `{count} missing`</span></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>How the text becomes a key:</p>
+<ul>
+<li><strong>A splice of a plain path is a placeholder.</strong> It is named for the path's last part, so <code>&quot;{l.count} missing&quot;</code> is the key <code>{count} missing</code>. A splice of anything more, such as <code>&quot;{n + 1} more&quot;</code>, keeps the text as written.</li>
+<li><strong>Each branch of an <code>if</code> is its own key</strong> when the text chooses between them.</li>
+<li><strong>A value shown by its name</strong> — a <code>derived</code> or <code>state</code> — is looked up only when its name says it is words, such as <code>countText</code> or <code>emptyLabel</code>. Shown words that neither rule covers draw an <code>I05</code> warning.</li>
+<li><strong>What is not words is left alone:</strong> an icon's name, <code>Code(…)</code>, and a component named <code>Kbd</code>.</li>
+<li><strong>A list of words is translated word by word.</strong> A <code>labels:</code> prop, which holds one word for each option of a control whose options are values, is looked up item by item: <code>Segmented(options: [&quot;2&quot;, &quot;4&quot;], labels: [&quot;2 spaces&quot;, &quot;4 spaces&quot;])</code> on your own <code>Segmented</code> component.</li>
+</ul>
+<p>The default locale's messages are the words themselves, so its file may be empty. <code>wf translations</code> counts each string as a key in use, and lists what another locale has not translated as missing.</p>
+                            </div>
+                            <h3 class="wf-heading" id="count-by-the-number-in-the-text">Count by the number in the text</h3>
+                            <div class="wf-markdown">
+<p>A literal with one number spliced into it picks its plural form by that number. The key's plural forms are keys too, as for <code>count</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{
+  <span class="wf-tok-prop">&quot;{files} files.zero&quot;</span>: <span class="wf-tok-str">&quot;لا توجد ملفات&quot;</span>,
+  <span class="wf-tok-prop">&quot;{files} files.one&quot;</span>: <span class="wf-tok-str">&quot;ملف واحد&quot;</span>,
+  <span class="wf-tok-prop">&quot;{files} files.two&quot;</span>: <span class="wf-tok-str">&quot;ملفان&quot;</span>,
+  <span class="wf-tok-prop">&quot;{files} files.few&quot;</span>: <span class="wf-tok-str">&quot;{files} ملفات&quot;</span>,
+  <span class="wf-tok-prop">&quot;{files} files.many&quot;</span>: <span class="wf-tok-str">&quot;{files} ملفًا&quot;</span>,
+  <span class="wf-tok-prop">&quot;{files} files.other&quot;</span>: <span class="wf-tok-str">&quot;{files} ملف&quot;</span>
+}</code>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{files} files&quot;</span>)           <span class="wf-tok-cmt">// 11 ملفًا, for a reader in ar</span></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The default locale gives its forms the same way — <code>&quot;{files} files.one&quot;: &quot;{files} file&quot;</code> — where its words differ by count. With two numbers in the text, neither is taken as the count: the message is looked up as written.</p>
+                            </div>
+                            <h2 class="wf-heading" id="switch-the-locale">Switch the locale</h2>
+                            <div class="wf-markdown">
+<p>To let the reader change language, call <code>setLocale(code)</code>. This app puts a language picker in the navigation bar:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">app</span> {
+    <span class="wf-tok-kw">state</span> chosen = <span class="wf-tok-str">&quot;en&quot;</span>
+    <span class="wf-tok-name">Navbar</span> {
+        <span class="wf-tok-name">Navbar</span>.<span class="wf-tok-name">Brand</span> { <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;i18n&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/&quot;</span>) }
+        <span class="wf-tok-name">Navbar</span>.<span class="wf-tok-name">Links</span> {
+            <span class="wf-tok-name">Link</span>(t(<span class="wf-tok-str">&quot;nav.home&quot;</span>), <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/&quot;</span>)
+            <span class="wf-tok-name">Link</span>(t(<span class="wf-tok-str">&quot;nav.about&quot;</span>), <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/about&quot;</span>)
         }
-        Navbar.Actions {
-            Select(bind: chosen, label: t(&quot;nav.language&quot;)) {
-                on change { setLocale(chosen) }
-                Select.Option(&quot;English&quot;, value: &quot;en&quot;)
-                Select.Option(&quot;العربية&quot;, value: &quot;ar&quot;)
-                Select.Option(&quot;Español&quot;, value: &quot;es&quot;)
+        <span class="wf-tok-name">Navbar</span>.<span class="wf-tok-name">Actions</span> {
+            <span class="wf-tok-name">Select</span>(<span class="wf-tok-prop">bind</span>: chosen, <span class="wf-tok-prop">label</span>: t(<span class="wf-tok-str">&quot;nav.language&quot;</span>)) {
+                <span class="wf-tok-kw">on</span> change { setLocale(chosen) }
+                <span class="wf-tok-name">Select</span>.<span class="wf-tok-name">Option</span>(<span class="wf-tok-str">&quot;English&quot;</span>, <span class="wf-tok-prop">value</span>: <span class="wf-tok-str">&quot;en&quot;</span>)
+                <span class="wf-tok-name">Select</span>.<span class="wf-tok-name">Option</span>(<span class="wf-tok-str">&quot;العربية&quot;</span>, <span class="wf-tok-prop">value</span>: <span class="wf-tok-str">&quot;ar&quot;</span>)
+                <span class="wf-tok-name">Select</span>.<span class="wf-tok-name">Option</span>(<span class="wf-tok-str">&quot;Español&quot;</span>, <span class="wf-tok-prop">value</span>: <span class="wf-tok-str">&quot;es&quot;</span>)
             }
         }
     }
-    Router
+    <span class="wf-tok-name">Router</span>
 }
 
-page Home(path: &quot;/&quot;) {
-    Text(&quot;Locale: {locale}, direction: {dir}&quot;)
-    if locale == &quot;ar&quot; { Text(&quot;النسخة العربية&quot;) }
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Home</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Home&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;The home page.&quot;</span>) {
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Home&quot;</span>).h1
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Locale: {locale}, direction: {dir}&quot;</span>)
+    <span class="wf-tok-kw">if</span> locale == <span class="wf-tok-str">&quot;ar&quot;</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;النسخة العربية&quot;</span>) }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>setLocale(&quot;ar&quot;)</code> switches; <code>locale</code> is the current code and <code>dir</code> is <code>&quot;ltr&quot;</code> or <code>&quot;rtl&quot;</code>. On a switch, <code>&lt;html lang&gt;</code> and <code>&lt;html dir&gt;</code> are set. A locale is right to left when its language is — Arabic, Hebrew, Persian, Urdu, Pashto, Sindhi, Central Kurdish, Uyghur, Yiddish, Dhivehi, Kashmiri, Syriac, Aramaic and N'Ko — so <code>ar-EG</code> is too. A site whose default locale is one of them is written <code>&lt;html lang=&quot;ar&quot; dir=&quot;rtl&quot;&gt;</code> from the start, before any script runs. <code>meta.lang</code> names a region of the default locale's language (<code>en-GB</code> for <code>en</code>); otherwise the default locale is the page's language. The built-ins use logical CSS properties (<code>margin-inline-start</code>, not <code>margin-left</code>), so layouts mirror without work on your side; do the same in your own <code>style</code> blocks.</p>
-<p>An <code>app</code> block may declare <code>state</code> like a page, as <code>chosen</code> above.</p>
+<p><code>locale</code> is the current locale's code, and <code>dir</code> is <code>&quot;ltr&quot;</code> or <code>&quot;rtl&quot;</code>. An <code>app</code> block may declare <code>state</code> as a page does, as <code>chosen</code> is here.</p>
+<p>On a switch, the runtime sets <code>&lt;html lang&gt;</code> and <code>&lt;html dir&gt;</code>. A locale is right to left when its language is: Arabic, Hebrew, Persian, Urdu, Pashto, Sindhi, Central Kurdish, Uyghur, Yiddish, Dhivehi, Kashmiri, Syriac, Aramaic and N'Ko — with any region, so <code>ar-EG</code> is too. A site whose default locale is one of them is written <code>&lt;html lang=&quot;ar&quot; dir=&quot;rtl&quot;&gt;</code> from the start, before any script runs.</p>
+<p><code>meta.lang</code> may name a region of the default locale's language (<code>en-GB</code> for <code>en</code>); otherwise the default locale is the page's language.</p>
+<p>The built-ins use logical CSS properties (<code>margin-inline-start</code>, not <code>margin-left</code>), so their layouts mirror with no work on your side. Use logical properties in your own <code>style { }</code> blocks too.</p>
                             </div>
-                            <h2 class="wf-heading" id="which-locale-a-page-opens-in">Which locale a page opens in</h2>
+                            <h2 class="wf-heading" id="choose-the-locale-a-page-opens-in">Choose the locale a page opens in</h2>
                             <div class="wf-markdown">
-<p>A page opens in <code>default_locale</code>, unless its address carries <code>?lang=&lt;code&gt;</code> for one of the configured locales — <code>/about?lang=ar</code> opens the Arabic page. That is the address the build gives each language in the <code>hreflang</code> alternates it writes for search engines, so a reader who arrives from a search result in Arabic reads Arabic.</p>
-<p>The runtime does not guess from the browser's language, but it remembers a choice. <code>setLocale(code)</code> keeps the code in the reader's <code>localStorage</code>, under <code>wf:locale</code>, and every page loaded after that opens in it, on this visit and the next; choosing <code>default_locale</code> again forgets it. A <code>?lang=</code> address opens its page in that language and leaves the kept choice alone. So a static site, which loads each page afresh, keeps the reader's language from page to page, and a language switch is a button that calls <code>setLocale</code>:</p>
+<p>A page opens in <code>default_locale</code>, with two exceptions:</p>
+<ol>
+<li><strong>The address names a locale.</strong> <code>?lang=&lt;code&gt;</code>, for one of the configured locales, opens the page in it: <code>/about?lang=ar</code> is the Arabic page. This is the address the build gives each language in the <code>hreflang</code> alternates it writes for search engines, so a reader who arrives from a search result in Arabic reads Arabic. It does not change the reader's kept choice.</li>
+<li><strong>The reader chose a locale before.</strong> <code>setLocale(code)</code> keeps the code in the reader's <code>localStorage</code>, under <code>wf:locale</code>, and every page loaded after that opens in it, on this visit and the next. Choosing <code>default_locale</code> again forgets it.</li>
+</ol>
+<p>So a static site, which loads each page afresh, keeps the reader's language from page to page, and a language switch can be a pair of buttons:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -437,41 +555,126 @@ page Home(path: &quot;/&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">app {
-    Navbar {
-        Navbar.Brand { Link(&quot;i18n&quot;, to: &quot;/&quot;) }
-        Navbar.Actions {
-            Button(&quot;English&quot;) { on click { setLocale(&quot;en&quot;) } }
-            Button(&quot;العربية&quot;) { on click { setLocale(&quot;ar&quot;) } }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">app</span> {
+    <span class="wf-tok-name">Navbar</span> {
+        <span class="wf-tok-name">Navbar</span>.<span class="wf-tok-name">Brand</span> { <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;i18n&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/&quot;</span>) }
+        <span class="wf-tok-name">Navbar</span>.<span class="wf-tok-name">Actions</span> {
+            <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;English&quot;</span>) { <span class="wf-tok-kw">on</span> click { setLocale(<span class="wf-tok-str">&quot;en&quot;</span>) } }
+            <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;العربية&quot;</span>) { <span class="wf-tok-kw">on</span> click { setLocale(<span class="wf-tok-str">&quot;ar&quot;</span>) } }
         }
     }
-    Router
+    <span class="wf-tok-name">Router</span>
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Nothing is kept until the reader chooses, so a first visit, and a search engine's crawler, still get the <code>?lang=</code> locale or the default. To start a first visit from the browser's language, keep whether the reader has chosen in a store with <code>persist</code>, and until they have, apply <code>setLocale(navigator.language.slice(0, 2))</code> from an <code>effect</code> in the app.</p>
-<p>A static build pre-renders every page once, in the default locale; another locale is applied as the page loads. For search engines that is what the <code>?lang=</code> alternates are for.</p>
+<p>The runtime does not guess from the browser's language. Nothing is kept until the reader chooses, so a first visit, and a search engine's crawler, get the <code>?lang=</code> locale or the default. To start a first visit in the browser's language, keep whether the reader has chosen in a store with <code>persist</code>, and until they have, call <code>setLocale(navigator.language.slice(0, 2))</code> from an <code>effect</code> in the app.</p>
+<p>A static build pre-renders every page once, in the default locale; another locale is applied as the page loads. The <code>?lang=</code> alternates are what search engines index for the other languages.</p>
                             </div>
-                            <h2 class="wf-heading" id="numbers-dates-and-the-locale">Numbers, dates and the locale</h2>
+                            <h2 class="wf-heading" id="format-numbers-and-dates-for-the-locale">Format numbers and dates for the locale</h2>
                             <div class="wf-markdown">
-<p><code>format</code> and <code>ago</code> follow the current locale (<a href="/docs/guide/expressions#format-and-ago">chapter 14</a>): <code>format(1234.5, .currency, &quot;EUR&quot;)</code> is <code>€1,234.50</code> in <code>en</code>, <code>1.234,50 €</code> in <code>de</code>; <code>ago(date)</code> says &quot;il y a 3 jours&quot; in <code>fr</code>. The static paint uses a table of the common locales' separators and currency symbols; the live page uses <code>Intl</code> and corrects any difference.</p>
+<p><code>format</code> and <code>ago</code> follow the current locale (<a href="/docs/guide/expressions">Expressions</a>). <code>format(1234.5, .currency, &quot;EUR&quot;)</code> is <code>€1,234.50</code> in <code>en</code> and <code>1.234,50 €</code> in <code>de</code>; <code>ago(date)</code> says &quot;il y a 3 jours&quot; in <code>fr</code>. The pre-rendered page uses a table of the common locales' separators and currency symbols, and the live page uses the browser's <code>Intl</code> and corrects any difference.</p>
+<p>To choose the digits a locale writes, add the Unicode extension to its code:</p>
+<ul>
+<li><code>setLocale(&quot;ar-u-nu-arab&quot;)</code> reads the <code>ar</code> table and writes <code>format</code> — a date pattern too, its AM/PM in the locale's words — <code>ago</code> and every count in Arabic-Indic digits (١١ ملفًا).</li>
+<li><code>setLocale(&quot;ar-u-nu-latn&quot;)</code> writes them in 0–9, whatever the browser's Arabic would pick.</li>
+<li>Bare <code>ar</code> leaves the digits to the browser.</li>
+</ul>
+<p>A count is prose, so it takes the locale's digits. Another number spliced into a message — a line number, a version — stays as it is. The document's <code>lang</code> is the language, <code>ar</code>, whatever digits the code names.</p>
                             </div>
-                            <h2 class="wf-heading" id="translating-a-markdown-page-or-a-md-page">Translating a Markdown page or a .md page</h2>
+                            <h2 class="wf-heading" id="translate-long-form-text">Translate long-form text</h2>
                             <div class="wf-markdown">
-<p>Text inside a <code>.md</code> page is not passed through <code>t</code>; keep one Markdown file per locale and route by a <code>:locale</code> parameter, or keep the long-form text in the translation file under a key and render <code>Markdown(t(&quot;about.body&quot;))</code>.</p>
+<p>For a paragraph or a page of prose:</p>
+<ul>
+<li>Under <code>&quot;literals&quot;: true</code>, <code>Markdown(&quot;…&quot;)</code> written in place is words like any other text: its whole source, <code>**</code> and all, is the key.</li>
+<li>Text inside a <code>.md</code> page is not passed through <code>t</code>. Keep one Markdown file per locale and route by a <code>:locale</code> parameter, or keep the text in the translation file under a key and render <code>Markdown(t(&quot;about.body&quot;))</code>.</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading" id="check-what-each-locale-lacks">Check what each locale lacks</h2>
+                            <div class="wf-markdown">
+<p>To see the translations as a table, run <code>wf translations</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>wf translations
+<span class="wf-tok-prompt">$ </span>wf translations --missing ar
+<span class="wf-tok-prompt">$ </span>wf translations --unused
+<span class="wf-tok-prompt">$ </span>wf translations --plurals</code>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Check what each locale lacks</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Command</th>
+                                        <th scope="col">What it prints</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf translations</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Each locale, the plural forms its rules use, and how many keys it lacks, a form it lacks, or a placeholder that differs from the default locale&#x27;s</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>--missing ar</code></p>
+                                            </div>
+                                        </td>
+                                        <td>What Arabic lacks</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>--unused</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The keys nothing names</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>--plurals</code></p>
+                                            </div>
+                                        </td>
+                                        <td>CLDR&#x27;s plural rules: every locale&#x27;s forms</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>--json</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The whole table: each key with its message in every locale, and every place a <code>t()</code> names it</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>From Rust the table is <code>webfluent::i18n::table</code>, which can also write one message back into its file with every other byte as it was.</p>
                             </div>
                             <h2 class="wf-heading" id="checklist">Checklist</h2>
                             <div class="wf-markdown">
 <ul>
 <li>Every visible string goes through <code>t</code>, including <code>label:</code>, <code>placeholder:</code> and <code>aria-label:</code> values.</li>
-<li>Never build a sentence from parts (<code>t(&quot;x&quot;) + name</code>); use a placeholder so a translator can reorder it.</li>
-<li>Give every count its plural forms, even in English, and a <code>zero</code> where none reads better as a sentence.</li>
-<li>Test with an RTL locale once: alignment, icons that imply direction (arrows), any <code>left</code>/<code>right</code> in your own CSS, and a Latin code or figure inside Arabic text, which needs a left-to-right run of its own (<code>direction: ltr; unicode-bidi: isolate</code>) to keep its parts in order.</li>
+<li>No sentence is built from parts (<code>t(&quot;x&quot;) + name</code>); a placeholder lets a translator reorder it.</li>
+<li>Every count has its plural forms, even in English, and a <code>zero</code> where &quot;none&quot; reads better as a sentence.</li>
+<li><code>wf translations --missing &lt;locale&gt;</code> lists nothing for any locale.</li>
+<li>You have tried the site once in a right-to-left locale, and checked:</li>
+<li>alignment, and icons that imply a direction (arrows);</li>
+<li>any <code>left</code> or <code>right</code> in your own CSS;</li>
+<li>a Latin code or figure inside Arabic text, which needs a left-to-right run of its own (<code>direction: ltr; unicode-bidi: isolate</code>) to keep its parts in order.</li>
 </ul>
-                            </div>
-                            <h2 class="wf-heading" id="the-translations-as-a-table">The translations as a table</h2>
-                            <div class="wf-markdown">
-<p><code>wf translations</code> lists each locale with the plural forms its rules use and how many keys it lacks, a form it lacks, or a placeholder that differs from the default locale's; <code>--missing ar</code> lists what Arabic lacks and <code>--unused</code> the keys nothing names; <code>--json</code> is the whole table, each key with its message in every locale and every place a <code>t()</code> names it. <code>--plurals</code> prints CLDR's rules: every locale's forms. The library has it as <code>webfluent::i18n::table</code>, which also writes one message back into its file with every other byte as it was.</p>
                             </div>
                         </div>
                     </div>
@@ -489,15 +692,16 @@ page Home(path: &quot;/&quot;) {
                 <div class="wf-stack wf-gap--lg wf-sac91c322" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
-                        <a class="wf-link wf-s3e136ca4" href="#setting-up">Setting up</a>
-                        <a class="wf-link wf-s3e136ca4" href="#starting-translated">Starting translated</a>
-                        <a class="wf-link wf-s3e136ca4" href="#t-key">t(&quot;key&quot;)</a>
-                        <a class="wf-link wf-s3e136ca4" href="#switching-the-locale">Switching the locale</a>
-                        <a class="wf-link wf-s3e136ca4" href="#which-locale-a-page-opens-in">Which locale a page opens in</a>
-                        <a class="wf-link wf-s3e136ca4" href="#numbers-dates-and-the-locale">Numbers, dates and the locale</a>
-                        <a class="wf-link wf-s3e136ca4" href="#translating-a-markdown-page-or-a-md-page">Translating a Markdown page or a .md page</a>
+                        <a class="wf-link wf-s3e136ca4" href="#set-up-the-translation-files">Set up the translation files</a>
+                        <a class="wf-link wf-s3e136ca4" href="#start-a-project-translated">Start a project translated</a>
+                        <a class="wf-link wf-s3e136ca4" href="#translate-text-with-t">Translate text with t()</a>
+                        <a class="wf-link wf-s3e136ca4" href="#translate-by-the-words-as-written">Translate by the words as written</a>
+                        <a class="wf-link wf-s3e136ca4" href="#switch-the-locale">Switch the locale</a>
+                        <a class="wf-link wf-s3e136ca4" href="#choose-the-locale-a-page-opens-in">Choose the locale a page opens in</a>
+                        <a class="wf-link wf-s3e136ca4" href="#format-numbers-and-dates-for-the-locale">Format numbers and dates for the locale</a>
+                        <a class="wf-link wf-s3e136ca4" href="#translate-long-form-text">Translate long-form text</a>
+                        <a class="wf-link wf-s3e136ca4" href="#check-what-each-locale-lacks">Check what each locale lacks</a>
                         <a class="wf-link wf-s3e136ca4" href="#checklist">Checklist</a>
-                        <a class="wf-link wf-s3e136ca4" href="#the-translations-as-a-table">The translations as a table</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-s614f8b98">

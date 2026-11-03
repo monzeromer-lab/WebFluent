@@ -1,14 +1,18 @@
 /// Chapter 16 of the guide, written from md-docs/16-forms.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page FormsGuide(path: "/docs/guide/forms", title: "Forms and validation", description: "Two-way binding on every control, Form handles, validate rules, file uploads, sending a form to an API, server errors and pending state.", layout: DocsShell("Forms and validation", chapter: t("guide.chapter", { n: "16" }), blurb: "Controls bound to state, forms with a handle, validation rules that show their own messages, files, and what the server said.", source: "md-docs/16-forms.md", sections: [Anchor(id: "controls-and-bind", label: "Controls and bind:"), Anchor(id: "labels-hints-and-errors-you-write-yourself", label: "Labels, hints and errors you write yourself"), Anchor(id: "forms", label: "Forms"), Anchor(id: "what-a-value-must-be-validate", label: "What a value must be: validate"), Anchor(id: "files", label: "Files"), Anchor(id: "sending-it-to-a-server", label: "Sending it to a server"), Anchor(id: "pending-actions", label: "Pending actions"), Anchor(id: "a-checklist-for-a-good-form", label: "A checklist for a good form")], prevTo: "/docs/guide/styling", prevLabel: "15. {t("ch.15")}", nextTo: "/docs/guide/data", nextLabel: "17. {t("ch.17")}")) {
+page FormsGuide(path: "/docs/guide/forms", title: "Forms and validation", description: "Bind every control to state, use the Form handle, write validate rules, upload files, send a form to an API, and show server errors and pending state.", layout: DocsShell("Forms and validation", chapter: t("guide.chapter", { n: "16" }), blurb: "Bind controls to state, validate what the reader types, upload files, and show what the server said.", source: "md-docs/16-forms.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "bind-a-control-to-state", label: "Bind a control to state"), Anchor(id: "add-a-label-a-hint-or-your-own-error", label: "Add a label, a hint or your own error"), Anchor(id: "group-controls-in-a-form", label: "Group controls in a form"), Anchor(id: "validate-a-field", label: "Validate a field"), Anchor(id: "upload-a-file", label: "Upload a file"), Anchor(id: "send-a-form-to-a-server", label: "Send a form to a server"), Anchor(id: "show-that-a-request-is-running", label: "Show that a request is running"), Anchor(id: "checklist-for-a-good-form", label: "Checklist for a good form"), Anchor(id: "troubleshooting", label: "Troubleshooting")], prevTo: "/docs/guide/styling", prevLabel: "15. {t("ch.15")}", nextTo: "/docs/guide/data", nextLabel: "17. {t("ch.17")}")) {
     Stack(gap: .lg) {
-        Markdown("A form in WebFluent is controls bound to state, a `Form` that knows whether they are valid, and `validate` blocks that say what each value must be. The accessible plumbing — labels, `aria-describedby`, `aria-invalid`, announced errors, focus on the first problem — is written for you.")
+        Markdown("This chapter shows you how to build a form: controls that read and write state, rules that say what each value must be, and a submit that sends the form to a server and shows what came back.\n\nYou will be able to:\n\n- bind any control to a state, in both directions;\n- validate a field with a `validate` block, without writing the error messages' markup;\n- know whether the whole form is valid, and submit it;\n- upload a file and show its progress;\n- show the errors a server sends back, and a busy state while a request runs.\n\nWebFluent writes the accessible parts for you: a real `<label>` for every label, `aria-describedby` for hints and errors, `aria-invalid`, errors announced as they appear, and focus moved to the first problem.")
 
-        Heading("Controls and bind:", id: "controls-and-bind").h2
+        Heading("Before you start", id: "before-you-start").h2
 
-        Markdown("`bind: stateName` on a control keeps the state and the control in step, both ways:")
+        Markdown("You should know how to declare `state` and an `action` ([State and reactivity](/docs/guide/state)) and how to handle an event ([Events](/docs/guide/events)). Sending a form to a server uses an `api`, which [Data and APIs](/docs/guide/data) covers in full.")
 
-        CodeBlock(#"page Signup(path: "/") {
+        Heading("Bind a control to state", id: "bind-a-control-to-state").h2
+
+        Markdown("To keep a control and a state in step, give the control `bind:` and the state's name. Typing in the control writes the state, and changing the state updates the control.\n\nThis sign-up page binds one of each kind of control:")
+
+        CodeBlock(#"page Signup(path: "/signup", title: "Sign up", description: "Every control, bound to state.") {
     state name = ""
     state email = ""
     state plan = "free"
@@ -16,6 +20,7 @@ page FormsGuide(path: "/docs/guide/forms", title: "Forms and validation", descri
     state seats = 1
     state when: Date? = null
 
+    Heading("Sign up").h1
     Input(bind: name, label: "Name", placeholder: "Ada Lovelace").required
     Input(bind: email, label: "Email").email.required
     Select(bind: plan, label: "Plan") {
@@ -28,37 +33,93 @@ page FormsGuide(path: "/docs/guide/forms", title: "Forms and validation", descri
     Switch(bind: agree, label: "Same thing, as a switch")
     Slider(bind: seats, min: 1, max: 50, label: "Seats")
     DatePicker(bind: when, label: "Start date")
-    Text("{name} <{email}> wants {seats} {plan} seats from {when}")
+    Text("{name} <{email}> wants {seats} {plan} seats")
+    if let start = when { Text("Starting {start}") }
 }"#, title: "wf")
 
-        Markdown("`Textarea(bind: note, label: \"Notes\", rows: 4, maxLength: 200)` is several lines of text; with `maxLength` it shows how much is left, politely.\n\nThe checker knows what each control holds: `Checkbox` and `Switch` bind a `Bool`, `Slider` a `Number`, `DatePicker` a [`Date?`](/docs/guide/types#the-types-the-language-brings-with-it) (nothing, until one is picked), the rest a `String` (an `Input.number` holds a `Number`). A control needs a `label:` (or a `placeholder:` for an `Input`, or an `aria-label:`) — the accessibility lint says so otherwise.\n\nWhat comes back is the type it went in as: an `Input.number` writes a number (and `null` when it is emptied), and a `Select` writes the option's `value:` as it was written, so `Select.Option(\"Two\", value: 2)` binds the number `2`, not the string `\"2\"`.\n\n`bind:` names anything that can be written: a state, a store's member (`bind: Cart.note`), or a field of a loop's item:")
+        Markdown("The last lines repeat what you type and pick. The `Select` and the two `Radio`s share `plan`, so choosing in one moves the others.\n\nFor several lines of text, use a `Textarea`. With `maxLength:` it shows how many characters are left, and tells a screen reader politely (without interrupting):")
 
-        CodeBlock(#"for todo in todos by todo.id {
-    Input(bind: todo.title, label: "Title")
-    Checkbox(bind: todo.done, label: "Done")
-}
-Text("{todos.filter(todo => !todo.done).length} left")"#, title: "wf")
+        CodeBlock(#"Textarea(bind: note, label: "Notes", rows: 4, maxLength: 200)"#, title: "wf")
 
-        Markdown("The item is written and the list is told it changed, so everything that reads `todos` follows. In a keyed loop that happens as the reader types; in a loop with no `by`, which redraws every item when its list changes, the list hears of it when the field is left, so the row is not redrawn under the cursor.")
+        Heading("What each control holds", id: "what-each-control-holds").h3
 
-        Heading("Labels, hints and errors you write yourself", id: "labels-hints-and-errors-you-write-yourself").h2
+        Markdown("The checker knows the type each control writes, and refuses a `bind:` to a state of another type (`F02`):")
 
-        Markdown("Every control takes `label:`, `hint:` and `error:`. With any of them the control is wrapped in a field: the label is a real `<label for>`, the hint and the error are linked with `aria-describedby`, and an error — a string, empty when there is none — is announced as it appears and sets `aria-invalid`.")
+        Table(caption: "What each control holds") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Control").header
+                    Table.Cell("Holds").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`Checkbox`, `Switch`") }
+                    Table.Cell { Markdown("`Bool`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Slider`") }
+                    Table.Cell { Markdown("`Number`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Input.number`") }
+                    Table.Cell { Markdown("`Number`, and `null` when the reader empties it") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`DatePicker`") }
+                    Table.Cell { Markdown("[`Date?`](/docs/guide/types#the-types-the-language-brings-with-it) — `null` until a date is picked") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Select`") }
+                    Table.Cell { Markdown("the option's `value:`, as written") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Input`, `Textarea`, `Radio`") }
+                    Table.Cell { Markdown("`String`") }
+                }
+            }
+        }
 
-        CodeBlock(#"page Handle(path: "/", title: "Handle", description: "Pick a handle.") {
+        Markdown("A value comes back as the type it went in as. `Select.Option(\"Two\", value: 2)` binds the number `2`, not the string `\"2\"`.\n\nEvery control needs an accessible name: a `label:`, a `placeholder:` (on an `Input`), or an `aria-label:`. The accessibility lints (`A03`, `A04`) warn when one has none.")
+
+        Heading("Bind to a store or a list item", id: "bind-to-a-store-or-a-list-item").h3
+
+        Markdown("`bind:` takes anything that can be written:\n\n- a state;\n- a store's member, such as `bind: Cart.note`;\n- a field of a loop's item.\n\nThis list lets the reader rename and tick off each todo in place:")
+
+        CodeBlock(#"type Todo { id: String, title: String, done: Bool = false }
+
+page Todos(path: "/todos", title: "Todos", description: "Edit each todo in place.") {
+    state todos: [Todo] = [Todo(id: "1", title: "Water the plants"), Todo(id: "2", title: "Post the letter")]
+
+    Heading("Todos").h1
+    for todo in todos by todo.id {
+        Input(bind: todo.title, label: "Title")
+        Checkbox(bind: todo.done, label: "Done")
+    }
+    Text("{todos.filter(todo => !todo.done).length} left")
+}"#, title: "wf")
+
+        Markdown("The count at the bottom drops as you tick items. The item is written and the list is told it changed, so everything that reads `todos` follows:\n\n- In a keyed loop (`for … by`), the list hears of the change as the reader types.\n- In a loop with no `by`, which redraws every item when its list changes, the list hears of it when the reader leaves the field, so the row is not redrawn under the cursor.\n\nYou cannot bind to a constant, a derived value, a prop or a literal: that is `F01`.")
+
+        Heading("Add a label, a hint or your own error", id: "add-a-label-a-hint-or-your-own-error").h2
+
+        Markdown("Every control takes `label:`, `hint:` and `error:`. With any of them, the control is wrapped in a field:\n\n- the label is a real `<label for>`;\n- the hint and the error are linked to the control with `aria-describedby`;\n- the error is a string, empty when there is none. When it appears, it is announced, and it sets `aria-invalid` on the control.\n\nThis page shows an error while the handle is too short:")
+
+        CodeBlock(#"page Handle(path: "/handle", title: "Handle", description: "Pick a handle.") {
     state handle = ""
     derived problem = if handle.length > 0 && handle.length < 3 { "At least three characters" } else { "" }
+
     Heading("Pick a handle").h1
     Input(bind: handle, label: "Handle", hint: "Letters, numbers and dashes", error: problem)
 }"#, title: "wf")
 
-        Markdown("Most of the time a `validate` block (below) is simpler: it computes the error for you. `error:` is for a message that comes from somewhere else.")
+        Markdown("For a rule about the value itself, a `validate` block is usually better: it works out the error for you ([Validate a field](#validate-a-field)). Use `error:` for a message that comes from somewhere else.")
 
-        Heading("Forms", id: "forms").h2
+        Heading("Group controls in a form", id: "group-controls-in-a-form").h2
 
-        Markdown("A `Form` groups controls; `on submit` runs when it is submitted, and the page never navigates away. `Form(bind: name)` hands you a handle on the form:")
+        Markdown("To submit several controls together, put them in a `Form`. Its `on submit` handler runs when the form is submitted, and the page never navigates away. `Form(bind: form)` gives you a handle, named `form` here, that knows the state of the whole form.\n\nThis contact form sends its fields, disables **Send** until every field is valid, and thanks the reader:")
 
-        CodeBlock(#"page Contact(path: "/") {
+        CodeBlock(#"page Contact(path: "/contact", title: "Contact", description: "Send us a message.") {
     state name = ""
     state email = ""
     state message = ""
@@ -70,6 +131,7 @@ Text("{todos.filter(todo => !todo.done).length} left")"#, title: "wf")
         form.reset()
     }
 
+    Heading("Contact us").h1
     Form(bind: form) {
         on submit { send() }
         Input(bind: name, name: "name", label: "Name").required
@@ -81,19 +143,19 @@ Text("{todos.filter(todo => !todo.done).length} left")"#, title: "wf")
     if sent { Alert("Thanks — we will be in touch.").success }
 }"#, title: "wf")
 
-        Markdown("The handle gives:")
+        Heading("The form handle", id: "the-form-handle").h3
 
-        Table(caption: "Forms") {
+        Table(caption: "The form handle") {
             Table.Head {
                 Table.Row {
-                    Table.Cell("").header
-                    Table.Cell("").header
+                    Table.Cell("Member").header
+                    Table.Cell("What it is").header
                 }
             }
             Table.Body {
                 Table.Row {
                     Table.Cell { Markdown("`form.valid`") }
-                    Table.Cell { Markdown("`true` when every control passes its own checks and every `validate` rule holds — kept current as the reader types") }
+                    Table.Cell { Markdown("`true` when every control passes its own checks and every `validate` rule holds. It stays current as the reader types.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`form.errors`") }
@@ -105,38 +167,40 @@ Text("{todos.filter(todo => !todo.done).length} left")"#, title: "wf")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`form.pending`") }
-                    Table.Cell { Markdown("Whether an `async` rule is still asking") }
+                    Table.Cell { Markdown("Whether an `async` rule is still waiting for its answer") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`form.values`") }
-                    Table.Cell { Markdown("A map of the controls' values by their `name:` attribute") }
+                    Table.Cell { Markdown("A map of the controls' values, by their `name:` attribute") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`form.reset()`") }
-                    Table.Cell("Clears the form, and everything it was showing")
+                    Table.Cell("Clears the form, and every message it was showing")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`form.submit()`") }
-                    Table.Cell("Submits it in code")
+                    Table.Cell("Submits the form from code")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`form.apply(errors)`") }
-                    Table.Cell("Shows what the server said, on the fields it named")
+                    Table.Cell { Markdown("Shows what the server said, on the fields it named ([Show what the server said](#show-what-the-server-said))") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`form.element`") }
-                    Table.Cell { Markdown("The `<form>` itself") }
+                    Table.Cell { Markdown("The `<form>` element itself") }
                 }
             }
         }
 
-        Markdown("A `Button` with `type: .submit` (or `.submit`) submits; the browser's own constraint validation runs first, so an invalid form never reaches `on submit`. Any other button in a form — \"Add a row\", \"Show password\" — is `type=\"button\"` and does only what its `on click` says.")
+        Heading("Choose which buttons submit", id: "choose-which-buttons-submit").h3
 
-        Heading("What a value must be: validate", id: "what-a-value-must-be-validate").h2
+        Markdown("A `Button` with `type: .submit` (or the `.submit` flag) submits the form, and so does Enter in a field. The browser's own constraint checks run first (`.required`, `.email` and the rest), so an invalid form never reaches `on submit`.\n\nEvery other button in a form — **Add a row**, **Show password** — is `type=\"button\"`, and does only what its `on click` says.")
 
-        Markdown("A `validate` block sits beside the state it guards. Every rule is one line, and the control bound to that state shows what they say — there is no `error:` to write and no `derived` to compute:")
+        Heading("Validate a field", id: "validate-a-field").h2
 
-        CodeBlock(#"page Signup(path: "/join", title: "Join", description: "Make an account.") {
+        Markdown("To say what a value must be, put a `validate` block beside the state it guards. Each rule is one line. The control bound to that state shows the rules' messages itself: you write no `error:` and no `derived` value.\n\nThis page requires an email, a password of at least eight characters with a number in it, and a matching confirmation:")
+
+        CodeBlock(#"page Join(path: "/join", title: "Join", description: "Make an account.") {
     state email = ""
     state password = ""
     state confirm = ""
@@ -164,9 +228,11 @@ Text("{todos.filter(todo => !todo.done).length} left")"#, title: "wf")
     }
 }"#, title: "wf")
 
-        Heading("The rules", id: "the-rules").h3
+        Markdown("Leave the password field after typing `abc`, and it shows `Use at least 8 characters`. **Join** stays disabled until every rule holds.\n\nA `validate` block must guard a state that a control binds. A block for a state no control binds, or for a derived value, can never pass: that is `F03`.")
 
-        Table(caption: "The rules") {
+        Heading("Validation rules", id: "validation-rules").h3
+
+        Table(caption: "Validation rules") {
             Table.Head {
                 Table.Row {
                     Table.Cell("Rule").header
@@ -176,31 +242,31 @@ Text("{todos.filter(todo => !todo.done).length} left")"#, title: "wf")
             Table.Body {
                 Table.Row {
                     Table.Cell { Markdown("`required`") }
-                    Table.Cell("Something was given — a non-blank string, a non-empty list, a ticked checkbox")
+                    Table.Cell("Something was given: a non-blank string, a non-empty list, a ticked checkbox")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`email`, `url`") }
-                    Table.Cell("It looks like one")
+                    Table.Cell("The value looks like an email address, or a URL")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`minLength(n)`, `maxLength(n)`") }
-                    Table.Cell("The text is that long")
+                    Table.Cell("The text is at least, or at most, that long")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`min(v)`, `max(v)`") }
-                    Table.Cell("The number, date or time is within it")
+                    Table.Cell("The number, date or time is within the limit")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`pattern(/…/)`") }
-                    Table.Cell("The text matches")
+                    Table.Cell("The text matches the regular expression")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`matches(other)`") }
-                    Table.Cell("It equals another value, which it follows")
+                    Table.Cell("The value equals another value, and follows it as it changes")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`oneOf([…])`") }
-                    Table.Cell("It is one of them")
+                    Table.Cell("The value is one of those listed")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`custom \"…\" \{ expr \}`") }
@@ -208,33 +274,87 @@ Text("{todos.filter(todo => !todo.done).length} left")"#, title: "wf")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`async \"…\" \{ await … \}`") }
-                    Table.Cell("The answer, once it arrives")
+                    Table.Cell("The answer is true, once it arrives")
                 }
             }
         }
 
-        Markdown("Each takes an optional message after it — a string, or `t(\"key\")`, read in the reader's language. Without one, the rule's own is used — and a project with translations replaces it by naming `form.required`, `form.email`, `form.minLength` and so on. An argument that reads state — `max(Ledger.today)` — is read each time the rule is checked.\n\nEvery rule but `required` passes an empty value, so a blank optional field shows one message rather than two. An `async` rule is only asked once the rest have passed, and once per value — so a server is not asked about every keystroke of an address that is not one yet.")
+        Markdown("How the rules behave:\n\n- **Messages.** Each rule takes an optional message after it: a string, or `t(\"key\")`, which is read in the reader's language. Without one, the rule uses its own message. A project with translations replaces those by naming the keys `form.required`, `form.email`, `form.minLength` and so on ([Translations](/docs/guide/i18n)).\n- **Arguments that read state.** An argument such as `max(Ledger.today)` is read again each time the rule is checked.\n- **Types.** A rule is checked against the type of what it guards: `minLength` on a `Number` is `T01`.\n- **Empty values.** Every rule but `required` passes an empty value, so a blank optional field shows one message rather than two.\n- **Async rules.** An `async` rule is asked only once the other rules pass, and once per value. A server is not asked about every keystroke of an address that is not valid yet. While it waits, `form.pending` is `true`.\n\nThis rule asks the server whether an address is free:")
 
-        Heading("When a message shows", id: "when-a-message-shows").h3
+        CodeBlock(#"api Backend(base: "/api") {
+    get emailTaken(email: String) -> Bool
+}
 
-        Markdown("`Form(show:)` says: `.onBlur` (the default — after the reader leaves the field), `.onSubmit`, or `.live` as they type. The fault is known either way, so `form.valid` is the truth whatever the reader has seen.\n\nA submit that fails shows every message, moves focus to the first field that has one and announces it, and does not run `on submit`.\n\nTo see a form as a failed submit leaves it, without filling it in, set `data-wf-validation=\"shown\"` on the page's root:")
+page Register(path: "/register", title: "Register", description: "Check an address is free.") {
+    state email = ""
+
+    validate email {
+        required
+        email
+        async "That address is taken" { !(await Backend.emailTaken(email: email)) }
+    }
+
+    Heading("Register").h1
+    Form(bind: form) {
+        on submit { log("registering") }
+        Input(bind: email, label: "Email").email
+        Button("Register", type: .submit, disabled: !form.valid || form.pending).primary
+    }
+}"#, title: "wf")
+
+        Heading("Choose when a message shows", id: "choose-when-a-message-shows").h3
+
+        Markdown("`Form(show:)` sets when the messages appear:")
+
+        Table(caption: "Choose when a message shows") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell.header { Markdown("`show:`") }
+                    Table.Cell("A field's message appears").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`.onBlur` (default)") }
+                    Table.Cell("after the reader leaves the field")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`.onSubmit`") }
+                    Table.Cell("only after a submit")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`.live`") }
+                    Table.Cell("as the reader types")
+                }
+            }
+        }
+
+        Markdown("The rules run either way, so `form.valid` is always true to the values, whatever the reader has seen.\n\nA submit that fails shows every message, moves focus to the first field that has one, announces it, and does not run `on submit`.")
+
+        Heading("Preview every message at once", id: "preview-every-message-at-once").h3
+
+        Markdown("To see a form as a failed submit would leave it, without filling it in, set `data-wf-validation=\"shown\"` on the page's root element:")
 
         CodeBlock(#"document.documentElement.setAttribute("data-wf-validation", "shown")"#, title: "js")
 
-        Markdown("Every field then says what its rules say about its value now; taking the attribute off says nothing again. It is what an editor's preview sets to show a form *Invalid*.")
+        Markdown("Every field then shows what its rules say about its value now. Remove the attribute and the messages go again. An editor's preview sets this attribute to show a form as *Invalid*.")
 
-        Heading("A refined type validates itself", id: "a-refined-type-validates-itself").h3
+        Heading("Let a refined type do the checking", id: "let-a-refined-type-do-the-checking").h3
+
+        Markdown("A *refined type* is a type with a condition, such as `Number(1..=30)`. The condition is already a rule, so you only write the rules the type does not say:")
 
         CodeBlock(#"state nights: Number(1..=30) = 2
 validate nights { required }"#, title: "wf")
 
-        Markdown("The range on the type is already a rule; only `required` needed saying. A range's open end is refused (`Number(0..10)` does not take 10), and a date's `after:` and `before:` are held as the reader types, like `min` and `max`. See [Types](/docs/guide/types#a-condition-on-a-type).")
+        Markdown("- A range's open end is excluded: `Number(0..10)` does not take `10`.\n- A date's `after:` and `before:` are checked as the reader types, like `min` and `max`.\n\nSee [Types](/docs/guide/types#a-condition-on-a-type) for every condition a type can carry.")
 
-        Heading("The rules as data", id: "the-rules-as-data").h3
+        Heading("Read the rules as data", id: "read-the-rules-as-data").h3
 
-        Markdown("`wf rules --json` lists every rule with what it takes, its own message and the key that replaces it; the patterns people write, by name (`a number`, `a letter` in any script, `no spaces` …); when a form shows its messages; and every state the project holds to a rule, in order, with the ones its type implies. The library has it as `webfluent::validation`, which also writes a state's `validate` block back one rule at a time.")
+        Markdown("`wf rules --json` lists, for a tool to read:\n\n- every rule, what it takes, its own message and the translation key that replaces it;\n- the patterns people write, by name: `a number`, `a letter` (in any script), `no spaces` …;\n- the `show:` choices;\n- every state the project holds to a rule, in order, including the rules its type implies.\n\nThe Rust library has the same data as `webfluent::validation`, which can also write a state's `validate` block back one rule at a time.")
 
-        Heading("What the server said", id: "what-the-server-said").h3
+        Heading("Show what the server said", id: "show-what-the-server-said").h3
+
+        Markdown("When the server rejects a value — an address already taken, a code that expired — pass its messages, by field name, to `form.apply`:")
 
         CodeBlock(#"action signUp() {
     try {
@@ -244,11 +364,11 @@ validate nights { required }"#, title: "wf")
     }
 }"#, title: "wf")
 
-        Markdown("Each message is shown on the field it names, and stands until the reader changes that value.")
+        Markdown("Each message is shown on the field whose `name:` it matches, and moves focus to the first one. A message stays until the reader changes that field's value. A field may also be given a list of messages; the first is shown.")
 
-        Heading("Files", id: "files").h2
+        Heading("Upload a file", id: "upload-a-file").h2
 
-        Markdown("`FileUpload` is a file input; the files arrive in its `change` event. Each is a `File` — `.name`, `.size`, `.type`, and `.preview()`, an object URL for showing an image before it is uploaded, revoked when the page leaves.")
+        Markdown("To let the reader pick a file, place a `FileUpload`. The files arrive in its `change` event. Each is a `File`, with:\n\n- `.name`, `.size` (in bytes) and `.type`;\n- `.preview()`, an object URL that shows an image before it is uploaded. It is revoked when the page leaves.\n\nThis page shows the picture the reader picks, then uploads it with a progress bar:")
 
         CodeBlock(#"api Backend(base: "/api") {
     post avatar(id: String, file: File) at "users/:id/avatar"
@@ -278,18 +398,20 @@ page Avatar(path: "/avatar", title: "Your picture", description: "Change your pi
     if done { Alert("Uploaded.").success }
 }"#, title: "wf")
 
-        Markdown("An endpoint with a `File` parameter sends a multipart form, and `Backend.avatar.progress` follows the upload from 0 to 1. `accept:` and the size are conveniences for the reader, not checks: the server decides what it accepts ([Security](/docs/guide/security#uploads)). `FileUpload(…).multiple` takes several.")
+        Markdown("- An endpoint with a `File` parameter sends a multipart form.\n- `Backend.avatar.progress` follows the upload from 0 to 1.\n- `FileUpload(…).multiple` lets the reader pick several files.")
 
-        Heading("Sending it to a server", id: "sending-it-to-a-server").h2
+        Callout("`accept:` and any size limit you show are for the reader's convenience, not checks. The server decides what it accepts ([Security](/docs/guide/security#check-uploads-on-the-server)).", kind: .important)
 
-        Markdown("Describe the service once with `api`, call it from the submit handler, and hand what a `422` said back to the form:")
+        Heading("Send a form to a server", id: "send-a-form-to-a-server").h2
+
+        Markdown("To send a form, describe the service once with `api`, call it from the submit handler, and hand what a `422` said back to the form.")
 
         CodeBlock(#"api Backend(base: "/api") {
     post signUp(body: Map) -> Map
         errors { 422 -> Map }
 }
 
-page Join(path: "/join", title: "Join", description: "Make an account.") {
+page Welcome(path: "/welcome", title: "Join", description: "Make an account.") {
     state email = ""
     state password = ""
     state joined = false
@@ -316,11 +438,11 @@ page Join(path: "/join", title: "Join", description: "Make an account.") {
     }
 }"#, title: "wf")
 
-        Markdown("`form.apply(\{ email: \"That address is taken\" \})` shows each message on the field whose `name:` it matches, until the reader changes that value. [Data and APIs](/docs/guide/data) covers the service in full: retries, timeouts, typed errors.")
+        Markdown("`errors \{ 422 -> Map \}` types the body of a `422` response, so `e.body.errors` is what the server sent. If the server answers `\{ \"errors\": \{ \"email\": \"That address is taken\" \} \}`, the message appears under **Email**.\n\n[Data and APIs](/docs/guide/data) covers the service in full: retries, timeouts and typed errors.")
 
-        Heading("Pending actions", id: "pending-actions").h2
+        Heading("Show that a request is running", id: "show-that-a-request-is-running").h2
 
-        Markdown("An action that `await`s exposes `name.pending`, `true` while a call of it runs — for a disabled button or a spinner:")
+        Markdown("An action that `await`s has a `.pending` value, `true` while a call of it runs. Use it to disable a button or show a spinner. On a store's action, read it as `Store.action.pending`:")
 
         CodeBlock(#"store Api {
     state saved = 0
@@ -330,17 +452,66 @@ page Join(path: "/join", title: "Join", description: "Make an account.") {
     }
 }
 
-page Save(path: "/") {
+page Notes(path: "/notes", title: "Notes", description: "Save a note.") {
     use Api
     state text = ""
+
+    Heading("Notes").h1
     Input(bind: text, label: "Note")
     Button("Save", disabled: Api.save.pending).primary { on click { Api.save({ text: text }) } }
     if Api.save.pending { Spinner.sm }
     Text("Saved {Api.saved} times")
 }"#, title: "wf")
 
-        Heading("A checklist for a good form", id: "a-checklist-for-a-good-form").h2
+        Markdown("While a save runs, **Save** is disabled and a spinner shows beside it. Reading `.pending` on an action that awaits nothing is `T17`.")
 
-        Markdown("- Every control has a `label:` — a placeholder is not a label.\n- Rules live in `validate` blocks, not in hand-written `derived` errors.\n- The submit button is `type: .submit`, so Enter submits.\n- Disable it while the request is out: `disabled: save.pending`.\n- Say what happened afterwards, in an `Alert` or a `Toast`.\n- The server checks everything again; the page's rules are for the reader.")
+        Heading("Checklist for a good form", id: "checklist-for-a-good-form").h2
+
+        Markdown("- Every control has a `label:`. A placeholder is not a label.\n- Rules live in `validate` blocks, not in hand-written `derived` errors.\n- The submit button is `type: .submit`, so Enter submits.\n- The submit button is disabled while the request runs: `disabled: save.pending`.\n- The page says what happened afterwards, in an `Alert` or a `Toast`.\n- Server errors go back to their fields with `form.apply`.\n- The server checks everything again. The page's rules are for the reader.")
+
+        Heading("Troubleshooting", id: "troubleshooting").h2
+
+        Table(caption: "Troubleshooting") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("What you see").header
+                    Table.Cell("Why, and what to do").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`F01` on a `bind:`") }
+                    Table.Cell { Markdown("The target cannot be written: a constant, a derived value, a prop or a literal. Bind a `state` instead.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`F02` on a `bind:`") }
+                    Table.Cell { Markdown("The control cannot hold the state's type, such as a text `Input` on a `Number`. Use `.number`, or change the state's type.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`F03` on a `validate`") }
+                    Table.Cell("No control binds that state, or it is a derived value, so its rules can never pass.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T01` on a rule") }
+                    Table.Cell { Markdown("The rule does not fit the type, such as `minLength` on a `Number`. Use `min`/`max`.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`on submit` never runs") }
+                    Table.Cell { Markdown("The form is invalid, so the submit stopped. Check `form.errors`, or set `data-wf-validation=\"shown\"` to see every message.") }
+                }
+                Table.Row {
+                    Table.Cell("A button submits the form by accident")
+                    Table.Cell { Markdown("Only `type: .submit` submits. Check that the button is not the submit button.") }
+                }
+                Table.Row {
+                    Table.Cell("A server message never shows")
+                    Table.Cell { Markdown("`form.apply` matches each key to a field's `name:`. Give the control a `name:` equal to the key.") }
+                }
+                Table.Row {
+                    Table.Cell("A message shows before the reader has typed")
+                    Table.Cell { Markdown("The form uses `show: .live`. Use `.onBlur` or `.onSubmit`.") }
+                }
+            }
+        }
     }
 }

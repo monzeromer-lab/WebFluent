@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Diagnostics</title>
-    <meta name="description" content="Every WebFluent error and warning — structural errors and codes T, A, S, P, U and V — each with a program that draws it and the fix.">
+    <meta name="description" content="Every WebFluent error and warning, by code — what it means, a program that draws it, the message the compiler prints, and the fix.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/diagnostics">
     <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/diagnostics?lang=en">
     <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/diagnostics?lang=ar">
@@ -12,7 +12,7 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Diagnostics">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="Every WebFluent error and warning — structural errors and codes T, A, S, P, U and V — each with a program that draws it and the fix.">
+    <meta property="og:description" content="Every WebFluent error and warning, by code — what it means, a program that draws it, the message the compiler prints, and the fix.">
     <meta property="og:url" content="https://webfluent.monzeromer.dev/docs/guide/diagnostics">
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="ar_AR">
@@ -21,9 +21,9 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Diagnostics">
-    <meta name="twitter:description" content="Every WebFluent error and warning — structural errors and codes T, A, S, P, U and V — each with a program that draws it and the fix.">
+    <meta name="twitter:description" content="Every WebFluent error and warning, by code — what it means, a program that draws it, the message the compiler prints, and the fix.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/diagnostics#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/diagnostics","name":"Diagnostics","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Every WebFluent error and warning — structural errors and codes T, A, S, P, U and V — each with a program that draws it and the fix."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/diagnostics#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Diagnostics","item":"https://webfluent.monzeromer.dev/docs/guide/diagnostics"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/diagnostics#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/diagnostics","name":"Diagnostics","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Every WebFluent error and warning, by code — what it means, a program that draws it, the message the compiler prints, and the fix."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/diagnostics#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Diagnostics","item":"https://webfluent.monzeromer.dev/docs/guide/diagnostics"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -69,6 +69,9 @@
             </div>
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
+                    <a class="wf-sidebar__item" href="/docs">
+                        <p class="wf-text">Overview</p>
+                    </a>
                     <p class="wf-text group-label">Start</p>
                     <a class="wf-sidebar__item" href="/docs/guide/introduction">
                         <p class="wf-text num">01</p>
@@ -274,7 +277,7 @@
                 </aside>
                 <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
-                        <a class="wf-link" href="/docs/guide/introduction">Guide</a>
+                        <a class="wf-link" href="/docs">Guide</a>
                         <p class="wf-text">/</p>
                         <p class="wf-text wf-s8c71c534">Chapter 40</p>
                     </div>
@@ -285,7 +288,12 @@
                     <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
-<p><code>wf build</code>, <code>wf check</code>, <code>wf serve</code> and your editor report the same findings, from one pipeline. Each starts with its code and what is wrong, then the place in the <code>file:line:col</code> form editors and CI read, the line of source with the part that is wrong underlined, what to do about it, and a link to its entry here:</p>
+<p>This chapter is the reference for every finding the compiler reports. Each finding has a code, such as <code>T05</code>; search this page for the code to find its entry, or run <code>wf explain T05</code> to print the entry in your terminal.</p>
+<p><code>wf build</code>, <code>wf check</code>, <code>wf serve</code> and your editor report the same findings, from one pipeline. This chapter first explains how to read a finding and how to change what one counts as, then lists every code by family.</p>
+                            </div>
+                            <h2 class="wf-heading" id="reading-a-finding">Reading a finding</h2>
+                            <div class="wf-markdown">
+<p>Every finding is printed in the same layout. This one reports a misspelt field:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -303,30 +311,131 @@
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t05-a-field-or-method-that-does-not-exist</code>
                             </div>
                             <div class="wf-markdown">
+<p>From the top, a finding shows:</p>
+<ol>
+<li>its severity, its code and what is wrong;</li>
+<li>the place, in the <code>file:line:col</code> form that editors and CI problem matchers read;</li>
+<li>the line of source, with the part that is wrong underlined;</li>
+<li><code>help:</code> — what to do about it, when the compiler can say;</li>
+<li><code>docs:</code> — a link to the code's entry in this chapter.</li>
+</ol>
+<p>Colour is used only on a terminal, and never when <code>NO_COLOR</code> is set.</p>
+                            </div>
+                            <h2 class="wf-heading" id="errors-and-warnings">Errors and warnings</h2>
+                            <div class="wf-markdown">
+<p>Every code has a severity:</p>
 <ul>
-<li><strong>Errors</strong> stop the build: the program cannot mean what it says.</li>
-<li><strong>Warnings</strong> print and the build goes on: it means something, probably not what you wanted. Nothing is a warning that the compiler could have decided for itself.</li>
+<li>An <strong>error</strong> stops the build: the program cannot mean what it says.</li>
+<li>A <strong>warning</strong> prints and the build goes on: the program means something, probably not what you wanted. Nothing is a warning that the compiler could have decided for itself.</li>
 </ul>
-<p>Every stage runs whatever the one before it found, and every file is read even when another does not parse, so one build shows every mistake once — then one line sums them up: <code>error: the build stopped: 2 errors, 5 warnings</code>. A build that stops on its findings exits with <code>1</code>; one that could not run at all — a file it could not read, a config it could not load — with <code>2</code>.</p>
-<p><code>wf check --format json</code>, <code>sarif</code> or <code>github</code> writes the same findings for a tool (<a href="/docs/guide/cli#wf-check">Command line</a>), and <code>wf explain T05</code> prints a code's entry below in the terminal.</p>
-<p><strong>Fixes.</strong> Where the compiler knows the fix, it says so as edits, which your editor offers as a quick fix, <code>--format json</code> carries, and <a href="/docs/guide/cli#wf-fix"><code>wf fix</code></a> applies. A fix is offered only where it is certain; where it is not, the entry below says what to do instead. Each family has its decided fix:</p>
-<ul>
-<li><strong>The nearest name</strong>, wherever the code names a set: a field, member, method, variable, component, case or flag (<code>T02</code>, <code>T05</code>, <code>T06</code>, <code>T13</code>, <code>T16</code>, <code>E101</code>, <code>E103</code>), a prop (<code>C02</code>, <code>C04</code>), a route (<code>R01</code>, which also writes a relative link from the root), a store (<code>X05</code>), a locale (<code>I04</code>), a file of <code>public/</code> (<code>D01</code>), a CSS property or token (<code>V05</code>, <code>V06</code>), an icon (<code>V08</code>) and an event (<code>V09</code>).</li>
-<li><strong>What is missing, written in</strong>: <code>?.</code> for a read that may be null (<code>T04</code>), <code>(await …)</code> for a promise read as its value (<code>T17</code>), the missing props (<code>C01</code>), the missing arms of a <code>match</code> (<code>T15</code>) and an <code>error</code> arm (<code>T21</code>), a <code>Router</code> in an <code>app</code> with none (<code>R03</code>), <code>bind:</code> for a box that shows a state and never changes it (<code>F04</code>), <code>px</code> for a bare number where CSS wants a length (<code>V07</code>), <code>controls: true</code> (<code>A09</code>), and the <code>migrate</code> step a version is missing (<code>P01</code>) — with the version raised in the same change when a persisted shape changed (<code>D04</code>).</li>
-<li><strong>A name, drafted from the code</strong>: <code>alt: &quot;&quot;</code> for an image (<code>A01</code>); a label from what a control binds or an icon is (<code>A02</code>–<code>A04</code>), a link's from where it leads (<code>A06</code>), a dialog's title from what opens it (<code>A08</code>); the level that mends the outline (<code>A11</code>); the visible text at the start of an <code>aria-label</code> (<code>A15</code>). With nothing to draft from, there is no fix — an empty name would silence the warning and name nothing.</li>
-<li><strong>What is not used, removed</strong> — a state, derived value, action, store member or component (<code>U01</code>–<code>U05</code>), code after a <code>return</code> (<code>U06</code>), an allow that allows nothing (<code>U07</code>) — with <em>rename to <code>_name</code></em> as the second fix, for what is kept on purpose; a loop keyed <code>by item.id</code> when its body reads the item's <code>id</code> (<code>U09</code>).</li>
-<li><code>derived</code> for a state that copies a live value nothing changes (<code>X06</code>), a positional argument named for the one prop it can be (<code>C05</code>), and the prop marked <code>_</code> in the component's declaration (<code>C06</code>).</li>
-</ul>
-<p>A family's findings in one file are fixed at once as one change: the editor's <em>Fix all <code>V07</code> in this file</em>, or <code>wf fix --code V07</code>.</p>
-<p><strong>Allowing one finding.</strong> A <code>// wf-allow(CODE)</code> comment accepts a finding on purpose: on a line of its own it covers the next line of code, at the end of a line that line. It names codes or families, comma-separated — <code>// wf-allow(U01, A)</code>. Only what <a href="/docs/guide/config#lints"><code>lints</code></a> could lower may be allowed, and an allow that covers nothing is itself reported (<code>U07</code>), so allows do not outlive what they were for. <code>lints</code> says the same for a whole project.</p>
-<p>The code — <code>T05</code> — is the thing to search this page for. The families:</p>
+<p>Every stage of the compiler runs on whatever the stage before it found, and every file is read even when another does not parse — the parser picks up again at the next declaration. One build therefore shows every mistake once, then sums them up in one line: <code>error: the build stopped: 2 errors, 5 warnings</code>.</p>
+<p>A build that stops on its findings exits with <code>1</code>. A build that cannot run at all — a file it cannot read, a config it cannot load — exits with <code>2</code>. <code>--deny-warnings</code> on <code>wf build</code> or <code>wf check</code> makes a warning stop the build too.</p>
+                            </div>
+                            <h2 class="wf-heading" id="findings-for-a-tool">Findings for a tool</h2>
+                            <div class="wf-markdown">
+<p><code>--format</code> on <code>wf build</code> and <code>wf check</code> writes the same findings for a tool (<a href="/docs/guide/cli#wf-check">Command line</a>):</p>
                             </div>
                             <table class="wf-table">
-                                <caption class="wf-visually-hidden">Diagnostics</caption>
+                                <caption class="wf-visually-hidden">Findings for a tool</caption>
                                 <thead>
                                     <tr>
-                                        <th scope="col"></th>
-                                        <th scope="col"></th>
+                                        <th scope="col">Format</th>
+                                        <th scope="col">Output</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>json</code></p>
+                                            </div>
+                                        </td>
+                                        <td>One document on standard output, with every finding&#x27;s code, place, hint, related places and fixes.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>sarif</code></p>
+                                            </div>
+                                        </td>
+                                        <td>SARIF 2.1.0, for GitHub code scanning.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>github</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>::error</code> annotations, which a GitHub workflow shows on the pull request.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h2 class="wf-heading" id="fixes">Fixes</h2>
+                            <div class="wf-markdown">
+<p>Where the compiler knows the fix, the finding carries it as edits. Your editor offers it as a quick fix, <code>--format json</code> carries it in <code>fixes</code>, and <a href="/docs/guide/cli#wf-fix"><code>wf fix</code></a> applies it. A fix is offered only where it is certain; where it is not, the code's entry says what to do instead.</p>
+<p>Each kind of finding has its decided fix:</p>
+<ul>
+<li><strong>The nearest name</strong>, wherever the code names a set: a field, member, method, variable, component, case or flag (<code>T02</code>, <code>T05</code>, <code>T06</code>, <code>T13</code>, <code>T16</code>, <code>E101</code>, <code>E103</code>), a prop (<code>C02</code>, <code>C04</code>), a route (<code>R01</code>, which also rewrites a relative link from the root), a store (<code>X05</code>), a locale (<code>I04</code>), a file of <code>public/</code> (<code>D01</code>), a CSS property or token (<code>V05</code>, <code>V06</code>), an icon (<code>V08</code>) and an event (<code>V09</code>).</li>
+<li><strong>What is missing, written in</strong>: <code>?.</code> for a read that may be null (<code>T04</code>), <code>(await …)</code> for a promise read as its value (<code>T17</code>), the missing props (<code>C01</code>), the missing arms of a <code>match</code> (<code>T15</code>) and an <code>error</code> arm (<code>T21</code>), a <code>Router</code> in an <code>app</code> with none (<code>R03</code>), <code>bind:</code> for a box that shows a state and never changes it (<code>F04</code>), <code>px</code> for a bare number where CSS wants a length (<code>V07</code>), <code>controls: true</code> (<code>A09</code>), and the <code>migrate</code> step a version is missing (<code>P01</code>) — with the version raised in the same change when a persisted shape changed (<code>D04</code>).</li>
+<li><strong>A name, drafted from the code</strong>: <code>alt: &quot;&quot;</code> for an image (<code>A01</code>); a label from what a control binds or what an icon is (<code>A02</code>–<code>A04</code>), a link's from where it leads (<code>A06</code>), a dialog's title from what opens it (<code>A08</code>); the heading level that mends the outline (<code>A11</code>); the visible text at the start of an <code>aria-label</code> (<code>A15</code>). With nothing to draft from, there is no fix, because an empty name would silence the warning and name nothing.</li>
+<li><strong>What is not used, removed</strong> — a state, derived value, action, store member or component (<code>U01</code>–<code>U05</code>), code after a <code>return</code> (<code>U06</code>), an allow that allows nothing (<code>U07</code>) — with <em>rename to <code>_name</code></em> as the second fix, for what you keep on purpose; and a loop keyed <code>by item.id</code> when its body reads the item's <code>id</code> (<code>U09</code>).</li>
+<li><strong>A change of form</strong>: <code>derived</code> for a state that copies a live value nothing changes (<code>X06</code>), a positional argument named for the one prop it can be (<code>C05</code>), and the prop marked <code>_</code> in the component's declaration (<code>C06</code>).</li>
+</ul>
+<p>A family's findings in one file are fixed together, as one change: the editor's <strong>Fix all <code>V07</code> in this file</strong>, or <code>wf fix --code V07</code> for the whole project.</p>
+                            </div>
+                            <h2 class="wf-heading" id="changing-what-a-finding-counts-as">Changing what a finding counts as</h2>
+                            <div class="wf-markdown">
+<p><code>lints</code> in <code>webfluent.app.json</code> sets what a finding counts as for the whole project, by code or by family — <code>&quot;off&quot;</code>, <code>&quot;warn&quot;</code> or <code>&quot;error&quot;</code>. A code's setting wins over its family's:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{ <span class="wf-tok-prop">&quot;lints&quot;</span>: { <span class="wf-tok-prop">&quot;A11&quot;</span>: <span class="wf-tok-str">&quot;off&quot;</span>, <span class="wf-tok-prop">&quot;U&quot;</span>: <span class="wf-tok-str">&quot;error&quot;</span>, <span class="wf-tok-prop">&quot;R01&quot;</span>: <span class="wf-tok-str">&quot;warn&quot;</span> } }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>You can turn any warning off or raise it to an error. You can lower an error only when it cannot ship a broken page: <code>R01</code>, <code>C02</code>, <code>S04</code>, <code>I01</code>, <code>I02</code> and <code>I04</code>. Lowering any other error is refused (<a href="/docs/guide/config#lints">Configuration</a>).</p>
+                            </div>
+                            <h2 class="wf-heading" id="allowing-one-finding">Allowing one finding</h2>
+                            <div class="wf-markdown">
+<p>To accept one finding on purpose, write a <code>// wf-allow(CODE)</code> comment:</p>
+<ul>
+<li>on a line of its own, it covers the next line of code;</li>
+<li>at the end of a line, it covers that line.</li>
+</ul>
+<p>It names codes or families, comma-separated — <code>// wf-allow(U01, A)</code>. Only a finding that <a href="/docs/guide/config#lints"><code>lints</code></a> could lower may be allowed. An allow that covers nothing is itself reported (<code>U07</code>), so an allow does not outlive what it was for.</p>
+                            </div>
+                            <h2 class="wf-heading" id="explaining-a-code">Explaining a code</h2>
+                            <div class="wf-markdown">
+<p><code>wf explain CODE</code> prints a code's entry from this chapter, word for word; <code>wf explain</code> with no code lists every code with its severity and title.</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>wf explain T05
+<span class="wf-tok-prompt">$ </span>wf explain</code>
+                            </div>
+                            <h2 class="wf-heading" id="the-families">The families</h2>
+                            <div class="wf-markdown">
+<p>A code's letter is its family:</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">The families</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Family</th>
+                                        <th scope="col">What it covers</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -437,7 +546,7 @@
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>Every example below is compiled by the test suite, draws exactly the code it is filed under, and shows what the compiler prints for it.</p>
+<p>Each entry below has the same parts: the code and its title as the heading, what it means, a program that draws it, the message the compiler prints for that program, and the fix. The test suite compiles every example program, checks that it draws exactly the code it is filed under, and checks that the message shown is what the compiler prints.</p>
                             </div>
                             <h2 class="wf-heading" id="syntax-and-structure">Syntax and structure</h2>
                             <div class="wf-markdown">
@@ -707,7 +816,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;, la
   |
 4 |     n = n + 1
   |     ^
-  = help: Code that does something goes in `on click { … }`, an `action` or an `effect`; an element&#x27;s name is capitalised
+  = help: Code that does something goes in `on click { … }`, an `action` or an `effect`; an element's name is capitalised
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e105-a-statement-a-render-block-cannot-hold</code>
                             </div>
                             <div class="wf-markdown">
@@ -847,7 +956,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">error[E114]: `emit` fires a component&#x27;s event; a page has none
+                                <code class="wf-code wf-code--block wf-sa8223565">error[E114]: `emit` fires a component's event; a page has none
  --&gt; src/App.wf:3:33
   |
 3 |     Button(&quot;Save&quot;) { on click { emit saved() } }
@@ -881,12 +990,12 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">error[E116]: `pricingtable` is not a custom element&#x27;s tag
+                                <code class="wf-code wf-code--block wf-sa8223565">error[E116]: `pricingtable` is not a custom element's tag
  --&gt; src/App.wf:3:5
   |
 3 |     Element(&quot;pricingtable&quot;)
   |     ^^^^^^^
-  = help: A custom element&#x27;s tag is lower case with a hyphen: `Element(&quot;stripe-pricing-table&quot;, …)`
+  = help: A custom element's tag is lower case with a hyphen: `Element(&quot;stripe-pricing-table&quot;, …)`
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e116-a-tag-that-cannot-be-a-custom-element-s</code>
                             </div>
                             <div class="wf-markdown">
@@ -951,12 +1060,12 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">error[E118]: `env` is a name the language already has: the build&#x27;s settings, read as `env.PUBLIC_API`
+                                <code class="wf-code wf-code--block wf-sa8223565">error[E118]: `env` is a name the language already has: the build's settings, read as `env.PUBLIC_API`
  --&gt; src/App.wf:2:5
   |
 2 |     state env = &quot;staging&quot;
   |     ^^^^^^^^^^^^^^^^^^^^^
-  = help: Name it something of your own — `target` or `stage`: inside its scope every `env` would mean this, and the language&#x27;s would have no name
+  = help: Name it something of your own — `target` or `stage`: inside its scope every `env` would mean this, and the language's would have no name
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e118-a-name-the-language-already-has</code>
                             </div>
                             <div class="wf-markdown">
@@ -966,9 +1075,16 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 <li>the values the browser keeps current: <code>now</code>, <code>viewport</code>, <code>query</code>, <code>hash</code>, <code>theme</code>, <code>network</code>, <code>update</code>;</li>
 <li>the language's functions: <code>t</code>, <code>format</code>, <code>ago</code>, <code>log</code>, <code>navigate</code>, <code>fetch</code>, <code>uuid</code>, <code>sanitize</code>, <code>setLocale</code>, <code>setTheme</code>, <code>optimistic</code>, <code>beacon</code>, <code>animate</code>, <code>replayAnimation</code>, <code>every</code>, <code>after</code>, <code>ws</code>, <code>sse</code>, <code>broadcast</code>, <code>rtc</code>;</li>
 <li>the words a statement is written with: <code>state</code>, <code>persist</code>, <code>derived</code>, <code>effect</code>, <code>action</code>, <code>use</code>, <code>resource</code>, <code>validate</code>, <code>socket</code>, <code>stream</code>, <code>channel</code>, <code>peer</code>, <code>head</code>, <code>slot</code>, <code>part</code>, <code>if</code>, <code>else</code>, <code>for</code>, <code>in</code>, <code>by</code>, <code>show</code>, <code>match</code>, <code>children</code>, <code>emit</code>, <code>sequence</code>, <code>on</code>, <code>style</code>, <code>transition</code>, <code>let</code>, <code>return</code>, <code>await</code>, <code>try</code>, <code>catch</code>;</li>
-<li>and, at the top level, <code>WF</code>, the runtime the compiled pages call.</li>
+<li>at the top level, <code>WF</code>, the runtime the compiled pages call;</li>
+<li>in a store, the names every JavaScript object has — <code>valueOf</code>, <code>toString</code>, <code>constructor</code>, <code>hasOwnProperty</code>, <code>isPrototypeOf</code>, <code>propertyIsEnumerable</code>, <code>toLocaleString</code>, <code>__proto__</code> and its <code>__define…</code>/<code>__lookup…</code> kin: a store is an object whose members are its own, and a <code>valueOf</code> member replaced the one JavaScript calls itself, so the page threw as soon as it was drawn;</li>
+<li>and, as a prop, <code>__proto__</code>, which in the object a call passes sets its prototype instead (a prop named <code>toString</code> or <code>valueOf</code> is fine).</li>
 </ul>
 <p>The names a handler brings with it — <code>event</code>, <code>e</code>, <code>value</code>, <code>key</code> — and the browser's globals (<code>window</code>, <code>history</code>, …) are a program's to use, and so is any name as a field, a map key or an enum case: <code>type Box { env: String }</code> and <code>.env</code> are fine. <strong>Fix:</strong> Name it something of your own — <code>state target = &quot;staging&quot;</code> — and its reads with it. The message suggests one where there is a usual choice: <code>target</code> or <code>stage</code> for <code>env</code>, <code>search</code> for <code>query</code>, <code>scheme</code> for <code>theme</code>, <code>item</code> or a word for what it holds for <code>t</code>.</p>
+                            </div>
+                            <h3 class="wf-heading" id="e119-a-hidden-direction-control-in-the-source">E119 — A hidden direction control in the source</h3>
+                            <div class="wf-markdown">
+<p>Warning. An embedding, override or isolate control — U+202A to U+202E, U+2066 to U+2069 — is invisible, and it reorders what follows it: a comment that seems to close, or a string that seems to hold one word, can hide code that runs (Trojan Source, CVE-2021-42574). The editor draws each as a mark; the check names each by its line, its column and its Unicode name. <strong>Fix:</strong> remove it. Arabic beside Latin needs no control: each run takes the direction of its own letters.</p>
+<p>Names may be written in Arabic, or any script: a name starts with a letter and goes on with letters, digits, <code>_</code> and the marks of its letters, as UAX #31 says (<code>state عددٌ = 3</code>), and is one name however its letters were typed — أ precomposed or ا with a combining hamza (NFC).</p>
                             </div>
                             <h2 class="wf-heading" id="components">Components</h2>
                             <h3 class="wf-heading" id="c01-a-required-prop-or-field-left-out">C01 — A required prop or field left out</h3>
@@ -1095,7 +1211,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
   |
 3 |     Button(&quot;Save&quot;, colour: &quot;red&quot;)
   |                    ^^^^^^
-  = help: A typo here does nothing on screen; check the component&#x27;s props
+  = help: A typo here does nothing on screen; check the component's props
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#c04-an-attribute-a-built-in-does-not-declare</code>
                             </div>
                             <div class="wf-markdown">
@@ -1399,7 +1515,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
   |
 5 |     Input(bind: name, label: &quot;Name&quot;)
   |           ^^^^^^^^^^
-  = help: Bind a `state` (or a store&#x27;s state, or a field of a loop&#x27;s item); show a value with `value:`
+  = help: Bind a `state` (or a store's state, or a field of a loop's item); show a value with `value:`
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#f01-a-bind-to-something-that-cannot-be-written</code>
                             </div>
                             <div class="wf-markdown">
@@ -1532,7 +1648,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">warning[F05]: `plan` starts as `basic`, which is none of this select&#x27;s options
+                                <code class="wf-code wf-code--block wf-sa8223565">warning[F05]: `plan` starts as `basic`, which is none of this select's options
  --&gt; src/App.wf:4:5
   |
 4 |     Select(bind: plan, label: &quot;Plan&quot;) {
@@ -1567,7 +1683,7 @@ page About(path: &quot;/about&quot;, title: &quot;About&quot;, description: &quo
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">error[R01]: `/abuot` is not a route: no page&#x27;s `path` matches it
+                                <code class="wf-code wf-code--block wf-sa8223565">error[R01]: `/abuot` is not a route: no page's `path` matches it
  --&gt; src/App.wf:3:5
   |
 3 |     Link(&quot;About us&quot;, to: &quot;/abuot&quot;)
@@ -1669,7 +1785,7 @@ page Home(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;)
   |
 3 |     Image(src: &quot;images/cover.png&quot;, alt: &quot;&quot;)
   |     ^^^^^
-  = help: Write it from the site&#x27;s root: `&quot;/images/cover.png&quot;`
+  = help: Write it from the site's root: `&quot;/images/cover.png&quot;`
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#r04-a-relative-url-on-a-nested-route</code>
                             </div>
                             <div class="wf-markdown">
@@ -1700,7 +1816,7 @@ page Home(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;)
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">error[D02]: `persist pick` keeps a function, which cannot be written to the browser&#x27;s storage
+                                <code class="wf-code wf-code--block wf-sa8223565">error[D02]: `persist pick` keeps a function, which cannot be written to the browser's storage
  --&gt; src/App.wf:2:5
   |
 2 |     persist pick = (x) =&gt; x + 1
@@ -1913,10 +2029,10 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">error[T06]: `Cart` has no member `count`
- --&gt; src/App.wf:4:15
+ --&gt; src/App.wf:4:20
   |
 4 |     Heading(&quot;{Cart.count} items&quot;).h1
-  |               ^^^^
+  |                    ^^^^^
   = help: Its members are `items`
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t06-a-member-a-store-or-service-does-not-have</code>
                             </div>
@@ -2079,7 +2195,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
   |
 4 |     match n {
   |     ^^^^^^^^^
-  = help: Use `if` for a condition; `match` chooses among a resource&#x27;s states or an enum&#x27;s cases
+  = help: Use `if` for a condition; `match` chooses among a resource's states or an enum's cases
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t11-a-match-on-something-that-cannot-be-matched</code>
                             </div>
                             <div class="wf-markdown">
@@ -2483,6 +2599,10 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                             <h3 class="wf-heading" id="i04-a-locale-the-project-does-not-have">I04 — A locale the project does not have</h3>
                             <div class="wf-markdown">
 <p><code>setLocale(&quot;fr&quot;)</code> when <code>i18n.locales</code> is <code>[&quot;en&quot;, &quot;ar&quot;]</code>. <strong>Fix:</strong> add the locale and its file, or name one that exists.</p>
+                            </div>
+                            <h3 class="wf-heading" id="i05-words-a-reader-sees-that-are-not-translated">I05 — Words a reader sees that are not translated</h3>
+                            <div class="wf-markdown">
+<p>Warning, under <code>&quot;literals&quot;: true</code>. <code>Text(&quot;{plural(n, &quot;file&quot;)} found&quot;)</code> splices a call, so no table can key it; <code>derived said = &quot;{n} errors&quot;</code> shown as <code>Text(said)</code> is not looked up, because only a value whose name says it is words (<code>saidText</code>, <code>errorsLabel</code>) is. A reader in Arabic sees both in English. <strong>Fix:</strong> splice names, <code>derived filesText = &quot;{n} files&quot;</code> then <code>Text(&quot;{filesText} found&quot;)</code>, and name what is words as words.</p>
                             </div>
                             <h2 class="wf-heading" id="accessibility">Accessibility</h2>
                             <div class="wf-markdown">
@@ -2990,7 +3110,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
   |
 4 |     for r in rows by r { Text(r, id: &quot;row&quot;) }
   |                          ^^^^
-  = help: Make it unique — `id: &quot;row-{item.id}&quot;` — or drop it; a label&#x27;s `for` and `aria-*` find one element by id
+  = help: Make it unique — `id: &quot;row-{item.id}&quot;` — or drop it; a label's `for` and `aria-*` find one element by id
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#a16-one-id-on-several-elements</code>
                             </div>
                             <div class="wf-markdown">
@@ -3113,7 +3233,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">warning[S03]: Page P&#x27;s description is 178 characters; a search result shows about 160
+                                <code class="wf-code wf-code--block wf-sa8223565">warning[S03]: Page P's description is 178 characters; a search result shows about 160
  --&gt; src/App.wf:1:1
   |
 1 | page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;A description that goes on for far longer than any search result will ever show, because it keeps adding clauses, qualifications and asides until the snippet is cut mid-sentence.&quot;) {
@@ -3581,7 +3701,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">warning[U10]: every case of `Tone` has its own arm, so this `match`&#x27;s `else` is never reached
+                                <code class="wf-code wf-code--block wf-sa8223565">warning[U10]: every case of `Tone` has its own arm, so this `match`'s `else` is never reached
  --&gt; src/App.wf:5:5
   |
 5 |     match tone {
@@ -3621,6 +3741,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
   |
 3 |     Button(primary)
   |            ^^^^^^^
+  = help: did you mean `.primary`?
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v01-a-bare-word-that-means-nothing</code>
                             </div>
                             <div class="wf-markdown">
@@ -3683,12 +3804,12 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">warning[V04]: `class:` names `wf-btn`, one of the engine&#x27;s own classes
+                                <code class="wf-code wf-code--block wf-sa8223565">warning[V04]: `class:` names `wf-btn`, one of the engine's own classes
  --&gt; src/App.wf:3:5
   |
 3 |     Card(class: &quot;wf-btn&quot;) { Text(&quot;x&quot;) }
   |     ^^^^
-  = help: `wf-` classes are the built-ins&#x27;: one added here brings another built-in&#x27;s rules with it. Name a class of your own, or use the flag that sets the look
+  = help: `wf-` classes are the built-ins': one added here brings another built-in's rules with it. Name a class of your own, or use the flag that sets the look
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v04-a-class-that-is-the-engine-s</code>
                             </div>
                             <div class="wf-markdown">
@@ -3821,7 +3942,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
   |
 3 |     Icon(&quot;rocket&quot;)
   |          ^
-  = help: The icons: close, menu, search, home, user, settings, check, plus, minus, edit, trash, star, heart, mail, bell, download, upload, eye, link, calendar, filter, chevron-down, chevron-right, chevron-left, info, warning, arrow-left, arrow-right, logout, copy, sun, moon, folder, folder-plus, folder-off, file, file-plus, refresh, alert-circle, clock, dot, diff, book, git-pull-request, pin, git-branch, more-horizontal, window-minimize, window-maximize, outline, help-circle, collapse-all, locate, chevron-up, globe, external-link, panel-down, panel-up
+  = help: The icons: close, menu, search, home, user, settings, check, plus, minus, edit, trash, star, heart, mail, bell, download, upload, eye, link, calendar, filter, chevron-down, chevron-right, chevron-left, info, warning, arrow-left, arrow-right, logout, copy, sun, moon, folder, folder-plus, folder-off, file, file-plus, refresh, alert-circle, clock, dot, diff, book, git-pull-request, pin, git-branch, more-horizontal, window-minimize, window-maximize, outline, help-circle, collapse-all, locate, chevron-up, globe, external-link, panel-down, panel-up, code, monitor, git-commit, play, layers, insert, grid, list, square, pill, image, sparkle, lock, type
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v08-an-icon-the-runtime-does-not-draw</code>
                             </div>
                             <div class="wf-markdown">
@@ -3983,6 +4104,14 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                 <div class="wf-stack wf-gap--lg wf-sac91c322" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
+                        <a class="wf-link wf-s3e136ca4" href="#reading-a-finding">Reading a finding</a>
+                        <a class="wf-link wf-s3e136ca4" href="#errors-and-warnings">Errors and warnings</a>
+                        <a class="wf-link wf-s3e136ca4" href="#findings-for-a-tool">Findings for a tool</a>
+                        <a class="wf-link wf-s3e136ca4" href="#fixes">Fixes</a>
+                        <a class="wf-link wf-s3e136ca4" href="#changing-what-a-finding-counts-as">Changing what a finding counts as</a>
+                        <a class="wf-link wf-s3e136ca4" href="#allowing-one-finding">Allowing one finding</a>
+                        <a class="wf-link wf-s3e136ca4" href="#explaining-a-code">Explaining a code</a>
+                        <a class="wf-link wf-s3e136ca4" href="#the-families">The families</a>
                         <a class="wf-link wf-s3e136ca4" href="#syntax-and-structure">Syntax and structure</a>
                         <a class="wf-link wf-s3e136ca4" href="#components">Components</a>
                         <a class="wf-link wf-s3e136ca4" href="#state-and-reactivity">State and reactivity</a>

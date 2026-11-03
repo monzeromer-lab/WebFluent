@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Deploying</title>
-    <meta name="description" content="Deploying a build to GitHub Pages, Netlify, Vercel, Cloudflare Pages, nginx, Apache, Caddy or Docker, with cache and security headers.">
+    <meta name="description" content="Deploy a build to GitHub Pages, Netlify, Vercel, Cloudflare Pages, nginx, Apache, Caddy or Docker, with cache and security headers.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/deploying">
     <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/deploying?lang=en">
     <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/deploying?lang=ar">
@@ -12,7 +12,7 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Deploying">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="Deploying a build to GitHub Pages, Netlify, Vercel, Cloudflare Pages, nginx, Apache, Caddy or Docker, with cache and security headers.">
+    <meta property="og:description" content="Deploy a build to GitHub Pages, Netlify, Vercel, Cloudflare Pages, nginx, Apache, Caddy or Docker, with cache and security headers.">
     <meta property="og:url" content="https://webfluent.monzeromer.dev/docs/guide/deploying">
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="ar_AR">
@@ -21,9 +21,9 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Deploying">
-    <meta name="twitter:description" content="Deploying a build to GitHub Pages, Netlify, Vercel, Cloudflare Pages, nginx, Apache, Caddy or Docker, with cache and security headers.">
+    <meta name="twitter:description" content="Deploy a build to GitHub Pages, Netlify, Vercel, Cloudflare Pages, nginx, Apache, Caddy or Docker, with cache and security headers.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/deploying#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/deploying","name":"Deploying","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Deploying a build to GitHub Pages, Netlify, Vercel, Cloudflare Pages, nginx, Apache, Caddy or Docker, with cache and security headers."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/deploying#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Deploying","item":"https://webfluent.monzeromer.dev/docs/guide/deploying"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/deploying#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/deploying","name":"Deploying","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Deploy a build to GitHub Pages, Netlify, Vercel, Cloudflare Pages, nginx, Apache, Caddy or Docker, with cache and security headers."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/deploying#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Deploying","item":"https://webfluent.monzeromer.dev/docs/guide/deploying"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -69,6 +69,9 @@
             </div>
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
+                    <a class="wf-sidebar__item" href="/docs">
+                        <p class="wf-text">Overview</p>
+                    </a>
                     <p class="wf-text group-label">Start</p>
                     <a class="wf-sidebar__item" href="/docs/guide/introduction">
                         <p class="wf-text num">01</p>
@@ -274,29 +277,37 @@
                 </aside>
                 <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
-                        <a class="wf-link" href="/docs/guide/introduction">Guide</a>
+                        <a class="wf-link" href="/docs">Guide</a>
                         <p class="wf-text">/</p>
                         <p class="wf-text wf-s8c71c534">Chapter 29</p>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s28a8547f">
                         <h1 class="wf-heading wf-sa3503382">Deploying</h1>
-                        <p class="wf-text wf-sfd35f593">The build is a folder of static files. Here is how to put it on GitHub Pages, Netlify, Vercel, Cloudflare Pages, a server of your own, or a container.</p>
+                        <p class="wf-text wf-sfd35f593">The build is a folder of static files. Put it on GitHub Pages, Netlify, Vercel, Cloudflare Pages, a server of your own, or a container.</p>
                     </div>
                     <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
-<p><code>wf build</code> writes <code>build/</code>: HTML, CSS, JavaScript, images, <code>sitemap.xml</code>, <code>robots.txt</code>, <code>_headers</code>, and a <code>.gz</code> beside every text file. That folder is the whole site. Any host that serves static files can serve it; there is no server process to run.</p>
-<p>The same folder is also what a desktop shell shows: <a href="/docs/guide/desktop">Desktop apps</a> makes a Tauri or an Electron app of it.</p>
-<p>Before the first deploy:</p>
-<ol>
-<li>Set <code>meta.site_url</code> to the address the site will have, and <code>build.base_path</code> if it lives under a sub-path (<code>/docs</code>).</li>
-<li>Decide static or single-page (<a href="/docs/guide/static-and-spa">chapter 26</a>): a single-page build needs the host to answer every path with <code>index.html</code>.</li>
-<li>Run <code>wf build</code> and <code>wf verify</code> — the second loads every page in a real browser and fails on errors.</li>
-</ol>
+<p>This chapter shows you how to put a WebFluent site on the web. <code>wf build</code> writes one folder, <code>build/</code>, and that folder is the whole site: any host that serves static files can serve it, and there is no server process to run.</p>
+<p>The folder holds HTML, CSS, JavaScript, images, <code>sitemap.xml</code>, <code>robots.txt</code>, <code>_headers</code> (the security headers, for hosts that read the file), and a <code>.gz</code> file beside every text file. The same folder is also what a desktop shell shows: <a href="/docs/guide/desktop">Desktop apps</a> makes a Tauri or an Electron app of it.</p>
                             </div>
-                            <h2 class="wf-heading" id="installing-wf-on-a-build-machine">Installing wf on a build machine</h2>
+                            <h2 class="wf-heading" id="before-you-start">Before you start</h2>
                             <div class="wf-markdown">
-<p>Every recipe below runs the same two lines on the host's build machine:</p>
+<p>Do these once, before the first deploy:</p>
+<ol>
+<li>Set <code>meta.site_url</code> in <code>webfluent.app.json</code> to the address the site will have. If the site lives under a sub-path (<code>/docs</code>), also set <code>build.base_path</code>.</li>
+<li>Decide between a static build and a single-page build (<a href="/docs/guide/static-and-spa">Static sites and SPAs</a>). A single-page build needs the host to answer every path with <code>index.html</code>.</li>
+<li>Build the site and load it in a real browser:</li>
+</ol>
+<pre><code class="language-bash wf build wf verify ```">
+   `wf verify` loads every page in headless Chrome and fails on a script error, a failed request or a blank page.
+
+A static build writes each page as its own `index.html` (`/contact` is `contact/index.html`). A page whose `path` is `*` is written to the root as `404.html`, which is the file most static hosts serve for a path they have no file for.
+</code></pre>
+                            </div>
+                            <h2 class="wf-heading" id="install-wf-on-a-build-machine">Install wf on a build machine</h2>
+                            <div class="wf-markdown">
+<p>To build on the host's build machine, install <code>wf</code> and run the build. Every recipe in this chapter uses these two lines:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -305,198 +316,167 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash
+<span class="wf-tok-prompt">$ </span>~/.webfluent/bin/wf build</code>
                             </div>
                             <div class="wf-markdown">
-<p>Pin a version so a release cannot change a deploy under you: <code>WF_VERSION=v5.11.0</code>. Or build locally and upload <code>build/</code> — it is only files.</p>
-                            </div>
-                            <h2 class="wf-heading" id="github-pages">GitHub Pages</h2>
-                            <div class="wf-markdown">
-<p>A project site is served under <code>https://&lt;you&gt;.github.io/&lt;repo&gt;/</code>, so set <code>&quot;base_path&quot;: &quot;/&lt;repo&gt;&quot;</code> and <code>&quot;site_url&quot;: &quot;https://&lt;you&gt;.github.io/&lt;repo&gt;&quot;</code>. Then <code>.github/workflows/pages.yml</code>:</p>
+<p>Pin a version so that a new release cannot change a deploy without you knowing. Set <code>WF_VERSION</code> for the install script:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">yaml</p>
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="yaml" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">name: Deploy
-on:
-  push:
-    branches: [main]
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/checkout@v4
-      - run: curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v5.11.0 bash
-      - run: ~/.webfluent/bin/wf build
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: build
-      - id: deployment
-        uses: actions/deploy-pages@v4</code>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v5.11.0 bash</code>
                             </div>
                             <div class="wf-markdown">
-<p>In <em>Settings → Pages</em>, set the source to <em>GitHub Actions</em>. GitHub Pages serves <code>404.html</code> for unknown paths. It answers <code>/contact</code> with a <code>301</code> to <code>/contact/</code>, so set <code>&quot;clean_urls&quot;: &quot;file&quot;</code> (or <code>&quot;directory&quot;</code>) in <code>build</code> and the canonical address of every page is one it serves without a redirect (<a href="/docs/guide/content#addresses-that-do-not-redirect">chapter 27</a>). It ignores <code>_headers</code>; the Content-Security-Policy still ships as a <code>&lt;meta&gt;</code> tag in every page.</p>
+<p>You can also build on your own machine and upload <code>build/</code>. It is only files.</p>
                             </div>
-                            <h2 class="wf-heading" id="netlify">Netlify</h2>
+                            <h2 class="wf-heading" id="deploy-to-github-pages">Deploy to GitHub Pages</h2>
                             <div class="wf-markdown">
-<p><code>netlify.toml</code> at the project's root:</p>
-                            </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">toml</p>
-                                    </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="toml" type="button">Copy</button>
-                                </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">[build]
-  command = &quot;curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash &amp;&amp; ~/.webfluent/bin/wf build&quot;
-  publish = &quot;build&quot;</code>
-                            </div>
-                            <div class="wf-markdown">
-<p>Netlify reads <code>_headers</code> from the build, so the security headers apply. For a single-page build, add <code>public/_redirects</code> holding <code>/*  /index.html  200</code>.</p>
-                            </div>
-                            <h2 class="wf-heading" id="cloudflare-pages">Cloudflare Pages</h2>
-                            <div class="wf-markdown">
-<p>Build command as for Netlify, output directory <code>build</code>. Cloudflare reads <code>_headers</code> and <code>_redirects</code> the same way.</p>
-                            </div>
-                            <h2 class="wf-heading" id="vercel">Vercel</h2>
-                            <div class="wf-markdown">
-<p><code>vercel.json</code>:</p>
-                            </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">json</p>
-                                    </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
-                                </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">{
-  &quot;buildCommand&quot;: &quot;curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash &amp;&amp; ~/.webfluent/bin/wf build&quot;,
-  &quot;outputDirectory&quot;: &quot;build&quot;,
-  &quot;headers&quot;: [
-    {
-      &quot;source&quot;: &quot;/(.*)&quot;,
-      &quot;headers&quot;: [
-        { &quot;key&quot;: &quot;X-Content-Type-Options&quot;, &quot;value&quot;: &quot;nosniff&quot; },
-        { &quot;key&quot;: &quot;Referrer-Policy&quot;, &quot;value&quot;: &quot;strict-origin-when-cross-origin&quot; },
-        { &quot;key&quot;: &quot;X-Frame-Options&quot;, &quot;value&quot;: &quot;DENY&quot; }
-      ]
-    }
-  ]
-}</code>
-                            </div>
-                            <div class="wf-markdown">
-<p>Vercel does not read <code>_headers</code>: copy what the build wrote there into <code>headers</code>, including the <code>Content-Security-Policy</code> line. For a single-page build add <code>&quot;rewrites&quot;: [{ &quot;source&quot;: &quot;/(.*)&quot;, &quot;destination&quot;: &quot;/index.html&quot; }]</code>.</p>
-                            </div>
-                            <h2 class="wf-heading" id="nginx">nginx</h2>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">nginx</p>
-                                    </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="nginx" type="button">Copy</button>
-                                </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">server {
-    listen 443 ssl http2;
-    server_name example.com;
-    root /var/www/site;
+<p>GitHub serves a project site under <code>https://&lt;you&gt;.github.io/&lt;repo&gt;/</code>, so the build must know that sub-path.</p>
+<ol>
+<li>In <code>webfluent.app.json</code>, set <code>&quot;base_path&quot;: &quot;/&lt;repo&gt;&quot;</code> in <code>build</code> and <code>&quot;site_url&quot;: &quot;https://&lt;you&gt;.github.io/&lt;repo&gt;&quot;</code> in <code>meta</code>.</li>
+<li>GitHub Pages answers <code>/contact</code> with a <code>301</code> redirect to <code>/contact/</code>. To make the canonical address of every page one it serves without a redirect, also set <code>&quot;clean_urls&quot;: &quot;file&quot;</code> (or <code>&quot;directory&quot;</code>) in <code>build</code> (<a href="/docs/guide/content#keep-addresses-from-redirecting">Content</a>).</li>
+<li>Add <code>.github/workflows/pages.yml</code>:</li>
+</ol>
+<pre><code class="language-yaml name: Deploy on: push: branches: [main] permissions: contents: read pages: write id-token: write jobs: deploy: runs-on: ubuntu-latest environment: name: github-pages url: ${{ steps.deployment.outputs.page_url }} steps:">         - uses: actions/checkout@v4
+         - run: curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v5.11.0 bash
+         - run: ~/.webfluent/bin/wf build
+         - uses: actions/upload-pages-artifact@v3 with: path: build
+         - id: deployment uses: actions/deploy-pages@v4 ```
 
-    gzip_static on;                          # serve the .gz files the build wrote
+4. In the repository's **Settings → Pages**, set the source to **GitHub Actions**.
+5. Push to `main`.
 
-    location / {
-        try_files $uri $uri/ $uri.html =404; # a static build
-        # try_files $uri $uri/ /index.html;  # a single-page build
-    }
-    error_page 404 /404.html;
+GitHub Pages serves `404.html` for a path it has no file for. It ignores `_headers`, but the Content-Security-Policy still ships as a `&lt;meta&gt;` tag in every page.
 
-    location = /sw.js { add_header Cache-Control &quot;no-cache&quot;; }
-    location ~* \.(webp|avif|jpg|jpeg|png)$ { add_header Cache-Control &quot;public, max-age=31536000, immutable&quot;; }
-
-    add_header X-Content-Type-Options nosniff always;
-    add_header Referrer-Policy strict-origin-when-cross-origin always;
-    add_header X-Frame-Options DENY always;
-    # add_header Content-Security-Policy &quot;…as in build/_headers…&quot; always;
-}</code>
+**Verify it:** open the URL the workflow's deploy step prints, then open a page other than the home page directly and reload it. With `clean_urls` set, the address stays as you typed it, with no redirect.
+</code></pre>
                             </div>
+                            <h2 class="wf-heading" id="deploy-to-netlify">Deploy to Netlify</h2>
                             <div class="wf-markdown">
-<p>Upload with anything: <code>rsync -a --delete build/ server:/var/www/site/</code>.</p>
+<ol>
+<li>Add <code>netlify.toml</code> at the project's root:</li>
+</ol>
+<pre><code class="language-toml [build] command = &quot;curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash &amp;&amp; ~/.webfluent/bin/wf build&quot; publish = &quot;build&quot; ```">
+2. For a single-page build, add `public/_redirects` with this line. The build copies it to the root of `build/`:
+
+   ```text /*  /index.html  200 ```
+
+3. Connect the repository in Netlify, or push to the branch it deploys.
+
+Netlify reads `_headers` from the build, so the security headers apply with no further setting.
+
+**Verify it:** in the browser's network panel, select the page's document request. Its response headers include `Content-Security-Policy` and `X-Content-Type-Options: nosniff`, which came from `_headers`.
+</code></pre>
                             </div>
-                            <h2 class="wf-heading" id="apache">Apache</h2>
+                            <h2 class="wf-heading" id="deploy-to-cloudflare-pages">Deploy to Cloudflare Pages</h2>
                             <div class="wf-markdown">
-<p><code>public/.htaccess</code> is copied to the build's root:</p>
+<ol>
+<li>In the Cloudflare Pages project, set the build command to the one in the Netlify recipe above: <code>curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash &amp;&amp; ~/.webfluent/bin/wf build</code>.</li>
+<li>Set the build output directory to <code>build</code>.</li>
+<li>For a single-page build, add <code>public/_redirects</code> as for Netlify.</li>
+</ol>
+<p>Cloudflare Pages reads <code>_headers</code> and <code>_redirects</code> the same way Netlify does.</p>
+<p><strong>Verify it:</strong> check the response headers in the network panel, as for Netlify, and open a deep link directly.</p>
+                            </div>
+                            <h2 class="wf-heading" id="deploy-to-vercel">Deploy to Vercel</h2>
+                            <div class="wf-markdown">
+<ol>
+<li>Add <code>vercel.json</code> at the project's root:</li>
+</ol>
+<pre><code class="language-json { &quot;buildCommand&quot;: &quot;curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash &amp;&amp; ~/.webfluent/bin/wf build&quot;, &quot;outputDirectory&quot;: &quot;build&quot;, &quot;headers&quot;: [ { &quot;source&quot;: &quot;/(.*)&quot;, &quot;headers&quot;: [ { &quot;key&quot;: &quot;X-Content-Type-Options&quot;, &quot;value&quot;: &quot;nosniff&quot; }, { &quot;key&quot;: &quot;Referrer-Policy&quot;, &quot;value&quot;: &quot;strict-origin-when-cross-origin&quot; }, { &quot;key&quot;: &quot;X-Frame-Options&quot;, &quot;value&quot;: &quot;DENY&quot; } ] } ] } ```">
+2. Vercel does not read `_headers`. Copy every header the build wrote in `build/_headers` into `headers`, including the `Content-Security-Policy` line.
+3. For a single-page build, add `&quot;rewrites&quot;: [{ &quot;source&quot;: &quot;/(.*)&quot;, &quot;destination&quot;: &quot;/index.html&quot; }]`.
+
+**Verify it:** compare the response headers in the network panel with `build/_headers`. Each header in the file should be there.
+</code></pre>
+                            </div>
+                            <h2 class="wf-heading" id="serve-with-nginx">Serve with nginx</h2>
+                            <div class="wf-markdown">
+<ol>
+<li>Add a <code>server</code> block. Pick the <code>try_files</code> line for your kind of build:</li>
+</ol>
+<pre><code class="language-nginx server { listen 443 ssl http2; server_name example.com; root /var/www/site;">
+       gzip_static on;                          # serve the .gz files the build wrote
+
+       location / { try_files $uri $uri/ $uri.html =404; # a static build # try_files $uri $uri/ /index.html;  # a single-page build } error_page 404 /404.html;
+
+       location = /sw.js { add_header Cache-Control &quot;no-cache&quot;; } location ~* \.(webp|avif|jpg|jpeg|png)$ { add_header Cache-Control &quot;public, max-age=31536000, immutable&quot;; }
+
+       add_header X-Content-Type-Options nosniff always; add_header Referrer-Policy strict-origin-when-cross-origin always; add_header X-Frame-Options DENY always; # add_header Content-Security-Policy &quot;…as in build/_headers…&quot; always; } ```
+
+2. Upload the build with any tool. For example:
+
+   ```bash rsync -a --delete build/ server:/var/www/site/ ```
+
+3. Reload nginx.
+
+**Verify it:** `curl -I` a page and check the headers. Ask for a compressed copy and check that nginx sends the build's `.gz` file:
+</code></pre>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">apache</p>
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="apache" type="button">Copy</button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">Options -MultiViews
-RewriteEngine On
-# A single-page build:
-# RewriteCond %{REQUEST_FILENAME} !-f
-# RewriteRule ^ /index.html [L]
-ErrorDocument 404 /404.html
-Header always set X-Content-Type-Options &quot;nosniff&quot;
-Header always set X-Frame-Options &quot;DENY&quot;</code>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>curl -sI -H &quot;Accept-Encoding: gzip&quot; https://example.com/app.js</code>
                             </div>
                             <div class="wf-markdown">
-<p>For the precompressed files, turn on <code>mod_deflate</code>, or serve <code>.gz</code> with <code>MultiViews</code> and <code>AddEncoding gzip .gz</code>.</p>
+<p>The response has <code>Content-Encoding: gzip</code>.</p>
                             </div>
-                            <h2 class="wf-heading" id="caddy">Caddy</h2>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">text</p>
-                                    </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
-                                </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">example.com {
-    root * /var/www/site
-    encode gzip
-    file_server {
-        precompressed gzip
-    }
-    try_files {path} {path}/ {path}.html /index.html
-    header X-Content-Type-Options nosniff
-}</code>
-                            </div>
-                            <h2 class="wf-heading" id="docker">Docker</h2>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">dockerfile</p>
-                                    </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="dockerfile" type="button">Copy</button>
-                                </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">FROM debian:stable-slim AS build
-RUN apt-get update &amp;&amp; apt-get install -y curl ca-certificates
-RUN curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash
-WORKDIR /site
-COPY . .
-RUN /root/.webfluent/bin/wf build
+                            <h2 class="wf-heading" id="serve-with-apache">Serve with Apache</h2>
+                            <div class="wf-markdown">
+<ol>
+<li>Put this in <code>public/.htaccess</code>. The build copies it to the root of <code>build/</code>:</li>
+</ol>
+<pre><code class="language-apache Options -MultiViews RewriteEngine On # A single-page build: # RewriteCond %{REQUEST_FILENAME} !-f # RewriteRule ^ /index.html [L] ErrorDocument 404 /404.html Header always set X-Content-Type-Options &quot;nosniff&quot; Header always set X-Frame-Options &quot;DENY&quot; ```">
+2. For a single-page build, uncomment the two rewrite lines.
+3. Compress the text files. Either turn on `mod_deflate`, which compresses on the way out, or serve the build's `.gz` files with `MultiViews` (in place of `-MultiViews`) and `AddEncoding gzip .gz`.
+4. Upload `build/` to the site's document root.
 
-FROM nginx:alpine
-COPY --from=build /site/build /usr/share/nginx/html</code>
+**Verify it:** `curl -I` a page and check for `X-Content-Type-Options` and `X-Frame-Options`. Open a path that does not exist and check that you get the site's `404.html`.
+</code></pre>
                             </div>
+                            <h2 class="wf-heading" id="serve-with-caddy">Serve with Caddy</h2>
                             <div class="wf-markdown">
-<p>Add the nginx settings above as <code>/etc/nginx/conf.d/default.conf</code>.</p>
+<ol>
+<li>Add a site block to the <code>Caddyfile</code>:</li>
+</ol>
+<pre><code class="language-text example.com { root * /var/www/site encode gzip file_server { precompressed gzip } try_files {path} {path}/ {path}.html /index.html header X-Content-Type-Options nosniff } ```">
+   `precompressed gzip` serves the build's `.gz` files. The last entry of `try_files`, `/index.html`, is the single-page fallback; remove it for a static build, so an unknown path is a 404.
+2. Upload `build/` to `/var/www/site` and reload Caddy.
+
+**Verify it:** open a deep link directly and reload it, then check the headers with `curl -I`.
+</code></pre>
                             </div>
-                            <h2 class="wf-heading" id="cache-headers">Cache headers</h2>
+                            <h2 class="wf-heading" id="build-a-docker-image">Build a Docker image</h2>
+                            <div class="wf-markdown">
+<ol>
+<li>Add a <code>Dockerfile</code>. The first stage installs <code>wf</code> and builds the site; the second serves it with nginx:</li>
+</ol>
+<pre><code class="language-dockerfile FROM debian:stable-slim AS build RUN apt-get update &amp;&amp; apt-get install -y curl ca-certificates RUN curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash WORKDIR /site COPY . . RUN /root/.webfluent/bin/wf build">
+   FROM nginx:alpine COPY --from=build /site/build /usr/share/nginx/html ```
+
+2. To use the settings from [Serve with nginx](#serve-with-nginx), copy them into the second stage as `/etc/nginx/conf.d/default.conf`. When TLS ends in front of the container, write `listen 80;` in place of the `listen 443 ssl http2;` line.
+3. Build and run the image:
+
+   ```bash docker build -t site . docker run -p 8080:80 site ```
+
+**Verify it:** open `http://localhost:8080` and a deep link, and check the headers with `curl -I http://localhost:8080/`.
+</code></pre>
+                            </div>
+                            <h2 class="wf-heading" id="set-cache-headers">Set cache headers</h2>
+                            <div class="wf-markdown">
+<p>To let browsers keep files without serving a stale site, set <code>Cache-Control</code> by the kind of file:</p>
+                            </div>
                             <table class="wf-table">
-                                <caption class="wf-visually-hidden">Cache headers</caption>
+                                <caption class="wf-visually-hidden">Set cache headers</caption>
                                 <thead>
                                     <tr>
                                         <th scope="col">Files</th>
@@ -560,15 +540,31 @@ COPY --from=build /site/build /usr/share/nginx/html</code>
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p><code>no-cache</code> still lets the browser keep a copy: it asks, and a <code>304</code> answers without sending the file again.</p>
+<p><code>no-cache</code> still lets the browser keep a copy. The browser asks the server each time, and a <code>304 Not Modified</code> answer means it does not download the file again.</p>
                             </div>
-                            <h2 class="wf-heading" id="security-headers">Security headers</h2>
+                            <h2 class="wf-heading" id="set-security-headers">Set security headers</h2>
                             <div class="wf-markdown">
-<p>With <code>build.csp</code> on, every page carries its Content-Security-Policy as a <code>&lt;meta&gt;</code> tag, and <code>build/_headers</code> holds the same policy plus <code>X-Content-Type-Options</code>, <code>Referrer-Policy</code>, <code>X-Frame-Options</code> and <code>frame-ancestors</code> — which only work as real headers. Netlify and Cloudflare Pages read the file; elsewhere set the headers as above. Serve over HTTPS, with HSTS once you are sure. <a href="/docs/guide/security#before-you-deploy">Security</a> has the checklist.</p>
+<p>With <code>build.csp</code> on, every page carries its Content-Security-Policy as a <code>&lt;meta&gt;</code> tag. <code>build/_headers</code> holds the same policy, plus <code>X-Content-Type-Options</code>, <code>Referrer-Policy</code>, <code>X-Frame-Options</code> and the policy's <code>frame-ancestors</code>, which only work as real HTTP headers. This is the file a build writes:</p>
                             </div>
-                            <h2 class="wf-heading" id="an-api-on-the-same-origin">An API on the same origin</h2>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY</code>
+                            </div>
                             <div class="wf-markdown">
-<p>The simplest way to call a backend from a WebFluent site is to serve both from one origin — <code>/</code> the site, <code>/api</code> the backend — so there is no CORS and a session cookie just works:</p>
+<p>Netlify and Cloudflare Pages read the file. On any other host, set the same headers as the recipes above show. Serve the site over HTTPS, and turn on HSTS once you are sure HTTPS works everywhere. <a href="/docs/guide/security#before-you-deploy">Security</a> has the full checklist.</p>
+                            </div>
+                            <h2 class="wf-heading" id="serve-an-api-on-the-same-origin">Serve an API on the same origin</h2>
+                            <div class="wf-markdown">
+<p>To call a backend without CORS, serve the site and the backend from one origin: the site at <code>/</code>, the backend at <code>/api</code>. A session cookie then works with no extra setting. In nginx:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -582,15 +578,16 @@ COPY --from=build /site/build /usr/share/nginx/html</code>
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Then <code>api Backend(base: &quot;/api&quot;)</code> needs nothing else. Netlify, Vercel and Cloudflare have the same with a rewrite to an external URL.</p>
+<p>Then <code>api Backend(base: &quot;/api&quot;)</code> needs nothing else. Netlify, Vercel and Cloudflare Pages do the same with a rewrite to an external URL.</p>
                             </div>
-                            <h2 class="wf-heading" id="after-deploying">After deploying</h2>
+                            <h2 class="wf-heading" id="check-the-deploy">Check the deploy</h2>
                             <div class="wf-markdown">
+<p>After each deploy, check these:</p>
 <ul>
-<li>Open a deep link directly and reload it: a 404 means the host is not falling back to <code>index.html</code> (single-page) or the <code>base_path</code> is wrong.</li>
-<li>View a page's source: the text should be in the HTML (static builds).</li>
+<li>Open a deep link directly and reload it. A 404 means the host does not fall back to <code>index.html</code> (a single-page build), or <code>base_path</code> is wrong.</li>
+<li>View a page's source. In a static build, the page's text is in the HTML.</li>
 <li>Check the response headers in the browser's network panel.</li>
-<li>Run a link-preview debugger on a page, and submit <code>sitemap.xml</code> to search consoles.</li>
+<li>Run a link-preview debugger on a page, and submit <code>sitemap.xml</code> to the search engines' consoles.</li>
 </ul>
                             </div>
                         </div>
@@ -609,19 +606,20 @@ COPY --from=build /site/build /usr/share/nginx/html</code>
                 <div class="wf-stack wf-gap--lg wf-sac91c322" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
-                        <a class="wf-link wf-s3e136ca4" href="#installing-wf-on-a-build-machine">Installing wf on a build machine</a>
-                        <a class="wf-link wf-s3e136ca4" href="#github-pages">GitHub Pages</a>
-                        <a class="wf-link wf-s3e136ca4" href="#netlify">Netlify</a>
-                        <a class="wf-link wf-s3e136ca4" href="#cloudflare-pages">Cloudflare Pages</a>
-                        <a class="wf-link wf-s3e136ca4" href="#vercel">Vercel</a>
-                        <a class="wf-link wf-s3e136ca4" href="#nginx">nginx</a>
-                        <a class="wf-link wf-s3e136ca4" href="#apache">Apache</a>
-                        <a class="wf-link wf-s3e136ca4" href="#caddy">Caddy</a>
-                        <a class="wf-link wf-s3e136ca4" href="#docker">Docker</a>
-                        <a class="wf-link wf-s3e136ca4" href="#cache-headers">Cache headers</a>
-                        <a class="wf-link wf-s3e136ca4" href="#security-headers">Security headers</a>
-                        <a class="wf-link wf-s3e136ca4" href="#an-api-on-the-same-origin">An API on the same origin</a>
-                        <a class="wf-link wf-s3e136ca4" href="#after-deploying">After deploying</a>
+                        <a class="wf-link wf-s3e136ca4" href="#before-you-start">Before you start</a>
+                        <a class="wf-link wf-s3e136ca4" href="#install-wf-on-a-build-machine">Install wf on a build machine</a>
+                        <a class="wf-link wf-s3e136ca4" href="#deploy-to-github-pages">Deploy to GitHub Pages</a>
+                        <a class="wf-link wf-s3e136ca4" href="#deploy-to-netlify">Deploy to Netlify</a>
+                        <a class="wf-link wf-s3e136ca4" href="#deploy-to-cloudflare-pages">Deploy to Cloudflare Pages</a>
+                        <a class="wf-link wf-s3e136ca4" href="#deploy-to-vercel">Deploy to Vercel</a>
+                        <a class="wf-link wf-s3e136ca4" href="#serve-with-nginx">Serve with nginx</a>
+                        <a class="wf-link wf-s3e136ca4" href="#serve-with-apache">Serve with Apache</a>
+                        <a class="wf-link wf-s3e136ca4" href="#serve-with-caddy">Serve with Caddy</a>
+                        <a class="wf-link wf-s3e136ca4" href="#build-a-docker-image">Build a Docker image</a>
+                        <a class="wf-link wf-s3e136ca4" href="#set-cache-headers">Set cache headers</a>
+                        <a class="wf-link wf-s3e136ca4" href="#set-security-headers">Set security headers</a>
+                        <a class="wf-link wf-s3e136ca4" href="#serve-an-api-on-the-same-origin">Serve an API on the same origin</a>
+                        <a class="wf-link wf-s3e136ca4" href="#check-the-deploy">Check the deploy</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-s614f8b98">

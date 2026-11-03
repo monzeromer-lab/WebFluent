@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data</title>
-    <meta name="description" content="api services with retries, caching and typed errors, resource and match, reactive URLs, await fetch, optimistic updates and data files.">
+    <meta name="description" content="Describe an API once with retries, caching and typed errors; show a resource with match; fetch in an action; update optimistically; read data files.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/data">
     <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/data?lang=en">
     <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/data?lang=ar">
@@ -12,7 +12,7 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Data">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="api services with retries, caching and typed errors, resource and match, reactive URLs, await fetch, optimistic updates and data files.">
+    <meta property="og:description" content="Describe an API once with retries, caching and typed errors; show a resource with match; fetch in an action; update optimistically; read data files.">
     <meta property="og:url" content="https://webfluent.monzeromer.dev/docs/guide/data">
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="ar_AR">
@@ -21,9 +21,9 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Data">
-    <meta name="twitter:description" content="api services with retries, caching and typed errors, resource and match, reactive URLs, await fetch, optimistic updates and data files.">
+    <meta name="twitter:description" content="Describe an API once with retries, caching and typed errors; show a resource with match; fetch in an action; update optimistically; read data files.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/data#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/data","name":"Data","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"api services with retries, caching and typed errors, resource and match, reactive URLs, await fetch, optimistic updates and data files."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/data#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Data","item":"https://webfluent.monzeromer.dev/docs/guide/data"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/data#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/data","name":"Data","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Describe an API once with retries, caching and typed errors; show a resource with match; fetch in an action; update optimistically; read data files."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/data#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Data","item":"https://webfluent.monzeromer.dev/docs/guide/data"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -69,6 +69,9 @@
             </div>
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
+                    <a class="wf-sidebar__item" href="/docs">
+                        <p class="wf-text">Overview</p>
+                    </a>
                     <p class="wf-text group-label">Start</p>
                     <a class="wf-sidebar__item" href="/docs/guide/introduction">
                         <p class="wf-text num">01</p>
@@ -274,22 +277,107 @@
                 </aside>
                 <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
-                        <a class="wf-link" href="/docs/guide/introduction">Guide</a>
+                        <a class="wf-link" href="/docs">Guide</a>
                         <p class="wf-text">/</p>
                         <p class="wf-text wf-s8c71c534">Chapter 17</p>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s28a8547f">
                         <h1 class="wf-heading wf-sa3503382">Data</h1>
-                        <p class="wf-text wf-sfd35f593">Getting data onto a page: a service described once, a resource a page shows, a fetch an action makes, and files read at build time.</p>
+                        <p class="wf-text wf-sfd35f593">Get data onto a page: describe a service once, show a request&#x27;s states, fetch on demand, and read files at build time.</p>
                     </div>
                     <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
-<p>Ways to get data onto a page: <code>api</code> for a service described once and called everywhere, <code>resource</code> for something fetched while the page shows, <code>await fetch</code> inside an action for something fetched on demand, and <code>data</code> for a file read at build time. A connection the page holds open — a socket, a stream, a channel, a peer — is <a href="/docs/guide/realtime">Real-time</a>; working without a network is <a href="/docs/guide/offline">Offline</a>; values fixed per build are <a href="/docs/guide/environments">Environments</a>.</p>
+<p>This chapter shows you how to get data onto a page and send data back: from a request the page makes when it shows, from a request an action makes on demand, and from a file the build reads.</p>
+<p>You will be able to:</p>
+<ul>
+<li>show a request's loading, error and ready states with <code>resource</code> and <code>match</code>;</li>
+<li>refresh data without the page going blank;</li>
+<li>describe a service once with <code>api</code>, so every call is typed, retried, cached and cancelled for you;</li>
+<li>read a service's surface from an OpenAPI file;</li>
+<li>fetch on demand from an action, and show a change before the server agrees;</li>
+<li>read a JSON file at build time and render one page per item in it.</li>
+</ul>
                             </div>
-                            <h2 class="wf-heading" id="resource">resource</h2>
+                            <h2 class="wf-heading" id="before-you-start">Before you start</h2>
                             <div class="wf-markdown">
-<p>A resource is a request the page makes and a <code>match</code> shows:</p>
+<p>You should know <code>state</code> and <code>action</code> (<a href="/docs/guide/state">State and reactivity</a>), <code>match</code> (<a href="/docs/guide/control-flow">Control flow</a>) and how to declare a <code>type</code> (<a href="/docs/guide/types">Types</a>).</p>
+<p>This chapter does not cover:</p>
+<ul>
+<li>a connection the page holds open — a socket, a stream, a channel or a peer — which is <a href="/docs/guide/realtime">Real-time</a>;</li>
+<li>working without a network, which is <a href="/docs/guide/offline">Offline</a>;</li>
+<li>values fixed for each build, which are <a href="/docs/guide/environments">Environments</a>.</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading" id="choose-how-to-get-data">Choose how to get data</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Choose how to get data</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">You want…</th>
+                                        <th scope="col">Use</th>
+                                        <th scope="col">Section</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Data the page shows as soon as it opens</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>resource</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#show-a-request-with-resource">Show a request with resource</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>One place that describes a service and its endpoints</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>api</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#describe-a-service-with-api">Describe a service with api</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>A request made when something happens: a save, a delete, a step in a flow</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>await fetch</code> in an action</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#fetch-on-demand-with-await-fetch">Fetch on demand with await fetch</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Content that is known at build time</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>data</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#read-a-file-at-build-time-with-data">Read a file at build time with data</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h2 class="wf-heading" id="show-a-request-with-resource">Show a request with resource</h2>
+                            <div class="wf-markdown">
+<p>To fetch data while a page shows, declare a <code>resource</code> and show its states with <code>match</code>. A <em>resource</em> is a request the page makes, and a value that says where the request is: loading, failed or ready.</p>
+<p>This page lists recent deploys, with a spinner while they load and an alert if the request fails:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -298,45 +386,146 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">type Deploy { id: String, status: String, startedAt: String }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Deploy</span> { <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">status</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">startedAt</span>: <span class="wf-tok-name">String</span> }
 
-page Deploys(path: &quot;/&quot;, title: &quot;Deploys&quot;, description: &quot;Recent deploys.&quot;) {
-    resource deploys: [Deploy] = fetch(&quot;/api/deploys&quot;)
-    match deploys {
-        loading { Spinner }
-        error(e) { Alert(&quot;Could not load: {e.message}&quot;).danger }
-        ready(rows) {
-            if rows.length == 0 { Text(&quot;No deploys yet.&quot;).muted }
-            for d in rows by d.id {
-                Row(justify: .between) {
-                    Text(d.id).bold
-                    Badge(d.status, tone: if d.status == &quot;ok&quot; { .success } else { .danger })
-                    Text(ago(d.startedAt)).muted.sm
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Deploys</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/deploys&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Deploys&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Recent deploys.&quot;</span>) {
+    <span class="wf-tok-kw">resource</span> <span class="wf-tok-prop">deploys</span>: [<span class="wf-tok-name">Deploy</span>] = fetch(<span class="wf-tok-str">&quot;/api/deploys&quot;</span>)
+
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Deploys&quot;</span>).h1
+    <span class="wf-tok-kw">match</span> deploys {
+        <span class="wf-tok-kw">loading</span> { <span class="wf-tok-name">Spinner</span> }
+        <span class="wf-tok-kw">error</span>(e) { <span class="wf-tok-name">Alert</span>(<span class="wf-tok-str">&quot;Could not load: {e.message}&quot;</span>).danger }
+        <span class="wf-tok-kw">ready</span>(rows) {
+            <span class="wf-tok-kw">if</span> rows.length == <span class="wf-tok-num">0</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;No deploys yet.&quot;</span>).muted }
+            <span class="wf-tok-kw">for</span> d <span class="wf-tok-kw">in</span> rows <span class="wf-tok-kw">by</span> d.id {
+                <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">justify</span>: .between) {
+                    <span class="wf-tok-name">Text</span>(d.id).bold
+                    <span class="wf-tok-name">Badge</span>(d.status, <span class="wf-tok-prop">tone</span>: <span class="wf-tok-kw">if</span> d.status == <span class="wf-tok-str">&quot;ok&quot;</span> { .success } <span class="wf-tok-kw">else</span> { .danger })
+                    <span class="wf-tok-name">Text</span>(ago(d.startedAt)).muted.sm
                 }
             }
         }
     }
-    Button(&quot;Refresh&quot;) { on click { deploys.reload() } }
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Refresh&quot;</span>) { <span class="wf-tok-kw">on</span> click { deploys.reload() } }
 }</code>
                             </div>
                             <div class="wf-markdown">
+<p>How it works:</p>
 <ul>
-<li><code>resource name = fetch(url)</code> starts the request when the page renders. The annotation (<code>: [Deploy]</code>) types the value; without it the value is <code>Any</code>.</li>
-<li><code>match</code> over a resource has three arms — <code>loading</code>, <code>error(e)</code>, <code>ready(v)</code> — and <code>else</code>. The static paint renders the <code>loading</code> arm.</li>
-<li><code>name.reload()</code> makes the request again; <code>name.state</code> is <code>&quot;loading&quot;</code>, <code>&quot;ready&quot;</code> or <code>&quot;error&quot;</code>; <code>name.data</code> the last value (<code>T?</code>), <code>name.error</code> the last error; <code>name.refreshing</code> and <code>name.pending</code> say a request is running (<a href="#asking-again">Asking again</a>). Each is live wherever it is read — a label, a splice, an attribute — so <code>Button(if plan.data != null { &quot;Request approval&quot; } else { &quot;Deploy&quot; })</code> changes when the plan arrives, with no <code>derived</code> in between.</li>
-<li>A failed response (<code>!ok</code>) is an error with <code>e.message</code> of <code>HTTP 500</code>.</li>
+<li><code>resource name = fetch(url)</code> starts the request when the page renders.</li>
+<li>The annotation (<code>: [Deploy]</code>) types the value. Without one, the value is <code>Any</code>.</li>
+<li>A <code>match</code> over a resource has three arms — <code>loading</code>, <code>error(e)</code> and <code>ready(v)</code> — and may have an <code>else</code>. A resource <code>match</code> with no <code>error</code> arm and no <code>else</code> is <code>T21</code>.</li>
+<li>The pre-rendered page — the HTML the build writes for a static site — shows the <code>loading</code> arm. The live page fetches and replaces it.</li>
+<li>A failed response (one that is not <code>ok</code>) is an error whose <code>e.message</code> is <code>HTTP 500</code>, or whatever the status was.</li>
 </ul>
                             </div>
-                            <h3 class="wf-heading" id="asking-again">Asking again</h3>
+                            <h3 class="wf-heading" id="read-a-resource-s-state-anywhere">Read a resource&#x27;s state anywhere</h3>
                             <div class="wf-markdown">
-<p><code>on: .focus</code>, <code>.reconnect</code> or <code>.interval(30.seconds)</code> — an option of <code>fetch(…)</code> or of an endpoint's call — <code>name.reload()</code> and <code>name.invalidate()</code> ask again. Asking again for the request already shown is a <strong>refresh</strong>, and the page stays as it is while it runs: the state stays <code>&quot;ready&quot;</code>, the data stays, and the answer is drawn in place.</p>
+<p>A resource has these values. Each is live wherever you read it — a label, a splice, an attribute — with no <code>derived</code> in between:</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Read a resource&#x27;s state anywhere</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Value</th>
+                                        <th scope="col">What it is</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>name.state</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&quot;loading&quot;</code>, <code>&quot;ready&quot;</code> or <code>&quot;error&quot;</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>name.data</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The last value, or <code>null</code> before the first (<code>T?</code>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>name.error</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The last error</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>name.refreshing</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>true</code> while a refresh runs (<a href="#refresh-without-clearing-the-page">Refresh without clearing the page</a>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>name.pending</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>true</code> while any request of it runs, the first load included</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>name.reload()</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Makes the request again</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>name.invalidate()</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Drops what the cache holds for it, and asks again</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>name.cancel()</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Aborts the request that is running</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>So <code>Button(if plan.data != null { &quot;Request approval&quot; } else { &quot;Deploy&quot; })</code> changes its label when the plan arrives.</p>
+                            </div>
+                            <h3 class="wf-heading" id="refresh-without-clearing-the-page">Refresh without clearing the page</h3>
+                            <div class="wf-markdown">
+<p>These ask for a resource again:</p>
 <ul>
-<li>The <code>ready</code> arm's binding is live. Text, attributes, <code>if</code>, <code>if let</code>, a keyed <code>for … by</code> and component props inside the arm follow the new data, and the arm is drawn again only when the arm changes — loading, ready, error. A row whose key is still in the list keeps its nodes, its focus and its components' state; an input keeps what was typed.</li>
-<li>The parts of an answer equal to what was shown are kept as the same objects — an item is matched by its <code>id</code>, by its value, or by its place — so an answer that changed nothing redraws nothing.</li>
-<li><code>name.refreshing</code> is true while a refresh runs; <code>name.pending</code> while any request of the resource runs, the first load included.</li>
-<li>A refresh that fails keeps the data and <code>&quot;ready&quot;</code>, and sets <code>name.error</code> until the next answer, so the arm can say the data is stale. A first load that fails is <code>&quot;error&quot;</code>, and its <code>reload()</code> is a first load again.</li>
-<li>A request that changed — an address or an argument that reads state now names something else: another environment, another page — is a first load again, shown as <code>loading</code>, because the data on screen would be the wrong data. With <code>paginate:</code> the next page is a refresh.</li>
+<li>the <code>on:</code> option of <code>fetch(…)</code> or of an endpoint's call: <code>.focus</code> (when the reader comes back to the tab), <code>.reconnect</code> (when the network returns), or <code>.interval(30.seconds)</code>;</li>
+<li><code>name.reload()</code> and <code>name.invalidate()</code>.</li>
 </ul>
+<p>Asking again for the request already shown is a <em>refresh</em>. The page stays as it is while a refresh runs: <code>name.state</code> stays <code>&quot;ready&quot;</code>, the data stays, and the answer is drawn in place.</p>
+<p>This page polls a list of servers every 30 seconds, and shows a small spinner during each refresh:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -345,25 +534,51 @@ page Deploys(path: &quot;/&quot;, title: &quot;Deploys&quot;, description: &quot
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">type Server { id: String, name: String, status: String }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Server</span> { <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">name</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">status</span>: <span class="wf-tok-name">String</span> }
 
-page Servers(path: &quot;/servers&quot;, title: &quot;Servers&quot;, description: &quot;Every server, kept current.&quot;) {
-    state stage = &quot;test&quot;
-    resource servers: [Server] = fetch(&quot;/api/servers?env={stage}&quot;, on: .interval(30.seconds))
-    Heading(&quot;Servers&quot;).h1
-    Button(&quot;Production&quot;) { on click { stage = &quot;prod&quot; } }
-    match servers {
-        loading { Skeleton(height: &quot;20px&quot;) }
-        error(e) { Alert(e.message).danger }
-        ready(list) {
-            if servers.error != null { Alert(&quot;Could not refresh; this is what was there.&quot;).warning }
-            if servers.refreshing { Spinner.sm }
-            for s in list by s.id { Text(&quot;{s.name}: {s.status}&quot;) }
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Servers</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/servers&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Servers&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Every server, kept current.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> stage = <span class="wf-tok-str">&quot;test&quot;</span>
+    <span class="wf-tok-kw">resource</span> <span class="wf-tok-prop">servers</span>: [<span class="wf-tok-name">Server</span>] = fetch(<span class="wf-tok-str">&quot;/api/servers?env={stage}&quot;</span>, <span class="wf-tok-prop">on</span>: .interval(<span class="wf-tok-num">30.seconds</span>))
+
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Servers&quot;</span>).h1
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Production&quot;</span>) { <span class="wf-tok-kw">on</span> click { stage = <span class="wf-tok-str">&quot;prod&quot;</span> } }
+    <span class="wf-tok-kw">match</span> servers {
+        <span class="wf-tok-kw">loading</span> { <span class="wf-tok-name">Skeleton</span>(<span class="wf-tok-prop">height</span>: <span class="wf-tok-str">&quot;20px&quot;</span>) }
+        <span class="wf-tok-kw">error</span>(e) { <span class="wf-tok-name">Alert</span>(e.message).danger }
+        <span class="wf-tok-kw">ready</span>(list) {
+            <span class="wf-tok-kw">if</span> servers.error != <span class="wf-tok-kw">null</span> { <span class="wf-tok-name">Alert</span>(<span class="wf-tok-str">&quot;Could not refresh; this is what was there.&quot;</span>).warning }
+            <span class="wf-tok-kw">if</span> servers.refreshing { <span class="wf-tok-name">Spinner</span>.sm }
+            <span class="wf-tok-kw">for</span> s <span class="wf-tok-kw">in</span> list <span class="wf-tok-kw">by</span> s.id { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{s.name}: {s.status}&quot;</span>) }
         }
     }
 }</code>
                             </div>
-                            <h3 class="wf-heading" id="options">Options</h3>
+                            <div class="wf-markdown">
+<p>What a refresh keeps:</p>
+<ul>
+<li><strong>The arm.</strong> The <code>ready</code> arm's binding is live. Text, attributes, <code>if</code>, <code>if let</code>, a keyed <code>for … by</code> and component props inside the arm follow the new data. The arm is drawn again only when the arm changes — loading, ready, error.</li>
+<li><strong>The rows.</strong> A row whose key is still in the list keeps its nodes, its focus and its components' state. An input keeps what was typed.</li>
+<li><strong>Unchanged data.</strong> The parts of an answer equal to what was shown are kept as the same objects. An item is matched by its <code>id</code>, by its value, or by its place. An answer that changed nothing redraws nothing.</li>
+</ul>
+<p>What happens when a request fails, or changes:</p>
+<ul>
+<li>A refresh that fails keeps the data and <code>&quot;ready&quot;</code>, and sets <code>name.error</code> until the next answer, so the arm can say the data is stale.</li>
+<li>A first load that fails is <code>&quot;error&quot;</code>, and its <code>reload()</code> is a first load again.</li>
+<li>A request that changed is a first load again, shown as <code>loading</code>. A request changes when an address or an argument that reads state now names something else — another environment, another page — because the data on screen would be the wrong data. With <code>paginate:</code>, the next page is a refresh instead.</li>
+</ul>
+<p>Pressing <strong>Production</strong> above changes <code>stage</code>, so the list shows its <code>loading</code> arm and then the production servers.</p>
+                            </div>
+                            <h3 class="wf-heading" id="send-options-with-a-request">Send options with a request</h3>
+                            <div class="wf-markdown">
+<p>Options follow the URL, by name:</p>
+<ul>
+<li><code>method:</code> — <code>&quot;GET&quot;</code> unless you say otherwise;</li>
+<li><code>headers:</code> — a map;</li>
+<li><code>body:</code> — a map, sent as JSON with the content type set.</li>
+</ul>
+<p>The response body is parsed as JSON.</p>
+<p>This page searches with a <code>POST</code> and an authorization header:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -371,25 +586,25 @@ page Servers(path: &quot;/servers&quot;, title: &quot;Servers&quot;, description
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Search(path: &quot;/&quot;) {
-    state q = &quot;&quot;
-    state token = &quot;abc&quot;
-    resource hits = fetch(&quot;/api/search?q={q}&quot;, headers: { Authorization: &quot;Bearer {token}&quot; })
-    resource created = fetch(&quot;/api/items&quot;, method: &quot;POST&quot;, body: { name: q })
-    Input(bind: q, label: &quot;Search&quot;)
-    match hits {
-        loading { Spinner.sm }
-        error(e) { Text(e.message).danger }
-        ready(list) { Text(&quot;{list.length} hits&quot;) }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Search</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/search&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Search&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Search the catalogue.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> q = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">state</span> token = <span class="wf-tok-str">&quot;demo-token&quot;</span>
+    <span class="wf-tok-kw">resource</span> hits = fetch(<span class="wf-tok-str">&quot;/api/search&quot;</span>, <span class="wf-tok-prop">method</span>: <span class="wf-tok-str">&quot;POST&quot;</span>,
+        <span class="wf-tok-prop">headers</span>: { <span class="wf-tok-prop">Authorization</span>: <span class="wf-tok-str">&quot;Bearer {token}&quot;</span> },
+        <span class="wf-tok-prop">body</span>: { <span class="wf-tok-prop">query</span>: q, <span class="wf-tok-prop">limit</span>: <span class="wf-tok-num">20</span> })
+
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Search&quot;</span>).h1
+    <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: q, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Search&quot;</span>)
+    <span class="wf-tok-kw">match</span> hits {
+        <span class="wf-tok-kw">loading</span> { <span class="wf-tok-name">Spinner</span>.sm }
+        <span class="wf-tok-kw">error</span>(e) { <span class="wf-tok-name">Text</span>(e.message).danger }
+        <span class="wf-tok-kw">ready</span>(list) { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{list.length} hits&quot;</span>) }
     }
 }</code>
                             </div>
+                            <h3 class="wf-heading" id="fetch-again-when-state-changes">Fetch again when state changes</h3>
                             <div class="wf-markdown">
-<p>Options are named after the URL: <code>method:</code>, <code>headers:</code> (a map), <code>body:</code> (a map, sent as JSON with the content type set). The body of a response is parsed as JSON.</p>
-                            </div>
-                            <h3 class="wf-heading" id="a-reactive-url">A reactive URL</h3>
-                            <div class="wf-markdown">
-<p>A URL that reads state is re-fetched whenever that state changes — a search box that fetches as you type, or a detail page that follows its parameter:</p>
+<p>A URL that reads state is fetched again whenever that state changes. Use it for a search box that fetches as the reader types, or a detail page that follows its route parameter:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -398,26 +613,23 @@ page Servers(path: &quot;/servers&quot;, title: &quot;Servers&quot;, description
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">type Post { slug: String, title: String, body: String }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Post</span> { <span class="wf-tok-prop">slug</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">body</span>: <span class="wf-tok-name">String</span> }
 
-page PostPage(path: &quot;/posts/:slug&quot;, slug: String) {
-    resource post: Post = fetch(&quot;/api/posts/{slug}&quot;)
-    match post {
-        loading { Skeleton }
-        error(e) { Alert(&quot;Not found&quot;).warning }
-        ready(p) {
-            Heading(p.title).h1
-            Markdown(p.body)
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">PostPage</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/posts/:slug&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Post&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;One post.&quot;</span>, <span class="wf-tok-prop">slug</span>: <span class="wf-tok-name">String</span>) {
+    <span class="wf-tok-kw">resource</span> <span class="wf-tok-prop">post</span>: <span class="wf-tok-name">Post</span> = fetch(<span class="wf-tok-str">&quot;/api/posts/{slug}&quot;</span>)
+    <span class="wf-tok-kw">match</span> post {
+        <span class="wf-tok-kw">loading</span> { <span class="wf-tok-name">Skeleton</span> }
+        <span class="wf-tok-kw">error</span>(e) { <span class="wf-tok-name">Alert</span>(<span class="wf-tok-str">&quot;Not found&quot;</span>).warning }
+        <span class="wf-tok-kw">ready</span>(p) {
+            <span class="wf-tok-name">Heading</span>(p.title).h1
+            <span class="wf-tok-name">Markdown</span>(p.body)
         }
     }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Debounce a fast-changing URL by deriving it from a slower value, or by keeping the query in state and copying it to a <code>submitted</code> state on Enter.</p>
-                            </div>
-                            <h2 class="wf-heading" id="api-a-service-described-once">api: a service, described once</h2>
-                            <div class="wf-markdown">
-<p>An address, how it is reached, and what it has — in one place, so every call site is typed, cached and cancellable:</p>
+<p>A value spliced into the address is URL-encoded for you where it stands for a value.</p>
+<p>To fetch less often than the reader types, derive the URL from a slower value. This page keeps what the reader types in <code>draft</code>, and searches only when they press Enter:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -426,45 +638,76 @@ page PostPage(path: &quot;/posts/:slug&quot;, slug: String) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">type User { id: String, name: String }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Lookup</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/lookup&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Lookup&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Search when you press Enter.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> draft = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">state</span> submitted = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">resource</span> hits = fetch(<span class="wf-tok-str">&quot;/api/search?q={submitted}&quot;</span>)
 
-api Backend(base: &quot;/api/v1&quot;) {
-    credentials: .sameOrigin      // the session cookie goes with every call
-    timeout: 10.seconds
-    retry: .backoff(times: 3, on: [.network, .timeout, .status5xx])
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Lookup&quot;</span>).h1
+    <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: draft, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Search&quot;</span>) { <span class="wf-tok-kw">on</span> key(<span class="wf-tok-str">&quot;Enter&quot;</span>) { submitted = draft } }
+    <span class="wf-tok-kw">match</span> hits {
+        <span class="wf-tok-kw">loading</span> { <span class="wf-tok-name">Spinner</span>.sm }
+        <span class="wf-tok-kw">error</span>(e) { <span class="wf-tok-name">Text</span>(e.message).danger }
+        <span class="wf-tok-kw">ready</span>(list) { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{list.length} results for {submitted}&quot;</span>) }
+    }
+}</code>
+                            </div>
+                            <h2 class="wf-heading" id="describe-a-service-with-api">Describe a service with api</h2>
+                            <div class="wf-markdown">
+<p>To call a service from many places, describe it once with <code>api</code>: its address, how it is reached and what endpoints it has. Every call site is then typed, cached and cancellable.</p>
+<p>This service has four endpoints, and the page shows a list of users with a different alert for each kind of failure:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">User</span> { <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">name</span>: <span class="wf-tok-name">String</span> }
 
-    get    users(page: Number = 1, q: String?) -&gt; [User]
-    get    user(id: String) at &quot;users/:id&quot;     -&gt; User
-    post   createUser(body: Map)               -&gt; User
-        errors { 422 -&gt; Map }
-    delete removeUser(id: String) at &quot;users/:id&quot;
+api <span class="wf-tok-name">Backend</span>(<span class="wf-tok-prop">base</span>: <span class="wf-tok-str">&quot;/api/v1&quot;</span>) {
+    <span class="wf-tok-prop">credentials</span>: .sameOrigin      <span class="wf-tok-cmt">// the session cookie goes with every call</span>
+    <span class="wf-tok-prop">timeout</span>: <span class="wf-tok-num">10.seconds</span>
+    <span class="wf-tok-prop">retry</span>: .backoff(<span class="wf-tok-prop">times</span>: <span class="wf-tok-num">3</span>, <span class="wf-tok-prop">on</span>: [.network, .timeout, .status5xx])
+
+    get    users(<span class="wf-tok-prop">page</span>: <span class="wf-tok-name">Number</span> = <span class="wf-tok-num">1</span>, <span class="wf-tok-prop">q</span>: <span class="wf-tok-name">String</span>?) -&gt; [<span class="wf-tok-name">User</span>]
+    get    user(<span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>) at <span class="wf-tok-str">&quot;users/:id&quot;</span>     -&gt; <span class="wf-tok-name">User</span>
+    post   createUser(<span class="wf-tok-prop">body</span>: <span class="wf-tok-name">Map</span>)               -&gt; <span class="wf-tok-name">User</span>
+        errors { <span class="wf-tok-num">422</span> -&gt; <span class="wf-tok-name">Map</span> }
+    delete removeUser(<span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>) at <span class="wf-tok-str">&quot;users/:id&quot;</span>
 }
 
-page Users(path: &quot;/users&quot;, title: &quot;Users&quot;, description: &quot;Everyone.&quot;) {
-    state page: Number = 1
-    resource rows = Backend.users(page: page, cache: .swr(60.seconds), on: .focus)
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Users</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/users&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Users&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Everyone.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">page</span>: <span class="wf-tok-name">Number</span> = <span class="wf-tok-num">1</span>
+    <span class="wf-tok-kw">resource</span> rows = <span class="wf-tok-name">Backend</span>.users(<span class="wf-tok-prop">page</span>: <span class="wf-tok-kw">page</span>, <span class="wf-tok-prop">cache</span>: .swr(<span class="wf-tok-num">60.seconds</span>), <span class="wf-tok-prop">on</span>: .focus)
 
-    Heading(&quot;Users&quot;).h1
-    match rows {
-        loading { Skeleton(height: &quot;20px&quot;) }
-        error(e) {
-            match e {
-                .offline { Alert(&quot;You are offline.&quot;).warning }
-                .timeout { Alert(&quot;The server took too long.&quot;).warning }
-                else     { Alert(e.message).danger }
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Users&quot;</span>).h1
+    <span class="wf-tok-kw">match</span> rows {
+        <span class="wf-tok-kw">loading</span> { <span class="wf-tok-name">Skeleton</span>(<span class="wf-tok-prop">height</span>: <span class="wf-tok-str">&quot;20px&quot;</span>) }
+        <span class="wf-tok-kw">error</span>(e) {
+            <span class="wf-tok-kw">match</span> e {
+                .offline { <span class="wf-tok-name">Alert</span>(<span class="wf-tok-str">&quot;You are offline.&quot;</span>).warning }
+                .timeout { <span class="wf-tok-name">Alert</span>(<span class="wf-tok-str">&quot;The server took too long.&quot;</span>).warning }
+                <span class="wf-tok-kw">else</span>     { <span class="wf-tok-name">Alert</span>(e.message).danger }
             }
-            Button(&quot;Try again&quot;) { on click { rows.reload() } }
+            <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Try again&quot;</span>) { <span class="wf-tok-kw">on</span> click { rows.reload() } }
         }
-        ready(list) { for u in list by u.id { Text(u.name) } }
+        <span class="wf-tok-kw">ready</span>(list) { <span class="wf-tok-kw">for</span> u <span class="wf-tok-kw">in</span> list <span class="wf-tok-kw">by</span> u.id { <span class="wf-tok-name">Text</span>(u.name) } }
     }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>A parameter the path names goes in the path; every other goes in the query. <code>-&gt;</code> says what comes back, and a <code>resource</code> over the endpoint is typed by it — <code>u.nam</code> is <code>T05</code>, before the page ever runs.</p>
+<ul>
+<li>A parameter the path names goes in the path. Every other parameter goes in the query string.</li>
+<li><code>-&gt;</code> says what a success returns. A <code>resource</code> over the endpoint is typed by it, so <code>u.nam</code> is <code>T05</code> before the page ever runs.</li>
+<li>An endpoint the service does not have is <code>T06</code>, and an argument it does not take is <code>T10</code>.</li>
+</ul>
                             </div>
-                            <h3 class="wf-heading" id="headers-and-what-happens-around-a-call">Headers, and what happens around a call</h3>
+                            <h3 class="wf-heading" id="add-headers-and-hooks-to-every-call">Add headers and hooks to every call</h3>
                             <div class="wf-markdown">
-<p>A <code>headers { }</code> block names what every call carries. Each value is read <strong>at the moment of the request</strong>, not when the service is declared — so a token that has just been refreshed is the one that is sent:</p>
+<p>To send the same headers with every call, add a <code>headers { }</code> block. Each value is read at the moment of the request, not when the service is declared, so a token refreshed a moment ago is the one that is sent.</p>
+<p>This service sends a bearer token and the reader's language, tags each request with an ID, logs each response, and refreshes the token on a <code>401</code>:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -473,32 +716,32 @@ page Users(path: &quot;/users&quot;, title: &quot;Users&quot;, description: &quo
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">type User { id: String, name: String }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">User</span> { <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">name</span>: <span class="wf-tok-name">String</span> }
 
-store Session {
-    state token = &quot;&quot;
-    state language = &quot;en&quot;
-    action refresh() { token = await fetch(&quot;/api/token&quot;) }
+<span class="wf-tok-kw">store</span> <span class="wf-tok-name">Session</span> {
+    <span class="wf-tok-kw">state</span> token = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">state</span> language = <span class="wf-tok-str">&quot;en&quot;</span>
+    <span class="wf-tok-kw">action</span> refresh() { token = <span class="wf-tok-kw">await</span> fetch(<span class="wf-tok-str">&quot;/api/token&quot;</span>) }
 }
 
-api Backend(base: env.PUBLIC_API ?? &quot;/api/v1&quot;) {
+api <span class="wf-tok-name">Backend</span>(<span class="wf-tok-prop">base</span>: env.<span class="wf-tok-name">PUBLIC_API</span> ?? <span class="wf-tok-str">&quot;/api/v1&quot;</span>) {
     headers {
-        Authorization: &quot;Bearer {Session.token}&quot;
-        Accept-Language: Session.language
+        <span class="wf-tok-prop">Authorization</span>: <span class="wf-tok-str">&quot;Bearer {Session.token}&quot;</span>
+        <span class="wf-tok-name">Accept</span>-<span class="wf-tok-prop">Language</span>: <span class="wf-tok-name">Session</span>.language
     }
 
-    on request(r)  { r.headers[&quot;X-Request-Id&quot;] = uuid() }
-    on response(r) { log(&quot;{r.status} {r.url}&quot;) }
-    on error(e)    { if e.status == 401 { await Session.refresh()  return &quot;retry&quot; } }
+    <span class="wf-tok-kw">on</span> request(r)  { r.headers[<span class="wf-tok-str">&quot;X-Request-Id&quot;</span>] = uuid() }
+    <span class="wf-tok-kw">on</span> response(r) { <span class="wf-tok-kw">log</span>(<span class="wf-tok-str">&quot;{r.status} {r.url}&quot;</span>) }
+    <span class="wf-tok-kw">on</span> <span class="wf-tok-kw">error</span>(e)    { <span class="wf-tok-kw">if</span> e.status == <span class="wf-tok-num">401</span> { <span class="wf-tok-kw">await</span> <span class="wf-tok-name">Session</span>.refresh()  <span class="wf-tok-kw">return</span> <span class="wf-tok-str">&quot;retry&quot;</span> } }
 
-    get me() -&gt; User
+    get me() -&gt; <span class="wf-tok-name">User</span>
 }</code>
                             </div>
                             <div class="wf-markdown">
 <p>The three hooks run around every call the service makes:</p>
                             </div>
                             <table class="wf-table">
-                                <caption class="wf-visually-hidden">Headers, and what happens around a call</caption>
+                                <caption class="wf-visually-hidden">Add headers and hooks to every call</caption>
                                 <thead>
                                     <tr>
                                         <th scope="col">Hook</th>
@@ -547,25 +790,29 @@ api Backend(base: env.PUBLIC_API ?? &quot;/api/v1&quot;) {
                                             </div>
                                         </td>
                                         <td>After every retry the policy allows has failed</td>
-                                        <td>The error, as the table below describes it</td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>return &quot;retry&quot;</code> runs the call once more — which is how a 401 refreshes a token and carries on; anything else lets the error through</p>
+<p>The error, as <a href="#what-every-call-does-for-you">What every call does for you</a> describes it</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>return &quot;retry&quot;</code> runs the call once more, which is how a <code>401</code> refreshes a token and carries on. Anything else lets the error through.</p>
                                             </div>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>A hook may <code>await</code>. One that throws fails the call it was watching.</p>
+<p>A hook may <code>await</code>. A hook that throws fails the call it was watching.</p>
                             </div>
-                            <h3 class="wf-heading" id="what-each-call-gets">What each call gets</h3>
+                            <h3 class="wf-heading" id="what-every-call-does-for-you">What every call does for you</h3>
                             <table class="wf-table">
-                                <caption class="wf-visually-hidden">What each call gets</caption>
+                                <caption class="wf-visually-hidden">What every call does for you</caption>
                                 <thead>
                                     <tr>
-                                        <th scope="col"></th>
-                                        <th scope="col"></th>
+                                        <th scope="col">Feature</th>
+                                        <th scope="col">What it does</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -573,7 +820,7 @@ api Backend(base: env.PUBLIC_API ?? &quot;/api/v1&quot;) {
                                         <td>Abort</td>
                                         <td>
                                             <div class="wf-markdown">
-<p>when the scope leaves, when an argument that reads state changes, on <code>.cancel()</code>, on timeout</p>
+<p>A call is aborted when its scope leaves, when an argument that reads state changes, on <code>.cancel()</code>, and on timeout</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -581,7 +828,7 @@ api Backend(base: env.PUBLIC_API ?? &quot;/api/v1&quot;) {
                                         <td>Errors</td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>.offline</code>, <code>.timeout</code>, <code>.aborted</code>, <code>.parse</code>, <code>.network</code>, <code>.status(code, body)</code> — with <code>.message</code>, <code>.status</code>, <code>.body</code> and <code>.headers</code> to read</p>
+<p><code>.offline</code>, <code>.timeout</code>, <code>.aborted</code>, <code>.parse</code>, <code>.network</code>, <code>.status(code, body)</code> — each with <code>.message</code>, <code>.status</code>, <code>.body</code> and <code>.headers</code> to read</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -589,7 +836,7 @@ api Backend(base: env.PUBLIC_API ?? &quot;/api/v1&quot;) {
                                         <td>Retry</td>
                                         <td>
                                             <div class="wf-markdown">
-<p>exponential backoff with jitter, per error kind, honouring <code>Retry-After</code></p>
+<p>Exponential backoff with jitter, per error kind, honouring <code>Retry-After</code></p>
                                             </div>
                                         </td>
                                     </tr>
@@ -597,13 +844,13 @@ api Backend(base: env.PUBLIC_API ?? &quot;/api/v1&quot;) {
                                         <td>Cache</td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>cache: .swr(60.seconds)</code>, <code>.none</code>, <code>.forever</code> — keyed by method, address and body, revalidated with <code>ETag</code></p>
+<p><code>cache: .swr(60.seconds)</code>, <code>.none</code>, <code>.forever</code> — keyed by method, address and body, and revalidated with <code>ETag</code></p>
                                             </div>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>Dedupe</td>
-                                        <td>two readers of one address make one request</td>
+                                        <td>Two readers of one address make one request</td>
                                     </tr>
                                     <tr>
                                         <td>Refetch</td>
@@ -625,16 +872,19 @@ api Backend(base: env.PUBLIC_API ?? &quot;/api/v1&quot;) {
                                         <td>Progress</td>
                                         <td>
                                             <div class="wf-markdown">
-<p>a <code>File</code> parameter makes <code>Backend.avatar.progress</code> a number from 0 to 1</p>
+<p>A <code>File</code> parameter makes <code>Backend.avatar.progress</code> a number from 0 to 1</p>
                                             </div>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>And beside each endpoint: <code>Backend.users.invalidate()</code>, <code>.prefetch(args)</code>, <code>.url(args)</code>, <code>.key(args)</code>.</p>
+<p>Beside each endpoint you also get <code>Backend.users.invalidate()</code>, <code>.prefetch(args)</code>, <code>.url(args)</code> and <code>.key(args)</code>.</p>
                             </div>
-                            <h3 class="wf-heading" id="from-a-specification">From a specification</h3>
+                            <h3 class="wf-heading" id="read-the-service-from-an-openapi-file">Read the service from an OpenAPI file</h3>
+                            <div class="wf-markdown">
+<p>To take every endpoint from a specification instead of writing them, name the file with <code>from</code>:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -642,13 +892,14 @@ api Backend(base: env.PUBLIC_API ?? &quot;/api/v1&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">api Backend from &quot;openapi.json&quot; (base: env.PUBLIC_API)</code>
+                                <code class="wf-code wf-code--block wf-sa8223565">api <span class="wf-tok-name">Backend</span> <span class="wf-tok-kw">from</span> <span class="wf-tok-str">&quot;openapi.json&quot;</span> (<span class="wf-tok-prop">base</span>: env.<span class="wf-tok-name">PUBLIC_API</span>)</code>
                             </div>
                             <div class="wf-markdown">
-<p>Every endpoint, parameter, response type and error shape is read from the file at build time, and each named schema becomes something the program can name. The day the server changes its contract, the build says so.</p>
+<p>The build reads every endpoint, parameter, response type and error shape from the file, and each named schema becomes something the program can name. The day the server changes its contract, the build says so. A missing <code>openapi.json</code> is <code>E111</code>.</p>
+<p>How each schema becomes a type:</p>
                             </div>
                             <table class="wf-table">
-                                <caption class="wf-visually-hidden">From a specification</caption>
+                                <caption class="wf-visually-hidden">Read the service from an OpenAPI file</caption>
                                 <thead>
                                     <tr>
                                         <th scope="col">The schema</th>
@@ -676,7 +927,7 @@ api Backend(base: env.PUBLIC_API ?? &quot;/api/v1&quot;) {
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>type ServerDetail = EnvSummary { … }</code>: it extends the first record it names, and every other part is fields of its own</p>
+<p><code>type ServerDetail = EnvSummary { … }</code>: it extends the first record it names, and every other part adds fields of its own</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -719,17 +970,117 @@ api Backend(base: env.PUBLIC_API ?? &quot;/api/v1&quot;) {
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>A value that may be null is its type made optional, however the document says so: OpenAPI 3.1's <code>&quot;type&quot;: [&quot;string&quot;, &quot;null&quot;]</code> is <code>String?</code>, a <code>oneOf</code> of <code>{ &quot;type&quot;: &quot;null&quot; }</code> and a <code>$ref</code> is that type's <code>?</code>, 3.0's <code>&quot;nullable&quot;: true</code> is the same beside a <code>type</code>, an <code>allOf</code> or a <code>$ref</code>, and a record or an enum whose own schema allows null is <code>T?</code> wherever it is named.</p>
-<p>A string's <code>format</code> is the language's type for what the server sends: <code>date-time</code> is a <code>DateTime</code>, <code>date</code> a <code>Date</code>, <code>uuid</code> a <code>Uuid</code>, <code>email</code> an <code>Email</code> and <code>uri</code> a <code>Url</code>, in a response and in every record only responses reach. What the program sends — a parameter, a request body, and every record one of them reaches, but for the fields it marks <code>readOnly</code> — keeps <code>String</code>, so a value it holds as a <code>String</code>, a route parameter or what an input holds, can still be sent. A <code>time</code> stays a <code>String</code> everywhere, since JSON Schema's carries an offset (<code>09:30:00Z</code>) that <code>Time</code> does not read.</p>
-<p>A parameter or a request body may be a <code>$ref</code> into <code>components</code>, as a shared <code>limit</code> often is; a body is required when the document says so.</p>
-<p>A <code>type</code> or an <code>enum</code> the program declares itself wins over the specification's of the same name.</p>
-                            </div>
-                            <h3 class="wf-heading" id="settings">Settings</h3>
-                            <div class="wf-markdown">
-<p>What goes in the service's parentheses or its block, before the endpoints:</p>
+<p>A value that may be null becomes its type made optional, however the document says so:</p>
+<ul>
+<li>OpenAPI 3.1's <code>&quot;type&quot;: [&quot;string&quot;, &quot;null&quot;]</code> is <code>String?</code>;</li>
+<li>a <code>oneOf</code> of <code>{ &quot;type&quot;: &quot;null&quot; }</code> and a <code>$ref</code> is that type's <code>?</code>;</li>
+<li>3.0's <code>&quot;nullable&quot;: true</code> is the same, beside a <code>type</code>, an <code>allOf</code> or a <code>$ref</code>;</li>
+<li>a record or an enum whose own schema allows null is <code>T?</code> wherever it is named.</li>
+</ul>
+<p>A string's <code>format</code> gives the language's type for what the server sends:</p>
                             </div>
                             <table class="wf-table">
-                                <caption class="wf-visually-hidden">Settings</caption>
+                                <caption class="wf-visually-hidden">Read the service from an OpenAPI file</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">
+                                            <div class="wf-markdown">
+<p><code>format</code></p>
+                                            </div>
+                                        </th>
+                                        <th scope="col">In a response, and in every record only responses reach</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>date-time</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>DateTime</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>date</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Date</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>uuid</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Uuid</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>email</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Email</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>uri</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Url</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>time</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>String</code>, everywhere: JSON Schema's carries an offset (<code>09:30:00Z</code>) that <code>Time</code> does not read</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>What the program sends — a parameter, a request body, and every record one of them reaches, except for the fields marked <code>readOnly</code> — keeps <code>String</code>. So a value the program holds as a <code>String</code>, such as a route parameter or what an input holds, can still be sent.</p>
+<p>Also:</p>
+<ul>
+<li>A parameter or a request body may be a <code>$ref</code> into <code>components</code>, as a shared <code>limit</code> often is.</li>
+<li>A body is required when the document says so.</li>
+<li>A <code>type</code> or an <code>enum</code> the program declares itself wins over the specification's of the same name.</li>
+</ul>
+                            </div>
+                            <h3 class="wf-heading" id="service-settings">Service settings</h3>
+                            <div class="wf-markdown">
+<p>These go in the service's parentheses or at the top of its block, before the endpoints:</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Service settings</caption>
                                 <thead>
                                     <tr>
                                         <th scope="col">Setting</th>
@@ -853,7 +1204,7 @@ api Backend(base: env.PUBLIC_API ?? &quot;/api/v1&quot;) {
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>a referrer policy: <code>.noReferrer</code>, <code>.origin</code>, …</p>
+<p>A referrer policy: <code>.noReferrer</code>, <code>.origin</code>, …</p>
                                             </div>
                                         </td>
                                         <td>the page&#x27;s</td>
@@ -870,9 +1221,18 @@ api Backend(base: env.PUBLIC_API ?? &quot;/api/v1&quot;) {
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p><code>retry</code>'s <code>on:</code> takes <code>.network</code>, <code>.timeout</code>, <code>.status5xx</code>, <code>.status4xx</code>, <code>.status429</code> and <code>.status503</code>-style single codes; left out, it retries the network, timeouts, 5xx and 429. The wait doubles from <code>delay</code> (ms) up to <code>max</code>, with jitter, and a <code>Retry-After</code> from the server wins. An aborted call is never retried.</p>
+<p>How <code>retry</code> works:</p>
+<ul>
+<li>Its <code>on:</code> takes <code>.network</code>, <code>.timeout</code>, <code>.status5xx</code>, <code>.status4xx</code>, and single codes in the form <code>.status429</code> or <code>.status503</code>.</li>
+<li>Without <code>on:</code>, it retries network failures, timeouts, 5xx responses and 429.</li>
+<li>The wait doubles from <code>delay</code> (in milliseconds) up to <code>max</code>, with jitter. A <code>Retry-After</code> from the server wins.</li>
+<li>An aborted call is never retried.</li>
+</ul>
                             </div>
-                            <h3 class="wf-heading" id="endpoints">Endpoints</h3>
+                            <h3 class="wf-heading" id="declare-endpoints">Declare endpoints</h3>
+                            <div class="wf-markdown">
+<p>Each line of a service, after its settings, is an endpoint:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -891,15 +1251,20 @@ get report(id: String) at &quot;reports/:id&quot; as: .blob</code>
                             </div>
                             <div class="wf-markdown">
 <ul>
-<li>The verb is <code>get</code>, <code>post</code>, <code>put</code>, <code>patch</code>, <code>delete</code>, <code>head</code> or <code>options</code>.</li>
-<li>A parameter the path names (<code>:id</code>) goes in the path. One that is empty (<code>null</code> or <code>&quot;&quot;</code>) is not sent at all — <code>users/</code> would be the whole collection, not the user — so the call ends as <code>.aborted</code> and a resource over it stays <code>loading</code> until the value arrives. A parameter called <code>body</code> is the request body (a map is sent as JSON); a <code>File</code> parameter makes the call a multipart upload; every other parameter goes in the query string, and one that is <code>null</code> is left out.</li>
-<li><code>-&gt; T</code> is what a success returns; without it the call returns <code>Any</code>, and <code>204 No Content</code> returns nothing.</li>
-<li><code>errors { 422 -&gt; T }</code> types the body of a failure with that status: the <code>.status(code, body)</code> error carries it decoded.</li>
-<li><code>as:</code> says how to read a response that is not JSON: <code>.text</code>, <code>.blob</code>, <code>.arrayBuffer</code>, <code>.none</code>. <code>errorAs:</code> does the same for a failure's body. <code>cache:</code> sets a cache policy for that endpoint alone.</li>
+<li><strong>The verb</strong> is <code>get</code>, <code>post</code>, <code>put</code>, <code>patch</code>, <code>delete</code>, <code>head</code> or <code>options</code>.</li>
+<li><strong>Path parameters.</strong> A parameter the path names (<code>:id</code>) goes in the path. One that is empty (<code>null</code> or <code>&quot;&quot;</code>) is not sent at all, since <code>users/</code> would be the whole collection, not the user. The call ends as <code>.aborted</code>, and a resource over it stays <code>loading</code> until the value arrives.</li>
+<li><strong>The body.</strong> A parameter called <code>body</code> is the request body; a map is sent as JSON. A <code>File</code> parameter makes the call a multipart upload.</li>
+<li><strong>Query parameters.</strong> Every other parameter goes in the query string, and one that is <code>null</code> is left out.</li>
+<li><strong>What comes back.</strong> <code>-&gt; T</code> is what a success returns. Without it the call returns <code>Any</code>, and <code>204 No Content</code> returns nothing.</li>
+<li><strong>Typed failures.</strong> <code>errors { 422 -&gt; T }</code> types the body of a failure with that status: the <code>.status(code, body)</code> error carries it decoded.</li>
+<li><strong>Other responses.</strong> <code>as:</code> says how to read a response that is not JSON: <code>.text</code>, <code>.blob</code>, <code>.arrayBuffer</code> or <code>.none</code>. <code>errorAs:</code> does the same for a failure's body. <code>cache:</code> sets a cache policy for that endpoint alone.</li>
 </ul>
-<p>A call passes the endpoint's parameters by name, and may add <code>cache:</code>, <code>retry:</code> and — in a <code>resource</code> — <code>on:</code> for when to fetch again (<code>.focus</code>, <code>.reconnect</code>, <code>.interval(30.seconds)</code>) and <code>paginate:</code>.</p>
+<p>A call passes the endpoint's parameters by name. It may add <code>cache:</code> and <code>retry:</code>, and in a <code>resource</code> also <code>on:</code> (<code>.focus</code>, <code>.reconnect</code>, <code>.interval(30.seconds)</code>) and <code>paginate:</code>.</p>
                             </div>
-                            <h3 class="wf-heading" id="pages-of-results">Pages of results</h3>
+                            <h3 class="wf-heading" id="load-results-a-page-at-a-time">Load results a page at a time</h3>
+                            <div class="wf-markdown">
+<p>To show a long list in pages, call the endpoint with <code>paginate: .page</code>. This page shows items and a <strong>Load more</strong> button while there are more:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -907,30 +1272,41 @@ get report(id: String) at &quot;reports/:id&quot; as: .blob</code>
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">type Item { id: String, name: String }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Item</span> { <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">name</span>: <span class="wf-tok-name">String</span> }
 
-api Catalog(base: &quot;/api&quot;) {
-    get items(page: Number = 1) -&gt; [Item]
+api <span class="wf-tok-name">Catalog</span>(<span class="wf-tok-prop">base</span>: <span class="wf-tok-str">&quot;/api&quot;</span>) {
+    get items(<span class="wf-tok-prop">page</span>: <span class="wf-tok-name">Number</span> = <span class="wf-tok-num">1</span>) -&gt; [<span class="wf-tok-name">Item</span>]
 }
 
-page Items(path: &quot;/items&quot;, title: &quot;Items&quot;, description: &quot;Everything, a page at a time.&quot;) {
-    state page = 1
-    resource list = Catalog.items(page: page, paginate: .page)
-    Heading(&quot;Items&quot;).h1
-    for item in list.items by item.id { Text(item.name) }
-    if list.hasMore {
-        Button(&quot;Load more&quot;) { on click { list.loadMore() } }
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Items</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/items&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Items&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Everything, a page at a time.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-kw">page</span> = <span class="wf-tok-num">1</span>
+    <span class="wf-tok-kw">resource</span> list = <span class="wf-tok-name">Catalog</span>.items(<span class="wf-tok-prop">page</span>: <span class="wf-tok-kw">page</span>, <span class="wf-tok-prop">paginate</span>: .page)
+
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Items&quot;</span>).h1
+    <span class="wf-tok-kw">for</span> item <span class="wf-tok-kw">in</span> list.items <span class="wf-tok-kw">by</span> item.id { <span class="wf-tok-name">Text</span>(item.name) }
+    <span class="wf-tok-kw">if</span> list.hasMore {
+        <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Load more&quot;</span>) { <span class="wf-tok-kw">on</span> click { list.loadMore() } }
     }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>paginate: .page</code> gathers the pages into <code>.items</code>, <code>loadMore()</code> moves <code>page</code> on by one, and <code>.hasMore</code> turns false when a page comes back empty.</p>
+<ul>
+<li><code>.items</code> gathers every page loaded so far.</li>
+<li><code>.loadMore()</code> moves <code>page</code> on by one and fetches the next page, as a refresh.</li>
+<li><code>.hasMore</code> turns false when a page comes back empty.</li>
+</ul>
                             </div>
-                            <h3 class="wf-heading" id="an-api-on-another-origin">An API on another origin</h3>
+                            <h3 class="wf-heading" id="call-an-api-on-another-origin">Call an API on another origin</h3>
                             <div class="wf-markdown">
-<p>A page on <code>https://example.com</code> calling <code>https://api.example.com</code> is a cross-origin request: the API must answer with CORS headers (<code>Access-Control-Allow-Origin</code>, and <code>-Allow-Credentials</code> if cookies go with it), or the browser refuses the response. The same applies while you develop: <code>wf serve</code> answers on <code>localhost:3000</code> and has no proxy, so an API on <code>localhost:8080</code> must allow that origin. The alternative is to serve the API and the site from one origin behind a reverse proxy, where <code>base: &quot;/api&quot;</code> needs no CORS at all (<a href="/docs/guide/deploying#an-api-on-the-same-origin">Deploying</a>).</p>
+<p>A page on <code>https://example.com</code> that calls <code>https://api.example.com</code> makes a <em>cross-origin request</em>. The API must answer with CORS headers — <code>Access-Control-Allow-Origin</code>, and <code>Access-Control-Allow-Credentials</code> if cookies go with the call — or the browser refuses the response.</p>
+<p>The same applies while you develop. <code>wf serve</code> answers on <code>localhost:3000</code> and has no proxy, so an API on <code>localhost:8080</code> must allow that origin.</p>
+<p>The alternative is to serve the API and the site from one origin behind a reverse proxy, where <code>base: &quot;/api&quot;</code> needs no CORS at all (<a href="/docs/guide/deploying#serve-an-api-on-the-same-origin">Deploying</a>).</p>
+<p>If the page's build ships a content security policy, list the API's origin in <code>meta.connect</code> too (<a href="/docs/guide/security">Security</a>).</p>
                             </div>
-                            <h3 class="wf-heading" id="showing-a-change-before-the-server-agrees">Showing a change before the server agrees</h3>
+                            <h3 class="wf-heading" id="show-a-change-before-the-server-agrees">Show a change before the server agrees</h3>
+                            <div class="wf-markdown">
+<p>To make an edit appear at once instead of after the round trip, call <code>optimistic(holder, change)</code> before the request. If anything later in the action throws, the change is taken back: the action rolls itself back.</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -938,18 +1314,19 @@ page Items(path: &quot;/items&quot;, title: &quot;Items&quot;, description: &quo
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">action rename(id: String, name: String) {
-    optimistic(Todos.items, items =&gt; items.map(i =&gt; if i.id == id { { ...i, title: name } } else { i }))
-    await Backend.updateUser(id: id, body: { name: name })
-    Backend.users.invalidate()
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">action</span> rename(<span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">name</span>: <span class="wf-tok-name">String</span>) {
+    optimistic(<span class="wf-tok-name">Todos</span>.items, items =&gt; items.map(i =&gt; <span class="wf-tok-kw">if</span> i.id == id { { ...i, <span class="wf-tok-prop">title</span>: name } } <span class="wf-tok-kw">else</span> { i }))
+    <span class="wf-tok-kw">await</span> <span class="wf-tok-name">Backend</span>.updateUser(<span class="wf-tok-prop">id</span>: id, <span class="wf-tok-prop">body</span>: { <span class="wf-tok-prop">name</span>: name })
+    <span class="wf-tok-name">Backend</span>.users.invalidate()
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>The change shows at once. If anything later in the action throws, what was shown is taken back.</p>
+<p>The new title shows at once. If <code>updateUser</code> fails, the old title comes back.</p>
                             </div>
-                            <h2 class="wf-heading" id="await-fetch-in-an-action">await fetch in an action</h2>
+                            <h2 class="wf-heading" id="fetch-on-demand-with-await-fetch">Fetch on demand with await fetch</h2>
                             <div class="wf-markdown">
-<p>For a request made on demand — a save, a delete, a step in a flow — <code>fetch</code> returns the parsed body and throws on a failed response:</p>
+<p>For a request made when something happens — a save, a delete, a step in a flow — call <code>await fetch</code> in an action. It returns the parsed body, and throws on a failed response, so you catch the failure with <code>try</code>.</p>
+<p>This page loads a list of todos, adds one, and toggles one, each with a request:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -958,52 +1335,66 @@ page Items(path: &quot;/items&quot;, title: &quot;Items&quot;, description: &quo
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">type Todo { id: String, title: String, done: Bool = false }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Todo</span> { <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">done</span>: <span class="wf-tok-name">Bool</span> = <span class="wf-tok-kw">false</span> }
 
-page Todos(path: &quot;/&quot;) {
-    state todos: [Todo] = []
-    state draft = &quot;&quot;
-    state error = &quot;&quot;
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Todos</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/todos&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Todos&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Todos saved to a server.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">todos</span>: [<span class="wf-tok-name">Todo</span>] = []
+    <span class="wf-tok-kw">state</span> draft = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-kw">error</span> = <span class="wf-tok-str">&quot;&quot;</span>
 
-    action load() {
-        let r: [Todo] = await fetch(&quot;/api/todos&quot;)
+    <span class="wf-tok-kw">action</span> load() {
+        <span class="wf-tok-kw">let</span> <span class="wf-tok-prop">r</span>: [<span class="wf-tok-name">Todo</span>] = <span class="wf-tok-kw">await</span> fetch(<span class="wf-tok-str">&quot;/api/todos&quot;</span>)
         todos = r
     }
 
-    action add() {
-        if draft.trim() == &quot;&quot; { return }
-        try {
-            let created: Todo = await fetch(&quot;/api/todos&quot;, { method: &quot;POST&quot;, body: { title: draft } })
+    <span class="wf-tok-kw">action</span> add() {
+        <span class="wf-tok-kw">if</span> draft.trim() == <span class="wf-tok-str">&quot;&quot;</span> { <span class="wf-tok-kw">return</span> }
+        <span class="wf-tok-kw">try</span> {
+            <span class="wf-tok-kw">let</span> <span class="wf-tok-prop">created</span>: <span class="wf-tok-name">Todo</span> = <span class="wf-tok-kw">await</span> fetch(<span class="wf-tok-str">&quot;/api/todos&quot;</span>, { <span class="wf-tok-prop">method</span>: <span class="wf-tok-str">&quot;POST&quot;</span>, <span class="wf-tok-prop">body</span>: { <span class="wf-tok-prop">title</span>: draft } })
             todos.push(created)
-            draft = &quot;&quot;
-        } catch e {
-            error = &quot;Could not save: {e.message}&quot;
+            draft = <span class="wf-tok-str">&quot;&quot;</span>
+        } <span class="wf-tok-kw">catch</span> e {
+            <span class="wf-tok-kw">error</span> = <span class="wf-tok-str">&quot;Could not save: {e.message}&quot;</span>
         }
     }
 
-    action toggle(id: String) {
-        let found = todos.find(x =&gt; x.id == id)
-        if let todo = found {
-            let updated: Todo = await fetch(&quot;/api/todos/{id}&quot;, { method: &quot;PATCH&quot;, body: { done: !todo.done } })
-            todos = todos.map(x =&gt; if x.id == id { updated } else { x })
+    <span class="wf-tok-kw">action</span> toggle(<span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>) {
+        <span class="wf-tok-kw">let</span> found = todos.find(x =&gt; x.id == id)
+        <span class="wf-tok-kw">if</span> <span class="wf-tok-kw">let</span> todo = found {
+            <span class="wf-tok-kw">let</span> <span class="wf-tok-prop">updated</span>: <span class="wf-tok-name">Todo</span> = <span class="wf-tok-kw">await</span> fetch(<span class="wf-tok-str">&quot;/api/todos/{id}&quot;</span>, { <span class="wf-tok-prop">method</span>: <span class="wf-tok-str">&quot;PATCH&quot;</span>, <span class="wf-tok-prop">body</span>: { <span class="wf-tok-prop">done</span>: !todo.done } })
+            todos = todos.map(x =&gt; <span class="wf-tok-kw">if</span> x.id == id { updated } <span class="wf-tok-kw">else</span> { x })
         }
     }
 
     load()
-    Input(bind: draft, label: &quot;New todo&quot;) { on key(&quot;Enter&quot;) { add() } }
-    Button(&quot;Add&quot;, disabled: add.pending).primary { on click { add() } }
-    if error != &quot;&quot; { Alert(error).danger }
-    for todo in todos by todo.id {
-        Checkbox(checked: todo.done, label: todo.title) { on change { toggle(todo.id) } }
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Todos&quot;</span>).h1
+    <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: draft, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;New todo&quot;</span>) { <span class="wf-tok-kw">on</span> key(<span class="wf-tok-str">&quot;Enter&quot;</span>) { add() } }
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Add&quot;</span>, <span class="wf-tok-prop">disabled</span>: add.pending).primary { <span class="wf-tok-kw">on</span> click { add() } }
+    <span class="wf-tok-kw">if</span> <span class="wf-tok-kw">error</span> != <span class="wf-tok-str">&quot;&quot;</span> { <span class="wf-tok-name">Alert</span>(<span class="wf-tok-kw">error</span>).danger }
+    <span class="wf-tok-kw">for</span> todo <span class="wf-tok-kw">in</span> todos <span class="wf-tok-kw">by</span> todo.id {
+        <span class="wf-tok-name">Checkbox</span>(<span class="wf-tok-prop">checked</span>: todo.done, <span class="wf-tok-prop">label</span>: todo.title) { <span class="wf-tok-kw">on</span> change { toggle(todo.id) } }
     }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>The second argument is a map: <code>method</code>, <code>headers</code>, <code>body</code>. <code>name.pending</code> is true while the action runs. The browser's own <code>fetch</code>, for a response you want raw, is <code>window.fetch</code>.</p>
+<ul>
+<li>The second argument is a map of <code>method</code>, <code>headers</code> and <code>body</code>.</li>
+<li><code>load()</code> at the top of the page is set-up code: it runs once, when the page renders.</li>
+<li><code>todos.push(created)</code> changes the state in place. The compiler turns it into a new list, so everything that reads <code>todos</code> repaints.</li>
+<li><code>name.pending</code> is <code>true</code> while the action runs, so <strong>Add</strong> is disabled during a save.</li>
+<li><code>await fetch</code> goes through the same engine as an <code>api</code> call. For the browser's own <code>fetch</code>, with the raw response, call <code>window.fetch</code>.</li>
+</ul>
                             </div>
-                            <h2 class="wf-heading" id="data-a-file-at-build-time">data: a file at build time</h2>
+                            <h2 class="wf-heading" id="read-a-file-at-build-time-with-data">Read a file at build time with data</h2>
                             <div class="wf-markdown">
-<p><code>data name = &quot;file.json&quot;</code> reads a JSON file (from the project root or <code>src/</code>) at build time and makes its value a constant. It is in every page and component, costs nothing at run time, and is painted into the static build:</p>
+<p>To use content that is known before the site is built — posts, a price list, a team page — read it with <code>data</code>. <code>data name = &quot;file.json&quot;</code> reads a JSON file from the project directory or <code>src/</code> at build time, and makes its value a constant.</p>
+<p>A <code>data</code> constant:</p>
+<ul>
+<li>is in scope in every page and component;</li>
+<li>costs nothing at run time, because its value is in the bundle;</li>
+<li>is written into the pre-rendered page.</li>
+</ul>
+<p>This blog lists every post in <code>posts.json</code>, newest first:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -1012,16 +1403,18 @@ page Todos(path: &quot;/&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">type Post { slug: String, title: String, date: String, body: String }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Post</span> { <span class="wf-tok-prop">slug</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">date</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">body</span>: <span class="wf-tok-name">String</span> }
 
-data posts: [Post] = &quot;posts.json&quot;
+<span class="wf-tok-kw">data</span> <span class="wf-tok-prop">posts</span>: [<span class="wf-tok-name">Post</span>] = <span class="wf-tok-str">&quot;posts.json&quot;</span>
 
-page Blog(path: &quot;/&quot;, title: &quot;Blog&quot;, description: &quot;Every post.&quot;) {
-    derived sorted = posts.sortBy(p =&gt; p.date).reverse()
-    for p in sorted by p.slug {
-        Card {
-            Link(p.title, to: &quot;/posts/{p.slug}&quot;)
-            Text(format(p.date, .date)).muted.sm
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Blog</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Blog&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Every post.&quot;</span>) {
+    <span class="wf-tok-kw">derived</span> sorted = posts.sortBy(p =&gt; p.date).reverse()
+
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Blog&quot;</span>).h1
+    <span class="wf-tok-kw">for</span> p <span class="wf-tok-kw">in</span> sorted <span class="wf-tok-kw">by</span> p.slug {
+        <span class="wf-tok-name">Card</span> {
+            <span class="wf-tok-name">Link</span>(p.title, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/posts/{p.slug}&quot;</span>)
+            <span class="wf-tok-name">Text</span>(format(p.date, .date)).muted.sm
         }
     }
 }</code>
@@ -1034,16 +1427,16 @@ page Blog(path: &quot;/&quot;, title: &quot;Blog&quot;, description: &quot;Every
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">[
-  { &quot;slug&quot;: &quot;hello&quot;, &quot;title&quot;: &quot;Hello&quot;, &quot;date&quot;: &quot;2026-01-10&quot;, &quot;body&quot;: &quot;# Hi\nFirst post.&quot; },
-  { &quot;slug&quot;: &quot;second&quot;, &quot;title&quot;: &quot;Second&quot;, &quot;date&quot;: &quot;2026-02-02&quot;, &quot;body&quot;: &quot;More.&quot; }
+  { <span class="wf-tok-prop">&quot;slug&quot;</span>: <span class="wf-tok-str">&quot;hello&quot;</span>, <span class="wf-tok-prop">&quot;title&quot;</span>: <span class="wf-tok-str">&quot;Hello&quot;</span>, <span class="wf-tok-prop">&quot;date&quot;</span>: <span class="wf-tok-str">&quot;2026-01-10&quot;</span>, <span class="wf-tok-prop">&quot;body&quot;</span>: <span class="wf-tok-str">&quot;# Hi\nFirst post.&quot;</span> },
+  { <span class="wf-tok-prop">&quot;slug&quot;</span>: <span class="wf-tok-str">&quot;second&quot;</span>, <span class="wf-tok-prop">&quot;title&quot;</span>: <span class="wf-tok-str">&quot;Second&quot;</span>, <span class="wf-tok-prop">&quot;date&quot;</span>: <span class="wf-tok-str">&quot;2026-02-02&quot;</span>, <span class="wf-tok-prop">&quot;body&quot;</span>: <span class="wf-tok-str">&quot;More.&quot;</span> }
 ]</code>
                             </div>
                             <div class="wf-markdown">
 <p>Annotate it (<code>data posts: [Post]</code>) and the checker knows every field.</p>
                             </div>
-                            <h3 class="wf-heading" id="static-paths">Static paths</h3>
+                            <h3 class="wf-heading" id="render-a-page-for-each-item">Render a page for each item</h3>
                             <div class="wf-markdown">
-<p>A <code>:param</code> page is rendered once per value in <code>paths:</code> by a static build — one HTML file per post, each with its own title and description:</p>
+<p>To give each post its own HTML file in a static build, list the values of the route parameter in <code>paths:</code>. The build renders the page once per value, each with its own title and description, and lists each in the sitemap:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -1052,27 +1445,35 @@ page Blog(path: &quot;/&quot;, title: &quot;Blog&quot;, description: &quot;Every
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">type Post { slug: String, title: String, date: String, body: String }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Post</span> { <span class="wf-tok-prop">slug</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">date</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">body</span>: <span class="wf-tok-name">String</span> }
 
-data posts: [Post] = &quot;posts.json&quot;
+<span class="wf-tok-kw">data</span> <span class="wf-tok-prop">posts</span>: [<span class="wf-tok-name">Post</span>] = <span class="wf-tok-str">&quot;posts.json&quot;</span>
 
-page PostPage(path: &quot;/posts/:slug&quot;, slug: String, title: &quot;Post&quot;, description: &quot;A post.&quot;, paths: posts.map(p =&gt; p.slug)) {
-    derived post = posts.find(p =&gt; p.slug == slug)
-    head { meta(property: &quot;og:title&quot;, content: post?.title ?? &quot;Post&quot;) }
-    if let p = post {
-        Heading(p.title).h1
-        Markdown(p.body)
-    } else {
-        Alert(&quot;No such post&quot;).warning
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">PostPage</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/posts/:slug&quot;</span>, <span class="wf-tok-prop">slug</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Post&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A post.&quot;</span>, <span class="wf-tok-prop">paths</span>: posts.map(p =&gt; p.slug)) {
+    <span class="wf-tok-kw">derived</span> post = posts.find(p =&gt; p.slug == slug)
+    head { meta(<span class="wf-tok-prop">property</span>: <span class="wf-tok-str">&quot;og:title&quot;</span>, <span class="wf-tok-prop">content</span>: post?.title ?? <span class="wf-tok-str">&quot;Post&quot;</span>) }
+    <span class="wf-tok-kw">if</span> <span class="wf-tok-kw">let</span> p = post {
+        <span class="wf-tok-name">Heading</span>(p.title).h1
+        <span class="wf-tok-name">Markdown</span>(p.body)
+    } <span class="wf-tok-kw">else</span> {
+        <span class="wf-tok-name">Alert</span>(<span class="wf-tok-str">&quot;No such post&quot;</span>).warning
     }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>paths:</code> must be knowable at build time — a <code>data</code> file, a <code>const</code>, a literal. For a route with several parameters, each value is a map naming them: <code>paths: pairs.map(x =&gt; { year: x.y, slug: x.s })</code>. Routes not in <code>paths:</code> still work in the SPA; only the static build needs the list.</p>
+<p>The build writes <code>posts/hello/index.html</code> and <code>posts/second/index.html</code>.</p>
+<ul>
+<li><code>paths:</code> must be known at build time: a <code>data</code> file, a <code>const</code> or a literal.</li>
+<li>For a route with several parameters, each value is a map naming them: <code>paths: pairs.map(x =&gt; { year: x.y, slug: x.s })</code>.</li>
+<li>A route not in <code>paths:</code> still works in a single-page app. Only the static build needs the list.</li>
+</ul>
                             </div>
-                            <h2 class="wf-heading" id="where-data-lands-in-the-static-paint">Where data lands in the static paint</h2>
+                            <h2 class="wf-heading" id="where-data-lands-in-the-pre-rendered-page">Where data lands in the pre-rendered page</h2>
+                            <div class="wf-markdown">
+<p>A static build writes each page's HTML before any script runs. What each source of data puts in that HTML:</p>
+                            </div>
                             <table class="wf-table">
-                                <caption class="wf-visually-hidden">Where data lands in the static paint</caption>
+                                <caption class="wf-visually-hidden">Where data lands in the pre-rendered page</caption>
                                 <thead>
                                     <tr>
                                         <th scope="col">Source</th>
@@ -1091,7 +1492,7 @@ page PostPage(path: &quot;/posts/:slug&quot;, slug: String, title: &quot;Post&qu
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>state</code> initial values, <code>derived</code> over them</p>
+<p><code>state</code> initial values, and <code>derived</code> values over them</p>
                                             </div>
                                         </td>
                                         <td>Painted</td>
@@ -1118,6 +1519,98 @@ page PostPage(path: &quot;/posts/:slug&quot;, slug: String, title: &quot;Post&qu
                                     </tr>
                                 </tbody>
                             </table>
+                            <h2 class="wf-heading" id="troubleshooting">Troubleshooting</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Troubleshooting</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">What you see</th>
+                                        <th scope="col">Why, and what to do</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>The browser console says a response was blocked by CORS</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The API is on another origin and does not allow yours. Add CORS headers to the API, or serve both from one origin (<a href="#call-an-api-on-another-origin">Call an API on another origin</a>).</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A <code>fetch</code> gets a <code>404</code> under <code>wf serve</code>, with a line in the terminal</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf serve</code> has no file or page for that address, and no proxy. Point <code>base:</code> at the real API.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A <code>.parse</code> error naming a place, such as <code>$[1].name is missing</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Under <code>wf serve</code>, a response is checked against its declared type. The server sent another shape: fix the server or the <code>type</code>.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A resource stays <code>loading</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A path parameter is <code>null</code> or <code>&quot;&quot;</code>, so the call is not sent. It goes out when the value arrives.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The page goes back to <code>loading</code> when state changes</p>
+                                            </div>
+                                        </td>
+                                        <td>The address now names something else, so it is a first load. A refresh of the same address keeps the data.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>T05</code> on a field of the data</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The declared type has no such field. Fix the name, or add the field to the <code>type</code>.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>T06</code> or <code>T10</code> on an endpoint call</p>
+                                            </div>
+                                        </td>
+                                        <td>The service has no such endpoint, or the endpoint takes no such argument.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>A post&#x27;s page is missing from a static build</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Its value is not in <code>paths:</code>.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                     <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
@@ -1134,11 +1627,14 @@ page PostPage(path: &quot;/posts/:slug&quot;, slug: String, title: &quot;Post&qu
                 <div class="wf-stack wf-gap--lg wf-sac91c322" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
-                        <a class="wf-link wf-s3e136ca4" href="#resource">resource</a>
-                        <a class="wf-link wf-s3e136ca4" href="#api-a-service-described-once">api: a service, described once</a>
-                        <a class="wf-link wf-s3e136ca4" href="#await-fetch-in-an-action">await fetch in an action</a>
-                        <a class="wf-link wf-s3e136ca4" href="#data-a-file-at-build-time">data: a file at build time</a>
-                        <a class="wf-link wf-s3e136ca4" href="#where-data-lands-in-the-static-paint">Where data lands in the static paint</a>
+                        <a class="wf-link wf-s3e136ca4" href="#before-you-start">Before you start</a>
+                        <a class="wf-link wf-s3e136ca4" href="#choose-how-to-get-data">Choose how to get data</a>
+                        <a class="wf-link wf-s3e136ca4" href="#show-a-request-with-resource">Show a request with resource</a>
+                        <a class="wf-link wf-s3e136ca4" href="#describe-a-service-with-api">Describe a service with api</a>
+                        <a class="wf-link wf-s3e136ca4" href="#fetch-on-demand-with-await-fetch">Fetch on demand with await fetch</a>
+                        <a class="wf-link wf-s3e136ca4" href="#read-a-file-at-build-time-with-data">Read a file at build time with data</a>
+                        <a class="wf-link wf-s3e136ca4" href="#where-data-lands-in-the-pre-rendered-page">Where data lands in the pre-rendered page</a>
+                        <a class="wf-link wf-s3e136ca4" href="#troubleshooting">Troubleshooting</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-s614f8b98">

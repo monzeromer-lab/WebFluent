@@ -23,7 +23,7 @@
     <meta name="twitter:title" content="JavaScript interop">
     <meta name="twitter:description" content="Your own .js under src/, libraries via meta.scripts, mount and cleanup on any element, Portal, wf:render, Element for custom elements, and publishing yours.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/interop#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/interop","name":"JavaScript interop","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Your own .js under src/, libraries via meta.scripts, mount and cleanup on any element, Portal, wf:render, Element for custom elements, and publishing yours."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/interop#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"JavaScript interop","item":"https://webfluent.monzeromer.dev/docs/guide/interop"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/interop#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/interop","name":"JavaScript interop","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Your own .js under src/, libraries via meta.scripts, mount and cleanup on any element, Portal, wf:render, Element for custom elements, and publishing yours."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/interop#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"JavaScript interop","item":"https://webfluent.monzeromer.dev/docs/guide/interop"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -69,6 +69,9 @@
             </div>
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
+                    <a class="wf-sidebar__item" href="/docs">
+                        <p class="wf-text">Overview</p>
+                    </a>
                     <p class="wf-text group-label">Start</p>
                     <a class="wf-sidebar__item" href="/docs/guide/introduction">
                         <p class="wf-text num">01</p>
@@ -274,18 +277,19 @@
                 </aside>
                 <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
-                        <a class="wf-link" href="/docs/guide/introduction">Guide</a>
+                        <a class="wf-link" href="/docs">Guide</a>
                         <p class="wf-text">/</p>
                         <p class="wf-text wf-s8c71c534">Chapter 32</p>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s28a8547f">
                         <h1 class="wf-heading wf-sa3503382">JavaScript interop</h1>
-                        <p class="wf-text wf-sfd35f593">Write plain JavaScript beside your pages and call it by name; load a library from a CDN; hand an element to a script and get it back; place custom elements; publish your components for any framework.</p>
+                        <p class="wf-text wf-sfd35f593">Write plain JavaScript beside your pages and call it by name; load a library from a CDN; hand an element to a script; place custom elements; publish your components.</p>
                     </div>
                     <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
-<p>WebFluent has no package manager of its own, and does not need one to use the JavaScript ecosystem. A <code>.js</code> file is part of the project the way a <code>.css</code> file is: put it under <code>src/</code> and its functions are there.</p>
+<p>This chapter shows you how to use JavaScript from a WebFluent project: your own scripts, libraries from a CDN, and custom elements. WebFluent has no package manager of its own and does not need one. A <code>.js</code> file is part of the project the same way a <code>.css</code> file is: put it under <code>src/</code>, and your pages can call its functions by name.</p>
+<p>Pick the section for what you want to do:</p>
                             </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">JavaScript interop</caption>
@@ -293,6 +297,7 @@
                                     <tr>
                                         <th scope="col">You want to…</th>
                                         <th scope="col">Use</th>
+                                        <th scope="col">Section</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -303,12 +308,22 @@
 <p>a <code>.js</code> file under <code>src/</code></p>
                                             </div>
                                         </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#call-your-own-script">Call your own script</a></p>
+                                            </div>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>use a library from a CDN</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>meta.scripts</code> in the config</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#load-a-library-from-a-cdn">Load a library from a CDN</a></p>
                                             </div>
                                         </td>
                                     </tr>
@@ -319,12 +334,22 @@
 <p><code>mount:</code>, <code>update:</code>, <code>cleanup:</code> on any element</p>
                                             </div>
                                         </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#hand-an-element-to-a-script-with-mount-update-and-cleanup">Hand an element to a script</a></p>
+                                            </div>
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td>draw into a node a script made — a tooltip, a popup</td>
+                                        <td>draw into a node a script made (a tooltip, a popup)</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>Portal(into: node) { … }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#draw-into-a-node-a-script-made-with-portal">Draw into a node a script made</a></p>
                                             </div>
                                         </td>
                                     </tr>
@@ -335,12 +360,22 @@
 <p>the <code>wf:render</code> event</p>
                                             </div>
                                         </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#listen-for-wf-render-in-a-script-that-finds-elements-itself">Listen for <code>wf:render</code></a></p>
+                                            </div>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>place somebody else&#x27;s custom element</td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>Element(&quot;tag-name&quot;, …)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#place-a-custom-element-from-a-library">Place a custom element</a></p>
                                             </div>
                                         </td>
                                     </tr>
@@ -351,12 +386,22 @@
 <p><code>output_type: &quot;elements&quot;</code></p>
                                             </div>
                                         </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#publish-your-components-as-custom-elements">Publish your components</a></p>
+                                            </div>
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
-                            <h2 class="wf-heading" id="your-own-script">Your own script</h2>
+                            <h2 class="wf-heading" id="before-you-start">Before you start</h2>
                             <div class="wf-markdown">
-<p>A plain browser script, written as any <code>&lt;script src&gt;</code> file is written — no <code>export</code>, no <code>import</code>, no build step:</p>
+<p>You need a WebFluent project (<a href="/docs/guide/getting-started">Getting started</a>) and a script written as a plain browser script: no <code>import</code>, no <code>export</code>, no build step.</p>
+                            </div>
+                            <h2 class="wf-heading" id="call-your-own-script">Call your own script</h2>
+                            <div class="wf-markdown">
+<p>To call a function of your own, put it in a <code>.js</code> file under <code>src/</code>. Write it the way you would write any file a <code>&lt;script src&gt;</code> loads.</p>
+<p>This script tilts an element toward the pointer, and returns a handle the page can update and destroy:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -384,6 +429,9 @@ function initTilt(node, max = 15) {
   };
 }</code>
                             </div>
+                            <div class="wf-markdown">
+<p>This page calls <code>initTilt</code> on a card, and changes how far it tilts as the reader moves a slider:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -391,36 +439,37 @@ function initTilt(node, max = 15) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Gallery(path: &quot;/gallery&quot;, title: &quot;Gallery&quot;, description: &quot;Cards that lean.&quot;) {
-    state max = 15
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Gallery</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/gallery&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Gallery&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Cards that lean.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> max = <span class="wf-tok-num">15</span>
 
-    Heading(&quot;Gallery&quot;).h1
-    Card(class: &quot;tilt&quot;,
-         mount: (n) =&gt; initTilt(n, max),
-         update: (tilt) =&gt; tilt.setMax(max),
-         cleanup: (tilt) =&gt; tilt.destroy()) {
-        Text(&quot;Move the pointer over me.&quot;)
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Gallery&quot;</span>).h1
+    <span class="wf-tok-name">Card</span>(<span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;tilt&quot;</span>,
+         <span class="wf-tok-prop">mount</span>: (n) =&gt; initTilt(n, max),
+         <span class="wf-tok-prop">update</span>: (tilt) =&gt; tilt.setMax(max),
+         <span class="wf-tok-prop">cleanup</span>: (tilt) =&gt; tilt.destroy()) {
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Move the pointer over me.&quot;</span>)
     }
-    Slider(bind: max, min: 0, max: 45, label: &quot;How far&quot;)
+    <span class="wf-tok-name">Slider</span>(<span class="wf-tok-prop">bind</span>: max, <span class="wf-tok-prop">min</span>: <span class="wf-tok-num">0</span>, <span class="wf-tok-prop">max</span>: <span class="wf-tok-num">45</span>, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;How far&quot;</span>)
 }</code>
                             </div>
                             <div class="wf-markdown">
+<p>How the build treats a script:</p>
 <ul>
-<li><strong>The file runs as written.</strong> It is copied to <code>build/js/tilt.js</code> byte for byte and linked with <code>&lt;script defer&gt;</code> on every page, before the compiled code — so a stack trace points at your line.</li>
-<li><strong>Its names are in scope.</strong> Every top-level <code>function</code>, <code>class</code>, <code>const</code>, <code>let</code> and <code>var</code>, and anything assigned to <code>window.x</code>, is a name <code>.wf</code> code calls directly. What a function or an IIFE keeps inside stays private, as it does in the browser.</li>
-<li><strong>A call is checked.</strong> <code>initTilt(n, 1, 2)</code> is a <code>T10</code> where it is written — the script takes one or two arguments — and its JSDoc types the rest (below). Nothing about it is a guess: a name the file does not declare is still a <code>T13</code>.</li>
-<li><strong>A class is constructed.</strong> WebFluent has no <code>new</code>; a call to a class a script declares compiles to one.</li>
-<li><strong>One name, one meaning.</strong> Two scripts declaring one name, or a script name that is also a component, store, <code>const</code> or a name the language or the browser owns (<code>format</code>, <code>log</code>, <code>fetch</code>), is an error naming both.</li>
-<li><strong>An ES module is refused.</strong> A file with a top-level <code>import</code> or <code>export</code> cannot run from a <code>&lt;script src&gt;</code>, so the build stops on it and says so. A published module is loaded from the config (below).</li>
+<li><strong>The file runs as written.</strong> The build copies it to <code>build/js/tilt.js</code> byte for byte and links it with <code>&lt;script defer&gt;</code> on every page, before the compiled code. A stack trace points at your own line.</li>
+<li><strong>Its names are in scope.</strong> Every top-level <code>function</code>, <code>class</code>, <code>const</code>, <code>let</code> and <code>var</code>, and anything assigned to <code>window.x</code>, is a name your <code>.wf</code> code can call directly. What a function or an IIFE keeps inside stays private, as it does in the browser.</li>
+<li><strong>A call is checked.</strong> <code>initTilt(n, 1, 2)</code> is a <code>T10</code> error where it is written, because the function takes one or two arguments. Its JSDoc types the arguments (<a href="#type-a-script-with-jsdoc">Type a script with JSDoc</a>). A name the file does not declare is still a <code>T13</code>.</li>
+<li><strong>A class is constructed.</strong> WebFluent has no <code>new</code>. A call to a class a script declares compiles to <code>new</code>.</li>
+<li><strong>One name has one meaning.</strong> Two scripts that declare the same name, or a script name that is also a component, a store, a <code>const</code>, or a name the language or the browser owns (<code>format</code>, <code>log</code>, <code>fetch</code>), is an error that names both.</li>
+<li><strong>An ES module is refused.</strong> A file with a top-level <code>import</code> or <code>export</code> cannot run from a <code>&lt;script src&gt;</code>, so the build stops and says so. Load a published module from the config instead (<a href="#load-a-library-from-a-cdn">Load a library from a CDN</a>).</li>
 </ul>
-<p><code>wf serve</code> rebuilds when a script changes, <code>wf audit</code> lists what each one declares, <code>wf types</code> prints each function's signature, and the editor completes, documents and jumps to them.</p>
+<p>The tools know your scripts too: <code>wf serve</code> rebuilds when a script changes, <code>wf audit</code> lists what each one declares, <code>wf types</code> prints each function's signature, and the editor completes, documents and jumps to them.</p>
                             </div>
-                            <h3 class="wf-heading" id="types-from-jsdoc">Types from JSDoc</h3>
+                            <h3 class="wf-heading" id="type-a-script-with-jsdoc">Type a script with JSDoc</h3>
                             <div class="wf-markdown">
-<p>JSDoc is a comment, so the file stays exactly what the browser runs. The checker reads it:</p>
+<p>To have calls checked against a function's types, describe the function in a JSDoc comment. JSDoc is a comment, so the file stays exactly what the browser runs. The checker reads it this way:</p>
                             </div>
                             <table class="wf-table">
-                                <caption class="wf-visually-hidden">Types from JSDoc</caption>
+                                <caption class="wf-visually-hidden">Type a script with JSDoc</caption>
                                 <thead>
                                     <tr>
                                         <th scope="col">JSDoc</th>
@@ -494,7 +543,7 @@ function initTilt(node, max = 15) {
 <p><code>(v: T) =&gt; R</code></p>
                                             </div>
                                         </td>
-                                        <td>a function — an action or a lambda may be passed</td>
+                                        <td>a function: you may pass an action or a lambda</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -511,11 +560,12 @@ function initTilt(node, max = 15) {
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>With no comment at all every parameter is <code>Any</code>, so adding a script never breaks a build; each tag only narrows what a call may pass.</p>
+<p>With no comment at all, every parameter is <code>Any</code>, so adding a script never breaks a build. Each tag only narrows what a call may pass. <code>@returns</code> types the result.</p>
                             </div>
-                            <h3 class="wf-heading" id="a-script-reports-webfluent-owns-the-class">A script reports; WebFluent owns the class</h3>
+                            <h3 class="wf-heading" id="let-a-script-report-and-keep-the-class-in-webfluent">Let a script report, and keep the class in WebFluent</h3>
                             <div class="wf-markdown">
-<p>When how an element looks depends on something only a script can see — an intersection, a scroll position, a library's event — hand the script an action. An action is a plain function at run time, and the class stays a <code>class:</code> the compiler can read:</p>
+<p>When the way an element looks depends on something only a script can see (an intersection, a scroll position, a library's event), hand the script an action. An action is a plain function at run time. The script calls it, and the class stays in a <code>class:</code> the compiler can read.</p>
+<p>This script reports whether an element is on screen:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -536,6 +586,9 @@ function watchVisible(node, onChange) {
   return { destroy: () =&gt; io.disconnect() };
 }</code>
                             </div>
+                            <div class="wf-markdown">
+<p>This page sets <code>is-visible</code> on the card while it is on screen:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -543,24 +596,25 @@ function watchVisible(node, onChange) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Story(path: &quot;/story&quot;, title: &quot;Story&quot;, description: &quot;It fades in.&quot;) {
-    state visible = false
-    action setVisible(v: Bool) { visible = v }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Story</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/story&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Story&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;It fades in.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> visible = <span class="wf-tok-kw">false</span>
+    <span class="wf-tok-kw">action</span> setVisible(<span class="wf-tok-prop">v</span>: <span class="wf-tok-name">Bool</span>) { visible = v }
 
-    Heading(&quot;Story&quot;).h1
-    Card(class: { &quot;is-visible&quot;: visible },
-         mount: (n) =&gt; watchVisible(n, setVisible),
-         cleanup: (w) =&gt; w.destroy()) {
-        Text(&quot;Here I am.&quot;)
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Story&quot;</span>).h1
+    <span class="wf-tok-name">Card</span>(<span class="wf-tok-prop">class</span>: { <span class="wf-tok-str">&quot;is-visible&quot;</span>: visible },
+         <span class="wf-tok-prop">mount</span>: (n) =&gt; watchVisible(n, setVisible),
+         <span class="wf-tok-prop">cleanup</span>: (w) =&gt; w.destroy()) {
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Here I am.&quot;</span>)
     }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>One owner per class: a class <code>class:</code> names is WebFluent's, and a class a script adds with <code>classList.add</code> is the script's — <code>class:</code> only ever takes off what it put on.</p>
+<p>Each class has one owner. A class that <code>class:</code> names belongs to WebFluent, and a class a script adds with <code>classList.add</code> belongs to the script: <code>class:</code> only ever takes off what it put on.</p>
                             </div>
-                            <h2 class="wf-heading" id="a-library-from-a-cdn">A library from a CDN</h2>
+                            <h2 class="wf-heading" id="load-a-library-from-a-cdn">Load a library from a CDN</h2>
                             <div class="wf-markdown">
-<p>The compiler never fetches anything, so it cannot read a file on another origin. A library is a URL the config lists, and your own scripts use it:</p>
+<p>To use a library from another origin, list its URL in <code>meta.scripts</code>. The compiler never fetches anything, so it cannot read a file on another origin; your own scripts call the library instead.</p>
+<p>This config loads Chart.js and pins the file with its integrity hash:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -569,12 +623,15 @@ function watchVisible(node, onChange) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">{ &quot;meta&quot;: {
-    &quot;scripts&quot;: [&quot;https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js&quot;],
-    &quot;integrity&quot;: {
-      &quot;https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js&quot;: &quot;sha384-…&quot;
+                                <code class="wf-code wf-code--block wf-sa8223565">{ <span class="wf-tok-prop">&quot;meta&quot;</span>: {
+    <span class="wf-tok-prop">&quot;scripts&quot;</span>: [<span class="wf-tok-str">&quot;https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js&quot;</span>],
+    <span class="wf-tok-prop">&quot;integrity&quot;</span>: {
+      <span class="wf-tok-prop">&quot;https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js&quot;</span>: <span class="wf-tok-str">&quot;sha384-…&quot;</span>
     }
 } }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>This script draws a chart with it:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -596,6 +653,9 @@ function drawSales(canvas, values) {
   });
 }</code>
                             </div>
+                            <div class="wf-markdown">
+<p>This page hands the script a canvas, and destroys the chart when the page leaves:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -603,42 +663,42 @@ function drawSales(canvas, values) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Sales(path: &quot;/sales&quot;, title: &quot;Sales&quot;, description: &quot;How it is going.&quot;) {
-    state values: [Number] = [12, 19, 7, 15]
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Sales</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/sales&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Sales&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;How it is going.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">values</span>: [<span class="wf-tok-name">Number</span>] = [<span class="wf-tok-num">12</span>, <span class="wf-tok-num">19</span>, <span class="wf-tok-num">7</span>, <span class="wf-tok-num">15</span>]
 
-    Heading(&quot;Sales&quot;).h1
-    Host(tag: &quot;canvas&quot;,
-         mount: (c) =&gt; drawSales(c, values),
-         cleanup: (chart) =&gt; chart.destroy())
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Sales&quot;</span>).h1
+    <span class="wf-tok-name">Host</span>(<span class="wf-tok-prop">tag</span>: <span class="wf-tok-str">&quot;canvas&quot;</span>,
+         <span class="wf-tok-prop">mount</span>: (c) =&gt; drawSales(c, values),
+         <span class="wf-tok-prop">cleanup</span>: (chart) =&gt; chart.destroy())
 }</code>
                             </div>
                             <div class="wf-markdown">
+<p>How an entry in <code>meta.scripts</code> loads:</p>
 <ul>
-<li><strong>Order.</strong> Each entry is linked with <code>&lt;script defer&gt;</code> in the order listed, before your own scripts and the compiled code, so a library is there when the code that uses it runs.</li>
-<li><strong>Out of order.</strong> <code>{ &quot;src&quot;: &quot;…&quot;, &quot;async&quot;: true }</code> loads a script nothing on the page waits for — analytics, a tag manager — with <code>&lt;script async&gt;</code>. Deferred scripts run in order, so a large one listed plainly would hold the compiled code, and the page's first full paint, until it had arrived; an <code>async</code> one runs whenever it arrives instead. A module, or a script whose <code>globals</code> <code>.wf</code> calls, cannot be <code>async</code> (<code>E111</code>).</li>
-<li><strong>After the page.</strong> <code>{ &quot;src&quot;: &quot;…&quot;, &quot;load&quot;: &quot;after&quot; }</code> has no tag in the HTML at all: the runtime asks for it once the page has loaded and drawn its first frame. A browser fetches everything a page names while it loads, and a page's speed is measured against what it asked for before it first painted — so a large analytics tag named in the HTML costs a phone's Largest Contentful Paint more than a second even with <code>async</code>. Its origin still joins the policy. A reader who leaves within the first second is not counted; the same rules as <code>async</code> apply (<code>E111</code>).</li>
-<li><strong>Integrity.</strong> <code>meta.integrity</code> pins the file; a library from another origin without a hash draws a warning.</li>
-<li><strong>The policy.</strong> The Content-Security-Policy is widened by exactly the origins listed, so a declared library is never blocked by the policy that ships beside it.</li>
-<li><strong>A module.</strong> <code>{ &quot;src&quot;: &quot;https://…/confetti.mjs&quot;, &quot;module&quot;: true, &quot;as&quot;: &quot;Confetti&quot; }</code> imports an ES module and puts its exports on <code>window.Confetti</code>. Most CDNs also serve a plain build, which needs neither.</li>
-<li><strong>Calling it from <code>.wf</code> directly.</strong> <code>{ &quot;src&quot;: &quot;…&quot;, &quot;globals&quot;: [&quot;Chart&quot;] }</code> puts the names a library defines in scope, each <code>Any</code> — the compiler cannot see their shape. A class among them is constructed when called.</li>
+<li><strong>In order.</strong> The build links each entry with <code>&lt;script defer&gt;</code> in the order listed, before your own scripts and the compiled code. A library is there when the code that uses it runs.</li>
+<li><strong>Out of order.</strong> <code>{ &quot;src&quot;: &quot;…&quot;, &quot;async&quot;: true }</code> loads a script that nothing on the page waits for (analytics, a tag manager) with <code>&lt;script async&gt;</code>. Deferred scripts run in order, so a large one listed plainly would hold back the compiled code, and the page's first full paint, until it arrived. An <code>async</code> script runs whenever it arrives instead. A module, or a script whose <code>globals</code> your <code>.wf</code> code calls, cannot be <code>async</code> (<code>E111</code>).</li>
+<li><strong>After the page.</strong> <code>{ &quot;src&quot;: &quot;…&quot;, &quot;load&quot;: &quot;after&quot; }</code> puts no tag in the HTML at all: the runtime requests the script once the page has loaded and drawn its first frame. A browser fetches everything a page names while it loads, and a page's speed is measured against what it asked for before it first painted. A large analytics tag named in the HTML can cost a phone's Largest Contentful Paint more than a second, even with <code>async</code>. The script's origin still joins the policy. A reader who leaves within the first second is not counted. The same limits as <code>async</code> apply (<code>E111</code>).</li>
+<li><strong>Pinned.</strong> <code>meta.integrity</code> pins the file to a hash. A library from another origin without a hash draws a <code>D05</code> warning.</li>
+<li><strong>Allowed by the policy.</strong> The build widens the Content-Security-Policy by exactly the origins listed, so the policy that ships beside a declared library never blocks it.</li>
+<li><strong>As a module.</strong> <code>{ &quot;src&quot;: &quot;https://…/confetti.mjs&quot;, &quot;module&quot;: true, &quot;as&quot;: &quot;Confetti&quot; }</code> imports an ES module and puts its exports on <code>window.Confetti</code>. Most CDNs also serve a plain build, which needs neither key.</li>
+<li><strong>Called from <code>.wf</code> directly.</strong> <code>{ &quot;src&quot;: &quot;…&quot;, &quot;globals&quot;: [&quot;Chart&quot;] }</code> puts the names a library defines in scope, each typed <code>Any</code>, because the compiler cannot see their shape. A class among them is constructed when called.</li>
 </ul>
                             </div>
-                            <h2 class="wf-heading" id="mount-update-cleanup-on-any-element">mount:, update:, cleanup: — on any element</h2>
+                            <h2 class="wf-heading" id="hand-an-element-to-a-script-with-mount-update-and-cleanup">Hand an element to a script with mount:, update: and cleanup:</h2>
                             <div class="wf-markdown">
-<p>Every element and every component call takes the three:</p>
+<p>To give an element to a library and take it back when the element goes, use the three lifetime props. Every element and every component call takes them:</p>
 <ul>
-<li><code>mount: (node) =&gt; …</code> runs each time the element is made — the first paint, a route change, an <code>if</code> branch arriving, a list item added. What it returns is the handle the other two get.</li>
+<li><code>mount: (node) =&gt; …</code> runs each time the element is made: the first paint, a route change, an <code>if</code> branch arriving, a list item added. What it returns is the <em>handle</em> the other two receive.</li>
 <li><code>update: (handle) =&gt; …</code> runs again whenever the state it reads changes.</li>
-<li><code>cleanup: (handle) =&gt; …</code> runs when the element leaves — its page, its branch or its list item — so nothing a library made outlives it.</li>
-<li>On a component call they belong to the component's root element, unless the component declares a prop of that name itself.</li>
-<li>A mount that throws takes itself out and logs the error; the page stays.</li>
+<li><code>cleanup: (handle) =&gt; …</code> runs when the element leaves (its page, its branch or its list item), so nothing a library made outlives it.</li>
 </ul>
-<p><code>Host</code> is the same lifetime on a bare node: <code>Host(tag: &quot;canvas&quot;, …)</code> makes the element a library wants — <code>div</code> by default, or <code>span</code>, <code>canvas</code>, <code>svg</code>, <code>section</code>, <code>figure</code>, <code>pre</code>, <code>p</code>, <code>ul</code>, <code>table</code>.</p>
+<p>On a component call, the three belong to the component's root element, unless the component declares a prop of that name itself. A <code>mount:</code> that throws removes itself and logs the error; the page stays up.</p>
+<p>To get a bare node for a library, use <code>Host</code>. It has the same lifetime: <code>Host(tag: &quot;canvas&quot;, …)</code> makes the element the library wants. It makes a <code>div</code> by default, or a <code>span</code>, <code>canvas</code>, <code>svg</code>, <code>section</code>, <code>figure</code>, <code>pre</code>, <code>p</code>, <code>ul</code> or <code>table</code>.</p>
                             </div>
-                            <h2 class="wf-heading" id="portal-drawing-into-a-node-a-script-made">Portal — drawing into a node a script made</h2>
+                            <h2 class="wf-heading" id="draw-into-a-node-a-script-made-with-portal">Draw into a node a script made with Portal</h2>
                             <div class="wf-markdown">
-<p>Some libraries make a node and leave it empty for the page to fill: an editor's tooltip, a map's popup, a chart's legend. <code>Portal(into: node) { … }</code> draws its block there. The library keeps the node's place, its keys and its focus; the page keeps what is in it.</p>
-<p>CodeMirror, loaded from <code>meta.scripts</code> as <code>CM</code>, with a hover tooltip whose words the page draws:</p>
+<p>Some libraries make a node and leave it empty for the page to fill: an editor's tooltip, a map's popup, a chart's legend. To fill it, use <code>Portal(into: node) { … }</code>. The library keeps the node's place, its keys and its focus; the page draws what is in it.</p>
+<p>This script starts a CodeMirror editor, loaded from <code>meta.scripts</code> as <code>CM</code>, with a hover tooltip whose words the page draws:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -683,6 +743,9 @@ function startEditor(node, opened, closed) {
   return new CM.EditorView({ parent: node, extensions: [CM.basicSetup, hover] });
 }</code>
                             </div>
+                            <div class="wf-markdown">
+<p>This page keeps the open tooltip's id in state and draws the words into its node:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -690,39 +753,40 @@ function startEditor(node, opened, closed) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Edit(path: &quot;/edit&quot;, title: &quot;Edit&quot;, description: &quot;An editor whose tooltip the page draws.&quot;) {
-    state tip: String? = null
-    state words = &quot;&quot;
-    action opened(id: String, text: String) {
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Edit</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/edit&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Edit&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;An editor whose tooltip the page draws.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">tip</span>: <span class="wf-tok-name">String</span>? = <span class="wf-tok-kw">null</span>
+    <span class="wf-tok-kw">state</span> words = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">action</span> opened(<span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">text</span>: <span class="wf-tok-name">String</span>) {
         tip = id
         words = text
     }
-    action closed(id: String) {
-        if tip == id { tip = null }
+    <span class="wf-tok-kw">action</span> closed(<span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>) {
+        <span class="wf-tok-kw">if</span> tip == id { tip = <span class="wf-tok-kw">null</span> }
     }
 
-    Heading(&quot;Edit&quot;).h1
-    Host(mount: (n) =&gt; startEditor(n, opened, closed), cleanup: (view) =&gt; view.destroy())
-    if let id = tip {
-        Portal(into: editorHost(id), data-popup: &quot;hover&quot;) {
-            Text(words)
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Edit&quot;</span>).h1
+    <span class="wf-tok-name">Host</span>(<span class="wf-tok-prop">mount</span>: (n) =&gt; startEditor(n, opened, closed), <span class="wf-tok-prop">cleanup</span>: (view) =&gt; view.destroy())
+    <span class="wf-tok-kw">if</span> <span class="wf-tok-kw">let</span> id = tip {
+        <span class="wf-tok-name">Portal</span>(<span class="wf-tok-prop">into</span>: editorHost(id), <span class="wf-tok-kw">data</span>-<span class="wf-tok-prop">popup</span>: <span class="wf-tok-str">&quot;hover&quot;</span>) {
+            <span class="wf-tok-name">Text</span>(words)
         }
     }
 }</code>
                             </div>
                             <div class="wf-markdown">
+<p>How a portal behaves:</p>
 <ul>
-<li><strong>Where it goes is read again.</strong> <code>into:</code> is read like any other expression: when a state or a list item it reads changes, it is read again. A tooltip that replaces another has a new id, so the block follows it to the new node.</li>
-<li><strong>It moves; it is not drawn again.</strong> Named another node, the same box goes there with its nodes and their state — a field half typed in, a list scrolled halfway. <code>null</code> keeps it aside, and when a node is named again the same nodes come back.</li>
-<li><strong>It belongs to where it is written.</strong> Its handlers, its <code>emit</code>, the state it reads and changes, its <code>mount:</code> and <code>cleanup:</code> are the page's or the component's it is written in; the node is only where they are drawn. A <code>mount:</code> inside it runs once the block is drawn and in place, so it meets its node in the document when the node it goes into is there.</li>
-<li><strong>It goes with its scope.</strong> When the page, the branch or the list item it is written in leaves, the box leaves the node with it. The node is the library's, and stays.</li>
-<li><strong>The box adds nothing.</strong> It is a <code>div</code> with <code>display: contents</code>, so the node lays out the block as if the box were not there; an <code>id:</code>, a <code>class:</code>, <code>data-*</code> and <code>aria-*</code> are the box's.</li>
-<li><strong>A handle is somewhere too.</strong> <code>Portal(into: panel)</code> draws into the element a <code>ref: panel</code> names, even one written further down the page. Where it goes is read once more when the drawing is over and the page is in the document, so an element of the page's own found by <code>document.getElementById</code> is found too. A handle is not a state: an element it names only later, in an <code>if</code> that opens afterwards, is not followed.</li>
-<li><strong>Events go up from where it is drawn.</strong> A press inside the block bubbles through the node it is in and that node's parents, not through the elements around the place it is written: an <code>on click</code> on a <code>Stack</code> that holds the portal does not hear it. Put the handler on the portal, or inside its block.</li>
-<li><strong><code>show</code> does not hide it.</strong> <code>show</code> hides what is drawn in its own place, and a portal's block is drawn somewhere else. Take it away with <code>if</code>, or keep it aside with <code>into: null</code>.</li>
-<li><strong>Pre-rendered, it is a place.</strong> The static paint has a marker where a portal is and nothing of its block; the live page draws it once its script has run. A test that looks at one is run in a browser (<a href="/docs/guide/testing">Testing</a>).</li>
+<li><strong>It reads its target again.</strong> <code>into:</code> is read like any other expression: when a state or a list item it reads changes, it is read again. A tooltip that replaces another has a new id, so the block follows it to the new node.</li>
+<li><strong>It moves; it is not drawn again.</strong> When <code>into:</code> names another node, the same box moves there with its nodes and their state: a field half typed in, a list scrolled halfway. <code>null</code> keeps the box aside, and when a node is named again the same nodes come back.</li>
+<li><strong>It belongs to where it is written.</strong> Its handlers, its <code>emit</code>, the state it reads and changes, and its <code>mount:</code> and <code>cleanup:</code> belong to the page or the component it is written in. The node is only where they are drawn. A <code>mount:</code> inside the block runs once the block is drawn and in place, so it meets its node in the document when the node it goes into is there.</li>
+<li><strong>It leaves with its scope.</strong> When the page, the branch or the list item it is written in leaves, the box leaves the node with it. The node belongs to the library, and stays.</li>
+<li><strong>The box adds nothing to the layout.</strong> It is a <code>div</code> with <code>display: contents</code>, so the node lays out the block as if the box were not there. An <code>id:</code>, a <code>class:</code>, <code>data-*</code> and <code>aria-*</code> go on the box.</li>
+<li><strong>It can target a handle.</strong> <code>Portal(into: panel)</code> draws into the element a <code>ref: panel</code> names, even one written further down the page. Where it goes is read once more when the drawing is over and the page is in the document, so an element of the page's own that <code>document.getElementById</code> finds is found too. A handle is not a state: an element the handle names only later, in an <code>if</code> that opens afterwards, is not followed.</li>
+<li><strong>Its events bubble from where it is drawn.</strong> A press inside the block bubbles through the node it is in and that node's parents, not through the elements around the place it is written. An <code>on click</code> on a <code>Stack</code> that holds the portal does not hear it. Put the handler on the portal, or inside its block.</li>
+<li><strong><code>show</code> does not hide it.</strong> <code>show</code> hides what is drawn in its own place, and a portal's block is drawn somewhere else. Remove it with <code>if</code>, or keep it aside with <code>into: null</code>.</li>
+<li><strong>The pre-rendered page has only a marker.</strong> The <em>static paint</em> (the HTML the build pre-renders for a page) has a marker where a portal is, and nothing of its block. The live page draws the block once its script has run. A test that looks at a portal runs in a browser (<a href="/docs/guide/testing#test-a-portal">Testing</a>).</li>
 </ul>
-<p>A list the library keeps — an editor's completions, each row a node it made — is a keyed <code>for</code> of portals. A press on a row should leave the focus in the editor, and <code>on mousedown(e) { e.preventDefault() }</code> does that while <code>on click</code> still runs:</p>
+<p>A list that the library keeps (an editor's completions, each row a node it made) is a keyed <code>for</code> of portals. A press on a row should leave the focus in the editor: <code>on mousedown(e) { e.preventDefault() }</code> does that, and <code>on click</code> still runs. This fragment draws one portal per row:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -731,21 +795,21 @@ function startEditor(node, opened, closed) {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">for row, i in Completions.rows by i {
-    Portal(into: editorHost(row.id), data-popup: &quot;row&quot;) {
-        Text(row.label) {
-            on mousedown(e) { e.preventDefault() }
-            on click { Completions.pick(i) }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">for</span> row, i <span class="wf-tok-kw">in</span> <span class="wf-tok-name">Completions</span>.rows <span class="wf-tok-kw">by</span> i {
+    <span class="wf-tok-name">Portal</span>(<span class="wf-tok-prop">into</span>: editorHost(row.id), <span class="wf-tok-kw">data</span>-<span class="wf-tok-prop">popup</span>: <span class="wf-tok-str">&quot;row&quot;</span>) {
+        <span class="wf-tok-name">Text</span>(row.label) {
+            <span class="wf-tok-kw">on</span> mousedown(e) { e.preventDefault() }
+            <span class="wf-tok-kw">on</span> click { <span class="wf-tok-name">Completions</span>.pick(i) }
         }
     }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Left out, <code>into:</code> is a <code>C01</code>.</p>
+<p>A <code>Portal</code> without <code>into:</code> is a <code>C01</code> error.</p>
                             </div>
-                            <h2 class="wf-heading" id="wf-render-for-a-script-that-finds-elements-itself">wf:render — for a script that finds elements itself</h2>
+                            <h2 class="wf-heading" id="listen-for-wf-render-in-a-script-that-finds-elements-itself">Listen for wf:render in a script that finds elements itself</h2>
                             <div class="wf-markdown">
-<p>The page is drawn after your scripts run, drawn again over a pre-rendered one, and drawn anew on every route, so a script that does its own <code>querySelectorAll</code> listens for the drawing to land:</p>
+<p>The page is drawn after your scripts run, drawn again over a pre-rendered page, and drawn anew on every route. A script that runs its own <code>querySelectorAll</code> therefore listens for the drawing to land, with the <code>wf:render</code> event on <code>document</code>:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -764,9 +828,12 @@ document.addEventListener(&quot;wf:render&quot;, (e) =&gt; {
 });</code>
                             </div>
                             <div class="wf-markdown">
-<p>It fires once per drawing, not for an <code>if</code> branch or a list item arriving later — that is what <code>mount:</code> is for.</p>
+<p><code>wf:render</code> fires once per drawing: the first mount, the takeover of a pre-rendered page, and every route. It does not fire for an <code>if</code> branch or a list item that arrives later. Use <code>mount:</code> for those.</p>
                             </div>
-                            <h2 class="wf-heading" id="somebody-else-s-custom-element">Somebody else&#x27;s custom element</h2>
+                            <h2 class="wf-heading" id="place-a-custom-element-from-a-library">Place a custom element from a library</h2>
+                            <div class="wf-markdown">
+<p>To place a custom element that a library defines, use <code>Element</code> with the element's tag. This page places Stripe's pricing table and notes when it is ready:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -774,18 +841,28 @@ document.addEventListener(&quot;wf:render&quot;, (e) =&gt; {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Pricing(path: &quot;/pricing&quot;, title: &quot;Pricing&quot;, description: &quot;Plans.&quot;) {
-    state loaded = false
-    Heading(&quot;Pricing&quot;).h1
-    Element(&quot;stripe-pricing-table&quot;, publishableKey: &quot;pk_live_…&quot;, pricing-table-id: &quot;prctbl_1&quot;) {
-        on ready { loaded = true }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Pricing</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/pricing&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Pricing&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Plans.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> loaded = <span class="wf-tok-kw">false</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Pricing&quot;</span>).h1
+    <span class="wf-tok-name">Element</span>(<span class="wf-tok-str">&quot;stripe-pricing-table&quot;</span>, <span class="wf-tok-prop">publishableKey</span>: <span class="wf-tok-str">&quot;pk_live_…&quot;</span>, pricing-table-<span class="wf-tok-prop">id</span>: <span class="wf-tok-str">&quot;prctbl_1&quot;</span>) {
+        <span class="wf-tok-kw">on</span> <span class="wf-tok-kw">ready</span> { loaded = <span class="wf-tok-kw">true</span> }
     }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>Element</code> places any custom element by its tag — lower case, with a hyphen, as every custom element's is. A named argument is an attribute (<code>publishableKey</code> is written <code>publishable-key</code>) and follows state like any other value; an <code>on</code> handler hears the events it fires, whatever their names; the block is its children; <code>class:</code>, <code>style { }</code> and <code>mount:</code> work as on anything else. The script that defines it — your own, or one in <code>meta.scripts</code> — upgrades it when it runs.</p>
+<ul>
+<li>The tag comes first. It is lower case, with a hyphen, as every custom element's tag is; any other tag is an <code>E116</code> error.</li>
+<li>A named argument is an attribute: <code>publishableKey</code> is written <code>publishable-key</code>. An attribute follows state like any other value.</li>
+<li>An <code>on</code> handler hears the events the element fires, whatever their names.</li>
+<li>The block is the element's children.</li>
+<li><code>class:</code>, <code>style { }</code> and <code>mount:</code> work as on any other element.</li>
+</ul>
+<p>The script that defines the element (your own, or one in <code>meta.scripts</code>) upgrades it when it runs.</p>
                             </div>
-                            <h2 class="wf-heading" id="publishing-your-components-as-custom-elements">Publishing your components as custom elements</h2>
+                            <h2 class="wf-heading" id="publish-your-components-as-custom-elements">Publish your components as custom elements</h2>
+                            <div class="wf-markdown">
+<p>To use your components from another framework or a plain page, build them as custom elements. Name the components in <code>build.elements</code>:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -793,10 +870,11 @@ document.addEventListener(&quot;wf:render&quot;, (e) =&gt; {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">{ &quot;build&quot;: { &quot;output_type&quot;: &quot;elements&quot;, &quot;elements&quot;: [&quot;PriceTag&quot;, &quot;Rating&quot;] } }</code>
+                                <code class="wf-code wf-code--block wf-sa8223565">{ <span class="wf-tok-prop">&quot;build&quot;</span>: { <span class="wf-tok-prop">&quot;output_type&quot;</span>: <span class="wf-tok-str">&quot;elements&quot;</span>, <span class="wf-tok-prop">&quot;elements&quot;</span>: [<span class="wf-tok-str">&quot;PriceTag&quot;</span>, <span class="wf-tok-str">&quot;Rating&quot;</span>] } }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Each name becomes a standards-based custom element: <code>PriceTag</code> is <code>&lt;price-tag&gt;</code>, and a one-word component is prefixed so its tag has the hyphen a custom element needs (<code>Rating</code> is <code>&lt;wf-rating&gt;</code>). The build writes <code>elements.js</code>, <code>styles.css</code> and a page listing the tags it published.</p>
+<p>Each name becomes a standard custom element. <code>PriceTag</code> is <code>&lt;price-tag&gt;</code>. A one-word component gets a prefix, so its tag has the hyphen a custom element needs: <code>Rating</code> is <code>&lt;wf-rating&gt;</code>. The build writes <code>elements.js</code>, <code>styles.css</code>, and a page that lists the tags it published.</p>
+<p>This HTML places a published component on any page:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -811,21 +889,39 @@ document.addEventListener(&quot;wf:render&quot;, (e) =&gt; {
 &lt;price-tag label=&quot;Pro&quot; amount=&quot;29&quot; sale&gt;&lt;/price-tag&gt;</code>
                             </div>
                             <div class="wf-markdown">
-<p>An attribute is a prop, read when the element is connected and again whenever it changes: a <code>Number</code> prop is read as a number, a <code>Map</code> or a list as JSON, and a <code>Bool</code> is true when the attribute is present — as HTML reads <code>disabled</code> — and false when it is <code>=&quot;false&quot;</code>, so a framework that writes the string still works. An event the component declares is dispatched as a <code>CustomEvent</code> that bubbles. What the component created goes when the element leaves the document.</p>
-<p>React, Vue, Svelte, Angular, Rails, WordPress and a plain page can all place a tag. That is the whole reason this is the answer rather than an adapter per framework: <strong>the shared interface between frameworks is the platform.</strong></p>
-                            </div>
-                            <h2 class="wf-heading" id="wf-from-a-script-of-your-own">WF from a script of your own</h2>
-                            <div class="wf-markdown">
-<p>The runtime is <code>window.WF</code>: a script under <code>src/</code>, the console, or a library's callback can use it — <code>WF.navigate(&quot;/about&quot;)</code>, <code>WF.toast(&quot;Saved&quot;, &quot;success&quot;)</code>, <code>WF.storeSnapshot(&quot;Cart&quot;)</code>. The <a href="/docs/guide/runtime">runtime reference</a> lists every function.</p>
-<p>Two things to know:</p>
+<p>How a published element behaves:</p>
 <ul>
-<li>A build keeps only the runtime modules its own code reaches. A script that calls a module nothing else uses needs <code>&quot;build&quot;: { &quot;runtime&quot;: &quot;full&quot; }</code>.</li>
-<li>A script from another origin must be listed in <code>meta.scripts</code>, which widens the policy for it. An inline <code>&lt;script&gt;</code> is refused by the build's CSP check (<a href="/docs/guide/security#content-security-policy">Security</a>).</li>
+<li><strong>An attribute is a prop.</strong> It is read when the element is connected, and again whenever it changes. A <code>Number</code> prop is read as a number, and a <code>Map</code> or a list as JSON.</li>
+<li><strong>A <code>Bool</code> prop is true when the attribute is present</strong>, as HTML reads <code>disabled</code>, and false when it is <code>=&quot;false&quot;</code>, so a framework that writes the string still works.</li>
+<li><strong>An event the component declares</strong> is dispatched as a <code>CustomEvent</code> that bubbles.</li>
+<li><strong>What the component created goes</strong> when the element leaves the document.</li>
 </ul>
+<p>React, Vue, Svelte, Angular, Rails, WordPress and a plain page can all place a tag. That is why WebFluent publishes custom elements rather than an adapter per framework: the interface every framework shares is the web platform itself.</p>
                             </div>
-                            <h2 class="wf-heading" id="coming-from-external">Coming from external</h2>
+                            <h2 class="wf-heading" id="call-wf-from-a-script-of-your-own">Call WF from a script of your own</h2>
                             <div class="wf-markdown">
-<p>Before 4.2, JavaScript was described with <code>external</code> declarations; 4.2 removed them. <code>wf migrate</code> rewrites a project: a remote module becomes a <code>meta.scripts</code> entry (its calls keep working, typed <code>Any</code>), a local module becomes a plain script under <code>src/</code> with its signatures as JSDoc and <code>X.f(…)</code> rewritten to <code>f(…)</code>, and <code>external element</code> call sites become <code>Element(&quot;tag-name&quot;, …)</code>.</p>
+<p>The runtime is <code>window.WF</code>. A script under <code>src/</code>, the console, or a library's callback can call it: <code>WF.navigate(&quot;/about&quot;)</code>, <code>WF.toast(&quot;Saved&quot;, &quot;success&quot;)</code>, <code>WF.storeSnapshot(&quot;Cart&quot;)</code>. The <a href="/docs/guide/runtime">runtime reference</a> lists every function.</p>
+                            </div>
+                            <div class="wf-stack wf-gap--xs wf-s39f8973e callout" role="note" aria-label="Warning" data-kind="warning">
+                                <div class="wf-row wf-align--center wf-gap--xs callout-label">
+                                    <i class="wf-icon" data-icon="warning"></i>
+                                    <p class="wf-text">Warning</p>
+                                </div>
+                                <div class="wf-markdown">
+<p>A build keeps only the runtime modules its own code reaches. A script that calls a module nothing else uses needs <code>&quot;build&quot;: { &quot;runtime&quot;: &quot;full&quot; }</code>, or the call fails in the browser.</p>
+                                </div>
+                            </div>
+                            <div class="wf-markdown">
+<p>A script from another origin must be listed in <code>meta.scripts</code>, which widens the policy for it. The build's CSP check refuses an inline <code>&lt;script&gt;</code> (<a href="/docs/guide/security#ship-a-content-security-policy">Security</a>).</p>
+                            </div>
+                            <h2 class="wf-heading" id="migrate-from-external">Migrate from external</h2>
+                            <div class="wf-markdown">
+<p>Before 4.2, you described JavaScript with <code>external</code> declarations; 4.2 removed them. <code>wf migrate</code> rewrites a project:</p>
+<ul>
+<li>A remote module becomes a <code>meta.scripts</code> entry. Its calls keep working, typed <code>Any</code>.</li>
+<li>A local module becomes a plain script under <code>src/</code>, with its exports removed and its signatures as JSDoc. <code>X.f(…)</code> is rewritten to <code>f(…)</code>.</li>
+<li>An <code>external element</code> call site becomes <code>Element(&quot;tag-name&quot;, …)</code>.</li>
+</ul>
                             </div>
                         </div>
                     </div>
@@ -843,15 +939,16 @@ document.addEventListener(&quot;wf:render&quot;, (e) =&gt; {
                 <div class="wf-stack wf-gap--lg wf-sac91c322" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
-                        <a class="wf-link wf-s3e136ca4" href="#your-own-script">Your own script</a>
-                        <a class="wf-link wf-s3e136ca4" href="#a-library-from-a-cdn">A library from a CDN</a>
-                        <a class="wf-link wf-s3e136ca4" href="#mount-update-cleanup-on-any-element">mount:, update:, cleanup: — on any element</a>
-                        <a class="wf-link wf-s3e136ca4" href="#portal-drawing-into-a-node-a-script-made">Portal — drawing into a node a script made</a>
-                        <a class="wf-link wf-s3e136ca4" href="#wf-render-for-a-script-that-finds-elements-itself">wf:render — for a script that finds elements itself</a>
-                        <a class="wf-link wf-s3e136ca4" href="#somebody-else-s-custom-element">Somebody else&#x27;s custom element</a>
-                        <a class="wf-link wf-s3e136ca4" href="#publishing-your-components-as-custom-elements">Publishing your components as custom elements</a>
-                        <a class="wf-link wf-s3e136ca4" href="#wf-from-a-script-of-your-own">WF from a script of your own</a>
-                        <a class="wf-link wf-s3e136ca4" href="#coming-from-external">Coming from external</a>
+                        <a class="wf-link wf-s3e136ca4" href="#before-you-start">Before you start</a>
+                        <a class="wf-link wf-s3e136ca4" href="#call-your-own-script">Call your own script</a>
+                        <a class="wf-link wf-s3e136ca4" href="#load-a-library-from-a-cdn">Load a library from a CDN</a>
+                        <a class="wf-link wf-s3e136ca4" href="#hand-an-element-to-a-script-with-mount-update-and-cleanup">Hand an element to a script with mount:, update: and cleanup:</a>
+                        <a class="wf-link wf-s3e136ca4" href="#draw-into-a-node-a-script-made-with-portal">Draw into a node a script made with Portal</a>
+                        <a class="wf-link wf-s3e136ca4" href="#listen-for-wf-render-in-a-script-that-finds-elements-itself">Listen for wf:render in a script that finds elements itself</a>
+                        <a class="wf-link wf-s3e136ca4" href="#place-a-custom-element-from-a-library">Place a custom element from a library</a>
+                        <a class="wf-link wf-s3e136ca4" href="#publish-your-components-as-custom-elements">Publish your components as custom elements</a>
+                        <a class="wf-link wf-s3e136ca4" href="#call-wf-from-a-script-of-your-own">Call WF from a script of your own</a>
+                        <a class="wf-link wf-s3e136ca4" href="#migrate-from-external">Migrate from external</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-s614f8b98">

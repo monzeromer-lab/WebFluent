@@ -23,7 +23,7 @@
     <meta name="twitter:title" content="Coming from React, Vue or Svelte">
     <meta name="twitter:description" content="A map from React, Vue, Svelte and HTMX concepts to WebFluent: state, effects, components, props, slots, context, routing, fetching and styling.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/coming-from#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/coming-from","name":"Coming from React, Vue or Svelte","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"A map from React, Vue, Svelte and HTMX concepts to WebFluent: state, effects, components, props, slots, context, routing, fetching and styling."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/coming-from#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Coming from React, Vue or Svelte","item":"https://webfluent.monzeromer.dev/docs/guide/coming-from"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/coming-from#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/coming-from","name":"Coming from React, Vue or Svelte","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"A map from React, Vue, Svelte and HTMX concepts to WebFluent: state, effects, components, props, slots, context, routing, fetching and styling."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/coming-from#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Coming from React, Vue or Svelte","item":"https://webfluent.monzeromer.dev/docs/guide/coming-from"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -69,6 +69,9 @@
             </div>
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
+                    <a class="wf-sidebar__item" href="/docs">
+                        <p class="wf-text">Overview</p>
+                    </a>
                     <p class="wf-text group-label">Start</p>
                     <a class="wf-sidebar__item" href="/docs/guide/introduction">
                         <p class="wf-text num">01</p>
@@ -274,7 +277,7 @@
                 </aside>
                 <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
-                        <a class="wf-link" href="/docs/guide/introduction">Guide</a>
+                        <a class="wf-link" href="/docs">Guide</a>
                         <p class="wf-text">/</p>
                         <p class="wf-text wf-s8c71c534">Chapter 4</p>
                     </div>
@@ -285,9 +288,20 @@
                     <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
-<p>If you have built with a JavaScript framework, most of WebFluent will feel familiar: components with props, reactive state, a router, a store. This chapter maps those ideas across, then lists what is genuinely different.</p>
+<p>If you have built with a JavaScript framework, most of WebFluent will feel familiar: components with props, reactive state, a router, a store. This chapter maps those ideas across, then explains the places where WebFluent works differently.</p>
+<p>The one thing to remember: WebFluent is a compiler with typed markup, not a library, so a component's body runs once and only the parts that read a changed value update.</p>
+<p>In this chapter:</p>
+<ul>
+<li><a href="#the-map">The map</a> from framework concepts to WebFluent</li>
+<li><a href="#one-component-side-by-side">One component, side by side</a> in React, Vue, Svelte and WebFluent</li>
+<li><a href="#what-works-differently">What works differently</a></li>
+<li><a href="#things-you-might-look-for">Things you might look for</a>, such as npm packages and server rendering</li>
+</ul>
                             </div>
                             <h2 class="wf-heading" id="the-map">The map</h2>
+                            <div class="wf-markdown">
+<p>Find the idea you know in the first column:</p>
+                            </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">The map</caption>
                                 <thead>
@@ -666,8 +680,9 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <h2 class="wf-heading" id="the-same-component-three-ways">The same component, three ways</h2>
+                            <h2 class="wf-heading" id="one-component-side-by-side">One component, side by side</h2>
                             <div class="wf-markdown">
+<p>Here is the same counter in each framework: it starts at a number the caller passes, counts up on a click, shows a badge when the count is even, and tells the caller about each change.</p>
 <p>React:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
@@ -690,6 +705,56 @@
 }</code>
                             </div>
                             <div class="wf-markdown">
+<p>Vue:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">vue</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="vue" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">&lt;script setup&gt;
+import { ref, computed } from &quot;vue&quot;;
+const props = defineProps({ start: { type: Number, default: 0 } });
+const emit = defineEmits([&quot;change&quot;]);
+const n = ref(props.start);
+const even = computed(() =&gt; n.value % 2 === 0);
+function inc() { n.value++; emit(&quot;change&quot;, n.value); }
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;div class=&quot;row&quot;&gt;
+    &lt;button @click=&quot;inc&quot;&gt;+&lt;/button&gt;
+    &lt;span&gt;{{ n }}&lt;/span&gt;
+    &lt;span v-if=&quot;even&quot; class=&quot;badge&quot;&gt;even&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/template&gt;</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Svelte:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">svelte</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="svelte" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">&lt;script&gt;
+  let { start = 0, onchange } = $props();
+  let n = $state(start);
+  let even = $derived(n % 2 === 0);
+  function inc() { n += 1; onchange?.(n); }
+&lt;/script&gt;
+
+&lt;div class=&quot;row&quot;&gt;
+  &lt;button onclick={inc}&gt;+&lt;/button&gt;
+  &lt;span&gt;{n}&lt;/span&gt;
+  {#if even}&lt;span class=&quot;badge&quot;&gt;even&lt;/span&gt;{/if}
+&lt;/div&gt;</code>
+                            </div>
+                            <div class="wf-markdown">
 <p>WebFluent:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
@@ -699,37 +764,76 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">component Counter(start: Number = 0) {
-    event change(value: Number)
-    state n = start
-    derived even = n % 2 == 0
-    Row(gap: .sm, align: .center) {
-        Button(&quot;+&quot;) { on click { n = n + 1  emit change(n) } }
-        Text(&quot;{n}&quot;)
-        if even { Badge(&quot;even&quot;).info }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Counter</span>(<span class="wf-tok-prop">start</span>: <span class="wf-tok-name">Number</span> = <span class="wf-tok-num">0</span>) {
+    <span class="wf-tok-kw">event</span> change(<span class="wf-tok-prop">value</span>: <span class="wf-tok-name">Number</span>)
+    <span class="wf-tok-kw">state</span> n = start
+    <span class="wf-tok-kw">derived</span> even = n % <span class="wf-tok-num">2</span> == <span class="wf-tok-num">0</span>
+    <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">gap</span>: .sm, <span class="wf-tok-prop">align</span>: .center) {
+        <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;+&quot;</span>) { <span class="wf-tok-kw">on</span> click { n = n + <span class="wf-tok-num">1</span>  <span class="wf-tok-kw">emit</span> change(n) } }
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{n}&quot;</span>)
+        <span class="wf-tok-kw">if</span> even { <span class="wf-tok-name">Badge</span>(<span class="wf-tok-str">&quot;even&quot;</span>).info }
     }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>What changed: no hooks and no dependency arrays — <code>derived</code> knows what it read. No setter — you assign. No <code>className</code> — <code>Badge</code> is designed, and <code>.info</code> is a flag the compiler checks. The event is declared, so a caller handling <code>on chnage</code> is an error, not a handler that never runs.</p>
+<p>What changed:</p>
+<ul>
+<li><strong>No hooks and no dependency arrays.</strong> <code>derived</code> knows what it read.</li>
+<li><strong>No setter.</strong> You assign: <code>n = n + 1</code>.</li>
+<li><strong>No <code>className</code>.</strong> <code>Badge</code> comes designed, and <code>.info</code> is a flag the compiler checks.</li>
+<li><strong>The event is declared.</strong> A caller that handles <code>on chnage</code> gets error <code>E103</code> at build time, instead of a handler that never runs.</li>
+</ul>
+<p>A page places the counter and handles its event like this:</p>
                             </div>
-                            <h2 class="wf-heading" id="what-is-genuinely-different">What is genuinely different</h2>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Scores</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Scores&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A counter that reports each change.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> last = <span class="wf-tok-num">0</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Scores&quot;</span>).h1
+    <span class="wf-tok-name">Counter</span>(<span class="wf-tok-prop">start</span>: <span class="wf-tok-num">2</span>) { <span class="wf-tok-kw">on</span> change(value) { last = value } }
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Last change: {last}&quot;</span>)
+}
+
+<span class="wf-tok-kw">component</span> <span class="wf-tok-name">Counter</span>(<span class="wf-tok-prop">start</span>: <span class="wf-tok-name">Number</span> = <span class="wf-tok-num">0</span>) {
+    <span class="wf-tok-kw">event</span> change(<span class="wf-tok-prop">value</span>: <span class="wf-tok-name">Number</span>)
+    <span class="wf-tok-kw">state</span> n = start
+    <span class="wf-tok-kw">derived</span> even = n % <span class="wf-tok-num">2</span> == <span class="wf-tok-num">0</span>
+    <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">gap</span>: .sm, <span class="wf-tok-prop">align</span>: .center) {
+        <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;+&quot;</span>) { <span class="wf-tok-kw">on</span> click { n = n + <span class="wf-tok-num">1</span>  <span class="wf-tok-kw">emit</span> change(n) } }
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{n}&quot;</span>)
+        <span class="wf-tok-kw">if</span> even { <span class="wf-tok-name">Badge</span>(<span class="wf-tok-str">&quot;even&quot;</span>).info }
+    }
+}</code>
+                            </div>
                             <div class="wf-markdown">
-<p><strong>It is a compiler, not a library.</strong> There is no virtual DOM and no re-render of a component. Each text, attribute or style that reads a state subscribes to it and updates alone. A component's body runs once, when it is placed.</p>
-<p><strong>The markup is typed.</strong> A built-in's props, flags, events and slots are known to the compiler, and so are yours. <code>Button(&quot;Save&quot;).primray</code> does not build. There is no &quot;any prop goes through to the DOM&quot; — an unknown named argument becomes an HTML attribute with a warning, unless it is <code>aria-*</code>, <code>data-*</code> or a global attribute.</p>
-<p><strong>Pages own their routes.</strong> There is no route table or file-system routing: each <code>page</code> names its <code>path:</code> and the router is built from them, ordered by specificity.</p>
-<p><strong>No imports.</strong> Every file under <code>src/</code> is one program. A component declared anywhere is usable everywhere; two declarations with one name are an error.</p>
-<p><strong>Styling lives on the element.</strong> A <code>style { }</code> block is real CSS scoped to that element; <code>$token</code> reads a design token. There is no separate CSS-in-JS runtime — static rules are compiled into the stylesheet.</p>
-<p><strong>The build is the site.</strong> Pre-rendering, code splitting, precompression, image resizing, a sitemap, Open Graph, a CSP — all from <code>wf build</code>, with no plugins to choose.</p>
-<p><strong>Safe by construction.</strong> Text is always text; the only way to inject markup is <code>Unsafe.Html(…)</code>, which the build flags every time. Inline handlers and <code>javascript:</code> URLs do not compile. See <a href="/docs/guide/security">Security</a>.</p>
+<p>The page shows <code>2</code>, the <strong>even</strong> badge and <code>Last change: 0</code>. After one click it shows <code>3</code>, no badge, and <code>Last change: 3</code>.</p>
+                            </div>
+                            <h2 class="wf-heading" id="what-works-differently">What works differently</h2>
+                            <div class="wf-markdown">
+<p><strong>It is a compiler, not a library.</strong> There is no virtual DOM and no re-render of a component. Each text, attribute or style that reads a state subscribes to it and updates on its own. A component's body runs once, when the component is placed.</p>
+<p><strong>The markup is typed.</strong> The compiler knows the props, flags, events and slots of every built-in, and of every component you declare. <code>Button(&quot;Save&quot;).primray</code> does not build. Unknown props do not pass through to the DOM silently:</p>
+<ul>
+<li>On a built-in, a named argument it does not declare is written to the element as an HTML attribute, with warning <code>C04</code> — unless it is <code>aria-*</code>, <code>data-*</code> or a global attribute such as <code>id</code>, <code>role</code> or <code>title</code>, which draw no warning.</li>
+<li>On your own component, a named argument it does not declare is error <code>C02</code>. The exceptions are the same attribute families (<code>aria-*</code>, <code>data-*</code>, <code>id</code>, <code>role</code>, <code>title</code>, <code>hidden</code>), which go to the component's root element.</li>
+</ul>
+<p><strong>Pages own their routes.</strong> There is no route table and no file-system routing. Each <code>page</code> names its <code>path:</code>, and the compiler builds the router from them, ordered by specificity, so the order you declare pages in cannot hide a route.</p>
+<p><strong>No imports.</strong> Every file under <code>src/</code> is part of one program. A component declared anywhere is usable everywhere, and two declarations with one name are an error.</p>
+<p><strong>Styling lives on the element.</strong> A <code>style { }</code> block is real CSS scoped to that element, and <code>$token</code> reads a design token. There is no CSS-in-JS runtime: the build compiles static rules into the stylesheet.</p>
+<p><strong>The build is the site.</strong> Pre-rendering, code splitting, precompression, image resizing, a sitemap, Open Graph tags and a Content-Security-Policy all come from <code>wf build</code>, with no plugins to choose.</p>
+<p><strong>Safe by construction.</strong> Text is always text. The only way to put markup on a page is <code>Unsafe.Html(…)</code>, which the build flags every time. Inline handlers and <code>javascript:</code> URLs do not compile. See <a href="/docs/guide/security">Security</a>.</p>
                             </div>
                             <h2 class="wf-heading" id="things-you-might-look-for">Things you might look for</h2>
                             <div class="wf-markdown">
 <ul>
-<li><strong>npm packages.</strong> There is no package manager for WebFluent code. A JavaScript library is a URL in <code>meta.scripts</code>; your own JavaScript is a plain <code>.js</code> file under <code>src/</code>, whose functions <code>.wf</code> code calls by name; and <code>mount:</code>/<code>cleanup:</code> hand any element to a script with a lifetime. <a href="/docs/guide/interop">JavaScript interop</a> shows a chart library end to end.</li>
-<li><strong>Server components / SSR per request.</strong> Not here: a WebFluent site is static files plus a browser runtime, served by any host, talking to your API. For HTML generated on a server — emails, invoices, fragments — see <a href="/docs/guide/server-rendering">Server rendering</a>.</li>
-<li><strong>Using WebFluent inside an existing React or Vue app.</strong> Publish components as custom elements and place the tags: <a href="/docs/guide/interop#publishing-your-components-as-custom-elements">Custom elements</a>.</li>
-<li><strong>Coming from HTMX.</strong> The closest thing to <code>hx-get</code> is a <code>resource</code> whose URL reads state, and to <code>hx-post</code> an action that <code>await</code>s an <code>api</code> endpoint. The page stays static HTML until its script arrives, then updates in place.</li>
+<li><strong>npm packages.</strong> There is no package manager for WebFluent code. A JavaScript library is a URL in <code>meta.scripts</code>. Your own JavaScript is a plain <code>.js</code> file under <code>src/</code>, and <code>.wf</code> code calls its functions by name. <code>mount:</code> and <code>cleanup:</code> hand any element to a script for as long as the element exists. <a href="/docs/guide/interop">JavaScript interop</a> shows a chart library end to end.</li>
+<li><strong>Server components, or rendering on every request.</strong> WebFluent does not do this. A WebFluent site is static files plus a browser runtime, served by any host and talking to your API. For HTML generated on a server, such as emails, invoices and fragments, see <a href="/docs/guide/server-rendering">Server rendering</a>.</li>
+<li><strong>WebFluent inside an existing React or Vue app.</strong> Publish components as custom elements and place their tags: <a href="/docs/guide/interop#publish-your-components-as-custom-elements">Custom elements</a>.</li>
+<li><strong>HTMX.</strong> The closest thing to <code>hx-get</code> is a <code>resource</code> whose URL reads state, and the closest thing to <code>hx-post</code> is an action that <code>await</code>s an <code>api</code> endpoint. The page stays static HTML until its script arrives, then updates in place.</li>
 </ul>
                             </div>
                         </div>
@@ -749,8 +853,8 @@
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
                         <a class="wf-link wf-s3e136ca4" href="#the-map">The map</a>
-                        <a class="wf-link wf-s3e136ca4" href="#the-same-component-three-ways">The same component, three ways</a>
-                        <a class="wf-link wf-s3e136ca4" href="#what-is-genuinely-different">What is genuinely different</a>
+                        <a class="wf-link wf-s3e136ca4" href="#one-component-side-by-side">One component, side by side</a>
+                        <a class="wf-link wf-s3e136ca4" href="#what-works-differently">What works differently</a>
                         <a class="wf-link wf-s3e136ca4" href="#things-you-might-look-for">Things you might look for</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">

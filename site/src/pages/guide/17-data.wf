@@ -1,17 +1,57 @@
 /// Chapter 17 of the guide, written from md-docs/17-data.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page DataGuide(path: "/docs/guide/data", title: "Data", description: "api services with retries, caching and typed errors, resource and match, reactive URLs, await fetch, optimistic updates and data files.", layout: DocsShell("Data", chapter: t("guide.chapter", { n: "17" }), blurb: "Getting data onto a page: a service described once, a resource a page shows, a fetch an action makes, and files read at build time.", source: "md-docs/17-data.md", sections: [Anchor(id: "resource", label: "resource"), Anchor(id: "api-a-service-described-once", label: "api: a service, described once"), Anchor(id: "await-fetch-in-an-action", label: "await fetch in an action"), Anchor(id: "data-a-file-at-build-time", label: "data: a file at build time"), Anchor(id: "where-data-lands-in-the-static-paint", label: "Where data lands in the static paint")], prevTo: "/docs/guide/forms", prevLabel: "16. {t("ch.16")}", nextTo: "/docs/guide/realtime", nextLabel: "18. {t("ch.18")}")) {
+page DataGuide(path: "/docs/guide/data", title: "Data", description: "Describe an API once with retries, caching and typed errors; show a resource with match; fetch in an action; update optimistically; read data files.", layout: DocsShell("Data", chapter: t("guide.chapter", { n: "17" }), blurb: "Get data onto a page: describe a service once, show a request's states, fetch on demand, and read files at build time.", source: "md-docs/17-data.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "choose-how-to-get-data", label: "Choose how to get data"), Anchor(id: "show-a-request-with-resource", label: "Show a request with resource"), Anchor(id: "describe-a-service-with-api", label: "Describe a service with api"), Anchor(id: "fetch-on-demand-with-await-fetch", label: "Fetch on demand with await fetch"), Anchor(id: "read-a-file-at-build-time-with-data", label: "Read a file at build time with data"), Anchor(id: "where-data-lands-in-the-pre-rendered-page", label: "Where data lands in the pre-rendered page"), Anchor(id: "troubleshooting", label: "Troubleshooting")], prevTo: "/docs/guide/forms", prevLabel: "16. {t("ch.16")}", nextTo: "/docs/guide/realtime", nextLabel: "18. {t("ch.18")}")) {
     Stack(gap: .lg) {
-        Markdown("Ways to get data onto a page: `api` for a service described once and called everywhere, `resource` for something fetched while the page shows, `await fetch` inside an action for something fetched on demand, and `data` for a file read at build time. A connection the page holds open — a socket, a stream, a channel, a peer — is [Real-time](/docs/guide/realtime); working without a network is [Offline](/docs/guide/offline); values fixed per build are [Environments](/docs/guide/environments).")
+        Markdown("This chapter shows you how to get data onto a page and send data back: from a request the page makes when it shows, from a request an action makes on demand, and from a file the build reads.\n\nYou will be able to:\n\n- show a request's loading, error and ready states with `resource` and `match`;\n- refresh data without the page going blank;\n- describe a service once with `api`, so every call is typed, retried, cached and cancelled for you;\n- read a service's surface from an OpenAPI file;\n- fetch on demand from an action, and show a change before the server agrees;\n- read a JSON file at build time and render one page per item in it.")
 
-        Heading("resource", id: "resource").h2
+        Heading("Before you start", id: "before-you-start").h2
 
-        Markdown("A resource is a request the page makes and a `match` shows:")
+        Markdown("You should know `state` and `action` ([State and reactivity](/docs/guide/state)), `match` ([Control flow](/docs/guide/control-flow)) and how to declare a `type` ([Types](/docs/guide/types)).\n\nThis chapter does not cover:\n\n- a connection the page holds open — a socket, a stream, a channel or a peer — which is [Real-time](/docs/guide/realtime);\n- working without a network, which is [Offline](/docs/guide/offline);\n- values fixed for each build, which are [Environments](/docs/guide/environments).")
+
+        Heading("Choose how to get data", id: "choose-how-to-get-data").h2
+
+        Table(caption: "Choose how to get data") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("You want…").header
+                    Table.Cell("Use").header
+                    Table.Cell("Section").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell("Data the page shows as soon as it opens")
+                    Table.Cell { Markdown("`resource`") }
+                    Table.Cell { Markdown("[Show a request with resource](#show-a-request-with-resource)") }
+                }
+                Table.Row {
+                    Table.Cell("One place that describes a service and its endpoints")
+                    Table.Cell { Markdown("`api`") }
+                    Table.Cell { Markdown("[Describe a service with api](#describe-a-service-with-api)") }
+                }
+                Table.Row {
+                    Table.Cell("A request made when something happens: a save, a delete, a step in a flow")
+                    Table.Cell { Markdown("`await fetch` in an action") }
+                    Table.Cell { Markdown("[Fetch on demand with await fetch](#fetch-on-demand-with-await-fetch)") }
+                }
+                Table.Row {
+                    Table.Cell("Content that is known at build time")
+                    Table.Cell { Markdown("`data`") }
+                    Table.Cell { Markdown("[Read a file at build time with data](#read-a-file-at-build-time-with-data)") }
+                }
+            }
+        }
+
+        Heading("Show a request with resource", id: "show-a-request-with-resource").h2
+
+        Markdown("To fetch data while a page shows, declare a `resource` and show its states with `match`. A *resource* is a request the page makes, and a value that says where the request is: loading, failed or ready.\n\nThis page lists recent deploys, with a spinner while they load and an alert if the request fails:")
 
         CodeBlock(#"type Deploy { id: String, status: String, startedAt: String }
 
-page Deploys(path: "/", title: "Deploys", description: "Recent deploys.") {
+page Deploys(path: "/deploys", title: "Deploys", description: "Recent deploys.") {
     resource deploys: [Deploy] = fetch("/api/deploys")
+
+    Heading("Deploys").h1
     match deploys {
         loading { Spinner }
         error(e) { Alert("Could not load: {e.message}").danger }
@@ -29,17 +69,67 @@ page Deploys(path: "/", title: "Deploys", description: "Recent deploys.") {
     Button("Refresh") { on click { deploys.reload() } }
 }"#, title: "wf")
 
-        Markdown("- `resource name = fetch(url)` starts the request when the page renders. The annotation (`: [Deploy]`) types the value; without it the value is `Any`.\n- `match` over a resource has three arms — `loading`, `error(e)`, `ready(v)` — and `else`. The static paint renders the `loading` arm.\n- `name.reload()` makes the request again; `name.state` is `\"loading\"`, `\"ready\"` or `\"error\"`; `name.data` the last value (`T?`), `name.error` the last error; `name.refreshing` and `name.pending` say a request is running ([Asking again](#asking-again)). Each is live wherever it is read — a label, a splice, an attribute — so `Button(if plan.data != null \{ \"Request approval\" \} else \{ \"Deploy\" \})` changes when the plan arrives, with no `derived` in between.\n- A failed response (`!ok`) is an error with `e.message` of `HTTP 500`.")
+        Markdown("How it works:\n\n- `resource name = fetch(url)` starts the request when the page renders.\n- The annotation (`: [Deploy]`) types the value. Without one, the value is `Any`.\n- A `match` over a resource has three arms — `loading`, `error(e)` and `ready(v)` — and may have an `else`. A resource `match` with no `error` arm and no `else` is `T21`.\n- The pre-rendered page — the HTML the build writes for a static site — shows the `loading` arm. The live page fetches and replaces it.\n- A failed response (one that is not `ok`) is an error whose `e.message` is `HTTP 500`, or whatever the status was.")
 
-        Heading("Asking again", id: "asking-again").h3
+        Heading("Read a resource's state anywhere", id: "read-a-resource-s-state-anywhere").h3
 
-        Markdown("`on: .focus`, `.reconnect` or `.interval(30.seconds)` — an option of `fetch(…)` or of an endpoint's call — `name.reload()` and `name.invalidate()` ask again. Asking again for the request already shown is a **refresh**, and the page stays as it is while it runs: the state stays `\"ready\"`, the data stays, and the answer is drawn in place.\n\n- The `ready` arm's binding is live. Text, attributes, `if`, `if let`, a keyed `for … by` and component props inside the arm follow the new data, and the arm is drawn again only when the arm changes — loading, ready, error. A row whose key is still in the list keeps its nodes, its focus and its components' state; an input keeps what was typed.\n- The parts of an answer equal to what was shown are kept as the same objects — an item is matched by its `id`, by its value, or by its place — so an answer that changed nothing redraws nothing.\n- `name.refreshing` is true while a refresh runs; `name.pending` while any request of the resource runs, the first load included.\n- A refresh that fails keeps the data and `\"ready\"`, and sets `name.error` until the next answer, so the arm can say the data is stale. A first load that fails is `\"error\"`, and its `reload()` is a first load again.\n- A request that changed — an address or an argument that reads state now names something else: another environment, another page — is a first load again, shown as `loading`, because the data on screen would be the wrong data. With `paginate:` the next page is a refresh.")
+        Markdown("A resource has these values. Each is live wherever you read it — a label, a splice, an attribute — with no `derived` in between:")
+
+        Table(caption: "Read a resource's state anywhere") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Value").header
+                    Table.Cell("What it is").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`name.state`") }
+                    Table.Cell { Markdown("`\"loading\"`, `\"ready\"` or `\"error\"`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`name.data`") }
+                    Table.Cell { Markdown("The last value, or `null` before the first (`T?`)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`name.error`") }
+                    Table.Cell("The last error")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`name.refreshing`") }
+                    Table.Cell { Markdown("`true` while a refresh runs ([Refresh without clearing the page](#refresh-without-clearing-the-page))") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`name.pending`") }
+                    Table.Cell { Markdown("`true` while any request of it runs, the first load included") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`name.reload()`") }
+                    Table.Cell("Makes the request again")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`name.invalidate()`") }
+                    Table.Cell("Drops what the cache holds for it, and asks again")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`name.cancel()`") }
+                    Table.Cell("Aborts the request that is running")
+                }
+            }
+        }
+
+        Markdown("So `Button(if plan.data != null \{ \"Request approval\" \} else \{ \"Deploy\" \})` changes its label when the plan arrives.")
+
+        Heading("Refresh without clearing the page", id: "refresh-without-clearing-the-page").h3
+
+        Markdown("These ask for a resource again:\n\n- the `on:` option of `fetch(…)` or of an endpoint's call: `.focus` (when the reader comes back to the tab), `.reconnect` (when the network returns), or `.interval(30.seconds)`;\n- `name.reload()` and `name.invalidate()`.\n\nAsking again for the request already shown is a *refresh*. The page stays as it is while a refresh runs: `name.state` stays `\"ready\"`, the data stays, and the answer is drawn in place.\n\nThis page polls a list of servers every 30 seconds, and shows a small spinner during each refresh:")
 
         CodeBlock(#"type Server { id: String, name: String, status: String }
 
 page Servers(path: "/servers", title: "Servers", description: "Every server, kept current.") {
     state stage = "test"
     resource servers: [Server] = fetch("/api/servers?env={stage}", on: .interval(30.seconds))
+
     Heading("Servers").h1
     Button("Production") { on click { stage = "prod" } }
     match servers {
@@ -53,13 +143,20 @@ page Servers(path: "/servers", title: "Servers", description: "Every server, kep
     }
 }"#, title: "wf")
 
-        Heading("Options", id: "options").h3
+        Markdown("What a refresh keeps:\n\n- **The arm.** The `ready` arm's binding is live. Text, attributes, `if`, `if let`, a keyed `for … by` and component props inside the arm follow the new data. The arm is drawn again only when the arm changes — loading, ready, error.\n- **The rows.** A row whose key is still in the list keeps its nodes, its focus and its components' state. An input keeps what was typed.\n- **Unchanged data.** The parts of an answer equal to what was shown are kept as the same objects. An item is matched by its `id`, by its value, or by its place. An answer that changed nothing redraws nothing.\n\nWhat happens when a request fails, or changes:\n\n- A refresh that fails keeps the data and `\"ready\"`, and sets `name.error` until the next answer, so the arm can say the data is stale.\n- A first load that fails is `\"error\"`, and its `reload()` is a first load again.\n- A request that changed is a first load again, shown as `loading`. A request changes when an address or an argument that reads state now names something else — another environment, another page — because the data on screen would be the wrong data. With `paginate:`, the next page is a refresh instead.\n\nPressing **Production** above changes `stage`, so the list shows its `loading` arm and then the production servers.")
 
-        CodeBlock(#"page Search(path: "/") {
+        Heading("Send options with a request", id: "send-options-with-a-request").h3
+
+        Markdown("Options follow the URL, by name:\n\n- `method:` — `\"GET\"` unless you say otherwise;\n- `headers:` — a map;\n- `body:` — a map, sent as JSON with the content type set.\n\nThe response body is parsed as JSON.\n\nThis page searches with a `POST` and an authorization header:")
+
+        CodeBlock(#"page Search(path: "/search", title: "Search", description: "Search the catalogue.") {
     state q = ""
-    state token = "abc"
-    resource hits = fetch("/api/search?q={q}", headers: { Authorization: "Bearer {token}" })
-    resource created = fetch("/api/items", method: "POST", body: { name: q })
+    state token = "demo-token"
+    resource hits = fetch("/api/search", method: "POST",
+        headers: { Authorization: "Bearer {token}" },
+        body: { query: q, limit: 20 })
+
+    Heading("Search").h1
     Input(bind: q, label: "Search")
     match hits {
         loading { Spinner.sm }
@@ -68,15 +165,13 @@ page Servers(path: "/servers", title: "Servers", description: "Every server, kep
     }
 }"#, title: "wf")
 
-        Markdown("Options are named after the URL: `method:`, `headers:` (a map), `body:` (a map, sent as JSON with the content type set). The body of a response is parsed as JSON.")
+        Heading("Fetch again when state changes", id: "fetch-again-when-state-changes").h3
 
-        Heading("A reactive URL", id: "a-reactive-url").h3
-
-        Markdown("A URL that reads state is re-fetched whenever that state changes — a search box that fetches as you type, or a detail page that follows its parameter:")
+        Markdown("A URL that reads state is fetched again whenever that state changes. Use it for a search box that fetches as the reader types, or a detail page that follows its route parameter:")
 
         CodeBlock(#"type Post { slug: String, title: String, body: String }
 
-page PostPage(path: "/posts/:slug", slug: String) {
+page PostPage(path: "/posts/:slug", title: "Post", description: "One post.", slug: String) {
     resource post: Post = fetch("/api/posts/{slug}")
     match post {
         loading { Skeleton }
@@ -88,11 +183,25 @@ page PostPage(path: "/posts/:slug", slug: String) {
     }
 }"#, title: "wf")
 
-        Markdown("Debounce a fast-changing URL by deriving it from a slower value, or by keeping the query in state and copying it to a `submitted` state on Enter.")
+        Markdown("A value spliced into the address is URL-encoded for you where it stands for a value.\n\nTo fetch less often than the reader types, derive the URL from a slower value. This page keeps what the reader types in `draft`, and searches only when they press Enter:")
 
-        Heading("api: a service, described once", id: "api-a-service-described-once").h2
+        CodeBlock(#"page Lookup(path: "/lookup", title: "Lookup", description: "Search when you press Enter.") {
+    state draft = ""
+    state submitted = ""
+    resource hits = fetch("/api/search?q={submitted}")
 
-        Markdown("An address, how it is reached, and what it has — in one place, so every call site is typed, cached and cancellable:")
+    Heading("Lookup").h1
+    Input(bind: draft, label: "Search") { on key("Enter") { submitted = draft } }
+    match hits {
+        loading { Spinner.sm }
+        error(e) { Text(e.message).danger }
+        ready(list) { Text("{list.length} results for {submitted}") }
+    }
+}"#, title: "wf")
+
+        Heading("Describe a service with api", id: "describe-a-service-with-api").h2
+
+        Markdown("To call a service from many places, describe it once with `api`: its address, how it is reached and what endpoints it has. Every call site is then typed, cached and cancellable.\n\nThis service has four endpoints, and the page shows a list of users with a different alert for each kind of failure:")
 
         CodeBlock(#"type User { id: String, name: String }
 
@@ -127,11 +236,11 @@ page Users(path: "/users", title: "Users", description: "Everyone.") {
     }
 }"#, title: "wf")
 
-        Markdown("A parameter the path names goes in the path; every other goes in the query. `->` says what comes back, and a `resource` over the endpoint is typed by it — `u.nam` is `T05`, before the page ever runs.")
+        Markdown("- A parameter the path names goes in the path. Every other parameter goes in the query string.\n- `->` says what a success returns. A `resource` over the endpoint is typed by it, so `u.nam` is `T05` before the page ever runs.\n- An endpoint the service does not have is `T06`, and an argument it does not take is `T10`.")
 
-        Heading("Headers, and what happens around a call", id: "headers-and-what-happens-around-a-call").h3
+        Heading("Add headers and hooks to every call", id: "add-headers-and-hooks-to-every-call").h3
 
-        Markdown("A `headers \{ \}` block names what every call carries. Each value is read **at the moment of the request**, not when the service is declared — so a token that has just been refreshed is the one that is sent:")
+        Markdown("To send the same headers with every call, add a `headers \{ \}` block. Each value is read at the moment of the request, not when the service is declared, so a token refreshed a moment ago is the one that is sent.\n\nThis service sends a bearer token and the reader's language, tags each request with an ID, logs each response, and refreshes the token on a `401`:")
 
         CodeBlock(#"type User { id: String, name: String }
 
@@ -156,7 +265,7 @@ api Backend(base: env.PUBLIC_API ?? "/api/v1") {
 
         Markdown("The three hooks run around every call the service makes:")
 
-        Table(caption: "Headers, and what happens around a call") {
+        Table(caption: "Add headers and hooks to every call") {
             Table.Head {
                 Table.Row {
                     Table.Cell("Hook").header
@@ -181,43 +290,43 @@ api Backend(base: env.PUBLIC_API ?? "/api/v1") {
                 Table.Row {
                     Table.Cell { Markdown("`on error(e)`") }
                     Table.Cell("After every retry the policy allows has failed")
-                    Table.Cell("The error, as the table below describes it")
-                    Table.Cell { Markdown("`return \"retry\"` runs the call once more — which is how a 401 refreshes a token and carries on; anything else lets the error through") }
+                    Table.Cell { Markdown("The error, as [What every call does for you](#what-every-call-does-for-you) describes it") }
+                    Table.Cell { Markdown("`return \"retry\"` runs the call once more, which is how a `401` refreshes a token and carries on. Anything else lets the error through.") }
                 }
             }
         }
 
-        Markdown("A hook may `await`. One that throws fails the call it was watching.")
+        Markdown("A hook may `await`. A hook that throws fails the call it was watching.")
 
-        Heading("What each call gets", id: "what-each-call-gets").h3
+        Heading("What every call does for you", id: "what-every-call-does-for-you").h3
 
-        Table(caption: "What each call gets") {
+        Table(caption: "What every call does for you") {
             Table.Head {
                 Table.Row {
-                    Table.Cell("").header
-                    Table.Cell("").header
+                    Table.Cell("Feature").header
+                    Table.Cell("What it does").header
                 }
             }
             Table.Body {
                 Table.Row {
                     Table.Cell("Abort")
-                    Table.Cell { Markdown("when the scope leaves, when an argument that reads state changes, on `.cancel()`, on timeout") }
+                    Table.Cell { Markdown("A call is aborted when its scope leaves, when an argument that reads state changes, on `.cancel()`, and on timeout") }
                 }
                 Table.Row {
                     Table.Cell("Errors")
-                    Table.Cell { Markdown("`.offline`, `.timeout`, `.aborted`, `.parse`, `.network`, `.status(code, body)` — with `.message`, `.status`, `.body` and `.headers` to read") }
+                    Table.Cell { Markdown("`.offline`, `.timeout`, `.aborted`, `.parse`, `.network`, `.status(code, body)` — each with `.message`, `.status`, `.body` and `.headers` to read") }
                 }
                 Table.Row {
                     Table.Cell("Retry")
-                    Table.Cell { Markdown("exponential backoff with jitter, per error kind, honouring `Retry-After`") }
+                    Table.Cell { Markdown("Exponential backoff with jitter, per error kind, honouring `Retry-After`") }
                 }
                 Table.Row {
                     Table.Cell("Cache")
-                    Table.Cell { Markdown("`cache: .swr(60.seconds)`, `.none`, `.forever` — keyed by method, address and body, revalidated with `ETag`") }
+                    Table.Cell { Markdown("`cache: .swr(60.seconds)`, `.none`, `.forever` — keyed by method, address and body, and revalidated with `ETag`") }
                 }
                 Table.Row {
                     Table.Cell("Dedupe")
-                    Table.Cell("two readers of one address make one request")
+                    Table.Cell("Two readers of one address make one request")
                 }
                 Table.Row {
                     Table.Cell("Refetch")
@@ -229,20 +338,22 @@ api Backend(base: env.PUBLIC_API ?? "/api/v1") {
                 }
                 Table.Row {
                     Table.Cell("Progress")
-                    Table.Cell { Markdown("a `File` parameter makes `Backend.avatar.progress` a number from 0 to 1") }
+                    Table.Cell { Markdown("A `File` parameter makes `Backend.avatar.progress` a number from 0 to 1") }
                 }
             }
         }
 
-        Markdown("And beside each endpoint: `Backend.users.invalidate()`, `.prefetch(args)`, `.url(args)`, `.key(args)`.")
+        Markdown("Beside each endpoint you also get `Backend.users.invalidate()`, `.prefetch(args)`, `.url(args)` and `.key(args)`.")
 
-        Heading("From a specification", id: "from-a-specification").h3
+        Heading("Read the service from an OpenAPI file", id: "read-the-service-from-an-openapi-file").h3
+
+        Markdown("To take every endpoint from a specification instead of writing them, name the file with `from`:")
 
         CodeBlock(#"api Backend from "openapi.json" (base: env.PUBLIC_API)"#, title: "wf")
 
-        Markdown("Every endpoint, parameter, response type and error shape is read from the file at build time, and each named schema becomes something the program can name. The day the server changes its contract, the build says so.")
+        Markdown("The build reads every endpoint, parameter, response type and error shape from the file, and each named schema becomes something the program can name. The day the server changes its contract, the build says so. A missing `openapi.json` is `E111`.\n\nHow each schema becomes a type:")
 
-        Table(caption: "From a specification") {
+        Table(caption: "Read the service from an OpenAPI file") {
             Table.Head {
                 Table.Row {
                     Table.Cell("The schema").header
@@ -256,7 +367,7 @@ api Backend(base: env.PUBLIC_API ?? "/api/v1") {
                 }
                 Table.Row {
                     Table.Cell { Markdown("An `allOf`: `[\{ \"$ref\": \"…/EnvSummary\" \}, \{ \"properties\": … \}]`") }
-                    Table.Cell { Markdown("`type ServerDetail = EnvSummary \{ … \}`: it extends the first record it names, and every other part is fields of its own") }
+                    Table.Cell { Markdown("`type ServerDetail = EnvSummary \{ … \}`: it extends the first record it names, and every other part adds fields of its own") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("A string with cases: `\{ \"type\": \"string\", \"enum\": [\"prod\", \"test\"] \}`") }
@@ -273,13 +384,50 @@ api Backend(base: env.PUBLIC_API ?? "/api/v1") {
             }
         }
 
-        Markdown("A value that may be null is its type made optional, however the document says so: OpenAPI 3.1's `\"type\": [\"string\", \"null\"]` is `String?`, a `oneOf` of `\{ \"type\": \"null\" \}` and a `$ref` is that type's `?`, 3.0's `\"nullable\": true` is the same beside a `type`, an `allOf` or a `$ref`, and a record or an enum whose own schema allows null is `T?` wherever it is named.\n\nA string's `format` is the language's type for what the server sends: `date-time` is a `DateTime`, `date` a `Date`, `uuid` a `Uuid`, `email` an `Email` and `uri` a `Url`, in a response and in every record only responses reach. What the program sends — a parameter, a request body, and every record one of them reaches, but for the fields it marks `readOnly` — keeps `String`, so a value it holds as a `String`, a route parameter or what an input holds, can still be sent. A `time` stays a `String` everywhere, since JSON Schema's carries an offset (`09:30:00Z`) that `Time` does not read.\n\nA parameter or a request body may be a `$ref` into `components`, as a shared `limit` often is; a body is required when the document says so.\n\nA `type` or an `enum` the program declares itself wins over the specification's of the same name.")
+        Markdown("A value that may be null becomes its type made optional, however the document says so:\n\n- OpenAPI 3.1's `\"type\": [\"string\", \"null\"]` is `String?`;\n- a `oneOf` of `\{ \"type\": \"null\" \}` and a `$ref` is that type's `?`;\n- 3.0's `\"nullable\": true` is the same, beside a `type`, an `allOf` or a `$ref`;\n- a record or an enum whose own schema allows null is `T?` wherever it is named.\n\nA string's `format` gives the language's type for what the server sends:")
 
-        Heading("Settings", id: "settings").h3
+        Table(caption: "Read the service from an OpenAPI file") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell.header { Markdown("`format`") }
+                    Table.Cell("In a response, and in every record only responses reach").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`date-time`") }
+                    Table.Cell { Markdown("`DateTime`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`date`") }
+                    Table.Cell { Markdown("`Date`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`uuid`") }
+                    Table.Cell { Markdown("`Uuid`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`email`") }
+                    Table.Cell { Markdown("`Email`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`uri`") }
+                    Table.Cell { Markdown("`Url`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`time`") }
+                    Table.Cell { Markdown("`String`, everywhere: JSON Schema's carries an offset (`09:30:00Z`) that `Time` does not read") }
+                }
+            }
+        }
 
-        Markdown("What goes in the service's parentheses or its block, before the endpoints:")
+        Markdown("What the program sends — a parameter, a request body, and every record one of them reaches, except for the fields marked `readOnly` — keeps `String`. So a value the program holds as a `String`, such as a route parameter or what an input holds, can still be sent.\n\nAlso:\n\n- A parameter or a request body may be a `$ref` into `components`, as a shared `limit` often is.\n- A body is required when the document says so.\n- A `type` or an `enum` the program declares itself wins over the specification's of the same name.")
 
-        Table(caption: "Settings") {
+        Heading("Service settings", id: "service-settings").h3
+
+        Markdown("These go in the service's parentheses or at the top of its block, before the endpoints:")
+
+        Table(caption: "Service settings") {
             Table.Head {
                 Table.Row {
                     Table.Cell("Setting").header
@@ -325,7 +473,7 @@ api Backend(base: env.PUBLIC_API ?? "/api/v1") {
                 }
                 Table.Row {
                     Table.Cell { Markdown("`referrer:`") }
-                    Table.Cell { Markdown("a referrer policy: `.noReferrer`, `.origin`, …") }
+                    Table.Cell { Markdown("A referrer policy: `.noReferrer`, `.origin`, …") }
                     Table.Cell("the page's")
                 }
                 Table.Row {
@@ -336,9 +484,11 @@ api Backend(base: env.PUBLIC_API ?? "/api/v1") {
             }
         }
 
-        Markdown("`retry`'s `on:` takes `.network`, `.timeout`, `.status5xx`, `.status4xx`, `.status429` and `.status503`-style single codes; left out, it retries the network, timeouts, 5xx and 429. The wait doubles from `delay` (ms) up to `max`, with jitter, and a `Retry-After` from the server wins. An aborted call is never retried.")
+        Markdown("How `retry` works:\n\n- Its `on:` takes `.network`, `.timeout`, `.status5xx`, `.status4xx`, and single codes in the form `.status429` or `.status503`.\n- Without `on:`, it retries network failures, timeouts, 5xx responses and 429.\n- The wait doubles from `delay` (in milliseconds) up to `max`, with jitter. A `Retry-After` from the server wins.\n- An aborted call is never retried.")
 
-        Heading("Endpoints", id: "endpoints").h3
+        Heading("Declare endpoints", id: "declare-endpoints").h3
+
+        Markdown("Each line of a service, after its settings, is an endpoint:")
 
         CodeBlock(#"get users(page: Number = 1, q: String?) -> [User]
 get user(id: String) at "users/:id" -> User
@@ -349,9 +499,11 @@ patch settings(body: Map) -> Map
 delete removeUser(id: String) at "users/:id"
 get report(id: String) at "reports/:id" as: .blob"#, title: "text")
 
-        Markdown("- The verb is `get`, `post`, `put`, `patch`, `delete`, `head` or `options`.\n- A parameter the path names (`:id`) goes in the path. One that is empty (`null` or `\"\"`) is not sent at all — `users/` would be the whole collection, not the user — so the call ends as `.aborted` and a resource over it stays `loading` until the value arrives. A parameter called `body` is the request body (a map is sent as JSON); a `File` parameter makes the call a multipart upload; every other parameter goes in the query string, and one that is `null` is left out.\n- `-> T` is what a success returns; without it the call returns `Any`, and `204 No Content` returns nothing.\n- `errors \{ 422 -> T \}` types the body of a failure with that status: the `.status(code, body)` error carries it decoded.\n- `as:` says how to read a response that is not JSON: `.text`, `.blob`, `.arrayBuffer`, `.none`. `errorAs:` does the same for a failure's body. `cache:` sets a cache policy for that endpoint alone.\n\nA call passes the endpoint's parameters by name, and may add `cache:`, `retry:` and — in a `resource` — `on:` for when to fetch again (`.focus`, `.reconnect`, `.interval(30.seconds)`) and `paginate:`.")
+        Markdown("- **The verb** is `get`, `post`, `put`, `patch`, `delete`, `head` or `options`.\n- **Path parameters.** A parameter the path names (`:id`) goes in the path. One that is empty (`null` or `\"\"`) is not sent at all, since `users/` would be the whole collection, not the user. The call ends as `.aborted`, and a resource over it stays `loading` until the value arrives.\n- **The body.** A parameter called `body` is the request body; a map is sent as JSON. A `File` parameter makes the call a multipart upload.\n- **Query parameters.** Every other parameter goes in the query string, and one that is `null` is left out.\n- **What comes back.** `-> T` is what a success returns. Without it the call returns `Any`, and `204 No Content` returns nothing.\n- **Typed failures.** `errors \{ 422 -> T \}` types the body of a failure with that status: the `.status(code, body)` error carries it decoded.\n- **Other responses.** `as:` says how to read a response that is not JSON: `.text`, `.blob`, `.arrayBuffer` or `.none`. `errorAs:` does the same for a failure's body. `cache:` sets a cache policy for that endpoint alone.\n\nA call passes the endpoint's parameters by name. It may add `cache:` and `retry:`, and in a `resource` also `on:` (`.focus`, `.reconnect`, `.interval(30.seconds)`) and `paginate:`.")
 
-        Heading("Pages of results", id: "pages-of-results").h3
+        Heading("Load results a page at a time", id: "load-results-a-page-at-a-time").h3
+
+        Markdown("To show a long list in pages, call the endpoint with `paginate: .page`. This page shows items and a **Load more** button while there are more:")
 
         CodeBlock(#"type Item { id: String, name: String }
 
@@ -362,6 +514,7 @@ api Catalog(base: "/api") {
 page Items(path: "/items", title: "Items", description: "Everything, a page at a time.") {
     state page = 1
     resource list = Catalog.items(page: page, paginate: .page)
+
     Heading("Items").h1
     for item in list.items by item.id { Text(item.name) }
     if list.hasMore {
@@ -369,13 +522,15 @@ page Items(path: "/items", title: "Items", description: "Everything, a page at a
     }
 }"#, title: "wf")
 
-        Markdown("`paginate: .page` gathers the pages into `.items`, `loadMore()` moves `page` on by one, and `.hasMore` turns false when a page comes back empty.")
+        Markdown("- `.items` gathers every page loaded so far.\n- `.loadMore()` moves `page` on by one and fetches the next page, as a refresh.\n- `.hasMore` turns false when a page comes back empty.")
 
-        Heading("An API on another origin", id: "an-api-on-another-origin").h3
+        Heading("Call an API on another origin", id: "call-an-api-on-another-origin").h3
 
-        Markdown("A page on `https://example.com` calling `https://api.example.com` is a cross-origin request: the API must answer with CORS headers (`Access-Control-Allow-Origin`, and `-Allow-Credentials` if cookies go with it), or the browser refuses the response. The same applies while you develop: `wf serve` answers on `localhost:3000` and has no proxy, so an API on `localhost:8080` must allow that origin. The alternative is to serve the API and the site from one origin behind a reverse proxy, where `base: \"/api\"` needs no CORS at all ([Deploying](/docs/guide/deploying#an-api-on-the-same-origin)).")
+        Markdown("A page on `https://example.com` that calls `https://api.example.com` makes a *cross-origin request*. The API must answer with CORS headers — `Access-Control-Allow-Origin`, and `Access-Control-Allow-Credentials` if cookies go with the call — or the browser refuses the response.\n\nThe same applies while you develop. `wf serve` answers on `localhost:3000` and has no proxy, so an API on `localhost:8080` must allow that origin.\n\nThe alternative is to serve the API and the site from one origin behind a reverse proxy, where `base: \"/api\"` needs no CORS at all ([Deploying](/docs/guide/deploying#serve-an-api-on-the-same-origin)).\n\nIf the page's build ships a content security policy, list the API's origin in `meta.connect` too ([Security](/docs/guide/security)).")
 
-        Heading("Showing a change before the server agrees", id: "showing-a-change-before-the-server-agrees").h3
+        Heading("Show a change before the server agrees", id: "show-a-change-before-the-server-agrees").h3
+
+        Markdown("To make an edit appear at once instead of after the round trip, call `optimistic(holder, change)` before the request. If anything later in the action throws, the change is taken back: the action rolls itself back.")
 
         CodeBlock(#"action rename(id: String, name: String) {
     optimistic(Todos.items, items => items.map(i => if i.id == id { { ...i, title: name } } else { i }))
@@ -383,15 +538,15 @@ page Items(path: "/items", title: "Items", description: "Everything, a page at a
     Backend.users.invalidate()
 }"#, title: "wf")
 
-        Markdown("The change shows at once. If anything later in the action throws, what was shown is taken back.")
+        Markdown("The new title shows at once. If `updateUser` fails, the old title comes back.")
 
-        Heading("await fetch in an action", id: "await-fetch-in-an-action").h2
+        Heading("Fetch on demand with await fetch", id: "fetch-on-demand-with-await-fetch").h2
 
-        Markdown("For a request made on demand — a save, a delete, a step in a flow — `fetch` returns the parsed body and throws on a failed response:")
+        Markdown("For a request made when something happens — a save, a delete, a step in a flow — call `await fetch` in an action. It returns the parsed body, and throws on a failed response, so you catch the failure with `try`.\n\nThis page loads a list of todos, adds one, and toggles one, each with a request:")
 
         CodeBlock(#"type Todo { id: String, title: String, done: Bool = false }
 
-page Todos(path: "/") {
+page Todos(path: "/todos", title: "Todos", description: "Todos saved to a server.") {
     state todos: [Todo] = []
     state draft = ""
     state error = ""
@@ -421,6 +576,7 @@ page Todos(path: "/") {
     }
 
     load()
+    Heading("Todos").h1
     Input(bind: draft, label: "New todo") { on key("Enter") { add() } }
     Button("Add", disabled: add.pending).primary { on click { add() } }
     if error != "" { Alert(error).danger }
@@ -429,11 +585,11 @@ page Todos(path: "/") {
     }
 }"#, title: "wf")
 
-        Markdown("The second argument is a map: `method`, `headers`, `body`. `name.pending` is true while the action runs. The browser's own `fetch`, for a response you want raw, is `window.fetch`.")
+        Markdown("- The second argument is a map of `method`, `headers` and `body`.\n- `load()` at the top of the page is set-up code: it runs once, when the page renders.\n- `todos.push(created)` changes the state in place. The compiler turns it into a new list, so everything that reads `todos` repaints.\n- `name.pending` is `true` while the action runs, so **Add** is disabled during a save.\n- `await fetch` goes through the same engine as an `api` call. For the browser's own `fetch`, with the raw response, call `window.fetch`.")
 
-        Heading("data: a file at build time", id: "data-a-file-at-build-time").h2
+        Heading("Read a file at build time with data", id: "read-a-file-at-build-time-with-data").h2
 
-        Markdown("`data name = \"file.json\"` reads a JSON file (from the project root or `src/`) at build time and makes its value a constant. It is in every page and component, costs nothing at run time, and is painted into the static build:")
+        Markdown("To use content that is known before the site is built — posts, a price list, a team page — read it with `data`. `data name = \"file.json\"` reads a JSON file from the project directory or `src/` at build time, and makes its value a constant.\n\nA `data` constant:\n\n- is in scope in every page and component;\n- costs nothing at run time, because its value is in the bundle;\n- is written into the pre-rendered page.\n\nThis blog lists every post in `posts.json`, newest first:")
 
         CodeBlock(#"type Post { slug: String, title: String, date: String, body: String }
 
@@ -441,6 +597,8 @@ data posts: [Post] = "posts.json"
 
 page Blog(path: "/", title: "Blog", description: "Every post.") {
     derived sorted = posts.sortBy(p => p.date).reverse()
+
+    Heading("Blog").h1
     for p in sorted by p.slug {
         Card {
             Link(p.title, to: "/posts/{p.slug}")
@@ -456,9 +614,9 @@ page Blog(path: "/", title: "Blog", description: "Every post.") {
 
         Markdown("Annotate it (`data posts: [Post]`) and the checker knows every field.")
 
-        Heading("Static paths", id: "static-paths").h3
+        Heading("Render a page for each item", id: "render-a-page-for-each-item").h3
 
-        Markdown("A `:param` page is rendered once per value in `paths:` by a static build — one HTML file per post, each with its own title and description:")
+        Markdown("To give each post its own HTML file in a static build, list the values of the route parameter in `paths:`. The build renders the page once per value, each with its own title and description, and lists each in the sitemap:")
 
         CodeBlock(#"type Post { slug: String, title: String, date: String, body: String }
 
@@ -475,11 +633,13 @@ page PostPage(path: "/posts/:slug", slug: String, title: "Post", description: "A
     }
 }"#, title: "wf")
 
-        Markdown("`paths:` must be knowable at build time — a `data` file, a `const`, a literal. For a route with several parameters, each value is a map naming them: `paths: pairs.map(x => \{ year: x.y, slug: x.s \})`. Routes not in `paths:` still work in the SPA; only the static build needs the list.")
+        Markdown("The build writes `posts/hello/index.html` and `posts/second/index.html`.\n\n- `paths:` must be known at build time: a `data` file, a `const` or a literal.\n- For a route with several parameters, each value is a map naming them: `paths: pairs.map(x => \{ year: x.y, slug: x.s \})`.\n- A route not in `paths:` still works in a single-page app. Only the static build needs the list.")
 
-        Heading("Where data lands in the static paint", id: "where-data-lands-in-the-static-paint").h2
+        Heading("Where data lands in the pre-rendered page", id: "where-data-lands-in-the-pre-rendered-page").h2
 
-        Table(caption: "Where data lands in the static paint") {
+        Markdown("A static build writes each page's HTML before any script runs. What each source of data puts in that HTML:")
+
+        Table(caption: "Where data lands in the pre-rendered page") {
             Table.Head {
                 Table.Row {
                     Table.Cell("Source").header
@@ -492,7 +652,7 @@ page PostPage(path: "/posts/:slug", slug: String, title: "Post", description: "A
                     Table.Cell("Fully painted")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`state` initial values, `derived` over them") }
+                    Table.Cell { Markdown("`state` initial values, and `derived` values over them") }
                     Table.Cell("Painted")
                 }
                 Table.Row {
@@ -502,6 +662,51 @@ page PostPage(path: "/posts/:slug", slug: String, title: "Post", description: "A
                 Table.Row {
                     Table.Cell { Markdown("`await fetch`") }
                     Table.Cell("Nothing until the action runs")
+                }
+            }
+        }
+
+        Heading("Troubleshooting", id: "troubleshooting").h2
+
+        Table(caption: "Troubleshooting") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("What you see").header
+                    Table.Cell("Why, and what to do").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell("The browser console says a response was blocked by CORS")
+                    Table.Cell { Markdown("The API is on another origin and does not allow yours. Add CORS headers to the API, or serve both from one origin ([Call an API on another origin](#call-an-api-on-another-origin)).") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("A `fetch` gets a `404` under `wf serve`, with a line in the terminal") }
+                    Table.Cell { Markdown("`wf serve` has no file or page for that address, and no proxy. Point `base:` at the real API.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("A `.parse` error naming a place, such as `$[1].name is missing`") }
+                    Table.Cell { Markdown("Under `wf serve`, a response is checked against its declared type. The server sent another shape: fix the server or the `type`.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("A resource stays `loading`") }
+                    Table.Cell { Markdown("A path parameter is `null` or `\"\"`, so the call is not sent. It goes out when the value arrives.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("The page goes back to `loading` when state changes") }
+                    Table.Cell("The address now names something else, so it is a first load. A refresh of the same address keeps the data.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T05` on a field of the data") }
+                    Table.Cell { Markdown("The declared type has no such field. Fix the name, or add the field to the `type`.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T06` or `T10` on an endpoint call") }
+                    Table.Cell("The service has no such endpoint, or the endpoint takes no such argument.")
+                }
+                Table.Row {
+                    Table.Cell("A post's page is missing from a static build")
+                    Table.Cell { Markdown("Its value is not in `paths:`.") }
                 }
             }
         }

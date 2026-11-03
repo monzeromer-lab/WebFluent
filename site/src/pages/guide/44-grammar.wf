@@ -1,31 +1,202 @@
 /// Chapter 44 of the guide, written from md-docs/44-grammar.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page GrammarGuide(path: "/docs/guide/grammar", title: "Grammar", description: "The WebFluent grammar on one page: declarations, statements, element blocks, components, services, tests, styles, operators, literals.", layout: DocsShell("Grammar", chapter: t("guide.chapter", { n: "44" }), blurb: "Every keyword and where it may appear, the shapes of declarations, statements and expressions, operators and precedence, and the literals.", source: "md-docs/44-grammar.md", sections: [Anchor(id: "words", label: "Words"), Anchor(id: "keywords", label: "Keywords"), Anchor(id: "declarations", label: "Declarations"), Anchor(id: "render-blocks", label: "Render blocks"), Anchor(id: "component-bodies", label: "Component bodies"), Anchor(id: "element-blocks", label: "Element blocks"), Anchor(id: "imperative-blocks", label: "Imperative blocks"), Anchor(id: "style-blocks-and-themes", label: "Style blocks and themes"), Anchor(id: "test-steps", label: "Test steps"), Anchor(id: "expressions", label: "Expressions"), Anchor(id: "literals", label: "Literals"), Anchor(id: "comments", label: "Comments"), Anchor(id: "layout", label: "Layout")], prevTo: "/docs/guide/runtime", prevLabel: "43. {t("ch.43")}", nextTo: "/docs/guide/troubleshooting", nextLabel: "45. {t("ch.45")}")) {
+page GrammarGuide(path: "/docs/guide/grammar", title: "Grammar", description: "The WebFluent grammar on one page: keywords, declarations, render and imperative blocks, components, tests, styles, operators, precedence and literals.", layout: DocsShell("Grammar", chapter: t("guide.chapter", { n: "44" }), blurb: "Every keyword and where it may appear, the shapes of declarations, statements and expressions, operators and precedence, and the literals.", source: "md-docs/44-grammar.md", sections: [Anchor(id: "names", label: "Names"), Anchor(id: "keywords", label: "Keywords"), Anchor(id: "declarations", label: "Declarations"), Anchor(id: "render-blocks", label: "Render blocks"), Anchor(id: "component-bodies", label: "Component bodies"), Anchor(id: "element-blocks", label: "Element blocks"), Anchor(id: "imperative-blocks", label: "Imperative blocks"), Anchor(id: "style-blocks-and-themes", label: "Style blocks and themes"), Anchor(id: "test-steps", label: "Test steps"), Anchor(id: "expressions", label: "Expressions"), Anchor(id: "literals", label: "Literals"), Anchor(id: "comments", label: "Comments"), Anchor(id: "layout", label: "Layout")], prevTo: "/docs/guide/runtime", prevLabel: "43. {t("ch.43")}", nextTo: "/docs/guide/troubleshooting", nextLabel: "45. {t("ch.45")}")) {
     Stack(gap: .lg) {
-        Markdown("A compact map of what the parser accepts. The chapters say what each form means; this page says where it may be written.")
+        Markdown("This page is a map of what the parser accepts: each keyword, each statement, and where it may be written. The other chapters say what each form means; this page says where it goes.\n\nHow to read the shapes on this page:\n\n- A `text` block shows the shape of a form, not a program to copy.\n- `…` stands for more of the same, and `|` separates alternatives.\n- A word in lower case that is not a keyword, such as `expr`, `Type` or `name`, stands for something you write there.\n- *Render block* means a block that holds elements and the statements that declare state: a page, a component, the `app`, a test, and every element's children. *Imperative block* means a block of statements that run: an action, a handler, an effect, a timer or a hook.")
 
-        Heading("Words", id: "words").h2
+        Heading("Names", id: "names").h2
 
-        Markdown("No word is reserved. `page`, `state`, `type` and the rest are keywords only where a statement starts, so every one of them is also usable as a map key (`\{ action: \"approve\", type: \"a\" \}`), a field name or a parameter. Declarations are lowercase; elements and the names declarations introduce are capitalised; everything else is camelCase.")
+        Markdown("The case of a name says what it is:")
+
+        Table(caption: "Names") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Kind of name").header
+                    Table.Cell("Case").header
+                    Table.Cell("Examples").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell("Declarations and statements")
+                    Table.Cell("lower case")
+                    Table.Cell { Markdown("`page`, `state`, `for`") }
+                }
+                Table.Row {
+                    Table.Cell("Elements, and the names declarations introduce")
+                    Table.Cell("capitalised")
+                    Table.Cell { Markdown("`Button`, `UserCard`, `Todo`") }
+                }
+                Table.Row {
+                    Table.Cell("Everything else")
+                    Table.Cell("camelCase")
+                    Table.Cell { Markdown("`draft`, `isOpen`, `saveAll`") }
+                }
+            }
+        }
+
+        Markdown("A keyword has its meaning only where a statement starts. Everywhere else it is an ordinary word, so every keyword works as a map key (`\{ action: \"approve\", type: \"a\" \}`), a field name and an enum case.\n\nA name the language already gives a meaning cannot be a program's own: the words a statement is written with (`state`, `action`, `let`, `if`, `show`, `match`, `style`, `on`, and the rest), the built-in functions, and the values `env`, `params`, `locale`, `dir`, `now`, `viewport`, `query`, `hash`, `theme`, `network` and `update`. Declared as a `state`, a prop, a parameter, a loop item, a lambda's parameter or a `const`, one is an `E118`. The names a handler brings (`event`, `e`, `value`, `key`) and the browser's globals are yours to use. A program's own names may be written in any script, Arabic included.")
 
         Heading("Keywords", id: "keywords").h2
 
-        Markdown("Where a statement starts, these words have meaning: `page`, `component`, `store`, `app`, `theme`, `type`, `enum`, `api`, `const`, `data`, `image`, `animation` and `test` at the top of a file; `state`, `persist`, `derived`, `effect`, `cleanup`, `action`, `use`, `resource`, `validate`, `socket`, `stream`, `channel`, `peer`, `worker`, `every`, `after`, `on key`, `head`, `if`, `if let`, `for`, `show`, `match`, `sequence` and `step` in a render block; `slot`, `event`, `part` and `children` in a component; `let`, `return`, `try`, `catch`, `await` and `emit` in an action; `expect`, `click`, `type`, `press` in a test. Everywhere else they are ordinary names.")
+        Markdown("Each keyword, and where it starts a statement:")
+
+        Table(caption: "Keywords") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Keyword").header
+                    Table.Cell("Where").header
+                    Table.Cell("Starts").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`page`, `component`, `store`, `app`, `theme`, `type`, `enum`, `api`, `const`, `data`, `image`, `animation`, `test`") }
+                    Table.Cell("top of a file")
+                    Table.Cell("a declaration")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`state`") }
+                    Table.Cell("render block, store")
+                    Table.Cell("a value that can change")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`persist`") }
+                    Table.Cell("page, component, store")
+                    Table.Cell("a value kept across visits")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`derived`") }
+                    Table.Cell("render block, store")
+                    Table.Cell("a value worked out from others")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`effect`, with `cleanup`") }
+                    Table.Cell("render block, store")
+                    Table.Cell("code that runs when what it reads changes, and its clean-up")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`action`") }
+                    Table.Cell("render block, store")
+                    Table.Cell("a named imperative block")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`use`") }
+                    Table.Cell("render block")
+                    Table.Cell("access to a store")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`resource`") }
+                    Table.Cell("render block, store")
+                    Table.Cell("a request whose state the page shows")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`validate`") }
+                    Table.Cell("render block")
+                    Table.Cell("the rules a state must pass")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`socket`, `stream`, `channel`, `peer`, `worker`") }
+                    Table.Cell("render block, store")
+                    Table.Cell("a connection the scope holds open")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`every`, `after`") }
+                    Table.Cell("render block")
+                    Table.Cell("a repeating or a one-off timer")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`on key(\"…\")`, `on resize`, and the other page events") }
+                    Table.Cell { Markdown("top of a page, a component or `app`") }
+                    Table.Cell("a listener on the document or the window")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`head`") }
+                    Table.Cell("page")
+                    Table.Cell("tags for the document's head")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`if`, `else`, `if let`") }
+                    Table.Cell("render or imperative block")
+                    Table.Cell("a branch")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`for`, with `in` and `by`") }
+                    Table.Cell("render or imperative block")
+                    Table.Cell("a loop")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`show`") }
+                    Table.Cell("render block")
+                    Table.Cell("a block hidden, not removed, when its condition fails")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`match`") }
+                    Table.Cell("render block, or a value")
+                    Table.Cell("one arm, by a resource's state or an enum's case")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`sequence`, `step`") }
+                    Table.Cell("render block")
+                    Table.Cell("a timed group of enter animations")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`slot`, `event`, `part`") }
+                    Table.Cell("component, before its elements")
+                    Table.Cell("a slot, an event it fires, a part")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`children`") }
+                    Table.Cell("component")
+                    Table.Cell("where the caller's block goes")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`style`, `transition`, `on`") }
+                    Table.Cell("element block")
+                    Table.Cell("styles, transitions, handlers")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`let`, `return`") }
+                    Table.Cell("imperative block")
+                    Table.Cell("a local, and leaving with a value")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`try`, `catch`") }
+                    Table.Cell("imperative block")
+                    Table.Cell("error handling")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`await`") }
+                    Table.Cell("imperative block, or a value")
+                    Table.Cell("waiting for a promise")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`emit`") }
+                    Table.Cell("imperative block of a component")
+                    Table.Cell("firing one of its events")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`expect`, `click`, `type`, `press`") }
+                    Table.Cell("test")
+                    Table.Cell("a step a test checks or performs")
+                }
+            }
+        }
 
         Heading("Declarations", id: "declarations").h2
 
-        Markdown("At the top of a file, and nowhere else:")
+        Markdown("These forms are written at the top of a file, and nowhere else:")
 
-        CodeBlock(#"page Name(path: "/", title: …, description: …, image: …, type: …, noindex: …,
-          layout: Component(…), guard: expr, redirect: "/…", paths: expr,
-          param: Type, …) { render block }
+        CodeBlock(#"page Name(path: "/", title: …, description: …, image: …, image_alt: …, type: …,
+          noindex: …, layout: Component(…), guard: expr, redirect: "/…",
+          paths: expr, param: Type, …) { render block }
 component Name(_ positional: Type, prop: Type = default, …) { component body }
 store Name(scope: .app | .session | .route, eager: Bool) { store body }
 app { render block }
 theme Name { token: value … }
 type Name { field: Type = default, … }        type Name = Other { … }
 enum Name { case, case(part: Type, …), … }
-api Name(base: expr, …) { settings  headers { … }  on request|response|error(x) { … }  endpoints }
+api Name(base: expr, …) { settings  on request|response|error(x) { … }  endpoints }
 api Name from "spec.json" (base: expr)
 const NAME: Type = expr
 data name: Type = "file.json"
@@ -33,11 +204,11 @@ image name = "picture.jpg"
 animation Name { from { css } 50% { css } to { css } }
 test "name"(data: { … }) { render block and test steps }"#, title: "text")
 
-        Markdown("A `///` comment before a declaration, a prop, a field, an event, an endpoint, or a `state`, `persist`, `derived` or `action` of a page, a component or a store is its documentation.")
+        Markdown("A `///` comment before a declaration, a prop, a field, an event, an endpoint, or a `state`, `persist`, `derived` or `action` of a page, a component or a store is its documentation.\n\nA store's body holds `state`, `persist`, `derived`, `effect`, `action`, `resource` and the connections (`socket`, `stream`, `channel`, `peer`, `worker`).")
 
         Heading("Render blocks", id: "render-blocks").h2
 
-        Markdown("A page, a component, the app, a test and every element's children:")
+        Markdown("A page, a component, the app, a test and every element's children hold these statements:")
 
         Table(caption: "Render blocks") {
             Table.Head {
@@ -53,7 +224,7 @@ test "name"(data: { … }) { render block and test steps }"#, title: "text")
                 }
                 Table.Row {
                     Table.Cell("persisted state")
-                    Table.Cell { Markdown("`persist name: Type = expr \{ in: .local | .session | .name  key: expr  version: n  sync: Bool  migrate n -> n+1 \{ expr \} \}`") }
+                    Table.Cell { Markdown("`persist name: Type = expr \{ in: .local | .session | .name  key: expr  version: n  sync: Bool  migrate n -> n+1 \{ expr \} \}` — a page, a component or a store") }
                 }
                 Table.Row {
                     Table.Cell("derived")
@@ -81,7 +252,7 @@ test "name"(data: { … }) { render block and test steps }"#, title: "text")
                 }
                 Table.Row {
                     Table.Cell("connection")
-                    Table.Cell { Markdown("`socket name = ws(url, …) \{ send T  receive T  on message(m) \{ … \}  on open \{ … \} \}`, `stream name = sse(…)`, `channel name = broadcast(…)`, `peer name = rtc(signal: …, …)`") }
+                    Table.Cell { Markdown("`socket name = ws(url, …) \{ send T  receive T  on message(m) \{ … \}  on open \{ … \} \}`, `stream name = sse(…)`, `channel name = broadcast(…)`, `peer name = rtc(signal: …, …)`, `worker name = spawn(path, …) \{ on message(m) \{ … \} \}`") }
                 }
                 Table.Row {
                     Table.Cell("timer")
@@ -90,6 +261,10 @@ test "name"(data: { … }) { render block and test steps }"#, title: "text")
                 Table.Row {
                     Table.Cell("key")
                     Table.Cell { Markdown("`on key(\"ctrl+k\", e) \{ imperative \}`") }
+                }
+                Table.Row {
+                    Table.Cell("page event")
+                    Table.Cell { Markdown("`on keydown(e) \{ … \}`, `on resize \{ … \}` — and `keyup`, `scroll`, `hashchange`, `popstate`, `online`, `offline`, `message`, `storage`, `visibilitychange`, `blur`, `focus` — at the top of a page, a component or `app`") }
                 }
                 Table.Row {
                     Table.Cell("head")
@@ -117,7 +292,7 @@ test "name"(data: { … }) { render block and test steps }"#, title: "text")
                 }
                 Table.Row {
                     Table.Cell("set-up")
-                    Table.Cell { Markdown("`Store.action(args)` — a call, run once") }
+                    Table.Cell { Markdown("`Store.action(args)` — a call, run once when the block renders") }
                 }
                 Table.Row {
                     Table.Cell("element")
@@ -130,9 +305,11 @@ test "name"(data: { … }) { render block and test steps }"#, title: "text")
             }
         }
 
+        Markdown("A connection's options may also be written inside its block, one `name: value` to a line.")
+
         Heading("Component bodies", id: "component-bodies").h2
 
-        Markdown("A component's body is a render block, plus:")
+        Markdown("A component's body is a render block, and before its elements it may declare:")
 
         CodeBlock(#"slot                                  the default slot, placed with `children`
 slot name                             a named slot
@@ -142,7 +319,7 @@ part Name(props) { render block }     a part, called as `Component.Name`"#, titl
 
         Heading("Element blocks", id: "element-blocks").h2
 
-        Markdown("In this order, each optional:")
+        Markdown("An element's block holds these, in this order, each optional:")
 
         CodeBlock(#"Name(…).flags {
     style { declarations }
@@ -154,7 +331,7 @@ part Name(props) { render block }     a part, called as `Component.Name`"#, titl
 
         Heading("Imperative blocks", id: "imperative-blocks").h2
 
-        Markdown("Actions, handlers, effects, timers and hooks:")
+        Markdown("Actions, handlers, effects, timers and hooks hold these statements:")
 
         Table(caption: "Imperative blocks") {
             Table.Head {
@@ -203,7 +380,11 @@ part Name(props) { render block }     a part, called as `Component.Name`"#, titl
             }
         }
 
+        Markdown("`let`, `return` and `emit` written in a render block are an error that says to move them into a handler, an action or an effect.")
+
         Heading("Style blocks and themes", id: "style-blocks-and-themes").h2
+
+        Markdown("A `style` block holds CSS declarations, one to a line:")
 
         CodeBlock(#"style {
     property: raw css value               to the end of the line, a `;`, or two spaces and the next declaration
@@ -217,11 +398,38 @@ part Name(props) { render block }     a part, called as `Component.Name`"#, titl
 
         Heading("Test steps", id: "test-steps").h2
 
-        Markdown("In a `test`, beside render statements: `expect \"text\"`, `expect not \"text\"`, `click \"name\"`, `type \"text\" into \"name\"`, `press \"Key\"`, `press \"Key\" in \"name\"`.")
+        Markdown("A `test` holds render statements and these steps, run in the order written:")
+
+        Table(caption: "Test steps") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Step").header
+                    Table.Cell("Form").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell("check")
+                    Table.Cell { Markdown("`expect \"text\"`, `expect not \"text\"`") }
+                }
+                Table.Row {
+                    Table.Cell("click")
+                    Table.Cell { Markdown("`click \"name\"`") }
+                }
+                Table.Row {
+                    Table.Cell("type")
+                    Table.Cell { Markdown("`type \"text\" into \"name\"`") }
+                }
+                Table.Row {
+                    Table.Cell("key")
+                    Table.Cell { Markdown("`press \"Key\"`, `press \"Key\" in \"name\"`") }
+                }
+            }
+        }
 
         Heading("Expressions", id: "expressions").h2
 
-        Markdown("From weakest to strongest binding:")
+        Markdown("The operators, from weakest to strongest binding:")
 
         Table(caption: "Expressions") {
             Table.Head {
@@ -269,12 +477,12 @@ part Name(props) { render block }     a part, called as `Component.Name`"#, titl
                 }
                 Table.Row {
                     Table.Cell("10")
-                    Table.Cell { Markdown("calls `f(…)`, fields `a.b`, `a?.b`, indexes `a[i]`, `a?.[i]`, flags") }
+                    Table.Cell { Markdown("calls `f(…)`, fields `a.b`, `a?.b`, methods `a.m(…)`, `a?.m(…)`, indexes `a[i]`, `a?.[i]`, flags") }
                 }
             }
         }
 
-        Markdown("So `1..n + 1` is `1..(n + 1)`, and `a ?? b || c` is `a ?? (b || c)`.\n\nValues that are expressions: `if c \{ a \} else \{ b \}` (`null` when there is no `else` and `c` fails), `if let x = v \{ a \} else \{ b \}`, `match v \{ .case \{ a \} else \{ b \} \}`, lambdas `x => expr`, `(a, b) => expr`, `() => expr`, spreads `...x` in a list or map.")
+        Markdown("So `1..n + 1` is `1..(n + 1)`, and `a ?? b || c` is `a ?? (b || c)`. Operators of one level group from the left: `a - b - c` is `(a - b) - c`.\n\nThese forms are expressions too:\n\n- `if c \{ a \} else \{ b \}`, which is `null` when there is no `else` and `c` fails;\n- `if let x = v \{ a \} else \{ b \}`;\n- `match v \{ .case \{ a \} else \{ b \} \}`;\n- lambdas `x => expr`, `(a, b) => expr` and `() => expr`;\n- spreads `...x` in a list, a map or a call's arguments.\n\nA call's named arguments (`due.plus(days: 3)`) are gathered into one map, passed last. [Expressions](/docs/guide/expressions) explains each form.")
 
         Heading("Literals", id: "literals").h2
 
@@ -339,6 +547,6 @@ part Name(props) { render block }     a part, called as `Component.Name`"#, titl
 
         Heading("Layout", id: "layout").h2
 
-        Markdown("A `.wf` file writes blocks in braces. A `.wfx` file writes them by indentation: a line indented deeper than the one before opens a block, a dedent closes it, and braces written by hand still work inside a line ([chapter 5](/docs/guide/language-basics#two-layouts-wf-and-wfx)). Statements need no separator; on one line, a `;` or two spaces reads best.")
+        Markdown("A `.wf` file writes blocks in braces. A `.wfx` file writes them by indentation: a line indented deeper than the one before opens a block, and a dedent closes it. Braces written by hand still work inside a line ([Language basics](/docs/guide/language-basics#two-layouts-wf-and-wfx)). Statements need no separator; two on one line are separated by a `;` or two spaces.")
     }
 }

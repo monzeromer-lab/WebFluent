@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Design tokens</title>
-    <meta name="description" content="Every baseline design token with its default value, how a theme overrides them, and how styles and stylesheets read them.">
+    <meta name="description" content="Every baseline design token with its default value, how a theme overrides one, and how a style block or a stylesheet reads it, by full or short name.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/tokens">
     <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/tokens?lang=en">
     <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/tokens?lang=ar">
@@ -12,7 +12,7 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Design tokens">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="Every baseline design token with its default value, how a theme overrides them, and how styles and stylesheets read them.">
+    <meta property="og:description" content="Every baseline design token with its default value, how a theme overrides one, and how a style block or a stylesheet reads it, by full or short name.">
     <meta property="og:url" content="https://webfluent.monzeromer.dev/docs/guide/tokens">
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="ar_AR">
@@ -21,9 +21,9 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Design tokens">
-    <meta name="twitter:description" content="Every baseline design token with its default value, how a theme overrides them, and how styles and stylesheets read them.">
+    <meta name="twitter:description" content="Every baseline design token with its default value, how a theme overrides one, and how a style block or a stylesheet reads it, by full or short name.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/tokens#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/tokens","name":"Design tokens","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Every baseline design token with its default value, how a theme overrides them, and how styles and stylesheets read them."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/tokens#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Design tokens","item":"https://webfluent.monzeromer.dev/docs/guide/tokens"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/tokens#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/tokens","name":"Design tokens","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Every baseline design token with its default value, how a theme overrides one, and how a style block or a stylesheet reads it, by full or short name."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/tokens#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Design tokens","item":"https://webfluent.monzeromer.dev/docs/guide/tokens"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -69,6 +69,9 @@
             </div>
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
+                    <a class="wf-sidebar__item" href="/docs">
+                        <p class="wf-text">Overview</p>
+                    </a>
                     <p class="wf-text group-label">Start</p>
                     <a class="wf-sidebar__item" href="/docs/guide/introduction">
                         <p class="wf-text num">01</p>
@@ -274,7 +277,7 @@
                 </aside>
                 <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
-                        <a class="wf-link" href="/docs/guide/introduction">Guide</a>
+                        <a class="wf-link" href="/docs">Guide</a>
                         <p class="wf-text">/</p>
                         <p class="wf-text wf-s8c71c534">Chapter 42</p>
                     </div>
@@ -285,7 +288,8 @@
                     <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
-<p>A design token is a named value — a colour, a size, a duration — that every built-in is drawn with. A <code>theme</code> changes the ones it names and keeps the rest; each becomes a CSS custom property on <code>:root</code>.</p>
+<p>This chapter lists every design token of the baseline theme with its value, and how a style reads one. A <em>design token</em> is a named value — a colour, a size, a duration — that every built-in is drawn with. Change a token and every element drawn with it changes.</p>
+<p>A <code>theme</code> declaration changes the tokens it names and keeps the baseline value of every other one. A theme may also add tokens of its own. Each token becomes a CSS custom property on <code>:root</code>:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -294,16 +298,122 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">theme Brand {
-    color-primary: #0F766E
-    radius-md: 14px
-    screen-md: 900px
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">theme</span> <span class="wf-tok-name">Brand</span> {
+    color-<span class="wf-tok-prop">primary</span>: <span class="wf-tok-num">#0F766E</span>
+    radius-<span class="wf-tok-prop">md</span>: <span class="wf-tok-num">14px</span>
+    screen-<span class="wf-tok-prop">md</span>: <span class="wf-tok-num">900px</span>
+    surface-<span class="wf-tok-prop">raised</span>: <span class="wf-tok-num">#F1F5F9</span>
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Read one in a <code>style { }</code> block as <code>$name</code> — <code>background: $color-surface</code>, or the short form the property's group resolves, <code>padding: $lg</code> for <code>spacing-lg</code> — and in a stylesheet as <code>var(--color-surface)</code>. A theme may add tokens of its own (<code>surface-raised: #131519</code>) and read them the same way. The build writes only the tokens something in the output names.</p>
+<p>The build writes to <code>:root</code> only the tokens something in the output names, and the tokens those name in turn.</p>
+                            </div>
+                            <h2 class="wf-heading" id="reading-a-token">Reading a token</h2>
+                            <div class="wf-markdown">
+<p>A token has two spellings, one for each place a style is written:</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Reading a token</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Where</th>
+                                        <th scope="col">Syntax</th>
+                                        <th scope="col">Example</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A <code>style { }</code> block</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>$name</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>background: $color-surface</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A <code>style { }</code> block, short form</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>$suffix</code>, resolved by the property's group (<a href="#short-names">below</a>)</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>padding: $lg</code> is <code>spacing-lg</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A <code>.css</code> file under <code>src/</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>var(--name)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>color: var(--color-text-muted)</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>This page reads the tokens of the theme above — one the theme adds, one it changes, one it keeps, and a breakpoint it moves:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">theme</span> <span class="wf-tok-name">Brand</span> {
+    color-<span class="wf-tok-prop">primary</span>: <span class="wf-tok-num">#0F766E</span>
+    radius-<span class="wf-tok-prop">md</span>: <span class="wf-tok-num">14px</span>
+    screen-<span class="wf-tok-prop">md</span>: <span class="wf-tok-num">900px</span>
+    surface-<span class="wf-tok-prop">raised</span>: <span class="wf-tok-num">#F1F5F9</span>
+}
+
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Pricing</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/pricing&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Pricing&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Plans and prices for every team.&quot;</span>) {
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Pricing&quot;</span>).h1
+    <span class="wf-tok-name">Card</span> {
+        <span class="wf-tok-kw">style</span> {
+            <span class="wf-tok-prop">background</span>: <span class="wf-tok-tok">$surface-raised</span>
+            <span class="wf-tok-prop">padding</span>: <span class="wf-tok-tok">$lg</span>
+            border-<span class="wf-tok-prop">radius</span>: <span class="wf-tok-tok">$md</span>
+            <span class="wf-tok-prop">border</span>: <span class="wf-tok-num">1px</span> solid <span class="wf-tok-tok">$border</span>
+            @md { <span class="wf-tok-prop">padding</span>: <span class="wf-tok-tok">$xl</span> }
+        }
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Team plan&quot;</span>).bold
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The card's background is <code>#F1F5F9</code>, its radius <code>14px</code> and its border the baseline <code>color-border</code>. Its padding grows to <code>spacing-xl</code> from <code>900px</code> wide, because <code>@md</code> reads <code>screen-md</code>.</p>
+<p>A <code>$token</code> the resolved theme does not declare draws the <code>V06</code> warning, since the property would fall back to nothing. <code>wf theme</code> lists every token the build uses, where each is read, and the contrast of the colour pairs (<a href="/docs/guide/cli#wf-theme">Command line</a>).</p>
                             </div>
                             <h2 class="wf-heading" id="the-baseline">The baseline</h2>
+                            <div class="wf-markdown">
+<p>The tables below are written from the compiler's baseline theme, and the test suite checks them against it.</p>
+                            </div>
                             <h3 class="wf-heading" id="colour">Colour</h3>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">Colour</caption>
@@ -1293,7 +1403,7 @@
                             </div>
                             <h2 class="wf-heading" id="short-names">Short names</h2>
                             <div class="wf-markdown">
-<p>In a style block, a short name is resolved by the property it is given to:</p>
+<p>In a <code>style { }</code> block, a short name is resolved through the group of the property it is given to: <code>$lg</code> on <code>padding</code> is <code>spacing-lg</code>, and on <code>border-radius</code> it is <code>radius-lg</code>.</p>
                             </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">Short names</caption>
@@ -1301,37 +1411,44 @@
                                     <tr>
                                         <th scope="col">Property</th>
                                         <th scope="col">Group</th>
-                                        <th scope="col">
-                                            <div class="wf-markdown">
-<p>So <code>$…</code> means</p>
-                                            </div>
-                                        </th>
+                                        <th scope="col">Short names</th>
+                                        <th scope="col">Example</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>padding</code>, <code>margin</code> and their sides, <code>gap</code>, <code>row-gap</code>, <code>column-gap</code>, <code>width</code>, <code>height</code>, <code>min-</code>/<code>max-</code> sizes, <code>top</code>/<code>right</code>/<code>bottom</code>/<code>left</code>, <code>inset</code></p>
+<p><code>padding</code>, <code>margin</code> and every <code>padding-*</code> and <code>margin-*</code> property (physical and logical), <code>gap</code>, <code>row-gap</code>, <code>column-gap</code>, <code>width</code>, <code>height</code>, <code>min-width</code>, <code>max-width</code>, <code>min-height</code>, <code>max-height</code>, <code>top</code>, <code>right</code>, <code>bottom</code>, <code>left</code>, <code>inset</code> and <code>inset-*</code></p>
                                             </div>
                                         </td>
                                         <td>spacing</td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>$lg</code> is <code>spacing-lg</code> (<code>xs</code> … <code>3xl</code>)</p>
+<p><code>xs</code>, <code>sm</code>, <code>md</code>, <code>lg</code>, <code>xl</code>, <code>2xl</code>, <code>3xl</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>$lg</code> is <code>spacing-lg</code></p>
                                             </div>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>color</code>, <code>background</code>, <code>background-color</code>, <code>border-color</code>, <code>fill</code>, <code>stroke</code></p>
+<p><code>color</code>, <code>background</code>, <code>background-color</code>, <code>border-color</code>, <code>fill</code>, <code>stroke</code>, <code>outline</code>, <code>outline-color</code>, <code>text-decoration-color</code>, <code>caret-color</code>, <code>accent-color</code>, and the <code>border</code> shorthands (<code>border</code>, <code>border-top</code> … <code>border-inline-end</code>)</p>
                                             </div>
                                         </td>
                                         <td>colour</td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>$primary</code> is <code>color-primary</code> (<code>primary</code>, <code>secondary</code>, <code>success</code>, <code>danger</code>, <code>warning</code>, <code>info</code>, <code>background</code>, <code>surface</code>, <code>text</code>, <code>border</code>)</p>
+<p><code>primary</code>, <code>secondary</code>, <code>success</code>, <code>danger</code>, <code>warning</code>, <code>info</code>, <code>background</code>, <code>surface</code>, <code>text</code>, <code>text-muted</code>, <code>border</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>$primary</code> is <code>color-primary</code></p>
                                             </div>
                                         </td>
                                     </tr>
@@ -1344,7 +1461,12 @@
                                         <td>font size</td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>$xl</code> is <code>font-size-xl</code> (<code>xs</code>, <code>sm</code>, <code>base</code>, <code>lg</code>, <code>xl</code>, <code>2xl</code>, <code>3xl</code>)</p>
+<p><code>xs</code>, <code>sm</code>, <code>base</code>, <code>lg</code>, <code>xl</code>, <code>2xl</code>, <code>3xl</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>$xl</code> is <code>font-size-xl</code></p>
                                             </div>
                                         </td>
                                     </tr>
@@ -1355,6 +1477,11 @@
                                             </div>
                                         </td>
                                         <td>line height</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>tight</code>, <code>normal</code>, <code>loose</code></p>
+                                            </div>
+                                        </td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>$tight</code> is <code>line-height-tight</code></p>
@@ -1370,6 +1497,11 @@
                                         <td>radius</td>
                                         <td>
                                             <div class="wf-markdown">
+<p><code>none</code>, <code>sm</code>, <code>md</code>, <code>lg</code>, <code>xl</code>, <code>full</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
 <p><code>$lg</code> is <code>radius-lg</code></p>
                                             </div>
                                         </td>
@@ -1381,6 +1513,11 @@
                                             </div>
                                         </td>
                                         <td>shadow</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>none</code>, <code>sm</code>, <code>md</code>, <code>lg</code>, <code>xl</code></p>
+                                            </div>
+                                        </td>
                                         <td>
                                             <div class="wf-markdown">
 <p><code>$md</code> is <code>shadow-md</code></p>
@@ -1396,6 +1533,11 @@
                                         <td>transition</td>
                                         <td>
                                             <div class="wf-markdown">
+<p><code>fast</code>, <code>normal</code>, <code>slow</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
 <p><code>$fast</code> is <code>transition-fast</code></p>
                                             </div>
                                         </td>
@@ -1403,6 +1545,7 @@
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
+<p>A short name your theme declares as a token of its own means that token, not the group's: with <code>md: 20px</code> in the theme, <code>$md</code> is <code>md</code> everywhere.</p>
 <p>A full name — <code>$color-text-muted</code>, <code>$spacing-lg</code>, a token of your own — works in any property.</p>
                             </div>
                         </div>
@@ -1421,6 +1564,7 @@
                 <div class="wf-stack wf-gap--lg wf-sac91c322" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
+                        <a class="wf-link wf-s3e136ca4" href="#reading-a-token">Reading a token</a>
                         <a class="wf-link wf-s3e136ca4" href="#the-baseline">The baseline</a>
                         <a class="wf-link wf-s3e136ca4" href="#short-names">Short names</a>
                     </div>

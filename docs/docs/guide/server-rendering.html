@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Server rendering</title>
-    <meta name="description" content="WebFluent as a template engine: wf render, the Rust API, the Node binding, HTML, fragment and PDF output, pages, themes and the data context.">
+    <meta name="description" content="Use WebFluent as a template engine: wf render, the Rust API and the Node binding, with HTML, fragment and PDF output, pages, themes and data.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/server-rendering">
     <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/server-rendering?lang=en">
     <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/server-rendering?lang=ar">
@@ -12,7 +12,7 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Server rendering">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="WebFluent as a template engine: wf render, the Rust API, the Node binding, HTML, fragment and PDF output, pages, themes and the data context.">
+    <meta property="og:description" content="Use WebFluent as a template engine: wf render, the Rust API and the Node binding, with HTML, fragment and PDF output, pages, themes and data.">
     <meta property="og:url" content="https://webfluent.monzeromer.dev/docs/guide/server-rendering">
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="ar_AR">
@@ -21,9 +21,9 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Server rendering">
-    <meta name="twitter:description" content="WebFluent as a template engine: wf render, the Rust API, the Node binding, HTML, fragment and PDF output, pages, themes and the data context.">
+    <meta name="twitter:description" content="Use WebFluent as a template engine: wf render, the Rust API and the Node binding, with HTML, fragment and PDF output, pages, themes and data.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/server-rendering#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/server-rendering","name":"Server rendering","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"WebFluent as a template engine: wf render, the Rust API, the Node binding, HTML, fragment and PDF output, pages, themes and the data context."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/server-rendering#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Server rendering","item":"https://webfluent.monzeromer.dev/docs/guide/server-rendering"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/server-rendering#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/server-rendering","name":"Server rendering","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Use WebFluent as a template engine: wf render, the Rust API and the Node binding, with HTML, fragment and PDF output, pages, themes and data."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/server-rendering#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Server rendering","item":"https://webfluent.monzeromer.dev/docs/guide/server-rendering"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -69,6 +69,9 @@
             </div>
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
+                    <a class="wf-sidebar__item" href="/docs">
+                        <p class="wf-text">Overview</p>
+                    </a>
                     <p class="wf-text group-label">Start</p>
                     <a class="wf-sidebar__item" href="/docs/guide/introduction">
                         <p class="wf-text num">01</p>
@@ -274,7 +277,7 @@
                 </aside>
                 <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
-                        <a class="wf-link" href="/docs/guide/introduction">Guide</a>
+                        <a class="wf-link" href="/docs">Guide</a>
                         <p class="wf-text">/</p>
                         <p class="wf-text wf-s8c71c534">Chapter 35</p>
                     </div>
@@ -285,11 +288,16 @@
                     <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
-<p>A WebFluent site is static files. When HTML has to be made on a server — an email, an invoice PDF per order, a fragment for an existing page — the same language renders a template with JSON data, from the command line, from Rust or from Node.</p>
+<p>This chapter shows you how to render a <code>.wf</code> template with JSON data on a server — an email, an invoice PDF per order, a fragment for an existing page — from the command line, from Rust or from Node.</p>
+<p>A WebFluent site is static files, and most projects need nothing more. When HTML or a PDF has to be made on a server for each request or each record, the same language works as a <em>template engine</em>: you hand it a template and data, and it hands back HTML or PDF bytes. Nothing runs in a browser afterwards.</p>
                             </div>
-                            <h2 class="wf-heading" id="a-template-and-its-data">A template and its data</h2>
+                            <h2 class="wf-heading" id="before-you-start">Before you start</h2>
                             <div class="wf-markdown">
-<p>A <code>.wf</code> file can be rendered with JSON data — an invoice, an email, a report — from the CLI or from Rust and Node. The data's top-level keys are in scope by name; the static subset of the language applies (no <code>state</code>, handlers, stores, <code>resource</code>, motion).</p>
+<p>You need the <code>wf</code> command installed (<a href="/docs/guide/getting-started#install">Getting started</a>). For the Rust API you need a Rust project; for the Node binding, Node.js and npm.</p>
+                            </div>
+                            <h2 class="wf-heading" id="write-a-template-and-its-data">Write a template and its data</h2>
+                            <div class="wf-markdown">
+<p>A template is a <code>.wf</code> file with a <code>page</code>. The data's top-level keys are in scope by name, so the template reads <code>number</code>, <code>customer</code> and <code>items</code> without declaring them. This invoice template shows a table of items and a badge for whether it is paid:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -298,24 +306,27 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Invoice(path: &quot;/&quot;, title: &quot;Invoice&quot;, description: &quot;An invoice.&quot;) {
-    Heading(&quot;Invoice #{number}&quot;).h1
-    Text(&quot;Bill to: {customer.name}&quot;)
-    Table {
-        Table.Head { Table.Row { Table.Cell(&quot;Item&quot;)  Table.Cell(&quot;Qty&quot;)  Table.Cell(&quot;Amount&quot;) } }
-        Table.Body {
-            for item in items {
-                Table.Row {
-                    Table.Cell(item.name)
-                    Table.Cell(&quot;{item.qty}&quot;)
-                    Table.Cell(format(item.price * item.qty, .currency))
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Invoice</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Invoice&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;An invoice.&quot;</span>) {
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Invoice #{number}&quot;</span>).h1
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Bill to: {customer.name}&quot;</span>)
+    <span class="wf-tok-name">Table</span> {
+        <span class="wf-tok-name">Table</span>.<span class="wf-tok-name">Head</span> { <span class="wf-tok-name">Table</span>.<span class="wf-tok-name">Row</span> { <span class="wf-tok-name">Table</span>.<span class="wf-tok-name">Cell</span>(<span class="wf-tok-str">&quot;Item&quot;</span>)  <span class="wf-tok-name">Table</span>.<span class="wf-tok-name">Cell</span>(<span class="wf-tok-str">&quot;Qty&quot;</span>)  <span class="wf-tok-name">Table</span>.<span class="wf-tok-name">Cell</span>(<span class="wf-tok-str">&quot;Amount&quot;</span>) } }
+        <span class="wf-tok-name">Table</span>.<span class="wf-tok-name">Body</span> {
+            <span class="wf-tok-kw">for</span> item <span class="wf-tok-kw">in</span> items {
+                <span class="wf-tok-name">Table</span>.<span class="wf-tok-name">Row</span> {
+                    <span class="wf-tok-name">Table</span>.<span class="wf-tok-name">Cell</span>(item.name)
+                    <span class="wf-tok-name">Table</span>.<span class="wf-tok-name">Cell</span>(<span class="wf-tok-str">&quot;{item.qty}&quot;</span>)
+                    <span class="wf-tok-name">Table</span>.<span class="wf-tok-name">Cell</span>(format(item.price * item.qty, .currency))
                 }
             }
         }
     }
-    if paid { Badge(&quot;Paid&quot;).success } else { Badge(&quot;Due&quot;).warning }
-    Text(&quot;Total: {format(total, .currency)}&quot;).bold.lg
+    <span class="wf-tok-kw">if</span> paid { <span class="wf-tok-name">Badge</span>(<span class="wf-tok-str">&quot;Paid&quot;</span>).success } <span class="wf-tok-kw">else</span> { <span class="wf-tok-name">Badge</span>(<span class="wf-tok-str">&quot;Due&quot;</span>).warning }
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Total: {format(total, .currency)}&quot;</span>).bold.lg
 }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The data is a JSON object, saved here as <code>invoice.json</code>:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -325,15 +336,22 @@
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{
-  &quot;number&quot;: &quot;INV-001&quot;,
-  &quot;customer&quot;: { &quot;name&quot;: &quot;Acme Corp&quot; },
-  &quot;items&quot;: [{ &quot;name&quot;: &quot;Widget&quot;, &quot;qty&quot;: 5, &quot;price&quot;: 9.99 }],
-  &quot;total&quot;: 49.95,
-  &quot;paid&quot;: false,
-  &quot;locale&quot;: &quot;en&quot;
+  <span class="wf-tok-prop">&quot;number&quot;</span>: <span class="wf-tok-str">&quot;INV-001&quot;</span>,
+  <span class="wf-tok-prop">&quot;customer&quot;</span>: { <span class="wf-tok-prop">&quot;name&quot;</span>: <span class="wf-tok-str">&quot;Acme Corp&quot;</span> },
+  <span class="wf-tok-prop">&quot;items&quot;</span>: [{ <span class="wf-tok-prop">&quot;name&quot;</span>: <span class="wf-tok-str">&quot;Widget&quot;</span>, <span class="wf-tok-prop">&quot;qty&quot;</span>: <span class="wf-tok-num">5</span>, <span class="wf-tok-prop">&quot;price&quot;</span>: <span class="wf-tok-num">9.99</span> }],
+  <span class="wf-tok-prop">&quot;total&quot;</span>: <span class="wf-tok-num">49.95</span>,
+  <span class="wf-tok-prop">&quot;paid&quot;</span>: <span class="wf-tok-kw">false</span>,
+  <span class="wf-tok-prop">&quot;locale&quot;</span>: <span class="wf-tok-str">&quot;en&quot;</span>
 }</code>
                             </div>
-                            <h3 class="wf-heading" id="from-the-command-line">From the command line</h3>
+                            <div class="wf-markdown">
+<p>Rendered, the page reads <code>Invoice #INV-001</code>, <code>Bill to: Acme Corp</code>, one table row (<code>Widget</code>, <code>5</code>, <code>$49.95</code>), the badge <code>Due</code> and <code>Total: $49.95</code>.</p>
+<p>A template uses the static subset of the language: no handlers, stores, <code>resource</code> or motion (see <a href="#what-a-template-may-use">What a template may use</a>).</p>
+                            </div>
+                            <h2 class="wf-heading" id="render-from-the-command-line">Render from the command line</h2>
+                            <div class="wf-markdown">
+<p>To render a template, run <code>wf render</code> with the template and its data:</p>
+                            </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -341,14 +359,108 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>wf render invoice.wf --data invoice.json --format html-fragment</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>--format</code> is <code>html</code> (a whole document with its CSS), <code>html-fragment</code> (the body only), <code>pdf</code> or <code>slides</code>; <code>-o file</code> writes instead of printing; <code>--theme Name</code> picks one of several <code>theme</code> declarations; <code>--token NAME=VALUE</code> sets a design token over the theme's; <code>--lang ar</code> sets the document's language; the data is read from stdin when <code>--data</code> is omitted. The template may be a directory — every <code>.wf</code> and <code>.wfx</code> under it as one, components shared — with <code>--page Name</code> choosing the page to render. A template that names a component nothing declares, or a flag a component does not take, is refused, as a build would refuse it.</p>
+<p>The command prints the markup to standard output. Its options:</p>
                             </div>
-                            <h3 class="wf-heading" id="from-rust">From Rust</h3>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Render from the command line</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Option</th>
+                                        <th scope="col">What it does</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>--data FILE</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The JSON data. When it is omitted, the data is read from standard input</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>--format</code>, <code>-f</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>html</code> (a whole document with its CSS; the default), <code>html-fragment</code> (the body only), <code>pdf</code> or <code>slides</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>-o FILE</code>, <code>--output</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Writes to a file instead of printing</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>--theme Name</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Picks one of several <code>theme</code> declarations</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>--token NAME=VALUE</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Sets a design token over the theme&#x27;s; repeat it for more</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>--lang ar</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Sets the document's language, <code>&lt;html lang&gt;</code> (default <code>en</code>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>--page Name</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Chooses the page to render when the template has several</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                             <div class="wf-markdown">
-<p>The template engine is the <code>webfluent</code> crate. Without the <code>wf</code> command's own dependencies (its argument parser and dev server):</p>
+<p>The template may also be a directory. Every <code>.wf</code> and <code>.wfx</code> file under it renders as one template, with components shared, and <code>--page Name</code> chooses the page. This command renders the <code>Invoice</code> page of <code>templates/</code> to a PDF, in Arabic:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>wf render templates/ --page Invoice --lang ar --data invoice.json --format pdf -o invoice.pdf</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A template that names a component nothing declares, or a flag a component does not take, is refused, as a build would refuse it.</p>
+                            </div>
+                            <h2 class="wf-heading" id="render-from-rust">Render from Rust</h2>
+                            <div class="wf-markdown">
+<p>The template engine is the <code>webfluent</code> crate. To use it without the <code>wf</code> command's own dependencies (its argument parser and dev server), turn off the default features:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -362,7 +474,7 @@ webfluent = { version = &quot;5&quot;, default-features = false }
 serde = { version = &quot;1&quot;, features = [&quot;derive&quot;] }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Load the templates once, at start-up; render on every request:</p>
+<p>Load the templates once, at start-up, and render on every request. This code loads a directory of templates and renders its <code>Invoice</code> page three ways:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -396,19 +508,198 @@ let pdf: Vec&lt;u8&gt; = templates
     .render_pdf(&amp;invoice)?;</code>
                             </div>
                             <div class="wf-markdown">
-<ul>
-<li><strong>Loading.</strong> <code>Template::from_str(source)</code>, <code>from_file(path)</code> (a <code>.wfx</code> file is read as its indented layout), <code>from_files(&amp;[..])</code>, <code>from_dir(dir)</code>, and <code>from_sources(&amp;[(name, source), ..])</code> for templates embedded in the binary with <code>include_str!</code>. Each parses and checks once; an error names the file and line. <code>pages()</code> lists the pages, <code>page(name)</code> picks one — without it, every page of the template renders.</li>
-<li><strong>Data</strong> is anything <code>serde</code> serializes: your own <code>#[derive(Serialize)]</code> structs, or a <code>serde_json::Value</code>. Its top-level fields are the names the template reads; a <code>const</code> and a <code>data</code> file are in scope too.</li>
-<li><strong>Output.</strong> <code>render_html</code> is a whole document: <code>&lt;html lang&gt;</code>, a <code>&lt;title&gt;</code> from the page's (its <code>{…}</code> filled from the data), the CSS in a <code>&lt;style&gt;</code> block. <code>render_html_parts</code> hands the CSS and the markup back separately, for a server that links its stylesheet and keeps a strict Content-Security-Policy. <code>render_html_fragment</code> is the markup alone; <code>render_pdf</code> and <code>render_slides</code> are PDF bytes, laid out by the paged engine of <a href="/docs/guide/pdf-and-slides">chapter 34</a>; <code>render_pdf_report</code> and <code>render_slides_report</code> return a <code>PdfReport</code> — the bytes, the page count, each page's text in reading order (for a test that holds a document to what it says) and the notes (a font taken from the machine, a character no font had). A template loaded from files reads its fonts from <code>fonts/</code> beside it, and its pictures from there too.</li>
-<li><strong>Settings.</strong> <code>with_theme(name)</code>, <code>with_tokens(&amp;[(name, value)])</code>, <code>with_lang(&quot;ar&quot;)</code> (an RTL language also sets <code>dir=&quot;rtl&quot;</code>), <code>with_pdf(PdfConfig { .. })</code> for page size, margins and fonts, and <code>with_slides(SlidesConfig { .. })</code>.</li>
-<li><strong>In a server.</strong> A <code>Template</code> is <code>Send + Sync</code> and cheap to clone — the parsed program is shared — so keep it in your framework's state (an <code>Arc</code>, or a clone per handler) and render from any thread. A render takes tens of microseconds.</li>
-<li><strong>Untrusted data.</strong> Every value the data supplies is escaped as text, and a URL from the data that a browser would run — <code>javascript:</code>, <code>data:</code> — is dropped from <code>href</code> and <code>src</code>, as the browser build drops it.</li>
-</ul>
-<p><code>cargo run --example invoice</code> in the repository renders a directory of templates to HTML, a fragment and a PDF.</p>
+<p>To try it, run <code>cargo run --example invoice</code> in the WebFluent repository. The example renders a directory of templates to HTML, a fragment and a PDF.</p>
                             </div>
-                            <h3 class="wf-heading" id="from-node">From Node</h3>
+                            <h3 class="wf-heading" id="load-templates">Load templates</h3>
                             <div class="wf-markdown">
-<p><code>npm install webfluent</code> — a small wrapper around <code>wf render</code>. It needs <code>wf</code> itself installed: it looks on <code>PATH</code>, in <code>~/.webfluent/bin</code> and <code>~/.cargo/bin</code>, or at <code>WF_BIN</code>. Its version is the compiler's.</p>
+<p>Each loader parses and checks the template once. An error names the file and the line.</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Load templates</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Loader</th>
+                                        <th scope="col">Reads</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Template::from_str(source)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>One template from a string</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Template::from_file(path)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>One file; a <code>.wfx</code> file is read in its indented layout</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Template::from_files(&amp;[..])</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Several files, as one template</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Template::from_dir(dir)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Every <code>.wf</code> and <code>.wfx</code> under a directory, as one template</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Template::from_sources(&amp;[(name, source), ..])</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Templates embedded in the binary with <code>include_str!</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p><code>pages()</code> lists the template's pages, and <code>page(name)</code> picks one. Without <code>page(name)</code>, every page of the template renders. A name the template does not have is an error that lists the pages it does have:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">no page called `Receipt`; the template has `Invoice`</code>
+                            </div>
+                            <h3 class="wf-heading" id="pass-data">Pass data</h3>
+                            <div class="wf-markdown">
+<p>The data is anything <code>serde</code> serializes: your own <code>#[derive(Serialize)]</code> structs, or a <code>serde_json::Value</code>. Its top-level fields are the names the template reads. A <code>const</code> and a <code>data</code> file are in scope too.</p>
+                            </div>
+                            <h3 class="wf-heading" id="choose-the-output">Choose the output</h3>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Choose the output</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Method</th>
+                                        <th scope="col">Returns</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>render_html</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A whole document: <code>&lt;html lang&gt;</code>, a <code>&lt;title&gt;</code> from the page's (its <code>{…}</code> filled from the data), and the CSS in a <code>&lt;style&gt;</code> block</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>render_html_parts</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The CSS and the markup separately, for a server that links its stylesheet and keeps a strict Content-Security-Policy</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>render_html_fragment</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The markup alone</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>render_pdf</code>, <code>render_slides</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>PDF bytes, laid out by the paged engine of <a href="/docs/guide/pdf-and-slides">PDF and slides</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>render_pdf_report</code>, <code>render_slides_report</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A <code>PdfReport</code>: the bytes, the page count, each page's text in reading order, and the notes (a font taken from the machine, a character no font had)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>A <code>PdfReport</code>'s page text lets a test hold a document to what it says. A template loaded from files reads its fonts from <code>fonts/</code> beside it, and its pictures from there too.</p>
+                            </div>
+                            <h3 class="wf-heading" id="configure-a-render">Configure a render</h3>
+                            <div class="wf-markdown">
+<p>Each setting returns the <code>Template</code>, so you can chain them before a render:</p>
+<ul>
+<li><code>with_theme(name)</code> picks a theme;</li>
+<li><code>with_tokens(&amp;[(name, value)])</code> sets design tokens over the theme's;</li>
+<li><code>with_lang(&quot;ar&quot;)</code> sets the language (a right-to-left language also sets <code>dir=&quot;rtl&quot;</code>);</li>
+<li><code>with_pdf(PdfConfig { .. })</code> sets page size, margins and fonts;</li>
+<li><code>with_slides(SlidesConfig { .. })</code> sets a deck's options.</li>
+</ul>
+                            </div>
+                            <h3 class="wf-heading" id="use-it-in-a-server">Use it in a server</h3>
+                            <div class="wf-markdown">
+<p>A <code>Template</code> is <code>Send + Sync</code> and cheap to clone, because the parsed program is shared. Keep it in your framework's state — an <code>Arc</code>, or a clone per handler — and render from any thread. A render takes tens of microseconds.</p>
+                            </div>
+                            <div class="wf-stack wf-gap--xs wf-s39f8973e callout" role="note" aria-label="Note" data-kind="note">
+                                <div class="wf-row wf-align--center wf-gap--xs callout-label">
+                                    <i class="wf-icon" data-icon="info"></i>
+                                    <p class="wf-text">Note</p>
+                                </div>
+                                <div class="wf-markdown">
+<p>Every value the data supplies is escaped as text. A URL from the data that a browser would run — <code>javascript:</code>, <code>data:</code> — is dropped from <code>href</code> and <code>src</code>, as the browser build drops it. An <code>Image</code>'s <code>src</code> keeps a picture carried in its address (<code>data:image/png;base64,…</code>), as the browser build keeps it.</p>
+                                </div>
+                            </div>
+                            <h2 class="wf-heading" id="render-from-node">Render from Node</h2>
+                            <div class="wf-markdown">
+<p>The Node binding is a small wrapper around <code>wf render</code>. Install it with npm:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>npm install webfluent</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The binding needs <code>wf</code> itself installed. It looks for it at <code>WF_BIN</code>, then on <code>PATH</code>, then in <code>~/.webfluent/bin</code> and <code>~/.cargo/bin</code> (and, outside Windows, <code>/usr/local/bin</code> and <code>/usr/bin</code>). Its version is the compiler's.</p>
+<p>This Express app renders an invoice as HTML and as a PDF:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -431,22 +722,185 @@ app.get(&quot;/invoices/:id.pdf&quot;, async (req, res) =&gt; {
 });</code>
                             </div>
                             <div class="wf-markdown">
-<p>Every render has a synchronous form (<code>renderHtml</code>, <code>renderHtmlFragment</code>, <code>renderPdf</code>, <code>renderSlides</code>) and an <code>…Async</code> one that does not block the event loop — use those in a server. <code>withTheme</code>, <code>withTokens</code> and <code>withLang</code> set what the Rust API sets. A render runs <code>wf</code> once, a few milliseconds; the data goes over stdin, so nothing is written to disk.</p>
-<p>A template may declare <code>type</code>s and a <code>theme</code> like any file; <code>data</code> files are read relative to the template. <code>format</code> and <code>ago</code> speak the data's <code>locale</code> when it has one, else English.</p>
+<p>Every render has a synchronous form (<code>renderHtml</code>, <code>renderHtmlFragment</code>, <code>renderPdf</code>, <code>renderSlides</code>) and an <code>…Async</code> form that does not block the event loop. Use the <code>…Async</code> forms in a server. <code>withTheme</code>, <code>withTokens</code> and <code>withLang</code> set what the Rust API sets.</p>
+<p>A render runs <code>wf</code> once and takes a few milliseconds. The data goes over standard input, so nothing is written to disk.</p>
                             </div>
                             <h2 class="wf-heading" id="what-a-template-may-use">What a template may use</h2>
                             <div class="wf-markdown">
-<p>The static subset of the language: every layout, typography and data-display element, <code>for</code> loops, <code>if</code>/<code>else</code>, string interpolation, <code>format</code> and <code>ago</code>, <code>style { }</code> blocks, flags, themes, <code>type</code>s, <code>const</code>s and components. A <code>state</code> is its first value and a <code>derived</code> value what that works out to — a page may work out its totals once, in order, and show them anywhere — and a value the data hands over wins over either. Not: <code>effect</code>, handlers, navigation, stores, animations, <code>resource</code> — there is no browser to run them in.</p>
+<p>A template uses the static subset of the language, because there is no browser to run the rest:</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">What a template may use</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Supported</th>
+                                        <th scope="col">Not supported</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Every layout, typography and data-display element</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>effect</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>for</code> loops, <code>if</code>/<code>else</code>, string interpolation</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Handlers (<code>on click</code>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>format</code> and <code>ago</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Navigation</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>style { }</code> blocks, flags, themes</p>
+                                            </div>
+                                        </td>
+                                        <td>Stores</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>type</code>s, <code>const</code>s, <code>data</code> files and components</p>
+                                            </div>
+                                        </td>
+                                        <td>Animations</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>state</code> and <code>derived</code> values (see below)</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>resource</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>A <code>state</code> is its first value, and a <code>derived</code> value is what that works out to. So a page may work out its totals once, in order, and show them anywhere. A value the data hands over wins over either.</p>
+<p>A template may declare <code>type</code>s and a <code>theme</code> like any file. <code>data</code> files are read relative to the template. <code>format</code> and <code>ago</code> speak the data's <code>locale</code> key when it has one, and English otherwise.</p>
 <p>A template may read private <code>env</code> names (<a href="/docs/guide/environments">Environments</a>): it runs on your server, where a secret stays secret.</p>
                             </div>
-                            <h2 class="wf-heading" id="uses">Uses</h2>
-                            <div class="wf-markdown">
-<ul>
-<li><strong>Email</strong>: render with <code>--format html</code>; inline the styles with your mailer if it needs them.</li>
-<li><strong>Invoices and reports</strong>: <code>--format pdf</code>, one per record, from a job queue.</li>
-<li><strong>Fragments</strong>: <code>--format html-fragment</code> for a piece of an existing page — an HTMX response, a CMS block.</li>
-</ul>
-                            </div>
+                            <h2 class="wf-heading" id="pick-an-output-for-the-job">Pick an output for the job</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Pick an output for the job</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Job</th>
+                                        <th scope="col">Output</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>An email</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>--format html</code>; inline the styles with your mailer if it needs them</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Invoices and reports</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>--format pdf</code>, one per record, from a job queue</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>A piece of an existing page — an HTMX response, a CMS block</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>--format html-fragment</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h2 class="wf-heading" id="troubleshooting">Troubleshooting</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Troubleshooting</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">What you see</th>
+                                        <th scope="col">What to do</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>The render fails with &quot;no page called …&quot;</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Pass one of the page names the message lists to <code>page(name)</code> or <code>--page</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>A render refuses a component or a flag</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Declare the component in the template's files, or use a flag the component takes — the same checks as <code>wf build</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>WebFluent CLI (wf) not found</code> from Node</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Install <code>wf</code>, or set <code>WF_BIN</code> to the binary's path</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A <code>{name}</code> renders empty</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The data has no top-level key <code>name</code>; check the JSON's spelling and nesting</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>format</code> writes the wrong language</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Add a <code>locale</code> key to the data</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                     <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
@@ -463,9 +917,14 @@ app.get(&quot;/invoices/:id.pdf&quot;, async (req, res) =&gt; {
                 <div class="wf-stack wf-gap--lg wf-sac91c322" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
-                        <a class="wf-link wf-s3e136ca4" href="#a-template-and-its-data">A template and its data</a>
+                        <a class="wf-link wf-s3e136ca4" href="#before-you-start">Before you start</a>
+                        <a class="wf-link wf-s3e136ca4" href="#write-a-template-and-its-data">Write a template and its data</a>
+                        <a class="wf-link wf-s3e136ca4" href="#render-from-the-command-line">Render from the command line</a>
+                        <a class="wf-link wf-s3e136ca4" href="#render-from-rust">Render from Rust</a>
+                        <a class="wf-link wf-s3e136ca4" href="#render-from-node">Render from Node</a>
                         <a class="wf-link wf-s3e136ca4" href="#what-a-template-may-use">What a template may use</a>
-                        <a class="wf-link wf-s3e136ca4" href="#uses">Uses</a>
+                        <a class="wf-link wf-s3e136ca4" href="#pick-an-output-for-the-job">Pick an output for the job</a>
+                        <a class="wf-link wf-s3e136ca4" href="#troubleshooting">Troubleshooting</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-s614f8b98">

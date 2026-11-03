@@ -23,7 +23,7 @@
     <meta name="twitter:title" content="Frame — Components reference">
     <meta name="twitter:description" content="One built-in element: its signature, props, flags, events and parts, from the compiler&#x27;s registry.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/reference/frame#webpage","url":"https://webfluent.monzeromer.dev/docs/reference/frame","name":"Frame — Components reference","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"One built-in element: its signature, props, flags, events and parts, from the compiler's registry."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/reference/frame#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Components reference","item":"https://webfluent.monzeromer.dev/docs/reference"},{"@type":"ListItem","position":4,"name":"Frame — Components reference","item":"https://webfluent.monzeromer.dev/docs/reference/frame"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/reference/frame#webpage","url":"https://webfluent.monzeromer.dev/docs/reference/frame","name":"Frame — Components reference","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"One built-in element: its signature, props, flags, events and parts, from the compiler's registry."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/reference/frame#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Components reference","item":"https://webfluent.monzeromer.dev/docs/reference"},{"@type":"ListItem","position":4,"name":"Frame — Components reference","item":"https://webfluent.monzeromer.dev/docs/reference/frame"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -152,6 +152,12 @@
                     <a class="wf-sidebar__item" href="/docs/reference/tooltip">
                         <p class="wf-text">Tooltip</p>
                     </a>
+                    <a class="wf-sidebar__item" href="/docs/reference/chart">
+                        <p class="wf-text">Chart</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/docs/reference/qrcode">
+                        <p class="wf-text">QrCode</p>
+                    </a>
                     <p class="wf-text group-label">Form</p>
                     <a class="wf-sidebar__item" href="/docs/reference/input">
                         <p class="wf-text">Input</p>
@@ -259,13 +265,6 @@
                     <a class="wf-sidebar__item" href="/docs/reference/blockquote">
                         <p class="wf-text">Blockquote</p>
                     </a>
-                    <p class="wf-text group-label">Data Display</p>
-                    <a class="wf-sidebar__item" href="/docs/reference/chart">
-                        <p class="wf-text">Chart</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/reference/qrcode">
-                        <p class="wf-text">QrCode</p>
-                    </a>
                     <p class="wf-text group-label">PDF</p>
                     <a class="wf-sidebar__item" href="/docs/reference/tableofcontents">
                         <p class="wf-text">TableOfContents</p>
@@ -330,15 +329,17 @@
                             <p class="wf-text pill pill-brand">Media</p>
                         </div>
                         <div class="wf-markdown wf-sa01f76ef">
-<p>Another page, shown inside this one: an <code>iframe</code>. <code>on message(m)</code> hears what that page posts to this one (<code>m.data</code>), and nothing any other page posts. Without <code>title:</code> it draws an <code>A17</code> warning: a frame is announced by its title.</p>
+<p>Another page, shown inside this one: an <code>iframe</code> — the page at <code>src:</code>, or the HTML <code>srcdoc:</code> gives it, sandboxed as <code>sandbox:</code> says. <code>on message(m)</code> hears what that page posts to this one (<code>m.data</code>), and nothing any other page posts. Without <code>title:</code> it draws an <code>A17</code> warning: a frame is announced by its title.</p>
                         </div>
-                        <code class="wf-code wf-code--block wf-s42a9213e"><span class="wf-tok-name">Frame</span>(<span class="wf-tok-prop">src</span>: …, <span class="wf-tok-prop">title</span>: …, <span class="wf-tok-prop">sandbox</span>: …)</code>
+                        <code class="wf-code wf-code--block wf-s42a9213e"><span class="wf-tok-name">Frame</span>(<span class="wf-tok-prop">src</span>: …, <span class="wf-tok-prop">srcdoc</span>: …, <span class="wf-tok-prop">title</span>: …)</code>
                         <p class="wf-text wf-s080a8452 overline">Example</p>
                         <code class="wf-code wf-code--block wf-s1235381a"><span class="wf-tok-name">Frame</span>(<span class="wf-tok-prop">src</span>: <span class="wf-tok-str">&quot;https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;The launch talk&quot;</span>, <span class="wf-tok-prop">allow</span>: <span class="wf-tok-str">&quot;fullscreen&quot;</span>)
 <span class="wf-tok-kw">state</span> heard = <span class="wf-tok-str">&quot;&quot;</span>
 <span class="wf-tok-name">Frame</span>(<span class="wf-tok-prop">src</span>: <span class="wf-tok-str">&quot;/preview/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Preview&quot;</span>, <span class="wf-tok-prop">sandbox</span>: <span class="wf-tok-str">&quot;allow-scripts&quot;</span>) {
     <span class="wf-tok-kw">on</span> message(m) { heard = m.data }
-}</code>
+}
+<span class="wf-tok-kw">state</span> version = <span class="wf-tok-num">1</span>
+<span class="wf-tok-name">Frame</span>(<span class="wf-tok-prop">srcdoc</span>: <span class="wf-tok-str">&quot;&lt;p&gt;Version {version}&lt;/p&gt;&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Example&quot;</span>, <span class="wf-tok-prop">sandbox</span>: <span class="wf-tok-str">&quot;&quot;</span>)</code>
                         <div class="wf-markdown wf-s4e367f57">
 <p>Renders with the class <code>wf-frame</code>, stable across releases, so a stylesheet may target it.</p>
                         </div>
@@ -365,6 +366,15 @@
                                     <td>
                                         <div class="wf-markdown">
 <p>The address of the page it shows</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>srcdoc:</td>
+                                    <td>String</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>The HTML it draws in place of an address, sandboxed as <code>sandbox:</code> says; a value that reads state draws the new HTML as it changes</p>
                                         </div>
                                     </td>
                                 </tr>

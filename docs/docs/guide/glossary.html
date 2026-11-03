@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Glossary</title>
-    <meta name="description" content="The terms this guide uses — signal, static paint, hydration, flag, part, slot, registry, scope and more — each in a sentence.">
+    <meta name="description" content="The terms this guide uses — state, signal, pre-rendered page, hydration, flag, part, slot, registry, scope and more — each in a sentence, with a link.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/glossary">
     <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/glossary?lang=en">
     <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/glossary?lang=ar">
@@ -12,7 +12,7 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Glossary">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="The terms this guide uses — signal, static paint, hydration, flag, part, slot, registry, scope and more — each in a sentence.">
+    <meta property="og:description" content="The terms this guide uses — state, signal, pre-rendered page, hydration, flag, part, slot, registry, scope and more — each in a sentence, with a link.">
     <meta property="og:url" content="https://webfluent.monzeromer.dev/docs/guide/glossary">
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="ar_AR">
@@ -21,9 +21,9 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Glossary">
-    <meta name="twitter:description" content="The terms this guide uses — signal, static paint, hydration, flag, part, slot, registry, scope and more — each in a sentence.">
+    <meta name="twitter:description" content="The terms this guide uses — state, signal, pre-rendered page, hydration, flag, part, slot, registry, scope and more — each in a sentence, with a link.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/glossary#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/glossary","name":"Glossary","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"The terms this guide uses — signal, static paint, hydration, flag, part, slot, registry, scope and more — each in a sentence."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/glossary#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Glossary","item":"https://webfluent.monzeromer.dev/docs/guide/glossary"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/glossary#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/glossary","name":"Glossary","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"The terms this guide uses — state, signal, pre-rendered page, hydration, flag, part, slot, registry, scope and more — each in a sentence, with a link."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/glossary#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Glossary","item":"https://webfluent.monzeromer.dev/docs/guide/glossary"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -69,6 +69,9 @@
             </div>
             <div class="wf-row wf-align--stretch wf-s8fba8729">
                 <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
+                    <a class="wf-sidebar__item" href="/docs">
+                        <p class="wf-text">Overview</p>
+                    </a>
                     <p class="wf-text group-label">Start</p>
                     <a class="wf-sidebar__item" href="/docs/guide/introduction">
                         <p class="wf-text num">01</p>
@@ -274,7 +277,7 @@
                 </aside>
                 <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
-                        <a class="wf-link" href="/docs/guide/introduction">Guide</a>
+                        <a class="wf-link" href="/docs">Guide</a>
                         <p class="wf-text">/</p>
                         <p class="wf-text wf-s8c71c534">Chapter 48</p>
                     </div>
@@ -285,36 +288,54 @@
                     <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
-<p><strong>Action.</strong> A named function of a page, component or store, whose body does things: <code>action add() { … }</code>. <a href="/docs/guide/state#actions-and-locals">Chapter 8</a>.</p>
-<p><strong>App shell.</strong> The <code>app { }</code> declaration: what every page renders inside, with a <code>Router</code> where the page goes. <a href="/docs/guide/pages-and-routing#the-app-shell">Chapter 6</a>.</p>
-<p><strong>Block.</strong> The <code>{ … }</code> after an element: its style, handlers, slot fills and children, in that order. <a href="/docs/guide/elements">Chapter 7</a>.</p>
-<p><strong>Built-in.</strong> An element the language provides, such as <code>Button</code> or <code>Card</code>, known to the compiler through the registry. <a href="/docs/reference">Components</a>.</p>
-<p><strong>Case.</strong> One value of an <code>enum</code>, written with a dot: <code>.primary</code>, <code>.failed(&quot;x&quot;)</code>. <a href="/docs/guide/types#enums">Chapter 13</a>.</p>
-<p><strong>Chunk.</strong> A page's own script and stylesheet, written separately and loaded when its route first shows (<code>build.split</code>).</p>
-<p><strong>Component.</strong> An element you declare, with typed props, events, slots and parts: <code>component UserCard(…) { … }</code>. <a href="/docs/guide/components">Chapter 11</a>.</p>
-<p><strong>Declaration.</strong> A top-level statement of a file: <code>page</code>, <code>component</code>, <code>store</code>, <code>theme</code>, <code>app</code>, <code>type</code>, <code>enum</code>, <code>api</code>, <code>const</code>, <code>data</code>, <code>image</code>, <code>animation</code> or <code>test</code>. <a href="/docs/guide/language-basics">Chapter 5</a>.</p>
-<p><strong>Derived.</strong> A value computed from state, recomputed when what it read changes: <code>derived total = …</code>.</p>
-<p><strong>Design token.</strong> A named value a theme sets and every built-in reads, written <code>$name</code> in a style. <a href="/docs/guide/tokens">Chapter 42</a>.</p>
-<p><strong>Effect.</strong> Code that runs when a page shows and again when a state it read changes, with a <code>cleanup { }</code> for what it set up.</p>
-<p><strong>Flag.</strong> A word after a dot that sets a <code>Bool</code> prop or picks an enum case: <code>Button(&quot;Save&quot;).primary.lg</code>. <a href="/docs/guide/elements#props-cases-and-flags">Chapter 7</a>.</p>
-<p><strong>Handler.</strong> <code>on click { … }</code> — code run when an event happens. <a href="/docs/guide/events">Chapter 9</a>.</p>
-<p><strong>Hydration.</strong> The script taking over a pre-rendered page in place, without drawing it again. <a href="/docs/guide/static-and-spa#hydration">Chapter 26</a>.</p>
-<p><strong>Imperative block.</strong> The body of an action, handler or effect: statements that do things. Its opposite is a render block.</p>
-<p><strong>Part.</strong> A sub-element called under its owner's name: <code>Card.Header</code>, <code>Panel.Footer</code>. <a href="/docs/guide/components#parts">Chapter 11</a>.</p>
-<p><strong>Persist.</strong> A state kept in the browser's storage across visits. <a href="/docs/guide/stores#keeping-a-value-across-visits">Chapter 12</a>.</p>
-<p><strong>Positional argument.</strong> The one value an element takes without a name — a button's label, a heading's text.</p>
-<p><strong>Project script.</strong> A <code>.js</code> file under <code>src/</code>: a plain browser script, linked on every page as written, whose top-level names <code>.wf</code> code calls directly. <a href="/docs/guide/interop">Chapter 32</a>.</p>
-<p><strong>Registry.</strong> The compiler's table of every built-in's props, cases, flags, events, slots and parts; the checker, the linters, the editor and the reference all read it. <code>wf registry --json</code> prints it.</p>
-<p><strong>Render block.</strong> The body of a page, component or element: what to show, and the state behind it.</p>
-<p><strong>Resource.</strong> A request a page makes and a <code>match</code> shows: <code>resource rows = …</code>. <a href="/docs/guide/data">Chapter 17</a>.</p>
-<p><strong>Runtime.</strong> The JavaScript at the head of <code>app.js</code> that compiled pages call, reachable as <code>window.WF</code>. <a href="/docs/guide/runtime">Chapter 43</a>.</p>
-<p><strong>Scope.</strong> What owns the effects, timers and connections created inside it — a page, a branch, a list item — and disposes of them when it leaves.</p>
-<p><strong>Signal.</strong> A reactive value: what <code>state</code> is. Whatever reads it follows it.</p>
-<p><strong>Slot.</strong> A place in a component its caller fills: the default slot (<code>children</code>), a named slot, or a scoped slot that hands values to its fill. <a href="/docs/guide/components#slots">Chapter 11</a>.</p>
-<p><strong>Static paint.</strong> The HTML the build pre-renders for a page, from everything it can know at build time. <a href="/docs/guide/static-and-spa#what-the-static-paint-knows">Chapter 26</a>.</p>
-<p><strong>Store.</strong> Shared state with actions, built the first time something reads it. <a href="/docs/guide/stores">Chapter 12</a>.</p>
-<p><strong>Theme.</strong> A <code>theme</code> declaration: the design tokens it changes. <a href="/docs/guide/styling">Chapter 15</a>.</p>
-<p><strong><code>.wfx</code>.</strong> A source file whose blocks are written by indentation instead of braces. <a href="/docs/guide/language-basics#two-layouts-wf-and-wfx">Chapter 5</a>.</p>
+<p>This glossary defines the words this guide uses, in alphabetical order. Each entry is one sentence, with a link to the chapter that explains the idea. The guide uses each term in the same sense every time.</p>
+<p><strong>Action.</strong> A named function of a page, component or store whose body changes state or does other work: <code>action add() { … }</code> (<a href="/docs/guide/state#actions-and-locals">State and reactivity</a>).</p>
+<p><strong>App shell.</strong> The <code>app { }</code> declaration: what every page is drawn inside, with a <code>Router</code> where the current page goes (<a href="/docs/guide/pages-and-routing#the-app-shell">Pages and routing</a>).</p>
+<p><strong>Block.</strong> The <code>{ … }</code> after an element, holding its style, transitions, handlers, slot fills and children, in that order (<a href="/docs/guide/elements#the-call-shape">Elements</a>).</p>
+<p><strong>Built-in.</strong> An element the language provides, such as <code>Button</code> or <code>Card</code>, which the compiler knows through the registry (<a href="/docs/reference">Components reference</a>).</p>
+<p><strong>Case.</strong> One value of an <code>enum</code>, written with a dot: <code>.primary</code>, <code>.failed(&quot;x&quot;)</code> (<a href="/docs/guide/types#enums">Types</a>).</p>
+<p><strong>Chunk.</strong> A page's own script and stylesheet, written to their own files and loaded the first time the page's route shows, when <code>build.split</code> is on (<a href="/docs/guide/config#build">Configuration</a>).</p>
+<p><strong>Component.</strong> An element you declare, with typed props, events, slots and parts: <code>component UserCard(…) { … }</code> (<a href="/docs/guide/components">Components</a>).</p>
+<p><strong>Declaration.</strong> A top-level statement of a file: <code>page</code>, <code>component</code>, <code>store</code>, <code>theme</code>, <code>app</code>, <code>type</code>, <code>enum</code>, <code>api</code>, <code>const</code>, <code>data</code>, <code>image</code>, <code>animation</code> or <code>test</code> (<a href="/docs/guide/language-basics#declarations">Language basics</a>).</p>
+<p><strong>Derived value.</strong> A value worked out from state and worked out again when what it reads changes: <code>derived total = …</code> (<a href="/docs/guide/state#derived">State and reactivity</a>).</p>
+<p><strong>Design token.</strong> A named value that a theme sets and every built-in reads, written <code>$name</code> in a style block and <code>var(--name)</code> in a stylesheet (<a href="/docs/guide/tokens">Design tokens</a>).</p>
+<p><strong>Diagnostic.</strong> A finding the compiler reports, with a code such as <code>T05</code>, a severity, a place and, where it is known, a fix; also called a <em>finding</em> (<a href="/docs/guide/diagnostics">Diagnostics</a>).</p>
+<p><strong>Effect.</strong> Code that runs when its page shows and again when a state it read changes, with a <code>cleanup { }</code> for what it set up (<a href="/docs/guide/state#effect">State and reactivity</a>).</p>
+<p><strong>Element.</strong> Anything a page draws by a capitalised name — a built-in such as <code>Button</code>, or a component of your own (<a href="/docs/guide/elements">Elements</a>).</p>
+<p><strong>Enum.</strong> A type with a fixed set of cases, declared <code>enum Tone { calm, loud }</code> (<a href="/docs/guide/types#enums">Types</a>).</p>
+<p><strong>Event.</strong> Something that happens — a click, a key, or an event a component declares and fires with <code>emit</code> — that a handler answers (<a href="/docs/guide/events">Events</a>).</p>
+<p><strong>Flag.</strong> A word after a dot that sets a <code>Bool</code> prop or picks an enum case: <code>Button(&quot;Save&quot;).primary.lg</code> (<a href="/docs/guide/elements#props-cases-and-flags">Elements</a>).</p>
+<p><strong>Handler.</strong> Code run when an event happens, written <code>on click { … }</code> (<a href="/docs/guide/events#handlers">Events</a>).</p>
+<p><strong>Hydration.</strong> The script taking over a pre-rendered page in place, without drawing it again (<a href="/docs/guide/static-and-spa#hydration">Static sites and SPAs</a>).</p>
+<p><strong>Imperative block.</strong> The body of an action, handler or effect, made of statements that do things; the opposite of a render block (<a href="/docs/guide/language-basics#bodies">Language basics</a>).</p>
+<p><strong>Layout.</strong> A component a page names with <code>layout:</code> to frame it, which draws the page in its default slot (<a href="/docs/guide/pages-and-routing#layouts">Pages and routing</a>).</p>
+<p><strong>Lint.</strong> A rule the compiler checks beyond whether the program can work, such as an accessibility rule or an unused-value rule; the <code>lints</code> setting changes what any finding counts as (<a href="/docs/guide/config#lints">Configuration</a>).</p>
+<p><strong>Page.</strong> A declaration with a <code>path:</code> that the router draws when the address matches it: <code>page Home(path: &quot;/&quot;) { … }</code> (<a href="/docs/guide/pages-and-routing#declaring-a-page">Pages and routing</a>).</p>
+<p><strong>Part.</strong> A sub-element called under its owner's name: <code>Card.Header</code>, <code>Panel.Footer</code> (<a href="/docs/guide/components#parts">Components</a>).</p>
+<p><strong>Persist.</strong> A state kept in the browser's storage across visits: <code>persist scheme = &quot;light&quot;</code> (<a href="/docs/guide/stores#keeping-a-value-across-visits">Stores</a>).</p>
+<p><strong>Positional argument.</strong> The one value an element takes without a name, such as a button's label or a heading's text (<a href="/docs/guide/elements#the-call-shape">Elements</a>).</p>
+<p><strong>Pre-rendered page.</strong> The HTML the build writes for a page from everything it can know at build time, shown before any script runs; also called the <em>static paint</em> (<a href="/docs/guide/static-and-spa#what-the-static-paint-knows">Static sites and SPAs</a>).</p>
+<p><strong>Project script.</strong> A <code>.js</code> file under <code>src/</code>: a plain browser script, linked on every page as written, whose top-level names <code>.wf</code> code calls directly (<a href="/docs/guide/interop#call-your-own-script">JavaScript interop</a>).</p>
+<p><strong>Prop.</strong> A value a component or built-in takes, passed by name — or, for the one marked <code>_</code>, by position (<a href="/docs/guide/components#props">Components</a>).</p>
+<p><strong>Registry.</strong> The compiler's table of every built-in's props, cases, flags, events, slots and parts, which the checker, the linters, the editor and the reference all read; <code>wf registry --json</code> prints it (<a href="/docs/guide/cli">Command line</a>).</p>
+<p><strong>Render block.</strong> The body of a page, component or element, which describes what to show and the state behind it (<a href="/docs/guide/language-basics#bodies">Language basics</a>).</p>
+<p><strong>Resource.</strong> A request a page makes, whose loading, error and ready states a <code>match</code> shows: <code>resource rows = fetch(…)</code> (<a href="/docs/guide/data#show-a-request-with-resource">Data</a>).</p>
+<p><strong>Route parameter.</strong> A <code>:name</code> segment of a page's path, which the page declares as a typed parameter: <code>page User(path: &quot;/user/:id&quot;, id: String)</code> (<a href="/docs/guide/pages-and-routing#route-parameters">Pages and routing</a>).</p>
+<p><strong>Runtime.</strong> The JavaScript at the head of <code>app.js</code> that the compiled pages call, reachable as <code>window.WF</code> (<a href="/docs/guide/runtime">Runtime API</a>).</p>
+<p><strong>Scope.</strong> What owns the effects, timers and connections created inside it — a page, a branch, a list item — and disposes of them when it leaves (<a href="/docs/guide/state#automatic-clean-up">State and reactivity</a>).</p>
+<p><strong>Signal.</strong> A reactive value, which is what a <code>state</code> is underneath: whatever reads it updates when it changes (<a href="/docs/guide/runtime#state">Runtime API</a>).</p>
+<p><strong>Single-page app (SPA).</strong> A build with one HTML shell, whose pages the script swaps without a reload (<a href="/docs/guide/static-and-spa#two-shapes-of-build">Static sites and SPAs</a>).</p>
+<p><strong>Slot.</strong> A place in a component that its caller fills: the default slot (<code>children</code>), a named slot, or a scoped slot that hands values to its fill (<a href="/docs/guide/components#slots">Components</a>).</p>
+<p><strong>Snapshot.</strong> The HTML a test drew, kept under <code>tests/__snapshots__/</code> and compared on every later run (<a href="/docs/guide/testing#snapshots">Testing</a>).</p>
+<p><strong>State.</strong> A value of a page, component or store that the page shows and that changes: <code>state count = 0</code> (<a href="/docs/guide/state#state">State and reactivity</a>).</p>
+<p><strong>Static build.</strong> A build with <code>build.ssg: true</code>, which writes a pre-rendered HTML file for every page (<a href="/docs/guide/static-and-spa#two-shapes-of-build">Static sites and SPAs</a>).</p>
+<p><strong>Static paint.</strong> Another name for the pre-rendered page: the HTML the build writes for a page before any script runs (<a href="/docs/guide/static-and-spa#what-the-static-paint-knows">Static sites and SPAs</a>).</p>
+<p><strong>Store.</strong> Shared state with actions, built the first time something reads it (<a href="/docs/guide/stores">Stores</a>).</p>
+<p><strong>Template engine.</strong> WebFluent used from a server, through <code>wf render</code>, Rust or Node, to render a <code>.wf</code> template with JSON data to HTML or PDF (<a href="/docs/guide/server-rendering">Server rendering</a>).</p>
+<p><strong>Theme.</strong> A <code>theme</code> declaration: the design tokens it changes from the baseline (<a href="/docs/guide/styling">Styling</a>).</p>
+<p><strong>Type.</strong> A record declared with <code>type</code>, or any of the types a value can have, which the checker holds every use to (<a href="/docs/guide/types">Types</a>).</p>
+<p><strong>Validate block.</strong> A <code>validate x { … }</code> block beside a state, whose rules the control bound to that state shows (<a href="/docs/guide/forms#validate-a-field">Forms</a>).</p>
+<p><strong><code>.wfx</code>.</strong> A source file whose blocks are written by indentation instead of braces (<a href="/docs/guide/language-basics#two-layouts-wf-and-wfx">Language basics</a>).</p>
                             </div>
                         </div>
                     </div>

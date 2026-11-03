@@ -288,20 +288,20 @@
                             </div>
                             <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                         </div>
-                        <code class="wf-code wf-code--block wf-sa8223565">page Home(path: &quot;/&quot;) {
-    state open = true
-    Row(gap: .sm) {
-        style {
-            padding: 6px 0
-            &amp;:hover { background: $surface-hover }
+                        <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Home</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>) {
+    <span class="wf-tok-kw">state</span> open = <span class="wf-tok-kw">true</span>
+    <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">gap</span>: .sm) {
+        <span class="wf-tok-kw">style</span> {
+            <span class="wf-tok-prop">padding</span>: <span class="wf-tok-num">6px</span> <span class="wf-tok-num">0</span>
+            &amp;:hover { <span class="wf-tok-prop">background</span>: <span class="wf-tok-tok">$surface-hover</span> }
         }
-        on click { open = !open }
-        Text(&quot;a&quot;).bold
+        <span class="wf-tok-kw">on</span> click { open = !open }
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;a&quot;</span>).bold
     }
-    if open {
-        Spinner
-    } else {
-        Text(&quot;b&quot;)
+    <span class="wf-tok-kw">if</span> open {
+        <span class="wf-tok-name">Spinner</span>
+    } <span class="wf-tok-kw">else</span> {
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;b&quot;</span>)
     }
 }</code>
                     </div>
@@ -313,19 +313,19 @@
                             </div>
                             <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wfx" type="button">Copy</button>
                         </div>
-                        <code class="wf-code wf-code--block wf-sa8223565">page Home(path: &quot;/&quot;)
-    state open = true
-    Row(gap: .sm)
-        style
-            padding: 6px 0
+                        <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Home</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>)
+    <span class="wf-tok-kw">state</span> open = <span class="wf-tok-kw">true</span>
+    <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">gap</span>: .sm)
+        <span class="wf-tok-kw">style</span>
+            <span class="wf-tok-prop">padding</span>: <span class="wf-tok-num">6px</span> <span class="wf-tok-num">0</span>
             &amp;:hover
-                background: $surface-hover
-        on click { open = !open }
-        Text(&quot;a&quot;).bold
-    if open
-        Spinner
-    else
-        Text(&quot;b&quot;)</code>
+                <span class="wf-tok-prop">background</span>: <span class="wf-tok-tok">$surface-hover</span>
+        <span class="wf-tok-kw">on</span> click { open = !open }
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;a&quot;</span>).bold
+    <span class="wf-tok-kw">if</span> open
+        <span class="wf-tok-name">Spinner</span>
+    <span class="wf-tok-kw">else</span>
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;b&quot;</span>)</code>
                     </div>
                 </div>
             </div>
@@ -385,7 +385,9 @@
                                 </div>
                                 <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                             </div>
-                            <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>wf init hello
+<span class="wf-tok-prompt">$ </span>cd hello
+<span class="wf-tok-prompt">$ </span>wf serve</code>
                         </div>
                         <div class="wf-markdown wf-sbd44f14b">
 <p>Templates: <code>-t spa</code> · <code>-t static</code> · <code>-t pdf</code> · <code>-t slides</code></p>

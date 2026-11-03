@@ -1,22 +1,31 @@
 /// Chapter 3 of the guide, written from md-docs/03-tutorial.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page TutorialGuide(path: "/docs/guide/tutorial", title: "Tutorial", description: "A step-by-step tutorial: build a reading-list site with WebFluent, test it, and deploy it to GitHub Pages.", layout: DocsShell("Tutorial", chapter: t("guide.chapter", { n: "3" }), blurb: "Build a small, complete site — data, components, a store, a form, a theme, a test — and put it on the web.", source: "md-docs/03-tutorial.md", sections: [Anchor(id: "step-1-a-project", label: "Step 1: a project"), Anchor(id: "step-2-the-data", label: "Step 2: the data"), Anchor(id: "step-3-a-component", label: "Step 3: a component"), Anchor(id: "step-4-the-reader-s-shelf", label: "Step 4: the reader's shelf"), Anchor(id: "step-5-pages", label: "Step 5: pages"), Anchor(id: "step-6-a-form", label: "Step 6: a form"), Anchor(id: "step-7-a-look-of-its-own", label: "Step 7: a look of its own"), Anchor(id: "step-8-a-test", label: "Step 8: a test"), Anchor(id: "step-9-build-and-check", label: "Step 9: build and check"), Anchor(id: "step-10-deploy", label: "Step 10: deploy"), Anchor(id: "the-whole-program", label: "The whole program"), Anchor(id: "where-to-go-from-here", label: "Where to go from here")], prevTo: "/docs/guide/getting-started", prevLabel: "2. {t("ch.02")}", nextTo: "/docs/guide/coming-from", nextLabel: "4. {t("ch.04")}")) {
+page TutorialGuide(path: "/docs/guide/tutorial", title: "Tutorial", description: "A step-by-step tutorial: build a reading-list site with WebFluent, test it, and deploy it to GitHub Pages.", layout: DocsShell("Tutorial", chapter: t("guide.chapter", { n: "3" }), blurb: "Build a small, complete site — data, components, a store, a form, a theme, a test — and put it on the web.", source: "md-docs/03-tutorial.md", sections: [Anchor(id: "what-you-will-build", label: "What you will build"), Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "step-1-create-the-project", label: "Step 1: Create the project"), Anchor(id: "step-2-describe-the-books", label: "Step 2: Describe the books"), Anchor(id: "step-3-keep-the-reader-s-shelf-in-a-store", label: "Step 3: Keep the reader's shelf in a store"), Anchor(id: "step-4-show-a-book-with-a-component", label: "Step 4: Show a book with a component"), Anchor(id: "step-5-add-the-home-page-and-a-page-per-book", label: "Step 5: Add the home page and a page per book"), Anchor(id: "step-6-add-the-shelf-page-and-the-site-s-shell", label: "Step 6: Add the shelf page and the site's shell"), Anchor(id: "step-7-add-a-form-to-suggest-a-book", label: "Step 7: Add a form to suggest a book"), Anchor(id: "step-8-give-the-site-a-theme", label: "Step 8: Give the site a theme"), Anchor(id: "step-9-test-the-book-card", label: "Step 9: Test the book card"), Anchor(id: "step-10-build-and-verify-the-site", label: "Step 10: Build and verify the site"), Anchor(id: "step-11-deploy-to-github-pages", label: "Step 11: Deploy to GitHub Pages"), Anchor(id: "the-whole-program", label: "The whole program"), Anchor(id: "what-you-built", label: "What you built")], prevTo: "/docs/guide/getting-started", prevLabel: "2. {t("ch.02")}", nextTo: "/docs/guide/coming-from", nextLabel: "4. {t("ch.04")}")) {
     Stack(gap: .lg) {
-        Markdown("In this chapter you build **Shelf**, a small site that lists books worth reading and lets a reader keep the ones they want. Along the way you use most of what a real site needs: typed data read at build time, a reusable component, a page per book, a store the reader's choices are kept in, a validated form, a theme with a dark mode, a test that clicks, and a deploy.\n\nEach step says what to write and why, and links the chapter that covers the idea in depth. It takes about half an hour.\n\nYou need `wf` installed ([Getting started](/docs/guide/getting-started)).")
+        Markdown("In this tutorial you build **Shelf**, a small site that lists books worth reading and lets a reader keep the ones they want. Each step adds one piece, and ends with what you should see.")
 
-        Heading("Step 1: a project", id: "step-1-a-project").h2
+        Heading("What you will build", id: "what-you-will-build").h2
+
+        Markdown("Shelf has a home page that lists books with a search box, a page for each book, a **Your shelf** page with the books the reader saved, a form to suggest a book, a theme with a dark mode, a test that clicks, and a deploy to GitHub Pages.\n\nAlong the way you use most of what a real site needs: typed data read at build time, a reusable component, a page per book, a store that keeps the reader's choices, a validated form, a theme, a test and a deploy. Each step links the chapter that covers its idea in depth.\n\nIt takes about half an hour, plus the deploy.")
+
+        Heading("Before you start", id: "before-you-start").h2
+
+        Markdown("You need:\n\n- `wf` installed and on your `PATH` ([Getting started](/docs/guide/getting-started)). On Windows, type `webfluent` where this tutorial types `wf`.\n- Chrome or Chromium on the machine, for the test that clicks ([step 9](#step-9-test-the-book-card)) and for `wf verify` ([step 10](#step-10-build-and-verify-the-site)). If it is installed somewhere unusual, point the `WF_CHROME` environment variable at it.\n- For the deploy, a GitHub account and a repository called `shelf`.\n\nYou do not need to know WebFluent yet.")
+
+        Heading("Step 1: Create the project", id: "step-1-create-the-project").h2
+
+        Markdown("Start from the `static` template, which pre-renders every page to HTML — right for a site people find through search:")
 
         Terminal(lines: [
                 Line(command: "wf init shelf -t static"),
                 Line(command: "cd shelf")
             ])
 
-        Markdown("The `static` template pre-renders every page to HTML — right for a site people find through search. Delete what the template put in `src/`; you will write every file yourself. Replace `webfluent.app.json` with:")
+        Markdown("You write every file yourself, so delete what the template put in `src/` and its tests under `tests/` (they test the starter's pages). Then replace `webfluent.app.json` with:")
 
         CodeBlock(#"{
   "name": "shelf",
   "build": { "ssg": true, "csp": true },
-  "theme": { "name": "Paper", "dark": "Ink" },
   "meta": {
     "title": "Shelf",
     "description": "Books worth reading, and the ones you want to.",
@@ -24,9 +33,9 @@ page TutorialGuide(path: "/docs/guide/tutorial", title: "Tutorial", description:
   }
 }"#, title: "json")
 
-        Markdown("`ssg` pre-renders; `csp` ships a Content-Security-Policy and makes the build check its own output against it; `theme` names the themes you will declare in step 7. [Configuration](/docs/guide/config) lists every key.")
+        Markdown("`ssg` pre-renders each page. `csp` ships a Content-Security-Policy and makes the build check its own output against it. [Configuration](/docs/guide/config) lists every key.\n\n**Check it:** run `wf check`. It prints `No .wf files found in src/` — correct, because `src/` is empty until the next step.")
 
-        Heading("Step 2: the data", id: "step-2-the-data").h2
+        Heading("Step 2: Describe the books", id: "step-2-describe-the-books").h2
 
         Markdown("The books are data, not code. Put them in `src/books.json`:")
 
@@ -45,15 +54,35 @@ page TutorialGuide(path: "/docs/guide/tutorial", title: "Tutorial", description:
     "tags": ["design", "architecture"] }
 ]"#, title: "json")
 
-        Markdown("Then describe it, in `src/types.wf`:")
+        Markdown("Then describe the data's shape and read the file, in `src/types.wf`:")
 
         CodeBlock("/// One book on the list.\ntype Book \{\n    slug: String\n    title: String\n    author: String\n    year: Number\n    pages: Number\n    summary: String\n    tags: [String] = []\n\}\n\ndata books: [Book] = \"books.json\"", title: "wf")
 
-        Markdown("`type Book` is a record the type checker holds every use to: `book.titel` is an error where you write it. `data books` reads the file **at build time** and makes it a constant every page can read — nothing is fetched when the page loads. ([Types](/docs/guide/types), [Data](/docs/guide/data#data-a-file-at-build-time).)")
+        Markdown("`type Book` is a record that the type checker holds every use to: writing `book.titel` is an error where you write it. `data books` reads the file **at build time** and makes it a constant every page can read, so nothing is fetched when the page loads. ([Types](/docs/guide/types), [Data](/docs/guide/data#read-a-file-at-build-time-with-data).)\n\n**Check it:** run `wf check`. It prints `No problems in shelf.`")
 
-        Heading("Step 3: a component", id: "step-3-a-component").h2
+        Heading("Step 3: Keep the reader's shelf in a store", id: "step-3-keep-the-reader-s-shelf-in-a-store").h2
 
-        Markdown("Every book is shown the same way, so it is a component. `src/components/BookCard.wf`:")
+        Markdown("What the reader keeps must survive a reload and be the same on every page, so it goes in a store, with its value kept by `persist`. Create `src/stores/Shelf.wf`:")
+
+        CodeBlock(#"/// The books the reader wants to read, kept across visits.
+store Shelf {
+    persist saved: [String] = []
+    derived count = saved.length
+
+    action toggle(slug: String) {
+        if saved.includes(slug) {
+            saved = saved.filter(s => s != slug)
+        } else {
+            saved = [...saved, slug]
+        }
+    }
+}"#, title: "wf")
+
+        Markdown("`persist` is a `state` that is kept in the browser's storage and read back on the next visit; a change made in another tab arrives here too. `derived count` recomputes whenever `saved` changes. ([Stores](/docs/guide/stores).)\n\n**Check it:** run `wf check`. It prints two `U04` warnings: `` `Shelf.count` is declared but never read `` and the same for `Shelf.toggle`. Nothing uses the store yet; the next steps do, and the warnings go away.")
+
+        Heading("Step 4: Show a book with a component", id: "step-4-show-a-book-with-a-component").h2
+
+        Markdown("Every book is shown the same way, so it is a component. Create `src/components/BookCard.wf`:")
 
         CodeBlock(#"// … reads what the other steps declare
 /// A book at a glance, with the button that puts it on the shelf.
@@ -74,47 +103,11 @@ component BookCard(_ book: Book) {
     }
 }"#, title: "wf")
 
-        Markdown("- `_ book: Book` is the one prop a caller may pass without its name: `BookCard(book)`.\n- `Card.outlined`, `Stack(gap: .sm)`, `Text(…).muted.sm` are built-ins with flags; the compiler knows each one's props and refuses a flag it does not take.\n- `use Shelf` reads a store you write next. The button's label is an `if` used as a value, and it follows the store: when the reader clicks, the label changes without anything else re-rendering.\n\n([Components](/docs/guide/components), [Elements](/docs/guide/elements).)")
+        Markdown("- `_ book: Book` is the one prop a caller may pass without its name: `BookCard(book)`.\n- `Card.outlined`, `Stack(gap: .sm)` and `Text(…).muted.sm` are built-ins with flags. The compiler knows each one's props and refuses a flag it does not take.\n- `use Shelf` reads the store from step 3. The button's label is an `if` used as a value, and it follows the store: when the reader clicks, the label changes and nothing else re-renders.\n\n([Components](/docs/guide/components), [Elements](/docs/guide/elements).)\n\n**Check it:** run `wf check`. It reports one error: `` error[R01]: `/books/\{…\}` is not a route ``. The card links to a book's page, and no page answers that address yet. The compiler checks every link against the pages you declare; the next step adds the page.")
 
-        Heading("Step 4: the reader's shelf", id: "step-4-the-reader-s-shelf").h2
+        Heading("Step 5: Add the home page and a page per book", id: "step-5-add-the-home-page-and-a-page-per-book").h2
 
-        Markdown("What the reader keeps must survive a reload and be the same on every page — a store with a `persist`ed value. `src/stores/Shelf.wf`:")
-
-        CodeBlock(#"/// The books the reader wants to read, kept across visits.
-store Shelf {
-    persist saved: [String] = []
-    derived count = saved.length
-
-    action toggle(slug: String) {
-        if saved.includes(slug) {
-            saved = saved.filter(s => s != slug)
-        } else {
-            saved = [...saved, slug]
-        }
-    }
-}"#, title: "wf")
-
-        Markdown("`persist` is a `state` kept in the browser's storage and read back on the next visit; a change in another tab arrives here too. `derived count` recomputes whenever `saved` changes. ([Stores](/docs/guide/stores).)")
-
-        Heading("Step 5: pages", id: "step-5-pages").h2
-
-        Markdown("The shell every page shares, `src/App.wf`:")
-
-        CodeBlock(#"// … reads what the other steps declare
-app {
-    Navbar {
-        Navbar.Brand { Link("Shelf", to: "/") }
-        Navbar.Links {
-            Link("Books", to: "/")
-            Link("Your shelf ({Shelf.count})", to: "/shelf")
-            Link("Suggest a book", to: "/suggest")
-        }
-    }
-    Router
-    Footer { Text("Built with WebFluent").muted.sm }
-}"#, title: "wf")
-
-        Markdown("The home page lists the books with a search box, `src/pages/Home.wf`:")
+        Markdown("The home page lists the books with a search box. Create `src/pages/Home.wf`:")
 
         CodeBlock(#"// … reads what the other steps declare
 page Home(path: "/", title: "Shelf", description: "Books worth reading, and the ones you want to.") {
@@ -135,7 +128,7 @@ page Home(path: "/", title: "Shelf", description: "Books worth reading, and the 
     }
 }"#, title: "wf")
 
-        Markdown("- `bind: q` keeps the input and the state in step both ways.\n- `found` is derived from `q`, so typing narrows the list as you go.\n- `for … by book.slug` is a keyed loop: a card that stays in the list keeps its element, rather than being rebuilt.\n- `Grid(columns: \{ base: 1, md: 2 \})` is one column on a phone and two from the `md` breakpoint — written in the first paint, no script needed.\n\nA page per book, `src/pages/BookPage.wf`:")
+        Markdown("- `bind: q` keeps the input and the state in step, both ways.\n- `found` is derived from `q`, so typing narrows the list as you go.\n- `for … by book.slug` is a keyed loop: a card that stays in the list keeps its element instead of being rebuilt.\n- `Grid(columns: \{ base: 1, md: 2 \})` is one column on a phone and two from the `md` breakpoint. The pre-rendered HTML already has this layout, so no script is needed.\n\nThen add a page for each book, `src/pages/BookPage.wf`:")
 
         CodeBlock(#"// … reads what the other steps declare
 page BookPage(path: "/books/:slug", slug: String, title: "Book", description: "One book on the shelf.", type: "article", paths: books.map(b => b.slug)) {
@@ -159,7 +152,11 @@ page BookPage(path: "/books/:slug", slug: String, title: "Book", description: "O
     }
 }"#, title: "wf")
 
-        Markdown("- `:slug` in the path is a typed parameter of the page.\n- `paths:` tells the static build which values to render: one HTML file per book, `books/a-pattern-language/index.html` and so on.\n- `books.find(…)` may find nothing, so `book` is a `Book?`. `if let b = book` binds it only when it is there — reading `book.title` without it is a compile error (`T04`).\n- `head \{ … \}` adds tags to this page's `<head>`, here the title a shared link previews with.\n\nThe shelf itself, `src/pages/ShelfPage.wf`:")
+        Markdown("- `:slug` in the path is a typed parameter of the page.\n- `paths:` tells the static build which values to render: one HTML file per book, `books/a-pattern-language/index.html` and so on.\n- `books.find(…)` may find nothing, so `book` is a `Book?` (a `Book` or `null`). `if let b = book` binds it only when it is there. Reading `book.title` without that check is a compile error (`T04`).\n- `head \{ … \}` adds tags to this page's `<head>` — here, the title that a shared link previews with.\n\n([Pages and routing](/docs/guide/pages-and-routing).)\n\n**Check it:** run `wf serve` and open `http://localhost:3000`. You see **Books worth reading**, `3 of 3 books` and three cards. Type `norman` in the search box: one card stays, and the count reads `1 of 3 books`. Click **Want to read** on a card and its label changes to **On your shelf**. Click a book's title and its page opens, with a breadcrumb back to the list. `wf check` now reports only the `U04` warning about `Shelf.count`; step 6 uses it.")
+
+        Heading("Step 6: Add the shelf page and the site's shell", id: "step-6-add-the-shelf-page-and-the-site-s-shell").h2
+
+        Markdown("The shelf page shows the books the reader saved. Create `src/pages/ShelfPage.wf`:")
 
         CodeBlock(#"// … reads what the other steps declare
 page ShelfPage(path: "/shelf", title: "Your shelf", description: "The books you want to read.") {
@@ -178,7 +175,7 @@ page ShelfPage(path: "/shelf", title: "Your shelf", description: "The books you 
     }
 }"#, title: "wf")
 
-        Markdown("And a page for addresses nobody claims, `src/pages/NotFound.wf`:")
+        Markdown("Add a page for addresses no other page claims, `src/pages/NotFound.wf`. `path: \"*\"` matches anything, and the static build writes it as `404.html`:")
 
         CodeBlock(#"page NotFound(path: "*", title: "Not found", description: "Nothing lives at this address.", noindex: true) {
     Container {
@@ -187,11 +184,26 @@ page ShelfPage(path: "/shelf", title: "Your shelf", description: "The books you 
     }
 }"#, title: "wf")
 
-        Markdown("Run `wf serve` and open `http://localhost:3000`: search, open a book, put two on your shelf, reload — they are still there. ([Pages and routing](/docs/guide/pages-and-routing).)")
+        Markdown("Last, the shell every page shares, `src/App.wf`. `Router` is where the current page is drawn:")
 
-        Heading("Step 6: a form", id: "step-6-a-form").h2
+        CodeBlock(#"// … reads what the other steps declare
+app {
+    Navbar {
+        Navbar.Brand { Link("Shelf", to: "/") }
+        Navbar.Links {
+            Link("Books", to: "/")
+            Link("Your shelf ({Shelf.count})", to: "/shelf")
+        }
+    }
+    Router
+    Footer { Text("Built with WebFluent").muted.sm }
+}"#, title: "wf")
 
-        Markdown("Readers suggest books. `src/pages/Suggest.wf`:")
+        Markdown("**Check it:** `wf check` prints `No problems in shelf.` Every page now has a navigation bar. Put two books on your shelf: the link reads **Your shelf (2)**. Open it, then reload the page — the two books are still there. Open `http://localhost:3000/nowhere` and you see **Nothing lives here**.")
+
+        Heading("Step 7: Add a form to suggest a book", id: "step-7-add-a-form-to-suggest-a-book").h2
+
+        Markdown("Readers can suggest books. Create `src/pages/Suggest.wf`:")
 
         CodeBlock(#"page Suggest(path: "/suggest", title: "Suggest a book", description: "Tell us what belongs on the shelf.") {
     state title = ""
@@ -221,7 +233,23 @@ page ShelfPage(path: "/shelf", title: "Your shelf", description: "The books you 
     }
 }"#, title: "wf")
 
-        Markdown("A `validate` block sits beside the state it guards, and the control bound to that state shows its messages — accessibly, with `aria-invalid` and the message announced. A submit that fails moves focus to the first field with a problem and does not run `on submit`. ([Forms](/docs/guide/forms).)\n\nA real site would send the suggestion somewhere. With a backend, describe it once and call it:")
+        Markdown("A `validate` block sits beside the state it guards, and the control bound to that state shows its messages accessibly: the field gets `aria-invalid`, and the message is announced. A submit that fails moves focus to the first field with a problem and does not run `on submit`. ([Forms](/docs/guide/forms).)\n\nThen link the page from the shell. Add the third link to `src/App.wf`:")
+
+        CodeBlock(#"// … reads what the other steps declare
+app {
+    Navbar {
+        Navbar.Brand { Link("Shelf", to: "/") }
+        Navbar.Links {
+            Link("Books", to: "/")
+            Link("Your shelf ({Shelf.count})", to: "/shelf")
+            Link("Suggest a book", to: "/suggest")
+        }
+    }
+    Router
+    Footer { Text("Built with WebFluent").muted.sm }
+}"#, title: "wf")
+
+        Markdown("**Check it:** click **Suggest a book**, then **Send the suggestion** with the form empty. The form does not send: **Which book?** appears under **Title**, and **Who wrote it?** under **Author**. Fill in both and send again. You see **Thank you — we will take a look.**, and the form is empty.\n\nA real site sends the suggestion somewhere. With a backend, you describe the service once and call it from the handler:")
 
         CodeBlock(#"api Suggestions(base: env.PUBLIC_API ?? "/api") {
     post suggest(body: Map)
@@ -235,9 +263,9 @@ on submit {
 
         Markdown("([Data and APIs](/docs/guide/data), [Environments](/docs/guide/environments).)")
 
-        Heading("Step 7: a look of its own", id: "step-7-a-look-of-its-own").h2
+        Heading("Step 8: Give the site a theme", id: "step-8-give-the-site-a-theme").h2
 
-        Markdown("A theme changes the design tokens every built-in is drawn with. `src/theme.wf`:")
+        Markdown("A theme changes the design tokens that every built-in is drawn with. Create `src/theme.wf`:")
 
         CodeBlock(#"theme Paper {
     color-primary: #6D28D9
@@ -253,11 +281,24 @@ theme Ink {
     color-border: #2B2833
 }"#, title: "wf")
 
-        Markdown("The config named `Paper` as the theme and `Ink` as the dark one, so a reader whose system is dark gets `Ink` — before the first paint, with no flash. A token you do not name keeps its baseline value. ([Styling](/docs/guide/styling).)")
+        Markdown("Then name the themes in `webfluent.app.json` — `Paper` as the theme and `Ink` as the dark one:")
 
-        Heading("Step 8: a test", id: "step-8-a-test").h2
+        CodeBlock(#"{
+  "name": "shelf",
+  "build": { "ssg": true, "csp": true },
+  "theme": { "name": "Paper", "dark": "Ink" },
+  "meta": {
+    "title": "Shelf",
+    "description": "Books worth reading, and the ones you want to.",
+    "lang": "en"
+  }
+}"#, title: "json")
 
-        Markdown("`tests/BookCard.wf`:")
+        Markdown("A reader whose system is set to dark mode gets `Ink`, before the first paint and with no flash of the light theme. A token you do not name keeps its baseline value. ([Styling](/docs/guide/styling).)\n\n**Check it:** the links and the **Send the suggestion** button are purple, and the text is a serif face. Switch your system to dark mode and the page turns dark. If the build stops with ``No `theme Paper` is declared in this project``, the config names a theme that `src/theme.wf` does not declare: check the file name and the spelling.")
+
+        Heading("Step 9: Test the book card", id: "step-9-test-the-book-card").h2
+
+        Markdown("Tests live in `tests/`. Create `tests/BookCard.wf`:")
 
         CodeBlock(#"// … reads what the other steps declare
 test "a card shows who wrote the book, and when" {
@@ -274,31 +315,41 @@ test "a book goes on the shelf, and comes off again" {
     expect "Want to read"
 }"#, title: "wf")
 
+        Markdown("Run them:")
+
         Terminal(lines: [
                 Line(command: "wf test")
             ])
 
-        Markdown("The first test renders the card and reads what it shows; it also writes a snapshot the next run compares against. The second **clicks**, so it runs in a headless Chrome — the same compiler and runtime a reader gets. Buttons are found by their text, as a reader finds them. ([Testing](/docs/guide/testing).)")
+        Markdown("The first test renders the card and reads what it shows. It also writes a snapshot that the next run compares against. The second test **clicks**, so it runs in a headless Chrome, with the same compiler and runtime a reader gets. Buttons are found by their text, as a reader finds them. ([Testing](/docs/guide/testing).)\n\n**Check it:** the first run ends:")
 
-        Heading("Step 9: build and check", id: "step-9-build-and-check").h2
+        CodeBlock(#"  new   tests/BookCard.wf — a card shows who wrote the book, and when (snapshot written)
+  ok    tests/BookCard.wf — a book goes on the shelf, and comes off again (in a browser)
+2 passed, 0 failed, 1 snapshot(s) written"#, title: "text")
+
+        Markdown("Run `wf test` again and the first line reads `ok`: the render matches its snapshot.\n\nIf the second test says there is no browser, install Chrome or Chromium, or set `WF_CHROME` to its path.")
+
+        Heading("Step 10: Build and verify the site", id: "step-10-build-and-verify-the-site").h2
+
+        Markdown("Stop the dev server, then build the site and load every page in a real browser:")
 
         Terminal(lines: [
                 Line(command: "wf build"),
                 Line(command: "wf verify")
             ])
 
-        Markdown("`wf build` writes `build/` — a folder of HTML, CSS and JavaScript any static host can serve — and prints every warning: a missing `alt`, a page without a description, a state nothing reads. `wf verify` loads every page in a real browser and fails on a script error, a failed request or a blank page.")
+        Markdown("`wf build` writes `build/`, a folder of HTML, CSS and JavaScript that any static host can serve, and prints every warning, such as a missing `alt`, a page without a description, or a state nothing reads. `wf verify` loads every page in a real browser and fails on a script error, a failed request or a blank page.\n\n**Check it:** `wf build` ends with `Build complete.`, and `build/` holds `index.html`, `shelf/index.html`, `suggest/index.html`, `404.html` and one `books/<slug>/index.html` per book. `wf verify` lists six routes, each `ok`, and ends with `6 page(s), 0 problem(s)`.")
 
-        Heading("Step 10: deploy", id: "step-10-deploy").h2
+        Heading("Step 11: Deploy to GitHub Pages", id: "step-11-deploy-to-github-pages").h2
 
-        Markdown("Any static host serves `build/`. For GitHub Pages, a project site lives under `https://<you>.github.io/shelf/`, so tell the build its sub-path and its address — add to `webfluent.app.json`:")
+        Markdown("Any static host serves `build/`. On GitHub Pages, a project site lives under `https://<you>.github.io/shelf/`, so tell the build its sub-path and its address. Add these keys to `webfluent.app.json`, keeping the others:")
 
         CodeBlock(#"{
   "build": { "ssg": true, "csp": true, "base_path": "/shelf" },
   "meta": { "site_url": "https://you.github.io/shelf" }
 }"#, title: "json")
 
-        Markdown("`base_path` prefixes every link and asset; `site_url` turns on canonical links, the sitemap and absolute Open Graph URLs. Then add `.github/workflows/pages.yml`:")
+        Markdown("`base_path` prefixes every link and asset. `site_url` turns on canonical links, the sitemap and absolute Open Graph URLs.\n\nThen add a workflow that builds and publishes the site on every push to `main`, `.github/workflows/pages.yml`:")
 
         CodeBlock(#"name: Deploy
 on:
@@ -324,11 +375,11 @@ jobs:
       - id: deployment
         uses: actions/deploy-pages@v4"#, title: "yaml")
 
-        Markdown("Push, and in the repository's *Settings → Pages* choose *GitHub Actions* as the source. [Deploying](/docs/guide/deploying) covers Netlify, Vercel, Cloudflare Pages, nginx and the rest.")
+        Markdown("Push the project to your `shelf` repository. In the repository's **Settings → Pages**, choose **GitHub Actions** as the source.\n\n**Check it:** the **Actions** tab shows the **Deploy** workflow passing, and `https://<you>.github.io/shelf/` shows **Books worth reading**. [Deploying](/docs/guide/deploying) covers Netlify, Vercel, Cloudflare Pages, nginx and other hosts.")
 
         Heading("The whole program", id: "the-whole-program").h2
 
-        Markdown("Every file above, as one listing — this is exactly what the steps built:")
+        Markdown("Every `.wf` file above, as one listing. This is the program the steps built, with the first of the two tests:")
 
         CodeBlock(#"type Book {
     slug: String
@@ -495,8 +546,72 @@ test "a card shows who wrote the book, and when" {
     expect "Want to read"
 }"#, title: "wf")
 
-        Heading("Where to go from here", id: "where-to-go-from-here").h2
+        Heading("What you built", id: "what-you-built").h2
 
-        Markdown("- Read the language properly, from [Language basics](/docs/guide/language-basics).\n- Talk to a real server: [Data and APIs](/docs/guide/data).\n- Make it work offline: [Offline](/docs/guide/offline).\n- Translate it: [Internationalisation](/docs/guide/i18n).")
+        Markdown("Shelf is a whole site, and each part of it uses one idea of the language:")
+
+        Table(caption: "What you built") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("You wrote").header
+                    Table.Cell("The idea").header
+                    Table.Cell("Read more").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`type Book` and `data books`") }
+                    Table.Cell("Typed data read at build time")
+                    Table.Cell { Markdown("[Types](/docs/guide/types), [Data](/docs/guide/data#read-a-file-at-build-time-with-data)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`store Shelf` with `persist`") }
+                    Table.Cell("Shared state kept across visits")
+                    Table.Cell { Markdown("[Stores](/docs/guide/stores)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`component BookCard`") }
+                    Table.Cell("A reusable component with a positional prop")
+                    Table.Cell { Markdown("[Components](/docs/guide/components)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`state`, `derived`, `bind:` and `for … by` on the home page") }
+                    Table.Cell("Reactivity and keyed lists")
+                    Table.Cell { Markdown("[State and reactivity](/docs/guide/state), [Control flow](/docs/guide/control-flow)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`path: \"/books/:slug\"` with `paths:`, and `if let`") }
+                    Table.Cell("Route parameters, static paths and optional values")
+                    Table.Cell { Markdown("[Pages and routing](/docs/guide/pages-and-routing)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`app \{ … Router … \}`") }
+                    Table.Cell("The shell every page shares")
+                    Table.Cell { Markdown("[Pages and routing](/docs/guide/pages-and-routing)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`validate` and `Form(bind: form)`") }
+                    Table.Cell("Validated forms")
+                    Table.Cell { Markdown("[Forms](/docs/guide/forms)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`theme Paper` and `theme Ink`") }
+                    Table.Cell("Design tokens and dark mode")
+                    Table.Cell { Markdown("[Styling](/docs/guide/styling)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`test \"…\" \{ … click … expect … \}`") }
+                    Table.Cell("Tests that render and click")
+                    Table.Cell { Markdown("[Testing](/docs/guide/testing)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wf build`, `wf verify` and a workflow") }
+                    Table.Cell("Building, checking and deploying")
+                    Table.Cell { Markdown("[Deploying](/docs/guide/deploying)") }
+                }
+            }
+        }
+
+        Markdown("To go further:\n\n- Read the language properly, starting at [Language basics](/docs/guide/language-basics).\n- Talk to a real server: [Data and APIs](/docs/guide/data).\n- Make the site work offline: [Offline](/docs/guide/offline).\n- Translate it: [Internationalisation](/docs/guide/i18n).\n- Build a bigger project: [Tutorials](/docs/tutorials).")
     }
 }
