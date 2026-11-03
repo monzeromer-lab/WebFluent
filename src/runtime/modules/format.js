@@ -60,27 +60,34 @@
   }
   function formatPattern(date, pattern, locale) {
     const names = (opts) => new Intl.DateTimeFormat(locale, opts).format(date);
-    const pad = (n, w = 2) => String(n).padStart(w, "0");
+    // Figures in the digits the locale names (`ar-u-nu-arab`), and AM/PM
+    // in its words; a locale that names none keeps 0–9.
+    const nu = /-u-(?:.*-)?nu-[a-z]+/.test(locale) ? new Intl.NumberFormat(locale, { useGrouping: false }) : null;
+    const figures = (s) => (nu ? s.replace(/\d/g, (d) => nu.format(Number(d))) : s);
+    const pad = (n, w = 2) => figures(String(n).padStart(w, "0"));
     const h12 = date.getHours() % 12 || 12;
     return pattern.replace(/yyyy|yy|MMMM|MMM|MM|M|dd|d|EEEE|EEE|HH|H|hh|h|mm|ss|a/g, (t) => {
       switch (t) {
-        case "yyyy": return String(date.getFullYear());
+        case "yyyy": return figures(String(date.getFullYear()));
         case "yy": return pad(date.getFullYear() % 100);
         case "MMMM": return names({ month: "long" });
         case "MMM": return names({ month: "short" });
         case "MM": return pad(date.getMonth() + 1);
-        case "M": return String(date.getMonth() + 1);
+        case "M": return figures(String(date.getMonth() + 1));
         case "dd": return pad(date.getDate());
-        case "d": return String(date.getDate());
+        case "d": return figures(String(date.getDate()));
         case "EEEE": return names({ weekday: "long" });
         case "EEE": return names({ weekday: "short" });
         case "HH": return pad(date.getHours());
-        case "H": return String(date.getHours());
+        case "H": return figures(String(date.getHours()));
         case "hh": return pad(h12);
-        case "h": return String(h12);
+        case "h": return figures(String(h12));
         case "mm": return pad(date.getMinutes());
         case "ss": return pad(date.getSeconds());
-        case "a": return date.getHours() < 12 ? "AM" : "PM";
+        case "a": {
+          const part = new Intl.DateTimeFormat(locale, { hour: "numeric", hour12: true }).formatToParts(date).find((x) => x.type === "dayPeriod");
+          return part ? part.value : date.getHours() < 12 ? "AM" : "PM";
+        }
         default: return t;
       }
     });

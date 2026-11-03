@@ -1227,6 +1227,13 @@ test("a locale that names its digits reads its language's table and writes its c
   assert.equal(WF.format(1234, "integer"), "١٬٢٣٤");
   i18n.setLocale("ar-u-nu-latn");
   assert.equal(WF.format(1234, "integer"), "1,234");
+  // A date pattern too: its figures, and its AM/PM in the locale's words.
+  assert.equal(WF.format("2024-03-05T14:07:09", "HH:mm"), "14:07");
+  assert.equal(WF.format("2024-03-05T14:07:09", "h:mm a"), "2:07 م");
+  i18n.setLocale("ar-u-nu-arab");
+  assert.equal(WF.format("2024-03-05T14:07:09", "yyyy-MM-dd HH:mm"), "٢٠٢٤-٠٣-٠٥ ١٤:٠٧");
+  i18n.setLocale("en");
+  assert.equal(WF.format("2024-03-05T14:07:09", "h:mm a"), "2:07 PM");
 });
 
 test("literal text with a number picks its plural form by that number", () => {
