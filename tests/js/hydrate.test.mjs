@@ -1206,6 +1206,26 @@ test("t() picks a plural form by count under the locale's rules", () => {
   assert.equal(i18n.t("items", { count: 11 }), "11 عنصرًا", "many");
 });
 
+test("literal text with a number picks its plural form by that number", () => {
+  // Under `i18n.literals` the key is the words as written and the number is
+  // named after its expression: `{files} files`.
+  const { WF } = loadRuntime();
+  const i18n = WF.locales("en", {
+    en: { "{files} files.one": "{files} file", "{files} files.other": "{files} files" },
+    ar: { "{files} files.zero": "لا ملفات", "{files} files.one": "ملف واحد", "{files} files.two": "ملفان", "{files} files.few": "{files} ملفات", "{files} files.many": "{files} ملفًا", "{files} files.other": "{files} ملف" },
+  });
+  assert.equal(i18n.t("{files} files", { files: 1 }), "1 file");
+  assert.equal(i18n.t("{files} files", { files: 4 }), "4 files");
+  i18n.setLocale("ar");
+  const said = [0, 1, 2, 3, 10, 11, 99, 100, 102].map((n) => i18n.t("{files} files", { files: n }));
+  assert.deepEqual(said, ["لا ملفات", "ملف واحد", "ملفان", "3 ملفات", "10 ملفات", "11 ملفًا", "99 ملفًا", "100 ملف", "102 ملف"]);
+  // Two numbers: which one counts is not guessed.
+  const both = WF.locales("ar", { ar: { "{a} of {b}": "{a} من {b}", "{a} of {b}.one": "wrong" } });
+  assert.equal(both.t("{a} of {b}", { a: 1, b: 3 }), "1 من 3");
+  // A literal with no forms is the words, filled.
+  assert.equal(i18n.t("{n} left", { n: 2 }), "2 left");
+});
+
 test("a guarded route sends the reader to its redirect until the guard holds", () => {
   const { WF, document } = loadRuntime();
   const container = document.createElement("main");

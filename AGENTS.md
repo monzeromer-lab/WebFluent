@@ -2589,7 +2589,9 @@ item"`, `"items.other": "{count} items"` — and `items.zero`, `items.two`,
 `t("items", { count: n })` picks the form, exactly none `items.zero` when
 the file has it in any language, falling back to `items.other` and then
 `items` — the static paint and the live page by the same rules. A key's
-forms come from one language. `format` and `ago` speak the locale too.
+forms come from one language. Under `i18n.literals`, text with one number
+in it (`Text("{files} files")`) picks its form by that number:
+`"{files} files.one"`, `"{files} files.other"` … in each table. `format` and `ago` speak the locale too.
 `wf translations` is the table: what each locale lacks, what nothing names.
 
 RTL locales (automatic `dir="rtl"`, from the first paint when the default

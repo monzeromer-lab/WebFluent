@@ -1258,10 +1258,10 @@ page P(path: "/", title: "T", description: "D") {
 
 ```text
 error[T06]: `Cart` has no member `count`
- --> src/App.wf:4:15
+ --> src/App.wf:4:20
   |
 4 |     Heading("{Cart.count} items").h1
-  |               ^^^^
+  |                    ^^^^^
   = help: Its members are `items`
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t06-a-member-a-store-or-service-does-not-have
 ```

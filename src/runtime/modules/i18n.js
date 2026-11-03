@@ -38,11 +38,20 @@
       // A `count` picks the plural form the locale's rules give it —
       // `key.one`, `key.few` … — and exactly none is `key.zero` wherever
       // the file has one, in any language; then `key.other`.
-      if (params && typeof params.count === "number") {
-        if (params.count === 0) text = lookup(key + ".zero");
+      // Literal text names its number after its expression, `{files}
+      // files`: when the table has forms of the key and the call names no
+      // `count`, its one number is the count, so Arabic's six forms pick by
+      // it as a `t()` key's do.
+      let count = params && typeof params.count === "number" ? params.count : undefined;
+      if (count === undefined && params && PLURAL_FORMS.some((f) => source[key + "." + f] !== undefined)) {
+        const numbers = Object.values(params).filter((v) => typeof v === "number");
+        if (numbers.length === 1) count = numbers[0];
+      }
+      if (count !== undefined) {
+        if (count === 0) text = lookup(key + ".zero");
         if (text === undefined && typeof Intl !== "undefined" && Intl.PluralRules) {
           let category = "other";
-          try { category = new Intl.PluralRules(currentLocale).select(params.count); } catch (e) { /* unknown locale */ }
+          try { category = new Intl.PluralRules(currentLocale).select(count); } catch (e) { /* unknown locale */ }
           text = lookup(key + "." + category);
         }
         if (text === undefined) text = lookup(key + ".other");

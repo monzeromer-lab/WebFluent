@@ -409,9 +409,12 @@ pub fn build(
                     let entry = format!("{key}.{f}");
                     let text = table.get(&entry).cloned();
                     let names = text.as_deref().map(placeholders).unwrap_or_default();
+                    // The number that picks the form need not be said:
+                    // `count`, or a literal's one number (`{files} files`).
+                    let counted = placeholders(key);
                     let without_count = |v: &[String]| {
                         v.iter()
-                            .filter(|n| *n != "count")
+                            .filter(|n| *n != "count" && !(counted.len() == 1 && **n == counted[0]))
                             .cloned()
                             .collect::<BTreeSet<_>>()
                     };

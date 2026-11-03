@@ -15,6 +15,11 @@ page Doc(path: "/") {
 }
 
 // md-docs/21-i18n.md
+page Doc(path: "/") {
+    Text("{files} files")           // 11 ملفًا, for a reader in ar
+}
+
+// md-docs/21-i18n.md
 app {
     state chosen = "en"
     Navbar {

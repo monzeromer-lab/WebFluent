@@ -59,13 +59,28 @@ pub fn message(
     key: &str,
     params: &[(String, Static)],
 ) -> String {
-    let count = params
+    let number = |v: &Static| match v {
+        Static::Num(n) => Some(*n),
+        _ => None,
+    };
+    let mut count = params
         .iter()
         .find(|(k, _)| k == "count")
-        .and_then(|(_, v)| match v {
-            Static::Num(n) => Some(*n),
-            _ => None,
-        });
+        .and_then(|(_, v)| number(v));
+    // Literal text names its number after the expression it splices —
+    // `{files} files` — so a message with plural forms and exactly one
+    // number takes its form by that number. Two numbers: none is guessed.
+    let has_forms = || {
+        ["zero", "one", "two", "few", "many", "other"]
+            .iter()
+            .any(|f| messages.contains_key(&format!("{key}.{f}")))
+    };
+    if count.is_none() && has_forms() {
+        let numbers: Vec<f64> = params.iter().filter_map(|(_, v)| number(v)).collect();
+        if let [n] = numbers[..] {
+            count = Some(n);
+        }
+    }
     let mut text = None;
     if let Some(n) = count {
         let category = plural_category(locale, n);
@@ -91,6 +106,40 @@ pub fn message(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn literal_text_takes_its_plural_form_by_its_one_number() {
+        let ar: HashMap<String, String> = [
+            ("{files} files.one", "ملف واحد"),
+            ("{files} files.two", "ملفان"),
+            ("{files} files.few", "{files} ملفات"),
+            ("{files} files.many", "{files} ملفًا"),
+            ("{files} files.other", "{files} ملف"),
+            ("{a} of {b}", "{a} من {b}"),
+            ("{a} of {b}.one", "wrong"),
+        ]
+        .into_iter()
+        .map(|(k, v)| (k.to_string(), v.to_string()))
+        .collect();
+        let files = |n: f64| {
+            message(
+                "ar",
+                &ar,
+                "{files} files",
+                &[("files".to_string(), Static::Num(n))],
+            )
+        };
+        assert_eq!(files(1.0), "ملف واحد");
+        assert_eq!(files(2.0), "ملفان");
+        assert_eq!(files(3.0), "3 ملفات");
+        assert_eq!(files(11.0), "11 ملفًا");
+        assert_eq!(files(100.0), "100 ملف");
+        let two = [
+            ("a".to_string(), Static::Num(1.0)),
+            ("b".to_string(), Static::Num(3.0)),
+        ];
+        assert_eq!(message("ar", &ar, "{a} of {b}", &two), "1 من 3");
+    }
 
     #[test]
     fn plural_forms_are_picked_by_count_and_placeholders_filled() {

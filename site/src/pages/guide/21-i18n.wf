@@ -73,7 +73,20 @@ page Home(path: "/", title: "Home", description: "The home page.") {
         CodeBlock(#"Heading("Problems").h2          // المشاكل, for a reader in ar
 Text("{l.count} missing")       // one key, `{count} missing`"#, title: "wf")
 
-        Markdown("A string that splices plain paths is one key with a placeholder named for each path's last part; one that splices more — `\"\{n + 1\} more\"` — stays as written. An `if` the text chooses between is looked up branch by branch. An icon's name, `Code(…)` and `Kbd(…)` are not words and are left alone. The default locale's messages are the words themselves, so its file may be empty; `wf translations` counts each string as a key in use, and what another locale has not got as missing.")
+        Markdown("A string that splices plain paths is one key with a placeholder named for each path's last part; one that splices more — `\"\{n + 1\} more\"` — stays as written. An `if` the text chooses between is looked up branch by branch. An icon's name, `Code(…)` and `Kbd(…)` are not words and are left alone. The default locale's messages are the words themselves, so its file may be empty; `wf translations` counts each string as a key in use, and what another locale has not got as missing.\n\nA literal with one number in it counts by that number. Its key's plural forms are keys too, as for `count`:")
+
+        CodeBlock(#"{
+  "{files} files.zero": "لا توجد ملفات",
+  "{files} files.one": "ملف واحد",
+  "{files} files.two": "ملفان",
+  "{files} files.few": "{files} ملفات",
+  "{files} files.many": "{files} ملفًا",
+  "{files} files.other": "{files} ملف"
+}"#, title: "json")
+
+        CodeBlock(#"Text("{files} files")           // 11 ملفًا, for a reader in ar"#, title: "wf")
+
+        Markdown("The default locale gives its forms the same way — `\"\{files\} files.one\": \"\{files\} file\"` — where its words differ by count. With two numbers in the text none is guessed: the message is looked up as written.")
 
         Heading("Switching the locale", id: "switching-the-locale").h2
 

@@ -425,12 +425,15 @@ pub fn translations(
         // Arabic's `.two` and `.few` — is not missing where the message has
         // its `.other`: that is what the form falls back to.
         let falls_back = |k: &str| {
-            [".zero", ".one", ".two", ".few", ".many"]
-                .iter()
-                .find_map(|f| k.strip_suffix(f))
-                .is_some_and(|base| {
-                    own.contains_key(&format!("{base}.other")) || own.contains_key(base)
-                })
+            // A literal's words, `{files} files`, where this locale gives
+            // its plural forms: a count always picks one of those.
+            own.contains_key(&format!("{k}.other"))
+                || [".zero", ".one", ".two", ".few", ".many"]
+                    .iter()
+                    .find_map(|f| k.strip_suffix(f))
+                    .is_some_and(|base| {
+                        own.contains_key(&format!("{base}.other")) || own.contains_key(base)
+                    })
         };
         let missing: Vec<&&String> = all
             .iter()
