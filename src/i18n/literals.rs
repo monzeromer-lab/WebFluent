@@ -359,10 +359,11 @@ pub fn untranslated(
                     out.insert(d.name.clone());
                 }
                 StatementKind::Assignment(a) => {
-                    if let Some(n) = target_name(&a.target) {
-                        if !text_name(n) && holds_words(&a.value) {
-                            out.insert(n.to_string());
-                        }
+                    if let Some(n) = target_name(&a.target)
+                        && !text_name(n)
+                        && holds_words(&a.value)
+                    {
+                        out.insert(n.to_string());
                     }
                 }
                 _ => {}

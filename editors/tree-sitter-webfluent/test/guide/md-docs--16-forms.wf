@@ -107,7 +107,7 @@ page Join(path: "/join", title: "Join", description: "Make an account.") {
 
 // md-docs/16-forms.md
 api Backend(base: "/api") {
-    get emailTaken(email: String) -> Bool
+    get emailFree(email: String) -> Bool
 }
 page Register(path: "/register", title: "Register", description: "Check an address is free.") {
     state email = ""
@@ -115,7 +115,7 @@ page Register(path: "/register", title: "Register", description: "Check an addre
     validate email {
         required
         email
-        async "That address is taken" { !(await Backend.emailTaken(email: email)) }
+        async "That address is taken" { await Backend.emailFree(email: email) }
     }
 
     Heading("Register").h1

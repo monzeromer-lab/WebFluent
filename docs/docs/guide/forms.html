@@ -792,7 +792,7 @@
 <li><strong>Empty values.</strong> Every rule but <code>required</code> passes an empty value, so a blank optional field shows one message rather than two.</li>
 <li><strong>Async rules.</strong> An <code>async</code> rule is asked only once the other rules pass, and once per value. A server is not asked about every keystroke of an address that is not valid yet. While it waits, <code>form.pending</code> is <code>true</code>.</li>
 </ul>
-<p>This rule asks the server whether an address is free:</p>
+<p>This rule asks the server whether an address is free. The rule passes when the check's answer is <code>true</code>, so ask the question whose answer you want to be yes:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -802,7 +802,7 @@
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">api <span class="wf-tok-name">Backend</span>(<span class="wf-tok-prop">base</span>: <span class="wf-tok-str">&quot;/api&quot;</span>) {
-    get emailTaken(<span class="wf-tok-prop">email</span>: <span class="wf-tok-name">String</span>) -&gt; <span class="wf-tok-name">Bool</span>
+    get emailFree(<span class="wf-tok-prop">email</span>: <span class="wf-tok-name">String</span>) -&gt; <span class="wf-tok-name">Bool</span>
 }
 
 <span class="wf-tok-kw">page</span> <span class="wf-tok-name">Register</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/register&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Register&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Check an address is free.&quot;</span>) {
@@ -811,7 +811,7 @@
     validate email {
         required
         email
-        async <span class="wf-tok-str">&quot;That address is taken&quot;</span> { !(<span class="wf-tok-kw">await</span> <span class="wf-tok-name">Backend</span>.emailTaken(<span class="wf-tok-prop">email</span>: email)) }
+        async <span class="wf-tok-str">&quot;That address is taken&quot;</span> { <span class="wf-tok-kw">await</span> <span class="wf-tok-name">Backend</span>.emailFree(<span class="wf-tok-prop">email</span>: email) }
     }
 
     <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Register&quot;</span>).h1

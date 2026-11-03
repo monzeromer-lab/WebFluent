@@ -312,10 +312,10 @@ fn program_checks_typed(
     let mut seen = std::collections::BTreeSet::new();
     for i in 0..program.declarations.len() {
         let file = file_of(i);
-        if seen.insert(file.clone()) {
-            if let Some(text) = source_of(i) {
-                out.extend(hidden_directions(&file, &text));
-            }
+        if seen.insert(file.clone())
+            && let Some(text) = source_of(i)
+        {
+            out.extend(hidden_directions(&file, &text));
         }
     }
     (out, typed)

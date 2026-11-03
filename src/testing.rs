@@ -701,6 +701,7 @@ fn squeeze(text: &str) -> String {
 
 /// One test that looks: `Ok(true)` when it passed and its snapshot was
 /// written, `Ok(false)` when it passed against the one there.
+#[allow(clippy::too_many_arguments)]
 fn run_one(
     shared: &[Declaration],
     test: &TestDecl,

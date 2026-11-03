@@ -298,11 +298,11 @@ How the rules behave:
   and once per value. A server is not asked about every keystroke of an
   address that is not valid yet. While it waits, `form.pending` is `true`.
 
-This rule asks the server whether an address is free:
+This rule asks the server whether an address is free. The rule passes when the check's answer is `true`, so ask the question whose answer you want to be yes:
 
 ```wf
 api Backend(base: "/api") {
-    get emailTaken(email: String) -> Bool
+    get emailFree(email: String) -> Bool
 }
 
 page Register(path: "/register", title: "Register", description: "Check an address is free.") {
@@ -311,7 +311,7 @@ page Register(path: "/register", title: "Register", description: "Check an addre
     validate email {
         required
         email
-        async "That address is taken" { !(await Backend.emailTaken(email: email)) }
+        async "That address is taken" { await Backend.emailFree(email: email) }
     }
 
     Heading("Register").h1
