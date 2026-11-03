@@ -25,7 +25,7 @@ component DocsShell(_ heading: String, chapter: String = "", blurb: String = "",
 
             Row(align: .center, gap: .xs, aria-label: "Breadcrumb", role: "navigation", class: "crumbs") {
                 style { gap: 8px; font-size: 12px; line-height: 18px; color: $ink-subtle; & a { color: $ink-subtle; text-decoration: none } & a:hover { color: $color-text } & p { margin: 0 } }
-                Link(t("nav.guide"), to: "/docs/guide/introduction")
+                Link(t("nav.guide"), to: "/docs")
                 Text("/")
                 if chapter != "" {
                     Text(chapter) { style { color: $color-text-muted } }

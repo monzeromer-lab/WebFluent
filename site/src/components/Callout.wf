@@ -1,0 +1,54 @@
+/// What kind of aside a callout is. Each has one job, so a reader learns to
+/// trust the label: a note adds context, a tip saves time, important is
+/// something to know before going on, a warning is a way to lose work or
+/// ship a bug, and caution is a way to lose data or expose a secret.
+enum CalloutKind { note, tip, important, warning, caution }
+
+/// An aside the guide sets apart from its prose: a GitHub alert in
+/// `md-docs/` (`> [!TIP]`), written here by scripts/site-from-guide.py. A
+/// rail in the kind's ink, an overline naming it, then the body as Markdown
+/// so code and links read as they do in the paragraph around it.
+component Callout(_ body: String, kind: CalloutKind = .note) {
+    derived label = match kind {
+        .note { "Note" }
+        .tip { "Tip" }
+        .important { "Important" }
+        .warning { "Warning" }
+        .caution { "Caution" }
+    }
+    derived glyph = match kind {
+        .note { "info" }
+        .tip { "sparkle" }
+        .important { "alert-circle" }
+        .warning { "warning" }
+        .caution { "lock" }
+    }
+
+    Stack(gap: .xs, role: "note", aria-label: label, class: "callout") {
+        style {
+            gap: 6px
+            padding: 12px 16px
+            border: 1px solid $color-border
+            border-inline-start: 3px solid $brand-ring
+            border-radius: 0 6px 6px 0
+            background: $brand-subtle
+            & .callout-label { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 12px; line-height: 18px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: $brand-ink }
+            & .callout-label .wf-icon { font-size: 14px; display: inline-flex }
+            & .callout-label p { margin: 0 }
+            & .wf-markdown p, & .wf-markdown li { margin: 0; font-size: 14px; line-height: 22px; color: $color-text }
+            & .wf-markdown > * + * { margin-top: 8px }
+            &[data-kind="tip"] { border-inline-start-color: $accent; background: $accent-subtle }
+            &[data-kind="tip"] .callout-label { color: $accent-ink }
+            &[data-kind="important"] { border-inline-start-color: $color-primary }
+            &[data-kind="warning"] { border-inline-start-color: $color-warning; background: color-mix(in srgb, $color-warning 9%, $color-surface) }
+            &[data-kind="warning"] .callout-label { color: $color-warning }
+            &[data-kind="caution"] { border-inline-start-color: $color-danger; background: color-mix(in srgb, $color-danger 8%, $color-surface) }
+            &[data-kind="caution"] .callout-label { color: $color-danger }
+        }
+        Row(align: .center, gap: .xs, class: "callout-label") {
+            Icon(glyph)
+            Text(label)
+        }
+        Markdown(body)
+    }
+}

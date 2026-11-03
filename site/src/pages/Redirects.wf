@@ -1,13 +1,8 @@
-/// The guide's front doors: `/docs` and `/docs/guide` send the reader to
-/// chapter one. A guard that never holds is a redirect.
-page DocsIndex(path: "/docs", title: "Guide", description: "The WebFluent guide, from the first wf init to a complete application.", guard: false, redirect: "/docs/guide/introduction", noindex: true) {
+/// The guide's old front door, `/docs/guide`, sends the reader to the
+/// documentation's landing page. A guard that never holds is a redirect.
+page GuideIndex(path: "/docs/guide", title: "Guide", description: "The WebFluent guide, from the first wf init to a complete application.", guard: false, redirect: "/docs", noindex: true) {
     Heading(t("nav.guide")).h1
-    Link(t("ch.01"), to: "/docs/guide/introduction")
-}
-
-page GuideIndex(path: "/docs/guide", title: "Guide", description: "The WebFluent guide, from the first wf init to a complete application.", guard: false, redirect: "/docs/guide/introduction", noindex: true) {
-    Heading(t("nav.guide")).h1
-    Link(t("ch.01"), to: "/docs/guide/introduction")
+    Link(t("ch.01"), to: "/docs")
 }
 
 /// Chapters that moved when the guide was reorganised, so an old link still

@@ -122,6 +122,8 @@ def terms(text: str, cap: int = 24) -> str:
     code, capitalised names, and longer words — each once, in order, up to
     `cap`. The index is part of the site's bundle, so it stays short."""
     body = re.sub(r"```.*?```", " ", text, flags=re.S)
+    # An alert's marker (`> [!TIP]`) is layout, not something to search for.
+    body = re.sub(r"\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]", " ", body)
     found = []
     for code in re.findall(r"`([^`]+)`", body):
         for w in re.findall(r"[A-Za-z_$@.][\w.$-]{1,}", code):

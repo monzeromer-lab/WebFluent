@@ -1,0 +1,31 @@
+/// One way into the guide on the docs landing page: what the reader is here
+/// to do, a line on what they will find, and the chapters that do it. Drawn
+/// as the idea cards on the front page are, so the two pages read as one.
+component DocPath(_ title: String, overline: String = "", body: String = "", links: [DocLink] = []) {
+    Stack(gap: .sm, class: "doc-path") {
+        style {
+            gap: 10px
+            padding: 20px
+            border: 1px solid $color-border
+            border-radius: 10px
+            background: $surface-raised
+            & h3 { margin: 0; font-size: 18px; line-height: 24px; font-weight: 600; letter-spacing: -0.004em }
+            & .wf-markdown p { margin: 0; font-size: 13px; line-height: 20px; color: $color-text-muted }
+            & ul { margin: 2px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px }
+            & li { margin: 0 }
+            & a { font-size: 14px; line-height: 20px; font-weight: 500; color: $brand-ink; text-decoration: none }
+            & a:hover { color: $color-primary; text-decoration: underline; text-underline-offset: 2px }
+            & a::after { content: " →"; white-space: pre }
+        }
+        if overline != "" {
+            Text(overline, class: "overline accent")
+        }
+        Heading(title).h3
+        if body != "" { Markdown(body) }
+        List {
+            for l in links by l.to {
+                List.Item { Link(l.label, to: l.to) }
+            }
+        }
+    }
+}

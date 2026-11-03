@@ -217,6 +217,12 @@ def emit_markdown(lines, out, ind):
     out.append("")
 
 
+def emit_callout(kind, lines, out, ind):
+    text = rewrite_links("\n".join(reflow(lines)).strip("\n"))
+    out.append(f'{ind}Callout("{wf_string(text)}", kind: .{kind})')
+    out.append("")
+
+
 def convert(num: str, md: str):
     route = META[num]["route"]
     name = page_name(route)
@@ -282,6 +288,19 @@ def convert(num: str, md: str):
             i += 1
             emit_code(lang, "\n".join(code), out, ind, num, info)
             continue
+        # A GitHub alert — `> [!TIP]` and the quoted lines under it — is a
+        # `Callout`: it renders as an alert on GitHub and as one here.
+        alert = re.match(r"^>\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*$", line)
+        if alert:
+            emit_markdown(buf, out, ind)
+            buf = []
+            i += 1
+            quoted = []
+            while i < len(lines) and lines[i].startswith(">"):
+                quoted.append(re.sub(r"^>\s?", "", lines[i]))
+                i += 1
+            emit_callout(alert.group(1).lower(), quoted, out, ind)
+            continue
         if line.startswith("|") and i + 1 < len(lines) and re.match(r"^\|[\s:|-]+\|?\s*$", lines[i + 1]):
             emit_markdown(buf, out, ind)
             buf = []
@@ -342,6 +361,8 @@ component DocSidebar {
 
 def sidebar() -> str:
     out = [SIDEBAR_HEAD]
+    # The landing page that sends a reader to the right part of the guide.
+    out.append('        Sidebar.Item(to: "/docs", icon: "home") { Text(t("nav.overview")) }')
     group = None
     for num in sorted(META):
         meta = META[num]

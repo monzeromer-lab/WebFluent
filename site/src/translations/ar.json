@@ -221,5 +221,6 @@
   "showcase.slides.many": "{count} شريحة",
   "showcase.slides.other": "{count} شريحة",
   "showcase.more": "كلٌّ منها مجلد تحت [`examples/`](https://github.com/monzeromer-lab/WebFluent/tree/master/examples) يُبنى بـ `wf build`. ويشرح فصل [PDF والشرائح](/docs/guide/pdf-and-slides) في الدليل كيف تكتب ملفك.",
-  "outputs.see": "شاهد ملفات PDF والعروض التي يكتبها"
+  "outputs.see": "شاهد ملفات PDF والعروض التي يكتبها",
+  "nav.overview": "نظرة عامة"
 }
