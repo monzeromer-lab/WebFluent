@@ -219,6 +219,12 @@ pub static CODES: &[CodeInfo] = &[
         "Output its own security policy refuses",
         "The build holds every page to the content security policy it ships beside it — as it wrote the page, and as the page's own `head { }` tags would add to it; something there would be blocked.",
     ),
+    code(
+        "E119",
+        Warning,
+        "A hidden direction control in the source",
+        "An embedding, override or isolate control (U+202A–U+202E, U+2066–U+2069) is invisible and reorders what follows it, so the code a reader sees is not the code that runs (Trojan Source).",
+    ),
     // ── T: types ─────────────────────────────────────────────────────
     code(
         "T01",

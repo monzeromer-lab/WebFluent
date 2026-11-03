@@ -282,6 +282,8 @@ impl LexerV2 {
             '$' if self.peek().is_some_and(|c| c.is_ascii_digit()) => self.read_money(),
             '0'..='9' => self.read_number()?,
             'a'..='z' | 'A'..='Z' | '_' => self.read_word(),
+            // A name in another script, as UAX #31 starts one: عدد.
+            c if !c.is_ascii() && unicode_ident::is_xid_start(c) => self.read_word(),
             '$' => self.read_token_name()?,
             '+' => single(self, TokenType::Plus),
             '-' => single(self, TokenType::Minus),
@@ -380,12 +382,23 @@ impl LexerV2 {
         let mut word = String::new();
         while self.pos < self.source.len() {
             let ch = self.current();
-            if ch.is_alphanumeric() || ch == '_' {
+            // After the first letter, what UAX #31 lets an identifier go on
+            // with: the marks of a letter too — كتابٌ is one name.
+            if ch.is_alphanumeric()
+                || ch == '_'
+                || (!word.is_empty() && !ch.is_ascii() && unicode_ident::is_xid_continue(ch))
+            {
                 word.push(ch);
                 self.advance();
             } else {
                 break;
             }
+        }
+        // One name however its letters were typed: أ is أ, precomposed or
+        // ا and its hamza (NFC, as UAX #31 asks).
+        if !word.is_ascii() {
+            use unicode_normalization::UnicodeNormalization;
+            word = word.nfc().collect();
         }
         let kind = match word.as_str() {
             "true" => TokenType::BoolLiteral(true),

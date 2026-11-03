@@ -90,6 +90,8 @@ taffy = { version = "0.14", default-features = false, features = ["std", "taffy_
 rustybuzz = "0.20"
 ttf-parser = "0.25"
 unicode-bidi = "0.3"
+unicode-ident = "1"
+unicode-normalization = "0.1"
 unicode-linebreak = "0.1"
 fontdb = "0.23"
 miniz_oxide = "0.8"

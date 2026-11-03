@@ -309,7 +309,53 @@ fn program_checks_typed(
     out.extend(typed.findings.errors.iter().cloned());
     out.extend(typed.findings.warnings.iter().cloned());
     out.extend(typed.unresolved.iter().cloned());
+    let mut seen = std::collections::BTreeSet::new();
+    for i in 0..program.declarations.len() {
+        let file = file_of(i);
+        if seen.insert(file.clone()) {
+            if let Some(text) = source_of(i) {
+                out.extend(hidden_directions(&file, &text));
+            }
+        }
+    }
     (out, typed)
+}
+
+/// E119: a control that turns the direction of what follows it, unseen —
+/// the Trojan Source attack (CVE-2021-42574): a comment or a string that
+/// draws the code one way while it runs another. Each where it is, by the
+/// character's own name.
+pub fn hidden_directions(file: &str, text: &str) -> Vec<Diagnostic> {
+    let name = |c: char| match c {
+        '\u{202A}' => Some("LEFT-TO-RIGHT EMBEDDING"),
+        '\u{202B}' => Some("RIGHT-TO-LEFT EMBEDDING"),
+        '\u{202C}' => Some("POP DIRECTIONAL FORMATTING"),
+        '\u{202D}' => Some("LEFT-TO-RIGHT OVERRIDE"),
+        '\u{202E}' => Some("RIGHT-TO-LEFT OVERRIDE"),
+        '\u{2066}' => Some("LEFT-TO-RIGHT ISOLATE"),
+        '\u{2067}' => Some("RIGHT-TO-LEFT ISOLATE"),
+        '\u{2068}' => Some("FIRST STRONG ISOLATE"),
+        '\u{2069}' => Some("POP DIRECTIONAL ISOLATE"),
+        _ => None,
+    };
+    let mut out = Vec::new();
+    for (l, line) in text.lines().enumerate() {
+        for (c_at, c) in line.chars().enumerate() {
+            if let Some(n) = name(c) {
+                out.push(
+                    Diagnostic::coded(
+                        "E119",
+                        format!("U+{:04X} {n}, unseen, turns the direction of what follows it: the code reads one way and runs another", c as u32),
+                        file,
+                        l + 1,
+                        c_at + 1,
+                    )
+                    .with_hint("Remove it. Arabic beside Latin needs no control: each run takes its letters' direction"),
+                );
+            }
+        }
+    }
+    out
 }
 
 /// The project's own scripts: a module cannot be linked as a plain

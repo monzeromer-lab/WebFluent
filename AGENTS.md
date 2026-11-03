@@ -183,6 +183,11 @@ events, slots and parts — comes from one registry the compiler, the
 linters and the language server all read, and anything that resolves to
 nothing is an error, never a silent no-op.
 
+A program's own names may be in any script, Arabic included: a letter,
+then letters, digits, `_` and the marks of its letters (UAX #31), one name
+however it was typed (NFC) — `state عددٌ = 3`, `store المهام`. A hidden
+direction control in the source is E119 (Trojan Source).
+
 ### Pages
 
 ```wf
@@ -2967,6 +2972,7 @@ the editor's quick fix and the JSON's `fixes`: the nearest name for `T05`,
 | `E114` | `emit` outside a component |
 | `E116` | `Element`'s tag is not a custom element's |
 | `E118` | A name the language already has, declared as the program's own — `state env`, `for t in …`, a prop `query`, a `const format` |
+| `E119` | A hidden direction control (U+202A–U+202E, U+2066–U+2069) in the source: Trojan Source |
 | `E901` | The compiler wrote JavaScript a browser would refuse (it reads back every script it writes — a WebFluent bug) |
 | `E902` | A page the content security policy shipped beside it would block |
 | `C02` | A prop your component does not declare |

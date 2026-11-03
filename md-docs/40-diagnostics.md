@@ -551,6 +551,21 @@ its reads with it. The message suggests one where there is a usual choice:
 `target` or `stage` for `env`, `search` for `query`, `scheme` for `theme`,
 `item` or a word for what it holds for `t`.
 
+### E119 — A hidden direction control in the source
+
+Warning. An embedding, override or isolate control — U+202A to U+202E,
+U+2066 to U+2069 — is invisible, and it reorders what follows it: a
+comment that seems to close, or a string that seems to hold one word, can
+hide code that runs (Trojan Source, CVE-2021-42574). The editor draws each
+as a mark; the check names each by its line, its column and its Unicode
+name. **Fix:** remove it. Arabic beside Latin needs no control: each run
+takes the direction of its own letters.
+
+Names may be written in Arabic, or any script: a name starts with a letter
+and goes on with letters, digits, `_` and the marks of its letters, as
+UAX #31 says (`state عددٌ = 3`), and is one name however its letters were
+typed — أ precomposed or ا with a combining hamza (NFC).
+
 ## Components
 
 ### C01 — A required prop or field left out

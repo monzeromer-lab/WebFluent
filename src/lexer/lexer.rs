@@ -387,7 +387,12 @@ impl Lexer {
 
         while self.pos < self.source.len() {
             let ch = self.current();
-            if ch.is_alphanumeric() || ch == '_' {
+            // After the first letter, what UAX #31 lets an identifier go on
+            // with: the marks of a letter too — كتابٌ is one name.
+            if ch.is_alphanumeric()
+                || ch == '_'
+                || (!word.is_empty() && !ch.is_ascii() && unicode_ident::is_xid_continue(ch))
+            {
                 word.push(ch);
                 self.advance();
             } else {
