@@ -3,21 +3,37 @@
 <!--
 route: guide/events
 group: basics
-blurb: Handlers on elements, keyboard shortcuts, the events components fire, and the overlays a page opens.
-description: DOM event handlers, the event object, keyboard shortcuts, component events, modals, dialogs, toasts and menus.
+blurb: Handlers on elements, keyboard shortcuts, the events components fire, the overlays a page opens, and drag and drop.
+description: DOM event handlers, the event object, keyboard shortcuts, component events, modals, menus, popovers, gestures and window events.
 -->
+
+An event handler is the code that runs when something happens: a click, a key,
+a drop, a component saying it changed. You write it as `on <event> { … }`
+inside the block of the element it listens to, and its body can change state,
+call actions and navigate.
+
+In this chapter:
+
+- handlers and the event object
+- keys, and shortcuts for a whole app
+- the events your own components fire
+- overlays: modals, toasts, menus, popovers and tooltips, and how they stack
+- gestures: drag and drop, long-press, swipe and the splitter
+- listening to the window and the document
 
 ## Handlers
 
 A handler is written inside an element's block: `on <event> { … }`, or
-`on <event>(name) { … }` when the body reads the event object.
+`on <event>(name) { … }` when the body reads the event object. This page
+counts clicks and logs what happens in a text field:
 
 ```wf
-page Clicks(path: "/") {
+page Clicks(path: "/", title: "Clicks", description: "Handlers on a button and a field.") {
     state n = 0
     state last = ""
+    Heading("Clicks").h1
     Button("+1") { on click { n = n + 1 } }
-    Input(bind: last, placeholder: "type") {
+    Input(bind: last, placeholder: "Type here") {
         on input { log(last) }
         on keydown(e) { if e.key == "Enter" { log("submitted {last}") } }
         on focus { log("in") }
@@ -27,29 +43,39 @@ page Clicks(path: "/") {
 }
 ```
 
-A handler may name any DOM event: the common ones are `click`, `input`,
+A handler may name any DOM event. The common ones are `click`, `input`,
 `change`, `submit`, `focus`, `blur`, `keydown`, `keyup`, `mouseenter` and
-`mouseleave`, and the rest — `dblclick`, `contextmenu`, `pointerdown`,
-`pointermove`, `touchstart`, `wheel`, `scroll`, `paste`, `drop`,
-`dragover`, `animationend`, `ended` and the others — work the same way. The
+`mouseleave`. The rest — `dblclick`, `contextmenu`, `pointerdown`,
+`pointermove`, `touchstart`, `wheel`, `scroll`, `paste`, `drop`, `dragover`,
+`animationend`, `ended` and the others — work the same way. The
 [components reference](37-components-reference.md#on-every-element) lists
-every one. A component's own declared events (chapter 11) join them on its
-calls. A handler's body is an imperative block, so it may assign state,
-call actions, `await`, and `navigate`.
+every one. On a call of your own component, the events it declares
+([Components](11-components.md#events)) join them.
+
+A handler's body is an imperative block, so it may assign state, call
+actions, `await` and `navigate`.
+
+A handler on a component call — `UserCard("Sam") { on click { … } }` —
+attaches to the component's root element, so a styled button component is
+clickable wherever it is used.
 
 ### The event object
 
-Name a parameter to read the event: `on keydown(e) { … }`. Without one, the
-event is still in scope as `event` — unless the program has an `event` of its
-own (a loop's item, a state, an action), which wins; name the parameter to
-read the event there. It is the browser's own event object, so
-`e.key`, `e.target.value`, `e.clientX`, `e.preventDefault()` and
-`e.stopPropagation()` are all there.
+To read the event, name a parameter: `on keydown(e) { … }`. It is the
+browser's own event object, so `e.key`, `e.target.value`, `e.clientX`,
+`e.preventDefault()` and `e.stopPropagation()` are all there.
 
-A DOM event sends that one value and nothing beside it, so a handler names
-one name at most: `on click(e, x)` is an error (`T22`); read what you want
-from the event, `e.clientX`. Several names are for a component's own events,
-which send what they declare ([below](#emitting-events-from-components)).
+Without a parameter, the event is still in scope as `event` — unless the
+program has an `event` of its own (a loop's item, a state, an action), which
+wins. Name the parameter to read the event there.
+
+A DOM event sends one value, the event, so a handler names one name at most:
+`on click(e, x)` is an error (`T22`). Read what you want from the event,
+`e.clientX`. Several names are for a component's own events, which send what
+they declare ([below](#emitting-events-from-components)).
+
+This drop zone uses the event object twice — to allow the drop, and to read
+the dropped files:
 
 ```wf
 page Drop(path: "/", title: "Drop", description: "A place to drop files.") {
@@ -66,43 +92,59 @@ page Drop(path: "/", title: "Drop", description: "A place to drop files.") {
 }
 ```
 
-A handler on a component call — `UserCard("x") { on click { } }` — attaches
-to the component's root element, so a styled button component is clickable
-wherever it is used.
-
 ## Keys
 
-`on key("…")` answers to one key, with modifiers:
+`on key("…")` answers to one key, with modifiers. On an element it fires while
+that element has focus; at the top of a page or component it fires anywhere on
+the page:
 
 ```wf
-page Keys(path: "/") {
+page Keys(path: "/", title: "Keys", description: "Keys on a field and on the page.") {
     state open = false
     state q = ""
+    Heading("Keys").h1
     Input(bind: q, ref: box, placeholder: "Search") {
-        on key("Escape") { q = "" }            // on the element: fires while it has focus
+        on key("Escape") { q = "" }            // on the element: while it has focus
         on key("Enter", e) { log(e.target.value) }
     }
-    on key("ctrl+k") { box.focus() }           // on the page: fires anywhere on the page
+    on key("ctrl+k") { box.focus() }           // on the page: anywhere on the page
     on key("cmd+k") { box.focus() }
     on key("?") { open = !open }
     if open { Alert("Shortcuts: ctrl+k to search, ? for this.").info }
 }
 ```
 
-Spelling: modifiers `ctrl`, `shift`, `alt`, `meta` (or `cmd`), joined with
-`+`, then the key as the browser names it — `k`, `Enter`, `Escape` (or `esc`),
-`Tab`, `ArrowDown` (or `down`), `space`, `F2`. On an element the handler
-listens on that element; at the top of a page or component it listens on the
-document for as long as the page shows. Every modifier must match exactly, so
-`ctrl+k` does not fire on `ctrl+shift+k`.
+How a combination is spelled:
+
+- Modifiers are `ctrl`, `shift`, `alt` and `meta` (or `cmd`), joined with `+`.
+- Then comes the key as the browser names it: `k`, `Enter`, `Escape` (or
+  `esc`), `Tab`, `ArrowDown` (or `down`), `space`, `F2`.
+- `on key("Enter", e)` names the event too.
+
+How it listens:
+
+- On an element, the handler listens on that element.
+- At the top of a page or component, it listens on the document for as long as
+  the page shows.
+- Every modifier must match exactly, so `ctrl+k` does not fire on
+  `ctrl+shift+k`.
+
+A combination no keyboard sends — an unknown modifier, no key — is an error
+(`E117`).
 
 ### Shortcuts for an app
 
-An app's shortcuts are written with **`mod`**, which is ⌘ on a Mac and Ctrl
-everywhere else, and declared on `app`, where they are heard on every page
-for as long as the app runs. A **chord** is its steps with a space between:
-the second step must come within a second and a half of the first, and alone
-it does not fire a shortcut of its own.
+To give an app shortcuts that work on every page, write them with `mod` and
+declare them on `app`:
+
+- **`mod`** is ⌘ on a Mac and Ctrl everywhere else.
+- On **`app`**, a shortcut is heard on every page for as long as the app runs.
+- A **chord** is its steps with a space between: `mod+k mod+s`. The second
+  step must come within a second and a half of the first, and on its own it
+  does not fire a shortcut of its own.
+
+This app drives its shortcuts and its **View** menu from one table of
+commands:
 
 ```wf
 store Commands {
@@ -137,28 +179,31 @@ app {
 }
 ```
 
+The helpers and rules it relies on:
+
 - **`keyIs(e, "mod+s")`** is whether a key event is that combination — a
   chord's too — so one table of commands can drive the shortcuts, the menus
   and a palette.
-- **`keyLabel("mod+shift+p")`** is how this system writes it: `⇧⌘P` on a
-  Mac, `Ctrl+Shift+P` elsewhere. A `Menu.Item`'s and a `Tooltip`'s
-  `shortcut:` are written the same way, and the item — or the tooltip's
-  control — tells assistive technology with `aria-keyshortcuts`.
-- Outside any element, a page, a component or `app` may handle `keydown`
-  and `keyup`, and the window's `resize`, `scroll`, `hashchange`,
+- **`keyLabel("mod+shift+p")`** is how this system writes it: `⇧⌘P` on a Mac,
+  `Ctrl+Shift+P` elsewhere. A `Menu.Item`'s and a `Tooltip`'s `shortcut:` are
+  written the same way, and the item — or the tooltip's control — tells
+  assistive technology with `aria-keyshortcuts`.
+- **Events outside any element.** A page, a component or `app` may handle
+  `keydown` and `keyup`, and the window's `resize`, `scroll`, `hashchange`,
   `popstate`, `online`, `offline`, `message`, `storage` and
   `visibilitychange`, and the window losing and gaining focus (`blur`,
-  `focus`, as an editor saves on leaving): each listens for as long as it
-  shows.
-- A letter is also the key in its place: on a Mac `⌥⌘P` sends `π`, and
+  `focus` — an editor saves on leaving, for example). Each listens for as
+  long as its owner shows.
+- **A letter is also the key in its place.** On a Mac `⌥⌘P` sends `π`, and
   `mod+alt+p` still matches it.
 
 ## Emitting events from components
 
-A component declares the events it fires and fires them with `emit`; the
-caller handles them like DOM events, with a name for each value the event
-sends — `on change(v)`, `on menu(key, x, y)`.
-[Chapter 11](11-components.md#events) covers it:
+A component declares the events it fires with `event`, and fires them with
+`emit`. The caller handles them like DOM events, with a name for each value
+the event sends — `on change(v)`, `on menu(key, x, y)`.
+[Components](11-components.md#events) covers the details. This counter tells
+its page every time it changes:
 
 ```wf
 component Counter(_ start: Number) {
@@ -171,14 +216,20 @@ component Counter(_ start: Number) {
     }
 }
 
-page Use(path: "/") {
+page Tally(path: "/", title: "Tally", description: "A component that reports its count.") {
     state total = 0
+    Heading("Tally").h1
     Counter(10) { on change(v) { total = v } }
     Text("Now {total}")
 }
 ```
 
 ## Overlays: modals, dialogs, toasts and menus
+
+An *overlay* is something a page opens over itself: a modal that asks a
+question, a toast that confirms, a menu of actions, a tooltip. Most are
+opened by a state, so the page decides when they show. This page has one of
+each:
 
 ```wf
 page Overlays(path: "/", title: "Overlays", description: "What a page opens.") {
@@ -203,48 +254,61 @@ page Overlays(path: "/", title: "Overlays", description: "What a page opens.") {
 }
 ```
 
-- **`Modal`** and **`Dialog`** are real `<dialog>` elements, opened while their
-  `visible:` state is true. The browser traps focus, makes the rest of the
-  page inert and closes on Escape (a click on the backdrop leaves it open)
-  — and when it closes that way, the state is set back to `false`, so it
-  never disagrees with what is on screen. Focus returns to what opened it. `on close` runs
-  when it closes, however it was closed. `title:` is its heading, which
-  names it (`A08` without one). `Modal.Footer` is the row of actions. `Modal.Title { … }` is
-  what the heading draws when words alone will not do — `Modal.Title {
-  Markdown("Rename `{name}`") }` — while `title:` stays its name, and
-  `.closable` puts a close button in the heading row, which closes it as
-  Escape does.
-- **`Toast`** shows the moment it is rendered and leaves after three seconds;
-  it is announced politely to screen readers. Put it under a condition that
+- **`Modal`** and **`Dialog`** are real `<dialog>` elements, open while their
+  `visible:` state is true.
+  - The browser traps focus, makes the rest of the page inert and closes the
+    dialog on Escape. A click on the backdrop leaves it open.
+  - When it closes that way, the state is set back to `false`, so it never
+    disagrees with what is on screen. Focus returns to what opened it.
+  - `on close` runs when it closes, however it was closed.
+  - `title:` is its heading, which names it (`A08` without one).
+    `Modal.Footer` is the row of actions.
+  - `Modal.Title { … }` is what the heading draws when words alone will not
+    do — `Modal.Title { Markdown("Rename `{name}`") }` — while `title:` stays
+    its name.
+  - `.closable` puts a close button in the heading row, which closes it as
+    Escape does.
+- **`Toast`** shows the moment it is rendered and leaves after three seconds.
+  It is announced politely to screen readers. Put it under a condition that
   turns true.
 - **`Menu`** and **`Dropdown`** open a list from a button. Arrow keys move
-  between items, Home and End jump to the ends, Enter and Space choose,
-  Escape closes with focus back on the button, and a click outside closes it.
+  between items, Home and End jump to the ends, Enter and Space choose, Escape
+  closes with focus back on the button, and a click outside closes it.
 - **`Tooltip`** shows its text when its child is hovered or focused, and is
   linked to it with `aria-describedby`.
 
 ### Layers: popovers, menus and tooltips above everything
 
-A `Popover`, a `Menu`'s list and a `Tooltip` are drawn in the browser's top
-layer, above everything else on the page, so a box with `overflow: hidden`
-or a stacking context of its own cannot clip or cover them. Each is placed
-against its anchor: it flips to the other side when there is no room, slides
-along its side to stay on screen, and follows the anchor while the page
-scrolls; when the anchor scrolls out of view the layer goes with it, still
-open, and comes back with it. The open layers are one stack, newest on top,
-and a press outside closes every layer it is outside of.
+A `Popover`, a `Menu`'s list and a `Tooltip` are drawn in the browser's *top
+layer*, above everything else on the page. A box with `overflow: hidden`, or
+one with a stacking context of its own, cannot clip or cover them.
 
-Escape closes the newest layer that can be dismissed — a popover, a menu,
-an open `Modal` or `Dialog` — and stops there: nothing behind it hears that
-key. A modal opened from a popover is above it: the first Escape closes the
-modal, which its `on close` hears, and the next the popover. A modal covers
-what is beneath it, so a press in it, or on its backdrop, leaves the
-popover under it open. A tooltip keeps Escape
-only while focus is on its control: it hides, and the key goes no further.
-Otherwise the same Escape hides it on its way past and goes on, to the
-layer below or to the element with focus. A tooltip under a pointer
-resting on a toolbar button does not take the Escape that closes an
-editor's completion list.
+Each layer is placed against its *anchor*, the element it belongs to:
+
+- It flips to the other side when there is no room, and slides along its side
+  to stay on screen.
+- It follows the anchor while the page scrolls. When the anchor scrolls out of
+  view the layer goes with it, still open, and comes back with it.
+
+The open layers form one stack, newest on top. A press outside closes every
+layer it is outside of.
+
+Escape closes the newest layer that can be dismissed — a popover, a menu, an
+open `Modal` or `Dialog` — and stops there: nothing behind it hears that key.
+For example:
+
+- A modal opened from a popover is above it. The first Escape closes the
+  modal, which its `on close` hears, and the next closes the popover.
+- A modal covers what is beneath it, so a press in it, or on its backdrop,
+  leaves the popover under it open.
+- A tooltip keeps Escape only while focus is on its control: it hides, and the
+  key goes no further. Otherwise the same Escape hides it on its way past and
+  goes on, to the layer below or to the element with focus. So a tooltip under
+  a pointer resting on a toolbar button does not take the Escape that closes
+  an editor's completion list.
+
+This editor has a popover at a button, a menu bar with every kind of item, a
+tooltip and a context menu at the pointer:
 
 ```wf
 page Editor(path: "/", title: "Editor", description: "Layers at a control and at the pointer.") {
@@ -297,8 +361,10 @@ page Editor(path: "/", title: "Editor", description: "Layers at a control and at
 }
 ```
 
-- **`Popover`** is open while its `visible:` state is true, placed against
-  `anchor:` — an element's `ref:` — on `placement:` (`.bottom`,
+What each part does:
+
+- **`Popover`** is open while its `visible:` state is true. It is placed
+  against `anchor:` — an element's `ref:` — on `placement:` (`.bottom`,
   `.bottomStart`, `.bottomEnd`, `.top…`, `.left…`, `.right…`; unset,
   `.bottomStart`), `offset:` pixels away. When Escape or a press outside
   closes it, `visible:` is set back to `false` and `on close(reason)` hears
@@ -307,41 +373,52 @@ page Editor(path: "/", title: "Editor", description: "Layers at a control and at
 - **`Menu`** with `trigger:` is a button and its list. Without one it is a
   list that state opens — open from the first paint if its state starts
   `true` — at an `anchor:`, or `at:` a point `{ x, y }`, where the pointer
-  asked for a context menu. `label:` names the list for a screen reader;
-  it is never a button's text. Choosing an item
-  closes it (`on close` hears `"choose"`).
-- **`Menu.Item`** takes `shortcut:` — the keys that do the same, drawn at
-  its end and given to assistive technology as `aria-keyshortcuts`;
-  `checked:`, which makes it a check item that follows its state; and
-  `disabled:`, which keeps it in sight but out of reach — the arrow keys
-  skip it and a press does nothing; and `.danger`, for what cannot be taken
-  back (Delete, Discard), drawn in the danger colour.
-- **`Menu.Sub(label:)`** is an entry with a menu of its own, opened beside
-  it by a hover, ArrowRight or Enter. ArrowLeft and Escape go back to the
-  entry; choosing in it closes the whole menu, and it closes with its menu.
-- **`Tooltip`** waits `delay:` milliseconds of hover (unset, 500) and shows
-  at once for keyboard focus; it never takes focus, and goes on leaving, on
-  a press and on Escape — and once Escape has hidden it, it stays hidden
-  until the pointer comes back to it or keyboard focus reaches its
-  control. `shortcut:` adds a chip with the keys and gives the control it
-  names its `aria-keyshortcuts`, in ARIA's spelling (`Control+S`);
-  `placement:` is where it goes (unset, `.top`).
-- A layer takes what any element takes, as every built-in does (chapter
-  7), on the element it draws: `id:`, `role:`, `tabindex:`, `title:`,
-  `aria-*`, `data-*`, `ref:`, and its `on` handlers. A `Popover` is a
-  `dialog` unless its `role:` says what else it is — a `listbox` of
-  choices. A `Menu` with a `trigger:` takes them on the box around its
-  button and list, and one that state opens on its list, whose `role:`
-  then replaces `menu`; a `Tooltip` on the box around its control; a
-  `Modal` or a `Dialog` on its `<dialog>`, whose `title:` is its heading
-  rather than an attribute. A `Popover`'s or a `Menu`'s `on close` is the
-  layer's own, and hears why it closed.
+  asked for a context menu. `label:` names the list for a screen reader; it
+  is never a button's text. Choosing an item closes the menu, and `on close`
+  hears `"choose"`.
+- **`Menu.Item`** takes:
+  - `shortcut:` — the keys that do the same, drawn at its end and given to
+    assistive technology as `aria-keyshortcuts`;
+  - `checked:` — makes it a check item that follows its state;
+  - `disabled:` — keeps it in sight but out of reach: the arrow keys skip it
+    and a press does nothing;
+  - `.danger` — for what cannot be taken back (Delete, Discard), drawn in the
+    danger colour.
+- **`Menu.Sub(label:)`** is an entry with a menu of its own, opened beside it
+  by a hover, ArrowRight or Enter. ArrowLeft and Escape go back to the entry.
+  Choosing in it closes the whole menu, and it closes with its menu.
+- **`Tooltip`** waits `delay:` milliseconds of hover (unset, 500) and shows at
+  once for keyboard focus. It never takes focus, and goes on leaving, on a
+  press and on Escape. Once Escape has hidden it, it stays hidden until the
+  pointer comes back to it or keyboard focus reaches its control.
+  `shortcut:` adds a chip with the keys and gives the control it names its
+  `aria-keyshortcuts`, in ARIA's spelling (`Control+S`). `placement:` is where
+  it goes (unset, `.top`).
+
+A layer takes what any element takes ([Elements](07-elements.md)), on the
+element it draws: `id:`, `role:`, `tabindex:`, `title:`, `aria-*`, `data-*`,
+`ref:`, and its `on` handlers. Where they land:
+
+- A `Popover` is a `dialog` unless its `role:` says what else it is — a
+  `listbox` of choices, for example.
+- A `Menu` with a `trigger:` takes them on the box around its button and
+  list. One that state opens takes them on its list, whose `role:` then
+  replaces `menu`.
+- A `Tooltip` takes them on the box around its control.
+- A `Modal` or a `Dialog` takes them on its `<dialog>`, whose `title:` is its
+  heading rather than an attribute.
+
+A `Popover`'s or a `Menu`'s `on close` is the layer's own, and hears why it
+closed.
 
 ## Gestures: drag, long-press, swipe and the splitter
 
-The runtime turns what the pointer does over time into one event with what
-it means. A mouse, a pen and a finger are the same code; a finger picks a
-drag up with a long press, so a plain swipe still scrolls.
+The runtime turns what the pointer does over time into one event that says
+what it means. A mouse, a pen and a finger run the same code. A finger picks a
+drag up with a long press, so a plain swipe still scrolls the page.
+
+This file browser reorders tabs, moves tree rows into a folder, and sizes its
+sidebar with a splitter:
 
 ```wf
 page Files(path: "/", title: "Files", description: "Reorder, move and resize.") {
@@ -385,44 +462,50 @@ page Files(path: "/", title: "Files", description: "Reorder, move and resize.") 
 ```
 
 - **`drag: value`** picks an element up: a mouse moved a few pixels, or a
-  finger held still for half a second. A ghost follows the pointer, a box
-  near whose edge it passes scrolls, and Escape puts it back. The click a
-  drag ends with is not a click.
-- **`on receive(d)`** takes a drop: `d.value` is what was dropped and
-  `d.position` where — `"before"` or `"after"` along `dropAxis:` (`.y`
-  down the page, the default; `.x` across it, for a tab strip), or
-  `"inside"` on the middle of a target with `dropInside: true` (a folder, a
-  container). The target shows a line where the drop would go, or an
-  outline for inside.
+  finger held still for half a second. A ghost follows the pointer, a box the
+  pointer passes near the edge of scrolls, and Escape puts the element back.
+  The click a drag ends with is not a click.
+- **`on receive(d)`** takes a drop. `d.value` is what was dropped, and
+  `d.position` is where:
+  - `"before"` or `"after"` along `dropAxis:` — `.y`, down the page, is the
+    default; `.x`, across it, is for a tab strip;
+  - `"inside"`, on the middle of a target with `dropInside: true` (a folder, a
+    container).
+  - The target shows a line where the drop would go, or an outline for
+    inside.
 - **`on dragmove(d)`** on the dragged element hears, as it moves, what it is
-  over — the target's `dropValue:` as `d.over`, null over nothing — and
-  where it would land: enough to say "Goes after Badge, inside Row".
-- **`dragGroup:`** on a drag and its targets keeps tabs and tree rows apart.
-- **`on longpress(p)`** is half a second held still (`p.x`, `p.y`); the
-  click it ends with is not a click. **`on swipe(s)`** is a finger or a pen
-  swept across: `s.direction` is `"left"`, `"right"`, `"up"` or `"down"`.
-- **`Splitter(bind:, min:, max:, reset:)`** sizes the region beside it: it
-  follows the pointer between its bounds, a double-click or Enter resets
-  it, and the arrow keys move it 16 px (64 with Shift). `.horizontal` sits
-  between regions one above the other; `.reverse` sits on the start side of
-  what it sizes — a pane on the right, a panel at the bottom. A drag or a
-  key starts from the region's size as it is drawn, so the bound value may
-  mean "the default share" — `0`, with the region's width a percentage
-  until it is dragged — and `reset: 0` goes back to it: a reset is taken as
-  written, not held to `min:`. It is a `separator` in the tab order unless
-  its `role:` or `tabindex:` says otherwise.
+  over — the target's `dropValue:` as `d.over`, null over nothing — and where
+  it would land. That is enough to say "Goes after Badge, inside Row".
+- **`dragGroup:`** on a drag and its targets keeps groups apart, such as tabs
+  and tree rows.
+- **`on longpress(p)`** is half a second held still (`p.x`, `p.y`); the click
+  it ends with is not a click. **`on swipe(s)`** is a finger or a pen swept
+  across: `s.direction` is `"left"`, `"right"`, `"up"` or `"down"`.
+- **`Splitter(bind:, min:, max:, reset:)`** sizes the region beside it:
+  - It follows the pointer between its bounds; a double-click or Enter resets
+    it; the arrow keys move it 16 px (64 with Shift).
+  - `.horizontal` sits between regions one above the other; `.reverse` sits on
+    the start side of what it sizes — a pane on the right, a panel at the
+    bottom.
+  - A drag or a key starts from the region's size as it is drawn. So the bound
+    value may mean "the default share" — `0`, with the region's width a
+    percentage until it is dragged — and `reset: 0` goes back to it: a reset
+    is taken as written, not held to `min:`.
+  - It is a `separator` in the tab order unless its `role:` or `tabindex:`
+    says otherwise.
 
-On your own component's call, all of these — the drag, the drop, the
-gestures — are the one element it draws, as a DOM event's handler or an
-`aria-label` written on the call is:
+On a call of your own component, all of these — the drag, the drop, the
+gestures — apply to the one element it draws, as a DOM event's handler or an
+`aria-label` written on the call does:
 
 ```wf
 component TreeRow(_ name: String) {
     Row { Icon("file")  Text(name) }
 }
 
-page Files(path: "/files", title: "Files") {
+page Files(path: "/files", title: "Files", description: "Tree rows you can drag.") {
     state rows = ["src", "README.md"]
+    Heading("Files").h1
     Stack {
         for r in rows {
             TreeRow(r, drag: r, dragGroup: "tree", dropValue: r, dropInside: r == "src") {
@@ -434,39 +517,74 @@ page Files(path: "/files", title: "Files") {
 }
 ```
 
-A component that declares a prop or an event of that name takes it itself.
-One whose body is an `if`, a `for` or several elements has no one element
-for them, and the build says so (`C07`): wrap what it draws in a `Stack` or
-a `Row`.
+A component that declares a prop or an event of that name takes it itself. A
+component whose body is an `if`, a `for` or several elements has no one
+element for them, and the build says so (`C07`): wrap what it draws in a
+`Stack` or a `Row`.
 
-A drag has no keyboard of its own: give what it does a menu item or a
-command too (`Move left`, `Move to…`), as the desktop's rule asks of every
-pointer action.
+> [!IMPORTANT]
+> A drag has no keyboard of its own. Give what it does a menu item or a
+> command too (`Move left`, `Move to…`), as the platform's accessibility rules
+> ask of every pointer action.
 
 ## Listening outside the page's elements
 
-A handler on an element hears that element. For the window or the document
-— a resize, a scroll of the page, a message from another window — use an
-`effect` with a `cleanup`, which removes the listener when the page leaves.
-An action named without parentheses is the function itself, so it can be
-handed to the browser:
+A handler on an element hears that element. For the window, write the handler
+at the top of the page, a component or `app`, outside any element — `resize`,
+`scroll`, `hashchange`, `popstate`, `online`, `offline`, `message`, `storage`,
+`visibilitychange`, `blur` and `focus` are heard there
+([Shortcuts for an app](#shortcuts-for-an-app)). It listens for as long as its
+owner shows:
 
 ```wf
 page Scrolled(path: "/", title: "Scrolled", description: "How far down the reader is.") {
     state y = 0
-    action track() { y = window.scrollY }
-    effect {
-        window.addEventListener("scroll", track)
-        cleanup { window.removeEventListener("scroll", track) }
-    }
+    on scroll { y = window.scrollY }
     Heading("Scrolled").h1
     Text("{y}px down")
+}
+```
+
+For any other target or event, use an `effect` with a `cleanup`, which removes
+the listener when the page leaves. An action named without parentheses is the
+function itself, so you can hand it to the browser:
+
+```wf
+page Selection(path: "/", title: "Selection", description: "What the reader has selected.") {
+    state picked = ""
+    action track() { picked = document.getSelection().toString() }
+    effect {
+        document.addEventListener("selectionchange", track)
+        cleanup { document.removeEventListener("selectionchange", track) }
+    }
+    Heading("Selection").h1
+    Text("Selected: {picked}")
 }
 ```
 
 For the viewport's size, the network and the URL, the language already keeps
 values current — `viewport`, `network`, `query`, `hash` — so no listener is
 needed ([State](08-state-and-reactivity.md#the-browser-as-values)).
+
+## Summary
+
+| You write | It does | Section |
+|---|---|---|
+| `on click { … }` | runs when the element fires the event | [Handlers](#handlers) |
+| `on keydown(e) { … }` | names the event object | [The event object](#the-event-object) |
+| `on key("Escape") { … }` | answers to one key or combination | [Keys](#keys) |
+| `on key("mod+k mod+s") { … }` on `app` | an app-wide shortcut, here a chord | [Shortcuts for an app](#shortcuts-for-an-app) |
+| `keyIs(e, "mod+s")`, `keyLabel("mod+s")` | test a key event; write a combination for this system | [Shortcuts for an app](#shortcuts-for-an-app) |
+| `event change(v: Number)`, `emit change(n)` | a component's own event | [Emitting events from components](#emitting-events-from-components) |
+| `Modal(visible: open, title: "…")` | a dialog opened by state | [Overlays](#overlays-modals-dialogs-toasts-and-menus) |
+| `Popover(visible:, anchor:)`, `Menu(visible:, at:)` | layers placed at a control or a point | [Layers](#layers-popovers-menus-and-tooltips-above-everything) |
+| `drag: v`, `on receive(d)`, `on dragmove(d)` | drag and drop | [Gestures](#gestures-drag-long-press-swipe-and-the-splitter) |
+| `on longpress(p)`, `on swipe(s)` | a held press; a sweep | [Gestures](#gestures-drag-long-press-swipe-and-the-splitter) |
+| `Splitter(bind: side, min:, max:)` | a handle that sizes a region | [Gestures](#gestures-drag-long-press-swipe-and-the-splitter) |
+| `on scroll { … }` outside any element | a window event | [Listening outside the page's elements](#listening-outside-the-page-s-elements) |
+
+The [components reference](37-components-reference.md) lists every event and
+prop of each built-in.
 
 ## Next
 
