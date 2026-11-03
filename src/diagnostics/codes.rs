@@ -532,6 +532,12 @@ pub static CODES: &[CodeInfo] = &[
         "A locale the project does not have",
         "`setLocale(\"xx\")` names a locale `i18n.locales` does not list.",
     ),
+    code(
+        "I05",
+        Warning,
+        "Words a reader sees that are not translated",
+        "Under `i18n.literals`, text that splices more than a name, or a value shown by a name that does not say it is words, is never looked up: every reader sees it as written.",
+    ),
     // ── A: accessibility ─────────────────────────────────────────────
     code(
         "A01",

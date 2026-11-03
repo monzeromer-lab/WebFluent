@@ -2591,7 +2591,11 @@ the file has it in any language, falling back to `items.other` and then
 `items` — the static paint and the live page by the same rules. A key's
 forms come from one language. Under `i18n.literals`, text with one number
 in it (`Text("{files} files")`) picks its form by that number:
-`"{files} files.one"`, `"{files} files.other"` … in each table. `format` and `ago` speak the locale too.
+`"{files} files.one"`, `"{files} files.other"` … in each table. Under
+literals a text is keyed by the names it splices (`{item?.name ?? ""}` is
+`{name}`); a `derived`, `state` or action-written value is looked up only
+when its name says it is words (`countText`, `emptyLabel`, `saidNote`);
+I05 warns of shown words that are neither. `format` and `ago` speak the locale too.
 `wf translations` is the table: what each locale lacks, what nothing names.
 
 RTL locales (automatic `dir="rtl"`, from the first paint when the default
@@ -3008,6 +3012,7 @@ And what the type checker finds:
 | `I01` | A literal `t("key")` that no locale's translations have, so the page shows the key |
 | `I02` | A message and its call that disagree: a value passed the message does not use, or a placeholder the call does not pass |
 | `I04` | `setLocale("xx")` naming a locale `i18n.locales` does not list |
+| `I05` | Under `i18n.literals`, shown words no table can translate: text splicing more than a name, or a value shown by a name that does not say it is words |
 | `V06` | A `$token` the resolved theme does not declare, so the property falls back to nothing |
 
 An endpoint a service does not have is `T06`, and an argument it does not

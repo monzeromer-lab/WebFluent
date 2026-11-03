@@ -1273,6 +1273,10 @@ page P(path: "/", title: "T", description: "D") {
 
         Markdown("`setLocale(\"fr\")` when `i18n.locales` is `[\"en\", \"ar\"]`. **Fix:** add the locale and its file, or name one that exists.")
 
+        Heading("I05 — Words a reader sees that are not translated", id: "i05-words-a-reader-sees-that-are-not-translated").h3
+
+        Markdown("Warning, under `\"literals\": true`. `Text(\"\{plural(n, \"file\")\} found\")` splices a call, so no table can key it; `derived said = \"\{n\} errors\"` shown as `Text(said)` is not looked up, because only a value whose name says it is words (`saidText`, `errorsLabel`) is. A reader in Arabic sees both in English. **Fix:** splice names, `derived filesText = \"\{n\} files\"` then `Text(\"\{filesText\} found\")`, and name what is words as words.")
+
         Heading("Accessibility", id: "accessibility").h2
 
         Markdown("Warnings. What makes a page unusable with a screen reader, a keyboard or a voice.")

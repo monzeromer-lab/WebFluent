@@ -458,6 +458,29 @@ pub fn translations(
             );
         }
     }
+    // I05: words a reader sees that no table can translate.
+    if config.literals {
+        use crate::i18n::literals::Untranslated;
+        for (file, span, why) in crate::i18n::literals::untranslated(program, file_of) {
+            let (message, hint) = match why {
+                Untranslated::Splices(x) => (
+                    format!("this text is not translated: it splices `{x}`, which is more than a name"),
+                    "Give it a name — a `derived` — and splice that name; the table keys a text by the names it splices".to_string(),
+                ),
+                Untranslated::Unnamed(n) => {
+                    let last = n.rsplit('.').next().unwrap_or(&n).to_string();
+                    (
+                        format!("`{n}` is shown, but its words are not translated: only a value whose name says it is words is looked up"),
+                        format!("Rename it `{last}Text`, or end its name in Label, Title, Word, Note, Message …"),
+                    )
+                }
+            };
+            out.push(
+                Diagnostic::coded("I05", message, &file, span.line as usize, span.col as usize)
+                    .with_hint(hint),
+            );
+        }
+    }
     out
 }
 

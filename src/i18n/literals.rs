@@ -66,8 +66,28 @@ fn name_of(e: &Expr) -> Option<String> {
             name_of(base)?;
             Some(n.clone())
         }
+        // A path with what it falls back to: `{item?.name ?? ""}`.
+        Expr::BinaryOp(left, crate::parser::ast::BinOp::NullCoalesce, right)
+            if matches!(**right, Expr::StringLiteral(_) | Expr::NumberLiteral(_)) =>
+        {
+            name_of(left)
+        }
         _ => None,
     }
+}
+
+/// Whether a piece of text is prose a reader reads, not a name or a code
+/// word: `Close`, `about `, `used in`, but not `rtl`, `main` or
+/// `webfluent.app.json`.
+fn prose(t: &str) -> bool {
+    let letters = t.chars().filter(|c| c.is_alphabetic()).count();
+    let capital = t
+        .trim_start()
+        .chars()
+        .next()
+        .is_some_and(|c| c.is_uppercase())
+        && t.chars().any(|c| c.is_lowercase());
+    letters >= 1 && (t.contains(char::is_whitespace) || capital || !t.is_ascii())
 }
 
 /// The key a string is looked up by, and what fills each placeholder:
@@ -242,6 +262,15 @@ fn each_text(program: &mut Program, f: &mut dyn FnMut(&mut Expr, usize, Span)) {
                     }
                     each_field(&mut d.value, &mut |e| f(e, i, span));
                 }
+                // `wrote = "Wrote {n} changes."` in an action, to a value
+                // whose name says it is words.
+                StatementKind::Assignment(a) => {
+                    if target_name(&a.target).is_some_and(text_name) {
+                        each_shown(&mut a.value, &mut |e| f(e, i, span));
+                    }
+                    each_field(&mut a.value, &mut |e| f(e, i, span));
+                }
+                StatementKind::Return(Some(e)) => each_field(e, &mut |x| f(x, i, span)),
                 StatementKind::UIElement(ui) => {
                     for a in &mut ui.args {
                         match a {
@@ -269,6 +298,127 @@ fn each_text(program: &mut Program, f: &mut dyn FnMut(&mut Expr, usize, Span)) {
         });
         values(body, i, f);
     }
+}
+
+/// The name an assignment writes: `wrote`, or `note` of `self.note`.
+fn target_name(e: &Expr) -> Option<&str> {
+    match e {
+        Expr::Identifier(n) => Some(n),
+        Expr::PropertyAccess(_, n) | Expr::OptionalProperty(_, n) => Some(n),
+        _ => None,
+    }
+}
+
+/// Whether `e` holds a string with words in it anywhere.
+fn holds_words(e: &Expr) -> bool {
+    let mut found = false;
+    e.clone().walk_mut(&mut |x| match x {
+        Expr::StringLiteral(t) if prose(t) => found = true,
+        Expr::InterpolatedString(parts) => {
+            found |= parts
+                .iter()
+                .any(|p| matches!(p, StringPart::Literal(t) if prose(t)))
+        }
+        _ => {}
+    });
+    found
+}
+
+/// Why words a reader sees are not translated.
+#[derive(Debug, Clone, PartialEq)]
+pub enum Untranslated {
+    /// Text that splices more than a plain path: `{plural(n, "file")}`.
+    Splices(String),
+    /// A value shown by its name, whose name does not say it is words, so
+    /// the strings it holds are not looked up: `said`.
+    Unnamed(String),
+}
+
+/// What a reader sees that no table translates, with where it is shown.
+pub fn untranslated(
+    program: &Program,
+    file_of: &dyn Fn(usize) -> String,
+) -> Vec<(String, Span, Untranslated)> {
+    // The values each body declares or writes words into, whose names do
+    // not say they are words; a store's by `Store.member` as well.
+    fn wordy(body: &[Statement], out: &mut std::collections::BTreeSet<String>) {
+        for s in body {
+            match &s.kind {
+                StatementKind::State(d) if !text_name(&d.name) && holds_words(&d.value) => {
+                    out.insert(d.name.clone());
+                }
+                StatementKind::Derived(d) if !text_name(&d.name) && holds_words(&d.value) => {
+                    out.insert(d.name.clone());
+                }
+                StatementKind::Assignment(a) => {
+                    if let Some(n) = target_name(&a.target) {
+                        if !text_name(n) && holds_words(&a.value) {
+                            out.insert(n.to_string());
+                        }
+                    }
+                }
+                _ => {}
+            }
+            let mut kind = s.kind.clone();
+            for b in kind.bodies_mut() {
+                wordy(b, out);
+            }
+        }
+    }
+    let mut copy = program.clone();
+    let mut by_body: std::collections::HashMap<usize, std::collections::BTreeSet<String>> =
+        std::collections::HashMap::new();
+    let mut stores = std::collections::BTreeSet::new();
+    for (i, body) in bodies(&mut copy) {
+        let mut names = std::collections::BTreeSet::new();
+        wordy(body, &mut names);
+        by_body.insert(i, names);
+    }
+    for (i, d) in program.declarations.iter().enumerate() {
+        if let Declaration::Store(st) = d {
+            for n in by_body.get(&i).into_iter().flatten() {
+                stores.insert(format!("{}.{n}", st.name));
+            }
+        }
+    }
+    let unnamed = |x: &Expr, i: usize| -> Option<String> {
+        match x {
+            Expr::Identifier(n) if by_body.get(&i).is_some_and(|s| s.contains(n)) => {
+                Some(n.clone())
+            }
+            Expr::PropertyAccess(base, m) | Expr::OptionalProperty(base, m) => match &**base {
+                Expr::Identifier(st) if stores.contains(&format!("{st}.{m}")) => {
+                    Some(format!("{st}.{m}"))
+                }
+                _ => None,
+            },
+            _ => None,
+        }
+    };
+    let mut out = Vec::new();
+    each_text(&mut copy, &mut |e, i, span| {
+        let why = match e {
+            Expr::InterpolatedString(parts) => {
+                let words = parts
+                    .iter()
+                    .any(|p| matches!(p, StringPart::Literal(t) if prose(t)));
+                parts.iter().find_map(|p| match p {
+                    StringPart::Expression(x) if words && name_of(x).is_none() => {
+                        Some(Untranslated::Splices(crate::print::expr(x)))
+                    }
+                    StringPart::Expression(x) => unnamed(x, i).map(Untranslated::Unnamed),
+                    _ => None,
+                })
+            }
+            other => unnamed(other, i).map(Untranslated::Unnamed),
+        };
+        if let Some(why) = why {
+            out.push((file_of(i), span, why));
+        }
+    });
+    out.sort_by(|a, b| (&a.0, a.1.line, a.1.col).cmp(&(&b.0, b.1.line, b.1.col)));
+    out.dedup();
+    out
 }
 
 /// Every string a reader sees, as the `t()` call it stands for.
@@ -378,6 +528,56 @@ mod tests {
         assert!(key_of(&expr("\"42\"")).is_none());
         let (k, _) = key_of(&expr("\"{a.name} and {b.name}\"")).unwrap();
         assert_eq!(k, "{name} and {name2}");
+    }
+
+    #[test]
+    fn a_path_with_its_fallback_is_named_by_the_path() {
+        let (key, args) = key_of(&expr("\"Delete {item?.name ?? \\\"\\\"}?\"")).unwrap();
+        assert_eq!(key, "Delete {name}?");
+        assert_eq!(crate::print::expr(&args[0].1), "item?.name ?? \"\"");
+        assert!(
+            key_of(&expr("\"{a ?? b} left\"")).is_none(),
+            "a fallback that is not a value"
+        );
+    }
+
+    #[test]
+    fn words_written_in_an_action_to_a_value_named_as_words_are_looked_up() {
+        let mut p = page(
+            "store S {\n    state wroteNote = \"\"\n    state kind = \"\"\n    action save(n: Number) {\n        wroteNote = \"Wrote {n} changes.\"\n        kind = \"Kept as it is\"\n    }\n}\n",
+        );
+        translate(&mut p);
+        let Declaration::Store(st) = &p.declarations[0] else {
+            panic!()
+        };
+        let out = format!("{:?}", st.body);
+        assert!(out.contains("Wrote {n} changes."), "{out}");
+        assert!(
+            out.contains("FunctionCall(\"t\", [StringLiteral(\"Wrote {n} changes.\")"),
+            "{out}"
+        );
+        assert!(
+            !out.contains("FunctionCall(\"t\", [StringLiteral(\"Kept as it is\")"),
+            "{out}"
+        );
+    }
+
+    #[test]
+    fn words_no_table_can_translate_are_found_where_they_are_shown() {
+        let p = page(
+            "page P(path: \"/\") {\n    state n = 2\n    derived said = \"{n} errors\"\n    derived saidText = \"{n} errors\"\n    derived dir = if n > 1 { \"rtl\" } else { \"ltr\" }\n    Text(said)\n    Text(saidText)\n    Text(dir)\n    Text(\"Found {n + 1} more\")\n    Text(\"{n + 1}:{n}\")\n}\n",
+        );
+        let found: Vec<(u32, Untranslated)> = untranslated(&p, &|_| "src/pages/p.wf".into())
+            .into_iter()
+            .map(|(_, span, why)| (span.line, why))
+            .collect();
+        assert_eq!(
+            found,
+            [
+                (6, Untranslated::Unnamed("said".into())),
+                (9, Untranslated::Splices("n + 1".into())),
+            ]
+        );
     }
 
     #[test]

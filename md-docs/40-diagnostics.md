@@ -1689,6 +1689,15 @@ sees `nav.blog`. **Fix:** translate it, or remove it from the others.
 `setLocale("fr")` when `i18n.locales` is `["en", "ar"]`. **Fix:** add the
 locale and its file, or name one that exists.
 
+### I05 — Words a reader sees that are not translated
+
+Warning, under `"literals": true`. `Text("{plural(n, "file")} found")`
+splices a call, so no table can key it; `derived said = "{n} errors"`
+shown as `Text(said)` is not looked up, because only a value whose name
+says it is words (`saidText`, `errorsLabel`) is. A reader in Arabic sees
+both in English. **Fix:** splice names, `derived filesText = "{n} files"`
+then `Text("{filesText} found")`, and name what is words as words.
+
 ## Accessibility
 
 Warnings. What makes a page unusable with a screen reader, a keyboard or a voice.
