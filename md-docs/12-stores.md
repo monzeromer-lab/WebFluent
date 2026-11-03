@@ -4,75 +4,34 @@
 route: guide/stores
 group: basics
 blurb: A store is state shared by every page and component that uses it, built the first time something reads it.
-description: Stores: declaration, scopes, use, actions, persistence and migrations, loading data, debugging, testing, and when to reach for one.
+description: Stores: declaration, scopes, use, actions, persist and migrations, connections, loading data, debugging, testing, and when to use one.
 -->
 
-A store is state shared by every page and component that uses it: the cart,
-the signed-in user, the theme, a cache of what was fetched. It holds `state`,
-`derived` values and actions.
+A *store* holds state that more than one page or component shares: the
+cart, the signed-in user, the theme, a cache of what was fetched. It holds
+`state`, `derived` values and actions, and every page that reads it sees
+the same values.
 
-**A store is built the first time something reads it.** Declaring one does
-nothing; the first `Cart.items`, `Cart.count` or `Cart.add(…)` builds it,
-and everything after that is the same instance. So the order stores are
-declared in does not matter — a `derived` may read a store declared below
-it — and a store nothing reads costs nothing, in time or in bytes.
+The one thing to remember: **a store is built the first time something
+reads it.** Declaring a store does nothing. The first `Cart.items`,
+`Cart.count` or `Cart.add(…)` builds it, and every later read uses that
+same instance. As a result, the order you declare stores in does not
+matter — a `derived` value may read a store declared below it — and a store
+nothing reads costs nothing, in time or in bytes.
 
-## Declaring a store
+**In this chapter**
 
-```wf
-type Item { id: String, name: String, price: Number, qty: Number = 1 }
+- Declaring a store and reading it from pages
+- How long a store lives: its scope
+- Actions, including async actions
+- Keeping a value across visits with `persist`, and changing its shape later
+- Connections and data a store owns
+- Inspecting and testing a store
+- When to use a store, and when a page's own state
 
-store Cart {
-    state items: [Item] = []
-    persist coupon = ""
+## A first store
 
-    derived count = items.reduce((n, i) => n + i.qty, 0)
-    derived subtotal = items.reduce((sum, i) => sum + i.price * i.qty, 0)
-    derived discount = if coupon == "SAVE10" { subtotal * 0.1 } else { 0 }
-    derived total = subtotal - discount
-
-    action add(item: Item) {
-        let found = items.find(i => i.id == item.id)
-        if found != null {
-            found.qty = found.qty + 1
-        } else {
-            items.push(item)
-        }
-    }
-    action remove(id: String) { items = items.filter(i => i.id != id) }
-    action clear() { items = [] }
-}
-```
-
-Inside the store its members are read bare (`items`, `count`); outside, a
-page or component says `use Cart` and reads them as `Cart.items`,
-`Cart.count`, and calls `Cart.add(…)`.
-
-A store may be declared in any `.wf` file the build reads — `src/stores/`
-by convention, and `wf generate store Cart` puts it there — and is reached
-by name from anywhere. `use` says which stores a page reads, for the reader
-and for the editor; it does not scope anything.
-
-## How long it lives
-
-```wf
-store Cart(scope: .app) { … }        // the default: as long as the page is open
-store Session(scope: .session) { … } // this tab's
-store Filters(scope: .route) { … }   // this route's
-```
-
-`.route` is the natural home for what belongs to one screen — the filters
-on a list, a wizard's step. When the route changes, what it holds goes with
-it, and the next read builds it again from its initial values. `.session`
-changes where what it keeps is written: the tab's own storage, gone when
-the tab is.
-
-`store X(eager: true)` builds it at boot instead, for the rare store whose
-set-up has to happen whether or not a page reads it. If a `derived` of
-yours has a side effect that used to run when the page loaded, this is the
-switch that keeps it running then.
-
-## Using a store
+This program declares a `Cart` store and reads it from two pages:
 
 ```wf
 type Item { id: String, name: String, price: Number, qty: Number = 1 }
@@ -103,14 +62,89 @@ page CartPage(path: "/cart", title: "Cart", description: "What you are buying.")
 }
 ```
 
-Everything that reads `Cart.count` — on any page — updates when it changes.
-The checker knows every member and its type: `Cart.cont` is an error (`T06`),
-and `Cart.add("pen")` is an error because `add` takes an `Item` (`T01`).
+Clicking **Add a pen** changes **0 items, $0.00** to **1 items, $2.50**,
+and the `/cart` page lists the pen.
+
+- `store Cart { … }` declares the store and its members.
+- `use Cart` in a page says the page reads the store. The page then reads
+  members as `Cart.items` and `Cart.count`, and calls actions as
+  `Cart.add(…)`.
+- Everything that reads `Cart.count`, on any page, updates when it changes.
+
+The checker knows every member and its type. `Cart.cont` is an error
+(`T06`, with the nearest member it does have), and `Cart.add("pen")` is an
+error because `add` takes an `Item` (`T01`).
+
+## Store members
+
+A store holds the same members a page does: `state`, `persist`, `derived`
+values and actions. This fuller `Cart` adds a coupon kept across visits and
+an action that raises the quantity of an item already in the cart:
+
+```wf
+type Item { id: String, name: String, price: Number, qty: Number = 1 }
+
+store Cart {
+    state items: [Item] = []
+    persist coupon = ""
+
+    derived count = items.reduce((n, i) => n + i.qty, 0)
+    derived subtotal = items.reduce((sum, i) => sum + i.price * i.qty, 0)
+    derived discount = if coupon == "SAVE10" { subtotal * 0.1 } else { 0 }
+    derived total = subtotal - discount
+
+    action add(item: Item) {
+        let found = items.find(i => i.id == item.id)
+        if found != null {
+            found.qty = found.qty + 1
+        } else {
+            items.push(item)
+        }
+    }
+    action remove(id: String) { items = items.filter(i => i.id != id) }
+    action clear() { items = [] }
+}
+```
+
+Inside the store you read its members by their bare names: `items`,
+`count`. Outside it, a page or component reads them through the store's
+name: `Cart.items`, `Cart.count`.
+
+You may declare a store in any `.wf` file the build reads. By convention it
+goes in `src/stores/`, and `wf generate store Cart` writes it there. A page
+reaches a store by name from anywhere. `use` says which stores a page
+reads, for the person reading the code and for the editor; it does not
+limit what the page can reach.
+
+## Store scope
+
+A store's *scope* says how long it lives. You set it in the declaration:
+
+```wf
+store Cart(scope: .app) { … }        // the default: as long as the page is open
+store Session(scope: .session) { … } // this tab's
+store Filters(scope: .route) { … }   // this route's
+```
+
+| Scope | Lives | Use it for |
+|---|---|---|
+| `.app` (the default) | as long as the page is open | the cart, the signed-in user |
+| `.session` | as long as the tab; what it keeps goes in the tab's own storage, gone when the tab is | state for one tab |
+| `.route` | until the route changes | the filters on a list, a wizard's step |
+
+When the route changes, a `.route` store drops what it holds. The next read
+builds it again from its initial values.
+
+`store X(eager: true)` builds the store at boot instead of on first read.
+Use it for the rare store whose set-up must run whether or not a page reads
+it. If a `derived` value of yours has a side effect that used to run when
+the page loaded, `eager: true` keeps it running then.
 
 ## Actions
 
-A store's actions are its API. They may be asynchronous, and an async action
-exposes `pending`:
+A store's actions are its interface: pages change the store by calling
+them. An action may be asynchronous — it uses `await` — and an async action
+exposes `pending`, which is `true` while a call of it runs:
 
 ```wf
 store Session {
@@ -148,20 +182,25 @@ page Login(path: "/login", title: "Sign in", description: "Sign in.") {
 }
 ```
 
-Inside an action a bare name is the store's own member — `items`, `error` —
-unless something nearer declares it: a `let`, a parameter, a `for` binding,
-a lambda's parameter or a caught error is the action's own until its block
-ends, so `let items = …` in an action reads and writes that local and
-leaves the store's `items` alone.
+The **Sign in** button is disabled while `Session.login` runs.
 
-A derived value may call one of the store's own actions, and an action may
-read other stores through their names — stores are global, so no `use` is
-needed inside a store.
+Inside an action, a bare name is the store's own member — `items`, `error`
+— unless something nearer declares it. A `let`, a parameter, a `for`
+binding, a lambda's parameter or a caught error belongs to the action until
+its block ends. So `let items = …` in an action reads and writes that local
+variable and leaves the store's `items` alone.
+
+An action may read other stores through their names. Stores are global, so
+a store needs no `use`. A `derived` value may call one of the store's own
+actions to compute a value, but not one that assigns state: that is `X04`,
+because the derived value would change state every time it is read.
 
 ## Keeping a value across visits
 
-`persist` keeps a member in the browser's storage, keyed by the store's
-name. It works the same way at the top of a page or a component.
+`persist` declares a member whose value is kept in the browser's storage
+and read back on the next visit. It is stored under the store's name and
+the member's name, so a page and a store may each persist a `theme`.
+`persist` works the same way at the top of a page or a component.
 
 ```wf
 store Prefs {
@@ -174,13 +213,17 @@ store Prefs {
 }
 ```
 
-By default the value goes in `localStorage`, and a write in **another tab
-of the same site arrives here** — `localStorage` is shared between them, so
-two tabs that disagree about the theme are a bug, not a feature.
+By default the value goes in `localStorage`, and **a write in another tab
+of the same site arrives in this one**. `localStorage` is shared between
+tabs, and two tabs that disagree about the theme would be a bug.
 
-The block says otherwise:
+### Options
+
+A block after the declaration changes where and how the value is kept:
 
 ```wf
+type Item { id: String, qty: Number = 1 }
+
 store Cart {
     persist items: [Item] = [] {
         in: .local          // .local (default, across visits) · .session (this tab) · .app (the project's own)
@@ -191,27 +234,47 @@ store Cart {
 }
 ```
 
-**A version is a promise.** Once a shape is declared with a `version:`, a
-value written by an older build is brought forward one step at a time —
-each `migrate n -> n+1` reads the old value as `old` and returns the new
-one — so a reader who last visited two deploys ago keeps their cart instead
-of finding it empty. A gap in the chain is a `P01` warning, and a step
-above the declared version a `P02`: both say the value would be discarded.
+| Option | Meaning |
+|---|---|
+| `in:` | Where the value lives: `.local` (the default, kept across visits), `.session` (this tab), or `.app` (see [Storage the project provides](#storage-the-project-provides)) |
+| `version:` | The version of the value's shape that this build writes |
+| `sync:` | `false` stops this page taking a value another tab or window wrote |
+| `key:` | Keeps one stored value per key (see [One stored value per instance](#one-stored-value-per-instance)) |
+| `migrate n -> m { … }` | Brings a value written at version `n` forward to `m` |
 
-A value written by a *newer* build is left alone and the initial value
-used: this build cannot know what a later shape means.
+### Versions and migrations
 
-**A `.route` store that persists is a contradiction.** The route change
-drops the store, and the next read builds it again — from storage, so the
-value comes straight back. The build says so (`P03`). What the route owns
-is `state`; what outlives it wants a wider scope.
+A version is a promise to returning readers. Once you declare a shape with
+`version:`, the page brings a value written by an older build forward one
+step at a time. Each `migrate n -> n+1` step reads the old value as `old`
+and returns the new one. A reader who last visited two deploys ago keeps
+their cart instead of finding it empty.
 
-**One stored value per instance.** A `persist` in a component is one key
-for every place the component is drawn: three `Panel`s that each persist
-`open` share one value, and opening one opens them all. `key:` names what
-tells the instances apart, and each gets its own stored value; the build
-warns (`D03`) about a component placed more than once, or in a loop, that
-persists without one.
+The build checks the chain:
+
+- A gap in the chain is a `P01` warning: an older value would be discarded.
+- A step above the declared version is a `P02` warning: it never runs.
+- A value written by a *newer* build is left alone, and the page uses the
+  initial value. This build cannot know what a later shape means.
+
+The build also remembers the shape of every persisted value, in
+`.wf-cache/persist.json`. When a shape changes and `version:` was not
+raised, it warns (`D04`): a returning reader's browser still holds the old
+shape, which the page would read as the new one.
+
+> [!WARNING]
+> A `persist` inside a `store(scope: .route)` does not reset with the route.
+> The route change drops the store, and the next read builds it again — from
+> storage, so the value comes straight back. The build reports this as
+> `P03`. Use `state` for what the route owns, and a wider scope for what
+> outlives it.
+
+### One stored value per instance
+
+A `persist` in a component uses one stored value for every place the
+component is drawn. Three `Panel`s that each persist `open` share one
+value, so opening one opens them all. `key:` names what tells the instances
+apart, and each key gets its own stored value:
 
 ```wf
 component Panel(_ title: String) {
@@ -221,10 +284,15 @@ component Panel(_ title: String) {
 }
 ```
 
-**A key that follows state.** `key:` is read as state: when what it
-reads changes, the value is the one kept under the new key, and writes go
-there. A desktop app keeps its layout per project this way — a store's key
-may read the store itself, or another store:
+The build warns (`D03`) about a component that persists a value with no
+`key:` and is placed more than once, or in a loop.
+
+### A key that follows state
+
+`key:` is read as state. When what it reads changes, the member takes the
+value kept under the new key, and writes go there. A desktop app keeps its
+layout per project this way. A store's key may read the store itself, or
+another store:
 
 ```wf
 store Layout {
@@ -236,22 +304,26 @@ store Layout {
 }
 ```
 
-**Somewhere of the project's own.** `in:` names where the value lives
-beyond the browser's two: `in: .app` reads `window.wfStorage.app`, which a
-script of the project's under `src/` defines — a desktop app's store
-through its native bridge, an extension's storage. It is
-`{ get(name), set(name, text), remove?(name), watch?(name, fn) }`:
+### Storage the project provides
 
-- `get` answers at once or with a promise — an IPC call is fine. Until it
-  answers, the value is its declared one; a write made before the answer
-  is not undone by it, and an answer for a key that has since moved on is
-  not taken.
-- `set` is handed the JSON text to keep.
-- `watch(name, fn)`, when it is given, hears another writer — another
-  window — and returns how to stop; `sync: false` turns it off.
+`in: .app` keeps the value somewhere other than the browser's two storages:
+a desktop app's store reached through its native bridge, or an extension's
+storage. It reads `window.wfStorage.app`, which a script of the project's
+under `src/` defines. The object has this shape:
+`{ get(name), set(name, text), remove?(name), watch?(name, fn) }`.
 
-A name with no storage behind it is kept in `localStorage`, and `wf serve`
-says so on the console.
+- `get` answers at once or with a promise, so an IPC call is fine. Until it
+  answers, the value is its declared initial value. A write made before the
+  answer is not undone by it, and an answer for a key that has since
+  changed is ignored.
+- `set` receives the JSON text to keep.
+- `watch(name, fn)`, when present, hears another writer, such as another
+  window, and returns a function that stops it. `sync: false` turns it off.
+
+If no `window.wfStorage.app` is defined, the value is kept in
+`localStorage`, and `wf serve` says so on the console.
+
+This script connects `.app` to Tauri's IPC:
 
 ```js
 // src/app-store.js — Tauri's IPC, reached when a value is read or written
@@ -264,22 +336,23 @@ window.wfStorage = {
 };
 ```
 
-**A changed shape needs a new version.** The build remembers the shape of
-every persisted value (in `.wf-cache/persist.json`) and warns (`D04`) when
-it changes with no `version:` raised: a returning reader's browser holds
-the old shape, which the page would read as the new one.
+See [Desktop apps](33-desktop-apps.md) for the rest of a desktop project.
 
-**A `Secret` is never written down.** `persist token: Secret = ""` is a
-`T12` — the whole point of the type is that it does not reach a place any
-script can read.
+### Secrets are never persisted
+
+`persist token: Secret = ""` is an error (`T12`). The point of the `Secret`
+type is that its value never reaches a place any script can read, and the
+browser's storage is such a place. Keep a session in an httpOnly cookie
+instead (see [Security](23-security.md)).
 
 ## A connection a store holds
 
 A store may hold a connection — a `socket`, a `stream`, a `channel`, a
-`peer` or a `worker` ([Real-time](18-realtime.md)) — for every page at
-once. It is opened when the store is first read and closed with the store
-(a `.route` store's when its route leaves); the store's actions and
-handlers name it as it is declared, and a page reads it through the store:
+`peer` or a `worker` (see [Real-time](18-realtime.md)) — for every page at
+once. The connection opens when the store is first read and closes with the
+store; a `.route` store's connection closes when its route leaves. The
+store's actions and handlers name the connection as it is declared, and a
+page reads it through the store:
 
 ```wf
 store Live {
@@ -302,8 +375,8 @@ page Feed(path: "/", title: "Feed", description: "One line for every page.") {
 
 ## Loading data into a store
 
-A store can own a `resource` too, or fill its state from a fetch in an
-action called at the top of a page:
+A store can own a `resource` (see [Data and APIs](17-data.md)), or fill its
+state from a fetch in an action that a page calls:
 
 ```wf
 store Deploys {
@@ -325,34 +398,42 @@ page DeploysPage(path: "/deploys", title: "Deploys", description: "Every deploy.
 }
 ```
 
-A call at the top of a page's body runs once when the page renders — set-up
-code, in the right place.
+A call at the top of a page's body, such as `Deploys.load()`, is set-up
+code: it runs once, when the page renders. The `if loaded { return }` line
+keeps a second visit from fetching again.
 
-## Stores in the static paint
+## Stores in the pre-rendered page
 
-A pre-rendered page seeds a store's state from its initial values, so
-`Cart.count` paints as `0` and a store seeded with rows paints the rows. A
-value an action changes at run time is corrected once the page is live.
+A static build pre-renders each page to HTML — the *static paint*. The
+static paint seeds each store's state from its initial values, so
+`Cart.count` is painted as `0`, and a store seeded with rows paints the
+rows. A value an action changes at run time is corrected once the page is
+live.
 
 ## Looking at one while it runs
 
 `wf serve` puts a **stores** button in the corner of the page. It opens on
 what every store that has been built is holding, and a log of every action
-that has run — the arguments it was given, and the state on each side of
+that has run: the arguments it was given, and the state before and after
 it. Clicking an entry puts the store back to what it held before that
-action, which is as much time travel as a bug usually needs.
+action, which is usually enough to find a bug.
 
-The same surface is on `window.WF` for a console or a script:
-`WF.storeSnapshot()` for the tree, `WF.storeSnapshot("Cart")` for one,
-`WF.restoreStore("Cart", values)` to put one back, and
-`WF.watchStores(fn)` to be told about every action, which returns the
-function that stops it. Nothing is recorded while nothing is watching, so a
-deployed site pays nothing for any of it.
+The same tools are on `window.WF`, for a console or a script:
 
-## Testing one
+| Call | What it does |
+|---|---|
+| `WF.storeSnapshot()` | Returns what every built store holds |
+| `WF.storeSnapshot("Cart")` | Returns what one store holds |
+| `WF.restoreStore("Cart", values)` | Puts a store back to `values` |
+| `WF.watchStores(fn)` | Calls `fn` for every action, and returns the function that stops it |
 
-`wf test` renders a declaration with the project's stores at hand, and a
-test's `data` seeds them by name:
+Nothing is recorded while nothing is watching, so a deployed site pays
+nothing for any of it. See [Runtime API](43-runtime-api.md).
+
+## Testing a store
+
+`wf test` renders a test with the project's stores at hand, and a test's
+`data` seeds a store by its name:
 
 ```wf
 test "the cart shows what is in it"(data: { Cart: { items: [{ id: "a", qty: 2 }] } }) {
@@ -361,12 +442,33 @@ test "the cart shows what is in it"(data: { Cart: { items: [{ id: "a", qty: 2 }]
 }
 ```
 
-## When to use a store, when a page's state
+A test that clicks a button runs the store's actions in a real browser.
+See [Testing](24-testing.md).
 
-- Read by more than one page, or must outlive a navigation: a store.
-- Belongs to one screen and should go when it does: `store X(scope: .route)`.
-- Read by one page and its components: page `state`, passed down as props.
-- Read by one component: its own `state`.
+## When to use a store
+
+Put a value where the code that reads it can reach it, and no wider:
+
+| The value is… | Keep it in |
+|---|---|
+| read by more than one page, or must outlive a navigation | a store |
+| owned by one screen, and should go when the screen does | `store X(scope: .route)` |
+| read by one page and its components | the page's `state`, passed down as props |
+| read by one component | the component's own `state` |
+
+## Quick reference
+
+| Syntax | Meaning |
+|---|---|
+| `store Name { … }` | Declare a store, built on first read |
+| `store Name(scope: .route)` | How long it lives: `.app` (the default), `.session` or `.route` |
+| `store Name(eager: true)` | Build it at boot |
+| `use Name` | Say a page or component reads it |
+| `Name.member` · `Name.action(…)` | Read a member, call an action |
+| `Name.action.pending` | `true` while an async action runs |
+| `persist x = v` | Keep a member across visits |
+| `persist x = v { in: …, version: n, sync: false, key: k }` | Where and how it is kept |
+| `migrate n -> m { … old … }` | Bring an older stored value forward |
 
 ## Next
 

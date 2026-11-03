@@ -3,17 +3,31 @@
 <!--
 route: guide/language-basics
 group: basics
-blurb: A file is a list of declarations. This chapter covers all thirteen kinds, naming, comments, bodies, strings and the two layouts.
-description: Declarations, naming, comments, render and imperative bodies, the braced and the indented layout, and how strings are written.
+blurb: The shape of every .wf file: the thirteen kinds of declaration, naming, comments, the two kinds of body, the two layouts and how strings are written.
+description: Declarations, naming, comments, render and imperative bodies, the braced and the indented layout, and how to write strings in WebFluent.
 -->
 
-## A file is a list of declarations
+A WebFluent program is a set of declarations: pages, components, stores and
+the rest, each a keyword followed by a name and a body. Learn the thirteen
+kinds and the two kinds of body, and you can read any `.wf` file.
 
-Every `.wf` file holds top-level declarations and nothing else — no loose
-elements, no statements outside a body. There are thirteen kinds:
+In this chapter:
+
+- the thirteen declarations, and the chapter that covers each
+- how names are written
+- comments, including the doc comments the editor shows
+- render blocks and imperative blocks, and what goes in each
+- the braced `.wf` layout and the indented `.wfx` layout
+- the three ways to write a string, and how a string splices in values
+
+## Declarations
+
+A `.wf` file holds top-level declarations and nothing else. You cannot put an
+element or a statement loose in a file; it belongs in the body of a
+declaration. This file uses all thirteen kinds:
 
 ```wf
-page Home(path: "/", title: "Home", description: "The front page.") { Text("hi") }
+page Home(path: "/", title: "Home", description: "The front page.") { Heading("Welcome").h1 }
 component Chip(_ label: String, tone: Tone = .calm) { Badge(label) }
 store Cart { state items = []  derived count = items.length }
 theme Brand { color-primary: #0F766E  radius-md: 14px }
@@ -28,6 +42,8 @@ animation Pulse { from { opacity: 1 } to { opacity: 0.5 } }
 test "chip shows its label" { Chip("Beta")  expect "Beta" }
 ```
 
+Each keyword declares one kind of thing:
+
 | Declaration | What it is | Chapter |
 |---|---|---|
 | `page` | A route and what it shows | [6](06-pages-and-routing.md) |
@@ -35,7 +51,7 @@ test "chip shows its label" { Chip("Beta")  expect "Beta" }
 | `store` | State shared across pages | [12](12-stores.md) |
 | `theme` | Design tokens: colours, spacing, radii, fonts | [15](15-styling.md) |
 | `app` | The shell every page renders inside, with the `Router` | [6](06-pages-and-routing.md#the-app-shell) |
-| `type`, `enum` | Records and enumerations the checker enforces | [13](13-types.md) |
+| `type`, `enum` | Records and enumerations the type checker enforces | [13](13-types.md) |
 | `api` | An HTTP service: its address, its endpoints and what they return | [17](17-data.md#api-a-service-described-once) |
 | `const` | A value read everywhere | [14](14-expressions.md#constants) |
 | `data` | A JSON file read at build time, as a constant | [17](17-data.md#data-a-file-at-build-time) |
@@ -43,159 +59,199 @@ test "chip shows its label" { Chip("Beta")  expect "Beta" }
 | `animation` | Keyframes | [20](20-motion.md#custom-animations) |
 | `test` | A render held to expectations and a snapshot | [24](24-testing.md) |
 
-Beside them, a `.css` file under `src/` is a stylesheet the build bundles,
-and a `.js` file under `src/` is a plain browser script whose top-level
-functions are in scope by name ([32](32-javascript-interop.md)).
+Two other kinds of file under `src/` join the program. A `.css` file is a
+stylesheet the build bundles. A `.js` file is a plain browser script, and its
+top-level functions are in scope by name in your `.wf` code
+([chapter 32](32-javascript-interop.md)).
 
-Inside a body there are more statements — `state`, `derived`, `effect`,
-`action`, `persist`, `resource`, `validate`, `socket`, `if`, `for`, `match` and
-the rest. [Grammar](44-grammar.md) lists every keyword and where it may appear.
+Inside a body you write statements: `state`, `derived`, `effect`, `action`,
+`persist`, `resource`, `validate`, `socket`, `if`, `for`, `match` and more.
+The [grammar](44-grammar.md) lists every keyword and where it may appear.
 
-All the files under `src/` merge into one program, so a component declared in
-`components/Chip.wf` is usable from every page. `App.wf` is read first; the
-rest in name order.
+### One program from many files
+
+All the files under `src/` merge into one program. A component declared in
+`components/Chip.wf` is usable from every page without an import. The
+compiler reads `App.wf` (or `App.wfx`) first, then the other files in name
+order, so a build is the same on every machine.
 
 ## Naming
+
+Names follow fixed conventions, so you can tell what a word is from how it
+is written:
 
 - Declaration keywords are lowercase: `page`, `component`, `store`.
 - The names they declare, and every element, are **PascalCase**: `Home`,
   `UserCard`, `Button`, `Table.Row`.
 - State, props, actions, variables and flags are **camelCase**: `count`,
   `isOpen`, `save`, `.primary`.
-- Enum cases are written with a leading dot: `.calm`, `.md`.
-- Design tokens are written with a dollar: `$primary`, `$spacing-md`.
-- A `///` comment above a declaration, a prop or an event is its
-  documentation, shown on hover in the editor and in `wf docs`. Above a
-  `state`, `persist`, `derived` or `action`, it is that member's, which an
-  editor shows where the member is used.
+- Enum cases start with a dot: `.calm`, `.md`.
+- Design tokens start with a dollar sign: `$primary`, `$spacing-md`.
 
-Nothing resolves silently. A name the compiler does not know — a misspelled
-element, a flag the element lacks, a case the enum lacks — is an error with a
-hint, never a no-op.
+The compiler resolves every name. A name it does not know — a misspelled
+element, a flag the element does not take, a case the enum does not have — is
+an error with a hint, never a silent no-op.
 
 ## Comments
+
+WebFluent has three kinds of comment. A `//` comment runs to the end of the
+line, a `/* … */` comment may span lines, and a `///` comment documents the
+declaration that follows it:
 
 ```wf
 // A line comment.
 /* A block
    comment. */
-/// A doc comment: attaches to the declaration that follows it.
+/// A person's initials, in a circle.
 component Avatar(_ initials: String) { Text(initials).bold }
 ```
 
+A `///` comment above a declaration, a prop or an event is its documentation.
+The editor shows it on hover, and `wf docs` prints it in the component
+gallery. Above a `state`, `persist`, `derived` or `action`, it documents that
+member, and the editor shows it wherever the member is used.
+
 ## Bodies
 
-A declaration's body is a **render block**: elements, and the statements that
-shape them (`state`, `derived`, `if`, `for`, …). A handler or an action's body
-is an **imperative block**: statements that do something (assignments, calls,
-`let`, `if`, `for`, `try`). The two are separate grammars, and the compiler
-tells you when a statement is in the wrong kind of block:
+A body is one of two kinds of block, and each holds different statements:
+
+- A **render block** is the body of a page, a component or `app`. It holds
+  elements, and the statements that shape them: `state`, `derived`, `if`,
+  `for` and the like.
+- An **imperative block** is the body of a handler or an action. It holds
+  statements that do something: assignments, calls, `let`, `if`, `for`,
+  `try`.
+
+The two blocks have separate grammars. In this page, the `Text` is an element
+in the render block, and the assignment sits inside an `on click` handler:
 
 ```wf
-page P(path: "/") {
-    state n = 0
-    Text("{n}")                          // an element: fine in a render block
-    Button("+") {
-        on click { n = n + 1 }           // an assignment: fine in a handler
+page Counter(path: "/", title: "Counter", description: "A number that goes up.") {
+    state clicks = 0
+    Heading("Counter").h1
+    Text("Clicked {clicks} times")
+    Button("Add one") {
+        on click { clicks = clicks + 1 }
     }
 }
 ```
 
-Writing `n = n + 1` loose inside the page body is an error: *"Code that does
-something goes in `on click { … }`, an `action` or an `effect`"*.
+> [!WARNING]
+> An assignment written loose in a page body, such as `clicks = clicks + 1`
+> next to the `Text`, is error `E105`. Its hint says where the line belongs:
+> *"Code that does something goes in `on click { … }`, an `action` or an
+> `effect`"*.
 
-Statements need no separator. A newline is usual; on one line, a `;` or
-nothing at all works — two spaces is the house style, because it reads:
+### Separating statements
+
+Statements need no separator. You usually put one per line. To put two on one
+line, separate them with `;` or with nothing at all; the house style is two
+spaces, because it reads well:
 
 ```wf
-page P(path: "/") {
-    state a = 1  state b = 2
-    Button("x") { on click { a = a + 1; b = b + 1 } }
+page Score(path: "/", title: "Score", description: "Two teams, two numbers.") {
+    state home = 1  state away = 2
+    Heading("Score").h1
+    Text("{home} – {away}")
+    Button("Both score") { on click { home = home + 1; away = away + 1 } }
 }
 ```
 
 ## Two layouts: `.wf` and `.wfx`
 
-The same grammar can be written with braces or with indentation. A `.wf` file
-opens a block with `{` and closes it with `}`; a `.wfx` file opens a block with
-a line indented deeper than the one before it and closes it with a dedent.
+You can write the same grammar with braces or with indentation. A `.wf` file
+opens a block with `{` and closes it with `}`. A `.wfx` file opens a block
+with a line indented deeper than the one before it, and closes it when the
+indentation returns.
+
+This page is written in the braced layout:
 
 ```wf
-page Home(path: "/") {
+page Home(path: "/", title: "Home", description: "A panel that opens and closes.") {
     state open = true
+    Heading("Home").h1
     Row(gap: .sm) {
         style {
             padding: 6px 0
             &:hover { background: $surface }
         }
         on click { open = !open }
-        Text("a").bold
+        Text("Details").bold
     }
     if open {
         Spinner
     } else {
-        Text("b")
+        Text("Closed")
     }
 }
 ```
 
-The same in `.wfx`:
+The same page in the indented layout:
 
 ```wfx
-page Home(path: "/")
+page Home(path: "/", title: "Home", description: "A panel that opens and closes.")
     state open = true
+    Heading("Home").h1
     Row(gap: .sm)
         style
             padding: 6px 0
             &:hover
                 background: $surface
         on click { open = !open }
-        Text("a").bold
+        Text("Details").bold
     if open
         Spinner
     else
-        Text("b")
+        Text("Closed")
 ```
 
-Rules of the indented layout:
+The indented layout follows these rules:
 
-- Four spaces (or one tab) per level, consistently; a line that lines up with
-  no enclosing block is an error.
-- Braces you write yourself are still allowed, and everything inside them is
-  free-form: `on click { open = !open }` on one line, a map literal across
-  several, an argument list across several.
+- A line indented deeper than the line before it opens a block. Indent with
+  the same spaces or tabs as the lines around it; four spaces per level is
+  the house style, and what `wf fmt` writes.
+- A line whose indentation lines up with no enclosing block is error `E003`.
+  The first line of a file is not indented.
+- You may still write braces yourself, and everything inside them is laid out
+  freely: `on click { open = !open }` on one line, or a map literal or an
+  argument list across several lines. Inside parentheses and brackets,
+  layout is free too.
 - An empty block is written `{ }`.
-- Blank lines and comment lines count for nothing.
+- Blank lines and comment lines do not count.
 
-Both layouts compile to the same output, are read by every tool, and a project
-may mix them. `wf fmt --to wfx` converts a project one way and `--to wf` the
-other, losslessly. This guide writes `.wf`; every example has an `.wfx`
-spelling.
+Both layouts compile to the same output and every tool reads both, so a
+project may mix them. `wf fmt --to wfx` converts a project to the indented
+layout and `wf fmt --to wf` converts it back, without changing what any file
+says. This guide writes `.wf`; every example has a `.wfx` spelling.
 
 ## Strings
 
-Strings are double-quoted and interpolate with `{expr}`:
+A string is written in double quotes and splices in a value with `{expr}`:
 
 ```wf
-page P(path: "/") {
+page Greeting(path: "/", title: "Greeting", description: "A greeting that knows your age.") {
     state user = { name: "Sam", age: 41 }
-    Text("Hello, {user.name}! You are {user.age * 12} months old.")
+    Heading("Hello, {user.name}!").h1
+    Text("You are {user.age * 12} months old.")
     Text("A literal brace: \{ and \}")
-    Text("A literal dollar: ${user.age}")     // `$` alone is plain text
+    Text("A literal dollar: ${user.age}")     // `$` alone is plain text: "$41"
 }
 ```
 
-Interpolated text is live: when `user` changes, the text changes. A
-splice may also say how to show its value — `{total:.currency}`,
-`{when:.date(long)}` — which is
-[formatting](14-expressions.md#showing-a-value-a-particular-way)
-written where it is read.
+Spliced text is live: when `user` changes, the text changes with it. A splice
+opens with a name, a `(` or a `[`, and closes on the same line; anything
+else, such as `{key: value}` in prose, is plain text.
+
+A splice may also say how to show its value: `{total:.currency}`,
+`{when:.date(long)}`. This is
+[formatting](14-expressions.md#showing-a-value-a-particular-way), written
+where the value is read.
 
 ### Three ways to write one
 
-A plain `"…"` string reads escapes (`\n`, `\t`, `\"`, `\\`, `\{`, `\}`)
-and `{…}` splices. Two other forms exist for text that a plain string
-makes you spell twice:
+A plain `"…"` string reads the escapes `\n`, `\t`, `\r`, `\"`, `\\`, `\{` and
+`\}`, and splices `{…}`. For text that a plain string makes you escape over
+and over, there are two other forms:
 
 ```wf
 // Raw: no escapes, no splices. The text is what is written.
@@ -213,10 +269,29 @@ const LETTER = """
     """                       // "Dear Ada,\n  thank you."
 ```
 
-A raw string is for a sample of code, a regular expression, a Windows
-path — anything with quotes or braces in it. A block string is for a
-paragraph, a template, a query: the closing `"""` says how far the text
-was indented, and that much comes off every line.
+Use each form for a different kind of text:
+
+- A **raw string** (`#"…"#`) suits a sample of code, a regular expression or
+  a Windows path: anything full of quotes, braces or backslashes.
+- A **block string** (`"""…"""`) suits a paragraph, a template or a query.
+  The closing `"""` sets how far the text was indented, and the compiler
+  removes that much from every line.
+
+## Quick reference
+
+| Syntax | Meaning |
+|---|---|
+| `page Name(path: "/…") { … }` | A declaration: keyword, name, arguments, body |
+| `// …`, `/* … */` | Comments |
+| `/// …` | Documentation for the declaration, prop, event or member below |
+| `PascalCase`, `camelCase` | Declared names and elements; state, props, actions and flags |
+| `.case`, `$token` | An enum case; a design token |
+| `on click { … }`, `action save() { … }` | Imperative blocks, where assignments go |
+| `a = 1; b = 2` or `a = 1  b = 2` | Two statements on one line |
+| `.wf`, `.wfx` | Braced layout; indented layout ([grammar](44-grammar.md)) |
+| `"Hi, {name}"` | A string with a live splice |
+| `"{total:.currency}"` | A splice with a format |
+| `#"…"#`, `"""…"""` | A raw string; a block string |
 
 ## Next
 

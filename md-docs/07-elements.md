@@ -3,34 +3,52 @@
 <!--
 route: guide/elements
 group: basics
-blurb: Everything on screen is an element: a call with one positional value, named props, flags, and a block.
+blurb: Everything on screen is an element, and every element is written the same way: a name, one positional value, named props, flags and a block.
 description: The element call shape: positional, named props, flags and enum cases, the block and its order, attributes, parts, and the families of built-ins.
 -->
 
 Everything a page shows is an element: a built-in such as `Button`, or a
-component you declare. Every element is written the same way.
+component you declare. Every element is written in the same shape, so once
+you can read one call you can read them all.
+
+In this chapter:
+
+- the shape of an element call, and the order of its block
+- props, enum cases and flags, and the props every element takes
+- HTML attributes, and which element of a built-in receives them
+- parts, such as `Card.Header`
+- the text, heading and layout elements
+- the families of built-ins, the HTML they render, and what the compiler
+  checks on every element
 
 ## The call shape
+
+Every element call has the same five pieces, each optional except the name:
 
 ```text
 Name(positional, prop: value, prop: value).flag.flag { block }
 ```
 
-- **`Name`** — PascalCase. A built-in (`Card`), a part of one (`Card.Header`),
-  or a component of the project (`UserCard`, `Panel.Footer`).
-- **One positional argument**, first, unnamed — the element's own thing: a
-  button's label, a heading's text, an icon's name. Every other value is passed
-  by name. A second positional argument is an error (`Card("Laptop", 999)` —
-  name it: `Card("Laptop", price: 999)`).
-- **Named props** `name: value`, in any order, any expression as the value.
-- **Flags** `.name`, written tight against the closing parenthesis (or the
-  name, when there are no parentheses): `Button("Save").primary.lg`,
+- **`Name`** is PascalCase: a built-in (`Card`), a part of one
+  (`Card.Header`), or a component of the project (`UserCard`,
+  `Panel.Footer`).
+- **One positional argument** comes first, unnamed. It is the element's main
+  value: a button's label, a heading's text, an icon's name. You pass every
+  other value by name.
+- **Named props**, `name: value`, come in any order, and the value may be any
+  expression.
+- **Flags**, `.name`, are written tight against the closing parenthesis, or
+  against the name when there are no parentheses: `Button("Save").primary.lg`,
   `Spacer.sm`, `Card.elevated { … }`.
-- **The block** `{ … }`, in a fixed order: `style { }` · `transition { }` ·
-  `on … { }` handlers · slot fills · children.
+- **The block**, `{ … }`, holds its contents in a fixed order: `style { }`,
+  then `transition { }`, then `on … { }` handlers, then slot fills, then
+  children.
+
+This button uses all five pieces, with its block in that order:
 
 ```wf
-page P(path: "/") {
+page Editor(path: "/", title: "Editor", description: "A save button, fully dressed.") {
+    Heading("Editor").h1
     Button("Save", disabled: false).primary.lg {
         style { min-width: 120px }
         transition { background: 150ms ease-out }
@@ -40,95 +58,135 @@ page P(path: "/") {
 }
 ```
 
+> [!WARNING]
+> A second positional argument is error `E113`. Name it instead: write
+> `Card("Laptop", price: 999)`, not `Card("Laptop", 999)`.
+
 ## Props, cases and flags
 
-A prop has a type the compiler knows: `String`, `Number`, `Bool`, a state
-binding, a path, or an **enum** — a fixed set of cases. An enum prop takes a
-case written with a leading dot:
+Each prop has a type the compiler knows: `String`, `Number`, `Bool`, a state
+binding, a path, or an **enum**, which is a fixed set of named cases. You
+pass an enum prop a case, written with a leading dot:
 
 ```wf
-page P(path: "/") {
+page Toolbar(path: "/", title: "Toolbar", description: "Two labels, spaced apart.") {
+    Heading("Toolbar").h1
     Row(gap: .md, align: .center, justify: .between) {
-        Text("left")
-        Text("right")
+        Text("Drafts")
+        Text("3 unsent")
     }
 }
 ```
 
-A **flag** is shorthand for two things: a `Bool` prop set to `true`, or a
-case of exactly one of the element's enum props:
+A **flag** is a short way to write one of two things: a `Bool` prop set to
+`true`, or a case of one of the element's enum props. Each comment shows the
+long spelling of the flags on its line:
 
 ```wf
-page P(path: "/") {
-    Button("Danger").danger            // tone: .danger
-    Button("Wide").full.outlined       // width: .full, outlined: true
-    Input(bind: q).search.required     // type: .search, required: true
-    state q = ""
+page Search(path: "/", title: "Search", description: "A search box and two buttons.") {
+    state term = ""
+    Heading("Search").h1
+    Button("Delete").danger                                // tone: .danger
+    Button("Continue").full.outlined                       // width: .full, outlined: true
+    Input(bind: term, label: "Search").search.required     // type: .search, required: true
 }
 ```
 
-The two spellings are equivalent; `.md` on a `Row` is `gap: .md` because
-`gap` is the only prop of `Row` with an `md` case. When two props share a
-case name the flag is ambiguous and the compiler asks you to name the prop.
-A flag the element does not declare is an error, with the list of what it
-takes — there is no shared vocabulary of modifiers to guess from.
+The two spellings mean the same thing. `.md` on a `Row` means `gap: .md`,
+because `gap` is the only prop of `Row` with an `md` case. A flag follows
+these rules:
 
-Every element also takes the **universal props**, which are not listed on
-each one:
+- When two enum props of an element share a case name, the flag is
+  ambiguous. The compiler reports `E103` and asks you to name the prop.
+- A flag the element does not declare is error `E103`, and the message lists
+  the flags the element takes. There is no shared vocabulary of modifiers to
+  guess from.
+- A `Bool` prop may take a condition instead of a flag:
+  `Button("Light", outlined: theme != "light")`.
 
-| Prop | Does | Chapter |
+### Universal props
+
+Every element also takes the *universal props*. The reference does not
+repeat them on each element:
+
+| Prop | What it does | Chapter |
 |---|---|---|
-| `class:` | Adds classes from your own stylesheets (it adds, it never replaces) | [15](15-styling.md#classes-and-your-own-stylesheet) |
+| `class:` | Adds classes from your own stylesheets. It adds; it never replaces | [15](15-styling.md#classes-and-your-own-stylesheet) |
 | `ref:` | Names a handle on the element: `box.focus()` | [8](08-state-and-reactivity.md#element-handles) |
 | `mount:`, `update:`, `cleanup:` | Hands the element to a script each time it is made, again when what `update` reads changes, and takes it back when it leaves | [32](32-javascript-interop.md#mount-update-cleanup-on-any-element) |
 | `animate:` or a flag (`.fadeIn`) | The animation it enters with | [20](20-motion.md) |
 | `exit:` | The animation it leaves with | [20](20-motion.md#exit-animations) |
 | `delay:`, `duration:`, `speed:` (`.fast`, `.slow`), `easing:` | How the animation is timed | [20](20-motion.md) |
 | `stagger:` | Inside a `for`, each item's delay grows by this much | [20](20-motion.md#lists) |
-| `on:` | When the animation plays: `.mount` (default) or `.enterView` | [20](20-motion.md#playing-when-it-is-scrolled-to) |
+| `on:` | When the animation plays: `.mount` (the default) or `.enterView` | [20](20-motion.md#playing-when-it-is-scrolled-to) |
 | `shared:` | A name the element keeps across a route change | [20](20-motion.md#the-same-element-across-a-route-change) |
-| `count:` | A number in its text counts to its new value | [20](20-motion.md#a-number-that-counts) |
+| `count:` | A number in its text counts up or down to its new value | [20](20-motion.md#a-number-that-counts) |
 
 The [components reference](37-components-reference.md) lists every element's
 own props.
 
 ## Attributes
 
-Named arguments that are not props are HTML attributes, checked against the
-families the element accepts: the global attributes (`id`, `title`, `role`,
-`tabindex`, `lang`, …), `aria-*`, `data-*`, and per element the input, anchor,
-media, form and table attributes. A hyphenated name is written as-is:
+A named argument that is not a prop becomes an HTML attribute. These
+families are declared, so they draw no warning:
+
+- the global attributes: `id`, `title`, `role`, `tabindex`, `lang`, `dir`,
+  `hidden`;
+- `aria-*` and `data-*`;
+- the attributes of the element's kind: input, anchor, media, form and table
+  attributes on the elements that take them.
+
+Any other name is still written to the element, with warning `C04`. You write
+a hyphenated name as it is:
 
 ```wf
-page P(path: "/") {
-    Button("More", aria-expanded: "false", aria-controls: "panel", data-track: "more")
-    Input(bind: name, id: "name", autocomplete: "name", maxlength: 40)
+page Signup(path: "/", title: "Sign up", description: "A name field and a menu button.") {
     state name = ""
+    Heading("Sign up").h1
+    Button("More", aria-expanded: "false", aria-controls: "panel", data-track: "more")
+    Input(bind: name, label: "Name", id: "name", autocomplete: "name", maxlength: 40)
 }
 ```
 
-An attribute value that reads state is kept in step with it. `true` is
-written as the word, `data-open="true"`, so `[data-open="true"]` selects it
-(a boolean attribute — `hidden`, `disabled` — is there or not); `aria-*`
-keeps a `false` value (it means something), other attributes drop it. The
-same holds for an attribute a component's call hands its root.
+### Attribute values
 
-Every built-in takes them, and its `on` handlers, on the element it draws:
-its root — the scrolling box of a `VirtualList`, the handle of a
-`Splitter`, the box of a `Tabs` or a `Carousel`, the panel of a `Sidebar`,
-the `<nav>` of a `Breadcrumb`, the `<dialog>` of a `Modal` — or, for a
-control drawn in a box (`Switch`, `Checkbox`, `Radio`, `Slider`,
-`DatePicker`, `FileUpload`), its input, which is the control and where its
-handlers already are; `hidden`, `lang` and `dir` are the whole control's,
-and stay on its box. A `role:` or an `aria-label:` written on a built-in
-takes the place of the one it gives itself — a `Splitter`'s `separator`, a
-`Switch`'s `switch`, a `Breadcrumb`'s name — and a `Sidebar`'s `id:` is the
-one its toggle points at:
+An attribute's value follows these rules:
+
+- A value that reads state is kept in step with it.
+- `true` is written as the word: `data-open: true` renders
+  `data-open="true"`, so the selector `[data-open="true"]` matches it.
+- A boolean attribute such as `hidden` or `disabled` is either present or
+  absent.
+- `false` removes an attribute, except an `aria-*` one, which keeps the
+  string `"false"` because it is a real ARIA state.
+
+The same rules apply to an attribute you write on a call of your own
+component, which passes it to the component's root.
+
+### Where a built-in puts them
+
+A built-in places your attributes and `on` handlers on the element it draws:
+
+- On its root, for most built-ins: the scrolling box of a `VirtualList`, the
+  handle of a `Splitter`, the box of a `Tabs` or a `Carousel`, the panel of a
+  `Sidebar`, the `<nav>` of a `Breadcrumb`, the `<dialog>` of a `Modal`.
+- On its input, for a control drawn inside a box (`Switch`, `Checkbox`,
+  `Radio`, `Slider`, `DatePicker`, `FileUpload`). The input is the control,
+  and its own handlers are already there. `hidden`, `lang` and `dir` belong
+  to the whole control, so they stay on its box.
+
+A `role:` or `aria-label:` you write takes the place of the one the built-in
+gives itself: a `Splitter`'s `separator`, a `Switch`'s `switch`, a
+`Breadcrumb`'s name. A `Sidebar`'s `id:` is the one its toggle points at.
+
+This list box puts `role`, `tabindex` and `aria-activedescendant` on the
+`VirtualList`'s scrolling box, and a `role` and `id` on each row:
 
 ```wf
-page P(path: "/") {
+page References(path: "/", title: "References", description: "A list box of references.") {
     state refs = [{ id: "a" }, { id: "b" }, { id: "c" }]
     state current = 0
+    Heading("References").h1
     VirtualList(rowHeight: 24, label: "References", role: "listbox", tabindex: "0", aria-activedescendant: "ref-{current}") {
         style { height: 240px }
         on keydown(e) { if e.key == "ArrowDown" { current = current + 1 } }
@@ -137,19 +195,22 @@ page P(path: "/") {
 }
 ```
 
-The pre-rendered page and the template engine paint the same attributes on
+The pre-rendered page and the template engine write the same attributes on
 the same elements, as far as the build knows their values.
 
 ## Parts
 
-Some built-ins are made of parts, written under their owner's name:
+Some built-ins are made of parts. You write a part under its owner's name,
+inside its owner:
 
 ```wf
-page P(path: "/") {
+page Regions(path: "/", title: "Regions", description: "A card, a table, a select and tabs.") {
+    state region = "fra1"
+    Heading("Regions").h1
     Card.elevated {
-        Card.Header { Heading("Title").h3 }
-        Card.Body { Text("Body") }
-        Card.Footer { Button("OK").primary }
+        Card.Header { Heading("Frankfurt").h2 }
+        Card.Body { Text("Our main region.") }
+        Card.Footer { Button("Open").primary }
     }
     Table(caption: "Regions") {
         Table.Head { Table.Row { Table.Cell("Region").header  Table.Cell("Latency").header } }
@@ -160,41 +221,48 @@ page P(path: "/") {
         Select.Option("Iowa", value: "iad1")
     }
     Tabs {
-        Tabs.Page("One") { Text("first") }
-        Tabs.Page("Two") { Text("second") }
+        Tabs.Page("Summary") { Text("Two regions.") }
+        Tabs.Page("Details") { Text("fra1 and iad1.") }
     }
-    state region = "fra1"
 }
 ```
 
-A part belongs inside its owner: `Card.Body` is drawn as a card's body
-section, and outside a `Card` it is only a section with no card around it.
-Your own components may declare parts too (chapter 11).
+A part belongs inside its owner. `Card.Body` outside a `Card` is error
+`C03`. Your own components may declare parts too
+([chapter 11](11-components.md)).
 
 ## Text and headings
 
+The typography elements cover inline text, headings, paragraphs, code,
+quotations and Markdown:
+
 ```wf
-page P(path: "/") {
-    Heading("Title").h1                       // a real <h1>; .h2 is the default
-    Text("Plain, {count} live").bold.muted   // an inline run of text
+page Article(path: "/", title: "Article", description: "Every kind of text.") {
+    state count = 3
+    Heading("Release notes").h1                // a real <h1>; .h2 is the default
+    Text("{count} changes").bold.muted         // a run of text
     Paragraph("Prose, as a <p>.")
     Code("let x = 1").block
     Blockquote("A quotation.")
-    Markdown("**Bold** and a [link](/docs)")  // chapter 27
-    state count = 3
+    Markdown("**Bold** and a [link](/docs)")   // chapter 27
 }
 ```
 
-Headings form an outline the compiler checks: one `h1` per page, no skipped
-levels (`A11`, `A12`).
+The compiler checks the outline the headings form: a page needs an `h1`
+(`A12`), and a heading level may not be skipped, such as `h2` straight to
+`h4` (`A11`).
 
 ## Layout elements
 
+The layout elements arrange what is inside them. Each comment says what the
+element is:
+
 ```wf
-page P(path: "/") {
-    Container {                                  // centred, max-width
+page Dashboard(path: "/", title: "Dashboard", description: "Every layout element at once.") {
+    Header { Heading("Dashboard").h1 }
+    Container {                                  // centred, with a max width
         Row(gap: .md, align: .center) {          // horizontal flex
-            Column(span: 8) { Text("main") }     // 12-column grid child
+            Column(span: 8) { Text("main") }     // a child of a 12-column grid
             Column(span: 4) { Text("aside") }
         }
         Grid(columns: 3, gap: .lg) { Card { Text("a") }  Card { Text("b") }  Card { Text("c") } }
@@ -202,55 +270,82 @@ page P(path: "/") {
         Spacer.lg
         Divider
     }
-    Header { Text("a page region") }
-    Section { Text("another") }
-    Footer { Text("the last") }
+    Section { Text("another region") }
+    Footer { Text("the last region") }
 }
 ```
 
-`Header`, `Section` and `Footer` are real landmarks (`<header>`, `<section>`,
-`<footer>`); use them for page regions so the page has an outline a screen
-reader and a search engine can follow.
+`Header`, `Section` and `Footer` render real landmarks: `<header>`,
+`<section>` and `<footer>`. Use them for the page's regions, so a screen
+reader and a search engine can follow the page's outline.
 
 ## The families of built-ins
 
+The built-ins fall into these families:
+
 | Family | Elements |
 |---|---|
-| Layout | `Container`, `Row`, `Column`, `Grid`, `Stack`, `Spacer`, `Divider`, `Header`, `Section`, `Footer`, `Host` |
+| Layout | `Container`, `Row`, `Column`, `Grid`, `Stack`, `Spacer`, `Divider`, `Header`, `Section`, `Footer`, `VirtualList`, `Splitter` |
 | Navigation | `Navbar`, `Sidebar`, `Link`, `Tabs`, `Breadcrumb`, `Menu` |
 | Data display | `Card`, `Table`, `List`, `Badge`, `Tag`, `Avatar`, `Tooltip` |
 | Forms | `Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload` ([Forms](16-forms.md)) |
-| Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `Spinner`, `Progress`, `Skeleton` ([Events](09-events.md#overlays-modals-dialogs-toasts-and-menus)) |
+| Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `Popover`, `Spinner`, `Progress`, `Skeleton` ([Events](09-events.md#overlays-modals-dialogs-toasts-and-menus)) |
 | Actions | `Button`, `IconButton`, `ButtonGroup`, `Dropdown` |
-| Media | `Image`, `Video`, `Audio`, `Icon`, `Carousel` ([Media](28-media.md)) |
+| Media | `Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel` ([Media](28-media.md)) |
 | Typography | `Text`, `Heading`, `Paragraph`, `Code`, `Blockquote`, `Markdown`, `Unsafe.Html` |
-| Documents and decks | `Document`, `PageBreak`, `Presentation`, `Slide`, `TitleSlide`, `SectionSlide`, `TwoColumn`, `ImageSlide` ([PDF and slides](34-pdf-and-slides.md)) |
+| Somebody else's code | `Host`, `Element`, `Portal` ([JavaScript interop](32-javascript-interop.md)) |
+| Documents and decks | `Document`, `PageBreak`, `TableOfContents`, `Background`, `Watermark`, `Chart`, `QrCode`, `Presentation`, `Slide`, `TitleSlide`, `SectionSlide`, `TwoColumn`, `ImageSlide` ([PDF and slides](34-pdf-and-slides.md)) |
 | Routing | `Router` ([Pages](06-pages-and-routing.md#the-app-shell)) |
 
 ## What an element renders
 
-Each built-in renders real, semantic HTML — a `Button` is a `<button>`, a
-`Link` an `<a>`, a `Heading(…).h2` an `<h2>`, a `Table` a `<table>` with
-`<th scope="col">` in its head — and carries a stable class named
-`wf-<name>`, with modifier classes for its flags: `Button("Save").primary.lg` is
-`<button class="wf-btn wf-btn--primary wf-btn--large">`. The classes are part
-of the public surface and stable across releases, so your own stylesheet may
-target them ([Styling](15-styling.md#classes-and-your-own-stylesheet)). The
-reference names each element's class.
+Each built-in renders real, semantic HTML. A `Button` is a `<button>`, a
+`Link` an `<a>`, a `Heading(…).h2` an `<h2>`, and a `Table` a `<table>` with
+`<th scope="col">` cells in its head.
+
+Each also carries a stable class named after it, with a modifier class for
+each flag. For example, `Button("Save").primary.lg` renders:
+
+```html
+<button class="wf-btn wf-btn--primary wf-btn--large" type="button">Save</button>
+```
+
+These classes are part of the public surface and stay stable across
+releases, so your own stylesheet may target them
+([Styling](15-styling.md#classes-and-your-own-stylesheet)). The reference
+names each element's class.
 
 ## What the compiler checks on every element
 
-- The name is a built-in, a part in its owner, or a declared component.
-- The positional argument is one the element takes; there is at most one.
-- Every named prop exists, with a value of its type; an enum prop's case exists.
-- Every flag resolves to one prop.
-- Handlers name a DOM event or one of the component's declared events.
-- Slot fills name a declared slot.
-- An `Icon("name")` or `icon:` names one of the icons the runtime draws
-  ([the list](37-components-reference.md#icons)); any other name shows as
-  the word.
-- Accessibility: an `Image` has `alt:`, an `IconButton` has `label:`, a control
-  has a label, a `Modal` a title, a `Table` a `Table.Head` (`A01`–`A10`).
+The compiler holds every element call to these rules:
+
+| What it checks | When it fails |
+|---|---|
+| The name is a built-in, a part inside its owner, or a declared component | `E101`; a part outside its owner is `C03` |
+| There is at most one positional argument, and the element takes one | A second is `E113`; one a built-in does not take is `C05` |
+| Every named prop exists, with a value of its type, and an enum prop's case exists | A wrong type is `T01`; a missing case is `E103` |
+| A named argument that is not a prop is a declared attribute | Any other is written as an attribute, with `C04` |
+| Every flag resolves to exactly one prop | `E103` |
+| A handler names a DOM event, or one of the component's declared events | `V09` for any other name, such as a misspelled `on clik` |
+| A slot fill names a declared slot | `E103` |
+| An `Icon("name")` or `icon:` names an icon the runtime draws ([the list](37-components-reference.md#icons)) | `V08`; the name shows as a word |
+| Accessibility: an `Image` has `alt:`, an `IconButton` a `label:`, a control a label, a `Modal` a title, a `Table` a `Table.Head` | `A01`–`A10` |
+
+## Quick reference
+
+| Syntax | Meaning |
+|---|---|
+| `Name(value, prop: value)` | An element with one positional and named props |
+| `.flag` | A `Bool` prop set to `true`, or an enum prop's case |
+| `prop: .case` | An enum prop, named |
+| `{ style { } transition { } on … { } fills children }` | The block, in its fixed order |
+| `aria-label: "…"`, `data-tone: "…"`, `id: "…"` | HTML attributes |
+| `Owner.Part { … }` | A part, inside its owner |
+| `class:`, `ref:`, `mount:`, `animate:` | Universal props, on every element |
+
+The [components reference](37-components-reference.md) lists each built-in's
+props, flags, events, slots and parts; `wf registry --json` prints the same
+data for a tool.
 
 ## Next
 

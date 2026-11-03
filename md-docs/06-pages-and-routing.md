@@ -3,14 +3,27 @@
 <!--
 route: guide/pages-and-routing
 group: basics
-blurb: A page is a route and what it shows. Pages own their paths; the app shell frames them; a layout wraps them.
+blurb: A page is a route and what it shows. Each page names its own path, the app shell frames every page, and a layout frames a section.
 description: Page attributes, routes and typed parameters, query strings, layouts, guards, the app shell, per-page head tags and the 404 page.
 -->
 
-A page is a route and what it shows. Pages own their paths: there is no route
-table to keep in step with them.
+A page is a route and what it shows. Each page names its own path, so there
+is no separate route table to keep in step with your pages.
+
+In this chapter:
+
+- the attributes a page takes
+- the `app` shell that frames every page, and the `Router`
+- links, `navigate()` and how the active link is marked
+- route parameters, query strings and fragments
+- layouts, guards and per-page head tags
+- the catch-all page
+- what runs, and in what order, when a page opens
 
 ## Declaring a page
+
+A page is a `page` declaration with a name, a `path:` and a body. This page
+answers `/about`:
 
 ```wf
 page About(path: "/about", title: "About us", description: "Who we are and why we build this.") {
@@ -21,31 +34,31 @@ page About(path: "/about", title: "About us", description: "Who we are and why w
 }
 ```
 
-The header takes these attributes:
+The page's header takes these attributes:
 
 | Attribute | Required | Meaning |
 |---|---|---|
 | `path:` | yes | The route: `"/"`, `"/about"`, `"/posts/:slug"`, or `"*"` for the catch-all |
-| `title:` | strongly | The `<title>`, the history entry, what a screen reader announces on arrival; may name the page's parameters, `"{slug} — Blog"`, or splice an expression over them and the program's constants |
-| `description:` | strongly | The meta description and the snippet a search result and a link preview show (~150 characters) |
+| `title:` | strongly advised | The `<title>`, the history entry, and what a screen reader announces on arrival. It may name the page's parameters, `"{slug} — Blog"`, or splice an expression over them and the program's constants |
+| `description:` | strongly advised | The meta description: the snippet a search result and a link preview show. Keep it under about 160 characters (`S03`) |
 | `image:` | | The image a shared link previews with, site-relative or absolute |
-| `image_alt:` | | What that image shows, for a reader who cannot see it (`og:image:alt`); `meta.image_alt` describes the site's image |
-| `type:` | | `og:type` — `website` (default) or `article` |
-| `noindex:` | | `true` keeps the page out of search results and the sitemap |
-| `layout:` | | The component that frames the page (below) |
-| `guard:` | | An expression that must hold for the route to render |
-| `redirect:` | | Where the reader goes when the guard fails (default `/`) |
-| `paths:` | | The values a static build renders a `:param` page for ([chapter 26](26-static-and-spa.md#static-paths)) |
-| `name: Type` | | A route parameter, typed (below) |
+| `image_alt:` | | What that image shows, for a reader who cannot see it (`og:image:alt`). `meta.image_alt` in the config describes the site's image |
+| `type:` | | `og:type`: `"website"` (the default) or `"article"` |
+| `noindex:` | | `true` keeps the page out of search results and out of the sitemap |
+| `layout:` | | The component that frames the page ([Layouts](#layouts)) |
+| `guard:` | | An expression that must hold for the route to render ([Guards](#guards)) |
+| `redirect:` | | Where the reader goes when the guard fails. The default is `/` |
+| `paths:` | | The values a static build renders a `:param` page for ([chapter 26](26-static-and-spa.md#pre-render-a-dynamic-route-with-paths)) |
+| `name: Type` | | A route parameter, typed ([Route parameters](#route-parameters)) |
 
-A page without a `title` or `description` builds with a warning (`S01`,
-`S02`); the compiler cannot write those for you, and a page without them ships
-unshareable.
+A page without a `title:` builds with warning `S01`, and one without a
+`description:` with warning `S02`. The compiler cannot write those for you,
+and a page without them looks bare when someone shares or searches for it.
 
 ## The app shell
 
-`app` declares what every page renders inside — a navbar, a footer, the
-`Router` where the current page goes:
+The `app` declaration is the shell: what every page renders inside, such as a
+navbar and a footer. The `Router` marks where the current page goes:
 
 ```wf
 app {
@@ -62,40 +75,65 @@ app {
 }
 ```
 
-`Router` is bare — it takes no children — and the table is built from every
-page's `path`, ordered by specificity (static segments before `:params`, `*`
-last), so declaration order can never shadow a route. A project with no `app`
-declaration gets a bare router.
+The `Router` behaves like this:
 
-`Router(transition: .fade, duration: "200ms")` animates page changes
-([chapter 20](20-motion.md#route-transitions)).
+- It is bare: it takes no children, and it may sit at any depth inside `app`
+  (in a `Row`, a `Container`, a `Stack`).
+- Its route table is built from every page's `path:`, ordered by
+  specificity: static segments before `:params`, and `*` last. The order you
+  declare pages in can never shadow a route.
+- A project with no `app` declaration gets a bare router.
+- `Router(transition: .fade, duration: "200ms")` animates page changes
+  ([chapter 20](20-motion.md#route-transitions)).
 
 ## Links and navigation
 
+A `Link` is an `<a>` whose clicks the router handles. To move from code, for
+example after a button press, call `navigate(path)`:
+
 ```wf
-page Nav(path: "/nav") {
-    Link("Home", to: "/")                       // an <a>; the router handles the click
+page Start(path: "/", title: "Start", description: "Where the tour begins.") {
+    Heading("Start here").h1
+    Link("Home", to: "/")
     Link("Guide", to: "/docs").prefix           // also active on /docs/anything
-    Button("Go") { on click { navigate("/about") } }
+    Button("Take the tour") { on click { navigate("/about") } }
 }
+
+page Guide(path: "/docs", title: "Guide", description: "The guide.") { Heading("Guide").h1 }
+page About(path: "/about", title: "About", description: "Who we are.") { Heading("About").h1 }
 ```
 
+### The active link
+
 The link whose `to:` matches the current route carries the class `.active`
-and `aria-current="page"`; `.prefix` makes a section link active for the
-routes beneath it. A `to:` with a query — `"/?show=open"` — is active only
-when the address carries those values too, so a row of filter links marks
-the one that is on — a plain link to the same path gives way to it. `navigate(path)` moves in code. Write paths from the
-site's root — `"/about"` — even when the site is served under a sub-path:
-with `build.base_path` set to `"/docs"`, every `Link`, `navigate` and asset
-is prefixed for you. In a static build, links
-are real page loads and `navigate` is too; in a single-page app they swap
-pages without a reload, move focus to the new page's heading, reset the
-scroll and announce the title.
+and `aria-current="page"`, so you can style it and a screen reader announces
+it. Two rules widen or narrow the match:
+
+- `.prefix` (the flag for `active: .prefix`) also makes a link active on the
+  routes beneath it, which suits a section link such as **Guide**.
+- A `to:` with a query, such as `"/?show=open"`, is active only when the
+  address carries those values too. A row of filter links then marks the one
+  that is on, and a plain link to the same path gives way to it.
+
+### Paths under a sub-path
+
+Write every path from the site's root, `"/about"`, even when the site is
+served under a sub-path. With `build.base_path` set to `"/docs"`, the
+compiler prefixes every `Link`, every `navigate()` and every asset for you.
+
+### Static and single-page navigation
+
+How a link moves depends on the build:
+
+- In a static build, a link is a real page load, and so is `navigate()`.
+- In a single-page app, a link swaps the page without a reload. Focus moves
+  to the new page's heading, the scroll goes back to the top (or to the
+  `#fragment` the address names), and the new title is announced.
 
 ## Route parameters
 
-A `:name` segment is declared as a typed parameter of the page and read as a
-plain name, or as `params.name`:
+A `:name` segment in the path is a typed parameter of the page. You read it
+as a plain name, or as `params.name`:
 
 ```wf
 type Post { slug: String, title: String, body: String }
@@ -120,14 +158,14 @@ page PostPage(path: "/posts/:slug", title: "Post", description: "One post.", slu
 }
 ```
 
-A parameter is a `String` unless you say otherwise (`id: Number`). A static
-build renders a `:param` page once per value named in `paths:` — see
-[Data](26-static-and-spa.md#static-paths).
+A parameter is a `String` unless you declare another type, such as
+`id: Number`. A static build renders a `:param` page once for each value its
+`paths:` names ([Pre-render a dynamic route](26-static-and-spa.md#pre-render-a-dynamic-route-with-paths)).
 
 ## Query strings and fragments
 
-`query` is the URL's query string as a map, and `hash` its `#fragment`;
-both are kept current by the runtime, so a page that reads them follows the
+`query` is the URL's query string as a map, and `hash` is its `#fragment`.
+The runtime keeps both current, so a page that reads them follows the
 address:
 
 ```wf
@@ -144,17 +182,21 @@ page Products(path: "/products", title: "Products", description: "Everything we 
 ```
 
 A query string is not part of the route: `/products?tab=sale` is the
-`/products` page. To change it from code, `navigate("/products?tab=sale")`.
-In the static paint `query` and `hash` are unknown, so what depends on them
-is drawn once the page is live.
+`/products` page. To change the query from code, call
+`navigate("/products?tab=sale")`.
+
+The *static paint* is the HTML the build pre-renders for a page. In it,
+`query` and `hash` are unknown, so anything that depends on them is drawn
+once the page is live in the browser.
 
 ## Layouts
 
-A `layout:` is a component with a default slot; the page renders in it. Use
-it for a section's own chrome — a docs sidebar, an app rail — where the
-`app` shell is the site's. The page's skip link jumps past that chrome to
-the page's first element, which is given `id="wf-content"` when it has no
-id of its own.
+A layout is a component that frames a page. You name it with `layout:`, and
+the page renders in its default slot. Use a layout for one section's chrome,
+such as a docs sidebar or an app rail; the `app` shell is for the whole
+site's.
+
+In this example, two docs pages share one sidebar and breadcrumb:
 
 ```wf
 component DocsShell(_ crumb: String) {
@@ -183,14 +225,20 @@ page Reference(path: "/docs/reference", title: "Reference", description: "The re
 }
 ```
 
-The layout's arguments are checked like any component call. The layout
-component is required to declare a `slot` (its default slot); a layout
-without one is an error, since the page would have nowhere to go.
+A layout follows these rules:
+
+- The compiler checks the layout's arguments like any component call
+  (`DocsShell("Guide")`).
+- The layout component must declare a default `slot`. Without one, the page
+  has nowhere to go, and the build stops with error `E104`.
+- The page's skip link jumps past the layout's chrome to the page's first
+  element. That element gets `id="wf-content"` when it has no id of its own.
 
 ## Guards
 
-`guard:` names an expression — usually a store's derived value — that must be
-true for the route to render; otherwise the reader is sent to `redirect:`.
+A guard keeps a route from rendering until a condition holds. `guard:` names
+an expression, usually a store's derived value. When it is false, the reader
+is sent to `redirect:` (by default, `/`):
 
 ```wf
 store Auth {
@@ -208,19 +256,24 @@ page Account(path: "/account", title: "Your account", description: "Your account
 
 page Login(path: "/login", title: "Sign in", description: "Sign in.") {
     use Auth
+    Heading("Sign in").h1
     Button("Sign in").primary { on click { Auth.login()  navigate("/account") } }
 }
 ```
 
-The guard is evaluated on every navigation, in the browser. A static build
-still pre-renders the page's HTML (the guard is a client-side gate, not a
-secret), so keep anything private behind an API the page fetches.
+The browser evaluates the guard on every navigation.
+
+> [!CAUTION]
+> A guard is a gate in the browser, not a secret. A static build still
+> pre-renders the guarded page's HTML, so keep anything private behind an
+> API that the page fetches.
 
 ## Per-page head tags
 
-A page may add tags of its own to the document's `<head>`; they are painted
-at build time where the value is known, kept current on the live page, and
-gone when the page is:
+A `head { }` block adds tags of the page's own to the document's `<head>`.
+The build writes them into the static paint where it knows the value, the
+live page keeps them current, and they are removed when the reader leaves
+the page:
 
 ```wf
 page Share(path: "/share", title: "Share", description: "A page with its own tags.") {
@@ -234,14 +287,14 @@ page Share(path: "/share", title: "Share", description: "A page with its own tag
 }
 ```
 
-`title` and `description` are page attributes, not head tags; the compiler
-writes the standard tags (charset, viewport, description, canonical, Open
-Graph, Twitter card, JSON-LD) from them and the config.
+`title:` and `description:` are page attributes, not head tags. From them
+and the config, the compiler writes the standard tags itself: charset,
+viewport, description, canonical, Open Graph, Twitter card and JSON-LD.
 
 ## The catch-all page
 
-`path: "*"` is the page a static host serves as `404.html` and the router
-shows for a route no page claims:
+A page with `path: "*"` answers every route no other page claims. The router
+shows it in the browser, and a static host serves it as `404.html`:
 
 ```wf
 page NotFound(path: "*", title: "Not found", description: "Nothing lives here.", noindex: true) {
@@ -255,8 +308,9 @@ page NotFound(path: "*", title: "Not found", description: "Nothing lives here.",
 ## Set-up code: what runs when a page opens
 
 A page's body is a render block: it declares state, derived values and
-actions, and lists what to show. Everything at the top of the body runs once
-when the page renders; a call at the top — `Store.load(id)` — is set-up code.
+actions, and lists what to show. The top of the body runs once, when the page
+renders. A call written there, such as `Deploys.load(id)`, is *set-up code*:
+it runs once as the page opens.
 
 ```wf
 store Deploys {
@@ -267,28 +321,51 @@ store Deploys {
 page Deploy(path: "/deploys/:id", title: "Deploy", description: "One deploy.", id: String) {
     use Deploys
     Deploys.load(id)
+    Heading("Deploy {id}").h1
     for row in Deploys.rows by row.id {
         Text("{row.id}: {row.ok}")
     }
 }
 ```
 
-The life of a page, in order:
+### The life of a page
 
-1. The route matches, the page's chunk loads (in a split build) and its
+A page goes through these stages, in order:
+
+1. The route matches. In a split build, the page's chunk loads, and its
    stylesheet with it.
-2. The body runs **once**: `state`s take their initial values, set-up calls
-   run, elements are created. There is no re-render after this — what reads a
-   state updates on its own.
-3. `effect`s run, and run again when what they read changes; timers start.
+2. The body runs **once**: each `state` takes its initial value, set-up calls
+   run, and the elements are created. Nothing re-renders after this; whatever
+   reads a state updates on its own.
+3. Each `effect` runs, and runs again when what it reads changes. Timers
+   start.
 4. The page is placed. In a single-page app, focus moves to its heading, the
    scroll goes to the top and the title is announced.
-5. When the route changes, everything the page created — effects, timers,
-   listeners, connections, `.route` stores — is disposed of, and their
+5. When the route changes, everything the page created is disposed of:
+   effects, timers, listeners, connections and `.route` stores. Their
    `cleanup { }` blocks run.
 
-There is no `onMount` to write: set-up code runs at step 2, an `effect` at
-step 3, and `after(0) { … }` once the page is on screen.
+There is no `onMount` to write. Set-up code runs at stage 2, an `effect` at
+stage 3, and `after(0) { … }` once the page is on screen.
+
+## Quick reference
+
+| Syntax | Meaning |
+|---|---|
+| `page Name(path: "/x", title: "…", description: "…") { … }` | A page and its route |
+| `path: "/posts/:slug"`, `slug: String` | A typed route parameter, read as `slug` or `params.slug` |
+| `path: "*"` | The catch-all page, served as `404.html` |
+| `app { … Router … }` | The shell around every page, and where the page goes |
+| `Link("Docs", to: "/docs").prefix` | A link, active on its route and the routes beneath it |
+| `navigate("/about")` | Move to a route from code |
+| `query.tab`, `hash` | The query string and the fragment, kept current |
+| `layout: Shell("Crumb")` | Frame the page with a component's default slot |
+| `guard: Auth.loggedIn, redirect: "/login"` | Render only while a condition holds |
+| `head { meta(…) link(…) script(…) }` | Tags of the page's own in `<head>` |
+
+The [configuration reference](39-configuration.md) covers `build.base_path`,
+and [Static or single-page](26-static-and-spa.md) covers how each build
+serves pages.
 
 ## Next
 

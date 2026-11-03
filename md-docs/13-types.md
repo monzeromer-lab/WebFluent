@@ -3,15 +3,52 @@
 <!--
 route: guide/types
 group: basics
-blurb: A gradual, structural type checker that changes no output and names every mistake with a hint.
-description: The type language, built-in types, records and enums, refinements, inference and narrowing, typed network data, and every check.
+blurb: A gradual, structural type checker that changes no output and names every mistake where you wrote it.
+description: The type language, built-in types, records and enums, refinements, inference and narrowing, typed network data, and the checks the compiler runs.
 -->
 
-WebFluent has a gradual, structural type checker. It runs in `wf build` and
-in the editor, before anything is emitted, and its findings are errors with
-a hint. A program that declares no types checks as it always did — what the
-checker cannot resolve is `Any`, and `Any` agrees with everything — and
-every annotation you add narrows what it can say.
+WebFluent has a type checker that runs in `wf build`, `wf check` and the
+editor, before any output is written. It is *gradual*: a program that
+declares no types still checks, because whatever the checker cannot work
+out has the type `Any`, and `Any` agrees with everything. Every annotation
+you add lets the checker say more. It is also *structural*: a value fits a
+type when it has the right fields, whatever it was declared as. The checker
+changes nothing in the output; it only reports.
+
+**In this chapter**
+
+- The type language, and the types that come with the language
+- Records (`type`), enums and the shapes of map literals
+- Where the checker gets a type from, and how it infers one
+- Narrowing a value that may be `null`
+- Typing data from the network
+- The checks, and what the checker does not check
+
+## A first type error
+
+This page declares an `Invoice` record and builds one with the wrong kind
+of value for `total`:
+
+```wf expect T01
+type Invoice { id: String, total: Number, paid: Bool = false }
+
+page Invoices(path: "/", title: "Invoices", description: "What is owed.") {
+    state invoice: Invoice = Invoice(id: "INV-001", total: "120")
+    Heading("Invoice {invoice.id}").h1
+    Text("Owed: {invoice.total}")
+}
+```
+
+The build stops, pointing at the field:
+
+```text
+error[T01]: `total` of `Invoice` is `Number`, but `"120"` is `String`
+ --> src/App.wf:4:53
+```
+
+Writing `total: 120` fixes it. Had the invoice been an untyped map,
+`{ id: "INV-001", total: "120" }`, the page would build, and
+`invoice.total` would be a string at run time.
 
 ## The type language
 
@@ -27,8 +64,9 @@ every annotation you add narrows what it can say.
 | Enum | the `enum`'s name | `.case` |
 | Any | `Any` | anything; what is not known |
 
-A type is written after a colon on a `state`, a prop, an action parameter,
-a `type` field, a route parameter, a `let`, or a `resource`.
+You write a type after a colon on a `state`, a prop, an action parameter, a
+`type` field, a route parameter, a `let` or a `resource`. This page uses
+several:
 
 ```wf
 page Typed(path: "/") {
@@ -46,10 +84,11 @@ page Typed(path: "/") {
 
 ## The types the language brings with it
 
-Eleven more come with the language. Each is a **plain JSON value at run
-time** — no wrapper object — so it crosses a `fetch`, a `persist`, the
-static paint and the template engine unchanged; `.native()` hands a real
-platform object to a library that wants one.
+Eleven more types come with the language. Each is a **plain JSON value at
+run time**, with no wrapper object, so it crosses a `fetch`, a `persist`,
+the static paint (the HTML the build pre-renders for a page) and the
+template engine unchanged. `.native()` hands a real platform object to a
+library that wants one.
 
 | Type | Carried by | Written as a literal |
 |---|---|---|
@@ -65,11 +104,13 @@ platform object to a library that wants one.
 | `File` | the browser's `File` | what a `FileUpload` yields |
 | `Secret` | a string | — |
 
-Money is in **minor units** — cents, pence — so the arithmetic is a whole
-number's and nothing drifts. A duration is milliseconds, so it adds to a
-moment. `uuid()` is where a `Uuid` comes from: the platform's own
-generator where there is one, a version-4 layout from the best randomness
-available where there is not.
+Money is held in **minor units** — cents, pence — so its arithmetic is
+whole-number arithmetic and nothing drifts. A duration is milliseconds, so
+it adds to a moment. `uuid()` is where a `Uuid` comes from: it uses the
+platform's own generator where there is one, and otherwise builds a
+version-4 UUID from the best randomness available.
+
+This page books a stay with dates, money and a refined number:
 
 ```wf
 type Booking {
@@ -100,7 +141,7 @@ Everything the language **computes** is a call; everything the carrier
 **already has** is a field. So `total.amount` and `total.currency` are
 fields, and `from.year()` and `checkout.weekday()` are calls.
 
-| | |
+| Type | Methods |
 |---|---|
 | `Date` `Time` `DateTime` | `.year() .month() .day() .weekday() .hour() .minute() .second()`, `.plus(days: 3)` and `.minus(…)` (which take `years months weeks days hours minutes seconds ms`), `.isBefore(d) .isAfter(d) .isSame(d)`, `.until(d)` (a `Duration`), `.startOfDay() .startOfWeek() .startOfMonth() .endOfDay()`, `.native()`; `DateTime` also `.date() .time() .inZone("Europe/Berlin")` |
 | `Duration` | `.days() .hours() .minutes() .seconds() .ms()`, `.plus(d)` |
@@ -108,17 +149,17 @@ fields, and `from.year()` and `checkout.weekday()` are calls.
 | `Url` | `.host() .path() .query()`, `.with(query: { page: 2 })` |
 | `Email` | `.domain()` |
 | `Color` | `.mix(other, 0.2) .lighten(0.1) .darken(0.1) .alpha(0.5) .contrast(other)` |
-| `File` | `.preview()` — an object URL, revoked when the scope that made it leaves |
+| `File` | `.preview()` — an object URL, revoked when the scope that made it leaves; the fields `.name .size .type` |
 
 Adding a month lands on a day that exists: `@2026-01-31.plus(months: 1)` is
-the 28th of February, not the 3rd of March. All of it runs at build time
-too, so the static paint shows the answer rather than a blank that fills in
-when the page hydrates.
+the 28th of February, not the 3rd of March. All of these methods also run
+at build time, so the static paint shows the answer instead of a blank that
+fills in when the page hydrates.
 
 ### A literal is held to its type
 
-A string written where one of these is wanted is read as one, and checked
-where it is written:
+A string written where one of these types is wanted is read as that type,
+and checked where you wrote it:
 
 ```wf
 state site: Url = "https://example.com"     // fine
@@ -127,11 +168,11 @@ state bad: Url = "example"                  // T01: A URL has a scheme
 
 ### `now`
 
-`now` is a `DateTime` that keeps itself current — every minute by default,
-or as often as a page asks:
+`now` is a `DateTime` that keeps itself current. It updates every minute by
+default, or as often as a page asks with `now(every: …)`:
 
 ```wf
-page Feed(path: "/", title: "Feed", description: "What just happened.") {
+page Feed(path: "/", title: "Feed", description: "What happened lately.") {
     state posted: DateTime = @2026-03-14T09:30:00Z
     derived age = posted.until(now)
     Text("{ago(posted)} — {age.minutes()} minutes")
@@ -139,10 +180,15 @@ page Feed(path: "/", title: "Feed", description: "What just happened.") {
 }
 ```
 
+Read `now` where it is shown or in a `derived` value. A `state` takes its
+initial value once, so `state clock = now(every: 1.seconds)` stays at the
+moment the page opened (`X06`; see
+[State and reactivity](08-state-and-reactivity.md)).
+
 ### A condition on a type
 
-Any type may say what its values must be, and every value the compiler can
-read is held to it:
+Any type may say what its values must be. The compiler holds every value it
+can read to that condition:
 
 ```wf
 state nights: Number(1..=30) = 12
@@ -150,15 +196,17 @@ state pass: String(minLength: 8) = "correcthorse"
 state start: Date(after: @2026-01-01) = @2026-03-14
 ```
 
-`min`, `max`, `minLength`, `maxLength`, `pattern`, `after`, `before`, and a
-range (`1..=30` inclusive, `0..10` exclusive of the end) for the two ends.
-A value that arrives at run time is validation's to refuse, from the same
-condition.
+The conditions are `min`, `max`, `minLength`, `maxLength`, `pattern`,
+`after` and `before`, and a range for the two ends at once: `1..=30`
+includes the end, `0..10` excludes it. A value that arrives at run time —
+typed into a field, say — is refused by validation, from the same
+condition, so a refined type needs no `validate` rule for it (see
+[Forms](16-forms.md)).
 
 ### `Secret` is not a string
 
-A `Secret` is a string the compiler will not let escape. Each of these is a
-`T12`:
+A `Secret` is a string the compiler will not let escape. Each of these
+lines is a `T12`:
 
 ```wf
 state token: Secret = ""
@@ -168,15 +216,20 @@ persist token: Secret = ""      // kept in the browser
 log(token)                      // in the console, and often in a log service
 ```
 
-Hold it in `state`, which the visit ends; what must outlive the visit
-belongs on the server.
+Joining it with `+` or handing it to a browser global such as `console`, a
+storage or a `fetch` address is a `T12` too, and a secret has no string
+members to read. Hold it in `state`, which ends with the visit; what must
+outlive the visit belongs on the server.
 
 ### Your own name wins
 
-A `type` the program declares takes the name back. A project with its own
-`type Color { name: String }` means that one everywhere.
+A `type` the program declares takes the name back from the language. A
+project with its own `type Color { name: String }` means that record
+everywhere it writes `Color`.
 
 ## Records: `type`
+
+A *record* is a value with named, typed fields, declared with `type`:
 
 ```wf
 enum Tone { neutral, info, danger }
@@ -207,20 +260,25 @@ page Records(path: "/") {
 }
 ```
 
-- Fields may be separated by newlines or commas.
-- A field with a default may be left out of a construction; a `T?` field
-  defaults to `null`. A record whose fields can all be left out is built
-  with none given, `Offers()`, wherever a value goes — a prop's default
-  (`component Card(offers: Offers = Offers())`), a field's, a `const`, a
+- You may separate fields with newlines or commas.
+- You build a record by naming its fields: `Todo(id: "1", title: "x")`. A
+  field with a default may be left out, and a `T?` field defaults to
+  `null`. Leaving out a field with no default is `C01`.
+- A record whose fields can all be left out is built with none given,
+  `Offers()`, wherever a value goes: a prop's default (`component
+  Card(offers: Offers = Offers())`), a field's default, a `const`, a
   `state`, an argument.
 - `type Admin = Todo { owner: String }` extends a record: an `Admin` has
-  every field of `Todo` and then its own.
+  every field of `Todo`, then its own.
 - Records are structural: `{ id: "a", title: "b" }` given where a `Todo` is
   wanted is a `Todo`, and its fields are checked against the record's.
-- A `Map` fits any record and a record fits a `Map`: JSON from `fetch` fits a
-  `type` it was never declared as.
+- A `Map` fits any record, and a record fits a `Map`. So JSON from `fetch`
+  fits a `type` it was never declared as.
 
 ## Enums
+
+An *enum* is a type with a fixed set of *cases*. A case may carry a
+*payload* — values that travel with it:
 
 ```wf
 enum Size { sm, md, lg }
@@ -241,20 +299,24 @@ page Enums(path: "/") {
 }
 ```
 
-- A case is written `.name`; on its own it is a case of an enum not yet
-  known, and where a `Size` is wanted it becomes a `Size` — `.huge` is `T02`.
-- A case may carry a payload: `.failed("x")` is checked like a call, and a
-  `match` arm binds it: `.failed(r)` gives `r: String`.
-- `size == .lg` compares cases; an enum is written to a component's root
-  as `data-<prop>` ([chapter 11](11-components.md#enum-props)).
+- You write a case as `.name`. On its own it is a case of an enum not yet
+  known; where a `Size` is wanted it becomes a `Size`, and `.huge` there is
+  `T02`.
+- A case with a payload, `.failed("x")`, is checked like a call. A `match`
+  arm binds the payload: `.failed(r)` gives `r` the type `String`.
+- At run time a bare case is its name and a case with a payload is a list,
+  `["failed", "timed out"]`, so `size == .lg` still compares cases.
+- A `match` with no `else` must give every case an arm (`T15`).
+- An enum prop is written to a component's root element as `data-<prop>`
+  (see [Enum props](11-components.md#enum-props)).
 
-## Map literals are shapes
+## Shapes of map literals
 
-A map literal has the fields it was written with: `{ name: "", age: 0 }` is
-`{ name: String, age: Number }`, and reading `form.nam` is `T05` with the
-fields it does have. A shape fits a `Map`, a record with the same fields,
-and any shape it agrees with. `{}` and a literal with a spread are plain
-`Map`s.
+A map literal has the fields it was written with. `{ name: "", age: 0 }`
+has the *shape* `{ name: String, age: Number }`, and reading `form.nam` is
+`T05`, with the fields it does have. A shape fits a `Map`, a record with the
+same fields, and any shape it agrees with. An empty `{}` and a literal with
+a spread say nothing about their keys, so they are plain `Map`s.
 
 ```wf
 page Shapes(path: "/") {
@@ -266,41 +328,50 @@ page Shapes(path: "/") {
 
 ## Where types come from
 
-**Declared** — annotations, a `type`'s fields, an `enum`'s cases, a page's
+The checker reads a type from five places.
+
+**Declared:** annotations, a `type`'s fields, an `enum`'s cases, a page's
 route parameters, an event's parameters, a component's props.
 
-**Inferred** — a literal; a list of literals (`[1, 2]` is `[Number]`, `[]`
-is `[Any]`); a record construction; a `derived` from its expression; a
-`state` from its initial value (one that starts as `null` is `Any?`); a
-`for` binding from the list's element type; a `match` arm's binding; an
+**Inferred:** a literal; a list of literals (`[1, 2]` is `[Number]`, `[]`
+is `[Any]`); a record construction; a `derived` value from its expression;
+a `state` from its initial value (one that starts as `null` is `Any?`); a
+`for` binding from the list's item type; a `match` arm's binding; an
 `if let` binding; a lambda's parameters from what the method expects
 (`items.filter(item => …)` gives `item` the item type).
 
-**From the registry** — the type of every built-in prop; what a `bind:`
-needs (`Checkbox` and `Switch` a `Bool`, `Slider` a `Number`, `Input` a
-`String` or a `Number` by its type).
+**From the registry:** the type of every built-in prop, and what a `bind:`
+needs — `Checkbox` and `Switch` a `Bool`, `Slider` a `Number`, `Input` a
+`String` or a `Number` by its input type.
 
-**From the method tables** — on a `String`: `trim`, `toLowerCase`,
-`toUpperCase`, `replace`, `slice`, `padStart`, `repeat`, `capitalize`,
-`truncate(n)` → `String`; `length`, `indexOf` → `Number`; `includes`,
-`startsWith`, `endsWith` → `Bool`; `split` → `[String]`. On a list: `map`
-→ `[U]` from the lambda; `filter`, `slice`, `concat`, `sort`, `sortBy`,
-`unique`, `take`, `flatMap` → `[T]`; `find`, `first`, `last` → `T?`;
-`some`, `every`, `includes` → `Bool`; `length`, `sum`, `indexOf`,
-`findIndex` → `Number`; `join` → `String`; `groupBy` → `Map`; `reduce` →
-the initial value's type. On a `Number`: `toFixed`, `toString` → `String`.
-Anything else is `Any`. The full lists are in
+**From the method tables:**
+
+- On a `String`: `trim`, `toLowerCase`, `toUpperCase`, `replace`, `slice`,
+  `padStart`, `repeat`, `capitalize`, `truncate(n)` → `String`; `length`,
+  `indexOf` → `Number`; `includes`, `startsWith`, `endsWith` → `Bool`;
+  `split` → `[String]`.
+- On a list: `map` → `[U]` from the lambda; `filter`, `slice`, `concat`,
+  `sort`, `sortBy`, `unique`, `take`, `flatMap` → `[T]`; `find`, `first`,
+  `last` → `T?`; `some`, `every`, `includes` → `Bool`; `length`, `sum`,
+  `indexOf`, `findIndex` → `Number`; `join` → `String`; `groupBy` → `Map`;
+  `reduce` → the initial value's type.
+- On a `Number`: `toFixed`, `toString` → `String`.
+
+Any other method is `Any`. The full lists are in
 [Built-ins](41-built-ins.md).
 
-**From stores** — `Todos.items` has the type of the store's state,
+**From stores:** `Todos.items` has the type of the store's state, and
 `Todos.add` the signature of its action.
 
-Browser globals (`window`, `document`, `JSON`, `Math`, `Date`, …) are `Any`.
+Browser globals (`window`, `document`, `JSON`, `Math`, `Date`, …) are
+`Any`.
 
-## Inference is bidirectional
+## Bidirectional inference
 
-An expression is checked against the type its context wants when there is
-one, and its type is read off it otherwise:
+The checker works in both directions. When the context wants a type, it
+checks the expression against that type; otherwise it reads the type off
+the expression. The comments show what each `derived` value is inferred to
+be:
 
 ```wf
 type Row { id: Number, label: String, score: Number? }
@@ -317,19 +388,23 @@ page Infer(path: "/") {
 }
 ```
 
+The rules for operators and forms:
+
 - `a ?? b` is `a` without its `null`, joined with `b`.
 - `a?.b` is `b`'s type made optional, and the rest of the chain with it.
-- `if`/`match` as values have the type both arms fit: the same type, `T?`
-  when one arm is `null`, else `Any`.
-- `-`, `*`, `/`, `%` are `Number`; `+` is a `String` when either side is
-  one; comparisons and `&&`, `||`, `!` are `Bool`.
-- `await e` on a `fetch` is `Any` unless annotated: `let r: [Row] = await fetch(…)`.
-- `let { a, b } = m` and `let [x, y] = l` bind the fields and items.
+- `if` and `match` used as values have the type both arms fit: the same
+  type, `T?` when one arm is `null`, and `Any` otherwise.
+- `-`, `*`, `/` and `%` give a `Number`; `+` gives a `String` when either
+  side is one; comparisons and `&&`, `||`, `!` give a `Bool`.
+- `await e` on a `fetch` is `Any` unless you annotate it:
+  `let r: [Row] = await fetch(…)`.
+- `let { a, b } = m` and `let [x, y] = l` bind the fields and the items.
 
 ## Narrowing optionals
 
-A `T?` must be unwrapped before a field or method is read off it (`T04`).
-Each of these proves a name non-null within its branch:
+A value of type `T?` may be `null`, so you must *narrow* it — prove it is
+not `null` — before you read a field or method off it. Reading one without
+narrowing is `T04`. Each of these forms narrows a name within its branch:
 
 ```wf
 type Todo { id: String, title: String, note: String? }
@@ -347,14 +422,25 @@ page Narrow(path: "/") {
 }
 ```
 
-Narrowing is flow-sensitive within a block: it holds in the branch the
-condition guards, not after it. A list narrows too: `xs.filter(x => x !=
-null)` is a list of what is there, so a `[Todo?]` filtered that way is a
-`[Todo]` whose items need no `?.`.
+Narrowing follows the flow of a block: it holds in the branch the condition
+guards, not after it. A check for `null` also narrows the `else` branch,
+and the code after `if x == null { return }`. An item at a fixed index,
+such as `todos[0]`, may be missing, so it counts as `T?` unless a condition
+like `todos.length > 0` encloses it.
 
-## Typing what comes from the network
+A list narrows too: `xs.filter(x => x != null)` is a list of the items that
+are there, so a `[Todo?]` filtered that way is a `[Todo]` whose items need
+no `?.`.
 
-`fetch` returns `Any`. Annotate the resource or the local to type its value:
+> [!WARNING]
+> Splicing a value that may be `null` into text shows the word `null` on
+> the page. The checker warns (`T19`); say what to show instead with `??`,
+> as in `Text(todo.note ?? "no note")`.
+
+## Typing data from the network
+
+`fetch` returns `Any`, because the checker cannot see what a URL will
+return. Annotate the resource or the local variable to type its value:
 
 ```wf
 type Deploy { id: String, status: String, startedAt: String }
@@ -371,15 +457,21 @@ page Deploys(path: "/") {
 }
 ```
 
-The checker trusts the annotation: it cannot see what a URL will return.
-When the server publishes an OpenAPI specification, let the compiler read it
-instead — `api Backend from "openapi.json"` types every endpoint, parameter,
-response and error from the file, and turns each named schema into a `type`,
-or an `enum` for a string with cases
-([Data and APIs](17-data.md#from-a-specification)). An `api` written by hand
-types its calls the same way: `get users() -> [User]`.
+The checker trusts the annotation. A development build (`wf serve`) also
+holds each response to its declared type, and a mismatch is a `.parse`
+error that names the place, such as `$[1].status is missing`.
+
+When the server publishes an OpenAPI specification, let the compiler read
+it instead: `api Backend from "openapi.json"` types every endpoint,
+parameter, response and error from the file, and turns each named schema
+into a `type`, or an `enum` for a string with cases (see
+[Data and APIs](17-data.md#from-a-specification)). An `api` you write by
+hand types its calls the same way: `get users() -> [User]`.
 
 ## The checks
+
+The type checker reports these codes. All are errors except `T19`, `T20`
+and `T21`, which are warnings.
 
 | Code | When |
 |---|---|
@@ -387,30 +479,60 @@ types its calls the same way: `get users() -> [User]`.
 | `T02` | A case the enum does not have |
 | `T04` | A field or method read off a value that may be `null` |
 | `T05` | A field or method a record or shape does not have |
-| `T06` | A member or action a store does not have |
+| `T06` | A member or action a store does not have, or an endpoint a service does not have |
 | `T07` | A list, a record or an action used as a condition, which is always true |
 | `T08` | A `for` over something that is not a list |
 | `T09` | An `emit` whose arguments do not match the event's |
-| `T10` | A call with the wrong number of arguments |
+| `T10` | A call with the wrong arguments: too many or too few, a name the callee does not take, or one of the wrong kind |
 | `T11` | A `match` on something that is neither a resource nor an enum, or an arm the value cannot take |
-| `T12` | A `Secret` where it would escape — shown, spliced into text, logged, or kept with `persist` |
+| `T12` | A `Secret` where it would escape — shown, spliced into text, joined with `+`, handed to a browser global, logged, or kept with `persist` |
 | `T13` | A name, or a function called, that nothing declares — which the browser would throw on |
+| `T14` | A comparison that is always the same: `"1" == 1`, a record against a string, an enum against a case it does not have |
+| `T15` | A `match` with no `else` that misses a case of the enum, or has a case twice |
+| `T16` | A method a number, a string or a list does not have, with the nearest one it does |
+| `T17` | An async action's result used before it is awaited, or `await` where it cannot run |
+| `T18` | Arithmetic on something that is not a number |
+| `T19` | A value that may be `null` spliced into text (warning) |
+| `T20` | A list or a record shown as text (warning) |
+| `T21` | A resource `match` with no `error` arm and no `else` (warning) |
+| `T22` | A handler that names more values than its event sends |
 
-Each comes with a hint: a conversion (`Number(value)`, `"{value}"`), the
-cases an enum takes, the fields a record has, the unwrapping forms above.
+Most findings come with a hint: a conversion (`Number(value)`,
+`"{value}"`), the cases an enum takes, the fields a record has, or one of
+the narrowing forms above. `wf explain T05` prints a code's full entry, and
+[Diagnostics](40-diagnostics.md) has every code with an example.
 
-What the checker does not do: it does not check a lambda's body against a
-return type, does not change a name's type across assignments (`state x =
-1` stays a `Number`; assigning a string to it is `T01`), and does not know
-what a plain `fetch` returns (annotate it, or use an `api`).
+## What the checker does not check
+
+- It does not check a lambda's body against a return type.
+- It does not change a name's type across assignments: `state x = 1` stays
+  a `Number`, and assigning a string to it is `T01`.
+- It does not know what a plain `fetch` returns. Annotate it, or describe
+  the service with an `api`.
 
 ## In the editor
 
-Hover shows a name's inferred type (`state draft: String`, `derived
-remaining: Number`, `Todos.add: action(String)`); completion after `.`
+Hover shows a name's inferred type: `state draft: String`, `derived
+remaining: Number`, `Todos.add: action(String)`. Completion after `.`
 offers a record's fields, an enum's cases where one is wanted, and the
-methods of a `String`, a `Number` or a list. A type error is a diagnostic
-at the argument it belongs to. [Chapter 38](38-cli.md#editors) sets it up.
+methods of a `String`, a `Number` or a list. A type error appears as a
+diagnostic on the argument it belongs to. To set up the editor, see
+[Editors](38-cli.md#editors).
+
+## Quick reference
+
+| Syntax | Meaning |
+|---|---|
+| `state x: T = v` | Annotate a state; props, parameters, fields and `let` take `: T` the same way |
+| `[T]` · `T?` · `Map` · `Any` | A list, a value that may be `null`, an object with unknown keys, anything |
+| `type Name { field: T = default }` | Declare a record |
+| `type B = A { extra: T }` | Extend a record |
+| `Name(field: v)` · `Name()` | Build a record |
+| `enum Name { a, b(x: T) }` | Declare an enum, with an optional payload per case |
+| `.case` · `.case(v)` | Write a case |
+| `Number(1..=30)` · `String(minLength: 8)` | A type with a condition |
+| `if let x = v { … }` · `v ?? d` · `v?.f` | Narrow or read through `null` |
+| `resource r: [T] = fetch(…)` | Type data from the network |
 
 ## Next
 
