@@ -1207,13 +1207,14 @@ test("t() picks a plural form by count under the locale's rules", () => {
 });
 
 test("a locale that names its digits reads its language's table and writes its counts in them", () => {
-  const { WF } = loadRuntime();
+  const { WF, document } = loadRuntime();
   const i18n = WF.locales("en", {
     en: { "{files} files.one": "{files} file", "{files} files.other": "{files} files", "Ln {line}": "Ln {line}" },
     ar: { "{files} files.few": "{files} ملفات", "{files} files.many": "{files} ملفًا", "{files} files.other": "{files} ملف", "Ln {line}": "سطر {line}" },
   });
   i18n.setLocale("ar-u-nu-arab");
   assert.equal(i18n.t("{files} files", { files: 11 }), "١١ ملفًا");
+  assert.equal(document.documentElement.getAttribute("lang"), "ar", "the document says the language");
   assert.equal(i18n.t("{files} files", { files: 1000 }), "١٠٠٠ ملف");
   // A line number is not a count: it stays as it is.
   assert.equal(i18n.t("Ln {line}", { line: 12 }), "سطر 12");

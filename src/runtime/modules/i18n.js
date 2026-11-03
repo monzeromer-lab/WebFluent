@@ -96,7 +96,8 @@
       }
       const newDir = isRtl(newLocale) ? "rtl" : "ltr";
       dir.set(newDir);
-      document.documentElement.setAttribute("lang", newLocale);
+      // The document says the language; the digits are the formatting's.
+      document.documentElement.setAttribute("lang", tableOf(newLocale));
       document.documentElement.setAttribute("dir", newDir);
     }
 
