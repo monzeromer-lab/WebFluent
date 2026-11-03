@@ -3,22 +3,44 @@
 <!--
 route: guide/forms
 group: building
-blurb: Controls bound to state, forms with a handle, validation rules that show their own messages, files, and what the server said.
-description: Two-way binding on every control, Form handles, validate rules, file uploads, sending a form to an API, server errors and pending state.
+blurb: Bind controls to state, validate what the reader types, upload files, and show what the server said.
+description: Bind every control to state, use the Form handle, write validate rules, upload files, send a form to an API, and show server errors and pending state.
 -->
 
-A form in WebFluent is controls bound to state, a `Form` that knows whether
-they are valid, and `validate` blocks that say what each value must be. The
-accessible plumbing — labels, `aria-describedby`, `aria-invalid`, announced
-errors, focus on the first problem — is written for you.
+This chapter shows you how to build a form: controls that read and write
+state, rules that say what each value must be, and a submit that sends the
+form to a server and shows what came back.
 
-## Controls and `bind:`
+You will be able to:
 
-`bind: stateName` on a control keeps the state and the control in step, both
-ways:
+- bind any control to a state, in both directions;
+- validate a field with a `validate` block, without writing the error
+  messages' markup;
+- know whether the whole form is valid, and submit it;
+- upload a file and show its progress;
+- show the errors a server sends back, and a busy state while a request runs.
+
+WebFluent writes the accessible parts for you: a real `<label>` for every
+label, `aria-describedby` for hints and errors, `aria-invalid`, errors
+announced as they appear, and focus moved to the first problem.
+
+## Before you start
+
+You should know how to declare `state` and an `action`
+([State and reactivity](08-state-and-reactivity.md)) and how to handle an
+event ([Events](09-events.md)). Sending a form to a server uses an `api`,
+which [Data and APIs](17-data.md) covers in full.
+
+## Bind a control to state
+
+To keep a control and a state in step, give the control `bind:` and the
+state's name. Typing in the control writes the state, and changing the
+state updates the control.
+
+This sign-up page binds one of each kind of control:
 
 ```wf
-page Signup(path: "/") {
+page Signup(path: "/signup", title: "Sign up", description: "Every control, bound to state.") {
     state name = ""
     state email = ""
     state plan = "free"
@@ -26,6 +48,7 @@ page Signup(path: "/") {
     state seats = 1
     state when: Date? = null
 
+    Heading("Sign up").h1
     Input(bind: name, label: "Name", placeholder: "Ada Lovelace").required
     Input(bind: email, label: "Email").email.required
     Select(bind: plan, label: "Plan") {
@@ -38,68 +61,118 @@ page Signup(path: "/") {
     Switch(bind: agree, label: "Same thing, as a switch")
     Slider(bind: seats, min: 1, max: 50, label: "Seats")
     DatePicker(bind: when, label: "Start date")
-    Text("{name} <{email}> wants {seats} {plan} seats from {when}")
+    Text("{name} <{email}> wants {seats} {plan} seats")
+    if let start = when { Text("Starting {start}") }
 }
 ```
 
-`Textarea(bind: note, label: "Notes", rows: 4, maxLength: 200)` is several
-lines of text; with `maxLength` it shows how much is left, politely.
+The last lines repeat what you type and pick. The `Select` and the two
+`Radio`s share `plan`, so choosing in one moves the others.
 
-The checker knows what each control holds: `Checkbox` and `Switch` bind a
-`Bool`, `Slider` a `Number`, `DatePicker` a [`Date?`](13-types.md#the-types-the-language-brings-with-it)
-(nothing, until one is picked), the rest a `String` (an `Input.number` holds a `Number`). A control needs a
-`label:` (or a `placeholder:` for an `Input`, or an `aria-label:`) — the
-accessibility lint says so otherwise.
-
-What comes back is the type it went in as: an `Input.number` writes a
-number (and `null` when it is emptied), and a `Select` writes the option's
-`value:` as it was written, so `Select.Option("Two", value: 2)` binds the
-number `2`, not the string `"2"`.
-
-`bind:` names anything that can be written: a state, a store's member
-(`bind: Cart.note`), or a field of a loop's item:
+For several lines of text, use a `Textarea`. With `maxLength:` it shows how
+many characters are left, and tells a screen reader politely (without
+interrupting):
 
 ```wf
-for todo in todos by todo.id {
-    Input(bind: todo.title, label: "Title")
-    Checkbox(bind: todo.done, label: "Done")
-}
-Text("{todos.filter(todo => !todo.done).length} left")
+Textarea(bind: note, label: "Notes", rows: 4, maxLength: 200)
 ```
 
-The item is written and the list is told it changed, so everything that
-reads `todos` follows. In a keyed loop that happens as the reader types; in
-a loop with no `by`, which redraws every item when its list changes, the
-list hears of it when the field is left, so the row is not redrawn under
-the cursor.
+### What each control holds
 
-## Labels, hints and errors you write yourself
+The checker knows the type each control writes, and refuses a `bind:` to a
+state of another type (`F02`):
 
-Every control takes `label:`, `hint:` and `error:`. With any of them the
-control is wrapped in a field: the label is a real `<label for>`, the hint
-and the error are linked with `aria-describedby`, and an error — a string,
-empty when there is none — is announced as it appears and sets
-`aria-invalid`.
+| Control | Holds |
+|---|---|
+| `Checkbox`, `Switch` | `Bool` |
+| `Slider` | `Number` |
+| `Input.number` | `Number`, and `null` when the reader empties it |
+| `DatePicker` | [`Date?`](13-types.md#the-types-the-language-brings-with-it) — `null` until a date is picked |
+| `Select` | the option's `value:`, as written |
+| `Input`, `Textarea`, `Radio` | `String` |
+
+A value comes back as the type it went in as. `Select.Option("Two",
+value: 2)` binds the number `2`, not the string `"2"`.
+
+Every control needs an accessible name: a `label:`, a `placeholder:` (on an
+`Input`), or an `aria-label:`. The accessibility lints (`A03`, `A04`) warn
+when one has none.
+
+### Bind to a store or a list item
+
+`bind:` takes anything that can be written:
+
+- a state;
+- a store's member, such as `bind: Cart.note`;
+- a field of a loop's item.
+
+This list lets the reader rename and tick off each todo in place:
 
 ```wf
-page Handle(path: "/", title: "Handle", description: "Pick a handle.") {
+type Todo { id: String, title: String, done: Bool = false }
+
+page Todos(path: "/todos", title: "Todos", description: "Edit each todo in place.") {
+    state todos: [Todo] = [Todo(id: "1", title: "Water the plants"), Todo(id: "2", title: "Post the letter")]
+
+    Heading("Todos").h1
+    for todo in todos by todo.id {
+        Input(bind: todo.title, label: "Title")
+        Checkbox(bind: todo.done, label: "Done")
+    }
+    Text("{todos.filter(todo => !todo.done).length} left")
+}
+```
+
+The count at the bottom drops as you tick items. The item is written and
+the list is told it changed, so everything that reads `todos` follows:
+
+- In a keyed loop (`for … by`), the list hears of the change as the reader
+  types.
+- In a loop with no `by`, which redraws every item when its list changes,
+  the list hears of it when the reader leaves the field, so the row is not
+  redrawn under the cursor.
+
+You cannot bind to a constant, a derived value, a prop or a literal: that is
+`F01`.
+
+## Add a label, a hint or your own error
+
+Every control takes `label:`, `hint:` and `error:`. With any of them, the
+control is wrapped in a field:
+
+- the label is a real `<label for>`;
+- the hint and the error are linked to the control with `aria-describedby`;
+- the error is a string, empty when there is none. When it appears, it is
+  announced, and it sets `aria-invalid` on the control.
+
+This page shows an error while the handle is too short:
+
+```wf
+page Handle(path: "/handle", title: "Handle", description: "Pick a handle.") {
     state handle = ""
     derived problem = if handle.length > 0 && handle.length < 3 { "At least three characters" } else { "" }
+
     Heading("Pick a handle").h1
     Input(bind: handle, label: "Handle", hint: "Letters, numbers and dashes", error: problem)
 }
 ```
 
-Most of the time a `validate` block (below) is simpler: it computes the
-error for you. `error:` is for a message that comes from somewhere else.
+For a rule about the value itself, a `validate` block is usually better: it
+works out the error for you ([Validate a field](#validate-a-field)). Use
+`error:` for a message that comes from somewhere else.
 
-## Forms
+## Group controls in a form
 
-A `Form` groups controls; `on submit` runs when it is submitted, and the
-page never navigates away. `Form(bind: name)` hands you a handle on the form:
+To submit several controls together, put them in a `Form`. Its `on submit`
+handler runs when the form is submitted, and the page never navigates away.
+`Form(bind: form)` gives you a handle, named `form` here, that knows the
+state of the whole form.
+
+This contact form sends its fields, disables **Send** until every field is
+valid, and thanks the reader:
 
 ```wf
-page Contact(path: "/") {
+page Contact(path: "/contact", title: "Contact", description: "Send us a message.") {
     state name = ""
     state email = ""
     state message = ""
@@ -111,6 +184,7 @@ page Contact(path: "/") {
         form.reset()
     }
 
+    Heading("Contact us").h1
     Form(bind: form) {
         on submit { send() }
         Input(bind: name, name: "name", label: "Name").required
@@ -123,33 +197,41 @@ page Contact(path: "/") {
 }
 ```
 
-The handle gives:
+### The form handle
 
-| | |
+| Member | What it is |
 |---|---|
-| `form.valid` | `true` when every control passes its own checks and every `validate` rule holds — kept current as the reader types |
+| `form.valid` | `true` when every control passes its own checks and every `validate` rule holds. It stays current as the reader types. |
 | `form.errors` | The message of every field that has one, by name |
 | `form.touched` | Which fields the reader has left |
-| `form.pending` | Whether an `async` rule is still asking |
-| `form.values` | A map of the controls' values by their `name:` attribute |
-| `form.reset()` | Clears the form, and everything it was showing |
-| `form.submit()` | Submits it in code |
-| `form.apply(errors)` | Shows what the server said, on the fields it named |
-| `form.element` | The `<form>` itself |
+| `form.pending` | Whether an `async` rule is still waiting for its answer |
+| `form.values` | A map of the controls' values, by their `name:` attribute |
+| `form.reset()` | Clears the form, and every message it was showing |
+| `form.submit()` | Submits the form from code |
+| `form.apply(errors)` | Shows what the server said, on the fields it named ([Show what the server said](#show-what-the-server-said)) |
+| `form.element` | The `<form>` element itself |
 
-A `Button` with `type: .submit` (or `.submit`) submits; the browser's own
-constraint validation runs first, so an invalid form never reaches
-`on submit`. Any other button in a form — "Add a row", "Show password" —
-is `type="button"` and does only what its `on click` says.
+### Choose which buttons submit
 
-## What a value must be: `validate`
+A `Button` with `type: .submit` (or the `.submit` flag) submits the form,
+and so does Enter in a field. The browser's own constraint checks run first
+(`.required`, `.email` and the rest), so an invalid form never reaches
+`on submit`.
 
-A `validate` block sits beside the state it guards. Every rule is one
-line, and the control bound to that state shows what they say — there is
-no `error:` to write and no `derived` to compute:
+Every other button in a form — **Add a row**, **Show password** — is
+`type="button"`, and does only what its `on click` says.
+
+## Validate a field
+
+To say what a value must be, put a `validate` block beside the state it
+guards. Each rule is one line. The control bound to that state shows the
+rules' messages itself: you write no `error:` and no `derived` value.
+
+This page requires an email, a password of at least eight characters with a
+number in it, and a matching confirmation:
 
 ```wf
-page Signup(path: "/join", title: "Join", description: "Make an account.") {
+page Join(path: "/join", title: "Join", description: "Make an account.") {
     state email = ""
     state password = ""
     state confirm = ""
@@ -178,73 +260,135 @@ page Signup(path: "/join", title: "Join", description: "Make an account.") {
 }
 ```
 
-### The rules
+Leave the password field after typing `abc`, and it shows
+`Use at least 8 characters`. **Join** stays disabled until every rule holds.
+
+A `validate` block must guard a state that a control binds. A block for a
+state no control binds, or for a derived value, can never pass: that is
+`F03`.
+
+### Validation rules
 
 | Rule | Holds when |
 |---|---|
-| `required` | Something was given — a non-blank string, a non-empty list, a ticked checkbox |
-| `email`, `url` | It looks like one |
-| `minLength(n)`, `maxLength(n)` | The text is that long |
-| `min(v)`, `max(v)` | The number, date or time is within it |
-| `pattern(/…/)` | The text matches |
-| `matches(other)` | It equals another value, which it follows |
-| `oneOf([…])` | It is one of them |
+| `required` | Something was given: a non-blank string, a non-empty list, a ticked checkbox |
+| `email`, `url` | The value looks like an email address, or a URL |
+| `minLength(n)`, `maxLength(n)` | The text is at least, or at most, that long |
+| `min(v)`, `max(v)` | The number, date or time is within the limit |
+| `pattern(/…/)` | The text matches the regular expression |
+| `matches(other)` | The value equals another value, and follows it as it changes |
+| `oneOf([…])` | The value is one of those listed |
 | `custom "…" { expr }` | The expression is true |
-| `async "…" { await … }` | The answer, once it arrives |
+| `async "…" { await … }` | The answer is true, once it arrives |
 
-Each takes an optional message after it — a string, or `t("key")`, read in
-the reader's language. Without one, the rule's own is used — and a project
-with translations replaces it by naming `form.required`, `form.email`,
-`form.minLength` and so on. An argument that reads state —
-`max(Ledger.today)` — is read each time the rule is checked.
+How the rules behave:
 
-Every rule but `required` passes an empty value, so a blank optional field
-shows one message rather than two. An `async` rule is only asked once the
-rest have passed, and once per value — so a server is not asked about every
-keystroke of an address that is not one yet.
+- **Messages.** Each rule takes an optional message after it: a string, or
+  `t("key")`, which is read in the reader's language. Without one, the rule
+  uses its own message. A project with translations replaces those by
+  naming the keys `form.required`, `form.email`, `form.minLength` and so on
+  ([Translations](21-i18n.md)).
+- **Arguments that read state.** An argument such as `max(Ledger.today)` is
+  read again each time the rule is checked.
+- **Types.** A rule is checked against the type of what it guards:
+  `minLength` on a `Number` is `T01`.
+- **Empty values.** Every rule but `required` passes an empty value, so a
+  blank optional field shows one message rather than two.
+- **Async rules.** An `async` rule is asked only once the other rules pass,
+  and once per value. A server is not asked about every keystroke of an
+  address that is not valid yet. While it waits, `form.pending` is `true`.
 
-### When a message shows
+This rule asks the server whether an address is free:
 
-`Form(show:)` says: `.onBlur` (the default — after the reader leaves the
-field), `.onSubmit`, or `.live` as they type. The fault is known either
-way, so `form.valid` is the truth whatever the reader has seen.
+```wf
+api Backend(base: "/api") {
+    get emailTaken(email: String) -> Bool
+}
+
+page Register(path: "/register", title: "Register", description: "Check an address is free.") {
+    state email = ""
+
+    validate email {
+        required
+        email
+        async "That address is taken" { !(await Backend.emailTaken(email: email)) }
+    }
+
+    Heading("Register").h1
+    Form(bind: form) {
+        on submit { log("registering") }
+        Input(bind: email, label: "Email").email
+        Button("Register", type: .submit, disabled: !form.valid || form.pending).primary
+    }
+}
+```
+
+### Choose when a message shows
+
+`Form(show:)` sets when the messages appear:
+
+| `show:` | A field's message appears |
+|---|---|
+| `.onBlur` (default) | after the reader leaves the field |
+| `.onSubmit` | only after a submit |
+| `.live` | as the reader types |
+
+The rules run either way, so `form.valid` is always true to the values,
+whatever the reader has seen.
 
 A submit that fails shows every message, moves focus to the first field
-that has one and announces it, and does not run `on submit`.
+that has one, announces it, and does not run `on submit`.
 
-To see a form as a failed submit leaves it, without filling it in, set
-`data-wf-validation="shown"` on the page's root:
+### Preview every message at once
+
+To see a form as a failed submit would leave it, without filling it in, set
+`data-wf-validation="shown"` on the page's root element:
 
 ```js
 document.documentElement.setAttribute("data-wf-validation", "shown")
 ```
 
-Every field then says what its rules say about its value now; taking the
-attribute off says nothing again. It is what an editor's preview sets to
-show a form *Invalid*.
+Every field then shows what its rules say about its value now. Remove the
+attribute and the messages go again. An editor's preview sets this
+attribute to show a form as *Invalid*.
 
-### A refined type validates itself
+### Let a refined type do the checking
+
+A *refined type* is a type with a condition, such as `Number(1..=30)`. The
+condition is already a rule, so you only write the rules the type does not
+say:
 
 ```wf
 state nights: Number(1..=30) = 2
 validate nights { required }
 ```
 
-The range on the type is already a rule; only `required` needed saying.
-A range's open end is refused (`Number(0..10)` does not take 10), and a
-date's `after:` and `before:` are held as the reader types, like `min` and
-`max`. See [Types](13-types.md#a-condition-on-a-type).
+- A range's open end is excluded: `Number(0..10)` does not take `10`.
+- A date's `after:` and `before:` are checked as the reader types, like
+  `min` and `max`.
 
-### The rules as data
+See [Types](13-types.md#a-condition-on-a-type) for every condition a type
+can carry.
 
-`wf rules --json` lists every rule with what it takes, its own message and
-the key that replaces it; the patterns people write, by name (`a number`,
-`a letter` in any script, `no spaces` …); when a form shows its messages;
-and every state the project holds to a rule, in order, with the ones its
-type implies. The library has it as `webfluent::validation`, which also
-writes a state's `validate` block back one rule at a time.
+### Read the rules as data
 
-### What the server said
+`wf rules --json` lists, for a tool to read:
+
+- every rule, what it takes, its own message and the translation key that
+  replaces it;
+- the patterns people write, by name: `a number`, `a letter` (in any
+  script), `no spaces` …;
+- the `show:` choices;
+- every state the project holds to a rule, in order, including the rules its
+  type implies.
+
+The Rust library has the same data as `webfluent::validation`, which can
+also write a state's `validate` block back one rule at a time.
+
+### Show what the server said
+
+When the server rejects a value — an address already taken, a code that
+expired — pass its messages, by field name, to `form.apply`:
 
 ```wf
 action signUp() {
@@ -256,14 +400,21 @@ action signUp() {
 }
 ```
 
-Each message is shown on the field it names, and stands until the reader
-changes that value.
+Each message is shown on the field whose `name:` it matches, and moves focus
+to the first one. A message stays until the reader changes that field's
+value. A field may also be given a list of messages; the first is shown.
 
-## Files
+## Upload a file
 
-`FileUpload` is a file input; the files arrive in its `change` event. Each is
-a `File` — `.name`, `.size`, `.type`, and `.preview()`, an object URL for
-showing an image before it is uploaded, revoked when the page leaves.
+To let the reader pick a file, place a `FileUpload`. The files arrive in its
+`change` event. Each is a `File`, with:
+
+- `.name`, `.size` (in bytes) and `.type`;
+- `.preview()`, an object URL that shows an image before it is uploaded. It
+  is revoked when the page leaves.
+
+This page shows the picture the reader picks, then uploads it with a
+progress bar:
 
 ```wf
 api Backend(base: "/api") {
@@ -295,16 +446,19 @@ page Avatar(path: "/avatar", title: "Your picture", description: "Change your pi
 }
 ```
 
-An endpoint with a `File` parameter sends a multipart form, and
-`Backend.avatar.progress` follows the upload from 0 to 1. `accept:` and the
-size are conveniences for the reader, not checks: the server decides what
-it accepts ([Security](23-security.md#uploads)). `FileUpload(…).multiple`
-takes several.
+- An endpoint with a `File` parameter sends a multipart form.
+- `Backend.avatar.progress` follows the upload from 0 to 1.
+- `FileUpload(…).multiple` lets the reader pick several files.
 
-## Sending it to a server
+> [!IMPORTANT]
+> `accept:` and any size limit you show are for the reader's convenience,
+> not checks. The server decides what it accepts
+> ([Security](23-security.md#check-uploads-on-the-server)).
 
-Describe the service once with `api`, call it from the submit handler, and
-hand what a `422` said back to the form:
+## Send a form to a server
+
+To send a form, describe the service once with `api`, call it from the
+submit handler, and hand what a `422` said back to the form.
 
 ```wf
 api Backend(base: "/api") {
@@ -312,7 +466,7 @@ api Backend(base: "/api") {
         errors { 422 -> Map }
 }
 
-page Join(path: "/join", title: "Join", description: "Make an account.") {
+page Welcome(path: "/welcome", title: "Join", description: "Make an account.") {
     state email = ""
     state password = ""
     state joined = false
@@ -340,15 +494,19 @@ page Join(path: "/join", title: "Join", description: "Make an account.") {
 }
 ```
 
-`form.apply({ email: "That address is taken" })` shows each message on the
-field whose `name:` it matches, until the reader changes that value.
-[Data and APIs](17-data.md) covers the service in full: retries, timeouts,
-typed errors.
+`errors { 422 -> Map }` types the body of a `422` response, so
+`e.body.errors` is what the server sent. If the server answers
+`{ "errors": { "email": "That address is taken" } }`, the message appears
+under **Email**.
 
-## Pending actions
+[Data and APIs](17-data.md) covers the service in full: retries, timeouts
+and typed errors.
 
-An action that `await`s exposes `name.pending`, `true` while a call of it runs
-— for a disabled button or a spinner:
+## Show that a request is running
+
+An action that `await`s has a `.pending` value, `true` while a call of it
+runs. Use it to disable a button or show a spinner. On a store's action, read
+it as `Store.action.pending`:
 
 ```wf
 store Api {
@@ -359,9 +517,11 @@ store Api {
     }
 }
 
-page Save(path: "/") {
+page Notes(path: "/notes", title: "Notes", description: "Save a note.") {
     use Api
     state text = ""
+
+    Heading("Notes").h1
     Input(bind: text, label: "Note")
     Button("Save", disabled: Api.save.pending).primary { on click { Api.save({ text: text }) } }
     if Api.save.pending { Spinner.sm }
@@ -369,14 +529,32 @@ page Save(path: "/") {
 }
 ```
 
-## A checklist for a good form
+While a save runs, **Save** is disabled and a spinner shows beside it.
+Reading `.pending` on an action that awaits nothing is `T17`.
 
-- Every control has a `label:` — a placeholder is not a label.
+## Checklist for a good form
+
+- Every control has a `label:`. A placeholder is not a label.
 - Rules live in `validate` blocks, not in hand-written `derived` errors.
 - The submit button is `type: .submit`, so Enter submits.
-- Disable it while the request is out: `disabled: save.pending`.
-- Say what happened afterwards, in an `Alert` or a `Toast`.
-- The server checks everything again; the page's rules are for the reader.
+- The submit button is disabled while the request runs:
+  `disabled: save.pending`.
+- The page says what happened afterwards, in an `Alert` or a `Toast`.
+- Server errors go back to their fields with `form.apply`.
+- The server checks everything again. The page's rules are for the reader.
+
+## Troubleshooting
+
+| What you see | Why, and what to do |
+|---|---|
+| `F01` on a `bind:` | The target cannot be written: a constant, a derived value, a prop or a literal. Bind a `state` instead. |
+| `F02` on a `bind:` | The control cannot hold the state's type, such as a text `Input` on a `Number`. Use `.number`, or change the state's type. |
+| `F03` on a `validate` | No control binds that state, or it is a derived value, so its rules can never pass. |
+| `T01` on a rule | The rule does not fit the type, such as `minLength` on a `Number`. Use `min`/`max`. |
+| `on submit` never runs | The form is invalid, so the submit stopped. Check `form.errors`, or set `data-wf-validation="shown"` to see every message. |
+| A button submits the form by accident | Only `type: .submit` submits. Check that the button is not the submit button. |
+| A server message never shows | `form.apply` matches each key to a field's `name:`. Give the control a `name:` equal to the key. |
+| A message shows before the reader has typed | The form uses `show: .live`. Use `.onBlur` or `.onSubmit`. |
 
 ## Next
 

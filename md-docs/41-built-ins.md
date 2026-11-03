@@ -19,7 +19,7 @@ description: Built-in functions, browser values like viewport, query, now and ne
 | `setLocale("ar")` | Switches the locale, and the direction with it | actions, handlers, effects |
 | `setTheme("dark")` | `"light"`, `"dark"` or `"system"`, kept across visits | actions, handlers |
 | `uuid()` | A fresh `Uuid` | anywhere |
-| `sanitize(html)` | Markup through an allow-list, for `Unsafe.Html` | anywhere ([chapter 23](23-security.md#markup-you-did-not-write)) |
+| `sanitize(html)` | Markup through an allow-list, for `Unsafe.Html` | anywhere ([chapter 23](23-security.md#show-markup-you-did-not-write)) |
 | `fetch(url, options)` | A request through the same engine as `api`; `await` it | actions ([chapter 17](17-data.md#await-fetch-in-an-action)) |
 | `optimistic(holder, change)` | Shows a change now, takes it back if the action throws | actions ([chapter 17](17-data.md#showing-a-change-before-the-server-agrees)) |
 | `beacon(url, data)` | A small post that survives the page unloading | anywhere ([chapter 18](18-realtime.md)) |

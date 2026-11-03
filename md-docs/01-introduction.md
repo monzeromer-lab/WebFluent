@@ -3,15 +3,31 @@
 <!--
 route: guide/introduction
 group: start
-blurb: What WebFluent is, what it does for you, where it fits and where it does not, and how to read this guide.
-description: What WebFluent is, the five ideas behind it, when to use it and when not to, and a map of the guide.
+blurb: What WebFluent is, what it does for you, where it fits and where it does not, and how to find your way around this guide.
+description: What WebFluent is, the five ideas behind it, when to use it and when not to, and how the guide is organised by what you need.
 -->
 
-WebFluent is a programming language for websites, PDFs and slide decks. You write `.wf` files that
-say what each page shows, the state behind it, and what happens when the
-reader acts; the compiler, `wf`, turns them into a finished site — HTML, CSS
-and a small JavaScript runtime — or into a PDF or a slide deck from the same
-source.
+WebFluent is a programming language for websites, PDFs and slide decks. You
+write `.wf` files that say what each page shows, the state behind it, and
+what happens when the reader acts. The compiler, `wf`, turns those files
+into a finished site — HTML, CSS and a small JavaScript runtime — or into a
+PDF or a slide deck from the same source.
+
+The one thing to remember: the compiler knows every element, prop and type
+in your program, so most mistakes stop the build with a line number instead
+of failing quietly in the browser.
+
+In this chapter:
+
+- [A first page](#a-first-page), and what each line of it does
+- [What you get](#what-you-get) from the compiler
+- [The five ideas](#the-five-ideas) the language is built on
+- [When to use WebFluent](#when-to-use-webfluent), and when to use something else
+- [How this guide is organised](#how-this-guide-is-organised), and where to start
+
+## A first page
+
+This file is a complete page with a counter:
 
 ```wf
 page Home(path: "/", title: "Hello", description: "A first WebFluent page.") {
@@ -24,54 +40,75 @@ page Home(path: "/", title: "Hello", description: "A first WebFluent page.") {
 }
 ```
 
-That file is a complete, deployable page: routing, reactivity, a styled
+- `page Home(path: "/", …)` declares a page and the address it answers.
+  `title` and `description` become the browser tab's title, the search
+  snippet and the link-preview cards.
+- `state count = 0` declares a value that can change. Everything that reads
+  it updates when it does.
+- `Container`, `Heading`, `Text` and `Button` are built-in elements. `.h1`
+  and `.primary` are *flags*: short switches that pick a heading level or a
+  button's colour.
+- `on click { … }` is what happens when the reader clicks the button.
+
+After `wf build`, the page is ready to deploy. Routing, reactivity, a styled
 button, accessible markup, the `<title>`, the meta description and the Open
-Graph tags are all there after `wf build`.
+Graph tags are all in the output; you wrote none of them by hand.
 
 ## What you get
 
 - **One binary, no toolchain.** `wf` is the compiler, the dev server, the
   formatter, the test runner and the language server. There is no
-  `node_modules`, no bundler and no config to write before the first page.
+  `node_modules`, no bundler and no configuration to write before the first
+  page.
 - **A compiler that checks your work.** Every built-in element and every
   component you declare has a known set of props, flags, events and slots.
-  A misspelled prop, a flag the element does not take, a field a record does
-  not have or a value that may be `null` read as if it were not is an error
-  with a line number and a hint — never a silent no-op in the browser.
-- **Fine-grained reactivity.** `state` is a signal; the one text node or
-  attribute that reads it updates, and nothing else re-renders.
-- **Fifty-odd designed components.** Layout, navigation, tables, forms,
-  overlays, media — styled by design tokens a theme changes in a few lines.
-- **The web done properly by default.** Pre-rendered HTML per page, one
-  stylesheet pruned to what you used, a runtime cut down to what the program
-  reaches, image pipelines, sitemaps, canonical links, Open Graph and JSON-LD,
-  a Content-Security-Policy the build holds its own output to, and
-  accessibility lints on every build.
-- **Batteries.** Routing, stores, forms and validation, typed HTTP services,
-  WebSockets and WebRTC, offline support with a service worker, i18n with
-  automatic right-to-left, animations and dark mode.
+  A misspelled prop, a flag the element does not take, a field a record
+  does not have, or a value that may be `null` read as if it were not — each
+  is an error with a line number and a hint, never a silent no-op in the
+  browser.
+- **Fine-grained reactivity.** A `state` is a *signal*: a value that tells
+  its readers when it changes. Only the text node or attribute that reads it
+  updates; nothing else re-renders.
+- **More than fifty designed components.** Layout, navigation, tables,
+  forms, overlays and media, styled by *design tokens* (named values for
+  colours, spacing and fonts) that a theme changes in a few lines.
+- **The web done properly by default.** Each page is pre-rendered to HTML.
+  You get one stylesheet pruned to what you used, a runtime cut down to what
+  the program reaches, an image pipeline, a sitemap, canonical links, Open
+  Graph and JSON-LD, a Content-Security-Policy that the build holds its own
+  output to, and accessibility checks on every build.
+- **Everything a site needs, built in.** Routing, stores, forms and
+  validation, typed HTTP services, WebSockets and WebRTC, offline support
+  with a service worker, translation with automatic right-to-left layout,
+  animation and dark mode.
 - **More than websites.** The same language compiles to PDF documents and
-  slide decks, renders templates with JSON on a server, and publishes
-  components as custom elements any framework can use.
+  slide decks, renders templates with JSON data on a server, and publishes
+  components as custom elements that any framework can use.
 
 ## The five ideas
 
-1. **A file is a list of declarations.** `page`, `component`, `store`,
-   `theme`, `app`, `type`, `enum`, `api`, `const`, `data`, `image`,
-   `animation` and `test` — thirteen kinds, each covered in this guide; a
-   `.js` or `.css` file under `src/` is part of the project too. Pages own their routes; there is no separate route table.
-2. **An element is a typed call.** `Button("Save", tone: .primary).lg { on click { save() } }`:
-   one positional argument, named props, `.flag`s, then a block. The compiler
-   knows every built-in's props and cases, and every component you declare.
-3. **State is a signal.** `state count = 0`; anything that reads `count`
-   follows it. `derived` values recompute, `effect`s re-run, the DOM updates.
-4. **Styles are CSS, written where the element is.**
-   `style { padding: $md; &:hover { background: $surface } }` — raw
-   values, design tokens with `$`, nested rules as CSS nesting spells them.
+1. **A project is a set of declarations.** Every `.wf` file holds
+   declarations of thirteen kinds: `page`, `component`, `store`, `theme`,
+   `app`, `type`, `enum`, `api`, `const`, `data`, `image`, `animation` and
+   `test`. This guide covers each one. A `.js` or `.css` file under `src/`
+   is part of the project too. Each page names its own route, so there is no
+   separate route table.
+2. **An element is a typed call.** In
+   `Button("Save", tone: .primary).lg { on click { save() } }` you see the
+   parts in order: one positional argument, named props, `.flag`s, then a
+   block. The compiler knows the props and cases of every built-in and of
+   every component you declare.
+3. **State is a signal.** After `state count = 0`, anything that reads
+   `count` follows it: `derived` values recompute, `effect`s run again, and
+   the page updates.
+4. **Styles are CSS, written on the element.**
+   `style { padding: $md; &:hover { background: $surface } }` holds raw CSS
+   values, design tokens written with `$`, and nested rules in CSS nesting
+   syntax.
 5. **The build is the whole site.** `wf build` writes everything a host
-   needs, and `wf serve` rebuilds it on every save.
+   needs, and `wf serve` rebuilds it every time you save.
 
-## When to use it — and when not
+## When to use WebFluent
 
 WebFluent fits well when you want:
 
@@ -79,52 +116,72 @@ WebFluent fits well when you want:
   fast, accessible and well indexed, with some interactivity;
 - a dashboard, an admin panel or an internal tool that talks to an API;
 - invoices, reports or slide decks generated from the same data as a site;
-- a small team that would rather not maintain a JavaScript build chain.
+- to work in a small team that would rather not maintain a JavaScript build
+  chain.
 
-Reach for something else when:
+Use something else when:
 
-- you depend on a large ecosystem of framework-specific UI libraries (you
-  can still embed any library through [JavaScript interop](32-javascript-interop.md),
-  but you write the binding yourself);
-- you need server-side rendering on every request with per-user data — a
-  WebFluent site is static files plus a browser runtime; your server stays
-  your server (though [server rendering](35-server-rendering.md) of templates
-  covers emails, invoices and fragments);
+- you depend on a large ecosystem of framework-specific UI libraries. You
+  can still embed any library through
+  [JavaScript interop](32-javascript-interop.md), but you write the binding
+  yourself.
+- you need server-side rendering on every request with per-user data. A
+  WebFluent site is static files plus a browser runtime, and your server
+  stays your server. [Server rendering](35-server-rendering.md) of templates
+  does cover emails, invoices and HTML fragments.
 - you need a native mobile app.
 
-## How to read this guide
+## How this guide is organised
 
-The guide is in six parts:
+Each page of the guide is one of four kinds, and each kind answers a
+different need:
 
-| Part | Chapters | For |
+| Kind | Read it when you… | It gives you |
 |---|---|---|
-| **Start** | 1–4 | Installing, a first project, a tutorial that ends in a deployed site, and a map from React, Vue and Svelte |
-| **The basics** | 5–14 | The language itself, in the order the ideas build on each other |
-| **Building** | 15–24 | Styling, forms, data, real-time, offline, motion, i18n, accessibility, security and testing |
-| **Shipping** | 25–35 | Structuring a project, static or single-page, content and SEO, media, deploying, environments, performance, JavaScript interop, PDFs and slides, server rendering, and recipes |
-| **Reference** | 36–43 | Every component, command, config key, diagnostic, built-in, design token, runtime function and keyword |
-| **Help** | 44–48 | Troubleshooting, upgrading, browser support, a glossary and contributing |
+| **Tutorial** | are learning, and want to build something | a lesson with a guaranteed working result |
+| **How-to guide** | have a goal, such as validating a form | the steps to that one result |
+| **Reference** | need a fact, such as a prop's default | a complete, exact description |
+| **Explanation** | want to understand how something works and why | the ideas, the reasons and the trade-offs |
 
-- **New to WebFluent:** read [Getting started](02-getting-started.md) and
+The guide has six parts. Each part is mostly one kind of page:
+
+| Part | Chapters | Kind | What it covers |
+|---|---|---|---|
+| **Start** | 1–4 | explanation (1, 4), quick start (2), tutorial (3) | What WebFluent is, installing it, a first site built step by step, and a map from React, Vue and Svelte |
+| **The basics** | 5–14 | explanation, each ending in a short reference table | The language itself, in the order the ideas build on each other |
+| **Building** | 15–24 | how-to | Styling, forms, data, real-time, offline, motion, translation, accessibility, security and testing |
+| **Shipping** | 25–36 | how-to, with explanation first in 25 and 26; chapter 36 is tutorials | Project structure, static or single-page, content and search, media, deploying, environments, performance, JavaScript interop, desktop apps, PDFs and slides, server rendering, and three whole-project tutorials |
+| **Reference** | 37–44 | reference | Every component, command, configuration key, diagnostic, built-in, design token, runtime function and grammar rule |
+| **Help** | 45–49 | troubleshooting, upgrade notes, glossary | Troubleshooting, upgrading, browser support, a glossary and contributing |
+
+## Where to start
+
+- **To learn WebFluent:** read [Getting started](02-getting-started.md),
   work through the [tutorial](03-tutorial.md), then read chapters 5–12 in
-  order. Every example in them builds.
-- **Coming from a framework:** read [Coming from React, Vue or Svelte](04-coming-from.md)
-  first; it maps what you know to what is here.
-- **Looking something up:** the [reference](37-components-reference.md)
-  chapters are generated from, or checked against, the compiler itself.
-- **Something is wrong:** start at [Troubleshooting](45-troubleshooting.md);
-  every diagnostic code has an entry in [Diagnostics](40-diagnostics.md).
+  order. Every example in them builds. For more practice, try the
+  [three project tutorials](36-tutorials.md).
+- **To understand it coming from a framework:** read
+  [Coming from React, Vue or Svelte](04-coming-from.md) first. It maps what
+  you know to what is here.
+- **To build a feature:** go to the chapter in *Building* or *Shipping* that
+  names the task.
+- **To look something up:** use the reference chapters, starting with the
+  [components reference](37-components-reference.md). They are generated
+  from the compiler, or checked against it.
+- **To fix a problem:** start at [Troubleshooting](45-troubleshooting.md).
+  Every diagnostic code has an entry in [Diagnostics](40-diagnostics.md).
 
-Every `wf` code block in this guide is parsed, type-checked and compiled by
-the test suite, so what you read is what the compiler accepts. A block that
+The test suite parses, type-checks and compiles every `wf` code block in
+this guide, so what you read is what the compiler accepts. A block that
 leaves something out says so with a `…`.
 
 ## Versions
 
-This guide describes WebFluent 5, the stable line. `wf --version` tells
-you which release you have, and [Upgrading](46-upgrading.md) lists what
-changed in each one.
+This guide describes WebFluent 5, the stable line. Run `wf --version` to see
+which release you have. [Upgrading](46-upgrading.md) lists what changed in
+each release.
 
 ## Next
 
-[Getting started](02-getting-started.md).
+[Getting started](02-getting-started.md): install `wf` and run your first
+project.

@@ -7,33 +7,56 @@ blurb: Build a small, complete site — data, components, a store, a form, a the
 description: A step-by-step tutorial: build a reading-list site with WebFluent, test it, and deploy it to GitHub Pages.
 -->
 
-In this chapter you build **Shelf**, a small site that lists books worth
-reading and lets a reader keep the ones they want. Along the way you use
-most of what a real site needs: typed data read at build time, a reusable
-component, a page per book, a store the reader's choices are kept in, a
-validated form, a theme with a dark mode, a test that clicks, and a deploy.
+In this tutorial you build **Shelf**, a small site that lists books worth
+reading and lets a reader keep the ones they want. Each step adds one piece,
+and ends with what you should see.
 
-Each step says what to write and why, and links the chapter that covers the
-idea in depth. It takes about half an hour.
+## What you will build
 
-You need `wf` installed ([Getting started](02-getting-started.md)).
+Shelf has a home page that lists books with a search box, a page for each
+book, a **Your shelf** page with the books the reader saved, a form to
+suggest a book, a theme with a dark mode, a test that clicks, and a deploy
+to GitHub Pages.
 
-## Step 1: a project
+Along the way you use most of what a real site needs: typed data read at
+build time, a reusable component, a page per book, a store that keeps the
+reader's choices, a validated form, a theme, a test and a deploy. Each step
+links the chapter that covers its idea in depth.
+
+It takes about half an hour, plus the deploy.
+
+## Before you start
+
+You need:
+
+- `wf` installed and on your `PATH` ([Getting started](02-getting-started.md)).
+  On Windows, type `webfluent` where this tutorial types `wf`.
+- Chrome or Chromium on the machine, for the test that clicks
+  ([step 9](#step-9-test-the-book-card)) and for `wf verify`
+  ([step 10](#step-10-build-and-verify-the-site)). If it is installed
+  somewhere unusual, point the `WF_CHROME` environment variable at it.
+- For the deploy, a GitHub account and a repository called `shelf`.
+
+You do not need to know WebFluent yet.
+
+## Step 1: Create the project
+
+Start from the `static` template, which pre-renders every page to HTML —
+right for a site people find through search:
 
 ```bash
 wf init shelf -t static
 cd shelf
 ```
 
-The `static` template pre-renders every page to HTML — right for a site
-people find through search. Delete what the template put in `src/`; you will
-write every file yourself. Replace `webfluent.app.json` with:
+You write every file yourself, so delete what the template put in `src/`
+and its tests under `tests/` (they test the starter's pages). Then replace
+`webfluent.app.json` with:
 
 ```json
 {
   "name": "shelf",
   "build": { "ssg": true, "csp": true },
-  "theme": { "name": "Paper", "dark": "Ink" },
   "meta": {
     "title": "Shelf",
     "description": "Books worth reading, and the ones you want to.",
@@ -42,11 +65,14 @@ write every file yourself. Replace `webfluent.app.json` with:
 }
 ```
 
-`ssg` pre-renders; `csp` ships a Content-Security-Policy and makes the build
-check its own output against it; `theme` names the themes you will declare in
-step 7. [Configuration](39-configuration.md) lists every key.
+`ssg` pre-renders each page. `csp` ships a Content-Security-Policy and makes
+the build check its own output against it. [Configuration](39-configuration.md)
+lists every key.
 
-## Step 2: the data
+**Check it:** run `wf check`. It prints `No .wf files found in src/` —
+correct, because `src/` is empty until the next step.
+
+## Step 2: Describe the books
 
 The books are data, not code. Put them in `src/books.json`:
 
@@ -67,7 +93,7 @@ The books are data, not code. Put them in `src/books.json`:
 ]
 ```
 
-Then describe it, in `src/types.wf`:
+Then describe the data's shape and read the file, in `src/types.wf`:
 
 ```wf
 /// One book on the list.
@@ -84,14 +110,49 @@ type Book {
 data books: [Book] = "books.json"
 ```
 
-`type Book` is a record the type checker holds every use to: `book.titel`
-is an error where you write it. `data books` reads the file **at build time**
-and makes it a constant every page can read — nothing is fetched when the
-page loads. ([Types](13-types.md), [Data](17-data.md#data-a-file-at-build-time).)
+`type Book` is a record that the type checker holds every use to: writing
+`book.titel` is an error where you write it. `data books` reads the file **at
+build time** and makes it a constant every page can read, so nothing is
+fetched when the page loads. ([Types](13-types.md),
+[Data](17-data.md#data-a-file-at-build-time).)
 
-## Step 3: a component
+**Check it:** run `wf check`. It prints `No problems in shelf.`
 
-Every book is shown the same way, so it is a component. `src/components/BookCard.wf`:
+## Step 3: Keep the reader's shelf in a store
+
+What the reader keeps must survive a reload and be the same on every page,
+so it goes in a store, with its value kept by `persist`. Create
+`src/stores/Shelf.wf`:
+
+```wf
+/// The books the reader wants to read, kept across visits.
+store Shelf {
+    persist saved: [String] = []
+    derived count = saved.length
+
+    action toggle(slug: String) {
+        if saved.includes(slug) {
+            saved = saved.filter(s => s != slug)
+        } else {
+            saved = [...saved, slug]
+        }
+    }
+}
+```
+
+`persist` is a `state` that is kept in the browser's storage and read back on
+the next visit; a change made in another tab arrives here too. `derived
+count` recomputes whenever `saved` changes. ([Stores](12-stores.md).)
+
+**Check it:** run `wf check`. It prints two `U04` warnings:
+`` `Shelf.count` is declared but never read `` and the same for
+`Shelf.toggle`. Nothing uses the store yet; the next steps do, and the
+warnings go away.
+
+## Step 4: Show a book with a component
+
+Every book is shown the same way, so it is a component. Create
+`src/components/BookCard.wf`:
 
 ```wf
 // … reads what the other steps declare
@@ -116,61 +177,24 @@ component BookCard(_ book: Book) {
 
 - `_ book: Book` is the one prop a caller may pass without its name:
   `BookCard(book)`.
-- `Card.outlined`, `Stack(gap: .sm)`, `Text(…).muted.sm` are built-ins with
-  flags; the compiler knows each one's props and refuses a flag it does not
-  take.
-- `use Shelf` reads a store you write next. The button's label is an `if`
+- `Card.outlined`, `Stack(gap: .sm)` and `Text(…).muted.sm` are built-ins
+  with flags. The compiler knows each one's props and refuses a flag it does
+  not take.
+- `use Shelf` reads the store from step 3. The button's label is an `if`
   used as a value, and it follows the store: when the reader clicks, the
-  label changes without anything else re-rendering.
+  label changes and nothing else re-renders.
 
 ([Components](11-components.md), [Elements](07-elements.md).)
 
-## Step 4: the reader's shelf
+**Check it:** run `wf check`. It reports one error:
+`` error[R01]: `/books/{…}` is not a route ``. The card links to a book's
+page, and no page answers that address yet. The compiler checks every link
+against the pages you declare; the next step adds the page.
 
-What the reader keeps must survive a reload and be the same on every page —
-a store with a `persist`ed value. `src/stores/Shelf.wf`:
+## Step 5: Add the home page and a page per book
 
-```wf
-/// The books the reader wants to read, kept across visits.
-store Shelf {
-    persist saved: [String] = []
-    derived count = saved.length
-
-    action toggle(slug: String) {
-        if saved.includes(slug) {
-            saved = saved.filter(s => s != slug)
-        } else {
-            saved = [...saved, slug]
-        }
-    }
-}
-```
-
-`persist` is a `state` kept in the browser's storage and read back on the next
-visit; a change in another tab arrives here too. `derived count` recomputes
-whenever `saved` changes. ([Stores](12-stores.md).)
-
-## Step 5: pages
-
-The shell every page shares, `src/App.wf`:
-
-```wf
-// … reads what the other steps declare
-app {
-    Navbar {
-        Navbar.Brand { Link("Shelf", to: "/") }
-        Navbar.Links {
-            Link("Books", to: "/")
-            Link("Your shelf ({Shelf.count})", to: "/shelf")
-            Link("Suggest a book", to: "/suggest")
-        }
-    }
-    Router
-    Footer { Text("Built with WebFluent").muted.sm }
-}
-```
-
-The home page lists the books with a search box, `src/pages/Home.wf`:
+The home page lists the books with a search box. Create
+`src/pages/Home.wf`:
 
 ```wf
 // … reads what the other steps declare
@@ -193,14 +217,15 @@ page Home(path: "/", title: "Shelf", description: "Books worth reading, and the 
 }
 ```
 
-- `bind: q` keeps the input and the state in step both ways.
+- `bind: q` keeps the input and the state in step, both ways.
 - `found` is derived from `q`, so typing narrows the list as you go.
 - `for … by book.slug` is a keyed loop: a card that stays in the list keeps
-  its element, rather than being rebuilt.
+  its element instead of being rebuilt.
 - `Grid(columns: { base: 1, md: 2 })` is one column on a phone and two from
-  the `md` breakpoint — written in the first paint, no script needed.
+  the `md` breakpoint. The pre-rendered HTML already has this layout, so no
+  script is needed.
 
-A page per book, `src/pages/BookPage.wf`:
+Then add a page for each book, `src/pages/BookPage.wf`:
 
 ```wf
 // … reads what the other steps declare
@@ -229,13 +254,25 @@ page BookPage(path: "/books/:slug", slug: String, title: "Book", description: "O
 - `:slug` in the path is a typed parameter of the page.
 - `paths:` tells the static build which values to render: one HTML file per
   book, `books/a-pattern-language/index.html` and so on.
-- `books.find(…)` may find nothing, so `book` is a `Book?`. `if let b = book`
-  binds it only when it is there — reading `book.title` without it is a
-  compile error (`T04`).
-- `head { … }` adds tags to this page's `<head>`, here the title a shared link
-  previews with.
+- `books.find(…)` may find nothing, so `book` is a `Book?` (a `Book` or
+  `null`). `if let b = book` binds it only when it is there. Reading
+  `book.title` without that check is a compile error (`T04`).
+- `head { … }` adds tags to this page's `<head>` — here, the title that a
+  shared link previews with.
 
-The shelf itself, `src/pages/ShelfPage.wf`:
+([Pages and routing](06-pages-and-routing.md).)
+
+**Check it:** run `wf serve` and open `http://localhost:3000`. You see
+**Books worth reading**, `3 of 3 books` and three cards. Type `norman` in
+the search box: one card stays, and the count reads `1 of 3 books`. Click **Want to read** on a card and its
+label changes to **On your shelf**. Click a book's title and its page opens,
+with a breadcrumb back to the list. `wf check` now reports only the `U04`
+warning about `Shelf.count`; step 6 uses it.
+
+## Step 6: Add the shelf page and the site's shell
+
+The shelf page shows the books the reader saved. Create
+`src/pages/ShelfPage.wf`:
 
 ```wf
 // … reads what the other steps declare
@@ -256,7 +293,8 @@ page ShelfPage(path: "/shelf", title: "Your shelf", description: "The books you 
 }
 ```
 
-And a page for addresses nobody claims, `src/pages/NotFound.wf`:
+Add a page for addresses no other page claims, `src/pages/NotFound.wf`.
+`path: "*"` matches anything, and the static build writes it as `404.html`:
 
 ```wf
 page NotFound(path: "*", title: "Not found", description: "Nothing lives at this address.", noindex: true) {
@@ -267,12 +305,33 @@ page NotFound(path: "*", title: "Not found", description: "Nothing lives at this
 }
 ```
 
-Run `wf serve` and open `http://localhost:3000`: search, open a book, put two
-on your shelf, reload — they are still there. ([Pages and routing](06-pages-and-routing.md).)
+Last, the shell every page shares, `src/App.wf`. `Router` is where the
+current page is drawn:
 
-## Step 6: a form
+```wf
+// … reads what the other steps declare
+app {
+    Navbar {
+        Navbar.Brand { Link("Shelf", to: "/") }
+        Navbar.Links {
+            Link("Books", to: "/")
+            Link("Your shelf ({Shelf.count})", to: "/shelf")
+        }
+    }
+    Router
+    Footer { Text("Built with WebFluent").muted.sm }
+}
+```
 
-Readers suggest books. `src/pages/Suggest.wf`:
+**Check it:** `wf check` prints `No problems in shelf.` Every page now has a
+navigation bar. Put two books on your shelf: the link reads
+**Your shelf (2)**. Open it, then reload the page — the two books are still
+there. Open `http://localhost:3000/nowhere` and you see **Nothing lives
+here**.
+
+## Step 7: Add a form to suggest a book
+
+Readers can suggest books. Create `src/pages/Suggest.wf`:
 
 ```wf
 page Suggest(path: "/suggest", title: "Suggest a book", description: "Tell us what belongs on the shelf.") {
@@ -305,12 +364,35 @@ page Suggest(path: "/suggest", title: "Suggest a book", description: "Tell us wh
 ```
 
 A `validate` block sits beside the state it guards, and the control bound to
-that state shows its messages — accessibly, with `aria-invalid` and the
-message announced. A submit that fails moves focus to the first field with a
-problem and does not run `on submit`. ([Forms](16-forms.md).)
+that state shows its messages accessibly: the field gets `aria-invalid`, and
+the message is announced. A submit that fails moves focus to the first field
+with a problem and does not run `on submit`. ([Forms](16-forms.md).)
 
-A real site would send the suggestion somewhere. With a backend, describe it
-once and call it:
+Then link the page from the shell. Add the third link to `src/App.wf`:
+
+```wf
+// … reads what the other steps declare
+app {
+    Navbar {
+        Navbar.Brand { Link("Shelf", to: "/") }
+        Navbar.Links {
+            Link("Books", to: "/")
+            Link("Your shelf ({Shelf.count})", to: "/shelf")
+            Link("Suggest a book", to: "/suggest")
+        }
+    }
+    Router
+    Footer { Text("Built with WebFluent").muted.sm }
+}
+```
+
+**Check it:** click **Suggest a book**, then **Send the suggestion** with
+the form empty. The form does not send: **Which book?** appears under
+**Title**, and **Who wrote it?** under **Author**. Fill in both and send
+again. You see **Thank you — we will take a look.**, and the form is empty.
+
+A real site sends the suggestion somewhere. With a backend, you describe the
+service once and call it from the handler:
 
 ```wf
 api Suggestions(base: env.PUBLIC_API ?? "/api") {
@@ -326,9 +408,10 @@ on submit {
 
 ([Data and APIs](17-data.md), [Environments](30-environments.md).)
 
-## Step 7: a look of its own
+## Step 8: Give the site a theme
 
-A theme changes the design tokens every built-in is drawn with. `src/theme.wf`:
+A theme changes the design tokens that every built-in is drawn with. Create
+`src/theme.wf`:
 
 ```wf
 theme Paper {
@@ -346,13 +429,35 @@ theme Ink {
 }
 ```
 
-The config named `Paper` as the theme and `Ink` as the dark one, so a reader
-whose system is dark gets `Ink` — before the first paint, with no flash. A
-token you do not name keeps its baseline value. ([Styling](15-styling.md).)
+Then name the themes in `webfluent.app.json` — `Paper` as the theme and
+`Ink` as the dark one:
 
-## Step 8: a test
+```json
+{
+  "name": "shelf",
+  "build": { "ssg": true, "csp": true },
+  "theme": { "name": "Paper", "dark": "Ink" },
+  "meta": {
+    "title": "Shelf",
+    "description": "Books worth reading, and the ones you want to.",
+    "lang": "en"
+  }
+}
+```
 
-`tests/BookCard.wf`:
+A reader whose system is set to dark mode gets `Ink`, before the first paint
+and with no flash of the light theme. A token you do not name keeps its
+baseline value. ([Styling](15-styling.md).)
+
+**Check it:** the links and the **Send the suggestion** button are purple,
+and the text is a serif face. Switch
+your system to dark mode and the page turns dark. If the build stops with
+``No `theme Paper` is declared in this project``, the config names a theme
+that `src/theme.wf` does not declare: check the file name and the spelling.
+
+## Step 9: Test the book card
+
+Tests live in `tests/`. Create `tests/BookCard.wf`:
 
 ```wf
 // … reads what the other steps declare
@@ -371,32 +476,58 @@ test "a book goes on the shelf, and comes off again" {
 }
 ```
 
+Run them:
+
 ```bash
 wf test
 ```
 
-The first test renders the card and reads what it shows; it also writes a
-snapshot the next run compares against. The second **clicks**, so it runs in
-a headless Chrome — the same compiler and runtime a reader gets. Buttons are
-found by their text, as a reader finds them. ([Testing](24-testing.md).)
+The first test renders the card and reads what it shows. It also writes a
+snapshot that the next run compares against. The second test **clicks**, so
+it runs in a headless Chrome, with the same compiler and runtime a reader
+gets. Buttons are found by their text, as a reader finds them.
+([Testing](24-testing.md).)
 
-## Step 9: build and check
+**Check it:** the first run ends:
+
+```text
+  new   tests/BookCard.wf — a card shows who wrote the book, and when (snapshot written)
+  ok    tests/BookCard.wf — a book goes on the shelf, and comes off again (in a browser)
+2 passed, 0 failed, 1 snapshot(s) written
+```
+
+Run `wf test` again and the first line reads `ok`: the render matches its
+snapshot.
+
+If the second test says there is no browser, install Chrome or Chromium, or
+set `WF_CHROME` to its path.
+
+## Step 10: Build and verify the site
+
+Stop the dev server, then build the site and load every page in a real
+browser:
 
 ```bash
 wf build
 wf verify
 ```
 
-`wf build` writes `build/` — a folder of HTML, CSS and JavaScript any static
-host can serve — and prints every warning: a missing `alt`, a page without a
-description, a state nothing reads. `wf verify` loads every page in a real
-browser and fails on a script error, a failed request or a blank page.
+`wf build` writes `build/`, a folder of HTML, CSS and JavaScript that any
+static host can serve, and prints every warning, such as a missing `alt`, a
+page without a description, or a state nothing reads. `wf verify` loads every
+page in a real browser and fails on a script error, a failed request or a
+blank page.
 
-## Step 10: deploy
+**Check it:** `wf build` ends with `Build complete.`, and `build/` holds
+`index.html`, `shelf/index.html`, `suggest/index.html`, `404.html` and one
+`books/<slug>/index.html` per book. `wf verify` lists six routes, each `ok`,
+and ends with `6 page(s), 0 problem(s)`.
 
-Any static host serves `build/`. For GitHub Pages, a project site lives under
+## Step 11: Deploy to GitHub Pages
+
+Any static host serves `build/`. On GitHub Pages, a project site lives under
 `https://<you>.github.io/shelf/`, so tell the build its sub-path and its
-address — add to `webfluent.app.json`:
+address. Add these keys to `webfluent.app.json`, keeping the others:
 
 ```json
 {
@@ -405,9 +536,11 @@ address — add to `webfluent.app.json`:
 }
 ```
 
-`base_path` prefixes every link and asset; `site_url` turns on canonical
-links, the sitemap and absolute Open Graph URLs. Then add
-`.github/workflows/pages.yml`:
+`base_path` prefixes every link and asset. `site_url` turns on canonical
+links, the sitemap and absolute Open Graph URLs.
+
+Then add a workflow that builds and publishes the site on every push to
+`main`, `.github/workflows/pages.yml`:
 
 ```yaml
 name: Deploy
@@ -435,13 +568,18 @@ jobs:
         uses: actions/deploy-pages@v4
 ```
 
-Push, and in the repository's *Settings → Pages* choose *GitHub Actions* as
-the source. [Deploying](29-deploying.md) covers Netlify, Vercel, Cloudflare
-Pages, nginx and the rest.
+Push the project to your `shelf` repository. In the repository's
+**Settings → Pages**, choose **GitHub Actions** as the source.
+
+**Check it:** the **Actions** tab shows the **Deploy** workflow passing, and
+`https://<you>.github.io/shelf/` shows **Books worth reading**.
+[Deploying](29-deploying.md) covers Netlify, Vercel, Cloudflare Pages,
+nginx and other hosts.
 
 ## The whole program
 
-Every file above, as one listing — this is exactly what the steps built:
+Every `.wf` file above, as one listing. This is the program the steps built,
+with the first of the two tests:
 
 ```wf
 type Book {
@@ -610,12 +748,30 @@ test "a card shows who wrote the book, and when" {
 }
 ```
 
-## Where to go from here
+## What you built
 
-- Read the language properly, from [Language basics](05-language-basics.md).
+Shelf is a whole site, and each part of it uses one idea of the language:
+
+| You wrote | The idea | Read more |
+|---|---|---|
+| `type Book` and `data books` | Typed data read at build time | [Types](13-types.md), [Data](17-data.md#data-a-file-at-build-time) |
+| `store Shelf` with `persist` | Shared state kept across visits | [Stores](12-stores.md) |
+| `component BookCard` | A reusable component with a positional prop | [Components](11-components.md) |
+| `state`, `derived`, `bind:` and `for … by` on the home page | Reactivity and keyed lists | [State and reactivity](08-state-and-reactivity.md), [Control flow](10-control-flow.md) |
+| `path: "/books/:slug"` with `paths:`, and `if let` | Route parameters, static paths and optional values | [Pages and routing](06-pages-and-routing.md) |
+| `app { … Router … }` | The shell every page shares | [Pages and routing](06-pages-and-routing.md) |
+| `validate` and `Form(bind: form)` | Validated forms | [Forms](16-forms.md) |
+| `theme Paper` and `theme Ink` | Design tokens and dark mode | [Styling](15-styling.md) |
+| `test "…" { … click … expect … }` | Tests that render and click | [Testing](24-testing.md) |
+| `wf build`, `wf verify` and a workflow | Building, checking and deploying | [Deploying](29-deploying.md) |
+
+To go further:
+
+- Read the language properly, starting at [Language basics](05-language-basics.md).
 - Talk to a real server: [Data and APIs](17-data.md).
-- Make it work offline: [Offline](19-offline.md).
+- Make the site work offline: [Offline](19-offline.md).
 - Translate it: [Internationalisation](21-i18n.md).
+- Build a bigger project: [Tutorials](36-tutorials.md).
 
 ## Next
 

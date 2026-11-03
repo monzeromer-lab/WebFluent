@@ -3,18 +3,29 @@
 <!--
 route: guide/getting-started
 group: start
-blurb: Install the compiler and your editor's support, make a project, and see what a build writes.
-description: Install wf and the language server, create a first project, run the dev server, and learn what a build produces.
+blurb: Install the compiler, make a project, run it, change it and see the change — then set up your editor and see what a build writes.
+description: Install wf, check the install, create a first project, run the dev server and make a change. Then set up the language server and read the build.
 -->
 
-By the end of this chapter you will have installed the compiler, set up your
-editor, built a two-page site, changed it with the dev server watching, and
-know what every file the build writes is for.
+In about ten minutes you install the compiler, create a project, run it in
+your browser, change one line and see the page follow. The rest of the
+chapter covers optional set-up: your editor, the other project templates, a
+site written from scratch, and what a build writes.
+
+## Before you start
+
+You need:
+
+- a terminal: macOS or Linux with `curl` and `bash`, or Windows with
+  PowerShell (or, on any system, Rust's `cargo`);
+- a web browser;
+- a text editor. Any editor works; [Set up your editor](#set-up-your-editor)
+  adds checks as you type.
 
 ## Install
 
-WebFluent is one binary, `wf`. Run the line for your machine; each one leaves
-`wf` on your `PATH`.
+WebFluent is one binary, `wf`. Run the line for your machine. Each one
+leaves `wf` on your `PATH`.
 
 ### macOS and Linux
 
@@ -22,8 +33,9 @@ WebFluent is one binary, `wf`. Run the line for your machine; each one leaves
 curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash
 ```
 
-Fetches the binary for your platform from the latest release — no Rust
-needed. It covers Apple Silicon and Intel Macs and x86_64 Linux.
+The script fetches the binary for your platform from the latest release.
+You do not need Rust. It covers Apple Silicon and Intel Macs and x86_64
+Linux.
 
 ### Windows (PowerShell)
 
@@ -31,13 +43,15 @@ needed. It covers Apple Silicon and Intel Macs and x86_64 Linux.
 irm https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.ps1 | iex
 ```
 
-On Windows, type **`webfluent`** where this guide types `wf`. Windows
-already has a `wf`: `C:\Windows\System32\WF.msc`, the Windows Firewall
-console. System32 comes first on `PATH` and `.MSC` is one of the
-extensions a bare name is tried with, so `wf` opens the firewall instead
-of WebFluent. The release zip, `install.ps1` and the `.msi` therefore
-install the compiler as `webfluent.exe` beside `wf.exe` (the `.msi` puts
-their folder on `PATH`): `webfluent build`, `webfluent serve` and
+> [!IMPORTANT]
+> On Windows, type `webfluent` wherever this guide types `wf`.
+
+Windows already has a `wf`: `C:\Windows\System32\WF.msc`, the Windows
+Firewall console. System32 comes first on `PATH`, and `.MSC` is one of the
+extensions Windows tries for a bare name, so typing `wf` opens the firewall
+instead of WebFluent. For that reason the release zip, `install.ps1` and the
+`.msi` install the compiler as `webfluent.exe` beside `wf.exe`, and the
+`.msi` puts their folder on `PATH`. `webfluent build`, `webfluent serve` and
 `wf.exe build` all work. After `cargo install webfluent`, use `wf.exe`.
 
 ### With Rust
@@ -46,82 +60,153 @@ their folder on `PATH`): `webfluent build`, `webfluent serve` and
 cargo install webfluent
 ```
 
-Builds from crates.io. This works everywhere Rust does, and it is how to
-install on Linux arm64, which has no prebuilt binary yet.
+This builds `wf` from crates.io. It works everywhere Rust does, and it is
+how to install on Linux arm64, which has no prebuilt binary yet.
 
 ### Packages
 
 Each [release](https://github.com/monzeromer-lab/WebFluent/releases) also
-carries a `.deb`, an `.msi` and plain tarballs, for a machine where piping a
-script to a shell is not an option.
+carries a `.deb`, an `.msi` and plain tarballs, for a machine where piping
+a script to a shell is not an option.
 
-### Check it
+## Check the install
+
+Ask `wf` for its version:
 
 ```bash
 wf --version
 ```
 
-If the shell cannot find `wf`, open a new terminal: the installer adds its
-directory to your `PATH` in your shell's startup file, which the session you
-ran it in had already read.
+**You see** the release you installed:
 
-Both installers read two environment variables: `WF_INSTALL_DIR` puts the
-binary somewhere other than `~/.webfluent/bin`, and `WF_VERSION` pins a
-release (`WF_VERSION=v5.11.0`) rather than taking the latest. Running the
-installer again upgrades in place.
+```text
+wf 5.11.0
+```
+
+If the shell says it cannot find `wf`, open a new terminal. The installer
+adds its directory to your `PATH` in your shell's startup file, and the
+terminal you ran it in read that file before the change.
+
+## Create a project
+
+Make a project called `hello` and move into it:
+
+```bash
+wf init hello
+cd hello
+```
+
+**You see:**
+
+```text
+Created new WebFluent project: hello (template: spa)
+  AGENTS.md is the language reference, for you and your coding agent
+```
+
+`wf init` writes a small application so you have something real to read:
+four pages (a dashboard, a task list, a profile and settings), three
+components and two stores, with tests under `tests/`.
+
+## Run the dev server
+
+Start the dev server:
+
+```bash
+wf serve
+```
+
+**You see:**
+
+```text
+Building hello...
+  4 pages, 3 components, 2 stores
+  Output: ./build/
+Build complete.
+Starting dev server at http://localhost:3000/
+```
+
+Open `http://localhost:3000` in your browser. **You see** the app's
+**Dashboard** page: a navigation bar, three task counts and a list of recent
+tasks.
+
+Leave the server running. It rebuilds when you save a file, reloads the page
+when a build lands, and, when a build fails, draws the error over the page
+until a save fixes it.
+
+## Make a change
+
+1. Open `src/pages/Home.wf` in your editor.
+2. Find the line `Text("Welcome to your dashboard.").muted` and change the
+   text to `Text("Welcome back.").muted`.
+3. Save the file.
+
+**You see** the browser reload by itself, and the dashboard now reads
+**Welcome back.** under its heading.
+
+To see what an error looks like, change `.muted` to `.mutd` and save. The
+page shows error `E103` over it, with the file, the line and the hint
+“Did you mean `.muted`?”.
+Change it back, save, and the page returns.
+
+You have a working project. Stop the server with Ctrl+C when you are done.
+Run `wf build` to write the finished site to `build/`, ready for any static
+host ([Deploying](29-deploying.md)).
+
+The rest of this chapter is optional set-up. To keep learning, go to the
+[tutorial](03-tutorial.md).
+
+## Set up your editor
+
+The language server, `wf-lsp`, gives your editor the same checks `wf build`
+runs, as you type: diagnostics, completion of props, flags and cases, hover
+with types and documentation, signature help, go to definition, references,
+rename, formatting, inlay types, semantic highlighting and quick fixes.
+
+`wf-lsp` is a second binary. Get it from the same
+[release](https://github.com/monzeromer-lab/WebFluent/releases) as `wf` —
+`wf-lsp-<version>-<arch>-<os>.tar.gz` — and put it on your `PATH`, or build
+it from a clone of the repository:
+
+```bash
+cargo install --path crates/wf-lsp
+```
+
+Then connect your editor:
+
+- **VS Code** — the extension in `editors/vscode` brings highlighting and
+  the language server. Until it is on the Marketplace, run
+  `npm ci && npm run package` in that folder and install the `.vsix` it
+  writes with **Extensions: Install from VSIX**.
+- **Zed** — the extension in `editors/zed` brings Tree-sitter highlighting,
+  the outline, snippets and the language server (found on `PATH`, or
+  downloaded from the latest release). Install it with
+  **zed: install dev extension**, pointed at that folder.
+- **Neovim, Helix, Emacs, or any other editor with LSP** — run `wf-lsp`
+  over stdio for the `webfluent` file type (`*.wf`, `*.wfx`).
+  [Editors](38-cli.md#editors) has the configuration for each.
+
+## Change how `wf` is installed
+
+Both installers read two environment variables:
+
+| Variable | Effect | Example |
+|---|---|---|
+| `WF_INSTALL_DIR` | Installs the binary somewhere other than `~/.webfluent/bin` | `WF_INSTALL_DIR=/opt/wf/bin` |
+| `WF_VERSION` | Installs that release instead of the latest | `WF_VERSION=v5.11.0` |
+
+Running the installer again upgrades `wf` in place.
 
 To build from a clone instead — for an unreleased change, or to work on the
-compiler itself:
+compiler itself — run:
 
 ```bash
 git clone https://github.com/monzeromer-lab/WebFluent.git
 cd WebFluent && cargo install --path .
 ```
 
-## Set up your editor
+## Choose a template
 
-The language server, `wf-lsp`, gives your editor the same checks `wf build`
-runs, as you type: diagnostics, completion of props, flags and cases, hover
-with types and docs, signature help, go to definition, references, rename,
-formatting, inlay types, semantic highlighting and quick fixes.
-
-It is a second binary. Get it from the same
-[release](https://github.com/monzeromer-lab/WebFluent/releases) as `wf` —
-`wf-lsp-<version>-<arch>-<os>.tar.gz` — and put it on your `PATH`, or build
-it from a clone:
-
-```bash
-cargo install --path crates/wf-lsp
-```
-
-- **VS Code** — the extension in `editors/vscode` brings highlighting and the
-  language server. Until it is on the Marketplace, run `npm ci && npm run
-  package` in that folder and install the `.vsix` it writes with
-  *Extensions: Install from VSIX*.
-- **Zed** — the extension in `editors/zed` brings Tree-sitter highlighting,
-  the outline, snippets and the language server (found on `PATH`, or
-  downloaded from the latest release). Install it with
-  *zed: install dev extension* pointed at that folder.
-- **Neovim, Helix, Emacs, anything else with LSP** — run `wf-lsp` over stdio
-  for the `webfluent` file type (`*.wf`, `*.wfx`). [Editors](38-cli.md#editors)
-  has configuration for each.
-
-## A first project
-
-```bash
-wf init hello
-cd hello
-wf serve
-```
-
-`wf init` writes a small application — four pages (a dashboard, a task list,
-a profile and settings), three components and two stores — so you have
-something real to read. `wf serve` builds it, serves it at
-`http://localhost:3000`, rebuilds when you save, reloads the page when a build
-lands, and — when a build fails — draws the error over the page until the
-next save fixes it.
-
-`wf init` takes a template:
+`wf init` takes a template with `-t`:
 
 | Template | Makes |
 |---|---|
@@ -130,20 +215,23 @@ next save fixes it.
 | `-t pdf` | A PDF document |
 | `-t slides` | A PDF slide deck |
 
-and `--locales en,ar` starts either of the first two translated, its text in
-`src/translations/`, one file per language
-([Internationalisation](21-i18n.md#starting-translated)).
+`--locales en,ar` starts an `spa` or `static` project translated: its text
+is in `src/translations/`, one file per language, and the first locale is
+the default ([Internationalisation](21-i18n.md#starting-translated)).
 
-Not sure between `spa` and `static`? Start with `static`: every page is real
-HTML before any script runs, which is better for search and for a first
-paint, and it is still fully interactive once the script loads.
-[Static or single-page](26-static-and-spa.md) explains the difference.
+If you are unsure between `spa` and `static`, start with `static`. Every
+page is real HTML before any script runs, which is better for search and for
+the first paint, and the page is still fully interactive once the script
+loads. [Static or single-page](26-static-and-spa.md) explains the
+difference.
 
-## The smallest site
+## Write a site from scratch
 
-Replace `src/` with two files.
+To see the smallest whole site, replace the contents of `src/` with two
+files, and delete the starter's tests under `tests/`, which test the pages
+you removed.
 
-`src/App.wf` — the shell every page shares, and the router:
+`src/App.wf` is the shell every page shares, with the router in it:
 
 ```wf
 app {
@@ -158,7 +246,7 @@ app {
 }
 ```
 
-`src/pages/Home.wf` — pages, each owning its route:
+`src/pages/Home.wf` holds the pages, and each page names its own route:
 
 ```wf
 page Home(path: "/", title: "Hello", description: "A first WebFluent site.") {
@@ -178,27 +266,29 @@ page About(path: "/about", title: "About", description: "What this site is for."
 }
 ```
 
-Read it top to bottom:
+Save, and the dev server shows a navigation bar with **Home** and
+**About**. **Click me** counts your clicks. Here is what each part does:
 
 - `app { … }` is the shell: what every page sits inside. `Router` is where
-  the current page renders. There is no route table — each `page` names its
+  the current page renders. There is no route table; each `page` names its
   own `path:`.
 - `page Home(path: "/", title: …, description: …)` declares a page. `title`
-  and `description` become the `<title>`, the meta description, the Open Graph
-  and Twitter cards and the JSON-LD; leave them out and the build warns you.
+  and `description` become the `<title>`, the meta description, the Open
+  Graph and Twitter cards and the JSON-LD. If you leave them out, the build
+  warns you.
 - `state count = 0` is a signal. `Text("… {count} …")` reads it, so the text
   updates when it changes.
-- `Button("Click me").primary { on click { … } }` — the label is the one
+- In `Button("Click me").primary { on click { … } }`, the label is the one
   positional argument, `.primary` is a flag (a case of the button's `tone`
   prop), and the block holds the click handler.
 - `Container`, `Heading`, `Text`, `Paragraph`, `Navbar` and `Link` are
-  built-ins; the [components reference](37-components-reference.md) lists
+  built-ins. The [components reference](37-components-reference.md) lists
   all of them.
 
-Save, and the dev server shows the change. Run `wf build` to write the
-finished site to `build/`.
-
 ## What a build produces
+
+`wf build` writes the finished site to `build/`. A static build with two
+pages and a `path: "*"` page writes files like these:
 
 ```text
 build/
@@ -216,17 +306,21 @@ build/
   *.gz                pre-compressed copies a host can serve as they are
 ```
 
-Nothing in `build/` is for editing: it is written again on every build, so
-keep it out of version control. `public/` is copied to its root as it is.
+Do not edit anything in `build/`: the next build writes it again. Keep it
+out of version control; the `.gitignore` that `wf init` writes already
+does. The build copies `public/` to the root of `build/` as it is.
 
 `app.js` carries only the parts of the runtime the program reaches. The
 runtime is a set of feature modules — `each` for a `for`, `router` for a
 second page, `net` for a `resource`, `icons` for an `Icon` — and the build
 works out which ones the code it just wrote calls. A page of static text
-carries 3 of its 37 modules — an `app.js` of 3.7 kB gzipped. `wf build
---stats` shows what a build weighs; [Performance](31-performance.md) reads it.
+carries 3 of the 37 modules: an `app.js` of 3.7 kB gzipped. `wf build
+--stats` shows what a build weighs, and [Performance](31-performance.md)
+explains how to read it.
 
 ## The project, in brief
+
+A project's files are laid out like this:
 
 ```text
 AGENTS.md             the language reference, for you and a coding agent
@@ -242,11 +336,12 @@ public/               copied to the build's root (images, fonts, favicon)
 tests/*.wf            `test "…" { }` declarations for `wf test`
 ```
 
-Every `.wf` or `.wfx` file under `src/` is read and merged into one program:
-a page in one file uses a component from another without importing it. The
-folders are convention, not rules. [Project structure](25-project-structure.md)
-covers naming, organisation and the config; the
-[configuration reference](39-configuration.md) lists every key.
+The compiler reads every `.wf` or `.wfx` file under `src/` and merges them
+into one program, so a page in one file uses a component from another
+without importing it. The folders are a convention, not a rule.
+[Project structure](25-project-structure.md) covers naming, organisation
+and the config, and the [configuration reference](39-configuration.md)
+lists every key.
 
 The config needs only a name:
 
@@ -256,4 +351,4 @@ The config needs only a name:
 
 ## Next
 
-[Tutorial: a reading list, start to finish](03-tutorial.md).
+[Tutorial](03-tutorial.md): build a reading-list site, start to finish.
