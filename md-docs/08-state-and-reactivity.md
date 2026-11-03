@@ -161,7 +161,7 @@ What an action's body can hold:
 - **Locals.** `let x = …` declares a local of the action or handler.
   `let { a, b } = m` and `let [x, y] = l` destructure a map and a list.
 - **`await`.** Using it makes the action asynchronous, and `name.pending` is
-  `true` while a call of it runs ([Forms](16-forms.md#pending-actions)).
+  `true` while a call of it runs ([Forms](16-forms.md#show-that-a-request-is-running)).
 - **Loops.** `for item in list { }`, `for item, i in list { }` and
   `for n in 1..=10 { }`.
 - **Errors.** `try { } catch e { }` guards a call that may fail.

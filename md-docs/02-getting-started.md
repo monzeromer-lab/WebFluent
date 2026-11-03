@@ -217,7 +217,7 @@ cd WebFluent && cargo install --path .
 
 `--locales en,ar` starts an `spa` or `static` project translated: its text
 is in `src/translations/`, one file per language, and the first locale is
-the default ([Internationalisation](21-i18n.md#starting-translated)).
+the default ([Internationalisation](21-i18n.md#start-a-project-translated)).
 
 If you are unsure between `spa` and `static`, start with `static`. Every
 page is real HTML before any script runs, which is better for search and for

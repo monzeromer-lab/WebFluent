@@ -52,7 +52,7 @@ To produce one PDF per invoice from data, use the same templates with
 | A website | `spa` (default), with `build.ssg` for pre-rendered pages; or `static`, which is the same as `ssg` | HTML, CSS and JavaScript ([Static sites and SPAs](26-static-and-spa.md)) |
 | PDF document | `pdf` | One `.pdf`, paginated |
 | Slide deck | `slides` | One `.pdf`, one slide per page |
-| Custom elements | `elements` | `elements.js` for other frameworks ([JavaScript interop](32-javascript-interop.md#publishing-your-components-as-custom-elements)) |
+| Custom elements | `elements` | `elements.js` for other frameworks ([JavaScript interop](32-javascript-interop.md#publish-your-components-as-custom-elements)) |
 
 ## The paged engine
 

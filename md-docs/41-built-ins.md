@@ -377,7 +377,7 @@ Signature: `setLocale(locale)`
 Returns nothing. Every `t(…)`, `format` and `ago` redraws, and an RTL
 locale sets `dir="rtl"`. A literal locale the config does not list is an
 `I04`. Where: actions, handlers and effects. See
-[i18n](21-i18n.md#switching-the-locale).
+[i18n](21-i18n.md#switch-the-locale).
 
 ```wf
 Button("العربية") { on click { setLocale("ar") } }
@@ -457,7 +457,7 @@ Signature: `t(key)`, `t(key, values)` → `String`
 
 Returns the message. A literal key no locale has is an `I01`; a value the
 message does not use, or a placeholder the call does not pass, is an
-`I02`. Where: anywhere. See [`t("key")`](21-i18n.md#t-key).
+`I02`. Where: anywhere. See [`t("key")`](21-i18n.md#translate-text-with-t).
 
 ```wf
 Text(t("cart.items", { count: Cart.count }))

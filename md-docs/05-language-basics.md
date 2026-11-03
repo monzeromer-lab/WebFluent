@@ -52,11 +52,11 @@ Each keyword declares one kind of thing:
 | `theme` | Design tokens: colours, spacing, radii, fonts | [15](15-styling.md) |
 | `app` | The shell every page renders inside, with the `Router` | [6](06-pages-and-routing.md#the-app-shell) |
 | `type`, `enum` | Records and enumerations the type checker enforces | [13](13-types.md) |
-| `api` | An HTTP service: its address, its endpoints and what they return | [17](17-data.md#api-a-service-described-once) |
+| `api` | An HTTP service: its address, its endpoints and what they return | [17](17-data.md#describe-a-service-with-api) |
 | `const` | A value read everywhere | [14](14-expressions.md#constants) |
-| `data` | A JSON file read at build time, as a constant | [17](17-data.md#data-a-file-at-build-time) |
+| `data` | A JSON file read at build time, as a constant | [17](17-data.md#read-a-file-at-build-time-with-data) |
 | `image` | A picture the build resizes and hands to `Image` | [28](28-media.md) |
-| `animation` | Keyframes | [20](20-motion.md#custom-animations) |
+| `animation` | Keyframes | [20](20-motion.md#declare-your-own-keyframes) |
 | `test` | A render held to expectations and a snapshot | [24](24-testing.md) |
 
 Two other kinds of file under `src/` join the program. A `.css` file is a

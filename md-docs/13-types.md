@@ -465,7 +465,7 @@ When the server publishes an OpenAPI specification, let the compiler read
 it instead: `api Backend from "openapi.json"` types every endpoint,
 parameter, response and error from the file, and turns each named schema
 into a `type`, or an `enum` for a string with cases (see
-[Data and APIs](17-data.md#from-a-specification)). An `api` you write by
+[Data and APIs](17-data.md#read-the-service-from-an-openapi-file)). An `api` you write by
 hand types its calls the same way: `get users() -> [User]`.
 
 ## The checks

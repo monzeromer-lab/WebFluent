@@ -113,14 +113,14 @@ repeat them on each element:
 |---|---|---|
 | `class:` | Adds classes from your own stylesheets. It adds; it never replaces | [15](15-styling.md#classes-and-your-own-stylesheet) |
 | `ref:` | Names a handle on the element: `box.focus()` | [8](08-state-and-reactivity.md#element-handles) |
-| `mount:`, `update:`, `cleanup:` | Hands the element to a script each time it is made, again when what `update` reads changes, and takes it back when it leaves | [32](32-javascript-interop.md#mount-update-cleanup-on-any-element) |
+| `mount:`, `update:`, `cleanup:` | Hands the element to a script each time it is made, again when what `update` reads changes, and takes it back when it leaves | [32](32-javascript-interop.md#hand-an-element-to-a-script-with-mount-update-and-cleanup) |
 | `animate:` or a flag (`.fadeIn`) | The animation it enters with | [20](20-motion.md) |
-| `exit:` | The animation it leaves with | [20](20-motion.md#exit-animations) |
+| `exit:` | The animation it leaves with | [20](20-motion.md#animate-an-element-out) |
 | `delay:`, `duration:`, `speed:` (`.fast`, `.slow`), `easing:` | How the animation is timed | [20](20-motion.md) |
-| `stagger:` | Inside a `for`, each item's delay grows by this much | [20](20-motion.md#lists) |
-| `on:` | When the animation plays: `.mount` (the default) or `.enterView` | [20](20-motion.md#playing-when-it-is-scrolled-to) |
-| `shared:` | A name the element keeps across a route change | [20](20-motion.md#the-same-element-across-a-route-change) |
-| `count:` | A number in its text counts up or down to its new value | [20](20-motion.md#a-number-that-counts) |
+| `stagger:` | Inside a `for`, each item's delay grows by this much | [20](20-motion.md#animate-a-list) |
+| `on:` | When the animation plays: `.mount` (the default) or `.enterView` | [20](20-motion.md#play-an-animation-when-it-is-scrolled-to) |
+| `shared:` | A name the element keeps across a route change | [20](20-motion.md#carry-an-element-across-a-route-change) |
+| `count:` | A number in its text counts up or down to its new value | [20](20-motion.md#count-a-number-to-its-new-value) |
 
 The [components reference](37-components-reference.md) lists every element's
 own props.

@@ -84,7 +84,7 @@ The `Router` behaves like this:
   declare pages in can never shadow a route.
 - A project with no `app` declaration gets a bare router.
 - `Router(transition: .fade, duration: "200ms")` animates page changes
-  ([chapter 20](20-motion.md#route-transitions)).
+  ([chapter 20](20-motion.md#animate-route-changes)).
 
 ## Links and navigation
 
