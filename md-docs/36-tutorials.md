@@ -15,9 +15,9 @@ are, or do them in order.
 
 | Level | Project | What you build | What it teaches | Time |
 |---|---|---|---|---|
-| **Beginner** | [Todos](#easy-todos) | A list of things to do: add, tick, rename, filter | Types, a store with `persist`, a component, a keyed list, a filter in the address, tests that click | 20 minutes |
-| **Intermediate** | [Field Notes](#medium-field-notes) | A notebook site, statically built, a page per note | `data` files, a layout, `:slug` pages with `paths:`, Markdown pages, search and tags, what a pre-rendered page can know | An hour |
-| **Advanced** | [Pocket](#hard-pocket) | A budget tracker with a dashboard, forms and two languages | `Money` and `Date`, derived totals, a `persist` migration, `validate`, a dialog and shortcuts, i18n and right-to-left text, a script of your own, offline | A couple of hours |
+| **Easy** | [Todos](#easy-todos) | A list of things to do: add, tick, rename, filter | Types, a store with `persist`, a component, a keyed list, a filter in the address, tests that click | 20 minutes |
+| **Medium** | [Field Notes](#medium-field-notes) | A notebook site, statically built, a page per note | `data` files, a layout, `:slug` pages with `paths:`, Markdown pages, search and tags, what a pre-rendered page can know | An hour |
+| **Hard** | [Pocket](#hard-pocket) | A budget tracker with a dashboard, forms and two languages | `Money` and `Date`, derived totals, a `persist` migration, `validate`, a dialog and shortcuts, i18n and right-to-left text, a script of your own, offline | A couple of hours |
 
 If you have not written WebFluent before, start with
 [the Shelf tutorial](03-tutorial.md): it is a gentler first half hour.
@@ -1547,7 +1547,7 @@ page Likes(path: "/", title: "Likes", description: "A like that shows at once.")
 ```
 
 `optimistic(holder, change)` does the same with less code inside an
-action; see [Data](17-data.md).
+action; see [Data](17-data.md#show-a-change-before-the-server-agrees).
 
 ### Build a confirm dialog component
 
@@ -1762,7 +1762,7 @@ page Account(path: "/account", title: "Your account", description: "Your account
 The session is an httpOnly cookie the server sets, so the page never holds
 a token. `guard:` hides the page from a reader who is signed out, and the
 server still checks every request
-([Security](23-security.md#sessions-and-tokens)). Call `Session.load()`
+([Security](23-security.md#keep-the-session-in-a-cookie)). Call `Session.load()`
 from the app's set-up, so a returning reader is signed in.
 
 ### Load more
@@ -1848,7 +1848,7 @@ page Share(path: "/share", title: "Share", description: "Copy the link.") {
 
 To use a charting library, list its URL in `meta.scripts`, call it from a
 script of your own, and hand it a canvas with `Host`. The full example is
-in [JavaScript interop](32-javascript-interop.md#a-library-from-a-cdn).
+in [JavaScript interop](32-javascript-interop.md#load-a-library-from-a-cdn).
 
 ## Where to go next
 

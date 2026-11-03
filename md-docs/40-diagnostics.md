@@ -4,14 +4,21 @@
 route: guide/diagnostics
 group: reference
 blurb: Every error and warning the compiler reports — what it means, a program that draws it, the message, and the fix.
-description: Every WebFluent error and warning — structural errors and codes T, A, S, P, U and V — each with a program that draws it and the fix.
+description: Every WebFluent error and warning, by code — what it means, a program that draws it, the message the compiler prints, and the fix.
 -->
 
-`wf build`, `wf check`, `wf serve` and your editor report the same
-findings, from one pipeline. Each starts with its code and what is wrong, then the place in
-the `file:line:col` form editors and CI read, the line of source with the
-part that is wrong underlined, what to do about it, and a link to its entry
-here:
+This chapter is the reference for every finding the compiler reports. Each
+finding has a code, such as `T05`; search this page for the code to find
+its entry, or run `wf explain T05` to print the entry in your terminal.
+
+`wf build`, `wf check`, `wf serve` and your editor report the same findings,
+from one pipeline. This chapter first explains how to read a finding and
+how to change what one counts as, then lists every code by family.
+
+## Reading a finding
+
+Every finding is printed in the same layout. This one reports a misspelt
+field:
 
 ```text
 error[T05]: `User` has no field `nmae`
@@ -23,71 +30,134 @@ error[T05]: `User` has no field `nmae`
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t05-a-field-or-method-that-does-not-exist
 ```
 
-- **Errors** stop the build: the program cannot mean what it says.
-- **Warnings** print and the build goes on: it means something, probably
-  not what you wanted. Nothing is a warning that the compiler could have
-  decided for itself.
+From the top, a finding shows:
 
-Every stage runs whatever the one before it found, and every file is read
-even when another does not parse, so one build shows every mistake once —
-then one line sums them up: `error: the build stopped: 2 errors, 5
-warnings`. A build that stops on its findings exits with `1`; one that
-could not run at all — a file it could not read, a config it could not
-load — with `2`.
+1. its severity, its code and what is wrong;
+2. the place, in the `file:line:col` form that editors and CI problem
+   matchers read;
+3. the line of source, with the part that is wrong underlined;
+4. `help:` — what to do about it, when the compiler can say;
+5. `docs:` — a link to the code's entry in this chapter.
 
-`wf check --format json`, `sarif` or `github` writes the same findings for
-a tool ([Command line](38-cli.md#wf-check)), and `wf explain T05` prints a
-code's entry below in the terminal.
+Colour is used only on a terminal, and never when `NO_COLOR` is set.
 
-**Fixes.** Where the compiler knows the fix, it says so as edits, which
-your editor offers as a quick fix, `--format json` carries, and
-[`wf fix`](38-cli.md#wf-fix) applies. A fix is offered only where it is
-certain; where it is not, the entry below says what to do instead. Each
-family has its decided fix:
+## Errors and warnings
+
+Every code has a severity:
+
+- An **error** stops the build: the program cannot mean what it says.
+- A **warning** prints and the build goes on: the program means something,
+  probably not what you wanted. Nothing is a warning that the compiler
+  could have decided for itself.
+
+Every stage of the compiler runs on whatever the stage before it found, and
+every file is read even when another does not parse — the parser picks up
+again at the next declaration. One build therefore shows every mistake
+once, then sums them up in one line:
+`error: the build stopped: 2 errors, 5 warnings`.
+
+A build that stops on its findings exits with `1`. A build that cannot run
+at all — a file it cannot read, a config it cannot load — exits with `2`.
+`--deny-warnings` on `wf build` or `wf check` makes a warning stop the build
+too.
+
+## Findings for a tool
+
+`--format` on `wf build` and `wf check` writes the same findings for a tool
+([Command line](38-cli.md#wf-check)):
+
+| Format | Output |
+|---|---|
+| `json` | One document on standard output, with every finding's code, place, hint, related places and fixes. |
+| `sarif` | SARIF 2.1.0, for GitHub code scanning. |
+| `github` | `::error` annotations, which a GitHub workflow shows on the pull request. |
+
+## Fixes
+
+Where the compiler knows the fix, the finding carries it as edits. Your
+editor offers it as a quick fix, `--format json` carries it in `fixes`, and
+[`wf fix`](38-cli.md#wf-fix) applies it. A fix is offered only where it is
+certain; where it is not, the code's entry says what to do instead.
+
+Each kind of finding has its decided fix:
 
 - **The nearest name**, wherever the code names a set: a field, member,
   method, variable, component, case or flag (`T02`, `T05`, `T06`, `T13`,
   `T16`, `E101`, `E103`), a prop (`C02`, `C04`), a route (`R01`, which also
-  writes a relative link from the root), a store (`X05`), a locale
+  rewrites a relative link from the root), a store (`X05`), a locale
   (`I04`), a file of `public/` (`D01`), a CSS property or token (`V05`,
   `V06`), an icon (`V08`) and an event (`V09`).
 - **What is missing, written in**: `?.` for a read that may be null
   (`T04`), `(await …)` for a promise read as its value (`T17`), the missing
   props (`C01`), the missing arms of a `match` (`T15`) and an `error` arm
-  (`T21`), a `Router` in an `app` with none (`R03`), `bind:` for a box
-  that shows a state and never changes it (`F04`), `px` for a bare number
-  where CSS wants a length (`V07`), `controls: true` (`A09`), and the
-  `migrate` step a version is missing (`P01`) — with the version raised in
-  the same change when a persisted shape changed (`D04`).
+  (`T21`), a `Router` in an `app` with none (`R03`), `bind:` for a box that
+  shows a state and never changes it (`F04`), `px` for a bare number where
+  CSS wants a length (`V07`), `controls: true` (`A09`), and the `migrate`
+  step a version is missing (`P01`) — with the version raised in the same
+  change when a persisted shape changed (`D04`).
 - **A name, drafted from the code**: `alt: ""` for an image (`A01`); a
-  label from what a control binds or an icon is (`A02`–`A04`), a link's
-  from where it leads (`A06`), a dialog's title from what opens it
-  (`A08`); the level that mends the outline (`A11`); the visible text at
-  the start of an `aria-label` (`A15`). With nothing to draft from, there
-  is no fix — an empty name would silence the warning and name nothing.
+  label from what a control binds or what an icon is (`A02`–`A04`), a
+  link's from where it leads (`A06`), a dialog's title from what opens it
+  (`A08`); the heading level that mends the outline (`A11`); the visible
+  text at the start of an `aria-label` (`A15`). With nothing to draft from,
+  there is no fix, because an empty name would silence the warning and
+  name nothing.
 - **What is not used, removed** — a state, derived value, action, store
   member or component (`U01`–`U05`), code after a `return` (`U06`), an
   allow that allows nothing (`U07`) — with *rename to `_name`* as the
-  second fix, for what is kept on purpose; a loop keyed `by item.id` when
-  its body reads the item's `id` (`U09`).
-- `derived` for a state that copies a live value nothing changes (`X06`),
-  a positional argument named for the one prop it can be (`C05`), and the
-  prop marked `_` in the component's declaration (`C06`).
+  second fix, for what you keep on purpose; and a loop keyed `by item.id`
+  when its body reads the item's `id` (`U09`).
+- **A change of form**: `derived` for a state that copies a live value
+  nothing changes (`X06`), a positional argument named for the one prop it
+  can be (`C05`), and the prop marked `_` in the component's declaration
+  (`C06`).
 
-A family's findings in one file are fixed at once as one change: the
-editor's *Fix all `V07` in this file*, or `wf fix --code V07`.
+A family's findings in one file are fixed together, as one change: the
+editor's **Fix all `V07` in this file**, or `wf fix --code V07` for the
+whole project.
 
-**Allowing one finding.** A `// wf-allow(CODE)` comment accepts a finding
-on purpose: on a line of its own it covers the next line of code, at the
-end of a line that line. It names codes or families, comma-separated —
-`// wf-allow(U01, A)`. Only what [`lints`](39-configuration.md#lints)
-could lower may be allowed, and an allow that covers nothing is itself
-reported (`U07`), so allows do not outlive what they were for. `lints`
-says the same for a whole project.
+## Changing what a finding counts as
 
-The code — `T05` — is the thing to search this page for. The families:
+`lints` in `webfluent.app.json` sets what a finding counts as for the
+whole project, by code or by family — `"off"`, `"warn"` or `"error"`. A
+code's setting wins over its family's:
 
-| | |
+```json
+{ "lints": { "A11": "off", "U": "error", "R01": "warn" } }
+```
+
+You can turn any warning off or raise it to an error. You can lower an
+error only when it cannot ship a broken page: `R01`, `C02`, `S04`, `I01`,
+`I02` and `I04`. Lowering any other error is refused
+([Configuration](39-configuration.md#lints)).
+
+## Allowing one finding
+
+To accept one finding on purpose, write a `// wf-allow(CODE)` comment:
+
+- on a line of its own, it covers the next line of code;
+- at the end of a line, it covers that line.
+
+It names codes or families, comma-separated — `// wf-allow(U01, A)`. Only a
+finding that [`lints`](39-configuration.md#lints) could lower may be
+allowed. An allow that covers nothing is itself reported (`U07`), so an
+allow does not outlive what it was for.
+
+## Explaining a code
+
+`wf explain CODE` prints a code's entry from this chapter, word for word;
+`wf explain` with no code lists every code with its severity and title.
+
+```bash
+wf explain T05
+wf explain
+```
+
+## The families
+
+A code's letter is its family:
+
+| Family | What it covers |
 |---|---|
 | `E` | syntax and structure: what cannot be read, or refers to nothing |
 | `T` | types |
@@ -103,8 +173,11 @@ The code — `T05` — is the thing to search this page for. The families:
 | `U` | declared and never used |
 | `V` | vocabulary |
 
-Every example below is compiled by the test suite, draws exactly the code
-it is filed under, and shows what the compiler prints for it.
+Each entry below has the same parts: the code and its title as the heading,
+what it means, a program that draws it, the message the compiler prints for
+that program, and the fix. The test suite compiles every example program,
+checks that it draws exactly the code it is filed under, and checks that
+the message shown is what the compiler prints.
 
 ## Syntax and structure
 

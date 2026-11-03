@@ -103,7 +103,7 @@ Signature: `animate(element, name, duration)` → a handle
 
 Returns a handle with `play()`, `cancel()` and `finished` (a promise). It
 plays as soon as it is made. Where: handlers and actions. See
-[Motion](20-motion.md#driving-one-yourself).
+[Motion](20-motion.md#drive-an-animation-yourself).
 
 ```wf
 Card(ref: panel) { on mouseenter { animate(panel, "pulse", "400ms") } }
@@ -317,7 +317,7 @@ Signature: `replayAnimation(element, name)`
 | `name` | `String` | The animation, such as `"fadeIn"` |
 
 Returns nothing. Where: handlers. See
-[Motion](20-motion.md#driving-one-yourself).
+[Motion](20-motion.md#drive-an-animation-yourself).
 
 ```wf
 Card.outlined.fadeIn { on mouseenter(e) { replayAnimation(e.currentTarget, "fadeIn") } }

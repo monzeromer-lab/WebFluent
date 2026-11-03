@@ -474,7 +474,7 @@ has an entry for each.
 | `setTheme("dark")` | `"dark"`, `"light"` or `"system"`, kept across visits ([Styling](15-styling.md#dark-mode)) |
 | `keyIs(e, "mod+s")`, `keyLabel("mod+s")` | Tests a key event against a shortcut, and writes a shortcut for this system |
 | `every(ms) { }`, `after(ms) { }` | Timers ([State and reactivity](08-state-and-reactivity.md#timers)) |
-| `animate(el, name, ms)`, `replayAnimation(el, name)` | Plays an animation by hand ([Motion](20-motion.md#driving-one-yourself)) |
+| `animate(el, name, ms)`, `replayAnimation(el, name)` | Plays an animation by hand ([Motion](20-motion.md#drive-an-animation-yourself)) |
 | `optimistic(holder, change)` | Shows a change before the server agrees ([Data](17-data.md#show-a-change-before-the-server-agrees)) |
 | `beacon(url, data)` | Sends data in a way that outlives the page ([Real-time](18-realtime.md)) |
 | `sanitize(html)` | Passes markup through an allow-list ([Security](23-security.md#show-markup-you-did-not-write)) |
