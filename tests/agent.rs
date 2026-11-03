@@ -446,10 +446,7 @@ fn the_guide_s_anchors_are_the_site_s() {
         .unwrap();
     assert_eq!(
         forms.cite(Some("validate-a-field")),
-        format!(
-            "{} {} › Validate a field",
-            forms.number, forms.title
-        )
+        format!("{} {} › Validate a field", forms.number, forms.title)
     );
     assert_eq!(
         forms.cite(None),
