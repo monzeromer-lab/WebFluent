@@ -4,101 +4,189 @@
 route: guide/glossary
 group: help
 blurb: The words this guide uses, each in a sentence, with where to read more.
-description: The terms this guide uses — signal, static paint, hydration, flag, part, slot, registry, scope and more — each in a sentence.
+description: The terms this guide uses — state, signal, pre-rendered page, hydration, flag, part, slot, registry, scope and more — each in a sentence, with a link.
 -->
 
-**Action.** A named function of a page, component or store, whose body does
-things: `action add() { … }`. [Chapter 8](08-state-and-reactivity.md#actions-and-locals).
+This glossary defines the words this guide uses, in alphabetical order.
+Each entry is one sentence, with a link to the chapter that explains the
+idea. The guide uses each term in the same sense every time.
 
-**App shell.** The `app { }` declaration: what every page renders inside,
-with a `Router` where the page goes. [Chapter 6](06-pages-and-routing.md#the-app-shell).
+**Action.** A named function of a page, component or store whose body
+changes state or does other work: `action add() { … }`
+([State and reactivity](08-state-and-reactivity.md#actions-and-locals)).
 
-**Block.** The `{ … }` after an element: its style, handlers, slot fills and
-children, in that order. [Chapter 7](07-elements.md).
+**App shell.** The `app { }` declaration: what every page is drawn inside,
+with a `Router` where the current page goes
+([Pages and routing](06-pages-and-routing.md#the-app-shell)).
 
-**Built-in.** An element the language provides, such as `Button` or `Card`,
-known to the compiler through the registry. [Components](37-components-reference.md).
+**Block.** The `{ … }` after an element, holding its style, transitions,
+handlers, slot fills and children, in that order
+([Elements](07-elements.md#the-call-shape)).
 
-**Case.** One value of an `enum`, written with a dot: `.primary`, `.failed("x")`.
-[Chapter 13](13-types.md#enums).
+**Built-in.** An element the language provides, such as `Button` or
+`Card`, which the compiler knows through the registry
+([Components reference](37-components-reference.md)).
 
-**Chunk.** A page's own script and stylesheet, written separately and loaded
-when its route first shows (`build.split`).
+**Case.** One value of an `enum`, written with a dot: `.primary`,
+`.failed("x")` ([Types](13-types.md#enums)).
+
+**Chunk.** A page's own script and stylesheet, written to their own files
+and loaded the first time the page's route shows, when `build.split` is on
+([Configuration](39-configuration.md#build)).
 
 **Component.** An element you declare, with typed props, events, slots and
-parts: `component UserCard(…) { … }`. [Chapter 11](11-components.md).
+parts: `component UserCard(…) { … }` ([Components](11-components.md)).
 
 **Declaration.** A top-level statement of a file: `page`, `component`,
 `store`, `theme`, `app`, `type`, `enum`, `api`, `const`, `data`, `image`,
-`animation` or `test`. [Chapter 5](05-language-basics.md).
+`animation` or `test` ([Language basics](05-language-basics.md#declarations)).
 
-**Derived.** A value computed from state, recomputed when what it read
-changes: `derived total = …`.
+**Derived value.** A value worked out from state and worked out again when
+what it reads changes: `derived total = …`
+([State and reactivity](08-state-and-reactivity.md#derived)).
 
-**Design token.** A named value a theme sets and every built-in reads,
-written `$name` in a style. [Chapter 42](42-design-tokens.md).
+**Design token.** A named value that a theme sets and every built-in reads,
+written `$name` in a style block and `var(--name)` in a stylesheet
+([Design tokens](42-design-tokens.md)).
 
-**Effect.** Code that runs when a page shows and again when a state it read
-changes, with a `cleanup { }` for what it set up.
+**Diagnostic.** A finding the compiler reports, with a code such as `T05`,
+a severity, a place and, where it is known, a fix; also called a
+*finding* ([Diagnostics](40-diagnostics.md)).
 
-**Flag.** A word after a dot that sets a `Bool` prop or picks an enum case:
-`Button("Save").primary.lg`. [Chapter 7](07-elements.md#props-cases-and-flags).
+**Effect.** Code that runs when its page shows and again when a state it
+read changes, with a `cleanup { }` for what it set up
+([State and reactivity](08-state-and-reactivity.md#effect)).
 
-**Handler.** `on click { … }` — code run when an event happens.
-[Chapter 9](09-events.md).
+**Element.** Anything a page draws by a capitalised name — a built-in such
+as `Button`, or a component of your own ([Elements](07-elements.md)).
 
-**Hydration.** The script taking over a pre-rendered page in place, without
-drawing it again. [Chapter 26](26-static-and-spa.md#hydration).
+**Enum.** A type with a fixed set of cases, declared
+`enum Tone { calm, loud }` ([Types](13-types.md#enums)).
 
-**Imperative block.** The body of an action, handler or effect: statements
-that do things. Its opposite is a render block.
+**Event.** Something that happens — a click, a key, or an event a
+component declares and fires with `emit` — that a handler answers
+([Events](09-events.md)).
+
+**Flag.** A word after a dot that sets a `Bool` prop or picks an enum
+case: `Button("Save").primary.lg`
+([Elements](07-elements.md#props-cases-and-flags)).
+
+**Handler.** Code run when an event happens, written `on click { … }`
+([Events](09-events.md#handlers)).
+
+**Hydration.** The script taking over a pre-rendered page in place,
+without drawing it again
+([Static sites and SPAs](26-static-and-spa.md#hydration)).
+
+**Imperative block.** The body of an action, handler or effect, made of
+statements that do things; the opposite of a render block
+([Language basics](05-language-basics.md#bodies)).
+
+**Layout.** A component a page names with `layout:` to frame it, which
+draws the page in its default slot
+([Pages and routing](06-pages-and-routing.md#layouts)).
+
+**Lint.** A rule the compiler checks beyond whether the program can work,
+such as an accessibility rule or an unused-value rule; the `lints` setting
+changes what any finding counts as ([Configuration](39-configuration.md#lints)).
+
+**Page.** A declaration with a `path:` that the router draws when the
+address matches it: `page Home(path: "/") { … }`
+([Pages and routing](06-pages-and-routing.md#declaring-a-page)).
 
 **Part.** A sub-element called under its owner's name: `Card.Header`,
-`Panel.Footer`. [Chapter 11](11-components.md#parts).
+`Panel.Footer` ([Components](11-components.md#parts)).
 
-**Persist.** A state kept in the browser's storage across visits.
-[Chapter 12](12-stores.md#keeping-a-value-across-visits).
+**Persist.** A state kept in the browser's storage across visits:
+`persist scheme = "light"`
+([Stores](12-stores.md#keeping-a-value-across-visits)).
 
-**Positional argument.** The one value an element takes without a name — a
-button's label, a heading's text.
+**Positional argument.** The one value an element takes without a name,
+such as a button's label or a heading's text
+([Elements](07-elements.md#the-call-shape)).
+
+**Pre-rendered page.** The HTML the build writes for a page from
+everything it can know at build time, shown before any script runs; also
+called the *static paint*
+([Static sites and SPAs](26-static-and-spa.md#what-the-static-paint-knows)).
 
 **Project script.** A `.js` file under `src/`: a plain browser script,
 linked on every page as written, whose top-level names `.wf` code calls
-directly. [Chapter 32](32-javascript-interop.md).
+directly ([JavaScript interop](32-javascript-interop.md#call-your-own-script)).
 
-**Registry.** The compiler's table of every built-in's props, cases, flags,
-events, slots and parts; the checker, the linters, the editor and the
-reference all read it. `wf registry --json` prints it.
+**Prop.** A value a component or built-in takes, passed by name — or, for
+the one marked `_`, by position ([Components](11-components.md#props)).
 
-**Render block.** The body of a page, component or element: what to show,
-and the state behind it.
+**Registry.** The compiler's table of every built-in's props, cases,
+flags, events, slots and parts, which the checker, the linters, the editor
+and the reference all read; `wf registry --json` prints it
+([Command line](38-cli.md)).
 
-**Resource.** A request a page makes and a `match` shows: `resource rows = …`.
-[Chapter 17](17-data.md).
+**Render block.** The body of a page, component or element, which
+describes what to show and the state behind it
+([Language basics](05-language-basics.md#bodies)).
 
-**Runtime.** The JavaScript at the head of `app.js` that compiled pages call,
-reachable as `window.WF`. [Chapter 43](43-runtime-api.md).
+**Resource.** A request a page makes, whose loading, error and ready states
+a `match` shows: `resource rows = fetch(…)`
+([Data](17-data.md#show-a-request-with-resource)).
 
-**Scope.** What owns the effects, timers and connections created inside it —
-a page, a branch, a list item — and disposes of them when it leaves.
+**Route parameter.** A `:name` segment of a page's path, which the page
+declares as a typed parameter: `page User(path: "/user/:id", id: String)`
+([Pages and routing](06-pages-and-routing.md#route-parameters)).
 
-**Signal.** A reactive value: what `state` is. Whatever reads it follows it.
+**Runtime.** The JavaScript at the head of `app.js` that the compiled
+pages call, reachable as `window.WF` ([Runtime API](43-runtime-api.md)).
 
-**Slot.** A place in a component its caller fills: the default slot
-(`children`), a named slot, or a scoped slot that hands values to its fill.
-[Chapter 11](11-components.md#slots).
+**Scope.** What owns the effects, timers and connections created inside it
+— a page, a branch, a list item — and disposes of them when it leaves
+([State and reactivity](08-state-and-reactivity.md#automatic-clean-up)).
 
-**Static paint.** The HTML the build pre-renders for a page, from everything
-it can know at build time. [Chapter 26](26-static-and-spa.md#what-the-static-paint-knows).
+**Signal.** A reactive value, which is what a `state` is underneath:
+whatever reads it updates when it changes
+([Runtime API](43-runtime-api.md#state)).
 
-**Store.** Shared state with actions, built the first time something reads
-it. [Chapter 12](12-stores.md).
+**Single-page app (SPA).** A build with one HTML shell, whose pages the
+script swaps without a reload
+([Static sites and SPAs](26-static-and-spa.md#two-shapes-of-build)).
 
-**Theme.** A `theme` declaration: the design tokens it changes.
-[Chapter 15](15-styling.md).
+**Slot.** A place in a component that its caller fills: the default slot
+(`children`), a named slot, or a scoped slot that hands values to its fill
+([Components](11-components.md#slots)).
 
-**`.wfx`.** A source file whose blocks are written by indentation instead of
-braces. [Chapter 5](05-language-basics.md#two-layouts-wf-and-wfx).
+**Snapshot.** The HTML a test drew, kept under `tests/__snapshots__/` and
+compared on every later run ([Testing](24-testing.md#snapshots)).
+
+**State.** A value of a page, component or store that the page shows and
+that changes: `state count = 0`
+([State and reactivity](08-state-and-reactivity.md#state)).
+
+**Static build.** A build with `build.ssg: true`, which writes a
+pre-rendered HTML file for every page
+([Static sites and SPAs](26-static-and-spa.md#two-shapes-of-build)).
+
+**Static paint.** Another name for the pre-rendered page: the HTML the
+build writes for a page before any script runs
+([Static sites and SPAs](26-static-and-spa.md#what-the-static-paint-knows)).
+
+**Store.** Shared state with actions, built the first time something
+reads it ([Stores](12-stores.md)).
+
+**Template engine.** WebFluent used from a server, through `wf render`, Rust
+or Node, to render a `.wf` template with JSON data to HTML or PDF
+([Server rendering](35-server-rendering.md)).
+
+**Theme.** A `theme` declaration: the design tokens it changes from the
+baseline ([Styling](15-styling.md)).
+
+**Type.** A record declared with `type`, or any of the types a value can
+have, which the checker holds every use to ([Types](13-types.md)).
+
+**Validate block.** A `validate x { … }` block beside a state, whose rules
+the control bound to that state shows
+([Forms](16-forms.md#validate-a-field)).
+
+**`.wfx`.** A source file whose blocks are written by indentation instead
+of braces ([Language basics](05-language-basics.md#two-layouts-wf-and-wfx)).
 
 ## Next
 
