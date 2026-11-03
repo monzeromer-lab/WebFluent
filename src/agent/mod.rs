@@ -7,6 +7,7 @@
 pub mod changeset;
 pub mod context;
 pub mod diff;
+pub mod edit;
 
 use std::path::Path;
 

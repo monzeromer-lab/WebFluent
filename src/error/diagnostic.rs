@@ -22,6 +22,9 @@ pub enum WebFluentError {
     IoError(String),
     /// Structured-edit error (unknown node id, invalid snippet, overlapping edits).
     EditError(String),
+    /// What was asked for is not there: a file, or the text an edit names.
+    /// Unlike a refusal, it is the asker's to correct.
+    NotFound(String),
     /// The checks found errors: every finding of the project, warnings
     /// included, already printed by the command that ran them.
     Diagnostics(Vec<Diagnostic>),
@@ -70,6 +73,7 @@ impl fmt::Display for WebFluentError {
             WebFluentError::ConfigError(msg) => write!(f, "Config Error: {}", msg),
             WebFluentError::IoError(msg) => write!(f, "IO Error: {}", msg),
             WebFluentError::EditError(msg) => write!(f, "Edit Error: {}", msg),
+            WebFluentError::NotFound(msg) => write!(f, "{}", msg),
             WebFluentError::Diagnostics(list) => {
                 for d in list.iter().filter(|d| d.is_error()) {
                     writeln!(f, "{d}")?;

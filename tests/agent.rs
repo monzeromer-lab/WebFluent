@@ -618,3 +618,109 @@ fn a_link_out_of_the_project_is_never_read_written_or_shown() {
     let _ = std::fs::remove_dir_all(&dir);
     let _ = std::fs::remove_dir_all(&outside);
 }
+
+#[test]
+fn an_edit_needs_a_read_finds_its_text_and_is_caught_when_the_file_moved() {
+    use webfluent::agent::edit::Edit;
+    let dir = fixture("dashboard", "t-edit");
+    let rel = "src/pages/Settings.wf";
+    let saved = std::fs::read_to_string(dir.join(rel)).unwrap();
+    let first = saved.lines().next().unwrap().to_owned();
+    let mut set = ChangeSet::new(Arc::new(FsVfs), &dir);
+    let e = |old: &str, new: &str| Edit {
+        old_text: old.to_owned(),
+        new_text: new.to_owned(),
+    };
+
+    // Not read: the model is told to read it first.
+    let refused = set.edit(rel, &[e(&first, "// x")]).unwrap_err();
+    assert!(
+        refused.to_string().contains("before you edit it"),
+        "{refused}"
+    );
+    assert!(set.is_empty());
+
+    // Read, then edited: the set holds it, the tree does not.
+    set.read(rel).unwrap();
+    assert_eq!(
+        set.edit(rel, &[e(&first, &format!("// the agent's\n{first}"))])
+            .unwrap(),
+        1
+    );
+    assert!(
+        set.accepted(rel, None)
+            .unwrap()
+            .unwrap()
+            .starts_with("// the agent's\n")
+    );
+    assert_eq!(std::fs::read_to_string(dir.join(rel)).unwrap(), saved);
+    // A text it can't find is the model's to correct, and changes nothing.
+    let before = set.accepted(rel, None);
+    let missed = set.edit(rel, &[e("no such text in it", "y")]).unwrap_err();
+    assert!(
+        matches!(missed, webfluent::WebFluentError::NotFound(_)),
+        "{missed:?}"
+    );
+    assert_eq!(set.accepted(rel, None), before);
+
+    // Another file read, then changed on the disk under the set: caught.
+    let other = "src/pages/Incidents.wf";
+    let mut set = ChangeSet::new(Arc::new(FsVfs), &dir);
+    let text = set.read(other).unwrap();
+    let line = text
+        .lines()
+        .find(|l| !l.trim().is_empty())
+        .unwrap()
+        .to_owned();
+    std::fs::write(dir.join(other), format!("{text}\n// typed by the person\n")).unwrap();
+    let stale = set.edit(other, &[e(&line, "x")]).unwrap_err();
+    assert!(
+        stale.to_string().contains("changed since you read it"),
+        "{stale}"
+    );
+    // A missing file is not there, not refused.
+    assert!(matches!(
+        set.read("src/pages/Nope.wf").unwrap_err(),
+        webfluent::WebFluentError::NotFound(_)
+    ));
+    assert!(matches!(
+        set.read(".env").unwrap_err(),
+        webfluent::WebFluentError::EditError(_)
+    ));
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn an_edit_to_the_config_keeps_the_private_value_it_was_shown_withheld() {
+    use webfluent::agent::edit::Edit;
+    let dir = fixture("dashboard", "t-edit-config");
+    let config_path = dir.join("webfluent.app.json");
+    let mut config: serde_json::Value =
+        serde_json::from_str(&std::fs::read_to_string(&config_path).unwrap()).unwrap();
+    config["env"] = serde_json::json!({ "STRIPE_SECRET": "sk_live_do_not_leak", "REGION": "eu" });
+    config["public_env"] = serde_json::json!(["REGION"]);
+    std::fs::write(
+        &config_path,
+        serde_json::to_string_pretty(&config).unwrap() + "\n",
+    )
+    .unwrap();
+    let mut set = ChangeSet::new(Arc::new(FsVfs), &dir);
+    let shown = set.read("webfluent.app.json").unwrap();
+    assert!(shown.contains(WITHHELD));
+    set.edit(
+        "webfluent.app.json",
+        &[Edit {
+            old_text: "\"eu\"".into(),
+            new_text: "\"us\"".into(),
+        }],
+    )
+    .unwrap();
+    let written = set.accepted("webfluent.app.json", None).unwrap().unwrap();
+    assert!(
+        written.contains("sk_live_do_not_leak")
+            && written.contains("\"us\"")
+            && !written.contains(WITHHELD),
+        "{written}"
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}

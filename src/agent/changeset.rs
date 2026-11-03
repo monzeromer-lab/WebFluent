@@ -115,6 +115,10 @@ pub struct ChangeSet {
     changes: BTreeMap<String, Option<String>>,
     /// The files read, whether or not they were changed.
     read: BTreeSet<String>,
+    /// Each file read while the set had not changed it: a hash of the text
+    /// it was read as, so an edit to it after the editor's buffer moved
+    /// under it is caught.
+    seen: BTreeMap<String, u64>,
 }
 
 impl ChangeSet {
@@ -126,6 +130,7 @@ impl ChangeSet {
             dir: dir.into(),
             changes: BTreeMap::new(),
             read: BTreeSet::new(),
+            seen: BTreeMap::new(),
         }
     }
 
@@ -183,10 +188,18 @@ impl ChangeSet {
         let rel = self.within(rel)?;
         let text = match self.changes.get(&rel) {
             Some(Some(t)) => t.clone(),
-            Some(None) => return Err(refused(format!("`{rel}` is deleted in this change set"))),
-            None => self
-                .on_disk(&rel)
-                .ok_or_else(|| refused(format!("there is no `{rel}`")))?,
+            Some(None) => {
+                return Err(WebFluentError::NotFound(format!(
+                    "`{rel}` is deleted in this change set"
+                )));
+            }
+            None => {
+                let t = self
+                    .on_disk(&rel)
+                    .ok_or_else(|| WebFluentError::NotFound(format!("there is no `{rel}`")))?;
+                self.seen.insert(rel.clone(), hash(&t));
+                t
+            }
         };
         self.read.insert(rel.clone());
         if rel == CONFIG {
@@ -209,6 +222,38 @@ impl ChangeSet {
             self.changes.insert(rel, Some(text));
         }
         Ok(())
+    }
+
+    /// Whether `rel` was read through the set, or written by it: what an
+    /// edit to it needs.
+    pub fn has_read(&self, rel: &str) -> bool {
+        inside(rel).is_ok_and(|r| self.read.contains(&r) || self.changes.contains_key(&r))
+    }
+
+    /// Make `edits` to `rel` in the set, each `old_text` as the agent was
+    /// shown it (a private value withheld), and how many. The file must
+    /// have been read, or written, by the set, and not have changed under
+    /// it since; every edit is made, or none.
+    pub fn edit(&mut self, rel: &str, edits: &[super::edit::Edit]) -> Result<usize> {
+        let rel = self.within(rel)?;
+        if !self.has_read(&rel) {
+            return Err(WebFluentError::NotFound(format!(
+                "Read `{rel}` before you edit it."
+            )));
+        }
+        if !self.changes.contains_key(&rel)
+            && let Some(was) = self.seen.get(&rel)
+            && self.on_disk(&rel).map(|t| hash(&t)) != Some(*was)
+        {
+            return Err(WebFluentError::NotFound(format!(
+                "`{rel}` changed since you read it. Read it again."
+            )));
+        }
+        let shown = self.read(&rel)?;
+        let new = super::edit::apply(&shown, edits)
+            .map_err(|e| WebFluentError::NotFound(e.to_string()))?;
+        self.write(&rel, &new)?;
+        Ok(edits.len())
     }
 
     /// Delete `rel` in the set.
@@ -372,6 +417,14 @@ impl ChangeSet {
             .map(|(rel, c)| (self.dir.join(rel), c.clone()))
             .collect()
     }
+}
+
+/// A hash of a file's text, the same in every run.
+fn hash(text: &str) -> u64 {
+    // FNV-1a.
+    text.bytes().fold(0xcbf29ce484222325, |h, b| {
+        (h ^ b as u64).wrapping_mul(0x100000001b3)
+    })
 }
 
 /// `text` with each private `env` value withheld.

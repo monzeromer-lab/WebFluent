@@ -1020,7 +1020,7 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                 Line(command: "wf context --guide full --json")
             ])
 
-        Markdown("It includes:\n\n- every file of the project — not the build's output, `.git/`, dependencies or a `.env` file;\n- the open file and its selection;\n- the problems the build reports;\n- every component a call can name, with its props, cases, events and slots;\n- the theme's tokens;\n- `webfluent.app.json`, with every `env` value that `public_env` does not list withheld;\n- the guide: each chapter's title, blurb and sections to cite (`16 Forms and validation › What a value must be: validate`), or with `--guide full` the chapters whole;\n- what was withheld, and why.\n\nThe library has it as `webfluent::agent::context`. An agent's edits go through `webfluent::agent::changeset::ChangeSet`: a layer over the editor's buffers that the compiler builds before anyone reads it. It refuses paths outside the project, in `.git/`, in the build's output and `.env` files; reads the config with its private values withheld and keeps them through a write; and is accepted whole, by file or by hunk.")
+        Markdown("It includes:\n\n- every file of the project — not the build's output, `.git/`, dependencies or a `.env` file;\n- the open file and its selection;\n- the problems the build reports;\n- every component a call can name, with its props, cases, events and slots;\n- the theme's tokens;\n- `webfluent.app.json`, with every `env` value that `public_env` does not list withheld;\n- the guide: each chapter's title, blurb and sections to cite (`16 Forms and validation › What a value must be: validate`), or with `--guide full` the chapters whole;\n- what was withheld, and why.\n\nThe library has it as `webfluent::agent::context`. An agent's edits go through `webfluent::agent::changeset::ChangeSet`: a layer over the editor's buffers that the compiler builds before anyone reads it. It refuses paths outside the project, in `.git/`, in the build's output and `.env` files; reads the config with its private values withheld and keeps them through a write; and is accepted whole, by file or by hunk. `ChangeSet::edit` makes an agent's anchored edits (`webfluent::agent::edit`): each `old_text` must be found once in a file the set has read — exactly, then ignoring what ends a line, then the indent, then typographic quotes and dashes — and a file that moved under the set since it was read is refused until it is read again. Text found twice names its lines; text found nowhere names the nearest.")
 
         Heading("wf translations", id: "wf-translations").h3
 
@@ -1456,8 +1456,8 @@ vim.lsp.enable("wf_lsp")"#, title: "lua")
                     Table.Cell { Markdown("`wf commands`") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`agent::\{changeset, context, diff\}`") }
-                    Table.Cell { Markdown("`wf context`, and a change set an agent writes to instead of the working tree, built before anyone reads it") }
+                    Table.Cell { Markdown("`agent::\{changeset, context, diff, edit\}`") }
+                    Table.Cell { Markdown("`wf context`, and a change set an agent writes to instead of the working tree, built before anyone reads it, with anchored edits") }
                 }
             }
         }

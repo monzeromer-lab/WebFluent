@@ -766,7 +766,12 @@ through `webfluent::agent::changeset::ChangeSet`: a layer over the editor's
 buffers that the compiler builds before anyone reads it. It refuses paths
 outside the project, in `.git/`, in the build's output and `.env` files;
 reads the config with its private values withheld and keeps them through a
-write; and is accepted whole, by file or by hunk.
+write; and is accepted whole, by file or by hunk. `ChangeSet::edit` makes an
+agent's anchored edits (`webfluent::agent::edit`): each `old_text` must be
+found once in a file the set has read — exactly, then ignoring what ends a
+line, then the indent, then typographic quotes and dashes — and a file that
+moved under the set since it was read is refused until it is read again.
+Text found twice names its lines; text found nowhere names the nearest.
 
 ### `wf translations`
 
@@ -1132,7 +1137,7 @@ over it, so a tool reports the project as it is being edited.
 | `assets`, `media::plan` | `wf assets` |
 | `config::{schema, json_edit}` | `wf config`, and a setting written keeping the file's shape |
 | `commands` | `wf commands` |
-| `agent::{changeset, context, diff}` | `wf context`, and a change set an agent writes to instead of the working tree, built before anyone reads it |
+| `agent::{changeset, context, diff, edit}` | `wf context`, and a change set an agent writes to instead of the working tree, built before anyone reads it, with anchored edits |
 
 ## Next
 
