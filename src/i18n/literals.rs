@@ -27,6 +27,7 @@ pub const TEXT_PROPS: &[&str] = &[
     "caption",
     "summary",
     "description",
+    "detail",
     "message",
     "hint",
     "heading",
@@ -514,6 +515,16 @@ mod tests {
             out.contains("Icon(\"warning\")") && out.contains("Code(\"src/app.wf\")"),
             "{out}"
         );
+    }
+
+    #[test]
+    fn a_component_s_detail_is_words_too() {
+        let mut p = page(
+            "page P(path: \"/\") {\n    Setting(label: \"Wrap\", detail: \"Long lines wrap.\")\n}\n",
+        );
+        translate(&mut p);
+        let out = printed(&p);
+        assert!(out.contains("detail: t(\"Long lines wrap.\")"), "{out}");
     }
 
     #[test]
