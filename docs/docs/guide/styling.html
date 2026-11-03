@@ -324,7 +324,7 @@
 <p>To change the colours, fonts, spacing or corner radius of everything at once, declare a <code>theme</code>. A theme sets <em>design tokens</em> — named values such as <code>color-primary</code> or <code>radius-md</code> that every built-in reads.</p>
 <p>This theme gives the site a teal brand colour, the Inter font and rounder corners:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -359,7 +359,7 @@
 </ul>
 <p>If the project declares one theme, the build uses it. If it declares several, choose one in <code>webfluent.app.json</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
@@ -408,7 +408,7 @@
 <p>To change one element, give it a <code>style { }</code> block. The block holds CSS declarations, and they apply to that element only.</p>
 <p>This card uses tokens for its spacing and colours, a live value for its accent border and width, a hover rule, a rule for its paragraphs and a media query:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -556,7 +556,7 @@
 <p><code>@media (…) { }</code> and <code>@container (…) { }</code> nest the same way.</p>
 <p>A nested rule is compiled into the stylesheet, so its values must be known at build time: literals and tokens, not state. To make a hover colour follow state, set a custom property on the element and read it in the rule:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -592,7 +592,7 @@
 <p>To make a property change smoothly instead of jumping, add a <code>transition { }</code> block. Each line names a property, a duration and an optional easing.</p>
 <p>This card fades and grows when you press <strong>Toggle</strong>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -629,7 +629,7 @@
                             <div class="wf-markdown">
 <p>Every <code>.css</code> file anywhere under <code>src/</code> is part of the build. You can keep one global file, or put a file beside the component it styles:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
@@ -642,7 +642,7 @@
     ├── Card.wf
     └── card.css          # beside the component it styles</code>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">css</p>
@@ -667,7 +667,7 @@
 <p><code>class: &quot;name&quot;</code> adds a class to the element. It does not replace the element's own classes: <code>Container(class: &quot;hero&quot;)</code> renders <code>class=&quot;wf-container hero&quot;</code>.</p>
 <p>The value may be an expression, so a class can follow state:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -690,7 +690,7 @@
 <li>A <strong>list</strong> joins strings and maps, and skips anything that is <code>null</code>.</li>
 </ul>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -740,7 +740,7 @@
                             <div class="wf-markdown">
 <p>To style each variant of your own component from a stylesheet, use its enum props. A component writes each enum prop to its root element as a <code>data-&lt;prop&gt;</code> attribute, such as <code>data-tone=&quot;loud&quot;</code>, so one rule styles one variant (<a href="/docs/guide/components#enum-props">Components</a>):</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">css</p>
@@ -753,7 +753,7 @@
                             <div class="wf-markdown">
 <p>To add dark mode, declare a second theme with the tokens that change, and name both themes in <code>webfluent.app.json</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
@@ -770,7 +770,7 @@
 </ul>
 <p>This page declares both themes and lets the reader choose:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -822,7 +822,7 @@
 <p>Most layout needs no <code>style</code> at all. <code>Stack</code>, <code>Row</code>, <code>Grid</code>, <code>Container</code>, <code>Spacer</code> and <code>Divider</code> take <code>gap:</code>, <code>align:</code>, <code>justify:</code> and <code>columns:</code> props (<a href="/docs/guide/elements#layout-elements">Elements</a>).</p>
 <p>This page puts a title and a button on one line, with a grid of cards below that has one, two or three columns depending on the screen:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -847,7 +847,7 @@
                             <div class="wf-markdown">
 <p>To make a layout prop change with the screen width, give it one value per breakpoint instead of one value:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -866,7 +866,7 @@
 <li>Each step is a design token, <code>screen-sm</code> to <code>screen-xl</code>. Move one in your theme and every media query moves with it, <code>viewport.md</code> included:</li>
 </ul>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -878,7 +878,7 @@
                             <div class="wf-markdown">
 <p>The same names work inside a <code>style { }</code> block: <code>@md { … }</code> means <code>@media (min-width: $screen-md)</code>.</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -896,7 +896,7 @@
                             <div class="wf-markdown">
 <p>A <code>Row</code>, <code>Grid</code> or <code>Column</code> stays as you write it at every width. To make one reflow on a narrow screen, add the <code>.stacks</code> flag, or say what it does at each width with a responsive value:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>

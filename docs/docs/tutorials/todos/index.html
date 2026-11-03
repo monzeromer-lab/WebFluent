@@ -326,7 +326,7 @@
 <p>Every code block whose first line names a file — <code>// src/stores/Todos.wf</code> — is that file, or a run of lines from it, exactly as the project has it. A test holds this chapter to the projects, so the code you read here is the code that builds.</p>
 <p>To start from a finished project instead, clone the repository and serve one:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
@@ -345,7 +345,7 @@
                             <div class="wf-markdown">
 <p>Make a single-page project and go into it:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
@@ -358,7 +358,7 @@
                             <div class="wf-markdown">
 <p>Delete everything the template put in <code>src/</code> and in <code>tests/</code>: you write every file yourself, and the template's tests would fail without its pages. Then replace <code>webfluent.app.json</code> with this:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
@@ -390,7 +390,7 @@
                             <div class="wf-markdown">
 <p>The config names a theme, so declare it first. A theme names only the design tokens it changes; every other token keeps its default (<a href="/docs/guide/styling">Styling</a>). <code>Night</code> is the theme named as <code>&quot;dark&quot;</code> in the config, and the page uses it when the reader's system is set to dark:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -423,7 +423,7 @@
                             <div class="wf-markdown">
 <p>The page you write in step 6 names classes — <code>card</code>, <code>todo</code>, <code>is-done</code>, <code>filters</code> — and <code>src/todos.css</code> styles them. The build bundles every <code>.css</code> file under <code>src/</code>, so the file needs no link. These are four of its rules; copy the whole file from the <a href="https://github.com/monzeromer-lab/WebFluent/blob/master/examples/tutorials/easy-todos/src/todos.css">finished project</a>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">css</p>
@@ -443,7 +443,7 @@
                             <div class="wf-markdown">
 <p>A <code>type</code> names the fields a value has, and the checker holds every use to them (<a href="/docs/guide/types">Types</a>). An <code>enum</code> is a fixed set of cases:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -474,7 +474,7 @@
                             <div class="wf-markdown">
 <p>A store holds state that any page or component can read (<a href="/docs/guide/stores">Stores</a>). This one keeps the list:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -527,7 +527,7 @@
                             <div class="wf-markdown">
 <p>A component is an element of your own (<a href="/docs/guide/components">Components</a>). This one draws a single todo, and lets the reader rename it in place:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -583,7 +583,7 @@
                             <div class="wf-markdown">
 <p>The page holds the box for a new todo, the filters and the list. Here is its first half:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -632,7 +632,7 @@
 </ul>
 <p>The second half draws the filters and the list, and closes the page. Add it below the first, after a blank line:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -672,7 +672,7 @@
 </ul>
 <p>Last, the <code>app</code> declaration is the frame every page sits in. <code>Router</code> marks where the current page is drawn:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -690,7 +690,7 @@
                             <div class="wf-markdown">
 <p>Now start the development server in a second terminal, and leave it running. Every save rebuilds the project and reloads the page:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
@@ -707,7 +707,7 @@
                             <div class="wf-markdown">
 <p>A test draws what it declares, then follows its steps in order. It types into the control named <strong>New todo</strong> and clicks the button named <strong>Add</strong>, the way a reader would (<a href="/docs/guide/testing">Testing</a>). Create <code>tests/todos.wf</code> with this test:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -733,7 +733,7 @@
                             <div class="wf-markdown">
 <p>A test that clicks or types runs in a headless Chrome. The finished project has six tests in <a href="https://github.com/monzeromer-lab/WebFluent/blob/master/examples/tutorials/easy-todos/tests/todos.wf"><code>tests/todos.wf</code></a>: two that only look at a row, and four that click — adding a todo, refusing a blank one, ticking and clearing, and renaming that keeps one row for each. Copy the file to have them all, then run them:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
@@ -750,7 +750,7 @@
                             <div class="wf-markdown">
 <p>Check, test and build the project:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>

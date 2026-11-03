@@ -368,7 +368,7 @@
 <p>To call a function of your own, put it in a <code>.js</code> file under <code>src/</code>. Write it the way you would write any file a <code>&lt;script src&gt;</code> loads.</p>
 <p>This script tilts an element toward the pointer, and returns a handle the page can update and destroy:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">js</p>
@@ -397,7 +397,7 @@ function initTilt(node, max = 15) {
                             <div class="wf-markdown">
 <p>This page calls <code>initTilt</code> on a card, and changes how far it tilts as the reader moves a slider:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -532,7 +532,7 @@ function initTilt(node, max = 15) {
 <p>When the way an element looks depends on something only a script can see (an intersection, a scroll position, a library's event), hand the script an action. An action is a plain function at run time. The script calls it, and the class stays in a <code>class:</code> the compiler can read.</p>
 <p>This script reports whether an element is on screen:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">js</p>
@@ -554,7 +554,7 @@ function watchVisible(node, onChange) {
                             <div class="wf-markdown">
 <p>This page sets <code>is-visible</code> on the card while it is on screen:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -581,7 +581,7 @@ function watchVisible(node, onChange) {
 <p>To use a library from another origin, list its URL in <code>meta.scripts</code>. The compiler never fetches anything, so it cannot read a file on another origin; your own scripts call the library instead.</p>
 <p>This config loads Chart.js and pins the file with its integrity hash:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
@@ -598,7 +598,7 @@ function watchVisible(node, onChange) {
                             <div class="wf-markdown">
 <p>This script draws a chart with it:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">js</p>
@@ -621,7 +621,7 @@ function drawSales(canvas, values) {
                             <div class="wf-markdown">
 <p>This page hands the script a canvas, and destroys the chart when the page leaves:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -665,7 +665,7 @@ function drawSales(canvas, values) {
 <p>Some libraries make a node and leave it empty for the page to fill: an editor's tooltip, a map's popup, a chart's legend. To fill it, use <code>Portal(into: node) { … }</code>. The library keeps the node's place, its keys and its focus; the page draws what is in it.</p>
 <p>This script starts a CodeMirror editor, loaded from <code>meta.scripts</code> as <code>CM</code>, with a hover tooltip whose words the page draws:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">js</p>
@@ -711,7 +711,7 @@ function startEditor(node, opened, closed) {
                             <div class="wf-markdown">
 <p>This page keeps the open tooltip's id in state and draws the words into its node:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -753,7 +753,7 @@ function startEditor(node, opened, closed) {
 </ul>
 <p>A list that the library keeps (an editor's completions, each row a node it made) is a keyed <code>for</code> of portals. A press on a row should leave the focus in the editor: <code>on mousedown(e) { e.preventDefault() }</code> does that, and <code>on click</code> still runs. This fragment draws one portal per row:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -776,7 +776,7 @@ function startEditor(node, opened, closed) {
                             <div class="wf-markdown">
 <p>The page is drawn after your scripts run, drawn again over a pre-rendered page, and drawn anew on every route. A script that runs its own <code>querySelectorAll</code> therefore listens for the drawing to land, with the <code>wf:render</code> event on <code>document</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">js</p>
@@ -799,7 +799,7 @@ document.addEventListener(&quot;wf:render&quot;, (e) =&gt; {
                             <div class="wf-markdown">
 <p>To place a custom element that a library defines, use <code>Element</code> with the element's tag. This page places Stripe's pricing table and notes when it is ready:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -828,7 +828,7 @@ document.addEventListener(&quot;wf:render&quot;, (e) =&gt; {
                             <div class="wf-markdown">
 <p>To use your components from another framework or a plain page, build them as custom elements. Name the components in <code>build.elements</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
@@ -841,7 +841,7 @@ document.addEventListener(&quot;wf:render&quot;, (e) =&gt; {
 <p>Each name becomes a standard custom element. <code>PriceTag</code> is <code>&lt;price-tag&gt;</code>. A one-word component gets a prefix, so its tag has the hyphen a custom element needs: <code>Rating</code> is <code>&lt;wf-rating&gt;</code>. The build writes <code>elements.js</code>, <code>styles.css</code>, and a page that lists the tags it published.</p>
 <p>This HTML places a published component on any page:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">html</p>

@@ -267,7 +267,7 @@
                             <div class="wf-markdown">
 <p>To store the site for when the network is gone, add <code>offline</code> to <code>webfluent.app.json</code>. The build then writes a service worker, <code>sw.js</code>, beside the pages:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
@@ -344,7 +344,7 @@
 <p>A stored route loads with no network at all. When there is a network, a navigation still goes to it first, so a page that changed is never served stale while the server is there to ask.</p>
 <p>The <code>fallback</code> is an ordinary page of your site. This one tells the reader what happened:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -368,7 +368,7 @@
 <p>A server that answers has the write, even if it refuses it. A server that is down, or asks the client to wait, keeps the write waiting for later. A <code>File</code> body is not kept, and its call fails as it would without <code>sync</code>.</p>
 <p><code>network.queued</code> is how many writes are waiting. Show it so the reader knows their changes are safe:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -386,7 +386,7 @@
                             <div class="wf-markdown">
 <p>The worker is versioned by a hash of everything the build wrote, so any deploy that changes a byte is a new version. The new version installs beside the old one and waits. <code>update.available</code> turns true when it is ready, and <code>update.apply()</code> takes it. This home page offers a reload and shows the queue:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -419,7 +419,7 @@
                             <div class="wf-markdown">
 <p>Because <code>wf serve</code> removes the worker on purpose, test the built output with a plain static server. Build the site and serve <code>build/</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>

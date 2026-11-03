@@ -268,7 +268,7 @@
                             <div class="wf-markdown">
 <p>To translate a site, list its locales in <code>webfluent.app.json</code> under <code>i18n</code>. <code>default_locale</code> names the language the site is written in, and <code>dir</code> the directory that holds the files:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
@@ -286,7 +286,7 @@
                             <div class="wf-markdown">
 <p>Then put one file per locale in that directory — <code>en.json</code>, <code>ar.json</code>, <code>es.json</code>. Each is a flat map of keys to messages; by convention a key has dots in it to group related messages. This is <code>src/translations/en.json</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
@@ -305,7 +305,7 @@
                             <div class="wf-markdown">
 <p>And this is <code>src/translations/ar.json</code>, with the six plural forms Arabic uses:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
@@ -332,7 +332,7 @@
                             <div class="wf-markdown">
 <p>To begin a new project in several languages, pass <code>--locales</code> to <code>wf init</code>, with the default locale first:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
@@ -355,7 +355,7 @@
                             <div class="wf-markdown">
 <p>To show a message in the reader's language, call <code>t(&quot;key&quot;)</code> wherever a string goes. Pass a map as the second argument to fill placeholders and to pick a plural form:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -396,7 +396,7 @@
                             <div class="wf-markdown">
 <p>To translate a project that was written in one language from the start, without inventing keys, set <code>&quot;literals&quot;: true</code> in its <code>i18n</code> config. Every string a reader sees is then looked up in the reader's table by its text as written — an element's text, and props such as <code>label:</code>, <code>title:</code>, <code>placeholder:</code>, <code>aria-label:</code> and <code>alt:</code>. The Arabic table maps the English words to their translation:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
@@ -408,7 +408,7 @@
                             <div class="wf-markdown">
 <p>The page keeps its English words:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -433,7 +433,7 @@
                             <div class="wf-markdown">
 <p>A literal with one number spliced into it picks its plural form by that number. The key's plural forms are keys too, as for <code>count</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
@@ -449,7 +449,7 @@
   <span class="wf-tok-prop">&quot;{files} files.other&quot;</span>: <span class="wf-tok-str">&quot;{files} ملف&quot;</span>
 }</code>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -465,7 +465,7 @@
                             <div class="wf-markdown">
 <p>To let the reader change language, call <code>setLocale(code)</code>. This app puts a language picker in the navigation bar:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -513,7 +513,7 @@
 </ol>
 <p>So a static site, which loads each page afresh, keeps the reader's language from page to page, and a language switch can be a pair of buttons:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -558,7 +558,7 @@
                             <div class="wf-markdown">
 <p>To see the translations as a table, run <code>wf translations</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>

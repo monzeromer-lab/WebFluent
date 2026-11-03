@@ -270,7 +270,7 @@
                             <div class="wf-markdown">
 <p>This program declares a <code>Cart</code> store and reads it from two pages:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -317,7 +317,7 @@
                             <div class="wf-markdown">
 <p>A store holds the same members a page does: <code>state</code>, <code>persist</code>, <code>derived</code> values and actions. This fuller <code>Cart</code> adds a coupon kept across visits and an action that raises the quantity of an item already in the cart:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -355,7 +355,7 @@
                             <div class="wf-markdown">
 <p>A store's <em>scope</em> says how long it lives. You set it in the declaration:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -413,7 +413,7 @@
                             <div class="wf-markdown">
 <p>A store's actions are its interface: pages change the store by calling them. An action may be asynchronous — it uses <code>await</code> — and an async action exposes <code>pending</code>, which is <code>true</code> while a call of it runs:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -463,7 +463,7 @@
                             <div class="wf-markdown">
 <p><code>persist</code> declares a member whose value is kept in the browser's storage and read back on the next visit. It is stored under the store's name and the member's name, so a page and a store may each persist a <code>theme</code>. <code>persist</code> works the same way at the top of a page or a component.</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -486,7 +486,7 @@
                             <div class="wf-markdown">
 <p>A block after the declaration changes where and how the value is kept:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -595,7 +595,7 @@
                             <div class="wf-markdown">
 <p>A <code>persist</code> in a component uses one stored value for every place the component is drawn. Three <code>Panel</code>s that each persist <code>open</code> share one value, so opening one opens them all. <code>key:</code> names what tells the instances apart, and each key gets its own stored value:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -615,7 +615,7 @@
                             <div class="wf-markdown">
 <p><code>key:</code> is read as state. When what it reads changes, the member takes the value kept under the new key, and writes go there. A desktop app keeps its layout per project this way. A store's key may read the store itself, or another store:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -641,7 +641,7 @@
 <p>If no <code>window.wfStorage.app</code> is defined, the value is kept in <code>localStorage</code>, and <code>wf serve</code> says so on the console.</p>
 <p>This script connects <code>.app</code> to Tauri's IPC:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">js</p>
@@ -668,7 +668,7 @@ window.wfStorage = {
                             <div class="wf-markdown">
 <p>A store may hold a connection — a <code>socket</code>, a <code>stream</code>, a <code>channel</code>, a <code>peer</code> or a <code>worker</code> (see <a href="/docs/guide/realtime">Real-time</a>) — for every page at once. The connection opens when the store is first read and closes with the store; a <code>.route</code> store's connection closes when its route leaves. The store's actions and handlers name the connection as it is declared, and a page reads it through the store:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -696,7 +696,7 @@ window.wfStorage = {
                             <div class="wf-markdown">
 <p>A store can own a <code>resource</code> (see <a href="/docs/guide/data">Data and APIs</a>), or fill its state from a fetch in an action that a page calls:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -791,7 +791,7 @@ window.wfStorage = {
                             <div class="wf-markdown">
 <p><code>wf test</code> renders a test with the project's stores at hand, and a test's <code>data</code> seeds a store by its name:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>

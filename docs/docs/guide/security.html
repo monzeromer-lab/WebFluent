@@ -292,7 +292,7 @@
 <p>Sometimes the content really is HTML: a CMS body, the output of a Markdown renderer of your own, an email. To show it, pass it through <code>sanitize</code> and into <code>Unsafe.Html</code>, the one door for markup.</p>
 <p>This page fetches a post and shows its HTML body:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -338,7 +338,7 @@ api <span class="wf-tok-name">Backend</span>(<span class="wf-tok-prop">base</spa
 <p><code>persist</code> writes to <code>localStorage</code> or <code>sessionStorage</code>. <strong>Neither is a place for a session token.</strong> Any script that reaches your page can read both, and that is the whole payload of a cross-site scripting bug: without a readable token the bug is a defacement; with one it is an account takeover.</p>
 <p>To keep a session safe, have the server set it as an <strong>httpOnly cookie</strong>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
@@ -356,7 +356,7 @@ api <span class="wf-tok-name">Backend</span>(<span class="wf-tok-prop">base</spa
 </ul>
 <p>The browser sends the cookie with each request, so the page needs no token at all. An <code>api</code> with <code>credentials: .sameOrigin</code> sends it with every call:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -382,7 +382,7 @@ api <span class="wf-tok-name">Backend</span>(<span class="wf-tok-prop">base</spa
 <p>A page <em>may</em> keep what a page may show: a display name, a theme, a preference. If a value would matter to someone who stole it, it belongs behind a request.</p>
 <p>The compiler enforces the part it can. Declare a token as a <code>Secret</code>, and keeping it with <code>persist</code> is a <code>T12</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws T12</p>
@@ -398,7 +398,7 @@ api <span class="wf-tok-name">Backend</span>(<span class="wf-tok-prop">base</spa
                             <div class="wf-markdown">
 <p><code>env.NAME</code> is replaced by its value <strong>at build time</strong>, and the value lands in the JavaScript the browser downloads. That is right for an API's base address and wrong for an API key. So a page may read only a name that is public: one that begins <code>PUBLIC_</code>, or one that <code>public_env</code> in the config lists.</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
@@ -451,7 +451,7 @@ api <span class="wf-tok-name">Backend</span>(<span class="wf-tok-prop">base</spa
 <p>Frames are the same again: <code>meta.frame</code> names the origins a page may embed — a video player (<code>https://www.youtube-nocookie.com</code>), a map — and they join <code>frame-src</code>.</p>
 <p>This config loads Google's tag manager after the page and allows what it sends and draws:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
@@ -489,7 +489,7 @@ api <span class="wf-tok-name">Backend</span>(<span class="wf-tok-prop">base</spa
                             <div class="wf-markdown">
 <p>A stylesheet or a font from another origin is code that origin can change after you read it. To pin it, declare its hash in <code>meta.integrity</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
@@ -515,7 +515,7 @@ api <span class="wf-tok-name">Backend</span>(<span class="wf-tok-prop">base</spa
                             <div class="wf-markdown">
 <p>To answer the questions a security review asks, run:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>

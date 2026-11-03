@@ -264,7 +264,7 @@
                             <div class="wf-markdown">
 <p>A template is a <code>.wf</code> file with a <code>page</code>. The data's top-level keys are in scope by name, so the template reads <code>number</code>, <code>customer</code> and <code>items</code> without declaring them. This invoice template shows a table of items and a badge for whether it is paid:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -293,7 +293,7 @@
                             <div class="wf-markdown">
 <p>The data is a JSON object, saved here as <code>invoice.json</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
@@ -317,7 +317,7 @@
                             <div class="wf-markdown">
 <p>To render a template, run <code>wf render</code> with the template and its data:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
@@ -411,7 +411,7 @@
                             <div class="wf-markdown">
 <p>The template may also be a directory. Every <code>.wf</code> and <code>.wfx</code> file under it renders as one template, with components shared, and <code>--page Name</code> chooses the page. This command renders the <code>Invoice</code> page of <code>templates/</code> to a PDF, in Arabic:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
@@ -427,7 +427,7 @@
                             <div class="wf-markdown">
 <p>The template engine is the <code>webfluent</code> crate. To use it without the <code>wf</code> command's own dependencies (its argument parser and dev server), turn off the default features:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">toml</p>
@@ -441,7 +441,7 @@ serde = { version = &quot;1&quot;, features = [&quot;derive&quot;] }</code>
                             <div class="wf-markdown">
 <p>Load the templates once, at start-up, and render on every request. This code loads a directory of templates and renders its <code>Invoice</code> page three ways:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">rust</p>
@@ -545,7 +545,7 @@ let pdf: Vec&lt;u8&gt; = templates
                             <div class="wf-markdown">
 <p><code>pages()</code> lists the template's pages, and <code>page(name)</code> picks one. Without <code>page(name)</code>, every page of the template renders. A name the template does not have is an error that lists the pages it does have:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
@@ -653,7 +653,7 @@ let pdf: Vec&lt;u8&gt; = templates
                             <div class="wf-markdown">
 <p>The Node binding is a small wrapper around <code>wf render</code>. Install it with npm:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
@@ -666,7 +666,7 @@ let pdf: Vec&lt;u8&gt; = templates
 <p>The binding needs <code>wf</code> itself installed. It looks for it at <code>WF_BIN</code>, then on <code>PATH</code>, then in <code>~/.webfluent/bin</code> and <code>~/.cargo/bin</code> (and, outside Windows, <code>/usr/local/bin</code> and <code>/usr/bin</code>). Its version is the compiler's.</p>
 <p>This Express app renders an invoice as HTML and as a PDF:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">js</p>

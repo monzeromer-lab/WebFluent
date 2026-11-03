@@ -260,7 +260,7 @@
                             <div class="wf-markdown">
 <p>You need <code>wf</code>, Chrome and a copy of the repository (see <a href="/docs/tutorials/todos#before-you-start">Before you start</a> in the Todos tutorial). This tutorial assumes the Todos tutorial, and each step links the chapter that goes deeper. Like Field Notes, it shows the part of each file that teaches something new, so work in the finished project:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
@@ -274,7 +274,7 @@
                             <div class="wf-markdown">
 <p>The project's <code>webfluent.app.json</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
@@ -320,7 +320,7 @@
                             <div class="wf-markdown">
 <p>The ledger's types use four of the types the language brings:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -353,7 +353,7 @@
                             <div class="wf-markdown">
 <p><code>Money</code>, <code>Date</code>, <code>Color</code> and <code>Uuid</code> are each a plain JSON value at run time (<a href="/docs/guide/types">Types</a>). Money is kept in minor units, <code>{ amount: 1299, currency: &quot;USD&quot; }</code>, so a sum never drifts by a fraction of a cent. You write it <code>$12.99</code> and show it with <code>format(m)</code>. What the language works out is a call — <code>a.plus(b)</code>, <code>a.minus(b)</code>, <code>ONE.times(12.5)</code> — and what the value carries is a field: <code>m.amount</code>. Two constants give every sum a starting point:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -374,7 +374,7 @@
                             <div class="wf-markdown">
 <p>Every figure on every page is a <code>derived</code> value of the <code>Ledger</code> store:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -398,7 +398,7 @@
                             <div class="wf-markdown">
 <p>Add an entry, and the balance, this month's spending, each budget bar and the chart all follow, with no code written to keep them in step (<a href="/docs/guide/stores">Stores</a>). <code>now</code> is the browser's clock as a value, so <code>today</code> turns over at midnight. <code>sum</code> is an action that only returns a value, which a derived value may call:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -418,7 +418,7 @@
                             <div class="wf-markdown">
 <p>What a <code>persist</code> keeps outlives the build that wrote it: a reader who visited last month has last month's shape in their browser. The entries declare which version of the shape this build writes, and how to bring an older one forward:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -464,7 +464,7 @@
                             <div class="wf-markdown">
 <p>The shell draws a <code>Sidebar</code> when <code>viewport.lg</code> holds, and a top bar with a drawer when it does not. This is the drawer:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -493,7 +493,7 @@
                             <div class="wf-markdown">
 <p>The built-in <code>Chart</code> draws at build time, from data the build can see. This ledger exists only in the reader's browser, so the chart is made of plain elements whose heights follow the store:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -528,7 +528,7 @@
 </ul>
 <p>The figures above the chart are one component, placed four times:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -552,7 +552,7 @@
                             <div class="wf-markdown">
 <p>The Entries page reads its filters from the address:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -575,7 +575,7 @@
                             <div class="wf-markdown">
 <p><code>EntryForm</code> adds an entry or, given one, changes it:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -615,7 +615,7 @@
 </ul>
 <p>The submit button follows the form:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -635,7 +635,7 @@
                             <div class="wf-markdown">
 <p>The app listens for two keys at the top of <code>src/App.wf</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -651,7 +651,7 @@
                             <div class="wf-markdown">
 <p><code>on key</code> at the top of the app listens on the document for as long as the page shows (<a href="/docs/guide/events">Events</a>). The dialog is a <code>Modal</code> whose <code>title:</code> is its accessible name. It keeps focus inside while it is open, and Escape closes it:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -677,7 +677,7 @@
                             <div class="wf-markdown">
 <p>Every word on screen is <code>t(&quot;key&quot;)</code>, read from <code>src/translations/en.json</code> or <code>ar.json</code>. A message with plural forms is several keys:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
@@ -704,7 +704,7 @@
                             <div class="wf-markdown">
 <p>The Settings page writes the ledger out as a CSV file:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -721,7 +721,7 @@
 <p><code>saveTextFile</code> is not WebFluent. It is a function in <code>src/files.js</code>, a plain browser script that the build links on every page. Its JSDoc types the call, so <code>saveTextFile(1)</code> is an error where it is written (<a href="/docs/guide/interop">JavaScript interop</a>).</p>
 <p>Importing reads a file from a <code>FileUpload</code> with <code>await f.text()</code>, parses each line and merges what is new. Then it tells every other open tab:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -740,7 +740,7 @@
                             <div class="wf-markdown">
 <p>A test drives the real form by the labels a reader sees — the English ones, since a test reads the project's default locale (<a href="/docs/guide/testing">Testing</a>):</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -762,7 +762,7 @@
                             <div class="wf-markdown">
 <p>Pocket has eight tests: the cards and rows draw what they should, a blank amount is refused, <code>n</code> opens the dialog and Escape closes it, and removing an entry takes it out of every total. Run them and the checks:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>

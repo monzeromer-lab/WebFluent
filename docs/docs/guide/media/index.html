@@ -268,7 +268,7 @@
 <p>To show a picture, put the file in <code>public/</code> and name it in <code>Image(src:)</code> with a site-relative path. Files in <code>public/</code> are served from the site's root, so <code>public/hero.jpg</code> is <code>/hero.jpg</code>.</p>
 <p>This page shows a photograph, a decorative picture, a video and a talk:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -298,7 +298,7 @@
 <p>To use a picture's real size and colour in your page, declare it with <code>image</code>. The declaration hands the build the file itself. The build looks for the path in the project's folder, then in <code>src/</code>, then in <code>public/</code>.</p>
 <p>This page declares a hero picture, shows it with a blurred placeholder, and prints its size and average colour:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -329,7 +329,7 @@
                             <div class="wf-markdown">
 <p>To change which formats and widths the build writes, set <code>build.media</code> in <code>webfluent.app.json</code>. These are the defaults:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
@@ -399,7 +399,7 @@
 <p>The build caches its work in <code>.wf-cache/media/</code>, so a build that changes no image does no image work. A PDF or a slide deck embeds the real picture rather than drawing an empty box.</p>
 <p>To see what the pipeline will make of a picture before it does it, run <code>wf assets --plan</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
@@ -426,7 +426,7 @@
 <p>To draw an icon, write <code>Icon(&quot;name&quot;)</code>. The icon is an SVG drawn inline in the current text colour, so it follows the theme. The <code>.sm</code> and <code>.lg</code> flags size it, and a tone flag such as <code>.primary</code> colours it.</p>
 <p>This page shows icons on their own, on an icon-only button, and in a sidebar:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -470,7 +470,7 @@
                             <div class="wf-markdown">
 <p>To show slides one at a time, wrap each in a <code>Carousel.Slide</code> inside a <code>Carousel</code>. This page shows three photographs that advance every five seconds:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -495,7 +495,7 @@
 <p>To show another page inside yours (a video player, a map, a preview your app builds), use <code>Frame</code>. Give it a <code>title:</code> that says what it shows: a screen reader announces a frame by its title, and a frame without one draws an <code>A17</code> warning.</p>
 <p>This page embeds a video player and a preview of the site's own, and shows what the preview sends back:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -525,7 +525,7 @@
 <p>To draw HTML instead of loading an address (an example a page renders, or a preview of what a reader is writing), use <code>srcdoc:</code>. The frame draws it sandboxed as <code>sandbox:</code> says, so <code>sandbox: &quot;&quot;</code> draws it with no script and no reach into your page. A value that reads state draws the new HTML each time it changes, and the pre-rendered page has the HTML before any script runs.</p>
 <p>This page previews a note as the reader types it:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>

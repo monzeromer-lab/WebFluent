@@ -351,7 +351,7 @@
                             <div class="wf-markdown">
 <p>To hold a two-way connection to a server, declare a <code>socket</code> with <code>ws(…)</code> and <code>match</code> on it. This chat page shows a spinner while the socket connects, the messages once it is open, and why it stopped when it closes:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -509,7 +509,7 @@
                             <div class="wf-markdown">
 <p>To have the compiler check what you send and type what you receive, name a type for each direction inside the socket's block with <code>send</code> and <code>receive</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -538,7 +538,7 @@
                             <div class="wf-markdown">
 <p>To receive a one-way flow of events from a server, declare a <code>stream</code> with <code>sse(…)</code>. <code>events:</code> names the event types to listen for, and <code>ticks.last(&quot;price&quot;)</code> is the latest event of that name:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -565,7 +565,7 @@
                             <div class="wf-markdown">
 <p>To keep tabs of the same site in step — a cart, a sign-in, a setting — declare a <code>channel</code> with <code>broadcast(name)</code>. Every tab that opens a channel of that name hears what the others post with <code>.post(value)</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -596,7 +596,7 @@
 <p>The language supplies the channel, not a server. Before two pages can connect, they must tell each other how — an offer, an answer, and the network routes each can be reached by. This exchange is called <em>signalling</em>. Your page sends its side out through the <code>signal:</code> function, over whatever connection the app already has, and hands what the other side sent to <code>link.signal(m)</code>. One side is the <code>initiator</code>.</p>
 <p>This page signals over a <code>broadcast</code> channel, so it connects two tabs of one browser. Open <code>/room?host=1</code> in one tab and <code>/room</code> in another:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -838,7 +838,7 @@
                             <div class="wf-markdown">
 <p>To keep slow work — a language service, a parser, anything that would make typing stutter — off the page's own thread, declare a <code>worker</code> with <code>spawn(…)</code>. A worker runs a script of your site beside the page and is held like a socket: owned by what opened it, and stopped when that leaves. A store holds one for the whole app:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -873,7 +873,7 @@
                             <div class="wf-markdown">
 <p>The worker's side is a plain script under <code>public/</code> — the one place, besides a project script, where you write JavaScript by hand:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">js</p>
@@ -903,7 +903,7 @@ self.onmessage = ({ data }) =&gt; {
                             <div class="wf-markdown">
 <p>To record that something happened even when the reader is leaving — an analytics event, a &quot;reader left&quot; signal — call <code>beacon(url, data)</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -922,7 +922,7 @@ self.onmessage = ({ data }) =&gt; {
                             <div class="wf-markdown">
 <p>To change what a page does on a slow line or none at all, read <code>network</code>. Like <code>viewport</code>, it is a browser value that keeps itself current:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>

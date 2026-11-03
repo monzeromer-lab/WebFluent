@@ -344,7 +344,7 @@
 <p>To fetch data while a page shows, declare a <code>resource</code> and show its states with <code>match</code>. A <em>resource</em> is a request the page makes, and a value that says where the request is: loading, failed or ready.</p>
 <p>This page lists recent deploys, with a spinner while they load and an alert if the request fails:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -492,7 +492,7 @@
 <p>Asking again for the request already shown is a <em>refresh</em>. The page stays as it is while a refresh runs: <code>name.state</code> stays <code>&quot;ready&quot;</code>, the data stays, and the answer is drawn in place.</p>
 <p>This page polls a list of servers every 30 seconds, and shows a small spinner during each refresh:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -544,7 +544,7 @@
 <p>The response body is parsed as JSON.</p>
 <p>This page searches with a <code>POST</code> and an authorization header:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -571,7 +571,7 @@
                             <div class="wf-markdown">
 <p>A URL that reads state is fetched again whenever that state changes. Use it for a search box that fetches as the reader types, or a detail page that follows its route parameter:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -596,7 +596,7 @@
 <p>A value spliced into the address is URL-encoded for you where it stands for a value.</p>
 <p>To fetch less often than the reader types, derive the URL from a slower value. This page keeps what the reader types in <code>draft</code>, and searches only when they press Enter:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -622,7 +622,7 @@
 <p>To call a service from many places, describe it once with <code>api</code>: its address, how it is reached and what endpoints it has. Every call site is then typed, cached and cancellable.</p>
 <p>This service has four endpoints, and the page shows a list of users with a different alert for each kind of failure:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -674,7 +674,7 @@ api <span class="wf-tok-name">Backend</span>(<span class="wf-tok-prop">base</spa
 <p>To send the same headers with every call, add a <code>headers { }</code> block. Each value is read at the moment of the request, not when the service is declared, so a token refreshed a moment ago is the one that is sent.</p>
 <p>This service sends a bearer token and the reader's language, tags each request with an ID, logs each response, and refreshes the token on a <code>401</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -850,7 +850,7 @@ api <span class="wf-tok-name">Backend</span>(<span class="wf-tok-prop">base</spa
                             <div class="wf-markdown">
 <p>To take every endpoint from a specification instead of writing them, name the file with <code>from</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -1198,7 +1198,7 @@ api <span class="wf-tok-name">Backend</span>(<span class="wf-tok-prop">base</spa
                             <div class="wf-markdown">
 <p>Each line of a service, after its settings, is an endpoint:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
@@ -1230,7 +1230,7 @@ get report(id: String) at &quot;reports/:id&quot; as: .blob</code>
                             <div class="wf-markdown">
 <p>To show a long list in pages, call the endpoint with <code>paginate: .page</code>. This page shows items and a <strong>Load more</strong> button while there are more:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -1272,7 +1272,7 @@ api <span class="wf-tok-name">Catalog</span>(<span class="wf-tok-prop">base</spa
                             <div class="wf-markdown">
 <p>To make an edit appear at once instead of after the round trip, call <code>optimistic(holder, change)</code> before the request. If anything later in the action throws, the change is taken back: the action rolls itself back.</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -1293,7 +1293,7 @@ api <span class="wf-tok-name">Catalog</span>(<span class="wf-tok-prop">base</spa
 <p>For a request made when something happens — a save, a delete, a step in a flow — call <code>await fetch</code> in an action. It returns the parsed body, and throws on a failed response, so you catch the failure with <code>try</code>.</p>
 <p>This page loads a list of todos, adds one, and toggles one, each with a request:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -1361,7 +1361,7 @@ api <span class="wf-tok-name">Catalog</span>(<span class="wf-tok-prop">base</spa
 </ul>
 <p>This blog lists every post in <code>posts.json</code>, newest first:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -1384,7 +1384,7 @@ api <span class="wf-tok-name">Catalog</span>(<span class="wf-tok-prop">base</spa
     }
 }</code>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
@@ -1403,7 +1403,7 @@ api <span class="wf-tok-name">Catalog</span>(<span class="wf-tok-prop">base</spa
                             <div class="wf-markdown">
 <p>To give each post its own HTML file in a static build, list the values of the route parameter in <code>paths:</code>. The build renders the page once per value, each with its own title and description, and lists each in the sitemap:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>

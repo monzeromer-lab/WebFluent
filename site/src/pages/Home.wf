@@ -1,4 +1,10 @@
-page Home(path: "/", title: "WebFluent — websites, PDFs and slides from one language", description: "One language, one binary: a static site, a single-page app, a PDF or a slide deck from the same file. No Node, and no browser for your PDFs.") {
+/// The front page. In the order a visitor's questions come: what is it and
+/// how do I start (the hero, with the install line); does it work (three
+/// commands to a running site); why this and not what I have (a real
+/// mistake and the message the compiler really prints for it); how does it
+/// think (five ideas); what does it do for me (batteries, outputs); and
+/// where do I go next (the documentation's doors, then one call to action).
+page Home(path: "/", title: "WebFluent — websites, PDFs and slide decks from one language", description: "A typed language and one binary that build a static site, a single-page app, a PDF or a slide deck. No Node, no bundler, no config.") {
     state copied = false
     action copyInstall() {
         copied = true
@@ -28,11 +34,11 @@ page Home(path: "/", title: "WebFluent — websites, PDFs and slides from one la
 
             Text(t("hero.eyebrow"), class: "overline accent")
             Heading(t("hero.title")).h1 {
-                style { margin: 0; font-size: 40px; line-height: 44px; font-weight: 800; letter-spacing: -0.02em; @md { font-size: 56px; line-height: 56px; letter-spacing: -0.022em } }
+                style { margin: 0; font-size: 40px; line-height: 44px; font-weight: 800; letter-spacing: -0.02em; @md { font-size: 56px; line-height: 58px; letter-spacing: -0.022em } }
             }
             Text(t("hero.sub")) { style { margin: 0; max-width: 520px; font-size: 17px; line-height: 26px; color: $color-text-muted } }
 
-            Row(align: .center, gap: .sm, class: "install-line") {
+            Row(align: .center, gap: .sm, class: "install-line", dir: "ltr") {
                 style {
                     gap: 12px
                     flex-wrap: nowrap
@@ -68,7 +74,7 @@ page Home(path: "/", title: "WebFluent — websites, PDFs and slides from one la
             Row(align: .center, gap: .sm) {
                 style { flex-direction: column; align-items: stretch; gap: 8px; flex-wrap: wrap; @sm { flex-direction: row; align-items: center } }
                 Link(t("hero.cta"), to: "/docs/guide/getting-started", class: "site-button site-button-primary", data-track: "select_content", data-track-content-type: "cta", data-track-item-id: "start_guide")
-                Link(t("hero.reference"), to: "/docs/reference", class: "site-button site-button-outlined")
+                Link(t("hero.docs"), to: "/docs", class: "site-button site-button-outlined")
             }
 
             Row(align: .center, gap: .md) {
@@ -79,7 +85,9 @@ page Home(path: "/", title: "WebFluent — websites, PDFs and slides from one la
             }
         }
 
-        Stack(class: "hero-editor") {
+        // A whole page that builds clean as shown: a type, state, a keyed
+        // list, a bound field and a handler.
+        Stack(class: "hero-editor", dir: "ltr") {
             style {
                 gap: 0
                 flex: none
@@ -97,7 +105,21 @@ page Home(path: "/", title: "WebFluent — websites, PDFs and slides from one la
                 Text("src/pages/Home.wf") { style { font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $color-text } }
                 Text(t("hero.serve")) { style { display: none; font-size: 12px; line-height: 18px; color: $ink-subtle; @media (min-width: 480px) { display: block } } }
             }
-            Code("page Home(path: \"/\", title: \"Hello\") \{\n    state count = 0\n\n    Container \{\n        Heading(\"Hello, world\").h1\n        Text(\"You have clicked \{count\} times.\")\n\n        Button(\"Click me\").primary \{\n            on click \{ count = count + 1 \}\n        \}\n    \}\n\}", language: "wf").block {
+            Code(#"type Book { title: String, author: String }
+
+page Home(path: "/", title: "Reading list", description: "Books worth reading.") {
+    state books = [Book(title: "Kindred", author: "Octavia E. Butler")]
+    state draft = ""
+
+    Heading("Reading list").h1
+    for book in books by book.title {
+        Text("{book.title} — {book.author}")
+    }
+    Input(bind: draft, label: "Add a title")
+    Button("Add").primary {
+        on click { books = books.concat([Book(title: draft, author: "Unknown")])  draft = "" }
+    }
+}"#, language: "wf").block {
                 style { margin: 0; padding: 14px; background: $term-bg; color: $syntax-punct; font-size: 12px; line-height: 20px; white-space: pre; overflow-x: auto; border-radius: 0; @md { font-size: 13px; line-height: 22px; padding: 20px } }
             }
             Stack(gap: .xs) {
@@ -108,21 +130,66 @@ page Home(path: "/", title: "WebFluent — websites, PDFs and slides from one la
         }
     }
 
-    // ----------------------------------------------------------------- video
-    Stack(gap: .lg, id: "video", class: "landing-section") {
-        style { gap: 16px; max-width: 1280px; margin: 0 auto; padding: 32px 16px; border-bottom: 1px solid $color-border; @md { padding: 64px 24px; gap: 24px } @lg { padding: 80px 40px; gap: 32px } }
-        Stack(gap: .xs) {
-            style { gap: 10px }
-            Text(t("video.eyebrow"), class: "overline")
-            Heading(t("video.title")).h2 { style { margin: 0; font-size: 26px; line-height: 32px; font-weight: 700; letter-spacing: -0.016em; @md { font-size: 34px; line-height: 38px } } }
+    // ------------------------------------------------------------ quick start
+    Row(gap: .xl, align: .start, id: "start", class: "landing-section") {
+        style { flex-direction: column; gap: 24px; flex-wrap: nowrap; max-width: 1280px; margin: 0 auto; padding: 32px 16px; border-bottom: 1px solid $color-border; @md { padding: 64px 24px } @media (min-width: 960px) { flex-direction: row; gap: 48px } @lg { padding: 80px 40px } }
+        Stack(gap: .md) {
+            style { gap: 16px; width: 100%; max-width: 100%; flex-shrink: 0; @media (min-width: 960px) { width: 440px } }
+            Text(t("start.eyebrow"), class: "overline")
+            Heading(t("start.title")).h2 { style { margin: 0; font-size: 26px; line-height: 32px; font-weight: 700; letter-spacing: -0.016em; @md { font-size: 34px; line-height: 38px } } }
+            Markdown(t("start.body")) { style { & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
+            Link("{t("start.link")} →", to: "/docs/guide/getting-started") {
+                style { align-self: flex-start; font-size: 14px; line-height: 20px; font-weight: 600; color: $brand-ink; text-decoration: none; &:hover { text-decoration: underline } }
+            }
         }
-        Host(tag: "div", mount: (n) => embedYouTube(n, "C98BsTefhws", t("video.frame"))) {
-            style { width: 100%; max-width: 960px; aspect-ratio: 16 / 9; border: 1px solid $color-border; border-radius: 10px; overflow: hidden; background: $term-bg; box-shadow: $shadow-md; & iframe { display: block; width: 100%; height: 100%; border: 0 } }
+        Stack(gap: .sm) {
+            style { flex: none; min-width: 0; width: 100%; gap: 12px; @media (min-width: 960px) { flex: 1 1 0 } }
+            Terminal(lines: [
+                Line(command: "wf init hello -t static"),
+                Line(command: "cd hello"),
+                Line(command: "wf serve", output: "Starting dev server at http://localhost:3000/")
+            ])
+            Markdown(t("start.steps")) { style { & ol { margin: 0; padding-inline-start: 1.3em } & li { font-size: 14px; line-height: 22px; color: $color-text-muted } & li + li { margin-top: 6px } } }
+        }
+    }
+
+    // ------------------------------------------------------------ the checker
+    // Shown rather than told: a real mistake, and the message `wf check`
+    // really prints for it.
+    Row(gap: .xl, align: .start, id: "checked", class: "landing-section") {
+        style { flex-direction: column; gap: 24px; flex-wrap: nowrap; max-width: 1280px; margin: 0 auto; padding: 32px 16px; border-bottom: 1px solid $color-border; @md { padding: 64px 24px } @media (min-width: 960px) { flex-direction: row; gap: 48px } @lg { padding: 80px 40px } }
+        Stack(gap: .md) {
+            style { gap: 16px; width: 100%; max-width: 100%; flex-shrink: 0; @media (min-width: 960px) { width: 440px } }
+            Text(t("check.eyebrow"), class: "overline")
+            Heading(t("check.title")).h2 { style { margin: 0; font-size: 26px; line-height: 32px; font-weight: 700; letter-spacing: -0.016em; @md { font-size: 34px; line-height: 38px } } }
+            Markdown(t("check.body")) { style { & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
+            Stack(gap: .xs) {
+                style { gap: 10px; padding-top: 4px; & .wf-row { flex-wrap: nowrap; gap: 10px } & .dot { width: 6px; height: 6px; margin: 0; border: 0; border-radius: 50%; background: $color-success; flex-shrink: 0 } & p { margin: 0; font-size: 13px; line-height: 20px; color: $color-text-muted } }
+                Row(align: .center) { Divider(class: "dot")  Text(t("check.point1")) }
+                Row(align: .center) { Divider(class: "dot")  Text(t("check.point2")) }
+                Row(align: .center) { Divider(class: "dot")  Text(t("check.point3")) }
+            }
+            Link("{t("check.link")} →", to: "/docs/guide/diagnostics") {
+                style { align-self: flex-start; font-size: 14px; line-height: 20px; font-weight: 600; color: $brand-ink; text-decoration: none; &:hover { text-decoration: underline } }
+            }
+        }
+        Stack(gap: .sm) {
+            style { flex: none; min-width: 0; width: 100%; gap: 12px; @media (min-width: 960px) { flex: 1 1 0 } }
+            CodeBlock(#"    for book in books { Text(book.titel) }"#, title: "wf", note: t("check.typo"))
+            CodeBlock(#"error[T05]: `Book` has no field `titel`
+ --> src/App.wf:6:35
+  |
+6 |     for book in books { Text(book.titel) }
+  |                                   ^^^^^
+  = help: Did you mean `title`? Its fields are `title`, `author`
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t05-a-field-or-method-that-does-not-exist
+
+error: the build stopped: 1 error"#, title: "wf check")
         }
     }
 
     // ------------------------------------------------------------ five ideas
-    Stack(gap: .lg, class: "landing-section") {
+    Stack(gap: .lg, id: "how", class: "landing-section") {
         style { gap: 16px; max-width: 1280px; margin: 0 auto; padding: 32px 16px; border-bottom: 1px solid $color-border; @md { padding: 64px 24px; gap: 24px } @lg { padding: 80px 40px; gap: 32px } }
         Stack(gap: .xs) {
             style { gap: 10px }
@@ -131,11 +198,11 @@ page Home(path: "/", title: "WebFluent — websites, PDFs and slides from one la
         }
         Grid(columns: { base: 1, sm: 2, lg: 3 }, gap: .lg, class: "ideas-grid") {
             style { gap: 16px; @md { gap: 24px } }
-            IdeaCard(t("idea.1.title"), number: "01", body: t("idea.1.body"))
-            IdeaCard(t("idea.2.title"), number: "02", body: t("idea.2.body"), code: "Button(\"Save\", tone: .primary).lg")
-            IdeaCard(t("idea.3.title"), number: "03", body: t("idea.3.body"))
-            IdeaCard(t("idea.4.title"), number: "04", body: t("idea.4.body"))
-            IdeaCard(t("idea.5.title"), number: "05", body: t("idea.5.body"))
+            IdeaCard(t("idea.1.title"), number: "01", body: t("idea.1.body"), link: t("idea.more"), linkTo: "/docs/guide/language-basics")
+            IdeaCard(t("idea.2.title"), number: "02", body: t("idea.2.body"), code: #"Button("Save").primary.lg { on click { save() } }"#, link: t("idea.more"), linkTo: "/docs/guide/elements")
+            IdeaCard(t("idea.3.title"), number: "03", body: t("idea.3.body"), link: t("idea.more"), linkTo: "/docs/guide/state")
+            IdeaCard(t("idea.4.title"), number: "04", body: t("idea.4.body"), link: t("idea.more"), linkTo: "/docs/guide/styling")
+            IdeaCard(t("idea.5.title"), number: "05", body: t("idea.5.body"), link: t("idea.more"), linkTo: "/docs/guide/static-and-spa")
             IdeaCard(t("ideas.react.title"), body: t("ideas.react.body"), link: t("ideas.react.link"), linkTo: "/docs/guide/coming-from", highlight: true)
         }
     }
@@ -154,10 +221,10 @@ page Home(path: "/", title: "WebFluent — websites, PDFs and slides from one la
             IdeaCard(t("bat.forms.title"), body: t("bat.forms.body"), link: t("bat.more"), linkTo: "/docs/guide/forms")
             IdeaCard(t("bat.realtime.title"), body: t("bat.realtime.body"), link: t("bat.more"), linkTo: "/docs/guide/realtime")
             IdeaCard(t("bat.offline.title"), body: t("bat.offline.body"), link: t("bat.more"), linkTo: "/docs/guide/offline")
+            IdeaCard(t("bat.i18n.title"), body: t("bat.i18n.body"), link: t("bat.more"), linkTo: "/docs/guide/i18n")
             IdeaCard(t("bat.tests.title"), body: t("bat.tests.body"), link: t("bat.more"), linkTo: "/docs/guide/testing")
             IdeaCard(t("bat.security.title"), body: t("bat.security.body"), link: t("bat.more"), linkTo: "/docs/guide/security")
             IdeaCard(t("bat.js.title"), body: t("bat.js.body"), link: t("bat.more"), linkTo: "/docs/guide/interop")
-            IdeaCard(t("bat.templates.title"), body: t("bat.templates.body"), link: t("bat.more"), linkTo: "/docs/guide/server-rendering")
         }
     }
 
@@ -175,8 +242,8 @@ page Home(path: "/", title: "WebFluent — websites, PDFs and slides from one la
         }
         Grid(columns: { base: 1, sm: 2, lg: 4 }, gap: .lg, class: "outputs-grid") {
             style { gap: 12px; @md { gap: 24px } }
+            OutputCard(t("output.static.title"), value: "\"static\"", body: t("output.static.body"))
             OutputCard(t("output.spa.title"), value: "\"spa\"", body: t("output.spa.body"))
-            OutputCard(t("output.static.title"), value: "\"spa\" + ssg", body: t("output.static.body"))
             OutputCard(t("output.pdf.title"), value: "\"pdf\"", body: t("output.pdf.body"))
             OutputCard(t("output.slides.title"), value: "\"slides\"", body: t("output.slides.body"))
         }
@@ -185,44 +252,37 @@ page Home(path: "/", title: "WebFluent — websites, PDFs and slides from one la
         }
     }
 
-    // ----------------------------------------------------------- two layouts
-    Stack(gap: .lg, class: "landing-section") {
-        style { gap: 16px; max-width: 1280px; margin: 0 auto; padding: 32px 16px; border-bottom: 1px solid $color-border; @md { padding: 64px 24px; gap: 24px } @lg { padding: 80px 40px; gap: 28px } }
+    // ----------------------------------------------------------------- video
+    Stack(gap: .lg, id: "video", class: "landing-section") {
+        style { gap: 16px; max-width: 1280px; margin: 0 auto; padding: 32px 16px; border-bottom: 1px solid $color-border; @md { padding: 64px 24px; gap: 24px } @lg { padding: 80px 40px; gap: 32px } }
         Stack(gap: .xs) {
-            style { gap: 10px; max-width: 680px }
-            Text(t("layouts.eyebrow"), class: "overline")
-            Heading(t("layouts.title")).h2 { style { margin: 0; font-size: 26px; line-height: 32px; font-weight: 700; letter-spacing: -0.016em; @md { font-size: 34px; line-height: 38px } } }
-            Markdown(t("layouts.body")) { style { & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
+            style { gap: 10px }
+            Text(t("video.eyebrow"), class: "overline")
+            Heading(t("video.title")).h2 { style { margin: 0; font-size: 26px; line-height: 32px; font-weight: 700; letter-spacing: -0.016em; @md { font-size: 34px; line-height: 38px } } }
         }
-        Grid(columns: { base: 1, lg: 2 }, gap: .lg) {
+        Host(tag: "div", mount: (n) => embedYouTube(n, "C98BsTefhws", t("video.frame"))) {
+            style { width: 100%; max-width: 960px; aspect-ratio: 16 / 9; border: 1px solid $color-border; border-radius: 10px; overflow: hidden; background: $term-bg; box-shadow: $shadow-md; & iframe { display: block; width: 100%; height: 100%; border: 0 } }
+        }
+    }
+
+    // ------------------------------------------------------- the four doors
+    Stack(gap: .lg, id: "docs", class: "landing-section") {
+        style { gap: 16px; max-width: 1280px; margin: 0 auto; padding: 32px 16px; border-bottom: 1px solid $color-border; @md { padding: 64px 24px; gap: 24px } @lg { padding: 80px 40px; gap: 32px } }
+        Stack(gap: .xs) {
+            style { gap: 10px }
+            Text(t("paths.eyebrow"), class: "overline")
+            Heading(t("paths.title")).h2 { style { margin: 0; font-size: 26px; line-height: 32px; font-weight: 700; letter-spacing: -0.016em; @md { font-size: 34px; line-height: 38px } } }
+        }
+        Grid(columns: { base: 1, sm: 2, lg: 4 }, gap: .lg, class: "ideas-grid") {
             style { gap: 16px; @md { gap: 24px } }
-            CodeBlock("page Home(path: \"/\") \{\n    state open = true\n    Row(gap: .sm) \{\n        style \{\n            padding: 6px 0\n            &:hover \{ background: $surface-hover \}\n        \}\n        on click \{ open = !open \}\n        Text(\"a\").bold\n    \}\n    if open \{\n        Spinner\n    \} else \{\n        Text(\"b\")\n    \}\n\}", title: "wf", note: t("layouts.braces"))
-            CodeBlock("page Home(path: \"/\")\n    state open = true\n    Row(gap: .sm)\n        style\n            padding: 6px 0\n            &:hover\n                background: $surface-hover\n        on click \{ open = !open \}\n        Text(\"a\").bold\n    if open\n        Spinner\n    else\n        Text(\"b\")", title: "wfx", note: t("layouts.indent"))
+            IdeaCard(t("paths.learn.title"), body: t("paths.learn.body"), link: t("paths.learn.link"), linkTo: "/docs/guide/tutorial")
+            IdeaCard(t("paths.concepts.title"), body: t("paths.concepts.body"), link: t("paths.concepts.link"), linkTo: "/docs/guide/language-basics")
+            IdeaCard(t("paths.guides.title"), body: t("paths.guides.body"), link: t("paths.guides.link"), linkTo: "/docs")
+            IdeaCard(t("paths.reference.title"), body: t("paths.reference.body"), link: t("paths.reference.link"), linkTo: "/docs/reference")
         }
     }
 
-    // ------------------------------------------------- what a build produces
-    Row(gap: .xl, align: .start, class: "landing-section") {
-        style { flex-direction: column; gap: 24px; flex-wrap: nowrap; max-width: 1280px; margin: 0 auto; padding: 32px 16px; border-bottom: 1px solid $color-border; @md { padding: 64px 24px } @media (min-width: 960px) { flex-direction: row; gap: 48px } @lg { padding: 80px 40px } }
-        Stack(gap: .md) {
-            style { gap: 16px; width: 100%; max-width: 100%; flex-shrink: 0; @media (min-width: 960px) { width: 440px } }
-            Text(t("build.eyebrow"), class: "overline")
-            Heading(t("build.title")).h2 { style { margin: 0; font-size: 26px; line-height: 32px; font-weight: 700; letter-spacing: -0.016em; @md { font-size: 34px; line-height: 38px } } }
-            Text(t("build.body")) { style { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } }
-            Stack(gap: .xs) {
-                style { gap: 10px; padding-top: 4px; & .wf-row { flex-wrap: nowrap; gap: 10px } & .dot { width: 6px; height: 6px; margin: 0; border: 0; border-radius: 50%; background: $color-success; flex-shrink: 0 } & p { margin: 0; font-size: 13px; line-height: 20px; color: $color-text-muted } }
-                Row(align: .center) { Divider(class: "dot")  Text(t("build.point1")) }
-                Row(align: .center) { Divider(class: "dot")  Text(t("build.point2")) }
-                Row(align: .center) { Divider(class: "dot")  Text(t("build.point3")) }
-            }
-        }
-        Stack {
-            style { flex: none; min-width: 0; width: 100%; @media (min-width: 960px) { flex: 1 1 0 } }
-            CodeBlock("build/\n  index.html          # the page, pre-rendered\n  about/index.html    # one directory per route\n  app.js              # the runtime, stores, components\n  pages/Home.js       # loaded when its route shows\n  pages/Home.css      # the styles that page reaches\n  styles.css          # tokens + built-ins you used\n  sitemap.xml, robots.txt\n  *.gz                # pre-compressed copies", title: "wf build")
-        }
-    }
-
-    // ---------------------------------------------------------- install / CTA
+    // ---------------------------------------------------------- call to action
     Stack(id: "install", class: "landing-cta") {
         style { background: $color-surface; border-bottom: 1px solid $color-border }
         Row(align: .center, justify: .between, gap: .xl) {
@@ -232,14 +292,10 @@ page Home(path: "/", title: "WebFluent — websites, PDFs and slides from one la
                 Heading(t("cta.title")).h2 { style { margin: 0; font-size: 22px; line-height: 28px; font-weight: 700; letter-spacing: -0.016em; @md { font-size: 34px; line-height: 38px } } }
                 Markdown(t("cta.body")) { style { & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
             }
-            Stack(gap: .xs) {
-                style { gap: 10px; width: 100%; min-width: 0; @md { width: 460px; flex-shrink: 0 } }
-                Terminal(lines: [
-                        Line(command: "wf init hello"),
-                        Line(command: "cd hello"),
-                        Line(command: "wf serve")
-                    ])
-                Markdown(t("cta.templates")) { style { & p { margin: 0; font-size: 12px; line-height: 18px; color: $ink-subtle } & code { color: $color-text-muted; background: transparent; padding: 0 } } }
+            Row(align: .center, gap: .sm) {
+                style { flex-direction: column; align-items: stretch; gap: 8px; @sm { flex-direction: row; align-items: center } }
+                Link(t("cta.primary"), to: "/docs/guide/tutorial", class: "site-button site-button-primary", data-track: "select_content", data-track-content-type: "cta", data-track-item-id: "tutorial")
+                Link(t("hero.docs"), to: "/docs", class: "site-button site-button-outlined")
             }
         }
     }

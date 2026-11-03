@@ -274,7 +274,7 @@ A static build writes each page as its own `index.html` (`/contact` is `contact/
                             <div class="wf-markdown">
 <p>To build on the host's build machine, install <code>wf</code> and run the build. Every recipe in this chapter uses these two lines:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
@@ -287,7 +287,7 @@ A static build writes each page as its own `index.html` (`/contact` is `contact/
                             <div class="wf-markdown">
 <p>Pin a version so that a new release cannot change a deploy without you knowing. Set <code>WF_VERSION</code> for the install script:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
@@ -383,7 +383,7 @@ Netlify reads `_headers` from the build, so the security headers apply with no f
 **Verify it:** `curl -I` a page and check the headers. Ask for a compressed copy and check that nginx sends the build's `.gz` file:
 </code></pre>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
@@ -511,7 +511,7 @@ Netlify reads `_headers` from the build, so the security headers apply with no f
                             <div class="wf-markdown">
 <p>With <code>build.csp</code> on, every page carries its Content-Security-Policy as a <code>&lt;meta&gt;</code> tag. <code>build/_headers</code> holds the same policy, plus <code>X-Content-Type-Options</code>, <code>Referrer-Policy</code>, <code>X-Frame-Options</code> and the policy's <code>frame-ancestors</code>, which only work as real HTTP headers. This is the file a build writes:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
@@ -531,7 +531,7 @@ Netlify reads `_headers` from the build, so the security headers apply with no f
                             <div class="wf-markdown">
 <p>To call a backend without CORS, serve the site and the backend from one origin: the site at <code>/</code>, the backend at <code>/api</code>. A session cookie then works with no extra setting. In nginx:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">nginx</p>

@@ -268,7 +268,7 @@
 <p>To check what a component shows, place it in a test and say what the text must and must not contain. Put tests in <code>tests/*.wf</code>, or beside the code in <code>src/</code>. A test has the project's components, stores, types and constants at hand.</p>
 <p>This file declares a price tag and three tests of it:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -327,7 +327,7 @@
 <p>To check what a click, a keystroke or typed text does, add steps that act. A click cannot be rendered — it runs a handler, which runs an action, which changes a store, which repaints — so a test with an action in it is compiled into a real page, served, and run in a headless browser. It uses the same compiler, the same runtime and the same output a reader gets.</p>
 <p>This test types an incident, reports it, and checks the count goes up:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -433,7 +433,7 @@
                             <div class="wf-markdown">
 <p>A <code>Portal</code> draws its block into a node that <code>into:</code> names, and only the running page draws it. So a test whose body holds a portal — or places a component that holds one — is compiled into a page and run in the browser too, with no snapshot:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -451,7 +451,7 @@
 <p>To start a test from a known state, name it in <code>data:</code>. A key that is a value's name supplies that value; a key that is a store's name seeds that store's state. Seeding works the same in a test that only looks and in one that clicks.</p>
 <p>This test fills the cart with two of one item and checks the summary:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -478,7 +478,7 @@
                             <div class="wf-markdown">
 <p>To click through a page as a reader does, place the page in a test by its name, as you would a component. This works for a page whose route takes no parameter. Its state, its stores and its handlers all run:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -499,7 +499,7 @@
                             <div class="wf-markdown">
 <p>To run every test under <code>tests/</code>, and any declared in <code>src/</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
@@ -511,7 +511,7 @@
                             <div class="wf-markdown">
 <p>To run one file's tests, in the project it belongs to:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
@@ -523,7 +523,7 @@
                             <div class="wf-markdown">
 <p>To rewrite the snapshots after a change you meant:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
@@ -539,7 +539,7 @@
                             <div class="wf-markdown">
 <p>To catch what only a running page shows, build the site and load every page of it:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
@@ -567,7 +567,7 @@
                             <div class="wf-markdown">
 <p>To run the formatter, the build, the tests and <code>wf verify</code> on every push, add a workflow such as this one to <code>.github/workflows/check.yml</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">yaml</p>
@@ -605,7 +605,7 @@ jobs:
                             <div class="wf-markdown">
 <p><strong>A step cannot find what it names.</strong> The test fails and prints what the page showed instead:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>

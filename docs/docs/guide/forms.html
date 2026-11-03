@@ -273,7 +273,7 @@
 <p>To keep a control and a state in step, give the control <code>bind:</code> and the state's name. Typing in the control writes the state, and changing the state updates the control.</p>
 <p>This sign-up page binds one of each kind of control:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -309,7 +309,7 @@
 <p>The last lines repeat what you type and pick. The <code>Select</code> and the two <code>Radio</code>s share <code>plan</code>, so choosing in one moves the others.</p>
 <p>For several lines of text, use a <code>Textarea</code>. With <code>maxLength:</code> it shows how many characters are left, and tells a screen reader politely (without interrupting):</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -419,7 +419,7 @@
 </ul>
 <p>This list lets the reader rename and tick off each todo in place:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -457,7 +457,7 @@
 </ul>
 <p>This page shows an error while the handle is too short:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -480,7 +480,7 @@
 <p>To submit several controls together, put them in a <code>Form</code>. Its <code>on submit</code> handler runs when the form is submitted, and the page never navigates away. <code>Form(bind: form)</code> gives you a handle, named <code>form</code> here, that knows the state of the whole form.</p>
 <p>This contact form sends its fields, disables <strong>Send</strong> until every field is valid, and thanks the reader:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -625,7 +625,7 @@
 <p>To say what a value must be, put a <code>validate</code> block beside the state it guards. Each rule is one line. The control bound to that state shows the rules' messages itself: you write no <code>error:</code> and no <code>derived</code> value.</p>
 <p>This page requires an email, a password of at least eight characters with a number in it, and a matching confirmation:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -759,7 +759,7 @@
 </ul>
 <p>This rule asks the server whether an address is free. The rule passes when the check's answer is <code>true</code>, so ask the question whose answer you want to be yes:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -838,7 +838,7 @@
                             <div class="wf-markdown">
 <p>To see a form as a failed submit would leave it, without filling it in, set <code>data-wf-validation=&quot;shown&quot;</code> on the page's root element:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">js</p>
@@ -854,7 +854,7 @@
                             <div class="wf-markdown">
 <p>A <em>refined type</em> is a type with a condition, such as <code>Number(1..=30)</code>. The condition is already a rule, so you only write the rules the type does not say:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -886,7 +886,7 @@ validate nights { required }</code>
                             <div class="wf-markdown">
 <p>When the server rejects a value — an address already taken, a code that expired — pass its messages, by field name, to <code>form.apply</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -913,7 +913,7 @@ validate nights { required }</code>
 </ul>
 <p>This page shows the picture the reader picks, then uploads it with a progress bar:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -968,7 +968,7 @@ validate nights { required }</code>
                             <div class="wf-markdown">
 <p>To send a form, describe the service once with <code>api</code>, call it from the submit handler, and hand what a <code>422</code> said back to the form.</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -1015,7 +1015,7 @@ validate nights { required }</code>
                             <div class="wf-markdown">
 <p>An action that <code>await</code>s has a <code>.pending</code> value, <code>true</code> while a call of it runs. Use it to disable a button or show a spinner. On a store's action, read it as <code>Store.action.pending</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>

@@ -268,7 +268,7 @@
                             <div class="wf-markdown">
 <p>This page declares a <code>Greeting</code> component and places it once:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -297,7 +297,7 @@
                             <div class="wf-markdown">
 <p>A <em>prop</em> is a value the caller hands to the component. This component takes four, with a type and, for three of them, a default:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -340,7 +340,7 @@
                             <div class="wf-markdown">
 <p>An <em>enum prop</em> takes one case of a declared <code>enum</code>. The caller picks the case with a flag or by name:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -369,7 +369,7 @@
                             <div class="wf-markdown">
 <p>An <em>event</em> is how a component tells its caller that something happened. The component declares it with <code>event name(param: Type)</code> and fires it with <code>emit name(value)</code>. The caller handles it with <code>on name(value) { }</code>, as it handles a click:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -407,7 +407,7 @@
                             <div class="wf-markdown">
 <p>An event may send several values. The handler names them in the order the event declares them, and each name has the type declared for it. In this example <code>key</code> is a <code>String</code>, and <code>x</code> and <code>y</code> are <code>Number</code>s:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -437,7 +437,7 @@
                             <div class="wf-markdown">
 <p>A <em>slot</em> is a place in the component where the caller's content goes. The component places the caller's block with <code>children</code>, and may declare named slots that the caller fills with <code>name { … }</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -476,7 +476,7 @@
                             <div class="wf-markdown">
 <p>A <em>scoped slot</em> hands values to its fill. The component declares what it hands over, places the slot with those values by name, and the caller's fill names them in order:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -510,7 +510,7 @@
                             <div class="wf-markdown">
 <p>A <em>part</em> is a component of the component's own, called under its name — the way <code>Card.Header</code> is a part of <code>Card</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -539,7 +539,7 @@
                             <div class="wf-markdown">
 <p>A component may have its own <code>state</code>, <code>derived</code> values, <code>effect</code>s, actions, timers and handles. Each placed instance gets its own copy, so two <code>Stepper</code>s count separately:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -566,7 +566,7 @@
                             <div class="wf-markdown">
 <p><code>use StoreName</code> brings a store into a component, as it does into a page. Every instance reads and writes the same store:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -604,7 +604,7 @@
 </ul>
 <p>When the component declares a prop of that name, it receives the value instead and decides where it goes. Declare the prop when the root is not the right element for it. This <code>Chip</code> takes the class and the description as props and puts them on its <code>Badge</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -631,7 +631,7 @@
                             <div class="wf-markdown">
 <p>A component does not take <code>bind:</code>. To make a control of your own, take the value as a prop and fire an event when it should change. The caller decides what to do with the new value:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>

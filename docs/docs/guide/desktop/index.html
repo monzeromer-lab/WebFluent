@@ -309,7 +309,7 @@
                             <div class="wf-markdown">
 <p>The same project builds for the web and for a desktop. To leave out what only a website needs, set two keys in <code>webfluent.app.json</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
@@ -360,7 +360,7 @@ Leave `app.security.csp` at `null`: every page already carries its own policy (s
                             <div class="wf-markdown">
 <p>To work on the app, run:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
@@ -373,7 +373,7 @@ Leave `app.security.csp` at `null`: every page already carries its own policy (s
 <p>This command runs <code>wf serve</code> and opens the app's window on it. Saving a <code>.wf</code> file rebuilds and reloads the window, and a build that fails shows its error over the page, as it does in a browser (<a href="/docs/guide/cli">CLI</a>). Saving a Rust file rebuilds the app. If <code>dev.port</code> is not <code>3000</code>, change <code>devUrl</code> to match.</p>
 <p>To build the installers, run:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
@@ -389,7 +389,7 @@ Leave `app.security.csp` at `null`: every page already carries its own policy (s
                             <div class="wf-markdown">
 <p>A <em>command</em> is a Rust function a page may call. Write it in <code>src-tauri/src/lib.rs</code> and list it in <code>run()</code>. This file has two commands: <code>greet</code> returns a value, and <code>start_sync</code> returns at once and reports its progress as events:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">rust</p>
@@ -419,7 +419,7 @@ fn start_sync(app: tauri::AppHandle) {
                             <div class="wf-markdown">
 <p>A page calls a command through a script that names it. Write one function per command, typed with JSDoc, so <code>.wf</code> code calls <code>greet(name)</code> like any other function and the checker holds every call to its types:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">js</p>
@@ -470,7 +470,7 @@ function startSync() {
 </ul>
 <p>The page awaits the function in an action and shows the reply:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -505,7 +505,7 @@ function startSync() {
                             <div class="wf-markdown">
 <p><code>start_sync</code> returns at once and reports as it goes, with <code>app.emit(…)</code>. A page hears an event for as long as it shows, so tie the listener to the page's lifetime: <code>mount:</code> starts it, and <code>cleanup:</code> stops it when the page, branch or item leaves. First, wrap Tauri's <code>listen</code> in a script:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">js</p>
@@ -528,7 +528,7 @@ function onEvent(name, handler) {
                             <div class="wf-markdown">
 <p>Then hand the listener an action. This page shows a progress bar that fills as the events arrive:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -566,7 +566,7 @@ function onEvent(name, handler) {
                             <div class="wf-markdown">
 <p>A dialog, the file system, notifications, the clipboard, opening a link in the browser: each is a Tauri plugin. To add one, run the CLI. It adds the crate, the line in <code>run()</code>, and the plugin's default permission in <code>src-tauri/capabilities/default.json</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
@@ -578,7 +578,7 @@ function onEvent(name, handler) {
                             <div class="wf-markdown">
 <p>With <code>withGlobalTauri</code> on, the plugin's API is on <code>window.__TAURI__.dialog</code>. Wrap what a page uses, as with a command:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">js</p>
@@ -598,7 +598,7 @@ function pickFolder() {
                             <div class="wf-markdown">
 <p>This page asks for a folder and shows the one the reader picked:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -631,7 +631,7 @@ function pickFolder() {
                             <div class="wf-markdown">
 <p>With <code>build.csp</code> on — as it is for a project <code>wf init</code> makes — every page says where it may send requests (<a href="/docs/guide/security">Security</a>). Tauri sends each call as a request: to <code>http://ipc.localhost</code> on Windows and Android, and to <code>ipc://localhost</code> on macOS, Linux and iOS. Name both in <code>meta.connect</code>, the second as its scheme alone, which is how a policy names an app's own scheme:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
@@ -667,7 +667,7 @@ function pickFolder() {
 4. Write the main process. It opens the window and serves the build to it. A `file://` address would break the build's absolute addresses (there, `/app.js` is the root of the disk), so the build is served from an `app://` origin of its own:
 </code></pre>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">js</p>
@@ -744,7 +744,7 @@ app.on(&quot;window-all-closed&quot;, () =&gt; {
                             <div class="wf-markdown">
 <p>A page has no Node in it. The <em>preload script</em> runs beside the page and hands it exactly what it may ask for: one function per channel, never <code>ipcRenderer</code> itself.</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">js</p>
@@ -771,7 +771,7 @@ contextBridge.exposeInMainWorld(&quot;native&quot;, {
                             <div class="wf-markdown">
 <p>In an Electron app, one <code>src/native.js</code> takes the place of the three Tauri scripts. It keeps their names, so the <code>Hello</code>, <code>Sync</code> and <code>Library</code> pages from the Tauri sections do not change at all:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">js</p>
@@ -824,7 +824,7 @@ function onEvent(name, handler) {
                             <div class="wf-markdown">
 <p>Run the dev server and the app in two terminals. In the first:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
@@ -836,7 +836,7 @@ function onEvent(name, handler) {
                             <div class="wf-markdown">
 <p>In the second:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
@@ -853,7 +853,7 @@ function onEvent(name, handler) {
                             <div class="wf-markdown">
 <p>Electron Forge and electron-builder both package an app from <code>package.json</code>. Whichever you use, run <code>wf build</code> first, and make sure the package holds <code>electron/</code> and <code>build/</code>; <code>src/</code> is not needed at run time. With electron-builder (<code>npm install --save-dev electron-builder</code>), the <code>dist</code> script does both:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>

@@ -268,7 +268,7 @@
                             <div class="wf-markdown">
 <p>A handler is written inside an element's block: <code>on &lt;event&gt; { … }</code>, or <code>on &lt;event&gt;(name) { … }</code> when the body reads the event object. This page counts clicks and logs what happens in a text field:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -301,7 +301,7 @@
 <p>A DOM event sends one value, the event, so a handler names one name at most: <code>on click(e, x)</code> is an error (<code>T22</code>). Read what you want from the event, <code>e.clientX</code>. Several names are for a component's own events, which send what they declare (<a href="#emitting-events-from-components">below</a>).</p>
 <p>This drop zone uses the event object twice — to allow the drop, and to read the dropped files:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -325,7 +325,7 @@
                             <div class="wf-markdown">
 <p><code>on key(&quot;…&quot;)</code> answers to one key, with modifiers. On an element it fires while that element has focus; at the top of a page or component it fires anywhere on the page:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -371,7 +371,7 @@
 </ul>
 <p>This app drives its shortcuts and its <strong>View</strong> menu from one table of commands:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -422,7 +422,7 @@
                             <div class="wf-markdown">
 <p>A component declares the events it fires with <code>event</code>, and fires them with <code>emit</code>. The caller handles them like DOM events, with a name for each value the event sends — <code>on change(v)</code>, <code>on menu(key, x, y)</code>. <a href="/docs/guide/components#events">Components</a> covers the details. This counter tells its page every time it changes:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -450,7 +450,7 @@
                             <div class="wf-markdown">
 <p>An <em>overlay</em> is something a page opens over itself: a modal that asks a question, a toast that confirms, a menu of actions, a tooltip. Most are opened by a state, so the page decides when they show. This page has one of each:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -509,7 +509,7 @@
 </ul>
 <p>This editor has a popover at a button, a menu bar with every kind of item, a tooltip and a context menu at the pointer:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -592,7 +592,7 @@
 <p>The runtime turns what the pointer does over time into one event that says what it means. A mouse, a pen and a finger run the same code. A finger picks a drag up with a long press, so a plain swipe still scrolls the page.</p>
 <p>This file browser reorders tabs, moves tree rows into a folder, and sizes its sidebar with a splitter:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -656,7 +656,7 @@
 </ul>
 <p>On a call of your own component, all of these — the drag, the drop, the gestures — apply to the one element it draws, as a DOM event's handler or an <code>aria-label</code> written on the call does:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -696,7 +696,7 @@
                             <div class="wf-markdown">
 <p>A handler on an element hears that element. For the window, write the handler at the top of the page, a component or <code>app</code>, outside any element — <code>resize</code>, <code>scroll</code>, <code>hashchange</code>, <code>popstate</code>, <code>online</code>, <code>offline</code>, <code>message</code>, <code>storage</code>, <code>visibilitychange</code>, <code>blur</code> and <code>focus</code> are heard there (<a href="#shortcuts-for-an-app">Shortcuts for an app</a>). It listens for as long as its owner shows:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -713,7 +713,7 @@
                             <div class="wf-markdown">
 <p>For any other target or event, use an <code>effect</code> with a <code>cleanup</code>, which removes the listener when the page leaves. An action named without parentheses is the function itself, so you can hand it to the browser:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>

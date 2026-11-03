@@ -13,7 +13,8 @@ component CodeBlock(_ code: String, title: String = "wf", note: String = "") {
     }
     action reset() { copied = false }
 
-    Stack(class: "code-block") {
+    // Code reads left to right in every locale, Arabic included.
+    Stack(class: "code-block", dir: "ltr") {
         style {
             gap: 0
             border: 1px solid $color-border

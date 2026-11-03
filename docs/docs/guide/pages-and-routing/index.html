@@ -269,7 +269,7 @@
                             <div class="wf-markdown">
 <p>A page is a <code>page</code> declaration with a name, a <code>path:</code> and a body. This page answers <code>/about</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -457,7 +457,7 @@
                             <div class="wf-markdown">
 <p>The <code>app</code> declaration is the shell: what every page renders inside, such as a navbar and a footer. The <code>Router</code> marks where the current page goes:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -490,7 +490,7 @@
                             <div class="wf-markdown">
 <p>A <code>Link</code> is an <code>&lt;a&gt;</code> whose clicks the router handles. To move from code, for example after a button press, call <code>navigate(path)</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -531,7 +531,7 @@
                             <div class="wf-markdown">
 <p>A <code>:name</code> segment in the path is a typed parameter of the page. You read it as a plain name, or as <code>params.name</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -566,7 +566,7 @@
                             <div class="wf-markdown">
 <p><code>query</code> is the URL's query string as a map, and <code>hash</code> is its <code>#fragment</code>. The runtime keeps both current, so a page that reads them follows the address:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -593,7 +593,7 @@
 <p>A layout is a component that frames a page. You name it with <code>layout:</code>, and the page renders in its default slot. Use a layout for one section's chrome, such as a docs sidebar or an app rail; the <code>app</code> shell is for the whole site's.</p>
 <p>In this example, two docs pages share one sidebar and breadcrumb:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -637,7 +637,7 @@
                             <div class="wf-markdown">
 <p>A guard keeps a route from rendering until a condition holds. <code>guard:</code> names an expression, usually a store's derived value. When it is false, the reader is sent to <code>redirect:</code> (by default, <code>/</code>):</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -679,7 +679,7 @@
                             <div class="wf-markdown">
 <p>A <code>head { }</code> block adds tags of the page's own to the document's <code>&lt;head&gt;</code>. The build writes them into the static paint where it knows the value, the live page keeps them current, and they are removed when the reader leaves the page:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -703,7 +703,7 @@
                             <div class="wf-markdown">
 <p>A page with <code>path: &quot;*&quot;</code> answers every route no other page claims. The router shows it in the browser, and a static host serves it as <code>404.html</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
@@ -721,7 +721,7 @@
                             <div class="wf-markdown">
 <p>A page's body is a render block: it declares state, derived values and actions, and lists what to show. The top of the body runs once, when the page renders. A call written there, such as <code>Deploys.load(id)</code>, is <em>set-up code</em>: it runs once as the page opens.</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block">
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
