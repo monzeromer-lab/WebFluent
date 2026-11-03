@@ -445,9 +445,9 @@ fn the_guide_s_anchors_are_the_site_s() {
         .find(|c| c.route.as_deref() == Some("guide/forms"))
         .unwrap();
     assert_eq!(
-        forms.cite(Some("what-a-value-must-be-validate")),
+        forms.cite(Some("validate-a-field")),
         format!(
-            "{} {} › What a value must be: validate",
+            "{} {} › Validate a field",
             forms.number, forms.title
         )
     );
