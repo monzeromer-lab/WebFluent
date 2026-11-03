@@ -9,9 +9,25 @@ description: A map from React, Vue, Svelte and HTMX concepts to WebFluent: state
 
 If you have built with a JavaScript framework, most of WebFluent will feel
 familiar: components with props, reactive state, a router, a store. This
-chapter maps those ideas across, then lists what is genuinely different.
+chapter maps those ideas across, then explains the places where WebFluent
+works differently.
+
+The one thing to remember: WebFluent is a compiler with typed markup, not a
+library, so a component's body runs once and only the parts that read a
+changed value update.
+
+In this chapter:
+
+- [The map](#the-map) from framework concepts to WebFluent
+- [One component, side by side](#one-component-side-by-side) in React, Vue,
+  Svelte and WebFluent
+- [What works differently](#what-works-differently)
+- [Things you might look for](#things-you-might-look-for), such as npm
+  packages and server rendering
 
 ## The map
+
+Find the idea you know in the first column:
 
 | You know | In WebFluent | Chapter |
 |---|---|---|
@@ -42,7 +58,11 @@ chapter maps those ideas across, then lists what is genuinely different.
 | Testing Library + Playwright | `test "…" { … click "Save"  expect "Saved" }` | [Testing](24-testing.md) |
 | ESLint a11y plugin | accessibility checks on every build | [Accessibility](22-accessibility.md) |
 
-## The same component, three ways
+## One component, side by side
+
+Here is the same counter in each framework: it starts at a number the caller
+passes, counts up on a click, shows a badge when the count is even, and tells
+the caller about each change.
 
 React:
 
@@ -60,6 +80,44 @@ function Counter({ start = 0, onChange }) {
 }
 ```
 
+Vue:
+
+```vue
+<script setup>
+import { ref, computed } from "vue";
+const props = defineProps({ start: { type: Number, default: 0 } });
+const emit = defineEmits(["change"]);
+const n = ref(props.start);
+const even = computed(() => n.value % 2 === 0);
+function inc() { n.value++; emit("change", n.value); }
+</script>
+
+<template>
+  <div class="row">
+    <button @click="inc">+</button>
+    <span>{{ n }}</span>
+    <span v-if="even" class="badge">even</span>
+  </div>
+</template>
+```
+
+Svelte:
+
+```svelte
+<script>
+  let { start = 0, onchange } = $props();
+  let n = $state(start);
+  let even = $derived(n % 2 === 0);
+  function inc() { n += 1; onchange?.(n); }
+</script>
+
+<div class="row">
+  <button onclick={inc}>+</button>
+  <span>{n}</span>
+  {#if even}<span class="badge">even</span>{/if}
+</div>
+```
+
 WebFluent:
 
 ```wf
@@ -75,63 +133,104 @@ component Counter(start: Number = 0) {
 }
 ```
 
-What changed: no hooks and no dependency arrays — `derived` knows what it
-read. No setter — you assign. No `className` — `Badge` is designed, and
-`.info` is a flag the compiler checks. The event is declared, so a caller
-handling `on chnage` is an error, not a handler that never runs.
+What changed:
 
-## What is genuinely different
+- **No hooks and no dependency arrays.** `derived` knows what it read.
+- **No setter.** You assign: `n = n + 1`.
+- **No `className`.** `Badge` comes designed, and `.info` is a flag the
+  compiler checks.
+- **The event is declared.** A caller that handles `on chnage` gets error
+  `E103` at build time, instead of a handler that never runs.
+
+A page places the counter and handles its event like this:
+
+```wf
+page Scores(path: "/", title: "Scores", description: "A counter that reports each change.") {
+    state last = 0
+    Heading("Scores").h1
+    Counter(start: 2) { on change(value) { last = value } }
+    Text("Last change: {last}")
+}
+
+component Counter(start: Number = 0) {
+    event change(value: Number)
+    state n = start
+    derived even = n % 2 == 0
+    Row(gap: .sm, align: .center) {
+        Button("+") { on click { n = n + 1  emit change(n) } }
+        Text("{n}")
+        if even { Badge("even").info }
+    }
+}
+```
+
+The page shows `2`, the **even** badge and `Last change: 0`. After one
+click it shows `3`, no badge, and `Last change: 3`.
+
+## What works differently
 
 **It is a compiler, not a library.** There is no virtual DOM and no
 re-render of a component. Each text, attribute or style that reads a state
-subscribes to it and updates alone. A component's body runs once, when it is
-placed.
+subscribes to it and updates on its own. A component's body runs once, when
+the component is placed.
 
-**The markup is typed.** A built-in's props, flags, events and slots are
-known to the compiler, and so are yours. `Button("Save").primray` does not
-build. There is no "any prop goes through to the DOM" — an unknown named
-argument becomes an HTML attribute with a warning, unless it is `aria-*`,
-`data-*` or a global attribute.
+**The markup is typed.** The compiler knows the props, flags, events and
+slots of every built-in, and of every component you declare.
+`Button("Save").primray` does not build. Unknown props do not pass through
+to the DOM silently:
 
-**Pages own their routes.** There is no route table or file-system routing:
-each `page` names its `path:` and the router is built from them, ordered by
-specificity.
+- On a built-in, a named argument it does not declare is written to the
+  element as an HTML attribute, with warning `C04` — unless it is `aria-*`,
+  `data-*` or a global attribute such as `id`, `role` or `title`, which draw
+  no warning.
+- On your own component, a named argument it does not declare is error
+  `C02`. The exceptions are the same attribute families (`aria-*`, `data-*`,
+  `id`, `role`, `title`, `hidden`), which go to the component's root
+  element.
 
-**No imports.** Every file under `src/` is one program. A component declared
-anywhere is usable everywhere; two declarations with one name are an error.
+**Pages own their routes.** There is no route table and no file-system
+routing. Each `page` names its `path:`, and the compiler builds the router
+from them, ordered by specificity, so the order you declare pages in cannot
+hide a route.
+
+**No imports.** Every file under `src/` is part of one program. A component
+declared anywhere is usable everywhere, and two declarations with one name
+are an error.
 
 **Styling lives on the element.** A `style { }` block is real CSS scoped to
-that element; `$token` reads a design token. There is no separate CSS-in-JS
-runtime — static rules are compiled into the stylesheet.
+that element, and `$token` reads a design token. There is no CSS-in-JS
+runtime: the build compiles static rules into the stylesheet.
 
 **The build is the site.** Pre-rendering, code splitting, precompression,
-image resizing, a sitemap, Open Graph, a CSP — all from `wf build`, with no
-plugins to choose.
+image resizing, a sitemap, Open Graph tags and a Content-Security-Policy all
+come from `wf build`, with no plugins to choose.
 
-**Safe by construction.** Text is always text; the only way to inject markup
-is `Unsafe.Html(…)`, which the build flags every time. Inline handlers and
-`javascript:` URLs do not compile. See [Security](23-security.md).
+**Safe by construction.** Text is always text. The only way to put markup
+on a page is `Unsafe.Html(…)`, which the build flags every time. Inline
+handlers and `javascript:` URLs do not compile. See [Security](23-security.md).
 
 ## Things you might look for
 
 - **npm packages.** There is no package manager for WebFluent code. A
-  JavaScript library is a URL in `meta.scripts`; your own JavaScript is a
-  plain `.js` file under `src/`, whose functions `.wf` code calls by name;
-  and `mount:`/`cleanup:` hand any element to a script with a lifetime.
-  [JavaScript interop](32-javascript-interop.md) shows a chart library end
-  to end.
-- **Server components / SSR per request.** Not here: a WebFluent site is
-  static files plus a browser runtime, served by any host, talking to your
-  API. For HTML generated on a server — emails, invoices, fragments — see
+  JavaScript library is a URL in `meta.scripts`. Your own JavaScript is a
+  plain `.js` file under `src/`, and `.wf` code calls its functions by name.
+  `mount:` and `cleanup:` hand any element to a script for as long as the
+  element exists. [JavaScript interop](32-javascript-interop.md) shows a
+  chart library end to end.
+- **Server components, or rendering on every request.** WebFluent does not
+  do this. A WebFluent site is static files plus a browser runtime, served
+  by any host and talking to your API. For HTML generated on a server, such
+  as emails, invoices and fragments, see
   [Server rendering](35-server-rendering.md).
-- **Using WebFluent inside an existing React or Vue app.** Publish components
-  as custom elements and place the tags:
-  [Custom elements](32-javascript-interop.md#publishing-your-components-as-custom-elements).
-- **Coming from HTMX.** The closest thing to `hx-get` is a `resource` whose
-  URL reads state, and to `hx-post` an action that `await`s an `api`
-  endpoint. The page stays static HTML until its script arrives, then updates
-  in place.
+- **WebFluent inside an existing React or Vue app.** Publish components as
+  custom elements and place their tags:
+  [Custom elements](32-javascript-interop.md#publish-your-components-as-custom-elements).
+- **HTMX.** The closest thing to `hx-get` is a `resource` whose URL reads
+  state, and the closest thing to `hx-post` is an action that `await`s an
+  `api` endpoint. The page stays static HTML until its script arrives, then
+  updates in place.
 
 ## Next
 
-[Language basics](05-language-basics.md).
+[Language basics](05-language-basics.md): the declarations, elements and
+values every WebFluent file is made of.

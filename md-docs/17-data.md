@@ -3,27 +3,66 @@
 <!--
 route: guide/data
 group: building
-blurb: Getting data onto a page: a service described once, a resource a page shows, a fetch an action makes, and files read at build time.
-description: api services with retries, caching and typed errors, resource and match, reactive URLs, await fetch, optimistic updates and data files.
+blurb: Get data onto a page: describe a service once, show a request's states, fetch on demand, and read files at build time.
+description: Describe an API once with retries, caching and typed errors; show a resource with match; fetch in an action; update optimistically; read data files.
 -->
 
-Ways to get data onto a page: `api` for a service described once and called
-everywhere, `resource` for something fetched while the page shows, `await
-fetch` inside an action for something fetched on demand, and `data` for a
-file read at build time. A connection the page holds open — a socket, a
-stream, a channel, a peer — is [Real-time](18-realtime.md); working without
-a network is [Offline](19-offline.md); values fixed per build are
-[Environments](30-environments.md).
+This chapter shows you how to get data onto a page and send data back: from
+a request the page makes when it shows, from a request an action makes on
+demand, and from a file the build reads.
 
-## `resource`
+You will be able to:
 
-A resource is a request the page makes and a `match` shows:
+- show a request's loading, error and ready states with `resource` and
+  `match`;
+- refresh data without the page going blank;
+- describe a service once with `api`, so every call is typed, retried,
+  cached and cancelled for you;
+- read a service's surface from an OpenAPI file;
+- fetch on demand from an action, and show a change before the server
+  agrees;
+- read a JSON file at build time and render one page per item in it.
+
+## Before you start
+
+You should know `state` and `action`
+([State and reactivity](08-state-and-reactivity.md)), `match`
+([Control flow](10-control-flow.md)) and how to declare a `type`
+([Types](13-types.md)).
+
+This chapter does not cover:
+
+- a connection the page holds open — a socket, a stream, a channel or a
+  peer — which is [Real-time](18-realtime.md);
+- working without a network, which is [Offline](19-offline.md);
+- values fixed for each build, which are
+  [Environments](30-environments.md).
+
+## Choose how to get data
+
+| You want… | Use | Section |
+|---|---|---|
+| Data the page shows as soon as it opens | `resource` | [Show a request with resource](#show-a-request-with-resource) |
+| One place that describes a service and its endpoints | `api` | [Describe a service with api](#describe-a-service-with-api) |
+| A request made when something happens: a save, a delete, a step in a flow | `await fetch` in an action | [Fetch on demand with await fetch](#fetch-on-demand-with-await-fetch) |
+| Content that is known at build time | `data` | [Read a file at build time with data](#read-a-file-at-build-time-with-data) |
+
+## Show a request with `resource`
+
+To fetch data while a page shows, declare a `resource` and show its states
+with `match`. A *resource* is a request the page makes, and a value that
+says where the request is: loading, failed or ready.
+
+This page lists recent deploys, with a spinner while they load and an alert
+if the request fails:
 
 ```wf
 type Deploy { id: String, status: String, startedAt: String }
 
-page Deploys(path: "/", title: "Deploys", description: "Recent deploys.") {
+page Deploys(path: "/deploys", title: "Deploys", description: "Recent deploys.") {
     resource deploys: [Deploy] = fetch("/api/deploys")
+
+    Heading("Deploys").h1
     match deploys {
         loading { Spinner }
         error(e) { Alert("Could not load: {e.message}").danger }
@@ -42,45 +81,52 @@ page Deploys(path: "/", title: "Deploys", description: "Recent deploys.") {
 }
 ```
 
+How it works:
+
 - `resource name = fetch(url)` starts the request when the page renders.
-  The annotation (`: [Deploy]`) types the value; without it the value is
+- The annotation (`: [Deploy]`) types the value. Without one, the value is
   `Any`.
-- `match` over a resource has three arms — `loading`, `error(e)`, `ready(v)`
-  — and `else`. The static paint renders the `loading` arm.
-- `name.reload()` makes the request again; `name.state` is `"loading"`,
-  `"ready"` or `"error"`; `name.data` the last value (`T?`), `name.error`
-  the last error; `name.refreshing` and `name.pending` say a request is
-  running ([Asking again](#asking-again)). Each is live wherever it is
-  read — a label, a splice, an attribute — so `Button(if plan.data != null
-  { "Request approval" } else { "Deploy" })` changes when the plan arrives,
-  with no `derived` in between.
-- A failed response (`!ok`) is an error with `e.message` of `HTTP 500`.
+- A `match` over a resource has three arms — `loading`, `error(e)` and
+  `ready(v)` — and may have an `else`. A resource `match` with no `error`
+  arm and no `else` is `T21`.
+- The pre-rendered page — the HTML the build writes for a static site —
+  shows the `loading` arm. The live page fetches and replaces it.
+- A failed response (one that is not `ok`) is an error whose `e.message` is
+  `HTTP 500`, or whatever the status was.
 
-### Asking again
+### Read a resource's state anywhere
 
-`on: .focus`, `.reconnect` or `.interval(30.seconds)` — an option of
-`fetch(…)` or of an endpoint's call — `name.reload()` and
-`name.invalidate()` ask again. Asking again for the request already shown
-is a **refresh**, and the page stays as it is while it runs: the state stays
-`"ready"`, the data stays, and the answer is drawn in place.
+A resource has these values. Each is live wherever you read it — a label, a
+splice, an attribute — with no `derived` in between:
 
-- The `ready` arm's binding is live. Text, attributes, `if`, `if let`, a
-  keyed `for … by` and component props inside the arm follow the new data,
-  and the arm is drawn again only when the arm changes — loading, ready,
-  error. A row whose key is still in the list keeps its nodes, its focus and
-  its components' state; an input keeps what was typed.
-- The parts of an answer equal to what was shown are kept as the same
-  objects — an item is matched by its `id`, by its value, or by its place —
-  so an answer that changed nothing redraws nothing.
-- `name.refreshing` is true while a refresh runs; `name.pending` while any
-  request of the resource runs, the first load included.
-- A refresh that fails keeps the data and `"ready"`, and sets `name.error`
-  until the next answer, so the arm can say the data is stale. A first load
-  that fails is `"error"`, and its `reload()` is a first load again.
-- A request that changed — an address or an argument that reads state now
-  names something else: another environment, another page — is a first load
-  again, shown as `loading`, because the data on screen would be the wrong
-  data. With `paginate:` the next page is a refresh.
+| Value | What it is |
+|---|---|
+| `name.state` | `"loading"`, `"ready"` or `"error"` |
+| `name.data` | The last value, or `null` before the first (`T?`) |
+| `name.error` | The last error |
+| `name.refreshing` | `true` while a refresh runs ([Refresh without clearing the page](#refresh-without-clearing-the-page)) |
+| `name.pending` | `true` while any request of it runs, the first load included |
+| `name.reload()` | Makes the request again |
+| `name.invalidate()` | Marks what is held as stale, and asks again |
+
+So `Button(if plan.data != null { "Request approval" } else { "Deploy" })`
+changes its label when the plan arrives.
+
+### Refresh without clearing the page
+
+These ask for a resource again:
+
+- the `on:` option of `fetch(…)` or of an endpoint's call: `.focus` (when
+  the reader comes back to the tab), `.reconnect` (when the network
+  returns), or `.interval(30.seconds)`;
+- `name.reload()` and `name.invalidate()`.
+
+Asking again for the request already shown is a *refresh*. The page stays
+as it is while a refresh runs: `name.state` stays `"ready"`, the data stays,
+and the answer is drawn in place.
+
+This page polls a list of servers every 30 seconds, and shows a small
+spinner during each refresh:
 
 ```wf
 type Server { id: String, name: String, status: String }
@@ -88,6 +134,7 @@ type Server { id: String, name: String, status: String }
 page Servers(path: "/servers", title: "Servers", description: "Every server, kept current.") {
     state stage = "test"
     resource servers: [Server] = fetch("/api/servers?env={stage}", on: .interval(30.seconds))
+
     Heading("Servers").h1
     Button("Production") { on click { stage = "prod" } }
     match servers {
@@ -102,14 +149,54 @@ page Servers(path: "/servers", title: "Servers", description: "Every server, kep
 }
 ```
 
-### Options
+What a refresh keeps:
+
+- **The arm.** The `ready` arm's binding is live. Text, attributes, `if`,
+  `if let`, a keyed `for … by` and component props inside the arm follow the
+  new data. The arm is drawn again only when the arm changes — loading,
+  ready, error.
+- **The rows.** A row whose key is still in the list keeps its nodes, its
+  focus and its components' state. An input keeps what was typed.
+- **Unchanged data.** The parts of an answer equal to what was shown are
+  kept as the same objects. An item is matched by its `id`, by its value, or
+  by its place. An answer that changed nothing redraws nothing.
+
+What happens when a request fails, or changes:
+
+- A refresh that fails keeps the data and `"ready"`, and sets `name.error`
+  until the next answer, so the arm can say the data is stale.
+- A first load that fails is `"error"`, and its `reload()` is a first load
+  again.
+- A request that changed is a first load again, shown as `loading`. A
+  request changes when an address or an argument that reads state now names
+  something else — another environment, another page — because the data on
+  screen would be the wrong data. With `paginate:`, the next page is a
+  refresh instead.
+
+Pressing **Production** above changes `stage`, so the list shows its
+`loading` arm and then the production servers.
+
+### Send options with a request
+
+Options follow the URL, by name:
+
+- `method:` — `"GET"` unless you say otherwise;
+- `headers:` — a map;
+- `body:` — a map, sent as JSON with the content type set.
+
+The response body is parsed as JSON.
+
+This page searches with a `POST` and an authorization header:
 
 ```wf
-page Search(path: "/") {
+page Search(path: "/search", title: "Search", description: "Search the catalogue.") {
     state q = ""
-    state token = "abc"
-    resource hits = fetch("/api/search?q={q}", headers: { Authorization: "Bearer {token}" })
-    resource created = fetch("/api/items", method: "POST", body: { name: q })
+    state token = "demo-token"
+    resource hits = fetch("/api/search", method: "POST",
+        headers: { Authorization: "Bearer {token}" },
+        body: { query: q, limit: 20 })
+
+    Heading("Search").h1
     Input(bind: q, label: "Search")
     match hits {
         loading { Spinner.sm }
@@ -119,20 +206,16 @@ page Search(path: "/") {
 }
 ```
 
-Options are named after the URL: `method:`, `headers:` (a map), `body:` (a
-map, sent as JSON with the content type set). The body of a response is
-parsed as JSON.
+### Fetch again when state changes
 
-### A reactive URL
-
-A URL that reads state is re-fetched whenever that state changes — a
-search box that fetches as you type, or a detail page that follows its
-parameter:
+A URL that reads state is fetched again whenever that state changes. Use it
+for a search box that fetches as the reader types, or a detail page that
+follows its route parameter:
 
 ```wf
 type Post { slug: String, title: String, body: String }
 
-page PostPage(path: "/posts/:slug", slug: String) {
+page PostPage(path: "/posts/:slug", title: "Post", description: "One post.", slug: String) {
     resource post: Post = fetch("/api/posts/{slug}")
     match post {
         loading { Skeleton }
@@ -145,13 +228,37 @@ page PostPage(path: "/posts/:slug", slug: String) {
 }
 ```
 
-Debounce a fast-changing URL by deriving it from a slower value, or by
-keeping the query in state and copying it to a `submitted` state on Enter.
+A value spliced into the address is URL-encoded for you where it stands for
+a value.
 
-## `api`: a service, described once
+To fetch less often than the reader types, derive the URL from a slower
+value. This page keeps what the reader types in `draft`, and searches only
+when they press Enter:
 
-An address, how it is reached, and what it has — in one place, so every
-call site is typed, cached and cancellable:
+```wf
+page Lookup(path: "/lookup", title: "Lookup", description: "Search when you press Enter.") {
+    state draft = ""
+    state submitted = ""
+    resource hits = fetch("/api/search?q={submitted}")
+
+    Heading("Lookup").h1
+    Input(bind: draft, label: "Search") { on key("Enter") { submitted = draft } }
+    match hits {
+        loading { Spinner.sm }
+        error(e) { Text(e.message).danger }
+        ready(list) { Text("{list.length} results for {submitted}") }
+    }
+}
+```
+
+## Describe a service with `api`
+
+To call a service from many places, describe it once with `api`: its
+address, how it is reached and what endpoints it has. Every call site is
+then typed, cached and cancellable.
+
+This service has four endpoints, and the page shows a list of users with a
+different alert for each kind of failure:
 
 ```wf
 type User { id: String, name: String }
@@ -188,15 +295,21 @@ page Users(path: "/users", title: "Users", description: "Everyone.") {
 }
 ```
 
-A parameter the path names goes in the path; every other goes in the query.
-`->` says what comes back, and a `resource` over the endpoint is typed by
-it — `u.nam` is `T05`, before the page ever runs.
+- A parameter the path names goes in the path. Every other parameter goes in
+  the query string.
+- `->` says what a success returns. A `resource` over the endpoint is typed
+  by it, so `u.nam` is `T05` before the page ever runs.
+- An endpoint the service does not have is `T06`, and an argument it does
+  not take is `T10`.
 
-### Headers, and what happens around a call
+### Add headers and hooks to every call
 
-A `headers { }` block names what every call carries. Each value is read
-**at the moment of the request**, not when the service is declared — so a
-token that has just been refreshed is the one that is sent:
+To send the same headers with every call, add a `headers { }` block. Each
+value is read at the moment of the request, not when the service is
+declared, so a token that was just refreshed is the one that is sent.
+
+This service sends a bearer token and the reader's language, tags each
+request with an ID, logs each response, and refreshes the token on a `401`:
 
 ```wf
 type User { id: String, name: String }
@@ -227,69 +340,88 @@ The three hooks run around every call the service makes:
 |---|---|---|---|
 | `on request(r)` | Before the request is sent, after `headers { }` | `r.url`, `r.method`, `r.headers`, `r.body` — change them in place | The changed request is what goes out |
 | `on response(r)` | After a reply arrives, before it is decoded | `r.status`, `r.headers`, `r.url` | Nothing; it is for recording |
-| `on error(e)` | After every retry the policy allows has failed | The error, as the table below describes it | `return "retry"` runs the call once more — which is how a 401 refreshes a token and carries on; anything else lets the error through |
+| `on error(e)` | After every retry the policy allows has failed | The error, as [What every call does for you](#what-every-call-does-for-you) describes it | `return "retry"` runs the call once more, which is how a `401` refreshes a token and carries on. Anything else lets the error through. |
 
-A hook may `await`. One that throws fails the call it was watching.
+A hook may `await`. A hook that throws fails the call it was watching.
 
-### What each call gets
+### What every call does for you
 
-| | |
+| Feature | What it does |
 |---|---|
-| Abort | when the scope leaves, when an argument that reads state changes, on `.cancel()`, on timeout |
-| Errors | `.offline`, `.timeout`, `.aborted`, `.parse`, `.network`, `.status(code, body)` — with `.message`, `.status`, `.body` and `.headers` to read |
-| Retry | exponential backoff with jitter, per error kind, honouring `Retry-After` |
-| Cache | `cache: .swr(60.seconds)`, `.none`, `.forever` — keyed by method, address and body, revalidated with `ETag` |
-| Dedupe | two readers of one address make one request |
+| Abort | A call is aborted when its scope leaves, when an argument that reads state changes, on `.cancel()`, and on timeout |
+| Errors | `.offline`, `.timeout`, `.aborted`, `.parse`, `.network`, `.status(code, body)` — each with `.message`, `.status`, `.body` and `.headers` to read |
+| Retry | Exponential backoff with jitter, per error kind, honouring `Retry-After` |
+| Cache | `cache: .swr(60.seconds)`, `.none`, `.forever` — keyed by method, address and body, and revalidated with `ETag` |
+| Dedupe | Two readers of one address make one request |
 | Refetch | `on: .focus`, `.reconnect`, `.interval(30.seconds)` |
 | Pagination | `paginate: .page` gives `.items`, `.loadMore()` and `.hasMore` |
-| Progress | a `File` parameter makes `Backend.avatar.progress` a number from 0 to 1 |
+| Progress | A `File` parameter makes `Backend.avatar.progress` a number from 0 to 1 |
 
-And beside each endpoint: `Backend.users.invalidate()`, `.prefetch(args)`,
-`.url(args)`, `.key(args)`.
+Beside each endpoint you also get `Backend.users.invalidate()`,
+`.prefetch(args)`, `.url(args)` and `.key(args)`.
 
-### From a specification
+### Read the service from an OpenAPI file
+
+To take every endpoint from a specification instead of writing them,
+name the file with `from`:
 
 ```wf
 api Backend from "openapi.json" (base: env.PUBLIC_API)
 ```
 
-Every endpoint, parameter, response type and error shape is read from the
-file at build time, and each named schema becomes something the program can
-name. The day the server changes its contract, the build says so.
+The build reads every endpoint, parameter, response type and error shape
+from the file, and each named schema becomes something the program can
+name. The day the server changes its contract, the build says so. A missing
+`openapi.json` is `E111`.
+
+How each schema becomes a type:
 
 | The schema | What the program gets |
 |---|---|
 | An object: `{ "type": "object", "properties": … }` | A `type` with those fields; a field the schema does not `require` is `T?` |
-| An `allOf`: `[{ "$ref": "…/EnvSummary" }, { "properties": … }]` | `type ServerDetail = EnvSummary { … }`: it extends the first record it names, and every other part is fields of its own |
+| An `allOf`: `[{ "$ref": "…/EnvSummary" }, { "properties": … }]` | `type ServerDetail = EnvSummary { … }`: it extends the first record it names, and every other part adds fields of its own |
 | A string with cases: `{ "type": "string", "enum": ["prod", "test"] }` | `enum Env { prod, test }`, whose cases are the strings the server sends |
 | A string with a case no name can spell: `"operate.flags"` | `String`, wherever the schema is named |
 | Anything else: a string, a number, a list, another schema's `$ref`, a `oneOf` of one type and `null` | That type, wherever the schema is named; a `oneOf` of several types is `Any` |
 
-A value that may be null is its type made optional, however the document
-says so: OpenAPI 3.1's `"type": ["string", "null"]` is `String?`, a `oneOf`
-of `{ "type": "null" }` and a `$ref` is that type's `?`, 3.0's
-`"nullable": true` is the same beside a `type`, an `allOf` or a `$ref`, and
-a record or an enum whose own schema allows null is `T?` wherever it is
-named.
+A value that may be null becomes its type made optional, however the
+document says so:
 
-A string's `format` is the language's type for what the server sends:
-`date-time` is a `DateTime`, `date` a `Date`, `uuid` a `Uuid`, `email` an
-`Email` and `uri` a `Url`, in a response and in every record only responses
-reach. What the program sends — a parameter, a request body, and every
-record one of them reaches, but for the fields it marks `readOnly` — keeps
-`String`, so a value it holds as a `String`, a route parameter or what an
-input holds, can still be sent. A `time` stays a `String` everywhere, since
-JSON Schema's carries an offset (`09:30:00Z`) that `Time` does not read.
+- OpenAPI 3.1's `"type": ["string", "null"]` is `String?`;
+- a `oneOf` of `{ "type": "null" }` and a `$ref` is that type's `?`;
+- 3.0's `"nullable": true` is the same, beside a `type`, an `allOf` or a
+  `$ref`;
+- a record or an enum whose own schema allows null is `T?` wherever it is
+  named.
 
-A parameter or a request body may be a `$ref` into `components`, as a
-shared `limit` often is; a body is required when the document says so.
+A string's `format` gives the language's type for what the server sends:
 
-A `type` or an `enum` the program declares itself wins over the
-specification's of the same name.
+| `format` | In a response, and in every record only responses reach |
+|---|---|
+| `date-time` | `DateTime` |
+| `date` | `Date` |
+| `uuid` | `Uuid` |
+| `email` | `Email` |
+| `uri` | `Url` |
+| `time` | `String`, everywhere: JSON Schema's carries an offset (`09:30:00Z`) that `Time` does not read |
 
-### Settings
+What the program sends — a parameter, a request body, and every record one
+of them reaches, except for the fields marked `readOnly` — keeps `String`.
+So a value the program holds as a `String`, such as a route parameter or
+what an input holds, can still be sent.
 
-What goes in the service's parentheses or its block, before the endpoints:
+Also:
+
+- A parameter or a request body may be a `$ref` into `components`, as a
+  shared `limit` often is.
+- A body is required when the document says so.
+- A `type` or an `enum` the program declares itself wins over the
+  specification's of the same name.
+
+### Service settings
+
+These go in the service's parentheses or at the top of its block, before
+the endpoints:
 
 | Setting | Values | Default |
 |---|---|---|
@@ -300,16 +432,22 @@ What goes in the service's parentheses or its block, before the endpoints:
 | `credentials:` | `.omit`, `.sameOrigin`, `.include` — whether cookies go with a call | the browser's (`.sameOrigin`) |
 | `mode:` | `.cors`, `.noCors`, `.sameOrigin` | `.cors` |
 | `redirect:` | `.follow`, `.error`, `.manual` | `.follow` |
-| `referrer:` | a referrer policy: `.noReferrer`, `.origin`, … | the page's |
+| `referrer:` | A referrer policy: `.noReferrer`, `.origin`, … | the page's |
 | `headers { }` | Headers every call carries, each read at the moment of the call | — |
 
-`retry`'s `on:` takes `.network`, `.timeout`, `.status5xx`, `.status4xx`,
-`.status429` and `.status503`-style single codes; left out, it retries the
-network, timeouts, 5xx and 429. The wait doubles from `delay` (ms) up to
-`max`, with jitter, and a `Retry-After` from the server wins. An aborted call
-is never retried.
+How `retry` works:
 
-### Endpoints
+- Its `on:` takes `.network`, `.timeout`, `.status5xx`, `.status4xx`, and
+  single codes in the form `.status429` or `.status503`.
+- Without `on:`, it retries network failures, timeouts, 5xx responses and
+  429.
+- The wait doubles from `delay` (in milliseconds) up to `max`, with jitter.
+  A `Retry-After` from the server wins.
+- An aborted call is never retried.
+
+### Declare endpoints
+
+Each line of a service, after its settings, is an endpoint:
 
 ```text
 get users(page: Number = 1, q: String?) -> [User]
@@ -322,27 +460,32 @@ delete removeUser(id: String) at "users/:id"
 get report(id: String) at "reports/:id" as: .blob
 ```
 
-- The verb is `get`, `post`, `put`, `patch`, `delete`, `head` or `options`.
-- A parameter the path names (`:id`) goes in the path. One that is empty
-  (`null` or `""`) is not sent at all — `users/` would be the whole
-  collection, not the user — so the call ends as `.aborted` and a resource
-  over it stays `loading` until the value arrives. A parameter called
-  `body` is the request body (a map is sent as JSON); a `File` parameter
-  makes the call a multipart upload; every other parameter goes in the query
-  string, and one that is `null` is left out.
-- `-> T` is what a success returns; without it the call returns `Any`, and
-  `204 No Content` returns nothing.
-- `errors { 422 -> T }` types the body of a failure with that status: the
-  `.status(code, body)` error carries it decoded.
-- `as:` says how to read a response that is not JSON: `.text`, `.blob`,
-  `.arrayBuffer`, `.none`. `errorAs:` does the same for a failure's body.
-  `cache:` sets a cache policy for that endpoint alone.
+- **The verb** is `get`, `post`, `put`, `patch`, `delete`, `head` or
+  `options`.
+- **Path parameters.** A parameter the path names (`:id`) goes in the path.
+  One that is empty (`null` or `""`) is not sent at all, since `users/`
+  would be the whole collection, not the user. The call ends as `.aborted`,
+  and a resource over it stays `loading` until the value arrives.
+- **The body.** A parameter called `body` is the request body; a map is
+  sent as JSON. A `File` parameter makes the call a multipart upload.
+- **Query parameters.** Every other parameter goes in the query string, and
+  one that is `null` is left out.
+- **What comes back.** `-> T` is what a success returns. Without it the call
+  returns `Any`, and `204 No Content` returns nothing.
+- **Typed failures.** `errors { 422 -> T }` types the body of a failure with
+  that status: the `.status(code, body)` error carries it decoded.
+- **Other responses.** `as:` says how to read a response that is not JSON:
+  `.text`, `.blob`, `.arrayBuffer` or `.none`. `errorAs:` does the same for
+  a failure's body. `cache:` sets a cache policy for that endpoint alone.
 
-A call passes the endpoint's parameters by name, and may add `cache:`,
-`retry:` and — in a `resource` — `on:` for when to fetch again
-(`.focus`, `.reconnect`, `.interval(30.seconds)`) and `paginate:`.
+A call passes the endpoint's parameters by name. It may add `cache:` and
+`retry:`, and in a `resource` also `on:` (`.focus`, `.reconnect`,
+`.interval(30.seconds)`) and `paginate:`.
 
-### Pages of results
+### Load results a page at a time
+
+To show a long list in pages, call the endpoint with `paginate: .page`.
+This page shows items and a **Load more** button while there are more:
 
 ```wf
 type Item { id: String, name: String }
@@ -354,6 +497,7 @@ api Catalog(base: "/api") {
 page Items(path: "/items", title: "Items", description: "Everything, a page at a time.") {
     state page = 1
     resource list = Catalog.items(page: page, paginate: .page)
+
     Heading("Items").h1
     for item in list.items by item.id { Text(item.name) }
     if list.hasMore {
@@ -362,21 +506,33 @@ page Items(path: "/items", title: "Items", description: "Everything, a page at a
 }
 ```
 
-`paginate: .page` gathers the pages into `.items`, `loadMore()` moves `page`
-on by one, and `.hasMore` turns false when a page comes back empty.
+- `.items` gathers every page loaded so far.
+- `.loadMore()` moves `page` on by one and fetches the next page, as a
+  refresh.
+- `.hasMore` turns false when a page comes back empty.
 
-### An API on another origin
+### Call an API on another origin
 
-A page on `https://example.com` calling `https://api.example.com` is a
-cross-origin request: the API must answer with CORS headers
-(`Access-Control-Allow-Origin`, and `-Allow-Credentials` if cookies go with
-it), or the browser refuses the response. The same applies while you
-develop: `wf serve` answers on `localhost:3000` and has no proxy, so an API
-on `localhost:8080` must allow that origin. The alternative is to serve the
-API and the site from one origin behind a reverse proxy, where `base: "/api"`
-needs no CORS at all ([Deploying](29-deploying.md#an-api-on-the-same-origin)).
+A page on `https://example.com` that calls `https://api.example.com` makes a
+*cross-origin request*. The API must answer with CORS headers —
+`Access-Control-Allow-Origin`, and `Access-Control-Allow-Credentials` if
+cookies go with the call — or the browser refuses the response.
 
-### Showing a change before the server agrees
+The same applies while you develop. `wf serve` answers on `localhost:3000`
+and has no proxy, so an API on `localhost:8080` must allow that origin.
+
+The alternative is to serve the API and the site from one origin behind a
+reverse proxy, where `base: "/api"` needs no CORS at all
+([Deploying](29-deploying.md#an-api-on-the-same-origin)).
+
+If the page's build ships a content security policy, list the API's origin
+in `meta.connect` too ([Security](23-security.md)).
+
+### Show a change before the server agrees
+
+To make an edit appear at once instead of after the round trip, call
+`optimistic(holder, change)` before the request. If anything later in the
+action throws, the change is taken back: the action rolls itself back.
 
 ```wf
 action rename(id: String, name: String) {
@@ -386,18 +542,22 @@ action rename(id: String, name: String) {
 }
 ```
 
-The change shows at once. If anything later in the action throws, what was
-shown is taken back.
+The new title shows at once. If `updateUser` fails, the old title comes
+back.
 
-## `await fetch` in an action
+## Fetch on demand with `await fetch`
 
-For a request made on demand — a save, a delete, a step in a flow —
-`fetch` returns the parsed body and throws on a failed response:
+For a request made when something happens — a save, a delete, a step in a
+flow — call `await fetch` in an action. It returns the parsed body, and
+throws on a failed response, so you catch the failure with `try`.
+
+This page loads a list of todos, adds one, and toggles one, each with a
+request:
 
 ```wf
 type Todo { id: String, title: String, done: Bool = false }
 
-page Todos(path: "/") {
+page Todos(path: "/todos", title: "Todos", description: "Todos saved to a server.") {
     state todos: [Todo] = []
     state draft = ""
     state error = ""
@@ -427,6 +587,7 @@ page Todos(path: "/") {
     }
 
     load()
+    Heading("Todos").h1
     Input(bind: draft, label: "New todo") { on key("Enter") { add() } }
     Button("Add", disabled: add.pending).primary { on click { add() } }
     if error != "" { Alert(error).danger }
@@ -436,16 +597,30 @@ page Todos(path: "/") {
 }
 ```
 
-The second argument is a map: `method`, `headers`, `body`. `name.pending`
-is true while the action runs. The browser's own `fetch`, for a response
-you want raw, is `window.fetch`.
+- The second argument is a map of `method`, `headers` and `body`.
+- `load()` at the top of the page is set-up code: it runs once, when the
+  page renders.
+- `todos.push(created)` changes the state in place. The compiler turns it
+  into a new list, so everything that reads `todos` repaints.
+- `name.pending` is `true` while the action runs, so **Add** is disabled
+  during a save.
+- `await fetch` goes through the same engine as an `api` call. For the
+  browser's own `fetch`, with the raw response, call `window.fetch`.
 
-## `data`: a file at build time
+## Read a file at build time with `data`
 
-`data name = "file.json"` reads a JSON file (from the project root or
-`src/`) at build time and makes its value a constant. It is in every page
-and component, costs nothing at run time, and is painted into the static
-build:
+To use content that is known before the site is built — posts, a price
+list, a team page — read it with `data`. `data name = "file.json"` reads a
+JSON file from the project directory or `src/` at build time, and makes its
+value a constant.
+
+A `data` constant:
+
+- is in scope in every page and component;
+- costs nothing at run time, because its value is in the bundle;
+- is written into the pre-rendered page.
+
+This blog lists every post in `posts.json`, newest first:
 
 ```wf
 type Post { slug: String, title: String, date: String, body: String }
@@ -454,6 +629,8 @@ data posts: [Post] = "posts.json"
 
 page Blog(path: "/", title: "Blog", description: "Every post.") {
     derived sorted = posts.sortBy(p => p.date).reverse()
+
+    Heading("Blog").h1
     for p in sorted by p.slug {
         Card {
             Link(p.title, to: "/posts/{p.slug}")
@@ -472,10 +649,11 @@ page Blog(path: "/", title: "Blog", description: "Every post.") {
 
 Annotate it (`data posts: [Post]`) and the checker knows every field.
 
-### Static paths
+### Render a page for each item
 
-A `:param` page is rendered once per value in `paths:` by a static build —
-one HTML file per post, each with its own title and description:
+To give each post its own HTML file in a static build, list the values of
+the route parameter in `paths:`. The build renders the page once per value,
+each with its own title and description, and lists each in the sitemap:
 
 ```wf
 type Post { slug: String, title: String, date: String, body: String }
@@ -494,19 +672,39 @@ page PostPage(path: "/posts/:slug", slug: String, title: "Post", description: "A
 }
 ```
 
-`paths:` must be knowable at build time — a `data` file, a `const`, a
-literal. For a route with several parameters, each value is a map naming
-them: `paths: pairs.map(x => { year: x.y, slug: x.s })`. Routes not in
-`paths:` still work in the SPA; only the static build needs the list.
+The build writes `posts/hello/index.html` and `posts/second/index.html`.
 
-## Where data lands in the static paint
+- `paths:` must be known at build time: a `data` file, a `const` or a
+  literal.
+- For a route with several parameters, each value is a map naming them:
+  `paths: pairs.map(x => { year: x.y, slug: x.s })`.
+- A route not in `paths:` still works in a single-page app. Only the static
+  build needs the list.
+
+## Where data lands in the pre-rendered page
+
+A static build writes each page's HTML before any script runs. What each
+source of data puts in that HTML:
 
 | Source | In the pre-rendered HTML |
 |---|---|
 | `data`, `const`, `env` | Fully painted |
-| `state` initial values, `derived` over them | Painted |
+| `state` initial values, and `derived` values over them | Painted |
 | `resource` | The `loading` arm; the live page fetches and replaces it |
 | `await fetch` | Nothing until the action runs |
+
+## Troubleshooting
+
+| What you see | Why, and what to do |
+|---|---|
+| The browser console says a response was blocked by CORS | The API is on another origin and does not allow yours. Add CORS headers to the API, or serve both from one origin ([Call an API on another origin](#call-an-api-on-another-origin)). |
+| A `fetch` gets a `404` under `wf serve`, with a line in the terminal | `wf serve` has no file or page for that address, and no proxy. Point `base:` at the real API. |
+| A `.parse` error naming a place, such as `$[1].name is missing` | Under `wf serve`, a response is checked against its declared type. The server sent another shape: fix the server or the `type`. |
+| A resource stays `loading` | A path parameter is `null` or `""`, so the call is not sent. It goes out when the value arrives. |
+| The page goes back to `loading` when state changes | The address now names something else, so it is a first load. A refresh of the same address keeps the data. |
+| `T05` on a field of the data | The declared type has no such field. Fix the name, or add the field to the `type`. |
+| `T06` or `T10` on an endpoint call | The service has no such endpoint, or the endpoint takes no such argument. |
+| A post's page is missing from a static build | Its value is not in `paths:`. |
 
 ## Next
 
