@@ -762,3 +762,55 @@ fn the_reference_s_core_is_its_marked_sections_and_the_rest_comes_by_title() {
     let titles = reference_section("No such section").unwrap_err();
     assert!(titles.iter().any(|t| t == "Data Fetching"));
 }
+
+#[test]
+fn reads_made_on_copies_of_a_set_count_as_its_own() {
+    let dir = fixture("dashboard", "copies");
+    let mut set = ChangeSet::new(Arc::new(FsVfs), &dir);
+    let first = std::fs::read_to_string(dir.join("src/pages/Settings.wf"))
+        .unwrap()
+        .lines()
+        .next()
+        .unwrap()
+        .to_owned();
+    let edit = [webfluent::agent::edit::Edit {
+        old_text: first.clone(),
+        new_text: format!("{first} "),
+    }];
+    assert!(
+        set.edit("src/pages/Settings.wf", &edit).is_err(),
+        "unread, it may not be edited"
+    );
+    // Read on two copies at once, as side-by-side reads are.
+    let copies: Vec<ChangeSet> = std::thread::scope(|s| {
+        let a = s.spawn(|| {
+            let mut c = set.clone();
+            c.read("src/pages/Settings.wf").unwrap();
+            c
+        });
+        let b = s.spawn(|| {
+            let mut c = set.clone();
+            c.read("webfluent.app.json").unwrap();
+            c
+        });
+        vec![a.join().unwrap(), b.join().unwrap()]
+    });
+    for c in &copies {
+        set.absorb_reads(c);
+    }
+    assert!(
+        set.edit("src/pages/Settings.wf", &edit).is_ok(),
+        "read by a copy, it may"
+    );
+    assert_eq!(set.files().len(), 1);
+    // A copy's writes are not taken.
+    let mut c = set.clone();
+    c.write(
+        "src/pages/New.wf",
+        "page New(path: \"/new\") { Text(\"a\") }",
+    )
+    .unwrap();
+    set.absorb_reads(&c);
+    assert!(!set.files().iter().any(|f| f.path == "src/pages/New.wf"));
+    let _ = std::fs::remove_dir_all(&dir);
+}

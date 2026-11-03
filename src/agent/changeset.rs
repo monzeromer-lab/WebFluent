@@ -106,7 +106,10 @@ pub struct Checked {
     pub fixed: usize,
 }
 
-/// The change set.
+/// The change set. A copy reads as the set does, and what it reads can be
+/// taken back with [`ChangeSet::absorb_reads`]: reads run side by side,
+/// each on its own copy.
+#[derive(Clone)]
 pub struct ChangeSet {
     base: Arc<dyn Vfs>,
     dir: PathBuf,
@@ -200,6 +203,18 @@ impl ChangeSet {
             return Ok(withhold(&text, &self.private_env()));
         }
         Ok(text)
+    }
+
+    /// What `copy`, a copy of this set, read since it was made: recorded
+    /// here as read, as if this set had read it. Its changes are not
+    /// taken: a copy is for reading.
+    pub fn absorb_reads(&mut self, copy: &ChangeSet) {
+        self.read.extend(copy.read.iter().cloned());
+        for (rel, was) in &copy.seen {
+            if !self.changes.contains_key(rel) {
+                self.seen.insert(rel.clone(), *was);
+            }
+        }
     }
 
     /// `rel`'s text through the set, as it is, without recording a read.

@@ -13,7 +13,7 @@
     const set = (v) => {
       if (v !== value) {
         value = v;
-        for (const fn of [...subs]) fn();
+        schedule(subs);
       }
     };
     get.set = set;
@@ -54,34 +54,64 @@
     }
   }
 
+  // What a change runs: every effect that read what changed, oldest first.
+  // An effect made earlier owns, or stands beside, the ones made later —
+  // a branch is made before what it draws — so a branch that leaves runs
+  // before what it drew, disposes of it, and nothing it drew reads the
+  // value that made it leave. A derived that changes adds its own readers
+  // to the same run, in the same order. One effect that throws does not
+  // keep the rest from running; the first error is thrown after them.
+  //
+  // An effect that writes what it reads comes back into the run. One that
+  // settles does so once or twice; past `MAX_REENTRY` runs in one change
+  // it stops, and under `wf serve` says so.
+  const MAX_REENTRY = 100;
+  let effectsMade = 0;
+  let pending = null;
+  function schedule(subs) {
+    const first = pending === null;
+    if (first) pending = new Set();
+    for (const fn of subs) pending.add(fn);
+    if (!first) return;
+    const runs = new Map();
+    let failed = false;
+    let error;
+    try {
+      while (pending.size) {
+        let next = null;
+        for (const fn of pending) {
+          if (next === null || (fn.order ?? Infinity) < (next.order ?? Infinity)) next = fn;
+        }
+        pending.delete(next);
+        const n = (runs.get(next) || 0) + 1;
+        runs.set(next, n);
+        if (n > MAX_REENTRY) {
+          if (n === MAX_REENTRY + 1 && devMode()) {
+            console.warn("WF: an effect changes something it reads, every time it runs, so it never settles; it was stopped after " + MAX_REENTRY + " runs. Guard the write, or move it to an action.");
+          }
+          continue;
+        }
+        try { next(); } catch (e) { if (!failed) { failed = true; error = e; } }
+      }
+    } finally {
+      pending = null;
+    }
+    if (failed) throw error;
+  }
+
   // An effect runs at once and again when a signal it read changes; what
   // it returns is its cleanup, run before the next run and on disposal.
-  //
-  // An effect that writes what it reads runs itself again from inside its
-  // own run. One that settles does so once or twice; one that never does
-  // used to recurse until the stack overflowed and the page died. Past
-  // `MAX_REENTRY` nested runs it stops, and under `wf serve` says so.
-  const MAX_REENTRY = 100;
   function effect(fn) {
     let cleanup = null;
     let dead = false;
-    let depth = 0;
-    let warned = false;
     const run = () => {
       if (dead) return;
-      if (depth >= MAX_REENTRY) {
-        if (!warned && devMode()) {
-          warned = true;
-          console.warn("WF: an effect changes something it reads, every time it runs, so it never settles; it was stopped after " + MAX_REENTRY + " runs. Guard the write, or move it to an action.");
-        }
-        return;
-      }
       if (typeof cleanup === "function") { const c = cleanup; cleanup = null; c(); }
       const prev = currentEffect;
       currentEffect = run;
-      depth++;
-      try { cleanup = fn(); } finally { currentEffect = prev; depth--; }
+      try { cleanup = fn(); } finally { currentEffect = prev; }
     };
+    run.order = ++effectsMade;
     run.dispose = () => {
       dead = true;
       if (typeof cleanup === "function") { const c = cleanup; cleanup = null; c(); }
