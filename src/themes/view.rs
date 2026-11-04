@@ -375,8 +375,26 @@ pub fn view(
 /// [`view`] of the project at `dir`, read through `vfs`: an unsaved theme
 /// is the theme it reads.
 pub fn view_via(vfs: &dyn crate::vfs::Vfs, dir: &std::path::Path) -> crate::error::Result<View> {
+    view_of_via(vfs, dir, None)
+}
+
+/// `view_via`, of the theme `name` the project declares (another palette,
+/// open on its own) rather than the one its config selects. Its dark pair
+/// is the config's only when `name` is the config's own theme.
+pub fn view_of_via(
+    vfs: &dyn crate::vfs::Vfs,
+    dir: &std::path::Path,
+    name: Option<&str>,
+) -> crate::error::Result<View> {
     let (program, files, _) = crate::build::read_project_collecting_via(vfs, dir, None)?;
-    let config = crate::config::ProjectConfig::load_via(vfs, dir)?;
+    let mut config = crate::config::ProjectConfig::load_via(vfs, dir)?;
+    if let Some(n) = name.filter(|n| !n.is_empty())
+        && config.theme.name.as_deref() != Some(n)
+    {
+        // Another theme, on its own: the pair is the configured one's.
+        config.theme.dark = None;
+        config.theme.name = Some(n.to_owned());
+    }
     let mut sheets = Vec::new();
     let mut stack = vec![dir.join("src")];
     while let Some(d) = stack.pop() {
@@ -471,6 +489,64 @@ mod tests {
                 ".x { border-color: var(--color-border); }\n".into(),
             )],
         )
+    }
+
+    #[test]
+    fn a_theme_named_is_viewed_whatever_the_config_selects() {
+        let root = std::env::temp_dir().join(format!("wf-view-of-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&root);
+        struct Dir(std::path::PathBuf);
+        impl Dir {
+            fn path(&self) -> &std::path::Path {
+                &self.0
+            }
+        }
+        impl Drop for Dir {
+            fn drop(&mut self) {
+                let _ = std::fs::remove_dir_all(&self.0);
+            }
+        }
+        let dir = Dir(root);
+        std::fs::create_dir_all(dir.path().join("src")).unwrap();
+        std::fs::write(dir.path().join("src/theme.wf"), SRC).unwrap();
+        std::fs::write(
+            dir.path().join("src/palette.wf"),
+            "theme Sea {\n    color-primary: #0369A1\n}\n",
+        )
+        .unwrap();
+        std::fs::write(
+            dir.path().join("webfluent.app.json"),
+            r#"{ "name": "t", "theme": { "name": "Brand", "dark": "Night" } }"#,
+        )
+        .unwrap();
+        let vfs = crate::vfs::FsVfs;
+        let own = view_of_via(&vfs, dir.path(), None).unwrap();
+        assert_eq!(
+            (own.theme.as_deref(), own.dark.as_deref()),
+            (Some("Brand"), Some("Night"))
+        );
+        let sea = view_of_via(&vfs, dir.path(), Some("Sea")).unwrap();
+        assert_eq!(
+            (sea.theme.as_deref(), sea.dark.as_deref()),
+            (Some("Sea"), None)
+        );
+        assert!(
+            sea.tokens
+                .iter()
+                .any(|t| t.name == "color-primary" && t.declared && t.value == "#0369A1")
+        );
+        let night = view_of_via(&vfs, dir.path(), Some("Night")).unwrap();
+        assert_eq!(
+            night.theme.as_deref(),
+            Some("Night"),
+            "the dark theme, open on its own"
+        );
+        let same = view_of_via(&vfs, dir.path(), Some("Brand")).unwrap();
+        assert_eq!(
+            same.dark.as_deref(),
+            Some("Night"),
+            "the config's own keeps its pair"
+        );
     }
 
     #[test]
