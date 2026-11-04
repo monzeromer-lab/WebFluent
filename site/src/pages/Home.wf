@@ -188,6 +188,34 @@ error: the build stopped: 1 error"#, title: "wf check")
         }
     }
 
+    // ---------------------------------------------------------------- studio
+    // The app made for writing WebFluent, shown as it looks.
+    Row(gap: .xl, align: .start, id: "studio", class: "landing-section") {
+        style { flex-direction: column; gap: 24px; flex-wrap: nowrap; max-width: 1280px; margin: 0 auto; padding: 32px 16px; border-bottom: 1px solid $color-border; @md { padding: 64px 24px } @media (min-width: 960px) { flex-direction: row; gap: 48px } @lg { padding: 80px 40px } }
+        Stack(gap: .md) {
+            style { gap: 16px; width: 100%; max-width: 100%; flex-shrink: 0; @media (min-width: 960px) { width: 440px } }
+            Text(t("studio.eyebrow"), class: "overline")
+            Heading(t("studio.title")).h2 { style { margin: 0; font-size: 26px; line-height: 32px; font-weight: 700; letter-spacing: -0.016em; @md { font-size: 34px; line-height: 38px } } }
+            Markdown(t("studio.body")) { style { & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
+            Stack(gap: .xs) {
+                style { gap: 10px; padding-top: 4px; & .wf-row { flex-wrap: nowrap; gap: 10px } & .dot { width: 6px; height: 6px; margin: 0; border: 0; border-radius: 50%; background: $color-success; flex-shrink: 0 } & p { margin: 0; font-size: 13px; line-height: 20px; color: $color-text-muted } }
+                Row(align: .center) { Divider(class: "dot")  Markdown(t("studio.point1")) }
+                Row(align: .center) { Divider(class: "dot")  Markdown(t("studio.point2")) }
+                Row(align: .center) { Divider(class: "dot")  Markdown(t("studio.point3")) }
+            }
+            Markdown(t("studio.note")) { style { & p { margin: 0; font-size: 13px; line-height: 20px; color: $ink-subtle } } }
+            Link("{t("studio.link")} →", href: STUDIO) {
+                style { align-self: flex-start; font-size: 14px; line-height: 20px; font-weight: 600; color: $brand-ink; text-decoration: none; &:hover { text-decoration: underline } }
+            }
+        }
+        Stack(gap: .sm) {
+            style { flex: none; min-width: 0; width: 100%; @media (min-width: 960px) { flex: 1 1 0 } }
+            Image(src: "/studio/design.png", alt: t("studio.alt"), width: 1440, height: 900) {
+                style { display: block; width: 100%; height: auto; border: 1px solid $color-border; border-radius: 10px; box-shadow: $shadow-md }
+            }
+        }
+    }
+
     // ------------------------------------------------------------ five ideas
     Stack(gap: .lg, id: "how", class: "landing-section") {
         style { gap: 16px; max-width: 1280px; margin: 0 auto; padding: 32px 16px; border-bottom: 1px solid $color-border; @md { padding: 64px 24px; gap: 24px } @lg { padding: 80px 40px; gap: 32px } }

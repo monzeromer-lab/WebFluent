@@ -6,7 +6,7 @@ If you are an open-source contributor and find this project helpful and have exp
 
 **One binary. Websites, PDFs and slide decks from one language.** No Node, no framework, no build config — and no browser for your PDFs.
 
-**[See it](https://webfluent.monzeromer.dev/showcase)** · **[Docs](https://webfluent.monzeromer.dev)** · **[Tutorial](https://webfluent.monzeromer.dev/docs/guide/tutorial)** · **[Components](https://webfluent.monzeromer.dev/docs/reference)** · **[Guide source](md-docs/)**
+**[See it](https://webfluent.monzeromer.dev/showcase)** · **[Docs](https://webfluent.monzeromer.dev)** · **[Tutorial](https://webfluent.monzeromer.dev/docs/guide/tutorial)** · **[Components](https://webfluent.monzeromer.dev/docs/reference)** · **[Studio](#webfluent-studio)** · **[Guide source](md-docs/)**
 
 <!-- hero: one file, three outputs -->
 <p align="center"><img src="site/art/hero.png" alt="One WebFluent file rendered three ways: a web page, a PDF page and a slide" width="900"></p>
@@ -64,6 +64,19 @@ wf serve              # http://localhost:3000, rebuilds on save
 
 <sub>If the shell cannot find `wf`, open a new terminal — the installer adds its directory to your `PATH` in your shell's startup file. `WF_INSTALL_DIR` installs elsewhere, `WF_VERSION` pins a release.</sub>
 
+## WebFluent Studio
+
+<p align="center"><img src="site/public/studio/design.png" alt="WebFluent Studio in Design mode: the layers on the left, the page on the canvas with the site's navigation selected, and the inspector on the right" width="900"></p>
+
+**[WebFluent Studio](https://github.com/monzeromer-lab/webfluent-studio)** is the app made for writing WebFluent. It holds a code editor, a live preview, a visual designer, Git and GitHub, the whole guide offline, and an agent that proposes changes you accept hunk by hunk. The `wf` toolchain runs inside it, so there is no terminal and no dev server to keep running.
+
+- **One compiler.** The preview, the checks and the hints run the same compiler as `wf`, and a project built in Studio is byte-identical to `wf build`.
+- **Errors come with their fix.** Each finding has the compiler's own message, a one-click fix where there is one, and **Explain** opens the guide on that diagnostic.
+- **Design writes real code.** What you drag and style on the canvas becomes the `.wf` you would have written, and Code is one switch away.
+- **Arabic first.** The interface is in Arabic or English, and the window mirrors right to left while code stays left to right.
+
+Studio is a separate, closed-source app at **0.1**. Linux, macOS and Windows come first, and Android follows from the same codebase. Its builds are published on [its releases page](https://github.com/monzeromer-lab/webfluent-studio/releases): watch the repository for releases to hear when the first one lands. Questions and bugs go to [its issues](https://github.com/monzeromer-lab/webfluent-studio/issues). You do not need it: `wf` and any editor are enough, and [Editor support](#what-you-get) covers the language server.
+
 ## What you get
 
 - **Reactivity without a framework** — signals update the exact DOM node that changed. No virtual DOM, no diffing.
@@ -75,7 +88,7 @@ wf serve              # http://localhost:3000, rebuilds on save
 - **Batteries included** — routing, stores, forms and validation, `fetch` as a typed `api`, i18n with automatic RTL, animations, dark mode.
 - **A template engine for Rust and Node** — render a `.wf` template with your own data to HTML, a fragment or a PDF: `Template::from_dir("templates")?.page("Invoice")?.render_pdf(&invoice)` with any `Serialize` struct, or `npm install webfluent`. Untrusted data is escaped, and a URL that would run script is dropped.
 - **Your own JavaScript, by name** — a plain `.js` file under `src/` is linked as written, and `.wf` code calls its functions directly, checked against their JSDoc. Libraries load from a CDN through `meta.scripts`; any element can be handed to a script with `mount:` and `cleanup:`.
-- **Editor support** — a language server for [Zed](editors/zed) and [VS Code](editors/vscode): completion, hover, signature help, go to definition, references, rename, formatting, inlay types, semantic highlighting, quick fixes.
+- **Editor support** — a language server for [Zed](editors/zed) and [VS Code](editors/vscode): completion, hover, signature help, go to definition, references, rename, formatting, inlay types, semantic highlighting, quick fixes. Or all of it in one window, with a preview and a designer: [WebFluent Studio](#webfluent-studio).
 
 ## A taste
 

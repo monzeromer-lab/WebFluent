@@ -21,6 +21,8 @@ type SearchRow {
 
 /// Where the source lives. Used by the nav, the footer and every "edit this page" link.
 const REPO = "https://github.com/monzeromer-lab/WebFluent"
+/// WebFluent Studio, the app made for writing WebFluent: on the home page and in the footer.
+const STUDIO = "https://github.com/monzeromer-lab/webfluent-studio"
 
 /// The release the site documents, on the header's pill.
 const VERSION = "5.12"

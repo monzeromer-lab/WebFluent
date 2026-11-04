@@ -248,7 +248,7 @@
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s28a8547f">
                         <h1 class="wf-heading wf-sa3503382">Getting started</h1>
-                        <p class="wf-text wf-sfd35f593">Install the compiler, make a project, run it, change it and see the change — then set up your editor and see what a build writes.</p>
+                        <p class="wf-text wf-sfd35f593">Install the compiler, make a project, run it, change it and see the change — then set up your editor, or WebFluent Studio, and see what a build writes.</p>
                     </div>
                     <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
@@ -261,7 +261,7 @@
 <ul>
 <li>a terminal: macOS or Linux with <code>curl</code> and <code>bash</code>, or Windows with PowerShell (or, on any system, Rust's <code>cargo</code>);</li>
 <li>a web browser;</li>
-<li>a text editor. Any editor works; <a href="#set-up-your-editor">Set up your editor</a> adds checks as you type.</li>
+<li>a text editor. Any editor works; <a href="#set-up-your-editor">Set up your editor</a> adds checks as you type, and <a href="#webfluent-studio">WebFluent Studio</a> is an app made for WebFluent.</li>
 </ul>
                             </div>
                             <h2 class="wf-heading" id="install">Install</h2>
@@ -444,6 +444,17 @@ Starting dev server at http://localhost:3000/</code>
 <li><strong>Zed</strong> — the extension in <code>editors/zed</code> brings Tree-sitter highlighting, the outline, snippets and the language server (found on <code>PATH</code>, or downloaded from the latest release). Install it with <strong>zed: install dev extension</strong>, pointed at that folder.</li>
 <li><strong>Neovim, Helix, Emacs, or any other editor with LSP</strong> — run <code>wf-lsp</code> over stdio for the <code>webfluent</code> file type (<code>*.wf</code>, <code>*.wfx</code>). <a href="/docs/guide/cli#editors">Editors</a> has the configuration for each.</li>
 </ul>
+                            </div>
+                            <h3 class="wf-heading" id="webfluent-studio">WebFluent Studio</h3>
+                            <div class="wf-markdown">
+<p><a href="https://github.com/monzeromer-lab/webfluent-studio">WebFluent Studio</a> is an app made for writing WebFluent. It puts a code editor, a live preview, a visual designer, Git and GitHub, this guide and an agent in one window. It does not use <code>wf-lsp</code>: the compiler runs inside the app, so it needs no <code>wf</code> on your <code>PATH</code>, no terminal and no dev server. A project built in Studio is byte-identical to the same project built with <code>wf build</code>, so you can move between Studio and the command line at any time.</p>
+<ul>
+<li><strong>The preview</strong> rebuilds as you type, and the build log and console link back to the source.</li>
+<li><strong>Diagnostics</strong> have the compiler's own message and its fix, one click away; <strong>Explain</strong> opens the chapter of this guide for that code.</li>
+<li><strong>Design mode</strong> edits the page on a canvas and writes the <code>.wf</code> you would have written.</li>
+<li><strong>The agent</strong> builds its own change before you see it, then you accept or reject it one hunk at a time.</li>
+</ul>
+<p>Studio is a separate, closed-source app at version 0.1, for Linux, macOS and Windows; Android follows. Its builds are published on <a href="https://github.com/monzeromer-lab/webfluent-studio/releases">its releases page</a>. You do not need it to use WebFluent: <code>wf</code> and any editor are the whole toolchain.</p>
                             </div>
                             <h2 class="wf-heading" id="change-how-wf-is-installed">Change how wf is installed</h2>
                             <div class="wf-markdown">
@@ -758,6 +769,7 @@ tests/*.wf            `test &quot;…&quot; { }` declarations for `wf test`</cod
                             <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
                             <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/releases">Releases</a>
                             <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/issues">Issues</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/webfluent-studio">WebFluent Studio</a>
                         </div>
                     </div>
                 </div>

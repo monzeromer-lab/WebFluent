@@ -3,7 +3,7 @@
 <!--
 route: guide/getting-started
 group: start
-blurb: Install the compiler, make a project, run it, change it and see the change — then set up your editor and see what a build writes.
+blurb: Install the compiler, make a project, run it, change it and see the change — then set up your editor, or WebFluent Studio, and see what a build writes.
 description: Install wf, check the install, create a first project, run the dev server and make a change. Then set up the language server and read the build.
 -->
 
@@ -20,7 +20,8 @@ You need:
   PowerShell (or, on any system, Rust's `cargo`);
 - a web browser;
 - a text editor. Any editor works; [Set up your editor](#set-up-your-editor)
-  adds checks as you type.
+  adds checks as you type, and [WebFluent Studio](#webfluent-studio) is an
+  app made for WebFluent.
 
 ## Install
 
@@ -184,6 +185,31 @@ Then connect your editor:
 - **Neovim, Helix, Emacs, or any other editor with LSP** — run `wf-lsp`
   over stdio for the `webfluent` file type (`*.wf`, `*.wfx`).
   [Editors](41-cli.md#editors) has the configuration for each.
+
+### WebFluent Studio
+
+[WebFluent Studio](https://github.com/monzeromer-lab/webfluent-studio) is
+an app made for writing WebFluent. It puts a code editor, a live preview, a
+visual designer, Git and GitHub, this guide and an agent in one window. It
+does not use `wf-lsp`: the compiler runs inside the app, so it needs no
+`wf` on your `PATH`, no terminal and no dev server. A project built in
+Studio is byte-identical to the same project built with `wf build`, so you
+can move between Studio and the command line at any time.
+
+- **The preview** rebuilds as you type, and the build log and console link
+  back to the source.
+- **Diagnostics** have the compiler's own message and its fix, one click
+  away; **Explain** opens the chapter of this guide for that code.
+- **Design mode** edits the page on a canvas and writes the `.wf` you would
+  have written.
+- **The agent** builds its own change before you see it, then you accept or
+  reject it one hunk at a time.
+
+Studio is a separate, closed-source app at version 0.1, for Linux, macOS
+and Windows; Android follows. Its builds are published on
+[its releases page](https://github.com/monzeromer-lab/webfluent-studio/releases).
+You do not need it to use WebFluent: `wf` and any editor are the whole
+toolchain.
 
 ## Change how `wf` is installed
 

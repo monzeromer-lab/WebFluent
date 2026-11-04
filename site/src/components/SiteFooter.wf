@@ -71,6 +71,7 @@ component SiteFooter {
                         Link(t("footer.source"), href: REPO)
                         Link(t("footer.releases"), href: "{REPO}/releases")
                         Link(t("footer.issues"), href: "{REPO}/issues")
+                        Link(t("footer.studio"), href: STUDIO)
                     }
                 }
             }
