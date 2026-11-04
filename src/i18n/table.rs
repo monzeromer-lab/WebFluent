@@ -222,6 +222,10 @@ pub struct Locale {
     pub forms_missing: usize,
     /// How many cells whose placeholders are not the default locale's.
     pub mismatched: usize,
+    /// Why its file could not be read as messages (`expected `,` or `}`
+    /// at line 3 column 5`): there is a file, and none of its messages
+    /// are counted, so nothing should be written over it until it is fixed.
+    pub unreadable: Option<String>,
 }
 
 /// One message: a key's form, in one locale.
@@ -303,12 +307,17 @@ pub fn build(
 ) -> Table {
     let dir = config.dir.trim_end_matches('/').to_string();
     let mut tables: HashMap<String, BTreeMap<String, String>> = HashMap::new();
+    let mut unreadable: HashMap<String, String> = HashMap::new();
     for locale in &config.locales {
-        let parsed = files
-            .get(locale)
-            .and_then(|t| t.as_deref())
-            .and_then(|t| serde_json::from_str::<BTreeMap<String, String>>(t).ok())
-            .unwrap_or_default();
+        let text = files.get(locale).and_then(|t| t.as_deref());
+        let parsed = match text.map(serde_json::from_str::<BTreeMap<String, String>>) {
+            Some(Ok(t)) => t,
+            Some(Err(e)) => {
+                unreadable.insert(locale.clone(), e.to_string());
+                BTreeMap::new()
+            }
+            None => BTreeMap::new(),
+        };
         tables.insert(locale.clone(), parsed);
     }
     let default = config.default_locale.clone();
@@ -357,6 +366,7 @@ pub fn build(
             missing: 0,
             forms_missing: 0,
             mismatched: 0,
+            unreadable: unreadable.get(code).cloned(),
         })
         .collect();
 

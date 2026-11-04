@@ -38,6 +38,10 @@ pub struct Token {
     pub line: Option<u32>,
     /// The dark theme's value, when it declares one.
     pub dark: Option<String>,
+    /// What `theme.tokens` in the config sets it to. It wins over the
+    /// theme's value (`value` is it), so an edit to the theme does not show
+    /// while the config sets it.
+    pub config: Option<String>,
     /// The properties whose group resolves it from a bare `$name`:
     /// `spacing-md` is drawn by `padding`, `margin`, `gap` …
     pub drawn_by: Vec<&'static str>,
@@ -312,6 +316,7 @@ pub fn view(
                 declared: theme_values.contains_key(name),
                 line: theme_values.get(name).map(|(_, l)| *l),
                 dark: dark_values.get(name).cloned(),
+                config: config.tokens.get(name).cloned(),
                 drawn_by: if in_baseline {
                     drawn_by(group)
                 } else {
@@ -546,6 +551,32 @@ mod tests {
             same.dark.as_deref(),
             Some("Night"),
             "the config's own keeps its pair"
+        );
+    }
+
+    #[test]
+    fn a_token_the_config_sets_says_so_and_takes_its_value() {
+        let p = crate::syntax::parse_source(SRC, "t.wf").unwrap();
+        let config: ThemeConfig = serde_json::from_str(
+            r##"{ "name": "Brand", "tokens": { "color-primary": "#111111" } }"##,
+        )
+        .unwrap();
+        let v = view(&p, &|_| "src/theme.wf".into(), &config, &[]);
+        let primary = v.tokens.iter().find(|t| t.name == "color-primary").unwrap();
+        assert_eq!(
+            (
+                primary.declared,
+                primary.value.as_str(),
+                primary.config.as_deref()
+            ),
+            (true, "#111111", Some("#111111")),
+            "declared by the theme, set by the config, which wins"
+        );
+        assert!(
+            v.tokens
+                .iter()
+                .filter(|t| t.name != "color-primary")
+                .all(|t| t.config.is_none())
         );
     }
 

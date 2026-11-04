@@ -511,6 +511,32 @@ fn a_project_s_table_is_each_thing_it_should_be() {
     let _ = std::fs::remove_dir_all(&dir);
 }
 
+/// A locale's file that is not JSON is not read as one with no messages:
+/// it says why, where, as the build that refuses it does.
+#[test]
+fn a_locale_whose_file_does_not_read_says_why() {
+    let dir = project(&[
+        (
+            "webfluent.app.json",
+            r#"{ "name": "t", "i18n": { "default_locale": "en", "locales": ["en", "ar"], "dir": "src/translations" } }"#,
+        ),
+        ("src/pages/Inbox.wf", PAGE),
+        ("src/translations/en.json", EN),
+        (
+            "src/translations/ar.json",
+            "{\n  \"inbox.title\": \"الوارد\"\n  \"inbox.name\": \"الاسم\"\n}\n",
+        ),
+    ]);
+    let t = table_via(&webfluent::vfs::FsVfs, &dir).unwrap().unwrap();
+    let loc = |c: &str| t.locales.iter().find(|l| l.code == c).unwrap();
+    assert!(loc("en").unreadable.is_none());
+    let ar = loc("ar");
+    assert!(ar.exists, "the file is there");
+    let why = ar.unreadable.as_deref().expect("why it does not read");
+    assert!(why.contains("line 3"), "{why}");
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
 #[test]
 fn a_key_with_forms_and_a_message_of_its_own_shows_both() {
     let dir = project(&[
