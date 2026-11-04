@@ -305,8 +305,21 @@
 
   function computed(fn) {
     const s = signal(undefined);
-    effect(() => s.set(fn()));
-    return s;
+    const run = effect(() => s.set(fn()));
+    // Read while a change is still running — an action an effect called
+    // wrote what it reads, and its update waits its turn in the run — it
+    // is brought up to date first, not read as it was before the write.
+    const get = () => {
+      if (pending !== null && pending.has(run)) {
+        pending.delete(run);
+        run();
+      }
+      return s();
+    };
+    get.set = s.set;
+    get.update = s.update;
+    get.subscribe = s.subscribe;
+    return get;
   }
 
   /// An attribute holding JSON, as the prop it stands for.
