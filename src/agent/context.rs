@@ -387,7 +387,7 @@ pub fn context_via(
         }
         let text = vfs.read_to_string(&dir.join(file)).ok()?;
         let text = if file == "webfluent.app.json" {
-            serde_json::to_string_pretty(&shown).unwrap_or_default()
+            serde_json::to_string_pretty(&in_order(&shown)).unwrap_or_default()
         } else {
             text
         };
@@ -498,7 +498,7 @@ impl Context {
         }
         out.push_str(&format!(
             "\n## webfluent.app.json\n\n```json\n{}\n```\n",
-            serde_json::to_string_pretty(&self.config).unwrap_or_default()
+            serde_json::to_string_pretty(&in_order(&self.config)).unwrap_or_default()
         ));
         out.push_str("\n## The guide\n\n");
         for ch in &self.guide {
@@ -524,5 +524,36 @@ impl Context {
             out.push_str(&format!("- {w}\n"));
         }
         out
+    }
+}
+
+/// A value with its keys sorted, at every depth. What an agent is given has
+/// to read the same on every run, and how `serde_json` orders a map depends on
+/// a feature that any crate in the build can turn on.
+fn in_order(value: &serde_json::Value) -> serde_json::Value {
+    match value {
+        serde_json::Value::Object(map) => {
+            let mut keys: Vec<&String> = map.keys().collect();
+            keys.sort();
+            let mut sorted = serde_json::Map::new();
+            for k in keys {
+                sorted.insert(k.clone(), in_order(&map[k]));
+            }
+            serde_json::Value::Object(sorted)
+        }
+        serde_json::Value::Array(items) => {
+            serde_json::Value::Array(items.iter().map(in_order).collect())
+        }
+        other => other.clone(),
+    }
+}
+
+#[cfg(test)]
+mod in_order_tests {
+    #[test]
+    fn a_config_reads_with_its_keys_in_order_at_every_depth() {
+        let v = serde_json::json!({ "z": 1, "a": { "y": [{ "c": 1, "b": 2 }], "x": 2 } });
+        let text = serde_json::to_string(&super::in_order(&v)).unwrap();
+        assert_eq!(text, r#"{"a":{"x":2,"y":[{"b":2,"c":1}]},"z":1}"#);
     }
 }
