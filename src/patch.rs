@@ -86,6 +86,16 @@ pub struct NodePatch {
 
 /// What `before` and `after`, two whole programs, ask of a running page.
 pub fn in_place(before: &Program, after: &Program) -> InPlace {
+    in_place_with(before, after, &breakpoints(after))
+}
+
+/// [`in_place`] for two versions of one file: the project's breakpoints come
+/// from where its theme is, which need not be this file.
+pub fn in_place_with(
+    before: &Program,
+    after: &Program,
+    points: &BTreeMap<String, String>,
+) -> InPlace {
     let rebuild = |why: &str| InPlace::Rebuild {
         why: why.to_string(),
     };
@@ -98,7 +108,6 @@ pub fn in_place(before: &Program, after: &Program) -> InPlace {
         return rebuild("an element was added or removed");
     }
 
-    let points = breakpoints(after);
     let mut patch = Patch::default();
     let mut rules = BTreeMap::new();
     // A span is unique within a file, and a program is many files: an
@@ -127,7 +136,7 @@ pub fn in_place(before: &Program, after: &Program) -> InPlace {
             let from = old_ui.style_block.as_ref().and_then(scoped_class);
             let to = new_ui.style_block.as_ref().and_then(scoped_class);
             if let (Some(block), Some(class)) = (&new_ui.style_block, &to) {
-                rules.insert(class.clone(), rules_for(class, block, &points));
+                rules.insert(class.clone(), rules_for(class, block, points));
             }
             if from != to {
                 node.remove_class = from;
@@ -168,7 +177,12 @@ pub fn in_place(before: &Program, after: &Program) -> InPlace {
         each_element_mut(body, &mut |ui| {
             if let Some(old) = changed.get(&(owner.as_str(), ui.span)) {
                 ui.style_block = old.style_block.clone();
-                ui.args = old.args.clone();
+                // Its text alone: any other argument changed still shows.
+                let first =
+                    |args: &[Arg]| args.iter().position(|a| matches!(a, Arg::Positional(_)));
+                if let (Some(to), Some(from)) = (first(&ui.args), first(&old.args)) {
+                    ui.args[to] = old.args[from].clone();
+                }
             }
         });
     }
@@ -377,6 +391,33 @@ mod tests {
     }
 }
 "#;
+
+    #[test]
+    fn braces_with_no_name_in_them_are_text_and_agree() {
+        // The language reads `{1 + 1}` as words: only a name makes it a value.
+        let a = program(PAGE);
+        let b = program(&PAGE.replace("\"Plain\"", "\"Again {1 + 1}\""));
+        let InPlace::Patch(p) = in_place(&a, &b) else {
+            panic!("not a patch");
+        };
+        assert_eq!(p.nodes[0].text.as_deref(), Some("Again {1 + 1}"));
+        agrees(&a, &b, &p).unwrap();
+    }
+
+    #[test]
+    fn a_link_whose_text_and_address_both_change_is_a_rebuild() {
+        let source = "page Home(path: \"/\", title: \"Home\") {\n    Link(\"A\", to: \"/\")\n}\n";
+        let moved = source.replace("\"A\", to: \"/\"", "\"B\", to: \"/b\"");
+        assert!(matches!(
+            in_place(&program(source), &program(&moved)),
+            InPlace::Rebuild { .. }
+        ));
+        let words = source.replace("\"A\"", "\"B\"");
+        assert!(matches!(
+            in_place(&program(source), &program(&words)),
+            InPlace::Patch(_)
+        ));
+    }
 
     #[test]
     fn nothing_changed_is_the_same() {
