@@ -717,6 +717,34 @@ fn rules_only_one_page_reaches_ship_in_that_pages_sheet() {
     );
 }
 
+/// An editor's preview has a reader waiting and is served by the editor, so
+/// it isn't compressed, and it still weighs what the budget names.
+#[test]
+fn a_studio_build_compresses_nothing_and_keeps_its_budget() {
+    let dir = build_root("studio-no-gz");
+    let _ = std::fs::remove_dir_all(&dir);
+    copy_tree(&fixture_dir("marketing"), &dir);
+    let _ = std::fs::remove_dir_all(dir.join("build"));
+    let config = dir.join("webfluent.app.json");
+    let text = std::fs::read_to_string(&config).unwrap();
+    let mut json: serde_json::Value = serde_json::from_str(&text).unwrap();
+    json["build"]["budget"] = serde_json::json!({ "app.js": "1 kB", "nothing.js": "1 kB" });
+    std::fs::write(&config, json.to_string()).unwrap();
+    let output = Command::new(env!("CARGO_BIN_EXE_wf"))
+        .args(["build", "--studio"])
+        .current_dir(&dir)
+        .output()
+        .expect("running `wf build`");
+    assert!(output.status.success(), "{output:?}");
+    let build = dir.join("build");
+    assert!(build.join("app.js").exists());
+    assert!(!build.join("app.js.gz").exists());
+    assert!(!build.join("index.html.gz").exists());
+    let said = String::from_utf8_lossy(&output.stderr);
+    assert!(said.contains("app.js is"), "the budget went unread: {said}");
+    assert!(said.contains("'nothing.js'"), "{said}");
+}
+
 /// Every text output has a `.gz` beside it that decodes to the file, so a
 /// host that serves precompressed files has them; a binary asset and a file
 /// too small to be worth it have none.

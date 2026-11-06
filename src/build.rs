@@ -1082,7 +1082,9 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
 
     // A `.gz` beside every text file, for a host that serves one when it has
     // it: compressed once here, harder than a server can afford per request.
-    if config.build.compress {
+    // An editor's preview is served by the editor, which never asks for one,
+    // and has a reader waiting on it.
+    if config.build.compress && !options.studio {
         precompress(&output_dir)?;
     }
 
@@ -1102,7 +1104,12 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     }
     out.say(format!("  Output: {}/", config.build.output));
     // What this build weighs, against the budget and against the last one.
-    let sizes = gzipped_sizes(&output_dir)?;
+    // An editor's preview weighs only what the budget names: nothing reads
+    // the rest of the sizes without `--stats`.
+    let sizes = gzipped_sizes(
+        &output_dir,
+        (options.studio && !stats).then_some(&config.build.budget),
+    )?;
     let previous = read_sizes(vfs, project_dir);
     warning_count += report_budget(out, &config.build.budget, &sizes);
     write_sizes(project_dir, &sizes)?;
@@ -1258,7 +1265,10 @@ fn write_beside(config: &ProjectConfig, dir: &Path, page_html: &str) -> Result<(
     Ok(())
 }
 
-fn gzipped_sizes(output_dir: &Path) -> Result<BTreeMap<String, usize>> {
+fn gzipped_sizes(
+    output_dir: &Path,
+    only: Option<&BTreeMap<String, String>>,
+) -> Result<BTreeMap<String, usize>> {
     let mut sizes = BTreeMap::new();
     let mut walk = vec![output_dir.to_path_buf()];
     while let Some(dir) = walk.pop() {
@@ -1280,6 +1290,9 @@ fn gzipped_sizes(output_dir: &Path) -> Result<BTreeMap<String, usize>> {
                 .unwrap_or(&path)
                 .to_string_lossy()
                 .replace('\\', "/");
+            if only.is_some_and(|names| !names.contains_key(&name)) {
+                continue;
+            }
             let bytes = fs::read(&path)?;
             sizes.insert(name, crate::codegen::gzip::gzip(&bytes).len());
         }

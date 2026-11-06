@@ -177,10 +177,14 @@ pub fn in_place_with(
         each_element_mut(body, &mut |ui| {
             if let Some(old) = changed.get(&(owner.as_str(), ui.span)) {
                 ui.style_block = old.style_block.clone();
-                // Its text alone: any other argument changed still shows.
+                // Its text alone, when that's what the patch carries: any
+                // other argument changed still shows, a value read included.
                 let first =
                     |args: &[Arg]| args.iter().position(|a| matches!(a, Arg::Positional(_)));
-                if let (Some(to), Some(from)) = (first(&ui.args), first(&old.args)) {
+                if own_text(ui).is_some()
+                    && own_text(old).is_some()
+                    && let (Some(to), Some(from)) = (first(&ui.args), first(&old.args))
+                {
                     ui.args[to] = old.args[from].clone();
                 }
             }
@@ -416,6 +420,21 @@ mod tests {
         assert!(matches!(
             in_place(&program(source), &program(&words)),
             InPlace::Patch(_)
+        ));
+    }
+
+    #[test]
+    fn a_value_read_that_changes_beside_a_style_is_a_rebuild() {
+        let source = "page Home(path: \"/\", title: \"Home\") {\n    state a = \"x\"\n    state b = \"y\"\n    Text(a) {\n        style {\n            margin-top: 1px\n        }\n    }\n}\n";
+        let style = source.replace("margin-top: 1px", "margin-top: 2px");
+        assert!(matches!(
+            in_place(&program(source), &program(&style)),
+            InPlace::Patch(_)
+        ));
+        let both = style.replace("Text(a)", "Text(b)");
+        assert!(matches!(
+            in_place(&program(source), &program(&both)),
+            InPlace::Rebuild { .. }
         ));
     }
 
