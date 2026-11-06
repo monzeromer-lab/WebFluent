@@ -253,6 +253,9 @@ pub mod agent;
 /// [`studio::CompiledSite`] (SSG pages + CSS + JS + node map) for the preview.
 pub mod studio;
 
+/// What a running page changes to follow an edit, with no reload.
+pub mod patch;
+
 /// `wf build` as a library call: [`build::build`] reads a project through a
 /// [`vfs::Vfs`], writes the site, and reports every line the command prints
 /// and every finding, with its code and place.

@@ -407,7 +407,11 @@ fn canonical_text(block: &StyleBlock) -> Option<String> {
     (!text.is_empty()).then_some(text)
 }
 
-fn rules_for(class: &str, block: &StyleBlock, points: &BTreeMap<String, String>) -> String {
+pub(crate) fn rules_for(
+    class: &str,
+    block: &StyleBlock,
+    points: &BTreeMap<String, String>,
+) -> String {
     let mut css = String::new();
     let base = base_declarations(block);
     if !base.is_empty() {

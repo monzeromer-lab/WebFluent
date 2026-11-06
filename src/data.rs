@@ -207,7 +207,7 @@ fn lower_image_src(
 }
 
 /// Every element in `stmts`, nested ones too, to change.
-fn each_element_mut(stmts: &mut [Statement], f: &mut dyn FnMut(&mut UIElement)) {
+pub(crate) fn each_element_mut(stmts: &mut [Statement], f: &mut dyn FnMut(&mut UIElement)) {
     for stmt in stmts {
         if let StatementKind::UIElement(ui) = &mut stmt.kind {
             f(ui);

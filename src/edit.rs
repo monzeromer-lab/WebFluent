@@ -1012,7 +1012,11 @@ fn after_declaration(
     text: String,
 ) -> Patch {
     let end = declaration_end(source, last);
-    if is_multiline(source, within) {
+    // On a line of its own the next declaration gets a line of its own. A
+    // line that goes on past the declaration (a nested rule, the block's
+    // closing brace) has no end to add to, so it goes straight after it.
+    let rest = source[end..line_end(source, end)].trim_start_matches([';', ' ', '\t']);
+    if is_multiline(source, within) && rest.is_empty() {
         let at = line_end(source, end);
         let indent = " ".repeat(last.span.col.saturating_sub(1) as usize);
         Patch {
@@ -1737,6 +1741,21 @@ mod tests {
 
     const STYLE_SRC: &str =
         "page P(path: \"/\") {\n  Card {\n    style {\n      color: red\n    }\n  }\n}\n";
+
+    #[test]
+    fn set_style_goes_before_a_rule_that_shares_the_last_line() {
+        let src = "page H(path: \"/\", title: \"H\") {\n    Button(\"a\") {\n        style { color: red;\n                margin: 0; &:hover { color: blue } }\n    }\n}\n";
+        let out = apply_edits(
+            src,
+            &[EditOp::SetStyle {
+                node: "H:0".into(),
+                prop: "padding".into(),
+                value: "3px".into(),
+            }],
+        )
+        .unwrap();
+        assert!(out.contains("margin: 0; padding: 3px; &:hover"), "{out}");
+    }
 
     #[test]
     fn set_style_changes_existing_value() {
