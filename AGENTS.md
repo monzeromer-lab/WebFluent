@@ -1661,10 +1661,10 @@ file would change; a `.wfx` file is normalised through its braced spelling.
 | `Host` | `Host(tag: "canvas", mount: (n) => …, update: (h) => …, cleanup: (h) => …)` — a node handed to somebody else's code, with a lifetime |
 | `Element` | `Element("stripe-pricing-table", publishableKey: key) { on ready { … } }` — any custom element, by its tag; named arguments are attributes, handlers its events |
 | `Portal` | `Portal(into: editorHost(row.id), data-popup: "row") { … }` — its block drawn into a node somebody else's code owns: an element a script returns, a `ref:` handle, or `null` to keep it aside; `into:` is read again when what it reads changes, and the block moves there with its nodes and state; it goes with the page, branch or item it is written in, and what is inside belongs there (handlers, `emit`, lifetimes). The box is `display: contents`; `id:`, `data-*` and `aria-*` are its own; the pre-rendered page has only a marker. Without `into:` it is a `C01` |
-| `Row` | `Row(gap: md, align: center, justify: between) { ... }` — horizontal flex. `gap`: xs sm md lg xl · `align`: start center end stretch baseline · `justify`: start center end between around evenly |
+| `Row` | `Row(gap: .md, align: .center, justify: .between) { ... }` — horizontal flex. `gap`: xs sm md lg xl · `align`: start center end stretch baseline · `justify`: start center end between around evenly |
 | `Column` | `Column(span: 6) { ... }` — 12-column grid child |
-| `Grid` | `Grid(columns: 3, gap: md) { ... }` — CSS grid; takes the same `gap`/`align`/`justify` as `Row` |
-| `Stack` | `Stack(gap: md) { ... }` — vertical flex; takes the same `gap`/`align`/`justify` as `Row` |
+| `Grid` | `Grid(columns: 3, gap: .md) { ... }` — CSS grid; takes the same `gap`/`align`/`justify` as `Row` |
+| `Stack` | `Stack(gap: .md) { ... }` — vertical flex; takes the same `gap`/`align`/`justify` as `Row` |
 | `Spacer` | `Spacer` or `Spacer.sm` `Spacer.xl` — vertical space (the size is a flag) |
 | `Divider` | `Divider()` — horizontal line |
 | `VirtualList` | `VirtualList(rowHeight: 32, reveal: selected, label: "Files") { for f in files by f.path { … } }` — a scrolling box that draws only the rows in view of its one keyed `for`; without `rowHeight:` rows are measured (`estimate:` for the rest); `reveal:` scrolls the row with that key into view; give the box a height its rows do not set (`style { height: 400px }`, a `max-height:`), and one drawn before it is laid out paints its first frame with the rows in view and the overscan only, its `reveal:` row among them; anything else in its body is a `V12` and draws everything |

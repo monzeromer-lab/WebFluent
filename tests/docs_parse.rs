@@ -1504,3 +1504,45 @@ fn the_guide_names_everything_the_language_has() {
     }
     assert!(missing.is_empty(), "{}", missing.join("\n"));
 }
+
+/// The reference's tables teach by inline code, which no fence check reads, and
+/// an agent is given them. `Row(gap: md)` read as a name, `md`, and is `T13`.
+#[test]
+fn the_references_layout_examples_compile() {
+    let reference = include_str!("../AGENTS.md");
+    let mut checked = 0;
+    for line in reference.lines() {
+        let row = ["| `Row` |", "| `Grid` |", "| `Stack` |"]
+            .iter()
+            .any(|h| line.starts_with(h));
+        if !row {
+            continue;
+        }
+        let example = line
+            .split('`')
+            .nth(3)
+            .expect("an example")
+            .replace("{ ... }", "{ }");
+        let dir = std::env::temp_dir().join(format!("wf-layout-{}-{checked}", std::process::id()));
+        std::fs::create_dir_all(dir.join("src/pages")).unwrap();
+        std::fs::write(dir.join("webfluent.app.json"), r#"{"name":"t"}"#).unwrap();
+        let page = format!(
+            "page A(path: \"/\", title: \"t\", description: \"d\") {{\n    Heading(\"x\").h1\n    {example}\n}}\n"
+        );
+        std::fs::write(dir.join("src/pages/A.wf"), &page).unwrap();
+        let vfs = webfluent::vfs::OverlayVfs::over_disk();
+        let options = webfluent::build::BuildOptions::new(&dir, &vfs);
+        let report = match webfluent::build::check(&options) {
+            Ok(r) => r,
+            Err(f) => *f.report,
+        };
+        let errors: Vec<String> = report
+            .errors()
+            .map(|d| format!("{}: {}", d.code, d.message))
+            .collect();
+        let _ = std::fs::remove_dir_all(&dir);
+        assert!(errors.is_empty(), "{example}: {errors:?}");
+        checked += 1;
+    }
+    assert_eq!(checked, 3, "the three layout rows");
+}
