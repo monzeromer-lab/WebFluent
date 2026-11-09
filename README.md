@@ -64,6 +64,14 @@ wf serve              # http://localhost:3000, rebuilds on save
 
 <sub>If the shell cannot find `wf`, open a new terminal — the installer adds its directory to your `PATH` in your shell's startup file. `WF_INSTALL_DIR` installs elsewhere, `WF_VERSION` pins a release.</sub>
 
+### With a coding agent
+
+Every project `wf init` makes has an `AGENTS.md`, the reference for its version. For Claude Code, Codex, Cursor, Gemini CLI and the other agents that read [Agent Skills](https://agentskills.io), there is also a skill that teaches the `wf` loop and the mistakes models make most:
+
+```bash
+npx skills add monzeromer-lab/WebFluent --skill writing-webfluent -g
+```
+
 ## WebFluent Studio
 
 <p align="center"><img src="site/public/studio/design.png" alt="WebFluent Studio in Design mode: the layers on the left, the page on the canvas with the site's navigation selected, and the inspector on the right" width="900"></p>

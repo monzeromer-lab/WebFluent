@@ -1546,3 +1546,97 @@ fn the_references_layout_examples_compile() {
     }
     assert_eq!(checked, 3, "the three layout rows");
 }
+
+/// The skill any agent installs to write WebFluent
+/// (`skills/writing-webfluent/`): its examples build, its reference is this
+/// version's, and every command and diagnostic code it names is one `wf` has.
+/// After a change to `AGENTS.md`, copy it over `references/language.md`.
+#[test]
+fn the_writing_webfluent_skill_is_true_of_this_version() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let path = "skills/writing-webfluent/SKILL.md";
+    let failures = check_strictly(path);
+    assert!(failures.is_empty(), "{}", failures.join("\n\n"));
+    let skill = std::fs::read_to_string(root.join(path)).unwrap();
+    let reference =
+        std::fs::read_to_string(root.join("skills/writing-webfluent/references/language.md"))
+            .unwrap();
+    let agents = std::fs::read_to_string(root.join("AGENTS.md")).unwrap();
+    assert!(
+        reference == agents,
+        "references/language.md isn't this version's AGENTS.md: copy it over"
+    );
+
+    // The standard's frontmatter: the name is the folder's, the description
+    // under 1,024 characters, and the version this one.
+    let front = skill
+        .strip_prefix("---\n")
+        .and_then(|s| s.split_once("\n---\n"))
+        .map(|(f, _)| f)
+        .expect("frontmatter");
+    let field = |name: &str| {
+        front
+            .lines()
+            .find_map(|l| l.trim_start().strip_prefix(&format!("{name}: ")))
+            .unwrap_or_default()
+    };
+    assert_eq!(field("name"), "writing-webfluent");
+    let description = field("description");
+    assert!(
+        !description.is_empty() && description.chars().count() <= 1024,
+        "{description}"
+    );
+    assert_eq!(
+        field("version").trim_matches('"'),
+        webfluent::VERSION,
+        "metadata.version"
+    );
+    assert!(
+        skill.contains(&format!("WebFluent {}", webfluent::VERSION)),
+        "the body names this version"
+    );
+
+    // Every `wf <command>` it names is one the reference's CLI lists.
+    let commands: std::collections::BTreeSet<&str> = agents
+        .lines()
+        .filter_map(|l| l.strip_prefix("wf "))
+        .filter_map(|l| l.split_whitespace().next())
+        .collect();
+    let mut named = Vec::new();
+    for (i, _) in skill.match_indices("`wf ") {
+        let word: String = skill[i + 4..]
+            .chars()
+            .take_while(|c| c.is_ascii_lowercase() || *c == '-')
+            .collect();
+        if !word.is_empty() && !word.starts_with('-') {
+            named.push(word);
+        }
+    }
+    assert!(named.len() > 10, "{named:?}");
+    for word in &named {
+        assert!(
+            commands.contains(word.as_str()),
+            "`wf {word}` isn't a command: {commands:?}"
+        );
+    }
+
+    // Every diagnostic code it names is the compiler's.
+    let mut codes = 0;
+    for (i, _) in skill.match_indices('`') {
+        let rest = &skill[i + 1..];
+        let Some(end) = rest.find('`') else { continue };
+        let code = &rest[..end];
+        let looks = code.len() >= 3
+            && code.len() <= 4
+            && code.chars().next().is_some_and(|c| c.is_ascii_uppercase())
+            && code.chars().skip(1).all(|c| c.is_ascii_digit());
+        if looks {
+            assert!(
+                webfluent::diagnostics::codes::info(code).is_some(),
+                "`{code}` isn't a code `wf explain` knows"
+            );
+            codes += 1;
+        }
+    }
+    assert!(codes > 5, "{codes} codes");
+}
