@@ -353,6 +353,9 @@ prop:
 - A DOM event handler: `Chip("x") { on click { … } }` attaches to the root,
   so a styled button component is clickable wherever you place it.
 - `class:`, which is added to the root's own classes.
+- A `style { }` block, which styles the root: `Tile(label: "a") { style {
+  grid-column: 2 / span 2 } }` places that tile in its grid. Its rule's class
+  joins the root's classes, as `class:` does.
 - An attribute the component takes no prop for: `aria-*`, `data-*`, `id`,
   `role`, `title` and `hidden`. You write it as you would on an element:
   `data-open: true` is `data-open="true"`, and `false` writes no attribute,

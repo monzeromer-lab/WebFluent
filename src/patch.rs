@@ -141,6 +141,15 @@ pub fn in_place_with(
             }
             let from = old_ui.style_block.as_ref().and_then(scoped_class);
             let to = new_ui.style_block.as_ref().and_then(scoped_class);
+            // A component's call puts its style's class on the root with a
+            // line of its own: one gained or lost changes the page's code.
+            if matches!(
+                new_ui.component,
+                crate::parser::ast::ComponentRef::UserDefined(_)
+            ) && from.is_some() != to.is_some()
+            {
+                return rebuild("a component's call gained or lost its style");
+            }
             if let (Some(block), Some(class)) = (&new_ui.style_block, &to) {
                 rules.insert(class.clone(), rules_for(class, block, points));
             }

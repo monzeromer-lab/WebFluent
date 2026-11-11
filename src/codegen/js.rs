@@ -3890,6 +3890,18 @@ impl JsCodegen {
                 if !marks.is_empty() {
                     self.emit_line(&format!("WF.mark({}, {{ {} }});", var, marks.join(", ")));
                 }
+                // A `style { }` written on the call styles the component's
+                // root, as `class:` does: its rule's class joins the root's.
+                if let Some(class) = ui
+                    .style_block
+                    .as_ref()
+                    .and_then(crate::codegen::scoped_css::scoped_class)
+                {
+                    self.emit_line(&format!(
+                        "WF.rootAttrs({}, {{ \"class\": \"{}\" }});",
+                        var, class
+                    ));
+                }
                 if !root_attrs.is_empty() {
                     let attrs: Vec<String> = root_attrs
                         .iter()

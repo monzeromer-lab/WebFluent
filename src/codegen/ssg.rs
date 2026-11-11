@@ -839,6 +839,14 @@ fn render_user_component(name: &str, call: &UIElement, ctx: &mut SsgContext) -> 
             attrs.push_str(&one);
         }
     }
+    // A `style { }` written on the call styles the root, as `class:` does.
+    if let Some(class) = call
+        .style_block
+        .as_ref()
+        .and_then(crate::codegen::scoped_css::scoped_class)
+    {
+        extra_class.push(class);
+    }
     if !extra_class.is_empty()
         && let Some(at) = first_tag_end(&html)
     {

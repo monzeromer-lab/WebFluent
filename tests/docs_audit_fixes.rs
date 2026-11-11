@@ -734,3 +734,60 @@ fn a_test_file_runs_in_its_project_and_expects_read_text() {
     assert!(text.contains("1 passed"), "{text}");
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// A `style { }` written on a component's call styles the component's root,
+/// as `class:` does: its rule's class is on the root, in the static paint
+/// and on the live page. Its rule was compiled and put on nothing.
+#[test]
+fn a_calls_style_styles_the_components_root() {
+    let dir = built_project(
+        "callstyle",
+        r#"{ "name": "t", "build": { "ssg": true, "minify": false, "split": false } }"#,
+        "component Tile(label: String) {\n\
+         \x20   Card { Text(label) }\n\
+         }\n\
+         page Home(path: \"/\", title: \"H\", description: \"D.\") {\n\
+         \x20   Heading(\"Home\").h1\n\
+         \x20   Grid(columns: 3) {\n\
+         \x20       Tile(label: \"a\") {\n\
+         \x20           style { grid-column: 2 / span 2; grid-row: 2 }\n\
+         \x20       }\n\
+         \x20       Tile(label: \"b\")\n\
+         \x20   }\n\
+         }\n",
+    );
+    // Every stylesheet the build wrote, wherever it put it.
+    fn all_css(at: &std::path::Path, out: &mut String) {
+        for e in std::fs::read_dir(at).into_iter().flatten().flatten() {
+            let p = e.path();
+            if p.is_dir() {
+                all_css(&p, out);
+            } else if p.extension().is_some_and(|x| x == "css") {
+                out.push_str(&std::fs::read_to_string(&p).unwrap_or_default());
+            }
+        }
+    }
+    let mut css = String::new();
+    all_css(&dir.join("build"), &mut css);
+    let at = css
+        .find("{ grid-column: 2 / span 2")
+        .unwrap_or_else(|| panic!("no rule for the call's style: {css}"));
+    let start = css[..at].rfind(".wf-s").expect("a scoped class");
+    let class = css[start + 1..start + 1 + "wf-s".len() + 8].to_string();
+    let html = std::fs::read_to_string(dir.join("build/index.html")).unwrap();
+    assert!(
+        html.contains(&format!("wf-card {class}"))
+            || html.contains(&format!("{class} "))
+            || html.contains(&format!(" {class}\"")),
+        "the static paint: {class} in {html}"
+    );
+    let js: String = ["build/app.js", "build/pages/Home.js"]
+        .iter()
+        .map(|p| std::fs::read_to_string(dir.join(p)).unwrap_or_default())
+        .collect();
+    assert!(
+        js.contains(&format!("\"class\": \"{class}\"")),
+        "the live page: {js}"
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}
