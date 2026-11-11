@@ -112,6 +112,46 @@ test("what the server says has not changed is served from what is held", async (
   assert.equal(calls, 2, "asked again, and told nothing changed");
 });
 
+test("a cached request that fails rejects its readers and leaks nothing", async () => {
+  const leaked = [];
+  const listen = (reason) => leaked.push(reason);
+  process.on("unhandledRejection", listen);
+  try {
+    let calls = 0;
+    const { WF } = load(async () => { calls += 1; return response("gone", { status: 404 }); });
+    const cache = { kind: "swr", ttl: 60000 };
+    // One reader, which handles the failure — as a resource's `error` arm does.
+    const alone = await WF.send("/api/one", { cache }).then(() => null, (e) => e);
+    assert.equal(alone.status, 404);
+    calls = 0;
+    // A reader, and a second who joins it while it is in flight.
+    const [a, b] = await Promise.all([
+      WF.send("/api/rows", { cache }).then(() => null, (e) => e),
+      WF.send("/api/rows", { cache }).then(() => null, (e) => e),
+    ]);
+    assert.equal(calls, 1, "the second reader joined the first request");
+    assert.equal(a.status, 404);
+    assert.equal(b.status, 404, "the joiner sees the failure too");
+
+    // A stale answer revalidated behind the reader: the failure keeps what
+    // was held, and leaks nothing either.
+    let n = 0;
+    const { WF: stale } = load(async () => {
+      n += 1;
+      return n === 1 ? response({ n }) : response("down", { status: 503 });
+    });
+    const swr = { kind: "swr", ttl: 0 };
+    assert.deepEqual(await stale.send("/api/rows", { cache: swr }), { n: 1 });
+    assert.deepEqual(await stale.send("/api/rows", { cache: swr }), { n: 1 });
+
+    await settle();
+    await settle();
+    assert.deepEqual(leaked, [], "no rejection went unhandled");
+  } finally {
+    process.off("unhandledRejection", listen);
+  }
+});
+
 test("a header that reads state is read at the moment of the request", async () => {
   let sent = null;
   const { WF } = load(async (url, init) => { sent = init.headers; return response({}); });

@@ -152,7 +152,13 @@
     }
     const running = run(url, opts, entry);
     if (entry) {
-      entry.inflight = running.finally(() => { entry.inflight = null; });
+      // `finally` makes a second promise, which rejects when the request
+      // does. A joiner reads the failure through it; with no joiner,
+      // nothing would, and the failure — which the caller handles on
+      // `running` — would surface again as an unhandled rejection.
+      const joined = running.finally(() => { entry.inflight = null; });
+      joined.catch(() => {});
+      entry.inflight = joined;
     }
     return running;
   }
