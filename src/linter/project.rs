@@ -62,6 +62,7 @@ fn bodies(program: &Program) -> impl Iterator<Item = (usize, &[Statement])> {
 /// literal naming a file `public/` does not have — the page asks for it
 /// and gets a 404.
 pub fn missing_assets(
+    vfs: &dyn crate::vfs::Vfs,
     program: &Program,
     dir: &Path,
     file_of: &dyn Fn(usize) -> String,
@@ -69,7 +70,7 @@ pub fn missing_assets(
     let mut out = Vec::new();
     // What `public/` has, as the site asks for it: `/img/hero.png`.
     let mut have = Vec::new();
-    list_public(&dir.join("public"), "", &mut have);
+    list_public(vfs, &dir.join("public"), "", &mut have);
     let nearest_file = |path: &str| {
         crate::diagnostics::fixes::nearest(path, have.iter().map(String::as_str)).map(|n| {
             (
@@ -100,10 +101,7 @@ pub fn missing_assets(
             }
             let path = url.split(['?', '#']).next().unwrap_or("");
             if path.len() > 1
-                && !dir
-                    .join("public")
-                    .join(path.trim_start_matches('/'))
-                    .exists()
+                && !vfs.exists(&dir.join("public").join(path.trim_start_matches('/')))
             {
                 out.push(
                     Diagnostic::coded(
@@ -136,7 +134,7 @@ pub fn missing_assets(
                 }
                 let path = url.split(['?', '#']).next().unwrap_or("");
                 let on_disk = dir.join("public").join(path.trim_start_matches('/'));
-                if path.len() > 1 && !on_disk.exists() {
+                if path.len() > 1 && !vfs.exists(&on_disk) {
                     let at = ui.arg_spans.get(i).copied().unwrap_or(ui.span);
                     out.push(
                         Diagnostic::coded(
@@ -169,15 +167,18 @@ pub fn names_a_file(component: &ComponentRef, key: &str) -> bool {
 }
 
 /// Every file under `dir`, as `/<prefix>/<name>`.
-fn list_public(dir: &Path, prefix: &str, out: &mut Vec<String>) {
-    let Ok(entries) = std::fs::read_dir(dir) else {
+fn list_public(vfs: &dyn crate::vfs::Vfs, dir: &Path, prefix: &str, out: &mut Vec<String>) {
+    let Ok(mut entries) = vfs.read_dir(dir) else {
         return;
     };
-    for entry in entries.flatten() {
-        let name = entry.file_name().to_string_lossy().to_string();
-        let path = entry.path();
-        if path.is_dir() {
-            list_public(&path, &format!("{prefix}/{name}"), out);
+    entries.sort();
+    for path in entries {
+        let name = path
+            .file_name()
+            .map(|n| n.to_string_lossy().to_string())
+            .unwrap_or_default();
+        if vfs.is_dir(&path) {
+            list_public(vfs, &path, &format!("{prefix}/{name}"), out);
         } else {
             out.push(format!("{prefix}/{name}"));
         }
@@ -543,19 +544,19 @@ pub fn keep_persisted_values(
     let values = persisted_values(program, env);
     let now = project_dir.join(PERSIST_VALUES);
     let text = serde_json::to_string_pretty(&values).unwrap_or_default();
-    let before = std::fs::read_to_string(&now).ok();
+    let before = crate::outfs::read_to_string(&now).ok();
     if values.is_empty() && before.is_none() {
         return;
     }
     if let Some(parent) = now.parent() {
-        let _ = std::fs::create_dir_all(parent);
+        let _ = crate::outfs::create_dir_all(parent);
     }
     if let Some(before) = before
         && before != text
     {
-        let _ = std::fs::write(project_dir.join(PERSIST_VALUES_BEFORE), before);
+        let _ = crate::outfs::write(project_dir.join(PERSIST_VALUES_BEFORE), before);
     }
-    let _ = std::fs::write(now, text);
+    let _ = crate::outfs::write(now, text);
 }
 
 /// first value, with its version — `Owner.name` → (shape, version).
@@ -619,7 +620,7 @@ pub fn persist_changes(
     dir: &Path,
     file_of: &dyn Fn(usize) -> String,
 ) -> Vec<Diagnostic> {
-    let Ok(text) = std::fs::read_to_string(dir.join(PERSIST_CACHE)) else {
+    let Ok(text) = crate::outfs::read_to_string(dir.join(PERSIST_CACHE)) else {
         return Vec::new();
     };
     let Ok(before) = serde_json::from_str::<BTreeMap<String, (String, u32)>>(&text) else {

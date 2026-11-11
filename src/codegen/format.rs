@@ -7,7 +7,6 @@
 //! back to the English spelling, and the page corrects itself once it is
 //! live.
 
-use std::time::{SystemTime, UNIX_EPOCH};
 
 /// A value to format: a number, or a date read from its text.
 #[derive(Debug, Clone, PartialEq)]
@@ -410,10 +409,7 @@ pub fn ago(value: &Input, now: Option<&Input>) -> Option<String> {
     let then = parse_moment(value)?.unix();
     let now = match now {
         Some(n) => parse_moment(n)?.unix(),
-        None => SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .map(|d| d.as_secs() as i64)
-            .unwrap_or(0),
+        None => crate::platform::unix_now(),
     };
     Some(relative(then - now))
 }

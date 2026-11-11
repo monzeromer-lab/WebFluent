@@ -56,11 +56,20 @@ required-features = ["cli"]
 # `webfluent = { version = "5", default-features = false }` — and builds
 # the compiler and the template engine alone.
 [features]
-default = ["cli"]
+default = ["cli", "native-media", "pdf"]
 cli = ["dep:clap", "dep:tiny_http"]
+# Lossy WebP through libwebp, which is C. Without it (a WebAssembly build)
+# the image pipeline writes no WebP and serves the original picture, as it
+# does for any file a re-encode would not make smaller.
+native-media = ["dep:webp"]
+# The paged engine's renderer: PDF documents and slide decks, with the
+# Liberation faces built in (2.4 MB). Without it — the WebAssembly build,
+# which is downloaded before it compiles anything — a PDF or a deck build
+# says so and stops; every check of such a project still runs.
+pdf = []
 
 [workspace]
-members = [".", "crates/wf-lsp"]
+members = [".", "crates/wf-lsp", "crates/wf-wasm"]
 exclude = ["editors/zed"]
 
 [dependencies]
@@ -79,7 +88,7 @@ image = { version = "0.25", default-features = false, features = ["jpeg", "png",
 # lossless only, and a lossless WebP of a photograph is larger than the
 # picture it replaces. libwebp is built from its source with `cc`, so it
 # builds wherever the compiler does, Android included.
-webp = { version = "0.3.1", default-features = false }
+webp = { version = "0.3.1", default-features = false, optional = true }
 # Paged output (PDF documents and slide decks). Layout, shaping and writing a
 # correct PDF are each a project of their own; these are the pure-Rust crates
 # Typst's own PDF export is built on.
@@ -96,3 +105,14 @@ unicode-linebreak = "0.1"
 fontdb = "0.23"
 miniz_oxide = "0.8"
 qrcode = { version = "0.14", default-features = false }
+
+# The WebAssembly compiler (`crates/wf-wasm`) is downloaded by a page before
+# it compiles anything, so it is built for size: `cargo build --profile
+# wasm-release`. The native release profile is untouched.
+[profile.wasm-release]
+inherits = "release"
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = false

@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WebFluent in the browser</title>
+<style>
+  :root {
+    --bg: #f7f7f5; --panel: #fff; --ink: #1a1a19; --muted: #6b6b66; --line: #e3e3de;
+    --err: #b42318; --warn: #a15c07; --ok: #067647; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #121211; --panel: #1b1b1a; --ink: #ecece8; --muted: #9a9a93; --line: #2c2c2a;
+            --err: #f97066; --warn: #fdb022; --ok: #47cd89; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 system-ui, sans-serif; }
+  header { display: flex; gap: 12px; align-items: baseline; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  header h1 { font-size: 15px; margin: 0; }
+  header p { margin: 0; color: var(--muted); }
+  #status { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  main { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); height: calc(100vh - 47px); }
+  section { background: var(--panel); display: flex; flex-direction: column; min-height: 0; }
+  .bar { display: flex; gap: 4px; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  .bar button { font: inherit; font-size: 12px; border: 1px solid var(--line); background: none; color: var(--ink);
+                border-radius: 6px; padding: 3px 8px; cursor: pointer; }
+  .bar button[aria-selected="true"] { background: var(--ink); color: var(--panel); }
+  textarea { flex: 1; border: 0; resize: none; padding: 12px; font: 13px/1.5 var(--mono); background: var(--panel); color: var(--ink); outline: none; tab-size: 4; }
+  iframe { flex: 1; border: 0; background: #fff; }
+  #diagnostics { list-style: none; margin: 0; padding: 0; max-height: 40%; overflow: auto; border-top: 1px solid var(--line); }
+  #diagnostics li { padding: 8px 12px; border-bottom: 1px solid var(--line); font-size: 13px; }
+  #diagnostics code { font-family: var(--mono); font-weight: 600; }
+  .error code { color: var(--err); } .warning code { color: var(--warn); }
+  #diagnostics .where { color: var(--muted); font-family: var(--mono); font-size: 12px; }
+  #diagnostics .none { color: var(--ok); }
+  pre { flex: 1; margin: 0; padding: 12px; overflow: auto; font: 12px/1.5 var(--mono); white-space: pre-wrap; word-break: break-all; }
+  @media (max-width: 760px) { main { grid-template-columns: 1fr; height: auto; } section { min-height: 50vh; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>WebFluent, compiled in this page</h1>
+  <p>The real compiler as WebAssembly. Nothing is sent anywhere.</p>
+  <span id="status">loading the compiler…</span>
+</header>
+<main>
+  <section>
+    <div class="bar" role="tablist" id="sources"></div>
+    <textarea id="editor" spellcheck="false" aria-label="Source"></textarea>
+  </section>
+  <section>
+    <div class="bar" role="tablist" id="outputs"></div>
+    <iframe id="preview" title="Preview" sandbox="allow-scripts"></iframe>
+    <pre id="code" hidden></pre>
+    <ul id="diagnostics" aria-live="polite"></ul>
+  </section>
+</main>
+<script type="module">
+import init, { compile, version } from "./pkg/wf_wasm.js";
+
+const files = {
+  "src/pages/Home.wf": `page Home(path: "/", title: "Counter", description: "A counter.") {
+    state count = 0
+
+    Container {
+        Heading("Counter").h1
+        Text("Count: {count}")
+        Row(gap: .sm) {
+            Button("+1").primary { on click { count = count + 1 } }
+            Button("Reset") { on click { count = 0 } }
+        }
+    }
+}
+`,
+  "src/components/Hint.wf": `/// Try breaking something: change .primary to .huge above.
+component Hint(_ text: String) {
+    Text(text).muted
+}
+`,
+};
+// One page, no chunks, nothing to fetch: the preview is the build's own
+// HTML with its stylesheet and script written into it.
+const config = JSON.stringify({ name: "Playground", build: { split: false, compress: false } });
+
+const $ = (id) => document.getElementById(id);
+let current = "src/pages/Home.wf";
+let view = "preview";
+let last = null;
+
+function tabs(el, names, selected, pick) {
+  el.replaceChildren(...names.map((name) => {
+    const b = document.createElement("button");
+    b.textContent = name.replace(/^src\//, "");
+    b.setAttribute("role", "tab");
+    b.setAttribute("aria-selected", String(name === selected));
+    b.onclick = () => pick(name);
+    return b;
+  }));
+}
+
+function showSources() {
+  tabs($("sources"), Object.keys(files), current, (name) => {
+    current = name; $("editor").value = files[name]; showSources();
+  });
+}
+
+function showOutputs() {
+  const names = ["preview", ...(last ? Object.keys(last.files) : [])];
+  tabs($("outputs"), names, view, (name) => { view = name; render(); });
+}
+
+function previewHtml(out) {
+  const html = out.files["index.html"];
+  if (!html) return "";
+  const css = out.files["styles.css"] ?? "";
+  const js = out.files["app.js"] ?? "";
+  return html
+    .replace(/<meta http-equiv="Content-Security-Policy"[^>]*>/, "")
+    .replace(/<link rel="stylesheet" href="[^"]*styles\.css">/, () => `<style>${css}</style>`)
+    .replace(/<script src="[^"]*app\.js"[^>]*><\/script>/, "")
+    // The script was `defer`: it runs once the body is there. The router
+    // reads the address, and a document written from a string has none
+    // (`about:srcdoc`), so it is told it is at `/`.
+    .replace(/<\/body>/, () =>
+      `<script>try { history.replaceState(null, "", "/") } catch (e) { console.warn(e) }<\/script>` +
+      `<script>${js.replace(/<\/script/gi, "<\\/script")}<\/script></body>`);
+}
+
+function render() {
+  showOutputs();
+  const out = last;
+  $("preview").hidden = view !== "preview";
+  $("code").hidden = view === "preview";
+  if (view === "preview") {
+    if (out && out.ok) $("preview").srcdoc = previewHtml(out);
+  } else {
+    $("code").textContent = out?.files[view] ?? "";
+  }
+  const list = $("diagnostics");
+  if (!out) return;
+  if (out.diagnostics.length === 0 && !out.error) {
+    list.innerHTML = `<li class="none">No problems.</li>`;
+    return;
+  }
+  list.replaceChildren(...out.diagnostics.map((d) => {
+    const li = document.createElement("li");
+    li.className = d.severity;
+    li.innerHTML = `<code></code> <span class="msg"></span><div class="where"></div>`;
+    li.querySelector("code").textContent = d.code;
+    li.querySelector(".msg").textContent = d.message;
+    li.querySelector(".where").textContent =
+      `${d.file.replace(/^\/wf-project\//, "")}:${d.line}:${d.column}` + (d.hint ? ` — ${d.hint}` : "");
+    return li;
+  }));
+  if (out.error && out.diagnostics.length === 0) {
+    const li = document.createElement("li");
+    li.className = "error";
+    li.textContent = out.error;
+    list.append(li);
+  }
+}
+
+function build() {
+  const t = performance.now();
+  last = JSON.parse(compile(JSON.stringify(files), config));
+  const ms = Math.round(performance.now() - t);
+  const errors = last.diagnostics.filter((d) => d.severity === "error").length;
+  const warnings = last.diagnostics.filter((d) => d.severity === "warning").length;
+  $("status").textContent = `wf ${version()} · ${ms} ms · ${errors} error(s), ${warnings} warning(s)`;
+  if (!last.files[view] && view !== "preview") view = "preview";
+  render();
+}
+
+let timer;
+$("editor").addEventListener("input", (e) => {
+  files[current] = e.target.value;
+  clearTimeout(timer);
+  timer = setTimeout(build, 150);
+});
+
+const t = performance.now();
+await init();
+$("status").textContent = `compiler loaded in ${Math.round(performance.now() - t)} ms`;
+showSources();
+$("editor").value = files[current];
+build();
+window.wfDemo = { compile, files, get last() { return last; } };
+</script>
+</body>
+</html>

@@ -234,9 +234,19 @@ fn positions(f: &Frag, out: &mut std::collections::HashMap<usize, (f32, f32)>) {
     }
 }
 
+/// What a PDF or a deck says in a build without the `pdf` feature.
+#[cfg(not(feature = "pdf"))]
+const NO_PDF: &str = "this build of the compiler has no PDF engine (the `pdf` feature is off); build a PDF or a slide deck with `wf build`";
+
 /// Render a page's HTML (with its `<style>` elements) and any further CSS to
 /// a PDF.
+#[cfg_attr(not(feature = "pdf"), allow(unreachable_code, unused_variables))]
 pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
+    #[cfg(not(feature = "pdf"))]
+    {
+        let _ = (html, css, opts);
+        return Err(NO_PDF.to_string());
+    }
     let dom = Dom::parse(html);
     let author = sheets(&dom, "", css);
     let mut db = FontDb::new(opts.system_fonts);
@@ -734,12 +744,18 @@ fn luminance(c: Rgba) -> f32 {
 
 /// Render a deck: every slide of the page's `Presentation` on a page of its
 /// own, the slide's size, its content clipped at the edge.
+#[cfg_attr(not(feature = "pdf"), allow(unreachable_code, unused_variables))]
 pub fn render_slides(
     html: &str,
     css: &str,
     opts: &Options,
     chrome: &SlideChrome,
 ) -> Result<Output, String> {
+    #[cfg(not(feature = "pdf"))]
+    {
+        let _ = (html, css, opts, chrome);
+        return Err(NO_PDF.to_string());
+    }
     let dom = Dom::parse(html);
     let m = chrome.margin;
     // A slide is the page: its margin is its padding, unless the deck's own

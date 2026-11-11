@@ -24,9 +24,9 @@ use crate::parser::{Declaration, Program, Statement};
 use crate::vfs::{FsVfs, Vfs};
 use std::cell::RefCell;
 use std::collections::{BTreeMap, HashMap};
-use std::fs;
+use crate::outfs as fs;
 use std::path::{Path, PathBuf};
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 /// What to build, where to read it from, and how to report.
 pub struct BuildOptions<'a> {
@@ -201,7 +201,7 @@ fn finish(
     options: &BuildOptions,
     body: impl FnOnce(&Out) -> Result<()>,
 ) -> std::result::Result<BuildReport, BuildFailure> {
-    let started = Instant::now();
+    let started = crate::platform::Stopwatch::start();
     let out = Out {
         report: RefCell::new(BuildReport::default()),
         found: RefCell::new(Vec::new()),
@@ -364,7 +364,7 @@ fn routes(program: &Program, declaration_files: &[String]) -> Vec<RouteInfo> {
 /// The config, with `env` from a `.env` file and the shell on top of its own.
 fn load_config(options: &BuildOptions) -> Result<ProjectConfig> {
     let mut config = ProjectConfig::load_via(options.vfs, options.project_dir)?;
-    config.resolve_env_via(options.vfs, options.project_dir, std::env::vars());
+    config.resolve_env_via(options.vfs, options.project_dir, crate::platform::env_vars());
     if let Some(output) = &options.output_dir {
         config.build.output = output.to_string_lossy().to_string();
     }
@@ -1167,8 +1167,8 @@ fn prune_root_tokens(output_dir: &Path) -> Result<usize> {
     let mut walk = vec![output_dir.to_path_buf()];
     while let Some(dir) = walk.pop() {
         for entry in fs::read_dir(&dir)? {
-            let path = entry?.path();
-            if path.is_dir() {
+            let path = entry;
+            if fs::is_dir(&path) {
                 walk.push(path);
                 continue;
             }
@@ -1273,8 +1273,8 @@ fn gzipped_sizes(
     let mut walk = vec![output_dir.to_path_buf()];
     while let Some(dir) = walk.pop() {
         for entry in fs::read_dir(&dir)? {
-            let path = entry?.path();
-            if path.is_dir() {
+            let path = entry;
+            if fs::is_dir(&path) {
                 walk.push(path);
                 continue;
             }
@@ -1384,8 +1384,8 @@ fn print_stats(
     let mut walk = vec![output_dir.to_path_buf()];
     while let Some(dir) = walk.pop() {
         for entry in fs::read_dir(&dir)? {
-            let path = entry?.path();
-            if path.is_dir() {
+            let path = entry;
+            if fs::is_dir(&path) {
                 walk.push(path);
                 continue;
             }
@@ -1400,9 +1400,9 @@ fn print_stats(
             if !matches!(ext, "html" | "js" | "css" | "json" | "svg" | "xml") {
                 continue;
             }
-            let bytes = fs::metadata(&path)?.len() as usize;
-            let gz = fs::metadata(path.with_extension(format!("{ext}.gz")))
-                .map(|m| m.len() as usize)
+            let bytes = fs::len(&path)? as usize;
+            let gz = fs::len(path.with_extension(format!("{ext}.gz")))
+                .map(|n| n as usize)
                 .unwrap_or(0);
             files.push((name.to_string(), bytes, gz));
         }
@@ -1684,8 +1684,8 @@ fn load_translations(
 /// whose source no longer exists is removed, so a host never serves it.
 fn precompress(dir: &Path) -> Result<()> {
     for entry in fs::read_dir(dir)? {
-        let path = entry?.path();
-        if path.is_dir() {
+        let path = entry;
+        if fs::is_dir(&path) {
             precompress(&path)?;
             continue;
         }
@@ -1693,7 +1693,7 @@ fn precompress(dir: &Path) -> Result<()> {
             continue;
         };
         if ext == "gz" {
-            if !path.with_extension("").exists() {
+            if !fs::exists(path.with_extension("")) {
                 fs::remove_file(&path)?;
             }
             continue;
@@ -1719,7 +1719,7 @@ fn precompress(dir: &Path) -> Result<()> {
 
 /// Copy the directory `src` of `vfs` into `dst` on the disk.
 fn copy_dir_recursive(vfs: &dyn Vfs, src: &Path, dst: &Path) -> Result<()> {
-    if !dst.exists() {
+    if !fs::exists(dst) {
         fs::create_dir_all(dst)?;
     }
 
@@ -1842,7 +1842,7 @@ fn write_service_worker(
     use crate::codegen::offline::{Worker, route_matches, service_worker, version_of};
     let base = config.build.base_path.trim_end_matches('/').to_string();
     let site = |rel: &str| format!("{base}/{}", rel.trim_start_matches('/'));
-    let exists = |rel: &str| output_dir.join(rel).is_file();
+    let exists = |rel: &str| fs::is_file(output_dir.join(rel));
 
     let mut precache: Vec<String> = Vec::new();
     let add = |rel: &str, list: &mut Vec<String>| {
@@ -1963,8 +1963,8 @@ fn write_service_worker(
 
 fn collect_files(root: &Path, dir: &Path, out: &mut Vec<(String, Vec<u8>)>) -> Result<()> {
     for entry in fs::read_dir(dir)? {
-        let path = entry?.path();
-        if path.is_dir() {
+        let path = entry;
+        if fs::is_dir(&path) {
             collect_files(root, &path, out)?;
             continue;
         }

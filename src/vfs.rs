@@ -63,7 +63,7 @@ pub trait Vfs: Send + Sync {
     /// Copy the file at `from` to `to` on the disk: how a build copies
     /// `public/` into its output.
     fn copy_out(&self, from: &Path, to: &Path) -> io::Result<()> {
-        std::fs::write(to, self.read(from)?)
+        crate::outfs::write(to, self.read(from)?)
     }
 }
 
@@ -108,7 +108,7 @@ impl Vfs for FsVfs {
 
     fn copy_out(&self, from: &Path, to: &Path) -> io::Result<()> {
         // `fs::copy` keeps the file's permissions, as `wf build` always has.
-        std::fs::copy(from, to).map(|_| ())
+        crate::outfs::copy(from, to)
     }
 }
 
@@ -306,7 +306,7 @@ impl Vfs for OverlayVfs {
     fn copy_out(&self, from: &Path, to: &Path) -> io::Result<()> {
         let at = key(from);
         match self.layers.get(&at) {
-            Some(Layer::Text(text)) => std::fs::write(to, text.as_bytes()),
+            Some(Layer::Text(text)) => crate::outfs::write(to, text.as_bytes()),
             _ if self.hidden(&at) => Err(Self::gone(from)),
             _ => self.base.copy_out(from, to),
         }

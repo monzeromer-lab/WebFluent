@@ -1,0 +1,18 @@
+[package]
+name = "wf-wasm"
+version = "5.13.0"
+edition = "2024"
+description = "The WebFluent compiler as WebAssembly, for a playground that compiles in the browser"
+authors = ["Monzer Omer <monzer.a.omer@gmail.com>"]
+license = "MPL-2.0"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# The compiler without the `wf` command and without libwebp (C), which is
+# what a WebAssembly build cannot link: a picture is served as it is.
+webfluent = { path = "../..", default-features = false }
+wasm-bindgen = "=0.2.130"
+serde_json = "1"

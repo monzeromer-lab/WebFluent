@@ -45,6 +45,13 @@ pub fn hash(bytes: &[u8], settings: &Settings) -> String {
     format!("{h:x}")[..8].to_string()
 }
 
+/// Whether this build of the compiler can write `format`. Without the
+/// `native-media` feature (a WebAssembly build) there is no WebP encoder,
+/// and the original picture serves where a WebP would have.
+pub fn can_write(format: &str) -> bool {
+    format != "webp" || cfg!(feature = "native-media")
+}
+
 /// `image` at `width`, encoded as `format`.
 pub fn resized(probed: &Probed, width: u32, format: &str, quality: u8) -> Result<Vec<u8>> {
     let height = ((width as f64) * probed.height as f64 / probed.width as f64).round() as u32;
@@ -60,6 +67,7 @@ pub fn resized(probed: &Probed, width: u32, format: &str, quality: u8) -> Result
     let mut out = Vec::new();
     let mut cursor = std::io::Cursor::new(&mut out);
     let written = match format {
+        #[cfg(feature = "native-media")]
         "webp" => return Ok(webp_of(&scaled, quality)),
         "png" => scaled.write_to(&mut cursor, image::ImageFormat::Png),
         "jpeg" | "jpg" => {
@@ -84,6 +92,7 @@ pub fn resized(probed: &Probed, width: u32, format: &str, quality: u8) -> Result
 }
 
 /// `image` as a lossy WebP at `quality`, its alpha kept where it has one.
+#[cfg(feature = "native-media")]
 fn webp_of(image: &image::DynamicImage, quality: u8) -> Vec<u8> {
     let (width, height) = (image.width(), image.height());
     let quality = f32::from(quality.clamp(1, 100));

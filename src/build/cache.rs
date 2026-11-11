@@ -83,7 +83,7 @@ impl BuildCache {
             return (html.clone(), true);
         }
         if let Some(file) = self.file(key)
-            && let Ok(html) = std::fs::read_to_string(&file)
+            && let Ok(html) = crate::outfs::read_to_string(&file)
         {
             self.pages
                 .lock()
@@ -94,13 +94,13 @@ impl BuildCache {
         let html = render();
         if let Some(file) = self.file(key)
             && let Some(dir) = file.parent()
-            && std::fs::create_dir_all(dir).is_ok()
+            && crate::outfs::create_dir_all(dir).is_ok()
         {
             // Written whole or not at all: a build that stops halfway
             // leaves no half a page for the next to reuse.
             let partial = file.with_extension("partial");
-            if std::fs::write(&partial, &html).is_ok() {
-                let _ = std::fs::rename(&partial, &file);
+            if crate::outfs::write(&partial, &html).is_ok() {
+                let _ = crate::outfs::rename(&partial, &file);
             }
         }
         self.pages
@@ -116,7 +116,7 @@ impl BuildCache {
             .lock()
             .expect("the cache's lock")
             .contains_key(&key)
-            || self.file(key).is_some_and(|f| f.is_file())
+            || self.file(key).is_some_and(crate::outfs::is_file)
     }
 
     /// The page `route` was last painted as, in this session, however its
@@ -149,11 +149,14 @@ impl BuildCache {
             return;
         };
         let keep: HashSet<String> = used.iter().map(|k| format!("{}.html", k.hex())).collect();
-        if let Ok(entries) = std::fs::read_dir(dir.join("pages")) {
-            for entry in entries.flatten() {
-                let name = entry.file_name().to_string_lossy().to_string();
+        if let Ok(entries) = crate::outfs::read_dir(dir.join("pages")) {
+            for entry in entries {
+                let name = entry
+                    .file_name()
+                    .map(|n| n.to_string_lossy().to_string())
+                    .unwrap_or_default();
                 if !keep.contains(&name) {
-                    let _ = std::fs::remove_file(entry.path());
+                    let _ = crate::outfs::remove_file(&entry);
                 }
             }
         }

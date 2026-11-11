@@ -184,18 +184,23 @@ pub fn process_via(
         .unwrap_or_else(|| "png".into());
 
     let img_dir = out_dir.join("img");
-    std::fs::create_dir_all(&img_dir).ok();
+    crate::outfs::create_dir_all(&img_dir).ok();
     let url_of = |file: &str| format!("{base_path}/img/{file}");
 
     // The original, under its hashed name, so it can be cached forever.
     let original = format!("{stem}.{hash}.{extension}");
-    std::fs::write(img_dir.join(&original), &bytes)
+    crate::outfs::write(img_dir.join(&original), &bytes)
         .map_err(|e| crate::error::WebFluentError::IoError(e.to_string()))?;
 
     let mut sources: BTreeMap<String, Vec<(u32, String)>> = BTreeMap::new();
     if settings.pipeline {
         let widths = widths_for(settings, probed.width);
         for format in &settings.formats {
+            // A format this build has no encoder for is never smaller than
+            // the original, which serves instead.
+            if !encode::can_write(format) {
+                continue;
+            }
             let mut made = Vec::new();
             for width in &widths {
                 let file = format!("{stem}.{hash}.{width}.{format}");
@@ -203,28 +208,28 @@ pub fn process_via(
                 let cached = cache_dir.join(&file);
                 // Encoded once, and kept in the cache whether it is shipped
                 // or not, so the next build knows without encoding again.
-                let fresh = if cached.exists() {
+                let fresh = if crate::outfs::exists(&cached) {
                     None
                 } else {
                     let encoded = encode::resized(&probed, *width, format, settings.quality)?;
-                    std::fs::create_dir_all(cache_dir).ok();
-                    std::fs::write(&cached, &encoded).ok();
+                    crate::outfs::create_dir_all(cache_dir).ok();
+                    crate::outfs::write(&cached, &encoded).ok();
                     Some(encoded)
                 };
                 let size = match &fresh {
                     Some(encoded) => encoded.len() as u64,
-                    None => std::fs::metadata(&cached).map(|m| m.len()).unwrap_or(0),
+                    None => crate::outfs::len(&cached).unwrap_or(0),
                 };
                 // A file no smaller than the original is no saving: the
                 // original, which the page falls back to, serves instead.
                 if no_saving(size, bytes.len() as u64) {
-                    let _ = std::fs::remove_file(&at);
+                    let _ = crate::outfs::remove_file(&at);
                     continue;
                 }
-                if !at.exists() {
+                if !crate::outfs::exists(&at) {
                     let written = match &fresh {
-                        Some(encoded) => std::fs::write(&at, encoded),
-                        None => std::fs::copy(&cached, &at).map(|_| ()),
+                        Some(encoded) => crate::outfs::write(&at, encoded),
+                        None => crate::outfs::copy(&cached, &at).map(|_| ()),
                     };
                     written.map_err(|e| crate::error::WebFluentError::IoError(e.to_string()))?;
                 }

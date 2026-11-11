@@ -116,7 +116,7 @@ pub fn check_project_via(vfs: &dyn Vfs, p: &Project) -> Checked {
     // lowered, side by side; their findings are joined in the order they
     // were always given, which the de-duplication below keeps.
     let (around, (program_found, types), structure, lowered, from_lowered) =
-        std::thread::scope(|s| {
+        crate::platform::scope(|s| {
             let around = s.spawn(|| project_checks_via(vfs, shared, file_of));
             let typed = s.spawn(|| program_checks_typed(p.program, file_of, source_of));
             let structure =
@@ -196,7 +196,7 @@ fn project_checks_via(
     };
     out.extend(script_checks_via(vfs, dir, p.scripts));
     out.extend(crate::linter::project::missing_assets(
-        p.program, dir, file_of,
+        vfs, p.program, dir, file_of,
     ));
     out.extend(crate::linter::project::persist_changes(
         p.program, dir, file_of,
@@ -234,7 +234,7 @@ fn lowered_checks(
         .config
         .map(|c| c.build.elements.clone())
         .unwrap_or_default();
-    let (accessibility, (contrast, styles), unused, vocabulary, output) = std::thread::scope(|s| {
+    let (accessibility, (contrast, styles), unused, vocabulary, output) = crate::platform::scope(|s| {
         let accessibility = s.spawn(|| crate::linter::lint_accessibility_in(lowered, file_of));
         let painted = s.spawn(|| match crate::themes::resolve_tokens(lowered, &theme) {
             Ok(mut tokens) => {

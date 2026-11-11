@@ -1277,7 +1277,7 @@ impl ProjectConfig {
     /// variable the build happens to run with, which would put `PATH` and
     /// `HOME` in `wf audit` and in reach of `wf render`.
     pub fn resolve_env(&mut self, project_dir: &Path) {
-        self.resolve_env_from(project_dir, std::env::vars());
+        self.resolve_env_from(project_dir, crate::platform::env_vars());
     }
 
     /// [`resolve_env`](Self::resolve_env) with the shell's variables given.

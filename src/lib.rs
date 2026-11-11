@@ -113,6 +113,10 @@
 //!
 //! ## Crate Features
 //!
+//! - **`native-media`** (default) — lossy WebP through libwebp (C). Without
+//!   it the image pipeline writes no WebP; the original picture serves.
+//! - **`pdf`** (default) — the PDF and slide-deck renderer and its built-in
+//!   fonts. Without it a PDF or deck build stops with a message.
 //! - **`cli`** (default) — the `wf` command's own dependencies: its argument
 //!   parser and the dev server. A program that only compiles or renders
 //!   templates turns it off:
@@ -268,6 +272,17 @@ pub mod generate;
 /// Where a project is read from: the disk ([`vfs::FsVfs`]), or the disk with
 /// an editor's unsaved buffers over it ([`vfs::OverlayVfs`]).
 pub mod vfs;
+
+/// Where a build writes: the disk, or — inside [`outfs::capture`] — memory,
+/// which is how the compiler builds as WebAssembly in a browser.
+pub mod outfs;
+
+/// Threads and clocks, and their stand-ins where WebAssembly has none.
+pub mod platform;
+
+/// A project built from memory, with nothing read from or written to a disk:
+/// what the browser's playground runs.
+pub mod memory;
 
 pub use codegen::node_id::{NodeInfo, NodeMap};
 pub use config::project::{PdfConfig, PdfMargins, SlidesConfig};

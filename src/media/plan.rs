@@ -258,6 +258,17 @@ pub fn plan_probed(
                 });
                 continue;
             }
+            if !encode::can_write(format) {
+                // As the build decides: no encoder, nothing written, and
+                // the original serves at every width.
+                formats.push(FormatPlan {
+                    format: format.clone(),
+                    files: Vec::new(),
+                    dropped: widths.clone(),
+                    error: None,
+                });
+                continue;
+            }
             let pixels: u64 = widths
                 .iter()
                 .map(|w| u64::from(*w) * u64::from(height_at(*w)))
@@ -271,8 +282,7 @@ pub fn plan_probed(
                 let name = format!("{stem}.{hash}.{w}.{format}");
                 let cached = cache
                     .map(|c| c.join(&name))
-                    .and_then(|p| std::fs::metadata(p).ok())
-                    .map(|m| m.len());
+                    .and_then(|p| crate::outfs::len(p).ok());
                 let (size, estimated) = match cached {
                     Some(n) => (n, false),
                     None if exact => match encode::resized(probed, *w, format, settings.quality) {
