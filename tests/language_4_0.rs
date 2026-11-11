@@ -1830,6 +1830,31 @@ fn a_test_reads_a_store_and_seeds_it_by_name() {
     assert_eq!(seeded["count"].as_f64(), Some(2.0));
 }
 
+#[test]
+fn a_stores_derived_value_reads_another_store_whichever_comes_first() {
+    use webfluent::codegen::static_eval::stores_as_values;
+    // `Panel` reads `Editor`, which is declared after it, through a map
+    // by the path: what a page's store does, and what a test renders.
+    let program = parse_source(
+        "store Panel {\n    use Editor\n    state logs: Map = {}\n    derived here = logs[Editor.path] ?? { at: -1 }\n    derived atHere = here.at\n}\nstore Editor {\n    state path = \"a.wf\"\n}\n",
+        "t.wf",
+    )
+    .unwrap();
+    let get = |values: &[(String, serde_json::Value)], name: &str| {
+        values
+            .iter()
+            .find(|(n, _)| n == name)
+            .map(|(_, v)| v.clone())
+            .unwrap()
+    };
+    let plain = stores_as_values(&program, None);
+    assert_eq!(get(&plain, "Panel")["atHere"].as_f64(), Some(-1.0));
+    let seeds = serde_json::json!({ "Panel": { "logs": { "b.wf": { "at": 3 } } }, "Editor": { "path": "b.wf" } });
+    let seeded = stores_as_values(&program, seeds.as_object());
+    assert_eq!(get(&seeded, "Panel")["atHere"].as_f64(), Some(3.0));
+    assert_eq!(get(&seeded, "Editor")["path"], "b.wf");
+}
+
 // ─── Security, as a subject the language takes seriously ───
 
 #[test]

@@ -233,10 +233,8 @@ impl Scope {
             ),
         );
 
-        for decl in &program.declarations {
-            if let Declaration::Store(store) = decl {
-                frame.insert(store.name.clone(), store_value(store));
-            }
+        for (name, value) in stores_with(program, None) {
+            frame.insert(name, value);
         }
 
         let mut scope = Scope {
@@ -378,13 +376,59 @@ pub fn store_as_value(
     store_value_with(store, seed).to_json()
 }
 
-fn store_value(store: &crate::parser::ast::StoreDecl) -> Static {
-    store_value_with(store, None)
+/// Every store of `program` as a value, each with the other stores in
+/// reach: a derived value that reads another store (`Editor.path`) works it
+/// out. Worked out twice, so a store may read one declared after it.
+/// `seeds` are what a test's `data` names, by store.
+pub fn stores_as_values(
+    program: &crate::parser::ast::Program,
+    seeds: Option<&serde_json::Map<String, serde_json::Value>>,
+) -> Vec<(String, serde_json::Value)> {
+    stores_with(program, seeds)
+        .into_iter()
+        .map(|(n, v)| (n, v.to_json()))
+        .collect()
+}
+
+fn stores_with(
+    program: &crate::parser::ast::Program,
+    seeds: Option<&serde_json::Map<String, serde_json::Value>>,
+) -> Vec<(String, Static)> {
+    let stores: Vec<&crate::parser::ast::StoreDecl> = program
+        .declarations
+        .iter()
+        .filter_map(|d| match d {
+            Declaration::Store(store) => Some(store),
+            _ => None,
+        })
+        .collect();
+    let mut known: HashMap<String, Static> = HashMap::new();
+    for _ in 0..2 {
+        for store in &stores {
+            let v = store_value_in(store, seeds.and_then(|m| m.get(&store.name)), &known);
+            known.insert(store.name.clone(), v);
+        }
+    }
+    stores
+        .iter()
+        .filter_map(|s| known.remove(&s.name).map(|v| (s.name.clone(), v)))
+        .collect()
 }
 
 fn store_value_with(
     store: &crate::parser::ast::StoreDecl,
     seed: Option<&serde_json::Value>,
+) -> Static {
+    store_value_in(store, seed, &HashMap::new())
+}
+
+/// A store as a value: its state, or what `seed` gives in its place, and
+/// its derived values worked out with `others` — the other stores — in
+/// reach.
+fn store_value_in(
+    store: &crate::parser::ast::StoreDecl,
+    seed: Option<&serde_json::Value>,
+    others: &HashMap<String, Static>,
 ) -> Static {
     let actions: Vec<&ActionDecl> = store
         .body
@@ -395,7 +439,7 @@ fn store_value_with(
         })
         .collect();
     let mut scope = Scope {
-        frames: vec![Arc::default()],
+        frames: vec![Arc::new(others.clone())],
         functions: Arc::default(),
         depth: 0,
     }

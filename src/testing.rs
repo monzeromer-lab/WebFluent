@@ -474,17 +474,7 @@ pub fn render_test(
     // declarations, so without this a `Cart.count` in a test rendered as
     // nothing.
     if let serde_json::Value::Object(map) = &mut data {
-        let seeds: Vec<(String, serde_json::Value)> = program
-            .declarations
-            .iter()
-            .filter_map(|d| match d {
-                Declaration::Store(store) => Some((
-                    store.name.clone(),
-                    crate::codegen::static_eval::store_as_value(store, map.get(&store.name)),
-                )),
-                _ => None,
-            })
-            .collect();
+        let seeds = crate::codegen::static_eval::stores_as_values(&program, Some(map));
         for (name, value) in seeds {
             map.insert(name, value);
         }
