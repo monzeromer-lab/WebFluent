@@ -15,6 +15,12 @@
 //!
 //! [`agrees`] holds a patch to the code a full build generates: the two
 //! programs' pages must differ by the patch and by nothing more.
+//!
+//! [`in_place`]: crate::patch::in_place
+//! [`agrees`]: crate::patch::agrees
+//! [`InPlace::Same`]: crate::patch::InPlace::Same
+//! [`InPlace::Patch`]: crate::patch::InPlace::Patch
+//! [`InPlace::Rebuild`]: crate::patch::InPlace::Rebuild
 
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
