@@ -185,7 +185,11 @@
     const pressed = (e.key || "").toLowerCase();
     if (pressed !== step.key) {
       const code = /^[a-z]$/.test(step.key) ? `key${step.key}` : /^[0-9]$/.test(step.key) ? `digit${step.key}` : PUNCT_CODES[step.key] || null;
-      const latin = PUNCT_CODES[step.key] ? /^[\x20-\x7e]$/.test(pressed) : /^[a-z0-9]$/.test(pressed);
+      // With Shift, a punctuation key sends its other character — `/` is
+      // `?` on a US layout — so `mod+shift+/` is that key held with Shift,
+      // read by its place.
+      const shifted = step.shift && PUNCT_CODES[step.key] && e.shiftKey;
+      const latin = PUNCT_CODES[step.key] ? !shifted && /^[\x20-\x7e]$/.test(pressed) : /^[a-z0-9]$/.test(pressed);
       if (!code || latin || (e.code || "").toLowerCase() !== code) return false;
     }
     return !!e.ctrlKey === step.ctrl && !!e.shiftKey === step.shift && !!e.altKey === step.alt && !!e.metaKey === step.meta;

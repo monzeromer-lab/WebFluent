@@ -57,6 +57,16 @@ test("a layout that gives a Latin letter is read by it; one that does not, by th
   assert.equal(WF.keyIs(key(";", { code: "Comma", ctrlKey: true }), "mod+;"), true);
 });
 
+test("a punctuation key held with Shift is read by its place: ⌘⇧/ sends ?", () => {
+  const { WF } = on("Linux x86_64");
+  assert.equal(WF.keyIs(key("?", { code: "Slash", ctrlKey: true, shiftKey: true }), "mod+shift+/"), true);
+  assert.equal(WF.keyIs(key("{", { code: "BracketLeft", ctrlKey: true, shiftKey: true }), "mod+shift+["), true);
+  // Without Shift in the combination, the other character is not it.
+  assert.equal(WF.keyIs(key("?", { code: "Slash", ctrlKey: true, shiftKey: true }), "mod+/"), false);
+  // Nor is another key that sends `?` with Shift.
+  assert.equal(WF.keyIs(key("?", { code: "Comma", ctrlKey: true, shiftKey: true }), "mod+shift+/"), false);
+});
+
 test("a combination is written as the system writes it", () => {
   const mac = on("MacIntel").WF;
   const win = on("Win32").WF;
