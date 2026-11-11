@@ -225,7 +225,7 @@ page About(path: "/about", title: "About", description: "What this site is for."
   sw.js               the service worker, when the config names "offline"
   *.gz                pre-compressed copies a host can serve as they are"#, title: "text")
 
-        Markdown("Do not edit anything in `build/`: the next build writes it again. Keep it out of version control; the `.gitignore` that `wf init` writes already does. The build copies `public/` to the root of `build/` as it is.\n\n`app.js` carries only the parts of the runtime the program reaches. The runtime is a set of feature modules — `each` for a `for`, `router` for a second page, `net` for a `resource`, `icons` for an `Icon` — and the build works out which ones the code it just wrote calls. A page of static text carries 3 of the 37 modules: an `app.js` of 3.7 kB gzipped. `wf build --stats` shows what a build weighs, and [Performance](/docs/guide/performance) explains how to read it.")
+        Markdown("Do not edit anything in `build/`: the next build writes it again. Keep it out of version control; the `.gitignore` that `wf init` writes already does. The build copies `public/` to the root of `build/` as it is.\n\n`app.js` carries only the parts of the runtime the program reaches. The runtime is a set of feature modules — `each` for a `for`, `router` for a second page, `net` for a `resource`, `icons` for an `Icon` — and the build works out which ones the code it just wrote calls. A page of static text carries 2 of the 41 modules: an `app.js` of 6.8 kB gzipped. `wf build --stats` shows what a build weighs, and [Performance](/docs/guide/performance) explains how to read it.")
 
         Heading("The project, in brief", id: "the-project-in-brief").h2
 

@@ -4,7 +4,7 @@
 route: guide/media
 group: ui
 blurb: Add pictures the build resizes for every screen, video with captions, audio with a transcript, icons, carousels and frames.
-description: Add images from public/ and the image pipeline, Video with captions, Audio with a transcript, the 72 built-in icons, Carousel and Frame.
+description: Add images from public/ and the image pipeline, Video with captions, Audio with a transcript, the 83 built-in icons, Carousel and Frame.
 -->
 
 This chapter shows you how to put pictures, sound, video, icons and other
@@ -183,7 +183,7 @@ page Inbox(path: "/", title: "Inbox", description: "Messages, with icons.") {
 accessible name for screen readers, and also its tooltip unless you give it
 a `title:`. `Sidebar.Item` takes an `icon:` too.
 
-These are the 72 built-in icons:
+These are the 83 built-in icons:
 
 - **General**: `home`, `menu`, `search`, `close`, `user`, `settings`,
   `check`, `plus`, `minus`, `edit`, `trash`, `star`, `heart`, `mail`,

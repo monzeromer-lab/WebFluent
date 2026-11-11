@@ -194,7 +194,7 @@ policy for exactly that origin. An inline `<script>` in an HTML file in
 
 ### An icon shows as a word
 
-The name is not one of the 72 built-in icons
+The name is not one of the 83 built-in icons
 ([Media](21-media.md#show-an-icon)), or the name is put together at run
 time, which the build cannot see, so the build left its glyph out.
 

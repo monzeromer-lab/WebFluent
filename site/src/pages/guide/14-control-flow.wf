@@ -190,7 +190,7 @@ page Job(path: "/", title: "Job", description: "One arm per case of an enum.") {
                     Table.Cell { Markdown("[`if let`](#if-let)") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`for t in todos by t.id \{ … \}`") }
+                    Table.Cell { Markdown("`for todo in todos by todo.id \{ … \}`") }
                     Table.Cell("the block once per item, keyed")
                     Table.Cell { Markdown("[`for`](#for)") }
                 }

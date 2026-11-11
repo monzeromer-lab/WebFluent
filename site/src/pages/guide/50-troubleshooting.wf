@@ -88,7 +88,7 @@ page TroubleshootingGuide(path: "/docs/guide/troubleshooting", title: "Troublesh
 
         Heading("An icon shows as a word", id: "an-icon-shows-as-a-word").h3
 
-        Markdown("The name is not one of the 72 built-in icons ([Media](/docs/guide/media#show-an-icon)), or the name is put together at run time, which the build cannot see, so the build left its glyph out.\n\nFix the name, or write it as a literal. If it must be built at run time, set `\"build\": \{ \"runtime\": \"full\" \}`, which ships every icon.")
+        Markdown("The name is not one of the 83 built-in icons ([Media](/docs/guide/media#show-an-icon)), or the name is put together at run time, which the build cannot see, so the build left its glyph out.\n\nFix the name, or write it as a literal. If it must be built at run time, set `\"build\": \{ \"runtime\": \"full\" \}`, which ships every icon.")
 
         Heading("WF.something is not a function from your own script", id: "wf-something-is-not-a-function-from-your-own-script").h3
 

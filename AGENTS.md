@@ -27,7 +27,7 @@ Files in `public/` are copied to the **root** of the build output (not nested un
 
 ```bash
 wf init <name> -t spa|static|pdf|slides [--locales en,ar]   # Create a project (with this AGENTS.md in it); --locales: translated, the default first
-wf build [-d DIR] [--stats] [--cache] [--studio]  # Compile (--stats: what it weighs; --cache: only the pages an edit changed; --studio: node ids for an editor's preview, nodes.json)
+wf build [-d DIR] [--stats] [--cache] [--studio] [--format F] [--deny-warnings]  # Compile (--stats: what it weighs; --cache: only the pages an edit changed; --studio: node ids for an editor's preview, nodes.json)
 wf check [-d DIR] [--format F] [--deny-warnings]  # Every finding, nothing written
 wf fix [-d DIR] [--code C] [--dry-run]            # Apply every finding's fix (or one code's)
 wf config schema [--json] | get PATH | set PATH VALUE | unset PATH   # Every setting; edit webfluent.app.json keeping its shape
@@ -36,20 +36,21 @@ wf assets [--unused] [--plan /a.png] [--json]  # public/: each file's kind, size
 wf theme [--json]                         # The theme: every token, declared or inherited, its uses, the contrast pairs
 wf motion [--json]                        # The animations, eases, speeds and route transitions, and the default
 wf rules [--json]                         # The validate rules, named patterns, and every state held to a rule
-wf scope FILE:LINE[:COL] [--json]         # What can be read there: each name in scope, its type, where it comes from
-wf translations [--missing L] [--unused] [--json] # The translations table: what each locale lacks, what nothing names
+wf scope FILE:LINE[:COL] [--data D] [--json]  # What can be read there: each name in scope, its type, where it comes from
+wf translations [--missing L] [--unused] [--plurals] [--json] # The translations table: what each locale lacks, what nothing names
 wf context [--open FILE] [--guide full] [--json] # Everything an agent is given about the project, private env withheld
 wf components [--json]                    # Every component a call can name, built-in and the project's: props and their kinds, events, slots, parts
 wf explain [CODE]                         # A diagnostic's entry: meaning, example, fix
 wf serve [-d DIR]                         # Dev server (localhost:3000): rebuilds on save, reloads the page, shows a failed build's error over it
-wf generate page|component|store <name>   # Scaffold a file, in the project's layout
+wf generate page|component|store <name> [-d DIR]  # Scaffold a file, in the project's layout
 wf fmt [path] [--check] [--stdout]        # Format a project's sources (--check fails when one would change)
 wf fmt --to wfx|wf [path] [--stdout]      # Switch a project between .wf and .wfx
 wf test [path] [--update]                 # Run the `test "…" { }` declarations under tests/
 wf docs [-d DIR] [-o OUT]                 # A component gallery: every built-in, and what the project declares
-wf migrate [path] [--check] [--wfx]       # WebFluent 2 → 3 (and to .wfx), 3 → 4, and 4 → 4.2 (`external` rewritten)
+wf migrate [path] [--check] [--stdout] [--wfx]  # WebFluent 2 → 3 (and to .wfx), 3 → 4, and 4 → 4.2 (`external` rewritten)
 wf verify [path] [--json] [--budget MS] [--returning-visitor]  # Load every page in a real browser: errors, failed requests, paint timing
 wf audit [path] [--json]                  # What the project trusts: markup, origins, storage, env, policy, dependencies
+wf render TEMPLATE [--data D] [-f html|html-fragment|pdf|slides] [-o OUT] [--page P] [--lang L]  # A template rendered with JSON data (see Template Engine)
 wf registry [--json]                      # Every built-in: props, cases, flags, events, slots, parts
 wf types [path] [--json]                  # What a project declares: enums, types, components, stores, pages
 ```
@@ -318,7 +319,7 @@ component Rows(items: [Todo]) {
     for it, i in items by it.id { row(item: it, index: i) }
 }
 
-Rows(items: todos) { row(t, i) { Text("{i}: {t.title}") } }
+Rows(items: todos) { row(todo, i) { Text("{i}: {todo.title}") } }
 ```
 
 A component may declare **parts** — components of its own, called under
@@ -631,7 +632,7 @@ It is how an element picks up a rule from the project's own stylesheets (see
 condition, and a list joins strings and maps, skipping `null`:
 
 ```wf
-Text(t.title, class: { "is-done": t.done, "is-urgent": t.priority > 2 })
+Text(todo.title, class: { "is-done": todo.done, "is-urgent": todo.priority > 2 })
 Card(class: ["feature", tone, if open { "is-open" }])
 ```
 
@@ -779,8 +780,8 @@ disabled: save.pending)`, `Api.sync.pending` on a store).
 Button("Click") {
     on click { doSomething() }
 }
-Input(bind: query).text {
-    on input { search(query) }
+Input(bind: term).text {
+    on input { search(term) }
 }
 Form {
     on submit(event) { event.preventDefault()  saveData() }
@@ -1005,8 +1006,8 @@ derived short = description.truncate(80)
 ```
 
 List helpers: `sortBy(f)`, `groupBy(f)` (a map of lists), `unique()`,
-`take(n)`, `first()`, `last()`, `flatMap(f)`, `sum()`, beside the
-JavaScript methods; string helpers: `capitalize()`, `truncate(n)`,
+`take(n)`, `first()`, `last()`, `sum()`, `remove(i)` (a copy without the
+item at `i`), beside the JavaScript methods (`flatMap`, `findLast`, `at`, …); string helpers: `capitalize()`, `truncate(n)`,
 `dedent()` (the common indentation off a block of text), `lines()`,
 `words()`, and `match`, `replace`, `replaceAll`, `split`, `search` with a
 regex. Every one runs at build time too, so the static paint shows the
@@ -1580,6 +1581,47 @@ component made goes when the element leaves the document. React, Vue,
 Svelte, Rails, WordPress and a plain page can all place a tag, which is why
 this is one output rather than an adapter per framework.
 
+### A desktop or phone app (Tauri, Electron)
+
+The `build/` folder is what a Tauri or Electron window shows; nothing in
+the language changes. Leave out what only a website needs, and let the
+page reach Tauri's IPC, which travels as a request:
+
+```json
+{
+    "build": { "ssg": false, "compress": false },
+    "meta": { "sitemap": false, "connect": ["ipc:", "http://ipc.localhost"] }
+}
+```
+
+In `src-tauri/tauri.conf.json`: `"frontendDist": "../build"`, `"devUrl":
+"http://localhost:3000"`, `"beforeDevCommand": "wf serve"`,
+`"beforeBuildCommand": "wf build"`, `"app": { "withGlobalTauri": true,
+"security": { "csp": null } }` — the page carries its own policy. A page
+reaches Rust through one plain script, `src/native.js`, with one
+JSDoc-typed function per command over `window.__TAURI__.core.invoke`; each
+answers harmlessly when `"__TAURI__" in window` is false, so `wf serve` in
+a browser, `wf test` and `wf verify` still load every page. A store's
+actions `await` those functions in a `try`; an event Rust emits is heard
+in an `effect { let stop = …  cleanup { stop() } }`, so it stops with its
+page; `persist x = … { in: .app }` keeps settings through
+`window.wfStorage.app`, which that script backs with the store plugin.
+Fonts go in `public/` with `@font-face`, never `meta.fonts`, so the app
+works offline. The guide's "Desktop apps" chapter is the step-by-step,
+Electron included.
+
+The same project runs on Android and iOS (`cargo tauri android init`,
+`cargo tauri android dev`; `ios` on a Mac). `wf serve` listens on every
+interface, so a phone reaches the dev server when Tauri points `devUrl` at
+the machine's address. A phone has no window chrome: draw a title bar only
+on a desktop. Its page is drawn edge to edge, so a shell pads by
+`env(safe-area-inset-*)` once the script sets `viewport-fit=cover` on the
+viewport tag. Android's back gesture goes back through the router's
+history; to close an open sheet first, take it with Tauri's
+`app.onBackButtonPress` from the same script, in an effect that gives it
+back. Capabilities are split by `"platforms"`, and a phone-only plugin
+(haptics, a barcode scanner) is registered under `#[cfg(mobile)]`.
+
 ### Navigation
 
 ```wf
@@ -1690,7 +1732,7 @@ file would change; a `.wfx` file is normalised through its braced spelling.
 | `List` | `List { List.Item { Text("Item 1") } List.Item { Text("Item 2") } }` — `List.ordered` for numbered |
 | `Badge` | `Badge("Label").primary` — tones: `.primary`, `.secondary`, `.success`, `.danger`, `.warning`, `.info`; `.pill` |
 | `Tag` | `Tag("JavaScript")` |
-| `Avatar` | `Avatar(src: "/photo.jpg", alt: "User")` or `Avatar(initials: "MO").primary` — flags: `.sm`, `.lg`, `.primary` |
+| `Avatar` | `Avatar(src: "/photo.jpg", alt: "User")` or `Avatar(initials: "MO").primary` — flags: `.sm`, `.md`, `.lg`, `.primary` |
 | `Tooltip` | `Tooltip("Save", shortcut: "Ctrl+S", delay: 400, placement: .bottom) { Button("Save").primary }` — wraps children; shows above everything after `delay:` ms of hover (unset, 500), at once on keyboard focus |
 
 ### Form & Input
@@ -1703,7 +1745,7 @@ file would change; a `.wfx` file is normalised through its braced spelling.
 | `Radio` | `Radio(bind: var, value: "opt1", label: "Option 1")` |
 | `Switch` | `Switch(bind: var, label: "Enable")` |
 | `Slider` | `Slider(bind: volume, min: 0, max: 100, step: 1, label: "Volume")` — range input with reactive value. `aria-*`, `id:`, `role:`, `disabled:` and the rest of its attributes reach the input (`hidden`, `lang`, `dir` its box); with `aria-valuetext:` the raw number is not shown beside the track (you are showing it) |
-| `DatePicker` | `DatePicker(bind: selectedDate, label: "Start Date", min: "2026-01-01")` — date input |
+| `DatePicker` | `DatePicker(bind: selectedDate, label: "Start Date", min: "2026-01-01")` — date input; the bound state holds a `Date` (`state selectedDate: Date? = null`) |
 | `FileUpload` | `FileUpload(accept: "image/*", label: "Upload Photo") { on change(e) { handleFile(e) } }` — flags: `.multiple` |
 | `Textarea` | `Textarea(bind: note, label: "Notes", rows: 4, maxLength: 200)` — several lines; with `maxLength` it counts what is left |
 | `Form` | `Form(bind: form, show: .onBlur) { on submit { save() } ... }` — `show`: when a `validate` message appears (`.onBlur`, `.onSubmit`, `.live`) |
@@ -1717,7 +1759,7 @@ Input types (a flag): `.text`, `.email`, `.password`, `.number`, `.search`, `.te
 | `Alert` | `Alert("Message").success` — tones: `.success`, `.danger`, `.warning`, `.info` |
 | `Toast` | `Toast("Saved!").success` — temporary notification |
 | `Modal` | `Modal(visible: showModal, title: "Title") { on close { ... } ... Modal.Footer { ... } }` — a `<dialog>`; `title:` is its heading, and `Modal.Title { Markdown("Rename `{name}`") }` draws the heading instead, `title:` staying its name; `.closable` puts a close button in the heading row; `on close` runs however it closes; an open one is the newest layer, so opened over a popover it takes the first Escape and the popover the next |
-| `Dialog` | `Dialog(visible: show, title: "Confirm") { ... }` — as `Modal` |
+| `Dialog` | `Dialog(visible: asking, title: "Confirm") { ... }` — as `Modal`, with `Dialog.Title` and no footer part |
 | `Popover` | `Popover(visible: open, anchor: button, placement: .bottomStart, label: "Branches").arrow { on close(reason) { ... } ... }` — a layer above everything at `anchor:` (a `ref:`) or `at:` a point; flips and slides to stay on screen; Escape or a press outside sets `visible:` back to `false`, and `on close` hears `"escape"` or `"outside"`; `role:` (in place of `dialog`), `tabindex:`, `aria-*`, `data-*`, `ref:` and its other `on` handlers are its element's, as on any element — and on a `Menu`, a `Tooltip`, a `Modal` and a `Dialog` too |
 | `Spinner` | `Spinner` or `Spinner.lg` |
 | `Progress` | `Progress(value: 75, max: 100)` |
@@ -1743,7 +1785,7 @@ Button flags: `.sm`, `.lg`, `.full`, `.rounded`, `.pill`, `.outlined`; `type: .s
 | `Video` | `Video(src: "/video.mp4", captions: "/clip.en.vtt", poster: "/frame.jpg").controls` — `muted`, `loop`, `playsinline`; without `captions` it draws an `A09` |
 | `Audio` | `Audio(src: "/talk.mp3", transcript: "/talk.txt").controls` — the transcript is a link beneath the player |
 | `Frame` | `Frame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") { on message(m) { heard = m.data } }` — another page inside this one; `on message` hears only what that page posts; without `title:` it draws an `A17`. `Frame(srcdoc: html, title: "Example", sandbox: "")` draws the HTML it is given instead of an address, sandboxed as `sandbox:` says, and draws the new HTML when a value that reads state changes |
-| `Icon` | `Icon("home")` or `Icon("search").lg.primary` — 32 built-in SVG icons rendered inline |
+| `Icon` | `Icon("home")` or `Icon("search").lg.primary` — 83 built-in SVG icons rendered inline (see [Icon System](#icon-system)) |
 | `Carousel` | `Carousel(autoplay: true, interval: 5000) { Carousel.Slide { Image(src: "...") } }` — slide track with dots and autoplay |
 
 ### Typography
@@ -1819,7 +1861,7 @@ Avatar(initials: "MO").primary
 Avatar(initials: "J").lg
 ```
 
-Flags: `.sm`, `.lg`, `.primary`
+Flags: `.sm`, `.md`, `.lg`, `.primary`
 
 #### Skeleton
 
@@ -1865,9 +1907,10 @@ Slider(bind: volume, min: 0, max: 100, step: 1, label: "Volume")
 
 #### DatePicker
 
-Date input:
+Date input. The bound state holds a `Date` (`F02` otherwise):
 
 ```wf
+state selectedDate: Date? = null
 DatePicker(bind: selectedDate, label: "Start Date", min: "2026-01-01")
 ```
 
@@ -1884,7 +1927,7 @@ FileUpload(accept: ".pdf,.doc", label: "Documents").multiple
 
 ### Icon System
 
-WebFluent includes 72 built-in SVG icons, rendered inline. Available icons:
+WebFluent includes 83 built-in SVG icons, rendered inline. Available icons:
 
 `home`, `menu`, `search`, `close`, `user`, `settings`, `check`, `plus`, `minus`, `edit`, `trash`, `star`, `heart`, `mail`, `bell`, `download`, `upload`, `eye`, `link`, `calendar`, `filter`, `info`, `warning`, `arrow-left`, `arrow-right`, `chevron-down`, `chevron-right`, `chevron-left`, `logout`, `copy`, `sun`, `moon`; for an editor or a tool: `folder`, `folder-plus`, `folder-off`, `file`, `file-plus`, `refresh`, `alert-circle`, `clock`, `dot`, `diff`, `book`, `git-pull-request`, `pin`, `git-branch`, `more-horizontal`, `window-minimize`, `window-maximize`, `outline`, `help-circle`, `collapse-all`, `locate`, `chevron-up`, `globe`, `external-link`, `panel-down`, `panel-up`, `code`, `monitor`, `git-commit`, `play`, `layers`, `insert`, `grid`, `list`, `square`, `pill`, `image`, `sparkle`, `lock`, `type`, `pointer`, `reach`, `frame`, `line`, `pipette`, `comment`, `hand`, `zoom`, `ruler`, `eye-off`, `unlock`
 
@@ -1986,7 +2029,7 @@ Card(ref: panel) { on mouseenter { animate(panel, "pulse", "400ms") } }
 Button("Hover") {
     transition {
         background: 200ms ease
-        transform: $d-fast spring
+        transform: $animation-duration-fast spring
     }
 }
 
@@ -2140,16 +2183,16 @@ in CSS nesting syntax: `&` is the element.
 ```wf
 Button("Publish changes") {
     style {
-        background: $brand
-        color: $on-brand
-        &:hover { background: $brand-hover }
+        background: $color-primary
+        color: $color-surface
+        &:hover { background: $color-secondary }
         &:active { transform: translateY(1px) }
-        &:focus-visible { outline: 2px solid $focus-ring; outline-offset: 2px }
+        &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px }
         &:disabled { opacity: 0.45 }
     }
 }
 Input(placeholder: "shop.example.com").text {
-    style { &::placeholder { color: $text-tertiary } }
+    style { &::placeholder { color: $color-text-muted } }
 }
 Link("Home", to: "/") {
     style { &[aria-current="page"] { font-weight: 600 } }
@@ -2307,7 +2350,7 @@ reaches. The runtime is a set of feature modules (`each`, `router`, `net`,
 bundle it just wrote: every `WF.<name>` the code generator emitted, closed
 over each module's dependencies, plus the glyphs the program names, which
 are the only ones the icon table keeps. A page that shows static text
-carries 3 of the 37 modules — an `app.js` of 3.7 kB gzipped; a `for` adds
+carries 2 of the 41 modules — an `app.js` of 6.8 kB gzipped; a `for` adds
 `each`, a second page adds `router`, a `resource` adds `net`.
 
 Nothing is hand-marked, so the set cannot fall behind the compiler. A name
@@ -2325,14 +2368,13 @@ with its size and what reached it.
 
 ```
   What it weighs
-    app.js                                10.6 kB  (3.6 kB gzipped)  −0.1 kB
-    styles.css                            10.0 kB  (2.7 kB gzipped)
+    app.js                                19.6 kB  (6.8 kB gzipped)  −0.1 kB
+    styles.css                            14.5 kB  (3.5 kB gzipped)
 
-  Runtime: 3 of 37 modules, 23.4 kB of 220.3 kB (before minifying)
-    core          18.6 kB  always
+  Runtime: 2 of 41 modules, 42.9 kB of 382.2 kB (before minifying)
+    core          39.9 kB  always
     pages          2.5 kB  WF.page
-    hydrate        0.9 kB  WF.hydrate
-    left out: motion helpers format form text when match slot each show …
+    left out: motion helpers format offline peer scalars form text when match …
 ```
 
 `build.budget` names a gzipped size an output must stay under. A build over
@@ -2968,6 +3010,7 @@ the editor's quick fix and the JSON's `fixes`: the nearest name for `T05`,
 | `E002` | A syntax error: what was expected, and what was found |
 | `E003` | `.wfx` indentation that lines up with no block |
 | `E004` | A file in the WebFluent 2 grammar (`wf migrate`) |
+| `E005` | A file `wf fmt` will not change: formatting would change what it says, so it is left as it is |
 | `E101` | A component nothing declares (an element, a `layout:`, a part) |
 | `E102` | A name declared twice in one scope — two stores, a state and a derived — with the first as a related place |
 | `E103` | A flag, case, part, event, slot or `emit` the registry or the component's declaration does not know (`Button has no flag or enum case `huge``, with the ones it takes) |
@@ -2983,7 +3026,6 @@ the editor's quick fix and the JSON's `fixes`: the nearest name for `T05`,
 | `E114` | `emit` outside a component |
 | `E116` | `Element`'s tag is not a custom element's |
 | `E118` | A name the language already has, declared as the program's own — `state env`, `for t in …`, a prop `query`, a `const format` |
-| `E119` | A hidden direction control (U+202A–U+202E, U+2066–U+2069) in the source: Trojan Source |
 | `E901` | The compiler wrote JavaScript a browser would refuse (it reads back every script it writes — a WebFluent bug) |
 | `E902` | A page the content security policy shipped beside it would block |
 | `C02` | A prop your component does not declare |
@@ -3010,6 +3052,7 @@ And what the type checker finds:
 | `T16` | A method a number, a string or a list does not have, with the nearest one that it does (`joined` → `join`) |
 | `T17` | An async action's result used before it is awaited; `await` outside an action, a handler, a timer or a hook (in a `derived` value or an effect); `.pending` on an action that awaits nothing |
 | `T18` | Arithmetic on something that is not a number (`"12" * 2`, `items - 1`) |
+| `T22` | A handler that names more values than its event sends — `on click(e, x)`, or `on menu(a, b, c, d)` for an event of three |
 | `X01` | An assignment to something that cannot change: a `const`, a `data` constant, a `derived` value (a store's too), a prop, a route parameter, a loop variable, an action |
 | `C01` | A required prop or record field left out — on a call, a `layout:`, a record (`Todo(title: "x")` when `id` has no default), a built-in's (`Portal` without `into:`); a flag gives a `Bool` or an enum prop |
 | `C03` | A part outside its owner (`Select.Option` with no `Select` around it) |
@@ -3023,13 +3066,11 @@ And what the type checker finds:
 | `R01` | A link or `navigate()` to a path no page's route matches (spliced paths by their shape; a path with no leading `/`) |
 | `R02` | A route's `:param` with no page parameter of that name, or the reverse |
 | `R03` | An `app` with no `Router` (no page is ever drawn), or with two |
-| `V12` | A `VirtualList` whose body is not one keyed `for`: it draws every row |
 | `E117` | An `on key("…")` combination no keyboard sends — an unknown modifier, no key, a key that does not exist, in any step of a chord |
 | `D02` | A `persist` of a value storage cannot keep as JSON — a function, a `File`, a promise |
 | `I01` | A literal `t("key")` that no locale's translations have, so the page shows the key |
 | `I02` | A message and its call that disagree: a value passed the message does not use, or a placeholder the call does not pass |
 | `I04` | `setLocale("xx")` naming a locale `i18n.locales` does not list |
-| `I05` | Under `i18n.literals`, shown words no table can translate: text splicing more than a name, or a value shown by a name that does not say it is words |
 | `V06` | A `$token` the resolved theme does not declare, so the property falls back to nothing |
 
 An endpoint a service does not have is `T06`, and an argument it does not
@@ -3119,6 +3160,9 @@ paint alike.
 | `V10` | A `Host(tag: …)` it does not make — it makes `div`, `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul`, `table`; any other is a `div` |
 | `V11` | A component named like a built-in (`Footer`, `Chart`): a call of that name draws the built-in, so the component is never drawn |
 | `X06` | A `state` whose initial value reads `now`, `viewport`, `query`, `hash`, `theme`, `network` or `update` (outside a lambda) and that nothing assigns, binds or changes in place: it holds the value it started with, so `state clock = now(every: 1.seconds)` never ticks. The fix makes it `derived` |
+| `I05` | Under `i18n.literals`, shown words no table can translate: text splicing more than a name, or a value shown by a name that does not say it is words |
+| `V12` | A `VirtualList` whose body is not one keyed `for`: it draws every row |
+| `E119` | A hidden direction control (U+202A–U+202E, U+2066–U+2069) in the source: Trojan Source |
 
 The heading-outline rules (`A11`, `A12`) do not apply to `Presentation` or
 `Document` output, where an `h1` per slide or per section is correct.
@@ -3167,6 +3211,7 @@ now ships on every page.
     "author": "Name",
     "theme": {
         "name": "Brand",
+        "dark": null,
         "tokens": {},
         "builtin": "full"
     },
@@ -3249,10 +3294,20 @@ now ships on every page.
     "i18n": {
         "default_locale": "en",
         "locales": ["en"],
-        "dir": "src/translations"
+        "dir": "src/translations",
+        "literals": false
     }
 }
 ```
+
+- `theme.dark` names the theme for `prefers-color-scheme: dark` (see Themes).
+- `theme.builtin` is `"full"` (the built-ins' own look) or `"structural"`
+  (their layout and behaviour only — for a design system that styles
+  everything itself).
+- `build.output_type` is `"spa"`, `"static"`, `"pdf"`, `"slides"` or
+  `"elements"`.
+- `i18n.literals: true` makes the default locale's text its own key (see
+  i18n); `wf config schema` lists every key with its default.
 
 ## Template Engine (Server-Side Rendering)
 
@@ -3603,6 +3658,6 @@ page DeployList(path: "/deploys", title: "Deploys", description: "Every deploy."
 17. **Quoted map keys**: `{ "Content-Type": "application/json" }` — use for HTTP headers and hyphenated keys
 18. **Reserved words as map keys, not as names**: `{ action: "approve", token: tok }` — all keywords work as map keys, fields and enum cases; a name the language has is never a program's own (`E118`): `env`, `params`, `locale`, `dir`, `now`, `viewport`, `query`, `hash`, `theme`, `network`, `update`, the built-in functions (`t`, `format`, `ago`, `log`, `navigate`, `fetch`, `uuid`, `every`, `after`, …) and the words a statement is written with (`state`, `action`, `let`, `if`, `show`, `match`, `style`, `on`, …) cannot be a state, prop, parameter, loop item, lambda parameter or `const`. `event`, `e`, `value`, `key` and the browser's globals can
 19. **`public/` copies to build root**: files in `public/` land at the root of the output directory, not nested
-20. **Slides need a Presentation wrapper**: `Page X { Presentation { Slide { ... } } }` — slide elements outside `Presentation` are a compile error
+20. **Slides need a Presentation wrapper**: `page Deck(path: "/") { Presentation { Slide { ... } } }` — slide elements outside `Presentation` are a compile error
 21. **One Slide = one PDF page**: slides do not flow across pages; overflow is clipped with a note
 22. **A PDF is the page, printed**: the same CSS lays it out — style a document as you would a web page, and use `break-inside: avoid`, `PageBreak` and `Header`/`Footer` for what paper needs

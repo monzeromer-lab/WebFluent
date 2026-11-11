@@ -309,7 +309,7 @@ page Sync(path: "/", title: "Sync", description: "Control flow inside an action.
 |---|---|---|
 | `if c { … } else if d { … } else { … }` | the first branch whose condition holds | [`if`](#if-else-if-else) |
 | `if let u = user { … }` | a branch with the value, when it is not null | [`if let`](#if-let) |
-| `for t in todos by t.id { … }` | the block once per item, keyed | [`for`](#for) |
+| `for todo in todos by todo.id { … }` | the block once per item, keyed | [`for`](#for) |
 | `for t, i in todos { … }`, `for n in 1..=3 { … }` | with the index; over a range | [`for`](#for) |
 | `VirtualList(rowHeight: 32) { for … by … }` | only the rows in view | [Long lists](#long-lists) |
 | `show open { … }` | its block, hidden rather than removed | [`show`](#show) |

@@ -340,7 +340,7 @@ does. The build copies `public/` to the root of `build/` as it is.
 runtime is a set of feature modules — `each` for a `for`, `router` for a
 second page, `net` for a `resource`, `icons` for an `Icon` — and the build
 works out which ones the code it just wrote calls. A page of static text
-carries 3 of the 37 modules: an `app.js` of 3.7 kB gzipped. `wf build
+carries 2 of the 41 modules: an `app.js` of 6.8 kB gzipped. `wf build
 --stats` shows what a build weighs, and [Performance](31-performance.md)
 explains how to read it.
 
