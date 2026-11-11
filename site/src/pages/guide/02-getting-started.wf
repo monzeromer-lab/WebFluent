@@ -127,7 +127,7 @@ Starting dev server at http://localhost:3000/"#, title: "text")
                 Table.Row {
                     Table.Cell { Markdown("`WF_VERSION`") }
                     Table.Cell("Installs that release instead of the latest")
-                    Table.Cell { Markdown("`WF_VERSION=v5.12.0`") }
+                    Table.Cell { Markdown("`WF_VERSION=v5.13.0`") }
                 }
             }
         }

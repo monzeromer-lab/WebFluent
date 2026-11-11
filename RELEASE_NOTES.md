@@ -1,3 +1,101 @@
+# WebFluent v5.13.0 Release Notes
+
+WebFluent for coding agents: a skill that teaches the `wf` loop, a
+reference with a part written for agents, and a core an agent is given
+whole. An editor's preview follows a style or text edit with no reload.
+And a run of fixes to what a running page reads while a change is still
+going on.
+
+## Additions
+
+- **A `writing-webfluent` skill for coding agents.** Agents that read
+  Agent Skills (Claude Code, Codex, Gemini CLI, Copilot, Zed and others)
+  can install one skill that teaches the loop: ask the compiler what a
+  component, store or token is before writing, then check, explain, fix,
+  format, test and verify. It names the mistakes models make most, each
+  with its code. References an agent reads by task go with it: code
+  quality and a review checklist; recipes (one small app in fifteen
+  pieces); styling (the tokens, themes, right to left); testing;
+  diagnostics (each common code, its cause and fix); PDFs, decks and
+  server rendering; and apps with Tauri for the desktop and the phone (the
+  typed bridge script, capabilities by platform, safe areas, Android's
+  back gesture, signing). A test compiles every example in them with no
+  warning, and checks that every command and code they name is one `wf`
+  has. The README says how to install it.
+- **`wf init` gives every new project the skill**, in `.agents/skills/`
+  and `.claude/skills/`; its language reference points at the project's
+  `AGENTS.md` rather than repeating it.
+- **The reference has a part for agents.** `AGENTS.md` gains "For
+  agents": the grammar in a few lines, ten idioms, the mistakes made most
+  (`T06`, `C02`, `X05`, `T13`, `E002`, `T17`) and one whole page; every
+  example compiles with no warning.
+- **`AGENTS.md` covers Tauri and Electron apps**, on the desktop and the
+  phone.
+- **Eleven icons for a design tool**: `pointer`, `reach`, `frame`,
+  `line`, `pipette`, `comment`, `hand`, `zoom`, `ruler`, `eye-off` and
+  `unlock`.
+- **PDFs and decks draw the logical insets** (`inset-inline`,
+  `inset-block`), read left to right as the logical paddings already were.
+
+## For tools
+
+- **`webfluent::patch`**: `in_place` compares two programs and answers
+  with what a running page must change to follow a style or text edit
+  (one class swapped and its rules, or an element's new text), or a
+  rebuild and why. `in_place_with` takes the project's breakpoints, and
+  `agrees` holds a patch to what a full build generates.
+- **`webfluent::agent::context::reference_core()`** gives the sections of
+  the reference an agent needs first, under 8,000 tokens;
+  `reference_section(title)` gives any other.
+- **Style values**: the logical pairs (`padding-inline`, `margin-block`,
+  `inset-inline`, …) are a `Pair` shape, and `grid-column`/`grid-row` a
+  `Placement`, each printed in the fewest words and edited one side or
+  line at a time; `cell`, `read_placement` and `edit_placement` are what a
+  drop in a grid writes.
+- A token set by `theme.tokens` carries that value, so an editor can say
+  the config overrides the theme's own. A theme's view can be of a theme
+  the project declares other than the one the config selects.
+- An agent's prompt prints the config with its keys sorted at every
+  depth, so one project always reads the same and keeps the prompt cache.
+- `ChangeSet` is `Clone`, and `absorb_reads` takes back what a copy read.
+- An editor's preview is no longer compressed, which took most of a warm
+  build's time.
+
+## Fixes
+
+- **A cached request that fails no longer leaks an unhandled rejection.**
+  A `resource` with `cache:` whose request failed reported an uncaught
+  error beside the failure its `error` arm handled.
+- **A derived value read while a change is running is up to date.** An
+  action an effect called, which wrote a state and then read a derived
+  value of it, got the value from before its write.
+- **A change runs its effects oldest first**, so a branch that leaves
+  disposes of what it drew before any of it reads again; before, an
+  attribute could throw on the null and keep the branch from leaving. One
+  effect that throws no longer keeps the others from running.
+- **A store's derived values are worked out with the other stores in
+  reach**, in a test's render and a page rendered at build time, where a
+  derived value reading another store came out empty.
+- **`mod+shift+/` matches.** With Shift, a punctuation key sends its other
+  character, and `keyIs` refused it; it is now read by its place.
+- A locale whose file is not JSON says why, with the line and column,
+  instead of reading as a file with no messages.
+- **The reference says what the compiler does.** Every example in
+  `AGENTS.md` compiles: the `Row`, `Grid` and `Stack` rows wrote
+  `gap: md` (`T13`), key rule 20 wrote a deck in WebFluent 2 syntax, and
+  others bound `query`, named a loop `t`, used tokens no theme declares or
+  bound a `DatePicker` to a string. It counts 83 icons (it said 32 and 72,
+  as did the guide), gives the runtime's current sizes (2 of 41 modules,
+  6.8 kB gzipped for a static page), lists `E119`, `V12` and `I05` as the
+  warnings they are, adds rows for `E005` and `T22`, and documents
+  `wf render`, six CLI flags, `theme.dark`, `theme.builtin: "structural"`
+  and `i18n.literals`. `wf init` writes this reference into a new project,
+  so only a `wf` of this release gives a project the corrected one.
+
+## Upgrading
+
+Nothing to change: run `wf check`.
+
 # WebFluent v5.12.0 Release Notes
 
 A project written in Arabic, and translated by its own words: names in

@@ -57,7 +57,7 @@ Pin a version so that a new release cannot change a deploy without you
 knowing. Set `WF_VERSION` for the install script:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v5.12.0 bash
+curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v5.13.0 bash
 ```
 
 You can also build on your own machine and upload `build/`. It is only
@@ -93,7 +93,7 @@ build must know that sub-path.
          url: ${{ steps.deployment.outputs.page_url }}
        steps:
          - uses: actions/checkout@v4
-         - run: curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v5.12.0 bash
+         - run: curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v5.13.0 bash
          - run: ~/.webfluent/bin/wf build
          - uses: actions/upload-pages-artifact@v3
            with:

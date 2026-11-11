@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.12</p>
+                            <p class="wf-text wf-s859a58d7">5.13</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -294,7 +294,7 @@ A static build writes each page as its own `index.html` (`/contact` is `contact/
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v5.12.0 bash</code>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v5.13.0 bash</code>
                             </div>
                             <div class="wf-markdown">
 <p>You can also build on your own machine and upload <code>build/</code>. It is only files.</p>
@@ -308,7 +308,7 @@ A static build writes each page as its own `index.html` (`/contact` is `contact/
 <li>Add <code>.github/workflows/pages.yml</code>:</li>
 </ol>
 <pre><code class="language-yaml name: Deploy on: push: branches: [main] permissions: contents: read pages: write id-token: write jobs: deploy: runs-on: ubuntu-latest environment: name: github-pages url: ${{ steps.deployment.outputs.page_url }} steps:">         - uses: actions/checkout@v4
-         - run: curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v5.12.0 bash
+         - run: curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v5.13.0 bash
          - run: ~/.webfluent/bin/wf build
          - uses: actions/upload-pages-artifact@v3 with: path: build
          - id: deployment uses: actions/deploy-pages@v4 ```
@@ -612,7 +612,7 @@ Netlify reads `_headers` from the build, so the security headers apply with no f
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.12, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.13, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -640,7 +640,7 @@ Netlify reads `_headers` from the build, so the security headers apply with no f
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.12 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.13 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.12</p>
+                            <p class="wf-text wf-s859a58d7">5.13</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -496,7 +496,7 @@ Starting dev server at http://localhost:3000/</code>
                                         <td>Installs that release instead of the latest</td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>WF_VERSION=v5.12.0</code></p>
+<p><code>WF_VERSION=v5.13.0</code></p>
                                             </div>
                                         </td>
                                     </tr>
@@ -653,7 +653,7 @@ Starting dev server at http://localhost:3000/</code>
                             </div>
                             <div class="wf-markdown">
 <p>Do not edit anything in <code>build/</code>: the next build writes it again. Keep it out of version control; the <code>.gitignore</code> that <code>wf init</code> writes already does. The build copies <code>public/</code> to the root of <code>build/</code> as it is.</p>
-<p><code>app.js</code> carries only the parts of the runtime the program reaches. The runtime is a set of feature modules — <code>each</code> for a <code>for</code>, <code>router</code> for a second page, <code>net</code> for a <code>resource</code>, <code>icons</code> for an <code>Icon</code> — and the build works out which ones the code it just wrote calls. A page of static text carries 3 of the 37 modules: an <code>app.js</code> of 3.7 kB gzipped. <code>wf build --stats</code> shows what a build weighs, and <a href="/docs/guide/performance">Performance</a> explains how to read it.</p>
+<p><code>app.js</code> carries only the parts of the runtime the program reaches. The runtime is a set of feature modules — <code>each</code> for a <code>for</code>, <code>router</code> for a second page, <code>net</code> for a <code>resource</code>, <code>icons</code> for an <code>Icon</code> — and the build works out which ones the code it just wrote calls. A page of static text carries 2 of the 41 modules: an <code>app.js</code> of 6.8 kB gzipped. <code>wf build --stats</code> shows what a build weighs, and <a href="/docs/guide/performance">Performance</a> explains how to read it.</p>
                             </div>
                             <h2 class="wf-heading" id="the-project-in-brief">The project, in brief</h2>
                             <div class="wf-markdown">
@@ -746,7 +746,7 @@ tests/*.wf            `test &quot;…&quot; { }` declarations for `wf test`</cod
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.12, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.13, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -774,7 +774,7 @@ tests/*.wf            `test &quot;…&quot; { }` declarations for `wf test`</cod
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.12 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.13 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

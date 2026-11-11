@@ -40,7 +40,7 @@ The installer asks GitHub's API for the latest release, and GitHub limits
 requests that are not signed in.
 
 Pin a version instead, and run the installer again with it set:
-`WF_VERSION=v5.12.0`.
+`WF_VERSION=v5.13.0`.
 
 ### There is no binary for Linux on ARM
 
