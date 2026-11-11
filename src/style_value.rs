@@ -45,6 +45,10 @@ pub enum Shape {
     Enum,
     /// Grid tracks: `grid-template-columns`.
     Tracks,
+    /// A logical pair, start and end: `padding-inline`, `inset-block`.
+    Pair,
+    /// Where a grid child sits on one axis: `grid-column: 2 / span 2`.
+    Placement,
     /// A length of time: `transition-duration`.
     Time,
     /// How a motion is paced: `transition-timing-function`.
@@ -112,6 +116,8 @@ pub const CURATED: &[(&str, &[&str])] = &[
             "order",
             "grid-template-columns",
             "grid-template-rows",
+            "grid-column",
+            "grid-row",
             "gap",
             "row-gap",
             "column-gap",
@@ -120,6 +126,10 @@ pub const CURATED: &[(&str, &[&str])] = &[
             "right",
             "bottom",
             "left",
+            "inset-inline-start",
+            "inset-inline-end",
+            "inset-block-start",
+            "inset-block-end",
             "z-index",
             "overflow",
             "overflow-x",
@@ -130,7 +140,16 @@ pub const CURATED: &[(&str, &[&str])] = &[
     ),
     (
         SPACING,
-        &["padding", "margin", "scroll-padding", "scroll-margin"],
+        &[
+            "padding",
+            "padding-inline",
+            "padding-block",
+            "margin",
+            "margin-inline",
+            "margin-block",
+            "scroll-padding",
+            "scroll-margin",
+        ],
     ),
     (
         SIZE,
@@ -309,6 +328,9 @@ fn shape_of(name: &str) -> Shape {
     match name {
         "padding" | "margin" | "inset" | "scroll-padding" | "scroll-margin" => Shape::Box,
         "border-radius" => Shape::Corners,
+        n if pair_of(n).is_some() => Shape::Pair,
+        "grid-column" | "grid-row" | "grid-column-start" | "grid-column-end" | "grid-row-start"
+        | "grid-row-end" => Shape::Placement,
         "width" | "height" | "min-width" | "max-width" | "min-height" | "max-height" | "top"
         | "right" | "bottom" | "left" | "gap" | "row-gap" | "column-gap" | "flex-basis"
         | "font-size" | "letter-spacing" | "text-indent" | "outline-offset" => Shape::Length,
@@ -585,6 +607,11 @@ pub enum Value {
     Layers { layers: Vec<Vec<Part>> },
     /// One per track; equal tracks were `repeat()`.
     Tracks { tracks: Vec<Part> },
+    /// A logical pair: the start side, then the end.
+    Pair { start: Part, end: Part },
+    /// A grid child's lines on one axis: where it starts, and where it ends
+    /// when that says anything (`None` is one track).
+    Placement { start: Line, end: Option<Line> },
     /// As written: a splice, `calc()`, `var()`, what no shape covers.
     Free { text: String },
 }
@@ -712,6 +739,28 @@ pub fn parse(property: &str, text: &str) -> Value {
             }
             Value::Layers { layers }
         }
+        Shape::Pair if single => match parts {
+            Some(v) if (1..=2).contains(&v.len()) && v.iter().all(Part::is_length) => Value::Pair {
+                start: v[0].clone(),
+                end: v.get(1).unwrap_or(&v[0]).clone(),
+            },
+            _ => free(),
+        },
+        Shape::Placement => match placement(text) {
+            Some((start, end)) => {
+                // A longhand is one line, never two.
+                if p.name.ends_with("-start") || p.name.ends_with("-end") {
+                    match end {
+                        None => Value::Placement { start, end: None },
+                        Some(_) => free(),
+                    }
+                } else {
+                    let (start, end) = normal(start, end);
+                    Value::Placement { start, end }
+                }
+            }
+            None => free(),
+        },
         Shape::Tracks if single => {
             let mut tracks = Vec::new();
             for w in &words {
@@ -854,7 +903,6 @@ fn gradient(word: &str) -> Option<Value> {
 /// its parts.
 pub fn print(property: &str, value: &Value) -> String {
     let join = |ps: &[Part]| ps.iter().map(Part::text).collect::<Vec<_>>().join(" ");
-    let _ = property;
     match value {
         Value::Box { sides } => join(&narrowest(sides)),
         Value::Corners { corners } => join(&narrowest(corners)),
@@ -898,6 +946,25 @@ pub fn print(property: &str, value: &Value) -> String {
                 });
             }
             format!("{kind}-gradient({})", items.join(", "))
+        }
+        Value::Pair { start, end } => {
+            if start == end {
+                start.text()
+            } else {
+                format!("{} {}", start.text(), end.text())
+            }
+        }
+        Value::Placement { start, end } => {
+            let longhand = property.ends_with("-start") || property.ends_with("-end");
+            let (start, end) = if longhand {
+                (start.clone(), None)
+            } else {
+                normal(start.clone(), end.clone())
+            };
+            match end {
+                Some(end) => format!("{} / {}", start.text(), end.text()),
+                None => start.text(),
+            }
         }
         Value::Free { text } => text.clone(),
     }
@@ -1024,6 +1091,288 @@ pub fn edit_box(
             .map(Part::text)
             .unwrap_or_default(),
     }]
+}
+
+// ─── Grid placement ──────────────────────────────────────
+
+/// One grid line, as `grid-column` and `grid-row` write it.
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
+#[serde(tag = "kind", rename_all = "kebab-case")]
+pub enum Line {
+    /// Where the grid puts it.
+    Auto,
+    /// A line by number: `2`, or from the end, `-1`.
+    At { n: i64 },
+    /// So many tracks from the other side: `span 2`.
+    Span { n: u32 },
+    /// A named line: `content-start`.
+    Named { name: String },
+}
+
+impl Line {
+    /// As written back.
+    pub fn text(&self) -> String {
+        match self {
+            Line::Auto => "auto".to_string(),
+            Line::At { n } => n.to_string(),
+            Line::Span { n } => format!("span {n}"),
+            Line::Named { name } => name.clone(),
+        }
+    }
+}
+
+/// One side of a `/`: `auto`, `2`, `-1`, `span 2`, or a name. What else CSS
+/// allows there (`span name`, `name 2`) is left to `Value::Free`.
+fn line(text: &str) -> Option<Line> {
+    let words: Vec<&str> = text.split_whitespace().collect();
+    match words.as_slice() {
+        ["auto"] => Some(Line::Auto),
+        ["span", n] => match n.parse::<u32>() {
+            Ok(n) if (1..=1000).contains(&n) => Some(Line::Span { n }),
+            _ => None,
+        },
+        [w] => match w.parse::<i64>() {
+            Ok(0) => None,
+            Ok(n) if n.abs() <= 1000 => Some(Line::At { n }),
+            Ok(_) => None,
+            Err(_) => {
+                let named = w
+                    .chars()
+                    .next()
+                    .is_some_and(|c| c.is_alphabetic() || c == '_' || c == '-')
+                    && w.chars()
+                        .all(|c| c.is_alphanumeric() || c == '-' || c == '_')
+                    && !matches!(
+                        *w,
+                        "span" | "auto" | "inherit" | "initial" | "unset" | "revert"
+                    );
+                named.then(|| Line::Named {
+                    name: w.to_string(),
+                })
+            }
+        },
+        _ => None,
+    }
+}
+
+/// `grid-column`'s value read as its two lines: `2`, `2 / span 2`,
+/// `1 / -1`, `span 3`. A splice, a third `/` or what `line` can't read is
+/// `None`.
+fn placement(text: &str) -> Option<(Line, Option<Line>)> {
+    if text.contains('{') {
+        return None;
+    }
+    let mut sides = text.split('/');
+    let start = line(sides.next()?)?;
+    let end = match sides.next() {
+        Some(e) => Some(line(e)?),
+        None => None,
+    };
+    if sides.next().is_some() {
+        return None;
+    }
+    Some((start, end))
+}
+
+/// The two lines in the fewest words that place it the same:
+/// `auto / span 2` is `span 2`, `2 / span 1` and `2 / 3` are `2`, and an
+/// `auto` end says nothing.
+fn normal(start: Line, end: Option<Line>) -> (Line, Option<Line>) {
+    match (start, end) {
+        (s, None | Some(Line::Auto)) => (s, None),
+        (Line::Auto, Some(Line::Span { n })) => (Line::Span { n }, None),
+        (s @ (Line::At { .. } | Line::Named { .. }), Some(Line::Span { n: 1 })) => (s, None),
+        (Line::At { n: a }, Some(Line::At { n: b })) if a > 0 && b == a + 1 => {
+            (Line::At { n: a }, None)
+        }
+        (s, e) => (s, e),
+    }
+}
+
+/// A grid child placed at track `line` (from 1), across `span` tracks:
+/// what a drop in a grid writes, `2` or `2 / span 2`.
+pub fn cell(line: i64, span: u32) -> Value {
+    let (start, end) = normal(
+        Line::At { n: line },
+        (span > 1).then_some(Line::Span { n: span }),
+    );
+    Value::Placement { start, end }
+}
+
+/// An element's placement on `axis` (`grid-column` or `grid-row`), from
+/// its declarations in order — the shorthand, then any longhand after it.
+/// `None` when nothing places it, or when what does isn't readable.
+pub fn read_placement(declarations: &[(&str, &str)], axis: &str) -> Option<Value> {
+    let (mut start, mut end): (Option<Line>, Option<Line>) = (None, None);
+    let mut readable = true;
+    for (n, v) in declarations {
+        let n = n.trim();
+        if n == axis {
+            match placement(v.trim()) {
+                Some((s, e)) => {
+                    start = Some(s);
+                    end = e;
+                    readable = true;
+                }
+                None => readable = false,
+            }
+        } else if n == format!("{axis}-start") {
+            match placement(v.trim()) {
+                Some((s, None)) => start = Some(s),
+                _ => readable = false,
+            }
+        } else if n == format!("{axis}-end") {
+            match placement(v.trim()) {
+                Some((e, None)) => end = Some(e),
+                _ => readable = false,
+            }
+        }
+    }
+    if !readable || (start.is_none() && end.is_none()) {
+        return None;
+    }
+    let (start, end) = normal(start.unwrap_or(Line::Auto), end);
+    Some(Value::Placement { start, end })
+}
+
+/// What writing `value` as the placement on `axis` takes: the shorthand,
+/// narrowest, and its longhands out, so one declaration says it.
+pub fn edit_placement(declarations: &[(&str, &str)], axis: &str, value: &Value) -> Vec<StyleEdit> {
+    let mut out = vec![StyleEdit::Set {
+        name: axis.to_string(),
+        value: print(axis, value),
+    }];
+    for longhand in [format!("{axis}-start"), format!("{axis}-end")] {
+        if declarations.iter().any(|(n, _)| n.trim() == longhand) {
+            out.push(StyleEdit::Remove { name: longhand });
+        }
+    }
+    out
+}
+
+// ─── Logical sides ───────────────────────────────────────
+
+/// The longhands of a logical pair, start then end: `padding-inline` is
+/// `padding-inline-start` and `padding-inline-end`.
+pub fn pair_of(property: &str) -> Option<[String; 2]> {
+    match property {
+        "padding-inline" | "padding-block" | "margin-inline" | "margin-block" | "inset-inline"
+        | "inset-block" => Some([format!("{property}-start"), format!("{property}-end")]),
+        _ => None,
+    }
+}
+
+/// An element's two sides of a logical pair, from its declarations in
+/// order: what each is set to, and `None` where nothing sets it.
+pub fn read_pair(declarations: &[(&str, &str)], property: &str) -> [Option<Part>; 2] {
+    let mut sides: [Option<Part>; 2] = [None, None];
+    let Some(longhands) = pair_of(property) else {
+        return sides;
+    };
+    for (n, v) in declarations {
+        let n = n.trim();
+        if n == property {
+            sides = match parse(property, v) {
+                Value::Pair { start, end } => [Some(start), Some(end)],
+                _ => [None, None],
+            };
+        } else if let Some(i) = longhands.iter().position(|l| l == n) {
+            sides[i] = part(v).filter(Part::is_length);
+        }
+    }
+    sides
+}
+
+/// One side of a logical pair (0 start, 1 end) set to `value`: as
+/// `edit_box` does for four sides — the shorthand again when it is there
+/// or both sides are now set, that side's longhand alone otherwise.
+pub fn edit_pair(
+    declarations: &[(&str, &str)],
+    property: &str,
+    side: usize,
+    value: Part,
+) -> Vec<StyleEdit> {
+    let Some(longhands) = pair_of(property) else {
+        return Vec::new();
+    };
+    let side = side.min(1);
+    let has_shorthand = declarations.iter().any(|(n, _)| n.trim() == property);
+    let mut sides = read_pair(declarations, property);
+    sides[side] = Some(value);
+    if let [Some(start), Some(end)] = &sides
+        && (has_shorthand
+            || declarations
+                .iter()
+                .any(|(n, _)| longhands.iter().any(|l| l == n.trim())))
+    {
+        let mut out = vec![StyleEdit::Set {
+            name: property.to_string(),
+            value: print(
+                property,
+                &Value::Pair {
+                    start: start.clone(),
+                    end: end.clone(),
+                },
+            ),
+        }];
+        out.extend(
+            longhands
+                .iter()
+                .filter(|l| declarations.iter().any(|(n, _)| n.trim() == l.as_str()))
+                .map(|l| StyleEdit::Remove { name: l.clone() }),
+        );
+        return out;
+    }
+    vec![StyleEdit::Set {
+        name: longhands[side].clone(),
+        value: sides[side].as_ref().map(Part::text).unwrap_or_default(),
+    }]
+}
+
+/// The logical property a physical side is, on a page that reads left to
+/// right or, with `rtl`, right to left: `padding-left` is
+/// `padding-inline-start` in English and `padding-inline-end` in Arabic;
+/// `left` is `inset-inline-start`. What has no side is `None`.
+pub fn logical(property: &str, rtl: bool) -> Option<String> {
+    let (stem, side) = match property {
+        "top" | "right" | "bottom" | "left" => ("inset", property),
+        p => {
+            let (stem, side) = p.rsplit_once('-')?;
+            if !matches!(stem, "padding" | "margin") {
+                return None;
+            }
+            (stem, side)
+        }
+    };
+    let logical = match (side, rtl) {
+        ("top", _) => "block-start",
+        ("bottom", _) => "block-end",
+        ("left", false) | ("right", true) => "inline-start",
+        ("right", false) | ("left", true) => "inline-end",
+        _ => return None,
+    };
+    Some(format!("{stem}-{logical}"))
+}
+
+/// The physical side a logical longhand is, the other way round from
+/// `logical`.
+pub fn physical(property: &str, rtl: bool) -> Option<String> {
+    let (stem, rest) = property.split_once('-')?;
+    if !matches!(stem, "padding" | "margin" | "inset") {
+        return None;
+    }
+    let side = match (rest, rtl) {
+        ("block-start", _) => "top",
+        ("block-end", _) => "bottom",
+        ("inline-start", false) | ("inline-end", true) => "left",
+        ("inline-end", false) | ("inline-start", true) => "right",
+        _ => return None,
+    };
+    Some(if stem == "inset" {
+        side.to_string()
+    } else {
+        format!("{stem}-{side}")
+    })
 }
 
 /// Every curated property, by group, as an inspector lists them.
@@ -1309,6 +1658,248 @@ mod tests {
             catalogue()
                 .iter()
                 .any(|p| p.name == "box-shadow" && p.shape == Shape::List)
+        );
+    }
+
+    fn set(name: &str, value: &str) -> StyleEdit {
+        StyleEdit::Set {
+            name: name.into(),
+            value: value.into(),
+        }
+    }
+
+    fn remove(name: &str) -> StyleEdit {
+        StyleEdit::Remove { name: name.into() }
+    }
+
+    #[test]
+    fn a_logical_pair_reads_one_or_two_and_writes_the_fewest() {
+        assert_eq!(round("padding-inline", "16px 16px"), "16px");
+        assert_eq!(round("padding-inline", "$md 0"), "$md 0");
+        assert_eq!(round("inset-block", "auto"), "auto");
+        assert_eq!(round("margin-block", "8px 12px"), "8px 12px");
+        assert_eq!(
+            parse("padding-inline", "1px 2px 3px"),
+            Value::Free {
+                text: "1px 2px 3px".into()
+            }
+        );
+        assert_eq!(
+            parse("inset-inline", "{x}px"),
+            Value::Free {
+                text: "{x}px".into()
+            }
+        );
+        // The longhands are lengths, and take the spacing scale.
+        assert_eq!(property("padding-inline-start").shape, Shape::Length);
+        assert_eq!(property("inset-inline-start").shape, Shape::Length);
+        assert_eq!(property("padding-inline").shape, Shape::Pair);
+        assert_eq!(property("padding-inline").tokens, Some("spacing"));
+        assert_eq!(property("inset-inline-start").tokens, Some("spacing"));
+    }
+
+    #[test]
+    fn one_side_of_a_pair_edited_writes_the_narrowest_it_can() {
+        // Nothing there: that side's longhand alone.
+        assert_eq!(
+            edit_pair(&[], "padding-inline", 0, n(16.0, "px")),
+            vec![set("padding-inline-start", "16px")]
+        );
+        // The other side there: both, as one shorthand, narrowest.
+        assert_eq!(
+            edit_pair(
+                &[("padding-inline-end", "16px")],
+                "padding-inline",
+                0,
+                n(16.0, "px")
+            ),
+            vec![set("padding-inline", "16px"), remove("padding-inline-end")]
+        );
+        // The shorthand there: written again, the side changed.
+        assert_eq!(
+            edit_pair(&[("inset-inline", "0")], "inset-inline", 1, n(24.0, "px")),
+            vec![set("inset-inline", "0 24px")]
+        );
+        // A longhand after the shorthand is read over it, and taken out.
+        assert_eq!(
+            read_pair(
+                &[("margin-block", "8px"), ("margin-block-end", "$lg")],
+                "margin-block"
+            ),
+            [Some(n(8.0, "px")), Some(Part::Token { name: "lg".into() })]
+        );
+        assert_eq!(edit_pair(&[], "padding", 0, n(1.0, "px")), vec![]);
+    }
+
+    #[test]
+    fn a_physical_side_has_one_logical_side_each_way() {
+        assert_eq!(
+            logical("padding-left", false).as_deref(),
+            Some("padding-inline-start")
+        );
+        assert_eq!(
+            logical("padding-left", true).as_deref(),
+            Some("padding-inline-end")
+        );
+        assert_eq!(
+            logical("margin-top", true).as_deref(),
+            Some("margin-block-start")
+        );
+        assert_eq!(
+            logical("left", false).as_deref(),
+            Some("inset-inline-start")
+        );
+        assert_eq!(
+            logical("right", true).as_deref(),
+            Some("inset-inline-start")
+        );
+        assert_eq!(logical("bottom", false).as_deref(), Some("inset-block-end"));
+        assert_eq!(logical("border-left", false), None);
+        assert_eq!(logical("padding", false), None);
+        for stem in ["padding-", "margin-", ""] {
+            for side in ["top", "right", "bottom", "left"] {
+                for rtl in [false, true] {
+                    let p = format!("{stem}{side}");
+                    let l = logical(&p, rtl).unwrap();
+                    assert_eq!(physical(&l, rtl).as_deref(), Some(p.as_str()), "{p} {rtl}");
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn a_placement_reads_its_lines_and_writes_the_fewest() {
+        assert_eq!(round("grid-column", "2"), "2");
+        assert_eq!(round("grid-column", "2 / span 2"), "2 / span 2");
+        assert_eq!(round("grid-column", "2/span 2"), "2 / span 2");
+        assert_eq!(round("grid-column", "2 / span 1"), "2");
+        assert_eq!(round("grid-column", "2 / 3"), "2");
+        assert_eq!(round("grid-column", "2 / 4"), "2 / 4");
+        assert_eq!(round("grid-column", "1 / -1"), "1 / -1");
+        assert_eq!(round("grid-row", "auto / span 3"), "span 3");
+        assert_eq!(round("grid-row", "3 / auto"), "3");
+        assert_eq!(
+            round("grid-column", "content-start / content-end"),
+            "content-start / content-end"
+        );
+        assert_eq!(round("grid-column-start", "span 2"), "span 2");
+        for free in [
+            "{col}",
+            "2 / 3 / 4",
+            "span 0",
+            "0",
+            "span name",
+            "2 / {n}",
+            "span -1",
+        ] {
+            assert!(
+                matches!(parse("grid-column", free), Value::Free { .. }),
+                "{free} read as a placement"
+            );
+        }
+        assert!(matches!(
+            parse("grid-column-end", "2 / 3"),
+            Value::Free { .. }
+        ));
+        assert_eq!(print("grid-column", &cell(2, 1)), "2");
+        assert_eq!(print("grid-column", &cell(2, 3)), "2 / span 3");
+        assert_eq!(property("grid-column").shape, Shape::Placement);
+        assert!(property("grid-row").on_paper);
+    }
+
+    /// Where a placement puts a child on a 12-track axis, as CSS does for
+    /// numbers, spans and `auto` (placed at `auto_at`): from, to, as
+    /// lines. Named lines are out of this; `-1` is the last line.
+    fn resolve(start: &Line, end: &Option<Line>, auto_at: i64) -> Option<(i64, i64)> {
+        let at = |n: i64| if n > 0 { n } else { 14 + n };
+        Some(match (start, end.as_ref().unwrap_or(&Line::Auto)) {
+            (Line::At { n }, Line::Auto) => (at(*n), at(*n) + 1),
+            (Line::At { n }, Line::Span { n: s }) => (at(*n), at(*n) + *s as i64),
+            (Line::At { n: a }, Line::At { n: b }) => {
+                let (a, b) = (at(*a), at(*b));
+                if a == b {
+                    (a, a + 1)
+                } else {
+                    (a.min(b), a.max(b))
+                }
+            }
+            (Line::Auto, Line::Auto) => (auto_at, auto_at + 1),
+            (Line::Auto, Line::Span { n }) | (Line::Span { n }, Line::Auto) => {
+                (auto_at, auto_at + *n as i64)
+            }
+            (Line::Auto, Line::At { n }) => (at(*n) - 1, at(*n)),
+            (Line::Span { n }, Line::At { n: b }) => (at(*b) - *n as i64, at(*b)),
+            _ => return None,
+        })
+    }
+
+    /// For every pair of lines a person might write, the narrowest form
+    /// places the child exactly where the written one does, and reads back
+    /// as itself.
+    #[test]
+    fn the_narrowest_placement_puts_it_where_the_written_one_did() {
+        let lines = [
+            "auto", "1", "2", "3", "7", "-1", "-2", "span 1", "span 2", "span 5",
+        ];
+        let mut checked = 0;
+        for a in lines {
+            for b in lines.iter().map(Some).chain([None]) {
+                let written = match b {
+                    Some(b) => format!("{a} / {b}"),
+                    None => a.to_string(),
+                };
+                let Some((ws, we)) = placement(&written) else {
+                    continue;
+                };
+                let Value::Placement { start, end } = parse("grid-column", &written) else {
+                    panic!("{written} is free");
+                };
+                let printed = print(
+                    "grid-column",
+                    &Value::Placement {
+                        start: start.clone(),
+                        end: end.clone(),
+                    },
+                );
+                assert_eq!(
+                    parse("grid-column", &printed),
+                    Value::Placement {
+                        start: start.clone(),
+                        end: end.clone()
+                    },
+                    "{written} → {printed}"
+                );
+                assert!(printed.len() <= written.len(), "{written} → {printed}");
+                if let (Some(w), Some(n)) = (resolve(&ws, &we, 4), resolve(&start, &end, 4)) {
+                    assert_eq!(w, n, "{written} → {printed}");
+                    checked += 1;
+                }
+            }
+        }
+        assert!(checked > 60, "{checked}");
+    }
+
+    #[test]
+    fn a_placement_written_replaces_its_longhands() {
+        let d = [("grid-column-start", "2"), ("grid-column-end", "span 2")];
+        assert_eq!(read_placement(&d, "grid-column"), Some(cell(2, 2)));
+        assert_eq!(
+            edit_placement(&d, "grid-column", &cell(3, 1)),
+            vec![
+                set("grid-column", "3"),
+                remove("grid-column-start"),
+                remove("grid-column-end")
+            ]
+        );
+        assert_eq!(read_placement(&[("grid-row", "{r}")], "grid-row"), None);
+        assert_eq!(read_placement(&[], "grid-row"), None);
+        assert_eq!(
+            read_placement(&[("grid-row", "1"), ("grid-row-end", "span 2")], "grid-row"),
+            Some(cell(1, 2))
+        );
+        assert_eq!(
+            edit_placement(&[], "grid-row", &cell(1, 1)),
+            vec![set("grid-row", "1")]
         );
     }
 }

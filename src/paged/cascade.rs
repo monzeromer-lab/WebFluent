@@ -142,6 +142,12 @@ pub const DRAWN: &[&str] = &[
     "height",
     "inline-size",
     "inset",
+    "inset-block",
+    "inset-block-end",
+    "inset-block-start",
+    "inset-inline",
+    "inset-inline-end",
+    "inset-inline-start",
     "justify-content",
     "justify-items",
     "left",
@@ -569,6 +575,27 @@ impl Styler {
                 let v: Vec<Length> = split_spaces(value).iter().filter_map(|w| len(w)).collect();
                 if let Some(f) = four(&v) {
                     s.inset = f;
+                }
+            }
+            // The logical insets, read for a left-to-right page, as the
+            // logical paddings and margins are.
+            "inset-block-start" => s.inset[0] = len(value).unwrap_or(Length::Auto),
+            "inset-inline-end" => s.inset[1] = len(value).unwrap_or(Length::Auto),
+            "inset-block-end" => s.inset[2] = len(value).unwrap_or(Length::Auto),
+            "inset-inline-start" => s.inset[3] = len(value).unwrap_or(Length::Auto),
+            "inset-block" | "inset-inline" => {
+                let v: Vec<Length> = split_spaces(value).iter().filter_map(|w| len(w)).collect();
+                let (a, b) = match v.as_slice() {
+                    [a] => (*a, *a),
+                    [a, b] => (*a, *b),
+                    _ => return,
+                };
+                if name == "inset-block" {
+                    s.inset[0] = a;
+                    s.inset[2] = b;
+                } else {
+                    s.inset[3] = a;
+                    s.inset[1] = b;
                 }
             }
             "width" => s.width = len(value).unwrap_or(Length::Auto),
