@@ -4759,7 +4759,18 @@
   "image",
   "sparkle",
   "lock",
-  "type"
+  "type",
+  "pointer",
+  "reach",
+  "frame",
+  "line",
+  "pipette",
+  "comment",
+  "hand",
+  "zoom",
+  "ruler",
+  "eye-off",
+  "unlock"
  ],
  "count": 77
 }

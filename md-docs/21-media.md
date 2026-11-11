@@ -197,7 +197,8 @@ These are the 72 built-in icons:
   `collapse-all`, `locate`, `chevron-up`, `globe`, `external-link`,
   `panel-down`, `panel-up`, `code`, `monitor`, `git-commit`, `play`,
   `layers`, `insert`, `grid`, `list`, `square`, `pill`, `image`, `sparkle`,
-  `lock`, `type`.
+  `lock`, `type`, `pointer`, `reach`, `frame`, `line`,
+  `pipette`, `comment`, `hand`, `zoom`, `ruler`, `eye-off`, `unlock`.
 
 A name that is not in the list draws as the word itself, and the compiler
 warns with `V08`.

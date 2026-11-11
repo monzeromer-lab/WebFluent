@@ -489,6 +489,17 @@ pub const ICONS: &[&str] = &[
     "sparkle",
     "lock",
     "type",
+    "pointer",
+    "reach",
+    "frame",
+    "line",
+    "pipette",
+    "comment",
+    "hand",
+    "zoom",
+    "ruler",
+    "eye-off",
+    "unlock",
 ];
 
 /// Whether `name` is a universal DOM event every element accepts.
