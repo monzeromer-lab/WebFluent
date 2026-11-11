@@ -3392,6 +3392,34 @@ const page = Template.fromDir('templates').page('Invoice').withLang('en');
 const out = await page.renderHtmlAsync(data);             // renderPdfAsync → Promise<Buffer>
 ```
 
+### In a browser
+
+The same compiler builds for WebAssembly (`crates/wf-wasm`): a page
+compiles a project with nothing sent to a server — sites and apps, every
+check `wf check` makes, pictures sized to WebP, PDFs and slide decks.
+`crates/wf-wasm/build.sh` writes two builds and `wf.js` loads what a
+project needs: the compiler on the first call (about 1.6 MB gzipped), the
+one with the PDF engine and its fonts only for a config whose
+`output_type` is `"pdf"` or `"slides"`.
+
+```javascript
+import { compile, preview, previewConfig, registerFont } from "./wf.js";
+
+const out = await compile(
+  { "src/App.wf": app, "src/pages/Home.wf": home, "public/hero.png": pngBytes },
+  previewConfig({ name: "Playground" }),
+);
+out.diagnostics;            // as `wf check --format json` lists them
+out.files["index.html"];    // text; out.binary holds pictures and PDFs
+frame.src = await preview(out);   // every page, chunk and picture, served
+```
+
+A browser has no fonts of its own to lend a document: a PDF's text in a
+script the built-in faces lack needs one registered (`registerFont(bytes)`);
+Arabic is fetched when a document has it. The Rust side is
+`webfluent::memory::compile_files`, which builds a map of path → contents
+natively too.
+
 ### Template Data Context
 
 Data is a JSON object. Top-level keys become template variables:

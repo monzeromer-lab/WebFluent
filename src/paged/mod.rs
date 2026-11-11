@@ -237,14 +237,14 @@ fn positions(f: &Frag, out: &mut std::collections::HashMap<usize, (f32, f32)>) {
 }
 
 /// What a PDF or a deck says in a build without the `pdf` feature.
-#[cfg(not(feature = "pdf-engine"))]
-const NO_PDF: &str = "this build of the compiler has no PDF engine (the `pdf-engine` feature is off); build a PDF or a slide deck with `wf build`";
+#[cfg(not(wf_pdf))]
+const NO_PDF: &str = "this build of the compiler has no PDF engine (a WebAssembly build without the `pdf` feature); build a PDF or a slide deck with `wf build`";
 
 /// Render a page's HTML (with its `<style>` elements) and any further CSS to
 /// a PDF.
-#[cfg_attr(not(feature = "pdf-engine"), allow(unreachable_code, unused_variables))]
+#[cfg_attr(not(wf_pdf), allow(unreachable_code, unused_variables))]
 pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
-    #[cfg(not(feature = "pdf-engine"))]
+    #[cfg(not(wf_pdf))]
     {
         let _ = (html, css, opts);
         return Err(NO_PDF.to_string());
@@ -785,14 +785,14 @@ fn luminance(c: Rgba) -> f32 {
 
 /// Render a deck: every slide of the page's `Presentation` on a page of its
 /// own, the slide's size, its content clipped at the edge.
-#[cfg_attr(not(feature = "pdf-engine"), allow(unreachable_code, unused_variables))]
+#[cfg_attr(not(wf_pdf), allow(unreachable_code, unused_variables))]
 pub fn render_slides(
     html: &str,
     css: &str,
     opts: &Options,
     chrome: &SlideChrome,
 ) -> Result<Output, String> {
-    #[cfg(not(feature = "pdf-engine"))]
+    #[cfg(not(wf_pdf))]
     {
         let _ = (html, css, opts, chrome);
         return Err(NO_PDF.to_string());

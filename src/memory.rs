@@ -345,7 +345,7 @@ mod tests {
         assert_eq!(first.binary, second.binary);
     }
 
-    #[cfg(feature = "pdf")]
+    #[cfg(wf_pdf)]
     #[test]
     fn a_document_is_rendered_in_memory() {
         let files = project(&[(

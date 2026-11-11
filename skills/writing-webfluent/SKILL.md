@@ -5,7 +5,7 @@ license: MPL-2.0
 compatibility: Needs the wf command on PATH (install.sh or install.ps1 in the WebFluent repository). Tests that click, and wf verify, need Chrome or Chromium.
 metadata:
   author: Monzer Omer
-  version: "5.12.0"
+  version: "5.13.0"
 ---
 
 # Writing WebFluent
@@ -37,7 +37,7 @@ Read this file, then only the reference the task needs:
      it. Read it by section (`grep -n '^## ' AGENTS.md`, then the lines you
      need).
    - With no `AGENTS.md`, use [references/language.md](references/language.md),
-     the reference of WebFluent 5.12.0.
+     the reference of WebFluent 5.13.0.
    - If the compiler and the reference disagree, the compiler is right. Say so.
 2. **Read the file you're changing**, and a neighbour of it. Write as the
    project does: its layout, its names, its words.

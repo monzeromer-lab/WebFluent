@@ -1,3 +1,67 @@
+# WebFluent v5.14.0 Release Notes
+
+The compiler runs in a browser. Built for WebAssembly, it does in a page
+what `wf build` does on a machine — sites and apps, every check, pictures
+sized to WebP, PDFs and slide decks — with nothing sent to a server. It is
+what the documentation's playground runs.
+
+## Additions
+
+- **The compiler as WebAssembly** (`crates/wf-wasm`). `wf.js` is the one
+  thing a page imports: `compile(files, config)` takes a project as a map
+  of path to text or bytes and gives back the files the build wrote, its
+  pictures and PDFs, and every finding exactly as `wf check --format json`
+  lists them; `check`, `explain` and `registerFont` beside it. A demo page
+  compiles as you type.
+- **Loaded by what a project needs.** The compiler is about 1.6 MB
+  gzipped, fetched on the first call. A project whose config asks for a PDF
+  or a deck loads a second build with the paged engine (about 2.7 MB) and
+  the fonts it is set in, then and only then; a face for Arabic is fetched
+  the first time a document has Arabic in it, since a browser has no
+  machine fonts to fall back on.
+- **A preview served as a host would serve it.** `preview(out)` hands a
+  build to a service worker that answers for it under `preview/` — every
+  page, chunk, stylesheet and picture, and the routes between them.
+- **Pictures in the browser.** libwebp is compiled to WebAssembly against
+  a C library of its own, so a picture is sized and written as WebP as
+  `wf build` does it; the encodings are kept from one build to the next,
+  so an edit that leaves the picture alone does not encode it again.
+
+## For tools
+
+- **`webfluent::memory`**: `compile` and `compile_files` build a project
+  from memory — no disk read, none written — with the findings and the
+  output as values. It runs natively as well.
+- **`webfluent::outfs`** is where a build writes: the disk, or memory
+  inside `outfs::capture`. **`webfluent::platform`** stands in for
+  threads, clocks and the environment where WebAssembly has none.
+- `OverlayVfs::set_bytes` lays a file that is not text (a picture, a
+  font) over a path.
+- The paged engine reads a project's fonts and pictures through the
+  `Vfs` it is given (`Options::from_pdf_via`, `from_slides_via`,
+  `reader_via`), and `paged::fonts::register_font` takes a face — a font
+  file as it is, zlib or gzip — that stands where a built-in one does.
+- Three features for a WebAssembly build: `webp`, `pdf` and
+  `bundled-fonts`. A native build has all three whatever the features
+  say, so `default-features = false` leaves PDFs and WebP as they were.
+
+## Fixes
+
+- **D01 reads `public/` through the project's `Vfs`**, as every other
+  check does, so an editor's unsaved picture or a project held in memory
+  counts as there.
+- **An `@font-face` in a PDF is read from its bytes**, not written to a
+  temporary file first.
+- **The agents' skill says which compiler it is for.** `just bump` now
+  sets the skill's version and its copy of `AGENTS.md` with the crates,
+  and the release preflight refuses a skill left behind. 5.13.0 shipped
+  saying 5.12.0.
+
+## Upgrading
+
+Nothing to change. A project builds to the same bytes as it did with
+5.13.0.
+
 # WebFluent v5.13.0 Release Notes
 
 WebFluent for coding agents: a skill that teaches the `wf` loop, a

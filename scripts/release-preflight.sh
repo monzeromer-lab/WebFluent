@@ -17,7 +17,7 @@ fail() { echo "::error::$*"; failed=1; }
 ok() { echo "  ok  $*"; }
 
 # 1. The tag is the version both crates carry.
-for manifest in Cargo.toml crates/wf-lsp/Cargo.toml; do
+for manifest in Cargo.toml crates/wf-lsp/Cargo.toml crates/wf-wasm/Cargo.toml; do
     have=$(sed -n 's/^version = "\(.*\)"/\1/p' "$manifest" | head -n1)
     if [ "$have" = "$version" ]; then
         ok "$manifest is $version"
@@ -25,6 +25,21 @@ for manifest in Cargo.toml crates/wf-lsp/Cargo.toml; do
         fail "$manifest is $have, but the tag is $tag. Bump it with \`just bump $version\`."
     fi
 done
+
+# 1a. The agents' skill says which compiler it was written against, and
+#     carries that compiler's reference.
+skill=skills/writing-webfluent/SKILL.md
+have=$(sed -n 's/^  version: "\(.*\)"/\1/p' "$skill" | head -n1)
+if [ "$have" = "$version" ] && grep -q "the reference of WebFluent $version" "$skill"; then
+    ok "$skill is $version"
+else
+    fail "$skill is ${have:-unversioned}, but the tag is $tag. Bump it with \`just bump $version\`."
+fi
+if cmp -s AGENTS.md skills/writing-webfluent/references/language.md; then
+    ok "the skill's references/language.md is this AGENTS.md"
+else
+    fail "skills/writing-webfluent/references/language.md is not AGENTS.md. \`just bump\` copies it."
+fi
 
 # 1b. The Node binding is published at the compiler's version.
 have=$(sed -n 's/^  "version": "\(.*\)",/\1/p' bindings/node/package.json | head -n1)

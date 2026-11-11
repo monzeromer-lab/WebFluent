@@ -64,7 +64,7 @@ pub struct FontDb {
 
 // A reference to the bytes, never a copy: as a constant expression the
 // compiler would evaluate two megabytes of data element by element.
-#[cfg(feature = "bundled-fonts")]
+#[cfg(wf_bundled_fonts)]
 macro_rules! bundled {
     ($name:literal) => {{
         static BYTES: &[u8] = include_bytes!(concat!("fonts/", $name, ".ttf.z"));
@@ -73,7 +73,7 @@ macro_rules! bundled {
 }
 
 /// The bundled faces: (family, weight, italic, compressed bytes).
-#[cfg(feature = "bundled-fonts")]
+#[cfg(wf_bundled_fonts)]
 static BUNDLED: &[(&str, u16, bool, &[u8])] = &[
     (
         "Liberation Sans",
@@ -149,9 +149,9 @@ static BUNDLED: &[(&str, u16, bool, &[u8])] = &[
     ),
 ];
 
-/// Without `bundled-fonts` the faces are handed in at run time:
+/// Without the built-in faces (a WebAssembly build without `bundled-fonts`) they are handed in at run time:
 /// [`register_font`].
-#[cfg(not(feature = "bundled-fonts"))]
+#[cfg(not(wf_bundled_fonts))]
 static BUNDLED: &[(&str, u16, bool, &[u8])] = &[];
 
 /// Faces handed in at run time, which stand where the bundled ones do — how

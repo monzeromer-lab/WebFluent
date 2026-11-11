@@ -68,13 +68,17 @@ showcase *args:
 # ── Release ──────────────────────────────────────────
 
 # Then write the release notes' section, and `just preflight vVERSION`.
-# Set both crates and the Node binding to VERSION, and the lock file with them
+# Set the crates, the Node binding and the agents' skill (its version, and
+# its copy of AGENTS.md) to VERSION, and the lock file with them
 bump version:
-    sed -i '0,/^version = ".*"/s//version = "{{version}}"/' Cargo.toml crates/wf-lsp/Cargo.toml
+    sed -i '0,/^version = ".*"/s//version = "{{version}}"/' Cargo.toml crates/wf-lsp/Cargo.toml crates/wf-wasm/Cargo.toml
     sed -i '0,/"version": ".*"/s//"version": "{{version}}"/' bindings/node/package.json
+    sed -i -E 's/^(  version: )"[0-9]+\.[0-9]+\.[0-9]+"/\1"{{version}}"/; s/(the reference of WebFluent )[0-9]+\.[0-9]+\.[0-9]+/\1{{version}}/' skills/writing-webfluent/SKILL.md
+    cp AGENTS.md skills/writing-webfluent/references/language.md
     cargo update -w --quiet
-    @grep -H '^version' Cargo.toml crates/wf-lsp/Cargo.toml
+    @grep -H '^version' Cargo.toml crates/wf-lsp/Cargo.toml crates/wf-wasm/Cargo.toml
     @grep -H '"version"' bindings/node/package.json
+    @grep -H '  version:' skills/writing-webfluent/SKILL.md
 
 # Release VERSION, start to finish: checks, Zed pin, bump, docs site,
 # preflight, commit, push, tag (`just ship 4.2.1`; `--yes` skips the prompt)

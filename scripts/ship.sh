@@ -12,7 +12,7 @@
 #
 # What it does: checks the tree, the tag and CI on the commit being
 # released; runs scripts/check.sh; re-pins the Zed grammar when it changed;
-# bumps both crates and the Node binding; rebuilds the docs site and its
+# bumps the crates, the Node binding and the agents' skill; rebuilds the docs site and its
 # gallery of rendered examples (scripts/showcase.py); runs the
 # release preflight; then commits, pushes, tags and pushes the tag — which
 # is what starts the release workflow. Saying no at the prompt puts every
@@ -155,8 +155,8 @@ if [ "$yes" != 1 ]; then
 fi
 
 step "Commit, push, tag"
-git add -A -- Cargo.toml Cargo.lock crates/wf-lsp/Cargo.toml bindings/node/package.json \
-    RELEASE_NOTES.md editors/zed/extension.toml site docs md-docs
+git add -A -- Cargo.toml Cargo.lock crates/wf-lsp/Cargo.toml crates/wf-wasm/Cargo.toml \
+    bindings/node/package.json skills RELEASE_NOTES.md editors/zed/extension.toml site docs md-docs
 if git diff --cached --quiet; then
     [ "$resume" = 1 ] || { restore; stop "nothing to commit — the tree is already at $version but HEAD is not \"Release $version\""; }
     echo "  ..  the release commit is already made"

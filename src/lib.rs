@@ -113,15 +113,11 @@
 //!
 //! ## Crate Features
 //!
-//! - **`native-media`** (default) — lossy WebP through libwebp (C). Without
-//!   it the image pipeline writes no WebP; the original picture serves.
-//! - **`pdf`** (default) — PDF documents and slide decks: `pdf-engine` and
-//!   `bundled-fonts`.
-//! - **`pdf-engine`** — the paged renderer. Without it a PDF or deck build
-//!   stops with a message.
-//! - **`bundled-fonts`** — the Liberation faces inside the binary (2.4 MB).
-//!   Without them the faces are handed in at run time with
-//!   [`paged::fonts::register_font`], as the WebAssembly build does.
+//! - **`webp`**, **`pdf`**, **`bundled-fonts`** — for a WebAssembly build
+//!   only: lossy WebP (libwebp), the PDF and slide-deck renderer, and the
+//!   Liberation faces built in. A native build has all three whatever the
+//!   features say; a WebAssembly one has each only when asked, since each
+//!   costs a download (`crates/wf-wasm`).
 //! - **`cli`** (default) — the `wf` command's own dependencies: its argument
 //!   parser and the dev server. A program that only compiles or renders
 //!   templates turns it off:

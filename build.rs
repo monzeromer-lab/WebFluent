@@ -23,6 +23,28 @@ fn main() {
     println!("cargo:rustc-env=WF_SOURCE_FINGERPRINT={hash:016x}");
     println!("cargo:rerun-if-changed=src");
     guide();
+    capabilities();
+}
+
+// What this build of the compiler can do. A native build does everything; a
+// WebAssembly build (which `crates/wf-wasm` makes) carries each of these
+// only when its feature asks for it, since each costs a download:
+//
+//   wf_webp            lossy WebP through libwebp       feature `webp`
+//   wf_pdf             the PDF and slide-deck renderer  feature `pdf`
+//   wf_bundled_fonts   the Liberation faces, built in   feature `bundled-fonts`
+fn capabilities() {
+    let wasm = std::env::var("CARGO_CFG_TARGET_ARCH").as_deref() == Ok("wasm32");
+    for (cfg, feature) in [
+        ("wf_webp", "WEBP"),
+        ("wf_pdf", "PDF"),
+        ("wf_bundled_fonts", "BUNDLED_FONTS"),
+    ] {
+        println!("cargo::rustc-check-cfg=cfg({cfg})");
+        if !wasm || std::env::var_os(format!("CARGO_FEATURE_{feature}")).is_some() {
+            println!("cargo::rustc-cfg={cfg}");
+        }
+    }
 }
 
 // The guide, `md-docs/*.md`, listed for `include_str!`, so `wf` carries the
