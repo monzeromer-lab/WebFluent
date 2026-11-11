@@ -126,7 +126,24 @@ pub struct OverlayVfs {
 #[derive(Clone)]
 enum Layer {
     Text(Arc<str>),
+    /// A file that is not text: a picture, a font.
+    Bytes(Arc<[u8]>),
     Deleted,
+}
+
+impl Layer {
+    /// Whether it is a file, of text or not.
+    fn is_file(&self) -> bool {
+        !matches!(self, Layer::Deleted)
+    }
+
+    fn bytes(&self) -> Option<&[u8]> {
+        match self {
+            Layer::Text(text) => Some(text.as_bytes()),
+            Layer::Bytes(bytes) => Some(bytes),
+            Layer::Deleted => None,
+        }
+    }
 }
 
 impl OverlayVfs {
@@ -147,6 +164,13 @@ impl OverlayVfs {
     pub fn set(&mut self, path: impl AsRef<Path>, text: impl Into<Arc<str>>) {
         self.layers
             .insert(key(path.as_ref()), Layer::Text(text.into()));
+    }
+
+    /// Lay `bytes` over `path`, as [`set`](Self::set) lays text: for a
+    /// file that is not text, a picture or a font.
+    pub fn set_bytes(&mut self, path: impl AsRef<Path>, bytes: impl Into<Arc<[u8]>>) {
+        self.layers
+            .insert(key(path.as_ref()), Layer::Bytes(bytes.into()));
     }
 
     /// Hide `path` — and, for a directory, everything under it — as though
@@ -175,7 +199,7 @@ impl OverlayVfs {
     pub fn buffers(&self) -> impl Iterator<Item = (&Path, &Arc<str>)> {
         self.layers.iter().filter_map(|(path, layer)| match layer {
             Layer::Text(text) => Some((path.as_path(), text)),
-            Layer::Deleted => None,
+            Layer::Bytes(_) | Layer::Deleted => None,
         })
     }
 
@@ -189,7 +213,7 @@ impl OverlayVfs {
     fn holds_buffer(&self, key: &Path) -> bool {
         self.layers
             .iter()
-            .any(|(at, layer)| matches!(layer, Layer::Text(_)) && at != key && at.starts_with(key))
+            .any(|(at, layer)| layer.is_file() && at != key && at.starts_with(key))
     }
 
     fn gone(path: &Path) -> io::Error {
@@ -211,8 +235,8 @@ fn key(path: &Path) -> PathBuf {
 impl Vfs for OverlayVfs {
     fn read(&self, path: &Path) -> io::Result<Vec<u8>> {
         let at = key(path);
-        match self.layers.get(&at) {
-            Some(Layer::Text(text)) => Ok(text.as_bytes().to_vec()),
+        match self.layers.get(&at).and_then(Layer::bytes) {
+            Some(bytes) => Ok(bytes.to_vec()),
             _ if self.hidden(&at) => Err(Self::gone(path)),
             _ => self.base.read(path),
         }
@@ -222,6 +246,12 @@ impl Vfs for OverlayVfs {
         let at = key(path);
         match self.layers.get(&at) {
             Some(Layer::Text(text)) => Ok(text.to_string()),
+            Some(Layer::Bytes(bytes)) => String::from_utf8(bytes.to_vec()).map_err(|_| {
+                io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    "stream did not contain valid UTF-8",
+                )
+            }),
             _ if self.hidden(&at) => Err(Self::gone(path)),
             _ => self.base.read_to_string(path),
         }
@@ -230,7 +260,7 @@ impl Vfs for OverlayVfs {
     fn is_file(&self, path: &Path) -> bool {
         let at = key(path);
         match self.layers.get(&at) {
-            Some(Layer::Text(_)) => true,
+            Some(layer) if layer.is_file() => true,
             _ if self.hidden(&at) => false,
             _ => self.base.is_file(path),
         }
@@ -238,7 +268,7 @@ impl Vfs for OverlayVfs {
 
     fn is_dir(&self, path: &Path) -> bool {
         let at = key(path);
-        if matches!(self.layers.get(&at), Some(Layer::Text(_))) {
+        if self.layers.get(&at).is_some_and(Layer::is_file) {
             return false;
         }
         if self.holds_buffer(&at) {
@@ -266,13 +296,13 @@ impl Vfs for OverlayVfs {
         entries.retain(|entry| {
             let entry = key(entry);
             !self.hidden(&entry)
-                || matches!(self.layers.get(&entry), Some(Layer::Text(_)))
+                || self.layers.get(&entry).is_some_and(Layer::is_file)
                 || self.holds_buffer(&entry)
         });
         // Each buffer under `path` is listed by the name of its first
         // component below it: the file itself, or the directory it is in.
         for (buffered, layer) in &self.layers {
-            if !matches!(layer, Layer::Text(_)) {
+            if !layer.is_file() {
                 continue;
             }
             let Some(Component::Normal(name)) = buffered
@@ -294,8 +324,8 @@ impl Vfs for OverlayVfs {
     fn metadata(&self, path: &Path) -> io::Result<Metadata> {
         let at = key(path);
         match self.layers.get(&at) {
-            Some(Layer::Text(text)) => Ok(Metadata {
-                len: text.len() as u64,
+            Some(layer) if layer.is_file() => Ok(Metadata {
+                len: layer.bytes().map_or(0, |b| b.len()) as u64,
                 modified: None,
             }),
             _ if self.hidden(&at) => Err(Self::gone(path)),
@@ -306,7 +336,9 @@ impl Vfs for OverlayVfs {
     fn copy_out(&self, from: &Path, to: &Path) -> io::Result<()> {
         let at = key(from);
         match self.layers.get(&at) {
-            Some(Layer::Text(text)) => crate::outfs::write(to, text.as_bytes()),
+            Some(layer) if layer.is_file() => {
+                crate::outfs::write(to, layer.bytes().unwrap_or_default())
+            }
             _ if self.hidden(&at) => Err(Self::gone(from)),
             _ => self.base.copy_out(from, to),
         }

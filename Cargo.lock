@@ -1819,6 +1819,8 @@ dependencies = [
 name = "wf-wasm"
 version = "5.13.0"
 dependencies = [
+ "cc",
+ "libm",
  "serde_json",
  "wasm-bindgen",
  "webfluent",

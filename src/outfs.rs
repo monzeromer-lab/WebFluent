@@ -33,7 +33,21 @@ thread_local! {
 /// with its result. Captures do not nest: an inner one takes over until it
 /// ends, then the outer one starts again from nothing.
 pub fn capture<T>(body: impl FnOnce() -> T) -> (T, Files) {
-    let outer = CAPTURE.with(|c| c.replace(Some(Memory::default())));
+    capture_from(Files::new(), body)
+}
+
+/// [`capture`], starting from `files` as though they had been written
+/// already: what an earlier build left that this one may reuse (the image
+/// cache).
+pub fn capture_from<T>(files: Files, body: impl FnOnce() -> T) -> (T, Files) {
+    let mut memory = Memory::default();
+    for (path, bytes) in files {
+        if let Some(parent) = path.parent() {
+            memory.add_dirs(parent);
+        }
+        memory.files.insert(path, bytes);
+    }
+    let outer = CAPTURE.with(|c| c.replace(Some(memory)));
     let result = body();
     let memory = CAPTURE.with(|c| c.replace(outer)).unwrap_or_default();
     (result, memory.files)

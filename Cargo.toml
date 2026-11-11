@@ -58,15 +58,21 @@ required-features = ["cli"]
 [features]
 default = ["cli", "native-media", "pdf"]
 cli = ["dep:clap", "dep:tiny_http"]
-# Lossy WebP through libwebp, which is C. Without it (a WebAssembly build)
-# the image pipeline writes no WebP and serves the original picture, as it
-# does for any file a re-encode would not make smaller.
+# Lossy WebP through libwebp, which is C. Without it the image pipeline
+# writes no WebP and serves the original picture, as it does for any file a
+# re-encode would not make smaller. (The WebAssembly build keeps it:
+# `crates/wf-wasm/build.sh` compiles libwebp against `crates/wf-wasm/libc`.)
 native-media = ["dep:webp"]
-# The paged engine's renderer: PDF documents and slide decks, with the
-# Liberation faces built in (2.4 MB). Without it — the WebAssembly build,
-# which is downloaded before it compiles anything — a PDF or a deck build
-# says so and stops; every check of such a project still runs.
-pdf = []
+# PDF documents and slide decks: the paged engine's renderer, and the
+# Liberation faces built into the binary (2.4 MB).
+pdf = ["pdf-engine", "bundled-fonts"]
+# The renderer alone. Without it a PDF or a deck build says so and stops;
+# every check of such a project still runs.
+pdf-engine = []
+# The Liberation faces, inside the binary. Without them the faces are handed
+# in at run time (`paged::fonts::register_font`): the WebAssembly build
+# fetches them only when a document is asked for.
+bundled-fonts = []
 
 [workspace]
 members = [".", "crates/wf-lsp", "crates/wf-wasm"]

@@ -22,6 +22,15 @@ use crate::vfs::{Metadata, OverlayVfs, Vfs};
 /// Where the project seems to sit. Nothing is read from or written there.
 pub const PROJECT_DIR: &str = "/wf-project";
 
+thread_local! {
+    /// What the image pipeline encoded, kept from one build to the next.
+    static MEDIA_CACHE: std::cell::RefCell<crate::outfs::Files> =
+        std::cell::RefCell::new(crate::outfs::Files::new());
+}
+
+/// Past this many bytes of encoded pictures the cache starts again empty.
+const MEDIA_CACHE_LIMIT: usize = 64 << 20;
+
 /// The config a project with none is built with.
 pub const DEFAULT_CONFIG: &str = r#"{ "name": "Playground" }"#;
 
@@ -77,8 +86,8 @@ pub struct Output {
     /// left out of this map and listed in [`Output::binary`].
     pub files: BTreeMap<String, String>,
     /// Files the build wrote that are not text (a processed image, a PDF),
-    /// with their bytes.
-    #[serde(skip)]
+    /// with their bytes — base64 when serialised.
+    #[serde(serialize_with = "base64_map")]
     pub binary: BTreeMap<String, Vec<u8>>,
     /// Every finding, in the order `wf check` gives them.
     pub diagnostics: Vec<Diagnostic>,
@@ -88,15 +97,54 @@ pub struct Output {
     pub lines: Vec<String>,
 }
 
+fn base64_map<S: serde::Serializer>(
+    map: &BTreeMap<String, Vec<u8>>,
+    serializer: S,
+) -> Result<S::Ok, S::Error> {
+    use serde::ser::SerializeMap;
+    let mut out = serializer.serialize_map(Some(map.len()))?;
+    for (path, bytes) in map {
+        out.serialize_entry(path, &crate::media::probe::base64(bytes))?;
+    }
+    out.end()
+}
+
+/// What a file of the project holds.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Contents {
+    Text(String),
+    /// A file that is not text: a picture, a font.
+    Bytes(Vec<u8>),
+}
+
 /// Build `files` — paths relative to the project, as written under it — with
 /// `config` as its `webfluent.app.json` (or the one in `files`, or
 /// [`DEFAULT_CONFIG`]).
 pub fn compile(files: &BTreeMap<String, String>, config: Option<&str>, options: &Options) -> Output {
+    compile_files(
+        files
+            .iter()
+            .map(|(p, t)| (p.clone(), Contents::Text(t.clone()))),
+        config,
+        options,
+    )
+}
+
+/// [`compile`], with files that need not be text: a picture under
+/// `public/`, a font under `fonts/`.
+pub fn compile_files(
+    files: impl IntoIterator<Item = (String, Contents)>,
+    config: Option<&str>,
+    options: &Options,
+) -> Output {
     let root = PathBuf::from(PROJECT_DIR);
     let mut vfs = OverlayVfs::new(Arc::new(EmptyVfs));
-    for (path, text) in files {
+    for (path, contents) in files {
         let rel = path.trim_start_matches(['/', '.']).trim_start_matches('/');
-        vfs.set(root.join(rel), text.as_str());
+        match contents {
+            Contents::Text(text) => vfs.set(root.join(rel), text),
+            Contents::Bytes(bytes) => vfs.set_bytes(root.join(rel), bytes),
+        }
     }
     let config_path = root.join("webfluent.app.json");
     if let Some(config) = config {
@@ -107,7 +155,11 @@ pub fn compile(files: &BTreeMap<String, String>, config: Option<&str>, options: 
 
     let mut build_options = BuildOptions::new(&root, &vfs);
     build_options.dev = options.dev;
-    let (outcome, written) = crate::outfs::capture(|| {
+    // The pictures earlier builds encoded, so an edit that leaves a picture
+    // alone does not encode it again.
+    let media_cache = root.join(".wf-cache/media");
+    let seed = MEDIA_CACHE.with(|c| c.take());
+    let (outcome, written) = crate::outfs::capture_from(seed, || {
         if options.check_only {
             crate::build::check(&build_options)
         } else {
@@ -138,6 +190,17 @@ pub fn compile(files: &BTreeMap<String, String>, config: Option<&str>, options: 
         lines: report.lines.into_iter().map(|l| l.text).collect(),
         ..Output::default()
     };
+    let mut kept = crate::outfs::Files::new();
+    let mut kept_bytes = 0;
+    for (path, bytes) in &written {
+        if path.starts_with(&media_cache) {
+            kept_bytes += bytes.len();
+            kept.insert(path.clone(), bytes.clone());
+        }
+    }
+    if kept_bytes <= MEDIA_CACHE_LIMIT {
+        MEDIA_CACHE.with(|c| c.replace(kept));
+    }
     for (path, bytes) in written {
         // The output, not the caches the build keeps beside the project.
         let Ok(rel) = path.strip_prefix(&output_dir) else {
@@ -237,6 +300,65 @@ mod tests {
             out.diagnostics.len(),
             "a check finds what a build finds"
         );
+    }
+
+    fn png(width: u32, height: u32) -> Vec<u8> {
+        let image = image::RgbImage::from_fn(width, height, |x, y| {
+            image::Rgb([(x * 7 % 256) as u8, (y * 5 % 256) as u8, ((x ^ y) % 256) as u8])
+        });
+        let mut out = Vec::new();
+        image::DynamicImage::ImageRgb8(image)
+            .write_to(&mut std::io::Cursor::new(&mut out), image::ImageFormat::Png)
+            .unwrap();
+        out
+    }
+
+    #[test]
+    fn a_picture_is_sized_in_memory_and_its_encoding_kept_for_the_next_build() {
+        let files = || {
+            vec![
+                (
+                    "src/pages/Home.wf".to_string(),
+                    Contents::Text(
+                        "page Home(path: \"/\", title: \"Pic\", description: \"A picture.\") {\n    Heading(\"Pic\").h1\n    Image(src: \"/hero.png\", alt: \"Noise\")\n}\n"
+                            .into(),
+                    ),
+                ),
+                ("public/hero.png".to_string(), Contents::Bytes(png(1000, 500))),
+            ]
+        };
+        let first = compile_files(files(), None, &Options::default());
+        assert!(first.ok, "{:?} {:#?}", first.error, first.diagnostics);
+        let sized: Vec<&String> = first
+            .binary
+            .keys()
+            .filter(|p| p.starts_with("img/") && p.ends_with(".webp"))
+            .collect();
+        assert!(!sized.is_empty(), "{:?}", first.binary.keys());
+        assert!(
+            first.files.values().any(|f| f.contains("image/webp")),
+            "the page offers the WebP"
+        );
+        // The cache now holds the encodings: the next build writes the same.
+        assert!(MEDIA_CACHE.with(|c| !c.borrow().is_empty()));
+        let second = compile_files(files(), None, &Options::default());
+        assert_eq!(first.binary, second.binary);
+    }
+
+    #[cfg(feature = "pdf")]
+    #[test]
+    fn a_document_is_rendered_in_memory() {
+        let files = project(&[(
+            "src/pages/Report.wf",
+            "page Report(path: \"/\", title: \"Report\") {\n    Document(size: \"A4\") {\n        Heading(\"Q1\").h1\n        Text(\"Revenue grew.\")\n    }\n}\n",
+        )]);
+        let out = compile(
+            &files,
+            Some(r#"{ "name": "Report", "build": { "output_type": "pdf" } }"#),
+            &Options::default(),
+        );
+        assert!(out.ok, "{:?} {:#?}", out.error, out.diagnostics);
+        assert!(out.binary["Report.pdf"].starts_with(b"%PDF"));
     }
 
     #[test]

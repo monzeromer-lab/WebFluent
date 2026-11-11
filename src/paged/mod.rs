@@ -103,6 +103,8 @@ pub struct Options<'a> {
     /// The document's base family, when the page's sheets name none.
     pub font_family: String,
     pub assets: &'a AssetReader<'a>,
+    /// Where the fonts in [`font_dirs`](Self::font_dirs) are read from.
+    pub vfs: &'a dyn crate::vfs::Vfs,
     /// Directories whose fonts the document may use.
     pub font_dirs: Vec<PathBuf>,
     /// Whether the machine's fonts may stand in for a family or a character
@@ -235,14 +237,14 @@ fn positions(f: &Frag, out: &mut std::collections::HashMap<usize, (f32, f32)>) {
 }
 
 /// What a PDF or a deck says in a build without the `pdf` feature.
-#[cfg(not(feature = "pdf"))]
-const NO_PDF: &str = "this build of the compiler has no PDF engine (the `pdf` feature is off); build a PDF or a slide deck with `wf build`";
+#[cfg(not(feature = "pdf-engine"))]
+const NO_PDF: &str = "this build of the compiler has no PDF engine (the `pdf-engine` feature is off); build a PDF or a slide deck with `wf build`";
 
 /// Render a page's HTML (with its `<style>` elements) and any further CSS to
 /// a PDF.
-#[cfg_attr(not(feature = "pdf"), allow(unreachable_code, unused_variables))]
+#[cfg_attr(not(feature = "pdf-engine"), allow(unreachable_code, unused_variables))]
 pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
-    #[cfg(not(feature = "pdf"))]
+    #[cfg(not(feature = "pdf-engine"))]
     {
         let _ = (html, css, opts);
         return Err(NO_PDF.to_string());
@@ -251,7 +253,7 @@ pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
     let author = sheets(&dom, "", css);
     let mut db = FontDb::new(opts.system_fonts);
     for dir in &opts.font_dirs {
-        db.add_dir(dir);
+        db.add_dir_via(opts.vfs, dir);
     }
     // The sheets' own fonts.
     let mut font_notes = Vec::new();
@@ -259,13 +261,11 @@ pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
         let mut found = false;
         for src in &face.sources {
             if let Some(bytes) = (opts.assets)(src) {
-                let tmp = std::env::temp_dir().join(format!(
-                    "wf-font-{}-{}",
-                    std::process::id(),
+                let known_as = std::path::PathBuf::from(format!(
+                    "@font-face/{}",
                     face.family.replace(' ', "_")
                 ));
-                if std::fs::write(&tmp, &bytes).is_ok() && db.add_file(&tmp, Some(&face.family)) > 0
-                {
+                if db.add_bytes(bytes, &known_as, Some(&face.family)) > 0 {
                     found = true;
                     break;
                 }
@@ -615,6 +615,14 @@ pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
 /// Reads a page's assets from a project: an address is looked up beside
 /// the project, in its `public/` and in its `src/`.
 pub fn reader(root: Option<PathBuf>) -> impl Fn(&str) -> Option<Vec<u8>> {
+    reader_via(&crate::vfs::FsVfs, root)
+}
+
+/// [`reader`], reading through `vfs`.
+pub fn reader_via(
+    vfs: &dyn crate::vfs::Vfs,
+    root: Option<PathBuf>,
+) -> impl Fn(&str) -> Option<Vec<u8>> + '_ {
     move |src: &str| {
         if src.starts_with("http://") || src.starts_with("https://") || src.starts_with("data:") {
             // The compiler never fetches anything.
@@ -637,24 +645,33 @@ pub fn reader(root: Option<PathBuf>) -> impl Fn(&str) -> Option<Vec<u8>> {
         }
         candidates
             .into_iter()
-            .find(|p| p.is_file())
-            .and_then(|p| std::fs::read(p).ok())
+            .find(|p| vfs.is_file(p))
+            .and_then(|p| vfs.read(&p).ok())
     }
 }
 
 /// The directories a project's fonts are kept in.
 pub fn font_dirs(root: Option<&std::path::Path>, extra: &[String]) -> Vec<PathBuf> {
+    font_dirs_via(&crate::vfs::FsVfs, root, extra)
+}
+
+/// [`font_dirs`], looked for through `vfs`.
+pub fn font_dirs_via(
+    vfs: &dyn crate::vfs::Vfs,
+    root: Option<&std::path::Path>,
+    extra: &[String],
+) -> Vec<PathBuf> {
     let mut out = Vec::new();
     if let Some(root) = root {
         for d in ["fonts", "src/fonts", "public/fonts", "assets/fonts"] {
             let p = root.join(d);
-            if p.is_dir() {
+            if vfs.is_dir(&p) {
                 out.push(p);
             }
         }
         if let Some(parent) = root.parent() {
             let p = parent.join("fonts");
-            if p.is_dir() && !out.contains(&p) {
+            if vfs.is_dir(&p) && !out.contains(&p) {
                 out.push(p);
             }
         }
@@ -671,6 +688,17 @@ impl<'a> Options<'a> {
         assets: &'a AssetReader<'a>,
         root: Option<&std::path::Path>,
     ) -> Options<'a> {
+        Self::from_pdf_via(&crate::vfs::FsVfs, config, assets, root)
+    }
+
+    /// [`from_pdf`](Self::from_pdf), with the project's fonts read through
+    /// `vfs`.
+    pub fn from_pdf_via(
+        vfs: &'a dyn crate::vfs::Vfs,
+        config: &crate::config::project::PdfConfig,
+        assets: &'a AssetReader<'a>,
+        root: Option<&std::path::Path>,
+    ) -> Options<'a> {
         let (width, height) = paper_size(&config.page_size).unwrap_or((595.28, 841.89));
         let m = &config.margins;
         Options {
@@ -682,12 +710,24 @@ impl<'a> Options<'a> {
             font_size: config.default_font_size as f32,
             font_family: config.default_font.clone(),
             assets,
-            font_dirs: font_dirs(root, &config.fonts),
+            vfs,
+            font_dirs: font_dirs_via(vfs, root, &config.fonts),
             system_fonts: config.system_fonts,
         }
     }
 
     pub fn from_slides(
+        config: &crate::config::project::SlidesConfig,
+        assets: &'a AssetReader<'a>,
+        root: Option<&std::path::Path>,
+    ) -> (Options<'a>, SlideChrome) {
+        Self::from_slides_via(&crate::vfs::FsVfs, config, assets, root)
+    }
+
+    /// [`from_slides`](Self::from_slides), with the project's fonts read
+    /// through `vfs`.
+    pub fn from_slides_via(
+        vfs: &'a dyn crate::vfs::Vfs,
         config: &crate::config::project::SlidesConfig,
         assets: &'a AssetReader<'a>,
         root: Option<&std::path::Path>,
@@ -713,7 +753,8 @@ impl<'a> Options<'a> {
             font_size: config.default_font_size as f32,
             font_family: config.default_font.clone(),
             assets,
-            font_dirs: font_dirs(root, &config.fonts),
+            vfs,
+            font_dirs: font_dirs_via(vfs, root, &config.fonts),
             system_fonts: config.system_fonts,
         };
         let chrome = SlideChrome {
@@ -744,14 +785,14 @@ fn luminance(c: Rgba) -> f32 {
 
 /// Render a deck: every slide of the page's `Presentation` on a page of its
 /// own, the slide's size, its content clipped at the edge.
-#[cfg_attr(not(feature = "pdf"), allow(unreachable_code, unused_variables))]
+#[cfg_attr(not(feature = "pdf-engine"), allow(unreachable_code, unused_variables))]
 pub fn render_slides(
     html: &str,
     css: &str,
     opts: &Options,
     chrome: &SlideChrome,
 ) -> Result<Output, String> {
-    #[cfg(not(feature = "pdf"))]
+    #[cfg(not(feature = "pdf-engine"))]
     {
         let _ = (html, css, opts, chrome);
         return Err(NO_PDF.to_string());
@@ -766,7 +807,7 @@ pub fn render_slides(
     let author = sheets(&dom, &slide_css, css);
     let mut db = FontDb::new(opts.system_fonts);
     for dir in &opts.font_dirs {
-        db.add_dir(dir);
+        db.add_dir_via(opts.vfs, dir);
     }
     let ua = Sheet::parse(UA_SHEET);
     let base = root_style(opts);

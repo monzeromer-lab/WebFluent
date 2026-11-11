@@ -1,61 +1,89 @@
 # wf-wasm
 
-The WebFluent compiler as WebAssembly, for a playground that compiles in the
-browser with nothing sent to a server.
+The WebFluent compiler as WebAssembly: sites, apps, pictures, PDFs and slide
+decks built in the browser, with nothing sent to a server.
 
 ```bash
-cargo install wasm-bindgen-cli --version 0.2.130   # once
-crates/wf-wasm/build.sh                            # writes crates/wf-wasm/pkg/
-python3 -m http.server 8765 --directory crates/wf-wasm   # then open /demo.html
+cargo install wasm-bindgen-cli --version 0.2.130          # once
+crates/wf-wasm/build.sh                                   # pkg/, pkg-pdf/
+python3 -m http.server 8765 --directory crates/wf-wasm    # open /demo.html
 ```
 
-`demo.html` compiles a counter page as you type, shows the page, every file
-the build wrote, and the findings.
+`build.sh` needs the `wasm32-unknown-unknown` target and a clang that
+targets wasm32, with its `llvm-ar` (for libwebp; set `CC_wasm32_unknown_unknown`
+and `AR_wasm32_unknown_unknown` to pick others). It runs `wasm-opt -Oz` when
+one is on the path.
 
-## API
+`demo.html` has four examples: a site of two pages, a picture sized to WebP,
+a PDF report with Arabic in it, and a slide deck.
 
-Every function takes and returns JSON text.
+## Using it
 
-| Function | Returns |
+Import `wf.js`; it loads what a project needs, when it needs it.
+
+```js
+import { compile, preview, previewConfig, explain, preload } from "./wf.js";
+
+preload();                                   // on the first edit, or sooner
+const out = await compile(
+  { "src/App.wf": "…", "src/pages/Home.wf": "…", "public/hero.png": pngBytes },
+  previewConfig({ name: "Playground" }),     // or any webfluent.app.json text
+);
+out.ok; out.diagnostics;                     // as `wf check --format json`
+out.files["index.html"];                     // text the build wrote
+out.binary["Report.pdf"];                    // Uint8Array: pictures, a PDF
+iframe.src = await preview(out);             // a site, served as a host would
+```
+
+| | |
 |---|---|
-| `compile(files, config)` | `{ ok, files: { path: text }, diagnostics, error, lines }` — `files` in is `{ "src/App.wf": "…", … }`, `config` the `webfluent.app.json` text or `null` |
-| `check(files, config)` | the same, nothing built: `wf check` |
+| `compile(files, config)` | `files`: path → text or bytes (`Uint8Array`). Resolves to `{ ok, files, binary, diagnostics, error, lines }` |
+| `check(files, config)` | every finding, nothing built (`wf check`) |
+| `preview(out, route?)` | publishes the build to a service worker (`preview-sw.js`) that serves it under `preview/` — every page, chunk, stylesheet and picture, routes included — and resolves to the address for an iframe. Build with `previewConfig(config)` so the pages ask for their files there. The iframe needs `sandbox="allow-scripts allow-same-origin"`; give the preview an origin of its own if the page around it holds anything worth protecting |
 | `explain(code)` | `{ code, severity, title, summary, docs }` or `null` |
-| `version()` | the compiler's version |
+| `registerFont(bytes)` | a face documents may be set in or fall back to (TTF/OTF, as it is, zlib or gzip); resolves to its family |
+| `preload({ document })` | start loading before the first call |
 
-`diagnostics` are the objects `wf check --format json` lists, from the same
-pipeline (`diagnostics::check::check_project`). Paths in them are under
-`/wf-project/`, where the project seems to sit.
+### What is loaded, and when
 
-The Rust side is `webfluent::memory::compile`, which runs natively too and is
-what the tests exercise.
+| | raw | gzip -9 | loaded |
+|---|---|---|---|
+| `pkg/wf_wasm_bg.wasm` — the compiler, with WebP | 4.65 MB | 1.60 MB | on the first `compile` (or `preload`) |
+| `pkg-pdf/wf_wasm_pdf_bg.wasm` — the same with the PDF engine | 8.29 MB | 2.70 MB | the first time a config says `output_type: "pdf"` or `"slides"` |
+| `pkg-pdf/fonts/*.ttf.z` — the 12 Liberation faces | 2.37 MB (already compressed) | — | with the PDF build |
+| `pkg-pdf/fonts/NotoSansArabic.ttf.gz` | 455 KB | — | the first time a document's text has Arabic in it |
 
-## Size
+Timings in Chrome: a two-page site compiles in about 30–60 ms; a PDF in
+about 120–240 ms; a 1600×900 picture's first build about 2 s (four WebP
+widths), later builds reuse the encodings (about 250 ms) — `memory::compile`
+keeps `.wf-cache/media` between builds, up to 64 MB.
 
-The `wasm-release` profile (`opt-level = "z"`, LTO, one codegen unit,
-`panic = "abort"`), names and producers sections removed:
+### The lower level
 
-| | raw | gzip -9 |
-|---|---|---|
-| `wf_wasm_bg.wasm` | 4.4 MB | 1.48 MB |
-| `wf_wasm.js` glue | 10 KB | — |
+`pkg/wf_wasm.js` itself exports `compile(filesJson, configJson)`,
+`check`, `explain`, `register_font(bytes)`, `has_pdf()` and `version()`,
+JSON text in and out; a file that is not text is `{ "base64": "…" }` in
+`filesJson`, and `binary` comes back base64. The Rust side is
+`webfluent::memory::compile_files`, which runs natively too and is what
+the tests exercise.
 
-A plain `--release` build with the PDF engine in is 17 MB / 6.5 MB.
-`wasm-opt -Oz` (binaryen) runs in `build.sh` when it is on the path; it was
-not measured here.
+## How each part works in a browser
 
-## What is not here
-
-- **PDF and slides.** Built without the `pdf` feature: a project with
-  `output_type: "pdf"` or `"slides"` reports that this build has no PDF
-  engine (its checks still run). The engine itself is pure Rust and compiles
-  to wasm; what it costs is the 2.4 MB of built-in Liberation fonts plus
-  krilla/usvg/rustybuzz code, and with no system fonts any other family must
-  be handed in as bytes. Turning `pdf` on in `Cargo.toml` is all it takes to
-  try it.
-- **Lossy WebP.** libwebp is C; without `native-media` the image pipeline
-  writes no WebP and the original picture serves.
-- **Time.** `ago(date)` measures against the `Date.now()` the entry point
-  hands in; a build reports a duration of zero.
-- **`env`.** There is no process environment; `.env` and the config's `env`
-  are read as usual.
+- **No disk.** The project is read from a map (`memory::compile_files`
+  over an `OverlayVfs` with nothing beneath it); what a build writes goes
+  to memory (`outfs::capture`) and comes back as the result.
+- **No threads, no clock, no environment.** `platform` runs the checks one
+  after another, reports a build's duration as zero, takes `Date.now()`
+  for `ago(date)`, and reads no process environment (`.env` and the
+  config's `env` are read as usual).
+- **WebP is C.** `libc/` is a C library just large enough for libwebp:
+  freestanding headers, `shim.c` (sort, search, a stdio that writes
+  nowhere) and `src/libc.rs` (the allocator is Rust's, the maths the `libm`
+  crate's).
+- **Fonts.** The PDF build leaves the Liberation faces out of its download
+  (`bundled-fonts` off) and `wf.js` hands them to `register_font`; a face
+  registered there stands where a built-in one does. A browser has no
+  machine fonts to fall back on, so a script the Liberation faces lack needs
+  a face registered for it — Arabic is shipped; for another, register one
+  (`register_font` takes a TTF/OTF as it is, zlib or gzip) or put it in the
+  project's `fonts/` as bytes.

@@ -115,8 +115,13 @@
 //!
 //! - **`native-media`** (default) — lossy WebP through libwebp (C). Without
 //!   it the image pipeline writes no WebP; the original picture serves.
-//! - **`pdf`** (default) — the PDF and slide-deck renderer and its built-in
-//!   fonts. Without it a PDF or deck build stops with a message.
+//! - **`pdf`** (default) — PDF documents and slide decks: `pdf-engine` and
+//!   `bundled-fonts`.
+//! - **`pdf-engine`** — the paged renderer. Without it a PDF or deck build
+//!   stops with a message.
+//! - **`bundled-fonts`** — the Liberation faces inside the binary (2.4 MB).
+//!   Without them the faces are handed in at run time with
+//!   [`paged::fonts::register_font`], as the WebAssembly build does.
 //! - **`cli`** (default) — the `wf` command's own dependencies: its argument
 //!   parser and the dev server. A program that only compiles or renders
 //!   templates turns it off:

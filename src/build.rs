@@ -590,7 +590,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
         );
         // A picture is read from the project, or from what this build wrote
         // (an `image` the media pipeline sized).
-        let project_read = crate::paged::reader(Some(project_dir.to_path_buf()));
+        let project_read = crate::paged::reader_via(options.vfs, Some(project_dir.to_path_buf()));
         let built = output_dir.clone();
         let read = move |src: &str| {
             project_read(src).or_else(|| {
@@ -604,11 +604,21 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
         };
         let rendered = if deck {
             let (options, chrome) =
-                crate::paged::Options::from_slides(&config.build.slides, &read, Some(project_dir));
+                crate::paged::Options::from_slides_via(
+                    options.vfs,
+                    &config.build.slides,
+                    &read,
+                    Some(project_dir),
+                );
             crate::paged::render_slides(&html, "", &options, &chrome)
         } else {
             let options =
-                crate::paged::Options::from_pdf(&config.build.pdf, &read, Some(project_dir));
+                crate::paged::Options::from_pdf_via(
+                options.vfs,
+                &config.build.pdf,
+                &read,
+                Some(project_dir),
+            );
             crate::paged::render(&html, "", &options)
         }
         .map_err(WebFluentError::CodegenError)?;

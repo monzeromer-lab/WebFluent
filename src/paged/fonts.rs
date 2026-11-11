@@ -9,7 +9,7 @@
 
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
-use std::sync::{Arc, OnceLock};
+use std::sync::{Arc, Mutex, OnceLock};
 
 use ttf_parser::{Face as TtfFace, name_id};
 
@@ -64,6 +64,7 @@ pub struct FontDb {
 
 // A reference to the bytes, never a copy: as a constant expression the
 // compiler would evaluate two megabytes of data element by element.
+#[cfg(feature = "bundled-fonts")]
 macro_rules! bundled {
     ($name:literal) => {{
         static BYTES: &[u8] = include_bytes!(concat!("fonts/", $name, ".ttf.z"));
@@ -72,6 +73,7 @@ macro_rules! bundled {
 }
 
 /// The bundled faces: (family, weight, italic, compressed bytes).
+#[cfg(feature = "bundled-fonts")]
 static BUNDLED: &[(&str, u16, bool, &[u8])] = &[
     (
         "Liberation Sans",
@@ -147,8 +149,78 @@ static BUNDLED: &[(&str, u16, bool, &[u8])] = &[
     ),
 ];
 
-/// The bundled faces, inflated once per process.
-fn bundled_faces() -> &'static Vec<Face> {
+/// Without `bundled-fonts` the faces are handed in at run time:
+/// [`register_font`].
+#[cfg(not(feature = "bundled-fonts"))]
+static BUNDLED: &[(&str, u16, bool, &[u8])] = &[];
+
+/// Faces handed in at run time, which stand where the bundled ones do — how
+/// a WebAssembly build, which leaves the fonts out of its download, gets
+/// them when a document asks for one.
+static REGISTERED: Mutex<Vec<Face>> = Mutex::new(Vec::new());
+
+/// Take a font file — as it is, or zlib-compressed as the bundled ones are
+/// kept — as one of the built-in faces, under the family its tables name.
+/// The family, or `None` when the bytes are not a font.
+pub fn register_font(bytes: Vec<u8>) -> Option<String> {
+    let zlib = bytes.len() > 2
+        && bytes[0] & 0x0f == 8
+        && (u16::from(bytes[0]) << 8 | u16::from(bytes[1])) % 31 == 0;
+    let gzip = bytes.starts_with(&[0x1f, 0x8b, 8]);
+    let data = if zlib {
+        miniz_oxide::inflate::decompress_to_vec_zlib(&bytes).ok()?
+    } else if gzip {
+        miniz_oxide::inflate::decompress_to_vec(gzip_body(&bytes)?).ok()?
+    } else {
+        bytes
+    };
+    let face = read_face(Arc::new(data), 0, Source::Bundled)?;
+    let family = face.family.clone();
+    let same = |f: &Face| {
+        f.family == face.family && f.weights == face.weights && f.italic == face.italic
+    };
+    // A face already built in, or already registered, is not taken twice.
+    let mut registered = REGISTERED.lock().unwrap_or_else(|e| e.into_inner());
+    if !embedded_faces().iter().any(same) && !registered.iter().any(same) {
+        registered.push(face);
+    }
+    Some(family)
+}
+
+/// The deflate stream inside a gzip file: past its header (RFC 1952) and
+/// before its eight-byte trailer.
+fn gzip_body(bytes: &[u8]) -> Option<&[u8]> {
+    let flags = *bytes.get(3)?;
+    let mut at = 10;
+    if flags & 4 != 0 {
+        let extra = usize::from(*bytes.get(at)?) | usize::from(*bytes.get(at + 1)?) << 8;
+        at += 2 + extra;
+    }
+    for flag in [8, 16] {
+        if flags & flag != 0 {
+            at += bytes.get(at..)?.iter().position(|&b| b == 0)? + 1;
+        }
+    }
+    if flags & 2 != 0 {
+        at += 2;
+    }
+    bytes.get(at..bytes.len().checked_sub(8)?)
+}
+
+/// How many faces have been registered: what a cache of them is keyed by.
+fn registered_count() -> usize {
+    REGISTERED.lock().map_or(0, |r| r.len())
+}
+
+/// The bundled faces, inflated once per process, and those registered.
+fn bundled_faces() -> Vec<Face> {
+    let mut faces = embedded_faces().clone();
+    faces.extend(REGISTERED.lock().map(|r| r.clone()).unwrap_or_default());
+    faces
+}
+
+/// The faces built into the binary, inflated once per process.
+fn embedded_faces() -> &'static Vec<Face> {
     static FACES: OnceLock<Vec<Face>> = OnceLock::new();
     FACES.get_or_init(|| {
         BUNDLED
@@ -168,19 +240,26 @@ fn bundled_faces() -> &'static Vec<Face> {
 /// The fonts an SVG's text is set in: the bundled faces, and the machine's.
 /// Read once per process; an icon or a chart's labels need no more.
 pub fn svg_fontdb() -> Arc<fontdb::Database> {
-    static DB: OnceLock<Arc<fontdb::Database>> = OnceLock::new();
-    DB.get_or_init(|| {
-        let mut db = fontdb::Database::new();
-        for face in bundled_faces() {
-            db.load_font_data(face.data.as_ref().clone());
-        }
-        db.load_system_fonts();
-        db.set_sans_serif_family("Liberation Sans");
-        db.set_serif_family("Liberation Serif");
-        db.set_monospace_family("Liberation Mono");
-        Arc::new(db)
-    })
-    .clone()
+    // Made again only when a face is registered after it was made.
+    static DB: Mutex<Option<(usize, Arc<fontdb::Database>)>> = Mutex::new(None);
+    let mut cached = DB.lock().unwrap_or_else(|e| e.into_inner());
+    let count = registered_count();
+    if let Some((made_with, db)) = cached.as_ref()
+        && *made_with == count
+    {
+        return db.clone();
+    }
+    let mut db = fontdb::Database::new();
+    for face in bundled_faces() {
+        db.load_font_data(face.data.as_ref().clone());
+    }
+    db.load_system_fonts();
+    db.set_sans_serif_family("Liberation Sans");
+    db.set_serif_family("Liberation Serif");
+    db.set_monospace_family("Liberation Mono");
+    let db = Arc::new(db);
+    *cached = Some((count, db.clone()));
+    db
 }
 
 /// The bundled family a generic or standard name stands for.
@@ -272,9 +351,25 @@ impl FontDb {
     /// Every face in a font file (a collection has several), under the
     /// family its tables name, or under `family` when one is given.
     pub fn add_file(&mut self, path: &Path, family: Option<&str>) -> usize {
-        let Ok(bytes) = std::fs::read(path) else {
+        self.add_file_via(&crate::vfs::FsVfs, path, family)
+    }
+
+    /// [`add_file`](Self::add_file), read through `vfs`.
+    pub fn add_file_via(
+        &mut self,
+        vfs: &dyn crate::vfs::Vfs,
+        path: &Path,
+        family: Option<&str>,
+    ) -> usize {
+        let Ok(bytes) = vfs.read(path) else {
             return 0;
         };
+        self.add_bytes(bytes, path, family)
+    }
+
+    /// Every face in a font's bytes, known by `path` (where they came from,
+    /// so one file registered twice is one face).
+    pub fn add_bytes(&mut self, bytes: Vec<u8>, path: &Path, family: Option<&str>) -> usize {
         let data = Arc::new(bytes);
         let count = ttf_parser::fonts_in_collection(&data).unwrap_or(1);
         let mut added = 0;
@@ -302,16 +397,20 @@ impl FontDb {
 
     /// Every `.ttf`, `.otf` and `.ttc` under a directory.
     pub fn add_dir(&mut self, dir: &Path) {
-        let Ok(entries) = std::fs::read_dir(dir) else {
+        self.add_dir_via(&crate::vfs::FsVfs, dir)
+    }
+
+    /// [`add_dir`](Self::add_dir), read through `vfs`.
+    pub fn add_dir_via(&mut self, vfs: &dyn crate::vfs::Vfs, dir: &Path) {
+        let Ok(mut paths) = vfs.read_dir(dir) else {
             return;
         };
-        let mut paths: Vec<PathBuf> = entries.flatten().map(|e| e.path()).collect();
         paths.sort();
         for path in paths {
-            if path.is_dir() {
-                self.add_dir(&path);
+            if vfs.is_dir(&path) {
+                self.add_dir_via(vfs, &path);
             } else if is_font_file(&path) {
-                self.add_file(&path, None);
+                self.add_file_via(vfs, &path, None);
             }
         }
     }
@@ -577,6 +676,25 @@ pub fn is_font_file(path: &Path) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_font_is_registered_as_it_is_or_compressed() {
+        let raw = miniz_oxide::inflate::decompress_to_vec_zlib(BUNDLED_FOR_TEST).unwrap();
+        assert_eq!(register_font(raw.clone()).as_deref(), Some("Liberation Sans"));
+        assert_eq!(
+            register_font(BUNDLED_FOR_TEST.to_vec()).as_deref(),
+            Some("Liberation Sans")
+        );
+        // gzip: a header naming the file, the deflate stream, a trailer.
+        let mut gz = vec![0x1f, 0x8b, 8, 8, 0, 0, 0, 0, 0, 3];
+        gz.extend_from_slice(b"f.ttf\0");
+        gz.extend(miniz_oxide::deflate::compress_to_vec(&raw, 6));
+        gz.extend([0; 8]);
+        assert_eq!(register_font(gz).as_deref(), Some("Liberation Sans"));
+        assert_eq!(register_font(b"not a font".to_vec()), None);
+    }
+
+    const BUNDLED_FOR_TEST: &[u8] = include_bytes!("fonts/LiberationSans-Regular.ttf.z");
 
     fn fam(names: &[&str]) -> Vec<String> {
         names.iter().map(|s| s.to_string()).collect()
