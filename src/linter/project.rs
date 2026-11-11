@@ -100,8 +100,7 @@ pub fn missing_assets(
                 return;
             }
             let path = url.split(['?', '#']).next().unwrap_or("");
-            if path.len() > 1
-                && !vfs.exists(&dir.join("public").join(path.trim_start_matches('/')))
+            if path.len() > 1 && !vfs.exists(&dir.join("public").join(path.trim_start_matches('/')))
             {
                 out.push(
                     Diagnostic::coded(

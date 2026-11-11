@@ -20,11 +20,11 @@ use crate::config::project::OutputType;
 use crate::diagnostics::Severity;
 use crate::diagnostics::format::Format;
 use crate::error::{Diagnostic, Result, WebFluentError};
+use crate::outfs as fs;
 use crate::parser::{Declaration, Program, Statement};
 use crate::vfs::{FsVfs, Vfs};
 use std::cell::RefCell;
 use std::collections::{BTreeMap, HashMap};
-use crate::outfs as fs;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
@@ -364,7 +364,11 @@ fn routes(program: &Program, declaration_files: &[String]) -> Vec<RouteInfo> {
 /// The config, with `env` from a `.env` file and the shell on top of its own.
 fn load_config(options: &BuildOptions) -> Result<ProjectConfig> {
     let mut config = ProjectConfig::load_via(options.vfs, options.project_dir)?;
-    config.resolve_env_via(options.vfs, options.project_dir, crate::platform::env_vars());
+    config.resolve_env_via(
+        options.vfs,
+        options.project_dir,
+        crate::platform::env_vars(),
+    );
     if let Some(output) = &options.output_dir {
         config.build.output = output.to_string_lossy().to_string();
     }
@@ -603,17 +607,15 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
             })
         };
         let rendered = if deck {
-            let (options, chrome) =
-                crate::paged::Options::from_slides_via(
-                    options.vfs,
-                    &config.build.slides,
-                    &read,
-                    Some(project_dir),
-                );
+            let (options, chrome) = crate::paged::Options::from_slides_via(
+                options.vfs,
+                &config.build.slides,
+                &read,
+                Some(project_dir),
+            );
             crate::paged::render_slides(&html, "", &options, &chrome)
         } else {
-            let options =
-                crate::paged::Options::from_pdf_via(
+            let options = crate::paged::Options::from_pdf_via(
                 options.vfs,
                 &config.build.pdf,
                 &read,

@@ -10,6 +10,8 @@
 //! browser, as WebAssembly — and how a test builds a project without one.
 //! The capture belongs to the thread that opened it; the build writes from
 //! that thread only.
+//!
+//! [`capture`]: crate::outfs::capture
 
 use std::cell::RefCell;
 use std::collections::{BTreeMap, BTreeSet};
@@ -59,11 +61,9 @@ pub fn capturing() -> bool {
 }
 
 fn with<T>(memory: impl FnOnce(&mut Memory) -> T, disk: impl FnOnce() -> T) -> T {
-    CAPTURE.with(|c| match c.borrow_mut().as_mut() {
-        Some(m) => Some(memory(m)),
-        None => None,
-    })
-    .unwrap_or_else(disk)
+    CAPTURE
+        .with(|c| c.borrow_mut().as_mut().map(memory))
+        .unwrap_or_else(disk)
 }
 
 fn not_found(path: &Path) -> io::Error {
@@ -123,8 +123,7 @@ pub fn read(path: impl AsRef<Path>) -> io::Result<Vec<u8>> {
 
 pub fn read_to_string(path: impl AsRef<Path>) -> io::Result<String> {
     let bytes = read(path)?;
-    String::from_utf8(bytes)
-        .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "not UTF-8"))
+    String::from_utf8(bytes).map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "not UTF-8"))
 }
 
 pub fn remove_file(path: impl AsRef<Path>) -> io::Result<()> {

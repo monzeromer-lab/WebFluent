@@ -7,7 +7,6 @@
 //! back to the English spelling, and the page corrects itself once it is
 //! live.
 
-
 /// A value to format: a number, or a date read from its text.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Input {

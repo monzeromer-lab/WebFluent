@@ -234,46 +234,47 @@ fn lowered_checks(
         .config
         .map(|c| c.build.elements.clone())
         .unwrap_or_default();
-    let (accessibility, (contrast, styles), unused, vocabulary, output) = crate::platform::scope(|s| {
-        let accessibility = s.spawn(|| crate::linter::lint_accessibility_in(lowered, file_of));
-        let painted = s.spawn(|| match crate::themes::resolve_tokens(lowered, &theme) {
-            Ok(mut tokens) => {
-                let contrast = crate::linter::lint_contrast_in(lowered, &tokens, file_of);
-                if let Some(config) = p.config {
-                    crate::themes::apply_motion(&mut tokens, &config.motion);
+    let (accessibility, (contrast, styles), unused, vocabulary, output) =
+        crate::platform::scope(|s| {
+            let accessibility = s.spawn(|| crate::linter::lint_accessibility_in(lowered, file_of));
+            let painted = s.spawn(|| match crate::themes::resolve_tokens(lowered, &theme) {
+                Ok(mut tokens) => {
+                    let contrast = crate::linter::lint_contrast_in(lowered, &tokens, file_of);
+                    if let Some(config) = p.config {
+                        crate::themes::apply_motion(&mut tokens, &config.motion);
+                    }
+                    (
+                        contrast,
+                        crate::linter::styles::lint_styles(lowered, Some(&tokens), file_of),
+                    )
                 }
-                (
-                    contrast,
-                    crate::linter::styles::lint_styles(lowered, Some(&tokens), file_of),
-                )
-            }
-            Err(_) => (
-                Vec::new(),
-                crate::linter::styles::lint_styles(lowered, None, file_of),
-            ),
+                Err(_) => (
+                    Vec::new(),
+                    crate::linter::styles::lint_styles(lowered, None, file_of),
+                ),
+            });
+            let unused = s.spawn(|| crate::linter::lint_unused_in(lowered, file_of, &published));
+            let vocabulary =
+                s.spawn(|| crate::linter::lint_vocabulary_with(lowered, p.stylesheets, file_of));
+            let output = p.config.map(|config| {
+                let mut out = output_checks(lowered, config, file_of);
+                if config.build.csp {
+                    out.extend(crate::codegen::csp::head_violations(
+                        p.program,
+                        &crate::config::project::csp_meta_policy(config),
+                        file_of,
+                    ));
+                }
+                out
+            });
+            (
+                accessibility.join().expect("the accessibility checks"),
+                painted.join().expect("the style checks"),
+                unused.join().expect("the checks for what is unused"),
+                vocabulary.join().expect("the vocabulary's checks"),
+                output.unwrap_or_default(),
+            )
         });
-        let unused = s.spawn(|| crate::linter::lint_unused_in(lowered, file_of, &published));
-        let vocabulary =
-            s.spawn(|| crate::linter::lint_vocabulary_with(lowered, p.stylesheets, file_of));
-        let output = p.config.map(|config| {
-            let mut out = output_checks(lowered, config, file_of);
-            if config.build.csp {
-                out.extend(crate::codegen::csp::head_violations(
-                    p.program,
-                    &crate::config::project::csp_meta_policy(config),
-                    file_of,
-                ));
-            }
-            out
-        });
-        (
-            accessibility.join().expect("the accessibility checks"),
-            painted.join().expect("the style checks"),
-            unused.join().expect("the checks for what is unused"),
-            vocabulary.join().expect("the vocabulary's checks"),
-            output.unwrap_or_default(),
-        )
-    });
     let mut out = styles;
     let mut lints = accessibility;
     lints.extend(contrast);

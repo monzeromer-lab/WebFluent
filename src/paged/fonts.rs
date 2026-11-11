@@ -176,9 +176,8 @@ pub fn register_font(bytes: Vec<u8>) -> Option<String> {
     };
     let face = read_face(Arc::new(data), 0, Source::Bundled)?;
     let family = face.family.clone();
-    let same = |f: &Face| {
-        f.family == face.family && f.weights == face.weights && f.italic == face.italic
-    };
+    let same =
+        |f: &Face| f.family == face.family && f.weights == face.weights && f.italic == face.italic;
     // A face already built in, or already registered, is not taken twice.
     let mut registered = REGISTERED.lock().unwrap_or_else(|e| e.into_inner());
     if !embedded_faces().iter().any(same) && !registered.iter().any(same) {
@@ -680,7 +679,10 @@ mod tests {
     #[test]
     fn a_font_is_registered_as_it_is_or_compressed() {
         let raw = miniz_oxide::inflate::decompress_to_vec_zlib(BUNDLED_FOR_TEST).unwrap();
-        assert_eq!(register_font(raw.clone()).as_deref(), Some("Liberation Sans"));
+        assert_eq!(
+            register_font(raw.clone()).as_deref(),
+            Some("Liberation Sans")
+        );
         assert_eq!(
             register_font(BUNDLED_FOR_TEST.to_vec()).as_deref(),
             Some("Liberation Sans")

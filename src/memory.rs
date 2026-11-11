@@ -7,6 +7,8 @@
 //! pipeline `wf check` runs. It is what the browser's playground calls,
 //! through the `wf-wasm` crate; it runs natively too, which is how it is
 //! tested.
+//!
+//! [`compile`]: crate::memory::compile
 
 use std::collections::BTreeMap;
 use std::io;
@@ -25,7 +27,7 @@ pub const PROJECT_DIR: &str = "/wf-project";
 thread_local! {
     /// What the image pipeline encoded, kept from one build to the next.
     static MEDIA_CACHE: std::cell::RefCell<crate::outfs::Files> =
-        std::cell::RefCell::new(crate::outfs::Files::new());
+        const { std::cell::RefCell::new(crate::outfs::Files::new()) };
 }
 
 /// Past this many bytes of encoded pictures the cache starts again empty.
@@ -120,7 +122,11 @@ pub enum Contents {
 /// Build `files` — paths relative to the project, as written under it — with
 /// `config` as its `webfluent.app.json` (or the one in `files`, or
 /// [`DEFAULT_CONFIG`]).
-pub fn compile(files: &BTreeMap<String, String>, config: Option<&str>, options: &Options) -> Output {
+pub fn compile(
+    files: &BTreeMap<String, String>,
+    config: Option<&str>,
+    options: &Options,
+) -> Output {
     compile_files(
         files
             .iter()
@@ -174,7 +180,10 @@ pub fn compile_files(
                 crate::error::WebFluentError::Diagnostics(_) => None,
                 other => Some(other.to_string()),
             };
-            (*failure.report, message.or_else(|| Some(failure.error.to_string())))
+            (
+                *failure.report,
+                message.or_else(|| Some(failure.error.to_string())),
+            )
         }
     };
     let output_dir = if report.output_dir.as_os_str().is_empty() {
@@ -267,7 +276,11 @@ mod tests {
         ]);
         let out = compile(&files, None, &Options::default());
         assert!(out.ok, "{:?} {:#?}", out.error, out.diagnostics);
-        assert!(out.files.contains_key("index.html"), "{:?}", out.files.keys());
+        assert!(
+            out.files.contains_key("index.html"),
+            "{:?}",
+            out.files.keys()
+        );
         assert!(out.files.contains_key("app.js"));
         assert!(out.files.contains_key("styles.css"));
         let js: String = out.files.values().cloned().collect();
@@ -294,7 +307,14 @@ mod tests {
             .expect("E103 for an unknown flag");
         assert!(e103.file.ends_with("src/pages/Home.wf"), "{}", e103.file);
 
-        let checked = compile(&files, None, &Options { check_only: true, dev: false });
+        let checked = compile(
+            &files,
+            None,
+            &Options {
+                check_only: true,
+                dev: false,
+            },
+        );
         assert_eq!(
             checked.diagnostics.len(),
             out.diagnostics.len(),
@@ -304,7 +324,11 @@ mod tests {
 
     fn png(width: u32, height: u32) -> Vec<u8> {
         let image = image::RgbImage::from_fn(width, height, |x, y| {
-            image::Rgb([(x * 7 % 256) as u8, (y * 5 % 256) as u8, ((x ^ y) % 256) as u8])
+            image::Rgb([
+                (x * 7 % 256) as u8,
+                (y * 5 % 256) as u8,
+                ((x ^ y) % 256) as u8,
+            ])
         });
         let mut out = Vec::new();
         image::DynamicImage::ImageRgb8(image)
