@@ -791,3 +791,53 @@ fn a_calls_style_styles_the_components_root() {
     );
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// An `if let` used as a value whose branch awaits: its arrow is async and
+/// awaited, in a store's action and in a page's, so the page's code
+/// parses. It was a plain arrow with an `await` in it.
+#[test]
+fn an_if_let_value_that_awaits_parses() {
+    let dir = built_project(
+        "iflet-await",
+        r#"{ "name": "t", "build": { "ssg": false, "minify": false, "split": false } }"#,
+        "store S {\n\
+         \x20   state picked: String? = null\n\
+         \x20   state found = \"\"\n\
+         \x20   action look() {\n\
+         \x20       let one = if let p = picked { await ask(p) } else { \"none\" }\n\
+         \x20       found = one\n\
+         \x20   }\n\
+         \x20   action ask(p: String) {\n\
+         \x20       return \"{p}!\"\n\
+         \x20   }\n\
+         }\n\
+         page Home(path: \"/\", title: \"H\", description: \"D.\") {\n\
+         \x20   use S\n\
+         \x20   state mine: String? = \"x\"\n\
+         \x20   state got = \"\"\n\
+         \x20   action here() {\n\
+         \x20       got = if let m = mine { await S.ask(m) } else { \"\" }\n\
+         \x20   }\n\
+         \x20   Heading(\"Home\").h1\n\
+         \x20   Button(\"Look\") { on click { S.look()  here() } }\n\
+         \x20   Text(\"{S.found} {got}\")\n\
+         }\n",
+    );
+    for js in ["build/app.js", "build/pages/Home.js"] {
+        let path = dir.join(js);
+        if !path.exists() {
+            continue;
+        }
+        let out = std::process::Command::new("node")
+            .arg("--check")
+            .arg(&path)
+            .output()
+            .expect("node");
+        assert!(
+            out.status.success(),
+            "{js} doesn't parse: {}",
+            String::from_utf8_lossy(&out.stderr)
+        );
+    }
+    let _ = std::fs::remove_dir_all(&dir);
+}

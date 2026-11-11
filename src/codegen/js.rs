@@ -1705,6 +1705,13 @@ impl JsCodegen {
                     self.store_locals.borrow_mut().truncate(bound);
                     let else_val = self.emit_store_expr(&args[1], store_states);
                     let name = bare(name);
+                    // A branch that awaits needs its arrow to be async, and
+                    // the arrow awaited, or the page's code doesn't parse.
+                    if then_val.contains("await ") || else_val.contains("await ") {
+                        return format!(
+                            "(await (async ({name}) => {name} != null ? {then_val} : {else_val})({value}))"
+                        );
+                    }
                     return format!(
                         "(({name}) => {name} != null ? {then_val} : {else_val})({value})"
                     );
@@ -7923,6 +7930,13 @@ impl JsCodegen {
                     self.lambda_params.borrow_mut().pop();
                     let else_val = self.emit_expr(&args[1]);
                     let name = bare(name);
+                    // A branch that awaits needs its arrow to be async, and
+                    // the arrow awaited, or the page's code doesn't parse.
+                    if then_val.contains("await ") || else_val.contains("await ") {
+                        return format!(
+                            "(await (async ({name}) => {name} != null ? {then_val} : {else_val})({value}))"
+                        );
+                    }
                     return format!(
                         "(({name}) => {name} != null ? {then_val} : {else_val})({value})"
                     );
