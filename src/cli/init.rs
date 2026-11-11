@@ -41,6 +41,7 @@ pub fn run_init(name: &str, template: &str, locales: Option<&str>) -> Result<()>
         println!("  It speaks {default} by default{others}: src/translations/ holds each");
     }
     println!("  AGENTS.md is the language reference, for you and your coding agent");
+    println!("  .agents/skills/ and .claude/skills/ teach your coding agent to write it well");
     println!();
     println!("  cd {}", name);
     println!("  wf build");

@@ -66,7 +66,7 @@ wf serve              # http://localhost:3000, rebuilds on save
 
 ### With a coding agent
 
-Every project `wf init` makes has an `AGENTS.md`, the reference for its version. For Claude Code, Codex, Cursor, Gemini CLI and the other agents that read [Agent Skills](https://agentskills.io), there is also a skill that teaches the `wf` loop and the mistakes models make most:
+Every project `wf init` makes has an `AGENTS.md`, the reference for its version. For Claude Code, Codex, Cursor, Gemini CLI and the other agents that read [Agent Skills](https://agentskills.io), there is also a skill that teaches the `wf` loop, the mistakes models make most, and how good WebFluent is written. Its references cover recipes, styling and themes, testing, the diagnostics, PDFs and decks, and apps for the desktop and the phone with Tauri. A test compiles every example in them:
 
 ```bash
 npx skills add monzeromer-lab/WebFluent --skill writing-webfluent -g

@@ -125,7 +125,80 @@ pub fn create_with(dir: &Path, name: &str, options: &Options) -> Result<()> {
     // that made it, rather than guessing at a language it may never have
     // seen.
     fs::write(dir.join("AGENTS.md"), agents_md())?;
+    // The same, as an Agent Skill, in the folders agents look in for one:
+    // `.agents/skills/` (Codex, Cursor, Gemini CLI and the agents that
+    // follow the standard) and `.claude/skills/` (Claude Code). An agent
+    // loads it when the work is WebFluent, and it points at `AGENTS.md`
+    // rather than carrying a second copy of the reference.
+    for root in SKILL_ROOTS {
+        for (path, text) in skill_files() {
+            let path = dir.join(root).join(path);
+            if let Some(parent) = path.parent() {
+                fs::create_dir_all(parent)?;
+            }
+            fs::write(path, text)?;
+        }
+    }
     Ok(())
+}
+
+/// Where a new project keeps its skill, relative to the project.
+pub const SKILL_ROOTS: [&str; 2] = [
+    ".agents/skills/writing-webfluent",
+    ".claude/skills/writing-webfluent",
+];
+
+/// The `writing-webfluent` skill (`skills/writing-webfluent/` in the
+/// repository), as this `wf` was built with it.
+const SKILL: &[(&str, &str)] = &[
+    (
+        "SKILL.md",
+        include_str!("../skills/writing-webfluent/SKILL.md"),
+    ),
+    (
+        "references/code-quality.md",
+        include_str!("../skills/writing-webfluent/references/code-quality.md"),
+    ),
+    (
+        "references/diagnostics.md",
+        include_str!("../skills/writing-webfluent/references/diagnostics.md"),
+    ),
+    (
+        "references/documents.md",
+        include_str!("../skills/writing-webfluent/references/documents.md"),
+    ),
+    (
+        "references/recipes.md",
+        include_str!("../skills/writing-webfluent/references/recipes.md"),
+    ),
+    (
+        "references/styling.md",
+        include_str!("../skills/writing-webfluent/references/styling.md"),
+    ),
+    (
+        "references/tauri-apps.md",
+        include_str!("../skills/writing-webfluent/references/tauri-apps.md"),
+    ),
+    (
+        "references/testing.md",
+        include_str!("../skills/writing-webfluent/references/testing.md"),
+    ),
+];
+
+/// In a project, `references/language.md` is the project's own
+/// `AGENTS.md`, four folders up: the skill names it rather than repeat it.
+const SKILL_LANGUAGE: &str = "# The language reference\n\n\
+This project's language reference is its `AGENTS.md`, at the project's root \
+([../../../../AGENTS.md](../../../../AGENTS.md)), written by the `wf` that \
+made the project. Read it by section: `grep -n '^## ' AGENTS.md`, then the \
+lines you need.\n";
+
+/// Every file of the skill a new project gets, by its path in the skill's
+/// folder.
+pub fn skill_files() -> Vec<(&'static str, &'static str)> {
+    let mut files = SKILL.to_vec();
+    files.push(("references/language.md", SKILL_LANGUAGE));
+    files
 }
 
 /// The locales of `wf init --locales en,ar`, checked: the default first.

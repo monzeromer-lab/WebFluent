@@ -1640,3 +1640,185 @@ fn the_writing_webfluent_skill_is_true_of_this_version() {
     }
     assert!(codes > 5, "{codes} codes");
 }
+
+/// `wf init` gives every new project the skill, in `.agents/skills/` and
+/// `.claude/skills/`: every file of `skills/writing-webfluent/` as it is,
+/// but for the reference itself, which points at the project's own
+/// `AGENTS.md` rather than repeat it. A reference added to the skill and
+/// not to `init` would be missing from every project made after it.
+#[test]
+fn every_new_project_has_the_skill() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let skill = root.join("skills/writing-webfluent");
+    let mut wanted = Vec::new();
+    for entry in walk(&skill) {
+        let rel = entry
+            .strip_prefix(&skill)
+            .unwrap()
+            .to_string_lossy()
+            .replace('\\', "/");
+        wanted.push(rel);
+    }
+    wanted.sort();
+    for template in webfluent::init::Template::ALL {
+        let dir = std::env::temp_dir().join(format!(
+            "wf-skill-{}-{}",
+            std::process::id(),
+            template.name()
+        ));
+        let _ = std::fs::remove_dir_all(&dir);
+        webfluent::init::create(&dir, "skilled", template).unwrap();
+        for folder in webfluent::init::SKILL_ROOTS {
+            let installed = dir.join(folder);
+            let mut found: Vec<String> = walk(&installed)
+                .iter()
+                .map(|p| {
+                    p.strip_prefix(&installed)
+                        .unwrap()
+                        .to_string_lossy()
+                        .replace('\\', "/")
+                })
+                .collect();
+            found.sort();
+            assert_eq!(found, wanted, "{} of a {} project", folder, template.name());
+            for rel in &wanted {
+                let text = std::fs::read_to_string(installed.join(rel)).unwrap();
+                if rel == "references/language.md" {
+                    // A link to the project's AGENTS.md, which is there.
+                    let target = installed.join("references").join("../../../../AGENTS.md");
+                    assert!(text.contains("](../../../../AGENTS.md)"), "{text}");
+                    assert!(target.is_file(), "{}", target.display());
+                } else {
+                    let source = std::fs::read_to_string(skill.join(rel)).unwrap();
+                    assert!(text == source, "{folder}/{rel} isn't the repository's");
+                }
+            }
+        }
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+}
+
+fn walk(dir: &Path) -> Vec<std::path::PathBuf> {
+    let mut out = Vec::new();
+    for entry in std::fs::read_dir(dir).unwrap() {
+        let path = entry.unwrap().path();
+        if path.is_dir() {
+            out.extend(walk(&path));
+        } else {
+            out.push(path);
+        }
+    }
+    out
+}
+
+/// The skill's other references — code quality, recipes, styling, testing,
+/// diagnostics, documents, desktop apps — are what an agent copies from.
+/// Each is held as the skill is: every block parses, and the commands and
+/// codes it names are `wf`'s. More than that, a reference's blocks are one
+/// project's files: a later block uses the `type` an earlier one declared,
+/// so every block of whole declarations in a file (and the names its
+/// `// src/*.js` scripts declare) is checked together, warnings included.
+#[test]
+fn the_skills_references_build_and_name_only_what_wf_has() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let dir = root.join("skills/writing-webfluent/references");
+    let agents = std::fs::read_to_string(root.join("AGENTS.md")).unwrap();
+    let commands: std::collections::BTreeSet<&str> = agents
+        .lines()
+        .filter_map(|l| l.strip_prefix("wf "))
+        .filter_map(|l| l.split_whitespace().next())
+        .collect();
+    let mut files: Vec<_> = std::fs::read_dir(&dir)
+        .unwrap()
+        .map(|e| e.unwrap().path())
+        .filter(|p| p.extension().is_some_and(|x| x == "md"))
+        .filter(|p| p.file_name().is_some_and(|n| n != "language.md"))
+        .collect();
+    files.sort();
+    assert!(files.len() >= 7, "{files:?}");
+    let mut failures = Vec::new();
+    for file in &files {
+        let rel = file
+            .strip_prefix(root)
+            .unwrap()
+            .to_string_lossy()
+            .to_string();
+        failures.extend(check(&rel));
+        let markdown = std::fs::read_to_string(file).unwrap();
+        failures.extend(public_env(&rel, &markdown));
+
+        // Every `wf <command>` it names is one `wf` has.
+        for (i, _) in markdown.match_indices("`wf ") {
+            let word: String = markdown[i + 4..]
+                .chars()
+                .take_while(|c| c.is_ascii_lowercase() || *c == '-')
+                .collect();
+            if !word.is_empty() && !word.starts_with('-') && !commands.contains(word.as_str()) {
+                failures.push(format!("{rel}: `wf {word}` isn't a command"));
+            }
+        }
+        // Every diagnostic code it names is the compiler's.
+        for (i, _) in markdown.match_indices('`') {
+            let rest = &markdown[i + 1..];
+            let Some(end) = rest.find('`') else { continue };
+            let code = &rest[..end];
+            let looks = code.len() >= 3
+                && code.len() <= 4
+                && code.chars().next().is_some_and(|c| c.is_ascii_uppercase())
+                && code.chars().skip(1).all(|c| c.is_ascii_digit());
+            if looks && webfluent::diagnostics::codes::info(code).is_none() {
+                failures.push(format!("{rel}: `{code}` isn't a code `wf explain` knows"));
+            }
+        }
+
+        // The file's declarations, as one program.
+        let mut source = String::new();
+        for (_, block, wfx) in wf_blocks(&markdown) {
+            if abbreviates(&block) {
+                continue;
+            }
+            let block = if wfx {
+                match webfluent::layout::to_braces(&block, &format!("{rel}.wfx")) {
+                    Ok(b) => b,
+                    Err(_) => continue,
+                }
+            } else {
+                block
+            };
+            let (declarations, loose) = split(&block);
+            if loose.trim().is_empty() && !declarations.trim().is_empty() {
+                source.push_str(&declarations);
+                source.push('\n');
+            }
+        }
+        if source.trim().is_empty() {
+            continue;
+        }
+        let mut program = match parse_source(&source, &rel) {
+            Ok(p) => p,
+            Err(e) => {
+                failures.push(format!("{rel}: its declarations don't parse together: {e}"));
+                continue;
+            }
+        };
+        program.declarations.extend(chapter_scripts(&markdown));
+        let file_of = |_: usize| rel.clone();
+        let mut findings = webfluent::sema::check(&program, &file_of);
+        let typed = webfluent::sema::types::check(&program, &file_of);
+        findings.errors.extend(typed.findings.errors);
+        findings.errors.extend(typed.unresolved);
+        for e in &findings.errors {
+            failures.push(format!("{rel}: {e}"));
+        }
+        for w in &findings.warnings {
+            failures.push(format!("{rel}: {w}"));
+        }
+        for e in webfluent::linter::validate_semantics_in(&program, &file_of) {
+            failures.push(format!("{rel}: {e}"));
+        }
+        for problem in emitted_js_problems(&program) {
+            failures.push(format!("{rel}: {problem}"));
+        }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n\n"));
+}
