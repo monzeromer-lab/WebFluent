@@ -946,6 +946,14 @@ quiet the borrow checker go.
   `.wf` files and the case tables, found nothing in the compiler; the one
   failure was the target's own attribute reader, now quote-aware.
 
+- **`cargo xtask`** (`xtask/`, std only): `check [--fix] [--test]`,
+  `api [--update]`, `golden [--update]` and `fuzz <target> [seconds]`.
+  `scripts/check.sh` and `scripts/public-api.sh` hand off to it, so CI
+  and `just` are unchanged.
+- Not done, on purpose: `insta` (the tests that compare long strings
+  already print a diff) and `datatest` (one binary under nextest already
+  filters and parallelises per test).
+
 ### Phase 7 — Empty the lint allow-list
 
 Remove the §5.1 temporary allow-list one line at a time, mechanical ones

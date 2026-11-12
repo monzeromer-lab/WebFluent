@@ -27,6 +27,8 @@ exclude = [
     "/.claude",
     "/.config",
     "/fuzz",
+    "/xtask",
+    "/.cargo",
     # The reference documents and the fonts they are set in: tests and
     # examples, not the compiler.
     "/examples/documents",
@@ -77,7 +79,7 @@ bundled-fonts = []
 webp = { version = "0.3.1", default-features = false }
 
 [workspace]
-members = [".", "crates/wf-lsp", "crates/wf-wasm"]
+members = [".", "crates/wf-lsp", "crates/wf-wasm", "xtask"]
 exclude = ["editors/zed", "fuzz"]
 
 # What every crate here shares. `just bump` sets the version once, here.
