@@ -148,6 +148,45 @@ impl Default for Chart {
     }
 }
 
+/// `text` when it is a CSS colour, as SVG's `fill` and `stroke` read one,
+/// and nothing otherwise: a hex colour (`#0F766E`), a name (`red`,
+/// `currentColor`), a colour function of numbers (`rgb(1 2 3 / 50%)`,
+/// `hsl(…)`, `oklch(…)`) or a custom property (`var(--color-primary)`).
+///
+/// A colour is written into an attribute, and one from data used to close
+/// it — `#000" onload="…` — or the element. Only the shape of a colour gets
+/// through, so nothing in one can be markup.
+pub fn css_color(text: &str) -> Option<String> {
+    let t = text.trim();
+    let ok = if let Some(hex) = t.strip_prefix('#') {
+        matches!(hex.len(), 3 | 4 | 6 | 8) && hex.chars().all(|c| c.is_ascii_hexdigit())
+    } else if let Some(open) = t.find('(') {
+        let (name, rest) = t.split_at(open);
+        let inner = rest
+            .strip_prefix('(')
+            .and_then(|r| r.strip_suffix(')'))
+            .unwrap_or("");
+        let numbers = !inner.is_empty()
+            && inner
+                .chars()
+                .all(|c| c.is_ascii_alphanumeric() || " .,%/+-".contains(c));
+        let property = inner.len() > 2
+            && inner.starts_with("--")
+            && inner[2..]
+                .chars()
+                .all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_');
+        match name.to_ascii_lowercase().as_str() {
+            "rgb" | "rgba" | "hsl" | "hsla" | "hwb" | "lab" | "lch" | "oklab" | "oklch"
+            | "color" => numbers,
+            "var" => property,
+            _ => false,
+        }
+    } else {
+        !t.is_empty() && t.len() <= 32 && t.chars().all(|c| c.is_ascii_alphabetic())
+    };
+    ok.then(|| t.to_string())
+}
+
 fn esc(s: &str) -> String {
     s.replace('&', "&amp;")
         .replace('<', "&lt;")
@@ -227,6 +266,28 @@ impl Chart {
             .unwrap_or_else(|| PALETTE[i % PALETTE.len()].to_string())
     }
 
+    fn colors_are_colors(&self) -> bool {
+        css_color(&self.ink).is_some()
+            && css_color(&self.grid).is_some()
+            && self.colors.iter().all(|c| css_color(c).is_some())
+    }
+
+    /// This chart with each colour that is not one replaced by what it
+    /// would have drawn with had it been given none.
+    fn with_colors_checked(&self) -> Chart {
+        let defaults = Chart::default();
+        let mut checked = self.clone();
+        checked.ink = css_color(&self.ink).unwrap_or(defaults.ink);
+        checked.grid = css_color(&self.grid).unwrap_or(defaults.grid);
+        checked.colors = self
+            .colors
+            .iter()
+            .enumerate()
+            .map(|(i, c)| css_color(c).unwrap_or_else(|| PALETTE[i % PALETTE.len()].into()))
+            .collect();
+        checked
+    }
+
     fn series(&self) -> Vec<String> {
         if self.y.is_empty() {
             vec![String::new()]
@@ -259,6 +320,10 @@ impl Chart {
 
     /// The chart as an SVG document.
     pub fn svg(&self) -> String {
+        // Every colour a chart draws with is a colour, whoever built it.
+        if !self.colors_are_colors() {
+            return self.with_colors_checked().svg();
+        }
         let (w, h) = (self.width, self.height);
         let mut out = format!(
             r#"<svg xmlns="http://www.w3.org/2000/svg" class="wf-chart" viewBox="0 0 {w} {h}" width="{w}" height="{h}" font-family="Liberation Sans, Helvetica, Arial, sans-serif" font-size="11">"#
@@ -527,6 +592,8 @@ impl Chart {
 /// A QR code as an SVG document: one path of dark modules on a light
 /// ground, with the quiet zone the standard asks for.
 pub fn qr_svg(value: &str, dark: &str, light: &str) -> Option<String> {
+    let dark = css_color(dark).unwrap_or_else(|| "#000000".into());
+    let light = css_color(light).unwrap_or_else(|| "#ffffff".into());
     let code =
         qrcode::QrCode::with_error_correction_level(value.as_bytes(), qrcode::EcLevel::M).ok()?;
     let width = code.width();

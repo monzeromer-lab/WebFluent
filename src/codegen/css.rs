@@ -24,10 +24,7 @@ pub fn generate_css(tokens: &HashMap<String, String>) -> String {
 /// theme the author wrote, which is the whole design in that mode.
 pub fn generate_css_with(tokens: &HashMap<String, String>, builtin: BuiltinCss) -> String {
     // Generate :root block
-    let mut root_vars: Vec<String> = tokens
-        .iter()
-        .map(|(k, v)| format!("  --{}: {};", k, v))
-        .collect();
+    let mut root_vars = declarations(tokens);
     root_vars.sort();
 
     let root_block = format!(":root {{\n{}\n}}", root_vars.join("\n"));
@@ -39,16 +36,46 @@ pub fn generate_css_with(tokens: &HashMap<String, String>, builtin: BuiltinCss) 
     format!("{}\n{}", root_block, component_styles)
 }
 
+/// Each token as a custom property, `  --name: value;`, leaving out one
+/// that cannot be one.
+///
+/// A token's name and value come from the theme, the config, and — through
+/// `Template::with_tokens` and `wf render --token` — from whatever a server
+/// hands the renderer, such as a tenant's brand colour. A value is CSS to
+/// the end of its declaration, so one holding `;`, `{` or `}` would end the
+/// declaration or the rule and write rules of its own, and one holding `<`
+/// could close the `<style>` it is inlined in. Neither is a design token.
+fn declarations(tokens: &HashMap<String, String>) -> Vec<String> {
+    tokens
+        .iter()
+        .filter(|(k, v)| is_token_name(k) && is_token_value(v))
+        .map(|(k, v)| format!("  --{}: {};", k, v))
+        .collect()
+}
+
+/// A custom property's name: letters (in any script), digits, `-` and `_`.
+pub fn is_token_name(name: &str) -> bool {
+    !name.is_empty()
+        && name
+            .chars()
+            .all(|c| c.is_alphanumeric() || c == '-' || c == '_')
+}
+
+/// A value a token may hold: anything but what ends a declaration, a rule
+/// or the stylesheet it is written in.
+pub fn is_token_value(value: &str) -> bool {
+    !value
+        .chars()
+        .any(|c| matches!(c, '<' | '>' | '{' | '}' | ';' | '\\') || c.is_control())
+}
+
 /// The dark theme's tokens: under `prefers-color-scheme: dark` unless the
 /// reader chose light, and whenever the reader chose dark.
 pub fn dark_css(tokens: &HashMap<String, String>) -> String {
     if tokens.is_empty() {
         return String::new();
     }
-    let mut vars: Vec<String> = tokens
-        .iter()
-        .map(|(k, v)| format!("  --{}: {};", k, v))
-        .collect();
+    let mut vars = declarations(tokens);
     vars.sort();
     let body = vars.join("\n");
     format!(

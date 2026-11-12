@@ -82,9 +82,9 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
 <html lang="{}"{}>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{}    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{}</title>
-{}{}{}    <link rel="stylesheet" href="{root}/styles.css">
+{}{}    <link rel="stylesheet" href="{root}/styles.css">
 {}{}    <script src="{root}/app.js" defer></script>
 {}</head>
 <body>
@@ -93,9 +93,11 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
 </html>"#,
         lang,
         crate::codegen::seo::dir_attr(&lang),
-        title,
-        description_meta,
+        // The policy first: a meta policy governs only what is parsed
+        // after it.
         csp_meta(config),
+        crate::codegen::markdown::escape(title),
+        description_meta,
         head_links,
         entry_sheet,
         script_tags(config, &root),
