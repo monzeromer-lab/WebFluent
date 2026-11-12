@@ -51,7 +51,13 @@ them on.
   scripts. A link, a frame or a form never takes one, and `data:text/html`
   is not a picture.
 - **No handle on your page.** A link with `target:` carries
-  `rel="noopener noreferrer"`, so the page it opens cannot navigate yours.
+  `rel="noopener noreferrer"`, so the page it opens cannot navigate yours;
+  `sanitize` adds both to such a link whatever its `rel` said, and keeps
+  `opener` on none.
+- **`navigate()` stays on the site.** A value the page was handed —
+  `navigate(query.next ?? "/")` after a sign-in — goes to a page of the
+  site; an address on another origin (`//elsewhere.example`) is refused, and
+  the reader stays where they are. Leave the site with a `Link`.
 - **Markdown is escaped first.** `Markdown(text)` shows any HTML in the
   text instead of running it. Its links and pictures go through the same
   scheme check as every other URL: a link to a `javascript:` URL is drawn
@@ -162,9 +168,15 @@ api Backend(base: "/api/v1") {
 store Session {
     state user: User? = null
     action load() { user = await Backend.me() }
-    action out() { await Backend.signOut()  user = null  navigate("/") }
+    action out() { await Backend.signOut()  user = null  Backend.me.invalidate()  navigate("/") }
 }
 ```
+
+`Backend.me.invalidate()` on sign-out drops what the endpoint cached, so
+the next reader of the tab is not shown the last one's; do the same for
+every endpoint whose answer is one reader's. An answer cached
+under one `Authorization` header is never served for another, but a cookie
+cannot be read, so the cache cannot tell one cookie's reader from the next.
 
 A page *may* keep what a page may show: a display name, a theme, a
 preference. If a value would matter to someone who stole it, it belongs

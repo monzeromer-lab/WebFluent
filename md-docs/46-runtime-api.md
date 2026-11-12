@@ -238,7 +238,7 @@ Each of these is a function of the value it works on.
 | `portal(box, read)` | `host` | What `Portal` compiles to (below). |
 | `head(tags)` | `head` | A page's own `head { }` tags. |
 | `picture(asset, options)` | `picture` | An `image`'s `<picture>`. |
-| `offline(options)`, `update()` | `offline` | The service worker and the update flow. |
+| `offline(options)`, `update()`, `clearQueued()` | `offline` | The service worker, the update flow, and forgetting the writes kept offline. |
 | `loadAfter(scripts)` | `later` | Loads the `meta.scripts` entries marked `"load": "after"` once the page has painted. |
 | `__debug`, `__reg` | `debug` | For WebFluent Studio. |
 

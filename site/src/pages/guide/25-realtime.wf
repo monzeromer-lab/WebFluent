@@ -116,6 +116,11 @@ page RealtimeGuide(path: "/docs/guide/realtime", title: "Real-time", description
                     Table.Cell { Markdown("`\"blob\"` or `\"arraybuffer\"`") }
                     Table.Cell { Markdown("`\"blob\"`") }
                 }
+                Table.Row {
+                    Table.Cell { Markdown("`keep:`") }
+                    Table.Cell { Markdown("How many messages `.messages` holds, the newest; the oldest go first") }
+                    Table.Cell { Markdown("`500`") }
+                }
             }
         }
 
@@ -156,7 +161,7 @@ page Room(path: "/room", title: "Room", description: "A typed conversation.") {
     }
 }"#, title: "wf")
 
-        Markdown("Each event name is kept apart, so `ticks.last(\"price\")` is the last price and not the last event of any kind; `ticks.last()` is the last unnamed message. `ticks.messages` holds every message in order. A message whose data parses as JSON arrives as a value.\n\nThe browser reconnects a stream on its own and resumes from the last event id the server sent. Pass `credentials: true` to send the site's cookies with the request.")
+        Markdown("Each event name is kept apart, so `ticks.last(\"price\")` is the last price and not the last event of any kind; `ticks.last()` is the last unnamed message. `ticks.messages` holds the messages in order — the last 500, or as many as `keep:` says. A message whose data parses as JSON arrives as a value.\n\nThe browser reconnects a stream on its own and resumes from the last event id the server sent. Pass `credentials: true` to send the site's cookies with the request.")
 
         Heading("Talk to the site's other tabs", id: "talk-to-the-site-s-other-tabs").h2
 
@@ -255,14 +260,14 @@ page Shop(path: "/", title: "Shop", description: "A cart every tab agrees on.") 
                 }
                 Table.Row {
                     Table.Cell { Markdown("`.messages`") }
-                    Table.Cell("every message, in order")
-                    Table.Cell("every message, in order")
+                    Table.Cell { Markdown("the messages, in order: the last 500, or `keep:`") }
+                    Table.Cell("the same")
                     Table.Cell("—")
-                    Table.Cell("every message, in order")
+                    Table.Cell("the same")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`.last(kind)`") }
-                    Table.Cell { Markdown("the last message, or the last whose `type` is `kind`") }
+                    Table.Cell { Markdown("the last message, or the last whose `type` is `kind`, among those `.messages` holds") }
                     Table.Cell("the last under an event's name")
                     Table.Cell { Markdown("`.last`: the last posted") }
                     Table.Cell("as a socket")
@@ -305,7 +310,7 @@ page Shop(path: "/", title: "Shop", description: "A cart every tab agrees on.") 
             }
         }
 
-        Markdown("A store may hold any of these too. It opens the connection when the store is first read and closes it with the store; a page reads it as `Lang.css.state`, and the store's actions read it by its name.")
+        Markdown("A connection left open all day would otherwise hold every message it was ever sent, so `.messages` keeps the newest 500 and lets the oldest go. `keep:` on the connection says another number — `ws(url, keep: 50)`, `sse(url, keep: 2000)` — and `keep: 0` keeps none, for a connection whose `on message` handler stores what it needs itself.\n\nA store may hold any of these too. It opens the connection when the store is first read and closes it with the store; a page reads it as `Lang.css.state`, and the store's actions read it by its name.")
 
         Heading("Run a script in a worker", id: "run-a-script-in-a-worker").h2
 
