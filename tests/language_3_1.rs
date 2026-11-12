@@ -2,9 +2,7 @@
 //! paint (SSG) and the template engine evaluate must agree, and the SPA
 //! bundle must carry the JavaScript that means the same thing.
 
-mod common;
-
-use common::{Backend, raw_output};
+use crate::common::{Backend, raw_output};
 use serde_json::json;
 use webfluent::Template;
 

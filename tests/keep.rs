@@ -3,9 +3,7 @@
 //! does with them is `tests/js/keep.test.mjs` and
 //! `tests/browser/storage.mjs`.
 
-mod common;
-
-use common::{page, spa_generated};
+use crate::common::{page, spa_generated};
 
 #[test]
 fn a_page_s_key_is_a_function_the_runtime_follows() {

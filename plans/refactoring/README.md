@@ -920,6 +920,23 @@ quiet the borrow checker go.
 - **Dev profile** as Ruff uses: `opt-level = 1`,
   `debug = "line-tables-only"`, `opt-level = 3` for `insta` and `similar`.
 
+**Progress (2026-11-12).**
+- **CI runs the tests with nextest**, and the dependencies are built
+  optimised in debug builds (`[profile.dev.package."*"] opt-level = 2`).
+  The corpora and golden manifests run only in release, in the scaffolds
+  job. A CI run went from about 18 minutes to about 10½.
+- **One integration test binary**: `tests/it.rs` includes each of the 86
+  files as a module (`#[path]`, so their relative paths hold), with
+  `autotests = false`.
+  - Plain `cargo test` on it runs the root crate's 853 tests in about 80 s,
+    side by side, where the separate binaries took about 9 minutes one
+    after another.
+  - Filters name a module: `--test it -- golden::`,
+    `test(/^cookbook::/)`.
+  - `e2e_sites` builds under `target/e2e/sites/`, apart from the builds
+    `e2e_rendered` makes of the same fixtures, since the two now run at
+    once.
+
 ### Phase 7 — Empty the lint allow-list
 
 Remove the §5.1 temporary allow-list one line at a time, mechanical ones

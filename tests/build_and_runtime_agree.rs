@@ -14,7 +14,7 @@
 //! are the compiler's own tables, so a method cannot be added without being
 //! held to this.
 
-mod common;
+use crate::common;
 
 use std::collections::BTreeSet;
 use std::path::Path;

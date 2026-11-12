@@ -905,7 +905,7 @@ fn the_editor_grammar_corpus_is_current_with_the_guide() {
     assert!(
         stale.is_empty(),
         "the editor grammar's corpus is behind the guide; rewrite it with \
-         `WF_WRITE_GUIDE_CORPUS=1 cargo test --test docs_parse the_editor_grammar_corpus` \
+         `WF_WRITE_GUIDE_CORPUS=1 cargo test --test it -- docs_parse::the_editor_grammar_corpus` \
          and commit it in the submodule: {stale:?}"
     );
 }
@@ -1084,7 +1084,7 @@ fn every_diagnostic_example_shows_what_the_build_prints() {
     assert!(
         stale.is_empty(),
         "md-docs/43-diagnostics.md shows output the compiler no longer prints for {stale:?}; \
-         rewrite it with `WF_WRITE_DIAGNOSTICS=1 cargo test --test docs_parse every_diagnostic_example_shows`"
+         rewrite it with `WF_WRITE_DIAGNOSTICS=1 cargo test --test it -- docs_parse::every_diagnostic_example_shows`"
     );
 }
 

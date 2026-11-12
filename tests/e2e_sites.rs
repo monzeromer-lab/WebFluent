@@ -12,14 +12,12 @@
 //! Each is copied to `target/e2e/<name>` and built there, so the fixtures stay
 //! clean and the outputs stay inspectable after a failure.
 
-mod common;
-
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::sync::{Arc, LazyLock, Mutex};
 
-use common::VOID_ELEMENTS;
+use crate::common::VOID_ELEMENTS;
 
 /// A fixture project and what its build must produce.
 struct Site {
@@ -87,9 +85,11 @@ fn fixture_dir(name: &str) -> PathBuf {
 }
 
 /// Where a fixture is built. Under `target/`, so it is gitignored and survives
-/// the test run for inspection.
+/// the test run for inspection; under `sites/`, apart from the builds
+/// `e2e_rendered` makes of the same fixtures for the JavaScript suites,
+/// since the two run at once in the one test binary.
 fn build_root(name: &str) -> PathBuf {
-    repo_root().join("target/e2e").join(name)
+    repo_root().join("target/e2e/sites").join(name)
 }
 
 fn copy_tree(from: &Path, to: &Path) {

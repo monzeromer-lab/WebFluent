@@ -5,9 +5,7 @@
 //! Every case is held to what the reader sees — the static paint — because
 //! that is where a string that is escaped twice, or dedented wrongly, shows.
 
-mod common;
-
-use common::{Backend, raw_output, spa_generated};
+use crate::common::{Backend, raw_output, spa_generated};
 use webfluent::parse_source;
 
 fn page(body: &str) -> String {

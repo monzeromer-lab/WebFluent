@@ -4,9 +4,7 @@
 //! Each case is held to what the reader gets: the static paint, the bundle
 //! the browser runs, and the diagnostics a build prints.
 
-mod common;
-
-use common::{spa_generated, ssg_html, template_html};
+use crate::common::{spa_generated, ssg_html, template_html};
 use webfluent::parse_source;
 
 fn page(body: &str) -> String {

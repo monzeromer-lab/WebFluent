@@ -2,9 +2,7 @@
 //! store — and a store's connections, which it now opens. What the
 //! runtime does is `tests/js/worker.test.mjs` and `tests/browser/worker.mjs`.
 
-mod common;
-
-use common::{page, spa_generated};
+use crate::common::{page, spa_generated};
 
 fn d01(src: &str, files: &[&str]) -> Vec<String> {
     let dir = std::env::temp_dir().join(format!("wf-worker-d01-{}", std::process::id()));

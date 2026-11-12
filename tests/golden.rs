@@ -9,7 +9,7 @@
 //! and each finding that came or went. When the change is the point,
 //! write the manifests again and commit them with it:
 //!
-//!     UPDATE_GOLDEN=1 cargo test --release --test golden
+//!     UPDATE_GOLDEN=1 cargo test --release --test it -- golden::
 //!
 //! The trees that hold projects are copied whole to a scratch folder first,
 //! keeping their layout, so a build never writes into the repository and a
@@ -346,7 +346,7 @@ fn every_project_builds_to_its_golden_manifest() {
     assert!(
         failures.is_empty(),
         "what a project builds to changed. If that is the point, run \
-         `UPDATE_GOLDEN=1 cargo test --release --test golden` and commit the \
+         `UPDATE_GOLDEN=1 cargo test --release --test it -- golden::` and commit the \
          manifests with the change:\n\n{}",
         failures.join("\n\n")
     );

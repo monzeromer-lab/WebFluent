@@ -10,7 +10,7 @@
 
 use std::path::{Path, PathBuf};
 
-mod common;
+use crate::common;
 
 use webfluent::parser::ast::{Declaration, Program, StatementKind};
 use webfluent::validation::{

@@ -12,7 +12,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { makeDom } from "./dom.mjs";
 
-/// Where `tests/e2e_sites.rs` builds the fixture projects.
+/// Where `tests/e2e_rendered.rs` builds the fixture projects for these suites.
 ///
 /// A build writes app.js and one chunk per page under pages/; a browser runs
 /// them in that order in one global scope, so they are joined the same way.

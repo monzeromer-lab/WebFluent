@@ -1,19 +1,20 @@
-# nextest runs every test in a process of its own, side by side with the
-# other binaries' tests. A binary whose tests build one shared fixture into
-# a fixed folder under target/e2e — once per process, through a LazyLock —
-# would have its processes rewrite that folder under each other, so its
-# tests run one at a time. Every other binary runs in parallel.
+# nextest runs every test in a process of its own, side by side. A test
+# file whose tests build one shared fixture into a fixed folder under
+# target/e2e — once per process, through a LazyLock — would have its
+# processes rewrite that folder under each other, so its tests run one at
+# a time. The integration tests are one binary (tests/it.rs); a file is a
+# module of it, filtered by its path.
 
 [test-groups]
 cookbook = { max-threads = 1 }
 e2e-sites = { max-threads = 1 }
 
 [[profile.default.overrides]]
-filter = 'binary(cookbook)'
+filter = 'test(/^cookbook::/)'
 test-group = 'cookbook'
 
 [[profile.default.overrides]]
-filter = 'binary(e2e_sites)'
+filter = 'test(/^e2e_sites::/)'
 test-group = 'e2e-sites'
 
 # CI: every failure, not the first.

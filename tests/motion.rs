@@ -6,9 +6,7 @@
 //! the prune keeps. What a real browser does with all of it is
 //! `tests/browser/motion.mjs`.
 
-mod common;
-
-use common::{page, spa_generated, ssg_html};
+use crate::common::{page, spa_generated, ssg_html};
 use webfluent::motion::{REDUCED, catalogue, spelling};
 
 const DROP: &str = "animation Drop {\n    from {\n        opacity: 0\n    }\n    to {\n        opacity: 1\n    }\n}\n";

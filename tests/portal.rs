@@ -2,9 +2,7 @@
 //! code owns. What the runtime does with it is `tests/js/portal.test.mjs`;
 //! what a real browser does, `tests/browser/portal.mjs`.
 
-mod common;
-
-use common::{page, spa_generated, ssg_html, template_html};
+use crate::common::{page, spa_generated, ssg_html, template_html};
 use webfluent::diagnostics::Diagnostic;
 
 fn findings(src: &str) -> Vec<Diagnostic> {

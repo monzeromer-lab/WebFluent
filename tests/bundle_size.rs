@@ -7,7 +7,7 @@
 //! true: that a program which reaches for nothing does not pay for everything,
 //! and that a program which reaches for something gets it.
 
-mod common;
+use crate::common;
 
 /// One program, and the runtime it draws.
 fn weigh(label: &str, src: &str) -> (usize, Vec<String>) {

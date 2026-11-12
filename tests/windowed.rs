@@ -1,9 +1,7 @@
 //! W3: `VirtualList` draws its one keyed `for` a window at a time. What a
 //! real browser does with it is `tests/browser/windowed.mjs`.
 
-mod common;
-
-use common::{page, spa_generated, ssg_html};
+use crate::common::{page, spa_generated, ssg_html};
 
 fn warnings(src: &str, code: &str) -> Vec<String> {
     let (program, out) = webfluent::syntax::parse_source_recovering(src, "t.wf");

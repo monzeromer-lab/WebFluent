@@ -4,12 +4,12 @@
 //! leaking into the `app`, numbers cast without a word, and string literals
 //! escaped by hand.
 
-mod common;
+use crate::common;
 
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use common::spa_js;
+use crate::common::spa_js;
 use webfluent::codegen::jscheck::check_js;
 
 fn page(body: &str) -> String {

@@ -1,7 +1,7 @@
 //! What a built site actually does once it runs.
 //!
 //! Run: node --test tests/js/rendered_site.test.mjs
-//! Requires `cargo test --test e2e_sites` to have built the fixtures first;
+//! Requires `cargo test --test it -- e2e_rendered::` to have built the fixtures first;
 //! `e2e_rendered.rs` does both in one step.
 //!
 //! Everything above this file checks the shape of the output. This checks that

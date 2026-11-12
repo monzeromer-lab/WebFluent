@@ -11,9 +11,9 @@
 //! last test holds the two emitters to each other rather than to a list
 //! someone has to remember to extend.
 
-mod common;
+use crate::common;
 
-use common::spa_generated;
+use crate::common::spa_generated;
 
 fn store_js(members: &str, uses: &str) -> String {
     let src = format!(

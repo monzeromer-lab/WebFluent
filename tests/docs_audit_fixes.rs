@@ -2,9 +2,7 @@
 //! a real project and loading it in a browser: each was a program the
 //! checks accepted and the page then got wrong.
 
-mod common;
-
-use common::spa_generated;
+use crate::common::spa_generated;
 
 /// `head { meta(content: post?.title) }` over a `derived post` threw
 /// `Cannot access '_post' before initialization`: the head tags were emitted

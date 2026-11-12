@@ -9,6 +9,8 @@ repository.workspace = true
 homepage = "https://webfluent.monzeromer.dev"
 documentation = "https://docs.rs/webfluent"
 readme = "README.md"
+# The integration tests are one binary (`tests/it.rs`), declared below.
+autotests = false
 
 # What a `cargo install webfluent` does not need. `editors/` holds the
 # editor extensions and the tree-sitter grammars as submodules, each its own
@@ -189,6 +191,10 @@ qrcode = { version = "0.14", default-features = false }
 # The WebAssembly compiler (`crates/wf-wasm`) is downloaded by a page before
 # it compiles anything, so it is built for size: `cargo build --profile
 # wasm-release`. The native release profile is untouched.
+[[test]]
+name = "it"
+path = "tests/it.rs"
+
 [dev-dependencies]
 # The golden-output test hashes every file a build writes.
 sha2 = "0.10"

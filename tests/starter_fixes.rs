@@ -2,9 +2,7 @@
 //! compiler accepted and compiled into a page that threw, stood still, or
 //! skipped its own rules. Each is held to the JavaScript the browser gets.
 
-mod common;
-
-use common::spa_js;
+use crate::common::spa_js;
 use webfluent::codegen::jscheck::check_js;
 
 fn page(body: &str) -> String {

@@ -126,7 +126,7 @@ fn an_edit_anywhere_builds_with_the_cache_what_it_builds_without() {
 }
 
 /// The same over any project — Halyard, `site/` — too slow for every run:
-/// `WF_BUILD_CACHE_PROJECT=<dir> cargo test --release --test build_cache -- --ignored`.
+/// `WF_BUILD_CACHE_PROJECT=<dir> cargo test --release --test it -- build_cache:: --ignored`.
 #[test]
 #[ignore]
 fn an_edit_anywhere_in_a_named_project_builds_the_same() {

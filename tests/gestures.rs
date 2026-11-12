@@ -3,9 +3,7 @@
 //! them is `tests/browser/gestures.mjs`; this holds the build to what it
 //! hands the runtime.
 
-mod common;
-
-use common::{page, spa_generated, ssg_html};
+use crate::common::{page, spa_generated, ssg_html};
 
 fn checks(src: &str) -> String {
     webfluent::sema::types::check(&webfluent::parse_source(src, "t.wf").unwrap(), &|_| {

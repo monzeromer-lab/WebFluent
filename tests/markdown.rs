@@ -7,12 +7,10 @@
 //! (`tests/markdown-cases.json`) and to each other
 //! (`tests/build_and_runtime_agree.rs`).
 
-mod common;
-
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use common::*;
+use crate::common::*;
 use webfluent::diagnostics::Diagnostic;
 
 fn body(lines: &str) -> String {

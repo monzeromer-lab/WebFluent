@@ -5,9 +5,7 @@
 //! runtime does is `tests/js/store.test.mjs` and
 //! `tests/browser/store_resource.mjs`.
 
-mod common;
-
-use common::{page, spa_generated, ssg_html};
+use crate::common::{page, spa_generated, ssg_html};
 
 fn diagnostics(src: &str, code: &str) -> Vec<String> {
     let (program, out) = webfluent::syntax::parse_source_recovering(src, "t.wf");

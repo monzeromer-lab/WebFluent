@@ -9,9 +9,7 @@
 //! This suite states the contract once, in [`SPECS`], and holds every backend to
 //! it. A failure names the backend that drifted.
 
-mod common;
-
-use common::*;
+use crate::common::*;
 
 /// The contract for one built-in component.
 struct Spec {

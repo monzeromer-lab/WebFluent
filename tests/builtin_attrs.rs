@@ -7,9 +7,9 @@
 //! page, the pre-render and the template engine to writing them on the same
 //! element: its root, or the input of a control drawn in a box.
 
-mod common;
+use crate::common;
 
-use common::{Backend, Elem, elems, page, spa_generated, ssg_html, template_html};
+use crate::common::{Backend, Elem, elems, page, spa_generated, ssg_html, template_html};
 
 /// What every case is given, and what each backend must write.
 const GIVEN: &str = "role: \"r\", tabindex: \"-1\", data-k: \"v\", aria-describedby: \"d\"";

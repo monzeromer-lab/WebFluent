@@ -2,8 +2,7 @@
 //! string, whatever it holds: a quote in an animation's duration or easing
 //! cannot end the string and start code.
 
-mod common;
-use common::*;
+use crate::common::*;
 
 const ESCAPE: &str = r#"1s\"); window.pwned = (\""#;
 

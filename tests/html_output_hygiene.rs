@@ -4,9 +4,7 @@
 //! crawler, a screen reader and a diff all rely on: no stray characters in the
 //! markup, void elements left void, text escaped, tags balanced.
 
-mod common;
-
-use common::*;
+use crate::common::*;
 
 /// A page that exercises a wide slice of the component surface at once, so the
 /// document-level checks below run against realistic output rather than a single

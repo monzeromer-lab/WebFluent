@@ -1,8 +1,6 @@
 //! The component and reactivity additions of 3.2, held to every backend.
 
-mod common;
-
-use common::{Backend, raw_output};
+use crate::common::{Backend, raw_output};
 use serde_json::json;
 use webfluent::Template;
 use webfluent::codegen::{dark_css, scoped_css::scoped_rules};

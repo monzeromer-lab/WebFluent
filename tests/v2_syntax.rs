@@ -5,9 +5,7 @@
 //! second does. The pairs double as a corpus of what the new grammar
 //! spells and how, and hold the migrator to the idiomatic spelling.
 
-mod common;
-
-use common::{Backend, migrated, raw_output, raw_output_as};
+use crate::common::{Backend, migrated, raw_output, raw_output_as};
 
 /// Assert that `v1`, migrated, and `v2` compile to identical output on
 /// every backend.

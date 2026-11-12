@@ -290,13 +290,13 @@ jobs:
       #
       # nextest runs every binary's tests side by side, where `cargo test`
       # ran the binaries one after another; .config/nextest.toml keeps the
-      # two whose tests share a folder apart. The corpora and the golden
+      # two files whose tests share a folder apart. The corpora and the golden
       # manifests run in release in the scaffolds job, so they are not run
       # again here in debug.
       - name: Tests
         run: >-
           cargo nextest run --workspace --profile ci
-          -E 'not (binary(printer_corpus) | binary(reprint_corpus) | binary(golden))'
+          -E 'not test(/^(printer_corpus|reprint_corpus|golden)::/)'
         env:
           WF_REQUIRE_CHROME: "1"
 
@@ -366,14 +366,14 @@ jobs:
       # The printer and the smallest edit, over every project in the
       # repository: `cargo test` in a debug build reads a quarter of it.
       - name: Every statement prints back, every edit keeps the rest
-        run: cargo test --release --test printer_corpus --test reprint_corpus
+        run: 'cargo test --release --test it -- printer_corpus:: reprint_corpus::'
 
       # Every project in the repository, built, and what it wrote and what
       # the compiler said held to tests/golden/: a change that alters
       # either fails here, file by file. UPDATE_GOLDEN=1 writes them again
       # when the change is the point.
       - name: Every project builds to its golden manifest
-        run: cargo test --release --test golden
+        run: 'cargo test --release --test it -- golden::'
 
   editors:
     name: Zed extension and grammar

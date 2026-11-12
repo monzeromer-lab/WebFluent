@@ -2,9 +2,9 @@
 //! (`spec/DIAGNOSTICS_PLAN.md`, Part B): each is held to the JavaScript the
 //! browser gets, which must also be a script the browser takes.
 
-mod common;
+use crate::common;
 
-use common::spa_js;
+use crate::common::spa_js;
 use webfluent::codegen::jscheck::check_js;
 use webfluent::parse_source;
 

@@ -2,9 +2,9 @@
 //! emits it. What it does between two real pages — connecting, a message
 //! each way, one side seeing the other leave — is `tests/browser/peer.mjs`.
 
-mod common;
+use crate::common;
 
-use common::spa_generated;
+use crate::common::spa_generated;
 use webfluent::parse_source;
 
 fn page(body: &str) -> String {

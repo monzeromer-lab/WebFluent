@@ -3,9 +3,7 @@
 //! `tests/browser/keys.mjs`, and how each system writes a combination
 //! `tests/js/keys.test.mjs`.
 
-mod common;
-
-use common::{page, spa_generated};
+use crate::common::{page, spa_generated};
 
 fn parse_error(src: &str) -> String {
     match webfluent::parse_source(src, "t.wf") {
