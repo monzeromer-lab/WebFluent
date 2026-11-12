@@ -514,10 +514,10 @@ fn a_frame_hears_only_its_own_page_and_is_drawn_whole() {
         js.contains("WF.listen(window, \"message\", (m) => { if (m.source !== "),
         "{js}"
     );
-    assert!(
-        js.contains(".contentWindow) return; _heard.set(m.data); });"),
-        "{js}"
-    );
+    // From that frame's window and from the origin its document has, so
+    // a page the frame was navigated to is not heard either.
+    assert!(js.contains(".contentWindow || m.origin !== "), "{js}");
+    assert!(js.contains(") return; _heard.set(m.data); });"), "{js}");
     let html = ssg_html(&src);
     assert!(
         html.contains(
