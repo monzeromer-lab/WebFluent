@@ -21,7 +21,7 @@
 
 use std::collections::{BTreeMap, HashMap, HashSet};
 
-use crate::error::{Diagnostic, Result, WebFluentError};
+use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
 use crate::parser::ast::{
     ApiDecl, Declaration, Endpoint, EnumCase, EnumDecl, FieldDecl, PropDecl, Span, TypeDecl,
     TypeRef,

@@ -1,5 +1,5 @@
 use super::ast::*;
-use crate::error::{Diagnostic, Result, WebFluentError};
+use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
 use crate::lexer::{Token, TokenType};
 
 /// The parsed `( … )` argument + modifier group of an element, with spans.

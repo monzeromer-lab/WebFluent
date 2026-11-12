@@ -13,7 +13,7 @@
 use std::path::Path;
 
 use crate::config::ProjectConfig;
-use crate::error::Result;
+use crate::diagnostics::error::Result;
 use crate::parser::ast::{
     Arg, ComponentRef, Declaration, Expr, Program, Statement, StatementKind, UIElement,
 };

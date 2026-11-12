@@ -23,8 +23,8 @@ pub mod project;
 use std::collections::{BTreeMap, HashMap};
 use std::path::{Path, PathBuf};
 
+use crate::diagnostics::error::{Result, WebFluentError};
 use crate::edit::{Patch, apply_patches, modifier_removal_range};
-use crate::error::{Result, WebFluentError};
 use crate::lexer::Lexer;
 use crate::parser::Parser;
 use crate::parser::ast::*;

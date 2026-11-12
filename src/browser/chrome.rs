@@ -14,7 +14,7 @@ use std::time::{Duration, Instant};
 use serde_json::{Value, json};
 
 use super::ws::Socket;
-use crate::error::{Result, WebFluentError};
+use crate::diagnostics::error::{Result, WebFluentError};
 
 /// Where a browser usually is. The first one that exists is the one used.
 const BINARIES: &[&str] = &[

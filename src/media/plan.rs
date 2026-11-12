@@ -14,7 +14,7 @@ use std::path::Path;
 
 use super::probe::{self, Probed};
 use super::{Settings, encode, widths_for};
-use crate::error::Result;
+use crate::diagnostics::error::Result;
 
 /// Below this many pixels, across every width of a format, the files are
 /// encoded outright: a small image costs less to encode than to explain.

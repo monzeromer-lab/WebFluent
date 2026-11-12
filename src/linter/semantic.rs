@@ -26,7 +26,7 @@
 //! gate is worse than missing one. A runtime `ReferenceError`, surfaced by the
 //! preview's runtime-error bridge, is the backstop for those.
 
-use crate::error::Diagnostic;
+use crate::diagnostics::error::Diagnostic;
 use crate::parser::ast::{Arg, Expr, Span};
 use crate::parser::{ComponentRef, Declaration, Program, Statement, StatementKind, UIElement};
 use std::collections::HashSet;

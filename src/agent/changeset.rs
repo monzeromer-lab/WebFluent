@@ -18,8 +18,8 @@ use serde::Serialize;
 
 use super::diff::{self, Hunk};
 use crate::base::vfs::{OverlayVfs, Vfs};
+use crate::diagnostics::error::{Result, WebFluentError};
 use crate::diagnostics::{Diagnostic, Severity};
-use crate::error::{Result, WebFluentError};
 
 /// What a withheld value reads as.
 pub const WITHHELD: &str = "‹withheld›";

@@ -1053,7 +1053,7 @@ pub mod paths {
         dir: &std::path::Path,
         file: &str,
         offset: usize,
-    ) -> crate::error::Result<Vec<Entry>> {
+    ) -> crate::diagnostics::error::Result<Vec<Entry>> {
         let (program, files, _) = crate::sources::read_project_collecting_via(vfs, dir, None)?;
         let info =
             crate::sema::types::check(&program, &|i| files.get(i).cloned().unwrap_or_default());

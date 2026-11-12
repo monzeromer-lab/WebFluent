@@ -5,7 +5,7 @@
 
 use crate::base::vfs::{FsVfs, Vfs};
 use crate::config::ProjectConfig;
-use crate::error::{Diagnostic, Result, WebFluentError};
+use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
 use crate::parser::{Declaration, Program};
 use std::path::{Path, PathBuf};
 

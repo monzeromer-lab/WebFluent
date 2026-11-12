@@ -16,7 +16,7 @@
 //! A `.wfx` file is formatted through its braced spelling and written back
 //! indented, which normalises its layout the same way.
 
-use crate::error::{Diagnostic, Result, WebFluentError};
+use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
 use crate::layout::{to_braces, to_offside};
 use crate::lexer::v2::{Layout, LexerV2};
 use crate::lexer::{Token, TokenType};

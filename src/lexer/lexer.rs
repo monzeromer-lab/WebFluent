@@ -1,5 +1,5 @@
 use super::token::{Token, TokenType, keyword_or_identifier};
-use crate::error::{Diagnostic, Result, WebFluentError};
+use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
 
 /// The WebFluent lexer — tokenizes `.wf` source code into a token stream.
 pub struct Lexer {

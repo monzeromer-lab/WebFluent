@@ -10,7 +10,7 @@ use std::path::Path;
 
 use image::{DynamicImage, GenericImageView, ImageReader, Limits, imageops::FilterType};
 
-use crate::error::{Result, WebFluentError};
+use crate::diagnostics::error::{Result, WebFluentError};
 
 /// The most pixels a picture the build reads may have: 50 megapixels,
 /// more than any screen shows (an 8K frame is 33). A picture is decoded

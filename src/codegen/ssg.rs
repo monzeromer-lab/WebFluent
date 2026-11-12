@@ -91,8 +91,8 @@ pub fn static_routes(
     page: &PageDecl,
     program: &Program,
     env: &std::collections::BTreeMap<String, serde_json::Value>,
-) -> crate::error::Result<Vec<(String, HashMap<String, Static>)>> {
-    use crate::error::WebFluentError;
+) -> crate::diagnostics::error::Result<Vec<(String, HashMap<String, Static>)>> {
+    use crate::diagnostics::error::WebFluentError;
     let Some(paths) = &page.paths else {
         return Ok(Vec::new());
     };

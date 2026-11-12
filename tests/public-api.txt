@@ -29,10 +29,10 @@ pub fn webfluent::agent::changeset::ChangeSet::absorb_reads(&mut self, &webfluen
 pub fn webfluent::agent::changeset::ChangeSet::accept_all(&self) -> alloc::vec::Vec<(std::path::PathBuf, core::option::Option<alloc::string::String>)>
 pub fn webfluent::agent::changeset::ChangeSet::accepted(&self, &str, core::option::Option<&[usize]>) -> core::option::Option<core::option::Option<alloc::string::String>>
 pub fn webfluent::agent::changeset::ChangeSet::check(&self) -> webfluent::agent::changeset::Checked
-pub fn webfluent::agent::changeset::ChangeSet::delete(&mut self, &str) -> webfluent::error::diagnostic::Result<()>
+pub fn webfluent::agent::changeset::ChangeSet::delete(&mut self, &str) -> webfluent::diagnostics::error::diagnostic::Result<()>
 pub fn webfluent::agent::changeset::ChangeSet::dir(&self) -> &std::path::Path
-pub fn webfluent::agent::changeset::ChangeSet::edit(&mut self, &str, &[webfluent::agent::edit::Edit]) -> webfluent::error::diagnostic::Result<usize>
-pub fn webfluent::agent::changeset::ChangeSet::edited(&self, &str, &[webfluent::agent::edit::Edit]) -> webfluent::error::diagnostic::Result<(alloc::string::String, alloc::string::String)>
+pub fn webfluent::agent::changeset::ChangeSet::edit(&mut self, &str, &[webfluent::agent::edit::Edit]) -> webfluent::diagnostics::error::diagnostic::Result<usize>
+pub fn webfluent::agent::changeset::ChangeSet::edited(&self, &str, &[webfluent::agent::edit::Edit]) -> webfluent::diagnostics::error::diagnostic::Result<(alloc::string::String, alloc::string::String)>
 pub fn webfluent::agent::changeset::ChangeSet::files(&self) -> alloc::vec::Vec<webfluent::agent::changeset::FileChange>
 pub fn webfluent::agent::changeset::ChangeSet::has_read(&self, &str) -> bool
 pub fn webfluent::agent::changeset::ChangeSet::heading(&self, &webfluent::agent::changeset::Checked) -> alloc::string::String
@@ -40,11 +40,11 @@ pub fn webfluent::agent::changeset::ChangeSet::is_empty(&self) -> bool
 pub fn webfluent::agent::changeset::ChangeSet::left_alone(&self) -> alloc::vec::Vec<alloc::string::String>
 pub fn webfluent::agent::changeset::ChangeSet::new(alloc::rcs::arc::Arc<dyn webfluent::vfs::Vfs>, impl core::convert::Into<std::path::PathBuf>) -> Self
 pub fn webfluent::agent::changeset::ChangeSet::original(&self, &str) -> core::option::Option<alloc::string::String>
-pub fn webfluent::agent::changeset::ChangeSet::read(&mut self, &str) -> webfluent::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::agent::changeset::ChangeSet::read(&mut self, &str) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
 pub fn webfluent::agent::changeset::ChangeSet::rebase(&mut self, alloc::rcs::arc::Arc<dyn webfluent::vfs::Vfs>)
 pub fn webfluent::agent::changeset::ChangeSet::revert(&mut self, &str) -> bool
 pub fn webfluent::agent::changeset::ChangeSet::vfs(&self) -> webfluent::vfs::OverlayVfs
-pub fn webfluent::agent::changeset::ChangeSet::write(&mut self, &str, &str) -> webfluent::error::diagnostic::Result<()>
+pub fn webfluent::agent::changeset::ChangeSet::write(&mut self, &str, &str) -> webfluent::diagnostics::error::diagnostic::Result<()>
 impl core::clone::Clone for webfluent::agent::changeset::ChangeSet
 pub fn webfluent::agent::changeset::ChangeSet::clone(&self) -> Self
 impl core::marker::Freeze for webfluent::agent::changeset::ChangeSet
@@ -238,7 +238,7 @@ impl core::panic::unwind_safe::RefUnwindSafe for webfluent::agent::context::Sect
 impl core::panic::unwind_safe::UnwindSafe for webfluent::agent::context::Section
 pub fn webfluent::agent::context::anchor(&str) -> alloc::string::String
 pub fn webfluent::agent::context::chapters(&[(&str, &str)], webfluent::agent::context::Depth) -> alloc::vec::Vec<webfluent::agent::context::Chapter>
-pub fn webfluent::agent::context::context_via(&dyn webfluent::vfs::Vfs, &std::path::Path, core::option::Option<(&str, core::option::Option<(usize, usize)>)>, &[(&str, &str)], webfluent::agent::context::Depth) -> webfluent::error::diagnostic::Result<webfluent::agent::context::Context>
+pub fn webfluent::agent::context::context_via(&dyn webfluent::vfs::Vfs, &std::path::Path, core::option::Option<(&str, core::option::Option<(usize, usize)>)>, &[(&str, &str)], webfluent::agent::context::Depth) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::agent::context::Context>
 pub fn webfluent::agent::context::guide() -> &'static [(&'static str, &'static str)]
 pub fn webfluent::agent::context::reference() -> &'static str
 pub fn webfluent::agent::context::reference_core() -> alloc::string::String
@@ -497,10 +497,10 @@ impl core::marker::UnsafeUnpin for webfluent::assets::Use
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::assets::Use
 impl core::panic::unwind_safe::UnwindSafe for webfluent::assets::Use
 pub fn webfluent::assets::accepts(webfluent::registry::FileKind, &str) -> bool
-pub fn webfluent::assets::list(&std::path::Path) -> webfluent::error::diagnostic::Result<webfluent::assets::Listing>
-pub fn webfluent::assets::list_via(&dyn webfluent::vfs::Vfs, &std::path::Path) -> webfluent::error::diagnostic::Result<webfluent::assets::Listing>
-pub fn webfluent::assets::plan(&std::path::Path, &str) -> webfluent::error::diagnostic::Result<webfluent::media::plan::Plan>
-pub fn webfluent::assets::plan_via(&dyn webfluent::vfs::Vfs, &std::path::Path, &str) -> webfluent::error::diagnostic::Result<webfluent::media::plan::Plan>
+pub fn webfluent::assets::list(&std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::assets::Listing>
+pub fn webfluent::assets::list_via(&dyn webfluent::vfs::Vfs, &std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::assets::Listing>
+pub fn webfluent::assets::plan(&std::path::Path, &str) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::media::plan::Plan>
+pub fn webfluent::assets::plan_via(&dyn webfluent::vfs::Vfs, &std::path::Path, &str) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::media::plan::Plan>
 pub mod webfluent::audit
 pub struct webfluent::audit::EnvName
 pub webfluent::audit::EnvName::name: alloc::string::String
@@ -581,19 +581,19 @@ impl core::marker::UnsafeUnpin for webfluent::audit::Script
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::audit::Script
 impl core::panic::unwind_safe::UnwindSafe for webfluent::audit::Script
 pub fn webfluent::audit::audit(&webfluent::parser::Program, &webfluent::config::project::ProjectConfig, &[alloc::string::String]) -> webfluent::audit::Report
-pub fn webfluent::audit::audit_project(&std::path::Path) -> webfluent::error::diagnostic::Result<webfluent::audit::Report>
+pub fn webfluent::audit::audit_project(&std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::audit::Report>
 pub mod webfluent::browser
 pub mod webfluent::browser::chrome
 pub struct webfluent::browser::chrome::Browser
 impl webfluent::browser::chrome::Browser
 pub fn webfluent::browser::chrome::Browser::before_each_page(&mut self, core::option::Option<alloc::string::String>)
-pub fn webfluent::browser::chrome::Browser::close(&mut self, webfluent::browser::chrome::Page) -> webfluent::error::diagnostic::Result<webfluent::browser::chrome::Visit>
-pub fn webfluent::browser::chrome::Browser::eval(&mut self, &webfluent::browser::chrome::Page, &str) -> webfluent::error::diagnostic::Result<serde_json::value::Value>
-pub fn webfluent::browser::chrome::Browser::open(&mut self, &str, u64) -> webfluent::error::diagnostic::Result<webfluent::browser::chrome::Page>
-pub fn webfluent::browser::chrome::Browser::settle(&mut self, &mut webfluent::browser::chrome::Page, u64) -> webfluent::error::diagnostic::Result<()>
-pub fn webfluent::browser::chrome::Browser::start() -> webfluent::error::diagnostic::Result<Self>
-pub fn webfluent::browser::chrome::Browser::visible_text(&mut self, &webfluent::browser::chrome::Page) -> webfluent::error::diagnostic::Result<alloc::string::String>
-pub fn webfluent::browser::chrome::Browser::visit(&mut self, &str, u64) -> webfluent::error::diagnostic::Result<webfluent::browser::chrome::Visit>
+pub fn webfluent::browser::chrome::Browser::close(&mut self, webfluent::browser::chrome::Page) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::browser::chrome::Visit>
+pub fn webfluent::browser::chrome::Browser::eval(&mut self, &webfluent::browser::chrome::Page, &str) -> webfluent::diagnostics::error::diagnostic::Result<serde_json::value::Value>
+pub fn webfluent::browser::chrome::Browser::open(&mut self, &str, u64) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::browser::chrome::Page>
+pub fn webfluent::browser::chrome::Browser::settle(&mut self, &mut webfluent::browser::chrome::Page, u64) -> webfluent::diagnostics::error::diagnostic::Result<()>
+pub fn webfluent::browser::chrome::Browser::start() -> webfluent::diagnostics::error::diagnostic::Result<Self>
+pub fn webfluent::browser::chrome::Browser::visible_text(&mut self, &webfluent::browser::chrome::Page) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::browser::chrome::Browser::visit(&mut self, &str, u64) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::browser::chrome::Visit>
 impl core::ops::drop::Drop for webfluent::browser::chrome::Browser
 pub fn webfluent::browser::chrome::Browser::drop(&mut self)
 impl core::marker::Freeze for webfluent::browser::chrome::Browser
@@ -645,11 +645,11 @@ pub fn webfluent::browser::chrome::read_report(&mut webfluent::browser::chrome::
 pub mod webfluent::browser::ws
 pub struct webfluent::browser::ws::Socket
 impl webfluent::browser::ws::Socket
-pub fn webfluent::browser::ws::Socket::connect(&str) -> webfluent::error::diagnostic::Result<Self>
-pub fn webfluent::browser::ws::Socket::deadline(&self, u64) -> webfluent::error::diagnostic::Result<()>
-pub fn webfluent::browser::ws::Socket::ready_within(&mut self, core::time::Duration) -> webfluent::error::diagnostic::Result<bool>
-pub fn webfluent::browser::ws::Socket::receive(&mut self) -> webfluent::error::diagnostic::Result<alloc::string::String>
-pub fn webfluent::browser::ws::Socket::send(&mut self, &str) -> webfluent::error::diagnostic::Result<()>
+pub fn webfluent::browser::ws::Socket::connect(&str) -> webfluent::diagnostics::error::diagnostic::Result<Self>
+pub fn webfluent::browser::ws::Socket::deadline(&self, u64) -> webfluent::diagnostics::error::diagnostic::Result<()>
+pub fn webfluent::browser::ws::Socket::ready_within(&mut self, core::time::Duration) -> webfluent::diagnostics::error::diagnostic::Result<bool>
+pub fn webfluent::browser::ws::Socket::receive(&mut self) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::browser::ws::Socket::send(&mut self, &str) -> webfluent::diagnostics::error::diagnostic::Result<()>
 impl core::marker::Freeze for webfluent::browser::ws::Socket
 impl core::marker::Send for webfluent::browser::ws::Socket
 impl core::marker::Sync for webfluent::browser::ws::Socket
@@ -660,13 +660,13 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::browser::ws::Socket
 pub struct webfluent::browser::Browser
 impl webfluent::browser::chrome::Browser
 pub fn webfluent::browser::chrome::Browser::before_each_page(&mut self, core::option::Option<alloc::string::String>)
-pub fn webfluent::browser::chrome::Browser::close(&mut self, webfluent::browser::chrome::Page) -> webfluent::error::diagnostic::Result<webfluent::browser::chrome::Visit>
-pub fn webfluent::browser::chrome::Browser::eval(&mut self, &webfluent::browser::chrome::Page, &str) -> webfluent::error::diagnostic::Result<serde_json::value::Value>
-pub fn webfluent::browser::chrome::Browser::open(&mut self, &str, u64) -> webfluent::error::diagnostic::Result<webfluent::browser::chrome::Page>
-pub fn webfluent::browser::chrome::Browser::settle(&mut self, &mut webfluent::browser::chrome::Page, u64) -> webfluent::error::diagnostic::Result<()>
-pub fn webfluent::browser::chrome::Browser::start() -> webfluent::error::diagnostic::Result<Self>
-pub fn webfluent::browser::chrome::Browser::visible_text(&mut self, &webfluent::browser::chrome::Page) -> webfluent::error::diagnostic::Result<alloc::string::String>
-pub fn webfluent::browser::chrome::Browser::visit(&mut self, &str, u64) -> webfluent::error::diagnostic::Result<webfluent::browser::chrome::Visit>
+pub fn webfluent::browser::chrome::Browser::close(&mut self, webfluent::browser::chrome::Page) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::browser::chrome::Visit>
+pub fn webfluent::browser::chrome::Browser::eval(&mut self, &webfluent::browser::chrome::Page, &str) -> webfluent::diagnostics::error::diagnostic::Result<serde_json::value::Value>
+pub fn webfluent::browser::chrome::Browser::open(&mut self, &str, u64) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::browser::chrome::Page>
+pub fn webfluent::browser::chrome::Browser::settle(&mut self, &mut webfluent::browser::chrome::Page, u64) -> webfluent::diagnostics::error::diagnostic::Result<()>
+pub fn webfluent::browser::chrome::Browser::start() -> webfluent::diagnostics::error::diagnostic::Result<Self>
+pub fn webfluent::browser::chrome::Browser::visible_text(&mut self, &webfluent::browser::chrome::Page) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::browser::chrome::Browser::visit(&mut self, &str, u64) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::browser::chrome::Visit>
 impl core::ops::drop::Drop for webfluent::browser::chrome::Browser
 pub fn webfluent::browser::chrome::Browser::drop(&mut self)
 impl core::marker::Freeze for webfluent::browser::chrome::Browser
@@ -742,7 +742,7 @@ impl core::marker::UnsafeUnpin for webfluent::build::cache::BuildCache
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::build::cache::BuildCache
 impl core::panic::unwind_safe::UnwindSafe for webfluent::build::cache::BuildCache
 pub struct webfluent::build::BuildFailure
-pub webfluent::build::BuildFailure::error: webfluent::error::diagnostic::WebFluentError
+pub webfluent::build::BuildFailure::error: webfluent::diagnostics::error::diagnostic::WebFluentError
 pub webfluent::build::BuildFailure::report: alloc::boxed::Box<webfluent::build::BuildReport>
 impl core::error::Error for webfluent::build::BuildFailure
 impl core::fmt::Debug for webfluent::build::BuildFailure
@@ -847,17 +847,17 @@ impl core::marker::Unpin for webfluent::build::RouteInfo
 impl core::marker::UnsafeUnpin for webfluent::build::RouteInfo
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::build::RouteInfo
 impl core::panic::unwind_safe::UnwindSafe for webfluent::build::RouteInfo
-pub fn webfluent::build::analyse(&std::path::Path, &mut webfluent::config::project::ProjectConfig, core::option::Option<(&std::path::Path, &webfluent::media::Settings, &str)>) -> webfluent::error::diagnostic::Result<webfluent::build::Analysis>
-pub fn webfluent::build::analyse_via(&dyn webfluent::vfs::Vfs, &std::path::Path, &mut webfluent::config::project::ProjectConfig, core::option::Option<(&std::path::Path, &webfluent::media::Settings, &str)>) -> webfluent::error::diagnostic::Result<webfluent::build::Analysis>
+pub fn webfluent::build::analyse(&std::path::Path, &mut webfluent::config::project::ProjectConfig, core::option::Option<(&std::path::Path, &webfluent::media::Settings, &str)>) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::build::Analysis>
+pub fn webfluent::build::analyse_via(&dyn webfluent::vfs::Vfs, &std::path::Path, &mut webfluent::config::project::ProjectConfig, core::option::Option<(&std::path::Path, &webfluent::media::Settings, &str)>) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::build::Analysis>
 pub fn webfluent::build::build(&webfluent::build::BuildOptions<'_>) -> core::result::Result<webfluent::build::BuildReport, webfluent::build::BuildFailure>
 pub fn webfluent::build::check(&webfluent::build::BuildOptions<'_>) -> core::result::Result<webfluent::build::BuildReport, webfluent::build::BuildFailure>
-pub fn webfluent::build::output_dir_of(&webfluent::build::BuildOptions<'_>, &webfluent::config::project::ProjectConfig) -> webfluent::error::diagnostic::Result<std::path::PathBuf>
-pub fn webfluent::build::project_output(&std::path::Path, &str, bool) -> webfluent::error::diagnostic::Result<std::path::PathBuf>
-pub fn webfluent::build::read_project(&std::path::Path) -> webfluent::error::diagnostic::Result<(webfluent::parser::Program, alloc::vec::Vec<alloc::string::String>)>
-pub fn webfluent::build::read_project_collecting(&std::path::Path, core::option::Option<(&std::path::Path, &webfluent::media::Settings, &str)>) -> webfluent::error::diagnostic::Result<(webfluent::parser::Program, alloc::vec::Vec<alloc::string::String>, alloc::vec::Vec<webfluent::diagnostics::Diagnostic>)>
-pub fn webfluent::build::read_project_collecting_via(&dyn webfluent::vfs::Vfs, &std::path::Path, core::option::Option<(&std::path::Path, &webfluent::media::Settings, &str)>) -> webfluent::error::diagnostic::Result<(webfluent::parser::Program, alloc::vec::Vec<alloc::string::String>, alloc::vec::Vec<webfluent::diagnostics::Diagnostic>)>
-pub fn webfluent::build::read_project_via(&dyn webfluent::vfs::Vfs, &std::path::Path, core::option::Option<(&std::path::Path, &webfluent::media::Settings, &str)>) -> webfluent::error::diagnostic::Result<(webfluent::parser::Program, alloc::vec::Vec<alloc::string::String>)>
-pub fn webfluent::build::read_project_with(&std::path::Path, core::option::Option<(&std::path::Path, &webfluent::media::Settings, &str)>) -> webfluent::error::diagnostic::Result<(webfluent::parser::Program, alloc::vec::Vec<alloc::string::String>)>
+pub fn webfluent::build::output_dir_of(&webfluent::build::BuildOptions<'_>, &webfluent::config::project::ProjectConfig) -> webfluent::diagnostics::error::diagnostic::Result<std::path::PathBuf>
+pub fn webfluent::build::project_output(&std::path::Path, &str, bool) -> webfluent::diagnostics::error::diagnostic::Result<std::path::PathBuf>
+pub fn webfluent::build::read_project(&std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<(webfluent::parser::Program, alloc::vec::Vec<alloc::string::String>)>
+pub fn webfluent::build::read_project_collecting(&std::path::Path, core::option::Option<(&std::path::Path, &webfluent::media::Settings, &str)>) -> webfluent::diagnostics::error::diagnostic::Result<(webfluent::parser::Program, alloc::vec::Vec<alloc::string::String>, alloc::vec::Vec<webfluent::diagnostics::Diagnostic>)>
+pub fn webfluent::build::read_project_collecting_via(&dyn webfluent::vfs::Vfs, &std::path::Path, core::option::Option<(&std::path::Path, &webfluent::media::Settings, &str)>) -> webfluent::diagnostics::error::diagnostic::Result<(webfluent::parser::Program, alloc::vec::Vec<alloc::string::String>, alloc::vec::Vec<webfluent::diagnostics::Diagnostic>)>
+pub fn webfluent::build::read_project_via(&dyn webfluent::vfs::Vfs, &std::path::Path, core::option::Option<(&std::path::Path, &webfluent::media::Settings, &str)>) -> webfluent::diagnostics::error::diagnostic::Result<(webfluent::parser::Program, alloc::vec::Vec<alloc::string::String>)>
+pub fn webfluent::build::read_project_with(&std::path::Path, core::option::Option<(&std::path::Path, &webfluent::media::Settings, &str)>) -> webfluent::diagnostics::error::diagnostic::Result<(webfluent::parser::Program, alloc::vec::Vec<alloc::string::String>)>
 pub mod webfluent::codegen
 pub mod webfluent::codegen::builtin
 pub const webfluent::codegen::builtin::HOST_TAGS: &[&str]
@@ -1347,8 +1347,8 @@ pub fn webfluent::codegen::offline::route_matches(&[alloc::string::String], &str
 pub fn webfluent::codegen::offline::service_worker(&webfluent::codegen::offline::Worker<'_>) -> alloc::string::String
 pub fn webfluent::codegen::offline::version_of(&[(alloc::string::String, alloc::vec::Vec<u8>)]) -> alloc::string::String
 pub mod webfluent::codegen::project_css
-pub fn webfluent::codegen::project_css::bundle(&std::path::Path, &std::path::Path) -> webfluent::error::diagnostic::Result<alloc::string::String>
-pub fn webfluent::codegen::project_css::bundle_via(&dyn webfluent::vfs::Vfs, &std::path::Path, &std::path::Path) -> webfluent::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::codegen::project_css::bundle(&std::path::Path, &std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::codegen::project_css::bundle_via(&dyn webfluent::vfs::Vfs, &std::path::Path, &std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
 pub fn webfluent::codegen::project_css::find_stylesheets(&std::path::Path) -> alloc::vec::Vec<std::path::PathBuf>
 pub fn webfluent::codegen::project_css::find_stylesheets_via(&dyn webfluent::vfs::Vfs, &std::path::Path) -> alloc::vec::Vec<std::path::PathBuf>
 pub mod webfluent::codegen::sanitize
@@ -1496,7 +1496,7 @@ pub fn webfluent::codegen::ssg::render_page_html_studio(&webfluent::parser::Page
 pub fn webfluent::codegen::ssg::render_page_html_with_params(&webfluent::parser::PageDecl, &webfluent::codegen::ssg::SiteContext<'_>, &str, &std::collections::hash::map::HashMap<alloc::string::String, webfluent::codegen::static_eval::Static>) -> alloc::string::String
 pub fn webfluent::codegen::ssg::static_dialog(&str, &webfluent::codegen::ssg::DialogPaint<'_>) -> alloc::string::String
 pub fn webfluent::codegen::ssg::static_field(&str, &str, &str, &webfluent::codegen::ssg::FieldParts) -> alloc::string::String
-pub fn webfluent::codegen::ssg::static_routes(&webfluent::parser::PageDecl, &webfluent::parser::Program, &alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>) -> webfluent::error::diagnostic::Result<alloc::vec::Vec<(alloc::string::String, std::collections::hash::map::HashMap<alloc::string::String, webfluent::codegen::static_eval::Static>)>>
+pub fn webfluent::codegen::ssg::static_routes(&webfluent::parser::PageDecl, &webfluent::parser::Program, &alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>) -> webfluent::diagnostics::error::diagnostic::Result<alloc::vec::Vec<(alloc::string::String, std::collections::hash::map::HashMap<alloc::string::String, webfluent::codegen::static_eval::Static>)>>
 pub mod webfluent::codegen::static_eval
 pub enum webfluent::codegen::static_eval::Static
 pub webfluent::codegen::static_eval::Static::Bool(bool)
@@ -2233,8 +2233,8 @@ pub webfluent::config::project::ProjectConfig::version: alloc::string::String
 impl webfluent::config::project::ProjectConfig
 pub fn webfluent::config::project::ProjectConfig::default_config(&str) -> Self
 pub fn webfluent::config::project::ProjectConfig::env_is_public(&self, &str) -> bool
-pub fn webfluent::config::project::ProjectConfig::load(&std::path::Path) -> webfluent::error::diagnostic::Result<Self>
-pub fn webfluent::config::project::ProjectConfig::load_via(&dyn webfluent::vfs::Vfs, &std::path::Path) -> webfluent::error::diagnostic::Result<Self>
+pub fn webfluent::config::project::ProjectConfig::load(&std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<Self>
+pub fn webfluent::config::project::ProjectConfig::load_via(&dyn webfluent::vfs::Vfs, &std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<Self>
 pub fn webfluent::config::project::ProjectConfig::page_dir_attr(&self) -> &'static str
 pub fn webfluent::config::project::ProjectConfig::page_lang(&self) -> alloc::string::String
 pub fn webfluent::config::project::ProjectConfig::public_env_values(&self) -> alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>
@@ -2571,8 +2571,8 @@ pub webfluent::config::ProjectConfig::version: alloc::string::String
 impl webfluent::config::project::ProjectConfig
 pub fn webfluent::config::project::ProjectConfig::default_config(&str) -> Self
 pub fn webfluent::config::project::ProjectConfig::env_is_public(&self, &str) -> bool
-pub fn webfluent::config::project::ProjectConfig::load(&std::path::Path) -> webfluent::error::diagnostic::Result<Self>
-pub fn webfluent::config::project::ProjectConfig::load_via(&dyn webfluent::vfs::Vfs, &std::path::Path) -> webfluent::error::diagnostic::Result<Self>
+pub fn webfluent::config::project::ProjectConfig::load(&std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<Self>
+pub fn webfluent::config::project::ProjectConfig::load_via(&dyn webfluent::vfs::Vfs, &std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<Self>
 pub fn webfluent::config::project::ProjectConfig::page_dir_attr(&self) -> &'static str
 pub fn webfluent::config::project::ProjectConfig::page_lang(&self) -> alloc::string::String
 pub fn webfluent::config::project::ProjectConfig::public_env_values(&self) -> alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>
@@ -2601,12 +2601,12 @@ pub const webfluent::config::OFFLINE_STRATEGIES: &[&str]
 pub mod webfluent::data
 pub const webfluent::data::PROCESSED: &[&str]
 pub fn webfluent::data::json_expr(&serde_json::value::Value) -> webfluent::parser::Expr
-pub fn webfluent::data::markdown_page(&str, &str) -> webfluent::error::diagnostic::Result<webfluent::parser::Program>
-pub fn webfluent::data::outside_project(&str, &str, &str, usize, usize) -> webfluent::error::diagnostic::WebFluentError
+pub fn webfluent::data::markdown_page(&str, &str) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::parser::Program>
+pub fn webfluent::data::outside_project(&str, &str, &str, usize, usize) -> webfluent::diagnostics::error::diagnostic::WebFluentError
 pub fn webfluent::data::processed_src(&webfluent::parser::UIElement) -> core::option::Option<(usize, alloc::string::String)>
-pub fn webfluent::data::resolve_data(&mut webfluent::parser::Program, &std::path::Path) -> webfluent::error::diagnostic::Result<()>
-pub fn webfluent::data::resolve_data_via(&dyn webfluent::vfs::Vfs, &mut webfluent::parser::Program, &std::path::Path, core::option::Option<(&std::path::Path, &webfluent::media::Settings, &str)>) -> webfluent::error::diagnostic::Result<()>
-pub fn webfluent::data::resolve_data_with(&mut webfluent::parser::Program, &std::path::Path, core::option::Option<(&std::path::Path, &webfluent::media::Settings, &str)>) -> webfluent::error::diagnostic::Result<()>
+pub fn webfluent::data::resolve_data(&mut webfluent::parser::Program, &std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<()>
+pub fn webfluent::data::resolve_data_via(&dyn webfluent::vfs::Vfs, &mut webfluent::parser::Program, &std::path::Path, core::option::Option<(&std::path::Path, &webfluent::media::Settings, &str)>) -> webfluent::diagnostics::error::diagnostic::Result<()>
+pub fn webfluent::data::resolve_data_with(&mut webfluent::parser::Program, &std::path::Path, core::option::Option<(&std::path::Path, &webfluent::media::Settings, &str)>) -> webfluent::diagnostics::error::diagnostic::Result<()>
 pub fn webfluent::data::stays_inside(&str) -> bool
 pub mod webfluent::diagnostics
 pub mod webfluent::diagnostics::allow
@@ -2702,6 +2702,270 @@ pub fn webfluent::diagnostics::codes::guide_section(&str) -> core::option::Optio
 pub fn webfluent::diagnostics::codes::info(&str) -> core::option::Option<&'static webfluent::diagnostics::codes::CodeInfo>
 pub fn webfluent::diagnostics::codes::lowerable(&str) -> bool
 pub fn webfluent::diagnostics::codes::slug(&str) -> alloc::string::String
+pub mod webfluent::diagnostics::error
+pub mod webfluent::diagnostics::error::diagnostic
+pub enum webfluent::diagnostics::error::diagnostic::WebFluentError
+pub webfluent::diagnostics::error::diagnostic::WebFluentError::CodegenError(alloc::string::String)
+pub webfluent::diagnostics::error::diagnostic::WebFluentError::ConfigError(alloc::string::String)
+pub webfluent::diagnostics::error::diagnostic::WebFluentError::Diagnostics(alloc::vec::Vec<webfluent::diagnostics::Diagnostic>)
+pub webfluent::diagnostics::error::diagnostic::WebFluentError::EditError(alloc::string::String)
+pub webfluent::diagnostics::error::diagnostic::WebFluentError::IoError(alloc::string::String)
+pub webfluent::diagnostics::error::diagnostic::WebFluentError::LexerError(alloc::boxed::Box<webfluent::diagnostics::Diagnostic>)
+pub webfluent::diagnostics::error::diagnostic::WebFluentError::NotFound(alloc::string::String)
+pub webfluent::diagnostics::error::diagnostic::WebFluentError::ParseError(alloc::boxed::Box<webfluent::diagnostics::Diagnostic>)
+impl webfluent::diagnostics::error::diagnostic::WebFluentError
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::diagnostics(&self) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::exit_code(&self) -> i32
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::with_code(self, &'static str) -> Self
+impl core::convert::From<core::io::error::Error> for webfluent::diagnostics::error::diagnostic::WebFluentError
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::from(core::io::error::Error) -> Self
+impl core::error::Error for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::fmt::Debug for webfluent::diagnostics::error::diagnostic::WebFluentError
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for webfluent::diagnostics::error::diagnostic::WebFluentError
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::marker::Send for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::marker::Sync for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::marker::Unpin for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::marker::UnsafeUnpin for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::panic::unwind_safe::UnwindSafe for webfluent::diagnostics::error::diagnostic::WebFluentError
+pub struct webfluent::diagnostics::error::diagnostic::A11yWarning
+pub webfluent::diagnostics::error::diagnostic::A11yWarning::column: usize
+pub webfluent::diagnostics::error::diagnostic::A11yWarning::file: alloc::string::String
+pub webfluent::diagnostics::error::diagnostic::A11yWarning::hint: alloc::string::String
+pub webfluent::diagnostics::error::diagnostic::A11yWarning::line: usize
+pub webfluent::diagnostics::error::diagnostic::A11yWarning::message: alloc::string::String
+pub webfluent::diagnostics::error::diagnostic::A11yWarning::plans: alloc::vec::Vec<webfluent::diagnostics::fixes::Planned>
+pub webfluent::diagnostics::error::diagnostic::A11yWarning::rule_id: alloc::string::String
+impl webfluent::diagnostics::error::diagnostic::A11yWarning
+pub fn webfluent::diagnostics::error::diagnostic::A11yWarning::new(impl core::convert::Into<alloc::string::String>, impl core::convert::Into<alloc::string::String>, impl core::convert::Into<alloc::string::String>, usize, usize, impl core::convert::Into<alloc::string::String>) -> Self
+pub fn webfluent::diagnostics::error::diagnostic::A11yWarning::with_plan(self, impl core::convert::Into<alloc::string::String>, webfluent::diagnostics::fixes::Plan) -> Self
+pub fn webfluent::diagnostics::error::diagnostic::A11yWarning::with_plans(self, core::option::Option<(alloc::string::String, webfluent::diagnostics::fixes::Plan)>) -> Self
+impl core::convert::From<webfluent::diagnostics::error::diagnostic::A11yWarning> for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::from(webfluent::diagnostics::error::diagnostic::A11yWarning) -> Self
+impl core::fmt::Debug for webfluent::diagnostics::error::diagnostic::A11yWarning
+pub fn webfluent::diagnostics::error::diagnostic::A11yWarning::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for webfluent::diagnostics::error::diagnostic::A11yWarning
+pub fn webfluent::diagnostics::error::diagnostic::A11yWarning::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::diagnostics::error::diagnostic::A11yWarning
+impl core::marker::Send for webfluent::diagnostics::error::diagnostic::A11yWarning
+impl core::marker::Sync for webfluent::diagnostics::error::diagnostic::A11yWarning
+impl core::marker::Unpin for webfluent::diagnostics::error::diagnostic::A11yWarning
+impl core::marker::UnsafeUnpin for webfluent::diagnostics::error::diagnostic::A11yWarning
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::diagnostics::error::diagnostic::A11yWarning
+impl core::panic::unwind_safe::UnwindSafe for webfluent::diagnostics::error::diagnostic::A11yWarning
+pub struct webfluent::diagnostics::error::diagnostic::Diagnostic
+pub webfluent::diagnostics::error::diagnostic::Diagnostic::code: &'static str
+pub webfluent::diagnostics::error::diagnostic::Diagnostic::column: usize
+pub webfluent::diagnostics::error::diagnostic::Diagnostic::end_column: usize
+pub webfluent::diagnostics::error::diagnostic::Diagnostic::end_line: usize
+pub webfluent::diagnostics::error::diagnostic::Diagnostic::file: alloc::string::String
+pub webfluent::diagnostics::error::diagnostic::Diagnostic::fixes: alloc::vec::Vec<webfluent::diagnostics::Fix>
+pub webfluent::diagnostics::error::diagnostic::Diagnostic::hint: core::option::Option<alloc::string::String>
+pub webfluent::diagnostics::error::diagnostic::Diagnostic::line: usize
+pub webfluent::diagnostics::error::diagnostic::Diagnostic::message: alloc::string::String
+pub webfluent::diagnostics::error::diagnostic::Diagnostic::plans: alloc::vec::Vec<webfluent::diagnostics::fixes::Planned>
+pub webfluent::diagnostics::error::diagnostic::Diagnostic::related: alloc::vec::Vec<webfluent::diagnostics::Related>
+pub webfluent::diagnostics::error::diagnostic::Diagnostic::severity: webfluent::diagnostics::Severity
+pub webfluent::diagnostics::error::diagnostic::Diagnostic::tags: alloc::vec::Vec<webfluent::diagnostics::Tag>
+impl webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::as_warning(&self) -> alloc::string::String
+pub fn webfluent::diagnostics::Diagnostic::coded(&'static str, impl core::convert::Into<alloc::string::String>, impl core::convert::Into<alloc::string::String>, usize, usize) -> Self
+pub fn webfluent::diagnostics::Diagnostic::docs_url(&self) -> core::option::Option<alloc::string::String>
+pub fn webfluent::diagnostics::Diagnostic::is_error(&self) -> bool
+pub fn webfluent::diagnostics::Diagnostic::new(impl core::convert::Into<alloc::string::String>, impl core::convert::Into<alloc::string::String>, usize, usize) -> Self
+pub fn webfluent::diagnostics::Diagnostic::with_code(self, &'static str) -> Self
+pub fn webfluent::diagnostics::Diagnostic::with_end(self, usize, usize) -> Self
+pub fn webfluent::diagnostics::Diagnostic::with_fix(self, impl core::convert::Into<alloc::string::String>, alloc::vec::Vec<webfluent::diagnostics::Edit>) -> Self
+pub fn webfluent::diagnostics::Diagnostic::with_hint(self, impl core::convert::Into<alloc::string::String>) -> Self
+pub fn webfluent::diagnostics::Diagnostic::with_related(self, impl core::convert::Into<alloc::string::String>, impl core::convert::Into<alloc::string::String>, usize, usize) -> Self
+pub fn webfluent::diagnostics::Diagnostic::with_severity(self, webfluent::diagnostics::Severity) -> Self
+pub fn webfluent::diagnostics::Diagnostic::with_span(self, webfluent::parser::Span, core::option::Option<&str>) -> Self
+impl webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::with_plan(self, impl core::convert::Into<alloc::string::String>, webfluent::diagnostics::fixes::Plan) -> Self
+pub fn webfluent::diagnostics::Diagnostic::with_plans(self, core::option::Option<(alloc::string::String, webfluent::diagnostics::fixes::Plan)>) -> Self
+impl core::clone::Clone for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::eq(&self, &Self) -> bool
+impl core::convert::From<webfluent::diagnostics::error::diagnostic::A11yWarning> for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::from(webfluent::diagnostics::error::diagnostic::A11yWarning) -> Self
+impl core::convert::From<webfluent::diagnostics::error::diagnostic::VocabWarning> for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::from(webfluent::diagnostics::error::diagnostic::VocabWarning) -> Self
+impl core::fmt::Debug for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::diagnostics::Diagnostic
+impl serde_core::ser::Serialize for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl core::marker::Freeze for webfluent::diagnostics::Diagnostic
+impl core::marker::Send for webfluent::diagnostics::Diagnostic
+impl core::marker::Sync for webfluent::diagnostics::Diagnostic
+impl core::marker::Unpin for webfluent::diagnostics::Diagnostic
+impl core::marker::UnsafeUnpin for webfluent::diagnostics::Diagnostic
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::diagnostics::Diagnostic
+impl core::panic::unwind_safe::UnwindSafe for webfluent::diagnostics::Diagnostic
+pub struct webfluent::diagnostics::error::diagnostic::VocabWarning
+pub webfluent::diagnostics::error::diagnostic::VocabWarning::column: usize
+pub webfluent::diagnostics::error::diagnostic::VocabWarning::file: alloc::string::String
+pub webfluent::diagnostics::error::diagnostic::VocabWarning::hint: core::option::Option<alloc::string::String>
+pub webfluent::diagnostics::error::diagnostic::VocabWarning::line: usize
+pub webfluent::diagnostics::error::diagnostic::VocabWarning::message: alloc::string::String
+pub webfluent::diagnostics::error::diagnostic::VocabWarning::plans: alloc::vec::Vec<webfluent::diagnostics::fixes::Planned>
+pub webfluent::diagnostics::error::diagnostic::VocabWarning::rule_id: alloc::string::String
+impl core::clone::Clone for webfluent::diagnostics::error::diagnostic::VocabWarning
+pub fn webfluent::diagnostics::error::diagnostic::VocabWarning::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::diagnostics::error::diagnostic::VocabWarning
+pub fn webfluent::diagnostics::error::diagnostic::VocabWarning::eq(&self, &Self) -> bool
+impl core::convert::From<webfluent::diagnostics::error::diagnostic::VocabWarning> for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::from(webfluent::diagnostics::error::diagnostic::VocabWarning) -> Self
+impl core::fmt::Debug for webfluent::diagnostics::error::diagnostic::VocabWarning
+pub fn webfluent::diagnostics::error::diagnostic::VocabWarning::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for webfluent::diagnostics::error::diagnostic::VocabWarning
+pub fn webfluent::diagnostics::error::diagnostic::VocabWarning::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::marker::Freeze for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::marker::Send for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::marker::Sync for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::marker::Unpin for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::marker::UnsafeUnpin for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::panic::unwind_safe::UnwindSafe for webfluent::diagnostics::error::diagnostic::VocabWarning
+pub type webfluent::diagnostics::error::diagnostic::Result<T> = core::result::Result<T, webfluent::diagnostics::error::diagnostic::WebFluentError>
+pub enum webfluent::diagnostics::error::WebFluentError
+pub webfluent::diagnostics::error::WebFluentError::CodegenError(alloc::string::String)
+pub webfluent::diagnostics::error::WebFluentError::ConfigError(alloc::string::String)
+pub webfluent::diagnostics::error::WebFluentError::Diagnostics(alloc::vec::Vec<webfluent::diagnostics::Diagnostic>)
+pub webfluent::diagnostics::error::WebFluentError::EditError(alloc::string::String)
+pub webfluent::diagnostics::error::WebFluentError::IoError(alloc::string::String)
+pub webfluent::diagnostics::error::WebFluentError::LexerError(alloc::boxed::Box<webfluent::diagnostics::Diagnostic>)
+pub webfluent::diagnostics::error::WebFluentError::NotFound(alloc::string::String)
+pub webfluent::diagnostics::error::WebFluentError::ParseError(alloc::boxed::Box<webfluent::diagnostics::Diagnostic>)
+impl webfluent::diagnostics::error::diagnostic::WebFluentError
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::diagnostics(&self) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::exit_code(&self) -> i32
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::with_code(self, &'static str) -> Self
+impl core::convert::From<core::io::error::Error> for webfluent::diagnostics::error::diagnostic::WebFluentError
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::from(core::io::error::Error) -> Self
+impl core::error::Error for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::fmt::Debug for webfluent::diagnostics::error::diagnostic::WebFluentError
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for webfluent::diagnostics::error::diagnostic::WebFluentError
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::marker::Send for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::marker::Sync for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::marker::Unpin for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::marker::UnsafeUnpin for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::panic::unwind_safe::UnwindSafe for webfluent::diagnostics::error::diagnostic::WebFluentError
+pub struct webfluent::diagnostics::error::A11yWarning
+pub webfluent::diagnostics::error::A11yWarning::column: usize
+pub webfluent::diagnostics::error::A11yWarning::file: alloc::string::String
+pub webfluent::diagnostics::error::A11yWarning::hint: alloc::string::String
+pub webfluent::diagnostics::error::A11yWarning::line: usize
+pub webfluent::diagnostics::error::A11yWarning::message: alloc::string::String
+pub webfluent::diagnostics::error::A11yWarning::plans: alloc::vec::Vec<webfluent::diagnostics::fixes::Planned>
+pub webfluent::diagnostics::error::A11yWarning::rule_id: alloc::string::String
+impl webfluent::diagnostics::error::diagnostic::A11yWarning
+pub fn webfluent::diagnostics::error::diagnostic::A11yWarning::new(impl core::convert::Into<alloc::string::String>, impl core::convert::Into<alloc::string::String>, impl core::convert::Into<alloc::string::String>, usize, usize, impl core::convert::Into<alloc::string::String>) -> Self
+pub fn webfluent::diagnostics::error::diagnostic::A11yWarning::with_plan(self, impl core::convert::Into<alloc::string::String>, webfluent::diagnostics::fixes::Plan) -> Self
+pub fn webfluent::diagnostics::error::diagnostic::A11yWarning::with_plans(self, core::option::Option<(alloc::string::String, webfluent::diagnostics::fixes::Plan)>) -> Self
+impl core::convert::From<webfluent::diagnostics::error::diagnostic::A11yWarning> for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::from(webfluent::diagnostics::error::diagnostic::A11yWarning) -> Self
+impl core::fmt::Debug for webfluent::diagnostics::error::diagnostic::A11yWarning
+pub fn webfluent::diagnostics::error::diagnostic::A11yWarning::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for webfluent::diagnostics::error::diagnostic::A11yWarning
+pub fn webfluent::diagnostics::error::diagnostic::A11yWarning::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::diagnostics::error::diagnostic::A11yWarning
+impl core::marker::Send for webfluent::diagnostics::error::diagnostic::A11yWarning
+impl core::marker::Sync for webfluent::diagnostics::error::diagnostic::A11yWarning
+impl core::marker::Unpin for webfluent::diagnostics::error::diagnostic::A11yWarning
+impl core::marker::UnsafeUnpin for webfluent::diagnostics::error::diagnostic::A11yWarning
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::diagnostics::error::diagnostic::A11yWarning
+impl core::panic::unwind_safe::UnwindSafe for webfluent::diagnostics::error::diagnostic::A11yWarning
+pub struct webfluent::diagnostics::error::Diagnostic
+pub webfluent::diagnostics::error::Diagnostic::code: &'static str
+pub webfluent::diagnostics::error::Diagnostic::column: usize
+pub webfluent::diagnostics::error::Diagnostic::end_column: usize
+pub webfluent::diagnostics::error::Diagnostic::end_line: usize
+pub webfluent::diagnostics::error::Diagnostic::file: alloc::string::String
+pub webfluent::diagnostics::error::Diagnostic::fixes: alloc::vec::Vec<webfluent::diagnostics::Fix>
+pub webfluent::diagnostics::error::Diagnostic::hint: core::option::Option<alloc::string::String>
+pub webfluent::diagnostics::error::Diagnostic::line: usize
+pub webfluent::diagnostics::error::Diagnostic::message: alloc::string::String
+pub webfluent::diagnostics::error::Diagnostic::plans: alloc::vec::Vec<webfluent::diagnostics::fixes::Planned>
+pub webfluent::diagnostics::error::Diagnostic::related: alloc::vec::Vec<webfluent::diagnostics::Related>
+pub webfluent::diagnostics::error::Diagnostic::severity: webfluent::diagnostics::Severity
+pub webfluent::diagnostics::error::Diagnostic::tags: alloc::vec::Vec<webfluent::diagnostics::Tag>
+impl webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::as_warning(&self) -> alloc::string::String
+pub fn webfluent::diagnostics::Diagnostic::coded(&'static str, impl core::convert::Into<alloc::string::String>, impl core::convert::Into<alloc::string::String>, usize, usize) -> Self
+pub fn webfluent::diagnostics::Diagnostic::docs_url(&self) -> core::option::Option<alloc::string::String>
+pub fn webfluent::diagnostics::Diagnostic::is_error(&self) -> bool
+pub fn webfluent::diagnostics::Diagnostic::new(impl core::convert::Into<alloc::string::String>, impl core::convert::Into<alloc::string::String>, usize, usize) -> Self
+pub fn webfluent::diagnostics::Diagnostic::with_code(self, &'static str) -> Self
+pub fn webfluent::diagnostics::Diagnostic::with_end(self, usize, usize) -> Self
+pub fn webfluent::diagnostics::Diagnostic::with_fix(self, impl core::convert::Into<alloc::string::String>, alloc::vec::Vec<webfluent::diagnostics::Edit>) -> Self
+pub fn webfluent::diagnostics::Diagnostic::with_hint(self, impl core::convert::Into<alloc::string::String>) -> Self
+pub fn webfluent::diagnostics::Diagnostic::with_related(self, impl core::convert::Into<alloc::string::String>, impl core::convert::Into<alloc::string::String>, usize, usize) -> Self
+pub fn webfluent::diagnostics::Diagnostic::with_severity(self, webfluent::diagnostics::Severity) -> Self
+pub fn webfluent::diagnostics::Diagnostic::with_span(self, webfluent::parser::Span, core::option::Option<&str>) -> Self
+impl webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::with_plan(self, impl core::convert::Into<alloc::string::String>, webfluent::diagnostics::fixes::Plan) -> Self
+pub fn webfluent::diagnostics::Diagnostic::with_plans(self, core::option::Option<(alloc::string::String, webfluent::diagnostics::fixes::Plan)>) -> Self
+impl core::clone::Clone for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::eq(&self, &Self) -> bool
+impl core::convert::From<webfluent::diagnostics::error::diagnostic::A11yWarning> for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::from(webfluent::diagnostics::error::diagnostic::A11yWarning) -> Self
+impl core::convert::From<webfluent::diagnostics::error::diagnostic::VocabWarning> for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::from(webfluent::diagnostics::error::diagnostic::VocabWarning) -> Self
+impl core::fmt::Debug for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::diagnostics::Diagnostic
+impl serde_core::ser::Serialize for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl core::marker::Freeze for webfluent::diagnostics::Diagnostic
+impl core::marker::Send for webfluent::diagnostics::Diagnostic
+impl core::marker::Sync for webfluent::diagnostics::Diagnostic
+impl core::marker::Unpin for webfluent::diagnostics::Diagnostic
+impl core::marker::UnsafeUnpin for webfluent::diagnostics::Diagnostic
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::diagnostics::Diagnostic
+impl core::panic::unwind_safe::UnwindSafe for webfluent::diagnostics::Diagnostic
+pub struct webfluent::diagnostics::error::VocabWarning
+pub webfluent::diagnostics::error::VocabWarning::column: usize
+pub webfluent::diagnostics::error::VocabWarning::file: alloc::string::String
+pub webfluent::diagnostics::error::VocabWarning::hint: core::option::Option<alloc::string::String>
+pub webfluent::diagnostics::error::VocabWarning::line: usize
+pub webfluent::diagnostics::error::VocabWarning::message: alloc::string::String
+pub webfluent::diagnostics::error::VocabWarning::plans: alloc::vec::Vec<webfluent::diagnostics::fixes::Planned>
+pub webfluent::diagnostics::error::VocabWarning::rule_id: alloc::string::String
+impl core::clone::Clone for webfluent::diagnostics::error::diagnostic::VocabWarning
+pub fn webfluent::diagnostics::error::diagnostic::VocabWarning::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::diagnostics::error::diagnostic::VocabWarning
+pub fn webfluent::diagnostics::error::diagnostic::VocabWarning::eq(&self, &Self) -> bool
+impl core::convert::From<webfluent::diagnostics::error::diagnostic::VocabWarning> for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::from(webfluent::diagnostics::error::diagnostic::VocabWarning) -> Self
+impl core::fmt::Debug for webfluent::diagnostics::error::diagnostic::VocabWarning
+pub fn webfluent::diagnostics::error::diagnostic::VocabWarning::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for webfluent::diagnostics::error::diagnostic::VocabWarning
+pub fn webfluent::diagnostics::error::diagnostic::VocabWarning::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::marker::Freeze for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::marker::Send for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::marker::Sync for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::marker::Unpin for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::marker::UnsafeUnpin for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::panic::unwind_safe::UnwindSafe for webfluent::diagnostics::error::diagnostic::VocabWarning
+pub type webfluent::diagnostics::error::Result<T> = core::result::Result<T, webfluent::diagnostics::error::diagnostic::WebFluentError>
 pub mod webfluent::diagnostics::fixes
 pub enum webfluent::diagnostics::fixes::Plan
 pub webfluent::diagnostics::fixes::Plan::AddArgument
@@ -2894,10 +3158,10 @@ impl core::clone::Clone for webfluent::diagnostics::Diagnostic
 pub fn webfluent::diagnostics::Diagnostic::clone(&self) -> Self
 impl core::cmp::PartialEq for webfluent::diagnostics::Diagnostic
 pub fn webfluent::diagnostics::Diagnostic::eq(&self, &Self) -> bool
-impl core::convert::From<webfluent::error::diagnostic::A11yWarning> for webfluent::diagnostics::Diagnostic
-pub fn webfluent::diagnostics::Diagnostic::from(webfluent::error::diagnostic::A11yWarning) -> Self
-impl core::convert::From<webfluent::error::diagnostic::VocabWarning> for webfluent::diagnostics::Diagnostic
-pub fn webfluent::diagnostics::Diagnostic::from(webfluent::error::diagnostic::VocabWarning) -> Self
+impl core::convert::From<webfluent::diagnostics::error::diagnostic::A11yWarning> for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::from(webfluent::diagnostics::error::diagnostic::A11yWarning) -> Self
+impl core::convert::From<webfluent::diagnostics::error::diagnostic::VocabWarning> for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::from(webfluent::diagnostics::error::diagnostic::VocabWarning) -> Self
 impl core::fmt::Debug for webfluent::diagnostics::Diagnostic
 pub fn webfluent::diagnostics::Diagnostic::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::fmt::Display for webfluent::diagnostics::Diagnostic
@@ -3098,14 +3362,14 @@ impl core::marker::Unpin for webfluent::edit::EditOp
 impl core::marker::UnsafeUnpin for webfluent::edit::EditOp
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::edit::EditOp
 impl core::panic::unwind_safe::UnwindSafe for webfluent::edit::EditOp
-pub fn webfluent::edit::apply_edits(&str, &[webfluent::edit::EditOp]) -> webfluent::error::diagnostic::Result<alloc::string::String>
-pub fn webfluent::edit::apply_edits_to(&str, &str, &[webfluent::edit::EditOp]) -> webfluent::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::edit::apply_edits(&str, &[webfluent::edit::EditOp]) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::edit::apply_edits_to(&str, &str, &[webfluent::edit::EditOp]) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
 pub fn webfluent::edit::declaration_name(&webfluent::parser::Declaration) -> core::option::Option<&str>
-pub fn webfluent::edit::rewrite_body(&str, &str, &str, impl core::ops::function::FnOnce(&mut alloc::vec::Vec<webfluent::parser::Statement>)) -> webfluent::error::diagnostic::Result<alloc::string::String>
-pub fn webfluent::edit::rewrite_declaration(&str, &str, &str, impl core::ops::function::FnOnce(&mut webfluent::parser::Declaration)) -> webfluent::error::diagnostic::Result<alloc::string::String>
-pub fn webfluent::edit::rewrite_element(&str, &str, &str, impl core::ops::function::FnOnce(&mut webfluent::parser::UIElement)) -> webfluent::error::diagnostic::Result<alloc::string::String>
-pub fn webfluent::edit::rewrite_program(&str, &str, impl core::ops::function::FnOnce(&mut webfluent::parser::Program)) -> webfluent::error::diagnostic::Result<alloc::string::String>
-pub fn webfluent::edit::rewrite_statement(&str, &str, usize, usize, impl core::ops::function::FnOnce(&mut webfluent::parser::Statement)) -> webfluent::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::edit::rewrite_body(&str, &str, &str, impl core::ops::function::FnOnce(&mut alloc::vec::Vec<webfluent::parser::Statement>)) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::edit::rewrite_declaration(&str, &str, &str, impl core::ops::function::FnOnce(&mut webfluent::parser::Declaration)) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::edit::rewrite_element(&str, &str, &str, impl core::ops::function::FnOnce(&mut webfluent::parser::UIElement)) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::edit::rewrite_program(&str, &str, impl core::ops::function::FnOnce(&mut webfluent::parser::Program)) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::edit::rewrite_statement(&str, &str, usize, usize, impl core::ops::function::FnOnce(&mut webfluent::parser::Statement)) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
 pub mod webfluent::error
 pub mod webfluent::error::diagnostic
 pub enum webfluent::error::diagnostic::WebFluentError
@@ -3117,24 +3381,24 @@ pub webfluent::error::diagnostic::WebFluentError::IoError(alloc::string::String)
 pub webfluent::error::diagnostic::WebFluentError::LexerError(alloc::boxed::Box<webfluent::diagnostics::Diagnostic>)
 pub webfluent::error::diagnostic::WebFluentError::NotFound(alloc::string::String)
 pub webfluent::error::diagnostic::WebFluentError::ParseError(alloc::boxed::Box<webfluent::diagnostics::Diagnostic>)
-impl webfluent::error::diagnostic::WebFluentError
-pub fn webfluent::error::diagnostic::WebFluentError::diagnostics(&self) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
-pub fn webfluent::error::diagnostic::WebFluentError::exit_code(&self) -> i32
-pub fn webfluent::error::diagnostic::WebFluentError::with_code(self, &'static str) -> Self
-impl core::convert::From<core::io::error::Error> for webfluent::error::diagnostic::WebFluentError
-pub fn webfluent::error::diagnostic::WebFluentError::from(core::io::error::Error) -> Self
-impl core::error::Error for webfluent::error::diagnostic::WebFluentError
-impl core::fmt::Debug for webfluent::error::diagnostic::WebFluentError
-pub fn webfluent::error::diagnostic::WebFluentError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::fmt::Display for webfluent::error::diagnostic::WebFluentError
-pub fn webfluent::error::diagnostic::WebFluentError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::Freeze for webfluent::error::diagnostic::WebFluentError
-impl core::marker::Send for webfluent::error::diagnostic::WebFluentError
-impl core::marker::Sync for webfluent::error::diagnostic::WebFluentError
-impl core::marker::Unpin for webfluent::error::diagnostic::WebFluentError
-impl core::marker::UnsafeUnpin for webfluent::error::diagnostic::WebFluentError
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::error::diagnostic::WebFluentError
-impl core::panic::unwind_safe::UnwindSafe for webfluent::error::diagnostic::WebFluentError
+impl webfluent::diagnostics::error::diagnostic::WebFluentError
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::diagnostics(&self) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::exit_code(&self) -> i32
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::with_code(self, &'static str) -> Self
+impl core::convert::From<core::io::error::Error> for webfluent::diagnostics::error::diagnostic::WebFluentError
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::from(core::io::error::Error) -> Self
+impl core::error::Error for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::fmt::Debug for webfluent::diagnostics::error::diagnostic::WebFluentError
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for webfluent::diagnostics::error::diagnostic::WebFluentError
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::marker::Send for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::marker::Sync for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::marker::Unpin for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::marker::UnsafeUnpin for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::panic::unwind_safe::UnwindSafe for webfluent::diagnostics::error::diagnostic::WebFluentError
 pub struct webfluent::error::diagnostic::A11yWarning
 pub webfluent::error::diagnostic::A11yWarning::column: usize
 pub webfluent::error::diagnostic::A11yWarning::file: alloc::string::String
@@ -3143,23 +3407,23 @@ pub webfluent::error::diagnostic::A11yWarning::line: usize
 pub webfluent::error::diagnostic::A11yWarning::message: alloc::string::String
 pub webfluent::error::diagnostic::A11yWarning::plans: alloc::vec::Vec<webfluent::diagnostics::fixes::Planned>
 pub webfluent::error::diagnostic::A11yWarning::rule_id: alloc::string::String
-impl webfluent::error::diagnostic::A11yWarning
-pub fn webfluent::error::diagnostic::A11yWarning::new(impl core::convert::Into<alloc::string::String>, impl core::convert::Into<alloc::string::String>, impl core::convert::Into<alloc::string::String>, usize, usize, impl core::convert::Into<alloc::string::String>) -> Self
-pub fn webfluent::error::diagnostic::A11yWarning::with_plan(self, impl core::convert::Into<alloc::string::String>, webfluent::diagnostics::fixes::Plan) -> Self
-pub fn webfluent::error::diagnostic::A11yWarning::with_plans(self, core::option::Option<(alloc::string::String, webfluent::diagnostics::fixes::Plan)>) -> Self
-impl core::convert::From<webfluent::error::diagnostic::A11yWarning> for webfluent::diagnostics::Diagnostic
-pub fn webfluent::diagnostics::Diagnostic::from(webfluent::error::diagnostic::A11yWarning) -> Self
-impl core::fmt::Debug for webfluent::error::diagnostic::A11yWarning
-pub fn webfluent::error::diagnostic::A11yWarning::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::fmt::Display for webfluent::error::diagnostic::A11yWarning
-pub fn webfluent::error::diagnostic::A11yWarning::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::Freeze for webfluent::error::diagnostic::A11yWarning
-impl core::marker::Send for webfluent::error::diagnostic::A11yWarning
-impl core::marker::Sync for webfluent::error::diagnostic::A11yWarning
-impl core::marker::Unpin for webfluent::error::diagnostic::A11yWarning
-impl core::marker::UnsafeUnpin for webfluent::error::diagnostic::A11yWarning
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::error::diagnostic::A11yWarning
-impl core::panic::unwind_safe::UnwindSafe for webfluent::error::diagnostic::A11yWarning
+impl webfluent::diagnostics::error::diagnostic::A11yWarning
+pub fn webfluent::diagnostics::error::diagnostic::A11yWarning::new(impl core::convert::Into<alloc::string::String>, impl core::convert::Into<alloc::string::String>, impl core::convert::Into<alloc::string::String>, usize, usize, impl core::convert::Into<alloc::string::String>) -> Self
+pub fn webfluent::diagnostics::error::diagnostic::A11yWarning::with_plan(self, impl core::convert::Into<alloc::string::String>, webfluent::diagnostics::fixes::Plan) -> Self
+pub fn webfluent::diagnostics::error::diagnostic::A11yWarning::with_plans(self, core::option::Option<(alloc::string::String, webfluent::diagnostics::fixes::Plan)>) -> Self
+impl core::convert::From<webfluent::diagnostics::error::diagnostic::A11yWarning> for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::from(webfluent::diagnostics::error::diagnostic::A11yWarning) -> Self
+impl core::fmt::Debug for webfluent::diagnostics::error::diagnostic::A11yWarning
+pub fn webfluent::diagnostics::error::diagnostic::A11yWarning::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for webfluent::diagnostics::error::diagnostic::A11yWarning
+pub fn webfluent::diagnostics::error::diagnostic::A11yWarning::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::diagnostics::error::diagnostic::A11yWarning
+impl core::marker::Send for webfluent::diagnostics::error::diagnostic::A11yWarning
+impl core::marker::Sync for webfluent::diagnostics::error::diagnostic::A11yWarning
+impl core::marker::Unpin for webfluent::diagnostics::error::diagnostic::A11yWarning
+impl core::marker::UnsafeUnpin for webfluent::diagnostics::error::diagnostic::A11yWarning
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::diagnostics::error::diagnostic::A11yWarning
+impl core::panic::unwind_safe::UnwindSafe for webfluent::diagnostics::error::diagnostic::A11yWarning
 pub struct webfluent::error::diagnostic::Diagnostic
 pub webfluent::error::diagnostic::Diagnostic::code: &'static str
 pub webfluent::error::diagnostic::Diagnostic::column: usize
@@ -3194,10 +3458,10 @@ impl core::clone::Clone for webfluent::diagnostics::Diagnostic
 pub fn webfluent::diagnostics::Diagnostic::clone(&self) -> Self
 impl core::cmp::PartialEq for webfluent::diagnostics::Diagnostic
 pub fn webfluent::diagnostics::Diagnostic::eq(&self, &Self) -> bool
-impl core::convert::From<webfluent::error::diagnostic::A11yWarning> for webfluent::diagnostics::Diagnostic
-pub fn webfluent::diagnostics::Diagnostic::from(webfluent::error::diagnostic::A11yWarning) -> Self
-impl core::convert::From<webfluent::error::diagnostic::VocabWarning> for webfluent::diagnostics::Diagnostic
-pub fn webfluent::diagnostics::Diagnostic::from(webfluent::error::diagnostic::VocabWarning) -> Self
+impl core::convert::From<webfluent::diagnostics::error::diagnostic::A11yWarning> for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::from(webfluent::diagnostics::error::diagnostic::A11yWarning) -> Self
+impl core::convert::From<webfluent::diagnostics::error::diagnostic::VocabWarning> for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::from(webfluent::diagnostics::error::diagnostic::VocabWarning) -> Self
 impl core::fmt::Debug for webfluent::diagnostics::Diagnostic
 pub fn webfluent::diagnostics::Diagnostic::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::fmt::Display for webfluent::diagnostics::Diagnostic
@@ -3220,25 +3484,25 @@ pub webfluent::error::diagnostic::VocabWarning::line: usize
 pub webfluent::error::diagnostic::VocabWarning::message: alloc::string::String
 pub webfluent::error::diagnostic::VocabWarning::plans: alloc::vec::Vec<webfluent::diagnostics::fixes::Planned>
 pub webfluent::error::diagnostic::VocabWarning::rule_id: alloc::string::String
-impl core::clone::Clone for webfluent::error::diagnostic::VocabWarning
-pub fn webfluent::error::diagnostic::VocabWarning::clone(&self) -> Self
-impl core::cmp::PartialEq for webfluent::error::diagnostic::VocabWarning
-pub fn webfluent::error::diagnostic::VocabWarning::eq(&self, &Self) -> bool
-impl core::convert::From<webfluent::error::diagnostic::VocabWarning> for webfluent::diagnostics::Diagnostic
-pub fn webfluent::diagnostics::Diagnostic::from(webfluent::error::diagnostic::VocabWarning) -> Self
-impl core::fmt::Debug for webfluent::error::diagnostic::VocabWarning
-pub fn webfluent::error::diagnostic::VocabWarning::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::fmt::Display for webfluent::error::diagnostic::VocabWarning
-pub fn webfluent::error::diagnostic::VocabWarning::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::StructuralPartialEq for webfluent::error::diagnostic::VocabWarning
-impl core::marker::Freeze for webfluent::error::diagnostic::VocabWarning
-impl core::marker::Send for webfluent::error::diagnostic::VocabWarning
-impl core::marker::Sync for webfluent::error::diagnostic::VocabWarning
-impl core::marker::Unpin for webfluent::error::diagnostic::VocabWarning
-impl core::marker::UnsafeUnpin for webfluent::error::diagnostic::VocabWarning
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::error::diagnostic::VocabWarning
-impl core::panic::unwind_safe::UnwindSafe for webfluent::error::diagnostic::VocabWarning
-pub type webfluent::error::diagnostic::Result<T> = core::result::Result<T, webfluent::error::diagnostic::WebFluentError>
+impl core::clone::Clone for webfluent::diagnostics::error::diagnostic::VocabWarning
+pub fn webfluent::diagnostics::error::diagnostic::VocabWarning::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::diagnostics::error::diagnostic::VocabWarning
+pub fn webfluent::diagnostics::error::diagnostic::VocabWarning::eq(&self, &Self) -> bool
+impl core::convert::From<webfluent::diagnostics::error::diagnostic::VocabWarning> for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::from(webfluent::diagnostics::error::diagnostic::VocabWarning) -> Self
+impl core::fmt::Debug for webfluent::diagnostics::error::diagnostic::VocabWarning
+pub fn webfluent::diagnostics::error::diagnostic::VocabWarning::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for webfluent::diagnostics::error::diagnostic::VocabWarning
+pub fn webfluent::diagnostics::error::diagnostic::VocabWarning::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::marker::Freeze for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::marker::Send for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::marker::Sync for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::marker::Unpin for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::marker::UnsafeUnpin for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::panic::unwind_safe::UnwindSafe for webfluent::diagnostics::error::diagnostic::VocabWarning
+pub type webfluent::error::diagnostic::Result<T> = core::result::Result<T, webfluent::diagnostics::error::diagnostic::WebFluentError>
 pub enum webfluent::error::WebFluentError
 pub webfluent::error::WebFluentError::CodegenError(alloc::string::String)
 pub webfluent::error::WebFluentError::ConfigError(alloc::string::String)
@@ -3248,24 +3512,24 @@ pub webfluent::error::WebFluentError::IoError(alloc::string::String)
 pub webfluent::error::WebFluentError::LexerError(alloc::boxed::Box<webfluent::diagnostics::Diagnostic>)
 pub webfluent::error::WebFluentError::NotFound(alloc::string::String)
 pub webfluent::error::WebFluentError::ParseError(alloc::boxed::Box<webfluent::diagnostics::Diagnostic>)
-impl webfluent::error::diagnostic::WebFluentError
-pub fn webfluent::error::diagnostic::WebFluentError::diagnostics(&self) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
-pub fn webfluent::error::diagnostic::WebFluentError::exit_code(&self) -> i32
-pub fn webfluent::error::diagnostic::WebFluentError::with_code(self, &'static str) -> Self
-impl core::convert::From<core::io::error::Error> for webfluent::error::diagnostic::WebFluentError
-pub fn webfluent::error::diagnostic::WebFluentError::from(core::io::error::Error) -> Self
-impl core::error::Error for webfluent::error::diagnostic::WebFluentError
-impl core::fmt::Debug for webfluent::error::diagnostic::WebFluentError
-pub fn webfluent::error::diagnostic::WebFluentError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::fmt::Display for webfluent::error::diagnostic::WebFluentError
-pub fn webfluent::error::diagnostic::WebFluentError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::Freeze for webfluent::error::diagnostic::WebFluentError
-impl core::marker::Send for webfluent::error::diagnostic::WebFluentError
-impl core::marker::Sync for webfluent::error::diagnostic::WebFluentError
-impl core::marker::Unpin for webfluent::error::diagnostic::WebFluentError
-impl core::marker::UnsafeUnpin for webfluent::error::diagnostic::WebFluentError
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::error::diagnostic::WebFluentError
-impl core::panic::unwind_safe::UnwindSafe for webfluent::error::diagnostic::WebFluentError
+impl webfluent::diagnostics::error::diagnostic::WebFluentError
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::diagnostics(&self) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::exit_code(&self) -> i32
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::with_code(self, &'static str) -> Self
+impl core::convert::From<core::io::error::Error> for webfluent::diagnostics::error::diagnostic::WebFluentError
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::from(core::io::error::Error) -> Self
+impl core::error::Error for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::fmt::Debug for webfluent::diagnostics::error::diagnostic::WebFluentError
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for webfluent::diagnostics::error::diagnostic::WebFluentError
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::marker::Send for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::marker::Sync for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::marker::Unpin for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::marker::UnsafeUnpin for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::panic::unwind_safe::UnwindSafe for webfluent::diagnostics::error::diagnostic::WebFluentError
 pub struct webfluent::error::A11yWarning
 pub webfluent::error::A11yWarning::column: usize
 pub webfluent::error::A11yWarning::file: alloc::string::String
@@ -3274,23 +3538,23 @@ pub webfluent::error::A11yWarning::line: usize
 pub webfluent::error::A11yWarning::message: alloc::string::String
 pub webfluent::error::A11yWarning::plans: alloc::vec::Vec<webfluent::diagnostics::fixes::Planned>
 pub webfluent::error::A11yWarning::rule_id: alloc::string::String
-impl webfluent::error::diagnostic::A11yWarning
-pub fn webfluent::error::diagnostic::A11yWarning::new(impl core::convert::Into<alloc::string::String>, impl core::convert::Into<alloc::string::String>, impl core::convert::Into<alloc::string::String>, usize, usize, impl core::convert::Into<alloc::string::String>) -> Self
-pub fn webfluent::error::diagnostic::A11yWarning::with_plan(self, impl core::convert::Into<alloc::string::String>, webfluent::diagnostics::fixes::Plan) -> Self
-pub fn webfluent::error::diagnostic::A11yWarning::with_plans(self, core::option::Option<(alloc::string::String, webfluent::diagnostics::fixes::Plan)>) -> Self
-impl core::convert::From<webfluent::error::diagnostic::A11yWarning> for webfluent::diagnostics::Diagnostic
-pub fn webfluent::diagnostics::Diagnostic::from(webfluent::error::diagnostic::A11yWarning) -> Self
-impl core::fmt::Debug for webfluent::error::diagnostic::A11yWarning
-pub fn webfluent::error::diagnostic::A11yWarning::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::fmt::Display for webfluent::error::diagnostic::A11yWarning
-pub fn webfluent::error::diagnostic::A11yWarning::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::Freeze for webfluent::error::diagnostic::A11yWarning
-impl core::marker::Send for webfluent::error::diagnostic::A11yWarning
-impl core::marker::Sync for webfluent::error::diagnostic::A11yWarning
-impl core::marker::Unpin for webfluent::error::diagnostic::A11yWarning
-impl core::marker::UnsafeUnpin for webfluent::error::diagnostic::A11yWarning
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::error::diagnostic::A11yWarning
-impl core::panic::unwind_safe::UnwindSafe for webfluent::error::diagnostic::A11yWarning
+impl webfluent::diagnostics::error::diagnostic::A11yWarning
+pub fn webfluent::diagnostics::error::diagnostic::A11yWarning::new(impl core::convert::Into<alloc::string::String>, impl core::convert::Into<alloc::string::String>, impl core::convert::Into<alloc::string::String>, usize, usize, impl core::convert::Into<alloc::string::String>) -> Self
+pub fn webfluent::diagnostics::error::diagnostic::A11yWarning::with_plan(self, impl core::convert::Into<alloc::string::String>, webfluent::diagnostics::fixes::Plan) -> Self
+pub fn webfluent::diagnostics::error::diagnostic::A11yWarning::with_plans(self, core::option::Option<(alloc::string::String, webfluent::diagnostics::fixes::Plan)>) -> Self
+impl core::convert::From<webfluent::diagnostics::error::diagnostic::A11yWarning> for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::from(webfluent::diagnostics::error::diagnostic::A11yWarning) -> Self
+impl core::fmt::Debug for webfluent::diagnostics::error::diagnostic::A11yWarning
+pub fn webfluent::diagnostics::error::diagnostic::A11yWarning::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for webfluent::diagnostics::error::diagnostic::A11yWarning
+pub fn webfluent::diagnostics::error::diagnostic::A11yWarning::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::diagnostics::error::diagnostic::A11yWarning
+impl core::marker::Send for webfluent::diagnostics::error::diagnostic::A11yWarning
+impl core::marker::Sync for webfluent::diagnostics::error::diagnostic::A11yWarning
+impl core::marker::Unpin for webfluent::diagnostics::error::diagnostic::A11yWarning
+impl core::marker::UnsafeUnpin for webfluent::diagnostics::error::diagnostic::A11yWarning
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::diagnostics::error::diagnostic::A11yWarning
+impl core::panic::unwind_safe::UnwindSafe for webfluent::diagnostics::error::diagnostic::A11yWarning
 pub struct webfluent::error::Diagnostic
 pub webfluent::error::Diagnostic::code: &'static str
 pub webfluent::error::Diagnostic::column: usize
@@ -3325,10 +3589,10 @@ impl core::clone::Clone for webfluent::diagnostics::Diagnostic
 pub fn webfluent::diagnostics::Diagnostic::clone(&self) -> Self
 impl core::cmp::PartialEq for webfluent::diagnostics::Diagnostic
 pub fn webfluent::diagnostics::Diagnostic::eq(&self, &Self) -> bool
-impl core::convert::From<webfluent::error::diagnostic::A11yWarning> for webfluent::diagnostics::Diagnostic
-pub fn webfluent::diagnostics::Diagnostic::from(webfluent::error::diagnostic::A11yWarning) -> Self
-impl core::convert::From<webfluent::error::diagnostic::VocabWarning> for webfluent::diagnostics::Diagnostic
-pub fn webfluent::diagnostics::Diagnostic::from(webfluent::error::diagnostic::VocabWarning) -> Self
+impl core::convert::From<webfluent::diagnostics::error::diagnostic::A11yWarning> for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::from(webfluent::diagnostics::error::diagnostic::A11yWarning) -> Self
+impl core::convert::From<webfluent::diagnostics::error::diagnostic::VocabWarning> for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::from(webfluent::diagnostics::error::diagnostic::VocabWarning) -> Self
 impl core::fmt::Debug for webfluent::diagnostics::Diagnostic
 pub fn webfluent::diagnostics::Diagnostic::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::fmt::Display for webfluent::diagnostics::Diagnostic
@@ -3351,27 +3615,27 @@ pub webfluent::error::VocabWarning::line: usize
 pub webfluent::error::VocabWarning::message: alloc::string::String
 pub webfluent::error::VocabWarning::plans: alloc::vec::Vec<webfluent::diagnostics::fixes::Planned>
 pub webfluent::error::VocabWarning::rule_id: alloc::string::String
-impl core::clone::Clone for webfluent::error::diagnostic::VocabWarning
-pub fn webfluent::error::diagnostic::VocabWarning::clone(&self) -> Self
-impl core::cmp::PartialEq for webfluent::error::diagnostic::VocabWarning
-pub fn webfluent::error::diagnostic::VocabWarning::eq(&self, &Self) -> bool
-impl core::convert::From<webfluent::error::diagnostic::VocabWarning> for webfluent::diagnostics::Diagnostic
-pub fn webfluent::diagnostics::Diagnostic::from(webfluent::error::diagnostic::VocabWarning) -> Self
-impl core::fmt::Debug for webfluent::error::diagnostic::VocabWarning
-pub fn webfluent::error::diagnostic::VocabWarning::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::fmt::Display for webfluent::error::diagnostic::VocabWarning
-pub fn webfluent::error::diagnostic::VocabWarning::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::StructuralPartialEq for webfluent::error::diagnostic::VocabWarning
-impl core::marker::Freeze for webfluent::error::diagnostic::VocabWarning
-impl core::marker::Send for webfluent::error::diagnostic::VocabWarning
-impl core::marker::Sync for webfluent::error::diagnostic::VocabWarning
-impl core::marker::Unpin for webfluent::error::diagnostic::VocabWarning
-impl core::marker::UnsafeUnpin for webfluent::error::diagnostic::VocabWarning
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::error::diagnostic::VocabWarning
-impl core::panic::unwind_safe::UnwindSafe for webfluent::error::diagnostic::VocabWarning
-pub type webfluent::error::Result<T> = core::result::Result<T, webfluent::error::diagnostic::WebFluentError>
+impl core::clone::Clone for webfluent::diagnostics::error::diagnostic::VocabWarning
+pub fn webfluent::diagnostics::error::diagnostic::VocabWarning::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::diagnostics::error::diagnostic::VocabWarning
+pub fn webfluent::diagnostics::error::diagnostic::VocabWarning::eq(&self, &Self) -> bool
+impl core::convert::From<webfluent::diagnostics::error::diagnostic::VocabWarning> for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::from(webfluent::diagnostics::error::diagnostic::VocabWarning) -> Self
+impl core::fmt::Debug for webfluent::diagnostics::error::diagnostic::VocabWarning
+pub fn webfluent::diagnostics::error::diagnostic::VocabWarning::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for webfluent::diagnostics::error::diagnostic::VocabWarning
+pub fn webfluent::diagnostics::error::diagnostic::VocabWarning::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::marker::Freeze for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::marker::Send for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::marker::Sync for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::marker::Unpin for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::marker::UnsafeUnpin for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::diagnostics::error::diagnostic::VocabWarning
+impl core::panic::unwind_safe::UnwindSafe for webfluent::diagnostics::error::diagnostic::VocabWarning
+pub type webfluent::error::Result<T> = core::result::Result<T, webfluent::diagnostics::error::diagnostic::WebFluentError>
 pub mod webfluent::fmt
-pub fn webfluent::fmt::format_source(&str, &str) -> webfluent::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::fmt::format_source(&str, &str) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
 pub mod webfluent::gallery
 pub fn webfluent::gallery::for_project(&std::path::Path) -> (alloc::string::String, usize, core::option::Option<usize>)
 pub fn webfluent::gallery::render(&serde_json::value::Value, core::option::Option<&(serde_json::value::Value, alloc::string::String)>) -> alloc::string::String
@@ -3421,12 +3685,12 @@ impl core::marker::Unpin for webfluent::generate::Written
 impl core::marker::UnsafeUnpin for webfluent::generate::Written
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::generate::Written
 impl core::panic::unwind_safe::UnwindSafe for webfluent::generate::Written
-pub fn webfluent::generate::create(webfluent::generate::Kind, &std::path::Path, &str) -> webfluent::error::diagnostic::Result<webfluent::generate::Written>
+pub fn webfluent::generate::create(webfluent::generate::Kind, &std::path::Path, &str) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::generate::Written>
 pub fn webfluent::generate::declaration_name(&str) -> alloc::string::String
 pub fn webfluent::generate::is_indented(&std::path::Path) -> bool
 pub fn webfluent::generate::is_indented_via(&dyn webfluent::vfs::Vfs, &std::path::Path) -> bool
 pub fn webfluent::generate::source(webfluent::generate::Kind, &str) -> alloc::string::String
-pub fn webfluent::generate::write_source(&std::path::Path, &str, &str, bool) -> webfluent::error::diagnostic::Result<webfluent::generate::Written>
+pub fn webfluent::generate::write_source(&std::path::Path, &str, &str, bool) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::generate::Written>
 pub mod webfluent::i18n
 pub mod webfluent::i18n::literals
 pub enum webfluent::i18n::literals::Untranslated
@@ -3644,13 +3908,13 @@ pub fn webfluent::i18n::table::call_text(&str, &[(alloc::string::String, alloc::
 pub fn webfluent::i18n::table::implied(&webfluent::parser::Program) -> alloc::collections::btree::map::BTreeMap<alloc::string::String, &'static str>
 pub fn webfluent::i18n::table::is_rtl(&str) -> bool
 pub fn webfluent::i18n::table::placeholders(&str) -> alloc::vec::Vec<alloc::string::String>
-pub fn webfluent::i18n::table::remove_message(&str, &str) -> webfluent::error::diagnostic::Result<alloc::string::String>
-pub fn webfluent::i18n::table::set_message(&str, &str, &str) -> webfluent::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::i18n::table::remove_message(&str, &str) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::i18n::table::set_message(&str, &str, &str) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
 pub fn webfluent::i18n::table::split_form(&str) -> (&str, core::option::Option<&'static str>)
-pub fn webfluent::i18n::table::table_via(&dyn webfluent::vfs::Vfs, &std::path::Path) -> webfluent::error::diagnostic::Result<core::option::Option<webfluent::i18n::table::Table>>
+pub fn webfluent::i18n::table::table_via(&dyn webfluent::vfs::Vfs, &std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<core::option::Option<webfluent::i18n::table::Table>>
 pub fn webfluent::i18n::table::uses(&webfluent::parser::Program, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::i18n::table::Use>
-pub fn webfluent::i18n::load(&std::path::Path, &webfluent::config::project::I18nConfig) -> webfluent::error::diagnostic::Result<std::collections::hash::map::HashMap<alloc::string::String, std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>>
-pub fn webfluent::i18n::load_via(&dyn webfluent::vfs::Vfs, &std::path::Path, &webfluent::config::project::I18nConfig) -> webfluent::error::diagnostic::Result<std::collections::hash::map::HashMap<alloc::string::String, std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>>
+pub fn webfluent::i18n::load(&std::path::Path, &webfluent::config::project::I18nConfig) -> webfluent::diagnostics::error::diagnostic::Result<std::collections::hash::map::HashMap<alloc::string::String, std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>>
+pub fn webfluent::i18n::load_via(&dyn webfluent::vfs::Vfs, &std::path::Path, &webfluent::config::project::I18nConfig) -> webfluent::diagnostics::error::diagnostic::Result<std::collections::hash::map::HashMap<alloc::string::String, std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>>
 pub fn webfluent::i18n::message(&str, &std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>, &str, &[(alloc::string::String, webfluent::codegen::static_eval::Static)]) -> alloc::string::String
 pub fn webfluent::i18n::plural_category(&str, f64) -> &'static str
 pub mod webfluent::init
@@ -3705,21 +3969,21 @@ impl core::panic::unwind_safe::RefUnwindSafe for webfluent::init::Options
 impl core::panic::unwind_safe::UnwindSafe for webfluent::init::Options
 pub const webfluent::init::SKILL_ROOTS: [&str; 2]
 pub fn webfluent::init::agents_md() -> alloc::string::String
-pub fn webfluent::init::check_locales(&[alloc::string::String]) -> webfluent::error::diagnostic::Result<alloc::vec::Vec<alloc::string::String>>
-pub fn webfluent::init::create(&std::path::Path, &str, webfluent::init::Template) -> webfluent::error::diagnostic::Result<()>
-pub fn webfluent::init::create_with(&std::path::Path, &str, &webfluent::init::Options) -> webfluent::error::diagnostic::Result<()>
+pub fn webfluent::init::check_locales(&[alloc::string::String]) -> webfluent::diagnostics::error::diagnostic::Result<alloc::vec::Vec<alloc::string::String>>
+pub fn webfluent::init::create(&std::path::Path, &str, webfluent::init::Template) -> webfluent::diagnostics::error::diagnostic::Result<()>
+pub fn webfluent::init::create_with(&std::path::Path, &str, &webfluent::init::Options) -> webfluent::diagnostics::error::diagnostic::Result<()>
 pub fn webfluent::init::locale_name(&str) -> alloc::string::String
-pub fn webfluent::init::parse_locales(&str) -> webfluent::error::diagnostic::Result<alloc::vec::Vec<alloc::string::String>>
+pub fn webfluent::init::parse_locales(&str) -> webfluent::diagnostics::error::diagnostic::Result<alloc::vec::Vec<alloc::string::String>>
 pub fn webfluent::init::skill_files() -> alloc::vec::Vec<(&'static str, &'static str)>
 pub mod webfluent::layout
-pub fn webfluent::layout::to_braces(&str, &str) -> webfluent::error::diagnostic::Result<alloc::string::String>
-pub fn webfluent::layout::to_offside(&str, &str) -> webfluent::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::layout::to_braces(&str, &str) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::layout::to_offside(&str, &str) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
 pub mod webfluent::lexer
 pub mod webfluent::lexer::lexer
 pub struct webfluent::lexer::lexer::Lexer
 impl webfluent::lexer::lexer::Lexer
 pub fn webfluent::lexer::lexer::Lexer::new(&str, &str) -> Self
-pub fn webfluent::lexer::lexer::Lexer::tokenize(&mut self) -> webfluent::error::diagnostic::Result<alloc::vec::Vec<webfluent::lexer::token::Token>>
+pub fn webfluent::lexer::lexer::Lexer::tokenize(&mut self) -> webfluent::diagnostics::error::diagnostic::Result<alloc::vec::Vec<webfluent::lexer::token::Token>>
 impl core::marker::Freeze for webfluent::lexer::lexer::Lexer
 impl core::marker::Send for webfluent::lexer::lexer::Lexer
 impl core::marker::Sync for webfluent::lexer::lexer::Lexer
@@ -4002,7 +4266,7 @@ impl webfluent::lexer::v2::LexerV2
 pub fn webfluent::lexer::v2::LexerV2::comments(&self) -> &[(usize, usize, alloc::string::String)]
 pub fn webfluent::lexer::v2::LexerV2::for_file(&str, &str) -> Self
 pub fn webfluent::lexer::v2::LexerV2::new(&str, &str) -> Self
-pub fn webfluent::lexer::v2::LexerV2::tokenize(&mut self) -> webfluent::error::diagnostic::Result<alloc::vec::Vec<webfluent::lexer::token::Token>>
+pub fn webfluent::lexer::v2::LexerV2::tokenize(&mut self) -> webfluent::diagnostics::error::diagnostic::Result<alloc::vec::Vec<webfluent::lexer::token::Token>>
 pub fn webfluent::lexer::v2::LexerV2::with_layout(&str, &str, webfluent::lexer::v2::Layout) -> Self
 impl core::marker::Freeze for webfluent::lexer::v2::LexerV2
 impl core::marker::Send for webfluent::lexer::v2::LexerV2
@@ -4214,7 +4478,7 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::lexer::token::TokenType
 pub struct webfluent::lexer::Lexer
 impl webfluent::lexer::lexer::Lexer
 pub fn webfluent::lexer::lexer::Lexer::new(&str, &str) -> Self
-pub fn webfluent::lexer::lexer::Lexer::tokenize(&mut self) -> webfluent::error::diagnostic::Result<alloc::vec::Vec<webfluent::lexer::token::Token>>
+pub fn webfluent::lexer::lexer::Lexer::tokenize(&mut self) -> webfluent::diagnostics::error::diagnostic::Result<alloc::vec::Vec<webfluent::lexer::token::Token>>
 impl core::marker::Freeze for webfluent::lexer::lexer::Lexer
 impl core::marker::Send for webfluent::lexer::lexer::Lexer
 impl core::marker::Sync for webfluent::lexer::lexer::Lexer
@@ -4227,7 +4491,7 @@ impl webfluent::lexer::v2::LexerV2
 pub fn webfluent::lexer::v2::LexerV2::comments(&self) -> &[(usize, usize, alloc::string::String)]
 pub fn webfluent::lexer::v2::LexerV2::for_file(&str, &str) -> Self
 pub fn webfluent::lexer::v2::LexerV2::new(&str, &str) -> Self
-pub fn webfluent::lexer::v2::LexerV2::tokenize(&mut self) -> webfluent::error::diagnostic::Result<alloc::vec::Vec<webfluent::lexer::token::Token>>
+pub fn webfluent::lexer::v2::LexerV2::tokenize(&mut self) -> webfluent::diagnostics::error::diagnostic::Result<alloc::vec::Vec<webfluent::lexer::token::Token>>
 pub fn webfluent::lexer::v2::LexerV2::with_layout(&str, &str, webfluent::lexer::v2::Layout) -> Self
 impl core::marker::Freeze for webfluent::lexer::v2::LexerV2
 impl core::marker::Send for webfluent::lexer::v2::LexerV2
@@ -4282,8 +4546,8 @@ impl core::panic::unwind_safe::RefUnwindSafe for webfluent::lexer::token::Token
 impl core::panic::unwind_safe::UnwindSafe for webfluent::lexer::token::Token
 pub mod webfluent::linter
 pub mod webfluent::linter::accessibility
-pub fn webfluent::linter::accessibility::lint_accessibility(&webfluent::parser::Program) -> alloc::vec::Vec<webfluent::error::diagnostic::A11yWarning>
-pub fn webfluent::linter::accessibility::lint_accessibility_in(&webfluent::parser::Program, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::error::diagnostic::A11yWarning>
+pub fn webfluent::linter::accessibility::lint_accessibility(&webfluent::parser::Program) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::A11yWarning>
+pub fn webfluent::linter::accessibility::lint_accessibility_in(&webfluent::parser::Program, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::A11yWarning>
 pub mod webfluent::linter::contrast
 pub struct webfluent::linter::contrast::Pairing
 pub webfluent::linter::contrast::Pairing::background: alloc::string::String
@@ -4311,12 +4575,12 @@ impl core::marker::UnsafeUnpin for webfluent::linter::contrast::Pairing
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::linter::contrast::Pairing
 impl core::panic::unwind_safe::UnwindSafe for webfluent::linter::contrast::Pairing
 pub fn webfluent::linter::contrast::is_colour_literal(&webfluent::parser::Expr) -> bool
-pub fn webfluent::linter::contrast::lint_contrast(&webfluent::parser::Program, &std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>) -> alloc::vec::Vec<webfluent::error::diagnostic::A11yWarning>
-pub fn webfluent::linter::contrast::lint_contrast_in(&webfluent::parser::Program, &std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::error::diagnostic::A11yWarning>
+pub fn webfluent::linter::contrast::lint_contrast(&webfluent::parser::Program, &std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::A11yWarning>
+pub fn webfluent::linter::contrast::lint_contrast_in(&webfluent::parser::Program, &std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::A11yWarning>
 pub fn webfluent::linter::contrast::pairings(&webfluent::parser::Program, &std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>) -> alloc::vec::Vec<webfluent::linter::contrast::Pairing>
 pub fn webfluent::linter::contrast::ratio(&str, &str) -> core::option::Option<f64>
 pub mod webfluent::linter::output
-pub fn webfluent::linter::output::lint_output(&webfluent::parser::Program, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::error::diagnostic::A11yWarning>
+pub fn webfluent::linter::output::lint_output(&webfluent::parser::Program, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::A11yWarning>
 pub mod webfluent::linter::pdf_validation
 pub struct webfluent::linter::pdf_validation::PdfValidationError
 pub webfluent::linter::pdf_validation::PdfValidationError::component: alloc::string::String
@@ -4382,25 +4646,25 @@ pub fn webfluent::linter::structure::lint_structure(&webfluent::parser::Program,
 pub mod webfluent::linter::styles
 pub fn webfluent::linter::styles::lint_styles(&webfluent::parser::Program, core::option::Option<&std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
 pub mod webfluent::linter::unused
-pub fn webfluent::linter::unused::lint_unused(&webfluent::parser::Program) -> alloc::vec::Vec<webfluent::error::diagnostic::A11yWarning>
-pub fn webfluent::linter::unused::lint_unused_in(&webfluent::parser::Program, &dyn core::ops::function::Fn(usize) -> alloc::string::String, &[alloc::string::String]) -> alloc::vec::Vec<webfluent::error::diagnostic::A11yWarning>
+pub fn webfluent::linter::unused::lint_unused(&webfluent::parser::Program) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::A11yWarning>
+pub fn webfluent::linter::unused::lint_unused_in(&webfluent::parser::Program, &dyn core::ops::function::Fn(usize) -> alloc::string::String, &[alloc::string::String]) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::A11yWarning>
 pub mod webfluent::linter::vocabulary
-pub fn webfluent::linter::vocabulary::lint_vocabulary(&webfluent::parser::Program, &str) -> alloc::vec::Vec<webfluent::error::diagnostic::VocabWarning>
-pub fn webfluent::linter::vocabulary::lint_vocabulary_in(&webfluent::parser::Program, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::error::diagnostic::VocabWarning>
-pub fn webfluent::linter::vocabulary::lint_vocabulary_with(&webfluent::parser::Program, &str, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::error::diagnostic::VocabWarning>
+pub fn webfluent::linter::vocabulary::lint_vocabulary(&webfluent::parser::Program, &str) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::VocabWarning>
+pub fn webfluent::linter::vocabulary::lint_vocabulary_in(&webfluent::parser::Program, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::VocabWarning>
+pub fn webfluent::linter::vocabulary::lint_vocabulary_with(&webfluent::parser::Program, &str, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::VocabWarning>
 pub fn webfluent::linter::drawn_in(webfluent::config::project::OutputType, &str) -> core::result::Result<(), &'static str>
 pub fn webfluent::linter::is_slide(&str) -> bool
-pub fn webfluent::linter::lint_accessibility(&webfluent::parser::Program) -> alloc::vec::Vec<webfluent::error::diagnostic::A11yWarning>
-pub fn webfluent::linter::lint_accessibility_in(&webfluent::parser::Program, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::error::diagnostic::A11yWarning>
-pub fn webfluent::linter::lint_contrast(&webfluent::parser::Program, &std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>) -> alloc::vec::Vec<webfluent::error::diagnostic::A11yWarning>
-pub fn webfluent::linter::lint_contrast_in(&webfluent::parser::Program, &std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::error::diagnostic::A11yWarning>
+pub fn webfluent::linter::lint_accessibility(&webfluent::parser::Program) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::A11yWarning>
+pub fn webfluent::linter::lint_accessibility_in(&webfluent::parser::Program, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::A11yWarning>
+pub fn webfluent::linter::lint_contrast(&webfluent::parser::Program, &std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::A11yWarning>
+pub fn webfluent::linter::lint_contrast_in(&webfluent::parser::Program, &std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::A11yWarning>
 pub fn webfluent::linter::lint_env(&std::path::Path, &webfluent::config::project::ProjectConfig, &[alloc::string::String]) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
 pub fn webfluent::linter::lint_env_via(&dyn webfluent::vfs::Vfs, &std::path::Path, &webfluent::config::project::ProjectConfig, &[alloc::string::String]) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
-pub fn webfluent::linter::lint_unused(&webfluent::parser::Program) -> alloc::vec::Vec<webfluent::error::diagnostic::A11yWarning>
-pub fn webfluent::linter::lint_unused_in(&webfluent::parser::Program, &dyn core::ops::function::Fn(usize) -> alloc::string::String, &[alloc::string::String]) -> alloc::vec::Vec<webfluent::error::diagnostic::A11yWarning>
-pub fn webfluent::linter::lint_vocabulary(&webfluent::parser::Program, &str) -> alloc::vec::Vec<webfluent::error::diagnostic::VocabWarning>
-pub fn webfluent::linter::lint_vocabulary_in(&webfluent::parser::Program, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::error::diagnostic::VocabWarning>
-pub fn webfluent::linter::lint_vocabulary_with(&webfluent::parser::Program, &str, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::error::diagnostic::VocabWarning>
+pub fn webfluent::linter::lint_unused(&webfluent::parser::Program) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::A11yWarning>
+pub fn webfluent::linter::lint_unused_in(&webfluent::parser::Program, &dyn core::ops::function::Fn(usize) -> alloc::string::String, &[alloc::string::String]) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::A11yWarning>
+pub fn webfluent::linter::lint_vocabulary(&webfluent::parser::Program, &str) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::VocabWarning>
+pub fn webfluent::linter::lint_vocabulary_in(&webfluent::parser::Program, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::VocabWarning>
+pub fn webfluent::linter::lint_vocabulary_with(&webfluent::parser::Program, &str, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::VocabWarning>
 pub fn webfluent::linter::offered_in(webfluent::config::project::OutputType, &str) -> bool
 pub fn webfluent::linter::renders_slides(&[webfluent::parser::Statement]) -> bool
 pub fn webfluent::linter::validate_for_pdf(&webfluent::parser::Program) -> alloc::vec::Vec<webfluent::linter::pdf_validation::PdfValidationError>
@@ -4413,7 +4677,7 @@ pub const webfluent::media::encode::WEBP_MAX_SIDE: u32
 pub fn webfluent::media::encode::can_write(&str) -> bool
 pub fn webfluent::media::encode::fits(&str, u32, u32) -> bool
 pub fn webfluent::media::encode::hash(&[u8], &webfluent::media::Settings) -> alloc::string::String
-pub fn webfluent::media::encode::resized(&webfluent::media::probe::Probed, u32, &str, u8) -> webfluent::error::diagnostic::Result<alloc::vec::Vec<u8>>
+pub fn webfluent::media::encode::resized(&webfluent::media::probe::Probed, u32, &str, u8) -> webfluent::diagnostics::error::diagnostic::Result<alloc::vec::Vec<u8>>
 pub mod webfluent::media::plan
 pub struct webfluent::media::plan::FormatPlan
 pub webfluent::media::plan::FormatPlan::dropped: alloc::vec::Vec<u32>
@@ -4488,7 +4752,7 @@ impl core::marker::Unpin for webfluent::media::plan::PlannedFile
 impl core::marker::UnsafeUnpin for webfluent::media::plan::PlannedFile
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::media::plan::PlannedFile
 impl core::panic::unwind_safe::UnwindSafe for webfluent::media::plan::PlannedFile
-pub fn webfluent::media::plan::plan(&[u8], &std::path::Path, &webfluent::media::Settings, core::option::Option<&std::path::Path>) -> webfluent::error::diagnostic::Result<webfluent::media::plan::Plan>
+pub fn webfluent::media::plan::plan(&[u8], &std::path::Path, &webfluent::media::Settings, core::option::Option<&std::path::Path>) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::media::plan::Plan>
 pub fn webfluent::media::plan::plan_probed(&webfluent::media::probe::Probed, &[u8], &std::path::Path, &webfluent::media::Settings, core::option::Option<&std::path::Path>) -> webfluent::media::plan::Plan
 pub fn webfluent::media::plan::size_text(u64) -> alloc::string::String
 pub mod webfluent::media::probe
@@ -4507,8 +4771,8 @@ impl core::panic::unwind_safe::RefUnwindSafe for webfluent::media::probe::Probed
 impl core::panic::unwind_safe::UnwindSafe for webfluent::media::probe::Probed
 pub const webfluent::media::probe::MAX_PIXELS: u64
 pub fn webfluent::media::probe::base64(&[u8]) -> alloc::string::String
-pub fn webfluent::media::probe::dimensions(&[u8], &std::path::Path) -> webfluent::error::diagnostic::Result<(u32, u32)>
-pub fn webfluent::media::probe::probe(&[u8], &std::path::Path) -> webfluent::error::diagnostic::Result<webfluent::media::probe::Probed>
+pub fn webfluent::media::probe::dimensions(&[u8], &std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<(u32, u32)>
+pub fn webfluent::media::probe::probe(&[u8], &std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::media::probe::Probed>
 pub struct webfluent::media::Asset
 pub webfluent::media::Asset::color: alloc::string::String
 pub webfluent::media::Asset::height: u32
@@ -4554,8 +4818,8 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::media::Settings
 pub const webfluent::media::FORMATS: &[&str]
 pub fn webfluent::media::height_at(&webfluent::media::probe::Probed, u32) -> u32
 pub fn webfluent::media::no_saving(u64, u64) -> bool
-pub fn webfluent::media::process(&str, &std::path::Path, &std::path::Path, &std::path::Path, &webfluent::media::Settings, &str) -> webfluent::error::diagnostic::Result<webfluent::media::Asset>
-pub fn webfluent::media::process_via(&dyn webfluent::vfs::Vfs, &str, &std::path::Path, &std::path::Path, &std::path::Path, &webfluent::media::Settings, &str) -> webfluent::error::diagnostic::Result<webfluent::media::Asset>
+pub fn webfluent::media::process(&str, &std::path::Path, &std::path::Path, &std::path::Path, &webfluent::media::Settings, &str) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::media::Asset>
+pub fn webfluent::media::process_via(&dyn webfluent::vfs::Vfs, &str, &std::path::Path, &std::path::Path, &std::path::Path, &webfluent::media::Settings, &str) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::media::Asset>
 pub fn webfluent::media::prune_cache(&std::path::Path, &alloc::collections::btree::set::BTreeSet<alloc::string::String>) -> usize
 pub fn webfluent::media::take_used(&std::path::Path) -> alloc::collections::btree::set::BTreeSet<alloc::string::String>
 pub fn webfluent::media::widths_for(&webfluent::media::Settings, u32) -> alloc::vec::Vec<u32>
@@ -4735,13 +4999,13 @@ impl core::marker::UnsafeUnpin for webfluent::migrate::project::Plan
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::migrate::project::Plan
 impl core::panic::unwind_safe::UnwindSafe for webfluent::migrate::project::Plan
 pub const webfluent::migrate::project::WITHOUT_AN_EDIT: &[&str]
-pub fn webfluent::migrate::project::apply(&webfluent::migrate::project::Plan) -> webfluent::error::diagnostic::Result<alloc::vec::Vec<std::path::PathBuf>>
+pub fn webfluent::migrate::project::apply(&webfluent::migrate::project::Plan) -> webfluent::diagnostics::error::diagnostic::Result<alloc::vec::Vec<std::path::PathBuf>>
 pub fn webfluent::migrate::project::four(&std::path::Path, &[(std::path::PathBuf, alloc::string::String)]) -> core::option::Option<webfluent::migrate::project::Four>
 pub fn webfluent::migrate::project::offside_path(&std::path::Path) -> std::path::PathBuf
-pub fn webfluent::migrate::project::plan(&std::path::Path, bool) -> webfluent::error::diagnostic::Result<webfluent::migrate::project::Plan>
-pub fn webfluent::migrate::project::write(&webfluent::migrate::project::FileChange) -> webfluent::error::diagnostic::Result<()>
-pub fn webfluent::migrate::project::write_four_two(&std::path::Path, &webfluent::migrate::project::FourTwo) -> webfluent::error::diagnostic::Result<core::option::Option<std::path::PathBuf>>
-pub fn webfluent::migrate::project::write_public_env(&std::path::Path, &[alloc::string::String]) -> webfluent::error::diagnostic::Result<std::path::PathBuf>
+pub fn webfluent::migrate::project::plan(&std::path::Path, bool) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::migrate::project::Plan>
+pub fn webfluent::migrate::project::write(&webfluent::migrate::project::FileChange) -> webfluent::diagnostics::error::diagnostic::Result<()>
+pub fn webfluent::migrate::project::write_four_two(&std::path::Path, &webfluent::migrate::project::FourTwo) -> webfluent::diagnostics::error::diagnostic::Result<core::option::Option<std::path::PathBuf>>
+pub fn webfluent::migrate::project::write_public_env(&std::path::Path, &[alloc::string::String]) -> webfluent::diagnostics::error::diagnostic::Result<std::path::PathBuf>
 pub struct webfluent::migrate::Migrated
 pub webfluent::migrate::Migrated::changed: bool
 pub webfluent::migrate::Migrated::notes: alloc::vec::Vec<webfluent::migrate::Note>
@@ -4792,12 +5056,12 @@ impl core::marker::Unpin for webfluent::migrate::ProjectContext
 impl core::marker::UnsafeUnpin for webfluent::migrate::ProjectContext
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::migrate::ProjectContext
 impl core::panic::unwind_safe::UnwindSafe for webfluent::migrate::ProjectContext
-pub fn webfluent::migrate::migrate_file(&str, &str, &webfluent::migrate::ProjectContext) -> webfluent::error::diagnostic::Result<webfluent::migrate::Migrated>
-pub fn webfluent::migrate::migrate_project(&[(std::path::PathBuf, alloc::string::String)]) -> alloc::vec::Vec<(std::path::PathBuf, webfluent::error::diagnostic::Result<webfluent::migrate::Migrated>)>
+pub fn webfluent::migrate::migrate_file(&str, &str, &webfluent::migrate::ProjectContext) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::migrate::Migrated>
+pub fn webfluent::migrate::migrate_project(&[(std::path::PathBuf, alloc::string::String)]) -> alloc::vec::Vec<(std::path::PathBuf, webfluent::diagnostics::error::diagnostic::Result<webfluent::migrate::Migrated>)>
 pub fn webfluent::migrate::project_context(&[(std::path::PathBuf, alloc::string::String)]) -> webfluent::migrate::ProjectContext
 pub fn webfluent::migrate::report(&std::path::Path, &webfluent::migrate::Migrated) -> alloc::string::String
 pub fn webfluent::migrate::source_files(&std::path::Path) -> core::io::error::Result<alloc::vec::Vec<(std::path::PathBuf, alloc::string::String)>>
-pub type webfluent::migrate::Outcome = alloc::collections::btree::map::BTreeMap<std::path::PathBuf, webfluent::error::diagnostic::Result<webfluent::migrate::Migrated>>
+pub type webfluent::migrate::Outcome = alloc::collections::btree::map::BTreeMap<std::path::PathBuf, webfluent::diagnostics::error::diagnostic::Result<webfluent::migrate::Migrated>>
 pub mod webfluent::motion
 pub struct webfluent::motion::Animation
 pub webfluent::motion::Animation::keyframes: alloc::string::String
@@ -4925,8 +5189,8 @@ impl core::marker::Unpin for webfluent::openapi::Imported
 impl core::marker::UnsafeUnpin for webfluent::openapi::Imported
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::openapi::Imported
 impl core::panic::unwind_safe::UnwindSafe for webfluent::openapi::Imported
-pub fn webfluent::openapi::expand(&mut webfluent::parser::Program, &dyn core::ops::function::Fn(&str) -> core::option::Option<alloc::string::String>) -> webfluent::error::diagnostic::Result<()>
-pub fn webfluent::openapi::read(&str, &webfluent::parser::ApiDecl, &str) -> webfluent::error::diagnostic::Result<webfluent::openapi::Imported>
+pub fn webfluent::openapi::expand(&mut webfluent::parser::Program, &dyn core::ops::function::Fn(&str) -> core::option::Option<alloc::string::String>) -> webfluent::diagnostics::error::diagnostic::Result<()>
+pub fn webfluent::openapi::read(&str, &webfluent::parser::ApiDecl, &str) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::openapi::Imported>
 pub mod webfluent::outfs
 pub fn webfluent::outfs::capture<T>(impl core::ops::function::FnOnce() -> T) -> (T, webfluent::outfs::Files)
 pub fn webfluent::outfs::capture_from<T>(webfluent::outfs::Files, impl core::ops::function::FnOnce() -> T) -> (T, webfluent::outfs::Files)
@@ -7825,8 +8089,8 @@ pub struct webfluent::parser::parser::Parser
 impl webfluent::parser::parser::Parser
 pub const webfluent::parser::parser::Parser::PSEUDO_STATES: &'static [&'static str]
 pub fn webfluent::parser::parser::Parser::new(alloc::vec::Vec<webfluent::lexer::token::Token>, &str) -> Self
-pub fn webfluent::parser::parser::Parser::parse(&mut self) -> webfluent::error::diagnostic::Result<webfluent::parser::Program>
-pub fn webfluent::parser::parser::Parser::parse_expression(&mut self) -> webfluent::error::diagnostic::Result<webfluent::parser::Expr>
+pub fn webfluent::parser::parser::Parser::parse(&mut self) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::parser::Program>
+pub fn webfluent::parser::parser::Parser::parse_expression(&mut self) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::parser::Expr>
 impl core::marker::Freeze for webfluent::parser::parser::Parser
 impl core::marker::Send for webfluent::parser::parser::Parser
 impl core::marker::Sync for webfluent::parser::parser::Parser
@@ -7838,8 +8102,8 @@ pub mod webfluent::parser::v2
 pub struct webfluent::parser::v2::ParserV2
 impl webfluent::parser::v2::ParserV2
 pub fn webfluent::parser::v2::ParserV2::new(alloc::vec::Vec<webfluent::lexer::token::Token>, &str) -> Self
-pub fn webfluent::parser::v2::ParserV2::parse(&mut self) -> webfluent::error::diagnostic::Result<webfluent::parser::Program>
-pub fn webfluent::parser::v2::ParserV2::parse_expression(&mut self) -> webfluent::error::diagnostic::Result<webfluent::parser::Expr>
+pub fn webfluent::parser::v2::ParserV2::parse(&mut self) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::parser::Program>
+pub fn webfluent::parser::v2::ParserV2::parse_expression(&mut self) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::parser::Expr>
 pub fn webfluent::parser::v2::ParserV2::parse_recovering(&mut self) -> (webfluent::parser::Program, alloc::vec::Vec<webfluent::diagnostics::Diagnostic>)
 impl core::marker::Freeze for webfluent::parser::v2::ParserV2
 impl core::marker::Send for webfluent::parser::v2::ParserV2
@@ -7857,7 +8121,7 @@ pub const webfluent::parser::v2::KEY_MODIFIERS: &[&str]
 pub const webfluent::parser::v2::KEY_NAMES: &[&str]
 pub const webfluent::parser::v2::PAGE_EVENTS: &[&str]
 pub const webfluent::parser::v2::PERSIST_POLICY_KEYS: &[&str]
-pub fn webfluent::parser::v2::parse_v2(&str, &str) -> webfluent::error::diagnostic::Result<webfluent::parser::Program>
+pub fn webfluent::parser::v2::parse_v2(&str, &str) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::parser::Program>
 pub mod webfluent::parser::vocabulary
 pub const webfluent::parser::vocabulary::MODIFIER_KEYWORDS: &[&str]
 pub fn webfluent::parser::vocabulary::is_modifier_keyword(&str) -> bool
@@ -8763,8 +9027,8 @@ pub struct webfluent::parser::Parser
 impl webfluent::parser::parser::Parser
 pub const webfluent::parser::parser::Parser::PSEUDO_STATES: &'static [&'static str]
 pub fn webfluent::parser::parser::Parser::new(alloc::vec::Vec<webfluent::lexer::token::Token>, &str) -> Self
-pub fn webfluent::parser::parser::Parser::parse(&mut self) -> webfluent::error::diagnostic::Result<webfluent::parser::Program>
-pub fn webfluent::parser::parser::Parser::parse_expression(&mut self) -> webfluent::error::diagnostic::Result<webfluent::parser::Expr>
+pub fn webfluent::parser::parser::Parser::parse(&mut self) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::parser::Program>
+pub fn webfluent::parser::parser::Parser::parse_expression(&mut self) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::parser::Expr>
 impl core::marker::Freeze for webfluent::parser::parser::Parser
 impl core::marker::Send for webfluent::parser::parser::Parser
 impl core::marker::Sync for webfluent::parser::parser::Parser
@@ -10235,7 +10499,7 @@ impl core::marker::UnsafeUnpin for webfluent::scope::paths::Entry
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::scope::paths::Entry
 impl core::panic::unwind_safe::UnwindSafe for webfluent::scope::paths::Entry
 pub fn webfluent::scope::paths::at(&webfluent::parser::Program, &webfluent::sema::types::TypeInfo, usize, usize) -> alloc::vec::Vec<webfluent::scope::paths::Entry>
-pub fn webfluent::scope::paths::at_via(&dyn webfluent::vfs::Vfs, &std::path::Path, &str, usize) -> webfluent::error::diagnostic::Result<alloc::vec::Vec<webfluent::scope::paths::Entry>>
+pub fn webfluent::scope::paths::at_via(&dyn webfluent::vfs::Vfs, &std::path::Path, &str, usize) -> webfluent::diagnostics::error::diagnostic::Result<alloc::vec::Vec<webfluent::scope::paths::Entry>>
 pub fn webfluent::scope::paths::data(&serde_json::value::Value) -> alloc::vec::Vec<webfluent::scope::paths::Entry>
 pub enum webfluent::scope::BindingKind
 pub webfluent::scope::BindingKind::Action
@@ -10781,9 +11045,9 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::Dialect
 pub fn webfluent::syntax::comments(&str, &str) -> alloc::vec::Vec<(usize, usize, alloc::string::String)>
 pub fn webfluent::syntax::detect_dialect(&str) -> webfluent::syntax::Dialect
 pub fn webfluent::syntax::is_source_file(&std::path::Path) -> bool
-pub fn webfluent::syntax::parse_source(&str, &str) -> webfluent::error::diagnostic::Result<webfluent::parser::Program>
+pub fn webfluent::syntax::parse_source(&str, &str) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::parser::Program>
 pub fn webfluent::syntax::parse_source_recovering(&str, &str) -> (webfluent::parser::Program, alloc::vec::Vec<webfluent::diagnostics::Diagnostic>)
-pub fn webfluent::syntax::tokens(&str, &str) -> webfluent::error::diagnostic::Result<alloc::vec::Vec<webfluent::lexer::token::Token>>
+pub fn webfluent::syntax::tokens(&str, &str) -> webfluent::diagnostics::error::diagnostic::Result<alloc::vec::Vec<webfluent::lexer::token::Token>>
 pub mod webfluent::template
 pub struct webfluent::template::PdfReport
 pub webfluent::template::PdfReport::bytes: alloc::vec::Vec<u8>
@@ -10803,21 +11067,21 @@ impl core::panic::unwind_safe::RefUnwindSafe for webfluent::template::PdfReport
 impl core::panic::unwind_safe::UnwindSafe for webfluent::template::PdfReport
 pub struct webfluent::template::Template
 impl webfluent::template::Template
-pub fn webfluent::template::Template::from_dir(impl core::convert::AsRef<std::path::Path>) -> webfluent::error::diagnostic::Result<Self>
-pub fn webfluent::template::Template::from_file(impl core::convert::AsRef<std::path::Path>) -> webfluent::error::diagnostic::Result<Self>
-pub fn webfluent::template::Template::from_files<P: core::convert::AsRef<std::path::Path>>(&[P]) -> webfluent::error::diagnostic::Result<Self>
-pub fn webfluent::template::Template::from_sources(&[(&str, &str)]) -> webfluent::error::diagnostic::Result<Self>
-pub fn webfluent::template::Template::from_str(&str) -> webfluent::error::diagnostic::Result<Self>
-pub fn webfluent::template::Template::page(&self, &str) -> webfluent::error::diagnostic::Result<Self>
+pub fn webfluent::template::Template::from_dir(impl core::convert::AsRef<std::path::Path>) -> webfluent::diagnostics::error::diagnostic::Result<Self>
+pub fn webfluent::template::Template::from_file(impl core::convert::AsRef<std::path::Path>) -> webfluent::diagnostics::error::diagnostic::Result<Self>
+pub fn webfluent::template::Template::from_files<P: core::convert::AsRef<std::path::Path>>(&[P]) -> webfluent::diagnostics::error::diagnostic::Result<Self>
+pub fn webfluent::template::Template::from_sources(&[(&str, &str)]) -> webfluent::diagnostics::error::diagnostic::Result<Self>
+pub fn webfluent::template::Template::from_str(&str) -> webfluent::diagnostics::error::diagnostic::Result<Self>
+pub fn webfluent::template::Template::page(&self, &str) -> webfluent::diagnostics::error::diagnostic::Result<Self>
 pub fn webfluent::template::Template::pages(&self) -> alloc::vec::Vec<&str>
-pub fn webfluent::template::Template::render_html<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::error::diagnostic::Result<alloc::string::String>
-pub fn webfluent::template::Template::render_html_fragment<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::error::diagnostic::Result<alloc::string::String>
-pub fn webfluent::template::Template::render_html_parts<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::error::diagnostic::Result<(alloc::string::String, alloc::string::String)>
-pub fn webfluent::template::Template::render_pdf<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::error::diagnostic::Result<alloc::vec::Vec<u8>>
-pub fn webfluent::template::Template::render_pdf_report<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::error::diagnostic::Result<webfluent::template::PdfReport>
-pub fn webfluent::template::Template::render_pdf_with_notes<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::error::diagnostic::Result<(alloc::vec::Vec<u8>, alloc::vec::Vec<alloc::string::String>)>
-pub fn webfluent::template::Template::render_slides<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::error::diagnostic::Result<alloc::vec::Vec<u8>>
-pub fn webfluent::template::Template::render_slides_report<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::error::diagnostic::Result<webfluent::template::PdfReport>
+pub fn webfluent::template::Template::render_html<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::template::Template::render_html_fragment<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::template::Template::render_html_parts<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::diagnostics::error::diagnostic::Result<(alloc::string::String, alloc::string::String)>
+pub fn webfluent::template::Template::render_pdf<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::diagnostics::error::diagnostic::Result<alloc::vec::Vec<u8>>
+pub fn webfluent::template::Template::render_pdf_report<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::template::PdfReport>
+pub fn webfluent::template::Template::render_pdf_with_notes<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::diagnostics::error::diagnostic::Result<(alloc::vec::Vec<u8>, alloc::vec::Vec<alloc::string::String>)>
+pub fn webfluent::template::Template::render_slides<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::diagnostics::error::diagnostic::Result<alloc::vec::Vec<u8>>
+pub fn webfluent::template::Template::render_slides_report<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::template::PdfReport>
 pub fn webfluent::template::Template::with_lang(self, &str) -> Self
 pub fn webfluent::template::Template::with_pdf(self, webfluent::config::project::PdfConfig) -> Self
 pub fn webfluent::template::Template::with_slides(self, webfluent::config::project::SlidesConfig) -> Self
@@ -10838,10 +11102,10 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::template::Template
 pub const webfluent::template::RENDER_BYTES: usize
 pub const webfluent::template::RENDER_STEPS: u64
 pub fn webfluent::template::is_rtl(&str) -> bool
-pub fn webfluent::template::render_program_fragment(&webfluent::parser::Program, &serde_json::value::Value) -> webfluent::error::diagnostic::Result<alloc::string::String>
-pub fn webfluent::template::render_program_fragment_in(&webfluent::parser::Program, &serde_json::value::Value, std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>, &str) -> webfluent::error::diagnostic::Result<alloc::string::String>
-pub fn webfluent::template::render_program_fragment_with(&webfluent::parser::Program, &serde_json::value::Value, std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>) -> webfluent::error::diagnostic::Result<alloc::string::String>
-pub fn webfluent::template::render_program_paged(&webfluent::parser::Program, &serde_json::value::Value) -> webfluent::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::template::render_program_fragment(&webfluent::parser::Program, &serde_json::value::Value) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::template::render_program_fragment_in(&webfluent::parser::Program, &serde_json::value::Value, std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>, &str) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::template::render_program_fragment_with(&webfluent::parser::Program, &serde_json::value::Value, std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::template::render_program_paged(&webfluent::parser::Program, &serde_json::value::Value) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
 pub mod webfluent::testing
 pub enum webfluent::testing::Outcome
 pub webfluent::testing::Outcome::Failed(alloc::vec::Vec<alloc::string::String>)
@@ -10919,19 +11183,19 @@ impl core::marker::UnsafeUnpin for webfluent::testing::Tests
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::testing::Tests
 impl core::panic::unwind_safe::UnwindSafe for webfluent::testing::Tests
 pub trait webfluent::testing::Browser
-pub fn webfluent::testing::Browser::open(&mut self, &std::path::Path, u64) -> webfluent::error::diagnostic::Result<alloc::boxed::Box<(dyn webfluent::testing::Page + '_)>>
+pub fn webfluent::testing::Browser::open(&mut self, &std::path::Path, u64) -> webfluent::diagnostics::error::diagnostic::Result<alloc::boxed::Box<(dyn webfluent::testing::Page + '_)>>
 pub trait webfluent::testing::Page
 pub fn webfluent::testing::Page::errors(&self) -> alloc::vec::Vec<alloc::string::String>
-pub fn webfluent::testing::Page::eval(&mut self, &str) -> webfluent::error::diagnostic::Result<serde_json::value::Value>
-pub fn webfluent::testing::Page::settle(&mut self, u64) -> webfluent::error::diagnostic::Result<()>
-pub fn webfluent::testing::act(&mut dyn webfluent::testing::Browser, &[webfluent::parser::Declaration], &webfluent::parser::TestDecl, &std::path::Path, &webfluent::testing::Site<'_>) -> webfluent::error::diagnostic::Result<core::result::Result<(), alloc::vec::Vec<alloc::string::String>>>
-pub fn webfluent::testing::collect(&std::path::Path) -> webfluent::error::diagnostic::Result<webfluent::testing::Tests>
-pub fn webfluent::testing::render_test(&[webfluent::parser::Declaration], &webfluent::parser::TestDecl, &std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>, &str, bool) -> webfluent::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::testing::Page::eval(&mut self, &str) -> webfluent::diagnostics::error::diagnostic::Result<serde_json::value::Value>
+pub fn webfluent::testing::Page::settle(&mut self, u64) -> webfluent::diagnostics::error::diagnostic::Result<()>
+pub fn webfluent::testing::act(&mut dyn webfluent::testing::Browser, &[webfluent::parser::Declaration], &webfluent::parser::TestDecl, &std::path::Path, &webfluent::testing::Site<'_>) -> webfluent::diagnostics::error::diagnostic::Result<core::result::Result<(), alloc::vec::Vec<alloc::string::String>>>
+pub fn webfluent::testing::collect(&std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::testing::Tests>
+pub fn webfluent::testing::render_test(&[webfluent::parser::Declaration], &webfluent::parser::TestDecl, &std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>, &str, bool) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
 pub fn webfluent::testing::runs_in_browser(&webfluent::parser::TestDecl, &[webfluent::parser::Declaration]) -> bool
 pub fn webfluent::testing::snapshot_path(&std::path::Path, &str, &webfluent::parser::TestDecl) -> std::path::PathBuf
 pub fn webfluent::testing::step_script(&str, &str, &str) -> alloc::string::String
-pub fn webfluent::testing::visible_text(&mut dyn webfluent::testing::Page) -> webfluent::error::diagnostic::Result<alloc::string::String>
-pub fn webfluent::testing::write_site(&webfluent::parser::Program, &std::path::Path, &webfluent::testing::Site<'_>) -> webfluent::error::diagnostic::Result<()>
+pub fn webfluent::testing::visible_text(&mut dyn webfluent::testing::Page) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::testing::write_site(&webfluent::parser::Program, &std::path::Path, &webfluent::testing::Site<'_>) -> webfluent::diagnostics::error::diagnostic::Result<()>
 pub type webfluent::testing::I18n = (webfluent::config::project::I18nConfig, std::collections::hash::map::HashMap<alloc::string::String, std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>)
 pub mod webfluent::themes
 pub mod webfluent::themes::components
@@ -10961,8 +11225,8 @@ pub fn webfluent::themes::prune::prune_css(&str, &webfluent::themes::prune::Usag
 pub mod webfluent::themes::resolve
 pub fn webfluent::themes::resolve::apply_motion(&mut std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>, &webfluent::config::project::MotionConfig)
 pub fn webfluent::themes::resolve::declared_themes(&webfluent::parser::Program) -> alloc::vec::Vec<&webfluent::parser::ThemeDecl>
-pub fn webfluent::themes::resolve::resolve_dark_tokens(&webfluent::parser::Program, &webfluent::config::project::ThemeConfig) -> webfluent::error::diagnostic::Result<core::option::Option<std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>>
-pub fn webfluent::themes::resolve::resolve_tokens(&webfluent::parser::Program, &webfluent::config::project::ThemeConfig) -> webfluent::error::diagnostic::Result<std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>
+pub fn webfluent::themes::resolve::resolve_dark_tokens(&webfluent::parser::Program, &webfluent::config::project::ThemeConfig) -> webfluent::diagnostics::error::diagnostic::Result<core::option::Option<std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>>
+pub fn webfluent::themes::resolve::resolve_tokens(&webfluent::parser::Program, &webfluent::config::project::ThemeConfig) -> webfluent::diagnostics::error::diagnostic::Result<std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>
 pub mod webfluent::themes::structural
 pub fn webfluent::themes::structural::structural_css() -> &'static str
 pub mod webfluent::themes::tokens
@@ -11048,11 +11312,11 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::themes::view::View
 pub const webfluent::themes::view::GROUPS: &[&str]
 pub fn webfluent::themes::view::drawn_by(&str) -> alloc::vec::Vec<&'static str>
 pub fn webfluent::themes::view::group_of(&str, bool) -> &'static str
-pub fn webfluent::themes::view::reset_token(&str, &str, &str, &str) -> webfluent::error::diagnostic::Result<alloc::string::String>
-pub fn webfluent::themes::view::set_token(&str, &str, &str, &str, &str) -> webfluent::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::themes::view::reset_token(&str, &str, &str, &str) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::themes::view::set_token(&str, &str, &str, &str, &str) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
 pub fn webfluent::themes::view::view(&webfluent::parser::Program, &dyn core::ops::function::Fn(usize) -> alloc::string::String, &webfluent::config::project::ThemeConfig, &[(alloc::string::String, alloc::string::String)]) -> webfluent::themes::view::View
-pub fn webfluent::themes::view::view_of_via(&dyn webfluent::vfs::Vfs, &std::path::Path, core::option::Option<&str>) -> webfluent::error::diagnostic::Result<webfluent::themes::view::View>
-pub fn webfluent::themes::view::view_via(&dyn webfluent::vfs::Vfs, &std::path::Path) -> webfluent::error::diagnostic::Result<webfluent::themes::view::View>
+pub fn webfluent::themes::view::view_of_via(&dyn webfluent::vfs::Vfs, &std::path::Path, core::option::Option<&str>) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::themes::view::View>
+pub fn webfluent::themes::view::view_via(&dyn webfluent::vfs::Vfs, &std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::themes::view::View>
 pub enum webfluent::themes::BuiltinCss
 pub webfluent::themes::BuiltinCss::Full
 pub webfluent::themes::BuiltinCss::Structural
@@ -11100,8 +11364,8 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::themes::prune::Usage
 pub fn webfluent::themes::apply_motion(&mut std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>, &webfluent::config::project::MotionConfig)
 pub fn webfluent::themes::component_css() -> &'static str
 pub fn webfluent::themes::prune_css(&str, &webfluent::themes::prune::Usage) -> alloc::string::String
-pub fn webfluent::themes::resolve_dark_tokens(&webfluent::parser::Program, &webfluent::config::project::ThemeConfig) -> webfluent::error::diagnostic::Result<core::option::Option<std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>>
-pub fn webfluent::themes::resolve_tokens(&webfluent::parser::Program, &webfluent::config::project::ThemeConfig) -> webfluent::error::diagnostic::Result<std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>
+pub fn webfluent::themes::resolve_dark_tokens(&webfluent::parser::Program, &webfluent::config::project::ThemeConfig) -> webfluent::diagnostics::error::diagnostic::Result<core::option::Option<std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>>
+pub fn webfluent::themes::resolve_tokens(&webfluent::parser::Program, &webfluent::config::project::ThemeConfig) -> webfluent::diagnostics::error::diagnostic::Result<std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>
 pub fn webfluent::themes::structural_css() -> &'static str
 pub mod webfluent::validation
 pub enum webfluent::validation::Message
@@ -11325,17 +11589,17 @@ pub fn webfluent::validation::all(&webfluent::parser::Program, bool) -> alloc::v
 pub fn webfluent::validation::bound_state(&webfluent::parser::UIElement) -> core::option::Option<&str>
 pub fn webfluent::validation::catalogue() -> webfluent::validation::Catalogue
 pub fn webfluent::validation::implied_rules() -> alloc::vec::Vec<webfluent::validation::RuleSpec>
-pub fn webfluent::validation::move_rule(&str, &str, &str, &str, usize, usize) -> webfluent::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::validation::move_rule(&str, &str, &str, &str, usize, usize) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
 pub fn webfluent::validation::must_be(&webfluent::parser::Program, &str, &str, bool) -> core::option::Option<webfluent::validation::Must>
-pub fn webfluent::validation::must_be_via(&dyn webfluent::vfs::Vfs, &std::path::Path, &str, &str) -> webfluent::error::diagnostic::Result<core::option::Option<webfluent::validation::Must>>
+pub fn webfluent::validation::must_be_via(&dyn webfluent::vfs::Vfs, &std::path::Path, &str, &str) -> webfluent::diagnostics::error::diagnostic::Result<core::option::Option<webfluent::validation::Must>>
 pub fn webfluent::validation::named_pattern(&str, &str) -> core::option::Option<&'static webfluent::validation::NamedPattern>
-pub fn webfluent::validation::remove_rule(&str, &str, &str, &str, usize) -> webfluent::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::validation::remove_rule(&str, &str, &str, &str, usize) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
 pub fn webfluent::validation::rule_named(&str) -> core::option::Option<webfluent::validation::RuleSpec>
-pub fn webfluent::validation::rule_texts(&str, &str, &str, &str) -> webfluent::error::diagnostic::Result<alloc::vec::Vec<webfluent::validation::RuleText>>
+pub fn webfluent::validation::rule_texts(&str, &str, &str, &str) -> webfluent::diagnostics::error::diagnostic::Result<alloc::vec::Vec<webfluent::validation::RuleText>>
 pub fn webfluent::validation::rules() -> alloc::vec::Vec<webfluent::validation::RuleSpec>
-pub fn webfluent::validation::set_rule(&str, &str, &str, &str, core::option::Option<usize>, webfluent::validation::RuleText) -> webfluent::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::validation::set_rule(&str, &str, &str, &str, core::option::Option<usize>, webfluent::validation::RuleText) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
 pub fn webfluent::validation::showing() -> alloc::vec::Vec<webfluent::validation::Showing>
-pub fn webfluent::validation::write_rules(&str, &str, &str, &str, &[webfluent::validation::RuleText]) -> webfluent::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::validation::write_rules(&str, &str, &str, &str, &[webfluent::validation::RuleText]) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
 pub mod webfluent::verify
 pub struct webfluent::verify::Visit
 pub webfluent::verify::Visit::drew: alloc::vec::Vec<alloc::string::String>
@@ -11366,7 +11630,7 @@ pub const webfluent::verify::PAGE_REPORT: &str
 pub fn webfluent::verify::judge(&mut webfluent::browser::chrome::Visit, &str, core::option::Option<u64>)
 pub fn webfluent::verify::read_report(&mut webfluent::browser::chrome::Visit, &str)
 pub fn webfluent::verify::returning_storage(&std::path::Path) -> alloc::string::String
-pub fn webfluent::verify::routes(&std::path::Path, &std::path::Path, &webfluent::config::project::ProjectConfig) -> webfluent::error::diagnostic::Result<alloc::vec::Vec<alloc::string::String>>
+pub fn webfluent::verify::routes(&std::path::Path, &std::path::Path, &webfluent::config::project::ProjectConfig) -> webfluent::diagnostics::error::diagnostic::Result<alloc::vec::Vec<alloc::string::String>>
 pub fn webfluent::verify::undrawn(&alloc::collections::btree::set::BTreeSet<alloc::string::String>) -> alloc::vec::Vec<alloc::string::String>
 pub mod webfluent::vfs
 pub struct webfluent::vfs::Confined<'a>
@@ -11667,24 +11931,24 @@ pub webfluent::WebFluentError::IoError(alloc::string::String)
 pub webfluent::WebFluentError::LexerError(alloc::boxed::Box<webfluent::diagnostics::Diagnostic>)
 pub webfluent::WebFluentError::NotFound(alloc::string::String)
 pub webfluent::WebFluentError::ParseError(alloc::boxed::Box<webfluent::diagnostics::Diagnostic>)
-impl webfluent::error::diagnostic::WebFluentError
-pub fn webfluent::error::diagnostic::WebFluentError::diagnostics(&self) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
-pub fn webfluent::error::diagnostic::WebFluentError::exit_code(&self) -> i32
-pub fn webfluent::error::diagnostic::WebFluentError::with_code(self, &'static str) -> Self
-impl core::convert::From<core::io::error::Error> for webfluent::error::diagnostic::WebFluentError
-pub fn webfluent::error::diagnostic::WebFluentError::from(core::io::error::Error) -> Self
-impl core::error::Error for webfluent::error::diagnostic::WebFluentError
-impl core::fmt::Debug for webfluent::error::diagnostic::WebFluentError
-pub fn webfluent::error::diagnostic::WebFluentError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::fmt::Display for webfluent::error::diagnostic::WebFluentError
-pub fn webfluent::error::diagnostic::WebFluentError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::Freeze for webfluent::error::diagnostic::WebFluentError
-impl core::marker::Send for webfluent::error::diagnostic::WebFluentError
-impl core::marker::Sync for webfluent::error::diagnostic::WebFluentError
-impl core::marker::Unpin for webfluent::error::diagnostic::WebFluentError
-impl core::marker::UnsafeUnpin for webfluent::error::diagnostic::WebFluentError
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::error::diagnostic::WebFluentError
-impl core::panic::unwind_safe::UnwindSafe for webfluent::error::diagnostic::WebFluentError
+impl webfluent::diagnostics::error::diagnostic::WebFluentError
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::diagnostics(&self) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::exit_code(&self) -> i32
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::with_code(self, &'static str) -> Self
+impl core::convert::From<core::io::error::Error> for webfluent::diagnostics::error::diagnostic::WebFluentError
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::from(core::io::error::Error) -> Self
+impl core::error::Error for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::fmt::Debug for webfluent::diagnostics::error::diagnostic::WebFluentError
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for webfluent::diagnostics::error::diagnostic::WebFluentError
+pub fn webfluent::diagnostics::error::diagnostic::WebFluentError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::marker::Send for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::marker::Sync for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::marker::Unpin for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::marker::UnsafeUnpin for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::diagnostics::error::diagnostic::WebFluentError
+impl core::panic::unwind_safe::UnwindSafe for webfluent::diagnostics::error::diagnostic::WebFluentError
 pub struct webfluent::CompiledPage
 pub webfluent::CompiledPage::html: alloc::string::String
 pub webfluent::CompiledPage::route: alloc::string::String
@@ -11755,10 +12019,10 @@ impl core::clone::Clone for webfluent::diagnostics::Diagnostic
 pub fn webfluent::diagnostics::Diagnostic::clone(&self) -> Self
 impl core::cmp::PartialEq for webfluent::diagnostics::Diagnostic
 pub fn webfluent::diagnostics::Diagnostic::eq(&self, &Self) -> bool
-impl core::convert::From<webfluent::error::diagnostic::A11yWarning> for webfluent::diagnostics::Diagnostic
-pub fn webfluent::diagnostics::Diagnostic::from(webfluent::error::diagnostic::A11yWarning) -> Self
-impl core::convert::From<webfluent::error::diagnostic::VocabWarning> for webfluent::diagnostics::Diagnostic
-pub fn webfluent::diagnostics::Diagnostic::from(webfluent::error::diagnostic::VocabWarning) -> Self
+impl core::convert::From<webfluent::diagnostics::error::diagnostic::A11yWarning> for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::from(webfluent::diagnostics::error::diagnostic::A11yWarning) -> Self
+impl core::convert::From<webfluent::diagnostics::error::diagnostic::VocabWarning> for webfluent::diagnostics::Diagnostic
+pub fn webfluent::diagnostics::Diagnostic::from(webfluent::diagnostics::error::diagnostic::VocabWarning) -> Self
 impl core::fmt::Debug for webfluent::diagnostics::Diagnostic
 pub fn webfluent::diagnostics::Diagnostic::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::fmt::Display for webfluent::diagnostics::Diagnostic
@@ -11941,21 +12205,21 @@ impl core::panic::unwind_safe::RefUnwindSafe for webfluent::studio::Diagnostic
 impl core::panic::unwind_safe::UnwindSafe for webfluent::studio::Diagnostic
 pub struct webfluent::Template
 impl webfluent::template::Template
-pub fn webfluent::template::Template::from_dir(impl core::convert::AsRef<std::path::Path>) -> webfluent::error::diagnostic::Result<Self>
-pub fn webfluent::template::Template::from_file(impl core::convert::AsRef<std::path::Path>) -> webfluent::error::diagnostic::Result<Self>
-pub fn webfluent::template::Template::from_files<P: core::convert::AsRef<std::path::Path>>(&[P]) -> webfluent::error::diagnostic::Result<Self>
-pub fn webfluent::template::Template::from_sources(&[(&str, &str)]) -> webfluent::error::diagnostic::Result<Self>
-pub fn webfluent::template::Template::from_str(&str) -> webfluent::error::diagnostic::Result<Self>
-pub fn webfluent::template::Template::page(&self, &str) -> webfluent::error::diagnostic::Result<Self>
+pub fn webfluent::template::Template::from_dir(impl core::convert::AsRef<std::path::Path>) -> webfluent::diagnostics::error::diagnostic::Result<Self>
+pub fn webfluent::template::Template::from_file(impl core::convert::AsRef<std::path::Path>) -> webfluent::diagnostics::error::diagnostic::Result<Self>
+pub fn webfluent::template::Template::from_files<P: core::convert::AsRef<std::path::Path>>(&[P]) -> webfluent::diagnostics::error::diagnostic::Result<Self>
+pub fn webfluent::template::Template::from_sources(&[(&str, &str)]) -> webfluent::diagnostics::error::diagnostic::Result<Self>
+pub fn webfluent::template::Template::from_str(&str) -> webfluent::diagnostics::error::diagnostic::Result<Self>
+pub fn webfluent::template::Template::page(&self, &str) -> webfluent::diagnostics::error::diagnostic::Result<Self>
 pub fn webfluent::template::Template::pages(&self) -> alloc::vec::Vec<&str>
-pub fn webfluent::template::Template::render_html<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::error::diagnostic::Result<alloc::string::String>
-pub fn webfluent::template::Template::render_html_fragment<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::error::diagnostic::Result<alloc::string::String>
-pub fn webfluent::template::Template::render_html_parts<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::error::diagnostic::Result<(alloc::string::String, alloc::string::String)>
-pub fn webfluent::template::Template::render_pdf<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::error::diagnostic::Result<alloc::vec::Vec<u8>>
-pub fn webfluent::template::Template::render_pdf_report<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::error::diagnostic::Result<webfluent::template::PdfReport>
-pub fn webfluent::template::Template::render_pdf_with_notes<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::error::diagnostic::Result<(alloc::vec::Vec<u8>, alloc::vec::Vec<alloc::string::String>)>
-pub fn webfluent::template::Template::render_slides<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::error::diagnostic::Result<alloc::vec::Vec<u8>>
-pub fn webfluent::template::Template::render_slides_report<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::error::diagnostic::Result<webfluent::template::PdfReport>
+pub fn webfluent::template::Template::render_html<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::template::Template::render_html_fragment<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::template::Template::render_html_parts<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::diagnostics::error::diagnostic::Result<(alloc::string::String, alloc::string::String)>
+pub fn webfluent::template::Template::render_pdf<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::diagnostics::error::diagnostic::Result<alloc::vec::Vec<u8>>
+pub fn webfluent::template::Template::render_pdf_report<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::template::PdfReport>
+pub fn webfluent::template::Template::render_pdf_with_notes<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::diagnostics::error::diagnostic::Result<(alloc::vec::Vec<u8>, alloc::vec::Vec<alloc::string::String>)>
+pub fn webfluent::template::Template::render_slides<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::diagnostics::error::diagnostic::Result<alloc::vec::Vec<u8>>
+pub fn webfluent::template::Template::render_slides_report<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::template::PdfReport>
 pub fn webfluent::template::Template::with_lang(self, &str) -> Self
 pub fn webfluent::template::Template::with_pdf(self, webfluent::config::project::PdfConfig) -> Self
 pub fn webfluent::template::Template::with_slides(self, webfluent::config::project::SlidesConfig) -> Self
@@ -11990,10 +12254,10 @@ impl core::marker::UnsafeUnpin for webfluent::studio::ThemeInfo
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::studio::ThemeInfo
 impl core::panic::unwind_safe::UnwindSafe for webfluent::studio::ThemeInfo
 pub const webfluent::VERSION: &str
-pub fn webfluent::apply_edits(&str, &[webfluent::edit::EditOp]) -> webfluent::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::apply_edits(&str, &[webfluent::edit::EditOp]) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
 pub fn webfluent::compile_studio(&webfluent::parser::Program, &webfluent::config::project::ProjectConfig, &std::collections::hash::map::HashMap<alloc::string::String, std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>) -> webfluent::studio::CompiledSite
 pub fn webfluent::detect_dialect(&str) -> webfluent::syntax::Dialect
-pub fn webfluent::parse_source(&str, &str) -> webfluent::error::diagnostic::Result<webfluent::parser::Program>
+pub fn webfluent::parse_source(&str, &str) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::parser::Program>
 pub fn webfluent::validate_semantics(&webfluent::parser::Program, &str) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
-pub fn webfluent::validate_vocabulary(&webfluent::parser::Program, &str) -> alloc::vec::Vec<webfluent::error::diagnostic::VocabWarning>
-pub type webfluent::Result<T> = core::result::Result<T, webfluent::error::diagnostic::WebFluentError>
+pub fn webfluent::validate_vocabulary(&webfluent::parser::Program, &str) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::VocabWarning>
+pub type webfluent::Result<T> = core::result::Result<T, webfluent::diagnostics::error::diagnostic::WebFluentError>

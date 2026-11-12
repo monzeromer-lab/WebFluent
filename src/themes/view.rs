@@ -382,7 +382,7 @@ pub fn view(
 pub fn view_via(
     vfs: &dyn crate::base::vfs::Vfs,
     dir: &std::path::Path,
-) -> crate::error::Result<View> {
+) -> crate::diagnostics::error::Result<View> {
     view_of_via(vfs, dir, None)
 }
 
@@ -393,7 +393,7 @@ pub fn view_of_via(
     vfs: &dyn crate::base::vfs::Vfs,
     dir: &std::path::Path,
     name: Option<&str>,
-) -> crate::error::Result<View> {
+) -> crate::diagnostics::error::Result<View> {
     let (program, files, _) = crate::sources::read_project_collecting_via(vfs, dir, None)?;
     let mut config = crate::config::ProjectConfig::load_via(vfs, dir)?;
     if let Some(n) = name.filter(|n| !n.is_empty())
@@ -439,18 +439,18 @@ pub fn set_token(
     theme: &str,
     name: &str,
     value: &str,
-) -> crate::error::Result<String> {
+) -> crate::diagnostics::error::Result<String> {
     let probe = format!("theme Probe {{\n    {name}: {value}\n}}\n");
     let parsed = crate::syntax::parse_source(&probe, "probe.wf")?;
     let Some(Declaration::Theme(t)) = parsed.declarations.into_iter().next() else {
-        return Err(crate::error::WebFluentError::EditError(format!(
-            "`{name}: {value}` is not a token"
-        )));
+        return Err(crate::diagnostics::error::WebFluentError::EditError(
+            format!("`{name}: {value}` is not a token"),
+        ));
     };
     let Some(token) = t.tokens.into_iter().next() else {
-        return Err(crate::error::WebFluentError::EditError(format!(
-            "`{name}: {value}` is not a token"
-        )));
+        return Err(crate::diagnostics::error::WebFluentError::EditError(
+            format!("`{name}: {value}` is not a token"),
+        ));
     };
     crate::edit::rewrite_declaration(source, file, theme, |d| {
         if let Declaration::Theme(t) = d {
@@ -468,7 +468,7 @@ pub fn reset_token(
     file: &str,
     theme: &str,
     name: &str,
-) -> crate::error::Result<String> {
+) -> crate::diagnostics::error::Result<String> {
     crate::edit::rewrite_declaration(source, file, theme, |d| {
         if let Declaration::Theme(t) = d {
             t.tokens.retain(|k| k.name != name);

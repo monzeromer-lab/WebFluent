@@ -210,12 +210,7 @@ pub mod themes;
 pub mod config;
 
 pub mod diagnostics;
-/// Error types and diagnostics.
-///
-/// Provides [`WebFluentError`] (with variants for lexer, parser, codegen, config, and I/O errors),
-/// [`error::Diagnostic`] (with file, line, column, and optional hint),
-/// and [`error::A11yWarning`] for accessibility lint results.
-pub mod error;
+pub use diagnostics::error;
 
 pub mod linter;
 

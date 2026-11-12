@@ -6,7 +6,7 @@
 pub use crate::base::vfs::stays_inside;
 use std::path::Path;
 
-use crate::error::{Result, WebFluentError};
+use crate::diagnostics::error::{Result, WebFluentError};
 use crate::parser::ast::*;
 
 /// The finding for a path a project names that leads out of it.
@@ -17,7 +17,7 @@ pub fn outside_project(
     line: usize,
     column: usize,
 ) -> WebFluentError {
-    WebFluentError::Diagnostics(vec![crate::error::Diagnostic::coded(
+    WebFluentError::Diagnostics(vec![crate::diagnostics::error::Diagnostic::coded(
         "E111",
         format!(
             "{what} names `{file}`, which is outside the project: a build reads only the project's own files, by a path inside it (no absolute path, no `..`)"
@@ -273,7 +273,7 @@ pub fn markdown_page(source: &str, file: &str) -> Result<Program> {
             .unwrap_or(rest);
         let Some(end) = rest.find("\n---") else {
             return Err(WebFluentError::ParseError(Box::new(
-                crate::error::Diagnostic::coded(
+                crate::diagnostics::error::Diagnostic::coded(
                     "E002",
                     "The front matter opened with `---` is never closed",
                     file,
@@ -300,7 +300,7 @@ pub fn markdown_page(source: &str, file: &str) -> Result<Program> {
         && !crate::parser::v2::is_language_tag(tag)
     {
         return Err(WebFluentError::ParseError(Box::new(
-            crate::error::Diagnostic::coded(
+            crate::diagnostics::error::Diagnostic::coded(
                 "E002",
                 format!("`lang: {tag}` is not a language tag; write one such as en, ar or pt-BR"),
                 file,

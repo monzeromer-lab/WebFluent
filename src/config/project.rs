@@ -1,4 +1,4 @@
-use crate::error::{Result, WebFluentError};
+use crate::diagnostics::error::{Result, WebFluentError};
 use crate::themes::BuiltinCss;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

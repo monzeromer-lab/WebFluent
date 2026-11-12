@@ -11,7 +11,7 @@
 //! - `T01`: a `Carousel(interval:)` no timer keeps, a `Column(span:)` that
 //!   is not a whole number of the twelve columns.
 
-use crate::error::A11yWarning;
+use crate::diagnostics::error::A11yWarning;
 use crate::parser::ast::*;
 
 /// Every finding of this module in `program`.

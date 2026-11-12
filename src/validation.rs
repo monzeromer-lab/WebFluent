@@ -16,7 +16,7 @@
 
 use serde::Serialize;
 
-use crate::error::Result;
+use crate::diagnostics::error::Result;
 use crate::parser::ast::{Declaration, Expr, Program, Rule, Statement, StatementKind, TypeRef};
 
 /// What a rule takes between its parentheses.
@@ -589,7 +589,7 @@ impl RuleText {
 /// The rules as the parser reads them, refusing a rule that is not one or
 /// text that does not read as its argument.
 fn parsed(rules: &[RuleText]) -> Result<Vec<Rule>> {
-    let err = |m: String| crate::error::WebFluentError::EditError(m);
+    let err = |m: String| crate::diagnostics::error::WebFluentError::EditError(m);
     for r in rules {
         if !TABLE.iter().any(|t| t.0 == r.rule) {
             return Err(err(format!(
@@ -698,7 +698,7 @@ pub fn write_rules(
     rules: &[RuleText],
 ) -> Result<String> {
     let new = parsed(rules)?;
-    let err = |m: String| crate::error::WebFluentError::EditError(m);
+    let err = |m: String| crate::diagnostics::error::WebFluentError::EditError(m);
     let mut missing = false;
     let out = crate::edit::rewrite_body(source, file, owner, |body| {
         let at_block = body
@@ -798,9 +798,9 @@ fn keep_one_line(
 pub fn rule_texts(source: &str, file: &str, owner: &str, state: &str) -> Result<Vec<RuleText>> {
     let program = crate::syntax::parse_source(source, file)?;
     if must_be(&program, owner, state, false).is_none() {
-        return Err(crate::error::WebFluentError::EditError(format!(
-            "{owner} declares no state `{state}`"
-        )));
+        return Err(crate::diagnostics::error::WebFluentError::EditError(
+            format!("{owner} declares no state `{state}`"),
+        ));
     }
     let body = program
         .declarations
@@ -842,9 +842,9 @@ pub fn set_rule(
     match index {
         Some(i) if i < rules.len() => rules[i] = rule,
         Some(i) => {
-            return Err(crate::error::WebFluentError::EditError(format!(
-                "the block has no rule {i}"
-            )));
+            return Err(crate::diagnostics::error::WebFluentError::EditError(
+                format!("the block has no rule {i}"),
+            ));
         }
         None => rules.push(rule),
     }
@@ -861,9 +861,9 @@ pub fn remove_rule(
 ) -> Result<String> {
     let mut rules = rule_texts(source, file, owner, state)?;
     if index >= rules.len() {
-        return Err(crate::error::WebFluentError::EditError(format!(
-            "the block has no rule {index}"
-        )));
+        return Err(crate::diagnostics::error::WebFluentError::EditError(
+            format!("the block has no rule {index}"),
+        ));
     }
     rules.remove(index);
     write_rules(source, file, owner, state, &rules)
@@ -881,7 +881,7 @@ pub fn move_rule(
 ) -> Result<String> {
     let mut rules = rule_texts(source, file, owner, state)?;
     if from >= rules.len() || to >= rules.len() {
-        return Err(crate::error::WebFluentError::EditError(
+        return Err(crate::diagnostics::error::WebFluentError::EditError(
             "no such rule".into(),
         ));
     }

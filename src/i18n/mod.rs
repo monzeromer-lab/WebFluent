@@ -22,7 +22,7 @@ use crate::codegen::static_eval::Static;
 pub fn load(
     project_dir: &Path,
     config: &crate::config::project::I18nConfig,
-) -> crate::error::Result<HashMap<String, HashMap<String, String>>> {
+) -> crate::diagnostics::error::Result<HashMap<String, HashMap<String, String>>> {
     load_via(&crate::base::vfs::FsVfs, project_dir, config)
 }
 
@@ -31,7 +31,7 @@ pub fn load_via(
     vfs: &dyn crate::base::vfs::Vfs,
     project_dir: &Path,
     config: &crate::config::project::I18nConfig,
-) -> crate::error::Result<HashMap<String, HashMap<String, String>>> {
+) -> crate::diagnostics::error::Result<HashMap<String, HashMap<String, String>>> {
     let mut out = HashMap::new();
     // The translations are the project's own: a directory outside it is
     // read as none (the build says so, as a finding on `i18n.dir`).
@@ -45,7 +45,9 @@ pub fn load_via(
             continue;
         };
         let messages: HashMap<String, String> = serde_json::from_str(&content).map_err(|e| {
-            crate::error::WebFluentError::ConfigError(format!("Failed to parse {locale}.json: {e}"))
+            crate::diagnostics::error::WebFluentError::ConfigError(format!(
+                "Failed to parse {locale}.json: {e}"
+            ))
         })?;
         out.insert(locale.clone(), messages);
     }

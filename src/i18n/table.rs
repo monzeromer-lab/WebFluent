@@ -519,7 +519,7 @@ pub fn build(
 pub fn table_via(
     vfs: &dyn crate::base::vfs::Vfs,
     dir: &Path,
-) -> crate::error::Result<Option<Table>> {
+) -> crate::diagnostics::error::Result<Option<Table>> {
     let config = crate::config::ProjectConfig::load_via(vfs, dir)?;
     let Some(i18n) = &config.i18n else {
         return Ok(None);
@@ -541,14 +541,18 @@ pub fn table_via(
     )))
 }
 
-fn edit_error(e: impl std::fmt::Display) -> crate::error::WebFluentError {
-    crate::error::WebFluentError::EditError(e.to_string())
+fn edit_error(e: impl std::fmt::Display) -> crate::diagnostics::error::WebFluentError {
+    crate::diagnostics::error::WebFluentError::EditError(e.to_string())
 }
 
 /// `text` (a locale's file; empty when there is none yet) with the message
 /// at `entry` set to `message`, every other byte as it was: an existing
 /// message changed in place, a new one added at the end.
-pub fn set_message(text: &str, entry: &str, message: &str) -> crate::error::Result<String> {
+pub fn set_message(
+    text: &str,
+    entry: &str,
+    message: &str,
+) -> crate::diagnostics::error::Result<String> {
     if text.trim().is_empty() {
         let mut map = serde_json::Map::new();
         map.insert(
@@ -569,7 +573,7 @@ pub fn set_message(text: &str, entry: &str, message: &str) -> crate::error::Resu
 }
 
 /// `text` without the message at `entry`.
-pub fn remove_message(text: &str, entry: &str) -> crate::error::Result<String> {
+pub fn remove_message(text: &str, entry: &str) -> crate::diagnostics::error::Result<String> {
     crate::config::json_edit::remove(text, &[entry]).map_err(edit_error)
 }
 

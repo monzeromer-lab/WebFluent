@@ -12,7 +12,7 @@
 //! still there for `wf render`, which runs on a server.
 
 use crate::config::ProjectConfig;
-use crate::error::Diagnostic;
+use crate::diagnostics::error::Diagnostic;
 use std::path::Path;
 
 /// Every `env.NAME` in the project's sources that a page may not read.

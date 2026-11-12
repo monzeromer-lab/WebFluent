@@ -13,7 +13,7 @@
 use std::path::{Path, PathBuf};
 
 use crate::config::ProjectConfig;
-use crate::error::{Result, WebFluentError};
+use crate::diagnostics::error::{Result, WebFluentError};
 
 use super::{Migrated, Note, migrate_project, source_files};
 

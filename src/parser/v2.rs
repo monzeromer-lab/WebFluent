@@ -22,7 +22,7 @@
 //! A `.word` after an element is a flag: the sema pass resolves it against
 //! the component's props. A `.word` in expression position is an enum case.
 
-use crate::error::{Diagnostic, Result, WebFluentError};
+use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
 use crate::lexer::v2::LexerV2;
 use crate::lexer::{StringKind, StringLit, Token, TokenType};
 use crate::parser::ast::*;
@@ -497,7 +497,7 @@ impl ParserV2 {
     /// After an error the parser resynchronises at the next declaration —
     /// a declaration word at the start of a line — so one file reports
     /// each of its mistakes rather than only the first.
-    pub fn parse_recovering(&mut self) -> (Program, Vec<crate::error::Diagnostic>) {
+    pub fn parse_recovering(&mut self) -> (Program, Vec<crate::diagnostics::error::Diagnostic>) {
         let mut declarations = Vec::new();
         let mut errors = Vec::new();
         while !self.at_end() {

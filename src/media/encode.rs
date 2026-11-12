@@ -3,7 +3,7 @@
 use image::imageops::FilterType;
 
 use super::probe::Probed;
-use crate::error::{Result, WebFluentError};
+use crate::diagnostics::error::{Result, WebFluentError};
 use crate::media::Settings;
 
 /// Which encoders made a file: part of its hash, so a file an older

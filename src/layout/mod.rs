@@ -12,7 +12,7 @@
 //! the original, so a file whose indentation does not follow its braces is
 //! refused rather than changed in meaning.
 
-use crate::error::{Diagnostic, Result, WebFluentError};
+use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
 use crate::lexer::v2::{Layout, LexerV2};
 use crate::lexer::{Token, TokenType};
 

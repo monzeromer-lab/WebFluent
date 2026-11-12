@@ -21,7 +21,7 @@
 use std::collections::{HashMap, HashSet};
 
 use super::Findings;
-use crate::error::Diagnostic;
+use crate::diagnostics::error::Diagnostic;
 use crate::parser::ast::*;
 use crate::registry::{self, PropType};
 

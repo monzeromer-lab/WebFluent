@@ -4,7 +4,7 @@ use crate::codegen::builtin::{
 };
 use crate::codegen::css::generate_css;
 use crate::config::project::{PdfConfig, SlidesConfig};
-use crate::error::{Result, WebFluentError};
+use crate::diagnostics::error::{Result, WebFluentError};
 use crate::parser::ast::{ArmPattern, DerivedDecl, ForStmt, IfStmt, PropDecl};
 use crate::parser::{
     Arg, ComponentRef, Declaration, Expr, Program, Statement, StatementKind, StringPart, UIElement,
@@ -905,7 +905,7 @@ struct Budget {
     at: std::cell::Cell<crate::parser::ast::Span>,
     steps: std::cell::Cell<u64>,
     bytes: std::cell::Cell<usize>,
-    failure: std::cell::RefCell<Option<crate::error::Diagnostic>>,
+    failure: std::cell::RefCell<Option<crate::diagnostics::error::Diagnostic>>,
 }
 
 /// Elements drawn, loop items, and units of evaluation one render may
@@ -925,7 +925,7 @@ impl Budget {
     fn stop(&self, code: &'static str, message: String, span: crate::parser::ast::Span) {
         let mut failure = self.failure.borrow_mut();
         if failure.is_none() {
-            *failure = Some(crate::error::Diagnostic::coded(
+            *failure = Some(crate::diagnostics::error::Diagnostic::coded(
                 code,
                 message,
                 "<template>",

@@ -16,7 +16,7 @@
 pub(crate) mod script;
 pub mod types;
 
-use crate::error::Diagnostic;
+use crate::diagnostics::error::Diagnostic;
 use crate::parser::ast::*;
 use crate::registry::{self, ComponentSig, Flag, Legacy, PropType, Sink};
 use std::collections::HashMap;

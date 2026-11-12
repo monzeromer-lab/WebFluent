@@ -10,7 +10,7 @@
 //! (Non-text Contrast): 4.5:1 for body text, 3:1 for large text and for the
 //! boundaries of user interface components.
 
-use crate::error::A11yWarning;
+use crate::diagnostics::error::A11yWarning;
 use crate::parser::ast::{ComponentRef, Declaration, Expr, Program, Statement, StatementKind};
 
 /// WCAG AA for body text.

@@ -2,7 +2,7 @@
 //! site, a PDF, or a slide deck — written as a folder of its own. `wf init`
 //! makes one in the current directory; the mobile editor, in its projects.
 
-use crate::error::{Result, WebFluentError};
+use crate::diagnostics::error::{Result, WebFluentError};
 use std::fs;
 use std::path::Path;
 

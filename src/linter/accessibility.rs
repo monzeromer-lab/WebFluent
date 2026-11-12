@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::error::A11yWarning;
+use crate::diagnostics::error::A11yWarning;
 use crate::parser::ast::*;
 
 /// Run all accessibility lint rules on the parsed program.

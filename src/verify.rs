@@ -16,7 +16,7 @@ use std::collections::BTreeSet;
 use std::path::Path;
 
 use crate::config::ProjectConfig;
-use crate::error::Result;
+use crate::diagnostics::error::Result;
 
 // For the mobile editor's visits; `wf verify` reads them in the driver.
 pub use crate::browser::chrome::{PAGE_REPORT, Visit, read_report};

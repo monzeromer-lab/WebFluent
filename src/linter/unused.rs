@@ -12,7 +12,7 @@
 
 use std::collections::{HashMap, HashSet};
 
-use crate::error::A11yWarning;
+use crate::diagnostics::error::A11yWarning;
 use crate::parser::ast::*;
 
 /// The unused declarations of a program, as warnings.

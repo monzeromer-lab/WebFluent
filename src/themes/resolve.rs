@@ -27,7 +27,7 @@
 use std::collections::HashMap;
 
 use crate::config::project::ThemeConfig;
-use crate::error::{Result, WebFluentError};
+use crate::diagnostics::error::{Result, WebFluentError};
 use crate::parser::ast::{Declaration, Expr, Program, ThemeDecl};
 
 /// The palettes that used to ship with the engine, and where each went.

@@ -13,7 +13,7 @@ use std::io::{BufRead, BufReader, Read, Write};
 use std::net::TcpStream;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use crate::error::{Result, WebFluentError};
+use crate::diagnostics::error::{Result, WebFluentError};
 
 fn oops(what: impl std::fmt::Display) -> WebFluentError {
     WebFluentError::IoError(format!("browser: {what}"))

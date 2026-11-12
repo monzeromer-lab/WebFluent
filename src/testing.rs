@@ -21,7 +21,7 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
 use crate::config::project::ThemeConfig;
-use crate::error::Result;
+use crate::diagnostics::error::Result;
 use crate::parser::ast::*;
 
 /// A project's tests, read and ready to run.
@@ -199,7 +199,9 @@ pub fn collect(path: &Path) -> Result<Tests> {
         }
     }
     if !clashes.is_empty() {
-        return Err(crate::error::WebFluentError::Diagnostics(clashes));
+        return Err(crate::diagnostics::error::WebFluentError::Diagnostics(
+            clashes,
+        ));
     }
     // A page a test can place by its name, as it places a component: `Tasks`
     // draws the Tasks page's body — its state, its stores, its handlers — so

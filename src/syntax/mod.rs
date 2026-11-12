@@ -13,7 +13,7 @@
 //! `store`, `theme`, `app`, `type`, `enum`); the old grammar's were
 //! capitalised.
 
-use crate::error::{Diagnostic, Result, WebFluentError};
+use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
 use crate::lexer::Token;
 use crate::parser::Program;
 

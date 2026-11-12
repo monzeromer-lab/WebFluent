@@ -19,7 +19,7 @@ use serde::Serialize;
 
 use crate::base::vfs::{Metadata, OverlayVfs, Vfs};
 use crate::build::{BuildOptions, BuildReport};
-use crate::error::Diagnostic;
+use crate::diagnostics::error::Diagnostic;
 
 /// Where the project seems to sit. Nothing is read from or written there.
 pub const PROJECT_DIR: &str = "/wf-project";
@@ -177,7 +177,7 @@ pub fn compile_files(
         Ok(report) => (report, None),
         Err(failure) => {
             let message = match &failure.error {
-                crate::error::WebFluentError::Diagnostics(_) => None,
+                crate::diagnostics::error::WebFluentError::Diagnostics(_) => None,
                 other => Some(other.to_string()),
             };
             (

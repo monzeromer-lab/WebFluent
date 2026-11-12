@@ -25,7 +25,7 @@
 //! characters — the same three coordinate systems as the original lexer.
 
 use super::token::{StringKind, StringLit, Token, TokenType};
-use crate::error::{Diagnostic, Result, WebFluentError};
+use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
 
 /// How a file writes its blocks.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

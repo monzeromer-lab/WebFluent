@@ -25,7 +25,7 @@ use std::path::{Path, PathBuf};
 use crate::base::vfs::Vfs;
 use crate::config::ProjectConfig;
 use crate::config::schema::{self, FieldType};
-use crate::error::{Result, WebFluentError};
+use crate::diagnostics::error::{Result, WebFluentError};
 use crate::media::plan::{Plan, size_text};
 use crate::parser::ast::*;
 use crate::registry::FileKind;

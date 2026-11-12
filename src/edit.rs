@@ -37,7 +37,7 @@
 //! element.
 
 use crate::codegen::node_id;
-use crate::error::{Result, WebFluentError};
+use crate::diagnostics::error::{Result, WebFluentError};
 use crate::parser::ast::{
     Arg, Declaration, Expr, Program, Span, Statement, StatementKind, UIElement,
 };

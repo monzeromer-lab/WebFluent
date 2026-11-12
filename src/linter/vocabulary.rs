@@ -27,7 +27,7 @@ pub(crate) use crate::base::text::levenshtein;
 use std::collections::HashSet;
 
 use crate::codegen::builtin::{builtin_to_html, modifier_to_class};
-use crate::error::VocabWarning;
+use crate::diagnostics::error::VocabWarning;
 use crate::parser::{
     Arg, ComponentRef, Declaration, Expr, Program, Statement, StatementKind, UIElement,
 };
