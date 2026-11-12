@@ -30,7 +30,9 @@ pub fn body_of(decl: &Declaration) -> &[Statement] {
     }
 }
 
-/// Every statement list nested in a statement: bodies, branches, handlers.
+/// Every statement list nested in a statement: bodies, branches, handlers
+/// — an element's children, handlers and slot fills, and every body
+/// [`StatementKind::bodies`] names, a connection's handlers among them.
 pub fn child_bodies(stmt: &Statement) -> Vec<&[Statement]> {
     match &stmt.kind {
         StatementKind::UIElement(el) => {
@@ -39,28 +41,7 @@ pub fn child_bodies(stmt: &Statement) -> Vec<&[Statement]> {
             bodies.extend(el.slot_fills.iter().map(|f| f.body.as_slice()));
             bodies
         }
-        StatementKind::If(i) => {
-            let mut bodies: Vec<&[Statement]> = vec![&i.then_body];
-            bodies.extend(i.else_if_branches.iter().map(|(_, b)| b.as_slice()));
-            bodies.extend(i.else_body.as_deref());
-            bodies
-        }
-        StatementKind::For(f) => vec![&f.body],
-        StatementKind::Try(t) => vec![&t.body, &t.catch_body],
-        StatementKind::Show(s) => vec![&s.body],
-        StatementKind::Fetch(f) => {
-            let mut bodies: Vec<&[Statement]> = Vec::new();
-            bodies.extend(f.loading_block.as_deref());
-            bodies.extend(f.error_block.as_ref().map(|(_, b)| b.as_slice()));
-            bodies.extend(f.success_block.as_deref());
-            bodies
-        }
-        StatementKind::Match(m) => m.arms.iter().map(|a| a.body.as_slice()).collect(),
-        StatementKind::Effect(e) => vec![&e.body, &e.cleanup],
-        StatementKind::Timer(t) => vec![&t.body],
-        StatementKind::Action(a) => vec![&a.body],
-        StatementKind::EventHandler(h) => vec![&h.body],
-        _ => Vec::new(),
+        kind => kind.bodies(),
     }
 }
 
@@ -246,6 +227,19 @@ pub fn scope_at(decl: &Declaration, offset: usize) -> Vec<Binding> {
                     });
                 }
             }
+            // `socket s = ws(…) { on message(m) { … } }`: what arrived,
+            // inside the handler the place is in.
+            StatementKind::Connection(c) => {
+                for h in c.handlers.iter().filter(|h| contains(h.span, offset)) {
+                    for param in &h.params {
+                        scope.push(Binding {
+                            name: param.clone(),
+                            kind: BindingKind::Param,
+                            span: h.span,
+                        });
+                    }
+                }
+            }
             // `catch e { … }`: what was thrown, inside the catch block.
             StatementKind::Try(t) => {
                 if let Some(param) = &t.param
@@ -333,7 +327,8 @@ fn rendered_bodies(stmt: &Statement) -> Vec<&[Statement]> {
         StatementKind::Action(_)
         | StatementKind::EventHandler(_)
         | StatementKind::Effect(_)
-        | StatementKind::Timer(_) => Vec::new(),
+        | StatementKind::Timer(_)
+        | StatementKind::Connection(_) => Vec::new(),
         StatementKind::UIElement(el) => {
             let mut bodies: Vec<&[Statement]> = vec![&el.children];
             bodies.extend(el.slot_fills.iter().map(|f| f.body.as_slice()));
@@ -352,6 +347,7 @@ fn body_at(stmt: &Statement, offset: usize) -> Option<(&[Statement], bool)> {
             | StatementKind::EventHandler(_)
             | StatementKind::Effect(_)
             | StatementKind::Timer(_)
+            | StatementKind::Connection(_)
     );
     if let StatementKind::UIElement(el) = &stmt.kind
         && let Some(h) = el.events.iter().find(|h| contains(h.span, offset))

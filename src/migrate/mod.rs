@@ -29,6 +29,9 @@ use crate::lexer::Lexer;
 use crate::parser::Parser;
 use crate::parser::ast::*;
 use crate::registry;
+// Every statement list nested in a statement: the one list the editor's
+// scope reads too, so neither misses a body the other walks.
+use crate::scope::child_bodies;
 use crate::syntax::{Dialect, detect_dialect};
 
 /// Something the migration could not rewrite mechanically.
@@ -1317,38 +1320,6 @@ fn is_action_statement(stmt: &Statement) -> bool {
                 && i.else_body.as_deref().is_none_or(all)
         }
         _ => false,
-    }
-}
-
-/// Every statement list nested in a statement.
-fn child_bodies(stmt: &Statement) -> Vec<&[Statement]> {
-    match &stmt.kind {
-        StatementKind::UIElement(el) => {
-            let mut bodies: Vec<&[Statement]> = vec![&el.children];
-            bodies.extend(el.events.iter().map(|e| e.body.as_slice()));
-            bodies.extend(el.slot_fills.iter().map(|f| f.body.as_slice()));
-            bodies
-        }
-        StatementKind::If(i) => {
-            let mut bodies: Vec<&[Statement]> = vec![&i.then_body];
-            bodies.extend(i.else_if_branches.iter().map(|(_, b)| b.as_slice()));
-            bodies.extend(i.else_body.as_deref());
-            bodies
-        }
-        StatementKind::For(f) => vec![&f.body],
-        StatementKind::Show(s) => vec![&s.body],
-        StatementKind::Fetch(f) => {
-            let mut bodies: Vec<&[Statement]> = Vec::new();
-            bodies.extend(f.loading_block.as_deref());
-            bodies.extend(f.error_block.as_ref().map(|(_, b)| b.as_slice()));
-            bodies.extend(f.success_block.as_deref());
-            bodies
-        }
-        StatementKind::Match(m) => m.arms.iter().map(|a| a.body.as_slice()).collect(),
-        StatementKind::Effect(e) => vec![&e.body],
-        StatementKind::Action(a) => vec![&a.body],
-        StatementKind::EventHandler(h) => vec![&h.body],
-        _ => Vec::new(),
     }
 }
 

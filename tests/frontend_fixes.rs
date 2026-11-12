@@ -543,6 +543,108 @@ fn a_tree_deeper_than_the_parser_allows_is_e120_in_the_checker() {
     assert_eq!(found, vec!["E120"]);
 }
 
+// ─── B12: a number the grammar cannot hold is refused, not clamped ───
+
+fn api_with(status: &str) -> String {
+    format!(
+        "api B(base: \"/api\") {{\n    post make(body: Map) -> Map\n        errors {{ {status} -> Map }}\n}}\n"
+    )
+}
+
+#[test]
+fn a_status_outside_http_s_range_or_with_a_fraction_is_refused() {
+    for bad in ["70000", "404.5", "99", "600", "0"] {
+        let err = parse_v2(&api_with(bad), "x.wf").unwrap_err();
+        let found = err.diagnostics();
+        assert_eq!(found.len(), 1, "{bad}: {found:?}");
+        assert!(found[0].message.contains("is not an HTTP status"), "{bad}: {found:?}");
+    }
+    for good in ["100", "422", "599"] {
+        parse_v2(&api_with(good), "x.wf").unwrap_or_else(|e| panic!("{good}: {e}"));
+    }
+}
+
+#[test]
+fn a_persisted_version_too_large_to_hold_is_refused() {
+    let with = |v: &str| {
+        format!("page P(path: \"/\") {{\n    persist n: Number = 0 {{ version: {v} }}\n    Text(\"{{n}}\")\n}}\n")
+    };
+    for bad in ["4294967296", "10000000000000", "0", "1.5"] {
+        let err = parse_v2(&with(bad), "x.wf").unwrap_err();
+        assert!(err.to_string().contains("is not a version"), "{bad}: {err}");
+    }
+    for good in ["1", "4294967295"] {
+        parse_v2(&with(good), "x.wf").unwrap_or_else(|e| panic!("{good}: {e}"));
+    }
+}
+
+// ─── B10: the editor's scope inside a connection's handler ───────────
+
+#[test]
+fn a_socket_s_handler_has_its_message_in_scope() {
+    let src = "page P(path: \"/\") {\n    state last = \"\"\n    socket chat = ws(\"wss://example.com/chat\") {\n        on message(m) {\n            last = m.text\n        }\n    }\n    Text(last)\n}\n";
+    let program = parse_v2(src, "x.wf").unwrap();
+    let offset = src.find("m.text").unwrap();
+    let names: Vec<String> = webfluent::scope::scope_at(&program.declarations[0], offset)
+        .into_iter()
+        .map(|b| b.name)
+        .collect();
+    assert!(names.contains(&"m".to_string()), "{names:?}");
+    // Outside the handler, it is not.
+    let outside = src.find("Text(last)").unwrap();
+    let names: Vec<String> = webfluent::scope::scope_at(&program.declarations[0], outside)
+        .into_iter()
+        .map(|b| b.name)
+        .collect();
+    assert!(!names.contains(&"m".to_string()), "{names:?}");
+}
+
+#[test]
+fn child_bodies_names_every_body_the_ast_has() {
+    use webfluent::parser::StatementKind;
+    let src = "page P(path: \"/\") {\n    socket chat = ws(\"wss://x.example/c\") {\n        on message(m) { log(m) }\n        on close(c) { log(c) }\n    }\n    every(1000) { log(1) }\n    effect { log(2)\n cleanup { log(3) } }\n    Text(\"x\")\n}\n";
+    let program = parse_v2(src, "x.wf").unwrap();
+    let webfluent::parser::Declaration::Page(page) = &program.declarations[0] else {
+        unreachable!()
+    };
+    for stmt in &page.body {
+        let mut want = stmt.kind.bodies().len();
+        if let StatementKind::UIElement(el) = &stmt.kind {
+            want = 1 + el.events.len() + el.slot_fills.len();
+        }
+        assert_eq!(webfluent::scope::child_bodies(stmt).len(), want, "{:?}", stmt.kind);
+    }
+    let StatementKind::Connection(c) = &page.body[0].kind else {
+        unreachable!()
+    };
+    assert_eq!(c.handlers.len(), 2);
+    assert_eq!(webfluent::scope::child_bodies(&page.body[0]).len(), 2);
+}
+
+// ─── A service's cache, forgotten whole ──────────────────────────────
+
+#[test]
+fn a_service_may_be_invalidated_whole() {
+    let with = |call: &str| {
+        format!(
+            "api Backend(base: \"/api\") {{\n    get users() -> [Map]\n}}\npage P(path: \"/\", title: \"T\", description: \"D\") {{\n    Heading(\"H\").h1\n    Button(\"Log out\") {{ on click {{ {call} }} }}\n}}\n"
+        )
+    };
+    let errors = |call: &str| {
+        let program = parse_v2(&with(call), "x.wf").unwrap();
+        webfluent::sema::types::check(&program, &|_| "x.wf".to_string())
+            .findings
+            .errors
+            .iter()
+            .map(|d| d.code)
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(errors("Backend.invalidate()"), Vec::<&str>::new());
+    assert_eq!(errors("Backend.users.invalidate()"), Vec::<&str>::new());
+    assert_eq!(errors("Backend.invalidate(1)"), vec!["T10"]);
+    assert_eq!(errors("Backend.forget()"), vec!["T06"]);
+}
+
 // ─── B9, B11: findings that are the same every run, in the right place ──
 
 #[test]

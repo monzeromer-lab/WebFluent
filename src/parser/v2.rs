@@ -2123,10 +2123,10 @@ impl ParserV2 {
                 "A version is a whole number: `version: 2`",
             ));
         };
-        if n < 1.0 || n.fract() != 0.0 {
+        if n < 1.0 || n.fract() != 0.0 || n > f64::from(u32::MAX) {
             return Err(self.error_with_hint(
                 format!("`{n}` is not a version"),
-                "A version is a whole number from 1 up",
+                "A version is a whole number from 1 up to 4294967295",
             ));
         }
         self.advance();
@@ -2306,9 +2306,18 @@ impl ParserV2 {
                 self.expect(&TokenType::OpenBrace, "`{` after `errors`")?;
                 while !self.check(&TokenType::CloseBrace) && !self.at_end() {
                     let code = match self.kind().clone() {
-                        TokenType::NumberLiteral(n) => {
+                        // An HTTP status: a whole number from 100 to 599.
+                        TokenType::NumberLiteral(n)
+                            if n.fract() == 0.0 && (100.0..=599.0).contains(&n) =>
+                        {
                             self.advance();
                             n as u16
+                        }
+                        TokenType::NumberLiteral(n) => {
+                            return Err(self.error_with_hint(
+                                format!("`{n}` is not an HTTP status"),
+                                "A status is a whole number from 100 to 599: `422 -> Map`",
+                            ));
                         }
                         _ => return Err(self.error("Expected a status code".into())),
                     };

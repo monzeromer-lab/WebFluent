@@ -4059,6 +4059,21 @@ impl<'a, 'p> Checker<'a, 'p> {
                     }
                     returns
                 }
+                // `Backend.invalidate()`: forget everything the service's
+                // cache holds — on logout, say. It returns nothing.
+                None if method == "invalidate" => {
+                    for arg in args {
+                        self.infer(arg, None);
+                    }
+                    if !args.is_empty() {
+                        self.error_at_current(
+                            "T10",
+                            format!("`{api}.invalidate()` takes no arguments"),
+                            &format!("It forgets everything the service's cache holds; to forget one endpoint's, call `{api}.endpoint.invalidate()`"),
+                        );
+                    }
+                    Type::Null
+                }
                 None => {
                     let names: Vec<String> = self
                         .world
