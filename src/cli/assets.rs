@@ -7,7 +7,13 @@ use crate::media::plan::size_text;
 /// `wf assets [--unused] [--plan PATH] [--json]`: what `public/` holds and
 /// where each file is named, or what the media pipeline will make of one
 /// image.
-pub fn run_assets(dir: &Path, plan: Option<&str>, unused: bool, json: bool) -> Result<()> {
+pub fn run_assets(
+    dir: &Path,
+    plan: Option<&str>,
+    unused: bool,
+    report: super::Report,
+) -> Result<()> {
+    let json = report == super::Report::Json;
     if let Some(path) = plan {
         let plan = assets::plan(dir, path)?;
         if json {

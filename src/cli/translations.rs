@@ -10,8 +10,9 @@ pub fn run_translations(
     missing: Option<&str>,
     unused: bool,
     plurals: bool,
-    json: bool,
+    report: super::Report,
 ) -> Result<()> {
+    let json = report == super::Report::Json;
     if plurals {
         return print_plurals(json);
     }

@@ -6,7 +6,20 @@ use std::path::{Path, PathBuf};
 
 use webfluent::codegen::sourcemap::SourceMap;
 
-fn project(name: &str, sourcemap: bool, minify: bool, split: bool) -> PathBuf {
+/// The build settings a test project is written with.
+#[derive(Clone, Copy)]
+struct Settings {
+    sourcemap: bool,
+    minify: bool,
+    split: bool,
+}
+
+fn project(name: &str, settings: Settings) -> PathBuf {
+    let Settings {
+        sourcemap,
+        minify,
+        split,
+    } = settings;
     let dir = std::env::temp_dir().join(format!("wf-sourcemap-{name}-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(dir.join("src/components")).unwrap();
@@ -66,7 +79,14 @@ fn origin(dir: &Path, file: &str, needle: &str) -> Option<String> {
 #[test]
 fn a_place_in_the_bundle_or_a_page_s_chunk_is_read_back_to_its_wf_line() {
     for minify in [true, false] {
-        let dir = project(&format!("on-{minify}"), true, minify, true);
+        let dir = project(
+            &format!("on-{minify}"),
+            Settings {
+                sourcemap: true,
+                minify,
+                split: true,
+            },
+        );
         // A component's text, in the bundle; a page's, in its chunk.
         assert_eq!(
             origin(&dir, "app.js", "row says").as_deref(),
@@ -116,7 +136,14 @@ fn a_place_in_the_bundle_or_a_page_s_chunk_is_read_back_to_its_wf_line() {
 
 #[test]
 fn one_bundle_is_mapped_too() {
-    let dir = project("whole", true, true, false);
+    let dir = project(
+        "whole",
+        Settings {
+            sourcemap: true,
+            minify: true,
+            split: false,
+        },
+    );
     assert_eq!(
         origin(&dir, "app.js", "home counts").as_deref(),
         Some("src/pages/home.wf:7")
@@ -131,8 +158,22 @@ fn one_bundle_is_mapped_too() {
 #[test]
 fn without_a_map_the_scripts_are_the_same_but_for_the_line_that_names_it() {
     for minify in [true, false] {
-        let on = project(&format!("same-on-{minify}"), true, minify, true);
-        let off = project(&format!("same-off-{minify}"), false, minify, true);
+        let on = project(
+            &format!("same-on-{minify}"),
+            Settings {
+                sourcemap: true,
+                minify,
+                split: true,
+            },
+        );
+        let off = project(
+            &format!("same-off-{minify}"),
+            Settings {
+                sourcemap: false,
+                minify,
+                split: true,
+            },
+        );
         for file in ["app.js", "pages/Home.js"] {
             let with = read(&on, file);
             let base = file.rsplit('/').next().unwrap();
@@ -149,7 +190,14 @@ fn without_a_map_the_scripts_are_the_same_but_for_the_line_that_names_it() {
 
 #[test]
 fn an_editor_s_preview_asks_for_maps_whatever_the_config_says() {
-    let dir = project("asked", false, true, true);
+    let dir = project(
+        "asked",
+        Settings {
+            sourcemap: false,
+            minify: true,
+            split: true,
+        },
+    );
     assert!(!dir.join("build/app.js.map").exists());
     let options = webfluent::build::BuildOptions {
         sourcemap: true,

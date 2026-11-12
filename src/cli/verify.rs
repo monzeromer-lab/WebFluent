@@ -18,11 +18,12 @@ use crate::error::{Result, WebFluentError};
 
 pub fn run_verify(
     project_dir: &Path,
-    json: bool,
+    report: super::Report,
     budget_ms: Option<u64>,
     returning: bool,
     allow_output_outside: bool,
 ) -> Result<()> {
+    let json = report == super::Report::Json;
     let config = ProjectConfig::load(project_dir)?;
     // What is served to the browser is the project's own output: a config
     // that names a directory elsewhere would serve that to the page.

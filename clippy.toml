@@ -1,10 +1,11 @@
 # BeautifulRust's clippy configuration (github.com/morganlinton/BeautifulRust,
 # lints/clippy.toml), beside the [workspace.lints] table in Cargo.toml.
 
-# Flag any function with a bool parameter, not just functions with four or
-# more: a bool argument is unreadable at the call site and can't grow a third
-# mode. Applies once `fn_params_excessive_bools` is switched on.
-max-fn-params-bools = 0
+# A function may take two bool parameters, not three: past two, a call is
+# a row of `true, false, true` nobody can read, and a flag that is really a
+# choice (`--json`, `--wfx`) belongs in an enum that can grow a third case.
+# One flag (`set_ssg(enabled)`) reads plainly where it is called.
+max-fn-params-bools = 2
 
 # Allow unwrap, expect, and printing in tests, where a panic is the assertion.
 allow-unwrap-in-tests = true

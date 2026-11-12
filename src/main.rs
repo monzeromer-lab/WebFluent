@@ -475,7 +475,13 @@ fn main() {
             unused,
             plurals,
             json,
-        } => cli::translations::run_translations(&dir, missing.as_deref(), unused, plurals, json),
+        } => cli::translations::run_translations(
+            &dir,
+            missing.as_deref(),
+            unused,
+            plurals,
+            cli::Report::from_json_flag(json),
+        ),
         Commands::Scope {
             place,
             dir,
@@ -491,7 +497,12 @@ fn main() {
             plan,
             unused,
             json,
-        } => cli::assets::run_assets(&dir, plan.as_deref(), unused, json),
+        } => cli::assets::run_assets(
+            &dir,
+            plan.as_deref(),
+            unused,
+            cli::Report::from_json_flag(json),
+        ),
         Commands::Commands { json } => {
             let data = describe_commands();
             if json {
@@ -538,7 +549,16 @@ fn main() {
             check,
             stdout,
             wfx,
-        } => cli::migrate::run_migrate(&path, check, stdout, wfx),
+        } => cli::migrate::run_migrate(
+            &path,
+            check,
+            stdout,
+            if wfx {
+                cli::Layout::Indented
+            } else {
+                cli::Layout::Braces
+            },
+        ),
         Commands::Fmt {
             path,
             to,
@@ -554,7 +574,13 @@ fn main() {
             budget,
             returning_visitor,
             allow_output_outside,
-        } => cli::verify::run_verify(&path, json, budget, returning_visitor, allow_output_outside),
+        } => cli::verify::run_verify(
+            &path,
+            cli::Report::from_json_flag(json),
+            budget,
+            returning_visitor,
+            allow_output_outside,
+        ),
         Commands::Registry { json } => cli::describe::run_registry(json),
         Commands::Types { path, json } => cli::describe::run_types(&path, json),
     };
