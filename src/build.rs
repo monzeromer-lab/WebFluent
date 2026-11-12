@@ -552,6 +552,10 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     let output_dir = output_dir_of(options, &config)?;
     out.report.borrow_mut().output_dir = output_dir.clone();
     fs::create_dir_all(&output_dir)?;
+    // What this build reads of the image cache, from here on: the rest is
+    // pruned once it has finished.
+    let media_cache = project_dir.join(".wf-cache/media");
+    crate::media::take_used(&media_cache);
     let mut media = config.build.media.settings();
     // A PDF or a deck embeds the picture it names, not a `<picture>`.
     media.literal_src = !matches!(
@@ -1209,6 +1213,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
         )?;
     }
     warning_count += say_skipped(out, &confined);
+    crate::media::prune_cache(&media_cache, &crate::media::take_used(&media_cache));
     if warning_count == 0 {
         out.say("Build complete.");
     } else {
