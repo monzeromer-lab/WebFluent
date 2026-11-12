@@ -124,27 +124,46 @@
   //
   // `now` is a `DateTime` that keeps itself current: every minute by
   // default, or as often as a page asks — `now(every: 1.seconds)`. The
-  // cadence the page asks for is the fastest one asked for, and the timer
-  // stops when nothing reads it.
+  // cadence is the fastest one that something still reading it asked for:
+  // each reader is an effect, remembered with what its last run asked, and
+  // one that was disposed of or no longer reads `now` is forgotten at the
+  // next tick. With no reader left the timer stops; a later read starts it.
   let _now = null;
-  let _nowEvery = 60000;
+  let _nowEvery = null;
   let _nowTimer = null;
-  function now(options) {
-    const every = options && options.every ? Number(options.every) : null;
-    if (!_now) {
-      _now = signal(new Date().toISOString().replace(/\.\d{3}Z$/, "Z"));
+  const _nowReaders = new Map();
+  const _nowValue = () => new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
+  function _nowArm() {
+    const listening = _now._subs;
+    let want = null;
+    for (const [reader, asked] of _nowReaders) {
+      if (!listening.has(reader)) { _nowReaders.delete(reader); continue; }
+      if (want === null || asked.every < want) want = asked.every;
     }
-    if (every && every < _nowEvery) {
-      _nowEvery = every;
-      if (_nowTimer) clearInterval(_nowTimer);
-      _nowTimer = null;
-    }
-    if (!_nowTimer && typeof setInterval !== "undefined") {
+    if (want === _nowEvery && (_nowTimer !== null || want === null)) return;
+    if (_nowTimer !== null) clearInterval(_nowTimer);
+    _nowTimer = null;
+    _nowEvery = want;
+    if (want !== null && typeof setInterval !== "undefined") {
       _nowTimer = setInterval(() => {
-        _now.set(new Date().toISOString().replace(/\.\d{3}Z$/, "Z"));
-      }, _nowEvery);
+        _now.set(_nowValue());
+        _nowArm();
+      }, want);
     }
-    return _now();
+  }
+  function now(options) {
+    const every = options && options.every ? Number(options.every) : 60000;
+    if (!_now) _now = signal(_nowValue());
+    const value = _now();
+    const reader = currentEffect;
+    if (reader) {
+      // A run's reads replace the last run's: `deps` is new each run.
+      const asked = _nowReaders.get(reader);
+      if (!asked || asked.run !== reader.deps) _nowReaders.set(reader, { run: reader.deps, every });
+      else if (every < asked.every) asked.every = every;
+      _nowArm();
+    }
+    return value;
   }
 
   function query() {

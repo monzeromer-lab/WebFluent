@@ -355,7 +355,7 @@ A hook may `await`. A hook that throws fails the call it was watching.
 | Abort | A call is aborted when its scope leaves, when an argument that reads state changes, on `.cancel()`, and on timeout |
 | Errors | `.offline`, `.timeout`, `.aborted`, `.parse`, `.network`, `.status(code, body)` — each with `.message`, `.status`, `.body` and `.headers` to read |
 | Retry | Exponential backoff with jitter, per error kind, honouring `Retry-After` |
-| Cache | `cache: .swr(60.seconds)`, `.none`, `.forever` — keyed by method, address and body, and revalidated with `ETag` |
+| Cache | `cache: .swr(60.seconds)`, `.none`, `.forever` — keyed by method, address, body and credentials, revalidated with `ETag`, and holding the 256 answers read most recently |
 | Dedupe | Two readers of one address make one request |
 | Refetch | `on: .focus`, `.reconnect`, `.interval(30.seconds)` |
 | Pagination | `paginate: .page` gives `.items`, `.loadMore()` and `.hasMore` |
@@ -468,8 +468,10 @@ get report(id: String) at "reports/:id" as: .blob
   `options`.
 - **Path parameters.** A parameter the path names (`:id`) goes in the path.
   One that is empty (`null` or `""`) is not sent at all, since `users/`
-  would be the whole collection, not the user. The call ends as `.aborted`,
-  and a resource over it stays `loading` until the value arrives.
+  would be the whole collection, not the user; nor is one that is `.` or
+  `..`, which the browser reads as this folder or the one above. The call
+  ends as `.aborted`, and a resource over it stays `loading` until the value
+  arrives.
 - **The body.** A parameter called `body` is the request body; a map is
   sent as JSON. A `File` parameter makes the call a multipart upload.
 - **Query parameters.** Every other parameter goes in the query string, and

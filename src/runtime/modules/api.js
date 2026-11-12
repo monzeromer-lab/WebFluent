@@ -7,6 +7,7 @@
   // `.key(args)`, so a page can say what it wants without writing a client.
   function api(config) {
     const client = {};
+    if (config.name && config.onRequest) _requestHooks.set(config.name, config.onRequest);
     const base = () => {
       const b = typeof config.base === "function" ? config.base() : config.base;
       return (b || "").replace(/\/+$/, "");
@@ -84,6 +85,7 @@
         withHeaders: endpoint.withHeaders,
         progress: given.file != null || endpoint.progress ? progress : null,
         onRequest: config.onRequest,
+        api: config.name || null,
         onResponse: config.onResponse,
         onError: config.onError,
         shape: endpoint.shape,
@@ -92,22 +94,25 @@
     };
 
     // A path parameter with no value would ask for something else —
-    // `users/` for `users/:id`, the whole collection. The call is not made:
-    // it ends as aborted, which a resource over it reads as still loading,
-    // until the value arrives and the address changes.
+    // `users/` for `users/:id`, the whole collection. So would `.` or `..`,
+    // which the browser takes as this folder and the one above:
+    // `users/..` is the collection's parent. The call is not made: it ends
+    // as aborted, which a resource over it reads as still loading, until the
+    // value arrives and the address changes.
     const unfilled = (args) => {
       const given = args || {};
       const names = String(endpoint.path).match(/:([A-Za-z_][A-Za-z0-9_]*)/g) || [];
       for (const n of names) {
         const v = given[n.slice(1)];
-        if (v == null || v === "") return n.slice(1);
+        if (v == null || v === "") return [n.slice(1), "is empty"];
+        if (String(v) === "." || String(v) === "..") return [n.slice(1), "is `" + v + "`"];
       }
       return null;
     };
     const call = (args) => {
       const empty = unfilled(args);
       if (empty) {
-        return Promise.reject(netError("aborted", "`" + empty + "` is empty, so " + endpoint.path + " was not requested"));
+        return Promise.reject(netError("aborted", "`" + empty[0] + "` " + empty[1] + ", so " + endpoint.path + " was not requested"));
       }
       return send(addressOf(args), optionsOf(args));
     };
@@ -137,7 +142,9 @@
     const closure = signal(null);
     const failure = signal(null);
     const waiting = [];
+    const keep = keepOf(opts);
     let socket = null;
+    let retry = null;
     let attempt = 0;
     let heart = null;
     let alive = true;
@@ -179,7 +186,7 @@
           if (data === (opts.pong || "pong")) return;
           try { data = JSON.parse(data); } catch (e) { /* a plain string */ }
         }
-        messages.update((held) => [...held, data]);
+        messages.update((held) => appendKept(held, data, keep));
         if (opts.onMessage) opts.onMessage(data);
       };
       socket.onerror = (e) => { failure.set(netError("network", "The connection failed")); };
@@ -193,7 +200,7 @@
         state.set("connecting");
         const wait = Math.min((opts.delay || 500) * Math.pow(2, attempt), opts.max || 30000);
         attempt += 1;
-        setTimeout(open, wait * (0.5 + Math.random() / 2));
+        retry = setTimeout(() => { retry = null; open(); }, wait * (0.5 + Math.random() / 2));
       };
     };
     open();
@@ -219,9 +226,24 @@
         return null;
       },
       close(code, reason) {
+        const wasAlive = alive;
         alive = false;
-        if (heart) clearInterval(heart);
-        if (socket) socket.close(code || 1000, reason || "");
+        if (heart) { clearInterval(heart); heart = null; }
+        if (retry !== null) { clearTimeout(retry); retry = null; }
+        waiting.length = 0;
+        if (socket) {
+          // Its handlers go now: a socket closed while it was still
+          // connecting answers late, or never, and would hold them — and
+          // the page they reach — until it did.
+          const s = socket;
+          socket = null;
+          s.onopen = null;
+          s.onmessage = null;
+          s.onerror = null;
+          s.onclose = null;
+          try { s.close(code || 1000, reason || ""); } catch (e) { /* already closed */ }
+          if (wasAlive) closure.set({ code: code || 1000, reason: reason || "" });
+        }
         state.set("closed");
       },
     };
@@ -241,6 +263,7 @@
     const messages = signal([]);
     const latest = signal({});
     const failure = signal(null);
+    const keep = keepOf(opts);
     let source = null;
 
     const open = () => {
@@ -257,7 +280,7 @@
         let data = event.data;
         try { data = JSON.parse(data); } catch (e) { /* a plain string */ }
         const message = { event: name, data, id: event.lastEventId };
-        messages.update((held) => [...held, message]);
+        messages.update((held) => appendKept(held, message, keep));
         latest.update((held) => ({ ...held, [name]: data }));
         if (opts.onMessage) opts.onMessage(message);
       };

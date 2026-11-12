@@ -98,15 +98,63 @@
   // One entry per key, shared by every reader: two resources on one URL
   // make one request, and a stale entry is served at once while the
   // revalidation runs behind it.
+  //
+  // It holds at most `CACHE_MAX` entries: a read moves an entry to the back,
+  // and the one read least recently goes first (never one in flight). A
+  // request that fails leaves nothing behind.
+  //
+  // What a reader is allowed to see depends on who it is, so the entry is
+  // known by the credentials too: a request that sends another
+  // `Authorization` (or another token header) has an entry of its own, and
+  // an entry filled through a service's `on request` hook is not served once
+  // the hook sends other credentials — after a logout, or as another user.
+  // A cookie cannot be read, so a logout should also call `invalidate()` on
+  // the endpoints whose answers are one reader's.
   const _httpCache = new Map();
+  const CACHE_MAX = 256;
+  // The credentials each `on request` hook sent last, by hook.
+  const _hookAuth = new WeakMap();
 
   function cacheEntry(key) {
     let entry = _httpCache.get(key);
-    if (!entry) {
-      entry = { value: undefined, at: 0, etag: null, modified: null, inflight: null };
+    if (entry) {
+      _httpCache.delete(key);
       _httpCache.set(key, entry);
+      return entry;
+    }
+    entry = { value: undefined, at: 0, etag: null, modified: null, inflight: null, auth: "" };
+    _httpCache.set(key, entry);
+    if (_httpCache.size > CACHE_MAX) {
+      for (const [k, held] of _httpCache) {
+        if (_httpCache.size <= CACHE_MAX) break;
+        if (held === entry || held.inflight) continue;
+        _httpCache.delete(k);
+      }
     }
     return entry;
+  }
+
+  /// A short fingerprint of the credentials headers carry: "" for none.
+  function authOf(headers) {
+    const found = _credentialHeaders(headers);
+    if (!found.length) return "";
+    found.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
+    let hash = 0x811c9dc5;
+    for (const ch of JSON.stringify(found)) {
+      hash ^= ch.charCodeAt(0);
+      hash = Math.imul(hash, 0x01000193) >>> 0;
+    }
+    return hash.toString(36);
+  }
+
+  /// The headers a call was given, each read now.
+  function headersNow(given) {
+    const out = {};
+    for (const [k, v] of Object.entries(given || {})) {
+      const value = typeof v === "function" ? v() : v;
+      if (value != null) out[k] = value;
+    }
+    return out;
   }
 
   /// Forget what was cached: everything, one key, or every key that starts
@@ -129,11 +177,23 @@
   /// and `key` when the caller names the cache entry itself.
   function send(url, options) {
     const opts = options || {};
-    const key = opts.key != null ? opts.key : cacheKey(url, opts);
     const policy = opts.cache;
     const fresh = policy && policy.kind !== "none";
+    let key = opts.key != null ? opts.key : cacheKey(url, opts);
+    if (fresh) {
+      const auth = authOf(headersNow(opts.headers));
+      if (auth) key += " \u0001" + auth;
+    }
     const entry = fresh ? cacheEntry(key) : null;
 
+    // Filled through a hook that has sent other credentials since: not this
+    // reader's to see.
+    if (entry && entry.value !== undefined && opts.onRequest && _hookAuth.has(opts.onRequest)
+        && _hookAuth.get(opts.onRequest) !== entry.auth) {
+      entry.value = undefined;
+      entry.etag = null;
+      entry.modified = null;
+    }
     // A reader of a key already in flight joins it rather than asking again.
     if (entry && entry.inflight) return entry.inflight;
     if (entry && entry.value !== undefined) {
@@ -156,7 +216,11 @@
       // does. A joiner reads the failure through it; with no joiner,
       // nothing would, and the failure — which the caller handles on
       // `running` — would surface again as an unhandled rejection.
-      const joined = running.finally(() => { entry.inflight = null; });
+      const joined = running.finally(() => {
+        entry.inflight = null;
+        // Nothing arrived: the entry holds nothing, and goes.
+        if (entry.value === undefined && _httpCache.get(key) === entry) _httpCache.delete(key);
+      });
       joined.catch(() => {});
       entry.inflight = joined;
     }
@@ -169,6 +233,8 @@
     const body = opts.body == null ? "" : typeof opts.body === "string" ? opts.body : JSON.stringify(opts.body);
     return `${method} ${url} ${body}`;
   }
+  /// How many entries the cache holds (for tests and the studio).
+  send.cacheSize = () => _httpCache.size;
 
   /// Under `wf serve`: what is wrong with a response against the type the
   /// program declared for it — `$[1].name is missing` — or nothing. A
@@ -300,17 +366,47 @@
       referrerPolicy: opts.referrerPolicy,
       signal: controller ? controller.signal : undefined,
     };
+    // What the call itself sent, before a hook added to it: what a write
+    // kept offline may store.
+    const given = { ...headers };
     if (opts.onRequest) request = (await opts.onRequest(request)) || request;
 
+    // Held for other credentials than these: not offered back, not served.
+    const auth = authOf(request.headers);
+    if (opts.onRequest) _hookAuth.set(opts.onRequest, auth);
+    if (entry && entry.value !== undefined && entry.auth !== auth) {
+      entry.value = undefined;
+      entry.etag = null;
+      entry.modified = null;
+      if (request.headers) {
+        delete request.headers["If-None-Match"];
+        delete request.headers["If-Modified-Since"];
+      }
+    }
+
     // After the request is made up, so an offline write can be kept whole.
-    const offlineError = (message) => {
+    // Only a request that failed for want of a network may be kept: the
+    // browser says it is offline, or a request to this site's own server
+    // could not be made. One refused by another origin — a CORS refusal, a
+    // closed port — fails as it always did.
+    const offlineError = (message, unreachable) => {
       if (timer) clearTimeout(timer);
       const error = netError("offline", message);
-      error.request = { url: request.url, method: request.method, headers: request.headers, body: request.body };
+      if (unreachable) {
+        error.request = {
+          url: request.url,
+          method: request.method,
+          given,
+          hooked: !!opts.onRequest,
+          api: opts.api || null,
+          credentials: request.credentials,
+          body: request.body,
+        };
+      }
       return error;
     };
     if (typeof navigator !== "undefined" && navigator.onLine === false) {
-      throw offlineError("You are offline");
+      throw offlineError("You are offline", true);
     }
 
     let response;
@@ -335,9 +431,11 @@
       if (e && (e.name === "AbortError" || e.kind === "aborted")) {
         throw netError("aborted", "The request was cancelled");
       }
-      throw offlineError((e && e.message) || "The request could not be made");
+      const browserOffline = typeof navigator !== "undefined" && navigator.onLine === false;
+      throw offlineError((e && e.message) || "The request could not be made", browserOffline || sameOrigin(request.url));
     }
     if (timer) clearTimeout(timer);
+    if (entry) entry.auth = auth;
 
     const heads = headerMap(response.headers);
     if (opts.onResponse) await opts.onResponse({ status: response.status, headers: heads, url: request.url });
@@ -371,6 +469,17 @@
     // pagination lives in `Link`, and nowhere else.
     if (opts.withHeaders) return { value, headers: heads, status: response.status };
     return value;
+  }
+
+  /// Whether a URL is this site's own.
+  function sameOrigin(url) {
+    try {
+      const here = typeof window !== "undefined" && window.location ? window.location : null;
+      if (!here || !here.origin) return !/^[a-z][a-z0-9+.-]*:|^\/\//i.test(String(url));
+      return new URL(url, here.href).origin === here.origin;
+    } catch (e) {
+      return false;
+    }
   }
 
   /// A request through `XMLHttpRequest`, for the one thing `fetch` cannot

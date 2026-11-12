@@ -292,6 +292,9 @@
     const paging = options && options.paginate;
     const items = signal([]);
     const hasMore = signal(true);
+    // What each page brought, by its number: a page asked for again — a
+    // refresh, `on: .interval` — takes its own place, never a second one.
+    let pages = new Map();
     let extraPage = null;
     // A next page asked for and not yet answered: another is not asked for
     // on top of it, which would abandon it.
@@ -340,6 +343,7 @@
             items.set([]);
             hasMore.set(true);
             extraPage = null;
+            pages = new Map();
           }
         }
       }
@@ -358,7 +362,14 @@
           if (paging) {
             const page = Number(args && args[paging.by]) || 1;
             const got = Array.isArray(value) ? value : (value && Array.isArray(value.items) ? value.items : []);
-            items.set(page <= 1 ? reconcile(items(), got) : [...items(), ...got]);
+            // A page before the last one gathered starts over from it, as
+            // the first page always did; the last one, asked again, is
+            // replaced; the next one is added.
+            for (const n of [...pages.keys()]) if (n > page) pages.delete(n);
+            pages.set(page, got);
+            const all = [];
+            for (const n of [...pages.keys()].sort((a, b) => a - b)) all.push(...pages.get(n));
+            items.set(reconcile(items(), all));
             hasMore.set(got.length > 0);
           }
           error.set(null);

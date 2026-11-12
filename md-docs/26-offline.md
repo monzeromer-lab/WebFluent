@@ -70,6 +70,19 @@ A write — any method but `GET` and `HEAD`, made through `fetch` or an
 `api` — that fails because the network is gone is then kept instead of
 thrown. The call resolves with nothing, so what the page showed stays shown.
 
+Only a write that failed for want of a network is kept: the browser says it
+is offline, or the site's own server could not be reached. A request to
+another origin that is refused while the browser is online — a CORS
+refusal, a closed port — fails as it would without `sync`.
+
+A credential is never stored with a kept write. What an `api`'s
+`on request` hook adds — an `Authorization` header from the session — is
+added again when the write is sent, by the hook as it is then: a write made
+before a logout goes out with no one's token, never the old one. A write
+whose call carries a credential header itself (`headers: { "Authorization":
+token }`) cannot be kept without it, so it is not kept, and its call fails
+as it would without `sync`.
+
 When the connection returns, the kept writes are sent in order:
 
 - by Background Sync, where the browser has it, so a closed tab still sends
@@ -79,6 +92,13 @@ When the connection returns, the kept writes are sent in order:
 A server that answers has the write, even if it refuses it. A server that is
 down, or asks the client to wait, keeps the write waiting for later. A
 `File` body is not kept, and its call fails as it would without `sync`.
+
+A write whose service adds credentials with its hook is sent by a page that
+has that service open, so the worker leaves it — and the writes after it,
+to keep them in order — for the next such page.
+
+To forget every kept write — when the reader logs out, say — call
+`WF.clearQueued()` from one of the project's scripts.
 
 `network.queued` is how many writes are waiting. Show it so the reader knows
 their changes are safe:
@@ -116,6 +136,21 @@ page Home(path: "/", title: "Home", description: "The front page.") {
 reloads on the first install, which only takes over a page that already
 works, and never twice for one update. The old version's store is deleted
 when the new one takes over.
+
+## What the worker keeps
+
+What a `cache` entry fetches is kept in the worker's runtime store, the 200
+most recently fetched answers, for the next reader of the device — so an
+answer that is one reader's is never kept: one the server marks
+`Cache-Control: no-store` or `private`, one asked for with an
+`Authorization` header, and one that varies by `Cookie` or `Authorization`.
+Mark what is personal `private` and it stays off the device.
+
+Two sites on one origin under different `base_path`s keep apart: each has
+its own stores, kept writes and `persist` values (`wf:/shop:cart`), and
+neither deletes, serves or sends the other's. A site at the root keeps the
+names it always had, and one under a base path reads a value kept under the
+old name once and keeps it under the new one.
 
 > [!NOTE]
 > Under `wf serve` the worker removes itself. A page answered from its own

@@ -287,6 +287,10 @@
         [
           "update",
           "update"
+        ],
+        [
+          "clearQueued",
+          "clearQueued"
         ]
       ],
       "name": "offline",

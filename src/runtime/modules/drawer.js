@@ -20,7 +20,8 @@
 
     toggle.addEventListener("click", () => set(!open, false));
     if (scrim) scrim.addEventListener("click", () => set(false, true));
-    document.addEventListener("keydown", (e) => {
+    // On the document, so it is taken off when the page leaves.
+    listen(document, "keydown", (e) => {
       if (e.key === "Escape" && open) set(false, true);
     });
 

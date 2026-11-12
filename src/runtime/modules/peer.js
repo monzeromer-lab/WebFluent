@@ -43,7 +43,7 @@
         if (typeof data === "string") {
           try { data = JSON.parse(data); } catch (e) { /* a plain string */ }
         }
-        messages.update((held) => [...held, data]);
+        messages.update((held) => appendKept(held, data, keepOf(opts)));
         if (opts.onMessage) opts.onMessage(data);
       };
       ch.onclose = () => {

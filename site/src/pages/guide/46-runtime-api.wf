@@ -751,9 +751,9 @@ document.addEventListener("wf:render", (e) => {
                     Table.Cell { Markdown("An `image`'s `<picture>`.") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`offline(options)`, `update()`") }
+                    Table.Cell { Markdown("`offline(options)`, `update()`, `clearQueued()`") }
                     Table.Cell { Markdown("`offline`") }
-                    Table.Cell("The service worker and the update flow.")
+                    Table.Cell("The service worker, the update flow, and forgetting the writes kept offline.")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`loadAfter(scripts)`") }

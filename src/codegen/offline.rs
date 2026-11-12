@@ -100,8 +100,22 @@ const TEMPLATE: &str = r#"// Written by `wf build` because the config names `off
 // config, not this file: the next build writes it again.
 "use strict";
 const C = __CONFIG__;
-const STORE = `wf-${C.version}`;
-const RUNTIME = `wf-runtime-${C.version}`;
+// Every name this site keeps anything under carries its base path, so two
+// sites on one origin keep apart: neither deletes, serves or sends what the
+// other stored. A site at the root keeps the names it always had.
+const NS = C.base ? `wf:${C.base}:` : "wf-";
+const STORE = `${NS}${C.version}`;
+const RUNTIME = `${NS}runtime-${C.version}`;
+const OWN = C.base
+  ? (k) => k.startsWith(NS)
+  : (k) => /^wf-(runtime-)?[0-9a-f]{16}$/.test(k);
+// A site under a base path, built before its names carried it, stored under
+// the root's names; such a store is its own when what it holds is.
+const LEGACY = /^wf-(runtime-)?[0-9a-f]{16}$/;
+const WRITES_DB = C.base ? `wf-offline:${C.base}` : "wf-offline";
+const WRITES_TAG = C.base ? `wf-writes:${C.base}` : "wf-writes";
+// How many answers the runtime store keeps, the oldest written going first.
+const RUNTIME_MAX = 200;
 const PRECACHED = new Set(C.precache);
 const ROUTES = new Map(C.routes);
 const POLICIES = C.policies.map(([pattern, strategy]) => [new RegExp(pattern), strategy]);
@@ -123,12 +137,21 @@ self.addEventListener("install", (event) => {
   );
 });
 
+async function legacyOfThisSite(key) {
+  if (!C.base || !LEGACY.test(key)) return false;
+  const held = await (await caches.open(key)).keys();
+  return held.some((r) => new URL(r.url).pathname.startsWith(C.base + "/"));
+}
+
 self.addEventListener("activate", (event) => {
-  // The stores of every version before this one go.
+  // The stores of every version of this site before this one go; another
+  // site's stay.
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(
-        keys.filter((k) => k.startsWith("wf-") && k !== STORE && k !== RUNTIME).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.map(async (k) => {
+        if (k === STORE || k === RUNTIME) return;
+        if (OWN(k) || await legacyOfThisSite(k)) await caches.delete(k);
+      })))
       .then(() => self.clients.claim()),
   );
 });
@@ -188,12 +211,34 @@ async function stored(request) {
   return (await cache.match(request, { ignoreSearch: true })) || fetch(request);
 }
 
+// Whether an answer may be kept for the next reader of this device: not one
+// the server said not to store or that is one reader's alone, and not one
+// asked for with credentials or that varies by them.
+function storable(request, response) {
+  if (!response || !response.ok || response.type === "opaque") return false;
+  const control = (response.headers.get("Cache-Control") || "").toLowerCase();
+  if (/(^|[\s,])(no-store|private)([\s,=]|$)/.test(control)) return false;
+  if (request.headers.has("Authorization")) return false;
+  const vary = (response.headers.get("Vary") || "").toLowerCase();
+  if (/(^|[\s,])(\*|authorization|cookie)([\s,]|$)/.test(vary)) return false;
+  return true;
+}
+
 async function keep(request, response) {
-  if (response && response.ok) {
+  if (storable(request, response)) {
     const cache = await caches.open(RUNTIME);
     await cache.put(request, response.clone());
+    // A put moves the entry to the end, so the first keys are the oldest.
+    const held = await cache.keys();
+    for (let i = 0; i < held.length - RUNTIME_MAX; i++) await cache.delete(held[i]);
   }
   return response;
+}
+
+// What this site stored for a request: never another site's.
+async function held(request) {
+  return (await (await caches.open(RUNTIME)).match(request))
+    || (await (await caches.open(STORE)).match(request));
 }
 
 const STRATEGIES = {
@@ -201,13 +246,13 @@ const STRATEGIES = {
     try {
       return await keep(request, await fetch(request));
     } catch (e) {
-      return (await caches.match(request)) || Response.error();
+      return (await held(request)) || Response.error();
     }
   },
   "cache-first": async (request) =>
-    (await caches.match(request)) || keep(request, await fetch(request)),
+    (await held(request)) || keep(request, await fetch(request)),
   "stale-while-revalidate": async (request) => {
-    const cached = await caches.match(request);
+    const cached = await held(request);
     const fresh = fetch(request).then((r) => keep(request, r)).catch(() => cached);
     return cached || fresh;
   },
@@ -220,9 +265,20 @@ const STRATEGIES = {
 // this worker when the connection returns, page open or not, and they are
 // sent oldest first. A server that answers has the write; one that is down,
 // busy or asking to wait keeps it, and the browser tries again later.
+//
+// No credential is stored with a write. One whose service adds them with
+// its `on request` hook waits, with every write after it, for a page that
+// has the service open to send it with the credentials of then; a header
+// that carries one, kept by an older build, is not sent on.
 if (C.sync) {
+  const CREDENTIAL = /^(authorization|proxy-authorization|cookie)$|token|secret|api[-_]?key|session|auth|csrf|xsrf|password/i;
+  const withoutCredentials = (headers) => {
+    const out = {};
+    for (const [k, v] of Object.entries(headers || {})) if (!CREDENTIAL.test(k)) out[k] = v;
+    return out;
+  };
   const openWrites = () => new Promise((resolve, reject) => {
-    const open = indexedDB.open("wf-offline", 1);
+    const open = indexedDB.open(WRITES_DB, 1);
     open.onupgradeneeded = () => open.result.createObjectStore("writes", { keyPath: "id", autoIncrement: true });
     open.onerror = () => reject(open.error);
     open.onsuccess = () => resolve(open.result);
@@ -236,7 +292,7 @@ if (C.sync) {
   });
   // Under the lock the page takes too, so a write is never sent by both.
   const sendWrites = () => (self.navigator.locks
-    ? self.navigator.locks.request("wf-writes", sendAll)
+    ? self.navigator.locks.request(WRITES_TAG, sendAll)
     : sendAll());
   const sendAll = async () => {
     const db = await openWrites();
@@ -246,7 +302,10 @@ if (C.sync) {
         r.onsuccess = () => done(r.result || []);
       });
       for (const w of writes) {
-        const response = await fetch(w.url, { method: w.method, headers: w.headers, body: w.body });
+        if (w.api) break;
+        const init = { method: w.method, headers: withoutCredentials(w.headers), body: w.body };
+        if (w.credentials) init.credentials = w.credentials;
+        const response = await fetch(w.url, init);
         if (response.status >= 500 || response.status === 408 || response.status === 429) {
           throw new Error(`the server answered ${response.status}; trying again later`);
         }
@@ -259,7 +318,7 @@ if (C.sync) {
     }
   };
   self.addEventListener("sync", (event) => {
-    if (event.tag === "wf-writes") event.waitUntil(sendWrites());
+    if (event.tag === WRITES_TAG) event.waitUntil(sendWrites());
   });
 }
 "#;

@@ -51,11 +51,18 @@
     const decode = (text) => (text === null || text === undefined ? initial : forward(JSON.parse(text), initial, version, rules.migrate));
     // No key yet — no project open — is nowhere: the value lives in
     // memory until there is one, and nothing is read or written.
-    const nameFor = () => {
-      if (typeof rules.key !== "function") return "wf:" + base;
+    //
+    // A site under a base path names its values with it — `wf:/shop:cart`
+    // — so two sites on one origin do not read each other's. A site at the
+    // root keeps the names it always had.
+    const named = (prefix) => {
+      if (typeof rules.key !== "function") return prefix + base;
       const part = rules.key();
-      return part === null || part === undefined ? null : "wf:" + base + ":" + String(part);
+      return part === null || part === undefined ? null : prefix + base + ":" + String(part);
     };
+    const nameFor = () => named(_basePath ? "wf:" + _basePath + ":" : "wf:");
+    // Where an older build kept it, before names carried the base path.
+    const legacyFor = () => (_basePath ? named("wf:") : null);
     const later = (fn) => {
       if (rules.off) rules.off.push(fn);
       else onCleanup(fn);
@@ -75,12 +82,13 @@
         set(initial);
         return;
       }
-      let got;
-      try {
-        got = store().get(to);
-      } catch (e) {
-        got = null;
-      }
+      const read = (from) => {
+        try {
+          return store().get(from);
+        } catch (e) {
+          return null;
+        }
+      };
       const take = (text) => {
         if (ticket !== reading) return;
         try {
@@ -89,12 +97,30 @@
           set(initial);
         }
       };
+      // Nothing under the new name: what the older name held is read once
+      // and kept under the new one, so a returning reader loses nothing.
+      // The old one is left, since another site of the origin may read it.
+      const legacy = legacyFor();
+      const orLegacy = (text) => {
+        if (text !== null && text !== undefined) return take(text);
+        if (!legacy || legacy === to) return take(text);
+        const old = read(legacy);
+        const adopt = (was) => {
+          if (was !== null && was !== undefined && ticket === reading) {
+            try { store().set(to, was); } catch (e) { /* full or blocked */ }
+          }
+          take(was);
+        };
+        if (old && typeof old.then === "function") old.then(adopt, () => take(null));
+        else adopt(old);
+      };
+      const got = read(to);
       if (got && typeof got.then === "function") {
         // Until it answers, the value is what it was declared as.
         set(initial);
-        got.then(take, () => take(null));
+        got.then(orLegacy, () => take(null));
       } else {
-        take(got);
+        orLegacy(got);
       }
     };
 
@@ -179,6 +205,10 @@
     const envelope = stored && typeof stored === "object" && "wf:v" in stored;
     let at = envelope ? stored["wf:v"] : 1;
     let value = envelope ? stored["wf:d"] : stored;
+    // A version that is not a whole number from 1 cannot say which steps
+    // it needs: `"2" < 3` and `null < 3` would run the wrong ones, and
+    // `NaN` none at all.
+    if (!Number.isInteger(at) || at < 1) return initial;
     if (at > version) return initial;
     while (at < version) {
       const step = migrate && migrate[at + 1];

@@ -104,6 +104,7 @@ reconnects:
 | `delay:`, `max:` | The first wait before reconnecting, in milliseconds, and the longest; the wait doubles each time | `500`, `30000` |
 | `queue:` | `false` to drop, rather than hold, what is sent while the socket is down | `true` |
 | `binaryType:` | `"blob"` or `"arraybuffer"` | `"blob"` |
+| `keep:` | How many messages `.messages` holds, the newest; the oldest go first | `500` |
 
 ### Type the messages
 
@@ -154,8 +155,9 @@ page Prices(path: "/prices", title: "Prices", description: "Live prices.") {
 
 Each event name is kept apart, so `ticks.last("price")` is the last price
 and not the last event of any kind; `ticks.last()` is the last unnamed
-message. `ticks.messages` holds every message in order. A message whose
-data parses as JSON arrives as a value.
+message. `ticks.messages` holds the messages in order — the last 500, or
+as many as `keep:` says. A message whose data parses as JSON arrives as a
+value.
 
 The browser reconnects a stream on its own and resumes from the last event
 id the server sent. Pass `credentials: true` to send the site's cookies
@@ -248,13 +250,19 @@ reads what arrived:
 | | `socket` | `stream` | `channel` | `peer` |
 |---|---|---|---|---|
 | `.state` | `connecting`, `open`, `closed`, `error` — the arms of a `match` | the same | `open` or `closed` | the same as a socket |
-| `.messages` | every message, in order | every message, in order | — | every message, in order |
-| `.last(kind)` | the last message, or the last whose `type` is `kind` | the last under an event's name | `.last`: the last posted | as a socket |
+| `.messages` | the messages, in order: the last 500, or `keep:` | the same | — | the same |
+| `.last(kind)` | the last message, or the last whose `type` is `kind`, among those `.messages` holds | the last under an event's name | `.last`: the last posted | as a socket |
 | `.error` | the failure, which the `error(e)` arm is handed | the same | — | the same |
 | `.closure` | the close, which `closed(c)` is handed: `.code`, `.reason` | — | — | the same |
 | Sending | `.send(value)` — queued while the line is down | — | `.post(value)` | `.send(value)` — queued until it opens |
 | `.close()` | closes it early | the same | the same | the same |
 | `.signal(m)` | — | — | — | hands it what the other side signalled |
+
+A connection left open all day would otherwise hold every message it was
+ever sent, so `.messages` keeps the newest 500 and lets the oldest go.
+`keep:` on the connection says another number — `ws(url, keep: 50)`,
+`sse(url, keep: 2000)` — and `keep: 0` keeps none, for a connection whose
+`on message` handler stores what it needs itself.
 
 A store may hold any of these too. It opens the connection when the store
 is first read and closes it with the store; a page reads it as

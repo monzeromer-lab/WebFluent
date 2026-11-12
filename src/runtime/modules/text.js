@@ -389,12 +389,18 @@
     else paint();
   });
 
-  function markdown(text, opts) {
+  // How deep `>` quotes nest: past this, a `>` is text. Each level is a
+  // call, and text from data could nest thousands deep.
+  const MD_QUOTE_DEPTH = 32;
+  function markdown(text, opts, depth) {
     const inert = !!(opts && opts.inert);
+    const level = depth || 0;
+    const quotes = level < MD_QUOTE_DEPTH;
     let source = String(text == null ? "" : text);
     // The two characters the renderer marks its own places with cannot
-    // arrive in text somebody else wrote.
-    if (inert) source = source.replace(MD.markers, "\ufffd");
+    // arrive in the text it is given: one would be read as a span set
+    // aside, the other as a line break.
+    source = source.replace(MD.markers, "\ufffd");
     // Lines as the compiler's `str::lines` has them: split at `\n` or
     // `\r\n`, with no empty line after the last newline. A fence left
     // open at the end, or a text with Windows line endings, is painted
@@ -403,7 +409,7 @@
     if (lines[lines.length - 1] === "") lines.pop();
     let out = "";
     let i = 0;
-    const isBlock = (t) => t === "" || t.startsWith("```") || t === "---" || t === "***" || mdHeading(t) || t.startsWith(">") || mdListItem(t);
+    const isBlock = (t) => t === "" || t.startsWith("```") || t === "---" || t === "***" || mdHeading(t) || (quotes && t.startsWith(">")) || mdListItem(t);
     // A row runs to the first blank line or block; a row short of cells
     // has empty ones, and one with more drops them, as GFM's does.
     const row = (line, tag, aligns) => {
@@ -432,10 +438,10 @@
       if (t === "---" || t === "***") { out += "<hr>\n"; i++; continue; }
       const h = mdHeading(t);
       if (h) { out += "<h" + h[0] + ">" + mdInline(h[1], inert) + "</h" + h[0] + ">\n"; i++; continue; }
-      if (t.startsWith(">")) {
+      if (quotes && t.startsWith(">")) {
         const quoted = [];
         while (i < lines.length && mdTrim(lines[i]).startsWith(">")) { quoted.push(mdTrim(lines[i]).slice(1).replace(MD.trimStart, "")); i++; }
-        out += "<blockquote>\n" + markdown(quoted.join("\n"), opts) + "</blockquote>\n";
+        out += "<blockquote>\n" + markdown(quoted.join("\n"), opts, level + 1) + "</blockquote>\n";
         continue;
       }
       const aligns = mdTableAt(lines, i);
@@ -445,7 +451,7 @@
         let body = "";
         while (i < lines.length) {
           const r = mdTrim(lines[i]);
-          if (r === "" || r.startsWith("```") || mdHeading(r) || r.startsWith(">") || mdTableAt(lines, i)) break;
+          if (r === "" || r.startsWith("```") || mdHeading(r) || (quotes && r.startsWith(">")) || mdTableAt(lines, i)) break;
           body += row(lines[i], "td", aligns);
           i++;
         }

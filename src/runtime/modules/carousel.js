@@ -49,12 +49,15 @@
     let paused = false; // by the reader, with the button
     let pointerOver = false;
     let focused = false;
+    // Gone with its page: the timer stops, and a pointer or focus event
+    // that arrives after does not start it again.
+    let gone = false;
 
     const nav = el("div", { className: "wf-carousel__nav" });
     let playButton = null;
 
     const running = () =>
-      autoplay && !paused && !pointerOver && !focused && !(document.hidden === true);
+      !gone && autoplay && !paused && !pointerOver && !focused && !(document.hidden === true);
 
     function sync() {
       if (running()) {
@@ -97,7 +100,14 @@
       root.addEventListener("focusout", (e) => {
         if (!root.contains(e.relatedTarget)) { focused = false; sync(); }
       });
-      document.addEventListener("visibilitychange", sync);
+      listen(document, "visibilitychange", sync);
+      onCleanup(() => {
+        gone = true;
+        if (timer !== null) {
+          clearInterval(timer);
+          timer = null;
+        }
+      });
     }
 
     nav.appendChild(

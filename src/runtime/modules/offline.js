@@ -82,15 +82,18 @@
   //
   // One store, `writes` in the `wf-offline` database, which the worker reads
   // too: where the browser has Background Sync the worker sends them, closed
-  // page or not; elsewhere the page does.
-  const WRITES_DB = "wf-offline";
+  // page or not; elsewhere the page does. A site under a base path has a
+  // database of its own (`wf-offline:/shop`), so two sites on one origin
+  // never send each other's writes.
   const WRITES = "writes";
   let _syncReg = null;
+  const writesDb = () => (_basePath ? "wf-offline:" + _basePath : "wf-offline");
+  const writesLock = () => (_basePath ? "wf-writes:" + _basePath : "wf-writes");
 
   function writesStore(mode, work) {
     return new Promise((resolve, reject) => {
       if (typeof indexedDB === "undefined") return reject(new Error("no IndexedDB"));
-      const open = indexedDB.open(WRITES_DB, 1);
+      const open = indexedDB.open(writesDb(), 1);
       open.onupgradeneeded = () => {
         open.result.createObjectStore(WRITES, { keyPath: "id", autoIncrement: true });
       };
@@ -124,15 +127,29 @@
   /// network: kept, and the call resolves with nothing so what it showed
   /// stays shown. A body that cannot be stored — a `File`, a `FormData` — is
   /// not kept, and the caller gets the error as before.
+  ///
+  /// A credential is never stored. What a service's `on request` hook adds
+  /// is added again when the write is sent, by the hook as it is then — so
+  /// a write made before a logout goes with no one's token, and one made by
+  /// another user with theirs. A write whose call itself carries a
+  /// credential header cannot be kept without it, so it is not kept: the
+  /// caller gets the error.
   function queueWrite(request) {
     if (request.body != null && typeof request.body !== "string") return null;
+    const given = request.given || {};
+    if (_credentialHeaders(given).length) return null;
     const write = {
       url: request.url,
       method: request.method,
-      headers: request.headers || {},
+      headers: _withoutCredentials(given),
+      api: request.hooked ? request.api || null : null,
+      credentials: request.credentials || null,
       body: request.body == null ? null : request.body,
       at: Date.now(),
     };
+    // Hooked, with no name to find its hook by later: it cannot be sent as
+    // it was meant to be.
+    if (request.hooked && !write.api) return null;
     return writesStore("readwrite", (store) => { store.add(write); }).then(() => {
       refreshQueued();
       askToSend();
@@ -141,7 +158,7 @@
   }
 
   function askToSend() {
-    if (_syncReg && _syncReg.sync) _syncReg.sync.register("wf-writes").catch(() => {});
+    if (_syncReg && _syncReg.sync) _syncReg.sync.register(writesLock()).catch(() => {});
     sendWrites();
   }
 
@@ -158,9 +175,32 @@
     _sending = true;
     const send = async () => {
       for (const write of await allWrites()) {
+        let request = {
+          url: write.url,
+          method: write.method,
+          // A write kept by an older build may hold a credential: it is not
+          // sent on.
+          headers: _withoutCredentials(write.headers),
+          body: write.body,
+        };
+        if (write.credentials) request.credentials = write.credentials;
+        if (write.api) {
+          // The service's hook gives the credentials of now. A page that
+          // has not opened the service yet keeps the write, and the ones
+          // after it, in order, for one that has.
+          const hook = _requestHooks.get(write.api);
+          if (!hook) return;
+          try {
+            request = (await hook(request)) || request;
+          } catch (e) {
+            return;
+          }
+        }
         let response;
         try {
-          response = await fetch(write.url, { method: write.method, headers: write.headers, body: write.body });
+          const init = { method: request.method, headers: request.headers, body: request.body };
+          if (request.credentials) init.credentials = request.credentials;
+          response = await fetch(request.url, init);
         } catch (e) {
           return;
         }
@@ -169,7 +209,7 @@
       }
     };
     const locked = typeof navigator !== "undefined" && navigator.locks
-      ? navigator.locks.request("wf-writes", send)
+      ? navigator.locks.request(writesLock(), send)
       : send();
     return Promise.resolve(locked)
       .catch(() => {})
@@ -177,6 +217,14 @@
         _sending = false;
         refreshQueued();
       });
+  }
+
+  /// Forget every write kept for later — for a logout, or a reader who
+  /// would rather not send them. `WF.clearQueued()` from a project's script.
+  function clearQueued() {
+    return writesStore("readwrite", (store) => { store.clear(); })
+      .catch(() => {})
+      .then(() => { refreshQueued(); });
   }
 
   function startSending(reg) {

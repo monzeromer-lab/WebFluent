@@ -72,11 +72,16 @@
     // The node the route is drawn into: the painted one, once a
     // pre-rendered page has been taken over (hydrate).
     const into = () => inPage(container);
-    // Check for SPA redirect from 404.html (?p=/path)
+    // Check for SPA redirect from 404.html (?p=/path). Only a path of this
+    // site is taken — one `/`, then not another `/` or `\`, which the
+    // browser reads as another host — and an address the browser refuses
+    // still leaves the router to start on the page it is at.
     const urlParams = new URLSearchParams(window.location.search);
     const redirectPath = urlParams.get("p");
-    if (redirectPath) {
-      window.history.replaceState(null, "", _basePath + redirectPath);
+    if (redirectPath && /^\/(?![\/\\])/.test(redirectPath) && _onThisSite(_basePath + redirectPath)) {
+      try {
+        window.history.replaceState(null, "", _basePath + redirectPath);
+      } catch (e) { /* not an address of this page: stay where it is */ }
     }
 
     // A page written to `contact.html` beside `contact/index.html`
@@ -336,8 +341,12 @@
         // the part before them. A scheme the browser would run never gets
         // that far — the page stays where it is.
         const path = safeUrl(to);
-        if (!path) return;
-        window.history.pushState(null, "", _basePath + path);
+        if (!path || !_onThisSite(_basePath + path)) return;
+        try {
+          window.history.pushState(null, "", _basePath + path);
+        } catch (e) {
+          return;
+        }
         currentPath.set(_routeOf(path));
       },
       currentPath,

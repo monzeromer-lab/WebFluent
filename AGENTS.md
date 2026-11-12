@@ -1281,7 +1281,7 @@ What comes with it, at every call site:
 | Bodies | JSON, text, a `File` (sent as a form), `FormData`, `Blob`, `ArrayBuffer`, `URLSearchParams` |
 | Responses | JSON, `as: .text`, `.blob`, `.arrayBuffer`, `204` as no value, and `.lines()` for a streamed response |
 | Elsewhere | `Backend.users.invalidate()`, `.prefetch(args)`, `.key(args)`, `.url(args)` |
-| Empty path parameters | a call whose path parameter is `null` or `""` is not sent (`users/` would be the collection, not the user); it ends `.aborted`, and a resource over it stays `loading` until the value arrives |
+| Empty path parameters | a call whose path parameter is `null`, `""`, `.` or `..` is not sent (`users/` would be the collection, not the user); it ends `.aborted`, and a resource over it stays `loading` until the value arrives |
 
 `await fetch(url, options)` in an action goes through the same engine, and
 `window.fetch` is untouched for anything that wants the browser's own.
@@ -1320,7 +1320,8 @@ A socket reconnects with backoff, keeps itself alive with a heartbeat, and
 holds what was sent while it was down. A stream resumes where it was.
 
 Each is a handle, not a signal: `.state` (what a `match` reads),
-`.messages`, `.last(kind)`, `.error`, `.closure` (`.code`, `.reason`),
+`.messages` (the newest 500; `keep: n` on the connection says how many),
+`.last(kind)`, `.error`, `.closure` (`.code`, `.reason`),
 `.close()`, and `.send(v)` on a socket or a peer, `.post(v)` on a channel.
 A store may hold any of them too: opened when the store is first read,
 closed with it, read as `Lang.css.state` and in its actions as `css`.
@@ -1429,7 +1430,12 @@ that stores the site for when the network is gone:
   closed page still sends it. The call resolves with nothing, so what it
   showed stays shown. A server that answers has the write, even to refuse
   it; one that is down or asks to wait keeps it for later. A `File` body is
-  not kept.
+  not kept. Only a write the network failed is kept — the browser offline,
+  or the site's own server unreachable — and never a credential: an `api`'s
+  `on request` hook adds them again when it is sent, and a call that carries
+  its own credential header is not kept. `WF.clearQueued()` forgets them.
+  A site under a `base_path` keeps its stores, writes and `persist` values
+  apart from another on the origin.
 
 The worker is versioned by a hash of everything the build wrote, so a
 deploy that changes a byte is a new version. It installs and waits:
@@ -1654,7 +1660,7 @@ back. Capabilities are split by `"platforms"`, and a phone-only plugin
 ### Navigation
 
 ```wf
-navigate("/path")                    // Programmatic
+navigate("/path")                    // Programmatic; an address on another origin is refused
 Link("About", to: "/about")          // Declarative
 ```
 

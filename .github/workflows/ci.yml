@@ -164,6 +164,14 @@ jobs:
         working-directory: tests/browser
         run: node store_resource.mjs
 
+      - name: A long session lets go
+        working-directory: tests/browser
+        run: node leaks.mjs
+
+      - name: Where a page may send its reader
+        working-directory: tests/browser
+        run: node redirects.mjs
+
       # What the compiler once compiled wrong, clicked and typed into.
       - name: Behaviour
         run: target/release/wf test tests/fixtures/behaviour

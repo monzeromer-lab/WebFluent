@@ -4,7 +4,12 @@
   function signal(value) {
     const subs = new Set();
     const get = () => {
-      if (currentEffect) subs.add(currentEffect);
+      if (currentEffect) {
+        subs.add(currentEffect);
+        // The effect remembers where it is listed, so that a run that no
+        // longer reads this signal, and its disposal, take it off again.
+        if (currentEffect.deps) currentEffect.deps.add(subs);
+      }
       return value;
     };
     // A signal holds any value, a function included: `set(fn)` stores
@@ -19,6 +24,8 @@
     get.set = set;
     get.update = (fn) => set(fn(value));
     get.subscribe = (fn) => { subs.add(fn); return () => subs.delete(fn); };
+    // Who is listening, for a value that pays to stay current (`now`).
+    get._subs = subs;
     return get;
   }
 
@@ -101,19 +108,46 @@
 
   // An effect runs at once and again when a signal it read changes; what
   // it returns is its cleanup, run before the next run and on disposal.
+  //
+  // An effect listens to exactly what its last run read: each run takes it
+  // off every signal it was listed on and the run lists it again, so a
+  // branch that stopped reading a value stops running for it. A run that
+  // throws keeps what it was listening to before as well, since it never
+  // got as far as reading it. Disposal takes it off every signal, so a
+  // signal that outlives it — a store's state, the route — does not keep
+  // it, its closure and the nodes it updates alive.
   function effect(fn) {
     let cleanup = null;
     let dead = false;
+    const unlist = (deps) => { for (const subs of deps) subs.delete(run); };
     const run = () => {
       if (dead) return;
       if (typeof cleanup === "function") { const c = cleanup; cleanup = null; c(); }
+      if (dead) return;
+      const before = run.deps;
+      unlist(before);
+      run.deps = new Set();
       const prev = currentEffect;
       currentEffect = run;
-      try { cleanup = fn(); } finally { currentEffect = prev; }
+      let ok = false;
+      try { cleanup = fn(); ok = true; } finally {
+        currentEffect = prev;
+        if (dead) {
+          unlist(run.deps);
+          run.deps = new Set();
+        } else if (!ok) {
+          for (const subs of before) { subs.add(run); run.deps.add(subs); }
+        }
+      }
     };
+    run.deps = new Set();
     run.order = ++effectsMade;
     run.dispose = () => {
+      if (dead) return;
       dead = true;
+      unlist(run.deps);
+      run.deps = new Set();
+      if (pending !== null) pending.delete(run);
       if (typeof cleanup === "function") { const c = cleanup; cleanup = null; c(); }
     };
     onCleanup(run.dispose);
@@ -428,6 +462,42 @@
   // many such writes wait. Empty in a build without it.
   let offlineWrites = null;
   let offlineQueued = null;
+  // How many messages a connection's `.messages` holds by default: the
+  // newest, the oldest going first. `keep:` on the connection says another
+  // number. A list that grew for as long as the page was open — copied on
+  // every message — is how a chat left open for a day ran out of memory.
+  const KEEP_MESSAGES = 500;
+  function keepOf(opts) {
+    const n = opts && opts.keep != null ? Math.floor(Number(opts.keep)) : KEEP_MESSAGES;
+    return Number.isFinite(n) && n >= 0 ? n : KEEP_MESSAGES;
+  }
+  function appendKept(held, item, keep) {
+    if (keep <= 0) return [];
+    if (held.length < keep) return [...held, item];
+    const out = held.slice(held.length - keep + 1);
+    out.push(item);
+    return out;
+  }
+  // A service's `on request` hook, by the service's name, so a write kept
+  // offline is sent later with the credentials the hook gives then — they
+  // are never stored with it.
+  const _requestHooks = new Map();
+
+  // A header that carries a credential: never stored with a kept write, and
+  // what tells one reader's cached answer from another's.
+  const _CREDENTIAL = /^(authorization|proxy-authorization|cookie)$|token|secret|api[-_]?key|session|auth|csrf|xsrf|password/i;
+  function _credentialHeaders(headers) {
+    const out = [];
+    for (const [k, v] of Object.entries(headers || {})) {
+      if (_CREDENTIAL.test(k) && v != null && v !== "") out.push([k.toLowerCase(), String(v)]);
+    }
+    return out;
+  }
+  function _withoutCredentials(headers) {
+    const out = {};
+    for (const [k, v] of Object.entries(headers || {})) if (!_CREDENTIAL.test(k)) out[k] = v;
+    return out;
+  }
   // The project's translations, set by `locales()` when i18n is built in.
   // `format` and a field's labels read it without depending on i18n.
   let i18nInstance = null;
@@ -846,13 +916,35 @@
     return true;
   }
 
+  /// Whether an address, as the browser would resolve it from this page,
+  /// is on this site. `navigate()` moves within the site: a value the page
+  /// was handed — `?next=//elsewhere` after a login — must not take the
+  /// reader to another one. A page with no address to compare against (a
+  /// test, a worker) is not judged.
+  function _onThisSite(address) {
+    if (typeof window === "undefined" || !window.location) return true;
+    const here = window.location.href;
+    if (typeof here !== "string" || !/^[a-z][a-z0-9+.-]*:/i.test(here)) return true;
+    try {
+      return new URL(String(address), here).origin === new URL(here).origin;
+    } catch (e) {
+      return false;
+    }
+  }
+
   function navigate(path) {
     if (_ssgMode) {
       // SSG: full page load to the pre-rendered HTML file
-      window.location.href = _basePath + path;
+      const to = _basePath + path;
+      if (!_onThisSite(to)) {
+        if (devMode()) console.warn("WF: navigate() stays on the site; " + JSON.stringify(String(path)) + " is another one.");
+        return;
+      }
+      window.location.href = to;
     } else if (routerInstance) {
       routerInstance.navigate(path);
     } else {
+      if (!_onThisSite(path)) return;
       window.location.href = path;
     }
   }
