@@ -17,6 +17,7 @@ pub mod secrets;
 pub use secrets::{lint_env, lint_env_via};
 pub mod accessibility;
 pub mod contrast;
+pub mod output;
 pub mod pdf_validation;
 pub mod project;
 pub mod semantic;

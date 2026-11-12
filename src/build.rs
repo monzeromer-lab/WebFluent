@@ -1052,7 +1052,13 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
         // A policy is a promise about what the pages contain. Reading them
         // back is how the promise is kept: a browser would enforce it and
         // show a blank page, and this says so at build time instead.
-        let broken: Vec<Diagnostic> = check_csp(&output_dir, &written_html, &config)
+        let violations = check_csp(&output_dir, &written_html, &config);
+        // A page the policy refuses is not left where a deploy that
+        // ignores the exit code would publish it.
+        for v in &violations {
+            let _ = fs::remove_file(output_dir.join(&v.page));
+        }
+        let broken: Vec<Diagnostic> = violations
             .into_iter()
             .map(|v| {
                 Diagnostic::coded(

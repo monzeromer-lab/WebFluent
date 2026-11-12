@@ -252,6 +252,10 @@ page Post(path: "/p/:slug", title: "Post", slug: String) {
 }
 ```
 
+A tag's `src:` and `href:` go through the scheme check at build time and on
+the live page; a `script(src:)` is written out, never read from a value, and
+a `meta(http-equiv: "refresh")` takes no address from one (`E107`).
+
 <!-- core -->
 ### Components
 
@@ -1819,7 +1823,7 @@ Button flags: `.sm`, `.lg`, `.full`, `.rounded`, `.pill`, `.outlined`; `type: .s
 | `Image` | `Image(src: "/photo.jpg", alt: "Description")`, or `Image(hero, alt: "…", sizes: "…", placeholder: .blur)` with an `image` the program declares; a literal `src:` naming a PNG, JPEG, GIF or WebP in `public/` is processed by the build just as an `image` is — decoded asynchronously; the first image on a page loads eagerly at high priority (it is usually the largest paint), the rest lazily. `loading:` overrides |
 | `Video` | `Video(src: "/video.mp4", captions: "/clip.en.vtt", poster: "/frame.jpg").controls` — `muted`, `loop`, `playsinline`; without `captions` it draws an `A09` |
 | `Audio` | `Audio(src: "/talk.mp3", transcript: "/talk.txt").controls` — the transcript is a link beneath the player |
-| `Frame` | `Frame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") { on message(m) { heard = m.data } }` — another page inside this one; `on message` hears only what that page posts; without `title:` it draws an `A17`. `Frame(srcdoc: html, title: "Example", sandbox: "")` draws the HTML it is given instead of an address, sandboxed as `sandbox:` says, and draws the new HTML when a value that reads state changes |
+| `Frame` | `Frame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") { on message(m) { heard = m.data } }` — another page inside this one; `on message` hears only what that page posts; without `title:` it draws an `A17`. `Frame(srcdoc: html, title: "Example", sandbox: "")` draws the HTML it is given instead of an address, sandboxed as `sandbox:` says (HTML from a value with no `sandbox:` gets `sandbox=""` and a `V03`), and draws the new HTML when a value that reads state changes; `on message` checks the sender's origin too, so a page the frame navigated to is not heard |
 | `Icon` | `Icon("home")` or `Icon("search").lg.primary` — 83 built-in SVG icons rendered inline (see [Icon System](#icon-system)) |
 | `Carousel` | `Carousel(autoplay: true, interval: 5000) { Carousel.Slide { Image(src: "...") } }` — slide track with dots and autoplay |
 
@@ -2547,7 +2551,13 @@ advice:
   written on an element is an attribute of that name, as any argument an
   element does not declare is (`C04`), never markup.
 - **No inline handlers.** `Button("x", onclick: expr)` is a compile error
-  pointing at `on click { }`.
+  pointing at `on click { }`; `style:` is one too (`E106`), pointing at
+  `style { }`.
+- **An attribute holds its value.** A page title (from a route parameter,
+  data or front matter), a `class:` from data, a chart's or a QR code's
+  colour are escaped where they are written, and a colour must be a CSS
+  colour or the default is drawn. A design token holding `<`, `{`, `}` or
+  `;` is left out of the sheet.
 - **No URL a browser would run.** `href:`, `src:`, `to:`, `poster:` and
   `navigate()` take `http`, `https`, `mailto`, `tel`, `sms`, `ftp` or a
   relative URL. A literal is refused where it is written; anything else
@@ -2558,7 +2568,10 @@ advice:
   Markdown picture and a sanitised `<img>` take (`WF.safePicture`): an img
   never runs what it shows. A link, a frame or a form never takes one, and
   no other `data:` is a picture.
-- **`rel="noopener noreferrer"`** on any link with `target:`.
+- **`rel="noopener noreferrer"`** on any link with `target:`; a sanitised
+  link with `target` loses any `rel="opener"`.
+- **A frame drawing HTML from a value runs none of it**: `Frame(srcdoc:
+  value)` with no `sandbox:` is `sandbox=""`, and draws a `V03`.
 - **A `Secret` cannot escape** — shown, spliced, logged or persisted is a
   `T12`.
 
@@ -2595,7 +2608,8 @@ what the compiler depends on. `--json` for a tool; it never fails a build.
 ### Headers and the policy
 
 `"build": { "csp": true }` — on for a project `wf init` creates — emits a
-`Content-Security-Policy` meta tag and a `_headers` file for hosts that
+`Content-Security-Policy` meta tag — right after `<meta charset>`, before
+anything a page's data reaches — and a `_headers` file for hosts that
 read one. `frame-ancestors` is only in `_headers`, because a browser
 ignores it in a meta tag. It is `'none'`, with `X-Frame-Options: DENY`
 (`wf serve` sends the same); a project that places a `Frame` with a
@@ -2618,8 +2632,10 @@ snippet (`dataLayer`, `gtag('config', …)`) is a plain script under `src/`.
 
 **The build reads its own output back and holds it to that policy**: an
 inline `<script>` or `<style>`, a `style=` attribute, an `on*` attribute,
-or a script or stylesheet from an origin the policy never named stops the
-build. One exception is widened rather than refused — a `style { }` value
+a script or stylesheet from an origin the policy never named or from a
+`data:`/`javascript:` address, a `<base>`, or a refresh to another site
+stops the build — read as a browser reads it, in any case, attributes apart
+by white space or `/` — and the refused page is removed from the output. One exception is widened rather than refused — a `style { }` value
 that reads state is written on the element, so `style-src` gains
 `'unsafe-inline'` and the build names the pages that caused it. A page's
 own `head { script(src: …) }` or stylesheet `link` is added on the live
@@ -3054,8 +3070,8 @@ the editor's quick fix and the JSON's `fixes`: the nearest name for `T05`,
 | `E103` | A flag, case, part, event, slot or `emit` the registry or the component's declaration does not know (`Button has no flag or enum case `huge``, with the ones it takes) |
 | `E104` | A `layout:` component with no default slot |
 | `E105` | A statement a render block cannot hold (`n = n + 1` loose in a page) |
-| `E106` | An `on*` attribute: script in an attribute |
-| `E107` | A `href`/`src`/`to` literal naming a scheme a browser runs |
+| `E106` | An `on*` attribute: script in an attribute; or `style:`, a value as the element's whole inline style |
+| `E107` | A `href`/`src`/`to` literal naming a scheme a browser runs; a `head { script(src:) }` or refresh whose address a value chooses |
 | `E108` | A non-public `env` name read from a page |
 | `E109` | An element a PDF or a slide deck cannot draw |
 | `E110` | A project script that cannot be a plain script (a module, a `public/` clash, a name something else means) |
@@ -3073,7 +3089,7 @@ And what the type checker finds:
 
 | Code | What it means |
 |---|---|
-| `T01` | A value of the wrong type given to a prop, a state, a field, a parameter or an assignment — `` `count` of `C` is `String`, but `Number` is wanted `` |
+| `T01` | A value of the wrong type given to a prop, a state, a field, a parameter or an assignment — `` `count` of `C` is `String`, but `Number` is wanted ``; a `Carousel(interval:)` outside 1–2147483647 ms, a `Column(span:)` not a whole 1–12 |
 | `T02` | A case the enum does not have |
 | `T04` | A value that may be `null` read as if it were not; `if let`, `??` or a `!= null` check narrows it |
 | `T05` | A field or method a record does not have |
@@ -3163,7 +3179,7 @@ paint alike.
 | `P03` | A `persist` inside a `store(scope: .route)`: the route change drops the store, and the next read builds it again from storage, so the value comes straight back |
 | `V01` | A bare word in an argument that nothing in scope declares — a name misspelled, or a flag written without its dot (`did you mean `.center`?`); an `if let` binding or a case's payload is declared through its whole block |
 | `V02` | A flag whose class no stylesheet — the engine's or one of the project's `.css` files — defines; the registry keeps this from happening for the built-ins |
-| `V03` | An `Unsafe.Html`, and whether what it puts in went through `sanitize` |
+| `V03` | An `Unsafe.Html`, and whether what it puts in went through `sanitize`; a `Frame(srcdoc:)` from a value with no `sandbox:` (given `sandbox=""`) |
 | `V04` | A `class:` naming one of the built-ins' `wf-*` classes, which brings that built-in's rules with it |
 | `U01`–`U02` | A `state` or `derived` value nothing in its page or component reads (an assignment alone does not read it) |
 | `U03` | A component nothing places, names as a layout, or reaches as a part |

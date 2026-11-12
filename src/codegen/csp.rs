@@ -138,6 +138,11 @@ impl std::fmt::Display for Violation {
 }
 
 /// What in `html` the `policy` beside it forbids.
+///
+/// The markup is read as a browser reads it: tag and attribute names in
+/// any case, attributes apart by white space or a `/`, values quoted or
+/// not, a `>` inside a quoted value no end of the tag, and the text of a
+/// `<script>`, a `<style>` or a comment no markup at all.
 pub fn check(page: &str, html: &str, policy: &str) -> Vec<Violation> {
     let mut out = Vec::new();
     let allows = |directive: &str, source: &str| -> bool {
@@ -152,48 +157,109 @@ pub fn check(page: &str, html: &str, policy: &str) -> Vec<Violation> {
         });
     };
 
-    // An inline script: a `<script>` with a body and no `src`.
-    for tag in tags(html, "script") {
-        if tag.attrs.iter().any(|(k, _)| k == "src") {
-            let src = tag.attr("src").unwrap_or_default();
-            if let Some(origin) = external_origin(&src)
-                && !allows("script-src", &origin)
+    let elements = elements(html);
+    for tag in &elements {
+        match tag.name.as_str() {
+            // A script: from another origin the policy never named, from an
+            // address that is not a place (`data:`, `javascript:`), or
+            // written inline.
+            "script" => {
+                if let Some(src) = tag.attr("src") {
+                    match source_of(&src) {
+                        Source::Own => {}
+                        Source::Scheme(scheme) => say(
+                            &mut out,
+                            "script-src",
+                            format!("a script from {scheme}:"),
+                            "A script is a file this site serves, or one at an origin `meta.scripts` names",
+                        ),
+                        Source::Origin(origin) if !allows("script-src", &origin) => say(
+                            &mut out,
+                            "script-src",
+                            format!("a script from {origin}"),
+                            "Name the origin in the policy, or serve the file from this site",
+                        ),
+                        Source::Origin(_) => {}
+                    }
+                } else if !tag.body.trim().is_empty()
+                    && is_script(&tag.attr("type").unwrap_or_default())
+                    && !allows("script-src", "'unsafe-inline'")
+                {
+                    say(
+                        &mut out,
+                        "script-src",
+                        "an inline <script>".to_string(),
+                        "The compiler writes external files; a hand-written one belongs in `public/`",
+                    );
+                }
+            }
+            "style" => {
+                if !tag.body.trim().is_empty() && !allows("style-src", "'unsafe-inline'") {
+                    say(
+                        &mut out,
+                        "style-src",
+                        "an inline <style>".to_string(),
+                        "A `style { }` block compiles to a rule in `styles.css`",
+                    );
+                }
+            }
+            // An external stylesheet from an origin the policy never named.
+            "link" => {
+                let rel = tag.attr("rel").unwrap_or_default();
+                if !rel
+                    .split_ascii_whitespace()
+                    .any(|r| r.eq_ignore_ascii_case("stylesheet"))
+                {
+                    continue;
+                }
+                match source_of(&tag.attr("href").unwrap_or_default()) {
+                    Source::Own => {}
+                    Source::Scheme(scheme) => say(
+                        &mut out,
+                        "style-src",
+                        format!("a stylesheet from {scheme}:"),
+                        "A stylesheet is a file this site serves, or one at an origin `meta.stylesheets` names",
+                    ),
+                    Source::Origin(origin) if !allows("style-src", &origin) => say(
+                        &mut out,
+                        "style-src",
+                        format!("a stylesheet from {origin}"),
+                        "`meta.stylesheets` widens the policy; an origin written into a page by hand does not",
+                    ),
+                    Source::Origin(_) => {}
+                }
+            }
+            // Every relative address on the page resolves against a
+            // `<base>`, so one sends every link and script elsewhere.
+            "base" => say(
+                &mut out,
+                "base-uri",
+                "a <base> element".to_string(),
+                "A page's addresses are relative to the page; the compiler never writes a <base>",
+            ),
+            // A refresh to somewhere else is a redirect nothing asked for.
+            "meta"
+                if tag
+                    .attr("http-equiv")
+                    .is_some_and(|e| e.trim().eq_ignore_ascii_case("refresh"))
+                    && refresh_leaves(&tag.attr("content").unwrap_or_default()) =>
             {
                 say(
                     &mut out,
-                    "script-src",
-                    format!("a script from {origin}"),
-                    "Name the origin in the policy, or serve the file from this site",
-                );
+                    "default-src",
+                    "a refresh".to_string(),
+                    "A refresh may reload the page or name an address on this site; anything else is a redirect",
+                )
             }
-        } else if !tag.body.trim().is_empty()
-            && is_script(&tag.attr("type").unwrap_or_default())
-            && !allows("script-src", "'unsafe-inline'")
-        {
-            say(
-                &mut out,
-                "script-src",
-                "an inline <script>".to_string(),
-                "The compiler writes external files; a hand-written one belongs in `public/`",
-            );
+            _ => {}
         }
     }
 
-    // An inline style, as a tag or as an attribute.
-    for tag in tags(html, "style") {
-        if !tag.body.trim().is_empty() && !allows("style-src", "'unsafe-inline'") {
-            say(
-                &mut out,
-                "style-src",
-                "an inline <style>".to_string(),
-                "A `style { }` block compiles to a rule in `styles.css`",
-            );
-        }
-    }
-    if html
-        .match_indices(" style=\"")
-        .any(|(at, _)| inside_tag(html, at))
-        && !allows("style-src", "'unsafe-inline'")
+    // An inline style or handler, on any element.
+    if !allows("style-src", "'unsafe-inline'")
+        && elements
+            .iter()
+            .any(|t| t.attrs.iter().any(|(k, _)| k == "style"))
     {
         say(
             &mut out,
@@ -202,36 +268,65 @@ pub fn check(page: &str, html: &str, policy: &str) -> Vec<Violation> {
             "A literal in a `style { }` block compiles to a class; only a value that reads state is set on the element",
         );
     }
-
-    // An external stylesheet from an origin the policy never named.
-    for tag in tags(html, "link") {
-        let rel = tag.attr("rel").unwrap_or_default();
-        if !rel.split_whitespace().any(|r| r == "stylesheet") {
-            continue;
-        }
-        if let Some(origin) = external_origin(&tag.attr("href").unwrap_or_default())
-            && !allows("style-src", &origin)
-        {
-            say(
-                &mut out,
-                "style-src",
-                format!("a stylesheet from {origin}"),
-                "`meta.stylesheets` widens the policy; an origin written into a page by hand does not",
-            );
-        }
-    }
-
     // An inline handler, which is script in an attribute.
-    if let Some(at) = inline_handler(html) {
+    if let Some(handler) = elements.iter().find_map(|t| {
+        t.attrs
+            .iter()
+            .find(|(k, _)| is_handler(k))
+            .map(|(k, _)| k.clone())
+    }) {
         say(
             &mut out,
             "script-src",
-            format!("an `{at}` attribute"),
+            format!("an `{handler}` attribute"),
             "Write the handler instead: `on click { … }`",
         );
     }
 
     out
+}
+
+/// Whether `name` is an event handler attribute: `on` and a word.
+fn is_handler(name: &str) -> bool {
+    name.len() > 2 && name.starts_with("on") && name[2..].chars().all(|c| c.is_ascii_alphabetic())
+}
+
+/// Where an address loads from, as the policy sees it.
+enum Source {
+    /// This site: a relative address, or none.
+    Own,
+    /// An origin elsewhere, `https://cdn.example.com`.
+    Origin(String),
+    /// A scheme that names no place to fetch from: `data`, `javascript`.
+    Scheme(String),
+}
+
+fn source_of(url: &str) -> Source {
+    match crate::codegen::url::scheme_of(url) {
+        Some(scheme) if scheme != "http" && scheme != "https" => Source::Scheme(scheme),
+        _ => match external_origin(url.trim()) {
+            Some(origin) => Source::Origin(origin),
+            None => Source::Own,
+        },
+    }
+}
+
+/// Whether a refresh's `content` sends the reader off this site: an
+/// address with a scheme, or one that names another host (`//host`).
+fn refresh_leaves(content: &str) -> bool {
+    let lower = content.to_ascii_lowercase();
+    let Some(at) = lower.find("url") else {
+        return false;
+    };
+    let rest = content[at + 3..].trim_start();
+    let Some(rest) = rest.strip_prefix('=') else {
+        return false;
+    };
+    let url = rest.trim().trim_matches(|c| c == '\'' || c == '"');
+    crate::codegen::url::scheme_of(url).is_some()
+        || url.starts_with("//")
+        || url.starts_with("\\\\")
+        || url.starts_with("/\\")
 }
 
 /// Whether a `<script>` of this `type` holds script.
@@ -336,40 +431,10 @@ fn external_origin(url: &str) -> Option<String> {
     (!host.is_empty()).then(|| format!("{}//{}", rest.0, host))
 }
 
-/// The name of the first `on*` attribute in `html`, if it has one.
-/// Whether `at` is inside a tag — after a `<` with no `>` since — rather
-/// than in text, where the characters of markup arrive escaped.
-fn inside_tag(html: &str, at: usize) -> bool {
-    let before = &html[..at];
-    match (before.rfind('<'), before.rfind('>')) {
-        (Some(open), Some(close)) => open > close,
-        (Some(_), None) => true,
-        _ => false,
-    }
-}
-
-fn inline_handler(html: &str) -> Option<String> {
-    let bytes = html.as_bytes();
-    let mut from = 0;
-    while let Some(at) = html[from..].find(" on") {
-        let start = from + at + 1;
-        let end = html[start..]
-            .find(|c: char| !c.is_ascii_alphabetic())
-            .map(|n| start + n)?;
-        // `on…=` and nothing else: ` only` and ` once` are words in text.
-        // And inside a tag: a page that shows code (`<button onClick={…}>`
-        // in a sample, escaped as text) holds no attribute at all.
-        if bytes.get(end) == Some(&b'=') && end > start + 2 && inside_tag(html, start) {
-            return Some(html[start..end].to_string());
-        }
-        from = start;
-    }
-    None
-}
-
-/// One element of `html` with the given tag name: its attributes, and the
-/// text between it and its closing tag.
+/// One element of the page: its name and attributes, lower-cased, and for
+/// a `<script>` or a `<style>` the text up to its closing tag.
 struct Tag {
+    name: String,
     attrs: Vec<(String, String)>,
     body: String,
 }
@@ -383,81 +448,139 @@ impl Tag {
     }
 }
 
-fn tags(html: &str, name: &str) -> Vec<Tag> {
+/// Every element `html` opens, read as a browser's tokenizer reads the
+/// start of one: `<` and a letter, a name, then attributes up to the `>`
+/// that is not inside a quoted value. A comment is skipped whole, and the
+/// text of a `<script>` or a `<style>` is that element's body, never
+/// markup of its own. Text holds no markup: the compiler writes `<` there
+/// as `&lt;`.
+fn elements(html: &str) -> Vec<Tag> {
+    let chars: Vec<char> = html.chars().collect();
+    let lower: Vec<char> = chars.iter().map(|c| c.to_ascii_lowercase()).collect();
+    let starts = |at: usize, text: &str| {
+        text.chars()
+            .enumerate()
+            .all(|(n, c)| lower.get(at + n) == Some(&c))
+    };
     let mut out = Vec::new();
-    let open = format!("<{name}");
-    let close = format!("</{name}>");
-    let mut from = 0;
-    while let Some(at) = html[from..].find(&open) {
-        let start = from + at;
-        let after = start + open.len();
-        // `<script>` and not `<scriptish>`.
-        if !matches!(html[after..].chars().next(), Some(c) if c == '>' || c.is_whitespace() || c == '/')
-        {
-            from = after;
+    let mut i = 0;
+    while i < chars.len() {
+        if chars[i] != '<' {
+            i += 1;
             continue;
         }
-        let Some(head_end) = html[start..].find('>').map(|n| start + n) else {
-            break;
+        if starts(i, "<!--") {
+            i = (i + 4..chars.len().saturating_sub(2))
+                .find(|&j| starts(j, "-->"))
+                .map_or(chars.len(), |j| j + 3);
+            continue;
+        }
+        if !chars.get(i + 1).is_some_and(|c| c.is_ascii_alphabetic()) {
+            i += 1;
+            continue;
+        }
+        let name_at = i + 1;
+        let mut j = name_at;
+        while j < chars.len() && !(chars[j].is_whitespace() || chars[j] == '/' || chars[j] == '>') {
+            j += 1;
+        }
+        let name: String = lower[name_at..j].iter().collect();
+        // The end of the tag: the first `>` outside a quoted value.
+        let mut quote: Option<char> = None;
+        let mut k = j;
+        while k < chars.len() {
+            let c = chars[k];
+            match quote {
+                Some(q) if c == q => quote = None,
+                Some(_) => {}
+                None if c == '>' => break,
+                // A quote opens a value only straight after its `=`.
+                None if (c == '"' || c == '\'')
+                    && chars[j..k].iter().rev().find(|c| !c.is_whitespace()) == Some(&'=') =>
+                {
+                    quote = Some(c)
+                }
+                None => {}
+            }
+            k += 1;
+        }
+        let head: String = chars[j..k.min(chars.len())].iter().collect();
+        let mut tag = Tag {
+            attrs: attributes(&head),
+            name,
+            body: String::new(),
         };
-        let head = &html[after..head_end];
-        let body = match html[head_end..].find(&close) {
-            Some(n) => html[head_end + 1..head_end + n].to_string(),
-            None => String::new(),
-        };
-        out.push(Tag {
-            attrs: attributes(head),
-            body,
-        });
-        from = head_end + 1;
+        i = k + 1;
+        // A script's or a style's text runs to its closing tag.
+        if matches!(tag.name.as_str(), "script" | "style") {
+            let close = format!("</{}", tag.name);
+            let end = (i..chars.len())
+                .find(|&n| {
+                    starts(n, &close)
+                        && chars
+                            .get(n + close.chars().count())
+                            .is_none_or(|c| c.is_whitespace() || *c == '>' || *c == '/')
+                })
+                .unwrap_or(chars.len());
+            tag.body = chars[i.min(end)..end].iter().collect();
+            i = end;
+        }
+        out.push(tag);
     }
     out
 }
 
-/// `name="value"` pairs from the inside of a tag.
+/// `name="value"` pairs from the inside of a tag, as a browser reads them:
+/// apart by white space or `/`, a name lower-cased, white space allowed
+/// around the `=`, a value in either quote or none.
 fn attributes(head: &str) -> Vec<(String, String)> {
     let mut out = Vec::new();
     let chars: Vec<char> = head.chars().collect();
     let mut i = 0;
+    let skip = |i: &mut usize, pred: &dyn Fn(char) -> bool| {
+        while *i < chars.len() && pred(chars[*i]) {
+            *i += 1;
+        }
+    };
     while i < chars.len() {
-        while i < chars.len() && !chars[i].is_ascii_alphabetic() {
-            i += 1;
-        }
+        skip(&mut i, &|c| c.is_whitespace() || c == '/');
         let name_at = i;
-        while i < chars.len() && (chars[i].is_ascii_alphanumeric() || matches!(chars[i], '-' | '_'))
-        {
-            i += 1;
-        }
+        skip(&mut i, &|c| {
+            !(c.is_whitespace() || c == '/' || c == '>' || c == '=')
+        });
         if i == name_at {
-            break;
-        }
-        let name: String = chars[name_at..i].iter().collect();
-        if chars.get(i) != Some(&'=') {
-            out.push((name.to_ascii_lowercase(), String::new()));
+            // A lone `=` with no name: step past it.
+            i += 1;
             continue;
         }
-        i += 1;
-        let quote = chars.get(i).copied();
-        let value: String = match quote {
+        let name: String = chars[name_at..i]
+            .iter()
+            .collect::<String>()
+            .to_ascii_lowercase();
+        let mut after = i;
+        skip(&mut after, &|c| c.is_whitespace());
+        if chars.get(after) != Some(&'=') {
+            out.push((name, String::new()));
+            continue;
+        }
+        i = after + 1;
+        skip(&mut i, &|c| c.is_whitespace());
+        let value: String = match chars.get(i).copied() {
             Some(q @ ('"' | '\'')) => {
                 i += 1;
                 let from = i;
-                while i < chars.len() && chars[i] != q {
-                    i += 1;
-                }
+                skip(&mut i, &|c| c != q);
                 let v: String = chars[from..i].iter().collect();
                 i += 1;
                 v
             }
             _ => {
                 let from = i;
-                while i < chars.len() && !chars[i].is_whitespace() {
-                    i += 1;
-                }
+                skip(&mut i, &|c| !c.is_whitespace() && c != '>');
                 chars[from..i].iter().collect()
             }
         };
-        out.push((name.to_ascii_lowercase(), value));
+        out.push((name, value));
     }
     out
 }

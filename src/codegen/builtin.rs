@@ -302,10 +302,62 @@ pub fn layout_arg_classes(args: &[Arg]) -> Vec<String> {
 pub fn span_class(base_class: &str, args: &[Arg]) -> Option<String> {
     args.iter().find_map(|a| match a {
         Arg::Named(k, Expr::NumberLiteral(n)) if k == "span" => {
-            Some(format!("{}--{}", base_class, *n as i32))
+            column_span(*n).map(|n| format!("{base_class}--{n}"))
         }
         _ => None,
     })
+}
+
+/// The columns of the twelve a `Column(span:)` takes, when it is a whole
+/// number from 1 to 12, and nothing otherwise: `span: 2.5` used to be
+/// `wf-col--2` and `span: 99` a class no rule styles. The checker refuses
+/// both (`T01`); the paint never writes a cast number.
+pub fn column_span(n: f64) -> Option<u8> {
+    (n.fract() == 0.0 && (1.0..=12.0).contains(&n)).then_some(n as u8)
+}
+
+/// A `Frame` drawing HTML from a value, given the sandbox it lacks.
+///
+/// `Frame(srcdoc: post.body)` with no `sandbox:` used to draw that HTML as
+/// a document of this site, scripts and all. Unless the call says what the
+/// frame may do, it may do nothing: `sandbox=""`. A literal `srcdoc:` is
+/// the author's own, and a `sandbox:` written out is theirs to choose.
+/// `None` when the call needs nothing added.
+pub fn sandboxed_frame(
+    ui: &crate::parser::ast::UIElement,
+) -> Option<crate::parser::ast::UIElement> {
+    let from_value = ui.args.iter().any(
+        |a| matches!(a, Arg::Named(k, v) if k == "srcdoc" && !matches!(v, Expr::StringLiteral(_))),
+    );
+    let sandboxed = ui
+        .args
+        .iter()
+        .any(|a| matches!(a, Arg::Named(k, _) if k == "sandbox"));
+    if !from_value || sandboxed {
+        return None;
+    }
+    let mut framed = ui.clone();
+    framed.args.push(Arg::Named(
+        "sandbox".to_string(),
+        Expr::StringLiteral(String::new()),
+    ));
+    Some(framed)
+}
+
+/// The longest wait `setInterval` keeps: past it, a browser fires at once.
+pub const LONGEST_INTERVAL: f64 = 2_147_483_647.0;
+
+/// A `Carousel(interval:)` in milliseconds as the runtime is given it: a
+/// value below one millisecond, or none at all, is the default (5000) and
+/// one past what a timer holds is the most it holds — never the 0 ms
+/// autoplay that `interval: -5000` used to become. The checker refuses
+/// both (`T01`).
+pub fn carousel_interval(n: f64) -> u32 {
+    if !n.is_finite() || n < 1.0 {
+        5000
+    } else {
+        n.round().min(LONGEST_INTERVAL) as u32
+    }
 }
 
 /// The classes a literal `class:` argument names, split on whitespace.

@@ -377,12 +377,25 @@ pub fn render_page_html_studio(
             match eval(v, &head_scope) {
                 Some(Static::Bool(true)) => attrs.push_str(&format!(" {k}")),
                 Some(Static::Bool(false)) | Some(Static::Null) | None => {}
+                // An address goes through the scheme check the live page
+                // applies (`WF.safeUrl`): one a browser would run is not
+                // written at all.
+                Some(value) if matches!(k.to_ascii_lowercase().as_str(), "src" | "href") => {
+                    let url = crate::codegen::url::guard(&value.to_text()).to_string();
+                    if !url.is_empty() {
+                        attrs.push_str(&format!(" {k}=\"{}\"", html_escape(&url)));
+                    }
+                }
                 Some(value) => {
                     attrs.push_str(&format!(" {k}=\"{}\"", html_escape(&value.to_text())))
                 }
             }
         }
-        // `meta` and `link` are void; a `script` closes.
+        // `meta` and `link` are void; a `script` closes. A script whose
+        // address was refused is not written at all.
+        if tag.tag == "script" && !attrs.contains(" src=\"") {
+            continue;
+        }
         if tag.tag == "script" {
             description_meta.push_str(&format!("    <script data-wf-head{attrs}></script>\n"));
         } else {
@@ -447,9 +460,9 @@ pub fn render_page_html_studio(
 <html lang="{}"{}>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{}    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{}</title>
-{}{}{}    <link rel="stylesheet" href="{}/styles.css">
+{}{}    <link rel="stylesheet" href="{}/styles.css">
 {}{}    <script src="{}/app.js" defer></script>
 {}</head>
 <body>
@@ -459,9 +472,12 @@ pub fn render_page_html_studio(
 </html>"#,
         lang,
         crate::codegen::seo::dir_attr(&lang),
-        title,
-        description_meta,
+        // The policy first: a meta policy governs only what is parsed after
+        // it, so nothing a page's data reaches — the title, the sharing
+        // tags, the page's own head tags — may come before it.
         crate::codegen::html::csp_meta(config),
+        crate::codegen::markdown::escape(title),
+        description_meta,
         crate::codegen::html::head_links(config, &base),
         base,
         page_sheet,
@@ -1203,6 +1219,11 @@ fn render_ui_element(ui: &UIElement, ctx: &mut SsgContext) -> String {
 }
 
 fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
+    if name == "Frame"
+        && let Some(framed) = crate::codegen::builtin::sandboxed_frame(ui)
+    {
+        return render_builtin(name, &framed, ctx);
+    }
     let (_, base_class) = builtin_to_html(name);
     let mut classes = class_list(base_class, &ui.modifiers);
     classes.extend(layout_arg_classes(&ui.args));
@@ -2636,15 +2657,29 @@ fn extra_classes(ui: &UIElement, ctx: &SsgContext) -> Vec<String> {
     classes
 }
 
+/// The classes a `class:` value names, each escaped for the `class="…"` it
+/// is written into: a class from data is one attribute's value, and never
+/// closes it (`x"/onfocus="…` used to add a handler of its own).
+fn known_classes(value: &Expr, scope: &Scope, classes: &mut Vec<String>) {
+    let mut found = Vec::new();
+    known_class_names(value, scope, &mut found);
+    for class in found {
+        let class = html_escape(&class);
+        if !classes.contains(&class) {
+            classes.push(class);
+        }
+    }
+}
+
 /// The classes a `class:` value names that the build can know, entry by
 /// entry: in `["chip", { "is-current": tag == "" }]` with `tag` read from
 /// the address, `chip` is painted and the condition is left to the live
 /// page — one unknown entry no longer loses the rest.
-fn known_classes(value: &Expr, scope: &Scope, classes: &mut Vec<String>) {
+fn known_class_names(value: &Expr, scope: &Scope, classes: &mut Vec<String>) {
     match value {
         Expr::ListLiteral(items) => {
             for item in items {
-                known_classes(item, scope, classes);
+                known_class_names(item, scope, classes);
             }
         }
         Expr::MapLiteral(pairs) => {

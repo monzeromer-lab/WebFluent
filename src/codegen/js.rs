@@ -12,6 +12,29 @@ fn js_component(name: &str) -> String {
     name.replace('.', "_")
 }
 
+/// `text` as a JavaScript string literal, quoted. Every string the
+/// generator writes between quotes goes through here, so a title, a path
+/// or a locale holding a quote, a backslash or a line break is the string
+/// it says and never the end of one. The lexer's escaped-brace
+/// placeholders are the braces they stand for.
+pub(crate) fn js_str(text: &str) -> String {
+    let text = text.replace('\u{FFFE}', "{").replace('\u{FFFF}', "}");
+    serde_json::to_string(&text).unwrap_or_else(|_| "\"\"".to_string())
+}
+
+/// The literal text of a template literal (`` `…${x}…` ``) as JavaScript
+/// reads it back: `\`, `` ` `` and `${` escaped, so `"C:\\dir\\{name}"`
+/// keeps its backslashes and `"$\{x\}"` stays text rather than becoming a
+/// splice. (A text part is followed by a splice or by the end, never by
+/// another text part, so a `$` that ends one cannot meet a `{`.)
+pub(crate) fn template_text(text: &str) -> String {
+    text.replace('\u{FFFE}', "{")
+        .replace('\u{FFFF}', "}")
+        .replace('\\', "\\\\")
+        .replace('`', "\\`")
+        .replace("${", "\\${")
+}
+
 /// The names the generated code declares for itself beside a program's
 /// signals: a component's props and slots, the fragment a body is drawn
 /// into, the app's root and router, a form's handle, a handler's event, a
@@ -329,26 +352,6 @@ pub struct JsCodegen {
     static_scope: Option<crate::codegen::static_eval::Scope>,
     /// `env.NAME` values from the project's config, emitted once.
     env: std::collections::BTreeMap<String, serde_json::Value>,
-    /// Track current component/page prop names (not signals)
-    current_props: Vec<String>,
-    /// The actions the page or component being emitted declares: a call to
-    /// one is its own, even where a built-in has the same name.
-    own_actions: Vec<String>,
-    /// The element handles the page or component declares with `ref:`,
-    /// and the form handles it declares with `Form(bind: name)`.
-    refs: Vec<String>,
-    /// The form handle the body binds, which a `validate` block registers
-    /// into, and which decides when a message is shown.
-    current_form: Option<String>,
-    /// The handle an unbound `Form` is given when the body has `validate`
-    /// rules — so its submit asks them, as a bound form's does.
-    implicit_form: Option<String>,
-    /// Every `Form(bind: name)` handle of the page or component being
-    /// written: `form.valid` reads signals, so what reads it is followed.
-    form_handles: Vec<String>,
-    /// The states a `validate` block guards, so the control bound to one
-    /// shows its message without being told to.
-    validated: Vec<String>,
     /// The menu lists being drawn, innermost last: a `Menu.Sub` opens
     /// beside the one it is in.
     menu_lists: Vec<String>,
@@ -364,15 +367,6 @@ pub struct JsCodegen {
     own_resources: Vec<String>,
     /// The options of the `VirtualList` whose `for` is drawn next.
     window_opts: Option<Vec<String>>,
-    /// The body being emitted, for reading a state's declared condition.
-    current_body: Vec<Statement>,
-    /// Every name the page, component or store being emitted declares, at
-    /// any depth: a declared `query` is its own, not the browser's.
-    own_names: Vec<String>,
-    /// The signals the body declares at its top — its states, derived
-    /// values, resources and connections — which a top-level `const` of the
-    /// same name gives way to.
-    body_signals: Vec<String>,
     /// Names bound by an enclosing `for` loop, innermost last.
     ///
     /// `WF.each` calls the body with the item as a plain parameter, so a
@@ -448,9 +442,6 @@ pub struct JsCodegen {
     /// The next fresh variable name. Per generator, so two builds of one
     /// program in one process emit identical code.
     next_var: std::cell::Cell<usize>,
-    /// The resources declared in the page or component being emitted: a
-    /// reference to one is the resource object, not a signal read.
-    resources: Vec<String>,
     /// Each user component's positional prop, when it declares one: a
     /// positional argument at a call binds to it. Absent a declared one,
     /// the first prop, as the static paint has always done.
@@ -469,9 +460,6 @@ pub struct JsCodegen {
     /// The names of what each component's scoped slots hand over, by
     /// component and slot: what a fill's own names stand for.
     component_slot_params: HashMap<String, HashMap<String, Vec<String>>>,
-    /// The route parameters of the page being emitted, read as
-    /// `params.<name>`.
-    page_params: Vec<String>,
     /// Each page's layout component and the compiled props object it is
     /// called with, when the page names one.
     page_layouts: HashMap<String, (String, String)>,
@@ -481,6 +469,55 @@ pub struct JsCodegen {
     /// Every page's path, in declaration order, for a router that lists no
     /// routes of its own.
     page_paths: Vec<(String, String)>,
+    /// What the page, component, store or app being emitted declares:
+    /// replaced whole at the start of each body, so nothing of one body
+    /// is read while emitting the next.
+    body: BodyState,
+}
+
+/// The per-body state of [`JsCodegen`]: everything that describes the page,
+/// component, store or app being emitted. Each body starts from
+/// `BodyState::default()` and fills in what it declares; a field set by
+/// one body and not reset by the next used to leak — the last page's
+/// validated states made the `app` read a `_x_check` only that page
+/// declared, and the app threw at boot.
+#[derive(Default)]
+struct BodyState {
+    /// Track current component/page prop names (not signals)
+    current_props: Vec<String>,
+    /// The actions the page or component being emitted declares: a call to
+    /// one is its own, even where a built-in has the same name.
+    own_actions: Vec<String>,
+    /// The element handles the page or component declares with `ref:`,
+    /// and the form handles it declares with `Form(bind: name)`.
+    refs: Vec<String>,
+    /// The form handle the body binds, which a `validate` block registers
+    /// into, and which decides when a message is shown.
+    current_form: Option<String>,
+    /// The handle an unbound `Form` is given when the body has `validate`
+    /// rules — so its submit asks them, as a bound form's does.
+    implicit_form: Option<String>,
+    /// Every `Form(bind: name)` handle of the page or component being
+    /// written: `form.valid` reads signals, so what reads it is followed.
+    form_handles: Vec<String>,
+    /// The states a `validate` block guards, so the control bound to one
+    /// shows its message without being told to.
+    validated: Vec<String>,
+    /// The body being emitted, for reading a state's declared condition.
+    current_body: Vec<Statement>,
+    /// Every name the page, component or store being emitted declares, at
+    /// any depth: a declared `query` is its own, not the browser's.
+    own_names: Vec<String>,
+    /// The signals the body declares at its top — its states, derived
+    /// values, resources and connections — which a top-level `const` of the
+    /// same name gives way to.
+    body_signals: Vec<String>,
+    /// The resources declared in the page or component being emitted: a
+    /// reference to one is the resource object, not a signal read.
+    resources: Vec<String>,
+    /// The route parameters of the page being emitted, read as
+    /// `params.<name>`.
+    page_params: Vec<String>,
 }
 
 impl Default for JsCodegen {
@@ -558,22 +595,12 @@ impl JsCodegen {
             indent: 0,
             components: Vec::new(),
             stores: Vec::new(),
-            current_props: Vec::new(),
-            own_actions: Vec::new(),
-            refs: Vec::new(),
-            current_form: None,
-            implicit_form: None,
-            form_handles: Vec::new(),
-            validated: Vec::new(),
             menu_lists: Vec::new(),
             store_connections: Vec::new(),
             own_connections: Vec::new(),
             store_resources: Vec::new(),
             own_resources: Vec::new(),
             window_opts: None,
-            current_body: Vec::new(),
-            own_names: Vec::new(),
-            body_signals: Vec::new(),
             loop_bindings: Vec::new(),
             block_lets: Vec::new(),
             live_at: Vec::new(),
@@ -597,17 +624,16 @@ impl JsCodegen {
             chunks: Vec::new(),
             page_sheets: std::collections::BTreeSet::new(),
             next_var: std::cell::Cell::new(0),
-            resources: Vec::new(),
             component_positional: HashMap::new(),
             component_events: HashMap::new(),
             script_classes: std::collections::HashSet::new(),
             script_names: std::collections::HashSet::new(),
             component_props: HashMap::new(),
             component_slot_params: HashMap::new(),
-            page_params: Vec::new(),
             page_layouts: HashMap::new(),
             page_guards: HashMap::new(),
             page_paths: Vec::new(),
+            body: BodyState::default(),
         }
     }
 
@@ -902,10 +928,7 @@ impl JsCodegen {
     fn route_entry(&self, path: &str, page: &str) -> String {
         let title = match (self.page_title_fns.get(page), self.page_titles.get(page)) {
             (Some(f), _) => format!("title: (params) => {f}, "),
-            (None, Some(t)) => format!(
-                "title: \"{}\", ",
-                t.replace('\\', "\\\\").replace('"', "\\\"")
-            ),
+            (None, Some(t)) => format!("title: {}, ", js_str(t)),
             (None, None) => String::new(),
         };
         // A page in a language of its own: the router puts it on `<html>`.
@@ -935,8 +958,8 @@ impl JsCodegen {
         // the reader goes otherwise.
         let layout = match self.page_guards.get(page) {
             Some((guard, redirect)) => format!(
-                "{layout}guard: () => ({guard}), redirect: \"{}\", ",
-                redirect.replace('"', "\\\"")
+                "{layout}guard: () => ({guard}), redirect: {}, ",
+                js_str(redirect)
             ),
             None => layout,
         };
@@ -947,13 +970,20 @@ impl JsCodegen {
                 String::new()
             };
             format!(
-                "{{ path: \"{}\", {}{}{}page: \"{}\" }},",
-                path, title, css, layout, page
+                "{{ path: {}, {}{}{}page: {} }},",
+                js_str(path),
+                title,
+                css,
+                layout,
+                js_str(page)
             )
         } else {
             format!(
-                "{{ path: \"{}\", {}{}render: (params) => Page_{}(params) }},",
-                path, title, layout, page
+                "{{ path: {}, {}{}render: (params) => Page_{}(params) }},",
+                js_str(path),
+                title,
+                layout,
+                page
             )
         }
     }
@@ -1092,9 +1122,9 @@ impl JsCodegen {
                 // arguments read them: `layout: Shell(crumb: "Build {hash}")`.
                 // Without them in scope a parameter named after a browser
                 // value — `hash` — compiled to `location.hash`.
-                self.page_params = p.params.iter().map(|p| p.name.clone()).collect();
+                self.body.page_params = p.params.iter().map(|p| p.name.clone()).collect();
                 let args = self.emit_component_args(&layout.name, &layout.args);
-                self.page_params.clear();
+                self.body.page_params.clear();
                 self.page_layouts
                     .insert(p.name.clone(), (layout.name.clone(), args));
             }
@@ -1103,9 +1133,9 @@ impl JsCodegen {
             if let Declaration::Page(p) = decl
                 && let Some(expr) = &p.title_expr
             {
-                self.page_params = p.params.iter().map(|p| p.name.clone()).collect();
+                self.body.page_params = p.params.iter().map(|p| p.name.clone()).collect();
                 let js = self.emit_expr(expr);
-                self.page_params.clear();
+                self.body.page_params.clear();
                 self.page_title_fns
                     .insert(p.name.clone(), format!("String({js})"));
             }
@@ -1121,7 +1151,7 @@ impl JsCodegen {
 
         // Emit base path and SSG mode flag
         if !self.base_path.is_empty() {
-            self.emit_line(&format!("WF.setBasePath(\"{}\");", self.base_path));
+            self.emit_line(&format!("WF.setBasePath({});", js_str(&self.base_path)));
         }
         if !self.app_schemes.is_empty() {
             self.emit_line(&format!(
@@ -1381,8 +1411,8 @@ impl JsCodegen {
         self.indent += 1;
         for endpoint in &api.endpoints {
             let mut parts = vec![
-                format!("method: \"{}\"", endpoint.method),
-                format!("path: \"{}\"", endpoint.path),
+                format!("method: {}", js_str(&endpoint.method)),
+                format!("path: {}", js_str(&endpoint.path)),
             ];
             for (key, value) in &endpoint.settings {
                 parts.push(format!("{}: {}", api_setting(key), self.emit_expr(value)));
@@ -1410,8 +1440,9 @@ impl JsCodegen {
     }
 
     fn emit_store(&mut self, store: &StoreDecl) {
-        self.own_names = declared_names(&store.body);
-        self.body_signals = body_signals(&store.body);
+        self.body = BodyState::default();
+        self.body.own_names = declared_names(&store.body);
+        self.body.body_signals = body_signals(&store.body);
         // The definition is a **thunk**: nothing in it is evaluated until
         // something reads the store. A `state` whose value reads another
         // store used to be evaluated at module scope, in declaration
@@ -1690,7 +1721,8 @@ impl JsCodegen {
                     bare(name)
                 } else if self.consts.contains(name) || self.stores.contains(name) {
                     top_level(name)
-                } else if BROWSER_VALUES.contains(&name.as_str()) && !self.own_names.contains(name)
+                } else if BROWSER_VALUES.contains(&name.as_str())
+                    && !self.body.own_names.contains(name)
                 {
                     format!("WF.{name}()")
                 } else {
@@ -1932,7 +1964,7 @@ impl JsCodegen {
                 let mut out = String::from("`");
                 for part in parts {
                     match part {
-                        StringPart::Literal(t) => out.push_str(&t.replace('`', "\\`")),
+                        StringPart::Literal(t) => out.push_str(&template_text(t)),
                         StringPart::Expression(e) => {
                             out.push_str("${");
                             out.push_str(&self.emit_store_expr(e, store_states));
@@ -2184,7 +2216,7 @@ impl JsCodegen {
 
         self.emit_line("WF.i18n = WF.locales(");
         self.indent += 1;
-        self.emit_line(&format!("\"{}\",", default_locale));
+        self.emit_line(&format!("{},", js_str(&default_locale)));
         self.emit_line("{");
         self.indent += 1;
 
@@ -2193,7 +2225,7 @@ impl JsCodegen {
 
         for locale in &locales {
             let messages = &translations[*locale];
-            self.emit_line(&format!("\"{}\": {{", locale));
+            self.emit_line(&format!("{}: {{", js_str(locale)));
             self.indent += 1;
 
             let mut keys: Vec<&String> = messages.keys().collect();
@@ -2235,21 +2267,21 @@ impl JsCodegen {
     /// components with a form declared one name twice in the bundle, and
     /// every copy of a component shared one form.
     fn open_forms(&mut self, body: &[Statement]) -> Vec<String> {
-        self.current_form = None;
-        self.implicit_form = None;
-        self.form_handles = crate::sema::types::form_names(body);
+        self.body.current_form = None;
+        self.body.implicit_form = None;
+        self.body.form_handles = crate::sema::types::form_names(body);
         let mut lines = Vec::new();
         for name in crate::sema::types::form_names(body) {
             let handle = bare(&name);
             lines.push(format!("const {handle} = WF.form({});", form_options(body)));
-            self.current_form = Some(handle);
-            self.refs.push(name);
+            self.body.current_form = Some(handle);
+            self.body.refs.push(name);
         }
-        if self.current_form.is_none() && has_form(body) && !validated_names(body).is_empty() {
+        if self.body.current_form.is_none() && has_form(body) && !validated_names(body).is_empty() {
             let name = "_wfForm".to_string();
             lines.push(format!("const {name} = WF.form({});", form_options(body)));
-            self.current_form = Some(name.clone());
-            self.implicit_form = Some(name);
+            self.body.current_form = Some(name.clone());
+            self.body.implicit_form = Some(name);
         }
         lines
     }
@@ -2315,21 +2347,22 @@ impl JsCodegen {
     }
 
     fn emit_component(&mut self, comp: &ComponentDecl) {
+        self.body = BodyState::default();
         self.node_owner = comp.name.clone();
         let params: Vec<String> = comp.props.iter().map(|p| p.name.clone()).collect();
         // Set current props so emit_expr treats them as plain variables, not signals
-        self.current_props = params.clone();
-        self.own_actions = action_names(&comp.body);
-        self.refs = crate::sema::types::ref_names(&comp.body);
-        self.own_names = declared_names(&comp.body);
-        self.body_signals = body_signals(&comp.body);
+        self.body.current_props = params.clone();
+        self.body.own_actions = action_names(&comp.body);
+        self.body.refs = crate::sema::types::ref_names(&comp.body);
+        self.body.own_names = declared_names(&comp.body);
+        self.body.body_signals = body_signals(&comp.body);
         self.emit_pending_signals(&comp.body);
         // A form handle resolves as a bare name like a ref does, but is
         // declared here, once, as a form.
-        let handles = self.refs.clone();
+        let handles = self.body.refs.clone();
         let forms = self.open_forms(&comp.body);
-        self.validated = validated_names(&comp.body);
-        self.current_body = comp.body.clone();
+        self.body.validated = validated_names(&comp.body);
+        self.body.current_body = comp.body.clone();
         // Props are read through `_p.name`, never copied out: a caller passes
         // a value that reads state as a getter, so every read inside the
         // component — a derived, a style value, a condition — tracks the
@@ -2368,7 +2401,7 @@ impl JsCodegen {
         }
 
         // Emit state declarations first
-        self.resources = resource_names(&comp.body);
+        self.body.resources = resource_names(&comp.body);
         let early = self.emit_states(&comp.name, &comp.body, "_frag");
 
         // Build DOM
@@ -2385,34 +2418,35 @@ impl JsCodegen {
         self.indent -= 1;
         self.emit_line("}");
         self.emit_line("");
-        self.current_props.clear();
+        self.body.current_props.clear();
     }
 
     // ─── Page ────────────────────────────────────────
 
     fn emit_page(&mut self, page: &PageDecl) {
+        self.body = BodyState::default();
         self.node_owner = page.name.clone();
         let start = self.output.len();
         self.emit_line(&format!("function Page_{}(params) {{", page.name));
         self.indent += 1;
-        self.page_params = page.params.iter().map(|p| p.name.clone()).collect();
-        self.own_actions = action_names(&page.body);
-        self.refs = crate::sema::types::ref_names(&page.body);
-        self.own_names = declared_names(&page.body);
-        self.body_signals = body_signals(&page.body);
+        self.body.page_params = page.params.iter().map(|p| p.name.clone()).collect();
+        self.body.own_actions = action_names(&page.body);
+        self.body.refs = crate::sema::types::ref_names(&page.body);
+        self.body.own_names = declared_names(&page.body);
+        self.body.body_signals = body_signals(&page.body);
         self.emit_pending_signals(&page.body);
-        let handles = self.refs.clone();
+        let handles = self.body.refs.clone();
         for line in self.open_forms(&page.body) {
             self.emit_line(&line);
         }
-        self.validated = validated_names(&page.body);
-        self.current_body = page.body.clone();
+        self.body.validated = validated_names(&page.body);
+        self.body.current_body = page.body.clone();
         for name in handles {
             self.emit_line(&format!("const {} = WF.ref();", bare(&name)));
         }
 
         // Emit state declarations
-        self.resources = resource_names(&page.body);
+        self.body.resources = resource_names(&page.body);
         let early = self.emit_states(&page.name, &page.body, "_root");
 
         // Build DOM
@@ -2457,12 +2491,13 @@ impl JsCodegen {
         self.indent -= 1;
         self.emit_line("}");
         self.emit_line("");
-        self.page_params.clear();
+        self.body.page_params.clear();
     }
 
     // ─── App ─────────────────────────────────────────
 
     fn emit_app(&mut self, app: &AppDecl) {
+        self.body = BodyState::default();
         self.node_owner = "App".to_string();
         let start = self.output.len();
         self.emit_line("(function() {");
@@ -2480,10 +2515,10 @@ impl JsCodegen {
         // page's is. An `app { state chosen = "en" … }` compiled every read
         // of `chosen` and never the `const` behind it, so the site threw on
         // load.
-        self.own_names = declared_names(&app.body);
-        self.body_signals = body_signals(&app.body);
-        self.own_actions = action_names(&app.body);
-        self.resources = resource_names(&app.body);
+        self.body.own_names = declared_names(&app.body);
+        self.body.body_signals = body_signals(&app.body);
+        self.body.own_actions = action_names(&app.body);
+        self.body.resources = resource_names(&app.body);
         for stmt in &app.body {
             if let StatementKind::State(s) = &stmt.kind {
                 let val = self.emit_expr(&s.value);
@@ -2544,7 +2579,7 @@ impl JsCodegen {
                             && matches!(k.as_str(), "transition" | "duration")
                         {
                             let value = match v {
-                                Expr::EnumCase(c) | Expr::StringLiteral(c) => format!("\"{c}\""),
+                                Expr::EnumCase(c) | Expr::StringLiteral(c) => js_str(c),
                                 other => self.emit_expr(other),
                             };
                             parts.push(format!("{k}: {value}"));
@@ -2830,8 +2865,8 @@ impl JsCodegen {
                 let body = self.emit_event_body(handler);
                 let key = handler.key.clone().unwrap_or_default();
                 self.emit_line(&format!(
-                    "WF.onKey(document, \"{}\", {} => {{ {} }});",
-                    key.replace('"', "\\\""),
+                    "WF.onKey(document, {}, {} => {{ {} }});",
+                    js_str(&key),
                     self.handler_head(handler, "event"),
                     body
                 ));
@@ -2878,6 +2913,11 @@ impl JsCodegen {
     // ─── UI Element ──────────────────────────────────
 
     fn emit_ui_element(&mut self, ui: &UIElement, parent: &str) {
+        if matches!(&ui.component, ComponentRef::BuiltIn(n) if n == "Frame")
+            && let Some(framed) = crate::codegen::builtin::sandboxed_frame(ui)
+        {
+            return self.emit_ui_element(&framed, parent);
+        }
         let var = self.fresh_var();
 
         match &ui.component {
@@ -2976,7 +3016,7 @@ impl JsCodegen {
                 // in a field that carries them.
                 let validated = ui.args.iter().any(|a| {
                     matches!(a, Arg::Named(k, Expr::Identifier(bound))
-                        if k == "bind" && self.validated.contains(bound))
+                        if k == "bind" && self.body.validated.contains(bound))
                 });
                 // A control is a field when it is labelled, or when a
                 // `validate` block guards what it binds — which is what
@@ -3132,8 +3172,10 @@ impl JsCodegen {
                                         matches!(val, Expr::StringLiteral(s) if s == "prefix");
                                 }
                                 "span" => {
-                                    if let Expr::NumberLiteral(n) = val {
-                                        classes.push(format!("{}--{}", class, *n as i32));
+                                    if let Expr::NumberLiteral(n) = val
+                                        && let Some(n) = crate::codegen::builtin::column_span(*n)
+                                    {
+                                        classes.push(format!("{}--{}", class, n));
                                     }
                                 }
                                 "gap" | "align" | "justify" => {
@@ -3348,7 +3390,7 @@ impl JsCodegen {
                 // is attached after creation, on top of this.
                 if name == "Form" {
                     attrs.push("\"on:submit\": (e) => e.preventDefault()".to_string());
-                    if let Some(implicit) = &self.implicit_form
+                    if let Some(implicit) = &self.body.implicit_form
                         && !ui
                             .args
                             .iter()
@@ -3681,7 +3723,7 @@ impl JsCodegen {
                     // to the first field that has one, and stops there.
                     let body = if name == "Form"
                         && handler.event == "submit"
-                        && let Some(form) = &self.current_form
+                        && let Some(form) = &self.body.current_form
                     {
                         format!("if (!{form}.__submitting()) return; {body}")
                     } else {
@@ -3696,8 +3738,15 @@ impl JsCodegen {
                             Some(p) => bare(p),
                             None => self.implicit_param("event"),
                         };
+                        // From the frame's own window, and from the origin
+                        // that frame has: its address's, the page's own for
+                        // an unsandboxed `srcdoc`, and the opaque `"null"`
+                        // for a sandbox without `allow-same-origin`. A page
+                        // the frame navigated to is no longer the one this
+                        // listens for.
                         self.emit_line(&format!(
-                            "WF.listen(window, \"message\", {head} => {{ if ({param}.source !== {var}.contentWindow) return; {body} }});"
+                            "WF.listen(window, \"message\", {head} => {{ if ({param}.source !== {var}.contentWindow || {param}.origin !== {}) return; {body} }});",
+                            frame_origin(&var)
                         ));
                         continue;
                     }
@@ -3740,7 +3789,7 @@ impl JsCodegen {
                             .args
                             .iter()
                             .find(|a| matches!(a, Arg::Named(k, _) if k == "bind"))
-                        && self.validated.contains(bound)
+                        && self.body.validated.contains(bound)
                     {
                         opts.push(format!("error: () => {}_check.shown()", sig(bound)));
                         self.emit_line(&format!(
@@ -4122,7 +4171,7 @@ impl JsCodegen {
         for part in parts {
             match part {
                 StringPart::Literal(text) => {
-                    out.push_str(&text.replace('`', "\\`"));
+                    out.push_str(&template_text(text));
                     before.push_str(text);
                 }
                 StringPart::Expression(e) => {
@@ -4489,7 +4538,7 @@ impl JsCodegen {
                 if !classes.is_empty() {
                     let list = classes
                         .iter()
-                        .map(|c| format!("\"{}\"", c.replace('\\', "\\\\").replace('"', "\\\"")))
+                        .map(|c| js_str(c))
                         .collect::<Vec<_>>()
                         .join(", ");
                     self.emit_line(&format!("{}.classList.add({});", var, list));
@@ -4516,9 +4565,9 @@ impl JsCodegen {
                 })
                 .collect();
             self.emit_line(&format!(
-                "{}.style.transition = \"{}\";",
+                "{}.style.transition = {};",
                 var,
-                transitions.join(", ")
+                js_str(&transitions.join(", "))
             ));
         }
     }
@@ -5068,7 +5117,7 @@ impl JsCodegen {
         else {
             return;
         };
-        if !self.validated.contains(bound) {
+        if !self.body.validated.contains(bound) {
             return;
         }
         let message = self.fresh_var();
@@ -6174,7 +6223,9 @@ impl JsCodegen {
             .args
             .iter()
             .find_map(|a| match a {
-                Arg::Named(k, Expr::NumberLiteral(n)) if k == "interval" => Some(*n as u32),
+                Arg::Named(k, Expr::NumberLiteral(n)) if k == "interval" => {
+                    Some(crate::codegen::builtin::carousel_interval(*n))
+                }
                 _ => None,
             })
             .unwrap_or(5000);
@@ -7110,7 +7161,7 @@ impl JsCodegen {
 
     /// What the state's declared type says its values must be.
     fn refinement_of(&self, name: &str) -> Vec<(String, Expr)> {
-        refinement_in(&self.current_body, name)
+        refinement_in(&self.body.current_body, name)
     }
 
     /// A `Video` with captions, or an `Audio` with a transcript: what a
@@ -7283,7 +7334,7 @@ impl JsCodegen {
             }
             rules.push(format!("{{ {} }}", parts.join(", ")));
         }
-        let form = match &self.current_form {
+        let form = match &self.body.current_form {
             Some(name) => format!(", form: {name}"),
             None => String::new(),
         };
@@ -7737,12 +7788,12 @@ impl JsCodegen {
     /// a store or a service.
     fn program_binds(&self, name: &str) -> bool {
         let n = name.to_string();
-        self.own_names.contains(&n)
+        self.body.own_names.contains(&n)
             || self.loop_bindings.contains(&n)
             || self.lambda_params.borrow().contains(&n)
-            || self.own_actions.contains(&n)
+            || self.body.own_actions.contains(&n)
             || self.consts.contains(&n)
-            || self.refs.contains(&n)
+            || self.body.refs.contains(&n)
             || self.stores.contains(&n)
     }
 
@@ -7805,22 +7856,12 @@ impl JsCodegen {
         match expr {
             // A scalar is its carrier: a plain JSON value, and nothing else.
             Expr::Typed(_, carrier) => self.emit_expr(carrier),
-            Expr::StringLiteral(s) => {
-                let escaped = s
-                    .replace('\\', "\\\\")
-                    .replace('"', "\\\"")
-                    .replace('\n', "\\n")
-                    .replace('\r', "\\r")
-                    .replace('\t', "\\t")
-                    .replace('\u{FFFE}', "{")
-                    .replace('\u{FFFF}', "}");
-                format!("\"{}\"", escaped)
-            }
+            Expr::StringLiteral(s) => js_str(s),
             Expr::InterpolatedString(parts) => {
                 let mut out = String::from("`");
                 for part in parts {
                     match part {
-                        StringPart::Literal(s) => out.push_str(&s.replace('`', "\\`")),
+                        StringPart::Literal(s) => out.push_str(&template_text(s)),
                         StringPart::Expression(e) => {
                             out.push_str("${");
                             out.push_str(&self.emit_expr(e));
@@ -7863,13 +7904,13 @@ impl JsCodegen {
                 // A global, unless the program declared the name itself: a
                 // `state history` is the page's, not the browser's.
                 if BROWSER_GLOBALS.contains(&name.as_str())
-                    && !self.own_names.contains(name)
-                    && !self.current_props.contains(name)
-                    && !self.page_params.contains(name)
+                    && !self.body.own_names.contains(name)
+                    && !self.body.current_props.contains(name)
+                    && !self.body.page_params.contains(name)
                     && !self.loop_bindings.contains(name)
                     && !self.lambda_params.borrow().iter().any(|n| n == name)
                     && !self.consts.contains(name)
-                    && !self.refs.contains(name)
+                    && !self.body.refs.contains(name)
                     && !self.stores.contains(name)
                 {
                     return name.to_string();
@@ -7877,9 +7918,9 @@ impl JsCodegen {
                 // The browser as values, kept current by the runtime, unless
                 // the name is the writer's own.
                 if BROWSER_VALUES.contains(&name.as_str())
-                    && !self.own_names.contains(name)
-                    && !self.current_props.contains(name)
-                    && !self.page_params.contains(name)
+                    && !self.body.own_names.contains(name)
+                    && !self.body.current_props.contains(name)
+                    && !self.body.page_params.contains(name)
                     && !self.loop_bindings.contains(name)
                     && !self.lambda_params.borrow().iter().any(|n| n == name)
                 {
@@ -7898,13 +7939,13 @@ impl JsCodegen {
                     return format!("{}()", sig(name));
                 }
                 // Store references, component props, and built-in names stay as-is
-                if self.current_props.contains(name) {
+                if self.body.current_props.contains(name) {
                     return format!("_p.{}", name);
                 }
-                if self.resources.contains(name) {
+                if self.body.resources.contains(name) {
                     return sig(name);
                 }
-                if self.page_params.contains(name) {
+                if self.body.page_params.contains(name) {
                     return format!("params.{}", name);
                 }
                 // The names the generated code uses for a route's
@@ -7918,7 +7959,9 @@ impl JsCodegen {
                 // track)`, a callback handed to a library — is the function
                 // itself. It used to be read as a signal, `_track()`, which
                 // does not exist.
-                if self.own_actions.contains(name) && !self.lambda_params.borrow().contains(name) {
+                if self.body.own_actions.contains(name)
+                    && !self.lambda_params.borrow().contains(name)
+                {
                     return bare(name);
                 }
                 // A name a project script declares — `const VERSION = "1"`,
@@ -7926,22 +7969,22 @@ impl JsCodegen {
                 // the script's global, unless the body declares it too. It
                 // was read as a signal, `_VERSION()`, which nothing
                 // declares, so the page threw as it drew.
-                if self.refs.contains(name) {
+                if self.body.refs.contains(name) {
                     bare(name)
                 } else if self.stores.contains(name)
                     // A `const`, unless the body declares a signal of its
                     // name: a component's `state label` beside a project's
                     // `const label` read the constant, and never changed.
-                    || (self.consts.contains(name) && !self.body_signals.contains(name))
+                    || (self.consts.contains(name) && !self.body.body_signals.contains(name))
                 {
                     top_level(name)
                 } else if
                 // The project's `env`, unless the page declares its
                 // own: a `state env` read the config's map, and
                 // `Text("Live in {env}")` showed `[object Object]`.
-                (name == "env" && !self.own_names.contains(name))
-                    || (IMPLICIT.contains(&name.as_str()) && !self.own_names.contains(name))
-                    || (self.script_names.contains(name) && !self.own_names.contains(name))
+                (name == "env" && !self.body.own_names.contains(name))
+                    || (IMPLICIT.contains(&name.as_str()) && !self.body.own_names.contains(name))
+                    || (self.script_names.contains(name) && !self.body.own_names.contains(name))
                     || name.starts_with("_")
                 {
                     name.to_string()
@@ -7996,7 +8039,7 @@ impl JsCodegen {
                         | "messages"
                         | "closure"
                 ) && matches!(base.as_ref(), Expr::Identifier(n)
-                    if self.resources.contains(n)
+                    if self.body.resources.contains(n)
                         && !self.lambda_params.borrow().contains(n)
                         && !self.loop_bindings.contains(n)) =>
             {
@@ -8156,7 +8199,7 @@ impl JsCodegen {
                 // `now(every: 1.seconds)`: the browser's clock, ticking as often
                 // as the page asks. It compiled to a bare `now(…)`, which
                 // nothing declares, and threw where the page read it.
-                if name == "now" && !self.own_names.contains(name) {
+                if name == "now" && !self.body.own_names.contains(name) {
                     let args_str: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();
                     return format!("WF.now({})", args_str.join(", "));
                 }
@@ -8182,7 +8225,7 @@ impl JsCodegen {
                         | "uuid"
                         | "keyIs"
                         | "keyLabel"
-                ) && !self.own_actions.contains(name)
+                ) && !self.body.own_actions.contains(name)
                 {
                     let args_str: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();
                     return format!("WF.{name}({})", args_str.join(", "));
@@ -8191,7 +8234,7 @@ impl JsCodegen {
                 let args_str: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();
                 // `await fetch(url, opts)`: the parsed body, as a `resource`
                 // reads it; a failed response throws.
-                if name == "fetch" && !self.own_actions.contains(name) {
+                if name == "fetch" && !self.body.own_actions.contains(name) {
                     let mut args_str = args_str;
                     if let Some(first) = args.first() {
                         args_str[0] = self.encoded_address(first);
@@ -8208,14 +8251,14 @@ impl JsCodegen {
                     )
                 } else if (self.script_classes.contains(name)
                     || BROWSER_CLASSES.contains(&name.as_str()))
-                    && !self.own_names.contains(name)
+                    && !self.body.own_names.contains(name)
                     && !self.consts.contains(name)
                 {
                     // A class a project script or the browser declares:
                     // constructed, since calling one without `new` throws.
                     format!("new {}({})", name, args_str.join(", "))
-                } else if self.current_props.contains(name)
-                    || (self.own_names.contains(name) && !self.own_actions.contains(name))
+                } else if self.body.current_props.contains(name)
+                    || (self.body.own_names.contains(name) && !self.body.own_actions.contains(name))
                 {
                     // A state, derived or prop that holds a function —
                     // `derived scale = (x) => x * factor`, then
@@ -8224,7 +8267,7 @@ impl JsCodegen {
                     // `scale(3)`, which nothing declares.
                     let callee = self.emit_expr(&Expr::Identifier(name.clone()));
                     format!("{}({})", callee, args_str.join(", "))
-                } else if self.own_actions.contains(name)
+                } else if self.body.own_actions.contains(name)
                     || self.loop_bindings.contains(name)
                     || self.lambda_params.borrow().contains(name)
                 {
@@ -8766,7 +8809,7 @@ impl JsCodegen {
     /// Whether `expr` names an action: one of the page's own, or a store's.
     fn is_action_ref(&self, expr: &Expr) -> bool {
         match expr {
-            Expr::Identifier(name) => self.own_actions.contains(name),
+            Expr::Identifier(name) => self.body.own_actions.contains(name),
             Expr::PropertyAccess(base, _) => {
                 matches!(base.as_ref(), Expr::Identifier(store) if self.stores.contains(store))
             }
@@ -8791,12 +8834,12 @@ impl JsCodegen {
             // `_name()` pattern does not see. A label that read only a
             // resource was worked out once, while it was loading.
             || self
-                .resources
+                .body.resources
                 .iter()
                 .any(|r| reads_handle(expr_str, &format!("{}.", sig(r))))
             || expr_str.contains("_p.")
             || self
-                .form_handles
+                .body.form_handles
                 .iter()
                 .any(|f| expr_str.contains(&format!("{f}.")))
             // A store read in the generated code by the name it has there:
@@ -8811,17 +8854,27 @@ impl JsCodegen {
 
 /// Whether `js` calls a live binding's accessor — `$d()`, `$item()` — that
 /// is, `$`, a name, and `()`, the `$` not the end of a longer name.
+/// The origin a message from the frame `var` arrives with, as JavaScript:
+/// the opaque `"null"` when a sandbox withholds `allow-same-origin`, the
+/// page's own for a `srcdoc` document, and otherwise its address's. A
+/// sandbox spelled with anything but spaces between its words reads as
+/// opaque, which only ever drops a message.
+fn frame_origin(var: &str) -> String {
+    format!(
+        "((f) => {{ const s = f.getAttribute(\"sandbox\"); if (s !== null && !s.toLowerCase().split(\" \").includes(\"allow-same-origin\")) return \"null\"; if (f.hasAttribute(\"srcdoc\")) return location.origin; try {{ return new URL(f.getAttribute(\"src\") || \"about:blank\", location.href).origin; }} catch (_) {{ return \"null\"; }} }})({var})"
+    )
+}
+
 fn reads_live_binding(js: &str) -> bool {
-    let bytes = js.as_bytes();
-    let word = |b: u8| b.is_ascii_alphanumeric() || b == b'_';
+    let chars: Vec<char> = js.chars().collect();
     let mut i = 0;
-    while i < bytes.len() {
-        if bytes[i] == b'$' && (i == 0 || !(word(bytes[i - 1]) || bytes[i - 1] == b'$')) {
+    while i < chars.len() {
+        if chars[i] == '$' && (i == 0 || !(name_char(chars[i - 1]) || chars[i - 1] == '$')) {
             let mut j = i + 1;
-            while j < bytes.len() && word(bytes[j]) {
+            while j < chars.len() && name_char(chars[j]) {
                 j += 1;
             }
-            if j > i + 1 && bytes[j..].starts_with(b"()") {
+            if j > i + 1 && chars.get(j) == Some(&'(') && chars.get(j + 1) == Some(&')') {
                 return true;
             }
             i = j.max(i + 1);
@@ -8830,6 +8883,13 @@ fn reads_live_binding(js: &str) -> bool {
         }
     }
     false
+}
+
+/// Whether `c` continues a name, in any script — as the lexer reads one
+/// (`state عدد`, `state été`), so a signal named in Arabic is seen as a
+/// signal read.
+fn name_char(c: char) -> bool {
+    c.is_ascii_alphanumeric() || c == '_' || (!c.is_ascii() && unicode_ident::is_xid_continue(c))
 }
 
 /// Whether `js` reads through `handle` (`_rows.`), as a name of its own and
@@ -8848,20 +8908,22 @@ fn is_reactive_expr(expr_str: &str) -> bool {
     if reads_live_binding(expr_str) {
         return true;
     }
-    // Check for signal access pattern: _identifier()
-    let bytes = expr_str.as_bytes();
-    for i in 0..bytes.len() {
-        if bytes[i] == b'_' && i + 1 < bytes.len() && (bytes[i + 1] as char).is_alphanumeric() {
+    // Check for signal access pattern: _identifier(), the name in any
+    // script the lexer takes.
+    let chars: Vec<char> = expr_str.chars().collect();
+    let letter = |c: char| c != '_' && name_char(c);
+    for i in 0..chars.len() {
+        if chars[i] == '_' && chars.get(i + 1).is_some_and(|c| letter(*c)) {
             // Found _identifier, check if it's followed by ()
             let mut j = i + 1;
-            while j < bytes.len() && (bytes[j] as char).is_alphanumeric() {
+            while j < chars.len() && letter(chars[j]) {
                 j += 1;
             }
             // A signal renamed off one of the generated code's own (`_p$`).
-            if j < bytes.len() && bytes[j] == b'$' {
+            if chars.get(j) == Some(&'$') {
                 j += 1;
             }
-            if j + 1 < bytes.len() && bytes[j] == b'(' && bytes[j + 1] == b')' {
+            if chars.get(j) == Some(&'(') && chars.get(j + 1) == Some(&')') {
                 return true;
             }
         }

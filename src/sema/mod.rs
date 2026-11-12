@@ -550,6 +550,21 @@ impl Checker<'_, '_> {
                         );
                         continue;
                     }
+                    // `style:` would be a `style=` attribute written from a
+                    // value — the whole of an element's inline style, which
+                    // a value from data can turn into a page-wide overlay.
+                    // A style is a `style { }` block, one property at a time.
+                    if key.eq_ignore_ascii_case("style") {
+                        self.error(
+                            at,
+                            "E106",
+                            format!("`{key}:` on {name} would write a value as the element's whole inline style"),
+                            &format!(
+                                "Write a style block instead: `{name}(…) {{ style {{ color: {{tone}} }} }}`, one property at a time"
+                            ),
+                        );
+                        continue;
+                    }
                     // A literal where the browser will follow it: checked
                     // where it is written, so a `javascript:` URL never
                     // reaches the output. A value only known at run time is

@@ -275,9 +275,16 @@ Content-Security-Policy refuses it ([Security](30-security.md)).
 To draw HTML instead of loading an address (an example a page renders, or a
 preview of what a reader is writing), use `srcdoc:`. The frame draws it
 sandboxed as `sandbox:` says, so `sandbox: ""` draws it with no script and
-no reach into your page. A value that reads state draws the new HTML each
-time it changes, and the pre-rendered page has the HTML before any script
-runs.
+no reach into your page. HTML from a value with no `sandbox:` is given
+`sandbox=""` — what a value holds is somebody else's document, scripts and
+all — and the build names it with a `V03`. A value that reads state draws
+the new HTML each time it changes, and the pre-rendered page has the HTML
+before any script runs.
+
+A frame's `on message` hears what its own document posts, from the origin
+that document has: its address's, or the opaque `"null"` of a sandbox
+without `allow-same-origin`. A page the frame was navigated to is no
+longer its own.
 
 This page previews a note as the reader types it:
 

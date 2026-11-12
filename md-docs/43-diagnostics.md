@@ -378,7 +378,7 @@ error[E105]: `n` is not an element or a statement a render block can hold
 
 **Fix:** Put it in `on click { }`, an `action` or an `effect`.
 
-### E106 — Script in an attribute
+### E106 — Script or a whole style in an attribute
 
 ```wf expect E106
 page P(path: "/", title: "T", description: "D") {
@@ -394,10 +394,36 @@ error[E106]: `onclick` on Button would put script in an attribute
 3 |     Button("Save", onclick: "save()")
   |                    ^^^^^^^
   = help: Write the handler instead: `Button(…) { on click { … } }`
-  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e106-script-in-an-attribute
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e106-script-or-a-whole-style-in-an-attribute
 ```
 
 **Fix:** `Button("Save") { on click { save() } }`.
+
+`style:` is refused the same way: it would write a value as the
+element's whole `style=` attribute, which a value from data can turn
+into a box over the whole page or a request to anywhere. A style is a
+`style { }` block, one property at a time, where a value that reads
+state sets that one property and nothing else.
+
+```wf expect E106
+page P(path: "/", title: "T", description: "D") {
+    state look = "color: red"
+    Heading("Note").h1
+    Text("Hi", style: look)
+}
+```
+
+```text
+error[E106]: `style:` on Text would write a value as the element's whole inline style
+ --> src/App.wf:4:16
+  |
+4 |     Text("Hi", style: look)
+  |                ^^^^^
+  = help: Write a style block instead: `Text(…) { style { color: {tone} } }`, one property at a time
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e106-script-or-a-whole-style-in-an-attribute
+```
+
+**Fix:** `Text("Hi") { style { color: {tone} } }`.
 
 ### E107 — A URL a browser would run
 
@@ -420,6 +446,32 @@ error[E107]: `to` on Link names the `javascript` scheme, which a browser runs
 
 **Fix:** A relative URL, or `http`, `https`, `mailto`, `tel`, `sms`,
 `ftp`.
+
+A page's `head { }` is held to the same rule, and more: a
+`script(src:)` must be written out, since whoever controls a value it
+reads would choose the script the page runs; a `meta(http-equiv:
+"refresh")` whose address comes from a value is an open redirect, and
+an `http-equiv` a value chooses could become one.
+
+```wf expect E107
+page P(path: "/", title: "T", description: "D") {
+    head { script(src: query.lib) }
+    Heading("Home").h1
+}
+```
+
+```text
+error[E107]: `head { script(src: …) }` loads a script a value chooses: whoever controls the value runs code as this site
+ --> src/App.wf:2:12
+  |
+2 |     head { script(src: query.lib) }
+  |            ^^^^^^
+  = help: Write the address out — `script(src: "/analytics.js")` — and keep what varies in the script's own data
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e107-a-url-a-browser-would-run
+```
+
+**Fix:** `head { script(src: "/analytics.js") }`; send a reader on with
+`navigate(…)`, which keeps to the site's routes.
 
 ### E108 — An `env` name that is not public
 
@@ -1297,6 +1349,27 @@ error[T01]: `count` is `String`, but `Number` is wanted
 ```
 
 **Fix:** Give the state a value of its type, or convert: `Number(text)`, `"{n}"`. If the state really holds either, declare it `Any`.
+
+A number a built-in cannot be given is one too: a `Carousel(interval:)`
+outside 1 to 2147483647 milliseconds (`-5000` used to become a 0 ms
+autoplay), a `Column(span:)` that is not a whole number from 1 to 12.
+
+```wf expect T01
+page P(path: "/", title: "T", description: "D") {
+    Heading("Grid").h1
+    Row { Column(span: 13) { Text("Wide") } }
+}
+```
+
+```text
+error[T01]: `span` of Column is 13, but a whole number of the 12 columns, from 1 to 12, is wanted
+ --> src/App.wf:3:11
+  |
+3 |     Row { Column(span: 13) { Text("Wide") } }
+  |           ^^^^^^
+  = help: `span: 6` is half the row
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t01-a-value-of-the-wrong-type
+```
 
 ### T02 — A case the enum does not have
 
@@ -2640,6 +2713,33 @@ warning[V03]: `Unsafe.Html` puts markup in as markup
 ```
 
 **Fix:** Wrap markup from outside the project in `sanitize(…)`: `Unsafe.Html(sanitize(body))`.
+
+A `Frame(srcdoc:)` drawing HTML from a value is named too: that HTML is
+a document of its own, scripts and all. Unless the call says what the
+frame may do, it may do nothing — the build gives it `sandbox=""` —
+and the warning says so. Writing `sandbox:` out is the reviewed case;
+`allow-scripts` with `allow-same-origin` undoes the sandbox, and is
+named again.
+
+```wf expect V03
+page P(path: "/", title: "T", description: "D") {
+    state html = "<p>Hi</p>"
+    Heading("Preview").h1
+    Frame(srcdoc: html, title: "Preview")
+}
+```
+
+```text
+warning[V03]: `Frame(srcdoc:)` draws HTML from a value as a document; it is sandboxed (`sandbox=""`), so nothing in it runs
+ --> src/App.wf:4:5
+  |
+4 |     Frame(srcdoc: html, title: "Preview")
+  |     ^^^^^
+  = help: Say what it may do with `sandbox:` — `sandbox: ""` keeps it as it is now; `allow-scripts` and `allow-same-origin` together undo the sandbox
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v03-markup-put-in-as-markup
+```
+
+**Fix:** `Frame(srcdoc: html, title: "Preview", sandbox: "")`.
 
 ### V02 — A flag no stylesheet styles
 

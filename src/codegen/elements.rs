@@ -232,8 +232,8 @@ pub fn demo_page(program: &Program, config: &ProjectConfig, base: &str) -> Strin
 {rows}</body>
 </html>
 "#,
-        name = config.name,
-        base = base,
+        name = crate::codegen::markdown::escape(&config.name),
+        base = crate::codegen::markdown::escape(base),
         rows = rows,
     )
 }

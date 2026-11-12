@@ -688,7 +688,8 @@ fn breadcrumbs(
 
     let base = config.build.base_path.trim_end_matches('/');
     let mut items = vec![format!(
-        r#"{{"@type":"ListItem","position":1,"name":"Home","item":"{origin}{base}/"}}"#
+        r#"{{"@type":"ListItem","position":1,"name":"Home","item":"{}"}}"#,
+        json_str(&format!("{origin}{base}/"))
     )];
 
     // A crumb is a page a reader can open: a level of the path that no
@@ -728,17 +729,26 @@ fn breadcrumbs(
             })
         }
         .unwrap_or_else(|| humanise(segment));
+        // An address is a JSON string like the rest: a route parameter's
+        // value is part of it, and a quote or a `</script>` in one stays
+        // inside the string.
         items.push(format!(
-            r#"{{"@type":"ListItem","position":{},"name":"{}","item":"{origin}{base}{}"}}"#,
+            r#"{{"@type":"ListItem","position":{},"name":"{}","item":"{}"}}"#,
             items.len() + 1,
             json_str(&name),
-            route_address(config, &accumulated)
+            json_str(&format!(
+                "{origin}{base}{}",
+                route_address(config, &accumulated)
+            ))
         ));
     }
 
     Some(format!(
-        r#"{{"@type":"BreadcrumbList","@id":"{origin}{base}{}#breadcrumb","itemListElement":[{}]}}"#,
-        route_address(config, &page.path),
+        r#"{{"@type":"BreadcrumbList","@id":"{}","itemListElement":[{}]}}"#,
+        json_str(&format!(
+            "{origin}{base}{}#breadcrumb",
+            route_address(config, &page.path)
+        )),
         items.join(",")
     ))
 }

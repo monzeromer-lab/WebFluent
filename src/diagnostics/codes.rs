@@ -132,14 +132,14 @@ pub static CODES: &[CodeInfo] = &[
     code(
         "E106",
         Error,
-        "Script in an attribute",
-        "`onclick:` and the other `on*` attributes are script in a string, which the content security policy refuses and nothing checks. A handler is `on click { … }`.",
+        "Script or a whole style in an attribute",
+        "`onclick:` and the other `on*` attributes are script in a string, which the content security policy refuses and nothing checks. A handler is `on click { … }`. `style:` is a value written as the element's whole inline style; a style is a `style { }` block, one property at a time.",
     ),
     code(
         "E107",
         Error,
         "A URL a browser would run",
-        "`javascript:`, `data:`, `vbscript:`, `blob:` and `file:` URLs run or load something the page did not write. A link takes `http`, `https`, `mailto`, `tel`, `sms`, `ftp` or a relative URL.",
+        "`javascript:`, `data:`, `vbscript:`, `blob:` and `file:` URLs run or load something the page did not write. A link takes `http`, `https`, `mailto`, `tel`, `sms`, `ftp` or a relative URL. In `head { }`, a `script(src:)` or a refresh whose address a value chooses is refused the same way.",
     ),
     code(
         "E108",
@@ -766,7 +766,7 @@ pub static CODES: &[CodeInfo] = &[
         "V03",
         Warning,
         "Markup put in as markup",
-        "An `Unsafe.Html`, and whether what it puts in went through `sanitize`.",
+        "An `Unsafe.Html`, and whether what it puts in went through `sanitize`; and a `Frame(srcdoc:)` drawing HTML from a value, which is sandboxed (`sandbox=\"\"`) unless it says what it may do.",
     ),
     code(
         "V04",
