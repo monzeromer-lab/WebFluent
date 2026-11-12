@@ -1,6 +1,7 @@
 {
   "diagnostics": [],
   "files": {
-    "resume-ar.pdf": "a546e5e7205a5322e2c1a55d86ca28a8b3e1f3c075bb3c7913c805b9c997354e"
-  }
+    "resume-ar.pdf": "machine-dependent"
+  },
+  "machine_fonts": true
 }

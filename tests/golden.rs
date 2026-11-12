@@ -11,10 +11,16 @@
 //!
 //!     UPDATE_GOLDEN=1 cargo test --release --test golden
 //!
-//! Each project is copied to a scratch folder first, so a build never
-//! writes into the repository; what a build writes does not depend on the
-//! folder it is built in. The WebFluent 2 projects under
-//! `tests/migrate/corpus/` are left out: a build refuses them by design.
+//! The trees that hold projects are copied whole to a scratch folder first,
+//! keeping their layout, so a build never writes into the repository and a
+//! project that reads a folder beside it (`"fonts": ["../fonts"]`) finds it;
+//! what a build writes does not depend on the folder it is built in. A build
+//! that borrowed a font from the machine, or found none for a character,
+//! writes a PDF that differs from one machine to the next: its manifest says
+//! `"machine_fonts": true` and records its PDFs as `machine-dependent`, and
+//! every other file it writes is held as usual. The
+//! WebFluent 2 projects under `tests/migrate/corpus/` are left out: a build
+//! refuses them by design.
 
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
@@ -31,6 +37,9 @@ const SKIP: &[&str] = &["build", "node_modules", ".wf-cache", ".git"];
 fn root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
 }
+
+/// The trees that hold the projects, relative to the repository.
+const TREES: &[&str] = &["examples", "tests/fixtures", "site"];
 
 /// Every folder holding a `webfluent.app.json`, relative to the repository.
 fn projects() -> Vec<PathBuf> {
@@ -57,11 +66,15 @@ fn projects() -> Vec<PathBuf> {
     }
     let root = root();
     let mut out = Vec::new();
-    for top in ["examples", "tests/fixtures", "site"] {
+    for top in TREES {
         walk(&root.join(top), &mut out);
     }
     out.into_iter()
-        .map(|p| p.strip_prefix(&root).expect("under the repository").to_path_buf())
+        .map(|p| {
+            p.strip_prefix(&root)
+                .expect("under the repository")
+                .to_path_buf()
+        })
         .collect()
 }
 
@@ -83,7 +96,9 @@ fn copy_project(from: &Path, to: &Path) {
     for entry in std::fs::read_dir(from).expect("project folder").flatten() {
         let name = entry.file_name();
         let path = entry.path();
-        let Ok(kind) = entry.file_type() else { continue };
+        let Ok(kind) = entry.file_type() else {
+            continue;
+        };
         if kind.is_dir() {
             if SKIP.contains(&name.to_string_lossy().as_ref()) {
                 continue;
@@ -114,7 +129,10 @@ fn manifest(dir: &Path) -> BTreeMap<String, String> {
                     .collect::<Vec<_>>()
                     .join("/");
                 let digest = Sha256::digest(&bytes);
-                let hex = digest.iter().map(|b| format!("{b:02x}")).collect::<String>();
+                let hex = digest
+                    .iter()
+                    .map(|b| format!("{b:02x}"))
+                    .collect::<String>();
                 out.insert(rel, hex);
             }
         }
@@ -127,10 +145,8 @@ fn manifest(dir: &Path) -> BTreeMap<String, String> {
 /// What a project builds to: its manifest, or the error that stopped it
 /// (with the scratch folder taken out, so it reads the same anywhere).
 fn build_one(project: &Path, scratch: &Path) -> serde_json::Value {
-    let work = scratch.join(golden_name(project));
-    let _ = std::fs::remove_dir_all(&work);
-    copy_project(&root().join(project), &work);
-    let out = work.join("__golden_out");
+    let work = scratch.join(project);
+    let out = scratch.join("__golden_out").join(golden_name(project));
     let options = BuildOptions {
         output_dir: Some(out.clone()),
         ..BuildOptions::new(&work, &FsVfs)
@@ -147,7 +163,35 @@ fn build_one(project: &Path, scratch: &Path) -> serde_json::Value {
             })
             .collect()
     };
+    // A PDF drawn with this machine's fonts, or without a font for some of
+    // its text, is not the same PDF elsewhere.
+    let unreproducible = |report: &webfluent::build::BuildReport| -> Vec<String> {
+        report
+            .lines
+            .iter()
+            .map(|l| l.text.trim().to_string())
+            .filter(|t| t.contains("came from this machine") || t.contains("no font has"))
+            .collect()
+    };
     let value = match build(&options) {
+        Ok(report) if !unreproducible(&report).is_empty() => {
+            let files: BTreeMap<String, String> = manifest(&out)
+                .into_iter()
+                .map(|(path, hash)| {
+                    let shown = if path.ends_with(".pdf") {
+                        "machine-dependent".to_string()
+                    } else {
+                        hash
+                    };
+                    (path, shown)
+                })
+                .collect();
+            serde_json::json!({
+                "diagnostics": findings(&report),
+                "files": files,
+                "machine_fonts": true,
+            })
+        }
         Ok(report) => serde_json::json!({
             "diagnostics": findings(&report),
             "files": manifest(&out),
@@ -157,7 +201,7 @@ fn build_one(project: &Path, scratch: &Path) -> serde_json::Value {
             "error": failure.error.to_string().replace(&here, "<project>"),
         }),
     };
-    let _ = std::fs::remove_dir_all(&work);
+    let _ = std::fs::remove_dir_all(&out);
     value
 }
 
@@ -174,6 +218,13 @@ fn differences(was: &serde_json::Value, now: &serde_json::Value) -> Vec<String> 
             .unwrap_or_default()
     };
     let mut out = Vec::new();
+    if was.get("machine_fonts") != now.get("machine_fonts") {
+        out.push(format!(
+            "machine fonts: {} → {} (a PDF now draws, or no longer draws, with this machine's fonts)",
+            was.get("machine_fonts").is_some(),
+            now.get("machine_fonts").is_some()
+        ));
+    }
     if was.get("error") != now.get("error") {
         out.push(format!(
             "build result: {} → {}",
@@ -184,7 +235,11 @@ fn differences(was: &serde_json::Value, now: &serde_json::Value) -> Vec<String> 
     let findings = |v: &serde_json::Value| -> Vec<String> {
         v.get("diagnostics")
             .and_then(|d| d.as_array())
-            .map(|d| d.iter().filter_map(|x| x.as_str().map(str::to_string)).collect())
+            .map(|d| {
+                d.iter()
+                    .filter_map(|x| x.as_str().map(str::to_string))
+                    .collect()
+            })
             .unwrap_or_default()
     };
     let (fa, fb) = (findings(was), findings(now));
@@ -218,7 +273,10 @@ fn every_project_builds_to_its_golden_manifest() {
         projects.len()
     );
     let scratch = std::env::temp_dir().join(format!("wf-golden-{}", std::process::id()));
-    std::fs::create_dir_all(&scratch).expect("scratch folder");
+    let _ = std::fs::remove_dir_all(&scratch);
+    for tree in TREES {
+        copy_project(&root().join(tree), &scratch.join(tree));
+    }
 
     // A few at a time: each build is heavy, and the machines this runs on
     // are not all large.
@@ -255,7 +313,10 @@ fn every_project_builds_to_its_golden_manifest() {
             continue;
         }
         let Ok(text) = std::fs::read_to_string(&file) else {
-            failures.push(format!("{}: no golden manifest ({name})", project.display()));
+            failures.push(format!(
+                "{}: no golden manifest ({name})",
+                project.display()
+            ));
             continue;
         };
         let was: serde_json::Value =
