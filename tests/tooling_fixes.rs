@@ -286,7 +286,10 @@ fn an_acting_test_reads_public_but_not_past_it() {
         assert!(std::env::var_os("WF_REQUIRE_CHROME").is_none(), "{out}");
         return;
     }
-    assert!(out.contains("ok    tests/public.wf — public is served"), "{out}");
+    assert!(
+        out.contains("ok    tests/public.wf — public is served"),
+        "{out}"
+    );
     // The link out is a 404, which fails that test: what matters is that
     // nothing past `public/` reached the page.
     assert!(out.contains("404") && out.contains("/leak.json"), "{out}");
