@@ -3250,24 +3250,24 @@ pub mod webfluent::edit
 pub enum webfluent::edit::ArgRef
 pub webfluent::edit::ArgRef::Named(alloc::string::String)
 pub webfluent::edit::ArgRef::Positional(usize)
-impl core::clone::Clone for webfluent::edit::ArgRef
-pub fn webfluent::edit::ArgRef::clone(&self) -> Self
-impl core::cmp::PartialEq for webfluent::edit::ArgRef
-pub fn webfluent::edit::ArgRef::eq(&self, &Self) -> bool
-impl core::fmt::Debug for webfluent::edit::ArgRef
-pub fn webfluent::edit::ArgRef::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::StructuralPartialEq for webfluent::edit::ArgRef
-impl serde_core::ser::Serialize for webfluent::edit::ArgRef
-pub fn webfluent::edit::ArgRef::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for webfluent::edit::ArgRef
-pub fn webfluent::edit::ArgRef::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for webfluent::edit::ArgRef
-impl core::marker::Send for webfluent::edit::ArgRef
-impl core::marker::Sync for webfluent::edit::ArgRef
-impl core::marker::Unpin for webfluent::edit::ArgRef
-impl core::marker::UnsafeUnpin for webfluent::edit::ArgRef
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::edit::ArgRef
-impl core::panic::unwind_safe::UnwindSafe for webfluent::edit::ArgRef
+impl core::clone::Clone for webfluent::ArgRef
+pub fn webfluent::ArgRef::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::ArgRef
+pub fn webfluent::ArgRef::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::ArgRef
+pub fn webfluent::ArgRef::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::ArgRef
+impl serde_core::ser::Serialize for webfluent::ArgRef
+pub fn webfluent::ArgRef::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for webfluent::ArgRef
+pub fn webfluent::ArgRef::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for webfluent::ArgRef
+impl core::marker::Send for webfluent::ArgRef
+impl core::marker::Sync for webfluent::ArgRef
+impl core::marker::Unpin for webfluent::ArgRef
+impl core::marker::UnsafeUnpin for webfluent::ArgRef
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::ArgRef
+impl core::panic::unwind_safe::UnwindSafe for webfluent::ArgRef
 pub enum webfluent::edit::EditOp
 pub webfluent::edit::EditOp::AddModifier
 pub webfluent::edit::EditOp::AddModifier::modifier: alloc::string::String
@@ -3311,7 +3311,7 @@ pub webfluent::edit::EditOp::ReplaceNode
 pub webfluent::edit::EditOp::ReplaceNode::node: alloc::string::String
 pub webfluent::edit::EditOp::ReplaceNode::wf: alloc::string::String
 pub webfluent::edit::EditOp::SetArg
-pub webfluent::edit::EditOp::SetArg::arg: webfluent::edit::ArgRef
+pub webfluent::edit::EditOp::SetArg::arg: webfluent::ArgRef
 pub webfluent::edit::EditOp::SetArg::node: alloc::string::String
 pub webfluent::edit::EditOp::SetArg::value: alloc::string::String
 pub webfluent::edit::EditOp::SetFlag
@@ -3342,28 +3342,28 @@ pub webfluent::edit::EditOp::SetStyle::value: alloc::string::String
 pub webfluent::edit::EditOp::SetText
 pub webfluent::edit::EditOp::SetText::node: alloc::string::String
 pub webfluent::edit::EditOp::SetText::value: alloc::string::String
-impl webfluent::edit::EditOp
-pub fn webfluent::edit::EditOp::node(&self) -> &str
-impl core::clone::Clone for webfluent::edit::EditOp
-pub fn webfluent::edit::EditOp::clone(&self) -> Self
-impl core::cmp::PartialEq for webfluent::edit::EditOp
-pub fn webfluent::edit::EditOp::eq(&self, &Self) -> bool
-impl core::fmt::Debug for webfluent::edit::EditOp
-pub fn webfluent::edit::EditOp::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::StructuralPartialEq for webfluent::edit::EditOp
-impl serde_core::ser::Serialize for webfluent::edit::EditOp
-pub fn webfluent::edit::EditOp::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for webfluent::edit::EditOp
-pub fn webfluent::edit::EditOp::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for webfluent::edit::EditOp
-impl core::marker::Send for webfluent::edit::EditOp
-impl core::marker::Sync for webfluent::edit::EditOp
-impl core::marker::Unpin for webfluent::edit::EditOp
-impl core::marker::UnsafeUnpin for webfluent::edit::EditOp
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::edit::EditOp
-impl core::panic::unwind_safe::UnwindSafe for webfluent::edit::EditOp
-pub fn webfluent::edit::apply_edits(&str, &[webfluent::edit::EditOp]) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
-pub fn webfluent::edit::apply_edits_to(&str, &str, &[webfluent::edit::EditOp]) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
+impl webfluent::EditOp
+pub fn webfluent::EditOp::node(&self) -> &str
+impl core::clone::Clone for webfluent::EditOp
+pub fn webfluent::EditOp::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::EditOp
+pub fn webfluent::EditOp::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::EditOp
+pub fn webfluent::EditOp::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::EditOp
+impl serde_core::ser::Serialize for webfluent::EditOp
+pub fn webfluent::EditOp::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for webfluent::EditOp
+pub fn webfluent::EditOp::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for webfluent::EditOp
+impl core::marker::Send for webfluent::EditOp
+impl core::marker::Sync for webfluent::EditOp
+impl core::marker::Unpin for webfluent::EditOp
+impl core::marker::UnsafeUnpin for webfluent::EditOp
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::EditOp
+impl core::panic::unwind_safe::UnwindSafe for webfluent::EditOp
+pub fn webfluent::edit::apply_edits(&str, &[webfluent::EditOp]) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::edit::apply_edits_to(&str, &str, &[webfluent::EditOp]) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
 pub fn webfluent::edit::declaration_name(&webfluent::syntax::parser::Declaration) -> core::option::Option<&str>
 pub fn webfluent::edit::rewrite_body(&str, &str, &str, impl core::ops::function::FnOnce(&mut alloc::vec::Vec<webfluent::syntax::parser::Statement>)) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
 pub fn webfluent::edit::rewrite_declaration(&str, &str, &str, impl core::ops::function::FnOnce(&mut webfluent::syntax::parser::Declaration)) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
@@ -15540,24 +15540,24 @@ pub fn webfluent::vfs::stays_inside(&str) -> bool
 pub enum webfluent::ArgRef
 pub webfluent::ArgRef::Named(alloc::string::String)
 pub webfluent::ArgRef::Positional(usize)
-impl core::clone::Clone for webfluent::edit::ArgRef
-pub fn webfluent::edit::ArgRef::clone(&self) -> Self
-impl core::cmp::PartialEq for webfluent::edit::ArgRef
-pub fn webfluent::edit::ArgRef::eq(&self, &Self) -> bool
-impl core::fmt::Debug for webfluent::edit::ArgRef
-pub fn webfluent::edit::ArgRef::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::StructuralPartialEq for webfluent::edit::ArgRef
-impl serde_core::ser::Serialize for webfluent::edit::ArgRef
-pub fn webfluent::edit::ArgRef::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for webfluent::edit::ArgRef
-pub fn webfluent::edit::ArgRef::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for webfluent::edit::ArgRef
-impl core::marker::Send for webfluent::edit::ArgRef
-impl core::marker::Sync for webfluent::edit::ArgRef
-impl core::marker::Unpin for webfluent::edit::ArgRef
-impl core::marker::UnsafeUnpin for webfluent::edit::ArgRef
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::edit::ArgRef
-impl core::panic::unwind_safe::UnwindSafe for webfluent::edit::ArgRef
+impl core::clone::Clone for webfluent::ArgRef
+pub fn webfluent::ArgRef::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::ArgRef
+pub fn webfluent::ArgRef::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::ArgRef
+pub fn webfluent::ArgRef::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::ArgRef
+impl serde_core::ser::Serialize for webfluent::ArgRef
+pub fn webfluent::ArgRef::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for webfluent::ArgRef
+pub fn webfluent::ArgRef::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for webfluent::ArgRef
+impl core::marker::Send for webfluent::ArgRef
+impl core::marker::Sync for webfluent::ArgRef
+impl core::marker::Unpin for webfluent::ArgRef
+impl core::marker::UnsafeUnpin for webfluent::ArgRef
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::ArgRef
+impl core::panic::unwind_safe::UnwindSafe for webfluent::ArgRef
 pub enum webfluent::Dialect
 pub webfluent::Dialect::V1
 pub webfluent::Dialect::V2
@@ -15620,7 +15620,7 @@ pub webfluent::EditOp::ReplaceNode
 pub webfluent::EditOp::ReplaceNode::node: alloc::string::String
 pub webfluent::EditOp::ReplaceNode::wf: alloc::string::String
 pub webfluent::EditOp::SetArg
-pub webfluent::EditOp::SetArg::arg: webfluent::edit::ArgRef
+pub webfluent::EditOp::SetArg::arg: webfluent::ArgRef
 pub webfluent::EditOp::SetArg::node: alloc::string::String
 pub webfluent::EditOp::SetArg::value: alloc::string::String
 pub webfluent::EditOp::SetFlag
@@ -15651,26 +15651,26 @@ pub webfluent::EditOp::SetStyle::value: alloc::string::String
 pub webfluent::EditOp::SetText
 pub webfluent::EditOp::SetText::node: alloc::string::String
 pub webfluent::EditOp::SetText::value: alloc::string::String
-impl webfluent::edit::EditOp
-pub fn webfluent::edit::EditOp::node(&self) -> &str
-impl core::clone::Clone for webfluent::edit::EditOp
-pub fn webfluent::edit::EditOp::clone(&self) -> Self
-impl core::cmp::PartialEq for webfluent::edit::EditOp
-pub fn webfluent::edit::EditOp::eq(&self, &Self) -> bool
-impl core::fmt::Debug for webfluent::edit::EditOp
-pub fn webfluent::edit::EditOp::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::StructuralPartialEq for webfluent::edit::EditOp
-impl serde_core::ser::Serialize for webfluent::edit::EditOp
-pub fn webfluent::edit::EditOp::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for webfluent::edit::EditOp
-pub fn webfluent::edit::EditOp::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for webfluent::edit::EditOp
-impl core::marker::Send for webfluent::edit::EditOp
-impl core::marker::Sync for webfluent::edit::EditOp
-impl core::marker::Unpin for webfluent::edit::EditOp
-impl core::marker::UnsafeUnpin for webfluent::edit::EditOp
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::edit::EditOp
-impl core::panic::unwind_safe::UnwindSafe for webfluent::edit::EditOp
+impl webfluent::EditOp
+pub fn webfluent::EditOp::node(&self) -> &str
+impl core::clone::Clone for webfluent::EditOp
+pub fn webfluent::EditOp::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::EditOp
+pub fn webfluent::EditOp::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::EditOp
+pub fn webfluent::EditOp::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::EditOp
+impl serde_core::ser::Serialize for webfluent::EditOp
+pub fn webfluent::EditOp::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for webfluent::EditOp
+pub fn webfluent::EditOp::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for webfluent::EditOp
+impl core::marker::Send for webfluent::EditOp
+impl core::marker::Sync for webfluent::EditOp
+impl core::marker::Unpin for webfluent::EditOp
+impl core::marker::UnsafeUnpin for webfluent::EditOp
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::EditOp
+impl core::panic::unwind_safe::UnwindSafe for webfluent::EditOp
 pub enum webfluent::WebFluentError
 pub webfluent::WebFluentError::CodegenError(alloc::string::String)
 pub webfluent::WebFluentError::ConfigError(alloc::string::String)
@@ -16003,7 +16003,7 @@ impl core::marker::UnsafeUnpin for webfluent::studio::ThemeInfo
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::studio::ThemeInfo
 impl core::panic::unwind_safe::UnwindSafe for webfluent::studio::ThemeInfo
 pub const webfluent::VERSION: &str
-pub fn webfluent::apply_edits(&str, &[webfluent::edit::EditOp]) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::apply_edits(&str, &[webfluent::EditOp]) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
 pub fn webfluent::compile_studio(&webfluent::syntax::parser::Program, &webfluent::config::ProjectConfig, &std::collections::hash::map::HashMap<alloc::string::String, std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>) -> webfluent::studio::CompiledSite
 pub fn webfluent::detect_dialect(&str) -> webfluent::syntax::Dialect
 pub fn webfluent::parse_source(&str, &str) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::syntax::parser::Program>

@@ -80,7 +80,7 @@ pub struct Checked {
     /// What the type checker made of the program as written: every
     /// declared name's type, for an editor's hover and completion, so it
     /// does not check the program a second time.
-    pub types: crate::sema::types::TypeInfo,
+    pub types: crate::check::sema::types::TypeInfo,
 }
 
 /// The codes a missing declaration could explain.
@@ -148,9 +148,9 @@ pub fn check_project_via(vfs: &dyn Vfs, p: &Project) -> Checked {
             let around = deep(s, || project_checks_via(vfs, shared, file_of));
             let typed = deep(s, || program_checks_typed(p.program, file_of, source_of));
             let structure = deep(s, || {
-                crate::linter::structure::lint_structure(p.program, file_of)
+                crate::check::linter::structure::lint_structure(p.program, file_of)
             });
-            let lowered = crate::sema::lower(p.program.clone());
+            let lowered = crate::check::sema::lower(p.program.clone());
             let from_lowered = lowered_checks(&lowered, shared, file_of);
             (
                 around.join().expect("the project's checks"),
@@ -224,15 +224,15 @@ fn project_checks_via(
         return out;
     };
     out.extend(script_checks_via(vfs, dir, p.scripts));
-    out.extend(crate::linter::project::missing_assets(
+    out.extend(crate::check::linter::project::missing_assets(
         vfs, p.program, dir, file_of,
     ));
-    out.extend(crate::linter::project::persist_changes(
+    out.extend(crate::check::linter::project::persist_changes(
         p.program, dir, file_of,
     ));
     if let Some(config) = p.config {
         out.extend(config_checks_via(vfs, dir, config, p.program));
-        out.extend(crate::linter::lint_env_via(
+        out.extend(crate::check::linter::lint_env_via(
             vfs,
             dir,
             config,
@@ -241,7 +241,7 @@ fn project_checks_via(
         if let Some(i18n) = &config.i18n
             && let Ok(messages) = crate::project::i18n::load_via(vfs, dir, i18n)
         {
-            out.extend(crate::linter::project::translations(
+            out.extend(crate::check::linter::project::translations(
                 p.program, i18n, &messages, file_of,
             ));
         }
@@ -265,30 +265,37 @@ fn lowered_checks(
         .unwrap_or_default();
     let (accessibility, (contrast, styles), unused, vocabulary, output) =
         crate::base::platform::scope(|s| {
-            let accessibility = deep(s, || crate::linter::lint_accessibility_in(lowered, file_of));
+            let accessibility = deep(s, || {
+                crate::check::linter::lint_accessibility_in(lowered, file_of)
+            });
             let painted = deep(s, || {
                 match crate::project::themes::resolve_tokens(lowered, &theme) {
                     Ok(mut tokens) => {
-                        let contrast = crate::linter::lint_contrast_in(lowered, &tokens, file_of);
+                        let contrast =
+                            crate::check::linter::lint_contrast_in(lowered, &tokens, file_of);
                         if let Some(config) = p.config {
                             crate::project::themes::apply_motion(&mut tokens, &config.motion);
                         }
                         (
                             contrast,
-                            crate::linter::styles::lint_styles(lowered, Some(&tokens), file_of),
+                            crate::check::linter::styles::lint_styles(
+                                lowered,
+                                Some(&tokens),
+                                file_of,
+                            ),
                         )
                     }
                     Err(_) => (
                         Vec::new(),
-                        crate::linter::styles::lint_styles(lowered, None, file_of),
+                        crate::check::linter::styles::lint_styles(lowered, None, file_of),
                     ),
                 }
             });
             let unused = deep(s, || {
-                crate::linter::lint_unused_in(lowered, file_of, &published)
+                crate::check::linter::lint_unused_in(lowered, file_of, &published)
             });
             let vocabulary = deep(s, || {
-                crate::linter::lint_vocabulary_with(lowered, p.stylesheets, file_of)
+                crate::check::linter::lint_vocabulary_with(lowered, p.stylesheets, file_of)
             });
             let output = p.config.map(|config| {
                 let mut out = output_checks(lowered, config, file_of);
@@ -335,12 +342,12 @@ fn program_checks_typed(
     program: &Program,
     file_of: &dyn Fn(usize) -> String,
     source_of: &dyn Fn(usize) -> Option<String>,
-) -> (Vec<Diagnostic>, crate::sema::types::TypeInfo) {
-    let mut out = crate::linter::validate_semantics_in(program, file_of);
-    let findings = crate::sema::check(program, file_of);
+) -> (Vec<Diagnostic>, crate::check::sema::types::TypeInfo) {
+    let mut out = crate::check::linter::validate_semantics_in(program, file_of);
+    let findings = crate::check::sema::check(program, file_of);
     out.extend(findings.errors);
     out.extend(findings.warnings);
-    let typed = crate::sema::types::check_in(program, file_of, source_of);
+    let typed = crate::check::sema::types::check_in(program, file_of, source_of);
     out.extend(typed.findings.errors.iter().cloned());
     out.extend(typed.findings.warnings.iter().cloned());
     out.extend(typed.unresolved.iter().cloned());
@@ -798,7 +805,7 @@ pub fn output_checks(
     let mut out = Vec::new();
     match config.build.output_type {
         OutputType::Pdf => {
-            for e in crate::linter::validate_for_pdf(lowered) {
+            for e in crate::check::linter::validate_for_pdf(lowered) {
                 out.push(Diagnostic::coded(
                     "E109",
                     format!(
@@ -812,7 +819,7 @@ pub fn output_checks(
             }
         }
         OutputType::Slides => {
-            for e in crate::linter::validate_for_slides(lowered) {
+            for e in crate::check::linter::validate_for_slides(lowered) {
                 out.push(Diagnostic::coded(
                     "E109",
                     format!("`{}` in {}: {}", e.component, e.context, e.reason),

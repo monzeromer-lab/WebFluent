@@ -166,20 +166,20 @@ pub fn collect(path: &Path) -> Result<Tests> {
         .filter(|(d, file)| !is_drawn(d) && !own.contains_key(*file))
         .filter_map(|(d, file)| {
             Some((
-                crate::edit::declaration_name(d)?,
+                crate::check::edit::declaration_name(d)?,
                 file,
-                crate::scope::decl_span(d).unwrap_or_default(),
+                crate::check::scope::decl_span(d).unwrap_or_default(),
             ))
         })
         .collect();
     let mut clashes = Vec::new();
     for (file, decls) in &own {
         for d in decls {
-            let Some(name) = crate::edit::declaration_name(d) else {
+            let Some(name) = crate::check::edit::declaration_name(d) else {
                 continue;
             };
             if let Some((_, first_file, at)) = project_names.iter().find(|(n, _, _)| *n == name) {
-                let span = crate::scope::decl_span(d).unwrap_or_default();
+                let span = crate::check::scope::decl_span(d).unwrap_or_default();
                 clashes.push(
                     crate::diagnostics::Diagnostic::coded(
                         "E102",
@@ -459,7 +459,7 @@ pub fn render_test(
         header_span: test.span,
         body_span: test.span,
     }));
-    let mut program = crate::sema::lower(Program { declarations });
+    let mut program = crate::check::sema::lower(Program { declarations });
     // Translated by its own words, as the build translates the page: the
     // default locale's table, its plural forms too, are what a test sees.
     if literals {
@@ -845,7 +845,7 @@ pub fn act(
     // compiled here rather than written back out as source: there is no
     // printer from the tree to the text, and a test does not need one — the
     // compiler takes the tree.
-    let mut program = crate::sema::lower(as_program(shared, test));
+    let mut program = crate::check::sema::lower(as_program(shared, test));
     if site.i18n.is_some_and(|(i, _)| i.literals) {
         crate::project::i18n::literals::translate(&mut program);
     }

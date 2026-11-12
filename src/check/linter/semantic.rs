@@ -302,7 +302,7 @@ fn check_script_names(
                 || crate::registry::browser::BROWSER_VALUES.contains(&name)
             {
                 Some("the browser")
-            } else if crate::sema::types::BUILT_IN_FUNCTIONS.contains(&name) {
+            } else if crate::check::sema::types::BUILT_IN_FUNCTIONS.contains(&name) {
                 Some("the language")
             } else if name == "WF"
                 || name == "env"
@@ -371,7 +371,7 @@ fn check_build_names(
         };
         let what = if name == "WF" {
             "the runtime the compiled pages call".to_string()
-        } else if let Some(what) = crate::sema::types::language_name(name) {
+        } else if let Some(what) = crate::check::sema::types::language_name(name) {
             what
         } else {
             continue;
@@ -673,7 +673,7 @@ mod tests {
 
     fn program(src: &str) -> Program {
         crate::syntax::parse_source(src, "<test>")
-            .map(crate::sema::lower)
+            .map(crate::check::sema::lower)
             .expect("parse")
     }
 

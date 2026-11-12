@@ -17,7 +17,7 @@
 //! theme's tokens — and adds and removes whole declarations with their
 //! comments and the blank line between them.
 //!
-//! [`crate::edit`] puts this behind its rewrites and holds the result to
+//! [`crate::check::edit`] puts this behind its rewrites and holds the result to
 //! the tree the editor asked for.
 
 use crate::syntax::parser::ast::*;
@@ -1740,7 +1740,7 @@ fn diff_page(source: &str, x: &PageDecl, y: &PageDecl, out: &mut Vec<Patch>) -> 
 
 #[cfg(test)]
 mod tests {
-    use crate::edit::{rewrite_body, rewrite_element, rewrite_statement};
+    use crate::check::edit::{rewrite_body, rewrite_element, rewrite_statement};
     use crate::syntax::parser::ast::*;
 
     const PAGE: &str = r#"page Home(path: "/", title: "Home", description: "Home.") {
@@ -1985,7 +1985,7 @@ theme Brand {
 const LIMIT = 10
 "#;
 
-    use crate::edit::{rewrite_declaration, rewrite_program};
+    use crate::check::edit::{rewrite_declaration, rewrite_program};
 
     fn card(d: &mut Declaration) -> &mut ComponentDecl {
         match d {
@@ -2056,7 +2056,7 @@ const LIMIT = 10
 
     #[test]
     fn a_member_s_doc_stays_once_as_its_value_changes() {
-        let out = crate::edit::rewrite_declaration(STORE, "t.wf", "Deploys", |d| {
+        let out = crate::check::edit::rewrite_declaration(STORE, "t.wf", "Deploys", |d| {
             let StatementKind::Derived(c) = &mut store_body(d)[1].kind else {
                 panic!("count")
             };
@@ -2071,7 +2071,7 @@ const LIMIT = 10
 
     #[test]
     fn a_member_removed_takes_its_doc_and_one_added_brings_its_own() {
-        let out = crate::edit::rewrite_declaration(STORE, "t.wf", "Deploys", |d| {
+        let out = crate::check::edit::rewrite_declaration(STORE, "t.wf", "Deploys", |d| {
             store_body(d).remove(1);
         })
         .unwrap();
@@ -2079,7 +2079,7 @@ const LIMIT = 10
             out,
             STORE.replace("    /// How many.\n    derived count = items.length\n", "")
         );
-        let out = crate::edit::rewrite_declaration(STORE, "t.wf", "Deploys", |d| {
+        let out = crate::check::edit::rewrite_declaration(STORE, "t.wf", "Deploys", |d| {
             let mut first = store_body(d)[0].clone();
             let StatementKind::State(st) = &mut first.kind else {
                 panic!("items")
@@ -2099,7 +2099,7 @@ const LIMIT = 10
             )
         );
         // A doc changed is written where the old one was.
-        let out = crate::edit::rewrite_declaration(STORE, "t.wf", "Deploys", |d| {
+        let out = crate::check::edit::rewrite_declaration(STORE, "t.wf", "Deploys", |d| {
             let StatementKind::Action(a) = &mut store_body(d)[2].kind else {
                 panic!("clear")
             };

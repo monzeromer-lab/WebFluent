@@ -538,7 +538,7 @@ mod tests {
 
     fn lint(source: &str) -> Vec<VocabWarning> {
         let program = crate::syntax::parse_source(source, "<test>")
-            .map(crate::sema::lower)
+            .map(crate::check::sema::lower)
             .expect("parse");
         lint_vocabulary(&program, "<test>")
     }
@@ -690,7 +690,7 @@ mod dead_variant_tests {
 
     fn warnings(src: &str) -> Vec<VocabWarning> {
         let program = crate::syntax::parse_source(src, "<t>")
-            .map(crate::sema::lower)
+            .map(crate::check::sema::lower)
             .expect("parse");
         lint_vocabulary(&program, "<t>")
             .into_iter()

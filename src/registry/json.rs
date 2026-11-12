@@ -207,7 +207,7 @@ pub fn declarations_json(program: &Program, file_of: &dyn Fn(usize) -> String) -
                 })).iter().map(|f| json!({
                     "name": f.name,
                     "type": type_ref_json(&f.ty),
-                    "default": f.default.as_ref().map(crate::sema::types::expr_text),
+                    "default": f.default.as_ref().map(crate::check::sema::types::expr_text),
                     "doc": f.doc,
                 })).collect::<Vec<_>>(),
             })),
@@ -237,7 +237,7 @@ pub fn declarations_json(program: &Program, file_of: &dyn Fn(usize) -> String) -
                         "name": p.name,
                         "type": type_ref_json(&p.prop_type),
                         "positional": p.positional,
-                        "default": p.default.as_ref().map(crate::sema::types::expr_text),
+                        "default": p.default.as_ref().map(crate::check::sema::types::expr_text),
                         "flag": p.prop_type == TypeRef::Bool,
                         "doc": p.doc,
                     })).collect::<Vec<_>>(),
@@ -304,7 +304,7 @@ fn script_name_json(file: &str, n: &crate::syntax::js_scan::Name) -> Value {
     let doc = n
         .doc
         .as_deref()
-        .map(crate::project::project_js::jsdoc::parse)
+        .map(crate::check::jsdoc::parse)
         .unwrap_or_default();
     let params = |params: &[crate::syntax::js_scan::Param]| {
         params
@@ -315,7 +315,7 @@ fn script_name_json(file: &str, n: &crate::syntax::js_scan::Name) -> Value {
                     "name": p.name,
                     "type": documented
                         .and_then(|d| d.ty.as_deref())
-                        .map(|t| crate::sema::types::jsdoc_type(t).to_string())
+                        .map(|t| crate::check::sema::types::jsdoc_type(t).to_string())
                         .unwrap_or_else(|| "Any".to_string()),
                     "optional": p.optional || documented.is_some_and(|d| d.optional),
                     "rest": p.rest,
@@ -336,7 +336,7 @@ fn script_name_json(file: &str, n: &crate::syntax::js_scan::Name) -> Value {
         "name": n.name,
         "kind": kind,
         "params": params,
-        "returns": doc.returns.as_deref().map(|t| crate::sema::types::jsdoc_type(t).to_string()),
+        "returns": doc.returns.as_deref().map(|t| crate::check::sema::types::jsdoc_type(t).to_string()),
         "methods": methods,
         "doc": (!doc.summary.is_empty()).then_some(doc.summary.clone()),
         "file": file,

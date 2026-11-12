@@ -4864,7 +4864,7 @@ impl<'a, 'p> Checker<'a, 'p> {
         let documented = script
             .doc
             .as_deref()
-            .map(crate::project::project_js::jsdoc::parse)
+            .map(crate::check::jsdoc::parse)
             .unwrap_or_default();
         // A default in the code or `[name]` in the comment: either says a
         // call may leave it out.
@@ -4915,7 +4915,7 @@ impl<'a, 'p> Checker<'a, 'p> {
         let doc = script
             .doc
             .as_deref()
-            .map(crate::project::project_js::jsdoc::parse)
+            .map(crate::check::jsdoc::parse)
             .unwrap_or_default();
         for (i, arg) in args.iter().enumerate() {
             let param = params.get(i).or_else(|| params.last().filter(|p| p.rest));

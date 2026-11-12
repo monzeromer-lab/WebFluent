@@ -339,7 +339,9 @@ mod tests {
             .cloned()
             .collect();
         written.sort();
-        let crate::sema::types::Type::Shape(fields) = crate::sema::types::image_type() else {
+        let crate::check::sema::types::Type::Shape(fields) =
+            crate::check::sema::types::image_type()
+        else {
             panic!("an image is a shape");
         };
         let mut typed: Vec<String> = fields.into_iter().map(|(n, _)| n).collect();

@@ -2265,9 +2265,9 @@ impl JsCodegen {
     fn open_forms(&mut self, body: &[Statement]) -> Vec<String> {
         self.body.current_form = None;
         self.body.implicit_form = None;
-        self.body.form_handles = crate::sema::types::form_names(body);
+        self.body.form_handles = crate::check::sema::types::form_names(body);
         let mut lines = Vec::new();
-        for name in crate::sema::types::form_names(body) {
+        for name in crate::check::sema::types::form_names(body) {
             let handle = bare(&name);
             lines.push(format!("const {handle} = WF.form({});", form_options(body)));
             self.body.current_form = Some(handle);
@@ -2349,7 +2349,7 @@ impl JsCodegen {
         // Set current props so emit_expr treats them as plain variables, not signals
         self.body.current_props = params.clone();
         self.body.own_actions = action_names(&comp.body);
-        self.body.refs = crate::sema::types::ref_names(&comp.body);
+        self.body.refs = crate::check::sema::types::ref_names(&comp.body);
         self.body.own_names = declared_names(&comp.body);
         self.body.body_signals = body_signals(&comp.body);
         self.emit_pending_signals(&comp.body);
@@ -2427,7 +2427,7 @@ impl JsCodegen {
         self.indent += 1;
         self.body.page_params = page.params.iter().map(|p| p.name.clone()).collect();
         self.body.own_actions = action_names(&page.body);
-        self.body.refs = crate::sema::types::ref_names(&page.body);
+        self.body.refs = crate::check::sema::types::ref_names(&page.body);
         self.body.own_names = declared_names(&page.body);
         self.body.body_signals = body_signals(&page.body);
         self.emit_pending_signals(&page.body);
@@ -9436,7 +9436,7 @@ mod tests {
 
     fn compile(src: &str) -> String {
         let program = crate::syntax::parse_source(src, "<t>").expect("parse");
-        JsCodegen::new().generate(&crate::sema::lower(program))
+        JsCodegen::new().generate(&crate::check::sema::lower(program))
     }
 
     #[test]
@@ -9466,7 +9466,7 @@ mod tests {
         let program = crate::syntax::parse_source(src, "<t>").expect("parse");
         let mut codegen = JsCodegen::new();
         codegen.set_ssg(true);
-        codegen.generate(&crate::sema::lower(program))
+        codegen.generate(&crate::check::sema::lower(program))
     }
 
     #[test]
@@ -9481,7 +9481,7 @@ mod tests {
             ),
             ("/widget.js".to_string(), None),
         ]);
-        let out = codegen.generate(&crate::sema::lower(program));
+        let out = codegen.generate(&crate::check::sema::lower(program));
         assert!(
             out.contains(r#"WF.loadAfter([{ src: "https://tags.example/t.js", integrity: "sha384-abc" }, { src: "/widget.js" }]);"#),
             "{out}"

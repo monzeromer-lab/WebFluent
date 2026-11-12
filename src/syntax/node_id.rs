@@ -950,7 +950,7 @@ mod tests {
 
     fn program(src: &str) -> Program {
         crate::syntax::parse_source(src, "<test>")
-            .map(crate::sema::lower)
+            .map(crate::check::sema::lower)
             .expect("parse")
     }
 
@@ -1316,7 +1316,7 @@ mod tests {
         assert_eq!(map.at("b.wf", 18).unwrap().path, "B:0");
         assert_eq!(map.at("a.wf", 18).unwrap().path, "A:0");
         // And the bundle stamps each with its own.
-        let lowered = crate::sema::lower(p.clone());
+        let lowered = crate::check::sema::lower(p.clone());
         let mut js = JsCodegen::new();
         js.set_studio(build_node_map(&lowered));
         let out = js.generate(&lowered);

@@ -3031,7 +3031,7 @@ mod component_expansion_tests {
 
     fn render(src: &str) -> String {
         let program = crate::syntax::parse_source(src, "<t>")
-            .map(crate::sema::lower)
+            .map(crate::check::sema::lower)
             .expect("parse");
         let components: HashMap<String, ComponentDecl> = program
             .declarations
@@ -3249,7 +3249,7 @@ mod program_scope_tests {
                    store Deploys {\n  state items = [{ service: \"api\" }, { service: \"web\" }]\n  derived count = items.length\n}\n\
                    page Home(path: \"/\", title: \"Deploys\", description: \"Deploys.\") {\n  use Deploys\n  state env = \"prod\"\n  head { meta(name: \"brand\", content: Brand) }\n  Heading(\"{Deploys.count} deploys in {env}\").h1\n  for d in Deploys.items by d.service { Text(d.service) }\n}\n";
         let program = crate::syntax::parse_source(src, "<t>")
-            .map(crate::sema::lower)
+            .map(crate::check::sema::lower)
             .expect("parse");
         let page = program
             .declarations

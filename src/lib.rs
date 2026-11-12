@@ -141,7 +141,7 @@ pub mod syntax;
 
 pub mod registry;
 
-pub mod sema;
+pub use check::sema;
 
 /// `wf migrate`: the original grammar rewritten as WebFluent 3.
 pub mod migrate;
@@ -201,7 +201,7 @@ pub use project::config;
 pub mod diagnostics;
 pub use diagnostics::error;
 
-pub mod linter;
+pub use check::linter;
 
 pub mod paged;
 /// Template engine — render `.wf` templates with JSON data.
@@ -210,7 +210,7 @@ pub mod paged;
 /// It supports rendering to HTML documents, HTML fragments, and PDF files.
 pub mod template;
 
-pub mod edit;
+pub use check::edit;
 
 pub use syntax::print;
 
@@ -224,14 +224,9 @@ pub mod style_value;
 /// the route transition, the project's default, and how each is written.
 pub mod motion;
 
-/// Validation as data: every rule a `validate` block may hold, the named
-/// patterns, when a form shows its messages, the rules one state is held
-/// to, and the block written back one rule at a time.
-pub mod validation;
+pub use check::validation;
 
-/// What a name at a place can refer to — the editor's completion scope —
-/// and, typed, what a path picker lists there.
-pub mod scope;
+pub use check::scope;
 
 /// What an agent works through: a change set held apart from the working
 /// tree, built before it is read, and the context it is given.
@@ -260,6 +255,7 @@ pub use base::outfs;
 pub use base::platform;
 
 pub(crate) mod base;
+pub(crate) mod check;
 /// A project built from memory, with nothing read from or written to a disk:
 /// what the browser's playground runs.
 pub mod memory;

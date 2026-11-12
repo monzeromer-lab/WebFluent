@@ -895,7 +895,7 @@ fn link(target: &Expr, span: Span, cx: &mut Ctx) {
             let nearest = cx
                 .routes
                 .iter()
-                .map(|(p, _)| (crate::linter::vocabulary::levenshtein(&shown, p), p))
+                .map(|(p, _)| (crate::check::linter::vocabulary::levenshtein(&shown, p), p))
                 .min()
                 .map(|(_, p)| p.clone())
                 .unwrap_or_default();

@@ -3,7 +3,7 @@
 //! JSDoc is a comment, so a script that carries it is still exactly what
 //! the browser runs. The compiler reads three things from it: the prose
 //! (the editor's hover), each `@param {Type} name`, and `@returns {Type}`.
-//! The type expressions are kept as written; [`crate::sema`] decides what
+//! The type expressions are kept as written; [`crate::check::sema`] decides what
 //! each means, and anything it does not know is `Any`.
 
 /// A doc comment, read.

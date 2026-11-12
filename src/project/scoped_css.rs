@@ -653,7 +653,7 @@ mod tests {
 
     fn program(src: &str) -> Program {
         crate::syntax::parse_source(src, "<t>")
-            .map(crate::sema::lower)
+            .map(crate::check::sema::lower)
             .expect("parse")
     }
 

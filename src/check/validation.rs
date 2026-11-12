@@ -702,7 +702,7 @@ pub fn write_rules(
     let new = parsed(rules)?;
     let err = |m: String| crate::diagnostics::error::WebFluentError::EditError(m);
     let mut missing = false;
-    let out = crate::edit::rewrite_body(source, file, owner, |body| {
+    let out = crate::check::edit::rewrite_body(source, file, owner, |body| {
         let at_block = body
             .iter()
             .position(|s| matches!(&s.kind, StatementKind::Validate(v) if v.name == state));
@@ -921,7 +921,7 @@ mod tests {
     #[test]
     fn the_rules_are_the_checker_s() {
         let names: Vec<&str> = rules().iter().map(|r| r.name).collect();
-        assert_eq!(names, crate::sema::types::VALIDATE_RULES);
+        assert_eq!(names, crate::check::sema::types::VALIDATE_RULES);
         assert_eq!(rule_named("minLength").unwrap().key, "form.minLength");
         assert!(!rule_named("required").unwrap().passes_empty);
         assert!(rule_named("async").unwrap().asked_last);

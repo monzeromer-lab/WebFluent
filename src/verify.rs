@@ -116,8 +116,8 @@ pub fn returning_storage(project_dir: &Path) -> String {
                 serde_json::from_str::<serde_json::Map<String, serde_json::Value>>(&t).ok()
             })
     };
-    let values = read(crate::linter::project::PERSIST_VALUES_BEFORE)
-        .or_else(|| read(crate::linter::project::PERSIST_VALUES))
+    let values = read(crate::check::linter::project::PERSIST_VALUES_BEFORE)
+        .or_else(|| read(crate::check::linter::project::PERSIST_VALUES))
         .unwrap_or_default();
     let mut script = String::from("try {");
     for (key, value) in &values {
@@ -212,13 +212,13 @@ mod tests {
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(dir.join(".wf-cache")).unwrap();
         std::fs::write(
-            dir.join(crate::linter::project::PERSIST_VALUES),
+            dir.join(crate::check::linter::project::PERSIST_VALUES),
             r#"{ "wf:Home.items": [] }"#,
         )
         .unwrap();
         assert!(returning_storage(&dir).contains(r#"localStorage.setItem("wf:Home.items", "[]")"#));
         std::fs::write(
-            dir.join(crate::linter::project::PERSIST_VALUES_BEFORE),
+            dir.join(crate::check::linter::project::PERSIST_VALUES_BEFORE),
             r#"{ "wf:Home.items": { "a": 1 } }"#,
         )
         .unwrap();

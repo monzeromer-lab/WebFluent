@@ -14,7 +14,7 @@ use std::collections::{BTreeMap, HashMap};
 
 use serde::Serialize;
 
-use crate::linter::contrast::{Pairing, pairings};
+use crate::check::linter::contrast::{Pairing, pairings};
 use crate::project::config::project::ThemeConfig;
 use crate::syntax::parser::ast::*;
 
@@ -352,8 +352,8 @@ pub fn view(
         // A colour the theme declares and its dark pair does not: how a
         // dark theme ends up with a light border (`line-strong`).
         for (k, (v, _)) in &theme_values {
-            let colour =
-                k.starts_with("color-") || crate::linter::contrast::ratio(v, "#000000").is_some();
+            let colour = k.starts_with("color-")
+                || crate::check::linter::contrast::ratio(v, "#000000").is_some();
             if !dark_values.contains_key(k) && colour {
                 unpaired.push(k.clone());
             }
@@ -452,7 +452,7 @@ pub fn set_token(
             format!("`{name}: {value}` is not a token"),
         ));
     };
-    crate::edit::rewrite_declaration(source, file, theme, |d| {
+    crate::check::edit::rewrite_declaration(source, file, theme, |d| {
         if let Declaration::Theme(t) = d {
             match t.tokens.iter_mut().find(|k| k.name == name) {
                 Some(k) => k.value = token.value,
@@ -469,7 +469,7 @@ pub fn reset_token(
     theme: &str,
     name: &str,
 ) -> crate::diagnostics::error::Result<String> {
-    crate::edit::rewrite_declaration(source, file, theme, |d| {
+    crate::check::edit::rewrite_declaration(source, file, theme, |d| {
         if let Declaration::Theme(t) = d {
             t.tokens.retain(|k| k.name != name);
         }
@@ -645,7 +645,7 @@ mod tests {
             }
             r
         };
-        let warned = crate::linter::contrast::lint_contrast(&p, &resolved);
+        let warned = crate::check::linter::contrast::lint_contrast(&p, &resolved);
         let failing = v.pairs.iter().filter(|p| p.drawn && !p.passes()).count();
         assert!(warned.len() <= failing && !warned.is_empty());
         for w in &warned {

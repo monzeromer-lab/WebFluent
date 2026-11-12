@@ -23,15 +23,15 @@ pub mod project;
 use std::collections::{BTreeMap, HashMap};
 use std::path::{Path, PathBuf};
 
+use crate::check::edit::{Patch, apply_patches, modifier_removal_range};
 use crate::diagnostics::error::{Result, WebFluentError};
-use crate::edit::{Patch, apply_patches, modifier_removal_range};
 use crate::registry;
 use crate::syntax::lexer::Lexer;
 use crate::syntax::parser::Parser;
 use crate::syntax::parser::ast::*;
 // Every statement list nested in a statement: the one list the editor's
 // scope reads too, so neither misses a body the other walks.
-use crate::scope::child_bodies;
+use crate::check::scope::child_bodies;
 use crate::syntax::{Dialect, detect_dialect};
 
 /// Something the migration could not rewrite mechanically.

@@ -211,7 +211,7 @@ pub fn four(project_dir: &Path, files: &[(PathBuf, String)]) -> Option<Four> {
             .unwrap_or(file)
             .to_string_lossy()
             .to_string();
-        for diagnostic in crate::linter::lint_env(project_dir, &config, &[relative]) {
+        for diagnostic in crate::check::linter::lint_env(project_dir, &config, &[relative]) {
             if let Some(name) = between(&diagnostic.message, "`env.", "`")
                 && !public_env.contains(&name)
             {
@@ -229,7 +229,7 @@ pub fn four(project_dir: &Path, files: &[(PathBuf, String)]) -> Option<Four> {
         let Ok(program) = crate::syntax::parse_source(text, &name) else {
             continue;
         };
-        for error in crate::sema::check(&program, &|_| name.clone()).errors {
+        for error in crate::check::sema::check(&program, &|_| name.clone()).errors {
             let message = error.to_string();
             if message.contains("would put script in an attribute")
                 || message.contains("which a browser runs")

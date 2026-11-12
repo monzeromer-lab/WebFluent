@@ -308,7 +308,7 @@ impl Template {
             }
         }
         Ok(Self {
-            program: Arc::new(crate::sema::lower(program)),
+            program: Arc::new(crate::check::sema::lower(program)),
             page: None,
             theme: None,
             custom_tokens: HashMap::new(),

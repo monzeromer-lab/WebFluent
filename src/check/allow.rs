@@ -7,7 +7,7 @@
 //! matches nothing is itself a finding (`U07`), so allows cannot outlive
 //! what they were written for.
 
-use super::{Diagnostic, codes};
+use crate::diagnostics::{Diagnostic, codes};
 
 /// One `wf-allow(…)` comment.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -159,7 +159,7 @@ pub fn apply(
 
 /// The allow with its `k`th code taken out: the others kept, or — when it
 /// was the only one — the comment gone, with its line when it stands alone.
-fn without(source: &str, allow: &Allow, k: usize) -> Option<(String, super::fixes::Plan)> {
+fn without(source: &str, allow: &Allow, k: usize) -> Option<(String, crate::diagnostics::fixes::Plan)> {
     let line_start = source
         .split_inclusive('\n')
         .take(allow.line.saturating_sub(1))
@@ -186,7 +186,7 @@ fn without(source: &str, allow: &Allow, k: usize) -> Option<(String, super::fixe
             .collect();
         return Some((
             format!("Take `{code}` out of the allow"),
-            super::fixes::Plan::Replace {
+            crate::diagnostics::fixes::Plan::Replace {
                 start,
                 end,
                 text: format!("// wf-allow({})", rest.join(", ")),
@@ -198,7 +198,7 @@ fn without(source: &str, allow: &Allow, k: usize) -> Option<(String, super::fixe
     let plan = if before.trim().is_empty() && after.trim().is_empty() {
         // A comment on a line of its own: the line goes.
         let to = (line_start + line.len() + 1).min(source.len());
-        super::fixes::Plan::Replace {
+        crate::diagnostics::fixes::Plan::Replace {
             start: line_start,
             end: to,
             text: String::new(),
@@ -206,7 +206,7 @@ fn without(source: &str, allow: &Allow, k: usize) -> Option<(String, super::fixe
     } else {
         // After code on its line: the comment and the space before it.
         let from = line_start + before.trim_end().len();
-        super::fixes::Plan::Replace {
+        crate::diagnostics::fixes::Plan::Replace {
             start: from,
             end,
             text: String::new(),

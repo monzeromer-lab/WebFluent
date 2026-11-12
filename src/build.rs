@@ -589,9 +589,9 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     stop_on(out, &diagnostics, options)?;
     let mut warning_count = diagnostics.len();
     // What each `persist` holds now, for the next build to compare with.
-    let shapes = crate::linter::project::persist_shapes(&program);
+    let shapes = crate::check::linter::project::persist_shapes(&program);
     if !shapes.is_empty() {
-        let cache = project_dir.join(crate::linter::project::PERSIST_CACHE);
+        let cache = project_dir.join(crate::check::linter::project::PERSIST_CACHE);
         if let Some(parent) = cache.parent() {
             let _ = fs::create_dir_all(parent);
         }
@@ -603,7 +603,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     // And what each starts as, which `wf verify --returning-visitor` puts in
     // storage — the values of the build before, when it changed — to load
     // the pages as a reader who last visited then.
-    crate::linter::project::keep_persisted_values(project_dir, &program, &config.env);
+    crate::check::linter::project::keep_persisted_values(project_dir, &program, &config.env);
     let mut program = lowered;
     // A project translated by its own words: each string a reader sees is
     // the `t()` it stands for, from here to the code it is written as.

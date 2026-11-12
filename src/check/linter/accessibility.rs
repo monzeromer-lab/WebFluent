@@ -77,7 +77,7 @@ pub fn lint_accessibility_in(
     warnings.extend(lint_seo(program, file_of));
     warnings.extend(lint_persistence(program, file_of));
     warnings.extend(lint_unsafe(program, file_of));
-    warnings.extend(crate::linter::output::lint_output(program, file_of));
+    warnings.extend(crate::check::linter::output::lint_output(program, file_of));
     warnings
 }
 

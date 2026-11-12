@@ -2,8 +2,8 @@
 //! browser knows (`colr:`), and a design token the theme does not declare
 //! (`$brnad`), which compiles to a `var(--…)` that is never set.
 
+use crate::check::linter::vocabulary::levenshtein;
 use crate::diagnostics::Diagnostic;
-use crate::linter::vocabulary::levenshtein;
 use crate::syntax::parser::ast::*;
 use std::collections::HashMap;
 

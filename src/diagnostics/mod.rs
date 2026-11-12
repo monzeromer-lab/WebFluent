@@ -9,7 +9,7 @@
 //! language server, `wf test`, the docs tests and the studio all read the
 //! same list, so the editor shows exactly what the build refuses.
 
-pub mod allow;
+pub use crate::check::allow;
 pub mod check;
 pub mod codes;
 /// Error types and diagnostics.

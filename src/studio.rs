@@ -98,7 +98,7 @@ pub fn compile_studio(
     // The new grammar's flags and cases are resolved onto the vocabulary the
     // generators read; node ids are keyed by span, which lowering keeps.
     let source_program = program;
-    let lowered = crate::sema::lower(program.clone());
+    let lowered = crate::check::sema::lower(program.clone());
     let program = &lowered;
     let node_map = build_node_map(program);
 

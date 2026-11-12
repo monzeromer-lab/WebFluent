@@ -4,11 +4,11 @@
 /// `money(n: Number, currency?: String) -> String`, its types as the
 /// checker reads its JSDoc.
 pub fn signature(n: &crate::syntax::js_scan::Name) -> String {
-    use crate::sema::types::jsdoc_type;
+    use crate::check::sema::types::jsdoc_type;
     let doc = n
         .doc
         .as_deref()
-        .map(crate::project::project_js::jsdoc::parse)
+        .map(crate::check::jsdoc::parse)
         .unwrap_or_default();
     let params = |params: &[crate::syntax::js_scan::Param]| {
         params

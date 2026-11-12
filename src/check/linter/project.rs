@@ -244,7 +244,7 @@ pub fn translations(
             keys.dedup();
             let near = keys
                 .iter()
-                .map(|k| (crate::linter::vocabulary::levenshtein(key, k), *k))
+                .map(|k| (crate::check::linter::vocabulary::levenshtein(key, k), *k))
                 .filter(|(d, _)| *d <= 3)
                 .min()
                 .map(|(_, k)| format!("Did you mean `{k}`?"))

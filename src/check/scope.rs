@@ -499,7 +499,7 @@ pub mod paths {
     use serde::Serialize;
 
     use super::{Binding, BindingKind, hoisted, scope_at, store_members};
-    use crate::sema::types::{Scalar, Type, TypeInfo};
+    use crate::check::sema::types::{Scalar, Type, TypeInfo};
     use crate::syntax::parser::ast::{Declaration, Program, StatementKind, TypeDecl};
 
     /// Which part of the list a row is in.
@@ -1056,8 +1056,9 @@ pub mod paths {
     ) -> crate::diagnostics::error::Result<Vec<Entry>> {
         let (program, files, _) =
             crate::project::sources::read_project_collecting_via(vfs, dir, None)?;
-        let info =
-            crate::sema::types::check(&program, &|i| files.get(i).cloned().unwrap_or_default());
+        let info = crate::check::sema::types::check(&program, &|i| {
+            files.get(i).cloned().unwrap_or_default()
+        });
         let decl = program.declarations.iter().enumerate().find_map(|(i, d)| {
             let same = files
                 .get(i)
