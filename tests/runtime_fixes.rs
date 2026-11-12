@@ -248,7 +248,10 @@ fn the_runtime_store_keeps_only_what_another_reader_may_see_and_only_so_many() {
     assert_eq!(out["size"], 200, "bounded");
     assert_eq!(out["newest"], "/shop/api/n259");
     assert_eq!(out["oldestLeft"], "/shop/api/n60");
-    assert_eq!(out["otherServed"], false, "another site's store is not read");
+    assert_eq!(
+        out["otherServed"], false,
+        "another site's store is not read"
+    );
     assert_eq!(out["ownServed"], "b");
 }
 
@@ -258,7 +261,10 @@ fn kept_writes_are_this_sites_and_go_without_credentials() {
         return;
     }
     let out = run("/shop", true, "sync");
-    assert_eq!(out["afterOtherTag"], 0, "the root site's tag is not this one's");
+    assert_eq!(
+        out["afterOtherTag"], 0,
+        "the root site's tag is not this one's"
+    );
     let fetched = out["fetched"].as_array().unwrap();
     assert_eq!(fetched.len(), 1, "{fetched:?}");
     assert_eq!(fetched[0]["url"], "/shop/api/a");
