@@ -53,7 +53,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             end: handler.span.start,
             ..handler.span
         };
-        let Some(source) = self.source.as_deref() else {
+        let Some(source) = self.source else {
             return head;
         };
         let start = handler.span.start as usize;

@@ -259,9 +259,9 @@ pub(super) fn null_names(cond: &Expr) -> Vec<String> {
 /// The lists a condition proves have items, by their text: `xs.length >
 /// 0`, `xs.length >= 1`, `xs.length != 0`, `xs.length`, either side of
 /// an `&&`.
-pub(super) fn non_empty_lists(cond: &Expr) -> Vec<String> {
+pub(super) fn non_empty_lists(cond: &Expr) -> Vec<Expr> {
     let length_of = |e: &Expr| match e {
-        Expr::PropertyAccess(base, f) if f == "length" => Some(expr_text(base)),
+        Expr::PropertyAccess(base, f) if f == "length" => Some((**base).clone()),
         _ => None,
     };
     let number = |e: &Expr| match e {

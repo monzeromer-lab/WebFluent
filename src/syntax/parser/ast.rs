@@ -1125,7 +1125,7 @@ pub struct MethodCallStmt {
 
 // ─── Expressions ─────────────────────────────────────────
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Expr {
     // Literals
     StringLiteral(String),
@@ -1639,13 +1639,13 @@ pub fn awaits(stmts: &[Statement]) -> bool {
     })
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum StringPart {
     Literal(String),
     Expression(Expr),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum BinOp {
     Add,
     Sub,
@@ -1664,7 +1664,7 @@ pub enum BinOp {
     NullCoalesce,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum UnaryOp {
     Not,
     Neg,

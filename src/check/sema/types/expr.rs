@@ -276,9 +276,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                 // has items.
                 let fixed_index = matches!(**index, Expr::NumberLiteral(_));
                 let ty = match base_ty.unwrapped() {
-                    Type::List(inner)
-                        if fixed_index && !self.non_empty.contains(&expr_text(base)) =>
-                    {
+                    Type::List(inner) if fixed_index && !self.non_empty.contains(base) => {
                         Type::optional(*inner)
                     }
                     Type::List(inner) => *inner,

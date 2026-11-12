@@ -181,6 +181,19 @@ pub fn check_in(
     file_of: &dyn Fn(usize) -> String,
     source_of: &dyn Fn(usize) -> Option<String>,
 ) -> TypeInfo {
+    let texts: Vec<Option<String>> = (0..program.declarations.len()).map(source_of).collect();
+    check_sources(program, file_of, &|i| {
+        texts.get(i).and_then(|t| t.as_deref())
+    })
+}
+
+/// [`check_in`], borrowing each declaration's source text rather than
+/// taking a copy of the file for every declaration in it.
+pub fn check_sources<'s>(
+    program: &Program,
+    file_of: &dyn Fn(usize) -> String,
+    source_of: &dyn Fn(usize) -> Option<&'s str>,
+) -> TypeInfo {
     let mut world = World {
         types: HashMap::new(),
         enums: HashMap::new(),
@@ -536,7 +549,7 @@ struct Checker<'a, 'p> {
     current_span: Span,
     /// The file's text, when the caller has it: where an error is placed
     /// at the expression it names.
-    source: Option<String>,
+    source: Option<&'a str>,
     /// Whether an element's arguments are being checked, where the
     /// resolver already reports a case the prop's enum lacks.
     in_args: bool,
@@ -556,8 +569,9 @@ struct Checker<'a, 'p> {
     /// first.
     refined: HashMap<String, TypeRef>,
     /// The lists an enclosing condition proves are not empty — `if
-    /// items.length > 0 { items[0] }` — by their text.
-    non_empty: Vec<String>,
+    /// items.length > 0 { items[0] }` — as the expressions they are, so
+    /// two lists that print alike are never mistaken for one.
+    non_empty: Vec<Expr>,
     /// Whether the expression being checked is a later arm of a `match`
     /// expression whose first arm has already been checked as a whole.
     in_chain: bool,
@@ -568,12 +582,15 @@ struct Checker<'a, 'p> {
     /// the program writes: a state among them changes on purpose.
     written: HashSet<String>,
     /// The body's own actions, by name, for what they write.
-    own_actions: HashMap<String, Vec<Statement>>,
+    own_actions: HashMap<String, &'p [Statement]>,
     /// How deeply [`Checker::infer`] is nested in itself — held under the
     /// parser's limit, for a tree that did not come from the parser.
     depth: usize,
     /// Whether `E120` has been reported for this declaration.
     too_deep: bool,
+    /// Whether the finding reported last was an error, for the fix that
+    /// follows it ([`Checker::plan_last`]).
+    last_was_error: bool,
 }
 
 impl<'a, 'p> Checker<'a, 'p> {
@@ -582,7 +599,7 @@ impl<'a, 'p> Checker<'a, 'p> {
         file: &'a str,
         decl: usize,
         info: &'a mut TypeInfo,
-        source: Option<String>,
+        source: Option<&'a str>,
     ) -> Self {
         Self {
             world,
@@ -608,6 +625,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             own_actions: HashMap::new(),
             depth: 0,
             too_deep: false,
+            last_was_error: false,
             source,
         }
     }
@@ -799,7 +817,7 @@ impl<'a, 'p> Checker<'a, 'p> {
     /// Bind the names a body declares before checking it, as the compiler
     /// resolves them regardless of order: actions may call each other, a
     /// derived value may read a later state.
-    fn declare_hoisted(&mut self, stmts: &[Statement]) {
+    fn declare_hoisted(&mut self, stmts: &'p [Statement]) {
         // Two passes: state and resources first (their types are declared
         // or read off their values), then derived values and actions, whose
         // types may depend on them.
@@ -883,7 +901,7 @@ impl<'a, 'p> Checker<'a, 'p> {
         for stmt in stmts {
             self.current_span = stmt.span;
             if let StatementKind::Action(a) = &stmt.kind {
-                self.own_actions.insert(a.name.clone(), a.body.clone());
+                self.own_actions.insert(a.name.clone(), &a.body);
                 let params: Vec<Type> = a
                     .params
                     .iter()
@@ -925,7 +943,7 @@ impl<'a, 'p> Checker<'a, 'p> {
     /// that the statement's text holds — `sel?.title`, `.angry`, `nam` —
     /// when the source is at hand.
     fn located(&self, span: Span, message: &str) -> Span {
-        let Some(source) = &self.source else {
+        let Some(source) = self.source else {
             return span;
         };
         let (start, end) = (span.start as usize, span.end as usize);

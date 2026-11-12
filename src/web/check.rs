@@ -126,10 +126,10 @@ pub fn check_project_via(vfs: &dyn Vfs, p: &Project) -> Checked {
     let source_of = |i: usize| {
         file_ix
             .get(i)
-            .and_then(|&at| texts.get(at).cloned().flatten())
+            .and_then(|&at| texts.get(at))
+            .and_then(|t| t.as_deref())
     };
     let file_of: &(dyn Fn(usize) -> String + Sync) = &file_of;
-    let source_of: &(dyn Fn(usize) -> Option<String> + Sync) = &source_of;
     let shared = Shared {
         program: p.program,
         dir: p.dir,
@@ -146,7 +146,7 @@ pub fn check_project_via(vfs: &dyn Vfs, p: &Project) -> Checked {
     let (around, (program_found, types), structure, lowered, from_lowered) =
         crate::base::platform::scope(|s| {
             let around = deep(s, || project_checks_via(vfs, shared, file_of));
-            let typed = deep(s, || program_checks_typed(p.program, file_of, source_of));
+            let typed = deep(s, || program_checks_typed(p.program, file_of, &source_of));
             let structure = deep(s, || {
                 crate::check::linter::structure::lint_structure(p.program, file_of)
             });
@@ -334,20 +334,25 @@ pub fn program_checks(
     file_of: &dyn Fn(usize) -> String,
     source_of: &dyn Fn(usize) -> Option<String>,
 ) -> Vec<Diagnostic> {
-    program_checks_typed(program, file_of, source_of).0
+    let texts: Vec<Option<String>> = (0..program.declarations.len()).map(source_of).collect();
+    program_checks_typed(program, file_of, &|i| {
+        texts.get(i).and_then(|t| t.as_deref())
+    })
+    .0
 }
 
-/// [`program_checks`], and the type checker's view of the program.
-fn program_checks_typed(
+/// [`program_checks`], and the type checker's view of the program, with
+/// each declaration's source borrowed.
+fn program_checks_typed<'s>(
     program: &Program,
     file_of: &dyn Fn(usize) -> String,
-    source_of: &dyn Fn(usize) -> Option<String>,
+    source_of: &dyn Fn(usize) -> Option<&'s str>,
 ) -> (Vec<Diagnostic>, crate::check::sema::types::TypeInfo) {
     let mut out = crate::check::linter::validate_semantics_in(program, file_of);
     let findings = crate::check::sema::check(program, file_of);
     out.extend(findings.errors);
     out.extend(findings.warnings);
-    let typed = crate::check::sema::types::check_in(program, file_of, source_of);
+    let typed = crate::check::sema::types::check_sources(program, file_of, source_of);
     out.extend(typed.findings.errors.iter().cloned());
     out.extend(typed.findings.warnings.iter().cloned());
     out.extend(typed.unresolved.iter().cloned());
@@ -357,7 +362,7 @@ fn program_checks_typed(
         if seen.insert(file.clone())
             && let Some(text) = source_of(i)
         {
-            out.extend(hidden_directions(&file, &text));
+            out.extend(hidden_directions(&file, text));
         }
     }
     (out, typed)

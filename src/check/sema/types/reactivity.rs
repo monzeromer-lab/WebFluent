@@ -159,7 +159,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             span.line as usize,
             span.col as usize,
         )
-        .with_span(span, self.source.as_deref())
+        .with_span(span, self.source)
         .with_hint(format!(
             "Nothing assigns `{name}`: declare it `derived`, which is worked out again whenever `{live}` changes"
         ))
@@ -170,7 +170,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                 to: "derived".to_string(),
             },
         );
-        self.info.findings.warnings.push(d);
+        self.push(d);
     }
 
     /// The value the browser keeps current that `value` reads where it is

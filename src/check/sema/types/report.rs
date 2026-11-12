@@ -12,9 +12,9 @@ impl<'a, 'p> Checker<'a, 'p> {
             span.line as usize,
             span.col as usize,
         )
-        .with_span(span, self.source.as_deref())
+        .with_span(span, self.source)
         .with_hint(hint);
-        self.info.findings.warnings.push(d);
+        self.push(d);
     }
 
     pub(super) fn error(&mut self, span: Span, code: &'static str, message: String, hint: &str) {
@@ -25,9 +25,30 @@ impl<'a, 'p> Checker<'a, 'p> {
             span.line as usize,
             span.col as usize,
         )
-        .with_span(span, self.source.as_deref())
+        .with_span(span, self.source)
         .with_hint(hint);
-        self.info.findings.errors.push(d);
+        self.push(d);
+    }
+
+    /// File a finding under the severity its code has in the registry
+    /// (`diagnostics::codes`), whichever helper reported it: a code is an
+    /// error or a warning in one place only.
+    pub(super) fn push(&mut self, d: Diagnostic) {
+        self.last_was_error = d.is_error();
+        if d.is_error() {
+            self.info.findings.errors.push(d);
+        } else {
+            self.info.findings.warnings.push(d);
+        }
+    }
+
+    /// The list the finding reported last was filed in, by its severity.
+    fn last_list(&mut self) -> &mut Vec<Diagnostic> {
+        if self.last_was_error {
+            &mut self.info.findings.errors
+        } else {
+            &mut self.info.findings.warnings
+        }
     }
 
     /// A method a number, a string or a list does not have: in the browser,
@@ -69,7 +90,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             );
             let span = self.located(self.current_span, &message);
             let d = Diagnostic::coded("T13", message, self.file, span.line as usize, span.col as usize)
-                .with_span(span, self.source.as_deref())
+                .with_span(span, self.source)
                 .with_hint(format!(
                     "Outside the store, call it `{store}.{name}(…)`. Inside it, a store's initial values are worked out before its actions exist: write the value out, or work it out in a `derived`, which may call them"
                 ));
@@ -110,7 +131,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             span.line as usize,
             span.col as usize,
         )
-        .with_span(span, self.source.as_deref())
+        .with_span(span, self.source)
         .with_hint(match &near {
             Some(n) => format!("Did you mean `{n}`? {declare}"),
             None => declare.to_string(),
@@ -145,8 +166,9 @@ impl<'a, 'p> Checker<'a, 'p> {
         title: String,
         plan: crate::diagnostics::fixes::Plan,
     ) {
-        if let Some(d) = self.info.findings.warnings.pop() {
-            self.info.findings.warnings.push(d.with_plan(title, plan));
+        let list = self.last_list();
+        if let Some(d) = list.pop() {
+            list.push(d.with_plan(title, plan));
         }
     }
 
@@ -173,7 +195,7 @@ impl<'a, 'p> Checker<'a, 'p> {
         if !self.async_ok {
             return;
         }
-        let Some(source) = self.source.as_deref() else {
+        let Some(source) = self.source else {
             return;
         };
         // The promise's own text in the statement: `expr_text` shortens a
@@ -232,8 +254,9 @@ impl<'a, 'p> Checker<'a, 'p> {
 
     /// A fix for the error just reported.
     pub(super) fn plan_last(&mut self, title: String, plan: crate::diagnostics::fixes::Plan) {
-        if let Some(d) = self.info.findings.errors.pop() {
-            self.info.findings.errors.push(d.with_plan(title, plan));
+        let list = self.last_list();
+        if let Some(d) = list.pop() {
+            list.push(d.with_plan(title, plan));
         }
     }
 
@@ -272,7 +295,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             span.line as usize,
             span.col as usize,
         )
-        .with_span(span, self.source.as_deref())
+        .with_span(span, self.source)
         .with_hint(hint);
         if let Some(n) = near {
             let (from, to) = if dotted {
@@ -285,6 +308,6 @@ impl<'a, 'p> Checker<'a, 'p> {
                 crate::diagnostics::fixes::Plan::Rename { from, to },
             );
         }
-        self.info.findings.errors.push(d);
+        self.push(d);
     }
 }

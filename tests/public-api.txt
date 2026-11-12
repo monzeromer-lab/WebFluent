@@ -7185,8 +7185,12 @@ pub webfluent::parser::ast::BinOp::Or
 pub webfluent::parser::ast::BinOp::Sub
 impl core::clone::Clone for webfluent::syntax::parser::BinOp
 pub fn webfluent::syntax::parser::BinOp::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::syntax::parser::BinOp
+impl core::cmp::PartialEq for webfluent::syntax::parser::BinOp
+pub fn webfluent::syntax::parser::BinOp::eq(&self, &Self) -> bool
 impl core::fmt::Debug for webfluent::syntax::parser::BinOp
 pub fn webfluent::syntax::parser::BinOp::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::syntax::parser::BinOp
 impl core::marker::Freeze for webfluent::syntax::parser::BinOp
 impl core::marker::Send for webfluent::syntax::parser::BinOp
 impl core::marker::Sync for webfluent::syntax::parser::BinOp
@@ -7291,8 +7295,11 @@ pub fn webfluent::syntax::parser::Expr::contains_await(&self) -> bool
 pub fn webfluent::syntax::parser::Expr::walk_mut(&mut self, &mut dyn core::ops::function::FnMut(&mut webfluent::syntax::parser::Expr))
 impl core::clone::Clone for webfluent::syntax::parser::Expr
 pub fn webfluent::syntax::parser::Expr::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::syntax::parser::Expr
+pub fn webfluent::syntax::parser::Expr::eq(&self, &Self) -> bool
 impl core::fmt::Debug for webfluent::syntax::parser::Expr
 pub fn webfluent::syntax::parser::Expr::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::syntax::parser::Expr
 impl core::marker::Freeze for webfluent::syntax::parser::Expr
 impl core::marker::Send for webfluent::syntax::parser::Expr
 impl core::marker::Sync for webfluent::syntax::parser::Expr
@@ -7399,8 +7406,11 @@ pub webfluent::parser::ast::StringPart::Expression(webfluent::syntax::parser::Ex
 pub webfluent::parser::ast::StringPart::Literal(alloc::string::String)
 impl core::clone::Clone for webfluent::syntax::parser::StringPart
 pub fn webfluent::syntax::parser::StringPart::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::syntax::parser::StringPart
+pub fn webfluent::syntax::parser::StringPart::eq(&self, &Self) -> bool
 impl core::fmt::Debug for webfluent::syntax::parser::StringPart
 pub fn webfluent::syntax::parser::StringPart::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::syntax::parser::StringPart
 impl core::marker::Freeze for webfluent::syntax::parser::StringPart
 impl core::marker::Send for webfluent::syntax::parser::StringPart
 impl core::marker::Sync for webfluent::syntax::parser::StringPart
@@ -7439,8 +7449,12 @@ pub webfluent::parser::ast::UnaryOp::Neg
 pub webfluent::parser::ast::UnaryOp::Not
 impl core::clone::Clone for webfluent::syntax::parser::UnaryOp
 pub fn webfluent::syntax::parser::UnaryOp::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::syntax::parser::UnaryOp
+impl core::cmp::PartialEq for webfluent::syntax::parser::UnaryOp
+pub fn webfluent::syntax::parser::UnaryOp::eq(&self, &Self) -> bool
 impl core::fmt::Debug for webfluent::syntax::parser::UnaryOp
 pub fn webfluent::syntax::parser::UnaryOp::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::syntax::parser::UnaryOp
 impl core::marker::Freeze for webfluent::syntax::parser::UnaryOp
 impl core::marker::Send for webfluent::syntax::parser::UnaryOp
 impl core::marker::Sync for webfluent::syntax::parser::UnaryOp
@@ -8589,8 +8603,12 @@ pub webfluent::parser::BinOp::Or
 pub webfluent::parser::BinOp::Sub
 impl core::clone::Clone for webfluent::syntax::parser::BinOp
 pub fn webfluent::syntax::parser::BinOp::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::syntax::parser::BinOp
+impl core::cmp::PartialEq for webfluent::syntax::parser::BinOp
+pub fn webfluent::syntax::parser::BinOp::eq(&self, &Self) -> bool
 impl core::fmt::Debug for webfluent::syntax::parser::BinOp
 pub fn webfluent::syntax::parser::BinOp::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::syntax::parser::BinOp
 impl core::marker::Freeze for webfluent::syntax::parser::BinOp
 impl core::marker::Send for webfluent::syntax::parser::BinOp
 impl core::marker::Sync for webfluent::syntax::parser::BinOp
@@ -8695,8 +8713,11 @@ pub fn webfluent::syntax::parser::Expr::contains_await(&self) -> bool
 pub fn webfluent::syntax::parser::Expr::walk_mut(&mut self, &mut dyn core::ops::function::FnMut(&mut webfluent::syntax::parser::Expr))
 impl core::clone::Clone for webfluent::syntax::parser::Expr
 pub fn webfluent::syntax::parser::Expr::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::syntax::parser::Expr
+pub fn webfluent::syntax::parser::Expr::eq(&self, &Self) -> bool
 impl core::fmt::Debug for webfluent::syntax::parser::Expr
 pub fn webfluent::syntax::parser::Expr::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::syntax::parser::Expr
 impl core::marker::Freeze for webfluent::syntax::parser::Expr
 impl core::marker::Send for webfluent::syntax::parser::Expr
 impl core::marker::Sync for webfluent::syntax::parser::Expr
@@ -8803,8 +8824,11 @@ pub webfluent::parser::StringPart::Expression(webfluent::syntax::parser::Expr)
 pub webfluent::parser::StringPart::Literal(alloc::string::String)
 impl core::clone::Clone for webfluent::syntax::parser::StringPart
 pub fn webfluent::syntax::parser::StringPart::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::syntax::parser::StringPart
+pub fn webfluent::syntax::parser::StringPart::eq(&self, &Self) -> bool
 impl core::fmt::Debug for webfluent::syntax::parser::StringPart
 pub fn webfluent::syntax::parser::StringPart::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::syntax::parser::StringPart
 impl core::marker::Freeze for webfluent::syntax::parser::StringPart
 impl core::marker::Send for webfluent::syntax::parser::StringPart
 impl core::marker::Sync for webfluent::syntax::parser::StringPart
@@ -8843,8 +8867,12 @@ pub webfluent::parser::UnaryOp::Neg
 pub webfluent::parser::UnaryOp::Not
 impl core::clone::Clone for webfluent::syntax::parser::UnaryOp
 pub fn webfluent::syntax::parser::UnaryOp::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::syntax::parser::UnaryOp
+impl core::cmp::PartialEq for webfluent::syntax::parser::UnaryOp
+pub fn webfluent::syntax::parser::UnaryOp::eq(&self, &Self) -> bool
 impl core::fmt::Debug for webfluent::syntax::parser::UnaryOp
 pub fn webfluent::syntax::parser::UnaryOp::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::syntax::parser::UnaryOp
 impl core::marker::Freeze for webfluent::syntax::parser::UnaryOp
 impl core::marker::Send for webfluent::syntax::parser::UnaryOp
 impl core::marker::Sync for webfluent::syntax::parser::UnaryOp
@@ -11122,6 +11150,7 @@ pub fn webfluent::sema::types::browser_value_type(&str) -> core::option::Option<
 pub fn webfluent::sema::types::built_in_functions() -> &'static [&'static str]
 pub fn webfluent::sema::types::check(&webfluent::syntax::parser::Program, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> webfluent::sema::types::TypeInfo
 pub fn webfluent::sema::types::check_in(&webfluent::syntax::parser::Program, &dyn core::ops::function::Fn(usize) -> alloc::string::String, &dyn core::ops::function::Fn(usize) -> core::option::Option<alloc::string::String>) -> webfluent::sema::types::TypeInfo
+pub fn webfluent::sema::types::check_sources<'s>(&webfluent::syntax::parser::Program, &dyn core::ops::function::Fn(usize) -> alloc::string::String, &dyn core::ops::function::Fn(usize) -> core::option::Option<&'s str>) -> webfluent::sema::types::TypeInfo
 pub fn webfluent::sema::types::expr_text(&webfluent::syntax::parser::Expr) -> alloc::string::String
 pub fn webfluent::sema::types::form_names(&[webfluent::syntax::parser::Statement]) -> alloc::vec::Vec<alloc::string::String>
 pub fn webfluent::sema::types::form_type() -> webfluent::sema::types::Type
@@ -12344,8 +12373,12 @@ pub webfluent::syntax::parser::ast::BinOp::Or
 pub webfluent::syntax::parser::ast::BinOp::Sub
 impl core::clone::Clone for webfluent::syntax::parser::BinOp
 pub fn webfluent::syntax::parser::BinOp::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::syntax::parser::BinOp
+impl core::cmp::PartialEq for webfluent::syntax::parser::BinOp
+pub fn webfluent::syntax::parser::BinOp::eq(&self, &Self) -> bool
 impl core::fmt::Debug for webfluent::syntax::parser::BinOp
 pub fn webfluent::syntax::parser::BinOp::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::syntax::parser::BinOp
 impl core::marker::Freeze for webfluent::syntax::parser::BinOp
 impl core::marker::Send for webfluent::syntax::parser::BinOp
 impl core::marker::Sync for webfluent::syntax::parser::BinOp
@@ -12450,8 +12483,11 @@ pub fn webfluent::syntax::parser::Expr::contains_await(&self) -> bool
 pub fn webfluent::syntax::parser::Expr::walk_mut(&mut self, &mut dyn core::ops::function::FnMut(&mut webfluent::syntax::parser::Expr))
 impl core::clone::Clone for webfluent::syntax::parser::Expr
 pub fn webfluent::syntax::parser::Expr::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::syntax::parser::Expr
+pub fn webfluent::syntax::parser::Expr::eq(&self, &Self) -> bool
 impl core::fmt::Debug for webfluent::syntax::parser::Expr
 pub fn webfluent::syntax::parser::Expr::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::syntax::parser::Expr
 impl core::marker::Freeze for webfluent::syntax::parser::Expr
 impl core::marker::Send for webfluent::syntax::parser::Expr
 impl core::marker::Sync for webfluent::syntax::parser::Expr
@@ -12558,8 +12594,11 @@ pub webfluent::syntax::parser::ast::StringPart::Expression(webfluent::syntax::pa
 pub webfluent::syntax::parser::ast::StringPart::Literal(alloc::string::String)
 impl core::clone::Clone for webfluent::syntax::parser::StringPart
 pub fn webfluent::syntax::parser::StringPart::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::syntax::parser::StringPart
+pub fn webfluent::syntax::parser::StringPart::eq(&self, &Self) -> bool
 impl core::fmt::Debug for webfluent::syntax::parser::StringPart
 pub fn webfluent::syntax::parser::StringPart::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::syntax::parser::StringPart
 impl core::marker::Freeze for webfluent::syntax::parser::StringPart
 impl core::marker::Send for webfluent::syntax::parser::StringPart
 impl core::marker::Sync for webfluent::syntax::parser::StringPart
@@ -12598,8 +12637,12 @@ pub webfluent::syntax::parser::ast::UnaryOp::Neg
 pub webfluent::syntax::parser::ast::UnaryOp::Not
 impl core::clone::Clone for webfluent::syntax::parser::UnaryOp
 pub fn webfluent::syntax::parser::UnaryOp::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::syntax::parser::UnaryOp
+impl core::cmp::PartialEq for webfluent::syntax::parser::UnaryOp
+pub fn webfluent::syntax::parser::UnaryOp::eq(&self, &Self) -> bool
 impl core::fmt::Debug for webfluent::syntax::parser::UnaryOp
 pub fn webfluent::syntax::parser::UnaryOp::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::syntax::parser::UnaryOp
 impl core::marker::Freeze for webfluent::syntax::parser::UnaryOp
 impl core::marker::Send for webfluent::syntax::parser::UnaryOp
 impl core::marker::Sync for webfluent::syntax::parser::UnaryOp
@@ -13748,8 +13791,12 @@ pub webfluent::syntax::parser::BinOp::Or
 pub webfluent::syntax::parser::BinOp::Sub
 impl core::clone::Clone for webfluent::syntax::parser::BinOp
 pub fn webfluent::syntax::parser::BinOp::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::syntax::parser::BinOp
+impl core::cmp::PartialEq for webfluent::syntax::parser::BinOp
+pub fn webfluent::syntax::parser::BinOp::eq(&self, &Self) -> bool
 impl core::fmt::Debug for webfluent::syntax::parser::BinOp
 pub fn webfluent::syntax::parser::BinOp::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::syntax::parser::BinOp
 impl core::marker::Freeze for webfluent::syntax::parser::BinOp
 impl core::marker::Send for webfluent::syntax::parser::BinOp
 impl core::marker::Sync for webfluent::syntax::parser::BinOp
@@ -13854,8 +13901,11 @@ pub fn webfluent::syntax::parser::Expr::contains_await(&self) -> bool
 pub fn webfluent::syntax::parser::Expr::walk_mut(&mut self, &mut dyn core::ops::function::FnMut(&mut webfluent::syntax::parser::Expr))
 impl core::clone::Clone for webfluent::syntax::parser::Expr
 pub fn webfluent::syntax::parser::Expr::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::syntax::parser::Expr
+pub fn webfluent::syntax::parser::Expr::eq(&self, &Self) -> bool
 impl core::fmt::Debug for webfluent::syntax::parser::Expr
 pub fn webfluent::syntax::parser::Expr::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::syntax::parser::Expr
 impl core::marker::Freeze for webfluent::syntax::parser::Expr
 impl core::marker::Send for webfluent::syntax::parser::Expr
 impl core::marker::Sync for webfluent::syntax::parser::Expr
@@ -13962,8 +14012,11 @@ pub webfluent::syntax::parser::StringPart::Expression(webfluent::syntax::parser:
 pub webfluent::syntax::parser::StringPart::Literal(alloc::string::String)
 impl core::clone::Clone for webfluent::syntax::parser::StringPart
 pub fn webfluent::syntax::parser::StringPart::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::syntax::parser::StringPart
+pub fn webfluent::syntax::parser::StringPart::eq(&self, &Self) -> bool
 impl core::fmt::Debug for webfluent::syntax::parser::StringPart
 pub fn webfluent::syntax::parser::StringPart::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::syntax::parser::StringPart
 impl core::marker::Freeze for webfluent::syntax::parser::StringPart
 impl core::marker::Send for webfluent::syntax::parser::StringPart
 impl core::marker::Sync for webfluent::syntax::parser::StringPart
@@ -14002,8 +14055,12 @@ pub webfluent::syntax::parser::UnaryOp::Neg
 pub webfluent::syntax::parser::UnaryOp::Not
 impl core::clone::Clone for webfluent::syntax::parser::UnaryOp
 pub fn webfluent::syntax::parser::UnaryOp::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::syntax::parser::UnaryOp
+impl core::cmp::PartialEq for webfluent::syntax::parser::UnaryOp
+pub fn webfluent::syntax::parser::UnaryOp::eq(&self, &Self) -> bool
 impl core::fmt::Debug for webfluent::syntax::parser::UnaryOp
 pub fn webfluent::syntax::parser::UnaryOp::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::syntax::parser::UnaryOp
 impl core::marker::Freeze for webfluent::syntax::parser::UnaryOp
 impl core::marker::Send for webfluent::syntax::parser::UnaryOp
 impl core::marker::Sync for webfluent::syntax::parser::UnaryOp
