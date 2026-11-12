@@ -34,7 +34,7 @@ own.
 - `blueprint-pages/` — all ten pages already drawn in Blueprint (only Home and Reference are published to the canvas). Use them as the visual spec for the pages not yet on the canvas.
 - `generators/` — the Python scripts that produced the artboards (`combined/`, `blueprint/`, `design-system/`). Scratch tools, not part of the build.
 
-**Research:** `reports/Programming language documentation UX.md` (sourced report) and `research_notes/Programming language documentation UX/`.
+**Research:** `research/Programming language documentation UX.md` (sourced report) and `research/notes/`.
 
 **Rejected, so we don't revisit them:** light-first designs; the first three systems (Compiler, Workbench, Field Manual); a reference page built around a measuring diagram with leader labels everywhere. Measurements appear only when the reader turns on *Measure*.
 
