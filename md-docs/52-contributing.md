@@ -61,23 +61,23 @@ runs all of it on every push, and a few browser suites more.
 
 ## The repository
 
-Each part of the project has its own folder:
+Each part of the project has its own folder. Under `src/`, the compiler is
+in layers, bottom first; a module uses only its own layer and the ones
+above it in this list, which `tests/module_layers.rs` holds it to:
 
 ```text
 src/
-  lexer/, parser/, syntax/   source → tokens → tree; the .wfx layout in layout/
-  sema/                      semantic checks, and the type checker (types.rs)
-  linter/                    accessibility, contrast, unused, vocabulary, PDF and slide rules
+  base/                      spans, text helpers, the file systems a build reads and writes
+  diagnostics/               every finding's code (codes.rs), fixes and output; the error types
+  syntax/                    lexer/, parser/, the .wfx layout/, the printers and the formatter
   registry/                  every built-in's props, cases, flags, events, slots, parts
-  codegen/                   JavaScript, HTML, CSS, the pre-rendered page, SEO, the service worker
-  runtime/modules/           the browser runtime, one file per module
-  themes/                    the baseline tokens and the built-ins' CSS
+  project/                   config, themes/ (tokens and the built-ins' CSS), i18n, scripts, data, media
+  check/                     sema/ (names, the type checker), linter/, validation, scopes, edits
+  web/                       codegen/ (JS, HTML, CSS, the pre-rendered page, SEO), runtime/modules/, motion
+  paged/                     the PDF and slides engine
   template/                  the template engine behind `wf render`
-  media/                     the image pipeline
-  diagnostics/               every finding's code (codes.rs), checks, fixes and output
-  print.rs, reprint.rs       the tree written back as source, and the smallest edit
-  edit.rs                    an editor's edits: change the tree, write only what changed
-  style_value.rs             a style value's shape, read into its parts and written narrowest
+  build/                     `wf build` as a library call, its cache, assets, the service worker
+  tools/                     migrate, test, verify, audit, studio, agent, init, generate, docs
   cli/                       each `wf` command
 crates/wf-lsp/               the language server
 editors/                     VS Code, Zed and the Tree-sitter grammars: submodules, each its own repository
@@ -117,8 +117,8 @@ server, `wf docs` and the
 ## Change a built-in's props or flags
 
 1. Edit the built-in's entry in `src/registry/builtins.rs`.
-2. Update its CSS in `src/themes/` and its code generation in
-   `src/codegen/`.
+2. Update its CSS in `src/project/themes/` and its code generation in
+   `src/web/codegen/`.
 3. Rewrite the [components reference](40-components-reference.md) from
    the registry, with the command below.
 
@@ -130,9 +130,9 @@ python3 scripts/components-reference.py
 
 A change to the grammar touches every place that reads or writes source:
 
-- the parser, in `src/parser/v2.rs`;
+- the parser, in `src/syntax/parser/v2.rs`;
 - the formatter and the `.wfx` layout;
-- the printer, in `src/print.rs`;
+- the printer, in `src/syntax/print.rs`;
 - both Tree-sitter grammars, in [tree-sitter-webfluent](https://github.com/monzeromer-lab/tree-sitter-webfluent) (checked out here as the
   `editors/tree-sitter-webfluent` submodule).
 
@@ -143,9 +143,9 @@ repository back in its place and holds it to the same tree, and
 
 ## Change the runtime
 
-Edit or add a module in `src/runtime/modules/`, and add a test for it in
+Edit or add a module in `src/web/runtime/modules/`, and add a test for it in
 `tests/js/`. The manifest that says what reaches each module,
-`src/runtime/modules/manifest.json`, is written by a Rust test, so you do
+`src/web/runtime/modules/manifest.json`, is written by a Rust test, so you do
 not edit it by hand.
 
 ## Add a diagnostic
