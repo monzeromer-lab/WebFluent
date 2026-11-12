@@ -95,28 +95,191 @@ pub struct Browser {
     profile: PathBuf,
 }
 
-/// Browsers this process has started, so each has a profile of its own and
-/// removing one never pulls another's from under it.
-static STARTED: AtomicU64 = AtomicU64::new(0);
+/// Directories this process has made, so two made in the same instant
+/// still differ.
+static MADE: AtomicU64 = AtomicU64::new(0);
+
+/// A new directory of the temporary directory's, named `<prefix>` and
+/// something nobody can guess, made by this call and nobody else's: the
+/// name is not reused if something is there already (`mkdir` fails rather
+/// than open what another user put in its place), and only this user may
+/// read or write it.
+pub fn private_dir(prefix: &str) -> std::io::Result<PathBuf> {
+    use std::hash::{BuildHasher, Hasher};
+    let tmp = std::env::temp_dir();
+    let mut last = None;
+    for _ in 0..64 {
+        // A hasher seeded at random by the standard library, over the time
+        // and a count: a name nobody can work out from the process id.
+        let mut hasher = std::collections::hash_map::RandomState::new().build_hasher();
+        hasher.write_u128(
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .map_or(0, |d| d.as_nanos()),
+        );
+        hasher.write_u64(MADE.fetch_add(1, Ordering::Relaxed));
+        let dir = tmp.join(format!("{prefix}{:016x}", hasher.finish()));
+        let mut builder = std::fs::DirBuilder::new();
+        #[cfg(unix)]
+        std::os::unix::fs::DirBuilderExt::mode(&mut builder, 0o700);
+        match builder.create(&dir) {
+            Ok(()) => return Ok(dir),
+            Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => last = Some(e),
+            Err(e) => return Err(e),
+        }
+    }
+    Err(last.unwrap_or_else(|| std::io::Error::other("no name was free")))
+}
+
+/// What watches the browser on wf's behalf: a shell, in a process group of
+/// its own with the browser, that starts it and then reads its input. wf
+/// holds that input open for as long as it wants the browser; when wf ends —
+/// done, killed, crashed — the input closes, and the shell stops the
+/// browser and its helpers and removes the profile. Without it a `wf verify`
+/// stopped by a signal left a dozen Chrome processes and their profile.
+#[cfg(unix)]
+const WATCHER: &str = r#"profile="$1"; shift
+"$@" &
+pid=$!
+while read -r _; do :; done
+trap '' TERM
+kill -TERM "$pid" 2>/dev/null
+n=0
+while kill -0 "$pid" 2>/dev/null && [ $n -lt 50 ]; do sleep 0.1; n=$((n+1)); done
+kill -KILL "$pid" 2>/dev/null
+kill -TERM 0 2>/dev/null
+sleep 0.2
+rm -rf -- "$profile"
+"#;
+
+/// Whether to start the browser without its sandbox from the outset:
+/// `WF_CHROME_NO_SANDBOX=1`, for a machine where it cannot have one.
+fn sandbox_off_by_request() -> bool {
+    std::env::var("WF_CHROME_NO_SANDBOX").is_ok_and(|v| v == "1")
+}
+
+/// The command that starts `binary` with `args`, watched where there is a
+/// shell to watch it.
+fn launch(binary: &str, args: &[String], profile: &Path) -> std::io::Result<Child> {
+    #[cfg(unix)]
+    {
+        use std::os::unix::process::CommandExt;
+        Command::new("/bin/sh")
+            .arg("-c")
+            .arg(WATCHER)
+            .arg("wf-chrome")
+            .arg(profile)
+            .arg(binary)
+            .args(args)
+            .process_group(0)
+            .stdin(Stdio::piped())
+            .stdout(Stdio::null())
+            .stderr(Stdio::piped())
+            .spawn()
+    }
+    #[cfg(not(unix))]
+    {
+        let _ = profile;
+        Command::new(binary)
+            .args(args)
+            .stdout(Stdio::null())
+            .stderr(Stdio::piped())
+            .spawn()
+    }
+}
 
 /// Stop a browser that will not be used, and remove its profile once
 /// nothing writes to it.
 fn abandon(child: &mut Child, profile: &Path) {
+    // Closing the watcher's input is what stops it all; it gets a moment
+    // to do so, then whatever is left is killed.
+    drop(child.stdin.take());
+    let until = Instant::now() + Duration::from_secs(8);
+    while Instant::now() < until && !matches!(child.try_wait(), Ok(Some(_))) {
+        std::thread::sleep(Duration::from_millis(20));
+    }
     let _ = child.kill();
     let _ = child.wait();
     // A helper process can outlive the browser by a moment and write a
     // file or two back; remove the profile until it stays removed.
     for _ in 0..20 {
         let _ = std::fs::remove_dir_all(profile);
-        std::thread::sleep(Duration::from_millis(50));
         if !profile.exists() {
             break;
+        }
+        std::thread::sleep(Duration::from_millis(50));
+    }
+}
+
+/// A browser, started, and the address of its protocol.
+fn open_browser(binary: &str, sandbox: bool) -> Result<(Child, PathBuf, String)> {
+    let profile = private_dir("wf-chrome-").map_err(|e| {
+        WebFluentError::IoError(format!("could not make the browser's profile: {e}"))
+    })?;
+    let mut args: Vec<String> = [
+        "--headless=new",
+        "--remote-debugging-port=0",
+        "--disable-gpu",
+        "--disable-dev-shm-usage",
+        "--no-first-run",
+        "--no-default-browser-check",
+        "--disable-extensions",
+        "--hide-scrollbars",
+        // Nothing in the background: no component downloads (the
+        // optimisation models made each profile ~150 MB), no sync,
+        // no default apps — a page's numbers are the page's own.
+        "--disable-background-networking",
+        "--disable-component-update",
+        "--disable-default-apps",
+        "--disable-sync",
+    ]
+    .iter()
+    .map(|a| a.to_string())
+    .collect();
+    if !sandbox {
+        args.push("--no-sandbox".to_string());
+    }
+    args.push(format!("--user-data-dir={}", profile.display()));
+    args.push("about:blank".to_string());
+    let mut child = match launch(binary, &args, &profile) {
+        Ok(child) => child,
+        Err(e) => {
+            let _ = std::fs::remove_dir_all(&profile);
+            return Err(WebFluentError::IoError(format!(
+                "could not start the browser: {e}"
+            )));
+        }
+    };
+
+    // It prints its endpoint on stderr once it is listening.
+    let stderr = child.stderr.take().expect("piped");
+    let mut lines = BufReader::new(stderr).lines();
+    let mut endpoint = None;
+    for _ in 0..200 {
+        let Some(Ok(line)) = lines.next() else { break };
+        if let Some(at) = line.find("ws://") {
+            endpoint = Some(line[at..].trim().to_string());
+            break;
+        }
+    }
+    match endpoint {
+        Some(endpoint) => Ok((child, profile, endpoint)),
+        None => {
+            abandon(&mut child, &profile);
+            Err(WebFluentError::IoError(
+                "the browser started but never said where to talk to it".into(),
+            ))
         }
     }
 }
 
 impl Browser {
     /// Start one, or say plainly that there is none.
+    ///
+    /// It runs with its sandbox: what it loads is a project's pages and the
+    /// scripts they name. Where the sandbox cannot start (a container that
+    /// gives it none) it is started again without one, and that is said;
+    /// `WF_CHROME_NO_SANDBOX=1` starts it so from the outset.
     pub fn start() -> Result<Self> {
         let binary = find().ok_or_else(|| {
             WebFluentError::IoError(
@@ -124,53 +287,16 @@ impl Browser {
                     .to_string(),
             )
         })?;
-        let profile = std::env::temp_dir().join(format!(
-            "wf-chrome-{}-{}",
-            std::process::id(),
-            STARTED.fetch_add(1, Ordering::Relaxed)
-        ));
-        let mut child = Command::new(binary)
-            .args([
-                "--headless=new",
-                "--remote-debugging-port=0",
-                "--no-sandbox",
-                "--disable-gpu",
-                "--disable-dev-shm-usage",
-                "--no-first-run",
-                "--no-default-browser-check",
-                "--disable-extensions",
-                "--hide-scrollbars",
-                // Nothing in the background: no component downloads (the
-                // optimisation models made each profile ~150 MB), no sync,
-                // no default apps — a page's numbers are the page's own.
-                "--disable-background-networking",
-                "--disable-component-update",
-                "--disable-default-apps",
-                "--disable-sync",
-                &format!("--user-data-dir={}", profile.display()),
-                "about:blank",
-            ])
-            .stdout(Stdio::null())
-            .stderr(Stdio::piped())
-            .spawn()
-            .map_err(|e| WebFluentError::IoError(format!("could not start the browser: {e}")))?;
-
-        // It prints its endpoint on stderr once it is listening.
-        let stderr = child.stderr.take().expect("piped");
-        let mut lines = BufReader::new(stderr).lines();
-        let mut endpoint = None;
-        for _ in 0..200 {
-            let Some(Ok(line)) = lines.next() else { break };
-            if let Some(at) = line.find("ws://") {
-                endpoint = Some(line[at..].trim().to_string());
-                break;
+        let sandboxed = !sandbox_off_by_request();
+        let (mut child, profile, endpoint) = match open_browser(&binary, sandboxed) {
+            Ok(started) => started,
+            Err(first) if sandboxed => {
+                eprintln!(
+                    "note: the browser would not start with its sandbox ({first}); it runs without one. Set WF_CHROME_NO_SANDBOX=1 to skip the first try"
+                );
+                open_browser(&binary, false)?
             }
-        }
-        let Some(endpoint) = endpoint else {
-            abandon(&mut child, &profile);
-            return Err(WebFluentError::IoError(
-                "the browser started but never said where to talk to it".into(),
-            ));
+            Err(e) => return Err(e),
         };
         let socket = match Socket::connect(&endpoint).and_then(|s| s.deadline(30).map(|()| s)) {
             Ok(socket) => socket,
@@ -418,12 +544,11 @@ impl Drop for Browser {
         // Asked to close, Chrome stops its helpers and removes its own
         // temporary files; killed, it leaves both behind. It gets a few
         // seconds to go by itself.
+        // Gone, it closes the protocol's connection: read until it does.
         let close = json!({ "id": self.next, "method": "Browser.close" });
-        if self.socket.send(&close.to_string()).is_ok() {
+        if self.socket.send(&close.to_string()).is_ok() && self.socket.deadline(1).is_ok() {
             let until = Instant::now() + Duration::from_secs(5);
-            while Instant::now() < until && !matches!(self.child.try_wait(), Ok(Some(_))) {
-                std::thread::sleep(Duration::from_millis(50));
-            }
+            while Instant::now() < until && self.socket.receive().is_ok() {}
         }
         abandon(&mut self.child, &self.profile);
     }

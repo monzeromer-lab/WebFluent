@@ -16,10 +16,15 @@ pub struct Stage {
 
 impl Stage {
     pub fn open() -> Result<Self> {
-        Ok(Stage {
-            browser: Browser::start()?,
-            work: std::env::temp_dir().join(format!("wf-act-{}", std::process::id())),
-        })
+        let browser = Browser::start()?;
+        // A directory of this run's own, which nobody else could have made
+        // first, and which goes with the stage.
+        let work = crate::browser::chrome::private_dir("wf-act-").map_err(|e| {
+            crate::error::WebFluentError::IoError(format!(
+                "could not make a directory for the tests' sites: {e}"
+            ))
+        })?;
+        Ok(Stage { browser, work })
     }
 
     /// Where the tests' sites are built.
@@ -39,6 +44,12 @@ impl crate::testing::Browser for Stage {
             page: Some(page),
             server: Some(server),
         }))
+    }
+}
+
+impl Drop for Stage {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_dir_all(&self.work);
     }
 }
 
