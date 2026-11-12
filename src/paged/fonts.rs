@@ -60,6 +60,9 @@ pub struct FontDb {
     /// Characters → the face that covers them, once looked up.
     coverage_cache: HashMap<char, Option<usize>>,
     allow_system: bool,
+    /// The database an SVG's text is laid out with, and how many faces it
+    /// was made from; made again when a face is added.
+    svg_db: Option<(usize, Arc<fontdb::Database>)>,
 }
 
 // A reference to the bytes, never a copy: as a constant expression the
@@ -249,6 +252,9 @@ fn embedded_faces() -> &'static Vec<Face> {
 
 /// The fonts an SVG's text is set in: the bundled faces, and the machine's.
 /// Read once per process; an icon or a chart's labels need no more.
+///
+/// A document lays its SVGs out with [`FontDb::svg_database`] instead,
+/// which holds to its `fonts` and `system_fonts`.
 pub fn svg_fontdb() -> Arc<fontdb::Database> {
     // Made again only when a face is registered after it was made.
     static DB: Mutex<Option<(usize, Arc<fontdb::Database>)>> = Mutex::new(None);
@@ -341,10 +347,43 @@ impl FontDb {
             system_used: Vec::new(),
             coverage_cache: HashMap::new(),
             allow_system,
+            svg_db: None,
         };
         for face in bundled_faces() {
             db.add(face.clone());
         }
+        db
+    }
+
+    /// The fonts an SVG's text — a chart's labels, a QR code's caption, a
+    /// picture — is laid out with: the document's own faces, bundled and the
+    /// project's, and the machine's only when the document allows them, so
+    /// `system_fonts: false` holds for an SVG as for the text around it.
+    pub fn svg_database(&mut self) -> Arc<fontdb::Database> {
+        if let Some((made_with, db)) = &self.svg_db
+            && *made_with == self.faces.len()
+        {
+            return db.clone();
+        }
+        let mut db = fontdb::Database::new();
+        let mut loaded: Vec<*const Vec<u8>> = Vec::new();
+        for face in &self.faces {
+            let bytes = Arc::as_ptr(&face.data);
+            if loaded.contains(&bytes) {
+                continue;
+            }
+            loaded.push(bytes);
+            let data: Arc<dyn AsRef<[u8]> + Send + Sync> = face.data.clone();
+            db.load_font_source(fontdb::Source::Binary(data));
+        }
+        if self.allow_system {
+            db.load_system_fonts();
+        }
+        db.set_sans_serif_family("Liberation Sans");
+        db.set_serif_family("Liberation Serif");
+        db.set_monospace_family("Liberation Mono");
+        let db = Arc::new(db);
+        self.svg_db = Some((self.faces.len(), db.clone()));
         db
     }
 
@@ -685,6 +724,35 @@ pub fn is_font_file(path: &Path) -> bool {
 
 #[cfg(test)]
 mod tests {
+    /// A chart's labels and an SVG's text use the document's fonts, and the
+    /// machine's only when the document allows them: a document that
+    /// forbids them is the same PDF on every machine.
+    #[test]
+    fn an_svg_is_laid_out_with_the_documents_own_fonts() {
+        let mut db = FontDb::new(false);
+        let svg = db.svg_database();
+        assert!(
+            svg.faces()
+                .all(|f| matches!(f.source, fontdb::Source::Binary(_))),
+            "a document that forbids the machine's fonts loaded one for an SVG"
+        );
+        assert_eq!(
+            svg.faces().count(),
+            db.faces.len(),
+            "every face of the document, and only those"
+        );
+        // The same database while no face is added, a new one after.
+        assert!(Arc::ptr_eq(&svg, &db.svg_database()));
+        let before = db.faces.len();
+        if let Some(face) = db.faces.first().cloned() {
+            let mut extra = face;
+            extra.family = "A Family Of Its Own".into();
+            db.add(extra);
+            assert_ne!(db.faces.len(), before);
+            assert!(!Arc::ptr_eq(&svg, &db.svg_database()));
+        }
+    }
+
     use super::*;
 
     #[test]

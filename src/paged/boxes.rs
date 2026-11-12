@@ -889,7 +889,7 @@ impl<'a> Builder<'a> {
 
     fn svg(&mut self, markup: &str) -> Option<usize> {
         let options = usvg::Options {
-            fontdb: super::fonts::svg_fontdb(),
+            fontdb: self.db.svg_database(),
             ..usvg::Options::default()
         };
         let markup = if markup.contains("xmlns") {

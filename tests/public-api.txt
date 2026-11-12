@@ -5363,13 +5363,14 @@ pub fn webfluent::paged::fonts::FontDb::fallback(&mut self, char, u16, bool) -> 
 pub fn webfluent::paged::fonts::FontDb::family_faces(&mut self, &[alloc::string::String]) -> alloc::vec::Vec<usize>
 pub fn webfluent::paged::fonts::FontDb::new(bool) -> webfluent::paged::fonts::FontDb
 pub fn webfluent::paged::fonts::FontDb::pick(&mut self, &[alloc::string::String], u16, bool) -> webfluent::paged::fonts::Pick
+pub fn webfluent::paged::fonts::FontDb::svg_database(&mut self) -> alloc::rcs::arc::Arc<fontdb::Database>
 impl core::marker::Freeze for webfluent::paged::fonts::FontDb
 impl core::marker::Send for webfluent::paged::fonts::FontDb
 impl core::marker::Sync for webfluent::paged::fonts::FontDb
 impl core::marker::Unpin for webfluent::paged::fonts::FontDb
 impl core::marker::UnsafeUnpin for webfluent::paged::fonts::FontDb
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::paged::fonts::FontDb
-impl core::panic::unwind_safe::UnwindSafe for webfluent::paged::fonts::FontDb
+impl !core::panic::unwind_safe::RefUnwindSafe for webfluent::paged::fonts::FontDb
+impl !core::panic::unwind_safe::UnwindSafe for webfluent::paged::fonts::FontDb
 pub struct webfluent::paged::fonts::Pick
 pub webfluent::paged::fonts::Pick::face: usize
 pub webfluent::paged::fonts::Pick::synthetic_bold: bool
