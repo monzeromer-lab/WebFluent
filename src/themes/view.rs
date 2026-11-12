@@ -121,7 +121,7 @@ pub fn drawn_by(group: &str) -> Vec<&'static str> {
     let mut out: Vec<&'static str> = Vec::new();
     for (_, props) in crate::style_value::CURATED {
         for p in *props {
-            if crate::codegen::style_tokens::token_group(p) == Some(group) && !out.contains(p) {
+            if crate::registry::style_tokens::token_group(p) == Some(group) && !out.contains(p) {
                 out.push(p);
             }
         }
@@ -205,7 +205,7 @@ fn uses_of(
         };
         let file = file_of(i);
         props(body, &mut |p| {
-            let prop = crate::codegen::style_tokens::canonical_style_prop(&p.name);
+            let prop = crate::registry::style_tokens::canonical_style_prop(&p.name);
             let mut tokens = Vec::new();
             match &p.value {
                 Expr::Token(t) => tokens.push(t.clone()),
@@ -219,7 +219,7 @@ fn uses_of(
                 _ => {}
             }
             for t in tokens {
-                let full = crate::codegen::style_tokens::resolve_short_token(&prop, &t, declared)
+                let full = crate::registry::style_tokens::resolve_short_token(&prop, &t, declared)
                     .unwrap_or(t);
                 add(
                     full,

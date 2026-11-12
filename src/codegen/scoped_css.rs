@@ -24,7 +24,7 @@
 //! finds the DOM it expects.
 use std::collections::{BTreeMap, BTreeSet};
 
-use crate::codegen::style_tokens::{canonical_style_prop, resolve_style_token};
+use crate::registry::style_tokens::{canonical_style_prop, resolve_style_token};
 use crate::syntax::parser::ast::{
     Arg, ComponentRef, Declaration, Expr, Program, Statement, StatementKind, StringPart,
     StyleBlock, StyleProperty,

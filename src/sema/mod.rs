@@ -1296,9 +1296,9 @@ fn resolve_short_tokens(stmts: &mut [Statement], theme: &std::collections::HashS
     let declared = |name: &str| theme.contains(name);
     let resolve = |props: &mut Vec<StyleProperty>| {
         for prop in props.iter_mut() {
-            let css_prop = crate::codegen::style_tokens::canonical_style_prop(&prop.name);
+            let css_prop = crate::registry::style_tokens::canonical_style_prop(&prop.name);
             let full = |name: &str| {
-                crate::codegen::style_tokens::resolve_short_token(&css_prop, name, &declared)
+                crate::registry::style_tokens::resolve_short_token(&css_prop, name, &declared)
             };
             match &mut prop.value {
                 Expr::Token(name) => {

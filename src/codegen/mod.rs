@@ -35,7 +35,7 @@ pub mod sourcemap;
 pub mod ssg;
 pub mod static_eval;
 pub mod style;
-pub mod style_tokens;
+pub use crate::registry::style_tokens;
 pub mod url;
 
 pub use css::{dark_css, generate_css, generate_css_for, generate_css_with};

@@ -10081,6 +10081,12 @@ pub fn webfluent::registry::schema::builtin(&str) -> core::option::Option<webflu
 pub fn webfluent::registry::schema::catalog(core::option::Option<(&webfluent::syntax::parser::Program, &dyn core::ops::function::Fn(usize) -> alloc::string::String)>) -> webfluent::registry::schema::Catalog
 pub fn webfluent::registry::schema::of_project_via(&dyn webfluent::vfs::Vfs, &std::path::Path) -> webfluent::registry::schema::Catalog
 pub fn webfluent::registry::schema::project(&webfluent::syntax::parser::ComponentDecl, &webfluent::syntax::parser::Program, core::option::Option<alloc::string::String>) -> webfluent::registry::schema::Component
+pub mod webfluent::registry::style_tokens
+pub fn webfluent::registry::style_tokens::canonical_style_prop(&str) -> alloc::string::String
+pub fn webfluent::registry::style_tokens::group_suffixes(&str) -> &'static [&'static str]
+pub fn webfluent::registry::style_tokens::resolve_short_token(&str, &str, &dyn core::ops::function::Fn(&str) -> bool) -> core::option::Option<alloc::string::String>
+pub fn webfluent::registry::style_tokens::resolve_style_token(&str, &webfluent::syntax::parser::Expr) -> core::option::Option<alloc::string::String>
+pub fn webfluent::registry::style_tokens::token_group(&str) -> core::option::Option<&'static str>
 pub enum webfluent::registry::AttrFamily
 pub webfluent::registry::AttrFamily::Anchor
 pub webfluent::registry::AttrFamily::Any

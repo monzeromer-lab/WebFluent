@@ -1241,7 +1241,7 @@ impl<'a> Rewriter<'a> {
             self.patch(end, end + gap, " ");
             ";"
         };
-        let css_prop = crate::codegen::style_tokens::canonical_style_prop(&prop.name);
+        let css_prop = crate::registry::style_tokens::canonical_style_prop(&prop.name);
         let spelled = match &prop.value {
             Expr::StringLiteral(s) => {
                 if prop.name == "content" || prop.name == "quotes" || s.contains('"') {
@@ -1257,7 +1257,7 @@ impl<'a> Rewriter<'a> {
                 self.tokens_spelled(&inner.replace('\u{FFFE}', "{").replace('\u{FFFF}', "}"))
             }
             Expr::Identifier(name) => {
-                match crate::codegen::style_tokens::resolve_style_token(&css_prop, &prop.value) {
+                match crate::registry::style_tokens::resolve_style_token(&css_prop, &prop.value) {
                     // `padding: xl` → `padding: $xl`: the short name still
                     // resolves through the property's group — unless the
                     // theme declares the short name itself, when only the

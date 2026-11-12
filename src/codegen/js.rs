@@ -7832,7 +7832,7 @@ impl JsCodegen {
     /// CSS, numbers, and reactive-state identifiers (`font-size: someState` → `_someState()`)
     /// are unchanged.
     fn emit_style_decl(&self, prop: &StyleProperty) -> (String, String) {
-        use crate::codegen::style_tokens::{canonical_style_prop, resolve_style_token};
+        use crate::registry::style_tokens::{canonical_style_prop, resolve_style_token};
         let css_prop = canonical_style_prop(&prop.name);
         let val = match resolve_style_token(&css_prop, &prop.value) {
             Some(css) => format!("\"{css}\""),

@@ -367,18 +367,18 @@ fn shape_of(name: &str) -> Shape {
 /// inspector draws it. A property the catalogue does not curate is `Other`
 /// and `Free`, and still written as typed.
 pub fn property(name: &str) -> Property {
-    let name = crate::codegen::style_tokens::canonical_style_prop(name);
+    let name = crate::registry::style_tokens::canonical_style_prop(name);
     let group = CURATED
         .iter()
         .find(|(_, props)| props.contains(&name.as_str()))
         .map(|(g, _)| *g)
         .unwrap_or(OTHER);
-    let tokens = crate::codegen::style_tokens::token_group(&name);
+    let tokens = crate::registry::style_tokens::token_group(&name);
     Property {
         group,
         shape: shape_of(&name),
         suffixes: tokens
-            .map(crate::codegen::style_tokens::group_suffixes)
+            .map(crate::registry::style_tokens::group_suffixes)
             .unwrap_or(&[]),
         tokens,
         cases: cases_of(&name),
@@ -972,7 +972,7 @@ pub fn print(property: &str, value: &Value) -> String {
 
 /// The side longhands of a box property, top, right, bottom, left.
 pub fn sides_of(property: &str) -> Option<[String; 4]> {
-    let p = crate::codegen::style_tokens::canonical_style_prop(property);
+    let p = crate::registry::style_tokens::canonical_style_prop(property);
     Some(match p.as_str() {
         "inset" => ["top", "right", "bottom", "left"].map(String::from),
         "border-radius" => [
@@ -993,7 +993,7 @@ pub fn sides_of(property: &str) -> Option<[String; 4]> {
 /// shorthand, narrowest, when all four are set; each set side's longhand
 /// alone otherwise (`padding-left: 16px` and nothing else).
 pub fn box_declarations(property: &str, sides: &[Option<Part>; 4]) -> Vec<(String, String)> {
-    let name = crate::codegen::style_tokens::canonical_style_prop(property);
+    let name = crate::registry::style_tokens::canonical_style_prop(property);
     if let [Some(t), Some(r), Some(b), Some(l)] = sides {
         let four = [t.clone(), r.clone(), b.clone(), l.clone()];
         let value = if name == "border-radius" {
@@ -1017,13 +1017,13 @@ pub fn box_declarations(property: &str, sides: &[Option<Part>; 4]) -> Vec<(Strin
 /// in order — the shorthand, then any longhand after it: what each side is
 /// set to, and `None` where nothing sets it.
 pub fn read_box(declarations: &[(&str, &str)], property: &str) -> [Option<Part>; 4] {
-    let name = crate::codegen::style_tokens::canonical_style_prop(property);
+    let name = crate::registry::style_tokens::canonical_style_prop(property);
     let mut sides: [Option<Part>; 4] = [None, None, None, None];
     let Some(longhands) = sides_of(&name) else {
         return sides;
     };
     for (n, v) in declarations {
-        let n = crate::codegen::style_tokens::canonical_style_prop(n);
+        let n = crate::registry::style_tokens::canonical_style_prop(n);
         if n == name {
             match parse(&name, v) {
                 Value::Box { sides: four } | Value::Corners { corners: four } => {
@@ -1057,13 +1057,13 @@ pub fn edit_box(
     side: usize,
     value: Part,
 ) -> Vec<StyleEdit> {
-    let name = crate::codegen::style_tokens::canonical_style_prop(property);
+    let name = crate::registry::style_tokens::canonical_style_prop(property);
     let Some(longhands) = sides_of(&name) else {
         return Vec::new();
     };
     let has_shorthand = declarations
         .iter()
-        .any(|(n, _)| crate::codegen::style_tokens::canonical_style_prop(n) == name);
+        .any(|(n, _)| crate::registry::style_tokens::canonical_style_prop(n) == name);
     let mut sides = read_box(declarations, &name);
     sides[side.min(3)] = Some(value);
     let present: Vec<&String> = longhands

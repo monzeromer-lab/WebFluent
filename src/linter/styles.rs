@@ -67,7 +67,7 @@ fn property(
         prop.span.line.max(1) as usize,
         prop.span.col.max(1) as usize,
     );
-    let name = crate::codegen::style_tokens::canonical_style_prop(&prop.name);
+    let name = crate::registry::style_tokens::canonical_style_prop(&prop.name);
     // V05: a property no browser knows does nothing.
     if !known_property(&name) {
         // Compared as CSS spells it: `backgroundColr` is `background-colr`.

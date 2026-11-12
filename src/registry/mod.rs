@@ -24,6 +24,7 @@ pub(crate) mod browser;
 pub mod builtins;
 pub mod json;
 pub mod schema;
+pub mod style_tokens;
 
 pub use builtins::{COMPONENTS, UNIVERSAL_EVENTS, UNIVERSAL_PROPS};
 
