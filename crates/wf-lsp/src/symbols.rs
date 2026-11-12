@@ -42,10 +42,27 @@ pub fn document_symbols(
     hierarchical: bool,
 ) -> DocumentSymbolResponse {
     let file = &project.files[file_ix];
-    let symbols: Vec<DocumentSymbol> = project
-        .declarations_of(file_ix)
-        .filter_map(|(_, decl)| declaration_symbol(decl, &file.source, &file.index))
-        .collect();
+    let mut symbols: Vec<DocumentSymbol> = Vec::new();
+    for (_, decl) in project.declarations_of(file_ix) {
+        let Some(mut sym) = declaration_symbol(decl, &file.source, &file.index) else {
+            continue;
+        };
+        // A part (`Panel.Header`) is a component of its own, declared inside
+        // its owner: the outline shows it there.
+        if let Declaration::Component(c) = decl
+            && let Some((owner, part)) = c.name.split_once('.')
+            && let Some(owner_sym) = symbols
+                .iter_mut()
+                .rev()
+                .find(|s| s.name == owner && s.kind == SymbolKind::CLASS)
+        {
+            sym.name = part.to_string();
+            sym.detail = Some(format!("part of {owner}"));
+            owner_sym.children.get_or_insert_with(Vec::new).push(sym);
+            continue;
+        }
+        symbols.push(sym);
+    }
     if hierarchical {
         DocumentSymbolResponse::Nested(symbols)
     } else {
@@ -77,20 +94,46 @@ fn declaration_symbol(
                 .props
                 .iter()
                 .map(|prop| {
+                    let at = index.span_to_range(source, prop.span);
+                    let ty = crate::hover::type_name(&prop.prop_type);
+                    let optional = prop.optional && !ty.ends_with('?');
                     symbol(
                         prop.name.clone(),
-                        &format!(
-                            "prop · {:?}{}",
-                            prop.prop_type,
-                            if prop.optional { "?" } else { "" }
-                        ),
+                        &format!("prop · {ty}{}", if optional { "?" } else { "" }),
                         SymbolKind::PROPERTY,
-                        selection,
-                        selection,
+                        at,
+                        at,
                         Vec::new(),
                     )
                 })
                 .collect();
+            children.extend(comp.events.iter().map(|e| {
+                let at = index.span_to_range(source, e.span);
+                symbol(
+                    e.name.clone(),
+                    &format!("event · ({})", params_text(&e.params)),
+                    SymbolKind::EVENT,
+                    at,
+                    at,
+                    Vec::new(),
+                )
+            }));
+            children.extend(comp.slots.iter().map(|slot| {
+                let at = index.span_to_range(source, slot.span);
+                let detail = if slot.params.is_empty() {
+                    "slot".to_string()
+                } else {
+                    format!("slot · ({})", params_text(&slot.params))
+                };
+                symbol(
+                    slot.name.clone().unwrap_or_else(|| "children".to_string()),
+                    &detail,
+                    SymbolKind::FIELD,
+                    at,
+                    at,
+                    Vec::new(),
+                )
+            }));
             children.extend(statement_symbols(&comp.body, source, index));
             symbol(
                 comp.name.clone(),
@@ -162,7 +205,7 @@ fn declaration_symbol(
                     let r = index.span_to_range(source, f.span);
                     symbol(
                         f.name.clone(),
-                        &format!("field · {:?}", f.ty),
+                        &format!("field · {}", crate::hover::type_name(&f.ty)),
                         SymbolKind::FIELD,
                         r,
                         r,
@@ -391,10 +434,107 @@ fn statement_symbols(stmts: &[Statement], source: &str, index: &LineIndex) -> Ve
                 range,
                 Vec::new(),
             )),
+            StatementKind::Connection(c) => {
+                let mut children = Vec::new();
+                for h in &c.handlers {
+                    children.push(handler_symbol(h, source, index));
+                }
+                symbols.push(symbol(
+                    c.name.clone(),
+                    connection_word(c.kind),
+                    SymbolKind::VARIABLE,
+                    range,
+                    range,
+                    children,
+                ));
+            }
+            StatementKind::Validate(v) => symbols.push(symbol(
+                format!("validate {}", v.name),
+                &v.rules
+                    .iter()
+                    .map(|r| r.name.as_str())
+                    .collect::<Vec<_>>()
+                    .join(" "),
+                SymbolKind::PROPERTY,
+                range,
+                range,
+                Vec::new(),
+            )),
+            StatementKind::Effect(e) => {
+                let mut children = statement_symbols(&e.body, source, index);
+                children.extend(statement_symbols(&e.cleanup, source, index));
+                symbols.push(symbol(
+                    "effect".to_string(),
+                    "effect",
+                    SymbolKind::EVENT,
+                    range,
+                    range,
+                    children,
+                ));
+            }
+            StatementKind::Timer(t) => symbols.push(symbol(
+                if t.every { "every" } else { "after" }.to_string(),
+                "timer",
+                SymbolKind::EVENT,
+                range,
+                range,
+                statement_symbols(&t.body, source, index),
+            )),
+            StatementKind::EventHandler(h) => symbols.push(handler_symbol(h, source, index)),
+            StatementKind::Use(u) => symbols.push(symbol(
+                format!("use {}", u.store_name),
+                "use",
+                SymbolKind::MODULE,
+                range,
+                range,
+                Vec::new(),
+            )),
+            StatementKind::Try(t) => {
+                symbols.extend(statement_symbols(&t.body, source, index));
+                symbols.extend(statement_symbols(&t.catch_body, source, index));
+            }
             _ => {}
         }
     }
     symbols
+}
+
+/// An `on …` handler, with what its body declares.
+fn handler_symbol(h: &EventHandler, source: &str, index: &LineIndex) -> DocumentSymbol {
+    let range = index.span_to_range(source, h.span);
+    let name = match &h.key {
+        Some(key) => format!("on key(\"{key}\")"),
+        None => format!("on {}", h.event),
+    };
+    symbol(
+        name,
+        "handler",
+        SymbolKind::EVENT,
+        range,
+        range,
+        statement_symbols(&h.body, source, index),
+    )
+}
+
+/// The word a connection is declared with.
+fn connection_word(kind: ConnectionKind) -> &'static str {
+    match kind {
+        ConnectionKind::Socket => "socket",
+        ConnectionKind::Stream => "stream",
+        ConnectionKind::Channel => "channel",
+        ConnectionKind::Peer => "peer",
+        ConnectionKind::Worker => "worker",
+        _ => "connection",
+    }
+}
+
+/// `name: Type, other: Type`, for an event's or a slot's parameters.
+fn params_text(params: &[ParamDecl]) -> String {
+    params
+        .iter()
+        .map(|p| format!("{}: {}", p.name, crate::hover::type_name(&p.param_type)))
+        .collect::<Vec<_>>()
+        .join(", ")
 }
 
 fn flatten(
@@ -450,6 +590,42 @@ pub fn workspace_symbols(project: &Project, query: &str) -> Vec<SymbolInformatio
             ),
             Declaration::Data(d) => (d.name.clone(), SymbolKind::CONSTANT, d.span, "Data"),
             Declaration::Api(a) => (a.name.clone(), SymbolKind::INTERFACE, a.span, "Api"),
+            Declaration::App(app) => {
+                let Some(first) = app.body.first() else {
+                    continue;
+                };
+                let span = match app.body.last() {
+                    Some(last) => Span {
+                        end: last.span.end,
+                        ..first.span
+                    },
+                    None => first.span,
+                };
+                ("App".to_string(), SymbolKind::CLASS, span, "App")
+            }
+            // A script's names, each where it is written.
+            Declaration::Script(script) => {
+                for n in &script.names {
+                    if query.is_empty() || n.name.to_lowercase().contains(&query) {
+                        out.push(SymbolInformation {
+                            name: n.name.clone(),
+                            kind: SymbolKind::FUNCTION,
+                            tags: None,
+                            deprecated: None,
+                            location: Location {
+                                uri: file.uri.clone(),
+                                range: file.index.word_range_at_line_col(
+                                    &file.source,
+                                    n.line,
+                                    n.col,
+                                ),
+                            },
+                            container_name: Some(script.path.clone()),
+                        });
+                    }
+                }
+                continue;
+            }
             _ => continue,
         };
         if query.is_empty() || name.to_lowercase().contains(&query) {

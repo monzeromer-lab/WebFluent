@@ -101,28 +101,31 @@ fn callee(previous: &[&Token], open: usize) -> Option<String> {
     let TokenType::Identifier(name) = &previous.get(open.checked_sub(1)?)?.token_type else {
         return None;
     };
-    if let (Some(TokenType::Dot), Some(TokenType::Identifier(owner))) = (
-        open.checked_sub(2).map(|i| &previous[i].token_type),
-        open.checked_sub(3).map(|i| &previous[i].token_type),
-    ) {
-        return Some(format!("{owner}.{name}"));
+    let before = open.checked_sub(2).map(|i| &previous[i].token_type);
+    match (before, open.checked_sub(3).map(|i| &previous[i].token_type)) {
+        (Some(TokenType::Dot), Some(TokenType::Identifier(owner))) => {
+            return Some(format!("{owner}.{name}"));
+        }
+        // `.failed(`: a case of an enum, given its payload. After a `)` or
+        // a `]` the dot is a member's.
+        (Some(TokenType::Dot), other)
+            if !matches!(other, Some(TokenType::CloseParen | TokenType::CloseBracket)) =>
+        {
+            return Some(format!(".{name}"));
+        }
+        // `emit toggle(`: an event of the component being written.
+        (Some(TokenType::Identifier(kw)), _) if kw == "emit" => {
+            return Some(format!("emit {name}"));
+        }
+        _ => {}
     }
     Some(name.clone())
 }
 
+/// A type as it is written: the compiler's own printer, so a condition
+/// reads as it was written (`Number(1..=30)`).
 fn type_name(ty: &TypeRef) -> String {
-    match ty {
-        TypeRef::String => "String".into(),
-        TypeRef::Number => "Number".into(),
-        TypeRef::Bool => "Bool".into(),
-        TypeRef::Map => "Map".into(),
-        TypeRef::Any => "Any".into(),
-        TypeRef::List(inner) => format!("[{}]", type_name(inner)),
-        TypeRef::Optional(inner) => format!("{}?", type_name(inner)),
-        TypeRef::Named(name) => name.clone(),
-        TypeRef::Refined(inner, _) => type_name(inner),
-        _ => "Any".into(),
-    }
+    webfluent::syntax::print::type_ref(ty)
 }
 
 fn prop_params(props: &[PropDecl]) -> Vec<Param> {
@@ -159,6 +162,71 @@ fn describe(
         )
     };
     let declarations = &project.program.declarations;
+    let typed = |name: &str, ty: &TypeRef, default: bool| Param {
+        label: format!(
+            "{name}: {}{}",
+            type_name(ty),
+            if default { " = …" } else { "" }
+        ),
+        name: name.to_string(),
+        doc: None,
+    };
+    // `.failed(`: the payload a case of an enum carries.
+    if let Some(case) = callee.strip_prefix('.') {
+        let (e, c) = declarations.iter().find_map(|d| match d {
+            Declaration::Enum(e) => e.cases.iter().find(|c| c.name == case).map(|c| (e, c)),
+            _ => None,
+        })?;
+        let params: Vec<Param> = c
+            .fields
+            .iter()
+            .map(|f| typed(&f.name, &f.ty, false))
+            .collect();
+        return Some((
+            joined(callee, &params),
+            params,
+            Some(format!("A case of `{}`.", e.name)),
+        ));
+    }
+    // `emit toggle(`: what the event sends, as the component declares it.
+    if let Some(event) = callee.strip_prefix("emit ") {
+        let decl_ix = analysis::declaration_at(project, file_ix, offset)?;
+        let Declaration::Component(c) = &declarations[decl_ix] else {
+            return None;
+        };
+        let e = c.events.iter().find(|e| e.name == event)?;
+        let params: Vec<Param> = e
+            .params
+            .iter()
+            .map(|p| typed(&p.name, &p.param_type, false))
+            .collect();
+        return Some((
+            joined(callee, &params),
+            params,
+            e.doc
+                .clone()
+                .or_else(|| Some(format!("An event of `{}`.", c.name))),
+        ));
+    }
+    // A record built with named fields: `User(id: …, name: …)`.
+    if let Some(t) = declarations.iter().find_map(|d| match d {
+        Declaration::Type(t) if t.name == callee => Some(t),
+        _ => None,
+    }) {
+        let fields = t.all_fields(&|n| crate::hover::find_type(project, n));
+        let params: Vec<Param> = fields
+            .iter()
+            .map(|f| Param {
+                doc: f.doc.clone(),
+                ..typed(&f.name, &f.ty, f.default.is_some())
+            })
+            .collect();
+        return Some((
+            joined(callee, &params),
+            params,
+            Some(format!("A `{callee}` record, built with named fields.")),
+        ));
+    }
     // The project's own component, or one of its parts.
     if let Some(c) = declarations.iter().find_map(|d| match d {
         Declaration::Component(c) if c.name == callee => Some(c),

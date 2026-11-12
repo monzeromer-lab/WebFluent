@@ -209,10 +209,10 @@ fn the_checks_that_read_files_read_the_buffers_too() {
 }
 
 /// A fix that edits another file — C06 marks the prop `_` in the
-/// component's own file — is not offered on this document, where its edit
-/// would land in the wrong text; one that edits this file is.
+/// component's own file — is offered on this document as an edit of that
+/// file, never of this one's text; one that edits this file is too.
 #[test]
-fn a_fix_that_edits_another_file_is_not_offered_here() {
+fn a_fix_that_edits_another_file_edits_that_file() {
     let dir = std::env::temp_dir().join(format!("wf-lsp-c06-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(dir.join("src/pages")).unwrap();
@@ -238,11 +238,36 @@ fn a_fix_that_edits_another_file_is_not_offered_here() {
         .iter()
         .find(|d| code(d, "C06"))
         .expect("C06 on the call");
+    let params = CodeActionParams {
+        text_document: TextDocumentIdentifier { uri: uri.clone() },
+        range: c06.range,
+        context: CodeActionContext {
+            diagnostics: vec![c06.clone()],
+            only: None,
+            trigger_kind: None,
+        },
+        work_done_progress_params: Default::default(),
+        partial_result_params: Default::default(),
+    };
+    let actions = wf_lsp::code_actions::provide_code_actions(&uri, params);
+    let Some(CodeActionOrCommand::CodeAction(action)) = actions.first() else {
+        panic!("C06's fix is offered: {:?}", c06.data);
+    };
+    let changes = action.edit.as_ref().unwrap().changes.as_ref().unwrap();
+    let panel = Url::from_file_path(dir.join("src/components/Panel.wf")).unwrap();
     assert!(
-        c06.data.is_none(),
-        "its fix is the declaration's file's: {:?}",
-        c06.data
+        !changes.contains_key(&uri),
+        "nothing of this page's text changes: {changes:?}"
+    );
+    let edits = &changes[&panel];
+    assert_eq!(edits.len(), 1, "{edits:?}");
+    assert_eq!(edits[0].new_text, "_ ");
+    assert_eq!(
+        edits[0].range.start,
+        Position::new(0, 16),
+        "before `title` in `component Panel(title: …)`"
     );
     let v09 = found.iter().find(|d| code(d, "V09")).expect("V09");
     assert!(v09.data.is_some(), "a fix in this file is offered");
+    let _ = std::fs::remove_dir_all(&dir);
 }

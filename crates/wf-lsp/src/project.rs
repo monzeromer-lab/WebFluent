@@ -61,6 +61,19 @@ pub struct SourceFile {
     pub markdown: bool,
 }
 
+impl SourceFile {
+    /// The name the file is read by — its path, or its URI's for a buffer
+    /// with no path on disk — whose extension picks the layout: a `.wfx`
+    /// file is indented.
+    pub fn name(&self) -> String {
+        if self.path.as_os_str().is_empty() {
+            self.uri.path().to_string()
+        } else {
+            self.path.to_string_lossy().to_string()
+        }
+    }
+}
+
 /// A project: its files, and their declarations merged into one program.
 pub struct Project {
     /// The directory holding `webfluent.app.json`, when there is one.

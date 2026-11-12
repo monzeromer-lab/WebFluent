@@ -114,7 +114,6 @@ pub fn classify(project: &Project, file_ix: usize) -> Vec<Classified> {
     let is_component = |w: &str| {
         registry::component(w).is_some() || declared.get(w).is_some_and(|(k, _)| *k == CLASS)
     };
-    let keywords: Vec<&str> = crate::reference::KEYWORDS.iter().map(|k| k.name).collect();
     let functions = webfluent::sema::types::built_in_functions();
     let mut out = Vec::new();
     for (ix, token) in tokens.iter().enumerate() {
@@ -178,7 +177,9 @@ pub fn classify(project: &Project, file_ix: usize) -> Vec<Classified> {
             {
                 // `name:` — a prop, a field, a key.
                 Some((PROPERTY, 0))
-            } else if keywords.contains(&word.as_str()) && !declared.contains_key(word.as_str()) {
+            } else if (crate::reference::is_keyword(word) || contextual_keyword(word, prev, next))
+                && !declared.contains_key(word.as_str())
+            {
                 None
             } else if let Some(found) = declared.get(word.as_str()) {
                 Some(*found)
@@ -308,5 +309,17 @@ pub fn semantic_tokens(project: &Project, file_ix: usize) -> SemanticTokens {
     SemanticTokens {
         result_id: None,
         data,
+    }
+}
+
+/// A word that is a keyword only where it is written as one, and a name a
+/// program may use anywhere else (`state step = 1`): `step` before a block
+/// or its `(after:)`, `cleanup` before a block, `catch` after a `try`'s `}`.
+fn contextual_keyword(word: &str, prev: Option<&TokenType>, next: Option<&TokenType>) -> bool {
+    match word {
+        "step" => matches!(next, Some(TokenType::OpenBrace | TokenType::OpenParen)),
+        "cleanup" => matches!(next, Some(TokenType::OpenBrace)),
+        "catch" => matches!(prev, Some(TokenType::CloseBrace)),
+        _ => false,
     }
 }

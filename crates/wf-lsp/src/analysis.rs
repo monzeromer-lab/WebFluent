@@ -129,7 +129,7 @@ pub fn tokens_of(file: &SourceFile) -> Option<Vec<Token>> {
     if file.script || file.markdown {
         return None;
     }
-    webfluent::syntax::tokens(&file.source, &file.path.to_string_lossy()).ok()
+    webfluent::syntax::tokens(&file.source, &file.name()).ok()
 }
 
 /// The index of the token whose extent contains `offset`, or that ends

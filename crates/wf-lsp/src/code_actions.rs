@@ -15,15 +15,9 @@ pub fn provide_code_actions(uri: &Url, params: CodeActionParams) -> Vec<CodeActi
             let Some(title) = fix.get("title").and_then(|t| t.as_str()) else {
                 continue;
             };
-            let Some(edits) = fix
-                .get("edits")
-                .and_then(|e| serde_json::from_value::<Vec<TextEdit>>(e.clone()).ok())
-                .filter(|e| !e.is_empty())
-            else {
+            let Some(changes) = fix_changes(uri, fix) else {
                 continue;
             };
-            let mut changes = HashMap::new();
-            changes.insert(uri.clone(), edits);
             actions.push(CodeActionOrCommand::CodeAction(CodeAction {
                 title: title.to_string(),
                 kind: Some(CodeActionKind::QUICKFIX),
@@ -44,16 +38,100 @@ pub fn provide_code_actions(uri: &Url, params: CodeActionParams) -> Vec<CodeActi
     actions
 }
 
-/// The first fix a finding carries, as edits.
+/// Every edit a fix makes, by file: this document's (`edits`) and any
+/// other file's (`changes`, by URI). `None` when it makes none.
+fn fix_changes(uri: &Url, fix: &serde_json::Value) -> Option<HashMap<Url, Vec<TextEdit>>> {
+    let mut changes: HashMap<Url, Vec<TextEdit>> = HashMap::new();
+    if let Some(edits) = fix
+        .get("edits")
+        .and_then(|e| serde_json::from_value::<Vec<TextEdit>>(e.clone()).ok())
+        .filter(|e| !e.is_empty())
+    {
+        changes.insert(uri.clone(), edits);
+    }
+    if let Some(serde_json::Value::Object(others)) = fix.get("changes") {
+        for (other, edits) in others {
+            let (Ok(other), Ok(edits)) = (
+                Url::parse(other),
+                serde_json::from_value::<Vec<TextEdit>>(edits.clone()),
+            ) else {
+                continue;
+            };
+            if !edits.is_empty() {
+                changes.entry(other).or_default().extend(edits);
+            }
+        }
+    }
+    (!changes.is_empty()).then_some(changes)
+}
+
+/// The first fix a finding carries, as edits — when they are all this
+/// document's, which a fix-all can join with others.
 fn first_fix(diag: &Diagnostic) -> Option<Vec<TextEdit>> {
     let serde_json::Value::Array(fixes) = diag.data.as_ref()? else {
         return None;
     };
-    fixes
-        .first()?
-        .get("edits")
+    let fix = fixes.first()?;
+    if fix.get("changes").is_some() {
+        return None;
+    }
+    fix.get("edits")
         .and_then(|e| serde_json::from_value::<Vec<TextEdit>>(e.clone()).ok())
         .filter(|e| !e.is_empty())
+}
+
+/// The first fix of every finding in `all` that has one, the ones that
+/// would overlap an edit taken before them left out, and the findings they
+/// fix.
+fn joined_fixes<'a>(all: impl Iterator<Item = &'a Diagnostic>) -> (Vec<TextEdit>, Vec<Diagnostic>) {
+    let mut taken: Vec<TextEdit> = Vec::new();
+    let mut fixed = Vec::new();
+    for d in all {
+        let Some(edits) = first_fix(d) else {
+            continue;
+        };
+        let overlaps = edits.iter().any(|e| {
+            taken.iter().any(|t| {
+                e.range.start == t.range.start
+                    || (e.range.start < t.range.end && t.range.start < e.range.end)
+            })
+        });
+        if overlaps {
+            continue;
+        }
+        taken.extend(edits);
+        fixed.push(d.clone());
+    }
+    taken.sort_by_key(|e| (e.range.start.line, e.range.start.character));
+    (taken, fixed)
+}
+
+/// `source.fixAll`: one action that applies the first fix of every finding
+/// in the file that has one — what an editor runs on save when asked to.
+pub fn source_fix_all_action(uri: &Url, all: &[Diagnostic]) -> Option<CodeActionOrCommand> {
+    let (taken, fixed) = joined_fixes(all.iter());
+    if fixed.is_empty() {
+        return None;
+    }
+    let mut changes = HashMap::new();
+    changes.insert(uri.clone(), taken);
+    Some(CodeActionOrCommand::CodeAction(CodeAction {
+        title: format!(
+            "Fix every finding in this file that has a fix ({})",
+            fixed.len()
+        ),
+        kind: Some(CodeActionKind::SOURCE_FIX_ALL),
+        diagnostics: Some(fixed),
+        edit: Some(WorkspaceEdit {
+            changes: Some(changes),
+            document_changes: None,
+            change_annotations: None,
+        }),
+        is_preferred: None,
+        disabled: None,
+        data: None,
+        command: None,
+    }))
 }
 
 /// For each family of the findings in the request that has others in the
@@ -78,32 +156,13 @@ pub fn fix_all_actions(
             continue;
         }
         seen.push(code.clone());
-        let family: Vec<&Diagnostic> = all
-            .iter()
-            .filter(|d| code_of(d).as_deref() == Some(code.as_str()))
-            .collect();
-        let mut taken: Vec<TextEdit> = Vec::new();
-        let mut fixed = Vec::new();
-        for d in family {
-            let Some(edits) = first_fix(d) else {
-                continue;
-            };
-            let overlaps = edits.iter().any(|e| {
-                taken.iter().any(|t| {
-                    e.range.start == t.range.start
-                        || (e.range.start < t.range.end && t.range.start < e.range.end)
-                })
-            });
-            if overlaps {
-                continue;
-            }
-            taken.extend(edits);
-            fixed.push(d.clone());
-        }
+        let (taken, fixed) = joined_fixes(
+            all.iter()
+                .filter(|d| code_of(d).as_deref() == Some(code.as_str())),
+        );
         if fixed.len() < 2 {
             continue;
         }
-        taken.sort_by_key(|e| (e.range.start.line, e.range.start.character));
         let mut changes = HashMap::new();
         changes.insert(uri.clone(), taken);
         actions.push(CodeActionOrCommand::CodeAction(CodeAction {
@@ -464,6 +523,8 @@ fn type_text(ty: &Type) -> String {
         Type::List(inner) => format!("[{}]", type_text(inner)),
         Type::Optional(inner) => format!("{}?", type_text(inner)),
         Type::Record(name) | Type::Enum(name) => name.clone(),
+        // `Date`, `Money`, `Url`: the language's own types, by name.
+        Type::Scalar(scalar) => scalar.name().to_string(),
         Type::Map | Type::Shape(_) => "Map".to_string(),
         _ => "Any".to_string(),
     }

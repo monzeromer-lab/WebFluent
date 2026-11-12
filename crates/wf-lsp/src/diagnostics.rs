@@ -117,7 +117,9 @@ pub fn project_diagnostics_via(
                 })
             })
             .collect();
-        out[ix].push(to_lsp(&finding, &file.source, &file.index, related));
+        let mut diagnostic = to_lsp(&finding, &file.source, &file.index, related);
+        diagnostic.data = project_fixes(project, &by_label, ix, &finding);
+        out[ix].push(diagnostic);
     }
 
     for diagnostics in &mut out {
@@ -215,6 +217,59 @@ fn fixes(finding: &WfDiagnostic, source: &str, index: &LineIndex) -> Option<serd
                 })
                 .collect();
             serde_json::json!({ "title": fix.title, "edits": edits })
+        })
+        .collect();
+    (!fixes.is_empty()).then_some(serde_json::Value::Array(fixes))
+}
+
+/// A finding's fixes with every file they touch: this document's edits as
+/// `edits`, and another file's — `_` marked on a component's declaration
+/// in its own file — under `changes`, by the file's URI, so the code action
+/// applies them all as one workspace edit. A fix that touches a file the
+/// project does not hold is left out: half of it would be wrong.
+fn project_fixes(
+    project: &Project,
+    by_label: &HashMap<&str, usize>,
+    ix: usize,
+    finding: &WfDiagnostic,
+) -> Option<serde_json::Value> {
+    let fixes: Vec<serde_json::Value> = finding
+        .fixes
+        .iter()
+        .filter_map(|fix| {
+            let mut here: Vec<TextEdit> = Vec::new();
+            let mut elsewhere: HashMap<String, Vec<TextEdit>> = HashMap::new();
+            for e in &fix.edits {
+                let target = if e.file == finding.file {
+                    ix
+                } else {
+                    *by_label.get(e.file.as_str())?
+                };
+                let file = &project.files[target];
+                let (source, index) = (&file.source, &file.index);
+                let start = index.line_col_to_offset(source, e.line, e.column)?;
+                let end = index.line_col_to_offset(source, e.end_line, e.end_column)?;
+                let edit = TextEdit {
+                    range: Range::new(
+                        index.offset_to_position(source, start),
+                        index.offset_to_position(source, end),
+                    ),
+                    new_text: e.text.clone(),
+                };
+                if target == ix {
+                    here.push(edit);
+                } else {
+                    elsewhere
+                        .entry(file.uri.to_string())
+                        .or_default()
+                        .push(edit);
+                }
+            }
+            let mut fix_json = serde_json::json!({ "title": fix.title, "edits": here });
+            if !elsewhere.is_empty() {
+                fix_json["changes"] = serde_json::json!(elsewhere);
+            }
+            Some(fix_json)
         })
         .collect();
     (!fixes.is_empty()).then_some(serde_json::Value::Array(fixes))

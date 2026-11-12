@@ -62,11 +62,16 @@ pub fn definition_at(
         && !after.starts_with("::")
         && (before.ends_with('{') || before.ends_with(',') || before.ends_with('('))
     {
-        // …unless it is a field of a record being built: `User(name: "Ada")`.
+        // …unless it is a prop of a component called (`UserCard(title: x)`,
+        // or the prop's own declaration in `component UserCard(title: …)`),
+        // or a field of a record being built: `User(name: "Ada")`.
         return callee_of(source, range.start).and_then(|callee| {
-            field_location(project, &webfluent::sema::types::Type::Record(callee), word)
+            prop_location(project, &callee, word).or_else(|| {
+                field_location(project, &webfluent::sema::types::Type::Record(callee), word)
+            })
         });
     }
+    let word_before = word_before(source, range.start);
 
     if let Some(decl_ix) = analysis::declaration_at(project, file_ix, offset) {
         let decl = &project.program.declarations[decl_ix];
@@ -80,7 +85,41 @@ pub fn definition_at(
             return declaration_location(project, word, Kind::Component);
         }
 
+        // `event toggle(…)` and `emit toggle(…)` in a component, and the
+        // `slot trailing` it declares or places: what the component declares.
+        if let Declaration::Component(c) = decl {
+            if matches!(word_before, "event" | "emit")
+                && let Some(e) = c.events.iter().find(|e| e.name == word)
+            {
+                return Some(location(project, project.decl_file[decl_ix], e.span).into());
+            }
+            if let Some(slot) = c.slots.iter().find(|s| s.name.as_deref() == Some(word))
+                && !analysis::scope_at(decl, offset)
+                    .iter()
+                    .any(|b| b.name == word)
+            {
+                return Some(location(project, project.decl_file[decl_ix], slot.span).into());
+            }
+        }
+
         if let Some(el) = analysis::element_at(analysis::body_of(decl), offset) {
+            // `on toggle { … }` on a call of a component that declares the
+            // event, and `trailing { … }`, a fill of a slot it declares.
+            if let ComponentRef::UserDefined(name) = &el.component {
+                if word_before == "on"
+                    && let Some(found) = event_location(project, name, word)
+                {
+                    return Some(found);
+                }
+                if el
+                    .slot_fills
+                    .iter()
+                    .any(|f| f.name == word && f.span.start as usize == range.start)
+                    && let Some(found) = slot_location(project, name, word)
+                {
+                    return Some(found);
+                }
+            }
             if let Some(ElementPart::Name) = analysis::element_part_at(el, source, offset) {
                 return match &el.component {
                     ComponentRef::UserDefined(name) => {
@@ -185,6 +224,13 @@ pub fn definition_at(
         {
             return match binding.kind {
                 analysis::BindingKind::Store => declaration_location(project, word, Kind::Store),
+                // A prop: where the header declares it, the place a named
+                // argument of a call resolves to as well.
+                analysis::BindingKind::Prop => match decl {
+                    Declaration::Component(c) => prop_location(project, &c.name, word),
+                    _ => None,
+                }
+                .or_else(|| Some(location(project, file_ix, binding_span(&binding)).into())),
                 _ => Some(location(project, file_ix, binding_span(&binding)).into()),
             };
         }
@@ -240,8 +286,60 @@ fn endpoint_location(project: &Project, api: &str, name: &str) -> Option<GotoDef
         })
 }
 
+/// The word written just before `at`, past white space: `on` for
+/// `on toggle`, `emit` for `emit toggle(…)`.
+fn word_before(source: &str, at: usize) -> &str {
+    let before = source[..at].trim_end();
+    let start = before
+        .char_indices()
+        .rev()
+        .take_while(|(_, c)| c.is_alphanumeric() || *c == '_')
+        .last()
+        .map_or(before.len(), |(i, _)| i);
+    &before[start..]
+}
+
+/// The user component called `name` (`UserCard`, or a part `Panel.Header`),
+/// with its index in the program.
+fn component_named<'a>(project: &'a Project, name: &str) -> Option<(usize, &'a ComponentDecl)> {
+    project
+        .program
+        .declarations
+        .iter()
+        .enumerate()
+        .find_map(|(ix, d)| match d {
+            Declaration::Component(c) if c.name == name => Some((ix, c)),
+            _ => None,
+        })
+}
+
+/// The prop `prop` of the component `component`, where its header declares it.
+fn prop_location(project: &Project, component: &str, prop: &str) -> Option<GotoDefinitionResponse> {
+    let (ix, c) = component_named(project, component)?;
+    let p = c.props.iter().find(|p| p.name == prop)?;
+    Some(location(project, project.decl_file[ix], p.span).into())
+}
+
+/// The event `event` the component `component` declares.
+fn event_location(
+    project: &Project,
+    component: &str,
+    event: &str,
+) -> Option<GotoDefinitionResponse> {
+    let (ix, c) = component_named(project, component)?;
+    let e = c.events.iter().find(|e| e.name == event)?;
+    Some(location(project, project.decl_file[ix], e.span).into())
+}
+
+/// The named slot `slot` the component `component` declares.
+fn slot_location(project: &Project, component: &str, slot: &str) -> Option<GotoDefinitionResponse> {
+    let (ix, c) = component_named(project, component)?;
+    let s = c.slots.iter().find(|s| s.name.as_deref() == Some(slot))?;
+    Some(location(project, project.decl_file[ix], s.span).into())
+}
+
 /// The name called by the parenthesis the argument at `at` is inside:
-/// `User` for `User(id: "1", name‸: …)`.
+/// `User` for `User(id: "1", name‸: …)`, `Panel.Header` for a part.
 fn callee_of(source: &str, at: usize) -> Option<String> {
     let bytes = source.as_bytes();
     let mut depth = 0usize;
@@ -260,7 +358,25 @@ fn callee_of(source: &str, at: usize) -> Option<String> {
                     .chars()
                     .rev()
                     .collect();
-                return (!name.is_empty()).then_some(name);
+                if name.is_empty() {
+                    return None;
+                }
+                // `Owner.Part(`: the part, by its whole name.
+                let before = &source[..i - name.len()];
+                if let Some(owner_end) = before.strip_suffix('.') {
+                    let owner: String = owner_end
+                        .chars()
+                        .rev()
+                        .take_while(|c| c.is_alphanumeric() || *c == '_')
+                        .collect::<String>()
+                        .chars()
+                        .rev()
+                        .collect();
+                    if owner.starts_with(char::is_uppercase) {
+                        return Some(format!("{owner}.{name}"));
+                    }
+                }
+                return Some(name);
             }
             b'(' | b'[' | b'{' => depth -= 1,
             _ => {}

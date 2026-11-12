@@ -51,12 +51,270 @@ pub const PAGE_ATTRIBUTES: &[ArgDoc] = &[
     arg("redirect", "Where to send the visitor when the guard fails"),
 ];
 
-/// The options `fetch(url, …)` takes in a `resource`.
+/// The options `fetch(url, …)` takes, in a `resource` or after `await`.
 pub const RESOURCE_OPTIONS: &[ArgDoc] = &[
     arg("method", "HTTP method, e.g. `\"POST\"`"),
     arg("headers", "Map of request headers; quote hyphenated keys"),
     arg("body", "Request body, sent as JSON"),
+    arg(
+        "on",
+        "When a resource asks again: `.focus`, `.reconnect` or `.interval(30.seconds)`. Asking again is a refresh — the data stays on the page while it runs",
+    ),
+    arg(
+        "cache",
+        "How long an answer stands: `.swr(60.seconds)` (served, then revalidated), `.none`, `.forever`",
+    ),
+    arg(
+        "paginate",
+        "`paginate: .page` — the resource gathers the pages as `.items`, with `.loadMore()` and `.hasMore`",
+    ),
 ];
+
+/// What a call of a service's endpoint (`Backend.users(…)`) takes beside the
+/// endpoint's own parameters.
+pub const ENDPOINT_CALL_OPTIONS: &[ArgDoc] = &[
+    arg(
+        "cache",
+        "How long an answer stands: `.swr(60.seconds)`, `.none`, `.forever` — keyed by method, address and body",
+    ),
+    arg(
+        "on",
+        "When a resource over it asks again: `.focus`, `.reconnect` or `.interval(30.seconds)`",
+    ),
+    arg(
+        "paginate",
+        "`paginate: .page` — `.items` gathers the pages; `.loadMore()` and `.hasMore`",
+    ),
+    arg(
+        "as",
+        "How the response is read: JSON by default, or `.text`, `.blob`, `.arrayBuffer`",
+    ),
+    arg(
+        "errorAs",
+        "How an error's body is read: `.text`, `.blob`, `.arrayBuffer`, JSON by default",
+    ),
+    arg(
+        "fileField",
+        "The form field a `File` parameter is sent as, when it is not the parameter's name",
+    ),
+];
+
+/// A case an option takes: its name, the text it inserts, what it does.
+pub type OptionCase = (&'static str, &'static str, &'static str);
+
+/// The cases an option of a request takes after `name: .`, each with the
+/// text it inserts and what it does.
+pub const OPTION_CASES: &[(&str, &[OptionCase])] = &[
+    (
+        "on",
+        &[
+            ("focus", "focus", "Ask again when the window regains focus"),
+            (
+                "reconnect",
+                "reconnect",
+                "Ask again when the network comes back",
+            ),
+            (
+                "interval",
+                "interval(${1:30}.seconds)",
+                "Ask again every so often",
+            ),
+        ],
+    ),
+    (
+        "cache",
+        &[
+            (
+                "swr",
+                "swr(${1:60}.seconds)",
+                "Serve what is held, and revalidate it once it is older than this",
+            ),
+            ("none", "none", "Hold nothing; every call asks the network"),
+            ("forever", "forever", "Hold the first answer for good"),
+        ],
+    ),
+    (
+        "paginate",
+        &[(
+            "page",
+            "page",
+            "By the `page` argument: `.loadMore()` asks for the next one",
+        )],
+    ),
+    (
+        "as",
+        &[
+            ("text", "text", "The body as text"),
+            ("blob", "blob", "The body as a `Blob`"),
+            ("arrayBuffer", "arrayBuffer", "The body as an `ArrayBuffer`"),
+        ],
+    ),
+    (
+        "errorAs",
+        &[
+            ("text", "text", "An error's body as text"),
+            ("blob", "blob", "An error's body as a `Blob`"),
+            (
+                "arrayBuffer",
+                "arrayBuffer",
+                "An error's body as an `ArrayBuffer`",
+            ),
+        ],
+    ),
+    (
+        "type",
+        &[(
+            "module",
+            "module",
+            "A module worker: the script may `import`",
+        )],
+    ),
+];
+
+/// The options each function that opens a connection takes: `ws("wss://…",
+/// protocols: […])`.
+pub const CONNECTION_OPTIONS: &[(&str, &[ArgDoc])] = &[
+    (
+        "ws",
+        &[
+            arg("protocols", "The subprotocols to offer: `[\"v2\"]`"),
+            arg(
+                "heartbeat",
+                "How often to ping, to keep the socket alive: `20.seconds`",
+            ),
+            arg(
+                "keep",
+                "How many messages `.messages` holds (the newest; 500 unset)",
+            ),
+            arg(
+                "reconnect",
+                "`false` to stay closed when the socket drops; it reconnects with backoff otherwise",
+            ),
+        ],
+    ),
+    (
+        "sse",
+        &[
+            arg(
+                "events",
+                "The named events to hear beside `message`: `[\"price\", \"status\"]`",
+            ),
+            arg(
+                "keep",
+                "How many messages `.messages` holds (the newest; 500 unset)",
+            ),
+            arg("credentials", "`true` to send the site's cookies"),
+        ],
+    ),
+    (
+        "broadcast",
+        &[arg(
+            "keep",
+            "How many messages `.messages` holds (the newest; 500 unset)",
+        )],
+    ),
+    (
+        "rtc",
+        &[
+            arg(
+                "signal",
+                "Where what the other side must hear goes: `m => lobby.post(m)`; what it sent back is handed to `link.signal(m)`",
+            ),
+            arg(
+                "initiator",
+                "Whether this side makes the offer; exactly one side does",
+            ),
+            arg(
+                "ice",
+                "The servers that help two readers on different networks find each other: `[{ urls: \"stun:…\" }]`",
+            ),
+            arg(
+                "keep",
+                "How many messages `.messages` holds (the newest; 500 unset)",
+            ),
+        ],
+    ),
+    (
+        "spawn",
+        &[
+            arg(
+                "restart",
+                "How many times a worker that crashed is started again before it is `error`",
+            ),
+            arg(
+                "timeout",
+                "How long a `.request` may wait for its answer, in ms (10 s unset)",
+            ),
+            arg("type", "`.module` for a module worker"),
+        ],
+    ),
+];
+
+/// The events a connection's block may handle, by the word it is declared
+/// with — what the runtime calls (`onMessage`, `onRestart`, …).
+pub const CONNECTION_EVENTS: &[(&str, &[(&str, &str)])] = &[
+    (
+        "socket",
+        &[
+            ("message", "A message arrived, read as the `receive` type"),
+            ("open", "The socket opened, or opened again"),
+        ],
+    ),
+    ("stream", &[("message", "An event arrived")]),
+    (
+        "channel",
+        &[
+            ("message", "Another tab posted a value"),
+            ("open", "The channel is joined"),
+        ],
+    ),
+    (
+        "peer",
+        &[
+            ("message", "The other side sent a value"),
+            ("open", "The data channel opened"),
+        ],
+    ),
+    (
+        "worker",
+        &[
+            (
+                "message",
+                "The worker posted something with no `id`: not an answer to a request",
+            ),
+            (
+                "restart",
+                "The worker crashed and is started again; what was out failed",
+            ),
+            (
+                "error",
+                "The worker crashed past its `restart:` count, and stopped",
+            ),
+        ],
+    ),
+];
+
+/// What each event a page, a component or the app may handle outside any
+/// element is: the document's keys, and what only the window says.
+pub fn page_event_doc(name: &str) -> &'static str {
+    match name {
+        "key" => "One key combination, on the document: `on key(\"mod+k\") { … }`",
+        "keydown" => "A key went down anywhere on the page",
+        "keyup" => "A key came up anywhere on the page",
+        "resize" => "The window changed size",
+        "scroll" => "The window scrolled",
+        "hashchange" => "The address's `#fragment` changed",
+        "popstate" => "The reader went back or forward",
+        "online" => "The connection came back",
+        "offline" => "The connection went away",
+        "message" => "Another window or frame posted a message to this one",
+        "storage" => "Another tab changed the site's storage",
+        "visibilitychange" => "The page was hidden or shown",
+        "blur" => "The window lost focus",
+        "focus" => "The window gained focus",
+        _ => "An event of the window or the document",
+    }
+}
 
 pub struct KeywordDoc {
     pub name: &'static str,
@@ -77,6 +335,8 @@ pub enum Place {
     Test,
     /// Inside an expression, never at a statement's start.
     Expression,
+    /// A `sequence { }` body.
+    Sequence,
     Style,
 }
 
@@ -212,6 +472,12 @@ pub const KEYWORDS: &[KeywordDoc] = &[
         summary: "Starts a group of elements on a clock. `after:` is measured from the step before it, and is written onto the step's elements as a `delay:`.",
         example: "sequence {\n    step { Heading(\"Welcome\").h1.fadeIn }\n    step(after: \"120ms\") { Text(\"What we do.\").slideUp }\n}",
         place: Place::Body,
+    },
+    KeywordDoc {
+        name: "step",
+        summary: "One step of a `sequence`: its elements start `after:` the step before it starts (at once without one).",
+        example: "step(after: \"120ms\") { Text(\"What we do.\").slideUp }",
+        place: Place::Sequence,
     },
     KeywordDoc {
         name: "let",
@@ -364,6 +630,12 @@ pub const KEYWORDS: &[KeywordDoc] = &[
         place: Place::Body,
     },
     KeywordDoc {
+        name: "worker",
+        summary: "A script of `public/` run beside the page, held like a socket: `.request(method, params)` is a promise of its answer, `.send(v)` posts and expects nothing, `on message` hears what it posts unasked. A crash fails what was out and starts it again `restart:` times.",
+        example: "worker css = spawn(\"/workers/css.js\", restart: 1, timeout: 5000) {\n    on message(m) { problems = m.items }\n}",
+        place: Place::Body,
+    },
+    KeywordDoc {
         name: "every",
         summary: "A timer: the block runs every so many milliseconds, and stops when its page, branch or list item leaves.",
         example: "every(1000) { tick = tick + 1 }",
@@ -394,6 +666,18 @@ pub const KEYWORDS: &[KeywordDoc] = &[
         place: Place::Imperative,
     },
     KeywordDoc {
+        name: "catch",
+        summary: "What a `try` does when its block throws: the block runs with what was thrown, bound to the name written after `catch`.",
+        example: "try {\n    await Backend.sync()\n} catch e {\n    error = e.message\n}",
+        place: Place::Imperative,
+    },
+    KeywordDoc {
+        name: "cleanup",
+        summary: "Closes an `effect`'s body: run before the effect runs again, and when its page, branch or item leaves.",
+        example: "effect {\n    let stop = watch(count)\n    cleanup { stop() }\n}",
+        place: Place::Imperative,
+    },
+    KeywordDoc {
         name: "expect",
         summary: "What the page under test must show — or, with `not`, must not.",
         example: "expect \"3 open\"\nexpect not \"Error\"",
@@ -419,8 +703,42 @@ pub const KEYWORDS: &[KeywordDoc] = &[
     },
 ];
 
+/// The entry for a keyword. A word with two meanings (`type`, which
+/// declares a record at the top level and types into a field in a test) has
+/// its top-level meaning here; [`keyword_in_test`] reads a test's.
 pub fn keyword(name: &str) -> Option<&'static KeywordDoc> {
-    KEYWORDS.iter().find(|k| k.name == name)
+    KEYWORDS
+        .iter()
+        .find(|k| k.name == name && k.place != Place::Test)
+        .or_else(|| KEYWORDS.iter().find(|k| k.name == name))
+}
+
+/// The entry for a keyword written in a `test "…" { }` body, where a step
+/// (`type "Ada" into "Name"`) wins over a word's other meaning.
+pub fn keyword_in_test(name: &str) -> Option<&'static KeywordDoc> {
+    KEYWORDS
+        .iter()
+        .find(|k| k.name == name && k.place == Place::Test)
+        .or_else(|| keyword(name))
+}
+
+/// The words that are keywords only where a block makes them one: `step`
+/// in a `sequence`, `cleanup` at the end of an `effect`, `catch` after a
+/// `try` — a program may name a value any of them.
+pub const CONTEXTUAL_KEYWORDS: &[&str] = &["step", "cleanup", "catch"];
+
+/// Whether a word is one of the language's keywords: every word the
+/// parser's tables name, and the ones this reference documents.
+pub fn is_keyword(word: &str) -> bool {
+    use webfluent::syntax::parser::v2 as p;
+    // A word only a block makes a keyword is a name anywhere else.
+    if CONTEXTUAL_KEYWORDS.contains(&word) {
+        return false;
+    }
+    KEYWORDS.iter().any(|k| k.name == word)
+        || p::DECLARATION_WORDS.contains(&word)
+        || p::BODY_KEYWORDS.contains(&word)
+        || p::IMPERATIVE_KEYWORDS.contains(&word)
 }
 
 /// The nested selectors a style block takes, and what each one matches.
@@ -453,8 +771,56 @@ pub fn events() -> &'static [(&'static str, &'static str)] {
     webfluent::registry::UNIVERSAL_EVENTS
 }
 
-/// The baseline design tokens every theme starts from.
-pub const TOKENS: &[(&str, &str)] = &[
+/// The baseline design tokens every theme starts from — the compiler's own
+/// table (`themes::tokens::default_tokens`), so a token it adds is offered
+/// and one it drops is not — each with what it is for and its value.
+pub fn tokens() -> &'static [(String, String)] {
+    static TOKENS: std::sync::OnceLock<Vec<(String, String)>> = std::sync::OnceLock::new();
+    TOKENS.get_or_init(|| {
+        let mut all: Vec<(String, String)> = webfluent::themes::tokens::default_tokens()
+            .into_iter()
+            .map(|(name, value)| {
+                let doc = TOKEN_DOCS
+                    .iter()
+                    .find(|(n, _)| *n == name)
+                    .map(|(_, d)| *d)
+                    .unwrap_or_else(|| token_group_doc(&name));
+                (name, format!("{doc} — `{value}`"))
+            })
+            .collect();
+        all.sort();
+        all
+    })
+}
+
+/// What a baseline token this server has no words of its own for is, by
+/// the group its name begins with.
+fn token_group_doc(name: &str) -> &'static str {
+    let groups: &[(&str, &str)] = &[
+        (
+            "screen-",
+            "Breakpoint: the width a responsive step starts at",
+        ),
+        ("ease-", "Easing, as `easing:` names it"),
+        ("animation-duration-", "Animation duration"),
+        ("syntax-", "Code highlighting colour"),
+        ("term-", "Terminal colour"),
+        ("color-", "Colour"),
+        ("font-", "Typography"),
+        ("line-height-", "Line height"),
+        ("spacing-", "Spacing step"),
+        ("radius-", "Border radius"),
+        ("shadow-", "Shadow"),
+        ("transition-", "Transition duration"),
+    ];
+    groups
+        .iter()
+        .find(|(prefix, _)| name.starts_with(prefix))
+        .map_or("Design token", |(_, doc)| *doc)
+}
+
+/// What the common baseline tokens are for, in this server's words.
+const TOKEN_DOCS: &[(&str, &str)] = &[
     ("color-primary", "Primary brand colour"),
     ("color-secondary", "Secondary colour"),
     ("color-success", "Success colour"),
@@ -502,6 +868,10 @@ pub const TOKENS: &[(&str, &str)] = &[
     ("transition-fast", "Transition duration"),
     ("transition-normal", "Transition duration"),
     ("transition-slow", "Transition duration"),
+    (
+        "wf-header-height",
+        "The height of the app's header, which a sticky offset reads",
+    ),
 ];
 
 /// The built-in icon names `Icon(…)`, `icon:` and `Sidebar.Item(icon:)` take:
@@ -747,6 +1117,46 @@ pub const BUILTINS: &[(&str, &str, &str)] = &[
         "update.available",
         "A new version of an offline site: `.available`, and `.apply()` to take it and reload once.",
     ),
+    (
+        "env",
+        "env.PUBLIC_API",
+        "The build's settings: the config's `env`, the shell's variables and `.env`, fixed at build time. A page may read only a name that begins `PUBLIC_` or that `public_env` lists.",
+    ),
+    (
+        "params",
+        "params.id",
+        "The route's parameters, by name: `/user/:id` is `params.id`.",
+    ),
+    (
+        "locale",
+        "locale",
+        "The reader's language, which `setLocale` changes.",
+    ),
+    (
+        "dir",
+        "dir",
+        "The direction of the reader's language: `\"ltr\"` or `\"rtl\"`.",
+    ),
+    (
+        "spawn",
+        "spawn(\"/workers/css.js\", restart: 1, timeout: 5000)",
+        "Starts a script of `public/` as a Web Worker, for a `worker`.",
+    ),
+];
+
+/// The values the language means by a name of its own besides the browser's
+/// (`viewport`, `query`, …): the build's settings and the route's and the
+/// reader's. A test holds each to the compiler's `language_name`.
+pub const LANGUAGE_VALUES: &[&str] = &["env", "params", "locale", "dir"];
+
+/// What opens each kind of connection: `worker css = spawn(…)`. Offered
+/// after the `=` of a declaration of that kind, and nowhere else.
+pub const CONNECTION_OPENERS: &[(&str, &str)] = &[
+    ("socket", "ws"),
+    ("stream", "sse"),
+    ("channel", "broadcast"),
+    ("peer", "rtc"),
+    ("worker", "spawn"),
 ];
 
 /// The entry for a built-in function or browser value.

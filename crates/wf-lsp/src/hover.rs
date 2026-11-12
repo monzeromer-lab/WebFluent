@@ -240,10 +240,22 @@ fn hover_text(
     if let Some(decl) = find_declaration(project, word) {
         return Some(declaration_doc(project, decl));
     }
+    if let Some(doc) = scalar_hover(word) {
+        return Some(doc);
+    }
     if let Some(doc) = builtin_hover(word) {
         return Some(doc);
     }
-    if let Some(keyword) = reference::keyword(word) {
+    // A word with a meaning of its own in a test (`type "Ada" into "Name"`)
+    // has that one there.
+    let in_test = analysis::declaration_at(project, file_ix, offset)
+        .is_some_and(|ix| matches!(project.program.declarations[ix], Declaration::Test(_)));
+    let keyword = if in_test {
+        reference::keyword_in_test(word)
+    } else {
+        reference::keyword(word)
+    };
+    if let Some(keyword) = keyword {
         return Some(format!(
             "**{}**\n\n{}\n\n```wf\n{}\n```",
             keyword.name, keyword.summary, keyword.example
@@ -281,6 +293,55 @@ fn builtin_hover(name: &str) -> Option<String> {
             out.push_str(&format!(": {}", members.join(", ")));
         }
         out.push('.');
+    }
+    Some(out)
+}
+
+/// A type the language brings (`Date`, `Money`, `Secret`, …): what carries
+/// it at run time, how it is written, and what it can do — the members the
+/// checker gives a value of it, so the list cannot fall behind.
+fn scalar_hover(name: &str) -> Option<String> {
+    use webfluent::sema::types::{self as types, Scalar};
+    let scalar = Scalar::of_name(name)?;
+    let (carried, written) = match scalar {
+        Scalar::Date => ("`\"2026-03-14\"`", "`@2026-03-14`"),
+        Scalar::Time => ("`\"09:30\"`", "`@09:30`"),
+        Scalar::DateTime => ("an ISO 8601 string", "`@2026-03-14T09:30Z`"),
+        Scalar::Duration => ("milliseconds", "`3.days`, `90.minutes`, `250.ms`"),
+        Scalar::Money => (
+            "`{ amount: 1299, currency: \"EUR\" }`, in minor units",
+            "`€12.99`, `$9.99`",
+        ),
+        Scalar::Url => ("a string", "`\"https://example.com\"`"),
+        Scalar::Email => ("a string", "`\"ada@example.com\"`"),
+        Scalar::Color => ("a string", "`#0F766E`"),
+        Scalar::Uuid => ("a string", "`uuid()` makes one"),
+        Scalar::File => ("the browser's `File`", "what `FileUpload` yields"),
+        Scalar::Secret => ("a string", "never written: it arrives"),
+    };
+    let mut out = format!(
+        "**{name}** — a type the language brings\n\nCarried by {carried} at run time — a plain JSON value; written {written}."
+    );
+    if scalar == Scalar::Secret {
+        out.push_str("\n\nIt may not be shown, logged, persisted or put in text (`T12`).");
+        return Some(out);
+    }
+    let members = types::members(&Type::Scalar(scalar));
+    let methods: Vec<String> = members
+        .iter()
+        .filter(|m| m.method)
+        .map(|m| format!("`.{}()`", m.name))
+        .collect();
+    let fields: Vec<String> = members
+        .iter()
+        .filter(|m| !m.method)
+        .map(|m| format!("`.{}`", m.name))
+        .collect();
+    if !methods.is_empty() {
+        out.push_str(&format!("\n\nMethods: {}.", methods.join(", ")));
+    }
+    if !fields.is_empty() {
+        out.push_str(&format!("\n\nFields: {}.", fields.join(", ")));
     }
     Some(out)
 }
@@ -490,23 +551,10 @@ fn signature(reference: &ComponentRef) -> Option<&'static ComponentSig> {
     }
 }
 
+/// A type as it is written: the compiler's own printer, so a condition
+/// reads as it was written (`Number(1..=30)`).
 pub fn type_name(ty: &TypeRef) -> String {
-    match ty {
-        TypeRef::String => "String".into(),
-        TypeRef::Number => "Number".into(),
-        TypeRef::Bool => "Bool".into(),
-        TypeRef::Map => "Map".into(),
-        TypeRef::Any => "Any".into(),
-        TypeRef::List(inner) => format!("[{}]", type_name(inner)),
-        TypeRef::Optional(inner) => format!("{}?", type_name(inner)),
-        TypeRef::Named(name) => name.clone(),
-        // The condition reads as it was written: `Number(min: 0, max: 100)`.
-        TypeRef::Refined(inner, args) => {
-            let said: Vec<String> = args.iter().map(|(n, _)| n.clone()).collect();
-            format!("{}({})", type_name(inner), said.join(", "))
-        }
-        _ => "Any".into(),
-    }
+    webfluent::syntax::print::type_ref(ty)
 }
 
 fn component_doc(project: &Project, reference: &ComponentRef) -> String {
@@ -1210,12 +1258,12 @@ fn design_token_doc(project: &Project, name: &str) -> String {
             return token_doc(t, token);
         }
     }
-    if let Some((_, doc)) = reference::TOKENS.iter().find(|(n, _)| *n == name) {
+    if let Some((_, doc)) = reference::tokens().iter().find(|(n, _)| n == name) {
         return format!(
             "**${name}** — baseline design token\n\n{doc}. Compiles to `var(--{name})`; a theme may override it."
         );
     }
-    let group_hint = reference::TOKENS
+    let group_hint = reference::tokens()
         .iter()
         .filter(|(n, _)| n.ends_with(&format!("-{name}")))
         .map(|(n, _)| format!("`${n}`"))

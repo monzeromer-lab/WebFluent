@@ -983,8 +983,10 @@ fn keywords_are_offered_where_they_may_be_written() {
         "component C {\n    Text(\"a\")\n}\n",
         "component C {\n    ‸\n}\n",
     );
-    offers(&comp, &["slot", "part", "event", "emit", "children"]);
-    assert!(!comp.contains(&"head".to_string()));
+    offers(&comp, &["slot", "part", "event", "children"]);
+    // `emit` is a statement of a handler or an action, which the parser
+    // refuses loose in a body.
+    assert!(!comp.contains(&"head".to_string()) && !comp.contains(&"emit".to_string()));
     let action = in_page(
         "    action a() {\n        log(1)\n    }",
         "    action a() {\n        ‸\n    }",

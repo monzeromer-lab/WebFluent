@@ -18,7 +18,9 @@ use tower_lsp::lsp_types::*;
 use tower_lsp::{Client, LanguageServer};
 use webfluent::syntax::parser::Program;
 
-use crate::code_actions::{extract_component_action, fix_all_actions, provide_code_actions};
+use crate::code_actions::{
+    extract_component_action, fix_all_actions, provide_code_actions, source_fix_all_action,
+};
 use crate::completion::provide_completions;
 use crate::definition::find_definition;
 use crate::diagnostics::project_diagnostics;
@@ -195,6 +197,8 @@ impl LanguageServer for Backend {
                         ".".to_string(),
                         ":".to_string(),
                         "(".to_string(),
+                        // `$` opens a design token.
+                        "$".to_string(),
                     ]),
                     resolve_provider: Some(false),
                     ..Default::default()
@@ -206,6 +210,7 @@ impl LanguageServer for Backend {
                 references_provider: Some(OneOf::Left(true)),
                 document_highlight_provider: Some(OneOf::Left(true)),
                 document_formatting_provider: Some(OneOf::Left(true)),
+                document_range_formatting_provider: Some(OneOf::Left(true)),
                 folding_range_provider: Some(FoldingRangeProviderCapability::Simple(true)),
                 inlay_hint_provider: Some(OneOf::Left(true)),
                 semantic_tokens_provider: Some(
@@ -231,6 +236,7 @@ impl LanguageServer for Backend {
                     CodeActionOptions {
                         code_action_kinds: Some(vec![
                             CodeActionKind::QUICKFIX,
+                            CodeActionKind::SOURCE_FIX_ALL,
                             CodeActionKind::REFACTOR_EXTRACT,
                         ]),
                         ..Default::default()
@@ -453,6 +459,16 @@ impl LanguageServer for Backend {
         Ok(crate::signature::signature_help(&project, ix, position))
     }
 
+    async fn range_formatting(
+        &self,
+        params: DocumentRangeFormattingParams,
+    ) -> Result<Option<Vec<TextEdit>>> {
+        let Some((project, ix)) = self.locate(&params.text_document.uri) else {
+            return Ok(None);
+        };
+        Ok(crate::formatting::format_range(&project, ix, params.range))
+    }
+
     async fn formatting(&self, params: DocumentFormattingParams) -> Result<Option<Vec<TextEdit>>> {
         let Some((project, ix)) = self.locate(&params.text_document.uri) else {
             return Ok(None);
@@ -491,9 +507,23 @@ impl LanguageServer for Backend {
         let mut actions = provide_code_actions(&uri, params.clone());
         if let Some(all) = self.published.get(&uri) {
             actions.extend(fix_all_actions(&uri, &params.context.diagnostics, &all));
+            actions.extend(source_fix_all_action(&uri, &all));
         }
         if let Some((project, ix)) = self.locate(&uri) {
             actions.extend(extract_component_action(&project, ix, params.range));
+        }
+        // An editor that asks for some kinds only (`source.fixAll` on save)
+        // is given those.
+        if let Some(only) = &params.context.only {
+            actions.retain(|a| match a {
+                CodeActionOrCommand::CodeAction(CodeAction {
+                    kind: Some(kind), ..
+                }) => only.iter().any(|o| {
+                    kind.as_str() == o.as_str()
+                        || kind.as_str().starts_with(&format!("{}.", o.as_str()))
+                }),
+                _ => false,
+            });
         }
         Ok(Some(actions))
     }

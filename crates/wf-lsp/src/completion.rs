@@ -42,7 +42,8 @@ pub fn provide_completions(
     let Some(offset) = file.index.position_to_offset(source, position) else {
         return Vec::new();
     };
-    let tokens = analysis::tokens_of(file).unwrap_or_else(|| tokens_until_error(source));
+    let tokens =
+        analysis::tokens_of(file).unwrap_or_else(|| tokens_until_error(source, &file.name()));
     // Inside `class: "…"`: the classes the project's stylesheets define.
     if crate::classes::in_class_value(&tokens, offset) {
         return crate::classes::completions(project);
@@ -87,7 +88,10 @@ pub fn provide_completions(
     let line_prefix = &source[..offset];
     let line_prefix = &line_prefix[line_prefix.rfind('\n').map_or(0, |i| i + 1)..];
     let typed = line_prefix.trim_end_matches(|c: char| c.is_alphanumeric() || c == '_' || c == '-');
-    let in_style = matches!(enclosing_block(&previous), Some(Block::Style));
+    let in_style = matches!(
+        enclosing_block(&previous),
+        Some(Block::Style | Block::Keyframe)
+    );
 
     // `$` — a design token, wherever it is typed; the lexer refuses a bare
     // `$`, so this reads the text.
@@ -100,8 +104,17 @@ pub fn provide_completions(
 
     match enclosing_block(&previous) {
         Some(Block::Theme) => return theme_body(),
-        Some(Block::Style) => return style_block(project, &previous, offset, &tokens),
+        Some(Block::Style) => return style_block(project, source, &previous, offset, &tokens),
         Some(Block::Transition) => return transition_block(),
+        Some(Block::Animation) => return keyframes(),
+        // A keyframe's declarations: what a style block's are, without the
+        // nested rules and queries a keyframe cannot hold.
+        Some(Block::Keyframe) => {
+            return style_block(project, source, &previous, offset, &tokens)
+                .into_iter()
+                .filter(|i| i.kind != Some(CompletionItemKind::KEYWORD))
+                .collect();
+        }
         None => {}
     }
 
@@ -110,7 +123,7 @@ pub fn provide_completions(
             return stores(project);
         }
         Some(TokenType::Identifier(w)) if w == "on" && statement_start(&previous, 1) => {
-            return events(project, file_ix, anchor);
+            return events(project, file_ix, anchor, &previous);
         }
         Some(TokenType::Identifier(w)) if w == "emit" => {
             return declared_events(project, file_ix, anchor);
@@ -128,6 +141,10 @@ pub fn provide_completions(
     ) && key == "layout"
     {
         return layouts(project);
+    }
+    // `worker css = ‸`: the function that opens that kind of connection.
+    if let Some(items) = connection_opener(&previous) {
+        return items;
     }
 
     let mut items = Vec::new();
@@ -159,6 +176,10 @@ pub fn provide_completions(
         match block_word(&previous).as_deref() {
             Some("persist") => return persist_keys(),
             Some("validate") => return validate_rules(),
+            Some("sequence") => return sequence_steps(),
+            Some(word) if connection_events_of(word).is_some() => {
+                return connection_block(word);
+            }
             _ => {}
         }
         if matches!(decl, Declaration::Api(_)) {
@@ -226,8 +247,8 @@ pub fn provide_completions(
                 items.extend(args(reference::PAGE_ATTRIBUTES, "page attribute"));
                 return items;
             }
-            ParenOwner::Fetch => {
-                items.extend(args(reference::RESOURCE_OPTIONS, "fetch option"));
+            ParenOwner::Fetch | ParenOwner::Opener(_) | ParenOwner::Member(..) => {
+                items.extend(call_options(project, &open, &previous));
                 items.extend(scope_items(&scope));
                 items.extend(top_level_names(project));
                 items.extend(builtin_items());
@@ -252,7 +273,7 @@ pub fn provide_completions(
         && !inside_child_body(innermost.unwrap(), anchor)
         && statement_start(&previous, 0)
     {
-        return match_arms(m, &scope);
+        return match_arms(project, decl_ix, m, &scope);
     }
 
     // Directly inside a component's block: the slots it declares.
@@ -290,6 +311,13 @@ pub fn provide_completions(
             _ => Context::Page,
         }
     };
+    let spot = Spot {
+        context,
+        in_element: in_element_block(&previous),
+        // `cleanup` closes an effect's own body, not a block inside it.
+        in_effect: imperative && block_word(&previous).as_deref() == Some("effect"),
+        after_try: after_try(&previous),
+    };
     if !in_store && !imperative {
         // The element whose block the cursor is in decides what may go
         // there in a deck: slides in a `Presentation`, no slide in a slide.
@@ -300,7 +328,7 @@ pub fn provide_completions(
         items.extend(components_in(project, enclosing));
     }
     items.extend(
-        keywords(context)
+        keywords(spot)
             .into_iter()
             .filter(|k| !paged(project) || !web_only_keyword(&k.label)),
     );
@@ -314,35 +342,81 @@ pub fn provide_completions(
 }
 
 /// The functions the language gives a program and the values it reads from
-/// the browser, with what each does.
+/// the browser, with what each does: every name the compiler's tables hold
+/// (`built_in_functions`, the browser's values, the language's own), with
+/// this server's words for each where it has them.
 fn builtin_items() -> Vec<CompletionItem> {
     let functions = webfluent::sema::types::built_in_functions();
-    reference::BUILTINS
-        .iter()
-        .map(|(name, usage, doc)| {
-            let value = webfluent::codegen::js::BROWSER_VALUES.contains(name);
-            let callable = functions.contains(name) && !value;
-            let insert = match *name {
-                "every" | "after" => format!("{name}(${{1:1000}}) {{\n\t$0\n}}"),
-                _ if callable => format!("{name}($0)"),
-                _ => name.to_string(),
+    let values = webfluent::codegen::js::BROWSER_VALUES;
+    let mut names: Vec<&str> = functions.to_vec();
+    for name in values.iter().chain(reference::LANGUAGE_VALUES) {
+        if !names.contains(name) {
+            names.push(name);
+        }
+    }
+    names
+        .into_iter()
+        .map(|name| {
+            let value = values.contains(&name) || reference::LANGUAGE_VALUES.contains(&name);
+            let callable = functions.contains(&name) && !value;
+            let (usage, doc) = match reference::builtin(name) {
+                Some((_, usage, doc)) => (usage.to_string(), doc.to_string()),
+                None => (
+                    if callable {
+                        format!("{name}(…)")
+                    } else {
+                        name.to_string()
+                    },
+                    webfluent::sema::types::language_name(name).unwrap_or_default(),
+                ),
             };
-            CompletionItem {
-                label: name.to_string(),
-                kind: Some(if callable {
-                    CompletionItemKind::FUNCTION
-                } else {
-                    CompletionItemKind::CONSTANT
-                }),
-                detail: Some(usage.to_string()),
-                documentation: Some(Documentation::String(doc.to_string())),
-                insert_text: Some(insert),
-                insert_text_format: Some(InsertTextFormat::SNIPPET),
-                sort_text: Some(format!("4{name}")),
-                ..Default::default()
-            }
+            builtin_item(name, callable, usage, doc)
         })
         .collect()
+}
+
+fn builtin_item(name: &str, callable: bool, usage: String, doc: String) -> CompletionItem {
+    let insert = match name {
+        "every" | "after" => format!("{name}(${{1:1000}}) {{\n\t$0\n}}"),
+        _ if callable => format!("{name}($0)"),
+        _ => name.to_string(),
+    };
+    CompletionItem {
+        label: name.to_string(),
+        kind: Some(if callable {
+            CompletionItemKind::FUNCTION
+        } else {
+            CompletionItemKind::CONSTANT
+        }),
+        detail: Some(usage),
+        documentation: (!doc.is_empty()).then_some(Documentation::String(doc)),
+        insert_text: Some(insert),
+        insert_text_format: Some(InsertTextFormat::SNIPPET),
+        sort_text: Some(format!("4{name}")),
+        ..Default::default()
+    }
+}
+
+/// After `worker css = `, `socket chat = `: the one function that opens a
+/// connection of that kind.
+fn connection_opener(previous: &[&Token]) -> Option<Vec<CompletionItem>> {
+    let n = previous.len();
+    let at = |back: usize| n.checked_sub(back).map(|i| &previous[i].token_type);
+    let (Some(TokenType::Equals), Some(TokenType::Identifier(_)), Some(TokenType::Identifier(kw))) =
+        (at(1), at(2), at(3))
+    else {
+        return None;
+    };
+    let (_, opener) = reference::CONNECTION_OPENERS
+        .iter()
+        .find(|(word, _)| word == kw)?;
+    let (_, usage, doc) = reference::builtin(opener)?;
+    Some(vec![builtin_item(
+        opener,
+        true,
+        usage.to_string(),
+        doc.to_string(),
+    )])
 }
 
 /// The names the program declares at its top level that a value may read:
@@ -412,11 +486,50 @@ fn script_items(project: &Project) -> Vec<CompletionItem> {
 
 /// Tokens of a source that fails to lex, up to the failure, line by line
 /// so a bad character late in the file does not blind the whole of it.
-fn tokens_until_error(source: &str) -> Vec<Token> {
+///
+/// The file's name picks its layout, as the build's does. An indented
+/// (`.wfx`) file's blocks come from its indentation, which one line alone
+/// does not have: the longest run of whole lines from the top that lexes is
+/// read in its layout, the braces its end implied dropped (the blocks are
+/// still open where the cursor is), and only the lines after it one by one.
+fn tokens_until_error(source: &str, file: &str) -> Vec<Token> {
+    use webfluent::syntax::lexer::LexerV2;
+    let lines: Vec<&str> = source.split_inclusive('\n').collect();
     let mut tokens = Vec::new();
     let mut base = 0;
-    for line in source.split_inclusive('\n') {
-        if let Ok(mut line_tokens) = webfluent::syntax::lexer::LexerV2::new(line, "").tokenize() {
+    let mut first = 0;
+    if file.ends_with(".wfx") {
+        let lexes = |k: usize| {
+            let end: usize = lines[..k].iter().map(|l| l.len()).sum();
+            LexerV2::for_file(&source[..end], file).tokenize().ok()
+        };
+        // The longest prefix of whole lines that lexes.
+        let (mut lo, mut hi) = (0, lines.len());
+        let mut best = Vec::new();
+        while lo < hi {
+            let mid = (lo + hi).div_ceil(2);
+            match lexes(mid) {
+                Some(found) => {
+                    best = found;
+                    lo = mid;
+                }
+                None => hi = mid - 1,
+            }
+        }
+        best.retain(|t| !matches!(t.token_type, TokenType::Eof));
+        // The blocks the end of the prefix closed are open at the cursor.
+        while best
+            .last()
+            .is_some_and(|t| matches!(t.token_type, TokenType::CloseBrace) && t.end == t.offset)
+        {
+            best.pop();
+        }
+        tokens = best;
+        first = lo;
+        base = lines[..lo].iter().map(|l| l.len()).sum();
+    }
+    for line in &lines[first..] {
+        if let Ok(mut line_tokens) = LexerV2::new(line, file).tokenize() {
             line_tokens.retain(|t| !matches!(t.token_type, TokenType::Eof));
             for t in &mut line_tokens {
                 t.offset += base;
@@ -450,17 +563,24 @@ fn statement_start(previous: &[&Token], back: usize) -> bool {
     }
 }
 
-/// Whether `stmt` is an action, a handler, an effect or a timer — whose
-/// body does something, rather than draws something. (Inside an action's
-/// parameter list, the parenthesis decides before this is asked.)
-fn imperative_body(stmt: &Statement, _offset: usize) -> bool {
-    matches!(
-        stmt.kind,
+/// Whether `offset` is in the body of `stmt` that does something rather
+/// than draws something: an action's, a handler's, an effect's or a
+/// timer's, and an `on …` handler of an element or of a connection
+/// (`socket … { on message { ‸ } }`). (Inside an action's parameter list,
+/// the parenthesis decides before this is asked.)
+fn imperative_body(stmt: &Statement, offset: usize) -> bool {
+    let in_handler = |h: &EventHandler| {
+        analysis::contains(h.span, offset.saturating_sub(1)) && h.span.end as usize > offset
+    };
+    match &stmt.kind {
         StatementKind::Action(_)
-            | StatementKind::EventHandler(_)
-            | StatementKind::Effect(_)
-            | StatementKind::Timer(_)
-    )
+        | StatementKind::EventHandler(_)
+        | StatementKind::Effect(_)
+        | StatementKind::Timer(_) => true,
+        StatementKind::UIElement(el) => el.events.iter().any(in_handler),
+        StatementKind::Connection(c) => c.handlers.iter().any(in_handler),
+        _ => false,
+    }
 }
 
 /// Whether `offset` lies inside one of the statement's own blocks.
@@ -471,10 +591,62 @@ fn inside_child_body(stmt: &Statement, offset: usize) -> bool {
     })
 }
 
+/// What a request or a connection takes in its parentheses: `fetch(…)`'s
+/// options; `ws(…)`, `sse(…)`, `rtc(…)`, `spawn(…)`'s; and for
+/// `Backend.users(…)`, the endpoint's parameters and what a call of any
+/// endpoint takes. Those already written are left out.
+fn call_options(project: &Project, owner: &ParenOwner, previous: &[&Token]) -> Vec<CompletionItem> {
+    let items = match owner {
+        ParenOwner::Fetch => args(reference::RESOURCE_OPTIONS, "fetch option"),
+        ParenOwner::Opener(name) => reference::CONNECTION_OPTIONS
+            .iter()
+            .find(|(opener, _)| opener == name)
+            .map(|(_, options)| args(options, &format!("{name} option")))
+            .unwrap_or_default(),
+        ParenOwner::Member(owner, name) => {
+            let Some(endpoint) = api_named(project, owner)
+                .and_then(|api| api.endpoints.iter().find(|e| &e.name == name))
+            else {
+                return Vec::new();
+            };
+            let mut items: Vec<CompletionItem> = endpoint
+                .params
+                .iter()
+                .map(|p| CompletionItem {
+                    label: format!("{}:", p.name),
+                    kind: Some(CompletionItemKind::PROPERTY),
+                    detail: Some(format!(
+                        "{} — parameter of {owner}.{name}",
+                        type_name(&p.prop_type)
+                    )),
+                    insert_text: Some(format!("{}: ", p.name)),
+                    sort_text: Some(format!("0{}", p.name)),
+                    ..Default::default()
+                })
+                .collect();
+            items.extend(
+                args(reference::ENDPOINT_CALL_OPTIONS, "call option")
+                    .into_iter()
+                    .map(|mut item| {
+                        item.sort_text = Some(format!("1{}", item.label));
+                        item
+                    }),
+            );
+            items
+        }
+        _ => Vec::new(),
+    };
+    unwritten(items, previous)
+}
+
 enum ParenOwner {
     Element(String),
     PageHeader,
     Fetch,
+    /// `ws(`, `sse(`, `broadcast(`, `rtc(`, `spawn(`: what opens a connection.
+    Opener(String),
+    /// `owner.name(`: an endpoint of a service, or a method of a value.
+    Member(String, String),
     Call,
     Unknown,
 }
@@ -502,8 +674,17 @@ fn open_paren_owner(previous: &[&Token]) -> Option<ParenOwner> {
                     .checked_sub(3)
                     .and_then(|i| previous.get(i))
                     .map(|t| &t.token_type);
+                let after_dot = matches!(before, Some(TokenType::Dot));
                 return Some(match (name.as_str(), before) {
-                    ("fetch", _) => ParenOwner::Fetch,
+                    ("fetch", _) if !after_dot => ParenOwner::Fetch,
+                    (opener, _)
+                        if !after_dot
+                            && reference::CONNECTION_OPTIONS
+                                .iter()
+                                .any(|(o, _)| *o == opener) =>
+                    {
+                        ParenOwner::Opener(opener.to_string())
+                    }
                     (_, Some(TokenType::Identifier(kw))) if kw == "page" => ParenOwner::PageHeader,
                     (_, Some(TokenType::Identifier(kw))) if kw == "component" => {
                         ParenOwner::Unknown
@@ -521,9 +702,11 @@ fn open_paren_owner(previous: &[&Token]) -> Option<ParenOwner> {
                             _ => ParenOwner::Element(name.clone()),
                         }
                     }
-                    _ => match before {
-                        // `Store.method(` — a call.
-                        Some(TokenType::Dot) => ParenOwner::Call,
+                    // `Backend.users(` — an endpoint, or `Store.method(` — a call.
+                    _ => match (before, before2) {
+                        (Some(TokenType::Dot), Some(TokenType::Identifier(owner))) => {
+                            ParenOwner::Member(owner.clone(), name.clone())
+                        }
                         _ => ParenOwner::Call,
                     },
                 });
@@ -539,6 +722,10 @@ enum Block {
     Style,
     Transition,
     Theme,
+    /// An `animation Name { }` body: its keyframes.
+    Animation,
+    /// A keyframe of an animation, `50% { ‸ }`: CSS declarations.
+    Keyframe,
 }
 
 /// The nearest enclosing block the tokens alone identify: a `style { … }`
@@ -546,6 +733,8 @@ enum Block {
 /// { … }` body.
 fn enclosing_block(previous: &[&Token]) -> Option<Block> {
     let mut depth = 0i32;
+    // Whether a keyframe's or a nested rule's block was passed on the way out.
+    let mut nested = false;
     for (ix, token) in previous.iter().enumerate().rev() {
         match token.token_type {
             TokenType::CloseBrace => depth += 1,
@@ -574,9 +763,19 @@ fn enclosing_block(previous: &[&Token]) -> Option<Block> {
                     {
                         return Some(Block::Theme);
                     }
-                    // A nested rule: keep looking outward for the `style`
-                    // that holds it. Any other opener is a body.
-                    (Some(TokenType::RawSelector(_)), _) => {}
+                    (Some(TokenType::Identifier(_)), Some(TokenType::Identifier(kw)))
+                        if kw == "animation" =>
+                    {
+                        return Some(if nested {
+                            Block::Keyframe
+                        } else {
+                            Block::Animation
+                        });
+                    }
+                    // A nested rule or a keyframe: keep looking outward for
+                    // the `style` or the `animation` that holds it. Any
+                    // other opener is a body.
+                    (Some(TokenType::RawSelector(_)), _) => nested = true,
                     _ => return None,
                 }
             }
@@ -619,9 +818,17 @@ fn after_dot(
         TokenType::Colon => {
             if let Some(TokenType::Identifier(key)) =
                 n.checked_sub(3).map(|i| &previous[i].token_type)
-                && let Some(ParenOwner::Element(el)) = open_paren_owner(&previous[..n - 1])
             {
-                return cases_of(project, &el, key);
+                match open_paren_owner(&previous[..n - 1]) {
+                    Some(ParenOwner::Element(el)) => return cases_of(project, &el, key),
+                    // `fetch(…, on: .`, `Backend.users(cache: .`, `spawn(…, type: .`.
+                    Some(ParenOwner::Fetch | ParenOwner::Member(..) | ParenOwner::Opener(_)) => {
+                        if let Some(items) = option_cases(key) {
+                            return items;
+                        }
+                    }
+                    _ => {}
+                }
             }
             opening_dot(project, file_ix, previous, anchor)
         }
@@ -1349,7 +1556,11 @@ fn value_members(
                 }
                 return items;
             }
-            BindingKind::Stream => return handle(&connection),
+            BindingKind::Stream => {
+                let mut items = handle(&connection);
+                items.extend(handle(&[("closure", false, "the close code and reason")]));
+                return items;
+            }
             BindingKind::Worker => {
                 return handle(&[
                     ("request", true, "ask it, and await its answer"),
@@ -1368,11 +1579,12 @@ fn value_members(
                 ]);
             }
             BindingKind::Channel => {
-                return handle(&[
+                let mut items = handle(&connection);
+                items.extend(handle(&[
                     ("post", true, "send a value to every tab"),
-                    ("messages", false, "what arrived, in order"),
-                    ("close", true, "leave the channel"),
-                ]);
+                    ("closure", false, "the close code and reason"),
+                ]));
+                return items;
             }
             BindingKind::ElementHandle => {
                 return handle(&[
@@ -1628,25 +1840,191 @@ fn cases_of(project: &Project, element: &str, key: &str) -> Vec<CompletionItem> 
     Vec::new()
 }
 
-/// The events an `on` handler can name where the cursor is: the DOM events,
-/// and the events the component declares when the cursor is in a
-/// component's block.
-fn events(project: &Project, file_ix: usize, anchor: usize) -> Vec<CompletionItem> {
-    let mut items = declared_events(project, file_ix, anchor);
-    items.extend(
-        reference::events()
+/// The events an `on` handler can name where the cursor is: in an
+/// element's block, the DOM events and the events the component declares;
+/// in a connection's block, what that connection says; in an `api` block,
+/// its hooks; anywhere else in a page, a component or the app, the events
+/// the parser takes there (`PAGE_EVENTS`): the document's keys and what
+/// only the window says.
+fn events(
+    project: &Project,
+    file_ix: usize,
+    anchor: usize,
+    previous: &[&Token],
+) -> Vec<CompletionItem> {
+    let event_item = |name: &str, doc: &str, insert: String, sort: &str| CompletionItem {
+        label: name.to_string(),
+        kind: Some(CompletionItemKind::EVENT),
+        detail: Some(doc.to_string()),
+        insert_text: Some(insert),
+        insert_text_format: Some(InsertTextFormat::SNIPPET),
+        sort_text: Some(format!("{sort}{name}")),
+        ..Default::default()
+    };
+    // `socket chat = ws(…) { on ‸`: what the connection says.
+    if let Some(word) = block_word(previous)
+        && let Some(events) = connection_events_of(&word)
+    {
+        return events
             .iter()
-            .map(|(name, doc)| CompletionItem {
-                label: name.to_string(),
-                kind: Some(CompletionItemKind::EVENT),
-                detail: Some(doc.to_string()),
-                insert_text: Some(format!("{name} {{\n\t$0\n}}")),
-                insert_text_format: Some(InsertTextFormat::SNIPPET),
-                sort_text: Some(format!("1{name}")),
-                ..Default::default()
-            }),
-    );
+            .map(|(name, doc)| event_item(name, doc, format!("{name}(${{1:m}}) {{\n\t$0\n}}"), "0"))
+            .collect();
+    }
+    let decl = analysis::declaration_at(project, file_ix, anchor.saturating_sub(1))
+        .map(|ix| &project.program.declarations[ix]);
+    if let Some(Declaration::Api(_)) = decl {
+        return [
+            ("request", "Before every request: change its headers"),
+            ("response", "After every response"),
+            ("error", "When a request fails, before the caller hears it"),
+        ]
+        .iter()
+        .map(|(name, doc)| event_item(name, doc, format!("{name}(${{1:r}}) {{\n\t$0\n}}"), "0"))
+        .collect();
+    }
+    if in_element_block(previous) {
+        let mut items = declared_events(project, file_ix, anchor);
+        items.extend(
+            reference::events()
+                .iter()
+                .map(|(name, doc)| event_item(name, doc, format!("{name} {{\n\t$0\n}}"), "1")),
+        );
+        return items;
+    }
+    webfluent::syntax::parser::v2::PAGE_EVENTS
+        .iter()
+        .map(|name| {
+            let insert = if *name == "key" {
+                "key(\"${1:mod+k}\") {\n\t$0\n}".to_string()
+            } else {
+                format!("{name} {{\n\t$0\n}}")
+            };
+            event_item(name, reference::page_event_doc(name), insert, "1")
+        })
+        .collect()
+}
+
+/// The events a connection declared with `word` (`socket`, `worker`, …)
+/// may handle; `None` for any other word.
+fn connection_events_of(word: &str) -> Option<&'static [(&'static str, &'static str)]> {
+    reference::CONNECTION_EVENTS
+        .iter()
+        .find(|(kind, _)| *kind == word)
+        .map(|(_, events)| *events)
+}
+
+/// A connection's block: its handlers, and — for a socket or a peer — the
+/// types it sends and receives.
+fn connection_block(word: &str) -> Vec<CompletionItem> {
+    let mut items = vec![snippet(
+        "on",
+        "a handler for what the connection says",
+        "on ${1:message}(${2:m}) {\n\t$0\n}",
+    )];
+    if matches!(word, "socket" | "peer") {
+        items.push(snippet(
+            "send",
+            "the type of what is sent",
+            "send ${1:Outgoing}",
+        ));
+        items.push(snippet(
+            "receive",
+            "the type of what arrives",
+            "receive ${1:Incoming}",
+        ));
+    }
     items
+}
+
+/// A `sequence { }` body: its steps.
+fn sequence_steps() -> Vec<CompletionItem> {
+    let doc = reference::keyword("step").map_or("", |k| k.summary);
+    vec![
+        CompletionItem {
+            kind: Some(CompletionItemKind::KEYWORD),
+            documentation: Some(Documentation::String(doc.to_string())),
+            ..snippet("step", "a step that starts at once", "step {\n\t$0\n}")
+        },
+        CompletionItem {
+            kind: Some(CompletionItemKind::KEYWORD),
+            documentation: Some(Documentation::String(doc.to_string())),
+            filter_text: Some("step after".to_string()),
+            ..snippet(
+                "step(after:)",
+                "a step that starts after the one before it",
+                "step(after: \"${1:120ms}\") {\n\t$0\n}",
+            )
+        },
+    ]
+}
+
+/// After `on: .`, `cache: .`, `as: .` in a request's parentheses: the cases
+/// that option takes.
+fn option_cases(key: &str) -> Option<Vec<CompletionItem>> {
+    let (_, cases) = reference::OPTION_CASES.iter().find(|(k, _)| *k == key)?;
+    Some(
+        cases
+            .iter()
+            .map(|(name, insert, doc)| CompletionItem {
+                label: name.to_string(),
+                kind: Some(CompletionItemKind::ENUM_MEMBER),
+                detail: Some(format!("{key}: .{name}")),
+                documentation: Some(Documentation::String(doc.to_string())),
+                insert_text: Some(insert.to_string()),
+                insert_text_format: Some(InsertTextFormat::SNIPPET),
+                ..Default::default()
+            })
+            .collect(),
+    )
+}
+
+/// `items` without the argument names already written in the open
+/// parenthesis.
+fn unwritten(items: Vec<CompletionItem>, previous: &[&Token]) -> Vec<CompletionItem> {
+    let written = written_arg_names(previous);
+    items
+        .into_iter()
+        .filter(|item| {
+            !written
+                .iter()
+                .any(|w| item.label.trim_end_matches(':') == w)
+        })
+        .collect()
+}
+
+/// Whether the innermost open block is an element's — `Button("x") { ‸` —
+/// where `on`, `style` and `transition` belong, rather than a page's, a
+/// component's or a branch's.
+fn in_element_block(previous: &[&Token]) -> bool {
+    block_word(previous).is_some_and(|w| w.starts_with(char::is_uppercase))
+}
+
+/// Whether the cursor follows the `}` that closes a `try`'s block, where
+/// `catch` goes.
+fn after_try(previous: &[&Token]) -> bool {
+    if !matches!(
+        previous.last().map(|t| &t.token_type),
+        Some(TokenType::CloseBrace)
+    ) {
+        return false;
+    }
+    let mut depth = 0i32;
+    for (ix, token) in previous.iter().enumerate().rev() {
+        match token.token_type {
+            TokenType::CloseBrace => depth += 1,
+            TokenType::OpenBrace => {
+                depth -= 1;
+                if depth == 0 {
+                    return matches!(
+                        ix.checked_sub(1).map(|i| &previous[i].token_type),
+                        Some(TokenType::Identifier(w)) if w == "try"
+                    );
+                }
+            }
+            _ => {}
+        }
+    }
+    false
 }
 
 /// The events declared by the component whose block the cursor is in (for
@@ -1776,12 +2154,12 @@ fn first_sentence(text: &str) -> &str {
 }
 
 fn theme_body() -> Vec<CompletionItem> {
-    reference::TOKENS
+    reference::tokens()
         .iter()
         .map(|(name, doc)| CompletionItem {
-            label: name.to_string(),
+            label: name.clone(),
             kind: Some(CompletionItemKind::CONSTANT),
-            detail: Some(doc.to_string()),
+            detail: Some(doc.clone()),
             insert_text: Some(format!("{name}: ${{1:value}}")),
             insert_text_format: Some(InsertTextFormat::SNIPPET),
             ..Default::default()
@@ -1807,20 +2185,20 @@ fn design_tokens(project: &Project, css_prop: Option<String>) -> Vec<CompletionI
             }
         }
     }
-    for (name, doc) in reference::TOKENS {
-        if seen.insert(name.to_string()) {
+    for (name, doc) in reference::tokens() {
+        if seen.insert(name.clone()) {
             items.push(token_item(name, doc, "1"));
         }
     }
     if let Some(prop) = css_prop {
         let css_prop = webfluent::codegen::style_tokens::canonical_style_prop(&prop);
-        for (name, _) in reference::TOKENS {
+        for (name, _) in reference::tokens() {
             if let Some(short) = name.rsplit_once('-').map(|(_, s)| s)
                 && webfluent::codegen::style_tokens::resolve_short_token(&css_prop, short, &|_| {
                     false
                 })
                 .as_deref()
-                    == Some(name)
+                    == Some(name.as_str())
                 && seen.insert(short.to_string())
             {
                 items.push(token_item(
@@ -1846,49 +2224,150 @@ fn token_item(name: &str, doc: &str, sort: &str) -> CompletionItem {
     }
 }
 
-/// Inside a `match x { }`: the arms not yet written.
-fn match_arms(m: &MatchStmt, scope: &[Binding]) -> Vec<CompletionItem> {
+/// A connection's arm: its label, what it means, its snippet, and whether
+/// a written arm is it.
+type ConnectionArm = (
+    &'static str,
+    &'static str,
+    &'static str,
+    fn(&ArmPattern) -> bool,
+);
+
+/// Inside a `match x { }`: the arms not yet written — a resource's states,
+/// an enum's cases (with names for a case's payload), or a connection's
+/// states — and `else` while something is left.
+fn match_arms(
+    project: &Project,
+    decl_ix: usize,
+    m: &MatchStmt,
+    scope: &[Binding],
+) -> Vec<CompletionItem> {
+    use webfluent::sema::types::Type;
     let written: Vec<&ArmPattern> = m.arms.iter().map(|a| &a.pattern).collect();
     let mut items = Vec::new();
-    let is_resource = match &m.scrutinee {
-        Expr::Identifier(name) => scope
-            .iter()
-            .any(|b| &b.name == name && b.kind == BindingKind::Resource),
-        _ => false,
+    let has = |p: &dyn Fn(&ArmPattern) -> bool| written.iter().any(|w| p(w));
+    let binding = match &m.scrutinee {
+        Expr::Identifier(name) => scope.iter().find(|b| &b.name == name),
+        _ => None,
     };
-    let has = |p: fn(&ArmPattern) -> bool| written.iter().any(|w| p(w));
-    if is_resource
+    let kind = binding.map(|b| b.kind);
+    let is_connection = matches!(
+        kind,
+        Some(
+            BindingKind::Socket
+                | BindingKind::Stream
+                | BindingKind::Channel
+                | BindingKind::Peer
+                | BindingKind::Worker
+        )
+    ) || has(&|p| matches!(p, ArmPattern::State(_)));
+    // The enum the subject is, when the checker knows.
+    let subject_enum = binding
+        .filter(|_| !is_connection)
+        .and_then(|b| crate::hover::type_of_binding(project, decl_ix, b))
+        .and_then(|ty| match ty {
+            Type::Enum(e) => Some(e),
+            Type::Optional(inner) => match *inner {
+                Type::Enum(e) => Some(e),
+                _ => None,
+            },
+            _ => None,
+        })
+        .and_then(|name| find_enum(project, &name));
+    let mut left = false;
+    if let Some(e) = subject_enum {
+        for case in &e.cases {
+            if has(&|p| matches!(p, ArmPattern::Case(c) if *c == case.name)) {
+                continue;
+            }
+            left = true;
+            let names: Vec<String> = case
+                .fields
+                .iter()
+                .enumerate()
+                .map(|(i, f)| format!("${{{}:{}}}", i + 1, f.name))
+                .collect();
+            let head = if names.is_empty() {
+                format!(".{}", case.name)
+            } else {
+                format!(".{}({})", case.name, names.join(", "))
+            };
+            items.push(CompletionItem {
+                filter_text: Some(case.name.clone()),
+                ..snippet(
+                    &format!(".{}", case.name),
+                    &format!("case of {}", e.name),
+                    &format!("{head} {{\n\t$0\n}}"),
+                )
+            });
+        }
+    } else if is_connection {
+        let arms: [ConnectionArm; 4] = [
+            (
+                "connecting",
+                "While it opens",
+                "connecting {\n\t$0\n}",
+                |p| matches!(p, ArmPattern::State(s) if s == "connecting"),
+            ),
+            (
+                "open",
+                "Once it is open",
+                "open {\n\t$0\n}",
+                |p| matches!(p, ArmPattern::State(s) if s == "open"),
+            ),
+            (
+                "closed",
+                "Once it closed: the code and the reason",
+                "closed(${1:c}) {\n\t$0\n}",
+                |p| matches!(p, ArmPattern::State(s) if s == "closed"),
+            ),
+            ("error", "When it failed", "error(${1:e}) {\n\t$0\n}", |p| {
+                matches!(p, ArmPattern::Error) || matches!(p, ArmPattern::State(s) if s == "error")
+            }),
+        ];
+        for (label, detail, body, written_as) in arms {
+            if !has(&written_as) {
+                left = true;
+                items.push(snippet(label, detail, body));
+            }
+        }
+    } else if kind == Some(BindingKind::Resource)
         || written.is_empty()
-        || has(|p| {
+        || has(&|p| {
             matches!(
                 p,
                 ArmPattern::Loading | ArmPattern::Error | ArmPattern::Ready
             )
         })
     {
-        if !has(|p| matches!(p, ArmPattern::Loading)) {
+        if !has(&|p| matches!(p, ArmPattern::Loading)) {
+            left = true;
             items.push(snippet(
                 "loading",
                 "While the request is in flight",
                 "loading {\n\t$0\n}",
             ));
         }
-        if !has(|p| matches!(p, ArmPattern::Error)) {
+        if !has(&|p| matches!(p, ArmPattern::Error)) {
+            left = true;
             items.push(snippet(
                 "error",
                 "When the request fails",
                 "error(${1:e}) {\n\t$0\n}",
             ));
         }
-        if !has(|p| matches!(p, ArmPattern::Ready)) {
+        if !has(&|p| matches!(p, ArmPattern::Ready)) {
+            left = true;
             items.push(snippet(
                 "ready",
                 "Once the data arrived",
                 "ready(${1:value}) {\n\t$0\n}",
             ));
         }
+    } else {
+        left = true;
     }
-    if !has(|p| matches!(p, ArmPattern::Else)) {
+    if left && !has(&|p| matches!(p, ArmPattern::Else)) {
         items.push(snippet("else", "Every other value", "else {\n\t$0\n}"));
     }
     items
@@ -1896,15 +2375,18 @@ fn match_arms(m: &MatchStmt, scope: &[Binding]) -> Vec<CompletionItem> {
 
 fn style_block(
     project: &Project,
+    source: &str,
     previous: &[&Token],
     offset: usize,
     tokens: &[Token],
 ) -> Vec<CompletionItem> {
-    // In a value: the design tokens, as `$name`.
-    let in_value = matches!(
-        previous.last().map(|t| &t.token_type),
-        Some(TokenType::StyleProp(_) | TokenType::RawValue(_))
-    ) || tokens.iter().any(|t| {
+    // In a value: the design tokens, as `$name`. A value ends with its
+    // line, so a declaration on the line above leaves the cursor at a name.
+    let in_value = previous.last().is_some_and(|t| {
+        matches!(t.token_type, TokenType::StyleProp(_))
+            || (matches!(t.token_type, TokenType::RawValue(_))
+                && !source[t.end.min(offset)..offset].contains('\n'))
+    }) || tokens.iter().any(|t| {
         matches!(t.token_type, TokenType::RawValue(_)) && t.offset < offset && offset <= t.end
     });
     if in_value {
@@ -1946,6 +2428,29 @@ fn style_block(
         ..Default::default()
     });
     items
+}
+
+/// An `animation Name { }` body: the keyframes it may hold.
+fn keyframes() -> Vec<CompletionItem> {
+    [
+        (
+            "from",
+            "The first frame",
+            "from {\n\t${1:opacity}: ${2:0}\n}",
+        ),
+        ("to", "The last frame", "to {\n\t${1:opacity}: ${2:1}\n}"),
+        (
+            "50%",
+            "A frame part of the way through",
+            "${1:50}% {\n\t$0\n}",
+        ),
+    ]
+    .iter()
+    .map(|(label, detail, body)| CompletionItem {
+        kind: Some(CompletionItemKind::KEYWORD),
+        ..snippet(label, detail, body)
+    })
+    .collect()
 }
 
 fn transition_block() -> Vec<CompletionItem> {
@@ -1991,6 +2496,29 @@ fn element_props(project: &Project, name: &str, previous: &[&Token]) -> Vec<Comp
                 documentation: prop.doc.clone().map(Documentation::String),
                 insert_text: Some(format!("{}: ", prop.name)),
                 sort_text: Some(format!("0{}", prop.name)),
+                ..Default::default()
+            });
+        }
+        return items;
+    }
+
+    // `User(‸`: a record being built — the fields its type declares.
+    if let Some(t) = crate::hover::find_type(project, name) {
+        for f in t.all_fields(&|n| crate::hover::find_type(project, n)) {
+            if written.contains(&f.name) {
+                continue;
+            }
+            items.push(CompletionItem {
+                label: format!("{}:", f.name),
+                kind: Some(CompletionItemKind::FIELD),
+                detail: Some(format!(
+                    "{}{} — field of {name}",
+                    type_name(&f.ty),
+                    if f.default.is_some() { " = …" } else { "" }
+                )),
+                documentation: f.doc.clone().map(Documentation::String),
+                insert_text: Some(format!("{}: ", f.name)),
+                sort_text: Some(format!("{}{}", u8::from(f.default.is_some()), f.name)),
                 ..Default::default()
             });
         }
@@ -2061,23 +2589,10 @@ fn written_arg_names(previous: &[&Token]) -> Vec<String> {
     names
 }
 
+/// A type as it is written: the compiler's own printer, so a condition
+/// reads as it was written (`Number(1..=30)`).
 fn type_name(ty: &TypeRef) -> String {
-    match ty {
-        TypeRef::String => "String".into(),
-        TypeRef::Number => "Number".into(),
-        TypeRef::Bool => "Bool".into(),
-        TypeRef::Map => "Map".into(),
-        TypeRef::Any => "Any".into(),
-        TypeRef::List(inner) => format!("[{}]", type_name(inner)),
-        TypeRef::Optional(inner) => format!("{}?", type_name(inner)),
-        TypeRef::Named(name) => name.clone(),
-        // The condition reads as it was written: `Number(min: 0, max: 100)`.
-        TypeRef::Refined(inner, args) => {
-            let said: Vec<String> = args.iter().map(|(n, _)| n.clone()).collect();
-            format!("{}({})", type_name(inner), said.join(", "))
-        }
-        _ => "Any".into(),
-    }
+    webfluent::syntax::print::type_ref(ty)
 }
 
 fn args(docs: &[ArgDoc], detail: &str) -> Vec<CompletionItem> {
@@ -2154,6 +2669,7 @@ fn web_only_keyword(word: &str) -> bool {
             | "stream"
             | "channel"
             | "peer"
+            | "worker"
             | "persist"
             | "show"
             | "sequence"
@@ -2272,40 +2788,129 @@ enum Context {
     Test,
 }
 
-fn keywords(context: Context) -> Vec<CompletionItem> {
-    // A component's own words, and a page's.
-    let component_only =
-        |name: &str| matches!(name, "event" | "slot" | "part" | "children" | "emit");
-    reference::KEYWORDS
-        .iter()
-        .filter(|k| match context {
-            Context::Page => k.place == Place::Body && !component_only(k.name),
-            Context::Component => k.place == Place::Body && k.name != "head",
-            Context::Test => {
-                k.place == Place::Test || (k.place == Place::Body && !component_only(k.name))
+/// The place a statement is being written: the kind of body, and what
+/// surrounds the cursor within it.
+#[derive(Clone, Copy)]
+struct Spot {
+    context: Context,
+    /// In an element's block, where `on`, `style` and `transition` go.
+    in_element: bool,
+    /// Directly in an effect's body, which `cleanup { }` may close.
+    in_effect: bool,
+    /// Just after a `try`'s block, where `catch` goes.
+    after_try: bool,
+}
+
+/// The words a statement may begin with at `spot`, read from the parser's
+/// own tables (`BODY_KEYWORDS`, `IMPERATIVE_KEYWORDS`), so a word the
+/// parser learns is offered with no change here — and a word it refuses
+/// where the cursor is is not.
+fn keywords(spot: Spot) -> Vec<CompletionItem> {
+    use webfluent::syntax::parser::v2::{BODY_KEYWORDS, IMPERATIVE_KEYWORDS};
+    // A component's own words: declared in it, or placing what its caller gave.
+    let component_only = |w: &str| matches!(w, "event" | "slot" | "part" | "children");
+    // What a render body takes, where the cursor is. `navigate`, `log` and
+    // `emit` are statements of an action or a handler; `style` and
+    // `transition` belong in an element's block.
+    let render = |w: &str, component: bool| -> bool {
+        match w {
+            "navigate" | "log" | "emit" => false,
+            "style" | "transition" => spot.in_element,
+            "head" => !component,
+            _ if component_only(w) => component,
+            _ => true,
+        }
+    };
+    let mut words: Vec<&str> = match spot.context {
+        Context::Page | Context::Test => BODY_KEYWORDS
+            .iter()
+            .copied()
+            .filter(|w| render(w, false))
+            .chain(["else"])
+            .collect(),
+        Context::Component => BODY_KEYWORDS
+            .iter()
+            .copied()
+            .filter(|w| render(w, true))
+            .chain(["else"])
+            .collect(),
+        // A store holds values, what changes them, and what it keeps open.
+        Context::Store => BODY_KEYWORDS
+            .iter()
+            .copied()
+            .filter(|w| {
+                matches!(
+                    *w,
+                    "state"
+                        | "persist"
+                        | "derived"
+                        | "action"
+                        | "effect"
+                        | "every"
+                        | "after"
+                        | "use"
+                        | "resource"
+                        | "socket"
+                        | "stream"
+                        | "channel"
+                        | "peer"
+                        | "worker"
+                )
+            })
+            .collect(),
+        Context::Imperative => {
+            let mut words: Vec<&str> = IMPERATIVE_KEYWORDS.to_vec();
+            words.extend(["await", "navigate", "log"]);
+            if spot.in_effect {
+                words.push("cleanup");
             }
-            Context::Store => {
-                k.place == Place::Body
-                    && matches!(
-                        k.name,
-                        "state" | "persist" | "derived" | "action" | "effect" | "every" | "after"
-                    )
-            }
-            Context::Imperative => {
-                k.place == Place::Imperative
-                    || matches!(k.name, "if" | "else" | "for" | "emit" | "navigate" | "log")
+            words
+        }
+    };
+    if spot.after_try {
+        words.insert(0, "catch");
+    }
+    let mut seen = std::collections::HashSet::new();
+    words.retain(|w| seen.insert(*w));
+    let mut items: Vec<CompletionItem> = words
+        .into_iter()
+        .map(|name| {
+            let doc = reference::keyword(name).map(|k| k.summary.to_string());
+            CompletionItem {
+                label: name.to_string(),
+                kind: Some(CompletionItemKind::KEYWORD),
+                detail: doc,
+                // Outside an element, a page hears the document's keys and
+                // the window, not a click.
+                insert_text: Some(if name == "on" && !spot.in_element {
+                    "on ${1:keydown}(${2:e}) {\n\t$0\n}".to_string()
+                } else {
+                    keyword_snippet(name)
+                }),
+                insert_text_format: Some(InsertTextFormat::SNIPPET),
+                sort_text: Some(format!("{}{name}", if name == "catch" { 0 } else { 2 })),
+                ..Default::default()
             }
         })
-        .map(|k| CompletionItem {
-            label: k.name.to_string(),
-            kind: Some(CompletionItemKind::KEYWORD),
-            detail: Some(k.summary.to_string()),
-            insert_text: Some(keyword_snippet(k.name)),
-            insert_text_format: Some(InsertTextFormat::SNIPPET),
-            sort_text: Some(format!("2{}", k.name)),
-            ..Default::default()
-        })
-        .collect()
+        .collect();
+    // A test's steps, each in the sense a test gives it (`type` types).
+    if spot.context == Context::Test {
+        items.extend(
+            reference::KEYWORDS
+                .iter()
+                .filter(|k| k.place == Place::Test)
+                .map(|k| CompletionItem {
+                    label: k.name.to_string(),
+                    kind: Some(CompletionItemKind::KEYWORD),
+                    detail: Some(k.summary.to_string()),
+                    insert_text: Some(keyword_snippet(k.name)),
+                    insert_text_format: Some(InsertTextFormat::SNIPPET),
+                    sort_text: Some(format!("2{}", k.name)),
+                    ..Default::default()
+                }),
+        );
+    }
+    items
 }
 
 fn keyword_snippet(name: &str) -> String {
@@ -2340,6 +2945,9 @@ fn keyword_snippet(name: &str) -> String {
         "stream" => "stream ${1:events} = sse(\"${2:/events}\")".into(),
         "channel" => "channel ${1:tabs} = broadcast(\"${2:name}\") {\n\ton message(${3:m}) { $0 }\n}".into(),
         "peer" => "peer ${1:link} = rtc(signal: ${2:m} => ${3:lobby}.post($2), initiator: ${4:true}) {\n\ton message(${5:m}) { $0 }\n}".into(),
+        "worker" => "worker ${1:task} = spawn(\"${2:/workers/task.js}\") {\n\ton message(${3:m}) { $0 }\n}".into(),
+        "cleanup" => "cleanup {\n\t$0\n}".into(),
+        "catch" => "catch ${1:e} {\n\t$0\n}".into(),
         "every" => "every(${1:1000}) {\n\t$0\n}".into(),
         "after" => "after(${1:1000}) {\n\t$0\n}".into(),
         "head" => "head {\n\t${1:meta}(${2:name}: \"$3\", content: \"$4\")\n}".into(),
@@ -2390,11 +2998,23 @@ fn binding_item(b: &Binding, store: Option<&str>) -> CompletionItem {
 /// When the file does not parse, offer by the nearest shape: components and
 /// keywords in a body, props of the element whose parenthesis is open.
 fn fallback(project: &Project, previous: &[&Token]) -> Vec<CompletionItem> {
-    if let Some(ParenOwner::Element(name)) = open_paren_owner(previous) {
-        return element_props(project, &name, previous);
+    match open_paren_owner(previous) {
+        Some(ParenOwner::Element(name)) => return element_props(project, &name, previous),
+        Some(owner @ (ParenOwner::Fetch | ParenOwner::Opener(_) | ParenOwner::Member(..))) => {
+            let mut items = call_options(project, &owner, previous);
+            items.extend(top_level_names(project));
+            items.extend(builtin_items());
+            return items;
+        }
+        _ => {}
     }
     let mut items = components(project);
-    items.extend(keywords(Context::Page));
+    items.extend(keywords(Spot {
+        context: Context::Page,
+        in_element: in_element_block(previous),
+        in_effect: false,
+        after_try: false,
+    }));
     items
 }
 
