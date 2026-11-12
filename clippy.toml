@@ -1,0 +1,12 @@
+# BeautifulRust's clippy configuration (github.com/morganlinton/BeautifulRust,
+# lints/clippy.toml), beside the [workspace.lints] table in Cargo.toml.
+
+# Flag any function with a bool parameter, not just functions with four or
+# more: a bool argument is unreadable at the call site and can't grow a third
+# mode. Applies once `fn_params_excessive_bools` is switched on.
+max-fn-params-bools = 0
+
+# Allow unwrap, expect, and printing in tests, where a panic is the assertion.
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true
+allow-print-in-tests = true

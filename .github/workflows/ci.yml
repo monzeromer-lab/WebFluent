@@ -58,6 +58,25 @@ jobs:
           # The crate's rust-version: the action's image brings an older one.
           rust-version: "1.92"
 
+  # How far the code is from BeautifulRust's lint set: each lint Cargo.toml
+  # still holds at "allow", counted. It reports and never fails; a lint whose
+  # count reaches zero is switched on in Cargo.toml, and `check` holds it.
+  lint-debt:
+    name: Lint debt (report only)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
+          components: clippy
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - name: Findings per held lint
+        run: scripts/lint-debt.sh | tee -a "$GITHUB_STEP_SUMMARY"
+
   # What only a real browser has — a service worker, WebRTC — is driven in a
   # real Chrome: `offline` (the site stored, served with the server gone, a
   # write kept and sent once, an update taken with one reload, pre-rendered

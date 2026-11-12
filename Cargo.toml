@@ -76,6 +76,55 @@ webp = { version = "0.3.1", default-features = false }
 members = [".", "crates/wf-lsp", "crates/wf-wasm"]
 exclude = ["editors/zed"]
 
+# BeautifulRust's lint set (github.com/morganlinton/BeautifulRust,
+# lints/lints.toml), with clippy.toml beside this file. A lint the code
+# already satisfies is on, so CI (`clippy -- -D warnings`) holds it there.
+# A lint with findings is held at "allow" with today's count beside it, and
+# switched to "warn" the day its count reaches zero; scripts/lint-debt.sh
+# prints every count.
+[workspace.lints.rust]
+unsafe_op_in_unsafe_fn = "warn"
+missing_debug_implementations = "allow"          # 58
+missing_docs = "allow"                           # 1570
+unreachable_pub = "allow"                        # 1697
+rust_2018_idioms = { level = "allow", priority = -1 }  # 93
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "allow", priority = -1 }    # 2600, the group together
+undocumented_unsafe_blocks = "warn"
+multiple_unsafe_ops_per_block = "warn"
+dbg_macro = "warn"
+todo = "warn"
+expect_used = "allow"
+unwrap_used = "allow"                            # 380
+panic_in_result_fn = "allow"                     # 1
+missing_panics_doc = "allow"                     # 16
+missing_errors_doc = "allow"                     # 152
+missing_assert_message = "allow"                 # 4
+allow_attributes = "allow"                       # 32
+allow_attributes_without_reason = "allow"        # 35
+fn_params_excessive_bools = "allow"              # 104
+struct_excessive_bools = "allow"                 # 7
+clone_on_ref_ptr = "allow"                       # 38
+redundant_clone = "allow"                        # 28
+rc_buffer = "allow"                              # 6
+exhaustive_enums = "allow"                       # 103
+string_add = "allow"                             # 41
+wildcard_imports = "allow"                       # 47
+print_stdout = "allow"                           # 183, nearly all the CLI's own output
+print_stderr = "allow"                           # 24
+as_conversions = "allow"                         # 981
+cast_possible_truncation = "allow"               # 262
+cast_sign_loss = "allow"                         # 86
+module_name_repetitions = "allow"
+must_use_candidate = "allow"
+module_inception = "allow"
+enum_glob_use = "allow"
+
+[lints]
+workspace = true
+
 [dependencies]
 clap = { version = "4.6.0", features = ["derive"], optional = true }
 serde = { version = "1.0.228", features = ["derive"] }

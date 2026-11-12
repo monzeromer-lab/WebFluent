@@ -32,3 +32,6 @@ tower-lsp = { version = "0.20", optional = true }
 tokio = { version = "1", features = ["full"], optional = true }
 serde_json = "1"
 dashmap = "6"
+
+[lints]
+workspace = true

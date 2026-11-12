@@ -30,3 +30,6 @@ libm = "0.2"
 
 [build-dependencies]
 cc = "1"
+
+[lints]
+workspace = true
