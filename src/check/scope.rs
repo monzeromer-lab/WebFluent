@@ -1,3 +1,6 @@
+//! What a name at a place can refer to — the editor's completion scope —
+//! and, typed, what a path picker lists there.
+//!
 //! What a name at a place can refer to: the scope the editor's completion
 //! offers and an inspector's path picker lists — the loop variables and
 //! bindings around the place, innermost first, then the declaration's own

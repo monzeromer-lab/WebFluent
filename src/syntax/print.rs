@@ -1,3 +1,6 @@
+//! The tree written back as source, one node at a time: what an editor
+//! that changes a node writes in its place.
+//!
 //! The tree written back as source: an expression, an argument, an element,
 //! a statement, a type, a declaration — a component with its props, events,
 //! slots, parts and `///`, a page, a store, an `api` — and a whole file:

@@ -1,3 +1,5 @@
+//! Threads and clocks, and their stand-ins where WebAssembly has none.
+//!
 //! What the compiler asks of the machine that a browser does not give.
 //!
 //! In WebAssembly (`wasm32-unknown-unknown`) there are no threads, and

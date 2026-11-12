@@ -1,3 +1,6 @@
+//! `wf test`: a project's tests, rendered or played in a browser, and what
+//! each came to.
+//!
 //! Running a project's tests: every `test "…" { … }` under `tests/` (and in
 //! `src/`), rendered through the template engine over its data, held to what
 //! it expects and to its snapshot; and a test that acts — or one that looks

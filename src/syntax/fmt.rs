@@ -1,3 +1,6 @@
+//! `wf fmt --to wfx|wf`: the one grammar in either layout, braces or
+//! indentation.
+//!
 //! `wf fmt`: the canonical spelling of a source file, arrived at without a
 //! printer.
 //!

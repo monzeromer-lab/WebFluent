@@ -1,4 +1,6 @@
 //! Small text utilities the rest of the crate shares.
+//!
+//! Small text utilities the rest of the crate shares.
 
 /// Plain Levenshtein distance; the inputs are single words, so O(n·m) is fine.
 pub(crate) fn levenshtein(a: &str, b: &str) -> usize {

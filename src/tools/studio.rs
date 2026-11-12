@@ -1,3 +1,6 @@
+//! Studio integration facade — [`compile_studio`] turns a program into a
+//! [`CompiledSite`] (SSG pages + CSS + JS + node map) for the preview.
+//!
 //! Studio integration facade (Milestone 2 of the engine upgrade).
 //!
 //! One in-process call turns a parsed program into everything the studio's

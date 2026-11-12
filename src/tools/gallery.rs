@@ -1,3 +1,5 @@
+//! `wf docs`: the component gallery, one self-contained HTML page.
+//!
 //! A component gallery — every built-in with its props, cases, flags,
 //! events, slots and parts, and what the project declares: components with
 //! their props, events, slots and parts, enums with their cases, records

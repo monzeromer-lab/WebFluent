@@ -1,3 +1,9 @@
+//! Code generation — compiles the AST to various output formats.
+//!
+//! Supports HTML ([`generate_html`]), CSS ([`generate_css`]),
+//! JavaScript ([`JsCodegen`]), static site generation ([`render_page_html`]),
+//! and PDF (the [`paged`](crate::paged) engine lays the HTML out on paper).
+//!
 //! Code generation — compiles the AST to HTML, CSS, JavaScript, SSG pages, and PDF.
 //!
 //! Each output format has its own module:

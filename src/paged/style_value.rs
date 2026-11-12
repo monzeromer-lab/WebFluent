@@ -1,3 +1,6 @@
+//! Style values as data: what shape a property's value has, the value read
+//! into its parts, and the narrowest declaration written back.
+//!
 //! Style values as data: what kind of value a property takes, the value
 //! read into its parts, and the narrowest declaration written back.
 //!

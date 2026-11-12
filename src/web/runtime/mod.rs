@@ -1,3 +1,10 @@
+//! JavaScript runtime — embedded runtime for reactivity, routing, and DOM helpers.
+//!
+//! The runtime provides signal-based reactivity, conditional/list rendering,
+//! client-side routing, store management, i18n, animations, and toast notifications.
+//! It is a set of feature modules, and a build ships only the ones its program
+//! reaches ([`assemble`]); [`full`] is every module at once.
+//!
 //! The JavaScript runtime, in feature modules.
 //!
 //! The runtime is not one file any more. It is a set of modules — `each`,

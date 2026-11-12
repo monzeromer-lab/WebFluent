@@ -1,3 +1,6 @@
+//! Where a build writes: the disk, or — inside [`capture`] — memory,
+//! which is how the compiler builds as WebAssembly in a browser.
+//!
 //! Where a build writes.
 //!
 //! What a project says is read through [a `Vfs`](crate::base::vfs::Vfs); what a

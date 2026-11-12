@@ -1,3 +1,6 @@
+//! `public/` as data: every file, its kind, size and dimensions, where
+//! the project names it, and what the media pipeline will make of an image.
+//!
 //! `public/` as data: every file in it — its kind, its size, its
 //! dimensions — and every place the project names it, so an assets panel
 //! is a listing rather than a guess, the unused are counted, and a picker

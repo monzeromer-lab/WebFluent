@@ -1,3 +1,7 @@
+//! `wf audit`: what a project trusts — markup it did not write, other
+//! origins, what it keeps on the reader's machine, its `env` names, its
+//! policy and its dependencies.
+//!
 //! What a project trusts, in one place: `wf audit` prints it, and the
 //! mobile editor shows it.
 //!

@@ -1,3 +1,6 @@
+//! `data` declarations: the JSON files and pictures a program names, read
+//! at build time and made constants.
+//!
 //! `data posts = "posts.json"`: a file read at build time, whose JSON is
 //! the value of a constant. The build resolves every `data` declaration
 //! into a `const` before anything else runs, so the checker, the static

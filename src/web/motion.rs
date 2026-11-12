@@ -1,3 +1,6 @@
+//! Motion as data: the animations, eases and speeds an element can take,
+//! the route transition, the project's default, and how each is written.
+//!
 //! Motion as data: the animations an element can play, how fast and how
 //! paced, the route transition, the project's default — and how each is
 //! written on an element, so an inspector offers what the engine has and

@@ -1,3 +1,5 @@
+//! What a running page changes to follow an edit, with no reload.
+//!
 //! An in-place patch from an edit: what a running page must change when a
 //! `style { }` block or a literal text changes, with no reload.
 //!

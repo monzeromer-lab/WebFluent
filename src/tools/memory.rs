@@ -1,3 +1,6 @@
+//! A project built from memory, with nothing read from or written to a disk:
+//! what the browser's playground runs.
+//!
 //! A project built from memory.
 //!
 //! [`compile`] takes a project as a map of path → contents — `src/App.wf`,

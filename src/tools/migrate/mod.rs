@@ -1,3 +1,5 @@
+//! `wf migrate`: the original grammar rewritten as WebFluent 3.
+//!
 //! `wf migrate`: a project written in the original grammar, rewritten in
 //! WebFluent 3.
 //!

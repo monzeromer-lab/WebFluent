@@ -1,3 +1,6 @@
+//! `wf verify`: every page of a built project in a browser — what each
+//! route did, and the built-ins no page drew.
+//!
 //! `wf verify` — every page of a project, in a real browser.
 //!
 //! A build says what the compiler wrote. This says what a browser does

@@ -1,3 +1,7 @@
+//! Validation as data: every rule a `validate` block may hold, the named
+//! patterns, when a form shows its messages, the rules one state is held
+//! to, and the block written back one rule at a time.
+//!
 //! Validation as data: every rule a `validate` block may hold, what it
 //! takes and what it says when the author writes nothing; the patterns
 //! people actually write, by name; when a `Form` shows its messages; the

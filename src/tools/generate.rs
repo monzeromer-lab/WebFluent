@@ -1,3 +1,6 @@
+//! `wf generate` as a library call: the source of a new page, component or
+//! store, and [`create`] to write one in the project's layout.
+//!
 //! What `wf generate` writes: a new page, component or store — or an empty
 //! file — in the layout the project's sources are written in.
 

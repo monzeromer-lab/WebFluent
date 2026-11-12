@@ -1,3 +1,6 @@
+//! Where a project is read from: the disk ([`FsVfs`]), or the disk with
+//! an editor's unsaved buffers over it ([`OverlayVfs`]).
+//!
 //! Where a project is read from.
 //!
 //! Everything that reads a project — `wf build`, the language server, an

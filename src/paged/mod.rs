@@ -16,8 +16,6 @@ pub mod layout;
 pub mod paginate;
 pub mod paint;
 pub mod style;
-/// Style values as data: what shape a property's value has, the value read
-/// into its parts, and the narrowest declaration written back.
 pub mod style_value;
 pub mod text;
 pub mod toc;

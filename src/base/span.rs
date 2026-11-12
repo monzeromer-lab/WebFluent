@@ -1,4 +1,6 @@
 //! Where a node of a program was written.
+//!
+//! Where a node of a program was written.
 
 /// A source span: a byte range into the original `.wf` source plus the
 /// 1-based line/column of its start.

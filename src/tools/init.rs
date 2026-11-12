@@ -1,3 +1,5 @@
+//! `wf init`: a new project from a template.
+//!
 //! `wf init`: a new project from a template — a single-page app, a static
 //! site, a PDF, or a slide deck — written as a folder of its own. `wf init`
 //! makes one in the current directory; the mobile editor, in its projects.

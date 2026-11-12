@@ -1,3 +1,6 @@
+//! The smallest edit: the patches that turn one node's source into an
+//! edited copy's, touching nothing else.
+//!
 //! The smallest edit: given a node as it was parsed and the same node as an
 //! editor changed it, the patches that turn the one's source into the
 //! other's — and nothing else in the file moves.

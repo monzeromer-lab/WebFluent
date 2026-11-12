@@ -1,3 +1,5 @@
+//! A project's sources, read and merged into one program.
+//!
 //! A project's sources, read: every `.wf`, `.wfx` and `.md` file under
 //! `src/`, parsed and merged into one program, with its scripts, its `data`
 //! and `image` declarations resolved and any `api … from` specification

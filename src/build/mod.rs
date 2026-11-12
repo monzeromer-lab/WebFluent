@@ -10,8 +10,6 @@
 //! parse. [`check()`](crate::build::check) is `wf check`: every finding of a
 //! build, with nothing written.
 
-/// `public/` as data: every file, its kind, size and dimensions, where
-/// the project names it, and what the media pipeline will make of an image.
 pub mod assets;
 pub mod cache;
 pub mod offline;

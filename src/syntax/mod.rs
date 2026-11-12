@@ -13,19 +13,13 @@
 //! `store`, `theme`, `app`, `type`, `enum`); the old grammar's were
 //! capitalised.
 
-/// `wf fmt --to wfx|wf`: the one grammar in either layout, braces or
-/// indentation.
 pub mod fmt;
 pub mod js_scan;
 pub mod layout;
 pub mod lexer;
 pub mod node_id;
 pub mod parser;
-/// The tree written back as source, one node at a time: what an editor
-/// that changes a node writes in its place.
 pub mod print;
-/// The smallest edit: the patches that turn one node's source into an
-/// edited copy's, touching nothing else.
 pub mod reprint;
 use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
 use crate::syntax::lexer::Token;
