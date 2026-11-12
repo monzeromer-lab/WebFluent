@@ -45,8 +45,9 @@ pub struct SourceFile {
     pub path: PathBuf,
     pub source: Arc<str>,
     pub index: LineIndex,
-    /// The file's own parse of its current text.
-    pub parsed: Result<Program, WebFluentError>,
+    /// The file's own parse of its current text, shared: the server keeps
+    /// the last one that succeeded without copying it.
+    pub parsed: Result<Arc<Program>, WebFluentError>,
     /// Whether the text came from an open editor buffer rather than the disk.
     pub open: bool,
     /// Whether this file's declarations in the merged program come from an
@@ -103,6 +104,24 @@ struct CachedFile {
 }
 
 impl FileCache {
+    /// Forget every file that is not under one of `roots`: the projects of
+    /// the files still open. A server that has had a hundred projects open
+    /// in a day holds only the ones it still has.
+    pub fn retain_under(&self, roots: &[PathBuf]) {
+        self.entries
+            .retain(|path, _| roots.iter().any(|root| path.starts_with(root)));
+    }
+
+    /// How many files it holds.
+    pub fn len(&self) -> usize {
+        self.entries.len()
+    }
+
+    /// Whether it holds none.
+    pub fn is_empty(&self) -> bool {
+        self.entries.is_empty()
+    }
+
     fn read(&self, vfs: &dyn Vfs, path: &Path) -> Option<Arc<str>> {
         let meta = vfs.metadata(path).ok()?;
         // A buffer has no time to tell its edits apart by, and is in memory
@@ -241,7 +260,7 @@ impl Project {
                 .unwrap_or(&file_path)
                 .to_string_lossy()
                 .to_string();
-            let parsed = parse(&source, &label);
+            let parsed = parse(&source, &label).map(Arc::new);
             let stale = parsed.is_err() && last_valid.is_some();
             let file_path_is_markdown = file_path.extension().is_some_and(|e| e == "md");
             fallbacks.push(last_valid);
@@ -285,9 +304,9 @@ impl Project {
                 path: script_path,
                 index: LineIndex::new(&source),
                 source,
-                parsed: Ok(Program {
+                parsed: Ok(Arc::new(Program {
                     declarations: vec![declaration],
-                }),
+                })),
                 open: false,
                 stale: false,
                 script: true,
@@ -316,12 +335,12 @@ impl Project {
                 path: config_path,
                 index: LineIndex::new(&source),
                 source,
-                parsed: Ok(Program {
+                parsed: Ok(Arc::new(Program {
                     declarations: vec![Declaration::Script(webfluent::parser::ast::ScriptDecl {
                         path: "webfluent.app.json".to_string(),
                         names,
                     })],
-                }),
+                })),
                 open: false,
                 stale: false,
                 script: true,
@@ -333,7 +352,7 @@ impl Project {
         let mut decl_file = Vec::new();
         for (file_ix, file) in files.iter().enumerate() {
             let program: Option<&Program> = match &file.parsed {
-                Ok(program) => Some(program),
+                Ok(program) => Some(program.as_ref()),
                 Err(_) => fallbacks[file_ix].as_deref(),
             };
             if let Some(program) = program {
@@ -372,7 +391,7 @@ impl Project {
         } else {
             "test.wf"
         };
-        let parsed = parse(&source, label);
+        let parsed = parse(&source, label).map(Arc::new);
         let file = SourceFile {
             uri,
             path: PathBuf::new(),
@@ -452,6 +471,14 @@ pub(crate) fn parse(source: &str, label: &str) -> Result<Program, WebFluentError
         return webfluent::data::markdown_page(source, label);
     }
     webfluent::parse_source(source, label)
+}
+
+/// The project `path` is in, on the disk: the nearest ancestor that holds a
+/// `webfluent.app.json`, or the file's own directory.
+pub fn root_of(path: &Path) -> PathBuf {
+    find_root(&FsVfs, path)
+        .or_else(|| path.parent().map(Path::to_path_buf))
+        .unwrap_or_default()
 }
 
 /// The nearest ancestor of `path` that holds a `webfluent.app.json`.
