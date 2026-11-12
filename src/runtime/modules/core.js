@@ -4,7 +4,12 @@
   function signal(value) {
     const subs = new Set();
     const get = () => {
-      if (currentEffect) subs.add(currentEffect);
+      if (currentEffect) {
+        subs.add(currentEffect);
+        // The effect remembers where it is listed, so that a run that no
+        // longer reads this signal, and its disposal, take it off again.
+        if (currentEffect.deps) currentEffect.deps.add(subs);
+      }
       return value;
     };
     // A signal holds any value, a function included: `set(fn)` stores
@@ -101,19 +106,46 @@
 
   // An effect runs at once and again when a signal it read changes; what
   // it returns is its cleanup, run before the next run and on disposal.
+  //
+  // An effect listens to exactly what its last run read: each run takes it
+  // off every signal it was listed on and the run lists it again, so a
+  // branch that stopped reading a value stops running for it. A run that
+  // throws keeps what it was listening to before as well, since it never
+  // got as far as reading it. Disposal takes it off every signal, so a
+  // signal that outlives it — a store's state, the route — does not keep
+  // it, its closure and the nodes it updates alive.
   function effect(fn) {
     let cleanup = null;
     let dead = false;
+    const unlist = (deps) => { for (const subs of deps) subs.delete(run); };
     const run = () => {
       if (dead) return;
       if (typeof cleanup === "function") { const c = cleanup; cleanup = null; c(); }
+      if (dead) return;
+      const before = run.deps;
+      unlist(before);
+      run.deps = new Set();
       const prev = currentEffect;
       currentEffect = run;
-      try { cleanup = fn(); } finally { currentEffect = prev; }
+      let ok = false;
+      try { cleanup = fn(); ok = true; } finally {
+        currentEffect = prev;
+        if (dead) {
+          unlist(run.deps);
+          run.deps = new Set();
+        } else if (!ok) {
+          for (const subs of before) { subs.add(run); run.deps.add(subs); }
+        }
+      }
     };
+    run.deps = new Set();
     run.order = ++effectsMade;
     run.dispose = () => {
+      if (dead) return;
       dead = true;
+      unlist(run.deps);
+      run.deps = new Set();
+      if (pending !== null) pending.delete(run);
       if (typeof cleanup === "function") { const c = cleanup; cleanup = null; c(); }
     };
     onCleanup(run.dispose);
