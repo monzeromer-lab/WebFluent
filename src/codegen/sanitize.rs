@@ -184,12 +184,46 @@ pub fn sanitize(html: &str) -> String {
             };
             kept.push((key, value));
         }
-        // A link that opens elsewhere does not hand it a handle on this page.
-        if name == "a"
-            && kept.iter().any(|(k, _)| k == "target")
-            && !kept.iter().any(|(k, _)| k == "rel")
-        {
-            kept.push(("rel".to_string(), "noopener noreferrer".to_string()));
+        // A link that opens elsewhere does not hand it a handle on this page:
+        // its `rel` keeps the author's other words, loses `opener` (which
+        // would ask for exactly that handle), and always ends `noopener
+        // noreferrer`. The runtime's twin (`sanitize.js`) holds the same rule.
+        // Without a target, `opener` still asks for nothing a link should
+        // have: it is dropped, and a `rel` it leaves empty goes with it.
+        if name == "a" && !kept.iter().any(|(k, _)| k == "target") {
+            kept.retain_mut(|(k, v)| {
+                if k != "rel" {
+                    return true;
+                }
+                let words: Vec<&str> = v.split_ascii_whitespace().collect();
+                if !words.iter().any(|w| w.eq_ignore_ascii_case("opener")) {
+                    return true;
+                }
+                let rest: Vec<&str> = words
+                    .into_iter()
+                    .filter(|w| !w.eq_ignore_ascii_case("opener"))
+                    .collect();
+                *v = rest.join(" ");
+                !v.is_empty()
+            });
+        }
+        if name == "a" && kept.iter().any(|(k, _)| k == "target") {
+            let guarded = |rel: &str| {
+                let mut words: Vec<&str> = rel
+                    .split_ascii_whitespace()
+                    .filter(|w| {
+                        !["opener", "noopener", "noreferrer"]
+                            .iter()
+                            .any(|x| w.eq_ignore_ascii_case(x))
+                    })
+                    .collect();
+                words.extend(["noopener", "noreferrer"]);
+                words.join(" ")
+            };
+            match kept.iter_mut().find(|(k, _)| k == "rel") {
+                Some((_, rel)) => *rel = guarded(rel),
+                None => kept.push(("rel".to_string(), guarded(""))),
+            }
         }
         out.push('<');
         out.push_str(&name);
