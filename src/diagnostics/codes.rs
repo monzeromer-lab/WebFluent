@@ -231,6 +231,12 @@ pub static CODES: &[CodeInfo] = &[
         "Something nests too deeply",
         "Brackets, blocks, components that place each other, or the links of one chain (`a.b.c`, `1 + 2 + 3`) nest more than 100 levels deep, which no pass of the compiler follows.",
     ),
+    code(
+        "E121",
+        Error,
+        "A render that would do too much",
+        "A template's render would draw more elements and loop items, work out more, or write more markup than one render may: nested loops over vast ranges or data, or an expression that makes more than one evaluation may.",
+    ),
     // ── T: types ─────────────────────────────────────────────────────
     code(
         "T01",

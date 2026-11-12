@@ -1,6 +1,5 @@
 use std::fmt;
 
-/// All token types produced by the WebFluent lexer.
 /// How a string literal was written, which decides what its text means.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum StringKind {
@@ -358,17 +357,6 @@ impl Token {
     }
 }
 
-/// The built-in component this token names, if it names one.
-///
-/// Built-in component names are lexed as dedicated keyword tokens, which is right
-/// in *element* position but wrong everywhere a plain name is expected: a page
-/// called `Menu` could be declared but never routed to, because
-/// `Route(path: "/menu", page: Menu)` hit the expression parser and failed with
-/// "Expected expression, got Menu". Every builtin name was affected — `Menu`,
-/// `Card`, `List`, `Table`, `Form`, `Alert`, `Modal`, `Link`, `Text`, `Image`,
-/// `Icon`, `Footer`, `Badge` — and `Menu` is the likeliest page name a restaurant
-/// site will ever have.
-///
 /// Every built-in component name the parser accepts as an element, in the
 /// language reference's order. `List` is spelled by the `TypeList` token.
 pub const ALL_COMPONENT_NAMES: &[&str] = &[
@@ -475,6 +463,17 @@ pub const ALL_COMPONENT_NAMES: &[&str] = &[
     "Route",
 ];
 
+/// The built-in component this token names, if it names one.
+///
+/// Built-in component names are lexed as dedicated keyword tokens, which is right
+/// in *element* position but wrong everywhere a plain name is expected: a page
+/// called `Menu` could be declared but never routed to, because
+/// `Route(path: "/menu", page: Menu)` hit the expression parser and failed with
+/// "Expected expression, got Menu". Every builtin name was affected — `Menu`,
+/// `Card`, `List`, `Table`, `Form`, `Alert`, `Modal`, `Link`, `Text`, `Image`,
+/// `Icon`, `Footer`, `Badge` — and `Menu` is the likeliest page name a restaurant
+/// site will ever have.
+///
 /// The parser uses this to accept such a token where a name is expected. Only
 /// component keywords are listed: control-flow and declaration keywords (`if`,
 /// `for`, `Page`, `style`) stay reserved.

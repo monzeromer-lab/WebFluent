@@ -652,6 +652,20 @@ deepest program of this guide, the examples and the site nests 15 levels.
 component — and use the name. A component that places itself stops when
 its data does; one whose data does not end is this error too.
 
+### E121 — A render that would do too much
+
+Error, from the template engine (`wf render`, `Template::render_*`). One
+render may take ten million steps — an element drawn, a loop item, a unit
+of working a value out — and write 256 MB of markup, and one expression
+may make about half a million list items or 32 MB of text. A render past
+any of them stops and says where, instead of growing until the server
+runs out of memory: two nested `for` loops over ranges of a billion, a
+loop over the data inside a loop over the data that is too large, or
+`(1..=1000000).map(i => 1..=1000000)`. A build that meets such an
+expression at build time leaves it to the page, as it does any value it
+cannot work out. **Fix:** draw less — page the data before it reaches the
+template, or work the value out on the server and hand it over.
+
 ## Components
 
 ### C01 — A required prop or field left out
