@@ -1,14 +1,14 @@
 # WebFluent refactoring: the plan
 
-Status: **Phases 0, 0b, 1, 2 and 3 done.** The editors are their own
+Status: **Phases 0, 0b, 1, 2, 3 and 4 done.** The editors are their own
 repositories, linked as submodules. Every bug the two reviews found —
 B1–B14 ([review.md](review.md)) and S1–S47, M1–M28 (the security and
 memory review, kept out of the repository) — is fixed with a regression
 test; see Phase 0b for the few that are partial or wait on the
 maintainer. The safety net is in place (Phase 0) and the repository is
 tidied (Phase 2). The module graph is layered and acyclic, held there by
-`tests/module_layers.rs` with no exceptions (Phase 3). Phase 4, moving the
-folders into their layers, is next.
+`tests/module_layers.rs` with no exceptions (Phase 3), and `src/` is the
+layer folders (Phase 4). Phase 5, inside the layers, is next.
 Last updated: 2026-11-12.
 
 This file is the single source of truth for the refactor. It records what
@@ -580,6 +580,43 @@ golden output is unchanged.
 Done when: `src/` holds the layer folders and nothing else besides
 `lib.rs` and `main.rs`, the layer test has no exceptions, and the golden and
 semver checks still pass.
+
+**Done (2026-11-12),** one commit per layer, each changing paths and not
+logic. `src/` holds `base`, `diagnostics`, `syntax`, `registry`, `project`,
+`check`, `web`, `paged`, `template`, `build`, `tools` and `cli`, beside
+`lib.rs` and `main.rs`. `cargo semver-checks --baseline-rev` against the
+commit before the phase finds nothing to bump, and the golden output is
+unchanged (the site differs only in the contributing chapter, which now
+describes the layers). What differs from the steps above:
+
+- **Where a few modules landed.** `diagnostics::check` (`check_project`)
+  is `web::check`, because it calls code generation and `template` calls
+  it. `media`, `openapi` and the shared codegen helpers (`url`, `format`,
+  `sanitize`, `static_eval`, `builtin`, `scoped_css`) are in `project`,
+  since lower layers use them. `registry::{json, schema}` and
+  `themes::view` are `tools::{registry_json, registry_schema, theme_view}`.
+- **The layer test is simpler and stricter.** A module's layer is its
+  folder, and the crate's own code must name a module by its layer path:
+  `crate::codegen::js` fails, `crate::web::codegen::js` passes.
+- **Two kinds of public path.** `base`, `project`, `check`, `web` and
+  `tools` are `pub(crate)`, so what moved into them keeps exactly its old
+  public path. `diagnostics`, `syntax`, `registry`, `paged`, `template`
+  and `build` were already public modules, so what moved into them is
+  public at both paths (`webfluent::lexer` and `webfluent::syntax::lexer`).
+  `tests/public-api.txt` grew from 11,999 to 16,370 lines as a result,
+  with no item removed. Hiding the new paths with `#[doc(hidden)]` was
+  tried and dropped: rustdoc then prints signatures with paths no user can
+  write. Phase 6 decides which paths stay.
+- **Step 3 (narrow visibility, `unreachable_pub`)** waits for that same
+  Phase 6 decision, since what is public is what it settles.
+- **Step 4** needed no change: `wf-lsp` and `wf-wasm` build through the
+  old public paths.
+- **Step 5** is done for the three crates that exist (`[workspace.package]`
+  and `serde_json` in `[workspace.dependencies]`). `just bump` sets the
+  version once, and the release preflight checks every crate inherits it.
+  `xtask` does not exist yet.
+- **Step 6 (`--timings`)** is not measured yet; the change moved files, not
+  code, so it is due once Phase 5 splits the large ones.
 
 ### Phase 5 — Inside the layers (parallel, one concern per PR)
 
