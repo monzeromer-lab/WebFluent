@@ -25,12 +25,12 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                     Table.Cell { Markdown("Creates a project from a template, translated into `LIST` when given") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`wf build [-d, --dir DIR] [--stats] [--format FORMAT] [--deny-warnings] [--cache] [--studio]`") }
+                    Table.Cell { Markdown("`wf build [-d, --dir DIR] [--stats] [--format FORMAT] [--deny-warnings] [--cache] [--studio] [--allow-output-outside]`") }
                     Table.Cell("Compiles the project; fails on errors, prints warnings")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`wf serve [-d, --dir DIR]`") }
-                    Table.Cell { Markdown("Builds, serves on `dev.port`, and rebuilds and reloads on every save") }
+                    Table.Cell { Markdown("`wf serve [-d, --dir DIR] [--host ADDRESS] [--allow-output-outside]`") }
+                    Table.Cell { Markdown("Builds, serves on `dev.port` to this machine, and rebuilds and reloads on every save") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`wf generate page|component|store NAME [-d, --dir DIR]`") }
@@ -57,7 +57,7 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                     Table.Cell { Markdown("Runs the project's `test` declarations") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`wf verify [PATH] [--json] [--budget MS] [--returning-visitor]`") }
+                    Table.Cell { Markdown("`wf verify [PATH] [--json] [--budget MS] [--returning-visitor] [--allow-output-outside]`") }
                     Table.Cell("Loads every built page in headless Chrome")
                 }
                 Table.Row {
@@ -225,6 +225,12 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                     Table.Cell("off")
                     Table.Cell("Prints what the build weighs.")
                 }
+                Table.Row {
+                    Table.Cell { Markdown("`--allow-output-outside`") }
+                    Table.Cell("—")
+                    Table.Cell("off")
+                    Table.Cell { Markdown("Lets `build.output` name a directory outside the project (below).") }
+                }
             }
         }
 
@@ -233,7 +239,7 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                 Line(command: "wf build --format github --deny-warnings")
             ])
 
-        Markdown("An error stops the build and prints the file, line, column, message and a hint. A warning prints and the build goes on.\n\n`--format` takes four values:")
+        Markdown("**A build stays inside its project.** It reads only the project's own files: a `data`, `image`, `api … from`, `i18n.dir` or font directory names a path inside the project (an absolute path or a `..` is an error), and a symbolic link that leads out of the project — or to nothing, or back into a directory above it — is left out of every walk, with a warning naming it. A link that stays inside is followed. It writes only inside its project too: `build.output` is refused when it climbs out (`../site`, `/var/www`) or is a link to somewhere else, and a link already inside the output is refused rather than written through. `--allow-output-outside` is how the person running the build lets it write elsewhere; a project's config cannot ask for it. A build removes only the `.gz` files an earlier build wrote (it keeps their names in `.wf-cache/precompressed.json`); any other `.gz` in the output is left alone.\n\nAn error stops the build and prints the file, line, column, message and a hint. A warning prints and the build goes on.\n\n`--format` takes four values:")
 
         Table(caption: "wf build") {
             Table.Head {
@@ -284,14 +290,27 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                     Table.Cell { Markdown("`.`") }
                     Table.Cell("The project to serve.")
                 }
+                Table.Row {
+                    Table.Cell { Markdown("`--host`") }
+                    Table.Cell("an address")
+                    Table.Cell { Markdown("`127.0.0.1`") }
+                    Table.Cell { Markdown("Where to listen: this machine only, unless told otherwise. `0.0.0.0` lets a phone on the same network reach it.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`--allow-output-outside`") }
+                    Table.Cell("—")
+                    Table.Cell("off")
+                    Table.Cell { Markdown("Lets `build.output` name a directory outside the project.") }
+                }
             }
         }
 
         Terminal(lines: [
-                Line(command: "wf serve")
+                Line(command: "wf serve"),
+                Line(command: "wf serve --host 0.0.0.0     # a phone on this network, at the address it prints")
             ])
 
-        Markdown("The server listens on `dev.port` (3000). It watches `src/`, `public/` and the config, rebuilds on a change, and reloads every open tab. Each rebuild is a `wf build --cache`, so only the pages the change reached are rendered again.\n\nWhen a build fails, the last good page stays up and the error is drawn over it — file, line, message and hint — until a save fixes it. The overlay is served at `/__wf/dev.js`, and the build's state, as JSON, at `/__wf/status`.\n\nEvery page the server sends also carries a **stores** button. It shows what each store holds, a log of every action with the state on each side of it, and lets you put a store back to before an action ran ([Stores](/docs/guide/stores#looking-at-one-while-it-runs)). The service worker of an offline site is removed under `wf serve`, so an edit is never hidden behind its cache.\n\nA request that is not a navigation — a `fetch`, a script, an image — for a file the build did not write gets a `404`, as a host would send, and a line in the terminal naming the file. Only a navigation gets the single-page shell. (Answering a missing API with the shell's HTML makes the page fail to parse it, far from the cause.)\n\nA build under `wf serve` is a *development build*, and it adds these checks to the running page:\n\n- A response with a declared type — `resource users: [User] = …`, an `api` endpoint's `-> User` — is held to that type as it arrives. One that does not match takes the `error` arm as a `.parse` error naming the place: `$[1].name is missing`.\n- A route no page answers (and no `path: \"*\"` page catches) shows a `404` box saying so. A deployed page shows nothing.\n- An item of a `for` that throws shows where it is and what it threw, and the rest of the list draws. On a deployed page the item leaves a gap and the console says why.\n- An effect that changes what it reads every time it runs is stopped after a hundred runs, with a warning, instead of overflowing the stack. A deployed page stops it too, silently.\n\nSee also: [`dev` in Configuration](/docs/guide/config#dev).")
+        Markdown("The server listens on `dev.port` (3000), on `127.0.0.1`: nothing else on the network can reach it unless `--host` says so. It watches `src/`, `public/` and the config, rebuilds on a change, and reloads every open tab. Each rebuild is a `wf build --cache`, so only the pages the change reached are rendered again.\n\nIt serves the build and nothing beside it: an address that climbs out (`/../`, written plainly or as `%2e%2e`), holds a backslash or a NUL, or reaches a link out of the build is a `404`. It answers only a request whose `Host` is a name it is reached by — `localhost`, an address written as numbers, the `--host` it was given, and with `--host 0.0.0.0` a `.local` name — so a page on another site cannot point a name of its own at this machine and read the build (DNS rebinding); any other gets a `421`. It answers several requests at once, streams files rather than reading them whole, and compresses a file once until it changes.\n\nWhen a build fails, the last good page stays up and the error is drawn over it — file, line, message and hint — until a save fixes it. The overlay is served at `/__wf/dev.js`, and the build's state, as JSON, at `/__wf/status`.\n\nEvery page the server sends also carries a **stores** button. It shows what each store holds, a log of every action with the state on each side of it, and lets you put a store back to before an action ran ([Stores](/docs/guide/stores#looking-at-one-while-it-runs)). The service worker of an offline site is removed under `wf serve`, so an edit is never hidden behind its cache.\n\nA request that is not a navigation — a `fetch`, a script, an image — for a file the build did not write gets a `404`, as a host would send, and a line in the terminal naming the file. Only a navigation gets the single-page shell. (Answering a missing API with the shell's HTML makes the page fail to parse it, far from the cause.)\n\nA build under `wf serve` is a *development build*, and it adds these checks to the running page:\n\n- A response with a declared type — `resource users: [User] = …`, an `api` endpoint's `-> User` — is held to that type as it arrives. One that does not match takes the `error` arm as a `.parse` error naming the place: `$[1].name is missing`.\n- A route no page answers (and no `path: \"*\"` page catches) shows a `404` box saying so. A deployed page shows nothing.\n- An item of a `for` that throws shows where it is and what it threw, and the rest of the list draws. On a deployed page the item leaves a gap and the console says why.\n- An effect that changes what it reads every time it runs is stopped after a hundred runs, with a warning, instead of overflowing the stack. A deployed page stops it too, silently.\n\nSee also: [`dev` in Configuration](/docs/guide/config#dev).")
 
         Heading("wf generate", id: "wf-generate").h3
 
@@ -586,6 +605,12 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                     Table.Cell("off")
                     Table.Cell("Visits every route again as a returning reader (below).")
                 }
+                Table.Row {
+                    Table.Cell { Markdown("`--allow-output-outside`") }
+                    Table.Cell("—")
+                    Table.Cell("off")
+                    Table.Cell { Markdown("Lets `build.output` name a directory outside the project.") }
+                }
             }
         }
 
@@ -593,7 +618,7 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                 Line(command: "wf build && wf verify")
             ])
 
-        Markdown("`wf build` reports what the compiler wrote; `wf verify` reports what a browser does with it. It builds nothing: it starts a headless Chrome, serves what `wf build` wrote, and opens every route the project has — a `:param` route at each value its `paths:` names, or at a placeholder (`/user/1`) when it names none.\n\nA route fails on any of these:\n\n- an uncaught exception or a `console.error`;\n- a file that did not arrive (a `fetch` the build has no file for is a `404`, not the page shell);\n- an image that failed to load;\n- a router that drew nothing into `<main>`;\n- a page that rendered no text.\n\nThe report prints one line per route:")
+        Markdown("Chrome runs with its sandbox. Where it cannot start with one (a container that gives it none) it is started again without, and `wf verify` says so; `WF_CHROME_NO_SANDBOX=1` skips the first try. Its profile is a private directory with a name nobody can guess, and the browser and the profile go when `wf verify` or `wf test` ends — however it ends, a signal included.\n\n`wf build` reports what the compiler wrote; `wf verify` reports what a browser does with it. It builds nothing: it starts a headless Chrome, serves what `wf build` wrote, and opens every route the project has — a `:param` route at each value its `paths:` names, or at a placeholder (`/user/1`) when it names none.\n\nA route fails on any of these:\n\n- an uncaught exception or a `console.error`;\n- a file that did not arrive (a `fetch` the build has no file for is a `404`, not the page shell);\n- an image that failed to load;\n- a router that drew nothing into `<main>`;\n- a page that rendered no text.\n\nThe report prints one line per route:")
 
         CodeBlock(#"  16 route(s) in http://127.0.0.1:39785
     ok   /                                    236ms     613 nodes    447.0 kB   11 req

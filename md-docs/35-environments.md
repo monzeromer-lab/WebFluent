@@ -71,9 +71,19 @@ one in this list wins:
    PUBLIC_API=https://api.example.com wf build
    ```
 
-   The shell supplies a name that the config or `.env` already declares, or
-   any name that is public (see the next section). It does not bring in
-   every variable the build happens to run with, such as `HOME`.
+   The shell supplies a name that begins `PUBLIC_`, or a private name the
+   config or `.env` already declares. It does not bring in every variable
+   the build happens to run with, such as `HOME`.
+
+   A name that `public_env` makes public without the prefix takes its
+   value from the config or `.env` only — `public_env` is part of the
+   project, and a project you cloned could list `AWS_SECRET_ACCESS_KEY`
+   there to publish your shell's value. To let the shell supply one, name
+   it in `WF_ALLOW_SHELL_ENV`, comma-separated:
+
+   ```bash
+   WF_ALLOW_SHELL_ENV=ANALYTICS_ID ANALYTICS_ID=UA-2 wf build
+   ```
 
 > [!NOTE]
 > Versions before 4.1 read only the config's `env` map.
@@ -108,8 +118,9 @@ bundle: the build writes only public values into it.
 
 > [!CAUTION]
 > Adding a name to `public_env` publishes its value to every reader of the
-> site. A secret that a third party needs belongs in a request your server
-> makes, not in a page ([Security](30-security.md#keep-secrets-out-of-the-bundle)).
+> site, and every build says so with a warning naming it. A secret that a
+> third party needs belongs in a request your server makes, not in a page
+> ([Security](30-security.md#keep-secrets-out-of-the-bundle)).
 
 ## Name your own values something other than `env`
 

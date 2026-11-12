@@ -157,7 +157,7 @@ pub const FIELDS: &[Field] = &[
     f(
         "build.output",
         String,
-        "The directory the site is written to.",
+        "The directory the site is written to, inside the project (outside it only with `--allow-output-outside`).",
     ),
     f(
         "build.output_type",

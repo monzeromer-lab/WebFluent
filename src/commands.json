@@ -146,6 +146,20 @@
           "takes": "nothing",
           "value_name": "STUDIO",
           "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Let `build.output` name a directory outside the project; without it a build writes only inside the project",
+          "long": "allow-output-outside",
+          "name": "allow_output_outside",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "ALLOW_OUTPUT_OUTSIDE",
+          "values": []
         }
       ],
       "preview": null,
@@ -884,6 +898,34 @@
           "takes": "path",
           "value_name": "DIR",
           "values": []
+        },
+        {
+          "default": "127.0.0.1",
+          "flag": false,
+          "help": "The address to listen on: this machine only by default; `0.0.0.0` lets a phone on the same network reach it",
+          "long": "host",
+          "name": "host",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "text",
+          "value_name": "HOST",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Let `build.output` name a directory outside the project",
+          "long": "allow-output-outside",
+          "name": "allow_output_outside",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "ALLOW_OUTPUT_OUTSIDE",
+          "values": []
         }
       ],
       "preview": null,
@@ -1298,6 +1340,20 @@
           "short": null,
           "takes": "nothing",
           "value_name": "RETURNING_VISITOR",
+          "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Let `build.output` name a directory outside the project",
+          "long": "allow-output-outside",
+          "name": "allow_output_outside",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "ALLOW_OUTPUT_OUTSIDE",
           "values": []
         }
       ],

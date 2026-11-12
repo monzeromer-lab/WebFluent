@@ -27,15 +27,15 @@ wf serve
 | Command | What it does |
 |---|---|
 | `wf init NAME [-t, --template spa\|static\|pdf\|slides] [-l, --locales LIST]` | Creates a project from a template, translated into `LIST` when given |
-| `wf build [-d, --dir DIR] [--stats] [--format FORMAT] [--deny-warnings] [--cache] [--studio]` | Compiles the project; fails on errors, prints warnings |
-| `wf serve [-d, --dir DIR]` | Builds, serves on `dev.port`, and rebuilds and reloads on every save |
+| `wf build [-d, --dir DIR] [--stats] [--format FORMAT] [--deny-warnings] [--cache] [--studio] [--allow-output-outside]` | Compiles the project; fails on errors, prints warnings |
+| `wf serve [-d, --dir DIR] [--host ADDRESS] [--allow-output-outside]` | Builds, serves on `dev.port` to this machine, and rebuilds and reloads on every save |
 | `wf generate page\|component\|store NAME [-d, --dir DIR]` | Writes a starter file |
 | `wf check [-d, --dir DIR] [--format FORMAT] [--deny-warnings]` | Reports every finding a build would report, and writes nothing |
 | `wf fix [-d, --dir DIR] [--code CODE] [--dry-run]` | Applies every finding's fix, or the fixes for one code |
 | `wf config schema [--json]`, `wf config get\|set\|unset PATH [VALUE] [-d, --dir DIR]` | Lists every setting, and edits `webfluent.app.json` without changing its shape |
 | `wf explain [CODE]` | Prints what a diagnostic code means, a program that draws it, and the fix |
 | `wf test [PATH] [--update]` | Runs the project's `test` declarations |
-| `wf verify [PATH] [--json] [--budget MS] [--returning-visitor]` | Loads every built page in headless Chrome |
+| `wf verify [PATH] [--json] [--budget MS] [--returning-visitor] [--allow-output-outside]` | Loads every built page in headless Chrome |
 | `wf audit [PATH] [--json]` | Lists what the project trusts |
 | `wf fmt [PATH] [--check] [--stdout] [--to wf\|wfx]` | Formats sources, or switches their layout |
 | `wf render TEMPLATE [--data JSON] [-f, --format FORMAT] [-o, --output OUT] [--page NAME] [--lang LANG] [--theme NAME] [--token NAME=VALUE]` | Renders a template with data |
@@ -134,11 +134,26 @@ code generation — and writes the site to `build.output` (`./build`).
 | `--cache` | — | off | Reuses what earlier builds pre-rendered, and renders again only the pages an edit changed. |
 | `--studio` | — | off | Builds for an editor's preview: node ids on every element, and `nodes.json`. |
 | `--stats` | — | off | Prints what the build weighs. |
+| `--allow-output-outside` | — | off | Lets `build.output` name a directory outside the project (below). |
 
 ```bash
 wf build
 wf build --format github --deny-warnings
 ```
+
+**A build stays inside its project.** It reads only the project's own
+files: a `data`, `image`, `api … from`, `i18n.dir` or font directory names a
+path inside the project (an absolute path or a `..` is an error), and a
+symbolic link that leads out of the project — or to nothing, or back into a
+directory above it — is left out of every walk, with a warning naming it. A
+link that stays inside is followed. It writes only inside its project too:
+`build.output` is refused when it climbs out (`../site`, `/var/www`) or is a
+link to somewhere else, and a link already inside the output is refused
+rather than written through. `--allow-output-outside` is how the person
+running the build lets it write elsewhere; a project's config cannot ask for
+it. A build removes only the `.gz` files an earlier build wrote (it keeps
+their names in `.wf-cache/precompressed.json`); any other `.gz` in the
+output is left alone.
 
 An error stops the build and prints the file, line, column, message and a
 hint. A warning prints and the build goes on.
@@ -187,14 +202,29 @@ rebuilds and reloads on every save.
 | Option | Value | Default | Meaning |
 |---|---|---|---|
 | `-d`, `--dir` | a directory | `.` | The project to serve. |
+| `--host` | an address | `127.0.0.1` | Where to listen: this machine only, unless told otherwise. `0.0.0.0` lets a phone on the same network reach it. |
+| `--allow-output-outside` | — | off | Lets `build.output` name a directory outside the project. |
 
 ```bash
 wf serve
+wf serve --host 0.0.0.0     # a phone on this network, at the address it prints
 ```
 
-The server listens on `dev.port` (3000). It watches `src/`, `public/` and the
-config, rebuilds on a change, and reloads every open tab. Each rebuild is a
-`wf build --cache`, so only the pages the change reached are rendered again.
+The server listens on `dev.port` (3000), on `127.0.0.1`: nothing else on the
+network can reach it unless `--host` says so. It watches `src/`, `public/`
+and the config, rebuilds on a change, and reloads every open tab. Each
+rebuild is a `wf build --cache`, so only the pages the change reached are
+rendered again.
+
+It serves the build and nothing beside it: an address that climbs out
+(`/../`, written plainly or as `%2e%2e`), holds a backslash or a NUL, or
+reaches a link out of the build is a `404`. It answers only a request whose
+`Host` is a name it is reached by — `localhost`, an address written as
+numbers, the `--host` it was given, and with `--host 0.0.0.0` a `.local`
+name — so a page on another site cannot point a name of its own at this
+machine and read the build (DNS rebinding); any other gets a `421`. It
+answers several requests at once, streams files rather than reading them
+whole, and compresses a file once until it changes.
 
 When a build fails, the last good page stays up and the error is drawn over
 it — file, line, message and hint — until a save fixes it. The overlay is
@@ -395,10 +425,17 @@ wrong there.
 | `--json` | — | off | The same report, as JSON for a pipeline. |
 | `--budget` | milliseconds | none | Fails a route whose first paint is slower than this. |
 | `--returning-visitor` | — | off | Visits every route again as a returning reader (below). |
+| `--allow-output-outside` | — | off | Lets `build.output` name a directory outside the project. |
 
 ```bash
 wf build && wf verify
 ```
+
+Chrome runs with its sandbox. Where it cannot start with one (a container
+that gives it none) it is started again without, and `wf verify` says so;
+`WF_CHROME_NO_SANDBOX=1` skips the first try. Its profile is a private
+directory with a name nobody can guess, and the browser and the profile go
+when `wf verify` or `wf test` ends — however it ends, a signal included.
 
 `wf build` reports what the compiler wrote; `wf verify` reports what a
 browser does with it. It builds nothing: it starts a headless Chrome, serves
