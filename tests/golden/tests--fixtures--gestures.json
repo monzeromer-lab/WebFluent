@@ -1,0 +1,16 @@
+{
+  "diagnostics": [],
+  "files": {
+    "_headers": "6346b0222198fb8bcb1b20d9b54cfdd41492b1ee39f30f1c7456001d7678f1a8",
+    "app.js": "8a50cf8195e200e8e1a5615693fa05464b945d16600359e8c1a934b7b6be1ff4",
+    "app.js.gz": "3873ad3ec62281abe7e281d6230efe78724d2132b2742ec6f1bfdf04da059957",
+    "index.html": "353c7ea6ad633fe8d7cc1ce99ce50f50cf5465fe05469995afa7fc7101520e1c",
+    "index.html.gz": "a2581993b90a1f3287b6269d04068ccb99e1eb5c5fd0a7b0a79e8b49e4fa65d4",
+    "pages/Home.css": "2ac1002979df6b2cab2f7f347c34e286a681a590dc6e7bcf1d486a15a4e300fb",
+    "pages/Home.js": "16a1df7c361d2051e5352e9a6eaf8070c05b2f4525fbdc053f42f25b61218e1d",
+    "pages/Home.js.gz": "306435f176913dd9dbc22bd3fe98d054abd69b550967df3230178427d931f7c8",
+    "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
+    "styles.css": "f1bf299ed281579da108c9ccbbe89c5f8480757ef3db1f6ea282fa615687894e",
+    "styles.css.gz": "71fc33282adb25df3b2d169b0878d80c50508b8b9ac1551913a7ceb9ea15de43"
+  }
+}

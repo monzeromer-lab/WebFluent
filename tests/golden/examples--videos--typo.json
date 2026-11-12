@@ -1,0 +1,6 @@
+{
+  "diagnostics": [
+    "{\"code\":\"T05\",\"severity\":\"error\",\"message\":\"`User` has no field `nmae`\",\"file\":\"src/Profile.wf\",\"line\":7,\"column\":22,\"end_line\":7,\"end_column\":26,\"hint\":\"Did you mean `name`? Its fields are `name`, `role`, `email`\",\"related\":[],\"fixes\":[{\"title\":\"Change to `name`\",\"edits\":[{\"file\":\"src/Profile.wf\",\"line\":7,\"column\":21,\"end_line\":7,\"end_column\":26,\"text\":\".name\"}]}],\"tags\":[]}"
+  ],
+  "error": "error[T05]: `User` has no field `nmae`\n  --> src/Profile.wf:7:22\n  = help: Did you mean `name`? Its fields are `name`, `role`, `email`\n1 error"
+}

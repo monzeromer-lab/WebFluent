@@ -291,6 +291,13 @@ jobs:
       - name: Every statement prints back, every edit keeps the rest
         run: cargo test --release --test printer_corpus --test reprint_corpus
 
+      # Every project in the repository, built, and what it wrote and what
+      # the compiler said held to tests/golden/: a change that alters
+      # either fails here, file by file. UPDATE_GOLDEN=1 writes them again
+      # when the change is the point.
+      - name: Every project builds to its golden manifest
+        run: cargo test --release --test golden
+
   editors:
     name: Zed extension and grammar
     runs-on: ubuntu-latest

@@ -114,6 +114,10 @@ qrcode = { version = "0.14", default-features = false }
 # The WebAssembly compiler (`crates/wf-wasm`) is downloaded by a page before
 # it compiles anything, so it is built for size: `cargo build --profile
 # wasm-release`. The native release profile is untouched.
+[dev-dependencies]
+# The golden-output test hashes every file a build writes.
+sha2 = "0.10"
+
 [profile.wasm-release]
 inherits = "release"
 opt-level = "z"

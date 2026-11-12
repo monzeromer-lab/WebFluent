@@ -1,0 +1,30 @@
+{
+  "diagnostics": [],
+  "files": {
+    "_headers": "f6ffacb13947987fecdb4835f839a6a162000b6108f4e0b98eca82534c2b5fc3",
+    "app.js": "b02ecced179d7bbdd34f0b9807b0362f1a85213608ca8eedb4b99d30dd02125f",
+    "app.js.gz": "6e7981da8c9c277e61616c6471ffdd74aeba9fec36a5e5624fb67ee8d42c6895",
+    "index.html": "b127b7b32a13d177d3cf60a85ac642650c1d7f218c18bebf98c3de756db37903",
+    "index.html.gz": "e834afec7c0b46aa6cc76f885d1b6aa35b77215a1939be6b6a468b7bd1eee907",
+    "js/files.js": "b5492f6db77f9ac5256007e2346531eebd10fcc4147b4a80804999f33489174d",
+    "pages/Categories.css": "feda1be7bb24067551a2bfefc88efa7d00dc5ba154952982480e25d6d4df308e",
+    "pages/Categories.js": "95913f87ef59c7726d71c3f7575bf0b2c52ba8cb273c5ab3276add564bbbef37",
+    "pages/Categories.js.gz": "785b28c5d1bc25195b894e403d5034f04f24acf64358ed8542776412dcc24c6b",
+    "pages/Dashboard.css": "d73b52ff27d93c5ace1aab74fc4dab7d80705a082ad03ff6d1dce4e00678d88d",
+    "pages/Dashboard.js": "8f0029f97469e267b146f681d0e17779caa492f548c7dc54854f753ae342a3b1",
+    "pages/Dashboard.js.gz": "b7b5385f9d299b5ca443eca13c6657b77b670117974be5a7a8dfbf88d601d66c",
+    "pages/Entries.css": "6e86b5214058b72bea88734cbd9db70aeb569ab91cdac5ad71517a91e831f2f9",
+    "pages/Entries.js": "50d12326615a5c748085048b4701c9459479ef011feb6cdc54b64c2ccdbeb567",
+    "pages/Entries.js.gz": "53130a7120cdcf8cf0d3316356ffb8769babbc7e45f4514a9aff561b1a636c8c",
+    "pages/EntryDetail.js": "3f005dcb5290d7c9020d80210b86190b71932391838144e394359dccc84b2303",
+    "pages/EntryDetail.js.gz": "90229cc7c2438532a978b718be038ed49e155c717a819b5d755899778bf18ad8",
+    "pages/NotFound.js": "afc2f0698538a0b36b36d20e0847446c6fbf90f4896c1eddefb9955e3d4474c1",
+    "pages/Settings.js": "4af2545ba4d15c53334ed8743f59bce874e719bea730159963e81c1e3498b6c0",
+    "pages/Settings.js.gz": "7dad379b36b600c44ea19a2d7ac3f83e569c8e366e994a630e169c37652e0746",
+    "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
+    "styles.css": "3d08ed5da12446d6180c965419ca7c951db3e1da2ffd351bd5ffddfd2efbdd7a",
+    "styles.css.gz": "ef359fffe241e9bfd494806df6d07bbe4e3dbbfa8a5ed7d41d64fc884f43f5c1",
+    "sw.js": "e22eadcf6b590ecc778c5fce0e659893bfcd1b34318b5f4dc69e108dcdeb2e42",
+    "sw.js.gz": "f4d987539de6cac942b7acd26c04c7df5b3532e58d4c36297525e02e4072637c"
+  }
+}

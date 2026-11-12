@@ -1,0 +1,25 @@
+{
+  "diagnostics": [],
+  "files": {
+    "about/index.html": "1fa40364be85bead69bd0f0ab6e0f0da6e065e726d960d6f93bcddd5215386d1",
+    "about/index.html.gz": "d2d94bcb4b9f488188c471d634d8487343c52d7cb059377b969cc580d718b94d",
+    "app.js": "5fa789410640cf50392179cce0a1bfcf809e90406c70c531dd36c555c824a111",
+    "app.js.gz": "e20cc7818ff93649368b106f06ebe3582f55f19b98f25f40b7795c0f08bfa173",
+    "contact/index.html": "206e6294292b4a3e9d9b0bfb88d010497da2771ee44671b25ec72b390631ef20",
+    "contact/index.html.gz": "259f58053c53a35d46f789e3daccccc613718fd4d12810723181ccc0547a9122",
+    "index.html": "d627de4e68b4034abae24329d0f9133c6ecbd9423777a95e0b2754c396a0e7c1",
+    "index.html.gz": "657d5127742005fc11785937c8e34c26068ffd727f38be4c76954f5ab259ba98",
+    "offline/index.html": "8614e9e325b74d9012177a7c245c2c24d948d357b61c91b78ab27ed0ce05b06a",
+    "offline/index.html.gz": "bc668c5f42dfd15d52a704103cfcc17cf47f161049326eb926a96d8b01a05771",
+    "pages/About.js": "e41f3ef3608bf9347d8cfe68ccfdde189fc63ced4e6db0e42aee5ea150e00f59",
+    "pages/Contact.js": "9202020218ef1673c97537bdf1871d1640d0b67b3ab8c74ccd4801fe44cb1918",
+    "pages/Home.js": "659ef9d3e3fcf5dcb1917f07a4b4541e881777e4b8981a2d213864dad7b3f3a9",
+    "pages/Home.js.gz": "0ff8bc1aec85419e00e473d7dfb1196bd28b58e00bd0f43521610e6f9ad5abd2",
+    "pages/Offline.js": "1184501b9683c00393ad8779c5f4ab217d93958be712b077939d893e56e09c55",
+    "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
+    "styles.css": "e87f511db87c8b07f13f64344478a2537dab416763a0af4eb9347f47fa8c6b1c",
+    "styles.css.gz": "e46fbcee436ef901c269960bf27f8af6d55c1ada8fb07fea72d4470b2a2844c8",
+    "sw.js": "de528b93921495364e9a52c0fca03ee6a8a13f8df9e3743c0ff3231acf119279",
+    "sw.js.gz": "46fbe40dfc774d9816780a885946efdd214e1781ded28fa26bac1831a12f6d74"
+  }
+}

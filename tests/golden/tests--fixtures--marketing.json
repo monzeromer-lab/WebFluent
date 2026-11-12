@@ -1,0 +1,20 @@
+{
+  "diagnostics": [],
+  "files": {
+    "app.js": "55bff8fd5469edb2542b0304e0a03100fb50b3224780b68195b586cbee6e2ac6",
+    "app.js.gz": "d99bb9edd26d43214b7c85af468e0794a83ab228691497721558a808661b0e2d",
+    "index.html": "169c70285b2d12692a1b1918022e7acc0ec71bb52d7eda6f3d7807ebfc1707eb",
+    "index.html.gz": "3837384e63c1125d6655b97bf8c11b45bd1afc2d385b7a8400c969c39c4ff8b8",
+    "pages/Home.css": "02fe616d7bd67dd8886e227a0aca59016ce7b6b9a46407e5adb8c3a955e66644",
+    "pages/Home.js": "a3461634595dad0c32e40fd22702d895aa1373ffb964e929f538298474367bb3",
+    "pages/Home.js.gz": "0a2201bebe782f3dd4b48109d7850438f5dd0554228b16852f3bdaa68e4ffc00",
+    "pages/NotFound.css": "74efce672b567e25847097cd8792929274b8d3da777a7854119015d37e7fce1c",
+    "pages/NotFound.js": "881ef2a5883de47443d79de4682db7473e7ec9fe4b2e8e131a8f8e33b8bb8f13",
+    "pages/Pricing.css": "ef5dc0c43cc77ecc4b70955eb2396009c56c5092de99d02795bf7db8d51889f1",
+    "pages/Pricing.js": "0371fe9b49de355b4314836857aa7c1bb4a8b3da215c9a6609cc289884c4ba6d",
+    "pages/Pricing.js.gz": "7322b803e2797d065c29a2e3401962f6204be88a1364b4d207ad1a9134471e6e",
+    "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
+    "styles.css": "1bfa603e5dbb995b494513be2bd232d109bab49a45cd8ba0ca66641c5ba65a78",
+    "styles.css.gz": "b73c93a126bdbd87bd58c19767346736a790b9f5fbdc920f57a0410807893081"
+  }
+}

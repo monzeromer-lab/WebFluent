@@ -1,0 +1,15 @@
+{
+  "diagnostics": [
+    "{\"code\":\"U03\",\"severity\":\"warning\",\"message\":\"`Clash` is declared but never placed\",\"file\":\"src/App.wf\",\"line\":33,\"column\":1,\"end_line\":0,\"end_column\":0,\"hint\":\"Place it in a page, name it as a layout, or remove it\",\"related\":[],\"fixes\":[{\"title\":\"Remove `Clash`\",\"edits\":[{\"file\":\"src/App.wf\",\"line\":33,\"column\":1,\"end_line\":49,\"end_column\":1,\"text\":\"\"}]}],\"tags\":[\"unnecessary\"]}"
+  ],
+  "files": {
+    "app.js": "2b37d700989327c16f7eb2dedfe768db8a9878c345314a3c474a7e74f3e3d54a",
+    "app.js.gz": "f46e1841dfafa06adc3e6764b4ec2aca0421d1b626b295daf2996d02acab5229",
+    "index.html": "2707fda0a3af2b4eea8eac7ae7c7a2924ebf47b622a2aa325c3a2158d48dd1fb",
+    "pages/Home.js": "84af6be582db71ef1ef7d069f3211da678a0c90634d88bb6db806001f15ac40b",
+    "pages/Home.js.gz": "4bafec512f0c0ccc4d2477fba112a612265431bd3c33a6740911613a6fb29d92",
+    "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
+    "styles.css": "8c8695cf0fca506170f521843243eeb26b60166e662137ba7b859579a4450305",
+    "styles.css.gz": "d8afe3dc299ae4796474dac3a8386b53f861cfa68c49c2f99210fbc97a7ef5ad"
+  }
+}

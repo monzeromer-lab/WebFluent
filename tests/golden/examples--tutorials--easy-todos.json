@@ -1,0 +1,17 @@
+{
+  "diagnostics": [],
+  "files": {
+    "_headers": "ab659ef6aa87e4994c047f0afe74c1882b43db8b48e5ed9315716374a749c4b2",
+    "app.js": "b2eb96586b44b8e12e9ad5a81417a5a3c70ae12295a859b2a80bcc2f1cda0ff2",
+    "app.js.gz": "1a0bcc0aac6d1a16b5e6d4543bd39fb803864658df5c43edd5643b789a8a6d3d",
+    "favicon.svg": "66b0ab6f878cd2c2f820c7b93a864c54fc3b39ddd81f4a50a22cd6f8f3dba640",
+    "favicon.svg.gz": "dca12e287c321b04d7c2852fa9665321889a00c265c3d846ab81680dfe520725",
+    "index.html": "52db43ddeb3f128128ef01b177816c206b23c0718953d9499c148971cceb880a",
+    "index.html.gz": "93475772d8f354f9a3ba1517f261ebd6ee2a18b14e06259f8d013cec7eaa7a7e",
+    "pages/Home.js": "2b447a027f82bb415013d8f8e74a875cbe2ba372ffaf1e8b66bd0b544631cf7e",
+    "pages/Home.js.gz": "1bba3d85a6c30a1b6ae0bb4b2e735b3d525e4a2bb69b34f5fec742e313e6ec69",
+    "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
+    "styles.css": "466a4727324d217f4be13db046e2a67859ab898449dba9617f82e5b62eb46705",
+    "styles.css.gz": "31c8c1041ba7a37cb2999874c97d25b3b828e28526f06e3cac51d8292fd6e727"
+  }
+}

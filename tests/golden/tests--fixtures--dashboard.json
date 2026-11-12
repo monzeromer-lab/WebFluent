@@ -1,0 +1,19 @@
+{
+  "diagnostics": [],
+  "files": {
+    "app.js": "7ecb4a4cf1f6ac9c1f661c4321da91921a4e93c01cbba9c148338377a4aed982",
+    "app.js.gz": "fb019e2c797fa5b1651ba3aa4d511a34cad337f7329554f6893492524de99d47",
+    "index.html": "1483b51c77bff00c096867c404a918f0bbe0e4e070897e5e56ee0eee6db49b23",
+    "index.html.gz": "4a50f7518d23578ec8a227038c0b20328f3595c9a874d7f32a5d6fce71e94fe0",
+    "pages/Incidents.js": "ef44948f55180209229361c40ebd5c0e13da26f2371468c2c11e1f5857d0e5f3",
+    "pages/Incidents.js.gz": "b645dd6fde0711c2cde6c90996fa35605d464a524e0bead454df425830192558",
+    "pages/Overview.css": "1400c72b37f70bbeabbda3a0c79550269c92b46b786a41941282f692fd778e8c",
+    "pages/Overview.js": "35deeec9fa6bb4445e36b1e46b76fee485d0bf8e8051001887e3b88c5e926bae",
+    "pages/Overview.js.gz": "73255317b408c28c9bdadd26e55dfd9fb6c1a95b464e401c2b43f096cf3b3448",
+    "pages/Settings.js": "507984653e29993f9741160ed2fea0e48f19fcd4f87a1b9ad8695ea430f2f343",
+    "pages/Settings.js.gz": "6c09269df7b7697b69200fb4349bc68eb1eb577b000f6e511bd87eee0cb8675c",
+    "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
+    "styles.css": "71ee03ff382f1acfc70b8f4eaf8ff681621d36bdc5938a224364891ff1ef1cad",
+    "styles.css.gz": "67acb32b16b503e5c75736caaea578d48457e25064866507f1e6408baf5a0631"
+  }
+}

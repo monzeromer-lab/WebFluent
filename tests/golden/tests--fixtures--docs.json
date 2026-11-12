@@ -1,0 +1,22 @@
+{
+  "diagnostics": [],
+  "files": {
+    "app.js": "5e3db3e1e2fe0e75fcbc378c3855cac603bafc684bb3e1e3698ed765bf238298",
+    "app.js.gz": "35e55f9c843c1e01901dad04d33ad7457a964c330f239de5b3ae6599a08a18c6",
+    "contact/index.html": "1c698fae40f2149cd5715a1be4a1ccea2e3ac4d5e0f6692a83f39de0d65114e5",
+    "contact/index.html.gz": "b06913fefa24fcb97cdd9f39d1e37412f53be6ce82a4bd4dca3ad05ea8484c80",
+    "handbook/index.html": "5becce402b3f98353e625ea69610d66b340a4d3792c1871ac05f873a3f9562e4",
+    "handbook/index.html.gz": "4cd6fc43dbcfad38727aa06e165c89cbddb46c79a76039fc21ac57e2f08675f7",
+    "index.html": "9db64df6717a732e76e194788f39257e19104b5bef5a6f3f344c82e872a98972",
+    "index.html.gz": "c2f4a196e9ee37a10f1b08c05ca55898db9141b77e053f0c830b8f054df89626",
+    "pages/Contact.js": "391232817a6594023c9f722384ab1e21bb7a58f672de009453ac71e20bf19340",
+    "pages/Handbook.js": "79526e8c47c93840393f660ae6cfc8b9b5fe4709903e7fc1565231cf783a1ade",
+    "pages/Handbook.js.gz": "e1b54746ee9ab98515e71e73629809b1d53a259a928c14216b54860214d33fb3",
+    "pages/Home.js": "fcfe45d8e838e10f8f1ead572f97bee2580a76492c839b8eda50120174e6b923",
+    "pages/Home.js.gz": "bcfb0722a70e4daf62ce30c4ed2a5f3f2e3c69872a80788f85b730aba6a54272",
+    "robots.txt": "c0eb295ed032e80103805632c16b304caa11505551ac41776a3e3d25260ce3ab",
+    "sitemap.xml": "046d9fa394c2e10c14594378038a7eee56582add72d4b8b9c5f6679305b6d525",
+    "styles.css": "4f71288e4ece9225848f2c087d9ac18d3d8a7c33d4c7c5229889414974721b1a",
+    "styles.css.gz": "d8ee1c54e69dbcec41f2e2a0ebb34c56b9c831fd7add6f56af4561ce8cb82137"
+  }
+}

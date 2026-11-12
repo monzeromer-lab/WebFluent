@@ -1,0 +1,18 @@
+{
+  "diagnostics": [
+    "{\"code\":\"D01\",\"severity\":\"warning\",\"message\":\"`src: \\\"/hero.png\\\"` names a file `public/` does not have, so the page asks for it and gets nothing\",\"file\":\"src/pages/Home.wf\",\"line\":6,\"column\":11,\"end_line\":0,\"end_column\":0,\"hint\":\"Put the file at `public/hero.png`, or correct the path\",\"related\":[],\"fixes\":[],\"tags\":[]}"
+  ],
+  "files": {
+    "_headers": "6346b0222198fb8bcb1b20d9b54cfdd41492b1ee39f30f1c7456001d7678f1a8",
+    "app.js": "e4e0cb57497245584f8290c968e4f408514bac2995565077d841e823f8eb7300",
+    "app.js.gz": "ee4a315a1384b5db17ec60e811e81cce235d23070b60dac349fa312d74aacbb4",
+    "index.html": "a5bb6d9715aef88724703e11797500a44b940204c697c2aaff239f574e2c8ce5",
+    "index.html.gz": "67d659241137db5174090fdd7c6967ed34e2ef411ba9802e12d12e0cced181eb",
+    "logo.svg": "66b0ab6f878cd2c2f820c7b93a864c54fc3b39ddd81f4a50a22cd6f8f3dba640",
+    "logo.svg.gz": "dca12e287c321b04d7c2852fa9665321889a00c265c3d846ab81680dfe520725",
+    "pages/Home.js": "9f26173f79f0e78a98c1d1cd3b49265fa1d854cefd496cb2ad3872f139640f0b",
+    "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
+    "styles.css": "3e124d46e668ca39377dcfd7fbdd839005a0856ff903f8183adfa1252a746367",
+    "styles.css.gz": "2ad828ae358ef04ad6221eb5ac15a1babe015d393d28481d9e047a7db66ec608"
+  }
+}
