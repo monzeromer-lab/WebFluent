@@ -240,7 +240,10 @@ pub fn collect(path: &Path) -> Result<Tests> {
             ));
         }
     }
-    let config = crate::project::config::ProjectConfig::load(&project_dir).ok();
+    let config = crate::project::config::ProjectConfig::load_if_present_via(
+        &crate::base::vfs::FsVfs,
+        &project_dir,
+    )?;
     // The project's translations: a test draws `t("key")` as the site does,
     // in its default locale.
     let i18n = config.as_ref().and_then(|c| c.i18n.clone()).and_then(|i| {

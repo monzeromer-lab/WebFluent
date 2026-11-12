@@ -708,7 +708,7 @@ pub fn list_via(vfs: &dyn Vfs, root: &Path) -> Result<Listing> {
     let config_text = vfs
         .read_to_string(&root.join("webfluent.app.json"))
         .unwrap_or_default();
-    let config = ProjectConfig::load_via(vfs, root).ok();
+    let config = ProjectConfig::load_if_present_via(vfs, root)?;
     let pipeline = config.as_ref().is_none_or(|c| c.build.media.pipeline);
     // A PDF or a deck embeds a picture named by its path as it is.
     let literal = pipeline

@@ -41,8 +41,12 @@ pub fn load_via(
     let dir = project_dir.join(&config.dir);
     for locale in &config.locales {
         let file = dir.join(format!("{locale}.json"));
-        let Ok(content) = vfs.read_to_string(&file) else {
-            continue;
+        // A locale with no file has no messages, which the checks report
+        // (`I03`); a file that is there but cannot be read is an error.
+        let content = match vfs.read_to_string(&file) {
+            Ok(content) => content,
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => continue,
+            Err(e) => return Err(e.into()),
         };
         let messages: HashMap<String, String> = serde_json::from_str(&content).map_err(|e| {
             crate::diagnostics::error::WebFluentError::ConfigError(format!(

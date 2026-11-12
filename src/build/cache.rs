@@ -74,12 +74,20 @@ impl BuildCache {
         key: Key,
         render: impl FnOnce() -> String,
     ) -> (String, bool) {
-        self.used.lock().expect("the cache's lock").insert(key);
+        self.used
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .insert(key);
         self.routes
             .lock()
             .expect("the cache's lock")
             .insert(route.to_string(), key);
-        if let Some(html) = self.pages.lock().expect("the cache's lock").get(&key) {
+        if let Some(html) = self
+            .pages
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .get(&key)
+        {
             return (html.clone(), true);
         }
         if let Some(file) = self.file(key)
@@ -122,21 +130,33 @@ impl BuildCache {
     /// The page `route` was last painted as, in this session, however its
     /// inputs have changed since; kept for the next build as well.
     pub(crate) fn last_paint(&self, route: &str) -> Option<String> {
-        let key = *self.routes.lock().expect("the cache's lock").get(route)?;
+        let key = *self
+            .routes
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .get(route)?;
         let html = self
             .pages
             .lock()
             .expect("the cache's lock")
             .get(&key)
             .cloned()?;
-        self.used.lock().expect("the cache's lock").insert(key);
+        self.used
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .insert(key);
         Some(html)
     }
 
     /// After a build: let go of what it did not use, in memory and on disk,
     /// so the cache holds the site as it stands and no more.
     pub(crate) fn finish(&self) {
-        let used = std::mem::take(&mut *self.used.lock().expect("the cache's lock"));
+        let used = std::mem::take(
+            &mut *self
+                .used
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner),
+        );
         self.pages
             .lock()
             .expect("the cache's lock")

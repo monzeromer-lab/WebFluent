@@ -1241,6 +1241,24 @@ impl ProjectConfig {
         Ok(config)
     }
 
+    /// The project's config, or `None` when it has no `webfluent.app.json`.
+    /// One that is there but cannot be read or parsed is an error: it is
+    /// never taken for the defaults.
+    ///
+    /// # Errors
+    ///
+    /// [`WebFluentError::IoError`] when the file cannot be read, and
+    /// [`WebFluentError::ConfigError`] when it is not a config.
+    pub fn load_if_present_via(
+        vfs: &dyn crate::base::vfs::Vfs,
+        project_dir: &Path,
+    ) -> Result<Option<Self>> {
+        if !vfs.exists(&project_dir.join("webfluent.app.json")) {
+            return Ok(None);
+        }
+        Self::load_via(vfs, project_dir).map(Some)
+    }
+
     /// The keys of `webfluent.app.json` that nothing reads, each with the
     /// path to it and the key it most likely meant.
     ///
