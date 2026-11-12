@@ -1368,7 +1368,12 @@ impl ParserV2 {
                 let Declaration::Component(part) =
                     self.parse_component_like("part", Some(owner), doc)?
                 else {
-                    unreachable!("a part parses as a component")
+                    // A part is parsed as a component; an editor typing one
+                    // must never take the parser down if that changes.
+                    return Err(self.error_with_hint(
+                        format!("a part of `{owner}` did not parse as a component"),
+                        "Write it as `part Name(…) { … }`",
+                    ));
                 };
                 if !part
                     .name
@@ -3427,13 +3432,14 @@ impl ParserV2 {
         if !literal.is_empty() {
             parts.push(StringPart::Literal(literal));
         }
-        Ok(match parts.len() {
-            0 => Expr::StringLiteral(String::new()),
-            1 => match parts.pop().unwrap() {
-                StringPart::Literal(text) => Expr::StringLiteral(text),
-                StringPart::Expression(e) => e,
-            },
-            _ => Expr::InterpolatedString(parts),
+        if parts.len() > 1 {
+            return Ok(Expr::InterpolatedString(parts));
+        }
+        // None, or one part: the string is that part alone.
+        Ok(match parts.pop() {
+            None => Expr::StringLiteral(String::new()),
+            Some(StringPart::Literal(text)) => Expr::StringLiteral(text),
+            Some(StringPart::Expression(e)) => e,
         })
     }
 

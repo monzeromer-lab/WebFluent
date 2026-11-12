@@ -91,7 +91,7 @@ impl Dom {
             }
             // Whatever text came before the tag.
             if text_start < i {
-                dom.push_text(*stack.last().unwrap(), &html[text_start..i]);
+                dom.push_text(stack.last().copied().unwrap_or(0), &html[text_start..i]);
             }
             if rest.starts_with("<!--") {
                 let end = rest.find("-->").map(|e| i + e + 3).unwrap_or(bytes.len());
@@ -130,7 +130,7 @@ impl Dom {
                 continue;
             };
             let tag = element.tag.clone();
-            let parent = *stack.last().unwrap();
+            let parent = stack.last().copied().unwrap_or(0);
             let id = dom.push(parent, NodeKind::Element(element));
             i += consumed;
             text_start = i;
@@ -155,7 +155,7 @@ impl Dom {
             }
         }
         if text_start < bytes.len() {
-            dom.push_text(*stack.last().unwrap(), &html[text_start..]);
+            dom.push_text(stack.last().copied().unwrap_or(0), &html[text_start..]);
         }
         dom
     }

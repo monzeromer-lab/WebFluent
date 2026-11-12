@@ -408,7 +408,9 @@ fn entity(body: &str) -> Option<char> {
 /// dropped: a fence's language, as CommonMark reads an info string.
 fn unescape(text: &str) -> String {
     static ESCAPED: OnceLock<Regex> = OnceLock::new();
-    let escaped = ESCAPED.get_or_init(|| Regex::new(r"\\([!-/:-@\[-`{-~])").unwrap());
+    let escaped = ESCAPED.get_or_init(|| {
+        Regex::new(r"\\([!-/:-@\[-`{-~])").expect("a literal pattern, which compiles")
+    });
     escaped.replace_all(text, "$1").to_string()
 }
 
@@ -475,7 +477,9 @@ fn hold(text: &str) -> (String, Vec<Held>) {
 /// characters when `chars_only`, everything otherwise.
 fn restore(text: &str, held: &[Held], chars_only: bool) -> String {
     static MARK: OnceLock<Regex> = OnceLock::new();
-    let mark = MARK.get_or_init(|| Regex::new("\u{0}(0|[1-9][0-9]*)\u{0}").unwrap());
+    let mark = MARK.get_or_init(|| {
+        Regex::new("\u{0}(0|[1-9][0-9]*)\u{0}").expect("a literal pattern, which compiles")
+    });
     if held.is_empty() {
         return text.to_string();
     }
@@ -499,17 +503,31 @@ fn inline(text: &str, options: Options) -> String {
     static EM: OnceLock<Regex> = OnceLock::new();
     static EM2: OnceLock<Regex> = OnceLock::new();
     static ENTITY: OnceLock<Regex> = OnceLock::new();
-    let image = IMAGE.get_or_init(|| Regex::new(r"!\[([^\[\]]*)\]\(([^)\s]+)\)").unwrap());
-    let link = LINK.get_or_init(|| Regex::new(r"\[([^\[\]]+)\]\(([^)\s]+)\)").unwrap());
+    let image = IMAGE.get_or_init(|| {
+        Regex::new(r"!\[([^\[\]]*)\]\(([^)\s]+)\)").expect("a literal pattern, which compiles")
+    });
+    let link = LINK.get_or_init(|| {
+        Regex::new(r"\[([^\[\]]+)\]\(([^)\s]+)\)").expect("a literal pattern, which compiles")
+    });
     // `.inert`'s: a picture with the space after it, and a link whose
     // words may be empty — what is left of a linked picture.
-    let picture = PICTURE.get_or_init(|| Regex::new(r"!\[([^\[\]]*)\]\(([^)\s]+)\) ?").unwrap());
-    let words = WORDS.get_or_init(|| Regex::new(r"\[([^\[\]]*)\]\(([^)\s]+)\)").unwrap());
-    let strong = STRONG.get_or_init(|| Regex::new(r"\*\*([^*]+)\*\*").unwrap());
-    let em = EM.get_or_init(|| Regex::new(r"\*([^*]+)\*").unwrap());
-    let em2 = EM2.get_or_init(|| Regex::new(r"(^|[^A-Za-z0-9])_([^_]+)_($|[^A-Za-z0-9])").unwrap());
+    let picture = PICTURE.get_or_init(|| {
+        Regex::new(r"!\[([^\[\]]*)\]\(([^)\s]+)\) ?").expect("a literal pattern, which compiles")
+    });
+    let words = WORDS.get_or_init(|| {
+        Regex::new(r"\[([^\[\]]*)\]\(([^)\s]+)\)").expect("a literal pattern, which compiles")
+    });
+    let strong = STRONG
+        .get_or_init(|| Regex::new(r"\*\*([^*]+)\*\*").expect("a literal pattern, which compiles"));
+    let em =
+        EM.get_or_init(|| Regex::new(r"\*([^*]+)\*").expect("a literal pattern, which compiles"));
+    let em2 = EM2.get_or_init(|| {
+        Regex::new(r"(^|[^A-Za-z0-9])_([^_]+)_($|[^A-Za-z0-9])")
+            .expect("a literal pattern, which compiles")
+    });
     let entity_re = ENTITY.get_or_init(|| {
-        Regex::new(r"&amp;(#[0-9]+|#[xX][0-9a-fA-F]+|[A-Za-z][A-Za-z0-9]{1,31});").unwrap()
+        Regex::new(r"&amp;(#[0-9]+|#[xX][0-9a-fA-F]+|[A-Za-z][A-Za-z0-9]{1,31});")
+            .expect("a literal pattern, which compiles")
     });
 
     let (held_text, held) = hold(text);

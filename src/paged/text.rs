@@ -364,7 +364,7 @@ impl Shaped {
                     descent: 0.0,
                 }),
                 Item::Text { style, .. } => {
-                    let pick = pick.expect("text has a face");
+                    let pick = pick.expect("a text item is given its face when the text is split");
                     shape_run(
                         db,
                         &text,
@@ -701,7 +701,9 @@ impl Shaped {
                         rise,
                     });
                 }
-                let run = runs.last_mut().unwrap();
+                let run = runs
+                    .last_mut()
+                    .expect("a run was pushed above, or the last one matched");
                 // Justification widens the space glyph's advance.
                 let mut glyphs = c.glyphs.clone();
                 if c.space

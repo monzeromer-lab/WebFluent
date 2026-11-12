@@ -514,8 +514,9 @@ fn as_match(e: &Expr) -> Option<String> {
                 if !same(head, &mut subject) {
                     return None;
                 }
-                return (!arms.is_empty())
-                    .then(|| format!("match {} {{ {} }}", subject.unwrap(), arms.join(" ")));
+                return subject
+                    .filter(|_| !arms.is_empty())
+                    .map(|subject| format!("match {subject} {{ {} }}", arms.join(" ")));
             }
             _ => break,
         }
@@ -1901,14 +1902,19 @@ pub fn shape(program: &Program) -> String {
 pub fn without_places(text: &str) -> String {
     use std::sync::LazyLock;
     static SPAN: LazyLock<regex::Regex> = LazyLock::new(|| {
-        regex::Regex::new(r"Span \{ start: \d+, end: \d+, line: \d+, col: \d+ \}").expect("a regex")
+        regex::Regex::new(r"Span \{ start: \d+, end: \d+, line: \d+, col: \d+ \}")
+            .expect("a literal pattern, which compiles")
     });
-    static SOME: LazyLock<regex::Regex> =
-        LazyLock::new(|| regex::Regex::new(r"Some\(S\)").expect("a regex"));
-    static NONE: LazyLock<regex::Regex> =
-        LazyLock::new(|| regex::Regex::new(r"(\w*span\w*): None").expect("a regex"));
-    static LISTS: LazyLock<regex::Regex> =
-        LazyLock::new(|| regex::Regex::new(r"(\w*_spans): \[(S(, S)*)?\]").expect("a regex"));
+    static SOME: LazyLock<regex::Regex> = LazyLock::new(|| {
+        regex::Regex::new(r"Some\(S\)").expect("a literal pattern, which compiles")
+    });
+    static NONE: LazyLock<regex::Regex> = LazyLock::new(|| {
+        regex::Regex::new(r"(\w*span\w*): None").expect("a literal pattern, which compiles")
+    });
+    static LISTS: LazyLock<regex::Regex> = LazyLock::new(|| {
+        regex::Regex::new(r"(\w*_spans): \[(S(, S)*)?\]")
+            .expect("a literal pattern, which compiles")
+    });
     let text = SPAN.replace_all(text, "S");
     let text = SOME.replace_all(&text, "S");
     let text = NONE.replace_all(&text, "$1: S");
@@ -1960,7 +1966,7 @@ pub fn prove(source: &str, file: &str) -> Result<usize, Vec<Mismatch>> {
     };
     let mut proven = 0;
     let mut wrong = Vec::new();
-    let names = regex::Regex::new(r"d__\d+").expect("a regex");
+    let names = regex::Regex::new(r"d__\d+").expect("a literal pattern, which compiles");
     let alone = |text: &str| -> Option<String> {
         let p = parse(text).ok()?;
         // A destructuring `let` is numbered in the order the file is read,
@@ -2080,7 +2086,7 @@ pub fn declaration_span(source: &str, d: &Declaration) -> Option<(usize, usize)>
         // starts a line, of which a file has one.
         Declaration::App(_) => {
             let apps: Vec<usize> = regex::Regex::new(r"(?m)^app\s*\{")
-                .expect("a regex")
+                .expect("a literal pattern, which compiles")
                 .find_iter(source)
                 .map(|m| m.start())
                 .collect();
@@ -2109,7 +2115,7 @@ pub fn prove_declarations(source: &str, file: &str) -> Result<usize, Vec<Mismatc
         source.to_string()
     };
     let name = file.trim_end_matches('x');
-    let names = regex::Regex::new(r"d__\d+").expect("a regex");
+    let names = regex::Regex::new(r"d__\d+").expect("a literal pattern, which compiles");
     let shape_of = |text: &str| -> Result<String, String> {
         let p = crate::syntax::parse_source(text, name).map_err(|e| e.to_string())?;
         Ok(names.replace_all(&shape(&p), "d__N").into_owned())

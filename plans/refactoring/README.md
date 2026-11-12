@@ -841,6 +841,19 @@ and the template engine (they take outside input). A reachable one becomes
 a diagnostic or an `Err`; an invariant gets `expect("why it holds")`, not
 `expect("just checked")`; check-then-unwrap becomes `if let`/`let else`.
 
+**Panics, first pass (2026-11-12).** The parser cannot panic on any
+input: a part that does not parse as a component is a parse error, and the
+string-parts `unwrap` is gone by construction. The printer's
+`subject.unwrap()` and the evaluator's `unreachable!()` are `Option`s.
+- The PDF engine's HTML reader takes the root where its stack could be
+  empty. It never can, since the root is never popped, but a template's
+  `Unsafe.Html` markup reaches it.
+- The build cache recovers a poisoned lock everywhere.
+- Every `expect` left on these paths says why it holds: literal regexes,
+  a text item's face, a run just pushed.
+- The old WebFluent 2 parser (`parser.rs`, only `wf migrate` reads it)
+  keeps its 105 sites, since it goes when that grammar does.
+
 **Public surface.** Every internal module becomes `#[doc(hidden)]` now and
 `pub(crate)` in 6.0 (with `wf-lsp` reaching what it needs through a small
 `webfluent::ide` module). The AST, `Type` and the public enums get

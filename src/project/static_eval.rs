@@ -1721,7 +1721,9 @@ fn run(stmts: &[Statement], scope: &mut Scope, fuel: &Fuel) -> Option<Flow> {
                 let (base, method, args): (&Expr, &str, &[Expr]) = match &stmt.kind {
                     StatementKind::ExprStatement(Expr::MethodCall(b, m, a)) => (b, m, a),
                     StatementKind::MethodCall(m) => (&m.object, &m.method, &m.args),
-                    _ => unreachable!(),
+                    // The arm's pattern admits only the two above; anything
+                    // else is not worked out here, as nothing unknown is.
+                    _ => return None,
                 };
                 let Expr::Identifier(name) = base else {
                     return None;

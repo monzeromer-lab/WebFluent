@@ -80,7 +80,7 @@ impl BuildCache {
             .insert(key);
         self.routes
             .lock()
-            .expect("the cache's lock")
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
             .insert(route.to_string(), key);
         if let Some(html) = self
             .pages
@@ -95,7 +95,7 @@ impl BuildCache {
         {
             self.pages
                 .lock()
-                .expect("the cache's lock")
+                .unwrap_or_else(std::sync::PoisonError::into_inner)
                 .insert(key, html.clone());
             return (html, true);
         }
@@ -113,7 +113,7 @@ impl BuildCache {
         }
         self.pages
             .lock()
-            .expect("the cache's lock")
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
             .insert(key, html.clone());
         (html, false)
     }
@@ -122,7 +122,7 @@ impl BuildCache {
     pub(crate) fn holds(&self, key: Key) -> bool {
         self.pages
             .lock()
-            .expect("the cache's lock")
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
             .contains_key(&key)
             || self.file(key).is_some_and(crate::base::outfs::is_file)
     }
@@ -138,7 +138,7 @@ impl BuildCache {
         let html = self
             .pages
             .lock()
-            .expect("the cache's lock")
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
             .get(&key)
             .cloned()?;
         self.used
@@ -159,11 +159,11 @@ impl BuildCache {
         );
         self.pages
             .lock()
-            .expect("the cache's lock")
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
             .retain(|key, _| used.contains(key));
         self.routes
             .lock()
-            .expect("the cache's lock")
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
             .retain(|_, key| used.contains(key));
         let Some(dir) = &self.dir else {
             return;
