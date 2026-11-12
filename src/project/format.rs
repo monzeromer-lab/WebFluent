@@ -108,14 +108,13 @@ pub fn number(value: f64, places: Option<usize>, locale: &str) -> String {
         let scale = 10f64.powi(p as i32);
         format!("{:.*}", p, (value.abs() * scale).round() / scale)
     };
-    let text = match places {
-        Some(p) => rounded(p),
+    let text = if let Some(p) = places {
+        rounded(p)
+    } else {
         // Up to three decimals, as `Intl.NumberFormat` shows by default.
-        None => {
-            let t = rounded(3);
-            let t = t.trim_end_matches('0').trim_end_matches('.');
-            t.to_string()
-        }
+        let t = rounded(3);
+        let t = t.trim_end_matches('0').trim_end_matches('.');
+        t.to_string()
     };
     let (whole, frac) = match text.split_once('.') {
         Some((w, f)) => (w.to_string(), Some(f.to_string())),
@@ -220,19 +219,19 @@ fn days_from_civil(y: i64, m: u32, d: u32) -> i64 {
     let y = if m <= 2 { y - 1 } else { y };
     let era = if y >= 0 { y } else { y - 399 } / 400;
     let yoe = y - era * 400;
-    let mp = (m as i64 + 9) % 12;
-    let doy = (153 * mp + 2) / 5 + d as i64 - 1;
+    let mp = (i64::from(m) + 9) % 12;
+    let doy = (153 * mp + 2) / 5 + i64::from(d) - 1;
     let doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
-    era * 146097 + doe - 719468
+    era * 146_097 + doe - 719_468
 }
 
 fn from_unix(seconds: i64) -> Moment {
     let days = seconds.div_euclid(86400);
     let rem = seconds.rem_euclid(86400);
-    let z = days + 719468;
-    let era = if z >= 0 { z } else { z - 146096 } / 146097;
-    let doe = z - era * 146097;
-    let yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365;
+    let z = days + 719_468;
+    let era = if z >= 0 { z } else { z - 146_096 } / 146_097;
+    let doe = z - era * 146_097;
+    let yoe = (doe - doe / 1460 + doe / 36524 - doe / 146_096) / 365;
     let y = yoe + era * 400;
     let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
     let mp = (5 * doy + 2) / 153;
@@ -252,9 +251,9 @@ impl Moment {
     /// Seconds since the epoch, the moment taken as UTC.
     pub fn unix(&self) -> i64 {
         days_from_civil(self.year, self.month, self.day) * 86400
-            + self.hour as i64 * 3600
-            + self.minute as i64 * 60
-            + self.second as i64
+            + i64::from(self.hour) * 3600
+            + i64::from(self.minute) * 60
+            + i64::from(self.second)
     }
 
     /// 0 = Sunday.
@@ -479,7 +478,7 @@ mod tests {
     #[test]
     fn numbers_group_and_round_for_the_locale() {
         assert_eq!(
-            format(&n(1234567.891), None, None, "en").unwrap(),
+            format(&n(1_234_567.891), None, None, "en").unwrap(),
             "1,234,567.891"
         );
         assert_eq!(

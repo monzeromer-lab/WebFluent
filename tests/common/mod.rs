@@ -385,9 +385,8 @@ fn parse_js_attrs(obj: &str) -> HashMap<String, String> {
     let inner = obj.trim().trim_start_matches('{').trim_end_matches('}');
     for part in split_top_level_commas(inner) {
         let part = part.trim();
-        let (k, v) = match part.split_once(':') {
-            Some(kv) => kv,
-            None => continue,
+        let Some((k, v)) = part.split_once(':') else {
+            continue;
         };
         let key = k.trim().trim_matches('"').trim_matches('\'').to_string();
         if key == "className" || key.is_empty() {
@@ -566,7 +565,7 @@ pub fn all_modifiers() -> Vec<&'static str> {
     // Words the original grammar had that the registry retired, whose
     // rules the stylesheet still carries for a project's own `class:`.
     words.extend(registry::RETIRED_MODIFIERS.iter().copied());
-    words.sort();
+    words.sort_unstable();
     words.dedup();
     words
 }

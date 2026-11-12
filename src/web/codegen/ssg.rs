@@ -8,13 +8,14 @@ use crate::project::static_eval::{Scope, Static, case_of, eval};
 use crate::syntax::node_id::NodeMap;
 use crate::syntax::parser::ast::*;
 use std::collections::{BTreeMap, HashMap};
+use std::fmt::Write as _;
 
 /// Renders a page to static HTML for SSG (export mode — no studio attributes).
 ///
 /// `components` are the program's `Component` declarations, so calls to them are
 /// **expanded** into the static paint rather than left as placeholders. Pass an
 /// empty map to render without them (the pre-expansion behaviour).
-pub fn render_page_html(page: &PageDecl, site: &SiteContext) -> String {
+pub fn render_page_html(page: &PageDecl, site: &SiteContext<'_>) -> String {
     match site.node_map {
         Some(map) => render_page_html_studio(page, site, true, map),
         None => render_page_html_studio(page, site, false, &NodeMap::default()),
@@ -26,7 +27,7 @@ pub fn render_page_html(page: &PageDecl, site: &SiteContext) -> String {
 /// them as the live page would.
 pub fn render_page_html_with_params(
     page: &PageDecl,
-    site: &SiteContext,
+    site: &SiteContext<'_>,
     route: &str,
     params: &HashMap<String, Static>,
 ) -> String {
@@ -238,7 +239,7 @@ impl<'a> SiteContext<'a> {
 /// they match the JS codegen exactly).
 pub fn render_page_html_studio(
     page: &PageDecl,
-    site: &SiteContext,
+    site: &SiteContext<'_>,
     studio: bool,
     node_map: &NodeMap,
 ) -> String {
@@ -531,7 +532,7 @@ pub(crate) struct PaintState {
     pub(crate) dialogs: usize,
     pub(crate) default_messages: HashMap<String, String>,
     pub(crate) indent: usize,
-    /// Config base_path for links (e.g., "/WebFluent").
+    /// Config `base_path` for links (e.g., `"/WebFluent"`).
     pub(crate) link_base: String,
     /// The app's own schemes a frame's address may use (`meta.frame`).
     pub(crate) app_schemes: Vec<String>,
@@ -874,24 +875,21 @@ fn render_user_component(name: &str, call: &UIElement, ctx: &mut SsgContext) -> 
     {
         let close = html[at..].find('>').map_or(html.len(), |i| at + i);
         let tag = &html[at..close];
-        html = match tag.find("data-wf-call=\"") {
-            Some(i) => {
-                let value = at + i + "data-wf-call=\"".len();
-                let end = html[value..].find('"').map_or(value, |j| value + j);
-                format!("{} {id}{}", &html[..end], &html[end..])
-            }
-            None => {
-                let insert = if html[..close].ends_with('/') {
-                    close - 1
-                } else {
-                    close
-                };
-                format!(
-                    "{} data-wf-call=\"{id}\"{}",
-                    html[..insert].trim_end(),
-                    &html[insert..]
-                )
-            }
+        html = if let Some(i) = tag.find("data-wf-call=\"") {
+            let value = at + i + "data-wf-call=\"".len();
+            let end = html[value..].find('"').map_or(value, |j| value + j);
+            format!("{} {id}{}", &html[..end], &html[end..])
+        } else {
+            let insert = if html[..close].ends_with('/') {
+                close - 1
+            } else {
+                close
+            };
+            format!(
+                "{} data-wf-call=\"{id}\"{}",
+                html[..insert].trim_end(),
+                &html[insert..]
+            )
         };
     }
     ctx.scope = outer;
@@ -1517,7 +1515,7 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
                 .find_map(|a| match a {
                     Arg::Named(k, v) if k == "text" => Some(v),
                     Arg::Positional(v) => Some(v),
-                    _ => None,
+                    Arg::Named(..) => None,
                 })
                 .and_then(|v| resolve_text_scoped(v, &ctx.default_messages, &ctx.scope))
                 .unwrap_or_default();
@@ -1598,7 +1596,7 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
                 .iter()
                 .find_map(|a| match a {
                     Arg::Positional(e) => static_attr(e, &ctx.scope),
-                    _ => None,
+                    Arg::Named(..) => None,
                 })
                 .unwrap_or_default();
             return format!(
@@ -1657,7 +1655,7 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
                 .iter()
                 .find_map(|a| match a {
                     Arg::Positional(e) => resolve_text_scoped(e, &ctx.default_messages, &ctx.scope),
-                    _ => None,
+                    Arg::Named(..) => None,
                 })
                 .unwrap_or_default();
             // `.inert`, or `inert:` with what the build knows of it; one
@@ -2110,11 +2108,14 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
             own.push(format!("name=\"{}\"", html_escape(group)));
         }
         let label_attrs: Vec<&String> = attrs.iter().filter(|a| on_label(a)).collect();
-        let label_attrs = label_attrs
-            .iter()
-            .map(|a| format!(" {a}"))
-            .collect::<String>();
-        let own = own.iter().map(|a| format!(" {a}")).collect::<String>();
+        let label_attrs = label_attrs.iter().fold(String::new(), |mut acc, a| {
+            let _ = write!(acc, " {a}");
+            acc
+        });
+        let own = own.iter().fold(String::new(), |mut acc, a| {
+            let _ = write!(acc, " {a}");
+            acc
+        });
         let input = input.replacen("<input", &format!("<input{own}"), 1);
         return format!("{indent}<label{label_attrs}>{input}{track}{text}</label>\n");
     }
@@ -2127,13 +2128,12 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
         let mut parts = field_parts(ui, |e| static_attr(e, &ctx.scope)).unwrap_or_default();
         // The author's `id:` is the control's, and the label's `for`; one
         // is made only where none is written, as the runtime does.
-        let (id, own_attr) = match own_id(&attrs) {
-            Some(own) => (own, String::new()),
-            None => {
-                let id = format!("wf-field-{}", ctx.next_field_id());
-                let attr = format!(" id=\"{id}\"");
-                (id, attr)
-            }
+        let (id, own_attr) = if let Some(own) = own_id(&attrs) {
+            (own, String::new())
+        } else {
+            let id = format!("wf-field-{}", ctx.next_field_id());
+            let attr = format!(" id=\"{id}\"");
+            (id, attr)
         };
         parts.set_id(&id);
         let control = if actual_tag == "input" {
@@ -2399,7 +2399,7 @@ fn render_picture<C: Paint>(class: &str, ui: &UIElement, ctx: &mut C) -> String 
     };
     let positional = ui.args.iter().find_map(|a| match a {
         Arg::Positional(v) => Some(v),
-        _ => None,
+        Arg::Named(..) => None,
     });
     let Some(asset) = positional
         .or_else(|| named("source"))
@@ -2856,7 +2856,7 @@ fn render_inline<C: Paint>(stmts: &[Statement], ctx: &mut C) -> String {
     painted.lines().map(str::trim).collect::<Vec<_>>().join("")
 }
 
-pub fn static_dialog(indent: &str, d: &DialogPaint) -> String {
+pub fn static_dialog(indent: &str, d: &DialogPaint<'_>) -> String {
     let labelled = d
         .title
         .map(|(_, id)| format!(" aria-labelledby=\"{id}\""))
@@ -3025,7 +3025,7 @@ fn expr_to_static_string(expr: &Expr) -> Option<String> {
     }
 }
 
-/// Resolve text content, including i18n t() calls and anything the build-time
+/// Resolve text content, including i18n `t()` calls and anything the build-time
 /// scope knows — which is what lets `Tcell(row.title)` inside a resolved loop
 /// paint the actual title rather than nothing.
 fn resolve_text_scoped(
@@ -3059,7 +3059,7 @@ fn resolve_text_scoped(
     })
 }
 
-/// Resolve text content, including i18n t() calls.
+/// Resolve text content, including i18n `t()` calls.
 fn resolve_text(expr: &Expr, messages: &HashMap<String, String>) -> Option<String> {
     match expr {
         Expr::StringLiteral(s) => Some(s.clone()),
@@ -3142,7 +3142,7 @@ mod component_expansion_tests {
             &SiteContext {
                 config: &cfg,
                 app_body: None,
-                translations: &Default::default(),
+                translations: &HashMap::default(),
                 components: &components,
                 program: &program,
                 program_scope: None,
@@ -3352,7 +3352,7 @@ mod program_scope_tests {
                 &SiteContext {
                     config: &cfg,
                     app_body: None,
-                    translations: &Default::default(),
+                    translations: &HashMap::default(),
                     components: &components,
                     program: &program,
                     program_scope,

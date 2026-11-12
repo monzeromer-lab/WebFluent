@@ -434,15 +434,12 @@ pub fn decode_entities(s: &str) -> String {
             };
             Some((ch, e))
         });
-        match decoded {
-            Some((ch, e)) => {
-                out.push(ch);
-                rest = &after[e + 1..];
-            }
-            None => {
-                out.push('&');
-                rest = after;
-            }
+        if let Some((ch, e)) = decoded {
+            out.push(ch);
+            rest = &after[e + 1..];
+        } else {
+            out.push('&');
+            rest = after;
         }
     }
     out.push_str(rest);
@@ -505,8 +502,7 @@ mod tests {
                 .children
                 .iter()
                 .map(|&c| shape(dom, c))
-                .collect::<Vec<_>>()
-                .join(""),
+                .collect::<String>(),
             NodeKind::Text(t) => t.trim().to_string(),
             NodeKind::Element(e) => format!(
                 "{}({})",
@@ -515,8 +511,7 @@ mod tests {
                     .children
                     .iter()
                     .map(|&c| shape(dom, c))
-                    .collect::<Vec<_>>()
-                    .join("")
+                    .collect::<String>()
             ),
         }
     }

@@ -247,7 +247,6 @@ impl<'a> Lexer<'a> {
                         }
                     }
                     doc = is_doc.then(|| self.text[start..self.at].to_string());
-                    continue;
                 }
                 b'"' | b'\'' => {
                     self.string(b, line, col);
@@ -1287,8 +1286,14 @@ mod tests {
         let s = scan("function ok() {}\nconst broken = \"never closed\n");
         assert_eq!(s.problems.len(), 1, "{:?}", s.problems);
         assert_eq!((s.problems[0].line, s.problems[0].col), (2, 16));
-        assert!(!scan("function f( {").problems.is_empty());
-        assert!(!scan("const t = `${1").problems.is_empty());
+        assert_ne!(
+            scan("function f( {").problems,
+            [] as [crate::syntax::js_scan::Problem; 0]
+        );
+        assert_ne!(
+            scan("const t = `${1").problems,
+            [] as [crate::syntax::js_scan::Problem; 0]
+        );
     }
 
     #[test]

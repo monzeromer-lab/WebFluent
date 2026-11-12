@@ -364,7 +364,7 @@ impl JsCodegen {
             later: Vec::new(),
             consts: Vec::new(),
             static_scope: None,
-            env: Default::default(),
+            env: std::collections::BTreeMap::default(),
             output: String::new(),
             full_runtime: false,
             runtime_modules: Vec::new(),

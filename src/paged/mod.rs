@@ -146,7 +146,7 @@ fn sheets(dom: &Dom, defaults: &str, extra: &str) -> Sheet {
 
 /// The root style: the base size and family, with the page's `html` and
 /// `body` rules on top.
-fn root_style(opts: &Options) -> Style {
+fn root_style(opts: &Options<'_>) -> Style {
     let family = match opts.font_family.as_str() {
         "" => "sans-serif".to_string(),
         f => fonts::alias(f).map_or_else(|| f.to_string(), std::string::ToString::to_string),
@@ -254,7 +254,7 @@ const NO_PDF: &str = "this build of the compiler has no PDF engine (a WebAssembl
         reason = "without the PDF engine every render refuses before reading its arguments"
     )
 )]
-pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
+pub fn render(html: &str, css: &str, opts: &Options<'_>) -> Result<Output, String> {
     #[cfg(not(wf_pdf))]
     {
         let _ = (html, css, opts);
@@ -454,7 +454,7 @@ pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
                     )
                     .into(),
                     opacity: krilla::num::NormalizedF32::ONE,
-                    rule: Default::default(),
+                    rule: krilla::paint::FillRule::default(),
                 }));
                 s.draw_path(&p);
             }
@@ -881,7 +881,7 @@ fn luminance(c: Rgba) -> f32 {
 pub fn render_slides(
     html: &str,
     css: &str,
-    opts: &Options,
+    opts: &Options<'_>,
     chrome: &SlideChrome,
 ) -> Result<Output, String> {
     #[cfg(not(wf_pdf))]
@@ -1020,7 +1020,7 @@ pub fn render_slides(
                     )
                     .into(),
                     opacity: krilla::num::NormalizedF32::ONE,
-                    rule: Default::default(),
+                    rule: krilla::paint::FillRule::default(),
                 }));
                 s.draw_path(&p);
             }

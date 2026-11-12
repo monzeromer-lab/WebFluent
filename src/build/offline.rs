@@ -77,7 +77,7 @@ pub fn version_of(files: &[(String, Vec<u8>)]) -> String {
     format!("{hash:016x}")
 }
 
-pub fn service_worker(w: &Worker) -> String {
+pub fn service_worker(w: &Worker<'_>) -> String {
     let config = json!({
         "version": w.version,
         "base": w.base,

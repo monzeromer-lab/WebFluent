@@ -228,7 +228,7 @@ mod tests {
         ThemeConfig {
             name: name.map(str::to_string),
             tokens: HashMap::new(),
-            builtin: Default::default(),
+            builtin: crate::project::themes::BuiltinCss::default(),
             dark: None,
         }
     }

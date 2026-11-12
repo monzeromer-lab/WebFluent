@@ -49,7 +49,7 @@ fn sources() -> Vec<(String, String)> {
     for e in std::fs::read_dir(root.join("md-docs")).unwrap().flatten() {
         let text = std::fs::read_to_string(e.path()).unwrap();
         for (i, block) in text.split("```wf\n").skip(1).enumerate() {
-            let code = block.split("\n```").next().unwrap_or("").to_string() + "\n";
+            let code = format!("{}\n", block.split("\n```").next().unwrap_or(""));
             if code.contains("validate ") && webfluent::parse_source(&code, "guide.wf").is_ok() {
                 out.push((format!("{}#{i}", e.path().display()), code));
             }

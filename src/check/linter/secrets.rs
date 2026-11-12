@@ -265,20 +265,35 @@ mod tests {
         );
         // A page writing *about* `env` is not a page reading it — which is
         // what a documentation site does for a whole chapter.
-        assert!(names("page P(path: \"/\") { Text(\"env.API_KEY is secret\") }").is_empty());
-        assert!(names("page P(path: \"/\") { Code(#\"env.API_KEY\"#) }").is_empty());
+        assert_eq!(
+            names("page P(path: \"/\") { Text(\"env.API_KEY is secret\") }"),
+            [] as [String; 0]
+        );
+        assert_eq!(
+            names("page P(path: \"/\") { Code(#\"env.API_KEY\"#) }"),
+            [] as [String; 0]
+        );
         // A splice inside a string is a page reading it, and is found.
         assert_eq!(
             names("page P(path: \"/\") { Text(\"base {env.API_KEY}\") }"),
             ["API_KEY"]
         );
         // A field of something else is not the build's `env`.
-        assert!(names("page P(path: \"/\") { Text(config.env.KEY) }").is_empty());
+        assert_eq!(
+            names("page P(path: \"/\") { Text(config.env.KEY) }"),
+            [] as [String; 0]
+        );
         // A method call on a list a page happens to have called `env`.
-        assert!(names("page P(path: \"/\") { Text(env.filter(x => x)) }").is_empty());
+        assert_eq!(
+            names("page P(path: \"/\") { Text(env.filter(x => x)) }"),
+            [] as [String; 0]
+        );
         // And a name the program declared for itself, for as long as the
         // declaration that holds it.
-        assert!(names("store S { state env = \"production\"  derived n = env.length }").is_empty());
+        assert_eq!(
+            names("store S { state env = \"production\"  derived n = env.length }"),
+            [] as [String; 0]
+        );
         assert!(
             names("component C(env: Map) { Text(env.NAME) }").is_empty(),
             "a prop called `env` is the caller's value"

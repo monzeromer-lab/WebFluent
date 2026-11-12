@@ -437,7 +437,7 @@ impl Template {
         let config = crate::project::config::project::ThemeConfig {
             name: self.theme.clone(),
             tokens: self.custom_tokens.clone(),
-            builtin: Default::default(),
+            builtin: crate::project::themes::BuiltinCss::default(),
             dark: None,
         };
         crate::project::themes::resolve_tokens(&self.program, &config)
@@ -788,7 +788,7 @@ fn to_value<T: Serialize + ?Sized>(data: &T) -> Result<Value> {
 /// [`WebFluentError::Diagnostics`] holding an `E120` or `E121` when the
 /// render nests too deep or does too much.
 pub fn render_program_fragment(program: &Program, data: &Value) -> Result<String> {
-    render_program(program, data, false, Default::default())
+    render_program(program, data, false, std::rc::Rc::default())
 }
 
 /// As [`render_program_fragment`], with the messages `t("key")` reads,
@@ -835,7 +835,7 @@ pub fn render_program_fragment_in(
 /// [`WebFluentError::Diagnostics`] holding an `E120` or `E121` when the
 /// render nests too deep or does too much.
 pub fn render_program_paged(program: &Program, data: &Value) -> Result<String> {
-    render_program(program, data, true, Default::default())
+    render_program(program, data, true, std::rc::Rc::default())
 }
 
 fn render_program(
@@ -889,7 +889,7 @@ fn render_program_with(program: &Program, data: &Value, how: Rendering) -> Resul
     });
     // The constants were worked out before the messages were known; the
     // data frame is built again with them.
-    ctx.data_static = Default::default();
+    ctx.data_static = std::rc::Rc::default();
     ctx.studio = how.studio;
     if how.paged {
         ctx.locals.insert(PAGED.to_string(), Value::Bool(true));
@@ -1232,12 +1232,12 @@ impl<'a> RenderContext<'a> {
                 ..Default::default()
             },
             slots: Vec::new(),
-            messages: Default::default(),
+            messages: std::rc::Rc::default(),
             locale: std::rc::Rc::from("en"),
-            budget: Default::default(),
+            budget: std::rc::Rc::default(),
             depth: 0,
             studio: None,
-            data_static: Default::default(),
+            data_static: std::rc::Rc::default(),
         }
     }
 
@@ -1276,9 +1276,9 @@ impl<'a> RenderContext<'a> {
     /// functions. Shared, not copied.
     fn scope_over(&self, data: &DataFrame) -> crate::project::static_eval::Scope {
         let mut frames = Vec::with_capacity(self.locals.frames.len() + 2);
-        frames.push(data.clone());
+        frames.push(Arc::clone(data));
         frames.extend(self.locals.frames.iter().cloned());
-        frames.push(self.functions.frame.clone());
+        frames.push(Arc::clone(&self.functions.frame));
         crate::project::static_eval::Scope::over_frames(frames).lenient()
     }
 
@@ -1385,7 +1385,7 @@ impl crate::web::codegen::ssg::Paint for RenderContext<'_> {
 /// on paper nothing changes. Data handed to the render wins over either.
 /// Derived values are worked out twice, so one may read one declared below
 /// it. What was shadowed comes back when the body is done.
-fn seed_values(stmts: &[Statement], ctx: &mut RenderContext) -> Seeded {
+fn seed_values(stmts: &[Statement], ctx: &mut RenderContext<'_>) -> Seeded {
     let mut saved = Vec::new();
     // A derived value that is a function is held as one, for its calls.
     let mut functions = Vec::new();
@@ -1399,7 +1399,7 @@ fn seed_values(stmts: &[Statement], ctx: &mut RenderContext) -> Seeded {
             ));
         }
     }
-    let given = |ctx: &RenderContext, name: &str| matches!(ctx.data, Value::Object(m) if m.contains_key(name));
+    let given = |ctx: &RenderContext<'_>, name: &str| matches!(ctx.data, Value::Object(m) if m.contains_key(name));
     for stmt in stmts {
         if let StatementKind::State(st) = &stmt.kind
             && !given(ctx, &st.name)
@@ -1441,7 +1441,7 @@ struct Seeded {
 }
 
 impl Seeded {
-    fn restore(self, ctx: &mut RenderContext) {
+    fn restore(self, ctx: &mut RenderContext<'_>) {
         for (name, old) in self.values.into_iter().rev() {
             match old {
                 Some(v) => ctx.locals.insert(name, v),
@@ -1457,14 +1457,14 @@ impl Seeded {
     }
 }
 
-fn render_statements(stmts: &[Statement], ctx: &mut RenderContext) -> String {
+fn render_statements(stmts: &[Statement], ctx: &mut RenderContext<'_>) -> String {
     let seeded = seed_values(stmts, ctx);
     let html = render_statements_seeded(stmts, ctx);
     seeded.restore(ctx);
     html
 }
 
-fn render_statements_seeded(stmts: &[Statement], ctx: &mut RenderContext) -> String {
+fn render_statements_seeded(stmts: &[Statement], ctx: &mut RenderContext<'_>) -> String {
     let mut html = String::new();
     for stmt in stmts {
         if ctx.budget.stopped() {
@@ -1523,14 +1523,14 @@ fn render_statements_seeded(stmts: &[Statement], ctx: &mut RenderContext) -> Str
     html
 }
 
-fn render_if(if_stmt: &IfStmt, ctx: &mut RenderContext) -> String {
+fn render_if(if_stmt: &IfStmt, ctx: &mut RenderContext<'_>) -> String {
     let cond = ctx.eval_expr(&if_stmt.condition);
     if is_truthy(&cond) {
         // `if let p = post { … }`: the branch reads `p` as the value.
         let Some(name) = &if_stmt.binding else {
             return render_statements(&if_stmt.then_body, ctx);
         };
-        let old = ctx.locals.insert(name.clone(), cond.clone());
+        let old = ctx.locals.insert(name.clone(), cond);
         let html = render_statements(&if_stmt.then_body, ctx);
         match old {
             Some(v) => ctx.locals.insert(name.clone(), v),
@@ -1553,7 +1553,7 @@ fn render_if(if_stmt: &IfStmt, ctx: &mut RenderContext) -> String {
     }
 }
 
-fn render_for(for_stmt: &ForStmt, ctx: &mut RenderContext) -> String {
+fn render_for(for_stmt: &ForStmt, ctx: &mut RenderContext<'_>) -> String {
     let collection = ctx.eval_expr(&for_stmt.iterable);
     let mut html = String::new();
 
@@ -1594,7 +1594,7 @@ fn render_for(for_stmt: &ForStmt, ctx: &mut RenderContext) -> String {
 /// Each element's node id, by where it is written: start, end, line.
 type NodeIds = HashMap<(u32, u32, u32), String>;
 
-fn render_ui_element(ui: &UIElement, ctx: &mut RenderContext) -> String {
+fn render_ui_element(ui: &UIElement, ctx: &mut RenderContext<'_>) -> String {
     // Elements inside elements, and the components they expand to — a
     // component that places itself, as deep as its data goes — are held to
     // the depth the parser holds a program to.
@@ -1638,7 +1638,7 @@ fn render_ui_element(ui: &UIElement, ctx: &mut RenderContext) -> String {
     }
 }
 
-fn render_ui_element_unmarked(ui: &UIElement, ctx: &mut RenderContext) -> String {
+fn render_ui_element_unmarked(ui: &UIElement, ctx: &mut RenderContext<'_>) -> String {
     match &ui.component {
         ComponentRef::BuiltIn(name) => render_builtin(name, ui, ctx),
         ComponentRef::SubComponent(parent, sub) => {
@@ -1695,7 +1695,7 @@ fn render_ui_element_unmarked(ui: &UIElement, ctx: &mut RenderContext) -> String
     }
 }
 
-fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String {
+fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext<'_>) -> String {
     // The `children` slot: the block the caller of the enclosing component
     // wrote, rendered in its place. Outside a component there is none.
     if let Some(slot) = ui.slot_name() {
@@ -1764,7 +1764,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
 
 /// An element's `style { }` block as a ready-to-append ` style="…"` attribute,
 /// or the empty string if it has none.
-fn style_block_attr(ui: &UIElement, ctx: &mut RenderContext) -> String {
+fn style_block_attr(ui: &UIElement, ctx: &mut RenderContext<'_>) -> String {
     let Some(block) = &ui.style_block else {
         return String::new();
     };
@@ -1787,7 +1787,7 @@ fn style_block_attr(ui: &UIElement, ctx: &mut RenderContext) -> String {
 /// either (`\`), or fetch something (`url(`, `image-set(`, …) is refused,
 /// and the declaration left out — as a browser leaves out a value it cannot
 /// read. What the template itself writes around a splice is its own.
-fn style_value(value: &Expr, ctx: &RenderContext) -> Option<String> {
+fn style_value(value: &Expr, ctx: &RenderContext<'_>) -> Option<String> {
     let checked = |e: &Expr| {
         let text = value_to_string(&ctx.eval_expr(e));
         safe_style_piece(&text).then_some(text)
@@ -1830,7 +1830,13 @@ fn safe_style_piece(text: &str) -> bool {
 
 /// An element's opening tag with what it carries as any element does
 /// (`own_attrs`) beside its class.
-fn with_own(open: String, tag: &str, name: &str, ui: &UIElement, ctx: &RenderContext) -> String {
+fn with_own(
+    open: String,
+    tag: &str,
+    name: &str,
+    ui: &UIElement,
+    ctx: &RenderContext<'_>,
+) -> String {
     let own = own_attrs(name, ui, ctx, &[]);
     open.replacen(&format!("<{tag}"), &format!("<{tag}{own}"), 1)
 }
@@ -1842,7 +1848,7 @@ fn with_own(open: String, tag: &str, name: &str, ui: &UIElement, ctx: &RenderCon
 fn call_root_attrs(
     component: &TemplateComponent,
     ui: &UIElement,
-    ctx: &RenderContext,
+    ctx: &RenderContext<'_>,
 ) -> (String, Vec<String>) {
     let mut attrs = String::new();
     let mut classes = Vec::new();
@@ -1913,7 +1919,7 @@ fn painted_value(v: Value) -> Option<crate::web::codegen::ssg::Painted> {
 /// What the root of a built-in drawn by its own branch carries as any
 /// element does, as the live page writes it (`painted_attrs`): `reads`
 /// names what the branch draws itself.
-fn own_attrs(name: &str, ui: &UIElement, ctx: &RenderContext, reads: &[&str]) -> String {
+fn own_attrs(name: &str, ui: &UIElement, ctx: &RenderContext<'_>, reads: &[&str]) -> String {
     crate::web::codegen::ssg::painted_attrs(
         crate::registry::component(name),
         ui,
@@ -1927,7 +1933,7 @@ fn own_attrs(name: &str, ui: &UIElement, ctx: &RenderContext, reads: &[&str]) ->
 /// one its style block's rules live under, the ones a responsive prop's
 /// rules live under (`columns: { base: 1, md: 3 }`), and the ones its
 /// `class:` argument names.
-fn extra_classes(ui: &UIElement, ctx: &RenderContext) -> Vec<String> {
+fn extra_classes(ui: &UIElement, ctx: &RenderContext<'_>) -> Vec<String> {
     let mut classes: Vec<String> = ui
         .style_block
         .as_ref()
@@ -1957,13 +1963,13 @@ pub fn is_rtl(lang: &str) -> bool {
 const PAGED: &str = "\u{0}paged";
 
 /// A `Chart`'s arguments, read from the data.
-fn chart_of(ui: &UIElement, ctx: &mut RenderContext) -> crate::web::codegen::charts::Chart {
+fn chart_of(ui: &UIElement, ctx: &mut RenderContext<'_>) -> crate::web::codegen::charts::Chart {
     let named: Vec<(String, Value)> = ui
         .args
         .iter()
         .filter_map(|a| match a {
             Arg::Named(k, e) => Some((k.clone(), ctx.eval_expr(e))),
-            _ => None,
+            Arg::Positional(_) => None,
         })
         .collect();
     crate::web::codegen::charts::chart_from(&named, &ui.modifiers)
@@ -1974,11 +1980,11 @@ fn chart_of(ui: &UIElement, ctx: &mut RenderContext) -> crate::web::codegen::cha
 fn render_paged(
     name: &str,
     ui: &UIElement,
-    ctx: &mut RenderContext,
+    ctx: &mut RenderContext<'_>,
     class_str: &str,
     style_attr: &str,
 ) -> Option<String> {
-    let named = |ctx: &mut RenderContext, key: &str| -> Option<String> {
+    let named = |ctx: &mut RenderContext<'_>, key: &str| -> Option<String> {
         ui.args.iter().find_map(|a| match a {
             Arg::Named(k, v) if k == key => {
                 let v = ctx.eval_expr(v);
@@ -1991,16 +1997,16 @@ fn render_paged(
             _ => None,
         })
     };
-    let positional = |ctx: &mut RenderContext| -> Option<String> {
+    let positional = |ctx: &mut RenderContext<'_>| -> Option<String> {
         ui.args.iter().find_map(|a| match a {
             Arg::Positional(e) => Some(value_to_string(&ctx.eval_expr(e))),
-            _ => None,
+            Arg::Named(..) => None,
         })
     };
     // `.case` values arrive as their name.
     let case = |s: String| s.trim_start_matches('.').to_string();
     let indent = ctx.indent_str();
-    let open = |ctx: &mut RenderContext, tag: &str, attrs: Vec<(String, String)>| -> String {
+    let open = |ctx: &mut RenderContext<'_>, tag: &str, attrs: Vec<(String, String)>| -> String {
         let mut a = String::new();
         if !class_str.is_empty() {
             a.push_str(&format!(" class=\"{class_str}\""));
@@ -2011,7 +2017,7 @@ fn render_paged(
         let _ = ctx;
         format!("{indent}<{tag}{a}{style_attr}>\n")
     };
-    let children = |ctx: &mut RenderContext| -> String {
+    let children = |ctx: &mut RenderContext<'_>| -> String {
         ctx.indent += 1;
         let html = render_statements(&ui.children, ctx);
         ctx.indent -= 1;
@@ -2237,7 +2243,7 @@ fn render_paged(
     }
 }
 
-fn render_tag(tag: &str, class: &str, ui: &UIElement, ctx: &mut RenderContext) -> String {
+fn render_tag(tag: &str, class: &str, ui: &UIElement, ctx: &mut RenderContext<'_>) -> String {
     let indent = ctx.indent_str();
     let class = std::iter::once(class.to_string())
         .chain(extra_classes(ui, ctx))

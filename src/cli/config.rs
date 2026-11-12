@@ -56,14 +56,13 @@ pub fn run_get(dir: &Path, dotted: &str) -> Result<()> {
     let keys: Vec<&str> = keys.iter().map(String::as_str).collect();
     let set = crate::config::json_edit::get(&text, &keys)
         .map_err(|e| WebFluentError::config(e.to_string()))?;
-    match set {
-        Some(v) => println!("{v}"),
-        None => {
-            let d = schema::at(&schema::defaults(), field.path)
-                .cloned()
-                .unwrap_or(Value::Null);
-            println!("{d} (the default; {CONFIG} does not set it)");
-        }
+    if let Some(v) = set {
+        println!("{v}");
+    } else {
+        let d = schema::at(&schema::defaults(), field.path)
+            .cloned()
+            .unwrap_or(Value::Null);
+        println!("{d} (the default; {CONFIG} does not set it)");
     }
     Ok(())
 }

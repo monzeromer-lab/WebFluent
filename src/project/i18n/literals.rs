@@ -202,7 +202,7 @@ fn each_text_arg(ui: &mut UIElement, f: &mut dyn FnMut(&mut Expr)) {
                 first = false;
             }
             Arg::Named(k, e) if TEXT_PROPS.contains(&k.as_str()) => each_shown(e, f),
-            _ => {}
+            Arg::Named(..) => {}
         }
     }
 }

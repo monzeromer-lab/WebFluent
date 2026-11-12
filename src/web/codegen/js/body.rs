@@ -136,25 +136,22 @@ impl JsCodegen {
         for read in reads {
             self.emit_state_after_reads(owner, body, &read, parent, done, early);
         }
-        match &stmt.kind {
-            StatementKind::State(s) => {
-                let val = self.emit_expr(&s.value);
-                let init = self.state_init(owner, s, &val);
-                self.emit_line(&format!("const {} = {};", sig(&s.name), init));
-            }
-            _ => {
-                early.push(name.to_string());
-                self.emit_statement_dom(stmt, parent);
-            }
+        if let StatementKind::State(s) = &stmt.kind {
+            let val = self.emit_expr(&s.value);
+            let init = self.state_init(owner, s, &val);
+            self.emit_line(&format!("const {} = {};", sig(&s.name), init));
+        } else {
+            early.push(name.to_string());
+            self.emit_statement_dom(stmt, parent);
         }
     }
 
     pub(super) fn emit_component(&mut self, comp: &ComponentDecl) {
         self.body = BodyState::default();
-        self.node_owner = comp.name.clone();
+        self.node_owner.clone_from(&comp.name);
         let params: Vec<String> = comp.props.iter().map(|p| p.name.clone()).collect();
         // Set current props so emit_expr treats them as plain variables, not signals
-        self.body.current_props = params.clone();
+        self.body.current_props = params;
         self.body.own_actions = action_names(&comp.body);
         self.body.refs = crate::check::sema::types::ref_names(&comp.body);
         self.body.own_names = declared_names(&comp.body);
@@ -165,7 +162,7 @@ impl JsCodegen {
         let handles = self.body.refs.clone();
         let forms = self.open_forms(&comp.body);
         self.body.validated = validated_names(&comp.body);
-        self.body.current_body = comp.body.clone();
+        self.body.current_body.clone_from(&comp.body);
         // Props are read through `_p.name`, never copied out: a caller passes
         // a value that reads state as a getter, so every read inside the
         // component — a derived, a style value, a condition — tracks the
@@ -226,7 +223,7 @@ impl JsCodegen {
 
     pub(super) fn emit_page(&mut self, page: &PageDecl) {
         self.body = BodyState::default();
-        self.node_owner = page.name.clone();
+        self.node_owner.clone_from(&page.name);
         let start = self.output.len();
         self.emit_line(&format!("function Page_{}(params) {{", page.name));
         self.indent += 1;
@@ -241,7 +238,7 @@ impl JsCodegen {
             self.emit_line(&line);
         }
         self.body.validated = validated_names(&page.body);
-        self.body.current_body = page.body.clone();
+        self.body.current_body.clone_from(&page.body);
         for name in handles {
             self.emit_line(&format!("const {} = WF.ref();", bare(&name)));
         }
@@ -346,14 +343,14 @@ impl JsCodegen {
                         } else if name == "page"
                             && let Expr::Identifier(id) = expr
                         {
-                            page_name = id.clone();
+                            page_name.clone_from(id);
                         }
                     }
                 }
                 routes.push((path.trim_matches('"').to_string(), page_name));
             }
             if routes.is_empty() {
-                routes = self.page_paths.clone();
+                routes.clone_from(&self.page_paths);
             }
             // The table is matched top down, so the more specific route
             // comes first; the rest is a fixed order, so a site builds the

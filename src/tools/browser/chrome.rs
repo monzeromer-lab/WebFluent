@@ -270,14 +270,13 @@ fn open_browser(binary: &str, sandbox: bool) -> Result<(Child, PathBuf, String)>
             break;
         }
     }
-    match endpoint {
-        Some(endpoint) => Ok((child, profile, endpoint)),
-        None => {
-            abandon(&mut child, &profile);
-            Err(WebFluentError::io(
-                "the browser started but never said where to talk to it",
-            ))
-        }
+    if let Some(endpoint) = endpoint {
+        Ok((child, profile, endpoint))
+    } else {
+        abandon(&mut child, &profile);
+        Err(WebFluentError::io(
+            "the browser started but never said where to talk to it",
+        ))
     }
 }
 

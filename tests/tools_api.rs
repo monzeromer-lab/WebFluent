@@ -315,7 +315,7 @@ fn a_migration_is_planned_in_memory_and_then_written() {
         before
     );
     let written = webfluent::migrate::project::apply(&plan).unwrap();
-    assert!(!written.is_empty());
+    assert_ne!(written, [] as [std::path::PathBuf; 0]);
     // Carried forward, the project has nothing left to migrate.
     let again = webfluent::migrate::project::plan(&dir, false).unwrap();
     assert_eq!(again.changed().count(), 0, "{again:?}");
@@ -337,8 +337,8 @@ fn an_audit_says_what_a_project_trusts() {
             .any(|p| p.name == "theme" && p.owner == "Prefs"),
         "{report:?}"
     );
-    assert!(!report.dependencies.is_empty());
-    assert!(!report.csp.is_empty());
+    assert_ne!(report.dependencies, [] as [String; 0]);
+    assert_ne!(report.csp, "");
 }
 
 #[test]
@@ -370,7 +370,7 @@ fn verify_finds_the_routes_of_a_build_and_what_no_page_drew() {
         routes.contains(&"/".to_string()) && routes.contains(&"/about".to_string()),
         "{routes:?}"
     );
-    let undrawn = webfluent::verify::undrawn(&Default::default());
+    let undrawn = webfluent::verify::undrawn(&std::collections::BTreeSet::default());
     assert!(undrawn.iter().any(|n| n == "Button"));
     let mut visit = webfluent::verify::Visit::default();
     webfluent::verify::judge(&mut visit, "/about", Some(100));
@@ -516,6 +516,6 @@ fn a_project_translated_by_its_own_words_is_tested_through_its_default_table() {
     let (file, one) = &tests.tests[0];
     match tests.run_rendered(file, one, true) {
         Outcome::Passed | Outcome::Written => {}
-        other => panic!("{other:?}"),
+        other @ Outcome::Failed(_) => panic!("{other:?}"),
     }
 }

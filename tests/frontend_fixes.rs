@@ -34,12 +34,11 @@ fn within<T: Send + 'static>(secs: u64, f: impl FnOnce() -> T + Send + 'static) 
             let _ = tx.send(f());
         })
         .unwrap();
-    match rx.recv_timeout(Duration::from_secs(secs)) {
-        Ok(value) => value,
-        Err(_) => {
-            eprintln!("did not finish within {secs}s (or overflowed its stack)");
-            std::process::exit(1);
-        }
+    if let Ok(value) = rx.recv_timeout(Duration::from_secs(secs)) {
+        value
+    } else {
+        eprintln!("did not finish within {secs}s (or overflowed its stack)");
+        std::process::exit(1);
     }
 }
 
@@ -56,7 +55,7 @@ fn parse_codes(src: &str, file: &str) -> Result<(), Vec<&'static str>> {
 /// Every character that may start a name (UAX #31) but is no letter to
 /// `char::is_alphanumeric` — `℘` and `℮` among them.
 fn starts_but_not_alphanumeric() -> Vec<char> {
-    (0..=0x10FFFFu32)
+    (0..=0x0010_FFFF_u32)
         .filter_map(char::from_u32)
         .filter(|c| !c.is_ascii() && unicode_ident::is_xid_start(*c) && !c.is_alphanumeric())
         .collect()
@@ -116,7 +115,7 @@ fn the_reviewers_page_checks_and_renders_without_hanging() {
 fn every_character_lexes_or_is_refused_in_every_position() {
     // A character in each place a token may begin — a name, a value, a
     // style value — either lexes or is an error; none hangs.
-    let samples: Vec<char> = (0..=0x10FFFFu32)
+    let samples: Vec<char> = (0..=0x0010_FFFF_u32)
         .step_by(97)
         .filter_map(char::from_u32)
         .chain(['℘', '℮', '\u{0300}', '\u{200D}', '\u{FEFF}', '·', '゛'])
@@ -379,7 +378,7 @@ fn nesting_through_string_splices_is_counted() {
     // `"a{("a{(…)}b")}b"` — each splice parses its text with a parser of
     // its own, which starts where the one around it is.
     let mut e = String::from("1");
-    for _ in 0..(MAX_NESTING + 1) {
+    for _ in 0..=MAX_NESTING {
         e = format!("\"a{{({e})}}b\"");
     }
     let deep = page_with(&e);

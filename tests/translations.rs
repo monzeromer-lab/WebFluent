@@ -70,9 +70,9 @@ fn the_rules_pick_what_the_browser_picks() {
             }
         }
         let mut forms = plurals::categories(locale);
-        forms.sort();
+        forms.sort_unstable();
         let mut used: Vec<&str> = picks.iter().map(String::as_str).collect();
-        used.sort();
+        used.sort_unstable();
         used.dedup();
         for u in used {
             assert!(
@@ -120,7 +120,7 @@ fn projects() -> Vec<PathBuf> {
 
 fn read(dir: &Path) -> Option<(Table, webfluent::config::project::I18nConfig)> {
     let config = webfluent::config::ProjectConfig::load(dir).ok()?;
-    let i18n = config.i18n.clone()?;
+    let i18n = config.i18n?;
     Some((
         table_via(&webfluent::vfs::FsVfs, dir).unwrap().unwrap(),
         i18n,
@@ -152,9 +152,9 @@ fn every_table_reads_as_its_files_and_counts_as_the_build_does() {
                 .filter(|c| c.text.is_some())
                 .collect();
             let mut entries: Vec<&str> = cells.iter().map(|c| c.entry.as_str()).collect();
-            entries.sort();
+            entries.sort_unstable();
             let mut want: Vec<&str> = file.keys().map(String::as_str).collect();
-            want.sort();
+            want.sort_unstable();
             if entries != want {
                 wrong.push(format!(
                     "{}: the cells are not the file's messages",
@@ -784,8 +784,11 @@ test "a key is written as the build writes it" {
         .arg(&dir)
         .output()
         .unwrap();
-    let said =
-        String::from_utf8_lossy(&out.stdout).to_string() + &String::from_utf8_lossy(&out.stderr);
+    let said = format!(
+        "{}{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
     assert!(out.status.success(), "{said}");
     assert!(said.contains("2 passed"), "{said}");
     let _ = std::fs::remove_dir_all(&dir);

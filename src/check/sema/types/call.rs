@@ -2,7 +2,7 @@
 
 use super::*;
 
-impl<'a, 'p> Checker<'a, 'p> {
+impl Checker<'_, '_> {
     pub(super) fn infer_arg(&mut self, args: &[Expr], i: usize, expected: Option<&Type>) -> Type {
         match args.get(i) {
             Some(e) => {

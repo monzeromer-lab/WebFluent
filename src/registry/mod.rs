@@ -643,7 +643,7 @@ mod tests {
             for p in sig.all_props() {
                 if let PropType::Enum(cases) = p.ty {
                     let mut names: Vec<&str> = cases.iter().map(|c| c.name).collect();
-                    names.sort();
+                    names.sort_unstable();
                     names.dedup();
                     assert_eq!(
                         names.len(),

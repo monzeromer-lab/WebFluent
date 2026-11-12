@@ -574,10 +574,10 @@ pub fn set_message(
             entry.to_string(),
             serde_json::Value::String(message.to_string()),
         );
-        return Ok(
+        return Ok(format!(
+            "{}\n",
             serde_json::to_string_pretty(&serde_json::Value::Object(map)).map_err(edit_error)?
-                + "\n",
-        );
+        ));
     }
     crate::project::config::json_edit::set(
         text,

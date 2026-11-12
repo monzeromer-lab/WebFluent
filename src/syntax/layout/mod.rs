@@ -36,14 +36,14 @@ pub fn to_offside(source: &str, file: &str) -> Result<String> {
     edits.sort_unstable();
     for (at, keep_open) in edits.into_iter().rev() {
         if keep_open {
-            text.replace_range(at..at + 1, "{ }");
+            text.replace_range(at..=at, "{ }");
             continue;
         }
         // The space before an opening brace goes with it (`Row {` → `Row`),
         // as does the one after a closing brace (`} else` → `else`).
         let mut start = at;
         let mut end = at + 1;
-        if &text[at..at + 1] == "{" {
+        if &text[at..=at] == "{" {
             while start > 0 && text.as_bytes()[start - 1] == b' ' {
                 start -= 1;
             }

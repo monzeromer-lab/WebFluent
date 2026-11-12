@@ -18,7 +18,7 @@ pub fn run_components(dir: &Path, json: bool) -> Result<()> {
     for c in &catalog.components {
         if c.group != group {
             println!("\n{}", c.group);
-            group = c.group.clone();
+            group.clone_from(&c.group);
         }
         let props: Vec<String> = c
             .props

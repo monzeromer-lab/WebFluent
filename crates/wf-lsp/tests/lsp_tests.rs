@@ -359,8 +359,8 @@ fn completion_in_a_match_body_offers_the_missing_arms() {
 #[test]
 fn completion_offers_nothing_inside_strings_and_comments() {
     let src = "page Home(path: \"/\") {\n    // \n    Text(\"\")\n}\n";
-    assert!(labels_after(src, "// ").is_empty());
-    assert!(labels_after(src, "Text(\"").is_empty());
+    assert_eq!(labels_after(src, "// "), [] as [String; 0]);
+    assert_eq!(labels_after(src, "Text(\""), [] as [String; 0]);
 }
 
 #[test]
@@ -657,8 +657,8 @@ fn a_misspelled_field_offers_the_field_it_meant() {
                 only: None,
                 trigger_kind: None,
             },
-            work_done_progress_params: Default::default(),
-            partial_result_params: Default::default(),
+            work_done_progress_params: WorkDoneProgressParams::default(),
+            partial_result_params: PartialResultParams::default(),
         },
     );
     let CodeActionOrCommand::CodeAction(action) = &actions[0] else {
@@ -1573,7 +1573,10 @@ fn references_and_highlights_are_every_place_a_name_is_named() {
     let marks = wf_lsp::rename::highlights(&project, 0, at("count", 1));
     assert_eq!(marks.len(), 4);
     // Text names nothing.
-    assert!(wf_lsp::rename::references(&project, 0, at("count", 4), true).is_empty());
+    assert_eq!(
+        wf_lsp::rename::references(&project, 0, at("count", 4), true),
+        [] as [lsp_types::Location; 0]
+    );
 }
 
 // ─── Signature help ───────────────────────────────────────────────────────
@@ -1593,7 +1596,7 @@ fn signature_at(valid: &str, broken: &str) -> Option<(String, Option<String>)> {
             .get(i as usize)
             .map(|p| match &p.label {
                 ParameterLabel::Simple(s) => s.clone(),
-                _ => String::new(),
+                ParameterLabel::LabelOffsets(_) => String::new(),
             })
     });
     Some((sig.label, active))
@@ -1671,7 +1674,7 @@ fn inlay_hints_show_the_type_of_an_unannotated_state_or_derived() {
         .into_iter()
         .map(|h| match h.label {
             InlayHintLabel::String(s) => (h.position, s),
-            _ => unreachable!(),
+            InlayHintLabel::LabelParts(_) => unreachable!(),
         })
         .collect();
     assert!(

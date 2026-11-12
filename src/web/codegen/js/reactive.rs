@@ -147,7 +147,7 @@ pub(super) fn is_reactive_expr(expr_str: &str) -> bool {
 
 impl JsCodegen {
     /// A path into a value, `["done", (i)]`, for `WF.setIn`.
-    pub(super) fn path_js(&self, steps: &[Step], emit: &dyn Fn(&Expr) -> String) -> String {
+    pub(super) fn path_js(&self, steps: &[Step<'_>], emit: &dyn Fn(&Expr) -> String) -> String {
         let parts: Vec<String> = steps
             .iter()
             .map(|s| match s {

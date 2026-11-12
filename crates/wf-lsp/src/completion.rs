@@ -790,7 +790,7 @@ fn style_property_of(previous: &[&Token]) -> Option<String> {
     for token in previous.iter().rev() {
         match &token.token_type {
             TokenType::StyleProp(name) => return Some(name.clone()),
-            TokenType::RawValue(_) => continue,
+            TokenType::RawValue(_) => {}
             _ => return None,
         }
     }

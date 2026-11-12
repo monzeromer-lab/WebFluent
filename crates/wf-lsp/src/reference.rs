@@ -515,8 +515,7 @@ pub fn tokens() -> &'static [(String, String)] {
                 let doc = TOKEN_DOCS
                     .iter()
                     .find(|(n, _)| *n == name)
-                    .map(|(_, d)| *d)
-                    .unwrap_or_else(|| token_group_doc(&name));
+                    .map_or_else(|| token_group_doc(&name), |(_, d)| *d);
                 (name, format!("{doc} — `{value}`"))
             })
             .collect();

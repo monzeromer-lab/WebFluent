@@ -2,6 +2,7 @@
 //! PDF, a slide, a rendered template and a page.
 
 use serde_json::Value;
+use std::fmt::Write as _;
 
 /// What a `Chart` draws.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -198,7 +199,7 @@ fn num(v: &Value) -> f64 {
     match v {
         Value::Number(n) => n.as_f64().unwrap_or(0.0),
         Value::String(s) => s.trim().trim_end_matches('%').parse().unwrap_or(0.0),
-        Value::Bool(b) => *b as i32 as f64,
+        Value::Bool(b) => f64::from(i32::from(*b)),
         _ => 0.0,
     }
 }
@@ -463,13 +464,15 @@ impl Chart {
                         .enumerate()
                         .map(|(i, vs)| (left + band * (i as f64 + 0.5), bottom - vs[s] / top * ph))
                         .collect();
-                    let path: String = points
-                        .iter()
-                        .enumerate()
-                        .map(|(i, (x, y))| {
-                            format!("{}{x:.2} {y:.2}", if i == 0 { "M" } else { " L" })
-                        })
-                        .collect();
+                    let path: String =
+                        points
+                            .iter()
+                            .enumerate()
+                            .fold(String::new(), |mut acc, (i, (x, y))| {
+                                let step = if i == 0 { "M" } else { " L" };
+                                let _ = write!(acc, "{step}{x:.2} {y:.2}");
+                                acc
+                            });
                     let color = self.color(s);
                     if self.kind == Kind::Area {
                         let (fx, _) = points[0];
@@ -537,7 +540,7 @@ impl Chart {
                 let end = angle + sweep;
                 let (x0, y0) = (cx + r * angle.cos(), cy + r * angle.sin());
                 let (x1, y1) = (cx + r * end.cos(), cy + r * end.sin());
-                let large = (sweep > std::f64::consts::PI) as u8;
+                let large = u8::from(sweep > std::f64::consts::PI);
                 // A gap between slices, the width of a hairline.
                 if inner > 0.0 {
                     let (ix1, iy1) = (cx + inner * end.cos(), cy + inner * end.sin());
@@ -553,7 +556,7 @@ impl Chart {
                 if self.labels && sweep > 0.3 {
                     let mid = angle + sweep / 2.0;
                     let lr = if inner > 0.0 {
-                        (r + inner) / 2.0
+                        f64::midpoint(r, inner)
                     } else {
                         r * 0.62
                     };

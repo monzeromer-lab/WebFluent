@@ -234,7 +234,7 @@ impl Scope {
         values: impl IntoIterator<Item = (String, Static)>,
     ) -> Self {
         Scope {
-            frames: vec![base.clone(), Arc::new(values.into_iter().collect())],
+            frames: vec![Arc::clone(base), Arc::new(values.into_iter().collect())],
             functions: Arc::default(),
             depth: 0,
             lenient: false,
@@ -264,7 +264,7 @@ impl Scope {
     /// Only initial values. A store field a user action has since changed is not
     /// knowable here, and the hydrating client will correct it.
     pub fn from_program(program: &Program, page_body: &[Statement]) -> Self {
-        Self::from_program_with_env(program, page_body, &Default::default())
+        Self::from_program_with_env(program, page_body, &std::collections::BTreeMap::default())
     }
 
     /// [`Scope::from_program`] with the project's `env`, which a constant
@@ -858,11 +858,7 @@ fn eval_node(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
 
         // `if c { a } else { b }` as a value.
         Expr::MethodCall(cond, name, branches) if name == "__if" && branches.len() == 2 => {
-            let chosen = if eval_in(cond, scope, fuel)?.truthy() {
-                0
-            } else {
-                1
-            };
+            let chosen = usize::from(!eval_in(cond, scope, fuel)?.truthy());
             eval_in(&branches[chosen], scope, fuel)
         }
         // `if let x = e { a } else { b }` as a value.
@@ -915,7 +911,7 @@ fn eval_node(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
                 .collect::<Option<Vec<_>>>()?;
             // A name holding a lambda: a `derived` that is a function.
             if let Some(Static::Lambda(Lambda(lambda))) = scope.get(name) {
-                let lambda = lambda.clone();
+                let lambda = Arc::clone(lambda);
                 return apply(&lambda, &args, scope, fuel);
             }
             match name.as_str() {
@@ -1467,7 +1463,9 @@ fn method_call(
             "capitalize" => {
                 let mut chars = s.chars();
                 Some(Static::Str(match chars.next() {
-                    Some(c) => c.to_uppercase().collect::<String>() + chars.as_str(),
+                    Some(c) => {
+                        format!("{}{}", c.to_uppercase().collect::<String>(), chars.as_str())
+                    }
                     None => String::new(),
                 }))
             }
@@ -1550,14 +1548,11 @@ fn sorted(
                 if failed {
                     return std::cmp::Ordering::Equal;
                 }
-                match apply(cmp, &[a.clone(), b.clone()], scope, fuel) {
-                    Some(Static::Num(n)) => {
-                        n.partial_cmp(&0.0).unwrap_or(std::cmp::Ordering::Equal)
-                    }
-                    _ => {
-                        failed = true;
-                        std::cmp::Ordering::Equal
-                    }
+                if let Some(Static::Num(n)) = apply(cmp, &[a.clone(), b.clone()], scope, fuel) {
+                    n.partial_cmp(&0.0).unwrap_or(std::cmp::Ordering::Equal)
+                } else {
+                    failed = true;
+                    std::cmp::Ordering::Equal
                 }
             });
             (!failed).then_some(out)
@@ -1906,7 +1901,7 @@ mod tests {
         };
         match &ui.args[0] {
             crate::syntax::parser::ast::Arg::Positional(e) => e.clone(),
-            _ => unreachable!(),
+            crate::syntax::parser::ast::Arg::Named(..) => unreachable!(),
         }
     }
 
@@ -2216,14 +2211,14 @@ mod scalars {
         let mp = (m + 9) % 12;
         let doy = (153 * mp + 2) / 5 + d - 1;
         let doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
-        era * 146097 + doe - 719468
+        era * 146_097 + doe - 719_468
     }
 
     fn civil_from_days(z: i64) -> (i64, i64, i64) {
-        let z = z + 719468;
-        let era = if z >= 0 { z } else { z - 146096 } / 146097;
-        let doe = z - era * 146097;
-        let yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365;
+        let z = z + 719_468;
+        let era = if z >= 0 { z } else { z - 146_096 } / 146_097;
+        let doe = z - era * 146_097;
+        let yoe = (doe - doe / 1460 + doe / 36524 - doe / 146_096) / 365;
         let y = yoe + era * 400;
         let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
         let mp = (5 * doy + 2) / 153;
@@ -2239,8 +2234,8 @@ mod scalars {
             _ => return None,
         };
         let (date, time) = match kind_of(value)? {
-            "date" => (text.clone(), String::new()),
-            "time" => ("1970-01-01".to_string(), text.clone()),
+            "date" => (text, String::new()),
+            "time" => ("1970-01-01".to_string(), text),
             "datetime" => {
                 let (d, t) = text.split_once('T')?;
                 (d.to_string(), t.trim_end_matches('Z').to_string())
@@ -2446,14 +2441,13 @@ mod scalars {
                 }
                 ("query", Static::Map(values)) => {
                     for (k, v) in values {
-                        match v {
-                            Static::Null => query.retain(|(existing, _)| existing != k),
-                            _ => {
-                                let v = Static::Str(v.to_text());
-                                match query.iter_mut().find(|(existing, _)| existing == k) {
-                                    Some(slot) => slot.1 = v,
-                                    None => query.push((k.clone(), v)),
-                                }
+                        if v == &Static::Null {
+                            query.retain(|(existing, _)| existing != k);
+                        } else {
+                            let v = Static::Str(v.to_text());
+                            match query.iter_mut().find(|(existing, _)| existing == k) {
+                                Some(slot) => slot.1 = v,
+                                None => query.push((k.clone(), v)),
                             }
                         }
                     }
@@ -2705,7 +2699,7 @@ fn key_label_elsewhere(spelling: &str) -> String {
                 k => {
                     let mut c = k.chars();
                     c.next()
-                        .map(|f| f.to_uppercase().collect::<String>() + c.as_str())
+                        .map(|f| format!("{}{}", f.to_uppercase().collect::<String>(), c.as_str()))
                         .unwrap_or_default()
                 }
             };

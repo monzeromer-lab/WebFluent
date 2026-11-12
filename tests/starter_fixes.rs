@@ -138,12 +138,14 @@ fn a_form_handle_does_not_leak_into_the_next_page() {
 #[test]
 fn a_components_form_is_its_own() {
     // Two components with forms declared one name twice in the bundle.
-    let src = "component One {\n    state a = \"\"\n    validate a { required }\n    Form {\n        on submit { a = \"\" }\n        \
+    let src = format!(
+        "{}{}",
+        "component One {\n    state a = \"\"\n    validate a { required }\n    Form {\n        on submit { a = \"\" }\n        \
                Input(bind: a, label: \"A\").text\n    }\n}\n\
                component Two {\n    state b = \"\"\n    validate b { required }\n    Form {\n        on submit { b = \"\" }\n        \
-               Input(bind: b, label: \"B\").text\n    }\n}\n"
-        .to_string()
-        + &page("    One\n    Two");
+               Input(bind: b, label: \"B\").text\n    }\n}\n",
+        page("    One\n    Two")
+    );
     let out = js(&src);
     let one = &out[out.find("function Component_One").expect("One")..];
     let first = one.find("const _wfForm").expect("One's form handle");

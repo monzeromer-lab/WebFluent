@@ -214,7 +214,7 @@ impl std::error::Error for BuildFailure {}
 /// [`WebFluentError::ConfigError`] when the config is missing, is not one, or its
 /// output leads out of the project, and [`WebFluentError::IoError`] when a
 /// file cannot be read or written.
-pub fn build(options: &BuildOptions) -> std::result::Result<BuildReport, BuildFailure> {
+pub fn build(options: &BuildOptions<'_>) -> std::result::Result<BuildReport, BuildFailure> {
     finish(options, |out| run(options, out))
 }
 
@@ -228,15 +228,15 @@ pub fn build(options: &BuildOptions) -> std::result::Result<BuildReport, BuildFa
 /// [`WebFluentError::ConfigError`] when the config is missing, is not one, or its
 /// output leads out of the project, and [`WebFluentError::IoError`] when a
 /// file cannot be read.
-pub fn check(options: &BuildOptions) -> std::result::Result<BuildReport, BuildFailure> {
+pub fn check(options: &BuildOptions<'_>) -> std::result::Result<BuildReport, BuildFailure> {
     finish(options, |out| run_check(options, out))
 }
 
 /// Run `body`, then end as the format says: a JSON or SARIF build writes its
 /// findings once, as one document, whether it finished or stopped.
 fn finish(
-    options: &BuildOptions,
-    body: impl FnOnce(&Out) -> Result<()>,
+    options: &BuildOptions<'_>,
+    body: impl FnOnce(&Out<'_>) -> Result<()>,
 ) -> std::result::Result<BuildReport, BuildFailure> {
     let started = crate::base::platform::Stopwatch::start();
     let out = Out {
@@ -420,7 +420,7 @@ fn check_config_paths(config: &ProjectConfig) -> Result<()> {
 }
 
 /// The config, with `env` from a `.env` file and the shell on top of its own.
-fn load_config(options: &BuildOptions) -> Result<ProjectConfig> {
+fn load_config(options: &BuildOptions<'_>) -> Result<ProjectConfig> {
     let mut config = ProjectConfig::load_via(options.vfs, options.project_dir)?;
     check_config_paths(&config)?;
     config.resolve_env_via(
@@ -435,7 +435,7 @@ fn load_config(options: &BuildOptions) -> Result<ProjectConfig> {
 }
 
 /// `wf check`: every finding of a build, with nothing written.
-fn run_check(options: &BuildOptions, out: &Out) -> Result<()> {
+fn run_check(options: &BuildOptions<'_>, out: &Out<'_>) -> Result<()> {
     let confined = Confined::new(options.vfs, options.project_dir);
     let mut config = load_config(options)?;
     output_dir_of(options, &config)?;
@@ -452,7 +452,7 @@ fn run_check(options: &BuildOptions, out: &Out) -> Result<()> {
 }
 
 /// An error stops a build; with `--deny-warnings`, so does a warning.
-fn stop_on(out: &Out, diagnostics: &[Diagnostic], options: &BuildOptions) -> Result<()> {
+fn stop_on(out: &Out<'_>, diagnostics: &[Diagnostic], options: &BuildOptions<'_>) -> Result<()> {
     let (errors, warnings) = crate::diagnostics::counts(diagnostics);
     if errors > 0 {
         return Err(WebFluentError::Diagnostics(diagnostics.to_vec()));
@@ -568,7 +568,7 @@ pub fn analyse_via(
     })
 }
 
-fn run(options: &BuildOptions, out: &Out) -> Result<()> {
+fn run(options: &BuildOptions<'_>, out: &Out<'_>) -> Result<()> {
     let project_dir = options.project_dir;
     // The project is read through a view that keeps it inside itself: a
     // link out of it, or a path that climbs out, is not there.
@@ -590,7 +590,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     // ask for, before anything checks the program — so a name resolves to
     // the asset it became, with its real size and colour.
     let output_dir = output_dir_of(options, &config)?;
-    out.report.borrow_mut().output_dir = output_dir.clone();
+    out.report.borrow_mut().output_dir.clone_from(&output_dir);
     fs::create_dir_all(&output_dir)?;
     // What this build reads of the image cache, from here on: the rest is
     // pruned once it has finished.
@@ -782,7 +782,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
         split.pages
     } else {
         css.push_str(&crate::project::scoped_css::scoped_rules(&program));
-        Default::default()
+        BTreeMap::default()
     };
     let mut js_codegen = JsCodegen::new().with_options(crate::web::codegen::JsOptions {
         ssg: config.build.pre_renders(),
@@ -827,12 +827,11 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
                 continue;
             };
             let file = file.replace('\\', "/");
-            let index = match sources.iter().position(|s| *s == file) {
-                Some(n) => n,
-                None => {
-                    sources.push(file);
-                    sources.len() - 1
-                }
+            let index = if let Some(n) = sources.iter().position(|s| *s == file) {
+                n
+            } else {
+                sources.push(file);
+                sources.len() - 1
             };
             keys.insert(key, index);
         }
@@ -1275,7 +1274,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
 }
 
 /// Say each link a walk of the project left out, and how many.
-fn say_skipped(out: &Out, confined: &Confined) -> usize {
+fn say_skipped(out: &Out<'_>, confined: &Confined<'_>) -> usize {
     let skipped = confined.skipped();
     for (path, why) in &skipped {
         out.say(format!("  Warning: {} was left out: {why}", path.display()));
@@ -1292,7 +1291,7 @@ fn say_skipped(out: &Out, confined: &Confined) -> usize {
 /// # Errors
 ///
 /// What [`project_output`] returns for the config's `build.output`.
-pub fn output_dir_of(options: &BuildOptions, config: &ProjectConfig) -> Result<PathBuf> {
+pub fn output_dir_of(options: &BuildOptions<'_>, config: &ProjectConfig) -> Result<PathBuf> {
     let output = project_output(
         options.project_dir,
         &config.build.output,
@@ -1584,7 +1583,7 @@ fn write_sizes(project_dir: &Path, sizes: &BTreeMap<String, usize>) -> Result<()
 
 /// Warn about every output over its budget. Advisory: the build goes on.
 fn report_budget(
-    out: &Out,
+    out: &Out<'_>,
     budget: &BTreeMap<String, String>,
     sizes: &BTreeMap<String, usize>,
 ) -> usize {
@@ -1635,11 +1634,11 @@ fn parse_size(text: &str) -> Option<usize> {
         .trim()
         .parse::<f64>()
         .ok()
-        .map(|n| (n * scale as f64) as usize)
+        .map(|n| (n * f64::from(scale)) as usize)
 }
 
 fn print_stats(
-    out: &Out,
+    out: &Out<'_>,
     output_dir: &Path,
     modules: &[crate::web::runtime::Kept],
     runtime_bytes: usize,
@@ -1742,7 +1741,7 @@ fn print_stats(
 
 fn load_translations(
     vfs: &dyn Vfs,
-    out: &Out,
+    out: &Out<'_>,
     project_dir: &Path,
     i18n_config: &crate::project::config::project::I18nConfig,
 ) -> Result<HashMap<String, HashMap<String, String>>> {
@@ -1928,7 +1927,7 @@ fn page_for_route<'a>(
 /// `offline.precache` names with its own chunk and sheet, the fallback — and
 /// the version that says when it has all changed.
 fn write_service_worker(
-    out: &Out,
+    out: &Out<'_>,
     output_dir: &Path,
     config: &ProjectConfig,
     offline: &crate::project::config::OfflineConfig,
@@ -2080,7 +2079,7 @@ fn collect_files(root: &Path, dir: &Path, out: &mut Vec<(String, Vec<u8>)>) -> R
 /// The build reads back what it wrote: a compiled script the browser would
 /// refuse stops the build, as the compiler's fault rather than the author's.
 /// It used to ship, and the page died before it drew.
-fn read_back(out: &Out, name: &str, source: &str, minified: bool) -> Result<()> {
+fn read_back(out: &Out<'_>, name: &str, source: &str, minified: bool) -> Result<()> {
     let Err(fault) = crate::web::codegen::jscheck::check_js(source) else {
         return Ok(());
     };

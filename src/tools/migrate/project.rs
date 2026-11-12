@@ -317,7 +317,7 @@ pub fn write_four_two(project_dir: &Path, step: &FourTwo) -> Result<Option<PathB
     }
     std::fs::write(
         &path,
-        serde_json::to_string_pretty(&value).unwrap_or(text) + "\n",
+        format!("{}\n", serde_json::to_string_pretty(&value).unwrap_or(text)),
     )?;
     Ok(Some(path))
 }
@@ -368,7 +368,7 @@ pub fn write_public_env(project_dir: &Path, names: &[String]) -> Result<PathBuf>
     }
     std::fs::write(
         &path,
-        serde_json::to_string_pretty(&value).unwrap_or(text) + "\n",
+        format!("{}\n", serde_json::to_string_pretty(&value).unwrap_or(text)),
     )?;
     Ok(path)
 }

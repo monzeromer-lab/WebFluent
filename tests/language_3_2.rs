@@ -204,8 +204,8 @@ fn a_dark_theme_overrides_the_tokens_under_the_readers_preference_or_choice() {
     let program = parse_source(&src, "t.wf").expect("parses");
     let config = ThemeConfig {
         name: None,
-        tokens: Default::default(),
-        builtin: Default::default(),
+        tokens: std::collections::HashMap::default(),
+        builtin: webfluent::themes::BuiltinCss::default(),
         dark: Some("Dark".to_string()),
     };
     // With the dark theme named, the other is the build's own.

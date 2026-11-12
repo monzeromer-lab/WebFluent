@@ -15,9 +15,8 @@ fn corpus_dir() -> std::path::PathBuf {
 /// What one line comes to: the value as JSON and the text it shows.
 fn evaluate(line: &str, data: &Value) -> String {
     let source = format!("{PRELUDE}const __e = {line}\n");
-    let program = match crate::syntax::parser::v2::parse_v2(&source, "corpus.wf") {
-        Ok(p) => p,
-        Err(_) => return "does not parse".to_string(),
+    let Ok(program) = crate::syntax::parser::v2::parse_v2(&source, "corpus.wf") else {
+        return "does not parse".to_string();
     };
     let Some(expr) = program.declarations.iter().find_map(|d| match d {
         Declaration::Const(c) if c.name == "__e" => Some(c.value.clone()),

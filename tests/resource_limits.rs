@@ -21,12 +21,11 @@ fn within<T: Send + 'static>(secs: u64, f: impl FnOnce() -> T + Send + 'static) 
             let _ = tx.send(f());
         })
         .unwrap();
-    match rx.recv_timeout(Duration::from_secs(secs)) {
-        Ok(v) => v,
-        Err(_) => {
-            eprintln!("did not finish within {secs}s");
-            std::process::exit(1);
-        }
+    if let Ok(v) = rx.recv_timeout(Duration::from_secs(secs)) {
+        v
+    } else {
+        eprintln!("did not finish within {secs}s");
+        std::process::exit(1);
     }
 }
 

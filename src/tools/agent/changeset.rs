@@ -355,7 +355,7 @@ impl ChangeSet {
     /// The project as it would be with the set accepted: the base, with the
     /// set over it.
     pub fn vfs(&self) -> OverlayVfs {
-        let mut v = OverlayVfs::new(self.base.clone());
+        let mut v = OverlayVfs::new(Arc::clone(&self.base));
         for (rel, change) in &self.changes {
             let path = self.dir.join(rel);
             match change {
@@ -490,8 +490,8 @@ impl ChangeSet {
 /// A hash of a file's text, the same in every run.
 fn hash(text: &str) -> u64 {
     // FNV-1a.
-    text.bytes().fold(0xcbf29ce484222325, |h, b| {
-        (h ^ b as u64).wrapping_mul(0x100000001b3)
+    text.bytes().fold(0xcbf2_9ce4_8422_2325, |h, b| {
+        (h ^ u64::from(b)).wrapping_mul(0x0100_0000_01b3)
     })
 }
 

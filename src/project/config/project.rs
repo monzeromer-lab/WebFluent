@@ -109,7 +109,7 @@ impl Default for OfflineConfig {
         OfflineConfig {
             precache: default_precache(),
             fallback: None,
-            cache: Default::default(),
+            cache: std::collections::BTreeMap::default(),
             sync: false,
         }
     }
@@ -451,7 +451,7 @@ fn default_margin() -> f64 {
 /// Slides output configuration — page size, fonts, slide chrome.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SlidesConfig {
-    /// Named size ("16:9", "4:3", "A4-landscape") or "WIDTHxHEIGHT" in points.
+    /// Named size ("16:9", "4:3", "A4-landscape") or "`WIDTHxHEIGHT`" in points.
     #[serde(default = "default_slide_size")]
     pub size: String,
     /// Explicit width override in points (wins over `size`).
@@ -603,7 +603,7 @@ pub struct MetaConfig {
     #[serde(default)]
     pub owner: Owner,
 
-    /// The owner's other profiles — `https://github.com/…`, a LinkedIn page —
+    /// The owner's other profiles — `https://github.com/…`, a `LinkedIn` page —
     /// as the owner node's `sameAs`, which is how a search engine joins them.
     #[serde(default)]
     pub same_as: Vec<String>,
@@ -719,7 +719,7 @@ pub struct MetaConfig {
     pub wasm: bool,
 
     /// A script on the page writes `<style>` elements — an editor such as
-    /// CodeMirror, a chart library. The policy's `style-src` then says
+    /// `CodeMirror`, a chart library. The policy's `style-src` then says
     /// `'unsafe-inline'`, for styles only: what may run is unchanged. Off,
     /// a browser drops them, and what they style draws unstyled.
     #[serde(default)]
@@ -1116,7 +1116,7 @@ impl Default for BuildConfig {
             csp: false,
             split: true,
             compress: true,
-            budget: Default::default(),
+            budget: std::collections::BTreeMap::default(),
             media: MediaConfig::default(),
             runtime: RuntimeMode::Auto,
             output_type: OutputType::Spa,
@@ -1391,7 +1391,7 @@ impl ProjectConfig {
                 title: name.to_string(),
                 ..Default::default()
             },
-            env: Default::default(),
+            env: std::collections::BTreeMap::default(),
             offline: None,
             lints: std::collections::BTreeMap::new(),
         }
@@ -1415,25 +1415,24 @@ fn unknown_in(
         } else {
             format!("{at}.{key}")
         };
-        match known.get(key) {
-            Some(expected) => unknown_in(value, expected, &path, out),
-            None => {
-                let hint = known
-                    .keys()
-                    .map(|k| {
-                        (
-                            crate::base::text::levenshtein(&normalise(key), &normalise(k)),
-                            k,
-                        )
-                    })
-                    .filter(|(d, _)| *d <= 3)
-                    .min()
-                    .map(|(_, k)| format!(" — did you mean `{k}`?"))
-                    .unwrap_or_default();
-                out.push(format!(
-                    "`{path}` is not a setting, and nothing reads it{hint}"
-                ));
-            }
+        if let Some(expected) = known.get(key) {
+            unknown_in(value, expected, &path, out);
+        } else {
+            let hint = known
+                .keys()
+                .map(|k| {
+                    (
+                        crate::base::text::levenshtein(&normalise(key), &normalise(k)),
+                        k,
+                    )
+                })
+                .filter(|(d, _)| *d <= 3)
+                .min()
+                .map(|(_, k)| format!(" — did you mean `{k}`?"))
+                .unwrap_or_default();
+            out.push(format!(
+                "`{path}` is not a setting, and nothing reads it{hint}"
+            ));
         }
     }
 }
@@ -1627,7 +1626,7 @@ mod env_and_key_tests {
                  "offline": { "precache": ["/"], "cache": { "/api/*": "network-first" } } }"#,
             None,
         );
-        assert!(ProjectConfig::unknown_keys(dir.path()).is_empty());
+        assert_eq!(ProjectConfig::unknown_keys(dir.path()), [] as [String; 0]);
     }
 }
 

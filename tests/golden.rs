@@ -23,6 +23,7 @@
 //! refuses them by design.
 
 use std::collections::BTreeMap;
+use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 
@@ -129,10 +130,10 @@ fn manifest(dir: &Path) -> BTreeMap<String, String> {
                     .collect::<Vec<_>>()
                     .join("/");
                 let digest = Sha256::digest(&bytes);
-                let hex = digest
-                    .iter()
-                    .map(|b| format!("{b:02x}"))
-                    .collect::<String>();
+                let hex = digest.iter().fold(String::new(), |mut acc, b| {
+                    let _ = write!(acc, "{b:02x}");
+                    acc
+                });
                 out.insert(rel, hex);
             }
         }
@@ -308,7 +309,10 @@ fn every_project_builds_to_its_golden_manifest() {
         let file = dir.join(&name);
         if update {
             std::fs::create_dir_all(&dir).expect("golden folder");
-            let text = serde_json::to_string_pretty(now).expect("a manifest serialises") + "\n";
+            let text = format!(
+                "{}\n",
+                serde_json::to_string_pretty(now).expect("a manifest serialises")
+            );
             std::fs::write(&file, text).expect("write a golden manifest");
             continue;
         }

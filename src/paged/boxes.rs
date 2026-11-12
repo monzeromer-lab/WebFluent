@@ -329,7 +329,7 @@ impl<'a> Builder<'a> {
             if !text.is_empty() {
                 let mut its = vec![Item::Text {
                     text,
-                    style: ps.clone(),
+                    style: Rc::clone(&ps),
                     span: None,
                 }];
                 self.flush(&mut its, &ps, &mut kids);
@@ -344,7 +344,7 @@ impl<'a> Builder<'a> {
             if ctx == Ctx::Flow && self.tree.boxes[b].style.display.is_inline_level() {
                 items.push(Item::Atom {
                     boxed: b,
-                    style: self.tree.boxes[b].style.clone(),
+                    style: Rc::clone(&self.tree.boxes[b].style),
                 });
             } else {
                 out.push(b);
@@ -381,7 +381,7 @@ impl<'a> Builder<'a> {
             Item::Text { span: Some(s), .. } => Some(self.tree.spans[*s].node),
             _ => None,
         });
-        let shaped = Shaped::new(taken, block.clone(), self.db);
+        let shaped = Shaped::new(taken, Rc::clone(&block), self.db);
         for &ch in &shaped.missing {
             if !self.tree.missing.iter().any(|(c, _)| *c == ch) {
                 self.tree.missing.push((ch, first_node));
@@ -424,7 +424,7 @@ impl<'a> Builder<'a> {
                 };
                 let t = &t;
                 let style = match span {
-                    Some(s) => self.tree.spans[s].style.clone(),
+                    Some(s) => Rc::clone(&self.tree.spans[s].style),
                     None => Rc::new(parent.inherit()),
                 };
                 items.push(Item::Text {
@@ -492,7 +492,7 @@ impl<'a> Builder<'a> {
                     return;
                 };
                 if atom {
-                    let st = self.tree.boxes[b].style.clone();
+                    let st = Rc::clone(&self.tree.boxes[b].style);
                     items.push(Item::Atom {
                         boxed: b,
                         style: st,
@@ -681,7 +681,7 @@ impl<'a> Builder<'a> {
                 let shaped = Shaped::new(
                     vec![Item::Text {
                         text,
-                        style: st.clone(),
+                        style: Rc::clone(&st),
                         span: None,
                     }],
                     st,

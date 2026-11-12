@@ -7,6 +7,7 @@
 //! than a wrong one.
 
 use super::{Diagnostic, Edit, Fix};
+use std::fmt::Write as _;
 
 /// What would fix a finding, in terms of the text at its place.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -532,11 +533,17 @@ fn edits(d: &Diagnostic, source: &str, plan: &Plan) -> Option<Vec<Edit>> {
             if source[line_start..close].trim().is_empty() {
                 // `}` on its own line: the arms go on lines of their own
                 // above it.
-                let text: String = arms.iter().map(|a| format!("{arm_indent}{a}\n")).collect();
+                let text: String = arms.iter().fold(String::new(), |mut acc, a| {
+                    let _ = writeln!(acc, "{arm_indent}{a}");
+                    acc
+                });
                 Some(vec![edit(d, source, line_start, line_start, text)])
             } else {
                 // A match on one line: the arms join it.
-                let text: String = arms.iter().map(|a| format!(" {a}")).collect();
+                let text: String = arms.iter().fold(String::new(), |mut acc, a| {
+                    let _ = write!(acc, " {a}");
+                    acc
+                });
                 let insert_at = open + 1 + source[open + 1..close].trim_end().len();
                 Some(vec![edit(d, source, insert_at, insert_at, text)])
             }
@@ -819,7 +826,7 @@ mod tests {
         let mut d =
             Diagnostic::coded("U01", "x", "a.wf", 1, 15).with_plan("fix", Plan::RemoveStatement);
         realise(&mut d, src);
-        assert!(d.fixes.is_empty());
+        assert_eq!(d.fixes, [] as [crate::diagnostics::Fix; 0]);
     }
 
     #[test]

@@ -49,7 +49,7 @@ impl Socket {
             reader,
             seed: SystemTime::now()
                 .duration_since(UNIX_EPOCH)
-                .map_or(0x2545F4914F6CDD1D, |d| d.as_nanos() as u64),
+                .map_or(0x2545_F491_4F6C_DD1D, |d| d.as_nanos() as u64),
         };
         socket.handshake(authority, path)?;
         Ok(socket)
@@ -95,8 +95,8 @@ impl Socket {
         let mask_bit = 0x80u8;
         match payload.len() {
             n if n < 126 => frame.push(mask_bit | n as u8),
-            n if n <= u16::MAX as usize => {
-                frame.push(mask_bit | 126);
+            n if u16::try_from(n).is_ok() => {
+                frame.push(mask_bit | 0x7E);
                 frame.extend_from_slice(&(n as u16).to_be_bytes());
             }
             n => {
@@ -157,7 +157,7 @@ impl Socket {
                 // A ping wants its body back; a close ends the conversation.
                 0x9 => self.pong(&payload)?,
                 0x8 => return Err(oops("the browser closed the connection")),
-                _ => continue,
+                _ => {}
             }
         }
     }
@@ -224,7 +224,7 @@ impl Socket {
                 self.seed ^= self.seed >> 12;
                 self.seed ^= self.seed << 25;
                 self.seed ^= self.seed >> 27;
-                (self.seed.wrapping_mul(0x2545F4914F6CDD1D) >> 32) as u8
+                (self.seed.wrapping_mul(0x2545_F491_4F6C_DD1D) >> 32) as u8
             })
             .collect()
     }
@@ -240,7 +240,7 @@ fn base64(bytes: &[u8]) -> String {
             *chunk.get(1).unwrap_or(&0),
             *chunk.get(2).unwrap_or(&0),
         ];
-        let n = ((b[0] as u32) << 16) | ((b[1] as u32) << 8) | b[2] as u32;
+        let n = (u32::from(b[0]) << 16) | (u32::from(b[1]) << 8) | u32::from(b[2]);
         for i in 0..4 {
             if i <= chunk.len() {
                 out.push(ALPHABET[((n >> (18 - 6 * i)) & 0x3F) as usize] as char);
@@ -266,8 +266,8 @@ mod tests {
         let mut frame = vec![0x81u8];
         match payload.len() {
             n if n < 126 => frame.push(0x80 | n as u8),
-            n if n <= u16::MAX as usize => {
-                frame.push(0x80 | 126);
+            n if u16::try_from(n).is_ok() => {
+                frame.push(0x80 | 0x7E);
                 frame.extend_from_slice(&(n as u16).to_be_bytes());
             }
             n => {
@@ -292,9 +292,9 @@ mod tests {
     #[test]
     fn a_longer_message_says_its_length_in_two_or_eight_bytes() {
         // 125 is the last length that fits in the header's own byte.
-        assert_eq!(framed(&"x".repeat(125), [0; 4])[1], 0x80 | 125);
+        assert_eq!(framed(&"x".repeat(125), [0; 4])[1], 0x80 | 0x7D);
         let medium = framed(&"x".repeat(126), [0; 4]);
-        assert_eq!(medium[1], 0x80 | 126);
+        assert_eq!(medium[1], 0x80 | 0x7E);
         assert_eq!(u16::from_be_bytes([medium[2], medium[3]]), 126);
         // A CDP message is routinely over 64 kB — a page's own HTML comes
         // back this way — so the eight-byte form is not theoretical.

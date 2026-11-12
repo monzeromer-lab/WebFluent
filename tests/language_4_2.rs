@@ -145,7 +145,10 @@ fn naming_an_engine_class_draws_a_warning() {
     );
     assert_eq!(w.len(), 1, "{w:?}");
     assert!(w[0].contains("`wf-btn`"), "{w:?}");
-    assert!(warnings_of(&page("    Card(class: \"feature\") { Text(\"x\") }"), "V04").is_empty());
+    assert_eq!(
+        warnings_of(&page("    Card(class: \"feature\") { Text(\"x\") }"), "V04"),
+        [] as [String; 0]
+    );
 }
 
 // ─── §3: the project's scripts reach every page ──────────────────────
@@ -165,8 +168,11 @@ fn build(name: &str, config: &str, files: &[(&str, &str)]) -> (String, std::path
         .args(["build", "-d", dir.to_str().unwrap()])
         .output()
         .expect("wf runs");
-    let said =
-        String::from_utf8_lossy(&out.stdout).to_string() + &String::from_utf8_lossy(&out.stderr);
+    let said = format!(
+        "{}{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
     (said, dir)
 }
 

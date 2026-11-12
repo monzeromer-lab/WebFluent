@@ -268,7 +268,7 @@ pub fn svg_fontdb() -> Arc<fontdb::Database> {
     if let Some((made_with, db)) = cached.as_ref()
         && *made_with == count
     {
-        return db.clone();
+        return Arc::clone(db);
     }
     let mut db = fontdb::Database::new();
     for face in bundled_faces() {
@@ -279,7 +279,7 @@ pub fn svg_fontdb() -> Arc<fontdb::Database> {
     db.set_serif_family("Liberation Serif");
     db.set_monospace_family("Liberation Mono");
     let db = Arc::new(db);
-    *cached = Some((count, db.clone()));
+    *cached = Some((count, Arc::clone(&db)));
     db
 }
 
@@ -323,20 +323,20 @@ fn read_face(data: Arc<Vec<u8>>, index: u32, source: Source) -> Option<Face> {
         (weight, weight)
     };
     let (ascent, descent, line_gap) = (
-        ttf.ascender() as f32,
-        -(ttf.descender() as f32),
-        ttf.line_gap() as f32,
+        f32::from(ttf.ascender()),
+        -f32::from(ttf.descender()),
+        f32::from(ttf.line_gap()),
     );
     Some(Face {
         family,
         weights,
         italic: ttf.is_italic() || ttf.is_oblique(),
-        units_per_em: ttf.units_per_em() as f32,
+        units_per_em: f32::from(ttf.units_per_em()),
         ascent,
         descent,
         line_gap,
         variable,
-        data: data.clone(),
+        data: Arc::clone(&data),
         index,
         source,
     })
@@ -356,7 +356,7 @@ impl FontDb {
             svg_db: None,
         };
         for face in bundled_faces() {
-            db.add(face.clone());
+            db.add(face);
         }
         db
     }
@@ -369,7 +369,7 @@ impl FontDb {
         if let Some((made_with, db)) = &self.svg_db
             && *made_with == self.faces.len()
         {
-            return db.clone();
+            return Arc::clone(db);
         }
         let mut db = fontdb::Database::new();
         let mut loaded: Vec<*const Vec<u8>> = Vec::new();
@@ -379,7 +379,7 @@ impl FontDb {
                 continue;
             }
             loaded.push(bytes);
-            let data: Arc<dyn AsRef<[u8]> + Send + Sync> = face.data.clone();
+            let data: Arc<dyn AsRef<[u8]> + Send + Sync> = Arc::<Vec<u8>>::clone(&face.data);
             db.load_font_source(fontdb::Source::Binary(data));
         }
         if self.allow_system {
@@ -389,7 +389,7 @@ impl FontDb {
         db.set_serif_family("Liberation Serif");
         db.set_monospace_family("Liberation Mono");
         let db = Arc::new(db);
-        self.svg_db = Some((self.faces.len(), db.clone()));
+        self.svg_db = Some((self.faces.len(), Arc::clone(&db)));
         db
     }
 
@@ -429,9 +429,11 @@ impl FontDb {
         let count = ttf_parser::fonts_in_collection(&data).unwrap_or(1);
         let mut added = 0;
         for index in 0..count {
-            if let Some(mut face) =
-                read_face(data.clone(), index, Source::Project(path.to_path_buf()))
-            {
+            if let Some(mut face) = read_face(
+                Arc::clone(&data),
+                index,
+                Source::Project(path.to_path_buf()),
+            ) {
                 if let Some(f) = family {
                     face.family = f.to_string();
                 }
@@ -510,7 +512,7 @@ impl FontDb {
             let Ok(bytes) = std::fs::read(&path) else {
                 continue;
             };
-            if let Some(face) = read_face(Arc::new(bytes), index, Source::System(path.clone())) {
+            if let Some(face) = read_face(Arc::new(bytes), index, Source::System(path)) {
                 let mut face = face;
                 face.family = family.to_string();
                 out.push(self.add(face));
@@ -562,19 +564,19 @@ impl FontDb {
         let pool = if slanted.is_empty() {
             candidates.to_vec()
         } else {
-            slanted.clone()
+            slanted
         };
         let distance = |c: usize| -> i32 {
             let (lo, hi) = self.faces[c].weights;
-            let w = weight as i32;
-            if w >= lo as i32 && w <= hi as i32 {
+            let w = i32::from(weight);
+            if w >= i32::from(lo) && w <= i32::from(hi) {
                 0
-            } else if w < lo as i32 {
+            } else if w < i32::from(lo) {
                 // Heavier than asked: fine for a bold request, less so for
                 // a light one.
-                (lo as i32 - w) * if weight >= 500 { 1 } else { 2 }
+                (i32::from(lo) - w) * if weight >= 500 { 1 } else { 2 }
             } else {
-                (w - hi as i32) * if weight >= 500 { 2 } else { 1 }
+                (w - i32::from(hi)) * if weight >= 500 { 2 } else { 1 }
             }
         };
         let face = pool
@@ -603,13 +605,12 @@ impl FontDb {
     /// A face, from anywhere, that has a glyph for `ch` — at the asked
     /// weight and slant when its family has one.
     pub fn fallback(&mut self, ch: char, weight: u16, italic: bool) -> Option<Pick> {
-        let face = match self.coverage_cache.get(&ch) {
-            Some(f) => *f,
-            None => {
-                let found = self.find_covering(ch);
-                self.coverage_cache.insert(ch, found);
-                found
-            }
+        let face = if let Some(f) = self.coverage_cache.get(&ch) {
+            *f
+        } else {
+            let found = self.find_covering(ch);
+            self.coverage_cache.insert(ch, found);
+            found
         }?;
         let family = self.faces[face].family.to_ascii_lowercase();
         let siblings = self
@@ -666,7 +667,7 @@ impl FontDb {
                         && n.is_unicode()
                 })
                 .find_map(|n| n.to_string())
-                .unwrap_or(family.clone());
+                .unwrap_or(family);
             let faces = self.system_family(&name);
             if let Some(&f) = faces.iter().find(|&&f| self.covers(f, ch)) {
                 return Some(f);

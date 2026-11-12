@@ -2,7 +2,7 @@
 
 use super::*;
 
-impl<'a, 'p> Checker<'a, 'p> {
+impl Checker<'_, '_> {
     pub(super) fn method_call(&mut self, obj: &Expr, method: &str, args: &[Expr]) -> Type {
         self.method_call_on(obj, method, args, false)
     }
@@ -479,16 +479,15 @@ impl<'a, 'p> Checker<'a, 'p> {
                     self.infer(a, None);
                 }
                 let scalar = *scalar;
-                match scalar_method(scalar, method) {
-                    Some(ty) => ty,
-                    None => {
-                        self.error_at_current(
-                            "T05",
-                            format!("`{}` has no method `{method}`", scalar.name()),
-                            &scalar_methods_hint(scalar),
-                        );
-                        Type::Any
-                    }
+                if let Some(ty) = scalar_method(scalar, method) {
+                    ty
+                } else {
+                    self.error_at_current(
+                        "T05",
+                        format!("`{}` has no method `{method}`", scalar.name()),
+                        &scalar_methods_hint(scalar),
+                    );
+                    Type::Any
                 }
             }
             Type::Regex => {

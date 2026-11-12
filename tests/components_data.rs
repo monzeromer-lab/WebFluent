@@ -399,7 +399,7 @@ fn a_built_in_says_what_each_prop_takes() {
     };
     assert_eq!(default_of("Button", "size"), ["md"]);
     assert_eq!(default_of("Button", "type"), ["button"]);
-    assert!(default_of("Button", "tone").is_empty());
+    assert_eq!(default_of("Button", "tone"), [] as [String; 0]);
     assert!(default_of("Row", "gap").is_empty() && default_of("Row", "justify").is_empty());
     assert_eq!(button.tag, Some("button"));
     let image = catalog.get("Image").unwrap();

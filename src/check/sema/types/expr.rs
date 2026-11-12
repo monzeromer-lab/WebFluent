@@ -2,7 +2,7 @@
 
 use super::*;
 
-impl<'a, 'p> Checker<'a, 'p> {
+impl Checker<'_, '_> {
     /// The type of `expr`; `expected` guides a case or a lambda.
     /// The type of `expr`. An expression nested past what the parser lets
     /// a program write — a tree made some other way — is `Any`, with one
@@ -163,8 +163,8 @@ impl<'a, 'p> Checker<'a, 'p> {
             },
             // `.failed("x")`: the case with its payload, checked against the
             // enum's declaration when the position names one.
-            Expr::CaseValue(case, args) => match expected.map(super::ty::Type::unwrapped) {
-                Some(Type::Enum(name)) => {
+            Expr::CaseValue(case, args) => {
+                if let Some(Type::Enum(name)) = expected.map(super::ty::Type::unwrapped) {
                     let known = self.world.enums.get(name.as_str()).map(|e| e.case_names());
                     match self.payload_of(&name, case) {
                         Some(fields) if !fields.is_empty() => {
@@ -207,14 +207,13 @@ impl<'a, 'p> Checker<'a, 'p> {
                         }
                     }
                     Type::Enum(name)
-                }
-                _ => {
+                } else {
                     for a in args {
                         self.infer(a, None);
                     }
                     Type::Case(case.clone())
                 }
-            },
+            }
             Expr::Identifier(name) => self
                 .lookup(name)
                 .or_else(|| self.world.consts.get(name).cloned())
@@ -586,19 +585,20 @@ impl<'a, 'p> Checker<'a, 'p> {
                 }
             },
             // An endpoint of a service.
-            Type::Api(name) => match self.world.endpoint(name, field) {
-                Some(endpoint) => Type::Func(
-                    endpoint
-                        .params
-                        .iter()
-                        .map(|p| self.world.resolve(Type::from_ref(&p.prop_type)))
-                        .collect(),
-                    Box::new(match &endpoint.returns {
-                        Some(ty) => self.world.resolve(Type::from_ref(ty)),
-                        None => Type::Null,
-                    }),
-                ),
-                None => {
+            Type::Api(name) => {
+                if let Some(endpoint) = self.world.endpoint(name, field) {
+                    Type::Func(
+                        endpoint
+                            .params
+                            .iter()
+                            .map(|p| self.world.resolve(Type::from_ref(&p.prop_type)))
+                            .collect(),
+                        Box::new(match &endpoint.returns {
+                            Some(ty) => self.world.resolve(Type::from_ref(ty)),
+                            None => Type::Null,
+                        }),
+                    )
+                } else {
                     let names: Vec<String> = self
                         .world
                         .apis
@@ -627,7 +627,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                     );
                     Type::Any
                 }
-            },
+            }
             // A scalar's fields are its carrier's: money is an amount and a
             // currency, a file a name, a size and a type. Everything the
             // language computes is a call, so nothing here is invented.
@@ -656,9 +656,10 @@ impl<'a, 'p> Checker<'a, 'p> {
                     Type::Any
                 }
             },
-            Type::Shape(fields) => match fields.iter().find(|(n, _)| n == field) {
-                Some((_, ty)) => ty.clone(),
-                None => {
+            Type::Shape(fields) => {
+                if let Some((_, ty)) = fields.iter().find(|(n, _)| n == field) {
+                    ty.clone()
+                } else {
                     let names: Vec<String> = fields.iter().map(|(n, _)| format!("`{n}`")).collect();
                     let known: Vec<&str> = fields.iter().map(|(n, _)| n.as_str()).collect();
                     self.error_naming(
@@ -671,10 +672,11 @@ impl<'a, 'p> Checker<'a, 'p> {
                     );
                     Type::Any
                 }
-            },
-            Type::Record(name) => match self.world.record_field(name, field) {
-                Some(ty) => self.world.resolve(ty),
-                None => {
+            }
+            Type::Record(name) => {
+                if let Some(ty) = self.world.record_field(name, field) {
+                    self.world.resolve(ty)
+                } else {
                     let known: Vec<String> = self
                         .world
                         .record_fields(name)
@@ -692,11 +694,12 @@ impl<'a, 'p> Checker<'a, 'p> {
                     );
                     Type::Any
                 }
-            },
+            }
             Type::Store(name) => match self.world.stores.get(name.as_str()) {
-                Some(members) => match members.get(field) {
-                    Some(ty) => ty.clone(),
-                    None => {
+                Some(members) => {
+                    if let Some(ty) = members.get(field) {
+                        ty.clone()
+                    } else {
                         let mut names: Vec<String> = members.keys().cloned().collect();
                         names.sort();
                         let known: Vec<&str> = names.iter().map(String::as_str).collect();
@@ -711,7 +714,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                         );
                         Type::Any
                     }
-                },
+                }
                 None => Type::Any,
             },
             Type::Optional(inner) => {
@@ -959,7 +962,7 @@ impl<'a, 'p> Checker<'a, 'p> {
     pub(super) fn constant_condition(&mut self, cond: &Expr) {
         let always = match cond {
             Expr::BoolLiteral(b) => Some(if *b { "true" } else { "false" }),
-            Expr::NumberLiteral(n) => Some(if *n != 0.0 { "true" } else { "false" }),
+            Expr::NumberLiteral(n) => Some(if *n == 0.0 { "false" } else { "true" }),
             Expr::StringLiteral(t) => Some(if t.is_empty() { "false" } else { "true" }),
             Expr::Null => Some("false"),
             Expr::BinaryOp(l, op, r)

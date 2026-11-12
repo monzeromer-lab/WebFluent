@@ -207,7 +207,7 @@ fn an_unsaved_theme_is_the_one_read_and_a_token_is_written_in_its_place() {
         );
         // Unsaved, the editor's view has the new value; the disk is as it was.
         let mut vfs = OverlayVfs::over_disk();
-        vfs.set(&path, out.clone());
+        vfs.set(&path, out);
         let after = view_via(&vfs, &dir).unwrap();
         let now = after.tokens.iter().find(|x| x.name == t.name).unwrap();
         assert_eq!(now.value, value, "{}", path.display());

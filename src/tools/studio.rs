@@ -245,7 +245,7 @@ mod tests {
         // SSG HTML + JS both carry data-wf-node stamps; CSS is non-empty.
         assert!(site.pages[0].html.contains("data-wf-node="));
         assert!(site.js.contains("data-wf-node"));
-        assert!(!site.css.is_empty());
+        assert_ne!(site.css, "");
 
         // The node map is populated and resolves ids to source spans.
         assert!(site.node_map.len() >= 3); // Container, Heading, Button

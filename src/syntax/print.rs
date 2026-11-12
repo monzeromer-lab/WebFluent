@@ -474,12 +474,11 @@ fn as_match(e: &Expr) -> Option<String> {
     let mut at = e;
     let same = |s: &Expr, subject: &mut Option<String>| -> bool {
         let text = expr(s);
-        match subject {
-            Some(known) => *known == text,
-            None => {
-                *subject = Some(text);
-                true
-            }
+        if let Some(known) = subject {
+            *known == text
+        } else {
+            *subject = Some(text);
+            true
         }
     };
     while let Expr::MethodCall(head, method, args) = at {
@@ -862,9 +861,9 @@ pub fn destructure(stmts: &[Statement]) -> Option<(String, usize)> {
         return None;
     };
     let temp = &first.name;
-    if !temp
+    if temp
         .strip_prefix("d__")
-        .is_some_and(|n| n.parse::<u32>().is_ok())
+        .is_none_or(|n| n.parse::<u32>().is_err())
         || first.ty.is_some()
     {
         return None;

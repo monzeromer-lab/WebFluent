@@ -103,20 +103,17 @@ pub fn resolve_data_via(
                     root.display()
                 )));
             };
-            let (out_dir, settings, base_path) = match media {
-                Some(m) => m,
-                // Nothing to write to: the name still resolves, to the
-                // file as it stands.
-                None => {
-                    *decl = Declaration::Const(ConstDecl {
-                        name: d.name.clone(),
-                        ty: d.ty.clone(),
-                        value: json_expr(&serde_json::json!({ "src": format!("/{}", d.file) })),
-                        doc: d.doc.clone(),
-                        span: d.span,
-                    });
-                    continue;
-                }
+            // Nothing to write to: the name still resolves, to the file as
+            // it stands.
+            let Some((out_dir, settings, base_path)) = media else {
+                *decl = Declaration::Const(ConstDecl {
+                    name: d.name.clone(),
+                    ty: d.ty.clone(),
+                    value: json_expr(&serde_json::json!({ "src": format!("/{}", d.file) })),
+                    doc: d.doc.clone(),
+                    span: d.span,
+                });
+                continue;
             };
             let asset = crate::project::media::process_via(
                 vfs,

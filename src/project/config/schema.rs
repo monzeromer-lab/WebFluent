@@ -761,7 +761,7 @@ mod tests {
             FieldType::String => Value::String("sample".into()),
             File(_) => Value::String("/sample.png".into()),
             Number => serde_json::json!(12.5),
-            Integer { min, max } => serde_json::json!((min + max) / 2),
+            Integer { min, max } => serde_json::json!(i64::midpoint(min, max)),
             Enum(cases) => Value::String(cases[cases.len() - 1].into()),
             Strings => serde_json::json!(["a", "b"]),
             Integers => serde_json::json!([320, 640]),

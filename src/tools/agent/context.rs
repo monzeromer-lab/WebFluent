@@ -511,17 +511,14 @@ impl Context {
             if let Some(b) = &ch.blurb {
                 out.push_str(&format!("{b}\n\n"));
             }
-            match &ch.text {
-                Some(t) => {
-                    out.push_str(t);
-                    out.push('\n');
+            if let Some(t) = &ch.text {
+                out.push_str(t);
+                out.push('\n');
+            } else {
+                for s in ch.sections.iter().filter(|s| s.level == 2) {
+                    out.push_str(&format!("- {}\n", s.title));
                 }
-                None => {
-                    for s in ch.sections.iter().filter(|s| s.level == 2) {
-                        out.push_str(&format!("- {}\n", s.title));
-                    }
-                    out.push('\n');
-                }
+                out.push('\n');
             }
         }
         out.push_str("## Withheld\n\n");

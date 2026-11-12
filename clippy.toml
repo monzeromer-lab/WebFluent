@@ -11,3 +11,7 @@ max-fn-params-bools = 2
 allow-unwrap-in-tests = true
 allow-expect-in-tests = true
 allow-print-in-tests = true
+
+# Names doc_markdown would otherwise ask to put in backticks: the language's
+# own, and the products and formats the docs name. `..` keeps clippy's list.
+doc-valid-idents = ["WebFluent", "JSDoc", "CommonMark", "WebView", "OpenAPI", "DevTools", "WordPress", "WebVTT", ".."]

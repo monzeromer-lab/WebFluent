@@ -233,11 +233,11 @@ fn a_condition_on_a_type_is_checked_where_the_value_is_written() {
     }
     // And a value inside the condition is not.
     let src = page("state nights: Number(1..=30) = 3\n    Text(\"{nights}\")");
-    assert!(
+    assert_eq!(
         webfluent::sema::types::check(&parse_source(&src, "t.wf").unwrap(), &|_| "t.wf".into())
             .findings
-            .errors
-            .is_empty()
+            .errors,
+        [] as [webfluent::Diagnostic; 0]
     );
 }
 
@@ -353,11 +353,11 @@ fn a_literal_is_held_to_the_shape_of_the_type_it_is_written_for() {
     let ok = page(
         "state site: Url = \"https://example.com\"\n    state who: Email = \"ada@example.com\"\n    Text(\"{site} {who}\")",
     );
-    assert!(
+    assert_eq!(
         webfluent::sema::types::check(&parse_source(&ok, "t.wf").unwrap(), &|_| "t.wf".into())
             .findings
-            .errors
-            .is_empty()
+            .errors,
+        [] as [webfluent::Diagnostic; 0]
     );
 }
 
@@ -1366,8 +1366,11 @@ fn an_image_is_read_at_build_time_and_written_at_every_width_a_page_asks_for() {
         .args(["build", "-d", dir.to_str().unwrap()])
         .output()
         .expect("wf runs");
-    let said =
-        String::from_utf8_lossy(&out.stdout).to_string() + &String::from_utf8_lossy(&out.stderr);
+    let said = format!(
+        "{}{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
     assert!(said.contains("Build complete"), "{said}");
 
     // Every width smaller than the original, and the original itself — and
@@ -2037,7 +2040,10 @@ fn the_policy_a_build_ships_is_one_its_pages_satisfy() {
     let clean = "<html><head><link rel=\"stylesheet\" href=\"/styles.css\">\
                  <script src=\"/app.js\" defer></script></head>\
                  <body><p class=\"wf-text\">x</p><div class=\"wf-hidden\">y</div></body></html>";
-    assert!(check("index.html", clean, policy).is_empty());
+    assert_eq!(
+        check("index.html", clean, policy),
+        [] as [webfluent::codegen::csp::Violation; 0]
+    );
     // And what it must never write.
     for (html, what) in [
         ("<script>alert(1)</script>", "an inline <script>"),
@@ -2182,7 +2188,7 @@ fn with_module() -> webfluent::config::ProjectConfig {
             as_name: Some("Confetti".to_string()),
             globals: Vec::new(),
             is_async: false,
-            load: Default::default(),
+            load: webfluent::config::project::ScriptLoad::default(),
         }),
     ];
     config.meta.integrity.insert(
@@ -2419,8 +2425,11 @@ fn a_store_member_binds_like_a_state() {
 
 #[test]
 fn a_route_store_that_persists_says_so() {
-    let src = "store Filters(scope: .route) { persist q = \"\" }\n".to_string()
-        + &page("use Filters\n    Text(Filters.q)");
+    let src = format!(
+        "{}{}",
+        "store Filters(scope: .route) { persist q = \"\" }\n",
+        page("use Filters\n    Text(Filters.q)")
+    );
     let program = parse_source(&src, "t.wf").unwrap();
     let text: String = webfluent::linter::lint_accessibility_in(&program, &|_| "t.wf".to_string())
         .iter()
@@ -2428,8 +2437,11 @@ fn a_route_store_that_persists_says_so() {
         .collect();
     assert!(text.contains("P03"), "{text}");
     // A `state` in the same store says nothing: that is what the scope is for.
-    let src = "store Filters(scope: .route) { state q = \"\" }\n".to_string()
-        + &page("use Filters\n    Text(Filters.q)");
+    let src = format!(
+        "{}{}",
+        "store Filters(scope: .route) { state q = \"\" }\n",
+        page("use Filters\n    Text(Filters.q)")
+    );
     let program = parse_source(&src, "t.wf").unwrap();
     let text: String = webfluent::linter::lint_accessibility_in(&program, &|_| "t.wf".to_string())
         .iter()

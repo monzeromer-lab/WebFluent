@@ -102,7 +102,7 @@ fn keyframes_in(css: &str, name: &str) -> Option<String> {
             '}' => {
                 depth -= 1;
                 if depth == 0 {
-                    return Some(css[start..start + i + 1].to_string());
+                    return Some(css[start..=(start + i)].to_string());
                 }
             }
             _ => {}
@@ -115,7 +115,7 @@ fn keyframes_in(css: &str, name: &str) -> Option<String> {
 fn rule_in(css: &str, name: &str) -> Option<String> {
     let start = css.find(&format!(".wf-animate-{name} {{"))?;
     let end = css[start..].find('}')?;
-    Some(css[start..start + end + 1].to_string())
+    Some(css[start..=(start + end)].to_string())
 }
 
 fn cases(prop: &str) -> &'static [crate::registry::CaseSig] {

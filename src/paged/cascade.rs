@@ -268,7 +268,7 @@ impl Styler {
                     }
                     s.rules.push(IndexedRule {
                         selector: sel.clone(),
-                        declarations: decls.clone(),
+                        declarations: Rc::clone(&decls),
                         order,
                         origin,
                     });
@@ -302,7 +302,7 @@ impl Styler {
         candidates.sort_unstable();
         candidates.dedup();
         // (important, origin, specificity, order) — later wins.
-        let mut hits: Vec<Hit> = Vec::new();
+        let mut hits: Vec<Hit<'_>> = Vec::new();
         for ix in candidates {
             let rule = &self.rules[ix];
             if !matches(dom, node, &rule.selector, pseudo.as_ref()) {
@@ -1045,7 +1045,7 @@ impl Styler {
 fn inherit_one(s: &mut Style, parent: &Style, name: &str) {
     match name {
         "color" => s.color = parent.color,
-        "font-family" => s.font_family = parent.font_family.clone(),
+        "font-family" => s.font_family = Rc::clone(&parent.font_family),
         "font-size" => s.font_size = parent.font_size,
         "font-weight" => s.font_weight = parent.font_weight,
         "line-height" => s.line_height = parent.line_height,

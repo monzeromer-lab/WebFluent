@@ -828,7 +828,7 @@ fn corpus_for(path: &str, stop: Option<&str>) -> (String, String) {
             indent(loose, "        ")
         );
         let accepted = if loose.trim().is_empty() && parse_source(&declarations, path).is_ok() {
-            declarations.clone()
+            declarations
         } else if parse_source(&as_render, path).is_ok() {
             as_render
         } else if parse_source(&as_action, path).is_ok() {
@@ -1078,7 +1078,7 @@ fn every_diagnostic_example_shows_what_the_build_prints() {
         out.push("```".to_string());
     }
     if write {
-        std::fs::write(&path, out.join("\n") + "\n").unwrap();
+        std::fs::write(&path, format!("{}\n", out.join("\n"))).unwrap();
         return;
     }
     assert!(

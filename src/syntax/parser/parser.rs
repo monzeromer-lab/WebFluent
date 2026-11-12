@@ -998,13 +998,12 @@ impl Parser {
         Ok(expr)
     }
 
-    /// Like parse_primary but does NOT consume `(` as function call on identifiers
+    /// Like `parse_primary` but does NOT consume `(` as function call on identifiers
     /// when it looks like fetch options (identifier followed by colon).
     fn parse_fetch_url_primary(&mut self) -> Result<Expr> {
         match self.current_type().clone() {
             TokenType::StringLiteral(s) => {
                 let s = s.spelling;
-                let s = s.clone();
                 self.advance();
                 if has_interpolation(&s) {
                     let parts = self.parse_interpolated_string(&s)?;
@@ -1026,7 +1025,6 @@ impl Parser {
                 Ok(Expr::Null)
             }
             TokenType::Identifier(name) => {
-                let name = name.clone();
                 self.advance();
 
                 // Check for lambda
@@ -1866,7 +1864,7 @@ impl Parser {
         if self.match_token(&TokenType::Equals) {
             let value = self.parse_expression()?;
             return Ok(StatementKind::Assignment(Assignment {
-                target: Expr::Identifier(name.clone()),
+                target: Expr::Identifier(name),
                 value,
             }));
         }
@@ -1895,19 +1893,18 @@ impl Parser {
                     arg_spans: p.arg_spans,
                     modifier_spans: p.modifier_spans,
                 }));
-            } else {
-                // Regular function call
-                self.advance(); // skip (
-                let mut args = Vec::new();
-                while !self.check(&TokenType::CloseParen) {
-                    args.push(self.parse_expression()?);
-                    if !self.check(&TokenType::CloseParen) {
-                        self.expect(&TokenType::Comma)?;
-                    }
-                }
-                self.expect(&TokenType::CloseParen)?;
-                return Ok(StatementKind::ExprStatement(Expr::FunctionCall(name, args)));
             }
+            // Regular function call
+            self.advance(); // skip (
+            let mut args = Vec::new();
+            while !self.check(&TokenType::CloseParen) {
+                args.push(self.parse_expression()?);
+                if !self.check(&TokenType::CloseParen) {
+                    self.expect(&TokenType::Comma)?;
+                }
+            }
+            self.expect(&TokenType::CloseParen)?;
+            return Ok(StatementKind::ExprStatement(Expr::FunctionCall(name, args)));
         }
 
         // Bare identifier — could be a component usage without parens
@@ -2128,7 +2125,6 @@ impl Parser {
         match self.current_type().clone() {
             TokenType::StringLiteral(s) => {
                 let s = s.spelling;
-                let s = s.clone();
                 self.advance();
                 // Check for interpolation: only if { is followed by an identifier char
                 if has_interpolation(&s) {
@@ -2151,7 +2147,6 @@ impl Parser {
                 Ok(Expr::Null)
             }
             TokenType::Identifier(name) => {
-                let name = name.clone();
                 self.advance();
 
                 // Check for lambda: name => expr
@@ -2226,7 +2221,7 @@ impl Parser {
                 // `(a, b) => expr`: a lambda of several parameters, which a
                 // sort comparator needs. Only `x => expr` used to parse.
                 if let Some(params) = self.lambda_params_ahead() {
-                    for _ in 0..(params.len() * 2 + 1) {
+                    for _ in 0..=(params.len() * 2) {
                         self.advance();
                     }
                     self.expect(&TokenType::Arrow)?;
@@ -2879,9 +2874,8 @@ mod span_tests {
     fn decl_spans_round_trip() {
         let src = "Page Home (path: \"/\", title: \"Hi\") {\n  Text(\"x\")\n}\n";
         let program = parse(src);
-        let page = match &program.declarations[0] {
-            Declaration::Page(p) => p,
-            _ => panic!("expected page"),
+        let Declaration::Page(page) = &program.declarations[0] else {
+            panic!("expected page")
         };
         assert!(page.span.slice(src).starts_with("Page Home"));
         assert!(page.span.slice(src).ends_with('}'));
@@ -2974,7 +2968,7 @@ mod span_tests {
             "transition { opacity fast }"
         );
         assert_eq!(button.events[0].span.slice(src), "on:click { count = 1 }");
-        assert!(button.events[0].params.is_empty());
+        assert_eq!(button.events[0].params, [] as [String; 0]);
 
         let StatementKind::If(i) = &body[1].kind else {
             panic!("if");
@@ -3053,7 +3047,7 @@ mod named_arg_tests {
             .iter()
             .filter_map(|a| match a {
                 Arg::Named(k, _) => Some(k.as_str()),
-                _ => None,
+                Arg::Positional(_) => None,
             })
             .collect();
         assert_eq!(names, ["aria-pressed", "data-tone"]);
@@ -3070,7 +3064,7 @@ mod named_arg_tests {
             .iter()
             .filter_map(|a| match a {
                 Arg::Named(k, _) => Some(k.as_str()),
-                _ => None,
+                Arg::Positional(_) => None,
             })
             .collect();
         assert_eq!(names, ["data-state", "data-from"]);
@@ -3102,7 +3096,7 @@ mod named_arg_tests {
             .iter()
             .filter_map(|a| match a {
                 Arg::Named(k, _) => Some(k.as_str()),
-                _ => None,
+                Arg::Positional(_) => None,
             })
             .collect();
         assert_eq!(names, ["label", "error"]);

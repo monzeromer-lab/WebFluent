@@ -156,7 +156,10 @@ fn a_file_only_the_editor_has_is_part_of_the_project() {
     assert_eq!(project.files.len(), 2);
     let file = &project.files[ix];
     let position = file.index.offset_to_position(&file.source, at);
-    assert!(provide_completions(&project, ix, position).is_empty());
+    assert_eq!(
+        provide_completions(&project, ix, position),
+        [] as [lsp_types::CompletionItem; 0]
+    );
     let _ = std::fs::remove_dir_all(&dir);
 }
 
@@ -246,8 +249,8 @@ fn a_fix_that_edits_another_file_edits_that_file() {
             only: None,
             trigger_kind: None,
         },
-        work_done_progress_params: Default::default(),
-        partial_result_params: Default::default(),
+        work_done_progress_params: WorkDoneProgressParams::default(),
+        partial_result_params: PartialResultParams::default(),
     };
     let actions = wf_lsp::code_actions::provide_code_actions(&uri, params);
     let Some(CodeActionOrCommand::CodeAction(action)) = actions.first() else {

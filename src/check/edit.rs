@@ -390,42 +390,41 @@ fn compute_patches(
             };
             if let Some(sb) = &ui.style_block {
                 if let Some(p) = sb.properties.iter().find(|p| &p.name == prop) {
-                    one(replace(value_of(source, p), value.clone()))
+                    one(replace(value_of(source, p), value))
                 } else {
                     // After the last declaration, before any rule.
                     let text = format!("{prop}: {value}");
-                    match sb.properties.last() {
-                        Some(last) => one(after_declaration(source, last, sb.body_span, text)),
-                        None => {
-                            let indent =
-                                format!("{}    ", line_indent(source, sb.body_span.end as usize));
-                            let at = sb
-                                .media_queries
-                                .iter()
-                                .map(|m| m.span)
-                                .chain(sb.pseudo_blocks.iter().map(|b| b.span))
-                                .min_by_key(|s| s.start)
-                                .map(|first| first.start as usize);
-                            match at {
-                                Some(at) if is_multiline(source, sb.body_span) => {
-                                    let line_start = source[..at].rfind('\n').map_or(0, |n| n + 1);
-                                    one(Patch {
-                                        start: line_start,
-                                        end: line_start,
-                                        text: format!("{indent}{text}\n"),
-                                    })
-                                }
-                                Some(at) => one(Patch {
-                                    start: at,
-                                    end: at,
-                                    text: format!("{text}; "),
-                                }),
-                                None => one(before_closing(
-                                    source,
-                                    sb.body_span.end as usize,
-                                    format!("{indent}{text}\n"),
-                                )),
+                    if let Some(last) = sb.properties.last() {
+                        one(after_declaration(source, last, sb.body_span, text))
+                    } else {
+                        let indent =
+                            format!("{}    ", line_indent(source, sb.body_span.end as usize));
+                        let at = sb
+                            .media_queries
+                            .iter()
+                            .map(|m| m.span)
+                            .chain(sb.pseudo_blocks.iter().map(|b| b.span))
+                            .min_by_key(|s| s.start)
+                            .map(|first| first.start as usize);
+                        match at {
+                            Some(at) if is_multiline(source, sb.body_span) => {
+                                let line_start = source[..at].rfind('\n').map_or(0, |n| n + 1);
+                                one(Patch {
+                                    start: line_start,
+                                    end: line_start,
+                                    text: format!("{indent}{text}\n"),
+                                })
                             }
+                            Some(at) => one(Patch {
+                                start: at,
+                                end: at,
+                                text: format!("{text}; "),
+                            }),
+                            None => one(before_closing(
+                                source,
+                                sb.body_span.end as usize,
+                                format!("{indent}{text}\n"),
+                            )),
                         }
                     }
                 }
@@ -516,26 +515,25 @@ fn compute_patches(
             if let Some(p) = props.iter().find(|p| &p.name == prop) {
                 return one(replace(value_of(source, p), value));
             }
-            match props.last() {
-                // `&:hover { a: b }` on one line stays on one line.
-                Some(last) => one(after_declaration(
+            // `&:hover { a: b }` on one line stays on one line.
+            if let Some(last) = props.last() {
+                one(after_declaration(
                     source,
                     last,
                     span,
                     format!("{prop}: {value}"),
-                )),
-                None => {
-                    let indent = line_indent(source, span.start as usize);
-                    one(replace(
-                        span,
-                        format!(
-                            "{} {{\n{indent}    {}: {}\n{indent}}}",
-                            rule.trim(),
-                            prop,
-                            value
-                        ),
-                    ))
-                }
+                ))
+            } else {
+                let indent = line_indent(source, span.start as usize);
+                one(replace(
+                    span,
+                    format!(
+                        "{} {{\n{indent}    {}: {}\n{indent}}}",
+                        rule.trim(),
+                        prop,
+                        value
+                    ),
+                ))
             }
         }
         EditOp::RemoveRuleStyle { rule, prop, .. } => {
@@ -1232,7 +1230,7 @@ pub fn rewrite_element(
         let mut target: Option<*const UIElement> = None;
         node_id::visit_nodes(&program, &mut |ui, id, _| {
             if id == node {
-                target = Some(ui as *const UIElement);
+                target = Some(std::ptr::from_ref::<UIElement>(ui));
             }
         });
         let target = target.ok_or_else(|| edit_err(format!("unknown node id '{node}'")))?;
@@ -1310,7 +1308,7 @@ pub fn rewrite_body(
 ) -> Result<String> {
     in_braces(source, file, |braced| {
         let program = parse_program(braced)?;
-        let mut expected = program.clone();
+        let mut expected = program;
         let found = expected.declarations.iter_mut().find_map(|d| match d {
             Declaration::Page(p) if p.name == declaration => Some((&mut p.body, p.body_span)),
             Declaration::Component(c) if c.name == declaration => Some((&mut c.body, c.body_span)),
@@ -1435,7 +1433,7 @@ fn rewrite_at(
     end: usize,
     change: impl FnOnce(&mut Statement) -> Result<()>,
 ) -> Result<String> {
-    let mut expected = program.clone();
+    let mut expected = program;
     let (stmt, block) = statement_at_mut(&mut expected, start, end)
         .ok_or_else(|| edit_err(format!("no statement is written at {start}..{end}")))?;
     let old = stmt.clone();
@@ -2516,7 +2514,7 @@ mod tests {
             &out,
             &[
                 EditOp::RemoveProp {
-                    node: row.clone(),
+                    node: row,
                     prop: "align".into(),
                 },
                 EditOp::RemoveProp {

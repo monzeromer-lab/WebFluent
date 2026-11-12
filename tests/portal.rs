@@ -83,10 +83,13 @@ fn a_portal_is_a_box_a_marker_and_its_block_drawn_after_the_box_is_placed() {
 
 #[test]
 fn a_portal_reads_where_it_goes_again_and_its_block_belongs_to_where_it_is_written() {
-    let src = "component Chip(_ label: String) {\n    event picked(label: String)\n    Button(label) { on click { emit picked(label) } }\n}\n".to_string()
-        + &page(
+    let src = format!(
+        "{}{}",
+        "component Chip(_ label: String) {\n    event picked(label: String)\n    Button(label) { on click { emit picked(label) } }\n}\n",
+        page(
             "    state rows = [{ id: \"a\", name: \"alpha\" }]\n    state chosen = \"\"\n    for r, i in rows by i {\n        Portal(into: document.getElementById(r.id)) {\n            Chip(r.name) { on picked(n) { chosen = n } }\n        }\n    }\n    Text(chosen)",
-        );
+        )
+    );
     let js = spa_generated(&src);
     // Inside a keyed `for`, the item is read through its accessor: when
     // the item for a key changes, where the portal goes is read again.
@@ -164,7 +167,11 @@ fn the_fix_for_a_portal_without_into_passes_it() {
 
 #[test]
 fn a_component_named_portal_is_never_drawn_and_says_so() {
-    let src = "component Portal {\n    Text(\"mine\")\n}\n".to_string() + &page("    Text(\"x\")");
+    let src = format!(
+        "{}{}",
+        "component Portal {\n    Text(\"mine\")\n}\n",
+        page("    Text(\"x\")")
+    );
     let found = with(&src, "V11");
     assert_eq!(found.len(), 1, "{found:?}");
     assert!(
@@ -299,8 +306,11 @@ fn build(name: &str, files: &[(&str, &str)]) -> (String, std::path::PathBuf) {
         .args(["build", "-d", dir.to_str().unwrap()])
         .output()
         .expect("wf runs");
-    let said =
-        String::from_utf8_lossy(&out.stdout).to_string() + &String::from_utf8_lossy(&out.stderr);
+    let said = format!(
+        "{}{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
     (said, dir)
 }
 

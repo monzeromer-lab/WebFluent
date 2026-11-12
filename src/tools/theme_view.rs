@@ -678,7 +678,10 @@ mod tests {
             );
         }
         // The dark pair has its own, and the tokens one declares alone.
-        assert!(!v.dark_pairs.is_empty());
+        assert_ne!(
+            v.dark_pairs,
+            [] as [crate::check::linter::contrast::Pairing; 0]
+        );
         assert!(v.unpaired.contains(&"color-background".to_string()));
         assert!(
             v.unpaired.contains(&"color-primary".to_string()),

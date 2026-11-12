@@ -292,7 +292,7 @@ fn locale_tag(given: &str) -> Option<String> {
             3 if digits => part.to_string(),
             4 if alpha => {
                 let lower = part.to_ascii_lowercase();
-                lower[..1].to_ascii_uppercase() + &lower[1..]
+                format!("{}{}", lower[..1].to_ascii_uppercase(), &lower[1..])
             }
             5..=8 if alnum => part.to_ascii_lowercase(),
             _ => return None,

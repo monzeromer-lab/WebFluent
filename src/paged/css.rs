@@ -119,12 +119,11 @@ fn strip_comments(css: &str) -> String {
     let mut rest = css;
     while let Some(start) = rest.find("/*") {
         out.push_str(&rest[..start]);
-        match rest[start + 2..].find("*/") {
-            Some(end) => rest = &rest[start + 2 + end + 2..],
-            None => {
-                rest = "";
-                break;
-            }
+        if let Some(end) = rest[start + 2..].find("*/") {
+            rest = &rest[start + 2 + end + 2..];
+        } else {
+            rest = "";
+            break;
         }
     }
     out.push_str(rest);
@@ -441,9 +440,9 @@ pub fn parse_selector(s: &str) -> Option<Selector> {
 }
 
 fn compound_specificity(c: &Compound) -> (u32, u32, u32) {
-    let mut a = c.id.is_some() as u32;
+    let mut a = u32::from(c.id.is_some());
     let mut b = (c.classes.len() + c.attrs.len()) as u32;
-    let mut d = c.tag.is_some() as u32;
+    let mut d = u32::from(c.tag.is_some());
     for p in &c.pseudos {
         match p {
             // `:not()` and `:is()` count as their most specific argument.

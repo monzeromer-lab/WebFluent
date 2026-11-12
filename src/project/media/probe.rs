@@ -104,9 +104,15 @@ fn average_color(image: &DynamicImage) -> String {
 fn placeholder(image: &DynamicImage) -> String {
     let (w, h) = image.dimensions();
     let (tw, th) = if w >= h {
-        (16u32, ((16.0 * h as f64 / w as f64).round() as u32).max(1))
+        (
+            16u32,
+            ((16.0 * f64::from(h) / f64::from(w)).round() as u32).max(1),
+        )
     } else {
-        (((16.0 * w as f64 / h as f64).round() as u32).max(1), 16u32)
+        (
+            ((16.0 * f64::from(w) / f64::from(h)).round() as u32).max(1),
+            16u32,
+        )
     };
     let small = image.resize_exact(tw, th, FilterType::Triangle);
     let mut out = Vec::new();

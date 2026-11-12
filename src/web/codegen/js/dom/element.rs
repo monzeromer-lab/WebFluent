@@ -1394,7 +1394,7 @@ impl JsCodegen {
         if let Some(over) = named("count") {
             let positional = ui.args.iter().find_map(|a| match a {
                 Arg::Positional(e) => Some(e.clone()),
-                _ => None,
+                Arg::Named(..) => None,
             });
             if let Some(expr) = positional {
                 let (value, format) = match &expr {

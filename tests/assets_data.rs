@@ -506,7 +506,7 @@ fn the_plan_is_what_the_build_then_writes() {
         .collect();
     written.sort();
     let mut named: Vec<String> = plan.made().map(|f| f.name.clone()).collect();
-    named.push(plan.original.name.clone());
+    named.push(plan.original.name);
     named.sort();
     assert_eq!(written, named, "the plan names every file the build writes");
 
@@ -567,7 +567,10 @@ fn the_plan_follows_the_settings_and_says_what_it_cannot_do() {
             .unwrap()
             .contains("not a format the build can write")
     );
-    assert!(plan.formats[0].files.is_empty());
+    assert_eq!(
+        plan.formats[0].files,
+        [] as [webfluent::media::plan::PlannedFile; 0]
+    );
     // Small enough to encode outright: exact before any build.
     assert!(!plan.estimated());
     assert_eq!(plan.made().count(), 2);

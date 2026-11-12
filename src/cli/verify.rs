@@ -41,7 +41,7 @@ pub fn run_verify(
         return Err(WebFluentError::io("the build wrote no pages to load"));
     }
 
-    let server = super::preview::serve_directory(output_dir.clone(), &base_path)?;
+    let server = super::preview::serve_directory(output_dir, &base_path)?;
     let mut browser = Browser::start()?;
     let mut visits = Vec::new();
     let mut drew: BTreeSet<String> = BTreeSet::new();

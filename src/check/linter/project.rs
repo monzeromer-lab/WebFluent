@@ -289,7 +289,7 @@ pub fn translations(
             continue;
         };
         for g in &given {
-            if !used.contains(g) && !(plural && g == "count") {
+            if !(used.contains(g) || plural && g == "count") {
                 out.push(
                     Diagnostic::coded(
                         "I02",
@@ -624,7 +624,7 @@ pub fn persist_changes(
                             },
                             crate::diagnostics::fixes::Plan::InsertInBlockClosingAt {
                                 close: (stmt.span.end as usize).saturating_sub(1),
-                                text: step.clone(),
+                                text: step,
                             },
                         ]))
                     }
@@ -675,6 +675,6 @@ mod tests {
             placeholders("Hello, {name}! {count} new"),
             vec!["name", "count"]
         );
-        assert!(placeholders("no {} here { x }").is_empty());
+        assert_eq!(placeholders("no {} here { x }"), [] as [String; 0]);
     }
 }

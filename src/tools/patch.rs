@@ -194,7 +194,7 @@ pub fn in_place_with(
         };
         each_element_mut(body, &mut |ui| {
             if let Some(old) = changed.get(&(owner.as_str(), ui.span)) {
-                ui.style_block = old.style_block.clone();
+                ui.style_block.clone_from(&old.style_block);
                 // Its text alone, when that's what the patch carries: any
                 // other argument changed still shows, a value read included.
                 let first =

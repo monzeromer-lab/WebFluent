@@ -276,7 +276,7 @@ impl Shared {
             .held
             .get(&key)
         {
-            return gz.clone();
+            return std::sync::Arc::clone(gz);
         }
         // Compressed outside the lock, so other requests go on meanwhile.
         let gz = std::sync::Arc::new(crate::codegen::gzip::gzip(content));
@@ -289,7 +289,7 @@ impl Shared {
             cache.bytes = 0;
         }
         cache.bytes += gz.len();
-        if let Some(old) = cache.held.insert(key, gz.clone()) {
+        if let Some(old) = cache.held.insert(key, std::sync::Arc::clone(&gz)) {
             cache.bytes = cache.bytes.saturating_sub(old.len());
         }
         gz
@@ -364,7 +364,7 @@ pub fn run_serve(project_dir: &Path, host: &str, allow_output_outside: bool) -> 
     // read every half second, which needs no watcher and misses nothing.
     if config.dev.hot_reload {
         let root = project_dir.to_path_buf();
-        let state = state.clone();
+        let state = std::sync::Arc::clone(&state);
         std::thread::spawn(move || {
             let mut last = newest_change(&root);
             loop {
@@ -390,13 +390,13 @@ pub fn run_serve(project_dir: &Path, host: &str, allow_output_outside: bool) -> 
         base_path,
         hot_reload: config.dev.hot_reload,
         host: host.to_string(),
-        gzipped: Default::default(),
+        gzipped: std::sync::Mutex::default(),
     });
     let server = std::sync::Arc::new(server);
     let workers: Vec<_> = (0..WORKERS)
         .map(|_| {
-            let server = server.clone();
-            let shared = shared.clone();
+            let server = std::sync::Arc::clone(&server);
+            let shared = std::sync::Arc::clone(&shared);
             std::thread::spawn(move || {
                 while let Ok(request) = server.recv() {
                     answer(&shared, request);
@@ -789,12 +789,12 @@ mod tests {
         let file = dir.join("app.js");
         std::fs::write(&file, "x".repeat(4096)).unwrap();
         let shared = Shared {
-            state: Default::default(),
+            state: std::sync::Arc::default(),
             output_dir: dir.clone(),
             base_path: String::new(),
             hot_reload: true,
             host: "127.0.0.1".into(),
-            gzipped: Default::default(),
+            gzipped: std::sync::Mutex::default(),
         };
         let first = shared.gzip(&file, false, &std::fs::read(&file).unwrap());
         let again = shared.gzip(&file, false, b"not what is on disk");

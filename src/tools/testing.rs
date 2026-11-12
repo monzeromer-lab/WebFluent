@@ -22,6 +22,7 @@
 
 use crate::base::outfs::At;
 use std::collections::HashMap;
+use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 
 use crate::diagnostics::error::Result;
@@ -491,11 +492,11 @@ pub fn render_test(
     let mut data = match &test.data {
         Some(expr) => {
             crate::project::static_eval::eval(expr, &crate::project::static_eval::Scope::of([]))
-                .map_or(serde_json::Value::Object(Default::default()), |v| {
+                .map_or(serde_json::Value::Object(serde_json::Map::default()), |v| {
                     v.to_json()
                 })
         }
-        None => serde_json::Value::Object(Default::default()),
+        None => serde_json::Value::Object(serde_json::Map::default()),
     };
     // Every store the test can read, as a value: its initial state with
     // whatever the test's `data` named on top, and its derived values
@@ -651,15 +652,12 @@ fn decode_entities(text: &str) -> String {
             }?;
             Some((c, e + 1))
         });
-        match decoded {
-            Some((c, len)) => {
-                out.push(c);
-                rest = &tail[len..];
-            }
-            None => {
-                out.push('&');
-                rest = &tail[1..];
-            }
+        if let Some((c, len)) = decoded {
+            out.push(c);
+            rest = &tail[len..];
+        } else {
+            out.push('&');
+            rest = &tail[1..];
         }
     }
     out.push_str(rest);
@@ -882,7 +880,7 @@ pub fn act(
     shared: &[Declaration],
     test: &TestDecl,
     work: &Path,
-    site: &Site,
+    site: &Site<'_>,
 ) -> Result<std::result::Result<(), Vec<String>>> {
     let dir = work.join(slug_acting(&test.name));
     let _ = std::fs::remove_dir_all(&dir);
@@ -1024,7 +1022,7 @@ fn step_one(page: &mut dyn Page, step: &Step) -> Result<std::result::Result<(), 
 /// cannot be served beside it, [`ConfigError`](crate::diagnostics::error::WebFluentError::ConfigError) when the theme config
 /// names a dark theme nothing declares, and [`CodegenError`](crate::diagnostics::error::WebFluentError::CodegenError) when a
 /// theme's token is not a literal.
-pub fn write_site(program: &Program, dir: &Path, site: &Site) -> Result<()> {
+pub fn write_site(program: &Program, dir: &Path, site: &Site<'_>) -> Result<()> {
     let mut config = crate::project::config::ProjectConfig::default_config("test");
     config.theme = site.theme.clone();
     config.i18n = site.i18n.map(|(c, _)| c.clone());
@@ -1058,8 +1056,8 @@ pub fn write_site(program: &Program, dir: &Path, site: &Site) -> Result<()> {
     std::fs::write(dir.join("styles.css"), css).at(dir.join("styles.css"))?;
     // The stylesheets the project links, linked as the built page links
     // them.
-    config.meta.stylesheets = site.styles.linked.clone();
-    config.meta.integrity = site.styles.integrity.clone();
+    config.meta.stylesheets.clone_from(&site.styles.linked);
+    config.meta.integrity.clone_from(&site.styles.integrity);
 
     std::fs::write(
         dir.join("index.html"),
@@ -1327,10 +1325,10 @@ const ACT: &str = r#"
 "#;
 
 fn indent_acting(text: &str) -> String {
-    text.lines()
-        .take(24)
-        .map(|l| format!("        {l}\n"))
-        .collect()
+    text.lines().take(24).fold(String::new(), |mut acc, l| {
+        let _ = writeln!(acc, "        {l}");
+        acc
+    })
 }
 
 /// A test's folder name: act's own, which keeps a leading dash's absence.

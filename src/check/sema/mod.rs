@@ -332,9 +332,10 @@ impl Checker<'_, '_> {
                     self.user_component(el, decl, span);
                 }
             }
-            ComponentRef::SubComponent(owner, part) => match registry::part(owner, part) {
-                Some(sig) => self.builtin(el, sig, span),
-                None => {
+            ComponentRef::SubComponent(owner, part) => {
+                if let Some(sig) = registry::part(owner, part) {
+                    self.builtin(el, sig, span);
+                } else {
                     let mut known: Vec<String> = registry::parts_of(owner)
                         .map(|p| format!("`{owner}.{}`", p.name))
                         .collect();
@@ -353,7 +354,7 @@ impl Checker<'_, '_> {
                         &hint,
                     );
                 }
-            },
+            }
             ComponentRef::UserDefined(name) => {
                 if let Some(decl) = self.decls.components.get(name.as_str()) {
                     self.user_component(el, decl, span);
@@ -1200,11 +1201,11 @@ fn record_defaults(program: &Program) -> HashMap<String, Vec<(String, Expr)>> {
         .collect()
 }
 
-fn fill_records(stmts: &mut [Statement], records: &Records) {
+fn fill_records(stmts: &mut [Statement], records: &Records<'_>) {
     walk_exprs_mut(stmts, &mut |e| fill_record(e, records));
 }
 
-fn fill_record(expr: &mut Expr, records: &Records) {
+fn fill_record(expr: &mut Expr, records: &Records<'_>) {
     if let Expr::FunctionCall(name, args) = expr
         && args.is_empty()
         && records.bare.contains(name)
@@ -1428,7 +1429,7 @@ fn own_props(el: &UIElement, user: &HashMap<String, UserSig>) -> Vec<String> {
         ComponentRef::BuiltIn(name) => crate::registry::component(name).map_or(Vec::new(), |sig| {
             sig.props.iter().map(|p| p.name.to_string()).collect()
         }),
-        _ => Vec::new(),
+        ComponentRef::SubComponent(..) => Vec::new(),
     }
 }
 
@@ -1813,7 +1814,7 @@ fn lower_enter_view(el: &mut UIElement) {
     }
 }
 
-/// The original grammar's click shorthand — a Button's, an IconButton's or
+/// The original grammar's click shorthand — a Button's, an `IconButton`'s or
 /// a user component's block of action statements — spelled out as the
 /// `on click { … }` handler it always was, so one emitter serves both
 /// grammars. A Button's block may mix content with its actions; a user
@@ -1950,7 +1951,7 @@ fn lower_builtin(el: &mut UIElement, sig: &'static ComponentSig) {
                             registry::Ir::BuiltIn(name) => {
                                 crate::project::builtin::builtin_to_html(name).1
                             }
-                            _ => "",
+                            registry::Ir::Sub(..) => "",
                         };
                         let class = crate::project::builtin::modifier_to_class(base, word);
                         if class.is_empty() {
@@ -1971,24 +1972,21 @@ fn lower_builtin(el: &mut UIElement, sig: &'static ComponentSig) {
     // A flag's class that follows a condition, or a project animation's,
     // joins whatever `class:` says.
     for (entry, span) in conditional_classes {
-        match kept_args
+        if let Some(Arg::Named(_, existing)) = kept_args
             .iter_mut()
             .find(|a| matches!(a, Arg::Named(k, _) if k == "class"))
         {
-            Some(Arg::Named(_, existing)) => {
-                let before = std::mem::replace(existing, Expr::Null);
-                *existing = match before {
-                    Expr::ListLiteral(mut items) => {
-                        items.push(entry);
-                        Expr::ListLiteral(items)
-                    }
-                    other => Expr::ListLiteral(vec![other, entry]),
-                };
-            }
-            _ => {
-                kept_args.push(Arg::Named("class".to_string(), entry));
-                kept_spans.push(span);
-            }
+            let before = std::mem::replace(existing, Expr::Null);
+            *existing = match before {
+                Expr::ListLiteral(mut items) => {
+                    items.push(entry);
+                    Expr::ListLiteral(items)
+                }
+                other => Expr::ListLiteral(vec![other, entry]),
+            };
+        } else {
+            kept_args.push(Arg::Named("class".to_string(), entry));
+            kept_spans.push(span);
         }
     }
 
@@ -2167,7 +2165,7 @@ mod tests {
         assert!(
             matches!(&el.args[0], Arg::Named(k, Expr::StringLiteral(v)) if k == "gap" && v == "md")
         );
-        assert!(el.modifiers.is_empty());
+        assert_eq!(el.modifiers, [] as [String; 0]);
         let p = lowered("page P(path: \"/\") { Spacer.lg }");
         assert_eq!(first_element(&p).modifiers, vec!["lg"]);
         let p = lowered("page P(path: \"/\") { Input(bind: x).email }");

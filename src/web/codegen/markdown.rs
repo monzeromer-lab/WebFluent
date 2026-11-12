@@ -60,16 +60,16 @@ pub fn render(text: &str) -> String {
 pub const MAX_QUOTE_DEPTH: usize = 32;
 
 /// The HTML of `text`, drawn as `options` say.
-pub fn render_with(text: &str, options: Options) -> String {
+pub fn render_with(text: &str, options: Options<'_>) -> String {
     render_nested(text, options, 0)
 }
 
 /// [`render_with`], inside `depth` quotes.
-fn render_nested(text: &str, options: Options, depth: usize) -> String {
+fn render_nested(text: &str, options: Options<'_>, depth: usize) -> String {
     let quotes = depth < MAX_QUOTE_DEPTH;
     // The two characters the renderer marks its own places with (a held
     // code span, a line break) cannot arrive in the text it is given.
-    let text: std::borrow::Cow<str> = if text.contains(['\u{0}', '\u{1}']) {
+    let text: std::borrow::Cow<'_, str> = if text.contains(['\u{0}', '\u{1}']) {
         text.replace(['\u{0}', '\u{1}'], "\u{FFFD}").into()
     } else {
         text.into()
@@ -253,7 +253,7 @@ fn table_at(lines: &[&str], i: usize) -> Option<Vec<&'static str>> {
 /// The table at `lines[*i]`, which `table_at` found; `*i` moves past it.
 /// A row runs to the first blank line or block; a row short of cells has
 /// empty ones, and one with more drops them, as GFM's does.
-fn table(lines: &[&str], i: &mut usize, aligns: &[&str], options: Options) -> String {
+fn table(lines: &[&str], i: &mut usize, aligns: &[&str], options: Options<'_>) -> String {
     let row = |line: &str, tag: &str| {
         let mut cells = cells(line);
         cells.resize(aligns.len(), String::new());
@@ -483,7 +483,7 @@ fn restore(text: &str, held: &[Held], chars_only: bool) -> String {
     if held.is_empty() {
         return text.to_string();
     }
-    mark.replace_all(text, |c: &regex::Captures| {
+    mark.replace_all(text, |c: &regex::Captures<'_>| {
         match c[1].parse::<usize>().ok().and_then(|n| held.get(n)) {
             Some((html, is_char)) if *is_char || !chars_only => html.clone(),
             _ => c[0].to_string(),
@@ -494,7 +494,7 @@ fn restore(text: &str, held: &[Held], chars_only: bool) -> String {
 
 /// The inline spans of a line: code and escaped characters held aside,
 /// then images, links, strong and emphasis.
-fn inline(text: &str, options: Options) -> String {
+fn inline(text: &str, options: Options<'_>) -> String {
     static IMAGE: OnceLock<Regex> = OnceLock::new();
     static LINK: OnceLock<Regex> = OnceLock::new();
     static PICTURE: OnceLock<Regex> = OnceLock::new();
@@ -550,7 +550,7 @@ fn inline(text: &str, options: Options) -> String {
             }
         };
         let safe = |url: &str| super::url::is_safe_with(url, options.schemes);
-        let s = image.replace_all(&held_text, |c: &regex::Captures| {
+        let s = image.replace_all(&held_text, |c: &regex::Captures<'_>| {
             let url = restore(&c[2], &held, true);
             if safe(&url) || super::url::is_picture(&url) {
                 format!("<img src=\"{}{}\" alt=\"{}\">", at(&url), &c[2], &c[1])
@@ -558,7 +558,7 @@ fn inline(text: &str, options: Options) -> String {
                 c[1].to_string()
             }
         });
-        link.replace_all(&s, |c: &regex::Captures| {
+        link.replace_all(&s, |c: &regex::Captures<'_>| {
             let url = restore(&c[2], &held, true);
             if safe(&url) {
                 format!("<a href=\"{}{}\">{}</a>", at(&url), &c[2], &c[1])
@@ -578,7 +578,7 @@ fn inline(text: &str, options: Options) -> String {
     // character, so `\&lt;` is the four characters it says.
     if options.inert {
         s = entity_re
-            .replace_all(&s, |c: &regex::Captures| match entity(&c[1]) {
+            .replace_all(&s, |c: &regex::Captures<'_>| match entity(&c[1]) {
                 Some(ch) => escape(&ch.to_string()),
                 None => c[0].to_string(),
             })
@@ -591,6 +591,8 @@ fn inline(text: &str, options: Options) -> String {
 
 #[cfg(test)]
 mod tests {
+    use std::fmt::Write as _;
+
     #[test]
     fn a_site_relative_link_takes_the_base_path() {
         let out = super::render_with_base(
@@ -829,7 +831,10 @@ mod tests {
                 assert_eq!(inert(&md), render(&md), "{md}");
             }
         }
-        let all: String = PUNCTUATION.chars().map(|c| format!("\\{c}")).collect();
+        let all: String = PUNCTUATION.chars().fold(String::new(), |mut acc, c| {
+            let _ = write!(acc, "\\{c}");
+            acc
+        });
         assert_eq!(
             render(&all),
             "<p>!&quot;#$%&amp;'()*+,-./:;&lt;=&gt;?@[\\]^_`{|}~</p>\n"

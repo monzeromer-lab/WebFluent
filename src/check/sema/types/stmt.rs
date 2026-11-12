@@ -2,7 +2,7 @@
 
 use super::*;
 
-impl<'a, 'p> Checker<'a, 'p> {
+impl Checker<'_, '_> {
     /// Binds the names a handler gives its event's values (`on menu(key, x,
     /// y)`), each typed as `sends` says, and reports a name past the last
     /// value sent: it would only ever be `undefined`.
@@ -194,11 +194,11 @@ impl<'a, 'p> Checker<'a, 'p> {
             }
             StatementKind::Resource(r) => {
                 // An `api` endpoint is a call, not an address.
-                if !matches!(&r.url, Expr::MethodCall(..) | Expr::FunctionCall(..)) {
+                if matches!(&r.url, Expr::MethodCall(..) | Expr::FunctionCall(..)) {
+                    self.infer(&r.url, None);
+                } else {
                     let url = self.infer(&r.url, Some(&Type::String));
                     self.expect(&url, &Type::String, span, "a resource's URL");
-                } else {
-                    self.infer(&r.url, None);
                 }
                 for option in &r.options {
                     self.infer(&option.value, None);
@@ -435,15 +435,16 @@ impl<'a, 'p> Checker<'a, 'p> {
                 let target = match &a.target {
                     // A name nothing declares compiles to a signal's
                     // `.set`, `_name.set(…)`, which throws: `T13`.
-                    Expr::Identifier(name) => match self.assignable(name) {
-                        Some(ty) => ty,
-                        None => {
+                    Expr::Identifier(name) => {
+                        if let Some(ty) = self.assignable(name) {
+                            ty
+                        } else {
                             if !self.is_known_name(name) {
                                 self.unresolved(name, false);
                             }
                             Type::Any
                         }
-                    },
+                    }
                     other => self.infer(other, None),
                 };
                 let value = self.infer(&a.value, Some(&target));
@@ -565,20 +566,17 @@ impl<'a, 'p> Checker<'a, 'p> {
         if i.binding.is_none() {
             self.non_empty.extend(non_empty_lists(&i.condition));
         }
-        match &i.binding {
-            Some(name) => {
-                let ty = self.infer(&i.condition, None);
-                self.bind_fixed(name, ty.unwrapped(), span, "a value `if let` binds");
-            }
-            None => {
-                let ty = self.infer(&i.condition, Some(&Type::Bool));
-                self.condition(&ty, &i.condition, span, "if");
-                self.constant_condition(&i.condition);
-                // `if x != null { }`, `if x { }`: `x` is not null inside.
-                for name in narrowed_names(&i.condition) {
-                    if let Some(Type::Optional(inner)) = self.lookup(&name) {
-                        self.narrow(&name, *inner);
-                    }
+        if let Some(name) = &i.binding {
+            let ty = self.infer(&i.condition, None);
+            self.bind_fixed(name, ty.unwrapped(), span, "a value `if let` binds");
+        } else {
+            let ty = self.infer(&i.condition, Some(&Type::Bool));
+            self.condition(&ty, &i.condition, span, "if");
+            self.constant_condition(&i.condition);
+            // `if x != null { }`, `if x { }`: `x` is not null inside.
+            for name in narrowed_names(&i.condition) {
+                if let Some(Type::Optional(inner)) = self.lookup(&name) {
+                    self.narrow(&name, *inner);
                 }
             }
         }

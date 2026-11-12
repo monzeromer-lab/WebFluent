@@ -86,7 +86,7 @@ impl Backend {
         let open = |path: &Path| -> Option<OpenText> {
             let doc = self.documents.get(path)?;
             Some(OpenText {
-                text: doc.text.clone(),
+                text: Arc::clone(&doc.text),
                 last_valid: doc.last_valid.clone(),
             })
         };
@@ -115,7 +115,7 @@ impl Backend {
         self.documents.insert(
             path.clone(),
             OpenDocument {
-                text: text.clone(),
+                text: Arc::clone(&text),
                 last_valid: previous,
             },
         );
@@ -133,7 +133,7 @@ impl Backend {
             && let Ok(program) = &file.parsed
             && let Some(mut doc) = self.documents.get_mut(&path)
         {
-            doc.last_valid = Some(program.clone());
+            doc.last_valid = Some(Arc::clone(program));
         }
 
         // An edit that came in while this one was checked will report.
@@ -219,18 +219,18 @@ impl LanguageServer for Backend {
                             legend: crate::semantic::legend(),
                             full: Some(SemanticTokensFullOptions::Bool(true)),
                             range: None,
-                            work_done_progress_options: Default::default(),
+                            work_done_progress_options: WorkDoneProgressOptions::default(),
                         },
                     ),
                 ),
                 signature_help_provider: Some(SignatureHelpOptions {
                     trigger_characters: Some(vec!["(".to_string(), ",".to_string()]),
                     retrigger_characters: Some(vec![":".to_string()]),
-                    work_done_progress_options: Default::default(),
+                    work_done_progress_options: WorkDoneProgressOptions::default(),
                 }),
                 rename_provider: Some(OneOf::Right(RenameOptions {
                     prepare_provider: Some(true),
-                    work_done_progress_options: Default::default(),
+                    work_done_progress_options: WorkDoneProgressOptions::default(),
                 })),
                 code_action_provider: Some(CodeActionProviderCapability::Options(
                     CodeActionOptions {

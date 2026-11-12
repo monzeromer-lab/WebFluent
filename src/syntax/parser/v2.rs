@@ -1545,7 +1545,7 @@ impl ParserV2 {
                         "Write it as a string: `step(after: \"120ms\")`",
                     ));
                 };
-                let text = lit.spelling.clone();
+                let text = lit.spelling;
                 let Some(ms) = duration_ms(&text) else {
                     return Err(self.error_with_hint(
                         format!("`after: \"{text}\"` is not a length of time"),
@@ -4063,10 +4063,10 @@ impl ParserV2 {
             let Some((case, binding)) = case else {
                 continue;
             };
-            expr = match binding {
-                // `.failed(r) { … }`: the payload is bound where the case
-                // matches, as an `if let` over it.
-                Some(name) => Expr::MethodCall(
+            // `.failed(r) { … }`: the payload is bound where the case
+            // matches, as an `if let` over it.
+            expr = if let Some(name) = binding {
+                Expr::MethodCall(
                     Box::new(Expr::MethodCall(
                         Box::new(subject.clone()),
                         "__payload".to_string(),
@@ -4074,15 +4074,14 @@ impl ParserV2 {
                     )),
                     "__iflet".to_string(),
                     vec![Expr::Lambda(name, Box::new(value)), expr],
-                ),
-                None => {
-                    let cond = Expr::MethodCall(
-                        Box::new(subject.clone()),
-                        "__is".to_string(),
-                        vec![Expr::StringLiteral(case)],
-                    );
-                    Expr::MethodCall(Box::new(cond), "__if".to_string(), vec![value, expr])
-                }
+                )
+            } else {
+                let cond = Expr::MethodCall(
+                    Box::new(subject.clone()),
+                    "__is".to_string(),
+                    vec![Expr::StringLiteral(case)],
+                );
+                Expr::MethodCall(Box::new(cond), "__if".to_string(), vec![value, expr])
             };
         }
         Ok(expr)
@@ -4135,20 +4134,19 @@ impl ParserV2 {
         for piece in pieces(lit) {
             match piece {
                 Piece::Text(text) => literal.push_str(&text),
-                Piece::Splice(source) => match self.splice_expr(&source)? {
-                    Some(expr) => {
+                Piece::Splice(source) => {
+                    if let Some(expr) = self.splice_expr(&source)? {
                         if !literal.is_empty() {
                             parts.push(StringPart::Literal(std::mem::take(&mut literal)));
                         }
                         parts.push(StringPart::Expression(expr));
-                    }
-                    // A brace group that is prose, not a splice.
-                    None => {
+                    } else {
+                        // A brace group that is prose, not a splice.
                         literal.push('{');
                         literal.push_str(&source);
                         literal.push('}');
                     }
-                },
+                }
             }
         }
         if parts.is_empty() {
@@ -4343,19 +4341,18 @@ fn split_pieces(spelling: &str) -> Vec<Piece> {
                 }
                 i += 2;
             }
-            '{' => match splice_end(&chars, i) {
-                Some(end) => {
+            '{' => {
+                if let Some(end) = splice_end(&chars, i) {
                     if !text.is_empty() {
                         out.push(Piece::Text(std::mem::take(&mut text)));
                     }
                     out.push(Piece::Splice(splice_source(&chars[i + 1..end - 1])));
                     i = end;
-                }
-                None => {
+                } else {
                     text.push('{');
                     i += 1;
                 }
-            },
+            }
             c => {
                 text.push(c);
                 i += 1;
@@ -5236,7 +5233,7 @@ app { Navbar(brand: "x") { Navbar.Links { Link("Home", to: "/") } }  Router }
             panic!("an element")
         };
         assert_eq!(button.events[0].params, ["e"]);
-        assert!(button.events[1].params.is_empty());
+        assert_eq!(button.events[1].params, [] as [String; 0]);
         let StatementKind::EventHandler(key) = &page.body[2].kind else {
             panic!("a handler")
         };

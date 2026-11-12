@@ -386,9 +386,11 @@ pub fn manifest_json() -> String {
             })
         })
         .collect();
-    serde_json::to_string_pretty(&serde_json::json!({ "header": HEADER, "modules": modules }))
-        .expect("the manifest is JSON")
-        + "\n"
+    format!(
+        "{}\n",
+        serde_json::to_string_pretty(&serde_json::json!({ "header": HEADER, "modules": modules }))
+            .expect("the manifest is JSON")
+    )
 }
 
 #[cfg(test)]

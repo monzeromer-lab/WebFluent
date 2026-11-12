@@ -133,7 +133,10 @@ fn the_catalogue_is_what_the_build_plays() {
         "t.wf",
     )
     .unwrap();
-    let m = catalogue(Some(&program), &Default::default());
+    let m = catalogue(
+        Some(&program),
+        &webfluent::config::project::MotionConfig::default(),
+    );
     let sheet = webfluent::themes::components::component_css();
     for a in m.animations.iter().filter(|a| !a.project) {
         assert!(sheet.contains(&a.rule), "{}'s rule is the sheet's", a.name);

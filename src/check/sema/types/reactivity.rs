@@ -2,7 +2,7 @@
 
 use super::*;
 
-impl<'a, 'p> Checker<'a, 'p> {
+impl Checker<'_, '_> {
     /// The names an action writes — its own body's assignments, and the
     /// store's state written as `Store.member` when it is a store's.
     pub(super) fn action_writes(&self, call: &Expr) -> Option<Vec<String>> {

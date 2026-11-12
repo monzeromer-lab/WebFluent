@@ -34,22 +34,21 @@ pub fn run_assets(
             return Ok(());
         }
         for f in &plan.formats {
-            match &f.error {
-                Some(e) => println!("  {:<5} {e}", f.format),
-                None => {
-                    let widths: Vec<String> = f.files.iter().map(|f| f.width.to_string()).collect();
-                    let about = if f.files.iter().any(|f| f.estimated) {
-                        "about "
-                    } else {
-                        ""
-                    };
-                    println!(
-                        "  {:<5} {:<24} {about}{}",
-                        f.format,
-                        widths.join(" · "),
-                        size_text(f.bytes())
-                    );
-                }
+            if let Some(e) = &f.error {
+                println!("  {:<5} {e}", f.format);
+            } else {
+                let widths: Vec<String> = f.files.iter().map(|f| f.width.to_string()).collect();
+                let about = if f.files.iter().any(|f| f.estimated) {
+                    "about "
+                } else {
+                    ""
+                };
+                println!(
+                    "  {:<5} {:<24} {about}{}",
+                    f.format,
+                    widths.join(" · "),
+                    size_text(f.bytes())
+                );
             }
         }
         println!("  {}", plan.summary());

@@ -267,15 +267,15 @@ pub fn parse_color(s: &str) -> Option<Color> {
     let s = s.trim();
     let h = s.trim_start_matches('#');
     if h.len() == 6 {
-        let r = u8::from_str_radix(&h[0..2], 16).ok()? as f64 / 255.0;
-        let g = u8::from_str_radix(&h[2..4], 16).ok()? as f64 / 255.0;
-        let b = u8::from_str_radix(&h[4..6], 16).ok()? as f64 / 255.0;
+        let r = f64::from(u8::from_str_radix(&h[0..2], 16).ok()?) / 255.0;
+        let g = f64::from(u8::from_str_radix(&h[2..4], 16).ok()?) / 255.0;
+        let b = f64::from(u8::from_str_radix(&h[4..6], 16).ok()?) / 255.0;
         return Some((r, g, b));
     }
     if h.len() == 3 {
-        let r = u8::from_str_radix(&h[0..1].repeat(2), 16).ok()? as f64 / 255.0;
-        let g = u8::from_str_radix(&h[1..2].repeat(2), 16).ok()? as f64 / 255.0;
-        let b = u8::from_str_radix(&h[2..3].repeat(2), 16).ok()? as f64 / 255.0;
+        let r = f64::from(u8::from_str_radix(&h[0..1].repeat(2), 16).ok()?) / 255.0;
+        let g = f64::from(u8::from_str_radix(&h[1..2].repeat(2), 16).ok()?) / 255.0;
+        let b = f64::from(u8::from_str_radix(&h[2..3].repeat(2), 16).ok()?) / 255.0;
         return Some((r, g, b));
     }
     // Named color shortcuts
@@ -330,7 +330,7 @@ fn parse_border_shorthand(s: &str) -> (Option<f64>, Option<Color>) {
     (width, color)
 }
 
-/// Parse `"2pt 4pt #color"` → BoxShadow (offset_x, offset_y, color). Blur is ignored.
+/// Parse `"2pt 4pt #color"` → `BoxShadow` (`offset_x`, `offset_y`, color). Blur is ignored.
 fn parse_box_shadow(s: &str) -> Option<BoxShadow> {
     let mut nums = Vec::new();
     let mut color = None;
@@ -362,11 +362,11 @@ fn parse_linear_gradient(s: &str) -> Option<LinearGradient> {
     }
 
     // Direction: optional first part if it doesn't start with '#'
-    let (angle, color_parts) = if !parts[0].starts_with('#') {
+    let (angle, color_parts) = if parts[0].starts_with('#') {
+        (180.0, &parts[..]) // CSS default: top-to-bottom
+    } else {
         let a = parse_gradient_direction(parts[0])?;
         (a, &parts[1..])
-    } else {
-        (180.0, &parts[..]) // CSS default: top-to-bottom
     };
 
     if color_parts.len() < 2 {

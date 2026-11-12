@@ -741,8 +741,11 @@ fn a_picture_s_image_takes_them() {
         .args(["build", "-d", dir.to_str().unwrap()])
         .output()
         .unwrap();
-    let said =
-        String::from_utf8_lossy(&out.stdout).to_string() + &String::from_utf8_lossy(&out.stderr);
+    let said = format!(
+        "{}{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
     assert!(said.contains("Build complete"), "{said}");
     let mut js = std::fs::read_to_string(dir.join("build/app.js")).unwrap();
     if let Ok(pages) = std::fs::read_dir(dir.join("build/pages")) {

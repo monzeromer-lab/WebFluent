@@ -1,5 +1,5 @@
 //! What the service worker `offline` writes does with what it stores, run in
-//! Node against a fake `caches`, `fetch` and IndexedDB: a site under a base
+//! Node against a fake `caches`, `fetch` and `IndexedDB`: a site under a base
 //! path keeps its stores, its runtime answers and its kept writes apart from
 //! another site's on the same origin; an answer marked `no-store` or
 //! `private`, asked for with credentials or varying by them is not kept; the

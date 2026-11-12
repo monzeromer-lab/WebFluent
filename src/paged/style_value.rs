@@ -379,9 +379,7 @@ pub fn property(name: &str) -> Property {
     Property {
         group,
         shape: shape_of(&name),
-        suffixes: tokens
-            .map(crate::registry::style_tokens::group_suffixes)
-            .unwrap_or(&[]),
+        suffixes: tokens.map_or(&[], crate::registry::style_tokens::group_suffixes),
         tokens,
         cases: cases_of(&name),
         range: match name.as_str() {
@@ -1816,7 +1814,7 @@ mod tests {
         let at = |n: i64| if n > 0 { n } else { 14 + n };
         Some(match (start, end.as_ref().unwrap_or(&Line::Auto)) {
             (Line::At { n }, Line::Auto) => (at(*n), at(*n) + 1),
-            (Line::At { n }, Line::Span { n: s }) => (at(*n), at(*n) + *s as i64),
+            (Line::At { n }, Line::Span { n: s }) => (at(*n), at(*n) + i64::from(*s)),
             (Line::At { n: a }, Line::At { n: b }) => {
                 let (a, b) = (at(*a), at(*b));
                 if a == b {
@@ -1827,10 +1825,10 @@ mod tests {
             }
             (Line::Auto, Line::Auto) => (auto_at, auto_at + 1),
             (Line::Auto, Line::Span { n }) | (Line::Span { n }, Line::Auto) => {
-                (auto_at, auto_at + *n as i64)
+                (auto_at, auto_at + i64::from(*n))
             }
             (Line::Auto, Line::At { n }) => (at(*n) - 1, at(*n)),
-            (Line::Span { n }, Line::At { n: b }) => (at(*b) - *n as i64, at(*b)),
+            (Line::Span { n }, Line::At { n: b }) => (at(*b) - i64::from(*n), at(*b)),
             _ => return None,
         })
     }

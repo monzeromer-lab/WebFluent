@@ -100,7 +100,7 @@ struct BitWriter {
 impl BitWriter {
     /// `count` bits of `value`, least significant first.
     fn bits(&mut self, value: u32, count: u32) {
-        self.acc |= (value as u64) << self.n;
+        self.acc |= u64::from(value) << self.n;
         self.n += count;
         while self.n >= 8 {
             self.out.push(self.acc as u8);
@@ -113,9 +113,9 @@ impl BitWriter {
     fn code(&mut self, code: u16, len: u8) {
         let mut reversed = 0u32;
         for i in 0..len {
-            reversed |= (((code >> i) & 1) as u32) << (len - 1 - i);
+            reversed |= u32::from((code >> i) & 1) << (len - 1 - i);
         }
-        self.bits(reversed, len as u32);
+        self.bits(reversed, u32::from(len));
     }
 
     fn align(&mut self) {
@@ -139,8 +139,8 @@ enum Token {
 }
 
 fn hash(data: &[u8], i: usize) -> usize {
-    let h = (data[i] as u32) << 16 | (data[i + 1] as u32) << 8 | data[i + 2] as u32;
-    (h.wrapping_mul(2654435761) >> 17) as usize & (WINDOW - 1)
+    let h = u32::from(data[i]) << 16 | u32::from(data[i + 1]) << 8 | u32::from(data[i + 2]);
+    (h.wrapping_mul(2_654_435_761) >> 17) as usize & (WINDOW - 1)
 }
 
 /// The longest match for `pos` in the window, as `(len, dist)`.
@@ -300,7 +300,7 @@ fn huffman_lengths(freqs: &[u32]) -> Vec<u8> {
         _ => {}
     }
     // Nodes: (weight, parent); leaves first, then internal nodes.
-    let mut weight: Vec<u64> = used.iter().map(|&i| freqs[i] as u64).collect();
+    let mut weight: Vec<u64> = used.iter().map(|&i| u64::from(freqs[i])).collect();
     let mut parent: Vec<usize> = vec![usize::MAX; used.len()];
     let mut heap: std::collections::BinaryHeap<std::cmp::Reverse<(u64, usize)>> = (0..used.len())
         .map(|i| std::cmp::Reverse((weight[i], i)))
@@ -358,12 +358,12 @@ fn canonical_codes(lengths: &[u8]) -> Vec<u16> {
 
 fn length_symbol(len: u16) -> (usize, u32, u8) {
     let i = LEN_BASE.iter().rposition(|&b| b <= len).unwrap();
-    (257 + i, (len - LEN_BASE[i]) as u32, LEN_EXTRA[i])
+    (257 + i, u32::from(len - LEN_BASE[i]), LEN_EXTRA[i])
 }
 
 fn distance_symbol(dist: u16) -> (usize, u32, u8) {
     let i = DIST_BASE.iter().rposition(|&b| b <= dist).unwrap();
-    (i, (dist - DIST_BASE[i]) as u32, DIST_EXTRA[i])
+    (i, u32::from(dist - DIST_BASE[i]), DIST_EXTRA[i])
 }
 
 // ─── Blocks ─────────────────────────────────────────────────────────────
@@ -461,18 +461,18 @@ fn dynamic_block(tokens: &[Token], last: bool, bits: &mut BitWriter) {
         .rposition(|&s| cl_len[s] > 0)
         .map_or(4, |i| (i + 1).max(4));
 
-    bits.bits(last as u32, 1);
+    bits.bits(u32::from(last), 1);
     bits.bits(2, 2);
     bits.bits((hlit - 257) as u32, 5);
     bits.bits((hdist - 1) as u32, 5);
     bits.bits((hclen - 4) as u32, 4);
     for &s in &CL_ORDER[..hclen] {
-        bits.bits(cl_len[s] as u32, 3);
+        bits.bits(u32::from(cl_len[s]), 3);
     }
     for &(s, extra, extra_bits) in &cl_symbols {
         bits.code(cl_code[s as usize], cl_len[s as usize]);
         if extra_bits > 0 {
-            bits.bits(extra, extra_bits as u32);
+            bits.bits(extra, u32::from(extra_bits));
         }
     }
     for t in tokens {
@@ -482,12 +482,12 @@ fn dynamic_block(tokens: &[Token], last: bool, bits: &mut BitWriter) {
                 let (ls, le, leb) = length_symbol(len);
                 bits.code(lit_code[ls], lit_len[ls]);
                 if leb > 0 {
-                    bits.bits(le, leb as u32);
+                    bits.bits(le, u32::from(leb));
                 }
                 let (ds, de, deb) = distance_symbol(dist);
                 bits.code(dist_code[ds], dist_len[ds]);
                 if deb > 0 {
-                    bits.bits(de, deb as u32);
+                    bits.bits(de, u32::from(deb));
                 }
             }
         }
@@ -503,7 +503,7 @@ fn crc32(data: &[u8]) -> u32 {
         let mut c = i as u32;
         for _ in 0..8 {
             c = if c & 1 != 0 {
-                0xedb88320 ^ (c >> 1)
+                0xedb8_8320 ^ (c >> 1)
             } else {
                 c >> 1
             };
@@ -512,7 +512,7 @@ fn crc32(data: &[u8]) -> u32 {
     }
     let mut crc = 0xffff_ffffu32;
     for &b in data {
-        crc = table[((crc ^ b as u32) & 0xff) as usize] ^ (crc >> 8);
+        crc = table[((crc ^ u32::from(b)) & 0xff) as usize] ^ (crc >> 8);
     }
     crc ^ 0xffff_ffff
 }
@@ -535,7 +535,7 @@ mod tests {
             while self.n < count {
                 let b = self.data[self.pos];
                 self.pos += 1;
-                self.acc |= (b as u64) << self.n;
+                self.acc |= u64::from(b) << self.n;
                 self.n += 8;
             }
             let v = (self.acc & ((1u64 << count) - 1)) as u32;
@@ -621,10 +621,10 @@ mod tests {
                             _ => {
                                 let i = s - 257;
                                 let len =
-                                    LEN_BASE[i] as usize + r.bits(LEN_EXTRA[i] as u32) as usize;
+                                    LEN_BASE[i] as usize + r.bits(u32::from(LEN_EXTRA[i])) as usize;
                                 let d = r.symbol(dist);
-                                let distance =
-                                    DIST_BASE[d] as usize + r.bits(DIST_EXTRA[d] as u32) as usize;
+                                let distance = DIST_BASE[d] as usize
+                                    + r.bits(u32::from(DIST_EXTRA[d])) as usize;
                                 let start = out.len() - distance;
                                 for k in 0..len {
                                     out.push(out[start + k]);
@@ -696,7 +696,7 @@ mod tests {
         }
         let mut seed = 7u32;
         for _ in 0..70_000 {
-            seed = seed.wrapping_mul(1103515245).wrapping_add(12345);
+            seed = seed.wrapping_mul(1_103_515_245).wrapping_add(12345);
             data.push(b'a' + (seed >> 16) as u8 % 4);
         }
         let head = data[..2000].to_vec();
@@ -738,7 +738,7 @@ mod tests {
         let mut seed = 11u32;
         let mut noise = Vec::new();
         for _ in 0..400_000 {
-            seed = seed.wrapping_mul(1103515245).wrapping_add(12345);
+            seed = seed.wrapping_mul(1_103_515_245).wrapping_add(12345);
             noise.push(b'a' + (seed >> 16) as u8 % 7);
         }
         let unit = b"<div class=\"wf-row\"><span>row</span></div>\n";
@@ -784,7 +784,7 @@ mod tests {
 
     #[test]
     fn crc32_matches_the_reference() {
-        assert_eq!(crc32(b"123456789"), 0xcbf43926);
+        assert_eq!(crc32(b"123456789"), 0xcbf4_3926);
     }
 
     /// The system's gzip, when there is one, reads what was written.

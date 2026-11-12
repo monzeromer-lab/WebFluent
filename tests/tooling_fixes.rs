@@ -114,7 +114,7 @@ fn the_image_cache_keeps_only_what_the_last_build_used() {
     let (code, out) = s.wf(&["build"]);
     assert_eq!(code, Some(0), "{out}");
     let second = cached(&s.0);
-    assert!(!second.is_empty());
+    assert_ne!(second, [] as [String; 0]);
     assert!(
         first.iter().all(|f| !second.contains(f)),
         "{first:?} still beside {second:?}"

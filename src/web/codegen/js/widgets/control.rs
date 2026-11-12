@@ -1,6 +1,7 @@
 //! Form controls: inputs in a box, switches, checkboxes, radios, sliders, date pickers, file uploads, and validation.
 
 use super::super::*;
+use std::fmt::Write as _;
 
 /// What a `state`'s declared type says its values must be, when it says
 /// anything: `state nights: Number(1..=30)` is a rule before a `validate`
@@ -118,8 +119,10 @@ impl JsCodegen {
                         .iter()
                         .any(|k| key.starts_with(k))
             })
-            .map(|a| format!(", {a}"))
-            .collect()
+            .fold(String::new(), |mut acc, a| {
+                let _ = write!(acc, ", {a}");
+                acc
+            })
     }
 
     /// The rest of what a wrapped control takes as any element does —

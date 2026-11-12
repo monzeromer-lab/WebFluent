@@ -68,8 +68,11 @@ fn every_tutorial_builds_and_checks_clean() {
                 .arg(&tmp)
                 .output()
                 .unwrap();
-            let text = String::from_utf8_lossy(&out.stdout).to_string()
-                + &String::from_utf8_lossy(&out.stderr);
+            let text = format!(
+                "{}{}",
+                String::from_utf8_lossy(&out.stdout),
+                String::from_utf8_lossy(&out.stderr)
+            );
             assert!(out.status.success(), "{name}: wf {}: {text}", args[0]);
             assert!(
                 !text.contains("warning["),

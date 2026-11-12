@@ -144,7 +144,8 @@ pub fn human(
     color: bool,
 ) -> String {
     let mut out = String::new();
-    let mut cache: std::collections::HashMap<String, Option<String>> = Default::default();
+    let mut cache: std::collections::HashMap<String, Option<String>> =
+        std::collections::HashMap::default();
     for d in diagnostics {
         let text = cache
             .entry(d.file.clone())

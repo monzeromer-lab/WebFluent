@@ -200,12 +200,12 @@ impl<'a> Painter<'a> {
             .entry((pick.face, pick.weight))
             .or_insert_with(|| {
                 let face = &db.faces[pick.face];
-                let data: krilla::Data = face.data.clone().into();
+                let data: krilla::Data = std::sync::Arc::clone(&face.data).into();
                 if face.variable {
                     Font::new_variable(
                         data,
                         face.index,
-                        &[(krilla::text::Tag::new(b"wght"), pick.weight as f32)],
+                        &[(krilla::text::Tag::new(b"wght"), f32::from(pick.weight))],
                     )
                 } else {
                     Font::new(data, face.index)
@@ -237,7 +237,7 @@ impl<'a> Painter<'a> {
     }
 
     /// Paint a fragment and everything in it.
-    pub fn frag(&mut self, s: &mut Surface, f: &Frag) {
+    pub fn frag(&mut self, s: &mut Surface<'_>, f: &Frag) {
         if f.extent.1 <= self.band.0 + 0.01 || f.extent.0 >= self.band.1 - 0.01 {
             return;
         }
@@ -304,7 +304,7 @@ impl<'a> Painter<'a> {
     }
 
     /// Shadows, background and border.
-    fn decoration(&mut self, s: &mut Surface, f: &Frag, style: &Style) {
+    fn decoration(&mut self, s: &mut Surface<'_>, f: &Frag, style: &Style) {
         let r = radii(style, f.w, f.h);
         for sh in style
             .shadows
@@ -445,7 +445,7 @@ impl<'a> Painter<'a> {
         self.border(s, f, style, r);
     }
 
-    fn border(&mut self, s: &mut Surface, f: &Frag, style: &Style, r: [f32; 4]) {
+    fn border(&mut self, s: &mut Surface<'_>, f: &Frag, style: &Style, r: [f32; 4]) {
         let b = &style.border;
         if !b.iter().any(super::style::BorderSide::visible) {
             return;
@@ -576,7 +576,7 @@ impl<'a> Painter<'a> {
         )
     }
 
-    fn picture(&mut self, s: &mut Surface, f: &Frag, asset: Option<usize>, style: &Style) {
+    fn picture(&mut self, s: &mut Surface<'_>, f: &Frag, asset: Option<usize>, style: &Style) {
         let Some(asset) = asset else {
             return;
         };
@@ -626,7 +626,7 @@ impl<'a> Painter<'a> {
         }
     }
 
-    fn progress(&mut self, s: &mut Surface, f: &Frag, frac: f32, style: &Style) {
+    fn progress(&mut self, s: &mut Surface<'_>, f: &Frag, frac: f32, style: &Style) {
         let r = f.h / 2.0;
         let track = if style.background_color.is_visible() {
             style.background_color
@@ -651,7 +651,7 @@ impl<'a> Painter<'a> {
         }
     }
 
-    fn marker(&mut self, s: &mut Surface, f: &Frag, m: usize) {
+    fn marker(&mut self, s: &mut Surface<'_>, f: &Frag, m: usize) {
         let shaped = &self.tree.shaped[m];
         let mut none = |_: usize, _: f32| (0.0, 0.0, 0.0);
         let lines = shaped.lines(f32::INFINITY, &mut none);
@@ -671,7 +671,7 @@ impl<'a> Painter<'a> {
         self.runs(s, shaped, line, x, baseline - line.baseline);
     }
 
-    fn lines(&mut self, s: &mut Surface, f: &Frag, ix: usize) {
+    fn lines(&mut self, s: &mut Surface<'_>, f: &Frag, ix: usize) {
         let shaped = &self.tree.shaped[ix];
         for line in &f.lines {
             let top = f.y + line.top;
@@ -703,7 +703,7 @@ impl<'a> Painter<'a> {
     /// Inline elements' backgrounds and borders, and their links.
     fn spans(
         &mut self,
-        s: &mut Surface,
+        s: &mut Surface<'_>,
         shaped: &super::text::Shaped,
         line: &Line,
         x0: f32,
@@ -757,14 +757,14 @@ impl<'a> Painter<'a> {
 
     fn runs(
         &mut self,
-        s: &mut Surface,
+        s: &mut Surface<'_>,
         shaped: &super::text::Shaped,
         line: &Line,
         x0: f32,
         top: f32,
     ) {
         for run in &line.runs {
-            let style = shaped.style_of(run.item).clone();
+            let style = std::rc::Rc::clone(shaped.style_of(run.item));
             if !style.visible {
                 continue;
             }
@@ -787,7 +787,7 @@ impl<'a> Painter<'a> {
                 .iter()
                 .map(|g| {
                     KrillaGlyph::new(
-                        GlyphId::new(g.id as u32),
+                        GlyphId::new(u32::from(g.id)),
                         g.advance / size,
                         g.x_offset / size,
                         g.y_offset / size,
@@ -854,9 +854,7 @@ impl<'a> Painter<'a> {
             if style.overline {
                 deco_line(baseline - size * 0.9);
             }
-            let _ = Item::Break {
-                style: style.clone(),
-            };
+            let _ = Item::Break { style };
         }
     }
 }

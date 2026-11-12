@@ -558,7 +558,7 @@ fn literal_states(body: &[Statement]) -> HashMap<String, Expr> {
 
 fn walk<'a>(
     stmts: &'a [Statement],
-    cx: &mut Ctx,
+    cx: &mut Ctx<'_>,
     ancestors: &mut Vec<&'a UIElement>,
     in_component: bool,
 ) {
@@ -663,7 +663,7 @@ fn named<'a>(ui: &'a UIElement, key: &str) -> Option<&'a Expr> {
     })
 }
 
-fn element(ui: &UIElement, cx: &mut Ctx, ancestors: &[&UIElement], in_component: bool) {
+fn element(ui: &UIElement, cx: &mut Ctx<'_>, ancestors: &[&UIElement], in_component: bool) {
     let at = |ui: &UIElement| (ui.span.line.max(1) as usize, ui.span.col.max(1) as usize);
 
     // C03: a part outside the component it belongs to. Inside a component's
@@ -814,7 +814,7 @@ fn element(ui: &UIElement, cx: &mut Ctx, ancestors: &[&UIElement], in_component:
             let value = named(opt, "value").or_else(|| {
                 opt.args.iter().find_map(|a| match a {
                     Arg::Positional(e) => Some(e),
-                    _ => None,
+                    Arg::Named(..) => None,
                 })
             });
             match value {
@@ -855,7 +855,7 @@ fn element(ui: &UIElement, cx: &mut Ctx, ancestors: &[&UIElement], in_component:
 }
 
 /// R01 for one link's target.
-fn link(target: &Expr, span: Span, cx: &mut Ctx) {
+fn link(target: &Expr, span: Span, cx: &mut Ctx<'_>) {
     if cx.routes.is_empty() {
         return;
     }

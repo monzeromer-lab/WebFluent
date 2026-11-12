@@ -147,7 +147,7 @@ impl FileCache {
             && hit.modified == modified
             && hit.len == len
         {
-            return Some(hit.source.clone());
+            return Some(Arc::clone(&hit.source));
         }
         let source: Arc<str> = vfs.read_to_string(path).ok()?.into();
         self.entries.insert(
@@ -155,7 +155,7 @@ impl FileCache {
             Arc::new(CachedFile {
                 modified,
                 len,
-                source: source.clone(),
+                source: Arc::clone(&source),
             }),
         );
         Some(source)
@@ -244,7 +244,7 @@ impl Project {
                 let src = root.join("src");
                 let mut paths = source_files(vfs, &src);
                 if !paths.iter().any(|p| p == &path) {
-                    paths.push(path.clone());
+                    paths.push(path);
                 }
                 stylesheet_files = webfluent::codegen::project_css::find_stylesheets_via(vfs, &src)
                     .into_iter()
@@ -261,7 +261,7 @@ impl Project {
                 script_paths = webfluent::project_js::find_scripts_via(vfs, &src);
                 (theme, paths, stylesheets)
             }
-            _ => (ThemeConfig::default(), vec![path.clone()], String::new()),
+            _ => (ThemeConfig::default(), vec![path], String::new()),
         };
 
         let mut files = Vec::new();

@@ -851,7 +851,7 @@ fn declared_fonts_are_linked_on_every_page() {
     let built = build_site("docs");
     let mut failures = Vec::new();
     for (path, html) in built.html_files() {
-        let head = html.split_once("</head>").map(|(h, _)| h).unwrap_or(&html);
+        let head = html.split_once("</head>").map_or(html.as_str(), |(h, _)| h);
         let font = head.find("href=\"https://fonts.googleapis.com/css2?family=Manrope");
         let sheet = head.find("styles.css");
         match (font, sheet) {
@@ -989,8 +989,7 @@ fn static_builds_paint_their_content_without_javascript() {
     let body = home
         .split_once("<div id=\"app\">")
         .and_then(|(_, rest)| rest.split_once("</div>\n    <script"))
-        .map(|(b, _)| b)
-        .unwrap_or(&home);
+        .map_or(home.as_str(), |(b, _)| b);
 
     for needle in ["The team handbook", "Start here", "How we decide"] {
         assert!(
@@ -1573,7 +1572,7 @@ fn static_pages_carry_their_search_and_sharing_tags() {
     let mut failures = Vec::new();
 
     for (path, html) in built.html_files() {
-        let head = html.split_once("</head>").map(|(h, _)| h).unwrap_or(&html);
+        let head = html.split_once("</head>").map_or(html.as_str(), |(h, _)| h);
         for required in [
             "<link rel=\"canonical\"",
             "property=\"og:title\"",

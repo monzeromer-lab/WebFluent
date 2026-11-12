@@ -632,7 +632,8 @@ fn no_two_runtime_modules_declare_the_same_name() {
         &std::fs::read_to_string(root().join("src/web/runtime/modules/manifest.json")).unwrap(),
     )
     .unwrap();
-    let mut seen: std::collections::BTreeMap<String, String> = Default::default();
+    let mut seen: std::collections::BTreeMap<String, String> =
+        std::collections::BTreeMap::default();
     let mut clashes = Vec::new();
     for module in manifest["modules"].as_array().unwrap() {
         let name = module["name"].as_str().unwrap();

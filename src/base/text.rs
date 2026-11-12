@@ -71,7 +71,7 @@ pub(crate) fn to_camel_case(kebab: &str) -> String {
 pub(crate) fn capitalize_first(word: &str) -> String {
     let mut chars = word.chars();
     match chars.next() {
-        Some(c) => c.to_uppercase().collect::<String>() + chars.as_str(),
+        Some(c) => format!("{}{}", c.to_uppercase().collect::<String>(), chars.as_str()),
         None => String::new(),
     }
 }

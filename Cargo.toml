@@ -109,7 +109,7 @@ unsafe_op_in_unsafe_fn = "warn"
 missing_debug_implementations = "allow"          # 58
 missing_docs = "allow"                           # 1570
 unreachable_pub = "allow"                        # 1697
-rust_2018_idioms = { level = "allow", priority = -1 }  # 93
+rust_2018_idioms = { level = "warn", priority = -1 }
 
 [workspace.lints.clippy]
 all = { level = "warn", priority = -1 }
@@ -128,11 +128,11 @@ allow_attributes = "allow"                       # 2, tests/common: shared helpe
 allow_attributes_without_reason = "warn"
 fn_params_excessive_bools = "warn"
 struct_excessive_bools = "allow"                 # 7
-clone_on_ref_ptr = "allow"                       # 38
-redundant_clone = "allow"                        # 28
+clone_on_ref_ptr = "warn"
+redundant_clone = "warn"
 rc_buffer = "allow"                              # 6
 exhaustive_enums = "allow"                       # 103
-string_add = "allow"                             # 41
+string_add = "warn"
 wildcard_imports = "allow"                       # 47
 print_stdout = "allow"                           # 183, nearly all the CLI's own output
 print_stderr = "allow"                           # 24
@@ -152,6 +152,30 @@ single_char_pattern = "warn"
 needless_raw_string_hashes = "warn"
 unnested_or_patterns = "warn"
 ignored_unit_patterns = "warn"
+doc_markdown = "warn"
+cast_lossless = "warn"
+default_trait_access = "warn"
+unreadable_literal = "warn"
+assigning_clones = "warn"
+range_plus_one = "warn"
+elidable_lifetime_names = "warn"
+stable_sort_primitive = "warn"
+map_unwrap_or = "warn"
+needless_continue = "warn"
+nonminimal_bool = "warn"
+manual_midpoint = "warn"
+checked_conversions = "warn"
+unnecessary_join = "warn"
+ref_as_ptr = "warn"
+bool_to_int_with_if = "warn"
+redundant_else = "warn"
+if_not_else = "warn"
+single_match_else = "warn"
+manual_let_else = "warn"
+match_wildcard_for_single_variants = "warn"
+assert_is_empty = "warn"
+format_collect = "warn"
+decimal_bitwise_operands = "warn"
 module_name_repetitions = "allow"
 must_use_candidate = "allow"
 module_inception = "allow"

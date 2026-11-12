@@ -331,11 +331,10 @@ pub struct Showing {
 pub fn showing() -> Vec<Showing> {
     let cases = crate::registry::component("Form")
         .and_then(|f| f.props.iter().find(|p| p.name == "show"))
-        .map(|p| match p.ty {
+        .map_or(&[][..], |p| match p.ty {
             crate::registry::PropType::Enum(c) => c,
             _ => &[],
-        })
-        .unwrap_or(&[]);
+        });
     cases
         .iter()
         .map(|c| Showing {
@@ -742,9 +741,9 @@ pub fn write_rules(
                     kind: StatementKind::Validate(crate::syntax::parser::ast::ValidateDecl {
                         name: state.to_string(),
                         rules: new,
-                        span: Default::default(),
+                        span: crate::base::span::Span::default(),
                     }),
-                    span: Default::default(),
+                    span: crate::base::span::Span::default(),
                 };
                 body.insert(place_for(body, after), stmt);
             }
@@ -828,8 +827,7 @@ pub fn rule_texts(source: &str, file: &str, owner: &str, state: &str) -> Result<
         .iter()
         .filter_map(body_of)
         .find(|(n, _)| *n == owner)
-        .map(|(_, b)| b)
-        .unwrap_or(&[]);
+        .map_or(&[][..], |(_, b)| b);
     let written: Vec<&Rule> = body
         .iter()
         .find_map(|s| match &s.kind {

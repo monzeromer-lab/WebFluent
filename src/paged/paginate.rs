@@ -105,7 +105,7 @@ impl State<'_> {
     fn process(&mut self, f: &mut Frag) {
         let tree = self.tree;
         let lb = &tree.boxes[f.boxed];
-        let style = lb.style.clone();
+        let style = std::rc::Rc::clone(&lb.style);
         let entry = self.off;
         if style.break_before == Break::Page || std::mem::take(&mut self.force) {
             let top = f.y + self.off;
@@ -116,13 +116,7 @@ impl State<'_> {
             self.force = true;
             return;
         }
-        if !self.breakable(f) {
-            f.shift(0.0, self.off);
-            let d = self.fit(f.y, f.h);
-            if d > 0.0 {
-                f.shift(0.0, d);
-            }
-        } else {
+        if self.breakable(f) {
             let before = self.off;
             f.y += self.off;
             // How far the first content sits below the box's top.
@@ -184,6 +178,12 @@ impl State<'_> {
                     f.y += moved;
                     f.h -= moved;
                 }
+            }
+        } else {
+            f.shift(0.0, self.off);
+            let d = self.fit(f.y, f.h);
+            if d > 0.0 {
+                f.shift(0.0, d);
             }
         }
         if style.break_after == Break::Page {
@@ -314,7 +314,7 @@ impl State<'_> {
     /// A paragraph's lines: each moves to the next page whole, keeping at
     /// least `orphans` lines before a break and `widows` after it.
     fn lines(&mut self, f: &mut Frag) {
-        let style = self.tree.boxes[f.boxed].style.clone();
+        let style = std::rc::Rc::clone(&self.tree.boxes[f.boxed].style);
         let n = f.lines.len();
         let orphans = style.orphans.max(1) as usize;
         let widows = style.widows.max(1) as usize;
@@ -434,6 +434,8 @@ impl State<'_> {
 
 #[cfg(test)]
 mod tests {
+    use std::fmt::Write as _;
+
     use super::super::boxes::Builder;
     use super::super::cascade::{Styler, UA_SHEET};
     use super::super::css::Sheet;
@@ -522,9 +524,10 @@ mod tests {
 
     #[test]
     fn a_table_repeats_its_header_on_every_page() {
-        let rows: String = (0..40)
-            .map(|i| format!("<tr><td>{i}</td><td>row {i}</td></tr>"))
-            .collect();
+        let rows: String = (0..40).fold(String::new(), |mut acc, i| {
+            let _ = write!(acc, "<tr><td>{i}</td><td>row {i}</td></tr>");
+            acc
+        });
         let (_, f, p) = pages(
             &format!(
                 "<body><table><thead><tr><th>#</th><th>Item</th></tr></thead><tbody>{rows}</tbody></table></body>"

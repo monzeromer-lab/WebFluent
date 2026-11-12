@@ -236,8 +236,11 @@ fn a_middle_click_and_focus_within_are_events_of_any_element() {
         .arg(&dir)
         .output()
         .unwrap();
-    let said =
-        String::from_utf8_lossy(&out.stdout).to_string() + &String::from_utf8_lossy(&out.stderr);
+    let said = format!(
+        "{}{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
     assert!(!said.contains("V09"), "no V09: {said}");
     let _ = std::fs::remove_dir_all(&dir);
     let js = spa_generated(&src);

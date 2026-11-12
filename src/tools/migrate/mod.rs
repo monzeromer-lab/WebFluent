@@ -313,7 +313,7 @@ impl<'a> Rewriter<'a> {
         }
     }
 
-    /// Wrap a Button's, IconButton's or component's action shorthand in an
+    /// Wrap a Button's, `IconButton`'s or component's action shorthand in an
     /// `on:click` handler, and move a block's clauses ahead of its children
     /// in the order the new grammar requires.
     fn order_element(&mut self, el: &UIElement) {
@@ -1022,7 +1022,7 @@ impl<'a> Rewriter<'a> {
         }
 
         // Apply the removals, merged, and rewrite the parenthesis group.
-        removals.sort();
+        removals.sort_unstable();
         let mut merged: Vec<(usize, usize)> = Vec::new();
         for (s, e) in removals {
             match merged.last_mut() {

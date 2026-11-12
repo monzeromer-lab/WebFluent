@@ -749,44 +749,38 @@ impl<'a> Layout<'a> {
             atoms: Vec::new(),
             extent: (y, y + l.size.height),
         };
-        match &lb.kind {
-            Kind::Inline(ix) => {
-                let shaped = &self.tree.shaped[*ix];
-                let mut sizer = |bb: usize, a: f32| self.atom_size(bb, a);
-                let content_w = l.size.width
-                    - l.padding.left
-                    - l.padding.right
-                    - l.border.left
-                    - l.border.right;
-                frag.lines = shaped.lines(content_w.max(0.0) + 0.001, &mut sizer);
-                for line in &frag.lines {
-                    for a in &line.atoms {
-                        let s = &self.tree.boxes[a.boxed].style;
-                        let ml = s.margin[3].or_zero(content_w);
-                        let mut af = self.layout_with(
-                            a.boxed,
-                            Size {
-                                width: AvailableSpace::Definite(a.width),
-                                height: AvailableSpace::MaxContent,
-                            },
-                            Some(a.width - ml - s.margin[1].or_zero(content_w)),
-                        );
-                        af.shift(x + a.x + ml, y + line.top + a.y);
-                        frag.atoms.push(af);
-                    }
+        if let Kind::Inline(ix) = &lb.kind {
+            let shaped = &self.tree.shaped[*ix];
+            let mut sizer = |bb: usize, a: f32| self.atom_size(bb, a);
+            let content_w =
+                l.size.width - l.padding.left - l.padding.right - l.border.left - l.border.right;
+            frag.lines = shaped.lines(content_w.max(0.0) + 0.001, &mut sizer);
+            for line in &frag.lines {
+                for a in &line.atoms {
+                    let s = &self.tree.boxes[a.boxed].style;
+                    let ml = s.margin[3].or_zero(content_w);
+                    let mut af = self.layout_with(
+                        a.boxed,
+                        Size {
+                            width: AvailableSpace::Definite(a.width),
+                            height: AvailableSpace::MaxContent,
+                        },
+                        Some(a.width - ml - s.margin[1].or_zero(content_w)),
+                    );
+                    af.shift(x + a.x + ml, y + line.top + a.y);
+                    frag.atoms.push(af);
                 }
             }
-            _ => {
-                let mut kids: Vec<usize> = lb.children.clone();
-                kids.sort_by_key(|&c| self.tree.boxes[c].style.order);
-                let nodes = taffy.children(node).unwrap_or_default();
-                for (child_node, child_box) in nodes.into_iter().zip(kids) {
-                    if self.tree.boxes[child_box].style.display == D::None {
-                        continue;
-                    }
-                    frag.children
-                        .push(self.collect(taffy, child_node, child_box, x, y));
+        } else {
+            let mut kids: Vec<usize> = lb.children.clone();
+            kids.sort_by_key(|&c| self.tree.boxes[c].style.order);
+            let nodes = taffy.children(node).unwrap_or_default();
+            for (child_node, child_box) in nodes.into_iter().zip(kids) {
+                if self.tree.boxes[child_box].style.display == D::None {
+                    continue;
                 }
+                frag.children
+                    .push(self.collect(taffy, child_node, child_box, x, y));
             }
         }
         // Right to left, a block's children and a column's sit against its

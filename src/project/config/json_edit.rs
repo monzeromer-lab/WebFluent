@@ -63,7 +63,7 @@ struct Parser<'a> {
     at: usize,
 }
 
-impl<'a> Parser<'a> {
+impl Parser<'_> {
     fn fail<T>(&self, what: &str) -> Result<T, EditError> {
         let line = self.text[..self.at.min(self.text.len())]
             .matches('\n')

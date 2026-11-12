@@ -717,7 +717,7 @@ fn humanise(segment: &str) -> String {
         .map(|w| {
             let mut c = w.chars();
             match c.next() {
-                Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
+                Some(f) => format!("{}{}", f.to_uppercase().collect::<String>(), c.as_str()),
                 None => String::new(),
             }
         })

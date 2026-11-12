@@ -468,8 +468,11 @@ fn plural_messages_draw_no_false_translation_findings() {
         .arg(&dir)
         .output()
         .unwrap();
-    let text =
-        String::from_utf8_lossy(&out.stdout).to_string() + &String::from_utf8_lossy(&out.stderr);
+    let text = format!(
+        "{}{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
     assert!(out.status.success(), "{text}");
     assert!(!text.contains("I02") && !text.contains("I03"), "{text}");
     let _ = std::fs::remove_dir_all(&dir);
@@ -498,8 +501,11 @@ fn a_test_reads_the_projects_translations() {
         .current_dir(&dir)
         .output()
         .unwrap();
-    let text =
-        String::from_utf8_lossy(&out.stdout).to_string() + &String::from_utf8_lossy(&out.stderr);
+    let text = format!(
+        "{}{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
     assert!(out.status.success(), "{text}");
     assert!(text.contains("1 passed"), "{text}");
     let _ = std::fs::remove_dir_all(&dir);
@@ -531,8 +537,11 @@ fn built_project_with(
         .arg(&dir)
         .output()
         .unwrap();
-    let text =
-        String::from_utf8_lossy(&out.stdout).to_string() + &String::from_utf8_lossy(&out.stderr);
+    let text = format!(
+        "{}{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
     assert!(out.status.success(), "{text}");
     assert!(!text.contains("warning["), "{text}");
     dir
@@ -672,7 +681,11 @@ fn check_output(name: &str, app: &str) -> String {
         .output()
         .unwrap();
     let _ = std::fs::remove_dir_all(&dir);
-    String::from_utf8_lossy(&out.stdout).to_string() + &String::from_utf8_lossy(&out.stderr)
+    format!(
+        "{}{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    )
 }
 
 /// A store's own action called in its initial values was "a function
@@ -726,8 +739,11 @@ fn a_test_file_runs_in_its_project_and_expects_read_text() {
         .current_dir(&dir)
         .output()
         .unwrap();
-    let text =
-        String::from_utf8_lossy(&out.stdout).to_string() + &String::from_utf8_lossy(&out.stderr);
+    let text = format!(
+        "{}{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
     assert!(out.status.success(), "{text}");
     assert!(text.contains("1 passed"), "{text}");
     let _ = std::fs::remove_dir_all(&dir);

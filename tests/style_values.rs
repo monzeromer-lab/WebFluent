@@ -144,13 +144,13 @@ fn every_style_value_reads_into_its_shape_and_back() {
                 if shape != Shape::Free {
                     let e = read.entry(format!("{shape:?}")).or_default();
                     e.0 += 1;
-                    if !matches!(v, Value::Free { .. }) {
-                        e.1 += 1;
-                    } else {
+                    if matches!(v, Value::Free { .. }) {
                         let ex = free_examples.entry(format!("{shape:?}")).or_default();
                         if ex.len() < 6 {
                             ex.push(format!("{}: {text}", p.name));
                         }
+                    } else {
+                        e.1 += 1;
                     }
                 }
             });

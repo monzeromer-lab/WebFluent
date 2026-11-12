@@ -111,7 +111,7 @@ impl JsCodegen {
             if let StatementKind::UIElement(ui_child) = &child.kind
                 && matches!(&ui_child.component, ComponentRef::SubComponent(p, s) if p == name && s == "Footer")
             {
-                footer_stmts = ui_child.children.clone();
+                footer_stmts.clone_from(&ui_child.children);
                 footer_wf = self.wf_node_inline(ui_child);
                 continue;
             }
@@ -563,7 +563,7 @@ impl JsCodegen {
             .find_map(|a| match a {
                 Arg::Named(k, v) if k == "text" => Some(self.emit_expr(v)),
                 Arg::Positional(v) => Some(self.emit_expr(v)),
-                _ => None,
+                Arg::Named(..) => None,
             })
             .unwrap_or_else(|| "\"\"".to_string());
 

@@ -107,7 +107,10 @@ fn a_class_is_offered_shown_and_found_inside_class() {
         assert_eq!(names, ["feature", "feature--first"], "{needle}");
     }
     // Not in any other string.
-    assert!(provide_completions(&project, ix, at(&project, ix, "\"H\"", 1)).is_empty());
+    assert_eq!(
+        provide_completions(&project, ix, at(&project, ix, "\"H\"", 1)),
+        [] as [lsp_types::CompletionItem; 0]
+    );
 
     let hover =
         provide_hover(&project, ix, at(&project, ix, "\"feature--first\"", 3)).expect("a hover");

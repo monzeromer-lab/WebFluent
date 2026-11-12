@@ -43,7 +43,7 @@ pub fn run_check(project_dir: &Path, options: Options) -> Result<()> {
 fn run(
     project_dir: &Path,
     options: Options,
-    go: fn(&BuildOptions) -> std::result::Result<BuildReport, BuildFailure>,
+    go: fn(&BuildOptions<'_>) -> std::result::Result<BuildReport, BuildFailure>,
     writes: bool,
 ) -> Result<()> {
     let print = |line: &BuildLine| match line.stream {

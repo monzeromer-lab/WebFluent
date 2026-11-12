@@ -245,7 +245,8 @@ pub fn plan_probed(
         if w >= probed.width {
             probed.height
         } else {
-            (((w as f64) * probed.height as f64 / probed.width as f64).round() as u32).max(1)
+            ((f64::from(w) * f64::from(probed.height) / f64::from(probed.width)).round() as u32)
+                .max(1)
         }
     };
     let mut formats = Vec::new();
@@ -302,13 +303,14 @@ pub fn plan_probed(
                             break;
                         }
                     },
-                    None => match estimate(probed, *w, h, format, settings.quality) {
-                        Some(n) => (n, true),
-                        None => {
+                    None => {
+                        if let Some(n) = estimate(probed, *w, h, format, settings.quality) {
+                            (n, true)
+                        } else {
                             error = Some(format!("the image could not be written as {format}"));
                             break;
                         }
-                    },
+                    }
                 };
                 // As the build decides: no saving, not written.
                 if super::no_saving(size, original.bytes) {
@@ -509,7 +511,7 @@ mod tests {
     /// A smooth picture, as a photograph's sky or a design's gradient is.
     fn gradient(w: u32, h: u32) -> image::DynamicImage {
         image::DynamicImage::ImageRgb8(image::RgbImage::from_fn(w, h, |x, y| {
-            let t = (f64::from(x) / f64::from(w) + f64::from(y) / f64::from(h)) / 2.0;
+            let t = f64::midpoint(f64::from(x) / f64::from(w), f64::from(y) / f64::from(h));
             let mix = |a: f64, b: f64| (a * (1.0 - t) + b * t) as u8;
             image::Rgb([mix(40.0, 100.0), mix(80.0, 200.0), mix(120.0, 220.0)])
         }))

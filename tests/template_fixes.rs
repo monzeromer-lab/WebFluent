@@ -30,12 +30,11 @@ fn within<T: Send + 'static>(secs: u64, f: impl FnOnce() -> T + Send + 'static) 
             let _ = tx.send(f());
         })
         .unwrap();
-    match rx.recv_timeout(Duration::from_secs(secs)) {
-        Ok(v) => v,
-        Err(_) => {
-            eprintln!("did not finish within {secs}s (or overflowed its stack)");
-            std::process::exit(1);
-        }
+    if let Ok(v) = rx.recv_timeout(Duration::from_secs(secs)) {
+        v
+    } else {
+        eprintln!("did not finish within {secs}s (or overflowed its stack)");
+        std::process::exit(1);
     }
 }
 
@@ -435,7 +434,7 @@ fn a_precision_from_the_data_cannot_panic_the_render() {
     Text("[{format(1.5, .decimal, n)}]")
 }"#;
     let tpl = Template::from_str(src).unwrap();
-    for n in [70000, 1000000000, -1, 101] {
+    for n in [70000, 1_000_000_000, -1, 101] {
         let tpl = tpl.clone();
         let html = within(60, move || {
             tpl.render_html_fragment(&json!({ "n": n })).unwrap()

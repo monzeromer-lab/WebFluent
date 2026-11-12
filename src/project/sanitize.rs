@@ -115,13 +115,10 @@ pub fn sanitize(html: &str) -> String {
         // A `<` opens a tag only when a name, a `/` or a `!` follows it
         // immediately — the browser's rule. `1 < 2` is arithmetic.
         let opens = matches!(chars.get(i + 1), Some(c) if c.is_ascii_alphabetic() || *c == '/' || *c == '!' || *c == '?');
-        let end = match opens.then(|| tag_end(&chars, i)).flatten() {
-            Some(end) => end,
-            None => {
-                out.push_str("&lt;");
-                i += 1;
-                continue;
-            }
+        let Some(end) = opens.then(|| tag_end(&chars, i)).flatten() else {
+            out.push_str("&lt;");
+            i += 1;
+            continue;
         };
         let inside: String = chars[i + 1..end].iter().collect();
         i = end + 1;
@@ -304,24 +301,21 @@ fn attributes(rest: &str) -> Vec<(String, String)> {
         while i < chars.len() && chars[i].is_whitespace() {
             i += 1;
         }
-        let value = match chars.get(i) {
-            Some(&q @ ('"' | '\'')) => {
+        let value = if let Some(&q @ ('"' | '\'')) = chars.get(i) {
+            i += 1;
+            let from = i;
+            while i < chars.len() && chars[i] != q {
                 i += 1;
-                let from = i;
-                while i < chars.len() && chars[i] != q {
-                    i += 1;
-                }
-                let v: String = chars[from..i].iter().collect();
+            }
+            let v: String = chars[from..i].iter().collect();
+            i += 1;
+            v
+        } else {
+            let from = i;
+            while i < chars.len() && !chars[i].is_whitespace() {
                 i += 1;
-                v
             }
-            _ => {
-                let from = i;
-                while i < chars.len() && !chars[i].is_whitespace() {
-                    i += 1;
-                }
-                chars[from..i].iter().collect()
-            }
+            chars[from..i].iter().collect()
         };
         out.push((key, unescape(&value)));
     }
@@ -360,15 +354,12 @@ fn unescape(value: &str) -> String {
             e if e.starts_with('#') => e[1..].parse().ok().and_then(char::from_u32),
             _ => None,
         };
-        match decoded {
-            Some(c) => {
-                out.push(c);
-                i += end + 1;
-            }
-            None => {
-                out.push('&');
-                i += 1;
-            }
+        if let Some(c) = decoded {
+            out.push(c);
+            i += end + 1;
+        } else {
+            out.push('&');
+            i += 1;
         }
     }
     out

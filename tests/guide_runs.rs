@@ -181,7 +181,7 @@ fn chapter_scripts(markdown: &str) -> Vec<(String, String)> {
             .and_then(|l| l.strip_prefix("// "))
             .filter(|p| p.starts_with("src/"))
         {
-            out.push((path.trim().to_string(), body.join("\n") + "\n"));
+            out.push((path.trim().to_string(), format!("{}\n", body.join("\n"))));
         }
     }
     out

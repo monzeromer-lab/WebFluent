@@ -449,10 +449,10 @@ pub(crate) fn rules_for(
 /// a class name that changed between compiler releases would be a diff in
 /// every built site for no reason.
 fn fnv1a(text: &str) -> u32 {
-    let mut hash: u32 = 0x811c9dc5;
+    let mut hash: u32 = 0x811c_9dc5;
     for byte in text.bytes() {
-        hash ^= byte as u32;
-        hash = hash.wrapping_mul(0x01000193);
+        hash ^= u32::from(byte);
+        hash = hash.wrapping_mul(0x0100_0193);
     }
     hash
 }

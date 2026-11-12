@@ -299,9 +299,9 @@ fn canonical_config(config: &ProjectConfig) -> String {
 fn header(page: &PageDecl) -> PageDecl {
     PageDecl {
         body: Vec::new(),
-        span: Default::default(),
-        header_span: Default::default(),
-        body_span: Default::default(),
+        span: crate::base::span::Span::default(),
+        header_span: crate::base::span::Span::default(),
+        body_span: crate::base::span::Span::default(),
         ..page.clone()
     }
 }

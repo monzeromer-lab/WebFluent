@@ -28,6 +28,10 @@ enum Commands {
         /// Start it translated: the locales, comma-separated, the default
         /// first ("en,ar"). Every visible string goes through t(), and
         /// src/translations/ holds a file for each. spa and static only
+        #[expect(
+            clippy::doc_markdown,
+            reason = "this comment is the option's --help text, shown as written"
+        )]
         #[arg(short, long, value_name = "LOCALES")]
         locales: Option<String>,
     },

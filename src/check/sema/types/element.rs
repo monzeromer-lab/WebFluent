@@ -2,7 +2,7 @@
 
 use super::*;
 
-impl<'a, 'p> Checker<'a, 'p> {
+impl Checker<'_, '_> {
     /// A `class:` value: a string, a map whose values are conditions, a list
     /// of strings and maps, or a value holding one of those.
     pub(super) fn check_class_value(&mut self, value: &Expr, at: Span, element: &str) {
@@ -274,9 +274,9 @@ impl<'a, 'p> Checker<'a, 'p> {
         // are the number of the page it is drawn on and the count.
         let running =
             matches!(&el.component, ComponentRef::BuiltIn(n) if n == "Header" || n == "Footer");
-        self.in_running += running as usize;
+        self.in_running += usize::from(running);
         self.statements(&el.children, Body::Page);
-        self.in_running -= running as usize;
+        self.in_running -= usize::from(running);
     }
 
     /// The arguments of a call to a user component, against its props.

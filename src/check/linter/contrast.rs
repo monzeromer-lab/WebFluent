@@ -303,7 +303,7 @@ fn parse_colour(value: &str) -> Option<(u8, u8, u8)> {
     if let Some(hex) = v.strip_prefix('#') {
         return match hex.len() {
             3 => {
-                let d = |i: usize| u8::from_str_radix(&hex[i..i + 1].repeat(2), 16).ok();
+                let d = |i: usize| u8::from_str_radix(&hex[i..=i].repeat(2), 16).ok();
                 Some((d(0)?, d(1)?, d(2)?))
             }
             6 => {
@@ -337,7 +337,7 @@ pub fn ratio(a: &str, b: &str) -> Option<f64> {
 /// Relative luminance, per WCAG 2.2.
 fn luminance((r, g, b): (u8, u8, u8)) -> f64 {
     let channel = |c: u8| {
-        let c = c as f64 / 255.0;
+        let c = f64::from(c) / 255.0;
         if c <= 0.03928 {
             c / 12.92
         } else {
@@ -379,8 +379,11 @@ mod tests {
         let program = parse(&format!(
             "{theme_src}\npage P(path: \"/\") {{ Text(\"x\") }}"
         ));
-        let resolved =
-            crate::project::themes::resolve_tokens(&program, &Default::default()).expect("resolve");
+        let resolved = crate::project::themes::resolve_tokens(
+            &program,
+            &crate::project::config::project::ThemeConfig::default(),
+        )
+        .expect("resolve");
         lint_contrast(&program, &resolved)
     }
 
@@ -442,8 +445,11 @@ mod tests {
         let program = parse(
             "theme T {\n  color-primary: #FFE066\n}\npage P(path: \"/\") { Button(\"Go\").primary }",
         );
-        let resolved =
-            crate::project::themes::resolve_tokens(&program, &Default::default()).expect("resolve");
+        let resolved = crate::project::themes::resolve_tokens(
+            &program,
+            &crate::project::config::project::ThemeConfig::default(),
+        )
+        .expect("resolve");
         let warnings = lint_contrast(&program, &resolved);
         assert!(
             warnings
@@ -469,9 +475,15 @@ mod tests {
     #[test]
     fn a_project_with_no_theme_is_not_lectured_about_the_baseline() {
         let program = parse("page P(path: \"/\") { Text(\"x\") }");
-        let resolved =
-            crate::project::themes::resolve_tokens(&program, &Default::default()).unwrap();
-        assert!(lint_contrast(&program, &resolved).is_empty());
+        let resolved = crate::project::themes::resolve_tokens(
+            &program,
+            &crate::project::config::project::ThemeConfig::default(),
+        )
+        .unwrap();
+        assert_eq!(
+            lint_contrast(&program, &resolved),
+            [] as [crate::diagnostics::Diagnostic; 0]
+        );
     }
 
     #[test]

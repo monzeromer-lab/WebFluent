@@ -132,10 +132,22 @@ fn the_check_tells_an_upgrade_path_from_a_stale_claim() {
         stale_mentions("This guide describes WebFluent 4.", 5),
         ["WebFluent 4"]
     );
-    assert!(stale_mentions("**WebFluent 4 → 5** needs no rewrite", 5).is_empty());
-    assert!(stale_mentions("WebFluent 4.1 -> 4.2 runs first", 5).is_empty());
-    assert!(stale_mentions("WebFluent 5.3 is current", 5).is_empty());
-    assert!(stale_mentions("a file in the WebFluent 2 grammar", 5).is_empty());
+    assert_eq!(
+        stale_mentions("**WebFluent 4 → 5** needs no rewrite", 5),
+        [] as [String; 0]
+    );
+    assert_eq!(
+        stale_mentions("WebFluent 4.1 -> 4.2 runs first", 5),
+        [] as [String; 0]
+    );
+    assert_eq!(
+        stale_mentions("WebFluent 5.3 is current", 5),
+        [] as [String; 0]
+    );
+    assert_eq!(
+        stale_mentions("a file in the WebFluent 2 grammar", 5),
+        [] as [String; 0]
+    );
     assert_eq!(
         stale_mentions(
             r#"webfluent = { version = "4", default-features = false }"#,

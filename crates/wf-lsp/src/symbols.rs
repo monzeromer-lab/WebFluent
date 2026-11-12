@@ -396,7 +396,9 @@ fn statement_symbols(stmts: &[Statement], source: &str, index: &LineIndex) -> Ve
             StatementKind::UIElement(el) => {
                 // Elements that structure the file: the ones with a body.
                 let children = statement_symbols(&el.children, source, index);
-                if !children.is_empty() {
+                if children.is_empty() {
+                    symbols.extend(children);
+                } else {
                     let name = crate::analysis::component_name(&el.component);
                     symbols.push(symbol(
                         name,
@@ -406,8 +408,6 @@ fn statement_symbols(stmts: &[Statement], source: &str, index: &LineIndex) -> Ve
                         range,
                         children,
                     ));
-                } else {
-                    symbols.extend(children);
                 }
             }
             StatementKind::If(i) => {

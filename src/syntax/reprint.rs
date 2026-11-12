@@ -25,6 +25,7 @@
 
 use crate::syntax::parser::ast::*;
 use crate::syntax::print::{self, Block};
+use std::fmt::Write as _;
 
 /// Replace `start..end` of the source with `text`.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -650,46 +651,43 @@ fn diff_body(
     for (at, texts) in inserts {
         if at != usize::MAX {
             let at = end_of_line(source, at);
-            let text: String = texts
-                .iter()
-                .map(|t| format!("\n{}{t}", pad(depth)))
-                .collect();
+            let text: String = texts.iter().fold(String::new(), |mut acc, t| {
+                let _ = write!(acc, "\n{}{t}", pad(depth));
+                acc
+            });
             out.push(Patch::new(at, at, text));
             continue;
         }
         // At the front: before the first statement there is, or into an
         // empty block.
-        match old_units.first() {
-            Some(first) => {
-                let at = print::written_start(source, &first[0]);
-                let text: String = texts
-                    .iter()
-                    .map(|t| format!("{t}\n{}", pad(depth)))
-                    .collect();
+        if let Some(first) = old_units.first() {
+            let at = print::written_start(source, &first[0]);
+            let text: String = texts.iter().fold(String::new(), |mut acc, t| {
+                let _ = write!(acc, "{t}\n{}", pad(depth));
+                acc
+            });
+            out.push(Patch::new(at, at, text));
+        } else {
+            let (start, end) = interior;
+            let inside = &source[start..end];
+            if inside.trim().is_empty() {
+                let lines: String = texts.iter().fold(String::new(), |mut acc, t| {
+                    let _ = write!(acc, "\n{}{t}", pad(depth));
+                    acc
+                });
+                out.push(Patch::new(
+                    start,
+                    end,
+                    format!("{lines}\n{}", pad(depth.saturating_sub(1))),
+                ));
+            } else {
+                // Only comments are there: after them.
+                let at = start + inside.trim_end().len();
+                let text: String = texts.iter().fold(String::new(), |mut acc, t| {
+                    let _ = write!(acc, "\n{}{t}", pad(depth));
+                    acc
+                });
                 out.push(Patch::new(at, at, text));
-            }
-            None => {
-                let (start, end) = interior;
-                let inside = &source[start..end];
-                if inside.trim().is_empty() {
-                    let lines: String = texts
-                        .iter()
-                        .map(|t| format!("\n{}{t}", pad(depth)))
-                        .collect();
-                    out.push(Patch::new(
-                        start,
-                        end,
-                        format!("{lines}\n{}", pad(depth.saturating_sub(1))),
-                    ));
-                } else {
-                    // Only comments are there: after them.
-                    let at = start + inside.trim_end().len();
-                    let text: String = texts
-                        .iter()
-                        .map(|t| format!("\n{}{t}", pad(depth)))
-                        .collect();
-                    out.push(Patch::new(at, at, text));
-                }
             }
         }
     }
@@ -701,15 +699,12 @@ fn regroup<'a>(new: &'a [Statement], singles: Vec<&'a [Statement]>) -> Vec<&'a [
     let mut out = Vec::new();
     let mut i = 0;
     while i < new.len() {
-        match print::destructure(&new[i..]) {
-            Some((_, n)) => {
-                out.push(&new[i..i + n]);
-                i += n;
-            }
-            None => {
-                out.push(singles[i]);
-                i += 1;
-            }
+        if let Some((_, n)) = print::destructure(&new[i..]) {
+            out.push(&new[i..i + n]);
+            i += n;
+        } else {
+            out.push(singles[i]);
+            i += 1;
         }
     }
     out
@@ -861,7 +856,10 @@ fn diff_element(source: &str, a: &UIElement, b: &UIElement, out: &mut Vec<Patch>
                 }
             }
         } else {
-            let text: String = b.modifiers.iter().map(|m| format!(".{m}")).collect();
+            let text: String = b.modifiers.iter().fold(String::new(), |mut acc, m| {
+                let _ = write!(acc, ".{m}");
+                acc
+            });
             match (a.modifier_spans.first(), a.modifier_spans.last()) {
                 (Some(f), Some(l)) => out.push(Patch::new(f.start as usize, l.end as usize, text)),
                 _ => out.push(Patch::new(header_end, header_end, text)),
@@ -928,10 +926,10 @@ fn diff_element_block(
     let mut ahead: Vec<String> = Vec::new();
     let flush = |cursor: usize, ahead: &mut Vec<String>, out: &mut Vec<Patch>| {
         if !ahead.is_empty() {
-            let text: String = ahead
-                .drain(..)
-                .map(|t| format!("\n{}{t}", pad(depth)))
-                .collect();
+            let text: String = ahead.drain(..).fold(String::new(), |mut acc, t| {
+                let _ = write!(acc, "\n{}{t}", pad(depth));
+                acc
+            });
             let at = end_of_line(source, cursor);
             out.push(Patch::new(at, at, text));
         }
@@ -1044,10 +1042,10 @@ fn diff_element_block(
         if texts.is_empty() {
             return true;
         }
-        let lines: String = texts
-            .iter()
-            .map(|t| format!("\n{}{t}", pad(depth)))
-            .collect();
+        let lines: String = texts.iter().fold(String::new(), |mut acc, t| {
+            let _ = write!(acc, "\n{}{t}", pad(depth));
+            acc
+        });
         if empty {
             // `Card {}` becomes a block of lines.
             out.push(Patch::new(
@@ -1171,10 +1169,10 @@ fn diff_style(
         out.retain(|p| p.start < span.0 || p.end > span.1);
         return whole(out);
     }
-    let text: String = new_ones
-        .iter()
-        .map(|p| format!("\n{}{}", pad(depth + 1), print::style_property(p)))
-        .collect();
+    let text: String = new_ones.iter().fold(String::new(), |mut acc, p| {
+        let _ = write!(acc, "\n{}{}", pad(depth + 1), print::style_property(p));
+        acc
+    });
     match last_end {
         Some(at) if a.media_queries.is_empty() && a.pseudo_blocks.is_empty() => {
             let at = end_of_line(source, at);
@@ -1396,7 +1394,10 @@ pub fn program(source: &str, old: &Program, new: &Program) -> Vec<Patch> {
         if !texts.is_empty() {
             match anchor {
                 Some(at) => {
-                    let text: String = texts.iter().map(|t| format!("\n\n{t}")).collect();
+                    let text: String = texts.iter().fold(String::new(), |mut acc, t| {
+                        let _ = write!(acc, "\n\n{t}");
+                        acc
+                    });
                     out.push(Patch::new(at, at, text));
                 }
                 None => front.extend(texts),
@@ -1415,17 +1416,16 @@ pub fn program(source: &str, old: &Program, new: &Program) -> Vec<Patch> {
             .iter()
             .find_map(|d| print::declaration_span(source, d))
             .map(|s| s.0);
-        match first {
-            Some(at) => out.push(Patch::new(at, at, format!("{}\n\n", front.join("\n\n")))),
-            None => {
-                let sep = if source.trim().is_empty() { "" } else { "\n\n" };
-                let at = source.trim_end().len();
-                out.push(Patch::new(
-                    at,
-                    source.len(),
-                    format!("{sep}{}\n", front.join("\n\n")),
-                ));
-            }
+        if let Some(at) = first {
+            out.push(Patch::new(at, at, format!("{}\n\n", front.join("\n\n"))));
+        } else {
+            let sep = if source.trim().is_empty() { "" } else { "\n\n" };
+            let at = source.trim_end().len();
+            out.push(Patch::new(
+                at,
+                source.len(),
+                format!("{sep}{}\n", front.join("\n\n")),
+            ));
         }
     }
     out

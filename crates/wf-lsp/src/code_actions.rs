@@ -228,7 +228,10 @@ mod tests {
             ["a", "b"]
         );
         // One of a kind is its own quick fix, not a family.
-        assert!(fix_all_actions(&uri, &all[3..], &all).is_empty());
+        assert_eq!(
+            fix_all_actions(&uri, &all[3..], &all),
+            [] as [lsp_types::CodeActionOrCommand; 0]
+        );
     }
 
     #[test]
@@ -241,9 +244,7 @@ mod tests {
         let diag = Diagnostic {
             range: edit.range,
             message: "`User` has no field `nmae`".into(),
-            data: Some(
-                serde_json::json!([{ "title": "Change to `name`", "edits": [edit.clone()] }]),
-            ),
+            data: Some(serde_json::json!([{ "title": "Change to `name`", "edits": [edit] }])),
             ..Default::default()
         };
         let params = CodeActionParams {
@@ -254,8 +255,8 @@ mod tests {
                 only: None,
                 trigger_kind: None,
             },
-            work_done_progress_params: Default::default(),
-            partial_result_params: Default::default(),
+            work_done_progress_params: WorkDoneProgressParams::default(),
+            partial_result_params: PartialResultParams::default(),
         };
         let actions = provide_code_actions(&uri, params);
         assert_eq!(actions.len(), 1);
@@ -462,7 +463,7 @@ fn extract_component_edit(
     declaration.push_str("}\n");
 
     let call = if props.is_empty() {
-        name.clone()
+        name
     } else {
         format!(
             "{name}({})",

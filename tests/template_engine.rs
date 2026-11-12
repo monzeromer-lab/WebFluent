@@ -74,7 +74,7 @@ fn a_template_is_shared_across_threads() {
     let tpl = std::sync::Arc::new(Template::from_str(INVOICE).unwrap());
     let handles: Vec<_> = (0..4)
         .map(|n| {
-            let tpl = tpl.clone();
+            let tpl = std::sync::Arc::clone(&tpl);
             std::thread::spawn(move || {
                 tpl.render_html_fragment(
                     &json!({ "number": n, "customer": { "name": "x" }, "lines": [] }),
@@ -164,7 +164,6 @@ fn pdf_settings_are_the_callers() {
     let tpl = Template::from_str(r#"page P(path: "/") { Text("Hi") }"#).unwrap();
     let a4 = tpl.render_pdf(&json!({})).unwrap();
     let letter = tpl
-        .clone()
         .with_pdf(PdfConfig {
             page_size: "Letter".into(),
             ..PdfConfig::default()
@@ -381,11 +380,7 @@ fn a_render_for_the_studio_marks_each_element_with_its_node_id() {
     let data = json!({ "title": "Deploy report", "deploys": [{ "service": "api" }, { "service": "web" }] });
     let plain = tpl.render_html_fragment(&data).unwrap();
     assert!(!plain.contains("data-wf-node"), "{plain}");
-    let marked = tpl
-        .clone()
-        .with_studio(true)
-        .render_html_fragment(&data)
-        .unwrap();
+    let marked = tpl.with_studio(true).render_html_fragment(&data).unwrap();
     let program = webfluent::parse_source(src, "report.wf").unwrap();
     let map = webfluent::codegen::node_id::build_node_map(&program);
     let id = |el: &str| {

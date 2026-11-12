@@ -203,7 +203,7 @@ fn a_set_over_the_editor_s_buffers_sees_them_and_fixes_count() {
         checked.before > checked.after && checked.fixed >= 1,
         "{checked:?}"
     );
-    assert!(checked.owned.is_empty());
+    assert_eq!(checked.owned, [] as [webfluent::Diagnostic; 0]);
     let _ = std::fs::remove_dir_all(&dir);
 }
 
@@ -265,7 +265,7 @@ fn a_private_value_is_never_read_and_survives_a_write() {
         serde_json::from_str(&std::fs::read_to_string(&config_path).unwrap()).unwrap();
     config["env"] = serde_json::json!({ "STRIPE_SECRET": "sk_live_do_not_leak", "PUBLIC_REGION": "eu", "API_BASE": "https://api.example.com" });
     config["public_env"] = serde_json::json!(["API_BASE"]);
-    let text = serde_json::to_string_pretty(&config).unwrap() + "\n";
+    let text = format!("{}\n", serde_json::to_string_pretty(&config).unwrap());
     std::fs::write(&config_path, &text).unwrap();
 
     let mut set = ChangeSet::new(Arc::new(FsVfs), &dir);
@@ -371,7 +371,10 @@ fn the_context_names_what_it_gives() {
             .iter()
             .any(|c| c.name == "Alert")
     );
-    assert!(!context.tokens.is_empty());
+    assert_ne!(
+        context.tokens,
+        [] as [(std::string::String, std::string::String); 0]
+    );
     let numbered = guide()
         .iter()
         .filter(|(f, _)| {
@@ -701,7 +704,7 @@ fn an_edit_to_the_config_keeps_the_private_value_it_was_shown_withheld() {
     config["public_env"] = serde_json::json!(["REGION"]);
     std::fs::write(
         &config_path,
-        serde_json::to_string_pretty(&config).unwrap() + "\n",
+        format!("{}\n", serde_json::to_string_pretty(&config).unwrap()),
     )
     .unwrap();
     let mut set = ChangeSet::new(Arc::new(FsVfs), &dir);

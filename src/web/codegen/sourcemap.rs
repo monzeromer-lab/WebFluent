@@ -118,13 +118,13 @@ fn mappings(lines: &[Vec<Segment>]) -> String {
             if k > 0 {
                 out.push(',');
             }
-            vlq(&mut out, s.col as i64 - gen_col);
-            gen_col = s.col as i64;
+            vlq(&mut out, i64::from(s.col) - gen_col);
+            gen_col = i64::from(s.col);
             if let Some((f, l, c)) = s.from {
-                vlq(&mut out, f as i64 - source);
-                vlq(&mut out, l as i64 - line);
-                vlq(&mut out, c as i64 - col);
-                (source, line, col) = (f as i64, l as i64, c as i64);
+                vlq(&mut out, i64::from(f) - source);
+                vlq(&mut out, i64::from(l) - line);
+                vlq(&mut out, i64::from(c) - col);
+                (source, line, col) = (i64::from(f), i64::from(l), i64::from(c));
             }
         }
     }
@@ -294,7 +294,7 @@ mod tests {
 
     #[test]
     fn vlqs_go_and_come_back() {
-        for v in [0i64, 1, -1, 15, 16, -16, 31, 32, 1000, -123456] {
+        for v in [0i64, 1, -1, 15, 16, -16, 31, 32, 1000, -123_456] {
             let mut s = String::new();
             vlq(&mut s, v);
             assert_eq!(unvlq(&s), Some(vec![v]), "{v} as {s}");

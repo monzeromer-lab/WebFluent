@@ -122,9 +122,9 @@ pub struct Read {
 /// spans and node ids, plus the sidecar info for each id.
 #[derive(Debug, Clone, Default)]
 pub struct NodeMap {
-    /// node_id -> info. This is the sidecar the studio consumes.
+    /// `node_id` -> info. This is the sidecar the studio consumes.
     nodes: HashMap<NodeId, NodeInfo>,
-    /// element span -> every node_id written there. Spans are a file's, so
+    /// element span -> every `node_id` written there. Spans are a file's, so
     /// two files may share one; the owner then tells them apart.
     by_span: HashMap<Span, Vec<NodeId>>,
 }
@@ -458,7 +458,7 @@ fn arm_head(arm: &MatchArm) -> String {
     }
 }
 
-/// Visit a statement's UIElement (if it is one) and recurse into any child bodies.
+/// Visit a statement's `UIElement` (if it is one) and recurse into any child bodies.
 ///
 /// Single-body control flow (`for`/`show`) indexes its body directly under `seg`.
 /// Multi-body statements (`if`/`fetch`) insert a short branch discriminator so a
@@ -1035,7 +1035,7 @@ mod tests {
         let map = build_node_map(&p);
 
         let mut jsgen = JsCodegen::new();
-        jsgen.set_studio(map.clone());
+        jsgen.set_studio(map);
         let studio_js = jsgen.generate(&p);
         assert!(studio_js.contains("\"data-wf-node\": \"Home:0.0\""));
         assert!(studio_js.contains("\"data-wf-node\": \"Home:0.1\""));
@@ -1164,8 +1164,8 @@ mod tests {
             &SiteContext {
                 config: &config(),
                 app_body: Some(&app_body),
-                translations: &Default::default(),
-                components: &Default::default(),
+                translations: &HashMap::default(),
+                components: &HashMap::default(),
                 program: &p,
                 program_scope: None,
                 page_sheets: None,

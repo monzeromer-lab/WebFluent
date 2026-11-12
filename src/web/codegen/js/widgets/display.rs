@@ -388,7 +388,7 @@ impl JsCodegen {
         };
         let positional = ui.args.iter().find_map(|a| match a {
             Arg::Positional(v) => Some(v),
-            _ => None,
+            Arg::Named(..) => None,
         });
         let source = positional
             .or_else(|| named("source"))

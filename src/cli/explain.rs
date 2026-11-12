@@ -12,12 +12,11 @@ pub fn run_explain(code: Option<&str>) -> Result<()> {
             print!("{}", index());
             Ok(())
         }
-        Some(code) => match explanation(code) {
-            Some(text) => {
+        Some(code) => {
+            if let Some(text) = explanation(code) {
                 print!("{text}");
                 Ok(())
-            }
-            None => {
+            } else {
                 let wanted = code.to_uppercase();
                 let near = nearest(&wanted, CODES.iter().map(|c| c.code))
                     .map(|c| format!(" — did you mean `{c}`?"))
@@ -26,7 +25,7 @@ pub fn run_explain(code: Option<&str>) -> Result<()> {
                     "`{code}` is no code{near} `wf explain` with no code lists them all"
                 )))
             }
-        },
+        }
     }
 }
 

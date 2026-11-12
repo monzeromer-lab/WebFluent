@@ -472,7 +472,8 @@ fn check_dupes<'a>(
     file_of: &dyn Fn(usize) -> String,
     diags: &mut Vec<Diagnostic>,
 ) {
-    let mut seen: std::collections::HashMap<&str, (Span, usize)> = Default::default();
+    let mut seen: std::collections::HashMap<&str, (Span, usize)> =
+        std::collections::HashMap::default();
     for (name, span, index) in items {
         if let Some(&(first, first_index)) = seen.get(name) {
             diags.push(
@@ -684,7 +685,7 @@ mod tests {
     #[test]
     fn clean_program_has_no_diagnostics() {
         let src = "page Home(path: \"/\") {\n  Container {\n    Heading(\"Hi\").h1\n    Button(\"Go\").primary\n  }\n}\n";
-        assert!(check(src).is_empty());
+        assert_eq!(check(src), [] as [crate::diagnostics::Diagnostic; 0]);
     }
 
     #[test]

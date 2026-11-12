@@ -244,28 +244,27 @@ fn line_of(text: &str, at: usize) -> usize {
 /// Line `i` with the part of it that reads as `old` replaced by `new`.
 fn within_line(lines: &[&str], i: usize, old: &str, new: &str, typographic: bool) -> String {
     let line = lines[i];
-    let replaced = match line.find(old) {
-        Some(at) => format!("{}{}{}", &line[..at], new.trim(), &line[at + old.len()..]),
-        None => {
-            // Found only once its quotes and dashes were read as ASCII: the
-            // line is matched as ASCII, and its own characters kept elsewhere.
-            let plain = if typographic {
-                ascii(line)
-            } else {
-                line.to_owned()
-            };
-            let old = if typographic {
-                ascii(old)
-            } else {
-                old.to_owned()
-            };
-            match plain.find(&old) {
-                Some(at) if plain.len() == line.len() => {
-                    format!("{}{}{}", &line[..at], new.trim(), &line[at + old.len()..])
-                }
-                Some(at) => format!("{}{}{}", &plain[..at], new.trim(), &plain[at + old.len()..]),
-                None => line.to_owned(),
+    let replaced = if let Some(at) = line.find(old) {
+        format!("{}{}{}", &line[..at], new.trim(), &line[at + old.len()..])
+    } else {
+        // Found only once its quotes and dashes were read as ASCII: the
+        // line is matched as ASCII, and its own characters kept elsewhere.
+        let plain = if typographic {
+            ascii(line)
+        } else {
+            line.to_owned()
+        };
+        let old = if typographic {
+            ascii(old)
+        } else {
+            old.to_owned()
+        };
+        match plain.find(&old) {
+            Some(at) if plain.len() == line.len() => {
+                format!("{}{}{}", &line[..at], new.trim(), &line[at + old.len()..])
             }
+            Some(at) => format!("{}{}{}", &plain[..at], new.trim(), &plain[at + old.len()..]),
+            None => line.to_owned(),
         }
     };
     let mut out: String = lines[..i].concat();

@@ -95,7 +95,7 @@ pub fn frames_itself(program: &crate::syntax::parser::ast::Program) -> bool {
             && el.args.iter().any(|a| match a {
                 Arg::Named(k, v) if k == "src" => site_relative(v),
                 Arg::Positional(v) => site_relative(v),
-                _ => false,
+                Arg::Named(..) => false,
             });
         own || statements(&el.children) || el.slot_fills.iter().any(|f| statements(&f.body))
     }
@@ -424,7 +424,7 @@ fn sources_of(policy: &str, directive: &str) -> Vec<String> {
 fn external_origin(url: &str) -> Option<String> {
     let rest = url.strip_prefix("//").map(|r| ("https:", r)).or_else(|| {
         let at = url.find("://")?;
-        Some((&url[..at + 1], &url[at + 3..]))
+        Some((&url[..=at], &url[at + 3..]))
     })?;
     let host = rest.1.split('/').next()?;
     (!host.is_empty()).then(|| format!("{}//{}", rest.0, host))
@@ -564,20 +564,17 @@ fn attributes(head: &str) -> Vec<(String, String)> {
         }
         i = after + 1;
         skip(&mut i, &|c| c.is_whitespace());
-        let value: String = match chars.get(i).copied() {
-            Some(q @ ('"' | '\'')) => {
-                i += 1;
-                let from = i;
-                skip(&mut i, &|c| c != q);
-                let v: String = chars[from..i].iter().collect();
-                i += 1;
-                v
-            }
-            _ => {
-                let from = i;
-                skip(&mut i, &|c| !c.is_whitespace() && c != '>');
-                chars[from..i].iter().collect()
-            }
+        let value: String = if let Some(q @ ('"' | '\'')) = chars.get(i).copied() {
+            i += 1;
+            let from = i;
+            skip(&mut i, &|c| c != q);
+            let v: String = chars[from..i].iter().collect();
+            i += 1;
+            v
+        } else {
+            let from = i;
+            skip(&mut i, &|c| !c.is_whitespace() && c != '>');
+            chars[from..i].iter().collect()
         };
         out.push((name, value));
     }
@@ -598,7 +595,10 @@ mod tests {
             "<pre><code>&lt;button onClick={save} style=\"x\"&gt;Save&lt;/button&gt;</code></pre>";
         assert_eq!(check("p", html, POLICY), Vec::new());
         // In a tag it is still an attribute.
-        assert!(!check("p", "<button onclick=\"x()\">b</button>", POLICY).is_empty());
+        assert_ne!(
+            check("p", "<button onclick=\"x()\">b</button>", POLICY),
+            [] as [crate::web::codegen::csp::Violation; 0]
+        );
     }
 
     #[test]

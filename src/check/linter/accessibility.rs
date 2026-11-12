@@ -577,7 +577,7 @@ fn lint_alternatives(
     );
     let mut widest: Option<(Vec<u8>, usize)> = None;
     for body in bodies {
-        heading_tracker.levels_seen = levels.clone();
+        heading_tracker.levels_seen.clone_from(&levels);
         heading_tracker.h1_count = h1s;
         lint_statements(body, file, warnings, heading_tracker);
         let after = (
@@ -1228,7 +1228,7 @@ fn visible_text(
             ComponentRef::BuiltIn(_) | ComponentRef::SubComponent(_, _) => {
                 if let Some(text) = el.args.iter().find_map(|a| match a {
                     Arg::Positional(e) => literal(e),
-                    _ => None,
+                    Arg::Named(..) => None,
                 }) {
                     out.push(text);
                 }
@@ -1242,7 +1242,7 @@ fn visible_text(
                 let mut inner: HashMap<String, String> = HashMap::new();
                 let mut positional = el.args.iter().filter_map(|a| match a {
                     Arg::Positional(e) => Some(e),
-                    _ => None,
+                    Arg::Named(..) => None,
                 });
                 for prop in &component.props {
                     let value = el
@@ -1270,11 +1270,11 @@ fn visible_text(
 /// Only a `Text` counts: a `Tooltip`'s words are hidden until hovered, an
 /// `Element`'s first argument is its tag, and a `Badge` alone is a count,
 /// not a name.
-fn shows_text(body: &[Statement], tracker: &HeadingTracker) -> bool {
+fn shows_text(body: &[Statement], tracker: &HeadingTracker<'_>) -> bool {
     draws_text(body, tracker, 0)
 }
 
-fn draws_text(body: &[Statement], tracker: &HeadingTracker, depth: usize) -> bool {
+fn draws_text(body: &[Statement], tracker: &HeadingTracker<'_>, depth: usize) -> bool {
     if depth > 8 {
         return false;
     }

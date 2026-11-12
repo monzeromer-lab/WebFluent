@@ -55,7 +55,7 @@ pub fn serve_directory_within(
             .ok_or_else(|| WebFluentError::io("no address"))?
     );
     let base = base_path.to_string();
-    let serving = server.clone();
+    let serving = Arc::clone(&server);
     let thread = std::thread::spawn(move || {
         for request in serving.incoming_requests() {
             let host = request

@@ -43,7 +43,8 @@ pub fn height_at(probed: &probe::Probed, width: u32) -> u32 {
     if width >= probed.width {
         probed.height
     } else {
-        (((width as f64) * probed.height as f64 / probed.width as f64).round() as u32).max(1)
+        ((f64::from(width) * f64::from(probed.height) / f64::from(probed.width)).round() as u32)
+            .max(1)
     }
 }
 
@@ -317,7 +318,7 @@ pub fn process_via(
         width: probed.width,
         height: probed.height,
         color: probed.color.clone(),
-        placeholder: probed.placeholder.clone(),
+        placeholder: probed.placeholder,
         sources,
     })
 }

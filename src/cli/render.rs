@@ -17,7 +17,7 @@ pub struct RenderOptions<'a> {
 pub fn run_render(
     template_path: &Path,
     data_path: Option<&Path>,
-    options: &RenderOptions,
+    options: &RenderOptions<'_>,
 ) -> Result<()> {
     let RenderOptions {
         format,

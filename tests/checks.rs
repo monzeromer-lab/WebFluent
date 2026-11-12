@@ -617,10 +617,14 @@ fn x05_use_of_a_store_nothing_declares() {
 
 #[test]
 fn x06_a_state_that_copies_a_live_value_nothing_changes() {
-    let src = String::from(
-        "store Clock {\n    state started = now\n}\ncomponent Wide {\n    state wide = viewport.md\n    Text(if wide { \"w\" } else { \"n\" })\n}\n",
-    ) + &page(
-        "    state clock = now(every: 1.seconds)\n    state tab = if let t = hash { t } else { \"a\" }\n    state dark = theme == \"dark\"\n    state online = !network.online\n    state fresh = update.available\n    state q = query.q ?? \"\"\n    Text(\"{ago(clock)} {tab} {dark} {online} {fresh} {q} {Clock.started}\")\n    Wide",
+    let src = format!(
+        "{}{}",
+        String::from(
+            "store Clock {\n    state started = now\n}\ncomponent Wide {\n    state wide = viewport.md\n    Text(if wide { \"w\" } else { \"n\" })\n}\n",
+        ),
+        page(
+            "    state clock = now(every: 1.seconds)\n    state tab = if let t = hash { t } else { \"a\" }\n    state dark = theme == \"dark\"\n    state online = !network.online\n    state fresh = update.available\n    state q = query.q ?? \"\"\n    Text(\"{ago(clock)} {tab} {dark} {online} {fresh} {q} {Clock.started}\")\n    Wide",
+        )
     );
     let found = with(&src, "X06");
     assert_eq!(
@@ -662,10 +666,14 @@ fn x06_leaves_a_live_value_that_is_followed_or_a_state_that_changes() {
     );
     assert!(with(&item, "X06").is_empty(), "{:?}", with(&item, "X06"));
     // A store's state written by its own action, or from a page.
-    let store = String::from(
-        "store Clock {\n    state last = now\n    state opened = now\n    action touch() { last = now }\n}\n",
-    ) + &page(
-        "    Text(\"{Clock.last} {Clock.opened}\")\n    Button(\"x\") { on click { Clock.touch()  Clock.opened = now } }",
+    let store = format!(
+        "{}{}",
+        String::from(
+            "store Clock {\n    state last = now\n    state opened = now\n    action touch() { last = now }\n}\n",
+        ),
+        page(
+            "    Text(\"{Clock.last} {Clock.opened}\")\n    Button(\"x\") { on click { Clock.touch()  Clock.opened = now } }",
+        )
     );
     assert!(with(&store, "X06").is_empty(), "{:?}", with(&store, "X06"));
 }
@@ -685,7 +693,7 @@ fn x06_offers_derived_and_the_page_it_gives_is_clean() {
         "{fixed}"
     );
     clean(&fixed);
-    assert!(with(&fixed, "X06").is_empty());
+    assert_eq!(with(&fixed, "X06"), [] as [String; 0]);
 }
 
 // ─── C8: forms ───────────────────────────────────────────────────────
@@ -760,7 +768,7 @@ fn d02_d03_what_persist_cannot_keep_and_what_every_instance_shares() {
         "persist open = false",
         "persist open = false { key: title }",
     );
-    assert!(with(&keyed, "D03").is_empty());
+    assert_eq!(with(&keyed, "D03"), [] as [String; 0]);
     // The key reaches the storage key.
     let program = webfluent::parse_source(&keyed, "t.wf").unwrap();
     let js = webfluent::codegen::js::JsCodegen::new().generate(&program);
@@ -1139,7 +1147,7 @@ fn a_build_refuses_a_name_the_language_has_where_it_is_written() {
             ],
         );
         let (ok, stdout, stderr) = project.wf("build", &["-d"]);
-        let out = stdout + &stderr;
+        let out = format!("{stdout}{stderr}");
         assert!(!ok, "{name}: {out}");
         assert!(out.contains("error[E118]"), "{name}: {out}");
         assert!(out.contains(at), "{name}: {out}");
@@ -1166,7 +1174,7 @@ fn e118_is_reported_in_every_file_that_declares_the_name() {
         ],
     );
     let (ok, stdout, stderr) = project.wf("check", &["-d"]);
-    let out = stdout + &stderr;
+    let out = format!("{stdout}{stderr}");
     assert!(!ok, "{out}");
     assert_eq!(out.matches("error[E118]").count(), 2, "{out}");
     assert!(out.contains("src/stores/a.wf:2:5"), "{out}");

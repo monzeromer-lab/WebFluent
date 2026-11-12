@@ -97,97 +97,93 @@ fn every_real_config_round_trips_byte_for_byte() {
             // A map field whose entries are hard to vary in general is
             // still changed and restored as a whole.
             let set = schema::at(&parsed, field.path).cloned();
-            match set {
-                Some(was) => {
-                    let new = other(field.ty, &was);
-                    let Ok(changed) = schema::edit(&text, field.path, Some(&new)) else {
-                        // A value the rest of the file forbids (a type
-                        // that only fits one output) is not this test's.
-                        continue;
-                    };
-                    assert_ne!(
-                        changed,
-                        text,
-                        "{}: {} did not change",
-                        path.display(),
-                        field.path
-                    );
-                    // Set to what it is: not a byte moves.
+            if let Some(was) = set {
+                let new = other(field.ty, &was);
+                let Ok(changed) = schema::edit(&text, field.path, Some(&new)) else {
+                    // A value the rest of the file forbids (a type
+                    // that only fits one output) is not this test's.
+                    continue;
+                };
+                assert_ne!(
+                    changed,
+                    text,
+                    "{}: {} did not change",
+                    path.display(),
+                    field.path
+                );
+                // Set to what it is: not a byte moves.
+                assert_eq!(
+                    schema::edit(&text, field.path, Some(&was)).unwrap(),
+                    text,
+                    "{}: {} set to itself",
+                    path.display(),
+                    field.path
+                );
+                let back = schema::edit(&changed, field.path, Some(&was)).unwrap();
+                if was.is_array() || was.is_object() {
+                    // A list or a map written back holds the same value,
+                    // and nothing outside it moved; inside, a map's keys
+                    // read in sorted order once it has been replaced.
+                    let reread: Value = serde_json::from_str(&back).unwrap();
                     assert_eq!(
-                        schema::edit(&text, field.path, Some(&was)).unwrap(),
-                        text,
-                        "{}: {} set to itself",
+                        schema::at(&reread, field.path),
+                        Some(&was),
+                        "{}: {}",
                         path.display(),
                         field.path
                     );
-                    let back = schema::edit(&changed, field.path, Some(&was)).unwrap();
-                    if was.is_array() || was.is_object() {
-                        // A list or a map written back holds the same value,
-                        // and nothing outside it moved; inside, a map's keys
-                        // read in sorted order once it has been replaced.
-                        let reread: Value = serde_json::from_str(&back).unwrap();
-                        assert_eq!(
-                            schema::at(&reread, field.path),
-                            Some(&was),
-                            "{}: {}",
-                            path.display(),
-                            field.path
-                        );
-                        let lines_off = changed_lines(&text, &back);
-                        let field_lines =
-                            serde_json::to_string_pretty(&was).unwrap().lines().count();
-                        assert!(
-                            lines_off <= field_lines,
-                            "{}: {} moved more than itself:\n{back}",
-                            path.display(),
-                            field.path
-                        );
-                    } else {
-                        assert_eq!(
-                            back,
-                            text,
-                            "{}: {} changed and back is not the file",
-                            path.display(),
-                            field.path
-                        );
-                    }
-                    // A scalar is one line; a list or a map is a few.
-                    if !was.is_object() && !was.is_array() && !new.is_object() && !new.is_array() {
-                        assert_eq!(
-                            changed_lines(&text, &changed),
-                            1,
-                            "{}: {}\n{changed}",
-                            path.display(),
-                            field.path
-                        );
-                    }
+                    let lines_off = changed_lines(&text, &back);
+                    let field_lines = serde_json::to_string_pretty(&was).unwrap().lines().count();
+                    assert!(
+                        lines_off <= field_lines,
+                        "{}: {} moved more than itself:\n{back}",
+                        path.display(),
+                        field.path
+                    );
+                } else {
+                    assert_eq!(
+                        back,
+                        text,
+                        "{}: {} changed and back is not the file",
+                        path.display(),
+                        field.path
+                    );
                 }
-                None => {
-                    let new = other(field.ty, &Value::Null);
-                    let Ok(added) = schema::edit(&text, field.path, Some(&new)) else {
-                        continue;
-                    };
-                    let removed = schema::edit(&added, field.path, None).unwrap();
-                    // A section the path goes through that the file wrote
-                    // empty goes with it — an empty section means nothing;
-                    // otherwise the file is as it was.
-                    let keys: Vec<&str> = field.path.split('.').collect();
-                    let written_empty = (1..keys.len()).find(|n| {
-                        schema::at(&parsed, &keys[..*n].join(".")) == Some(&serde_json::json!({}))
-                    });
-                    match written_empty {
-                        None => assert_eq!(
-                            removed,
-                            text,
-                            "{}: {} added and removed is not the file\n{added}",
-                            path.display(),
-                            field.path
-                        ),
-                        Some(n) => {
-                            let expect =
-                                webfluent::config::json_edit::remove(&text, &keys[..n]).unwrap();
-                            assert_eq!(removed, expect, "{}: {}", path.display(), field.path);
-                        }
+                // A scalar is one line; a list or a map is a few.
+                if !was.is_object() && !was.is_array() && !new.is_object() && !new.is_array() {
+                    assert_eq!(
+                        changed_lines(&text, &changed),
+                        1,
+                        "{}: {}\n{changed}",
+                        path.display(),
+                        field.path
+                    );
+                }
+            } else {
+                let new = other(field.ty, &Value::Null);
+                let Ok(added) = schema::edit(&text, field.path, Some(&new)) else {
+                    continue;
+                };
+                let removed = schema::edit(&added, field.path, None).unwrap();
+                // A section the path goes through that the file wrote
+                // empty goes with it — an empty section means nothing;
+                // otherwise the file is as it was.
+                let keys: Vec<&str> = field.path.split('.').collect();
+                let written_empty = (1..keys.len()).find(|n| {
+                    schema::at(&parsed, &keys[..*n].join(".")) == Some(&serde_json::json!({}))
+                });
+                match written_empty {
+                    None => assert_eq!(
+                        removed,
+                        text,
+                        "{}: {} added and removed is not the file\n{added}",
+                        path.display(),
+                        field.path
+                    ),
+                    Some(n) => {
+                        let expect =
+                            webfluent::config::json_edit::remove(&text, &keys[..n]).unwrap();
+                        assert_eq!(removed, expect, "{}: {}", path.display(), field.path);
                     }
                 }
             }

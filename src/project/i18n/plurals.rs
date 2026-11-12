@@ -118,11 +118,11 @@ impl Operands {
         Some(match name {
             'n' => self.n,
             'i' => self.i as f64,
-            'v' => self.v as f64,
-            'w' => self.w as f64,
+            'v' => f64::from(self.v),
+            'w' => f64::from(self.w),
             'f' => self.f as f64,
             't' => self.t as f64,
-            'c' | 'e' => self.e as f64,
+            'c' | 'e' => f64::from(self.e),
             _ => return None,
         })
     }

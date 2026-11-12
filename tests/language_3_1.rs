@@ -191,11 +191,13 @@ fn try_catch_guards_an_await_that_may_fail() {
 
 #[test]
 fn constants_are_read_everywhere_and_env_comes_from_the_config() {
-    let src = "const API = \"/api\"\nconst LIMIT: Number = 3\nconst PATH = API + \"/todos\"\n"
-        .to_string()
-        + &page(
+    let src = format!(
+        "{}{}",
+        "const API = \"/api\"\nconst LIMIT: Number = 3\nconst PATH = API + \"/todos\"\n",
+        page(
             "state n = LIMIT + 1\n Text(API)\n Text(PATH)\n Text(\"{LIMIT * 2}\")\n Text(\"{n}\")",
-        );
+        )
+    );
     let html = painted(&src);
     for expect in [">/api<", ">/api/todos<", ">6<", ">4<"] {
         assert!(html.contains(expect), "ssg lacks {expect}: {html}");
@@ -209,7 +211,11 @@ fn constants_are_read_everywhere_and_env_comes_from_the_config() {
         "a constant reads as written: {js}"
     );
     // A constant of the wrong type is a type error.
-    let bad = "const LIMIT: Number = \"three\"\n".to_string() + &page("Text(\"x\")");
+    let bad = format!(
+        "{}{}",
+        "const LIMIT: Number = \"three\"\n",
+        page("Text(\"x\")")
+    );
     let program = webfluent::parse_source(&bad, "t.wf").unwrap();
     let info = webfluent::sema::types::check(&program, &|_| "t.wf".to_string());
     assert!(

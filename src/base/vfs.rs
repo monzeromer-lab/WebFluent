@@ -440,7 +440,7 @@ impl<'a> Confined<'a> {
             inner,
             root: root.to_path_buf(),
             real_root: inner.canonical(root),
-            skipped: Default::default(),
+            skipped: std::sync::Mutex::default(),
         }
     }
 
@@ -633,12 +633,13 @@ pub(crate) fn leaves(dir: &Path, path: &Path) -> bool {
 /// ([`crate::base::vfs::Confined`]).
 pub fn stays_inside(file: &str) -> bool {
     let path = Path::new(file);
-    !file.is_empty()
-        && !path.is_absolute()
-        && !file.starts_with(['/', '\\'])
-        && !file.contains('\0')
-        // A drive, as Windows writes one: `C:\x`, `C:x`.
-        && !(file.len() >= 2 && file.as_bytes()[1] == b':' && file.as_bytes()[0].is_ascii_alphabetic())
+    !(file.is_empty()
+        || path.is_absolute()
+        || file.starts_with(['/', '\\'])
+        || file.contains('\0')
+        || file.len() >= 2
+            && file.as_bytes()[1] == b':'
+            && file.as_bytes()[0].is_ascii_alphabetic())
         && !file.split(['/', '\\']).any(|part| part == "..")
 }
 
@@ -770,7 +771,7 @@ mod tests {
             vfs.read_to_string(&tree.0.join("src/pages/Home.wf"))
                 .is_err()
         );
-        assert!(names(&vfs, &tree.0.join("src/pages")).is_empty());
+        assert_eq!(names(&vfs, &tree.0.join("src/pages")), [] as [String; 0]);
 
         // A deleted directory takes what is in it.
         vfs.delete(tree.0.join("public"));

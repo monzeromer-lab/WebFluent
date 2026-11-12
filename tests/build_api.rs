@@ -2,6 +2,7 @@
 //! what an editor does to build the project its buffers describe before
 //! they are saved.
 
+use std::fmt::Write as _;
 use std::path::PathBuf;
 use std::process::Command;
 
@@ -142,8 +143,10 @@ fn a_finding_carries_its_code_its_place_and_what_the_cli_prints() {
             .lines
             .iter()
             .filter(|l| l.stream == stream)
-            .map(|l| format!("{}\n", l.text))
-            .collect::<String>()
+            .fold(String::new(), |mut acc, l| {
+                let _ = writeln!(acc, "{}", l.text);
+                acc
+            })
     };
     assert_eq!(
         String::from_utf8_lossy(&cli.stdout),
@@ -238,8 +241,10 @@ fn the_report_is_what_wf_build_prints() {
             .lines
             .iter()
             .filter(|l| l.stream == stream)
-            .map(|l| format!("{}\n", l.text))
-            .collect::<String>()
+            .fold(String::new(), |mut acc, l| {
+                let _ = writeln!(acc, "{}", l.text);
+                acc
+            })
     };
     assert_eq!(
         String::from_utf8_lossy(&cli.stdout),

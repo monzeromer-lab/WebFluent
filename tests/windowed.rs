@@ -41,7 +41,7 @@ fn a_virtual_list_s_for_is_drawn_a_window_at_a_time() {
         "{js}"
     );
     assert!(!js.contains("WF.each("), "{js}");
-    assert!(warnings(&src, "V12").is_empty());
+    assert_eq!(warnings(&src, "V12"), [] as [String; 0]);
 }
 
 #[test]

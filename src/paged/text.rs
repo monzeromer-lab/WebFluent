@@ -268,7 +268,7 @@ impl Shaped {
             Direction::Ltr => Some(Level::ltr()),
         };
         let bidi = BidiInfo::new(&text, base);
-        let levels = bidi.levels.clone();
+        let levels = bidi.levels;
 
         // Break opportunities: a break is allowed *before* each index.
         let mut allowed = vec![false; text.len() + 1];
@@ -433,7 +433,7 @@ impl Shaped {
 
     /// The widest unbreakable piece: what the paragraph cannot be narrower
     /// than.
-    pub fn min_content(&self, atoms: &mut AtomSizer) -> f32 {
+    pub fn min_content(&self, atoms: &mut AtomSizer<'_>) -> f32 {
         let mut best = 0.0f32;
         let mut cur = 0.0f32;
         for c in &self.clusters {
@@ -454,7 +454,7 @@ impl Shaped {
     }
 
     /// The paragraph on one line (or as many as its forced breaks make).
-    pub fn max_content(&self, atoms: &mut AtomSizer) -> f32 {
+    pub fn max_content(&self, atoms: &mut AtomSizer<'_>) -> f32 {
         let mut best = 0.0f32;
         let mut cur = 0.0f32;
         for c in &self.clusters {
@@ -472,7 +472,7 @@ impl Shaped {
     }
 
     /// Break into lines of at most `width` points.
-    pub fn lines(&self, width: f32, atoms: &mut AtomSizer) -> Vec<Line> {
+    pub fn lines(&self, width: f32, atoms: &mut AtomSizer<'_>) -> Vec<Line> {
         // The width of each cluster at this width (an atom's may depend on it).
         let widths: Vec<f32> = self
             .clusters
@@ -563,7 +563,7 @@ impl Shaped {
         widths: &[f32],
         last: bool,
         top: f32,
-        atoms: &mut AtomSizer,
+        atoms: &mut AtomSizer<'_>,
     ) -> Line {
         // Trailing spaces hang outside the line.
         let mut content_end = b;
@@ -580,7 +580,7 @@ impl Shaped {
 
         // Visual order: reverse every maximal run at or above each level,
         // from the highest down to the lowest odd one (UAX #9, L2).
-        let mut order = logical.clone();
+        let mut order = logical;
         let max_level = order
             .iter()
             .map(|&i| self.clusters[i].level)
@@ -811,7 +811,7 @@ fn shape_run(
     if face_data.variable {
         face.set_variations(&[rustybuzz::Variation {
             tag: rustybuzz::ttf_parser::Tag::from_bytes(b"wght"),
-            value: pick.weight as f32,
+            value: f32::from(pick.weight),
         }]);
     }
     let size = style.font_size;
@@ -1051,7 +1051,7 @@ mod tests {
             }
         }
         assert_eq!(visual, "abc םולש def");
-        assert!(s.missing.is_empty());
+        assert_eq!(s.missing, [] as [char; 0]);
     }
 
     #[test]

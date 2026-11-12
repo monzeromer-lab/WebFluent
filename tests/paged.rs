@@ -3,6 +3,7 @@
 //! reference documents under `examples/documents`.
 
 use serde_json::json;
+use std::fmt::Write as _;
 use webfluent::{PdfConfig, SlidesConfig, Template};
 
 fn report(src: &str) -> webfluent::PdfReport {
@@ -45,11 +46,13 @@ fn a_columns_span_reaches_the_paint_a_pdf_is_laid_out_from() {
 
 #[test]
 fn a_footer_numbers_every_page_and_a_header_keeps_to_its_pages() {
-    let filler: String = (0..120)
-        .map(|i| {
-            format!("Text(\"Paragraph number {i} of the body, long enough to take a line.\")\n")
-        })
-        .collect();
+    let filler: String = (0..120).fold(String::new(), |mut acc, i| {
+        let _ = writeln!(
+            acc,
+            "Text(\"Paragraph number {i} of the body, long enough to take a line.\")"
+        );
+        acc
+    });
     let r = report(&format!(
         "page P(path: \"/\") {{ Document {{ Header(on: .rest) {{ Text(\"Running head\") }} Footer {{ Text(\"Page {{page}} of {{pages}}\") }} {filler} }} }}"
     ));
@@ -72,14 +75,14 @@ fn a_footer_numbers_every_page_and_a_header_keeps_to_its_pages() {
 
 #[test]
 fn a_long_table_repeats_its_header_on_every_page() {
-    let rows: String = (0..90)
-        .map(|i| {
-            format!(
-                "Table.Row {{ Table.Cell(\"row {i}\")  Table.Cell(\"{}\") }}\n",
-                i * 7
-            )
-        })
-        .collect();
+    let rows: String = (0..90).fold(String::new(), |mut acc, i| {
+        let _ = writeln!(
+            acc,
+            "Table.Row {{ Table.Cell(\"row {i}\")  Table.Cell(\"{}\") }}",
+            i * 7
+        );
+        acc
+    });
     let r = report(&format!(
         "page P(path: \"/\") {{ Document {{ Table {{ Table.Head {{ Table.Row {{ Table.Cell(\"Item\")  Table.Cell(\"Amount\") }} }} Table.Body {{ {rows} }} }} }} }}"
     ));
@@ -211,7 +214,10 @@ fn a_deck_is_a_page_per_slide_with_its_chrome() {
     assert!(page_text(&r, 0).contains("Q4 review") && page_text(&r, 0).contains("1 / 3"));
     assert!(page_text(&r, 2).contains("Acme") && page_text(&r, 2).contains("3 / 3"));
     // A slide that cannot hold its content says so.
-    let long: String = (0..60).map(|i| format!("Text(\"Line {i}\")\n")).collect();
+    let long: String = (0..60).fold(String::new(), |mut acc, i| {
+        let _ = writeln!(acc, "Text(\"Line {i}\")");
+        acc
+    });
     let r = Template::from_str(&format!(
         "page D(path: \"/\") {{ Presentation {{ Slide {{ {long} }} }} }}"
     ))
@@ -267,8 +273,11 @@ fn run_build(tmp: &std::path::Path, group: &str, name: &str) -> (String, std::pa
         .arg(tmp.join(group).join(name))
         .output()
         .unwrap();
-    let stdout =
-        String::from_utf8_lossy(&out.stdout).to_string() + &String::from_utf8_lossy(&out.stderr);
+    let stdout = format!(
+        "{}{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
     assert!(out.status.success(), "{stdout}");
     (stdout, tmp.to_path_buf())
 }

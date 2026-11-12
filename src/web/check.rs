@@ -87,14 +87,14 @@ pub struct Checked {
 const REFERENCES: &[&str] = &["E101", "E104", "T13", "T06", "R01", "U03", "U04", "U05"];
 
 /// Every check over a project.
-pub fn check_project(p: &Project) -> Checked {
+pub fn check_project(p: &Project<'_>) -> Checked {
     check_project_via(&FsVfs, p)
 }
 
 /// [`check_project`], reading the project's files through `vfs`: an
 /// editor's unsaved config, translations and sources are checked as the
 /// build reading the same `vfs` would check them.
-pub fn check_project_via(vfs: &dyn Vfs, p: &Project) -> Checked {
+pub fn check_project_via(vfs: &dyn Vfs, p: &Project<'_>) -> Checked {
     // Each declaration's file and that file's text, asked once here: the
     // checks below run side by side, on threads of their own, and are
     // handed these rather than the caller's closures. An editor runs this
@@ -106,13 +106,12 @@ pub fn check_project_via(vfs: &dyn Vfs, p: &Project) -> Checked {
     let mut file_ix: Vec<usize> = Vec::with_capacity(count);
     for i in 0..count {
         let file = (p.file_of)(i);
-        let at = match labels.iter().position(|f| *f == file) {
-            Some(at) => at,
-            None => {
-                labels.push(file);
-                texts.push((p.source_of)(i));
-                labels.len() - 1
-            }
+        let at = if let Some(at) = labels.iter().position(|f| *f == file) {
+            at
+        } else {
+            labels.push(file);
+            texts.push((p.source_of)(i));
+            labels.len() - 1
         };
         file_ix.push(at);
     }
@@ -216,7 +215,7 @@ struct Shared<'a> {
 /// what it persists, its config, its env and its translations.
 fn project_checks_via(
     vfs: &dyn Vfs,
-    p: &Shared,
+    p: &Shared<'_>,
     file_of: &(dyn Fn(usize) -> String + Sync),
 ) -> Vec<Diagnostic> {
     let mut out = Vec::new();
@@ -255,7 +254,7 @@ fn project_checks_via(
 /// they were always given.
 fn lowered_checks(
     lowered: &Program,
-    p: &Shared,
+    p: &Shared<'_>,
     file_of: &(dyn Fn(usize) -> String + Sync),
 ) -> Vec<Diagnostic> {
     let theme = p.config.map(|c| c.theme.clone()).unwrap_or_default();

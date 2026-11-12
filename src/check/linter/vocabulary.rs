@@ -239,7 +239,7 @@ fn walk(
     stmts: &[Statement],
     file: &str,
     scope: &HashSet<String>,
-    sheets: &Sheets,
+    sheets: &Sheets<'_>,
     out: &mut Vec<Diagnostic>,
 ) {
     for stmt in stmts {
@@ -327,7 +327,7 @@ fn check_engine_classes(el: &UIElement, file: &str, out: &mut Vec<Diagnostic>) {
                             crate::registry::Legacy::Modifier(w) => {
                                 Some(crate::project::builtin::modifier_to_class(base, w))
                             }
-                            _ => None,
+                            crate::registry::Legacy::Attr => None,
                         })
                         .collect()
                 })
@@ -369,7 +369,7 @@ fn check_engine_classes(el: &UIElement, file: &str, out: &mut Vec<Diagnostic>) {
 /// Suppressing the class in the codegen was the alternative, and it is the wrong
 /// one: `{base}--{modifier}` is a documented styling hook, so an author may have
 /// written the rule themselves. Saying so is right; deciding for them is not.
-fn check_dead_variants(el: &UIElement, file: &str, sheets: &Sheets, out: &mut Vec<Diagnostic>) {
+fn check_dead_variants(el: &UIElement, file: &str, sheets: &Sheets<'_>, out: &mut Vec<Diagnostic>) {
     let ComponentRef::BuiltIn(name) = &el.component else {
         return;
     };
@@ -565,7 +565,10 @@ mod tests {
     fn a_short_word_is_not_guessed_into_another() {
         // Two letters away from a word of two is any word: `xq` was
         // `Change to P`, the page's own name.
-        assert!(fixes_of(r#"page P(path: "/") { Button(xq) }"#).is_empty());
+        assert_eq!(
+            fixes_of(r#"page P(path: "/") { Button(xq) }"#),
+            [] as [String; 0]
+        );
     }
 
     #[test]
@@ -697,7 +700,10 @@ mod dead_variant_tests {
             warnings(r#"page P(path: "/") { Button("Save").primary }"#).is_empty(),
             "`.wf-btn--primary` exists"
         );
-        assert!(warnings(r#"page P(path: "/") { Card.elevated { Text("x") } }"#).is_empty());
+        assert_eq!(
+            warnings(r#"page P(path: "/") { Card.elevated { Text("x") } }"#),
+            [] as [crate::diagnostics::Diagnostic; 0]
+        );
     }
 
     /// Every flag and case the registry gives a built-in produces a class
@@ -723,7 +729,7 @@ mod dead_variant_tests {
                 let words: Vec<&str> = match prop.ty {
                     PropType::Bool => match prop.legacy {
                         registry::Legacy::Modifier(w) => vec![w],
-                        _ => Vec::new(),
+                        registry::Legacy::Attr => Vec::new(),
                     },
                     PropType::Enum(cases) => cases
                         .iter()

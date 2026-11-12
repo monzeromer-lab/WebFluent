@@ -243,11 +243,16 @@ pub fn unified(path: &str, hunks: &[Hunk]) -> String {
 
 #[cfg(test)]
 mod tests {
+    use std::fmt::Write as _;
+
     use super::*;
 
     #[test]
     fn every_subset_of_hunks_applies() {
-        let old = (1..=60).map(|i| format!("line {i}\n")).collect::<String>();
+        let old = (1..=60).fold(String::new(), |mut acc, i| {
+            let _ = writeln!(acc, "line {i}");
+            acc
+        });
         let mut new = old
             .replace("line 3\n", "line three\n")
             .replace("line 20\n", "")
@@ -276,7 +281,10 @@ mod tests {
 
     #[test]
     fn nothing_changed_is_no_hunk_and_a_new_file_is_one() {
-        assert!(hunks("a\nb\n", "a\nb\n").is_empty());
+        assert_eq!(
+            hunks("a\nb\n", "a\nb\n"),
+            [] as [crate::tools::agent::diff::Hunk; 0]
+        );
         let h = hunks("", "a\nb\n");
         assert_eq!(
             (h.len(), h[0].added(), h[0].old_start, h[0].new_start),

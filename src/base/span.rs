@@ -10,7 +10,7 @@
 /// and exist for diagnostics.
 ///
 /// Spans are additive metadata: they power the studio's click-to-code and
-/// structured-edit features (see the STUDIO_INTEGRATION_PLAN). Every code
+/// structured-edit features (see the `STUDIO_INTEGRATION_PLAN`). Every code
 /// generator (html/css/js/ssg/pdf/slides) ignores them, and nodes built outside
 /// the parser can use [`Span::dummy`] / `..Default::default()`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]

@@ -133,7 +133,6 @@ fn validate_page_body(
                     reason: "slide elements must be inside a Presentation { ... } block"
                         .to_string(),
                 });
-                continue;
             }
         }
         // Anything else outside a Presentation is allowed but ignored at codegen time.

@@ -69,7 +69,8 @@ pub fn can_write(format: &str) -> bool {
 /// WebP with a side past [`WEBP_MAX_SIDE`] among them — or `format` is not
 /// one the build writes.
 pub fn resized(probed: &Probed, width: u32, format: &str, quality: u8) -> Result<Vec<u8>> {
-    let height = ((width as f64) * probed.height as f64 / probed.width as f64).round() as u32;
+    let height =
+        (f64::from(width) * f64::from(probed.height) / f64::from(probed.width)).round() as u32;
     // At its own width the picture is encoded where it is, not copied.
     let scaled: std::borrow::Cow<'_, image::DynamicImage> = if width >= probed.width {
         std::borrow::Cow::Borrowed(&probed.image)

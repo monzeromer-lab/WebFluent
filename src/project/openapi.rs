@@ -194,18 +194,15 @@ impl<'a> Spec<'a> {
                     let schema = reference
                         .strip_prefix("#/components/schemas/")
                         .and_then(|name| self.schemas.get_key_value(name));
-                    match schema {
-                        Some((name, target)) => {
-                            if into.insert(name.as_str()) {
-                                self.reach(target, into);
-                            }
+                    if let Some((name, target)) = schema {
+                        if into.insert(name.as_str()) {
+                            self.reach(target, into);
                         }
+                    } else {
                         // A shared parameter or request body: what it holds.
-                        None => {
-                            let target = self.resolve(value);
-                            if !std::ptr::eq(target, value) {
-                                self.reach(target, into);
-                            }
+                        let target = self.resolve(value);
+                        if !std::ptr::eq(target, value) {
+                            self.reach(target, into);
                         }
                     }
                 }
@@ -777,7 +774,7 @@ fn pascal(name: &str) -> String {
     let camel = camel(name);
     let mut chars = camel.chars();
     match chars.next() {
-        Some(c) => c.to_uppercase().collect::<String>() + chars.as_str(),
+        Some(c) => format!("{}{}", c.to_uppercase().collect::<String>(), chars.as_str()),
         None => camel,
     }
 }

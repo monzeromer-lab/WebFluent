@@ -2,7 +2,7 @@
 
 use super::*;
 
-impl<'a, 'p> Checker<'a, 'p> {
+impl Checker<'_, '_> {
     pub(super) fn warn(&mut self, code: &'static str, message: String, hint: &str) {
         let span = self.located(self.current_span, &message);
         let d = Diagnostic::coded(
@@ -283,10 +283,10 @@ impl<'a, 'p> Checker<'a, 'p> {
         // the build's line and column and the editor's then agree.
         let at_wrong = self.located(self.current_span, &format!("`{wrong}`"));
         let span =
-            if (at_wrong.start, at_wrong.end) != (self.current_span.start, self.current_span.end) {
-                at_wrong
-            } else {
+            if (at_wrong.start, at_wrong.end) == (self.current_span.start, self.current_span.end) {
                 self.located(self.current_span, &message)
+            } else {
+                at_wrong
             };
         let mut d = Diagnostic::coded(
             code,

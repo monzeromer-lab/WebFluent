@@ -97,12 +97,12 @@ pub fn declaration_name(file_stem: &str) -> String {
     file_stem
         .split(|c: char| !c.is_alphanumeric())
         .filter(|word| !word.is_empty())
-        .map(|word| {
+        .fold(String::new(), |mut acc, word| {
             let mut chars = word.chars();
-            let first = chars.next().map(|c| c.to_uppercase().collect::<String>());
-            first.unwrap_or_default() + chars.as_str()
+            acc.extend(chars.next().map(char::to_uppercase).into_iter().flatten());
+            acc.push_str(chars.as_str());
+            acc
         })
-        .collect()
 }
 
 /// Whether the sources under `src_dir` are written in the indented layout:

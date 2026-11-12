@@ -76,7 +76,7 @@ fn a_static_build_stores_the_shell_the_named_routes_and_the_fallback() {
         .iter()
         .map(|v| v.as_str().unwrap())
         .collect();
-    stored.sort();
+    stored.sort_unstable();
     assert_eq!(
         stored,
         [

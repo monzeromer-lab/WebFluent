@@ -506,7 +506,7 @@ impl Style {
     pub fn inherit(&self) -> Style {
         let mut s = Style::root(self.font_size, "");
         s.color = self.color;
-        s.font_family = self.font_family.clone();
+        s.font_family = Rc::clone(&self.font_family);
         s.font_weight = self.font_weight;
         s.italic = self.italic;
         s.line_height = self.line_height;
@@ -522,7 +522,7 @@ impl Style {
         s.orphans = self.orphans;
         s.widows = self.widows;
         s.border_collapse = self.border_collapse;
-        s.vars = self.vars.clone();
+        s.vars = Rc::clone(&self.vars);
         s
     }
 
@@ -840,7 +840,7 @@ pub fn color(value: &str) -> Option<Rgba> {
     if let Some(hex) = v.strip_prefix('#') {
         let digit = |i: usize, len: usize| -> Option<f32> {
             let s = &hex[i..i + len];
-            let n = u8::from_str_radix(s, 16).ok()? as f32;
+            let n = f32::from(u8::from_str_radix(s, 16).ok()?);
             Some(if len == 1 {
                 n * 17.0 / 255.0
             } else {
