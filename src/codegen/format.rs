@@ -97,6 +97,10 @@ pub fn number(value: f64, places: Option<usize>, locale: &str) -> String {
             "-∞".to_string()
         };
     }
+    // `Intl.NumberFormat` takes at most 100 fraction digits; a number of
+    // places from the data is held to that, never handed to `format!`,
+    // whose precision panics past 65,535.
+    let places = places.map(|p| p.min(100));
     let (group, point) = separators(locale);
     let negative = value < 0.0;
     // Halves round away from zero, as `Intl.NumberFormat` rounds them.
