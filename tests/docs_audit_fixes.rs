@@ -734,3 +734,110 @@ fn a_test_file_runs_in_its_project_and_expects_read_text() {
     assert!(text.contains("1 passed"), "{text}");
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// A `style { }` written on a component's call styles the component's root,
+/// as `class:` does: its rule's class is on the root, in the static paint
+/// and on the live page. Its rule was compiled and put on nothing.
+#[test]
+fn a_calls_style_styles_the_components_root() {
+    let dir = built_project(
+        "callstyle",
+        r#"{ "name": "t", "build": { "ssg": true, "minify": false, "split": false } }"#,
+        "component Tile(label: String) {\n\
+         \x20   Card { Text(label) }\n\
+         }\n\
+         page Home(path: \"/\", title: \"H\", description: \"D.\") {\n\
+         \x20   Heading(\"Home\").h1\n\
+         \x20   Grid(columns: 3) {\n\
+         \x20       Tile(label: \"a\") {\n\
+         \x20           style { grid-column: 2 / span 2; grid-row: 2 }\n\
+         \x20       }\n\
+         \x20       Tile(label: \"b\")\n\
+         \x20   }\n\
+         }\n",
+    );
+    // Every stylesheet the build wrote, wherever it put it.
+    fn all_css(at: &std::path::Path, out: &mut String) {
+        for e in std::fs::read_dir(at).into_iter().flatten().flatten() {
+            let p = e.path();
+            if p.is_dir() {
+                all_css(&p, out);
+            } else if p.extension().is_some_and(|x| x == "css") {
+                out.push_str(&std::fs::read_to_string(&p).unwrap_or_default());
+            }
+        }
+    }
+    let mut css = String::new();
+    all_css(&dir.join("build"), &mut css);
+    let at = css
+        .find("{ grid-column: 2 / span 2")
+        .unwrap_or_else(|| panic!("no rule for the call's style: {css}"));
+    let start = css[..at].rfind(".wf-s").expect("a scoped class");
+    let class = css[start + 1..start + 1 + "wf-s".len() + 8].to_string();
+    let html = std::fs::read_to_string(dir.join("build/index.html")).unwrap();
+    assert!(
+        html.contains(&format!("wf-card {class}"))
+            || html.contains(&format!("{class} "))
+            || html.contains(&format!(" {class}\"")),
+        "the static paint: {class} in {html}"
+    );
+    let js: String = ["build/app.js", "build/pages/Home.js"]
+        .iter()
+        .map(|p| std::fs::read_to_string(dir.join(p)).unwrap_or_default())
+        .collect();
+    assert!(
+        js.contains(&format!("\"class\": \"{class}\"")),
+        "the live page: {js}"
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// An `if let` used as a value whose branch awaits: its arrow is async and
+/// awaited, in a store's action and in a page's, so the page's code
+/// parses. It was a plain arrow with an `await` in it.
+#[test]
+fn an_if_let_value_that_awaits_parses() {
+    let dir = built_project(
+        "iflet-await",
+        r#"{ "name": "t", "build": { "ssg": false, "minify": false, "split": false } }"#,
+        "store S {\n\
+         \x20   state picked: String? = null\n\
+         \x20   state found = \"\"\n\
+         \x20   action look() {\n\
+         \x20       let one = if let p = picked { await ask(p) } else { \"none\" }\n\
+         \x20       found = one\n\
+         \x20   }\n\
+         \x20   action ask(p: String) {\n\
+         \x20       return \"{p}!\"\n\
+         \x20   }\n\
+         }\n\
+         page Home(path: \"/\", title: \"H\", description: \"D.\") {\n\
+         \x20   use S\n\
+         \x20   state mine: String? = \"x\"\n\
+         \x20   state got = \"\"\n\
+         \x20   action here() {\n\
+         \x20       got = if let m = mine { await S.ask(m) } else { \"\" }\n\
+         \x20   }\n\
+         \x20   Heading(\"Home\").h1\n\
+         \x20   Button(\"Look\") { on click { S.look()  here() } }\n\
+         \x20   Text(\"{S.found} {got}\")\n\
+         }\n",
+    );
+    for js in ["build/app.js", "build/pages/Home.js"] {
+        let path = dir.join(js);
+        if !path.exists() {
+            continue;
+        }
+        let out = std::process::Command::new("node")
+            .arg("--check")
+            .arg(&path)
+            .output()
+            .expect("node");
+        assert!(
+            out.status.success(),
+            "{js} doesn't parse: {}",
+            String::from_utf8_lossy(&out.stderr)
+        );
+    }
+    let _ = std::fs::remove_dir_all(&dir);
+}

@@ -339,6 +339,12 @@ A component's enum props are written to its root element as
 `data-<prop>="<case>"` (`data-tone="loud"`), so a stylesheet can select on
 them.
 
+What a call puts on the component's root element: a DOM event's handler,
+`class:`, an attribute the component takes no prop for (`aria-*`, `data-*`,
+`id`, `role`, `title`, `hidden`), and a `style { }` block, which styles the
+root — `Tile(label: "a") { style { grid-column: 2 / span 2 } }` places that
+tile in its grid.
+
 #### Events
 
 A component declares the events it fires and their arguments; `emit` fires

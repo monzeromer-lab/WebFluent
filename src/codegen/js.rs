@@ -1705,6 +1705,13 @@ impl JsCodegen {
                     self.store_locals.borrow_mut().truncate(bound);
                     let else_val = self.emit_store_expr(&args[1], store_states);
                     let name = bare(name);
+                    // A branch that awaits needs its arrow to be async, and
+                    // the arrow awaited, or the page's code doesn't parse.
+                    if then_val.contains("await ") || else_val.contains("await ") {
+                        return format!(
+                            "(await (async ({name}) => {name} != null ? {then_val} : {else_val})({value}))"
+                        );
+                    }
                     return format!(
                         "(({name}) => {name} != null ? {then_val} : {else_val})({value})"
                     );
@@ -3889,6 +3896,18 @@ impl JsCodegen {
                     .collect();
                 if !marks.is_empty() {
                     self.emit_line(&format!("WF.mark({}, {{ {} }});", var, marks.join(", ")));
+                }
+                // A `style { }` written on the call styles the component's
+                // root, as `class:` does: its rule's class joins the root's.
+                if let Some(class) = ui
+                    .style_block
+                    .as_ref()
+                    .and_then(crate::codegen::scoped_css::scoped_class)
+                {
+                    self.emit_line(&format!(
+                        "WF.rootAttrs({}, {{ \"class\": \"{}\" }});",
+                        var, class
+                    ));
                 }
                 if !root_attrs.is_empty() {
                     let attrs: Vec<String> = root_attrs
@@ -7911,6 +7930,13 @@ impl JsCodegen {
                     self.lambda_params.borrow_mut().pop();
                     let else_val = self.emit_expr(&args[1]);
                     let name = bare(name);
+                    // A branch that awaits needs its arrow to be async, and
+                    // the arrow awaited, or the page's code doesn't parse.
+                    if then_val.contains("await ") || else_val.contains("await ") {
+                        return format!(
+                            "(await (async ({name}) => {name} != null ? {then_val} : {else_val})({value}))"
+                        );
+                    }
                     return format!(
                         "(({name}) => {name} != null ? {then_val} : {else_val})({value})"
                     );
