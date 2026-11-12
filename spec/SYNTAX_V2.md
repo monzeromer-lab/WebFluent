@@ -87,7 +87,8 @@ page Post(path: "/posts/:slug", slug: String) { … }
 ```
 
 Header keys: `path` (required), `title`, `description`, `image`, `type`,
-`redirect`, `noindex: true | false`, `guard: expr`, `layout: Component(args)`,
+`redirect`, `noindex: true | false`, `lang: "<language tag>"`,
+`translates: PageName`, `guard: expr`, `layout: Component(args)`,
 and route parameters as `name: Type`. A page **owns its route**; the `app`'s
 `Router` takes no children. Routes are matched by specificity — static
 segments before `:params`, `*` last — not by source order.
@@ -497,7 +498,8 @@ Doc           = ("///" text NEWLINE)+ ;
 
 Page          = "page" NAME "(" PageAttr ("," PageAttr)* ")" RenderBlock ;
 PageAttr      = ("path" | "title" | "description" | "image" | "type" | "redirect") ":" STRING
-              | "noindex" ":" BOOL | "guard" ":" Expression
+              | "noindex" ":" BOOL | "lang" ":" STRING | "translates" ":" NAME
+              | "guard" ":" Expression
               | "layout" ":" NAME ("(" Args ")")? | NAME ":" Type ;
 Component     = "component" NAME ("(" PropDecl ("," PropDecl)* ")")? "{" MemberDecl* RenderStmt* "}" ;
 PropDecl      = Doc? "_"? NAME ":" Type ("=" Expression)? ;

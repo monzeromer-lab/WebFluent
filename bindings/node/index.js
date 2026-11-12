@@ -137,7 +137,7 @@ class Template {
     return this;
   }
 
-  /** The language `renderHtml` declares, `<html lang>`; `en` unless set. */
+  /** The language `renderHtml` declares, `<html lang>`; the page's `lang:`, else `en`, unless set. */
   withLang(lang) {
     this._lang = lang;
     return this;

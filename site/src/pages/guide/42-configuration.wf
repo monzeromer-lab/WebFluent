@@ -527,7 +527,7 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
                     Table.Cell { Markdown("`lang`") }
                     Table.Cell("language tag")
                     Table.Cell { Markdown("`\"en\"`") }
-                    Table.Cell { Markdown("The document's language: `en`, `ar`, `pt-BR`.") }
+                    Table.Cell { Markdown("The document's language: `en`, `ar`, `pt-BR`. A page written in another language says so with its own `lang:`.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`site_url`") }

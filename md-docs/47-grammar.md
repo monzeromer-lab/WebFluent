@@ -85,8 +85,8 @@ These forms are written at the top of a file, and nowhere else:
 
 ```text
 page Name(path: "/", title: …, description: …, image: …, image_alt: …, type: …,
-          noindex: …, layout: Component(…), guard: expr, redirect: "/…",
-          paths: expr, param: Type, …) { render block }
+          noindex: …, lang: "…", translates: Page, layout: Component(…),
+          guard: expr, redirect: "/…", paths: expr, param: Type, …) { render block }
 component Name(_ positional: Type, prop: Type = default, …) { component body }
 store Name(scope: .app | .session | .route, eager: Bool) { store body }
 app { render block }

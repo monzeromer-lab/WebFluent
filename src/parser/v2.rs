@@ -560,6 +560,8 @@ impl ParserV2 {
             image_alt: None,
             page_type: None,
             noindex: false,
+            lang: None,
+            translates: None,
             layout: None,
             params: Vec::new(),
             head: Vec::new(),
@@ -619,6 +621,26 @@ impl ParserV2 {
                             }
                             _ => return Err(self.error("`noindex` takes `true` or `false`".into())),
                         }
+                    }
+                    // `lang: "en"`: the language the page is written in.
+                    // A route parameter named `lang` is still one —
+                    // `lang: String` — since a type is never a string.
+                    "lang" if matches!(self.kind(), TokenType::StringLiteral(_)) => {
+                        let tag = self.expect_string("the page's language")?;
+                        if !is_language_tag(&tag) {
+                            return Err(self.error(format!(
+                                "`lang: \"{tag}\"` is not a language tag; write one such as \"en\", \"ar\" or \"pt-BR\""
+                            )));
+                        }
+                        page.lang = Some(tag);
+                    }
+                    // `translates: Home`: the page this one is a translation
+                    // of, by name. A route with a `:translates` segment
+                    // written before it keeps the word for that parameter
+                    // (`translates: String`).
+                    "translates" if !page.path.contains(":translates") => {
+                        page.translates =
+                            Some(self.expect_ident("the name of the page this one translates")?);
                     }
                     "guard" => page.guard = Some(self.parse_expression()?),
                     // The values a static build renders a `:param` page for.
@@ -4428,6 +4450,17 @@ fn duration_ms(text: &str) -> Option<f64> {
     };
     let n: f64 = number.trim().parse().ok()?;
     (n >= 0.0).then_some(n * scale)
+}
+
+/// A BCP 47 language tag as a page's `lang:` writes it: a language of two
+/// or three letters, then subtags of letters and digits — `en`, `ar-EG`,
+/// `zh-Hant-TW`. Enough to refuse `"English"` or `"en us"`, not a registry.
+pub(crate) fn is_language_tag(tag: &str) -> bool {
+    let mut parts = tag.split('-');
+    let language = parts.next().unwrap_or_default();
+    (2..=3).contains(&language.len())
+        && language.chars().all(|c| c.is_ascii_alphabetic())
+        && parts.all(|p| (1..=8).contains(&p.len()) && p.chars().all(|c| c.is_ascii_alphanumeric()))
 }
 
 #[cfg(test)]

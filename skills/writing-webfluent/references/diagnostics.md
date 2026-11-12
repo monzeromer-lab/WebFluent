@@ -52,6 +52,7 @@ Errors stop the build; warnings don't. Treat warnings as work to do:
 | `X06` | A `state` that reads `now`/`viewport`/`query`/`theme` once and stays | Make it `derived` |
 | `R01` | A link or `navigate()` to a route no page has | Fix the path, or add the page |
 | `R02` | A route `:param` with no page parameter of that name | `page P(path: "/x/:id", id: String)` |
+| `R05` | A `translates:` naming no page, or two translations in one language | Name a declared page; give each translation its own `lang:` |
 | `I01` | `t("key")` that no locale has | Add the key to every `translations/*.json` |
 | `I03` | A key one locale has and another lacks | `wf translations --missing <locale>` |
 | `E108` | A non-public `env` name read from a page | Name it `PUBLIC_…`, or keep the value on a server |

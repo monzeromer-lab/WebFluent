@@ -420,6 +420,12 @@ pub static CODES: &[CodeInfo] = &[
         "A relative URL on a nested route",
         "`\"images/x.png\"` is fetched relative to the page's address, so on `/blog/post` it is `/blog/images/x.png`. Written from the root, `\"/images/x.png\"`, it is the same file on every page.",
     ),
+    code(
+        "R05",
+        Error,
+        "A translation of no page, or two in one language",
+        "`translates:` names the page this one is a translation of, and the pages it joins list each other as `hreflang` alternates, each in its own `lang:`. A name no page has joins nothing, and two pages in one language would be two alternates for one `hreflang`.",
+    ),
     // ── X: state and reactivity ──────────────────────────────────────
     code(
         "X01",

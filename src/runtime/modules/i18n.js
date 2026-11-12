@@ -102,9 +102,10 @@
     }
 
     i18nInstance = { t, locale, dir, setLocale };
-    // `?lang=ar` opens the page in that locale. It is the address the
-    // build's `hreflang` alternates give each language, so a reader who
-    // follows one from a search result gets the page they were promised.
+    // `?lang=ar` opens the page in that locale, for a link someone shares.
+    // It is not an `hreflang` alternate: the address's HTML is the default
+    // locale's, so a search engine indexes pages of their own (`lang:`,
+    // `translates:`) instead.
     try {
       const asked = typeof location !== "undefined" && location.search
         ? new URLSearchParams(location.search).get("lang")

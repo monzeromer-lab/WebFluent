@@ -87,7 +87,7 @@ The command prints the markup to standard output. Its options:
 | `-o FILE`, `--output` | Writes to a file instead of printing |
 | `--theme Name` | Picks one of several `theme` declarations |
 | `--token NAME=VALUE` | Sets a design token over the theme's; repeat it for more |
-| `--lang ar` | Sets the document's language, `<html lang>` (default `en`) |
+| `--lang ar` | Sets the document's language, `<html lang>` (default: the page's `lang:`, else `en`) |
 | `--page Name` | Chooses the page to render when the template has several |
 
 The template may also be a directory. Every `.wf` and `.wfx` file under it
@@ -195,7 +195,7 @@ Each setting returns the `Template`, so you can chain them before a render:
 - `with_theme(name)` picks a theme;
 - `with_tokens(&[(name, value)])` sets design tokens over the theme's;
 - `with_lang("ar")` sets the language (a right-to-left language also sets
-  `dir="rtl"`);
+  `dir="rtl"`); without it, the page's own `lang:` is used, else `en`;
 - `with_pdf(PdfConfig { .. })` sets page size, margins and fonts;
 - `with_slides(SlidesConfig { .. })` sets a deck's options.
 

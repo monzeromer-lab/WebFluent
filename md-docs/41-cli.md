@@ -532,7 +532,7 @@ Renders one template with JSON data, to HTML, a PDF or a slide deck.
 | `--page` | a page name | none | The page to render, when the template has several. |
 | `--theme` | a theme name | none | Which of several `theme` declarations to use. |
 | `--token` | `NAME=VALUE` | none | A design token over the theme's, such as `color-primary=#8B5CF6`. Repeat it for more tokens. |
-| `--lang` | a language tag | `en` | The document's `<html lang>`. |
+| `--lang` | a language tag | the page's `lang:`, else `en` | The document's `<html lang>`. |
 
 ```bash
 wf render invoice.wf --data invoice.json -f pdf -o invoice.pdf

@@ -456,6 +456,14 @@ pub struct PageDecl {
     pub page_type: Option<String>,
     /// Keep this page out of search results (`robots: noindex`).
     pub noindex: bool,
+    /// The language the page is written in — `lang: "en"` — when it is not
+    /// the site's: its `<html lang dir>`, its `og:locale` and its JSON-LD's
+    /// `inLanguage`. `None` is the site's language (`config.page_lang()`).
+    pub lang: Option<String>,
+    /// `translates: Home`: the page this one is a translation of. Pages
+    /// joined this way, directly or through one another, list each other as
+    /// `hreflang` alternates, each in its own `lang`.
+    pub translates: Option<String>,
     /// The component that frames the page: `layout: AppShell(crumb: "x")`.
     pub layout: Option<LayoutRef>,
     /// The route's parameters as typed props: `page Deploy(path:

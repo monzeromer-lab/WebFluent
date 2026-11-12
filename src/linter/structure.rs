@@ -288,7 +288,108 @@ pub fn lint_structure(program: &Program, file_of: &dyn Fn(usize) -> String) -> V
         out.extend(cx.out);
         let _ = cx.decl;
     }
+    translations(program, file_of, &mut out);
     out
+}
+
+/// `translates:` held to the program: it names a page, not its own, and
+/// the pages it joins are each in a language of their own — two in one
+/// language would be two alternates for one `hreflang`.
+fn translations(program: &Program, file_of: &dyn Fn(usize) -> String, out: &mut Vec<Diagnostic>) {
+    let pages: Vec<(usize, &PageDecl)> = program
+        .declarations
+        .iter()
+        .enumerate()
+        .filter_map(|(i, d)| match d {
+            Declaration::Page(p) => Some((i, p)),
+            _ => None,
+        })
+        .collect();
+    let names: Vec<&str> = pages.iter().map(|(_, p)| p.name.as_str()).collect();
+    let at = |p: &PageDecl| {
+        (
+            p.header_span.line.max(1) as usize,
+            p.header_span.col.max(1) as usize,
+        )
+    };
+    for (index, p) in &pages {
+        let Some(original) = p.translates.as_deref() else {
+            continue;
+        };
+        let (line, col) = at(p);
+        if original == p.name {
+            out.push(
+                Diagnostic::coded(
+                    "R05",
+                    format!("`{}` names itself in `translates:`", p.name),
+                    file_of(*index),
+                    line,
+                    col,
+                )
+                .with_hint("Name the page this one is a translation of"),
+            );
+        } else if !names.contains(&original) {
+            let hint = match crate::diagnostics::fixes::nearest(
+                original,
+                names.iter().copied().filter(|n| *n != p.name),
+            ) {
+                Some(near) => format!("Did you mean `{near}`?"),
+                None => "Name a page the program declares".to_string(),
+            };
+            out.push(
+                Diagnostic::coded(
+                    "R05",
+                    format!(
+                        "`{}` translates `{original}`, and no page is named `{original}`",
+                        p.name
+                    ),
+                    file_of(*index),
+                    line,
+                    col,
+                )
+                .with_hint(hint),
+            );
+        }
+    }
+    // Each group once, from its first page; a page with no `lang:` is in
+    // the site's language.
+    let mut reported: Vec<&str> = Vec::new();
+    for (_, p) in &pages {
+        if reported.contains(&p.name.as_str()) {
+            continue;
+        }
+        let group = crate::codegen::seo::translation_group(&p.name, program);
+        reported.extend(group.iter().map(|g| g.name.as_str()));
+        for (i, later) in group.iter().enumerate() {
+            let Some(earlier) = group[..i].iter().find(|e| e.lang == later.lang) else {
+                continue;
+            };
+            let Some((index, _)) = pages.iter().find(|(_, q)| q.name == later.name) else {
+                continue;
+            };
+            let (line, col) = at(later);
+            let language = match &later.lang {
+                Some(l) => format!("`{l}`"),
+                None => "the site's language".to_string(),
+            };
+            out.push(
+                Diagnostic::coded(
+                    "R05",
+                    format!(
+                        "`{}` and `{}` are translations of each other, both in {language}",
+                        earlier.name, later.name
+                    ),
+                    file_of(*index),
+                    line,
+                    col,
+                )
+                .with_hint(format!(
+                    "Give `{}` the language it is written in: `lang: \"…\"`",
+                    later.name
+                )),
+            );
+        }
+    }
 }
 
 /// A page's `:param` segments and its declared parameters, held to each

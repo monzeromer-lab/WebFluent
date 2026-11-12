@@ -79,8 +79,10 @@ pub struct Template {
     page: Option<String>,
     theme: Option<String>,
     custom_tokens: HashMap<String, String>,
-    /// The document's language, for `<html lang>`.
-    lang: String,
+    /// The document's language, for `<html lang>`, when
+    /// [`with_lang`](Template::with_lang) set one; the drawn page's `lang:`,
+    /// else `en`, otherwise.
+    lang: Option<String>,
     pdf: PdfConfig,
     slides: SlidesConfig,
     /// Where the template's files are: what an image's address and the
@@ -289,7 +291,7 @@ impl Template {
             page: None,
             theme: None,
             custom_tokens: HashMap::new(),
-            lang: "en".to_string(),
+            lang: None,
             pdf: PdfConfig::default(),
             slides: SlidesConfig::default(),
             root: root.map(|r| r.to_path_buf()),
@@ -364,10 +366,11 @@ impl Template {
     }
 
     /// The language a document from [`render_html`](Template::render_html)
-    /// declares, `en` unless set: `<html lang="ar">`, which also turns the
-    /// document right to left for an RTL language.
+    /// declares — the page's own `lang:`, else `en`, unless set:
+    /// `<html lang="ar">`, which also turns the document right to left for
+    /// an RTL language.
     pub fn with_lang(mut self, lang: &str) -> Self {
-        self.lang = lang.to_string();
+        self.lang = Some(lang.to_string());
         self
     }
 
@@ -427,6 +430,23 @@ impl Template {
                     .collect(),
             }),
         }
+    }
+
+    /// The document's language: the one [`with_lang`](Template::with_lang)
+    /// set, else the drawn page's `lang:`, else `en`.
+    fn document_lang(&self) -> String {
+        if let Some(lang) = &self.lang {
+            return lang.clone();
+        }
+        self.drawn()
+            .declarations
+            .iter()
+            .find_map(|d| match d {
+                Declaration::Page(p) => Some(p.lang.clone()),
+                _ => None,
+            })
+            .flatten()
+            .unwrap_or_else(|| "en".to_string())
     }
 
     /// The document's `<title>`: the drawn page's, its `{…}` filled from
@@ -493,11 +513,9 @@ impl Template {
         let data = to_value(data)?;
         let fragment = self.render_fragment(&data)?;
         let css = self.stylesheet()?;
-        let lang = html_escape(&self.lang);
-        let dir = if matches!(
-            self.lang.split(['-', '_']).next(),
-            Some("ar" | "he" | "fa" | "ur")
-        ) {
+        let doc_lang = self.document_lang();
+        let lang = html_escape(&doc_lang);
+        let dir = if is_rtl(&doc_lang) {
             " dir=\"rtl\""
         } else {
             ""
@@ -659,8 +677,9 @@ impl Template {
         let fragment = crate::template::render_program_paged(&self.drawn(), data)?;
         let css = self.stylesheet()?;
         let title = html_escape(&self.title(data));
-        let lang = html_escape(&self.lang);
-        let dir = if is_rtl(&self.lang) {
+        let doc_lang = self.document_lang();
+        let lang = html_escape(&doc_lang);
+        let dir = if is_rtl(&doc_lang) {
             " dir=\"rtl\""
         } else {
             ""

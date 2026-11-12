@@ -297,7 +297,7 @@ enum Commands {
         /// The page to render, by name, when the template has several
         #[arg(long)]
         page: Option<String>,
-        /// The document's language, `<html lang>` (default `en`)
+        /// The document's language, `<html lang>` (default: the page's `lang:`, else `en`)
         #[arg(long)]
         lang: Option<String>,
     },

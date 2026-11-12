@@ -421,6 +421,12 @@ pub struct JsCodegen {
     /// A title that splices more than a parameter's name, compiled to a
     /// function of the route's parameters.
     page_title_fns: HashMap<String, String>,
+    /// Each page's own `lang:`, which the router puts on `<html>` when it
+    /// shows the page.
+    page_langs: HashMap<String, String>,
+    /// The site's language (`config.page_lang()`): what `<html lang>` goes
+    /// back to on a page with no `lang:` of its own.
+    site_lang: String,
     /// Whether the element being emitted sits inside a `Thead`, where a
     /// `Tcell` is a column header (`<th scope="col">`), not a data cell.
     in_thead: bool,
@@ -581,6 +587,8 @@ impl JsCodegen {
             app_schemes: Vec::new(),
             page_titles: HashMap::new(),
             page_title_fns: HashMap::new(),
+            page_langs: HashMap::new(),
+            site_lang: String::new(),
             in_thead: false,
             studio: false,
             node_ids: NodeMap::default(),
@@ -704,6 +712,34 @@ impl JsCodegen {
 
     pub fn set_base_path(&mut self, path: String) {
         self.base_path = path;
+    }
+
+    /// The site's language, `config.page_lang()`: the `<html lang>` a page
+    /// with no `lang:` of its own is shown in.
+    pub fn set_site_lang(&mut self, lang: String) {
+        self.site_lang = lang;
+    }
+
+    /// The router's `lang` option when any page has a language of its own:
+    /// the site's, which a page without one goes back to.
+    fn router_lang_option(&self) -> Option<String> {
+        if self.page_langs.is_empty() {
+            return None;
+        }
+        let lang = if self.site_lang.is_empty() {
+            "en"
+        } else {
+            self.site_lang.as_str()
+        };
+        Some(format!(
+            "lang: {}, dir: \"{}\"",
+            serde_json::to_string(lang).unwrap_or_default(),
+            if crate::i18n::table::is_rtl(lang) {
+                "rtl"
+            } else {
+                "ltr"
+            }
+        ))
     }
 
     /// The app's own schemes a frame's address may use
@@ -872,6 +908,19 @@ impl JsCodegen {
             ),
             (None, None) => String::new(),
         };
+        // A page in a language of its own: the router puts it on `<html>`.
+        let title = match self.page_langs.get(page) {
+            Some(lang) => format!(
+                "{title}lang: {}, dir: \"{}\", ",
+                serde_json::to_string(lang).unwrap_or_default(),
+                if crate::i18n::table::is_rtl(lang) {
+                    "rtl"
+                } else {
+                    "ltr"
+                }
+            ),
+            None => title,
+        };
         // The layout that frames the page, called with the page as its
         // default slot.
         let layout = match self.page_layouts.get(page) {
@@ -1023,6 +1072,9 @@ impl JsCodegen {
                 Declaration::Page(p) => {
                     if let Some(title) = &p.title {
                         self.page_titles.insert(p.name.clone(), title.clone());
+                    }
+                    if let Some(lang) = &p.lang {
+                        self.page_langs.insert(p.name.clone(), lang.clone());
                     }
                     if !p.path.is_empty() {
                         self.page_paths.push((p.path.clone(), p.name.clone()));
@@ -1230,7 +1282,12 @@ impl JsCodegen {
                 } else {
                     self.emit_line("const container = WF.mainOf(document.getElementById('app'));");
                 }
-                self.emit_line("WF.router(routes, container);");
+                match self.router_lang_option() {
+                    Some(lang) => {
+                        self.emit_line(&format!("WF.router(routes, container, {{ {lang} }});"))
+                    }
+                    None => self.emit_line("WF.router(routes, container);"),
+                }
                 self.indent -= 1;
                 self.emit_line("})();");
             }
@@ -2496,6 +2553,10 @@ impl JsCodegen {
                     parts
                 })
                 .unwrap_or_default();
+            let options: Vec<String> = options
+                .into_iter()
+                .chain(self.router_lang_option())
+                .collect();
             self.emit_held_elements(start);
             if options.is_empty() {
                 self.emit_line("WF.router(_routes, _routerEl);");
@@ -9650,6 +9711,8 @@ mod tests {
             image_alt: None,
             page_type: None,
             noindex: false,
+            lang: None,
+            translates: None,
             layout: None,
             params: Vec::new(),
             head: Vec::new(),

@@ -1053,7 +1053,7 @@
         {
           "default": null,
           "flag": false,
-          "help": "The document's language, `<html lang>` (default `en`)",
+          "help": "The document's language, `<html lang>` (default: the page's `lang:`, else `en`)",
           "long": "lang",
           "name": "lang",
           "positional": false,

@@ -578,11 +578,22 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
         css.push_str(&project_css);
         css.push_str(&crate::codegen::scoped_css::scoped_rules(&program));
         let fragment = crate::template::render_program_paged(&program, &serde_json::json!({}))?;
-        let lang = if config.meta.lang.is_empty() {
-            "en".to_string()
-        } else {
-            config.meta.lang.clone()
-        };
+        // The document's language: the first page's own `lang:`, as
+        // `wf render` reads it, else the site's.
+        let lang = program
+            .declarations
+            .iter()
+            .find_map(|d| match d {
+                Declaration::Page(p) => p.lang.clone(),
+                _ => None,
+            })
+            .unwrap_or_else(|| {
+                if config.meta.lang.is_empty() {
+                    "en".to_string()
+                } else {
+                    config.meta.lang.clone()
+                }
+            });
         let title = crate::codegen::markdown::escape(&config.name);
         let dir = if crate::template::is_rtl(&lang) {
             " dir=\"rtl\""
@@ -711,6 +722,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
         js_codegen.set_base_path(config.build.base_path.clone());
     }
     js_codegen.set_app_schemes(crate::config::project::app_schemes(&config));
+    js_codegen.set_site_lang(config.page_lang());
     // `build.sourcemap`: each declaration's file, as the map's sources name
     // it (the project's own path, `src/pages/home.wf`).
     let sourcemap = config.build.sourcemap || options.sourcemap;

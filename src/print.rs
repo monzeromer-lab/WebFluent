@@ -1479,6 +1479,12 @@ pub fn page_header(p: &PageDecl) -> String {
     if p.noindex {
         attrs.push("noindex: true".to_string());
     }
+    if let Some(lang) = &p.lang {
+        attrs.push(format!("lang: {}", text_with_names(lang)));
+    }
+    if let Some(original) = &p.translates {
+        attrs.push(format!("translates: {original}"));
+    }
     if let Some(x) = &p.paths {
         attrs.push(format!("paths: {}", expr(x)));
     }

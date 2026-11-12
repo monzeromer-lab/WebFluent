@@ -5,7 +5,7 @@ export interface TemplateOptions {
   tokens?: Record<string, string>;
   /** The page to render, by name, when the template has several */
   page?: string;
-  /** The language `renderHtml` declares, `<html lang>` (default `en`) */
+  /** The language `renderHtml` declares, `<html lang>` (default: the page's `lang:`, else `en`) */
   lang?: string;
 }
 

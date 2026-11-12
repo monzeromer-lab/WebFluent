@@ -207,6 +207,8 @@ The front matter keys are the page's attributes:
 | `image` · `image_alt` | The link-preview image, and what it shows |
 | `type` | `website` (the default) or `article` |
 | `noindex` | `true` keeps the page out of search results and the sitemap |
+| `lang` | The language the page is written in, when it is not the site's: `en`, `ar`, `pt-BR` |
+| `translates` | The page this one is a translation of, by name: `About` |
 
 The page's name is the file's stem, capitalised: `install.md` is the page
 `Install`. The body is placed as `Markdown(…)` in the page, inside the
@@ -285,8 +287,10 @@ What the build writes into each page's head:
   `Article`, and a `BreadcrumbList` derived from the route's segments. Each
   breadcrumb is a page a reader can open; a level no route answers is left
   out.
-- **`hreflang` alternates** for each locale, when the project has several
-  ([Internationalization](28-i18n.md)).
+- **`hreflang` alternates** for the page and each of its translations
+  (`translates:`), each at its own address and in its own `lang:`, with
+  `x-default` for the one in the site's language
+  ([A page in its own language](28-i18n.md#a-page-in-its-own-language)).
 - **The icons**: `<link rel="icon">` for `favicon` (typed, so an SVG is
   read as one) and `<link rel="apple-touch-icon">` for `touch_icon`. Each
   is linked from the site's root under the `base_path`

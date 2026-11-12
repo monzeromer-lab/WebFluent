@@ -227,7 +227,7 @@ pub(crate) fn each_element_mut(stmts: &mut [Statement], f: &mut dyn FnMut(&mut U
 
 /// A `.md` page: front matter between `---` lines names the page's
 /// attributes — `path`, `title`, `description`, `layout`, `image`, `type`,
-/// `noindex` — and the rest is the page's Markdown. The page's name is the
+/// `noindex`, `lang`, `translates` — and the rest is the page's Markdown. The page's name is the
 /// file's stem, capitalised; its route the `path`, or `/<stem>` (`/` for
 /// `index`).
 pub fn markdown_page(source: &str, file: &str) -> Result<Program> {
@@ -264,6 +264,21 @@ pub fn markdown_page(source: &str, file: &str) -> Result<Program> {
         source.to_string()
     };
     let get = |key: &str| front.iter().find(|(k, _)| k == key).map(|(_, v)| v.clone());
+    // `lang:` is held to what a `.wf` page's is: a language tag.
+    let lang = get("lang").filter(|l| !l.is_empty());
+    if let Some(tag) = &lang
+        && !crate::parser::v2::is_language_tag(tag)
+    {
+        return Err(WebFluentError::ParseError(Box::new(
+            crate::error::Diagnostic::coded(
+                "E002",
+                format!("`lang: {tag}` is not a language tag; write one such as en, ar or pt-BR"),
+                file,
+                1,
+                1,
+            ),
+        )));
+    }
     let path = get("path").unwrap_or_else(|| {
         if stem == "index" {
             "/".to_string()
@@ -319,6 +334,8 @@ pub fn markdown_page(source: &str, file: &str) -> Result<Program> {
             image_alt: get("image_alt"),
             page_type: get("type"),
             noindex: get("noindex").is_some_and(|v| v == "true"),
+            lang,
+            translates: get("translates").filter(|t| !t.is_empty()),
             layout,
             params: Vec::new(),
             head: Vec::new(),

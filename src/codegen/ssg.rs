@@ -239,7 +239,7 @@ pub fn render_page_html_studio(
         ..
     } = *site;
     let title = page.title.as_deref().unwrap_or(&config.name);
-    let lang = config.page_lang();
+    let lang = crate::codegen::seo::page_lang(page, config);
 
     let default_locale = config
         .i18n
@@ -458,7 +458,7 @@ pub fn render_page_html_studio(
 </body>
 </html>"#,
         lang,
-        config.page_dir_attr(),
+        crate::codegen::seo::dir_attr(&lang),
         title,
         description_meta,
         crate::codegen::html::csp_meta(config),

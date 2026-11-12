@@ -9,12 +9,10 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
         &config.meta.title
     };
 
-    let lang = config.page_lang();
-
     // A single-page app serves every route from this one document, so the tags
     // here describe the entry route. A crawler that runs no JavaScript sees only
     // this — which is the argument for building such a site with SSG on.
-    let description_meta = program
+    let entry_page = program
         .declarations
         .iter()
         .find_map(|d| match d {
@@ -26,7 +24,14 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
                 Declaration::Page(p) => Some(p),
                 _ => None,
             })
-        })
+        });
+    // The entry route's language; the router sets another page's own when
+    // it shows.
+    let lang = entry_page.map_or_else(
+        || config.page_lang(),
+        |page| crate::codegen::seo::page_lang(page, config),
+    );
+    let description_meta = entry_page
         .map(|page| crate::codegen::seo::head_tags(page, config, program))
         .unwrap_or_default();
 
@@ -87,7 +92,7 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
 </body>
 </html>"#,
         lang,
-        config.page_dir_attr(),
+        crate::codegen::seo::dir_attr(&lang),
         title,
         description_meta,
         csp_meta(config),

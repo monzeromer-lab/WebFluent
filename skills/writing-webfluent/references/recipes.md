@@ -404,6 +404,33 @@ In a translated project, add `persist language = "en"` and
 `effect { setLocale(Prefs.language) }`. Arabic then flips the page right to
 left.
 
+## A site in two languages, each found by search
+
+`t()` and `setLocale` translate a page in the browser, at one address, so a
+search engine only ever indexes the default locale. For each language to be
+found, write the page once per language, each at its own address. Give each
+page the `lang:` it is written in, and use `translates:` to say which pages
+are translations of each other:
+
+```wf
+page Team(path: "/team", title: "من نحن", description: "من نحن وماذا نصنع.") {
+    Heading("من نحن").h1
+    Link("English", to: "/en/team")
+}
+
+page TeamEn(path: "/en/team", title: "Team", description: "Who we are and what we make.",
+             lang: "en", translates: Team) {
+    Heading("Team").h1
+    Link("العربية", to: "/team")
+}
+```
+
+Each page is written with its own `<html lang dir>` and `og:locale`, and both
+list each other as `hreflang` alternates. `x-default` is the one in the
+site's language (`meta.lang`). Don't add `?lang=` links for search engines:
+those addresses serve the default locale's HTML, and the build no longer
+lists them.
+
 ## A dashboard that reflows
 
 Responsive values compile to CSS, so the first paint has the right layout. A

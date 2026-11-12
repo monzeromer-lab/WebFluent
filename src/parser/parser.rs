@@ -278,6 +278,8 @@ impl Parser {
             image_alt,
             page_type,
             noindex,
+            lang: None,
+            translates: None,
             guard,
             redirect,
             layout: None,

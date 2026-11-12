@@ -26,6 +26,7 @@ In this chapter:
 
 | Release | What to do |
 |---|---|
+| [5.15](#5-15) | Nothing; to have each language of a translated site found, give it pages with `lang:` and `translates:` |
 | [5.12](#5-12) | Run `wf check` (`E118`, `E102`); rename a store member called `valueOf` or `toString` |
 | [5.11](#5-11) | Run `wf check` (`C07`, `T22`), then `wf test --update` once you have read the new snapshots |
 | [5.10](#5-10) | Run `wf check` and `wf test --update`; check `Column` spans, `Menu` labels and bound checkboxes with their own `on change` |
@@ -66,6 +67,27 @@ After installing, bring each project forward:
 3. Run `wf test`. If snapshots changed, look at each difference, then run
    `wf test --update`.
 4. Build, and load the result with `wf verify`.
+
+## 5.15
+
+5.15 lets a page be in a language of its own (`lang:`) and name the page
+it translates (`translates:`). Your project may notice these:
+
+- **No more `?lang=` alternates.** A project with several `i18n.locales`
+  listed a `?lang=<code>` address per locale as an `hreflang` alternate.
+  Each served the default locale's HTML with the bare address as its
+  canonical, so search engines filed them as duplicates and ignored the
+  set. They are gone; a `?lang=` link still opens the page in that locale.
+  To have each language indexed, write its pages with `lang:` and
+  `translates:` ([A page in its own language](28-i18n.md#a-page-in-its-own-language)).
+- **Every page's JSON-LD names its language**, `inLanguage`.
+- **`wf render` and `Template` use the page's `lang:`** when `--lang` or
+  `with_lang` is not given; a page without one is still `en`.
+- **A word `lang` or `translates` in a page header** is the new option
+  when it takes a string or a page name. A route parameter of that name is
+  still one: `lang: String`.
+
+Run `wf check`.
 
 ## 5.12
 

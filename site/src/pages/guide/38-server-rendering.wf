@@ -84,7 +84,7 @@ page ServerRenderingGuide(path: "/docs/guide/server-rendering", title: "Server r
                 }
                 Table.Row {
                     Table.Cell { Markdown("`--lang ar`") }
-                    Table.Cell { Markdown("Sets the document's language, `<html lang>` (default `en`)") }
+                    Table.Cell { Markdown("Sets the document's language, `<html lang>` (default: the page's `lang:`, else `en`)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`--page Name`") }
@@ -217,7 +217,7 @@ let pdf: Vec<u8> = templates
 
         Heading("Configure a render", id: "configure-a-render").h3
 
-        Markdown("Each setting returns the `Template`, so you can chain them before a render:\n\n- `with_theme(name)` picks a theme;\n- `with_tokens(&[(name, value)])` sets design tokens over the theme's;\n- `with_lang(\"ar\")` sets the language (a right-to-left language also sets `dir=\"rtl\"`);\n- `with_pdf(PdfConfig \{ .. \})` sets page size, margins and fonts;\n- `with_slides(SlidesConfig \{ .. \})` sets a deck's options.")
+        Markdown("Each setting returns the `Template`, so you can chain them before a render:\n\n- `with_theme(name)` picks a theme;\n- `with_tokens(&[(name, value)])` sets design tokens over the theme's;\n- `with_lang(\"ar\")` sets the language (a right-to-left language also sets `dir=\"rtl\"`); without it, the page's own `lang:` is used, else `en`;\n- `with_pdf(PdfConfig \{ .. \})` sets page size, margins and fonts;\n- `with_slides(SlidesConfig \{ .. \})` sets a deck's options.")
 
         Heading("Use it in a server", id: "use-it-in-a-server").h3
 

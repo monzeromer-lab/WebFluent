@@ -188,6 +188,19 @@
         // Untrack: don't subscribe the router effect to signals read during page render
         const prev = currentEffect;
         currentEffect = null;
+        // A page in a language of its own (`lang:`) says so on the document;
+        // any other is in the reader's chosen locale, or the site's language.
+        // Only a site with such a page passes `options.lang`.
+        if (options && options.lang) {
+          const root = document.documentElement;
+          const own = match.route.lang
+            ? [match.route.lang, match.route.dir]
+            : i18nInstance
+              ? [String(i18nInstance.locale()).split("-u-")[0], i18nInstance.dir()]
+              : [options.lang, options.dir];
+          root.setAttribute("lang", own[0]);
+          root.setAttribute("dir", own[1]);
+        }
         try {
           // A page that names a layout is rendered inside it. The skip link
           // jumps past a layout's own chrome to where the page starts.

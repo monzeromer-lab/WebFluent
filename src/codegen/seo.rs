@@ -95,6 +95,100 @@ pub fn route_address(config: &ProjectConfig, path: &str) -> String {
     }
 }
 
+/// The language a page is written in: its own `lang:`, else the site's.
+pub fn page_lang(page: &PageDecl, config: &ProjectConfig) -> String {
+    page.lang.clone().unwrap_or_else(|| config.page_lang())
+}
+
+/// ` dir="rtl"` for a language written right to left, empty otherwise.
+pub fn dir_attr(lang: &str) -> &'static str {
+    if crate::i18n::table::is_rtl(lang) {
+        " dir=\"rtl\""
+    } else {
+        ""
+    }
+}
+
+/// The pages that are translations of one another with the page named
+/// `name` — joined by `translates:`, directly or through each other — in
+/// the order they are declared, the page itself among them. A page no other
+/// names and that names none is alone.
+pub fn translation_group<'a>(name: &str, program: &'a Program) -> Vec<&'a PageDecl> {
+    let pages: Vec<&PageDecl> = program
+        .declarations
+        .iter()
+        .filter_map(|d| match d {
+            Declaration::Page(p) => Some(p),
+            _ => None,
+        })
+        .collect();
+    let mut group: Vec<&str> = Vec::new();
+    if let Some(own) = pages.iter().find(|p| p.name == name) {
+        group.push(own.name.as_str());
+    }
+    loop {
+        let before = group.len();
+        for p in &pages {
+            let named = p.translates.as_deref();
+            let joined =
+                group.contains(&p.name.as_str()) || named.is_some_and(|t| group.contains(&t));
+            if !joined {
+                continue;
+            }
+            if !group.contains(&p.name.as_str()) {
+                group.push(p.name.as_str());
+            }
+            if let Some(original) = pages.iter().find(|o| Some(o.name.as_str()) == named)
+                && !group.contains(&original.name.as_str())
+            {
+                group.push(original.name.as_str());
+            }
+        }
+        if group.len() == before {
+            break;
+        }
+    }
+    pages
+        .into_iter()
+        .filter(|p| group.contains(&p.name.as_str()))
+        .collect()
+}
+
+/// The route of a translation for the file at `route`: `/en/posts/:slug`
+/// for `/posts/first` fills `:slug` with `first`. `None` when the
+/// translation's route has a parameter the file's has not, or is a catch-all.
+fn translated_route(pattern: &str, route: &str, translation: &str) -> Option<String> {
+    if translation.contains('*') {
+        return None;
+    }
+    let mut values = std::collections::HashMap::new();
+    let ours: Vec<&str> = pattern.split('/').collect();
+    let file: Vec<&str> = route.split('/').collect();
+    if ours.len() == file.len() {
+        for (name, value) in ours.iter().zip(&file) {
+            if let Some(name) = name.strip_prefix(':') {
+                values.insert(name, *value);
+            }
+        }
+    }
+    translation
+        .split('/')
+        .map(|seg| match seg.strip_prefix(':') {
+            Some(name) => values.get(name).map(|v| v.to_string()),
+            None => Some(seg.to_string()),
+        })
+        .collect::<Option<Vec<_>>>()
+        .map(|segs| segs.join("/"))
+}
+
+/// The primary language of a tag, lower case: `en` for `en-GB`.
+fn language_of(tag: &str) -> String {
+    tag.split(['-', '_'])
+        .next()
+        .unwrap_or(tag)
+        .to_ascii_lowercase()
+}
+
 /// `og:locale` for a language tag: Open Graph reads `language_TERRITORY`
 /// (`en_US`), not the BCP 47 tag a document's `lang` holds (`en`, `en-GB`).
 ///
@@ -305,25 +399,52 @@ pub fn head_tags(page: &PageDecl, config: &ProjectConfig, program: &Program) -> 
         push(format!(r#"<link rel="canonical" href="{}">"#, attr(url)));
     }
 
-    // Language alternates. Every variant must list itself as well as the others,
-    // or the set is ignored.
-    if let (Some(i18n), Some(origin)) = (&config.i18n, site_origin(config))
-        && i18n.locales.len() > 1
-    {
-        let base = config.build.base_path.trim_end_matches('/');
-        let route = route_address(config, &page.path);
-        for locale in &i18n.locales {
-            let href = format!("{origin}{base}{route}?lang={locale}");
+    // Language alternates: the page's translations (`translates:`), each at
+    // its own address, in its own language and canonical to itself. Every
+    // one lists itself as well as the others, or the set is ignored, and
+    // `x-default` is the one in the site's language.
+    //
+    // A locale the browser switches to on one address (`setLocale`,
+    // `?lang=`) is not an alternate: that address's static HTML, and its
+    // canonical, are the default locale's, so a `?lang=ar` alternate told a
+    // search engine the Arabic page was a duplicate of the English one.
+    let group = translation_group(&page.name, program);
+    if group.len() > 1 && canonical.is_some() && !page.noindex {
+        let pattern = group
+            .iter()
+            .find(|p| p.name == page.name)
+            .map_or(page.path.as_str(), |p| p.path.as_str());
+        let site_language = language_of(&config.page_lang());
+        let mut x_default = None;
+        for member in group.iter().filter(|m| !m.noindex) {
+            let route = if member.name == page.name {
+                Some(page.path.clone())
+            } else {
+                // A `:param` translation is listed only for a route the
+                // build writes — one of its `paths:` — never a 404.
+                translated_route(pattern, &page.path, &member.path).filter(|r| {
+                    !member.path.contains(':')
+                        || crate::codegen::ssg::static_routes(member, program, &config.env)
+                            .is_ok_and(|routes| routes.iter().any(|(built, _)| built == r))
+                })
+            };
+            let Some(href) = route.and_then(|r| absolute_url(config, &r)) else {
+                continue;
+            };
+            let lang = page_lang(member, config);
+            if x_default.is_none() && language_of(&lang) == site_language {
+                x_default = Some(href.clone());
+            }
             push(format!(
                 r#"<link rel="alternate" hreflang="{}" href="{}">"#,
-                attr(locale),
+                attr(&lang),
                 attr(&href)
             ));
         }
-        if let Some(url) = &canonical {
+        if let Some(href) = x_default {
             push(format!(
                 r#"<link rel="alternate" hreflang="x-default" href="{}">"#,
-                attr(url)
+                attr(&href)
             ));
         }
     }
@@ -354,24 +475,29 @@ pub fn head_tags(page: &PageDecl, config: &ProjectConfig, program: &Program) -> 
             attr(url)
         ));
     }
-    if !config.meta.lang.is_empty() || config.i18n.is_some() {
-        let locale = og_locale(&config.page_lang());
+    if !config.meta.lang.is_empty() || config.i18n.is_some() || page.lang.is_some() {
+        let locale = og_locale(&page_lang(page, config));
         push(format!(
             r#"<meta property="og:locale" content="{}">"#,
             attr(&locale)
         ));
-        // The site's other languages, each as Open Graph spells it.
-        if let Some(i18n) = &config.i18n {
-            let mut seen = vec![locale];
-            for other in &i18n.locales {
-                let other = og_locale(other);
-                if !seen.contains(&other) {
-                    push(format!(
-                        r#"<meta property="og:locale:alternate" content="{}">"#,
-                        attr(&other)
-                    ));
-                    seen.push(other);
-                }
+        // The page's other languages, each as Open Graph spells it: its
+        // translations', and the site's locales.
+        let others: Vec<String> = group
+            .iter()
+            .filter(|p| p.name != page.name)
+            .map(|p| page_lang(p, config))
+            .chain(config.i18n.iter().flat_map(|i| i.locales.iter().cloned()))
+            .collect();
+        let mut seen = vec![locale];
+        for other in &others {
+            let other = og_locale(other);
+            if !seen.contains(&other) {
+                push(format!(
+                    r#"<meta property="og:locale:alternate" content="{}">"#,
+                    attr(&other)
+                ));
+                seen.push(other);
             }
         }
     }
@@ -526,6 +652,10 @@ fn structured_data(page: &PageDecl, config: &ProjectConfig, program: &Program) -
     if let Some(d) = description(page, config) {
         web_page.push_str(&format!(r#","description":"{}""#, json_str(d)));
     }
+    web_page.push_str(&format!(
+        r#","inLanguage":"{}""#,
+        json_str(&page_lang(page, config))
+    ));
     if config.meta.owner == Owner::Person {
         web_page.push_str(&format!(r#","about":{{"@id":"{owner_id}"}}"#));
     }
@@ -1022,19 +1152,114 @@ page Guide(path: "/docs/getting-started", title: "Getting Started") { Text("x") 
         );
     }
 
+    /// The head of the page named `name`, for the file at `route`.
+    fn head_of(src: &str, cfg: &str, name: &str, route: Option<&str>) -> String {
+        let program = parse(src);
+        let mut page = program
+            .declarations
+            .iter()
+            .find_map(|d| match d {
+                Declaration::Page(p) if p.name == name => Some(p.clone()),
+                _ => None,
+            })
+            .expect("the page");
+        if let Some(route) = route {
+            page.path = route.to_string();
+        }
+        head_tags(&page, &config(cfg), &program)
+    }
+
     #[test]
-    fn a_multilingual_site_lists_every_variant_including_itself() {
+    fn a_locale_switched_in_the_browser_is_not_an_alternate() {
+        // `?lang=ar` serves the default locale's HTML with the bare URL as
+        // its canonical: listing it told Google the Arabic page was a
+        // duplicate of the English one (issue #5).
         let out = head(
             r#"page P(path: "/", title: "P") { Text("x") }"#,
             r#"{"name":"L","meta":{"site_url":"https://l.example"},
                 "i18n":{"default_locale":"en","locales":["en","ar"]}}"#,
         );
-        assert!(out.contains(r#"hreflang="en""#), "{out}");
+        assert!(!out.contains("hreflang"), "{out}");
+        assert!(!out.contains("?lang="), "{out}");
+    }
+
+    const BILINGUAL: &str = r#"page Home(path: "/", title: "الرئيسية") { Text("x") }
+        page HomeEn(path: "/en", title: "Home", lang: "en", translates: Home) { Text("x") }
+        page HomeFr(path: "/fr", title: "Accueil", lang: "fr", translates: HomeEn) { Text("x") }
+        page Other(path: "/other", title: "O") { Text("x") }"#;
+    const ARABIC_SITE: &str = r#"{"name":"L","meta":{"site_url":"https://l.example","lang":"ar"}}"#;
+
+    #[test]
+    fn translations_list_each_other_each_at_its_own_address() {
+        for name in ["Home", "HomeEn", "HomeFr"] {
+            let out = head_of(BILINGUAL, ARABIC_SITE, name, None);
+            for (lang, href) in [
+                ("ar", "https://l.example/"),
+                ("en", "https://l.example/en"),
+                ("fr", "https://l.example/fr"),
+                ("x-default", "https://l.example/"),
+            ] {
+                assert!(
+                    out.contains(&format!(
+                        r#"<link rel="alternate" hreflang="{lang}" href="{href}">"#
+                    )),
+                    "{name} should list {lang}: {out}"
+                );
+            }
+            assert_eq!(out.matches("hreflang=").count(), 4, "{out}");
+        }
+        let alone = head_of(BILINGUAL, ARABIC_SITE, "Other", None);
+        assert!(!alone.contains("hreflang"), "{alone}");
+    }
+
+    #[test]
+    fn a_page_in_its_own_language_says_so_on_the_card_and_in_the_graph() {
+        let out = head_of(BILINGUAL, ARABIC_SITE, "HomeEn", None);
         assert!(
-            out.contains(r#"hreflang="ar""#),
-            "a variant must list its siblings: {out}"
+            out.contains(r#"<meta property="og:locale" content="en_US">"#),
+            "{out}"
         );
-        assert!(out.contains(r#"hreflang="x-default""#), "{out}");
+        assert!(
+            out.contains(r#"<meta property="og:locale:alternate" content="ar_AR">"#),
+            "{out}"
+        );
+        assert!(
+            out.contains(r#"<meta property="og:locale:alternate" content="fr_FR">"#),
+            "{out}"
+        );
+        assert!(out.contains(r#""inLanguage":"en""#), "{out}");
+        let home = head_of(BILINGUAL, ARABIC_SITE, "Home", None);
+        assert!(
+            home.contains(r#"<meta property="og:locale" content="ar_AR">"#),
+            "{home}"
+        );
+        assert!(home.contains(r#""inLanguage":"ar""#), "{home}");
+    }
+
+    #[test]
+    fn a_translated_param_page_is_matched_by_its_parameters() {
+        let src = r#"page Post(path: "/posts/:slug", title: "P", slug: String, paths: ["first"]) { Text(slug) }
+            page PostEn(path: "/en/posts/:slug", title: "P", slug: String, lang: "en", translates: Post, paths: ["first", "only-en"]) { Text(slug) }"#;
+        // `only-en` has no Arabic file, so it lists no Arabic alternate.
+        let lonely = head_of(src, ARABIC_SITE, "PostEn", Some("/en/posts/only-en"));
+        assert!(!lonely.contains(r#"hreflang="ar""#), "{lonely}");
+        let out = head_of(src, ARABIC_SITE, "PostEn", Some("/en/posts/first"));
+        assert!(
+            out.contains(r#"hreflang="ar" href="https://l.example/posts/first""#),
+            "{out}"
+        );
+        assert!(
+            out.contains(r#"hreflang="en" href="https://l.example/en/posts/first""#),
+            "{out}"
+        );
+    }
+
+    #[test]
+    fn a_noindex_translation_is_not_listed() {
+        let src = r#"page Home(path: "/", title: "H") { Text("x") }
+            page HomeEn(path: "/en", title: "H", lang: "en", translates: Home, noindex: true) { Text("x") }"#;
+        let out = head_of(src, ARABIC_SITE, "Home", None);
+        assert!(!out.contains(r#"hreflang="en""#), "{out}");
     }
 
     #[test]

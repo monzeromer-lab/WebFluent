@@ -1,3 +1,45 @@
+# WebFluent v5.15.0 Release Notes
+
+A page can be in a language of its own, and a bilingual site can tell a
+search engine which pages translate each other.
+
+## Additions
+
+- **`lang:` on a page.** `page HomeEn(path: "/en", lang: "en", …)` is
+  written `<html lang="en">` (and `dir="rtl"` for a language written right
+  to left), with its own `og:locale` and `inLanguage` on its JSON-LD
+  `WebPage`. The router sets `lang` and `dir` on `<html>` when it shows the
+  page, and puts back the site's language, or the locale the reader chose,
+  on a page without one. `wf render` uses it when no `--lang` is given. A
+  site whose pages declared one language each used to ship every page in
+  `meta.lang`, so crawlers and link previews read its English pages as
+  Arabic (#6).
+- **`translates:` on a page.** `translates: Home` names the page this one
+  is a translation of. Pages joined this way, directly or through each
+  other, list each other as `hreflang` alternates, each at its own address,
+  canonical to itself and in its own `lang:`, with `x-default` for the one
+  in the site's language, and name each other's languages as
+  `og:locale:alternate`. A `:param` page's translation is matched by its
+  parameters (`/en/posts/:slug` for `/posts/:slug`).
+- **`R05`**: a `translates:` that names no page or its own, or two
+  translations of one page in one language.
+
+## Fixes
+
+- **No more `?lang=` alternates.** A project with several `i18n.locales`
+  listed `?lang=<code>` for each as an `hreflang` alternate, but every
+  `?lang=` address serves the default locale's HTML with the bare address
+  as its canonical, so a search engine filed each one as a duplicate and
+  ignored the set (#5). A locale the browser switches to on one address is
+  not an alternate; translations with `translates:` are. `?lang=` still
+  opens a page in that locale for a reader who follows such a link.
+
+## Upgrading
+
+Nothing to change. A multilingual site that relied on the `?lang=`
+alternates had them ignored by search engines already; to have each
+language indexed, give it pages of its own with `lang:` and `translates:`.
+
 # WebFluent v5.14.0 Release Notes
 
 The compiler runs in a browser. Built for WebAssembly, it does in a page

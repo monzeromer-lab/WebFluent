@@ -159,6 +159,14 @@ Then `wf init my-site`."#, title: "markdown")
                     Table.Cell { Markdown("`noindex`") }
                     Table.Cell { Markdown("`true` keeps the page out of search results and the sitemap") }
                 }
+                Table.Row {
+                    Table.Cell { Markdown("`lang`") }
+                    Table.Cell { Markdown("The language the page is written in, when it is not the site's: `en`, `ar`, `pt-BR`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`translates`") }
+                    Table.Cell { Markdown("The page this one is a translation of, by name: `About`") }
+                }
             }
         }
 
@@ -204,7 +212,7 @@ Then `wf init my-site`."#, title: "markdown")
   }
 }"#, title: "json")
 
-        Markdown("What the build writes into each page's head:\n\n- **`<title>` and `<meta name=\"description\">`**, from the page's `title:` and `description:`. The description is the snippet a search result shows and a link preview quotes; keep it under about 150 characters.\n- **A canonical link and `og:url`**, when `site_url` is set. A relative canonical is worse than none, so without `site_url` the build writes none.\n- **Open Graph and Twitter card tags**: `og:title`, `og:description`, `og:image` (the page's `image:` or the site's), `og:type` from `type:` (`website` or `article`), `og:site_name`, and `og:locale` in the form Open Graph reads — `meta.lang` `en` is `en_US`, `en-GB` is `en_GB`, `ar` is `ar_AR` — with an `og:locale:alternate` for each other locale.\n- **The image's size and description**: `og:image:width` and `og:image:height`, read from the file when the image is in `public/` (one on another origin is not fetched, so its card states no size), and `og:image:alt` and `twitter:image:alt` from the page's `image_alt:`, or `meta.image_alt` for the site's image. A sharing image is best at 1200×630.\n- **JSON-LD**: the site's owner, a `WebSite` it publishes, a `WebPage` or `Article`, and a `BreadcrumbList` derived from the route's segments. Each breadcrumb is a page a reader can open; a level no route answers is left out.\n- **`hreflang` alternates** for each locale, when the project has several ([Internationalization](/docs/guide/i18n)).\n- **The icons**: `<link rel=\"icon\">` for `favicon` (typed, so an SVG is read as one) and `<link rel=\"apple-touch-icon\">` for `touch_icon`. Each is linked from the site's root under the `base_path` (`/my-site/favicon.svg`), so it stays right when the router moves the page to another address.\n- **`<meta name=\"robots\" content=\"noindex\">`**, and no sitemap entry, for a `noindex: true` page.")
+        Markdown("What the build writes into each page's head:\n\n- **`<title>` and `<meta name=\"description\">`**, from the page's `title:` and `description:`. The description is the snippet a search result shows and a link preview quotes; keep it under about 150 characters.\n- **A canonical link and `og:url`**, when `site_url` is set. A relative canonical is worse than none, so without `site_url` the build writes none.\n- **Open Graph and Twitter card tags**: `og:title`, `og:description`, `og:image` (the page's `image:` or the site's), `og:type` from `type:` (`website` or `article`), `og:site_name`, and `og:locale` in the form Open Graph reads — `meta.lang` `en` is `en_US`, `en-GB` is `en_GB`, `ar` is `ar_AR` — with an `og:locale:alternate` for each other locale.\n- **The image's size and description**: `og:image:width` and `og:image:height`, read from the file when the image is in `public/` (one on another origin is not fetched, so its card states no size), and `og:image:alt` and `twitter:image:alt` from the page's `image_alt:`, or `meta.image_alt` for the site's image. A sharing image is best at 1200×630.\n- **JSON-LD**: the site's owner, a `WebSite` it publishes, a `WebPage` or `Article`, and a `BreadcrumbList` derived from the route's segments. Each breadcrumb is a page a reader can open; a level no route answers is left out.\n- **`hreflang` alternates** for the page and each of its translations (`translates:`), each at its own address and in its own `lang:`, with `x-default` for the one in the site's language ([A page in its own language](/docs/guide/i18n#a-page-in-its-own-language)).\n- **The icons**: `<link rel=\"icon\">` for `favicon` (typed, so an SVG is read as one) and `<link rel=\"apple-touch-icon\">` for `touch_icon`. Each is linked from the site's root under the `base_path` (`/my-site/favicon.svg`), so it stays right when the router moves the page to another address.\n- **`<meta name=\"robots\" content=\"noindex\">`**, and no sitemap entry, for a `noindex: true` page.")
 
         Heading("Add tags for one page", id: "add-tags-for-one-page").h3
 

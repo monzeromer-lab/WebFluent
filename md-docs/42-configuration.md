@@ -250,7 +250,7 @@ and the other origins the content security policy allows.
 |---|---|---|---|
 | `title` | string | the project's name | The title a page falls back to when it declares none. |
 | `description` | string | `""` | The description a page falls back to when it declares none. |
-| `lang` | language tag | `"en"` | The document's language: `en`, `ar`, `pt-BR`. |
+| `lang` | language tag | `"en"` | The document's language: `en`, `ar`, `pt-BR`. A page written in another language says so with its own `lang:`. |
 | `site_url` | string | `""` | The site's absolute address, such as `https://example.com`. Without it, canonical links, the sitemap's URLs and absolute sharing URLs are left out rather than guessed. |
 | `site_name` | string | `""` | The name a link preview shows, and the site's owner in the structured data. |
 | `owner` | `organization`, `person` | `"organization"` | Whether the site belongs to an organisation or a person: the JSON-LD node the site is published by ([Content](27-content.md#say-who-the-site-belongs-to)). |

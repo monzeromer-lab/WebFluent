@@ -1166,6 +1166,37 @@ warning[R04]: `src: "images/cover.png"` is relative, so on `/blog/first` it is f
 
 **Fix:** Write it from the site's root: `"/images/cover.png"`.
 
+### R05 — A translation of no page, or two in one language
+
+Error.
+
+```wf expect R05
+page Home(path: "/", title: "Home", description: "D") {
+    Heading("Home").h1
+}
+
+page HomeEn(path: "/en", title: "Home", description: "D", lang: "en", translates: Hom) {
+    Heading("Home").h1
+}
+```
+
+```text
+error[R05]: `HomeEn` translates `Hom`, and no page is named `Hom`
+ --> src/App.wf:5:1
+  |
+5 | page HomeEn(path: "/en", title: "Home", description: "D", lang: "en", translates: Hom) {
+  | ^^^^
+  = help: Did you mean `Home`?
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#r05-a-translation-of-no-page-or-two-in-one-language
+```
+
+`translates:` names the page this one is a translation of, and the pages
+it joins list each other as `hreflang` alternates, each in its own `lang:`.
+Two pages of one group in the same language — or both with no `lang:`, so
+both in the site's — would be two alternates for one language. **Fix:**
+name a page the program declares, and give each translation the `lang:` it
+is written in.
+
 ## Data and assets
 
 ### D01 — A file the project does not have

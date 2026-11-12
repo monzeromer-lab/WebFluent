@@ -752,7 +752,7 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                 Table.Row {
                     Table.Cell { Markdown("`--lang`") }
                     Table.Cell("a language tag")
-                    Table.Cell { Markdown("`en`") }
+                    Table.Cell { Markdown("the page's `lang:`, else `en`") }
                     Table.Cell { Markdown("The document's `<html lang>`.") }
                 }
             }

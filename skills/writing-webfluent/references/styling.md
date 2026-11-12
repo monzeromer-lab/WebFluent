@@ -254,7 +254,9 @@ page Gallery(path: "/gallery", title: "Gallery", description: "Every picture, in
 
 ## Right to left
 
-An Arabic, Hebrew, Persian or Urdu locale sets `dir="rtl"` on the page.
+An Arabic, Hebrew, Persian or Urdu locale sets `dir="rtl"` on the page, and
+so does a page written in one (`lang: "ar"` in its header); a page with
+`lang: "en"` on an Arabic site is left to right.
 Everything laid out with `Row`/`Stack`/`Grid` flips by itself. In your CSS
 and `style { }`:
 - **Logical sides.** `margin-inline-start`, `padding-inline-end`,

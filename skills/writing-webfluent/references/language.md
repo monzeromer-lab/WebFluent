@@ -215,6 +215,12 @@ page Home(path: "/", title: "Home") {
 - `image_alt` — What that image shows (`og:image:alt`, `twitter:image:alt`)
 - `type` — `"website"` (default) or `"article"`
 - `noindex: true` — keeps the page out of search results and out of the sitemap
+- `lang: "en"` — the language the page is written in, when it is not the
+  site's: its `<html lang dir>`, `og:locale` and JSON-LD `inLanguage`, in the
+  static paint and on the live page (the router sets them on a route change)
+- `translates: Home` — the page this one is a translation of; pages joined
+  this way list each other as `hreflang` alternates, each at its own address
+  and in its own `lang` (`R05` when it names no page, or two share a language)
 - `layout: Shell(crumb: "Home")` — the component that frames the page; the
   page renders in its default slot, and the skip link jumps past the
   layout's own chrome to the page's first element
@@ -579,7 +585,7 @@ The static build writes `p/<slug>/index.html` for each, with `slug` and
 
 A `.md` file under `src/` is a page: front matter between `---` lines
 names `path` (default `/<stem>`, `/` for `index`), `title`, `description`,
-`layout`, `image`, `type` and `noindex`; the rest is its Markdown, placed
+`layout`, `image`, `type`, `noindex`, `lang` and `translates`; the rest is its Markdown, placed
 as `Markdown(…)` in the page's body (inside the layout's default slot when
 one is named).
 
@@ -742,7 +748,24 @@ page Shop(path: "/shop") {
 }
 ```
 
+A store may own a `resource`: asked for when the store is built, kept for
+as long as the store lives (not the page that first read it), and
+abandoned with it. Its address reads the store's state; its `state`,
+`data`, `error`, `refreshing` and `pending` are signals, read as
+`rows.data` inside the store and `Feed.rows.state` outside it, and
+`match Feed.rows { loading … error(e) … ready(rows) … }` draws it.
+
+```wf
+store Feed {
+    state page = 1
+    resource rows = fetch("/api/rows?page={page}")
+    derived count = rows.data?.length ?? 0
+    action next() { page = page + 1 }
+}
+```
+
 <!-- core -->
+
 ### State & Reactivity
 
 ```wf
@@ -2476,9 +2499,12 @@ Every page then carries:
   `og:image:width`/`og:image:height` read from the file when the image is in `public/`,
   `og:image:alt`/`twitter:image:alt` from the page's `image_alt:` or `meta.image_alt`,
   and `og:locale` as Open Graph spells it (`en` → `en_US`, `en-GB` → `en_GB`) with an
-  `og:locale:alternate` per other locale
-- `<link rel="alternate" hreflang="…">` for each locale plus `x-default`, when i18n
-  declares more than one
+  `og:locale:alternate` per other locale — in the page's own `lang:` when it has one
+- `<link rel="alternate" hreflang="…">` for the page and each of its translations
+  (`translates:`), each at its own address, plus `x-default` for the one in the
+  site's language. A locale the browser switches to on one address
+  (`setLocale`, `?lang=`) is not an alternate: that address's HTML is the
+  default locale's
 - JSON-LD (`WebSite`, the owner, `WebPage`/`Article`, and a `BreadcrumbList`
   derived from the route). The owner is `site_name` as an `Organization`, or a
   `Person` with `"owner": "person"` (and `job_title`); `same_as` lists its other
@@ -3071,6 +3097,7 @@ And what the type checker finds:
 | `F03` | `validate x` where no control binds `x`, or `x` is derived: its rules can never pass |
 | `R01` | A link or `navigate()` to a path no page's route matches (spliced paths by their shape; a path with no leading `/`) |
 | `R02` | A route's `:param` with no page parameter of that name, or the reverse |
+| `R05` | A `translates:` that names no page (or its own), or two translations of one page in one language |
 | `R03` | An `app` with no `Router` (no page is ever drawn), or with two |
 | `E117` | An `on key("…")` combination no keyboard sends — an unknown modifier, no key, a key that does not exist, in any step of a chord |
 | `D02` | A `persist` of a value storage cannot keep as JSON — a function, a `File`, a promise |

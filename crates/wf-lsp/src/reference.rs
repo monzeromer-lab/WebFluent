@@ -39,6 +39,14 @@ pub const PAGE_ATTRIBUTES: &[ArgDoc] = &[
         "layout",
         "The component that frames the page: `layout: Shell(crumb: \"Home\")`; the page renders in its default slot",
     ),
+    arg(
+        "lang",
+        "The language the page is written in, when it is not the site's: `lang: \"en\"` sets `<html lang dir>`, `og:locale` and `inLanguage`",
+    ),
+    arg(
+        "translates",
+        "The page this one is a translation of: `translates: Home`. Translations list each other as `hreflang` alternates",
+    ),
     arg("guard", "Expression that must hold for the route to render"),
     arg("redirect", "Where to send the visitor when the guard fails"),
 ];
