@@ -585,24 +585,24 @@ pub fn webfluent::audit::audit_project(&std::path::Path) -> webfluent::diagnosti
 pub mod webfluent::browser
 pub mod webfluent::browser::chrome
 pub struct webfluent::browser::chrome::Browser
-impl webfluent::browser::chrome::Browser
-pub fn webfluent::browser::chrome::Browser::before_each_page(&mut self, core::option::Option<alloc::string::String>)
-pub fn webfluent::browser::chrome::Browser::close(&mut self, webfluent::browser::chrome::Page) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::browser::chrome::Visit>
-pub fn webfluent::browser::chrome::Browser::eval(&mut self, &webfluent::browser::chrome::Page, &str) -> webfluent::diagnostics::error::diagnostic::Result<serde_json::value::Value>
-pub fn webfluent::browser::chrome::Browser::open(&mut self, &str, u64) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::browser::chrome::Page>
-pub fn webfluent::browser::chrome::Browser::settle(&mut self, &mut webfluent::browser::chrome::Page, u64) -> webfluent::diagnostics::error::diagnostic::Result<()>
-pub fn webfluent::browser::chrome::Browser::start() -> webfluent::diagnostics::error::diagnostic::Result<Self>
-pub fn webfluent::browser::chrome::Browser::visible_text(&mut self, &webfluent::browser::chrome::Page) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
-pub fn webfluent::browser::chrome::Browser::visit(&mut self, &str, u64) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::browser::chrome::Visit>
-impl core::ops::drop::Drop for webfluent::browser::chrome::Browser
-pub fn webfluent::browser::chrome::Browser::drop(&mut self)
-impl core::marker::Freeze for webfluent::browser::chrome::Browser
-impl core::marker::Send for webfluent::browser::chrome::Browser
-impl core::marker::Sync for webfluent::browser::chrome::Browser
-impl core::marker::Unpin for webfluent::browser::chrome::Browser
-impl core::marker::UnsafeUnpin for webfluent::browser::chrome::Browser
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::browser::chrome::Browser
-impl core::panic::unwind_safe::UnwindSafe for webfluent::browser::chrome::Browser
+impl webfluent::browser::Browser
+pub fn webfluent::browser::Browser::before_each_page(&mut self, core::option::Option<alloc::string::String>)
+pub fn webfluent::browser::Browser::close(&mut self, webfluent::browser::chrome::Page) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::verify::Visit>
+pub fn webfluent::browser::Browser::eval(&mut self, &webfluent::browser::chrome::Page, &str) -> webfluent::diagnostics::error::diagnostic::Result<serde_json::value::Value>
+pub fn webfluent::browser::Browser::open(&mut self, &str, u64) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::browser::chrome::Page>
+pub fn webfluent::browser::Browser::settle(&mut self, &mut webfluent::browser::chrome::Page, u64) -> webfluent::diagnostics::error::diagnostic::Result<()>
+pub fn webfluent::browser::Browser::start() -> webfluent::diagnostics::error::diagnostic::Result<Self>
+pub fn webfluent::browser::Browser::visible_text(&mut self, &webfluent::browser::chrome::Page) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::browser::Browser::visit(&mut self, &str, u64) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::verify::Visit>
+impl core::ops::drop::Drop for webfluent::browser::Browser
+pub fn webfluent::browser::Browser::drop(&mut self)
+impl core::marker::Freeze for webfluent::browser::Browser
+impl core::marker::Send for webfluent::browser::Browser
+impl core::marker::Sync for webfluent::browser::Browser
+impl core::marker::Unpin for webfluent::browser::Browser
+impl core::marker::UnsafeUnpin for webfluent::browser::Browser
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::browser::Browser
+impl core::panic::unwind_safe::UnwindSafe for webfluent::browser::Browser
 pub struct webfluent::browser::chrome::Page
 impl webfluent::browser::chrome::Page
 pub fn webfluent::browser::chrome::Page::errors(&self) -> &[alloc::string::String]
@@ -623,25 +623,25 @@ pub webfluent::browser::chrome::Visit::text: u64
 pub webfluent::browser::chrome::Visit::title: alloc::string::String
 pub webfluent::browser::chrome::Visit::transferred: u64
 pub webfluent::browser::chrome::Visit::url: alloc::string::String
-impl core::clone::Clone for webfluent::browser::chrome::Visit
-pub fn webfluent::browser::chrome::Visit::clone(&self) -> Self
-impl core::default::Default for webfluent::browser::chrome::Visit
-pub fn webfluent::browser::chrome::Visit::default() -> Self
-impl core::fmt::Debug for webfluent::browser::chrome::Visit
-pub fn webfluent::browser::chrome::Visit::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl serde_core::ser::Serialize for webfluent::browser::chrome::Visit
-pub fn webfluent::browser::chrome::Visit::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl core::marker::Freeze for webfluent::browser::chrome::Visit
-impl core::marker::Send for webfluent::browser::chrome::Visit
-impl core::marker::Sync for webfluent::browser::chrome::Visit
-impl core::marker::Unpin for webfluent::browser::chrome::Visit
-impl core::marker::UnsafeUnpin for webfluent::browser::chrome::Visit
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::browser::chrome::Visit
-impl core::panic::unwind_safe::UnwindSafe for webfluent::browser::chrome::Visit
+impl core::clone::Clone for webfluent::verify::Visit
+pub fn webfluent::verify::Visit::clone(&self) -> Self
+impl core::default::Default for webfluent::verify::Visit
+pub fn webfluent::verify::Visit::default() -> Self
+impl core::fmt::Debug for webfluent::verify::Visit
+pub fn webfluent::verify::Visit::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl serde_core::ser::Serialize for webfluent::verify::Visit
+pub fn webfluent::verify::Visit::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl core::marker::Freeze for webfluent::verify::Visit
+impl core::marker::Send for webfluent::verify::Visit
+impl core::marker::Sync for webfluent::verify::Visit
+impl core::marker::Unpin for webfluent::verify::Visit
+impl core::marker::UnsafeUnpin for webfluent::verify::Visit
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::verify::Visit
+impl core::panic::unwind_safe::UnwindSafe for webfluent::verify::Visit
 pub const webfluent::browser::chrome::PAGE_REPORT: &str
 pub fn webfluent::browser::chrome::find() -> core::option::Option<alloc::string::String>
 pub fn webfluent::browser::chrome::private_dir(&str) -> core::io::error::Result<std::path::PathBuf>
-pub fn webfluent::browser::chrome::read_report(&mut webfluent::browser::chrome::Visit, &str)
+pub fn webfluent::browser::chrome::read_report(&mut webfluent::verify::Visit, &str)
 pub mod webfluent::browser::ws
 pub struct webfluent::browser::ws::Socket
 impl webfluent::browser::ws::Socket
@@ -658,24 +658,24 @@ impl core::marker::UnsafeUnpin for webfluent::browser::ws::Socket
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::browser::ws::Socket
 impl core::panic::unwind_safe::UnwindSafe for webfluent::browser::ws::Socket
 pub struct webfluent::browser::Browser
-impl webfluent::browser::chrome::Browser
-pub fn webfluent::browser::chrome::Browser::before_each_page(&mut self, core::option::Option<alloc::string::String>)
-pub fn webfluent::browser::chrome::Browser::close(&mut self, webfluent::browser::chrome::Page) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::browser::chrome::Visit>
-pub fn webfluent::browser::chrome::Browser::eval(&mut self, &webfluent::browser::chrome::Page, &str) -> webfluent::diagnostics::error::diagnostic::Result<serde_json::value::Value>
-pub fn webfluent::browser::chrome::Browser::open(&mut self, &str, u64) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::browser::chrome::Page>
-pub fn webfluent::browser::chrome::Browser::settle(&mut self, &mut webfluent::browser::chrome::Page, u64) -> webfluent::diagnostics::error::diagnostic::Result<()>
-pub fn webfluent::browser::chrome::Browser::start() -> webfluent::diagnostics::error::diagnostic::Result<Self>
-pub fn webfluent::browser::chrome::Browser::visible_text(&mut self, &webfluent::browser::chrome::Page) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
-pub fn webfluent::browser::chrome::Browser::visit(&mut self, &str, u64) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::browser::chrome::Visit>
-impl core::ops::drop::Drop for webfluent::browser::chrome::Browser
-pub fn webfluent::browser::chrome::Browser::drop(&mut self)
-impl core::marker::Freeze for webfluent::browser::chrome::Browser
-impl core::marker::Send for webfluent::browser::chrome::Browser
-impl core::marker::Sync for webfluent::browser::chrome::Browser
-impl core::marker::Unpin for webfluent::browser::chrome::Browser
-impl core::marker::UnsafeUnpin for webfluent::browser::chrome::Browser
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::browser::chrome::Browser
-impl core::panic::unwind_safe::UnwindSafe for webfluent::browser::chrome::Browser
+impl webfluent::browser::Browser
+pub fn webfluent::browser::Browser::before_each_page(&mut self, core::option::Option<alloc::string::String>)
+pub fn webfluent::browser::Browser::close(&mut self, webfluent::browser::chrome::Page) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::verify::Visit>
+pub fn webfluent::browser::Browser::eval(&mut self, &webfluent::browser::chrome::Page, &str) -> webfluent::diagnostics::error::diagnostic::Result<serde_json::value::Value>
+pub fn webfluent::browser::Browser::open(&mut self, &str, u64) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::browser::chrome::Page>
+pub fn webfluent::browser::Browser::settle(&mut self, &mut webfluent::browser::chrome::Page, u64) -> webfluent::diagnostics::error::diagnostic::Result<()>
+pub fn webfluent::browser::Browser::start() -> webfluent::diagnostics::error::diagnostic::Result<Self>
+pub fn webfluent::browser::Browser::visible_text(&mut self, &webfluent::browser::chrome::Page) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
+pub fn webfluent::browser::Browser::visit(&mut self, &str, u64) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::verify::Visit>
+impl core::ops::drop::Drop for webfluent::browser::Browser
+pub fn webfluent::browser::Browser::drop(&mut self)
+impl core::marker::Freeze for webfluent::browser::Browser
+impl core::marker::Send for webfluent::browser::Browser
+impl core::marker::Sync for webfluent::browser::Browser
+impl core::marker::Unpin for webfluent::browser::Browser
+impl core::marker::UnsafeUnpin for webfluent::browser::Browser
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::browser::Browser
+impl core::panic::unwind_safe::UnwindSafe for webfluent::browser::Browser
 pub mod webfluent::build
 pub mod webfluent::build::assets
 pub enum webfluent::build::assets::Kind
@@ -11097,73 +11097,73 @@ pub mod webfluent::studio
 pub struct webfluent::studio::CompiledPage
 pub webfluent::studio::CompiledPage::html: alloc::string::String
 pub webfluent::studio::CompiledPage::route: alloc::string::String
-impl core::clone::Clone for webfluent::studio::CompiledPage
-pub fn webfluent::studio::CompiledPage::clone(&self) -> Self
-impl core::fmt::Debug for webfluent::studio::CompiledPage
-pub fn webfluent::studio::CompiledPage::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::Freeze for webfluent::studio::CompiledPage
-impl core::marker::Send for webfluent::studio::CompiledPage
-impl core::marker::Sync for webfluent::studio::CompiledPage
-impl core::marker::Unpin for webfluent::studio::CompiledPage
-impl core::marker::UnsafeUnpin for webfluent::studio::CompiledPage
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::studio::CompiledPage
-impl core::panic::unwind_safe::UnwindSafe for webfluent::studio::CompiledPage
+impl core::clone::Clone for webfluent::CompiledPage
+pub fn webfluent::CompiledPage::clone(&self) -> Self
+impl core::fmt::Debug for webfluent::CompiledPage
+pub fn webfluent::CompiledPage::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::CompiledPage
+impl core::marker::Send for webfluent::CompiledPage
+impl core::marker::Sync for webfluent::CompiledPage
+impl core::marker::Unpin for webfluent::CompiledPage
+impl core::marker::UnsafeUnpin for webfluent::CompiledPage
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::CompiledPage
+impl core::panic::unwind_safe::UnwindSafe for webfluent::CompiledPage
 pub struct webfluent::studio::CompiledSite
 pub webfluent::studio::CompiledSite::css: alloc::string::String
-pub webfluent::studio::CompiledSite::diagnostics: alloc::vec::Vec<webfluent::studio::Diagnostic>
+pub webfluent::studio::CompiledSite::diagnostics: alloc::vec::Vec<webfluent::StudioDiagnostic>
 pub webfluent::studio::CompiledSite::js: alloc::string::String
 pub webfluent::studio::CompiledSite::node_map: webfluent::syntax::node_id::NodeMap
-pub webfluent::studio::CompiledSite::pages: alloc::vec::Vec<webfluent::studio::CompiledPage>
+pub webfluent::studio::CompiledSite::pages: alloc::vec::Vec<webfluent::CompiledPage>
 pub webfluent::studio::CompiledSite::theme_error: core::option::Option<alloc::string::String>
-pub webfluent::studio::CompiledSite::themes: alloc::vec::Vec<webfluent::studio::ThemeInfo>
+pub webfluent::studio::CompiledSite::themes: alloc::vec::Vec<webfluent::ThemeInfo>
 pub webfluent::studio::CompiledSite::tokens: std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>
-impl core::clone::Clone for webfluent::studio::CompiledSite
-pub fn webfluent::studio::CompiledSite::clone(&self) -> Self
-impl core::default::Default for webfluent::studio::CompiledSite
-pub fn webfluent::studio::CompiledSite::default() -> Self
-impl core::fmt::Debug for webfluent::studio::CompiledSite
-pub fn webfluent::studio::CompiledSite::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::Freeze for webfluent::studio::CompiledSite
-impl core::marker::Send for webfluent::studio::CompiledSite
-impl core::marker::Sync for webfluent::studio::CompiledSite
-impl core::marker::Unpin for webfluent::studio::CompiledSite
-impl core::marker::UnsafeUnpin for webfluent::studio::CompiledSite
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::studio::CompiledSite
-impl core::panic::unwind_safe::UnwindSafe for webfluent::studio::CompiledSite
+impl core::clone::Clone for webfluent::CompiledSite
+pub fn webfluent::CompiledSite::clone(&self) -> Self
+impl core::default::Default for webfluent::CompiledSite
+pub fn webfluent::CompiledSite::default() -> Self
+impl core::fmt::Debug for webfluent::CompiledSite
+pub fn webfluent::CompiledSite::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::CompiledSite
+impl core::marker::Send for webfluent::CompiledSite
+impl core::marker::Sync for webfluent::CompiledSite
+impl core::marker::Unpin for webfluent::CompiledSite
+impl core::marker::UnsafeUnpin for webfluent::CompiledSite
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::CompiledSite
+impl core::panic::unwind_safe::UnwindSafe for webfluent::CompiledSite
 pub struct webfluent::studio::Diagnostic
 pub webfluent::studio::Diagnostic::file: alloc::string::String
 pub webfluent::studio::Diagnostic::hint: alloc::string::String
 pub webfluent::studio::Diagnostic::line: usize
 pub webfluent::studio::Diagnostic::message: alloc::string::String
 pub webfluent::studio::Diagnostic::rule: alloc::string::String
-impl core::clone::Clone for webfluent::studio::Diagnostic
-pub fn webfluent::studio::Diagnostic::clone(&self) -> Self
-impl core::fmt::Debug for webfluent::studio::Diagnostic
-pub fn webfluent::studio::Diagnostic::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::Freeze for webfluent::studio::Diagnostic
-impl core::marker::Send for webfluent::studio::Diagnostic
-impl core::marker::Sync for webfluent::studio::Diagnostic
-impl core::marker::Unpin for webfluent::studio::Diagnostic
-impl core::marker::UnsafeUnpin for webfluent::studio::Diagnostic
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::studio::Diagnostic
-impl core::panic::unwind_safe::UnwindSafe for webfluent::studio::Diagnostic
+impl core::clone::Clone for webfluent::StudioDiagnostic
+pub fn webfluent::StudioDiagnostic::clone(&self) -> Self
+impl core::fmt::Debug for webfluent::StudioDiagnostic
+pub fn webfluent::StudioDiagnostic::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::StudioDiagnostic
+impl core::marker::Send for webfluent::StudioDiagnostic
+impl core::marker::Sync for webfluent::StudioDiagnostic
+impl core::marker::Unpin for webfluent::StudioDiagnostic
+impl core::marker::UnsafeUnpin for webfluent::StudioDiagnostic
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::StudioDiagnostic
+impl core::panic::unwind_safe::UnwindSafe for webfluent::StudioDiagnostic
 pub struct webfluent::studio::ThemeInfo
 pub webfluent::studio::ThemeInfo::line: u32
 pub webfluent::studio::ThemeInfo::name: alloc::string::String
 pub webfluent::studio::ThemeInfo::offset: u32
 pub webfluent::studio::ThemeInfo::tokens: alloc::vec::Vec<alloc::string::String>
-impl core::clone::Clone for webfluent::studio::ThemeInfo
-pub fn webfluent::studio::ThemeInfo::clone(&self) -> Self
-impl core::fmt::Debug for webfluent::studio::ThemeInfo
-pub fn webfluent::studio::ThemeInfo::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::Freeze for webfluent::studio::ThemeInfo
-impl core::marker::Send for webfluent::studio::ThemeInfo
-impl core::marker::Sync for webfluent::studio::ThemeInfo
-impl core::marker::Unpin for webfluent::studio::ThemeInfo
-impl core::marker::UnsafeUnpin for webfluent::studio::ThemeInfo
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::studio::ThemeInfo
-impl core::panic::unwind_safe::UnwindSafe for webfluent::studio::ThemeInfo
-pub fn webfluent::studio::compile_studio(&webfluent::syntax::parser::Program, &webfluent::config::ProjectConfig, &std::collections::hash::map::HashMap<alloc::string::String, std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>) -> webfluent::studio::CompiledSite
+impl core::clone::Clone for webfluent::ThemeInfo
+pub fn webfluent::ThemeInfo::clone(&self) -> Self
+impl core::fmt::Debug for webfluent::ThemeInfo
+pub fn webfluent::ThemeInfo::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::ThemeInfo
+impl core::marker::Send for webfluent::ThemeInfo
+impl core::marker::Sync for webfluent::ThemeInfo
+impl core::marker::Unpin for webfluent::ThemeInfo
+impl core::marker::UnsafeUnpin for webfluent::ThemeInfo
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::ThemeInfo
+impl core::panic::unwind_safe::UnwindSafe for webfluent::ThemeInfo
+pub fn webfluent::studio::compile_studio(&webfluent::syntax::parser::Program, &webfluent::config::ProjectConfig, &std::collections::hash::map::HashMap<alloc::string::String, std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>) -> webfluent::CompiledSite
 pub mod webfluent::style_value
 pub enum webfluent::style_value::Line
 pub webfluent::style_value::Line::At
@@ -15718,24 +15718,24 @@ pub webfluent::verify::Visit::text: u64
 pub webfluent::verify::Visit::title: alloc::string::String
 pub webfluent::verify::Visit::transferred: u64
 pub webfluent::verify::Visit::url: alloc::string::String
-impl core::clone::Clone for webfluent::browser::chrome::Visit
-pub fn webfluent::browser::chrome::Visit::clone(&self) -> Self
-impl core::default::Default for webfluent::browser::chrome::Visit
-pub fn webfluent::browser::chrome::Visit::default() -> Self
-impl core::fmt::Debug for webfluent::browser::chrome::Visit
-pub fn webfluent::browser::chrome::Visit::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl serde_core::ser::Serialize for webfluent::browser::chrome::Visit
-pub fn webfluent::browser::chrome::Visit::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl core::marker::Freeze for webfluent::browser::chrome::Visit
-impl core::marker::Send for webfluent::browser::chrome::Visit
-impl core::marker::Sync for webfluent::browser::chrome::Visit
-impl core::marker::Unpin for webfluent::browser::chrome::Visit
-impl core::marker::UnsafeUnpin for webfluent::browser::chrome::Visit
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::browser::chrome::Visit
-impl core::panic::unwind_safe::UnwindSafe for webfluent::browser::chrome::Visit
+impl core::clone::Clone for webfluent::verify::Visit
+pub fn webfluent::verify::Visit::clone(&self) -> Self
+impl core::default::Default for webfluent::verify::Visit
+pub fn webfluent::verify::Visit::default() -> Self
+impl core::fmt::Debug for webfluent::verify::Visit
+pub fn webfluent::verify::Visit::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl serde_core::ser::Serialize for webfluent::verify::Visit
+pub fn webfluent::verify::Visit::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl core::marker::Freeze for webfluent::verify::Visit
+impl core::marker::Send for webfluent::verify::Visit
+impl core::marker::Sync for webfluent::verify::Visit
+impl core::marker::Unpin for webfluent::verify::Visit
+impl core::marker::UnsafeUnpin for webfluent::verify::Visit
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::verify::Visit
+impl core::panic::unwind_safe::UnwindSafe for webfluent::verify::Visit
 pub const webfluent::verify::PAGE_REPORT: &str
-pub fn webfluent::verify::judge(&mut webfluent::browser::chrome::Visit, &str, core::option::Option<u64>)
-pub fn webfluent::verify::read_report(&mut webfluent::browser::chrome::Visit, &str)
+pub fn webfluent::verify::judge(&mut webfluent::verify::Visit, &str, core::option::Option<u64>)
+pub fn webfluent::verify::read_report(&mut webfluent::verify::Visit, &str)
 pub fn webfluent::verify::returning_storage(&std::path::Path) -> alloc::string::String
 pub fn webfluent::verify::routes(&std::path::Path, &std::path::Path, &webfluent::config::ProjectConfig) -> webfluent::diagnostics::error::diagnostic::Result<alloc::vec::Vec<alloc::string::String>>
 pub fn webfluent::verify::undrawn(&alloc::collections::btree::set::BTreeSet<alloc::string::String>) -> alloc::vec::Vec<alloc::string::String>
@@ -16059,39 +16059,39 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::diagnostics::error::dia
 pub struct webfluent::CompiledPage
 pub webfluent::CompiledPage::html: alloc::string::String
 pub webfluent::CompiledPage::route: alloc::string::String
-impl core::clone::Clone for webfluent::studio::CompiledPage
-pub fn webfluent::studio::CompiledPage::clone(&self) -> Self
-impl core::fmt::Debug for webfluent::studio::CompiledPage
-pub fn webfluent::studio::CompiledPage::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::Freeze for webfluent::studio::CompiledPage
-impl core::marker::Send for webfluent::studio::CompiledPage
-impl core::marker::Sync for webfluent::studio::CompiledPage
-impl core::marker::Unpin for webfluent::studio::CompiledPage
-impl core::marker::UnsafeUnpin for webfluent::studio::CompiledPage
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::studio::CompiledPage
-impl core::panic::unwind_safe::UnwindSafe for webfluent::studio::CompiledPage
+impl core::clone::Clone for webfluent::CompiledPage
+pub fn webfluent::CompiledPage::clone(&self) -> Self
+impl core::fmt::Debug for webfluent::CompiledPage
+pub fn webfluent::CompiledPage::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::CompiledPage
+impl core::marker::Send for webfluent::CompiledPage
+impl core::marker::Sync for webfluent::CompiledPage
+impl core::marker::Unpin for webfluent::CompiledPage
+impl core::marker::UnsafeUnpin for webfluent::CompiledPage
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::CompiledPage
+impl core::panic::unwind_safe::UnwindSafe for webfluent::CompiledPage
 pub struct webfluent::CompiledSite
 pub webfluent::CompiledSite::css: alloc::string::String
-pub webfluent::CompiledSite::diagnostics: alloc::vec::Vec<webfluent::studio::Diagnostic>
+pub webfluent::CompiledSite::diagnostics: alloc::vec::Vec<webfluent::StudioDiagnostic>
 pub webfluent::CompiledSite::js: alloc::string::String
 pub webfluent::CompiledSite::node_map: webfluent::syntax::node_id::NodeMap
-pub webfluent::CompiledSite::pages: alloc::vec::Vec<webfluent::studio::CompiledPage>
+pub webfluent::CompiledSite::pages: alloc::vec::Vec<webfluent::CompiledPage>
 pub webfluent::CompiledSite::theme_error: core::option::Option<alloc::string::String>
-pub webfluent::CompiledSite::themes: alloc::vec::Vec<webfluent::studio::ThemeInfo>
+pub webfluent::CompiledSite::themes: alloc::vec::Vec<webfluent::ThemeInfo>
 pub webfluent::CompiledSite::tokens: std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>
-impl core::clone::Clone for webfluent::studio::CompiledSite
-pub fn webfluent::studio::CompiledSite::clone(&self) -> Self
-impl core::default::Default for webfluent::studio::CompiledSite
-pub fn webfluent::studio::CompiledSite::default() -> Self
-impl core::fmt::Debug for webfluent::studio::CompiledSite
-pub fn webfluent::studio::CompiledSite::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::Freeze for webfluent::studio::CompiledSite
-impl core::marker::Send for webfluent::studio::CompiledSite
-impl core::marker::Sync for webfluent::studio::CompiledSite
-impl core::marker::Unpin for webfluent::studio::CompiledSite
-impl core::marker::UnsafeUnpin for webfluent::studio::CompiledSite
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::studio::CompiledSite
-impl core::panic::unwind_safe::UnwindSafe for webfluent::studio::CompiledSite
+impl core::clone::Clone for webfluent::CompiledSite
+pub fn webfluent::CompiledSite::clone(&self) -> Self
+impl core::default::Default for webfluent::CompiledSite
+pub fn webfluent::CompiledSite::default() -> Self
+impl core::fmt::Debug for webfluent::CompiledSite
+pub fn webfluent::CompiledSite::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::CompiledSite
+impl core::marker::Send for webfluent::CompiledSite
+impl core::marker::Sync for webfluent::CompiledSite
+impl core::marker::Unpin for webfluent::CompiledSite
+impl core::marker::UnsafeUnpin for webfluent::CompiledSite
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::CompiledSite
+impl core::panic::unwind_safe::UnwindSafe for webfluent::CompiledSite
 pub struct webfluent::Diagnostic
 pub webfluent::Diagnostic::code: &'static str
 pub webfluent::Diagnostic::column: usize
@@ -16299,17 +16299,17 @@ pub webfluent::StudioDiagnostic::hint: alloc::string::String
 pub webfluent::StudioDiagnostic::line: usize
 pub webfluent::StudioDiagnostic::message: alloc::string::String
 pub webfluent::StudioDiagnostic::rule: alloc::string::String
-impl core::clone::Clone for webfluent::studio::Diagnostic
-pub fn webfluent::studio::Diagnostic::clone(&self) -> Self
-impl core::fmt::Debug for webfluent::studio::Diagnostic
-pub fn webfluent::studio::Diagnostic::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::Freeze for webfluent::studio::Diagnostic
-impl core::marker::Send for webfluent::studio::Diagnostic
-impl core::marker::Sync for webfluent::studio::Diagnostic
-impl core::marker::Unpin for webfluent::studio::Diagnostic
-impl core::marker::UnsafeUnpin for webfluent::studio::Diagnostic
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::studio::Diagnostic
-impl core::panic::unwind_safe::UnwindSafe for webfluent::studio::Diagnostic
+impl core::clone::Clone for webfluent::StudioDiagnostic
+pub fn webfluent::StudioDiagnostic::clone(&self) -> Self
+impl core::fmt::Debug for webfluent::StudioDiagnostic
+pub fn webfluent::StudioDiagnostic::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::StudioDiagnostic
+impl core::marker::Send for webfluent::StudioDiagnostic
+impl core::marker::Sync for webfluent::StudioDiagnostic
+impl core::marker::Unpin for webfluent::StudioDiagnostic
+impl core::marker::UnsafeUnpin for webfluent::StudioDiagnostic
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::StudioDiagnostic
+impl core::panic::unwind_safe::UnwindSafe for webfluent::StudioDiagnostic
 pub struct webfluent::Template
 impl webfluent::template::Template
 pub fn webfluent::template::Template::from_dir(impl core::convert::AsRef<std::path::Path>) -> webfluent::diagnostics::error::diagnostic::Result<Self>
@@ -16349,20 +16349,20 @@ pub webfluent::ThemeInfo::line: u32
 pub webfluent::ThemeInfo::name: alloc::string::String
 pub webfluent::ThemeInfo::offset: u32
 pub webfluent::ThemeInfo::tokens: alloc::vec::Vec<alloc::string::String>
-impl core::clone::Clone for webfluent::studio::ThemeInfo
-pub fn webfluent::studio::ThemeInfo::clone(&self) -> Self
-impl core::fmt::Debug for webfluent::studio::ThemeInfo
-pub fn webfluent::studio::ThemeInfo::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::Freeze for webfluent::studio::ThemeInfo
-impl core::marker::Send for webfluent::studio::ThemeInfo
-impl core::marker::Sync for webfluent::studio::ThemeInfo
-impl core::marker::Unpin for webfluent::studio::ThemeInfo
-impl core::marker::UnsafeUnpin for webfluent::studio::ThemeInfo
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::studio::ThemeInfo
-impl core::panic::unwind_safe::UnwindSafe for webfluent::studio::ThemeInfo
+impl core::clone::Clone for webfluent::ThemeInfo
+pub fn webfluent::ThemeInfo::clone(&self) -> Self
+impl core::fmt::Debug for webfluent::ThemeInfo
+pub fn webfluent::ThemeInfo::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::ThemeInfo
+impl core::marker::Send for webfluent::ThemeInfo
+impl core::marker::Sync for webfluent::ThemeInfo
+impl core::marker::Unpin for webfluent::ThemeInfo
+impl core::marker::UnsafeUnpin for webfluent::ThemeInfo
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::ThemeInfo
+impl core::panic::unwind_safe::UnwindSafe for webfluent::ThemeInfo
 pub const webfluent::VERSION: &str
 pub fn webfluent::apply_edits(&str, &[webfluent::EditOp]) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
-pub fn webfluent::compile_studio(&webfluent::syntax::parser::Program, &webfluent::config::ProjectConfig, &std::collections::hash::map::HashMap<alloc::string::String, std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>) -> webfluent::studio::CompiledSite
+pub fn webfluent::compile_studio(&webfluent::syntax::parser::Program, &webfluent::config::ProjectConfig, &std::collections::hash::map::HashMap<alloc::string::String, std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>) -> webfluent::CompiledSite
 pub fn webfluent::detect_dialect(&str) -> webfluent::syntax::Dialect
 pub fn webfluent::parse_source(&str, &str) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::syntax::parser::Program>
 pub fn webfluent::validate_semantics(&webfluent::syntax::parser::Program, &str) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>

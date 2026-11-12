@@ -179,7 +179,7 @@ pub fn chapters(files: &[(&str, &str)], depth: Depth) -> Vec<Chapter> {
 /// The language reference this `wf` was built with: the repository's
 /// `AGENTS.md`, which `wf init` writes into every project.
 pub fn reference() -> &'static str {
-    include_str!("../../AGENTS.md")
+    include_str!("../../../AGENTS.md")
 }
 
 /// The reference's core: each section marked `<!-- core -->`, from its
@@ -289,7 +289,7 @@ pub struct Context {
     pub problems: Vec<Problem>,
     /// Every component a call can name, built-in and the project's, with
     /// what each takes (`wf components`).
-    pub components: crate::registry::schema::Catalog,
+    pub components: crate::tools::registry_schema::Catalog,
     /// The theme's tokens and their values.
     pub tokens: Vec<(String, String)>,
     /// `webfluent.app.json`, its private `env` values withheld.
@@ -422,7 +422,7 @@ pub fn context_via(
             hint: d.hint.clone(),
         })
         .collect();
-    let tokens = crate::project::themes::view::view_via(vfs, dir)
+    let tokens = crate::tools::theme_view::view_via(vfs, dir)
         .map(|v| v.tokens.into_iter().map(|t| (t.name, t.value)).collect())
         .unwrap_or_default();
     Ok(Context {
@@ -430,7 +430,7 @@ pub fn context_via(
         files: tree(vfs, dir),
         open,
         problems,
-        components: crate::registry::schema::of_project_via(vfs, dir),
+        components: crate::tools::registry_schema::of_project_via(vfs, dir),
         tokens,
         config: shown,
         guide: chapters(guide_files, depth),

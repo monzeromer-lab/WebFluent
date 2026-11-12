@@ -591,7 +591,7 @@ fn format_parser() -> impl clap::builder::TypedValueParser<Value = diagnostics::
 
 /// Every command of the command line, from its own definition, with what
 /// [`webfluent::commands::EFFECTS`] says each writes: what
-/// `src/commands.json` holds.
+/// `src/tools/commands.json` holds.
 fn describe_commands() -> serde_json::Value {
     use clap::CommandFactory;
     fn options(cmd: &clap::Command) -> Vec<serde_json::Value> {
@@ -721,12 +721,12 @@ fn print_commands(data: &serde_json::Value) {
 
 #[cfg(test)]
 mod commands_json {
-    /// `src/commands.json` is the command line's own description; it is
+    /// `src/tools/commands.json` is the command line's own description; it is
     /// rewritten here when it is stale, and the test fails once so the
     /// change is seen and committed.
     #[test]
     fn the_commands_json_is_current() {
-        let path = concat!(env!("CARGO_MANIFEST_DIR"), "/src/commands.json");
+        let path = concat!(env!("CARGO_MANIFEST_DIR"), "/src/tools/commands.json");
         let want = format!(
             "{}\n",
             serde_json::to_string_pretty(&super::describe_commands()).unwrap()
@@ -734,7 +734,7 @@ mod commands_json {
         let have = std::fs::read_to_string(path).unwrap_or_default();
         if have != want {
             std::fs::write(path, &want).expect("write commands.json");
-            panic!("src/commands.json was stale; it has been rewritten");
+            panic!("src/tools/commands.json was stale; it has been rewritten");
         }
     }
 }

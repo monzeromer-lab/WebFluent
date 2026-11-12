@@ -62,7 +62,7 @@ pub mod prune;
 pub mod resolve;
 pub mod structural;
 pub mod tokens;
-pub mod view;
+pub use crate::tools::theme_view as view;
 
 pub use components::component_css;
 pub use prune::{Usage, prune_css};

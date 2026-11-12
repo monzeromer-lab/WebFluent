@@ -272,7 +272,7 @@ pub fn view(
     config: &ThemeConfig,
     stylesheets: &[(String, String)],
 ) -> View {
-    let baseline = super::tokens::default_tokens();
+    let baseline = crate::project::themes::tokens::default_tokens();
     let (main, dark) = select(program, config);
     let theme_values: HashMap<String, (String, u32)> = main
         .map(|(_, t)| {
@@ -639,7 +639,7 @@ mod tests {
         // What fails here, the build says, with A13.
         let p = crate::syntax::parse_source(SRC, "t.wf").unwrap();
         let resolved: HashMap<String, String> = {
-            let mut r = super::super::tokens::default_tokens();
+            let mut r = crate::project::themes::tokens::default_tokens();
             for t in &v.tokens {
                 r.insert(t.name.clone(), t.value.clone());
             }

@@ -14,12 +14,12 @@ use serde_json::Value;
 /// it cannot be read), with how many built-ins it shows and how many of the
 /// project's components.
 pub fn for_project(project_dir: &Path) -> (String, usize, Option<usize>) {
-    let registry = crate::registry::json::registry_json();
+    let registry = crate::tools::registry_json::registry_json();
     let project = match crate::build::read_project(project_dir) {
         Ok((program, files)) => {
             let file_of = |index: usize| files.get(index).cloned().unwrap_or_default();
             Some((
-                crate::registry::json::declarations_json(&program, &file_of),
+                crate::tools::registry_json::declarations_json(&program, &file_of),
                 project_dir
                     .file_name()
                     .map(|n| n.to_string_lossy().to_string())

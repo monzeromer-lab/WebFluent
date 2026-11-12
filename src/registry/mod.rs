@@ -22,8 +22,8 @@
 
 pub(crate) mod browser;
 pub mod builtins;
-pub mod json;
-pub mod schema;
+pub use crate::tools::registry_json as json;
+pub use crate::tools::registry_schema as schema;
 pub mod style_tokens;
 
 pub use builtins::{COMPONENTS, UNIVERSAL_EVENTS, UNIVERSAL_PROPS};

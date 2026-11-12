@@ -10,7 +10,7 @@
 //! the tests and in the documentation and still be broken in a page.
 //! `wf verify` visits the pages in Chrome; the mobile editor in its
 //! WebView. Both read a page's report with [the `PAGE_REPORT`
-//! script](crate::verify::PAGE_REPORT) and judge it here.
+//! script](crate::tools::verify::PAGE_REPORT) and judge it here.
 
 use std::collections::BTreeSet;
 use std::path::Path;
@@ -19,7 +19,7 @@ use crate::diagnostics::error::Result;
 use crate::project::config::ProjectConfig;
 
 // For the mobile editor's visits; `wf verify` reads them in the driver.
-pub use crate::browser::chrome::{PAGE_REPORT, Visit, read_report};
+pub use crate::tools::browser::chrome::{PAGE_REPORT, Visit, read_report};
 
 /// Hold a visit to what a page must do: show some text (a 404 page may
 /// not), and paint within `budget_ms` when there is one.

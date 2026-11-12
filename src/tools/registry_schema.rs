@@ -13,12 +13,12 @@
 //! their owner, which attribute families reach its root, and whether it
 //! takes children — which is what makes a drop legal or not.
 //!
-//! The built-ins come from [`super::COMPONENTS`]; the project's from its
+//! The built-ins come from [`crate::registry::COMPONENTS`]; the project's from its
 //! declarations, read the way the checker reads a call of them.
 
 use serde::Serialize;
 
-use super::{AttrFamily, Children, ComponentSig, Legacy, PropSig, PropType, Sink};
+use crate::registry::{AttrFamily, Children, ComponentSig, Legacy, PropSig, PropType, Sink};
 use crate::syntax::parser::ast::*;
 
 /// A component, built-in or the project's.
@@ -188,7 +188,8 @@ fn builtin_prop(p: &'static PropSig, sig: Option<&'static ComponentSig>, positio
                 name: c.name.to_string(),
                 summary: Some(c.summary.to_string()).filter(|s| !s.is_empty()),
                 flag: p.shorthand
-                    && sig.is_none_or(|s| matches!(s.flag(c.name), super::Flag::Case(..))),
+                    && sig
+                        .is_none_or(|s| matches!(s.flag(c.name), crate::registry::Flag::Case(..))),
                 default: c.legacy.is_empty() && cases.iter().any(|o| !o.legacy.is_empty()),
             })
             .collect(),
@@ -225,7 +226,7 @@ fn builtin_prop(p: &'static PropSig, sig: Option<&'static ComponentSig>, positio
 
 /// A built-in, by the name a call gives it: `Button`, `Card.Header`.
 pub fn builtin(name: &str) -> Option<Component> {
-    super::COMPONENTS
+    crate::registry::COMPONENTS
         .iter()
         .find(|c| c.qualified() == name)
         .map(builtin_of)
@@ -233,11 +234,11 @@ pub fn builtin(name: &str) -> Option<Component> {
 
 fn builtin_of(sig: &'static ComponentSig) -> Component {
     let (tag, class) = match sig.ir {
-        super::Ir::BuiltIn(name) => {
+        crate::registry::Ir::BuiltIn(name) => {
             let (t, c) = crate::project::builtin::builtin_to_html(name);
             (Some(t), Some(c))
         }
-        super::Ir::Sub(..) => (None, None),
+        crate::registry::Ir::Sub(..) => (None, None),
     };
     let mut props: Vec<Prop> = sig
         .positional
@@ -474,7 +475,9 @@ pub fn project(c: &ComponentDecl, program: &Program, file: Option<String>) -> Co
             params: params(&s.params),
         })
         .collect();
-    if !slots.iter().any(|s| s.name == "children") && super::json::uses_children(&c.body) {
+    if !slots.iter().any(|s| s.name == "children")
+        && crate::tools::registry_json::uses_children(&c.body)
+    {
         slots.push(Slot {
             name: "children".into(),
             params: Vec::new(),
@@ -520,7 +523,8 @@ pub fn project(c: &ComponentDecl, program: &Program, file: Option<String>) -> Co
 /// Every component a call can name: the built-ins, then — given a program
 /// — the project's, in the order they are declared.
 pub fn catalog(program: Option<(&Program, &dyn Fn(usize) -> String)>) -> Catalog {
-    let mut components: Vec<Component> = super::COMPONENTS.iter().map(builtin_of).collect();
+    let mut components: Vec<Component> =
+        crate::registry::COMPONENTS.iter().map(builtin_of).collect();
     if let Some((program, file_of)) = program {
         for (i, d) in program.declarations.iter().enumerate() {
             if let Declaration::Component(c) = d {
@@ -531,11 +535,11 @@ pub fn catalog(program: Option<(&Program, &dyn Fn(usize) -> String)>) -> Catalog
     Catalog {
         version: env!("CARGO_PKG_VERSION"),
         components,
-        universal: super::UNIVERSAL_PROPS
+        universal: crate::registry::UNIVERSAL_PROPS
             .iter()
             .map(|p| builtin_prop(p, None, false))
             .collect(),
-        dom_events: super::UNIVERSAL_EVENTS
+        dom_events: crate::registry::UNIVERSAL_EVENTS
             .iter()
             .map(|(name, summary)| Event {
                 name: name.to_string(),

@@ -9,26 +9,29 @@
 
 use serde_json::{Value, json};
 
-use super::{AttrFamily, Children, ComponentSig, Legacy, PropSig, PropType, Sink};
+use crate::registry::{AttrFamily, Children, ComponentSig, Legacy, PropSig, PropType, Sink};
 use crate::syntax::parser::ast::*;
 
 /// Every built-in: components and parts, with their props, cases, flags,
 /// events, slots, parts and attribute families, plus the universal props
 /// and events every element takes.
 pub fn registry_json() -> Value {
-    let components: Vec<Value> = super::COMPONENTS.iter().map(component_json).collect();
+    let components: Vec<Value> = crate::registry::COMPONENTS
+        .iter()
+        .map(component_json)
+        .collect();
     json!({
         "version": env!("CARGO_PKG_VERSION"),
         "components": components,
         "universal": {
-            "props": super::UNIVERSAL_PROPS.iter().map(|p| prop_json(p, None)).collect::<Vec<_>>(),
-            "events": super::UNIVERSAL_EVENTS
+            "props": crate::registry::UNIVERSAL_PROPS.iter().map(|p| prop_json(p, None)).collect::<Vec<_>>(),
+            "events": crate::registry::UNIVERSAL_EVENTS
                 .iter()
                 .map(|(name, summary)| json!({ "name": name, "summary": summary }))
                 .collect::<Vec<_>>(),
         },
-        "retiredModifiers": super::RETIRED_MODIFIERS,
-        "icons": super::ICONS,
+        "retiredModifiers": crate::registry::RETIRED_MODIFIERS,
+        "icons": crate::registry::ICONS,
     })
 }
 
@@ -82,7 +85,7 @@ fn flags_of(sig: &'static ComponentSig, prop: &'static PropSig) -> Vec<Value> {
         })],
         PropType::Enum(cases) => cases
             .iter()
-            .filter(|c| matches!(sig.flag(c.name), super::Flag::Case(..)))
+            .filter(|c| matches!(sig.flag(c.name), crate::registry::Flag::Case(..)))
             .map(|c| {
                 json!({
                     "name": c.name,
@@ -113,7 +116,9 @@ fn prop_json(prop: &PropSig, sig: Option<&'static ComponentSig>) -> Value {
                     .map(|c| {
                         // Whether `.case` alone names this prop's case here.
                         let flag = prop.shorthand
-                            && sig.is_none_or(|s| matches!(s.flag(c.name), super::Flag::Case(..)));
+                            && sig.is_none_or(|s| {
+                                matches!(s.flag(c.name), crate::registry::Flag::Case(..))
+                            });
                         json!({
                             "name": c.name,
                             "summary": c.summary,

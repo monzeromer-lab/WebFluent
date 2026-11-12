@@ -1,6 +1,6 @@
   // ─── Markdown ────────────────────────────────────────
   // The same small Markdown the compiler renders at build time (see
-  // `src/codegen/markdown.rs`): headings, paragraphs, fenced code, quotes,
+  // `src/web/codegen/markdown.rs`): headings, paragraphs, fenced code, quotes,
   // one-level lists, rules, GFM tables; code spans, strong, emphasis, links, images.
   // The text is escaped first, so HTML in it is shown, not run, and a link
   // or image whose URL a browser would run is drawn as its words. A

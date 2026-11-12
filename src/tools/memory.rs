@@ -8,7 +8,7 @@
 //! through the `wf-wasm` crate; it runs natively too, which is how it is
 //! tested.
 //!
-//! [`compile`]: crate::memory::compile
+//! [`compile`]: crate::tools::memory::compile
 
 use std::collections::BTreeMap;
 use std::io;

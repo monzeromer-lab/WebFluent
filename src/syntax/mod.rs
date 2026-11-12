@@ -7,7 +7,7 @@
 //! braces in a `.wf` file and by indentation in a `.wfx` file
 //! ([`crate::syntax::lexer::v2::Layout`]). The grammar
 //! WebFluent 2 had is read by `wf migrate` alone, through
-//! [`crate::migrate`]; a file written in it is refused here with a pointer
+//! [`crate::tools::migrate`]; a file written in it is refused here with a pointer
 //! to the migration. The dialect is read from a file's first word: the
 //! declarations of WebFluent 3 are lowercase (`page`, `component`,
 //! `store`, `theme`, `app`, `type`, `enum`); the old grammar's were

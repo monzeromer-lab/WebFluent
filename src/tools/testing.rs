@@ -15,7 +15,7 @@
 //!
 //! `wf test` prints what this finds; the mobile editor shows it. The
 //! browser a test that acts needs is theirs: Chrome for `wf test`, the
-//! editor's WebView ([the `Browser` trait](crate::testing::Browser)).
+//! editor's WebView ([the `Browser` trait](crate::tools::testing::Browser)).
 
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};

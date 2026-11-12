@@ -2030,7 +2030,7 @@ mod interpreter_tests {
 
 /// The language's own types, at build time.
 ///
-/// The twin of `src/runtime/modules/scalars.js`: the same carriers, the
+/// The twin of `src/web/runtime/modules/scalars.js`: the same carriers, the
 /// same answers. A method this does not know falls through to the ordinary
 /// ones, so a record with its own `plus` is unaffected.
 mod scalars {

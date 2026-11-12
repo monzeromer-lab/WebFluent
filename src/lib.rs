@@ -131,128 +131,52 @@
 /// that builds through the library says it built with.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-pub use syntax::lexer;
-
-pub use syntax::parser;
-
+// The layers, bottom first: base, diagnostics, syntax, registry, project,
+// check, web, paged, template, build, tools. A module uses only its own
+// layer and the ones below it; `tests/module_layers.rs` holds it to that.
+pub(crate) mod base;
+/// `wf build` as a library call: [`build::build`] reads a project through a
+/// [`vfs::Vfs`], writes the site, and reports every line the command prints
+/// and every finding, with its code and place.
+pub mod build;
+pub(crate) mod check;
+pub mod diagnostics;
+pub mod paged;
+pub(crate) mod project;
+pub mod registry;
 /// The front end's one entry point: [`syntax::parse_source`] reads a file in
 /// whichever grammar it is written in.
 pub mod syntax;
-
-pub mod registry;
-
-pub use check::sema;
-
-/// `wf migrate`: the original grammar rewritten as WebFluent 3.
-pub mod migrate;
-
-/// `wf test`: a project's tests, rendered or played in a browser, and what
-/// each came to.
-pub mod testing;
-
-/// `wf docs`: the component gallery, one self-contained HTML page.
-pub mod gallery;
-
-/// `wf verify`: every page of a built project in a browser — what each
-/// route did, and the built-ins no page drew.
-pub mod verify;
-
-/// `wf init`: a new project from a template.
-pub mod init;
-
-/// `wf audit`: what a project trusts — markup it did not write, other
-/// origins, what it keeps on the reader's machine, its `env` names, its
-/// policy and its dependencies.
-pub mod audit;
-
-pub use project::data;
-pub use project::i18n;
-pub use syntax::fmt;
-pub use syntax::layout;
-
-pub use build::assets;
-pub mod browser;
-pub use web::codegen;
-pub mod commands;
-pub use project::media;
-pub use project::openapi;
-
-pub use project::project_js;
-
-pub use web::runtime;
-
-pub use project::themes;
-
-pub use project::config;
-
-pub mod diagnostics;
-pub use diagnostics::error;
-
-pub use check::linter;
-
-pub mod paged;
 /// Template engine — render `.wf` templates with JSON data.
 ///
 /// The [`Template`] struct is the primary public API for using WebFluent as a library.
 /// It supports rendering to HTML documents, HTML fragments, and PDF files.
 pub mod template;
-
-pub use check::edit;
-
-pub use syntax::print;
-
-pub use syntax::reprint;
-
-pub use paged::style_value;
-
-pub use web::motion;
-
-pub use check::validation;
-
-pub use check::scope;
-
-/// What an agent works through: a change set held apart from the working
-/// tree, built before it is read, and the context it is given.
-pub mod agent;
-
-/// Studio integration facade — [`studio::compile_studio`] turns a program into a
-/// [`studio::CompiledSite`] (SSG pages + CSS + JS + node map) for the preview.
-pub mod studio;
-
-/// What a running page changes to follow an edit, with no reload.
-pub mod patch;
-
-/// `wf build` as a library call: [`build::build`] reads a project through a
-/// [`vfs::Vfs`], writes the site, and reports every line the command prints
-/// and every finding, with its code and place.
-pub mod build;
-
-/// `wf generate` as a library call: the source of a new page, component or
-/// store, and [`generate::create`] to write one in the project's layout.
-pub mod generate;
-
-pub use base::vfs;
-
-pub use base::outfs;
-
-pub use base::platform;
-
-pub(crate) mod base;
-pub(crate) mod check;
-/// A project built from memory, with nothing read from or written to a disk:
-/// what the browser's playground runs.
-pub mod memory;
-pub(crate) mod project;
+pub(crate) mod tools;
 pub(crate) mod web;
 
-pub use codegen::node_id::{NodeInfo, NodeMap};
-pub use config::project::{PdfConfig, PdfMargins, SlidesConfig};
-pub use edit::{ArgRef, EditOp, apply_edits};
-pub use error::{Diagnostic, Result, WebFluentError};
-pub use linter::lint_vocabulary as validate_vocabulary;
-pub use linter::validate_semantics;
-pub use studio::{
-    CompiledPage, CompiledSite, Diagnostic as StudioDiagnostic, ThemeInfo, compile_studio,
+// Every module at the path it has always had.
+pub use base::{outfs, platform, vfs};
+pub use build::assets;
+pub use check::{edit, linter, scope, sema, validation};
+pub use diagnostics::error;
+pub use paged::style_value;
+pub use project::{config, data, i18n, media, openapi, project_js, themes};
+pub use syntax::{fmt, layout, lexer, parser, print, reprint};
+pub use tools::{
+    agent, audit, browser, commands, gallery, generate, init, memory, migrate, patch, studio,
+    testing, verify,
 };
+pub use web::{codegen, motion, runtime};
+
+pub use check::edit::{ArgRef, EditOp, apply_edits};
+pub use check::linter::lint_vocabulary as validate_vocabulary;
+pub use check::linter::validate_semantics;
+pub use diagnostics::error::{Diagnostic, Result, WebFluentError};
+pub use project::config::project::{PdfConfig, PdfMargins, SlidesConfig};
+pub use syntax::node_id::{NodeInfo, NodeMap};
 pub use syntax::{Dialect, detect_dialect, parse_source};
 pub use template::{PdfReport, Template};
+pub use tools::studio::{
+    CompiledPage, CompiledSite, Diagnostic as StudioDiagnostic, ThemeInfo, compile_studio,
+};

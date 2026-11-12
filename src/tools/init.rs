@@ -153,35 +153,35 @@ pub const SKILL_ROOTS: [&str; 2] = [
 const SKILL: &[(&str, &str)] = &[
     (
         "SKILL.md",
-        include_str!("../skills/writing-webfluent/SKILL.md"),
+        include_str!("../../skills/writing-webfluent/SKILL.md"),
     ),
     (
         "references/code-quality.md",
-        include_str!("../skills/writing-webfluent/references/code-quality.md"),
+        include_str!("../../skills/writing-webfluent/references/code-quality.md"),
     ),
     (
         "references/diagnostics.md",
-        include_str!("../skills/writing-webfluent/references/diagnostics.md"),
+        include_str!("../../skills/writing-webfluent/references/diagnostics.md"),
     ),
     (
         "references/documents.md",
-        include_str!("../skills/writing-webfluent/references/documents.md"),
+        include_str!("../../skills/writing-webfluent/references/documents.md"),
     ),
     (
         "references/recipes.md",
-        include_str!("../skills/writing-webfluent/references/recipes.md"),
+        include_str!("../../skills/writing-webfluent/references/recipes.md"),
     ),
     (
         "references/styling.md",
-        include_str!("../skills/writing-webfluent/references/styling.md"),
+        include_str!("../../skills/writing-webfluent/references/styling.md"),
     ),
     (
         "references/tauri-apps.md",
-        include_str!("../skills/writing-webfluent/references/tauri-apps.md"),
+        include_str!("../../skills/writing-webfluent/references/tauri-apps.md"),
     ),
     (
         "references/testing.md",
-        include_str!("../skills/writing-webfluent/references/testing.md"),
+        include_str!("../../skills/writing-webfluent/references/testing.md"),
     ),
 ];
 
@@ -434,7 +434,7 @@ pub fn locale_name(locale: &str) -> String {
 }
 
 /// The repository's `AGENTS.md`, as this `wf` was built with it.
-const AGENTS: &str = include_str!("../AGENTS.md");
+const AGENTS: &str = include_str!("../../AGENTS.md");
 
 /// `AGENTS.md` for a new project: the language reference, headed by the
 /// version it describes and where to find a newer one.
@@ -451,7 +451,7 @@ pub fn agents_md() -> String {
 //  The starters
 // ═══════════════════════════════════════════════════════════
 //
-// Each starter is a folder of real files under `src/init/<template>/`, the
+// Each starter is a folder of real files under `src/tools/init/<template>/`, the
 // project's name written `{{name}}`. They used to be Rust string literals
 // with every brace doubled, which no editor, formatter or `wf check` could
 // read — so the starters drifted from the language and shipped bugs a
@@ -476,7 +476,7 @@ impl Template {
     }
 
     /// What the template writes instead, or as well, when it is translated,
-    /// under `src/init/<template>-i18n/`: its sources with every visible
+    /// under `src/tools/init/<template>-i18n/`: its sources with every visible
     /// string through `t("…")`, and the tables they read.
     pub fn translated(self) -> &'static [(&'static str, &'static str)] {
         match self {
@@ -649,12 +649,12 @@ const SLIDES: &[(&str, &str)] = &[
 mod tests {
     use super::*;
 
-    /// Every file under `src/init/<template>/` is one the template writes:
+    /// Every file under `src/tools/init/<template>/` is one the template writes:
     /// a file added to a starter and left out of its table is a starter that
     /// does not build (its theme named in the config, and not there).
     #[test]
     fn every_starter_file_is_written() {
-        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("src/init");
+        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("src/tools/init");
         let mut starters: Vec<(String, &[(&str, &str)])> = Vec::new();
         for template in Template::ALL {
             starters.push((template.name().to_string(), template.files()));
