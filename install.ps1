@@ -3,7 +3,7 @@
 #   irm https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.ps1 | iex
 #
 # Set $env:WF_INSTALL_DIR to choose where the binary lands, $env:WF_VERSION to
-# pin a release ("v3.2.1"). With Rust installed, `cargo install webfluent`
+# pin a release ("v5.15.0"). With Rust installed, `cargo install webfluent`
 # works too and covers every platform.
 $ErrorActionPreference = "Stop"
 # Windows PowerShell 5.1 may still offer TLS 1.0 first; GitHub wants 1.2.
@@ -21,7 +21,7 @@ $Version = if ($env:WF_VERSION) {
     try {
         (Invoke-RestMethod "https://api.github.com/repos/$Repo/releases/latest").tag_name
     } catch {
-        throw "Could not reach the GitHub API to find the latest version (rate limited?). Set `$env:WF_VERSION = 'v3.2.1'` to pin one."
+        throw "Could not reach the GitHub API to find the latest version (rate limited?). Set `$env:WF_VERSION = 'v5.15.0'` to pin one."
     }
 }
 if (-not $Version) { throw "Could not determine the latest version." }

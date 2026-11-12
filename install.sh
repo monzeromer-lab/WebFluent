@@ -4,7 +4,7 @@
 #   curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash
 #
 # Set WF_INSTALL_DIR to choose where the binary lands, WF_VERSION to pin a
-# release (`v5.14.0`). Prefer `cargo install webfluent` if you have Rust — it
+# release (`v5.15.0`). Prefer `cargo install webfluent` if you have Rust — it
 # covers every platform, including the ones without a prebuilt binary here.
 #
 # The archive is checked against the release's SHA256SUMS before anything is
@@ -102,7 +102,7 @@ main() {
         VERSION=$(fetch "https://api.github.com/repos/$REPO/releases/latest" \
             | grep '"tag_name"' | head -n1 | cut -d'"' -f4) || true
     fi
-    [ -n "$VERSION" ] || die "could not determine the latest version (GitHub API rate limit?). Set WF_VERSION=v5.14.0 to pin one."
+    [ -n "$VERSION" ] || die "could not determine the latest version (GitHub API rate limit?). Set WF_VERSION=v5.15.0 to pin one."
     printf '%s' "$VERSION" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$' \
         || die "a version is vX.Y.Z, not $VERSION"
 
