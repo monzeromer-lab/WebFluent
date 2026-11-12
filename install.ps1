@@ -6,6 +6,8 @@
 # pin a release ("v3.2.1"). With Rust installed, `cargo install webfluent`
 # works too and covers every platform.
 $ErrorActionPreference = "Stop"
+# Windows PowerShell 5.1 may still offer TLS 1.0 first; GitHub wants 1.2.
+[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
 
 $Repo = "monzeromer-lab/WebFluent"
 $InstallDir = if ($env:WF_INSTALL_DIR) { $env:WF_INSTALL_DIR } else { "$env:USERPROFILE\.webfluent\bin" }
@@ -23,9 +25,24 @@ $Version = if ($env:WF_VERSION) {
     }
 }
 if (-not $Version) { throw "Could not determine the latest version." }
+if ($Version -notmatch '^v[0-9]+\.[0-9]+\.[0-9]+$') { throw "A version is vX.Y.Z, not $Version" }
+
+# Where the release assets come from: GitHub over HTTPS. $env:WF_INSTALL_BASE_URL
+# replaces it for testing against a local copy of a release; plain HTTP is
+# accepted for a loopback address and nothing else.
+if ($env:WF_INSTALL_BASE_URL) {
+    $Base = $env:WF_INSTALL_BASE_URL.TrimEnd('/')
+    if ($Base -notmatch '^https://' -and $Base -notmatch '^http://(127\.0\.0\.1|localhost)(:[0-9]+)?(/|$)') {
+        throw "WF_INSTALL_BASE_URL must be https://, or http:// on 127.0.0.1 or localhost"
+    }
+    $Base = "$Base/$Version"
+} else {
+    $Base = "https://github.com/$Repo/releases/download/$Version"
+}
 
 $Asset = "wf-$Version-x86_64-windows.zip"
-$Url = "https://github.com/$Repo/releases/download/$Version/$Asset"
+$Url = "$Base/$Asset"
+$SumsUrl = "$Base/SHA256SUMS"
 
 Write-Host "Installing wf $Version (x86_64-windows)..."
 
@@ -40,6 +57,28 @@ try {
     } catch {
         throw "Could not download $Asset. Check https://github.com/$Repo/releases for what that release carries."
     }
+
+    # The archive is held to the release's SHA256SUMS before it is unpacked;
+    # a missing, malformed or different sum installs nothing.
+    $TmpSums = Join-Path $Tmp "SHA256SUMS"
+    try {
+        Invoke-WebRequest -Uri $SumsUrl -OutFile $TmpSums
+    } catch {
+        throw "Could not download SHA256SUMS for $Version, so $Asset cannot be checked. Releases before checksums were published can be installed with: cargo install webfluent --version $($Version.TrimStart('v'))"
+    }
+    $Want = $null
+    foreach ($Line in Get-Content -Path $TmpSums) {
+        $Parts = $Line.Trim() -split '\s+', 2
+        if ($Parts.Count -eq 2 -and $Parts[1].TrimStart('*') -ceq $Asset) { $Want = $Parts[0]; break }
+    }
+    if (-not $Want) { throw "SHA256SUMS lists no $Asset; refusing to install an archive that cannot be checked." }
+    if ($Want -notmatch '^[0-9a-fA-F]{64}$') { throw "SHA256SUMS has a malformed entry for $Asset." }
+    $Have = (Get-FileHash -Algorithm SHA256 -Path $TmpZip).Hash
+    if ($Have.ToLowerInvariant() -ne $Want.ToLowerInvariant()) {
+        throw "$Asset does not match the release's SHA256SUMS (expected $Want, got $Have). Nothing was installed."
+    }
+    Write-Host "Checked $Asset against SHA256SUMS."
+
     Expand-Archive -Path $TmpZip -DestinationPath $Tmp -Force
 
     $Exe = Join-Path $Tmp "wf.exe"
