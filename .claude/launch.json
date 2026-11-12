@@ -18,6 +18,18 @@
         "cd \"/run/media/monzer-omer/the good stuff/Work/WebFluent/site\" && exec \"/run/media/monzer-omer/the good stuff/Work/WebFluent/target/debug/wf\" serve"
       ],
       "port": 4000
+    },
+    {
+      "name": "docs-static",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "4100",
+        "--directory",
+        "/home/monzer-omer/Code/WebFluent/docs"
+      ],
+      "port": 4100
     }
   ]
 }
