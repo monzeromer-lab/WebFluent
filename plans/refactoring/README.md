@@ -691,8 +691,24 @@ static paint's own `Avatar` bug (no initials, `src` on the box) is fixed
 too. `builtin_components.rs` now holds the two to the same HTML for every
 built-in. The build's output, PDFs included, is unchanged.
 
-Still to do in this phase: the special emitter table, one expression
-emitter, `js_str`, `with_locals`, `JsOptions`, the checker's borrow and
+**The code generator, first pass (2026-11-12).**
+- `js_str` is the one escape. An element's animation settings (duration,
+  delay, stagger, easing, exit) were quoted by hand, so a quote in one
+  ended its string and the rest ran as code. They go through it now, held
+  by `tests/js_strings.rs`.
+- The case helpers (`camel_to_kebab`, three copies before) live once in
+  `base::text`.
+- `JsOptions` holds a bundle's modes, set with `JsCodegen::with_options`.
+  The setters remain until 6.0.
+- `emit_ui_element` (1,190 lines) is a 35-line dispatch over
+  `emit_builtin`, `emit_part`, `emit_component_call` and `element_parts`
+  (the attribute pass). The output is byte-identical.
+- The special emitters were already a `match`. Moving them ahead of the
+  attribute pass would change what is generated, because several of
+  them read its attributes, so it was not done.
+
+Still to do in this phase: splitting `element_parts`' argument loop, one
+expression emitter (`emit_expr` and `emit_store_expr`), `with_locals`, the checker's borrow and
 `ProgramIndex` work, errors, state, panics, public surface and API shape).
 
 These can run in any order once their layer exists. Each PR is
