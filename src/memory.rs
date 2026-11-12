@@ -17,17 +17,17 @@ use std::sync::Arc;
 
 use serde::Serialize;
 
+use crate::base::vfs::{Metadata, OverlayVfs, Vfs};
 use crate::build::{BuildOptions, BuildReport};
 use crate::error::Diagnostic;
-use crate::vfs::{Metadata, OverlayVfs, Vfs};
 
 /// Where the project seems to sit. Nothing is read from or written there.
 pub const PROJECT_DIR: &str = "/wf-project";
 
 thread_local! {
     /// What the image pipeline encoded, kept from one build to the next.
-    static MEDIA_CACHE: std::cell::RefCell<crate::outfs::Files> =
-        const { std::cell::RefCell::new(crate::outfs::Files::new()) };
+    static MEDIA_CACHE: std::cell::RefCell<crate::base::outfs::Files> =
+        const { std::cell::RefCell::new(crate::base::outfs::Files::new()) };
 }
 
 /// Past this many bytes of encoded pictures the cache starts again empty.
@@ -165,7 +165,7 @@ pub fn compile_files(
     // alone does not encode it again.
     let media_cache = root.join(".wf-cache/media");
     let seed = MEDIA_CACHE.with(|c| c.take());
-    let (outcome, written) = crate::outfs::capture_from(seed, || {
+    let (outcome, written) = crate::base::outfs::capture_from(seed, || {
         if options.check_only {
             crate::build::check(&build_options)
         } else {
@@ -199,7 +199,7 @@ pub fn compile_files(
         lines: report.lines.into_iter().map(|l| l.text).collect(),
         ..Output::default()
     };
-    let mut kept = crate::outfs::Files::new();
+    let mut kept = crate::base::outfs::Files::new();
     let mut kept_bytes = 0;
     for (path, bytes) in &written {
         if path.starts_with(&media_cache) {

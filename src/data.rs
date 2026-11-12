@@ -3,7 +3,7 @@
 //! into a `const` before anything else runs, so the checker, the static
 //! paint, the template engine and the bundle all see a plain value.
 
-pub use crate::vfs::stays_inside;
+pub use crate::base::vfs::stays_inside;
 use std::path::Path;
 
 use crate::error::{Result, WebFluentError};
@@ -45,12 +45,12 @@ pub fn resolve_data_with(
     root: &Path,
     media: Option<(&Path, &crate::media::Settings, &str)>,
 ) -> Result<()> {
-    resolve_data_via(&crate::vfs::FsVfs, program, root, media)
+    resolve_data_via(&crate::base::vfs::FsVfs, program, root, media)
 }
 
 /// [`resolve_data_with`], reading the files through `vfs`.
 pub fn resolve_data_via(
-    vfs: &dyn crate::vfs::Vfs,
+    vfs: &dyn crate::base::vfs::Vfs,
     program: &mut Program,
     root: &Path,
     media: Option<(&Path, &crate::media::Settings, &str)>,
@@ -196,7 +196,7 @@ pub fn processed_src(ui: &UIElement) -> Option<(usize, String)> {
 /// when `public/` has it and it can be read. Anything else is left as it
 /// was: copied, and named by its path.
 fn lower_image_src(
-    vfs: &dyn crate::vfs::Vfs,
+    vfs: &dyn crate::base::vfs::Vfs,
     ui: &mut UIElement,
     root: &Path,
     out_dir: &Path,

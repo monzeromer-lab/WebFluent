@@ -412,7 +412,7 @@ pub fn ago(value: &Input, now: Option<&Input>) -> Option<String> {
     let then = parse_moment(value)?.unix();
     let now = match now {
         Some(n) => parse_moment(n)?.unix(),
-        None => crate::platform::unix_now(),
+        None => crate::base::platform::unix_now(),
     };
     Some(relative(then - now))
 }

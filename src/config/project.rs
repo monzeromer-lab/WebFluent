@@ -1223,11 +1223,11 @@ impl ProjectConfig {
     }
 
     pub fn load(project_dir: &Path) -> Result<Self> {
-        Self::load_via(&crate::vfs::FsVfs, project_dir)
+        Self::load_via(&crate::base::vfs::FsVfs, project_dir)
     }
 
     /// [`load`](Self::load), reading through `vfs`.
-    pub fn load_via(vfs: &dyn crate::vfs::Vfs, project_dir: &Path) -> Result<Self> {
+    pub fn load_via(vfs: &dyn crate::base::vfs::Vfs, project_dir: &Path) -> Result<Self> {
         let config_path = project_dir.join("webfluent.app.json");
         if !vfs.exists(&config_path) {
             return Err(WebFluentError::ConfigError(
@@ -1251,11 +1251,11 @@ impl ProjectConfig {
     /// such as `env` or `theme.tokens` holds exactly what it was given), so a
     /// key in the file that is not in that is one nothing reads.
     pub fn unknown_keys(project_dir: &Path) -> Vec<String> {
-        Self::unknown_keys_via(&crate::vfs::FsVfs, project_dir)
+        Self::unknown_keys_via(&crate::base::vfs::FsVfs, project_dir)
     }
 
     /// [`unknown_keys`](Self::unknown_keys), reading through `vfs`.
-    pub fn unknown_keys_via(vfs: &dyn crate::vfs::Vfs, project_dir: &Path) -> Vec<String> {
+    pub fn unknown_keys_via(vfs: &dyn crate::base::vfs::Vfs, project_dir: &Path) -> Vec<String> {
         let Ok(content) = vfs.read_to_string(&project_dir.join("webfluent.app.json")) else {
             return Vec::new();
         };
@@ -1290,7 +1290,7 @@ impl ProjectConfig {
     /// by naming it in [`ALLOW_SHELL_ENV`] (`WF_ALLOW_SHELL_ENV=API_URL,…`);
     /// otherwise the value the config or `.env` gives stands.
     pub fn resolve_env(&mut self, project_dir: &Path) {
-        self.resolve_env_from(project_dir, crate::platform::env_vars());
+        self.resolve_env_from(project_dir, crate::base::platform::env_vars());
     }
 
     /// [`resolve_env`](Self::resolve_env) with the shell's variables given.
@@ -1299,14 +1299,14 @@ impl ProjectConfig {
         project_dir: &Path,
         shell: impl IntoIterator<Item = (String, String)>,
     ) {
-        self.resolve_env_via(&crate::vfs::FsVfs, project_dir, shell);
+        self.resolve_env_via(&crate::base::vfs::FsVfs, project_dir, shell);
     }
 
     /// [`resolve_env_from`](Self::resolve_env_from), reading `.env` through
     /// `vfs`.
     pub fn resolve_env_via(
         &mut self,
-        vfs: &dyn crate::vfs::Vfs,
+        vfs: &dyn crate::base::vfs::Vfs,
         project_dir: &Path,
         shell: impl IntoIterator<Item = (String, String)>,
     ) {
@@ -1389,7 +1389,12 @@ fn unknown_in(
             None => {
                 let hint = known
                     .keys()
-                    .map(|k| (crate::text::levenshtein(&normalise(key), &normalise(k)), k))
+                    .map(|k| {
+                        (
+                            crate::base::text::levenshtein(&normalise(key), &normalise(k)),
+                            k,
+                        )
+                    })
                     .filter(|(d, _)| *d <= 3)
                     .min()
                     .map(|(_, k)| format!(" — did you mean `{k}`?"))

@@ -22,12 +22,12 @@ use std::path::Path;
 /// chapter, and only a splice inside that string would be a page reading
 /// it — which the lexer turns into tokens too, so that one is still found.
 pub fn lint_env(project_dir: &Path, config: &ProjectConfig, files: &[String]) -> Vec<Diagnostic> {
-    lint_env_via(&crate::vfs::FsVfs, project_dir, config, files)
+    lint_env_via(&crate::base::vfs::FsVfs, project_dir, config, files)
 }
 
 /// [`lint_env`], reading the sources through `vfs`.
 pub fn lint_env_via(
-    vfs: &dyn crate::vfs::Vfs,
+    vfs: &dyn crate::base::vfs::Vfs,
     project_dir: &Path,
     config: &ProjectConfig,
     files: &[String],

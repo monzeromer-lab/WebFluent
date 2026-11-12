@@ -9,5 +9,5 @@ pub mod context;
 pub mod diff;
 pub mod edit;
 
-pub use crate::vfs::escapes;
-pub(crate) use crate::vfs::leaves;
+pub use crate::base::vfs::escapes;
+pub(crate) use crate::base::vfs::leaves;

@@ -3,10 +3,10 @@
 //! and `image` declarations resolved and any `api … from` specification
 //! expanded.
 
+use crate::base::vfs::{FsVfs, Vfs};
 use crate::config::ProjectConfig;
 use crate::error::{Diagnostic, Result, WebFluentError};
 use crate::parser::{Declaration, Program};
-use crate::vfs::{FsVfs, Vfs};
 use std::path::{Path, PathBuf};
 
 /// Every source file under the project's `src/`, parsed and merged into

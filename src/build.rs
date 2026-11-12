@@ -1,7 +1,7 @@
 //! `wf build` and `wf check`, as library calls.
 //!
 //! [`build()`](crate::build::build) reads a project through [a
-//! `Vfs`](crate::vfs::Vfs) — the disk, or the disk with an editor's unsaved
+//! `Vfs`](crate::base::vfs::Vfs) — the disk, or the disk with an editor's unsaved
 //! buffers over it — checks it, and writes the site to its output directory.
 //! `wf build` is this function and a loop that prints what it reports, so the
 //! two cannot drift: the report holds every line the command prints, in order
@@ -19,15 +19,15 @@ pub use crate::sources::{
 };
 pub use cache::BuildCache;
 
+use crate::base::outfs as fs;
+use crate::base::vfs::{Confined, FsVfs, Vfs};
 use crate::codegen::{JsCodegen, dark_css, generate_css_for, generate_html};
 use crate::config::ProjectConfig;
 use crate::config::project::OutputType;
 use crate::diagnostics::Severity;
 use crate::diagnostics::format::Format;
 use crate::error::{Diagnostic, Result, WebFluentError};
-use crate::outfs as fs;
 use crate::parser::{Declaration, Program, Statement};
-use crate::vfs::{Confined, FsVfs, Vfs};
 use std::cell::RefCell;
 use std::collections::{BTreeMap, HashMap};
 use std::path::{Path, PathBuf};
@@ -212,7 +212,7 @@ fn finish(
     options: &BuildOptions,
     body: impl FnOnce(&Out) -> Result<()>,
 ) -> std::result::Result<BuildReport, BuildFailure> {
-    let started = crate::platform::Stopwatch::start();
+    let started = crate::base::platform::Stopwatch::start();
     let out = Out {
         report: RefCell::new(BuildReport::default()),
         found: RefCell::new(Vec::new()),
@@ -384,7 +384,7 @@ fn check_config_paths(config: &ProjectConfig) -> Result<()> {
         named.push(("`i18n.dir`", &i18n.dir));
     }
     for (what, path) in named {
-        if !crate::vfs::stays_inside(path) {
+        if !crate::base::vfs::stays_inside(path) {
             return Err(WebFluentError::ConfigError(format!(
                 "{what} names `{path}`, which is outside the project: a build reads only the project's own files, by a path inside it (no absolute path, no `..`)"
             )));
@@ -400,7 +400,7 @@ fn load_config(options: &BuildOptions) -> Result<ProjectConfig> {
     config.resolve_env_via(
         options.vfs,
         options.project_dir,
-        crate::platform::env_vars(),
+        crate::base::platform::env_vars(),
     );
     if let Some(output) = &options.output_dir {
         config.build.output = output.to_string_lossy().to_string();
@@ -1290,7 +1290,7 @@ pub fn project_output(project_dir: &Path, output: &str, allow_outside: bool) -> 
     {
         return Err(refuse("climbs out of the project with `..`"));
     }
-    if crate::vfs::escapes(project_dir, &joined) {
+    if crate::base::vfs::escapes(project_dir, &joined) {
         return Err(refuse("leads out of the project through a link"));
     }
     if let Some(link) = link_inside(&joined) {
@@ -1305,7 +1305,7 @@ pub fn project_output(project_dir: &Path, output: &str, allow_outside: bool) -> 
 
 /// The first symbolic link under `dir`, walked without following one.
 fn link_inside(dir: &Path) -> Option<PathBuf> {
-    if crate::outfs::capturing() {
+    if crate::base::outfs::capturing() {
         return None;
     }
     let mut walk = vec![dir.to_path_buf()];

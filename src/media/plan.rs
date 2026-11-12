@@ -288,7 +288,7 @@ pub fn plan_probed(
                 let name = format!("{stem}.{hash}.{w}.{format}");
                 let cached = cache
                     .map(|c| c.join(&name))
-                    .and_then(|p| crate::outfs::len(p).ok());
+                    .and_then(|p| crate::base::outfs::len(p).ok());
                 let (size, estimated) = match cached {
                     Some(n) => (n, false),
                     None if exact => match encode::resized(probed, *w, format, settings.quality) {

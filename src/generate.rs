@@ -1,8 +1,8 @@
 //! What `wf generate` writes: a new page, component or store — or an empty
 //! file — in the layout the project's sources are written in.
 
+use crate::base::vfs::{FsVfs, Vfs};
 use crate::error::Result;
-use crate::vfs::{FsVfs, Vfs};
 use std::path::{Path, PathBuf};
 
 /// What a new file declares.

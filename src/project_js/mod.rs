@@ -15,7 +15,7 @@ pub mod scan;
 
 use std::path::{Path, PathBuf};
 
-use crate::vfs::{FsVfs, Vfs};
+use crate::base::vfs::{FsVfs, Vfs};
 
 pub use crate::sema::script::signature;
 pub use scan::Scan;

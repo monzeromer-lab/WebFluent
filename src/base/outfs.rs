@@ -1,6 +1,6 @@
 //! Where a build writes.
 //!
-//! What a project says is read through [a `Vfs`](crate::vfs::Vfs); what a
+//! What a project says is read through [a `Vfs`](crate::base::vfs::Vfs); what a
 //! build *writes* — the site, the image cache, `.wf-sizes.json` — goes
 //! through these functions, which have the meaning of their `std::fs`
 //! namesakes. Ordinarily they *are* those: `wf build` writes to the disk.
@@ -11,7 +11,7 @@
 //! The capture belongs to the thread that opened it; the build writes from
 //! that thread only.
 //!
-//! [`capture`]: crate::outfs::capture
+//! [`capture`]: crate::base::outfs::capture
 
 use std::cell::RefCell;
 use std::collections::{BTreeMap, BTreeSet};

@@ -104,7 +104,7 @@ pub struct Options<'a> {
     pub font_family: String,
     pub assets: &'a AssetReader<'a>,
     /// Where the fonts in [`font_dirs`](Self::font_dirs) are read from.
-    pub vfs: &'a dyn crate::vfs::Vfs,
+    pub vfs: &'a dyn crate::base::vfs::Vfs,
     /// Directories whose fonts the document may use.
     pub font_dirs: Vec<PathBuf>,
     /// Whether the machine's fonts may stand in for a family or a character
@@ -615,12 +615,12 @@ pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
 /// Reads a page's assets from a project: an address is looked up beside
 /// the project, in its `public/` and in its `src/`.
 pub fn reader(root: Option<PathBuf>) -> impl Fn(&str) -> Option<Vec<u8>> {
-    reader_via(&crate::vfs::FsVfs, root)
+    reader_via(&crate::base::vfs::FsVfs, root)
 }
 
 /// [`reader`], reading through `vfs`.
 pub fn reader_via(
-    vfs: &dyn crate::vfs::Vfs,
+    vfs: &dyn crate::base::vfs::Vfs,
     root: Option<PathBuf>,
 ) -> impl Fn(&str) -> Option<Vec<u8>> + '_ {
     move |src: &str| {
@@ -665,7 +665,11 @@ pub fn reader_via(
 
 /// Whether `file` is under `base` once every link is resolved — on a file
 /// system that has links; one that has none keeps a path where it says.
-fn stays_under(vfs: &dyn crate::vfs::Vfs, base: &std::path::Path, file: &std::path::Path) -> bool {
+fn stays_under(
+    vfs: &dyn crate::base::vfs::Vfs,
+    base: &std::path::Path,
+    file: &std::path::Path,
+) -> bool {
     match (vfs.canonical(base), vfs.canonical(file)) {
         (Some(base), Some(file)) => file.starts_with(base),
         // Not on a disk (a buffer, a file system with no links).
@@ -718,12 +722,12 @@ mod reader_tests {
 
 /// The directories a project's fonts are kept in.
 pub fn font_dirs(root: Option<&std::path::Path>, extra: &[String]) -> Vec<PathBuf> {
-    font_dirs_via(&crate::vfs::FsVfs, root, extra)
+    font_dirs_via(&crate::base::vfs::FsVfs, root, extra)
 }
 
 /// [`font_dirs`], looked for through `vfs`.
 pub fn font_dirs_via(
-    vfs: &dyn crate::vfs::Vfs,
+    vfs: &dyn crate::base::vfs::Vfs,
     root: Option<&std::path::Path>,
     extra: &[String],
 ) -> Vec<PathBuf> {
@@ -754,13 +758,13 @@ impl<'a> Options<'a> {
         assets: &'a AssetReader<'a>,
         root: Option<&std::path::Path>,
     ) -> Options<'a> {
-        Self::from_pdf_via(&crate::vfs::FsVfs, config, assets, root)
+        Self::from_pdf_via(&crate::base::vfs::FsVfs, config, assets, root)
     }
 
     /// [`from_pdf`](Self::from_pdf), with the project's fonts read through
     /// `vfs`.
     pub fn from_pdf_via(
-        vfs: &'a dyn crate::vfs::Vfs,
+        vfs: &'a dyn crate::base::vfs::Vfs,
         config: &crate::config::project::PdfConfig,
         assets: &'a AssetReader<'a>,
         root: Option<&std::path::Path>,
@@ -787,13 +791,13 @@ impl<'a> Options<'a> {
         assets: &'a AssetReader<'a>,
         root: Option<&std::path::Path>,
     ) -> (Options<'a>, SlideChrome) {
-        Self::from_slides_via(&crate::vfs::FsVfs, config, assets, root)
+        Self::from_slides_via(&crate::base::vfs::FsVfs, config, assets, root)
     }
 
     /// [`from_slides`](Self::from_slides), with the project's fonts read
     /// through `vfs`.
     pub fn from_slides_via(
-        vfs: &'a dyn crate::vfs::Vfs,
+        vfs: &'a dyn crate::base::vfs::Vfs,
         config: &crate::config::project::SlidesConfig,
         assets: &'a AssetReader<'a>,
         root: Option<&std::path::Path>,

@@ -23,19 +23,19 @@ pub fn load(
     project_dir: &Path,
     config: &crate::config::project::I18nConfig,
 ) -> crate::error::Result<HashMap<String, HashMap<String, String>>> {
-    load_via(&crate::vfs::FsVfs, project_dir, config)
+    load_via(&crate::base::vfs::FsVfs, project_dir, config)
 }
 
 /// [`load`], reading through `vfs`.
 pub fn load_via(
-    vfs: &dyn crate::vfs::Vfs,
+    vfs: &dyn crate::base::vfs::Vfs,
     project_dir: &Path,
     config: &crate::config::project::I18nConfig,
 ) -> crate::error::Result<HashMap<String, HashMap<String, String>>> {
     let mut out = HashMap::new();
     // The translations are the project's own: a directory outside it is
     // read as none (the build says so, as a finding on `i18n.dir`).
-    if !crate::vfs::stays_inside(&config.dir) {
+    if !crate::base::vfs::stays_inside(&config.dir) {
         return Ok(out);
     }
     let dir = project_dir.join(&config.dir);

@@ -2,9 +2,9 @@
 //!
 //! Everything that reads a project — `wf build`, the language server, an
 //! editor that builds what its buffers say before they are saved — reads it
-//! through [a `Vfs`](crate::vfs::Vfs). [The `FsVfs`](crate::vfs::FsVfs) is
+//! through [a `Vfs`](crate::base::vfs::Vfs). [The `FsVfs`](crate::base::vfs::FsVfs) is
 //! the disk, and what every command uses. [An
-//! `OverlayVfs`](crate::vfs::OverlayVfs) is another file system with an
+//! `OverlayVfs`](crate::base::vfs::OverlayVfs) is another file system with an
 //! editor's open buffers laid over it: a buffer is read instead of the file
 //! it names, a buffer for a file that is not on disk yet is listed in its
 //! directory, and a file can be hidden as though it were deleted.
@@ -63,7 +63,7 @@ pub trait Vfs: Send + Sync {
     /// Copy the file at `from` to `to` on the disk: how a build copies
     /// `public/` into its output.
     fn copy_out(&self, from: &Path, to: &Path) -> io::Result<()> {
-        crate::outfs::write(to, self.read(from)?)
+        crate::base::outfs::write(to, self.read(from)?)
     }
 
     /// Whether `path` is itself a symbolic link. A file system with no
@@ -121,7 +121,7 @@ impl Vfs for FsVfs {
 
     fn copy_out(&self, from: &Path, to: &Path) -> io::Result<()> {
         // `fs::copy` keeps the file's permissions, as `wf build` always has.
-        crate::outfs::copy(from, to)
+        crate::base::outfs::copy(from, to)
     }
 
     fn is_link(&self, path: &Path) -> bool {
@@ -358,7 +358,7 @@ impl Vfs for OverlayVfs {
         let at = key(from);
         match self.layers.get(&at) {
             Some(layer) if layer.is_file() => {
-                crate::outfs::write(to, layer.bytes().unwrap_or_default())
+                crate::base::outfs::write(to, layer.bytes().unwrap_or_default())
             }
             _ if self.hidden(&at) => Err(Self::gone(from)),
             _ => self.base.copy_out(from, to),
@@ -595,7 +595,7 @@ pub(crate) fn leaves(dir: &Path, path: &Path) -> bool {
 /// translations directory, a font directory, a specification), stays
 /// inside the project by its words: not absolute, no `..`, no NUL. Where it
 /// leads on the disk — through a link — is the reader's to check
-/// ([`crate::vfs::Confined`]).
+/// ([`crate::base::vfs::Confined`]).
 pub fn stays_inside(file: &str) -> bool {
     let path = Path::new(file);
     !file.is_empty()

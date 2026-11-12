@@ -193,7 +193,7 @@ impl Diagnostic {
 
     /// The whole of a node's span — its start and end — read against the
     /// text of its file, when the file is at hand.
-    pub fn with_span(mut self, span: crate::span::Span, source: Option<&str>) -> Self {
+    pub fn with_span(mut self, span: crate::base::span::Span, source: Option<&str>) -> Self {
         if span.line > 0 {
             self.line = span.line as usize;
             self.column = span.col as usize;
@@ -371,7 +371,7 @@ mod tests {
     fn a_span_gives_the_end() {
         let src = "page P(path: \"/\") {\n    Heading(user.nmae).h1\n}";
         let start = src.find("user.nmae").unwrap() as u32;
-        let span = crate::span::Span::new(start, start + 9, 2, 13);
+        let span = crate::base::span::Span::new(start, start + 9, 2, 13);
         let d = Diagnostic::coded("T05", "x", "p.wf", 1, 1).with_span(span, Some(src));
         assert_eq!((d.line, d.column, d.end_line, d.end_column), (2, 13, 2, 22));
     }

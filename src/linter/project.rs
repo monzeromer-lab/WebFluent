@@ -26,7 +26,7 @@ fn bodies(program: &Program) -> impl Iterator<Item = (usize, &[Statement])> {
 /// literal naming a file `public/` does not have — the page asks for it
 /// and gets a 404.
 pub fn missing_assets(
-    vfs: &dyn crate::vfs::Vfs,
+    vfs: &dyn crate::base::vfs::Vfs,
     program: &Program,
     dir: &Path,
     file_of: &dyn Fn(usize) -> String,
@@ -130,7 +130,7 @@ pub fn names_a_file(component: &ComponentRef, key: &str) -> bool {
 }
 
 /// Every file under `dir`, as `/<prefix>/<name>`.
-fn list_public(vfs: &dyn crate::vfs::Vfs, dir: &Path, prefix: &str, out: &mut Vec<String>) {
+fn list_public(vfs: &dyn crate::base::vfs::Vfs, dir: &Path, prefix: &str, out: &mut Vec<String>) {
     let Ok(mut entries) = vfs.read_dir(dir) else {
         return;
     };
@@ -507,19 +507,19 @@ pub fn keep_persisted_values(
     let values = persisted_values(program, env);
     let now = project_dir.join(PERSIST_VALUES);
     let text = serde_json::to_string_pretty(&values).unwrap_or_default();
-    let before = crate::outfs::read_to_string(&now).ok();
+    let before = crate::base::outfs::read_to_string(&now).ok();
     if values.is_empty() && before.is_none() {
         return;
     }
     if let Some(parent) = now.parent() {
-        let _ = crate::outfs::create_dir_all(parent);
+        let _ = crate::base::outfs::create_dir_all(parent);
     }
     if let Some(before) = before
         && before != text
     {
-        let _ = crate::outfs::write(project_dir.join(PERSIST_VALUES_BEFORE), before);
+        let _ = crate::base::outfs::write(project_dir.join(PERSIST_VALUES_BEFORE), before);
     }
-    let _ = crate::outfs::write(now, text);
+    let _ = crate::base::outfs::write(now, text);
 }
 
 /// first value, with its version — `Owner.name` → (shape, version).
@@ -583,7 +583,7 @@ pub fn persist_changes(
     dir: &Path,
     file_of: &dyn Fn(usize) -> String,
 ) -> Vec<Diagnostic> {
-    let Ok(text) = crate::outfs::read_to_string(dir.join(PERSIST_CACHE)) else {
+    let Ok(text) = crate::base::outfs::read_to_string(dir.join(PERSIST_CACHE)) else {
         return Vec::new();
     };
     let Ok(before) = serde_json::from_str::<BTreeMap<String, (String, u32)>>(&text) else {

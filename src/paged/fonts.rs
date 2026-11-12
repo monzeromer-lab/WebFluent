@@ -400,13 +400,13 @@ impl FontDb {
     /// Every face in a font file (a collection has several), under the
     /// family its tables name, or under `family` when one is given.
     pub fn add_file(&mut self, path: &Path, family: Option<&str>) -> usize {
-        self.add_file_via(&crate::vfs::FsVfs, path, family)
+        self.add_file_via(&crate::base::vfs::FsVfs, path, family)
     }
 
     /// [`add_file`](Self::add_file), read through `vfs`.
     pub fn add_file_via(
         &mut self,
-        vfs: &dyn crate::vfs::Vfs,
+        vfs: &dyn crate::base::vfs::Vfs,
         path: &Path,
         family: Option<&str>,
     ) -> usize {
@@ -446,11 +446,11 @@ impl FontDb {
 
     /// Every `.ttf`, `.otf` and `.ttc` under a directory.
     pub fn add_dir(&mut self, dir: &Path) {
-        self.add_dir_via(&crate::vfs::FsVfs, dir)
+        self.add_dir_via(&crate::base::vfs::FsVfs, dir)
     }
 
     /// [`add_dir`](Self::add_dir), read through `vfs`.
-    pub fn add_dir_via(&mut self, vfs: &dyn crate::vfs::Vfs, dir: &Path) {
+    pub fn add_dir_via(&mut self, vfs: &dyn crate::base::vfs::Vfs, dir: &Path) {
         let Ok(mut paths) = vfs.read_dir(dir) else {
             return;
         };

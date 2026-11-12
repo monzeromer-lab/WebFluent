@@ -22,13 +22,13 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
 
+use crate::base::vfs::Vfs;
 use crate::config::ProjectConfig;
 use crate::config::schema::{self, FieldType};
 use crate::error::{Result, WebFluentError};
 use crate::media::plan::{Plan, size_text};
 use crate::parser::ast::*;
 use crate::registry::FileKind;
-use crate::vfs::Vfs;
 
 /// What a file is, by its extension.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -836,7 +836,7 @@ pub fn list_via(vfs: &dyn Vfs, root: &Path) -> Result<Listing> {
 
 /// [`list_via`], from the disk.
 pub fn list(root: &Path) -> Result<Listing> {
-    list_via(&crate::vfs::FsVfs, root)
+    list_via(&crate::base::vfs::FsVfs, root)
 }
 
 /// What the media pipeline will make of the image `public/` serves as
@@ -874,7 +874,7 @@ pub fn plan_via(vfs: &dyn Vfs, root: &Path, path: &str) -> Result<Plan> {
 
 /// [`plan_via`], from the disk.
 pub fn plan(root: &Path, path: &str) -> Result<Plan> {
-    plan_via(&crate::vfs::FsVfs, root, path)
+    plan_via(&crate::base::vfs::FsVfs, root, path)
 }
 
 #[cfg(test)]

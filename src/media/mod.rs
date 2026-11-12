@@ -157,7 +157,7 @@ pub fn process(
     base_path: &str,
 ) -> Result<Asset> {
     process_via(
-        &crate::vfs::FsVfs,
+        &crate::base::vfs::FsVfs,
         name,
         source,
         out_dir,
@@ -193,7 +193,7 @@ pub fn take_used(cache_dir: &Path) -> std::collections::BTreeSet<String> {
 /// otherwise, and the cache only grows. Only plain files directly in it
 /// go; the cache is the build's own.
 pub fn prune_cache(cache_dir: &Path, used: &std::collections::BTreeSet<String>) -> usize {
-    let Ok(entries) = crate::outfs::read_dir(cache_dir) else {
+    let Ok(entries) = crate::base::outfs::read_dir(cache_dir) else {
         return 0;
     };
     let mut removed = 0;
@@ -201,10 +201,10 @@ pub fn prune_cache(cache_dir: &Path, used: &std::collections::BTreeSet<String>) 
         let Some(name) = path.file_name().map(|n| n.to_string_lossy().to_string()) else {
             continue;
         };
-        if used.contains(&name) || !crate::outfs::is_file(&path) {
+        if used.contains(&name) || !crate::base::outfs::is_file(&path) {
             continue;
         }
-        if crate::outfs::remove_file(&path).is_ok() {
+        if crate::base::outfs::remove_file(&path).is_ok() {
             removed += 1;
         }
     }
@@ -214,7 +214,7 @@ pub fn prune_cache(cache_dir: &Path, used: &std::collections::BTreeSet<String>) 
 /// [`process`], reading the picture through `vfs`. What it writes — the
 /// output and the cache — goes to the disk.
 pub fn process_via(
-    vfs: &dyn crate::vfs::Vfs,
+    vfs: &dyn crate::base::vfs::Vfs,
     name: &str,
     source: &Path,
     out_dir: &Path,
@@ -237,12 +237,12 @@ pub fn process_via(
         .unwrap_or_else(|| "png".into());
 
     let img_dir = out_dir.join("img");
-    crate::outfs::create_dir_all(&img_dir).ok();
+    crate::base::outfs::create_dir_all(&img_dir).ok();
     let url_of = |file: &str| format!("{base_path}/img/{file}");
 
     // The original, under its hashed name, so it can be cached forever.
     let original = format!("{stem}.{hash}.{extension}");
-    crate::outfs::write(img_dir.join(&original), &bytes)
+    crate::base::outfs::write(img_dir.join(&original), &bytes)
         .map_err(|e| crate::error::WebFluentError::IoError(e.to_string()))?;
 
     let mut sources: BTreeMap<String, Vec<(u32, String)>> = BTreeMap::new();
@@ -267,28 +267,28 @@ pub fn process_via(
                 used(cache_dir, &file);
                 // Encoded once, and kept in the cache whether it is shipped
                 // or not, so the next build knows without encoding again.
-                let fresh = if crate::outfs::exists(&cached) {
+                let fresh = if crate::base::outfs::exists(&cached) {
                     None
                 } else {
                     let encoded = encode::resized(&probed, *width, format, settings.quality)?;
-                    crate::outfs::create_dir_all(cache_dir).ok();
-                    crate::outfs::write(&cached, &encoded).ok();
+                    crate::base::outfs::create_dir_all(cache_dir).ok();
+                    crate::base::outfs::write(&cached, &encoded).ok();
                     Some(encoded)
                 };
                 let size = match &fresh {
                     Some(encoded) => encoded.len() as u64,
-                    None => crate::outfs::len(&cached).unwrap_or(0),
+                    None => crate::base::outfs::len(&cached).unwrap_or(0),
                 };
                 // A file no smaller than the original is no saving: the
                 // original, which the page falls back to, serves instead.
                 if no_saving(size, bytes.len() as u64) {
-                    let _ = crate::outfs::remove_file(&at);
+                    let _ = crate::base::outfs::remove_file(&at);
                     continue;
                 }
-                if !crate::outfs::exists(&at) {
+                if !crate::base::outfs::exists(&at) {
                     let written = match &fresh {
-                        Some(encoded) => crate::outfs::write(&at, encoded),
-                        None => crate::outfs::copy(&cached, &at).map(|_| ()),
+                        Some(encoded) => crate::base::outfs::write(&at, encoded),
+                        None => crate::base::outfs::copy(&cached, &at).map(|_| ()),
                     };
                     written.map_err(|e| crate::error::WebFluentError::IoError(e.to_string()))?;
                 }

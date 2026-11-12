@@ -8,11 +8,11 @@
 //! warning — and the findings come back coded, de-duplicated and in order.
 
 use super::{Diagnostic, dedupe};
+use crate::base::vfs::{FsVfs, Vfs};
 use crate::config::ProjectConfig;
 use crate::config::project::OutputType;
 use crate::parser::ast::{Declaration, Program};
 use crate::project_js::Script;
-use crate::vfs::{FsVfs, Vfs};
 use std::path::Path;
 
 /// The stack each check's thread is given. A thread's default (2 MB) is
@@ -36,7 +36,10 @@ fn deep<'scope, T: Send + 'scope>(
 
 /// Without threads, the check runs here and now.
 #[cfg(target_arch = "wasm32")]
-fn deep<T>(s: &crate::platform::Scope, body: impl FnOnce() -> T) -> crate::platform::Ran<T> {
+fn deep<T>(
+    s: &crate::base::platform::Scope,
+    body: impl FnOnce() -> T,
+) -> crate::base::platform::Ran<T> {
     s.spawn(body)
 }
 
@@ -141,7 +144,7 @@ pub fn check_project_via(vfs: &dyn Vfs, p: &Project) -> Checked {
     // lowered, side by side; their findings are joined in the order they
     // were always given, which the de-duplication below keeps.
     let (around, (program_found, types), structure, lowered, from_lowered) =
-        crate::platform::scope(|s| {
+        crate::base::platform::scope(|s| {
             let around = deep(s, || project_checks_via(vfs, shared, file_of));
             let typed = deep(s, || program_checks_typed(p.program, file_of, source_of));
             let structure = deep(s, || {
@@ -261,7 +264,7 @@ fn lowered_checks(
         .map(|c| c.build.elements.clone())
         .unwrap_or_default();
     let (accessibility, (contrast, styles), unused, vocabulary, output) =
-        crate::platform::scope(|s| {
+        crate::base::platform::scope(|s| {
             let accessibility = deep(s, || crate::linter::lint_accessibility_in(lowered, file_of));
             let painted = deep(s, || match crate::themes::resolve_tokens(lowered, &theme) {
                 Ok(mut tokens) => {

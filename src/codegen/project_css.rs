@@ -16,8 +16,8 @@
 
 use std::path::{Path, PathBuf};
 
+use crate::base::vfs::{FsVfs, Vfs};
 use crate::error::Result;
-use crate::vfs::{FsVfs, Vfs};
 
 /// Every `.css` file under `dir`, sorted by path so the bundle is stable.
 pub fn find_stylesheets(dir: &Path) -> Vec<PathBuf> {

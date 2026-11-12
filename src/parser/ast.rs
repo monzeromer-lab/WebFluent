@@ -3,7 +3,7 @@
 //! The AST is produced by the [`crate::parser::Parser`] and consumed by the
 //! code generators in [`crate::codegen`].
 
-pub use crate::span::Span;
+pub use crate::base::span::Span;
 
 // ─── Source spans ────────────────────────────────────────
 

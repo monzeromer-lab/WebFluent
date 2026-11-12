@@ -516,7 +516,10 @@ pub fn build(
 /// The table of the project at `dir`, as the editor holds it: an unsaved
 /// translation, or an unsaved page, is the one read. None when the project
 /// has no `i18n`.
-pub fn table_via(vfs: &dyn crate::vfs::Vfs, dir: &Path) -> crate::error::Result<Option<Table>> {
+pub fn table_via(
+    vfs: &dyn crate::base::vfs::Vfs,
+    dir: &Path,
+) -> crate::error::Result<Option<Table>> {
     let config = crate::config::ProjectConfig::load_via(vfs, dir)?;
     let Some(i18n) = &config.i18n else {
         return Ok(None);

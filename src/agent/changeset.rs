@@ -17,9 +17,9 @@ use std::sync::Arc;
 use serde::Serialize;
 
 use super::diff::{self, Hunk};
+use crate::base::vfs::{OverlayVfs, Vfs};
 use crate::diagnostics::{Diagnostic, Severity};
 use crate::error::{Result, WebFluentError};
-use crate::vfs::{OverlayVfs, Vfs};
 
 /// What a withheld value reads as.
 pub const WITHHELD: &str = "‹withheld›";

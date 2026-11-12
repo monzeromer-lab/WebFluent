@@ -379,7 +379,10 @@ pub fn view(
 
 /// [`view`] of the project at `dir`, read through `vfs`: an unsaved theme
 /// is the theme it reads.
-pub fn view_via(vfs: &dyn crate::vfs::Vfs, dir: &std::path::Path) -> crate::error::Result<View> {
+pub fn view_via(
+    vfs: &dyn crate::base::vfs::Vfs,
+    dir: &std::path::Path,
+) -> crate::error::Result<View> {
     view_of_via(vfs, dir, None)
 }
 
@@ -387,7 +390,7 @@ pub fn view_via(vfs: &dyn crate::vfs::Vfs, dir: &std::path::Path) -> crate::erro
 /// open on its own) rather than the one its config selects. Its dark pair
 /// is the config's only when `name` is the config's own theme.
 pub fn view_of_via(
-    vfs: &dyn crate::vfs::Vfs,
+    vfs: &dyn crate::base::vfs::Vfs,
     dir: &std::path::Path,
     name: Option<&str>,
 ) -> crate::error::Result<View> {
@@ -524,7 +527,7 @@ mod tests {
             r#"{ "name": "t", "theme": { "name": "Brand", "dark": "Night" } }"#,
         )
         .unwrap();
-        let vfs = crate::vfs::FsVfs;
+        let vfs = crate::base::vfs::FsVfs;
         let own = view_of_via(&vfs, dir.path(), None).unwrap();
         assert_eq!(
             (own.theme.as_deref(), own.dark.as_deref()),

@@ -30,6 +30,11 @@ const ORDER: &[&str] = &[
 /// Each module's layer, by its path in the crate; the longest prefix wins,
 /// so `diagnostics::check` sits apart from the rest of `diagnostics`.
 const GROUPS: &[(&str, &str)] = &[
+    ("base", "base"),
+    ("project", "project"),
+    ("check", "check"),
+    ("web", "web"),
+    ("tools", "tools"),
     ("vfs", "base"),
     ("outfs", "base"),
     ("platform", "base"),

@@ -531,7 +531,7 @@ pub fn all(program: &Program, translated: bool) -> Vec<Must> {
 /// The rules `state` in `owner` is held to, in the project at `dir` as the
 /// editor holds it: an unsaved edit is the one read.
 pub fn must_be_via(
-    vfs: &dyn crate::vfs::Vfs,
+    vfs: &dyn crate::base::vfs::Vfs,
     dir: &std::path::Path,
     owner: &str,
     state: &str,

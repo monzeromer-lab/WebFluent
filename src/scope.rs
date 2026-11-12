@@ -1049,7 +1049,7 @@ pub mod paths {
     /// as `src/pages/Signup.wf`), in the project as the editor holds it: an
     /// unsaved edit is the one read.
     pub fn at_via(
-        vfs: &dyn crate::vfs::Vfs,
+        vfs: &dyn crate::base::vfs::Vfs,
         dir: &std::path::Path,
         file: &str,
         offset: usize,

@@ -23,7 +23,7 @@
 //! today must keep compiling (studio hazard 2). Promotion to a gate error is a
 //! later, separate decision once the corpus is clean.
 
-pub(crate) use crate::text::levenshtein;
+pub(crate) use crate::base::text::levenshtein;
 use std::collections::HashSet;
 
 use crate::codegen::builtin::{builtin_to_html, modifier_to_class};

@@ -135,10 +135,6 @@ pub mod lexer;
 
 /// A project's sources, read and merged into one program.
 pub(crate) mod sources;
-/// Where a node of a program was written.
-pub(crate) mod span;
-/// Small text utilities the rest of the crate shares.
-pub(crate) mod text;
 
 pub mod parser;
 
@@ -184,12 +180,12 @@ pub mod layout;
 /// `public/` as data: every file, its kind, size and dimensions, where
 /// the project names it, and what the media pipeline will make of an image.
 pub mod assets;
+pub mod browser;
 /// Code generation — compiles the AST to various output formats.
 ///
 /// Supports HTML ([`codegen::generate_html`]), CSS ([`codegen::generate_css`]),
 /// JavaScript ([`codegen::JsCodegen`]), static site generation ([`codegen::render_page_html`]),
 /// and PDF (the [`paged`] engine lays the HTML out on paper).
-pub mod browser;
 pub mod codegen;
 pub mod commands;
 pub mod media;
@@ -277,17 +273,13 @@ pub mod build;
 /// store, and [`generate::create`] to write one in the project's layout.
 pub mod generate;
 
-/// Where a project is read from: the disk ([`vfs::FsVfs`]), or the disk with
-/// an editor's unsaved buffers over it ([`vfs::OverlayVfs`]).
-pub mod vfs;
+pub use base::vfs;
 
-/// Where a build writes: the disk, or — inside [`outfs::capture`] — memory,
-/// which is how the compiler builds as WebAssembly in a browser.
-pub mod outfs;
+pub use base::outfs;
 
-/// Threads and clocks, and their stand-ins where WebAssembly has none.
-pub mod platform;
+pub use base::platform;
 
+pub(crate) mod base;
 /// A project built from memory, with nothing read from or written to a disk:
 /// what the browser's playground runs.
 pub mod memory;

@@ -9,8 +9,8 @@ use std::path::Path;
 
 use serde::Serialize;
 
+use crate::base::vfs::Vfs;
 use crate::error::Result;
-use crate::vfs::Vfs;
 
 /// The file open in the editor, and what is selected in it.
 #[derive(Debug, Clone, PartialEq, Serialize)]
