@@ -20,6 +20,7 @@
 //! browser a test that acts needs is theirs: Chrome for `wf test`, the
 //! editor's WebView ([the `Browser` trait](crate::tools::testing::Browser)).
 
+use crate::base::outfs::At;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
@@ -116,7 +117,7 @@ pub fn collect(path: &Path) -> Result<Tests> {
         let dir = project_dir.join("tests");
         let mut found = Vec::new();
         if dir.is_dir() {
-            for entry in std::fs::read_dir(&dir)? {
+            for entry in std::fs::read_dir(&dir).at(&dir)? {
                 let p = entry?.path();
                 if p.extension().is_some_and(|e| e == "wf" || e == "wfx") {
                     found.push(p);
@@ -127,7 +128,7 @@ pub fn collect(path: &Path) -> Result<Tests> {
         found
     };
     for file in &test_files {
-        let source = std::fs::read_to_string(file)?;
+        let source = std::fs::read_to_string(file).at(file)?;
         let name = file
             .strip_prefix(&project_dir)
             .unwrap_or(file)
@@ -743,7 +744,9 @@ fn run_one(
     }
     let snapshot = snapshot_path(snapshots, file, test);
     if snapshot.exists() && !update {
-        let stored = std::fs::read_to_string(&snapshot).map_err(|e| vec![e.to_string()])?;
+        let stored = std::fs::read_to_string(&snapshot)
+            .at(&snapshot)
+            .map_err(|e| vec![e.to_string()])?;
         if stored != html {
             return Err(vec![
                 format!("the render differs from {}", snapshot.display()),
@@ -754,9 +757,13 @@ fn run_one(
         return Ok(false);
     }
     if let Some(dir) = snapshot.parent() {
-        std::fs::create_dir_all(dir).map_err(|e| vec![e.to_string()])?;
+        std::fs::create_dir_all(dir)
+            .at(dir)
+            .map_err(|e| vec![e.to_string()])?;
     }
-    std::fs::write(&snapshot, &html).map_err(|e| vec![e.to_string()])?;
+    std::fs::write(&snapshot, &html)
+        .at(&snapshot)
+        .map_err(|e| vec![e.to_string()])?;
     Ok(true)
 }
 
@@ -843,7 +850,7 @@ pub fn act(
 ) -> Result<std::result::Result<(), Vec<String>>> {
     let dir = work.join(slug_acting(&test.name));
     let _ = std::fs::remove_dir_all(&dir);
-    std::fs::create_dir_all(&dir)?;
+    std::fs::create_dir_all(&dir).at(&dir)?;
     // The program as written, with the test's body as its one page. It is
     // compiled here rather than written back out as source: there is no
     // printer from the tree to the text, and a test does not need one — the
@@ -977,9 +984,9 @@ pub fn write_site(program: &Program, dir: &Path, site: &Site) -> Result<()> {
     for script in site.scripts {
         let to = dir.join(&script.href);
         if let Some(parent) = to.parent() {
-            std::fs::create_dir_all(parent)?;
+            std::fs::create_dir_all(parent).at(parent)?;
         }
-        std::fs::write(to, &script.source)?;
+        std::fs::write(&to, &script.source).at(&to)?;
         config.build.scripts.push(script.href.clone());
     }
     // One page, one file: a split build links a chunk that this does not
@@ -989,7 +996,7 @@ pub fn write_site(program: &Program, dir: &Path, site: &Site) -> Result<()> {
     if let Some((c, tables)) = site.i18n {
         js.set_i18n(c.default_locale.clone(), tables.clone());
     }
-    std::fs::write(dir.join("app.js"), js.generate(program))?;
+    std::fs::write(dir.join("app.js"), js.generate(program)).at(dir.join("app.js"))?;
 
     // The sheet in the build's order: the engine's rules and the theme's
     // tokens, the dark theme's, the project's own stylesheets, then what
@@ -1001,7 +1008,7 @@ pub fn write_site(program: &Program, dir: &Path, site: &Site) -> Result<()> {
     }
     css.push_str(&site.styles.css);
     css.push_str(&crate::project::scoped_css::scoped_rules(program));
-    std::fs::write(dir.join("styles.css"), css)?;
+    std::fs::write(dir.join("styles.css"), css).at(dir.join("styles.css"))?;
     // The stylesheets the project links, linked as the built page links
     // them.
     config.meta.stylesheets = site.styles.linked.clone();
@@ -1026,7 +1033,7 @@ pub fn write_site(program: &Program, dir: &Path, site: &Site) -> Result<()> {
 /// What the test's site wrote itself is its own, as the build's own files
 /// are; a folder both have is gone into.
 fn serve_public(public: &Path, dir: &Path) -> Result<()> {
-    for entry in std::fs::read_dir(public)? {
+    for entry in std::fs::read_dir(public).at(public)? {
         let from = entry?.path();
         let Some(name) = from.file_name() else {
             continue;
@@ -1051,15 +1058,15 @@ fn serve_public(public: &Path, dir: &Path) -> Result<()> {
 
 fn copy_into(from: &Path, to: &Path) -> Result<()> {
     if from.is_dir() {
-        std::fs::create_dir_all(to)?;
-        for entry in std::fs::read_dir(from)? {
+        std::fs::create_dir_all(to).at(to)?;
+        for entry in std::fs::read_dir(from).at(from)? {
             let path = entry?.path();
             if let Some(name) = path.file_name() {
                 copy_into(&path, &to.join(name))?;
             }
         }
     } else {
-        std::fs::copy(from, to)?;
+        std::fs::copy(from, to).at(from)?;
     }
     Ok(())
 }

@@ -10,6 +10,7 @@
 //! prints the plan and writes it, `--check` only prints it, and the mobile
 //! editor shows it before [`apply`].
 
+use crate::base::outfs::At;
 use std::path::{Path, PathBuf};
 
 use crate::diagnostics::error::{Result, WebFluentError};
@@ -117,7 +118,7 @@ pub const WITHOUT_AN_EDIT: &[&str] = &[
 /// the result in the indented layout, as `.wfx`.
 pub fn plan(path: &Path, wfx: bool) -> Result<Plan> {
     let files = if path.is_file() {
-        vec![(path.to_path_buf(), std::fs::read_to_string(path)?)]
+        vec![(path.to_path_buf(), std::fs::read_to_string(path).at(path)?)]
     } else {
         let src = if path.join("src").is_dir() {
             path.join("src")
@@ -262,23 +263,23 @@ pub fn write_four_two(project_dir: &Path, step: &FourTwo) -> Result<Option<PathB
     for path in &outcome.changed {
         if let Some((_, text)) = outcome.files.iter().find(|(p, _)| p == path) {
             refuse(path)?;
-            std::fs::write(path, text)?;
+            std::fs::write(path, text).at(path)?;
         }
     }
     for (from, to, source) in &outcome.moved {
         refuse(from)?;
         refuse(to)?;
         if let Some(dir) = to.parent() {
-            std::fs::create_dir_all(dir)?;
+            std::fs::create_dir_all(dir).at(dir)?;
         }
-        std::fs::write(to, source)?;
-        std::fs::remove_file(from)?;
+        std::fs::write(to, source).at(to)?;
+        std::fs::remove_file(from).at(from)?;
     }
     if outcome.modules.is_empty() {
         return Ok(None);
     }
     let path = project_dir.join("webfluent.app.json");
-    let text = std::fs::read_to_string(&path)?;
+    let text = std::fs::read_to_string(&path).at(&path)?;
     let mut value: serde_json::Value = serde_json::from_str(&text)
         .map_err(|e| WebFluentError::ConfigError(format!("{}: {e}", path.display())))?;
     if let Some(map) = value.as_object_mut() {
@@ -312,9 +313,9 @@ pub fn write_four_two(project_dir: &Path, step: &FourTwo) -> Result<Option<PathB
 /// Write one file's migration: its text where it goes, and the old file
 /// gone when it was renamed (`.wf` → `.wfx`).
 pub fn write(change: &FileChange) -> Result<()> {
-    std::fs::write(&change.written_to, &change.text)?;
+    std::fs::write(&change.written_to, &change.text).at(&change.written_to)?;
     if change.written_to != change.path {
-        std::fs::remove_file(&change.path)?;
+        std::fs::remove_file(&change.path).at(&change.path)?;
     }
     Ok(())
 }
@@ -328,7 +329,7 @@ pub fn write_public_env(project_dir: &Path, names: &[String]) -> Result<PathBuf>
     config.public_env.sort();
     config.public_env.dedup();
     let path = project_dir.join("webfluent.app.json");
-    let text = std::fs::read_to_string(&path)?;
+    let text = std::fs::read_to_string(&path).at(&path)?;
     let mut value: serde_json::Value = serde_json::from_str(&text)
         .map_err(|e| WebFluentError::ConfigError(format!("{}: {e}", path.display())))?;
     if let Some(map) = value.as_object_mut() {

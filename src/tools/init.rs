@@ -4,6 +4,7 @@
 //! site, a PDF, or a slide deck — written as a folder of its own. `wf init`
 //! makes one in the current directory; the mobile editor, in its projects.
 
+use crate::base::outfs::At;
 use crate::diagnostics::error::{Result, WebFluentError};
 use std::fs;
 use std::path::Path;
@@ -107,13 +108,13 @@ pub fn create_with(dir: &Path, name: &str, options: &Options) -> Result<()> {
     for (path, text) in project_files(template, &locales)? {
         let path = dir.join(path);
         if let Some(parent) = path.parent() {
-            fs::create_dir_all(parent)?;
+            fs::create_dir_all(parent).at(parent)?;
         }
-        fs::write(path, text.replace("{{name}}", name))?;
+        fs::write(&path, text.replace("{{name}}", name)).at(&path)?;
     }
     // The folder static files go in, there from the start so it is found.
     if matches!(template, Template::Spa | Template::Static) {
-        fs::create_dir_all(dir.join("public"))?;
+        fs::create_dir_all(dir.join("public")).at(dir.join("public"))?;
     }
     // What a build writes and what a machine holds, kept out of version
     // control from the first commit: the output, the image cache, the sizes
@@ -126,7 +127,7 @@ pub fn create_with(dir: &Path, name: &str, options: &Options) -> Result<()> {
     // one asked to change this project writes the WebFluent of the `wf`
     // that made it, rather than guessing at a language it may never have
     // seen.
-    fs::write(dir.join("AGENTS.md"), agents_md())?;
+    fs::write(dir.join("AGENTS.md"), agents_md()).at(dir.join("AGENTS.md"))?;
     // The same, as an Agent Skill, in the folders agents look in for one:
     // `.agents/skills/` (Codex, Cursor, Gemini CLI and the agents that
     // follow the standard) and `.claude/skills/` (Claude Code). An agent
@@ -136,9 +137,9 @@ pub fn create_with(dir: &Path, name: &str, options: &Options) -> Result<()> {
         for (path, text) in skill_files() {
             let path = dir.join(root).join(path);
             if let Some(parent) = path.parent() {
-                fs::create_dir_all(parent)?;
+                fs::create_dir_all(parent).at(parent)?;
             }
-            fs::write(path, text)?;
+            fs::write(&path, text).at(&path)?;
         }
     }
     Ok(())

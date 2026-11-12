@@ -87,13 +87,18 @@ pub trait Vfs: Send + Sync {
 #[derive(Clone, Copy, Debug, Default)]
 pub struct FsVfs;
 
+/// `result`, its error naming `path`, its kind kept.
+fn at<T>(path: &Path, result: io::Result<T>) -> io::Result<T> {
+    result.map_err(|e| io::Error::new(e.kind(), format!("{}: {e}", path.display())))
+}
+
 impl Vfs for FsVfs {
     fn read(&self, path: &Path) -> io::Result<Vec<u8>> {
-        std::fs::read(path)
+        at(path, std::fs::read(path))
     }
 
     fn read_to_string(&self, path: &Path) -> io::Result<String> {
-        std::fs::read_to_string(path)
+        at(path, std::fs::read_to_string(path))
     }
 
     fn is_file(&self, path: &Path) -> bool {
@@ -109,13 +114,13 @@ impl Vfs for FsVfs {
     }
 
     fn read_dir(&self, path: &Path) -> io::Result<Vec<PathBuf>> {
-        std::fs::read_dir(path)?
+        at(path, std::fs::read_dir(path))?
             .map(|entry| entry.map(|e| e.path()))
             .collect()
     }
 
     fn metadata(&self, path: &Path) -> io::Result<Metadata> {
-        let meta = std::fs::metadata(path)?;
+        let meta = at(path, std::fs::metadata(path))?;
         Ok(Metadata {
             len: meta.len(),
             modified: meta.modified().ok(),
@@ -613,6 +618,15 @@ pub fn stays_inside(file: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn reading_a_missing_file_names_it() {
+        let e = FsVfs
+            .read_to_string(Path::new("/nowhere/wf-vfs-missing.wf"))
+            .unwrap_err();
+        assert_eq!(e.kind(), io::ErrorKind::NotFound);
+        assert!(e.to_string().contains("/nowhere/wf-vfs-missing.wf"), "{e}");
+    }
 
     /// A project on disk: `src/App.wf`, `src/pages/Home.wf`, `public/a.txt`.
     struct Tree(PathBuf);

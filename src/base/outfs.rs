@@ -69,6 +69,25 @@ fn with<T>(memory: impl FnOnce(&mut Memory) -> T, disk: impl FnOnce() -> T) -> T
         .unwrap_or_else(disk)
 }
 
+/// `result`, its error naming `path`: "No such file or directory" alone
+/// does not say which file. The kind is kept, so a caller that tells a
+/// missing file from a refused one still can.
+fn at<T>(path: &Path, result: io::Result<T>) -> io::Result<T> {
+    result.map_err(|e| io::Error::new(e.kind(), format!("{}: {e}", path.display())))
+}
+
+/// An I/O result whose error names the path it concerns, for code that
+/// calls `std::fs` directly: `std::fs::write(&path, text).at(&path)?`.
+pub(crate) trait At<T> {
+    fn at(self, path: impl AsRef<Path>) -> io::Result<T>;
+}
+
+impl<T> At<T> for io::Result<T> {
+    fn at(self, path: impl AsRef<Path>) -> io::Result<T> {
+        at(path.as_ref(), self)
+    }
+}
+
 fn not_found(path: &Path) -> io::Error {
     io::Error::new(
         io::ErrorKind::NotFound,
@@ -101,7 +120,7 @@ pub fn write(path: impl AsRef<Path>, contents: impl AsRef<[u8]>) -> io::Result<(
             m.files.insert(path.to_path_buf(), contents.to_vec());
             Ok(())
         },
-        || std::fs::write(path, contents),
+        || at(path, std::fs::write(path, contents)),
     )
 }
 
@@ -112,7 +131,7 @@ pub fn create_dir_all(path: impl AsRef<Path>) -> io::Result<()> {
             m.add_dirs(path);
             Ok(())
         },
-        || std::fs::create_dir_all(path),
+        || at(path, std::fs::create_dir_all(path)),
     )
 }
 
@@ -120,13 +139,19 @@ pub fn read(path: impl AsRef<Path>) -> io::Result<Vec<u8>> {
     let path = path.as_ref();
     with(
         |m| m.files.get(path).cloned().ok_or_else(|| not_found(path)),
-        || std::fs::read(path),
+        || at(path, std::fs::read(path)),
     )
 }
 
 pub fn read_to_string(path: impl AsRef<Path>) -> io::Result<String> {
+    let path = path.as_ref();
     let bytes = read(path)?;
-    String::from_utf8(bytes).map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "not UTF-8"))
+    String::from_utf8(bytes).map_err(|_| {
+        io::Error::new(
+            io::ErrorKind::InvalidData,
+            format!("{}: not UTF-8", path.display()),
+        )
+    })
 }
 
 pub fn remove_file(path: impl AsRef<Path>) -> io::Result<()> {
@@ -138,7 +163,7 @@ pub fn remove_file(path: impl AsRef<Path>) -> io::Result<()> {
                 .map(|_| ())
                 .ok_or_else(|| not_found(path))
         },
-        || std::fs::remove_file(path),
+        || at(path, std::fs::remove_file(path)),
     )
 }
 
@@ -147,7 +172,7 @@ pub fn copy(from: impl AsRef<Path>, to: impl AsRef<Path>) -> io::Result<()> {
     if capturing() {
         write(to, read(from)?)
     } else {
-        std::fs::copy(from, to).map(|_| ())
+        at(from, std::fs::copy(from, to).map(|_| ()))
     }
 }
 
@@ -158,7 +183,7 @@ pub fn rename(from: impl AsRef<Path>, to: impl AsRef<Path>) -> io::Result<()> {
         remove_file(from)?;
         write(to, bytes)
     } else {
-        std::fs::rename(from, to)
+        at(from, std::fs::rename(from, to))
     }
 }
 
@@ -172,7 +197,7 @@ pub fn len(path: impl AsRef<Path>) -> io::Result<u64> {
                 .map(|f| f.len() as u64)
                 .ok_or_else(|| not_found(path))
         },
-        || std::fs::metadata(path).map(|m| m.len()),
+        || at(path, std::fs::metadata(path).map(|m| m.len())),
     )
 }
 
@@ -216,7 +241,7 @@ pub fn read_dir(path: impl AsRef<Path>) -> io::Result<Vec<PathBuf>> {
             Ok(out.into_iter().collect())
         },
         || {
-            let mut out = std::fs::read_dir(path)?
+            let mut out = at(path, std::fs::read_dir(path))?
                 .map(|e| e.map(|e| e.path()))
                 .collect::<io::Result<Vec<_>>>()?;
             out.sort();
@@ -228,6 +253,23 @@ pub fn read_dir(path: impl AsRef<Path>) -> io::Result<Vec<PathBuf>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn an_error_on_the_disk_names_the_file_and_keeps_its_kind() {
+        let missing = Path::new("/nowhere/wf-outfs-missing/page.wf");
+        let e = read_to_string(missing).unwrap_err();
+        assert_eq!(e.kind(), io::ErrorKind::NotFound);
+        assert!(
+            e.to_string().contains("/nowhere/wf-outfs-missing/page.wf"),
+            "{e}"
+        );
+        let e = std::fs::read(missing).at(missing).unwrap_err();
+        assert!(
+            e.to_string()
+                .starts_with("/nowhere/wf-outfs-missing/page.wf: "),
+            "{e}"
+        );
+    }
 
     #[test]
     fn a_capture_keeps_what_was_written_off_the_disk() {

@@ -15,6 +15,7 @@
 //! WebView. Both read a page's report with [the `PAGE_REPORT`
 //! script](crate::tools::verify::PAGE_REPORT) and judge it here.
 
+use crate::base::outfs::At;
 use std::collections::BTreeSet;
 use std::path::Path;
 
@@ -53,7 +54,7 @@ pub fn routes(
     let mut found: BTreeSet<String> = BTreeSet::new();
     let mut walk = vec![output_dir.to_path_buf()];
     while let Some(dir) = walk.pop() {
-        for entry in std::fs::read_dir(&dir)? {
+        for entry in std::fs::read_dir(&dir).at(&dir)? {
             let path = entry?.path();
             if path.is_dir() {
                 walk.push(path);
