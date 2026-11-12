@@ -1,10 +1,12 @@
 [package]
 name = "wf-wasm"
-version = "5.14.0"
-edition = "2024"
+version.workspace = true
+edition.workspace = true
 description = "The WebFluent compiler as WebAssembly, for a playground that compiles in the browser"
-authors = ["Monzer Omer <monzer.a.omer@gmail.com>"]
-license = "MPL-2.0"
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
 publish = false
 
 [lib]
@@ -22,7 +24,7 @@ pdf = ["webfluent/pdf"]
 # compiles it against the libc in `libc/`.
 webfluent = { path = "../..", default-features = false, features = ["webp"] }
 wasm-bindgen = "=0.2.130"
-serde_json = "1"
+serde_json.workspace = true
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 # The maths libwebp calls (`pow`, `log`, `expf`, …), in Rust.

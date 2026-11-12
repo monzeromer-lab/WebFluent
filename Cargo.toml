@@ -1,11 +1,11 @@
 [package]
 name = "webfluent"
-version = "5.14.0"
-edition = "2024"
+version.workspace = true
+edition.workspace = true
 description = "A language for websites, PDFs and slide decks. One binary, no Node: HTML, CSS and JavaScript, PDFs from its own layout engine, and a template engine for Rust."
-authors = ["Monzer Omer <monzer.a.omer@gmail.com>"]
-license = "MPL-2.0"
-repository = "https://github.com/monzeromer-lab/WebFluent"
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
 homepage = "https://webfluent.monzeromer.dev"
 documentation = "https://docs.rs/webfluent"
 readme = "README.md"
@@ -29,7 +29,7 @@ exclude = [
 ]
 keywords = ["web", "language", "compiler", "template-engine", "pdf"]
 categories = ["compilers", "template-engine", "web-programming"]
-rust-version = "1.92"
+rust-version.workspace = true
 
 [package.metadata.deb]
 maintainer = "Monzer Omer"
@@ -75,6 +75,18 @@ webp = { version = "0.3.1", default-features = false }
 [workspace]
 members = [".", "crates/wf-lsp", "crates/wf-wasm"]
 exclude = ["editors/zed"]
+
+# What every crate here shares. `just bump` sets the version once, here.
+[workspace.package]
+version = "5.14.0"
+edition = "2024"
+authors = ["Monzer Omer <monzer.a.omer@gmail.com>"]
+license = "MPL-2.0"
+repository = "https://github.com/monzeromer-lab/WebFluent"
+rust-version = "1.92"
+
+[workspace.dependencies]
+serde_json = "1.0.149"
 
 # BeautifulRust's lint set (github.com/morganlinton/BeautifulRust,
 # lints/lints.toml), with clippy.toml beside this file. A lint the code
@@ -128,7 +140,7 @@ workspace = true
 [dependencies]
 clap = { version = "4.6.0", features = ["derive"], optional = true }
 serde = { version = "1.0.228", features = ["derive"] }
-serde_json = "1.0.149"
+serde_json.workspace = true
 tiny_http = { version = "0.12.0", optional = true }
 # Regex literals evaluated at build time, in the static paint and the template engine.
 regex = "1"

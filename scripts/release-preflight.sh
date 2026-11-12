@@ -21,13 +21,18 @@ failed=0
 fail() { echo "::error::$*"; failed=1; }
 ok() { echo "  ok  $*"; }
 
-# 1. The tag is the version both crates carry.
+# 1. The tag is the version the workspace carries, and every crate takes it.
+have=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -n1)
+if [ "$have" = "$version" ]; then
+    ok "the workspace is $version"
+else
+    fail "the workspace is $have, but the tag is $tag. Bump it with \`just bump $version\`."
+fi
 for manifest in Cargo.toml crates/wf-lsp/Cargo.toml crates/wf-wasm/Cargo.toml; do
-    have=$(sed -n 's/^version = "\(.*\)"/\1/p' "$manifest" | head -n1)
-    if [ "$have" = "$version" ]; then
-        ok "$manifest is $version"
+    if grep -q '^version.workspace = true' "$manifest"; then
+        ok "$manifest takes the workspace's version"
     else
-        fail "$manifest is $have, but the tag is $tag. Bump it with \`just bump $version\`."
+        fail "$manifest sets a version of its own; give it \`version.workspace = true\`."
     fi
 done
 

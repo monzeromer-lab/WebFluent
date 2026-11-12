@@ -2,7 +2,7 @@
 
 set dotenv-load := false
 
-version := `grep '^version' Cargo.toml | head -1 | cut -d'"' -f2`
+version := `sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1`
 target_linux := "x86_64-unknown-linux-gnu"
 target_windows := "x86_64-pc-windows-gnu"
 
@@ -71,7 +71,7 @@ showcase *args:
 # Set the crates, the Node binding and the agents' skill (its version, and
 # its copy of AGENTS.md) to VERSION, and the lock file with them
 bump version:
-    sed -i '0,/^version = ".*"/s//version = "{{version}}"/' Cargo.toml crates/wf-lsp/Cargo.toml crates/wf-wasm/Cargo.toml
+    sed -i '0,/^version = ".*"/s//version = "{{version}}"/' Cargo.toml
     sed -i '0,/"version": ".*"/s//"version": "{{version}}"/' bindings/node/package.json
     sed -i -E 's/^(  version: )"[0-9]+\.[0-9]+\.[0-9]+"/\1"{{version}}"/; s/(the reference of WebFluent )[0-9]+\.[0-9]+\.[0-9]+/\1{{version}}/' skills/writing-webfluent/SKILL.md
     cp AGENTS.md skills/writing-webfluent/references/language.md

@@ -1,10 +1,12 @@
 [package]
 name = "wf-lsp"
-version = "5.14.0"
-edition = "2024"
+version.workspace = true
+edition.workspace = true
 description = "Language Server Protocol implementation for WebFluent"
-authors = ["Monzer Omer <monzer.a.omer@gmail.com>"]
-license = "MPL-2.0"
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
 
 [lib]
 name = "wf_lsp"
@@ -30,7 +32,7 @@ webfluent = { path = "../.." }
 lsp-types = "0.94.1"
 tower-lsp = { version = "0.20", optional = true }
 tokio = { version = "1", features = ["full"], optional = true }
-serde_json = "1"
+serde_json.workspace = true
 dashmap = "6"
 
 [lints]
