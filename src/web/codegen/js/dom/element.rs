@@ -709,61 +709,21 @@ impl JsCodegen {
         self.emit_line(&format!("{parent}.appendChild({var});"));
     }
 
-    /// The generic pass over a built-in's arguments: its tag, the attributes
-    /// it is created with, its text, where it links, and whether it is a
-    /// field. The special emitters read it as the generic element does.
-    fn element_parts(&mut self, name: &str, ui: &UIElement) -> ElementParts {
-        let (_, class) = builtin_to_html(name);
-        // A heading's level is part of the document outline, so it has to
-        // reach the tag; a class cannot express it.
-        let tag = if name == "Tcell" && self.in_thead {
-            "th"
-        } else if name == "Host" {
-            // The library asked for a canvas, or a div by default.
-            crate::project::builtin::host_tag(ui.args.iter().find_map(|a| match a {
-                Arg::Named(k, Expr::StringLiteral(t)) if k == "tag" => Some(t.as_str()),
-                _ => None,
-            }))
-        } else {
-            element_tag(name, &ui.modifiers)
-        };
-
-        // Collect attributes
-        let mut attrs = Vec::new();
-        let mut link_to: Option<String> = None;
-        let mut link_prefix = false;
-        let mut inner_text: Option<String> = None;
-        // `Text(total, count: "600ms")`: the number counts to its new
-        // value rather than jumping, so its positional is the value
-        // and not the text.
-        let counts = ui
-            .args
-            .iter()
-            .any(|a| matches!(a, Arg::Named(k, _) if k == "count"));
-
-        // Build class string from base class + modifiers
-        let mut classes = vec![class.to_string()];
-        for m in &ui.modifiers {
-            let mod_class = modifier_to_class(class, m);
-            classes.push(mod_class);
-        }
-
-        // An `Input` or `Select` with a label, hint or error is wrapped
-        // in a field that carries them.
-        let validated = ui.args.iter().any(|a| {
-            matches!(a, Arg::Named(k, Expr::Identifier(bound))
-                        if k == "bind" && self.body.validated.contains(bound))
-        });
-        // A control is a field when it is labelled, or when a
-        // `validate` block guards what it binds — which is what
-        // gives it somewhere to show the message.
-        let is_field = matches!(name, "Input" | "Select" | "Textarea")
-                    && (validated
-                        || ui.args.iter().any(|a| {
-                            matches!(a, Arg::Named(k, _) if k == "label" || k == "hint" || k == "error")
-                        }));
-
-        // Process named args as HTML attributes
+    /// The pass over a built-in's named arguments: each becomes an
+    /// attribute, a class, a link, or the element's text, in `pass`.
+    fn named_args(&mut self, ui: &UIElement, pass: &mut ArgPass<'_>) {
+        let ArgPass {
+            name,
+            class,
+            counts,
+            is_field,
+            attrs,
+            classes,
+            link_to,
+            link_prefix,
+            inner_text,
+        } = pass;
+        let (name, class, counts, is_field) = (*name, *class, *counts, *is_field);
         for arg in &ui.args {
             match arg {
                 // A value per breakpoint is carried by its class
@@ -884,7 +844,7 @@ impl JsCodegen {
                         }
                         "to" => {
                             let v = self.route_value(val);
-                            link_to = Some(v.clone());
+                            *link_to = Some(v.clone());
                             if self.ssg_mode {
                                 // SSG: plain links with base path prepended
                                 attrs.push(format!("href: WF._basePath + {v}"));
@@ -897,7 +857,7 @@ impl JsCodegen {
                         }
                         "active" => {
                             // `active: "prefix"` also matches routes under `to`.
-                            link_prefix = matches!(val, Expr::StringLiteral(s) if s == "prefix");
+                            *link_prefix = matches!(val, Expr::StringLiteral(s) if s == "prefix");
                         }
                         "span" => {
                             if let Expr::NumberLiteral(n) = val
@@ -1050,7 +1010,7 @@ impl JsCodegen {
                         if !attrs.iter().any(|a| a.starts_with("value:")) {
                             let v = inner_text.take().unwrap_or_default();
                             attrs.push(format!("value: {v}"));
-                            inner_text = Some(self.emit_expr(expr));
+                            *inner_text = Some(self.emit_expr(expr));
                         }
                         continue;
                     }
@@ -1061,11 +1021,88 @@ impl JsCodegen {
                         continue;
                     }
                     if inner_text.is_none() {
-                        inner_text = Some(self.emit_expr(expr));
+                        *inner_text = Some(self.emit_expr(expr));
                     }
                 }
             }
         }
+    }
+
+    /// The generic pass over a built-in's arguments: its tag, the attributes
+    /// it is created with, its text, where it links, and whether it is a
+    /// field. The special emitters read it as the generic element does.
+    fn element_parts(&mut self, name: &str, ui: &UIElement) -> ElementParts {
+        let (_, class) = builtin_to_html(name);
+        // A heading's level is part of the document outline, so it has to
+        // reach the tag; a class cannot express it.
+        let tag = if name == "Tcell" && self.in_thead {
+            "th"
+        } else if name == "Host" {
+            // The library asked for a canvas, or a div by default.
+            crate::project::builtin::host_tag(ui.args.iter().find_map(|a| match a {
+                Arg::Named(k, Expr::StringLiteral(t)) if k == "tag" => Some(t.as_str()),
+                _ => None,
+            }))
+        } else {
+            element_tag(name, &ui.modifiers)
+        };
+
+        // Collect attributes
+        let attrs = Vec::new();
+        let link_to: Option<String> = None;
+        let link_prefix = false;
+        let inner_text: Option<String> = None;
+        // `Text(total, count: "600ms")`: the number counts to its new
+        // value rather than jumping, so its positional is the value
+        // and not the text.
+        let counts = ui
+            .args
+            .iter()
+            .any(|a| matches!(a, Arg::Named(k, _) if k == "count"));
+
+        // Build class string from base class + modifiers
+        let mut classes = vec![class.to_string()];
+        for m in &ui.modifiers {
+            let mod_class = modifier_to_class(class, m);
+            classes.push(mod_class);
+        }
+
+        // An `Input` or `Select` with a label, hint or error is wrapped
+        // in a field that carries them.
+        let validated = ui.args.iter().any(|a| {
+            matches!(a, Arg::Named(k, Expr::Identifier(bound))
+                        if k == "bind" && self.body.validated.contains(bound))
+        });
+        // A control is a field when it is labelled, or when a
+        // `validate` block guards what it binds — which is what
+        // gives it somewhere to show the message.
+        let is_field = matches!(name, "Input" | "Select" | "Textarea")
+                    && (validated
+                        || ui.args.iter().any(|a| {
+                            matches!(a, Arg::Named(k, _) if k == "label" || k == "hint" || k == "error")
+                        }));
+
+        // Process named args as HTML attributes
+        let mut pass = ArgPass {
+            name,
+            class,
+            counts,
+            is_field,
+            attrs,
+            classes,
+            link_to,
+            link_prefix,
+            inner_text,
+        };
+        self.named_args(ui, &mut pass);
+        let ArgPass {
+            mut attrs,
+            mut classes,
+            link_to,
+            link_prefix,
+            mut inner_text,
+            ..
+        } = pass;
 
         classes.extend(layout_arg_classes(&ui.args));
         // `Grid(columns: { base: 1, md: 2 })`: the class its rules
@@ -1598,4 +1635,18 @@ struct ElementParts {
     link_to: Option<String>,
     link_prefix: bool,
     is_field: bool,
+}
+
+/// What [`JsCodegen::named_args`] reads about a built-in, and what it
+/// fills in.
+struct ArgPass<'a> {
+    name: &'a str,
+    class: &'a str,
+    counts: bool,
+    is_field: bool,
+    attrs: Vec<String>,
+    classes: Vec<String>,
+    link_to: Option<String>,
+    link_prefix: bool,
+    inner_text: Option<String>,
 }

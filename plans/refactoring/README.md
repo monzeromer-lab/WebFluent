@@ -745,9 +745,23 @@ written once over `scope_mark`, `bind` and `scope_reset`.
   `match` emitters. They work on `&mut self`, where the mark/reset
   helpers fit, not a closure.
 
-Still to do in this phase: splitting `element_parts`' argument loop, and
-the `ProgramIndex` shared by the checker and the linters. The other items
-below are done as far as 5.x allows; what is left of them is for 6.0.
+`element_parts`' argument loop is a method of its own (`named_args`,
+over an `ArgPass`), so `element_parts` is 230 lines and the output is
+byte-identical. Two items were looked at and left, on purpose:
+- **The DOM's scope pushes:** each site keeps different books.
+  - one also tracks `live_at`
+  - one truncates `lambda_params` and `block_lets` together
+  - most truncate `loop_bindings` alone
+
+  The statement emitter's mark/reset would truncate `block_lets` where
+  these deliberately do not.
+- **One `ProgramIndex`:** the three "indexes" are a name set per kind,
+  built in one walk over the declarations, so sharing one saves nothing
+  measurable. The overlap that matters, two passes able to report
+  `E101`, is already removed by the project check's de-duplication.
+
+Everything else below is done as far as 5.x allows; what is left of it is
+for 6.0.
 
 These can run in any order once their layer exists. Each PR is
 behaviour-preserving, held by Phase 0. The findings behind each item, with
