@@ -9,11 +9,12 @@ npm install webfluent
 ```
 
 The package is a thin wrapper around the `wf` compiler, which must be
-installed too — it looks on `PATH`, in `~/.webfluent/bin` and `~/.cargo/bin`,
-or at `WF_BIN`:
+installed too — it looks at `WF_BIN`, then in the absolute directories on
+`PATH` (never the current directory, so a project folder's own `wf.exe` is
+not run), then in `~/.webfluent/bin` and `~/.cargo/bin`:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash
+curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash
 ```
 
 ## Use

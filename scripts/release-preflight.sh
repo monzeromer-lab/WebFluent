@@ -10,6 +10,11 @@
 set -euo pipefail
 
 tag="${1:?usage: release-preflight.sh vX.Y.Z}"
+# The tag names files and directories in every later step; only vX.Y.Z.
+if ! printf '%s' "$tag" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+    echo "::error::the tag must be vX.Y.Z, not $tag"
+    exit 1
+fi
 version="${tag#v}"
 cd "$(git rev-parse --show-toplevel)"
 failed=0

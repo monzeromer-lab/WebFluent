@@ -10,3 +10,19 @@
 __pycache__/
 *.pyc
 
+
+# Secrets a project or a script reads: never committed. An example file
+# that documents the names is.
+.env
+.env.*
+!.env.example
+
+# Dependencies and the compiler's caches, wherever they appear.
+node_modules/
+.wf-cache/
+# The storage fixture's cache is what its test reads.
+!/tests/fixtures/storage/.wf-cache/
+
+# A developer's own Claude Code settings and preview servers.
+/.claude/settings.local.json
+/.claude/launch.json

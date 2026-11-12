@@ -6,9 +6,50 @@ const fs = require("fs");
 const os = require("os");
 
 /**
+ * The first of `names` in a directory of `PATH`, read from `env` the way
+ * `platform` reads it — or `null`.
+ *
+ * The search is done here rather than by `where` or `which`: `where` looks in
+ * the current directory before `PATH`, so a project folder holding a
+ * `wf.exe` would be run by every render started there. An empty entry, `.`,
+ * or any other relative entry names the current directory too, so those are
+ * skipped on every platform.
+ *
+ * On Windows a bare `wf` is System32\WF.msc, the firewall console, so the
+ * executables are asked for by their full names.
+ */
+function findOnPath(env = process.env, platform = process.platform, exists = isFile) {
+  const win = platform === "win32";
+  const p = win ? path.win32 : path.posix;
+  const names = win ? ["webfluent.exe", "wf.exe"] : ["wf"];
+  // Windows spells the variable however it likes (`Path` is usual).
+  const key = win ? Object.keys(env).find((k) => k.toUpperCase() === "PATH") : "PATH";
+  const value = (key && env[key]) || "";
+  const dirs = value
+    .split(win ? ";" : ":")
+    .map((d) => (win ? d.trim().replace(/^"(.*)"$/, "$1") : d))
+    .filter((d) => d !== "" && p.isAbsolute(d) && (!win || /^([a-zA-Z]:[\\/]|\\\\)/.test(d)));
+  for (const name of names) {
+    for (const dir of dirs) {
+      const candidate = p.join(dir, name);
+      if (exists(candidate)) return candidate;
+    }
+  }
+  return null;
+}
+
+function isFile(file) {
+  try {
+    return fs.statSync(file).isFile();
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Find the `wf` binary. Checks:
  * 1. WF_BIN environment variable
- * 2. System PATH
+ * 2. System PATH (absolute entries only)
  * 3. Common install locations
  */
 function findBinary() {
@@ -16,20 +57,8 @@ function findBinary() {
 
   const win = process.platform === "win32";
 
-  // Try PATH. On Windows a bare `wf` is System32\WF.msc, the firewall
-  // console, which `where` lists first — so ask for the executables by their
-  // full names, and take the first line of what `where` prints.
-  const names = win ? ["webfluent.exe", "wf.exe"] : ["wf"];
-  for (const name of names) {
-    try {
-      const out = execFileSync(win ? "where" : "which", [name], {
-        encoding: "utf-8",
-        stdio: ["ignore", "pipe", "ignore"],
-      });
-      const first = out.split(/\r?\n/).map((l) => l.trim()).find(Boolean);
-      if (first) return first;
-    } catch {}
-  }
+  const onPath = findOnPath();
+  if (onPath) return onPath;
 
   // Common locations
   const candidates = win
@@ -52,7 +81,7 @@ function findBinary() {
 
   throw new Error(
     "WebFluent CLI (wf) not found. Install it with:\n" +
-    "  curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash\n" +
+    "  curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash\n" +
     "  irm https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.ps1 | iex   (Windows)\n" +
     "or: cargo install webfluent\n" +
     "Or set the WF_BIN environment variable to the binary path."
@@ -247,3 +276,5 @@ function failure(stderr, fallback) {
 }
 
 module.exports = { Template };
+// Not part of the API: what the tests hold the PATH search to.
+module.exports._findOnPath = findOnPath;

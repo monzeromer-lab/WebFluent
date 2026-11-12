@@ -129,6 +129,29 @@ test("the async methods render without blocking, and fail the same way", async (
   await assert.rejects(Template.fromString('page P(path: "/") { Butt0n("x") }').renderHtmlAsync({}), /Butt0n/);
 });
 
+// The PATH search, without a real `wf`: a fake file system says what exists.
+const { _findOnPath: findOnPath } = require("./index");
+
+test("Windows: the current directory and relative PATH entries are never searched", () => {
+  const exists = new Set(["C:\\Tools\\wf.exe", "wf.exe", ".\\wf.exe", "bin\\wf.exe"]);
+  const found = findOnPath({ Path: ".;;bin;  ;C:\\Tools" }, "win32", (f) => exists.has(f));
+  assert.equal(found, "C:\\Tools\\wf.exe");
+  assert.equal(findOnPath({ Path: ".;bin;\\rooted" }, "win32", (f) => exists.has(f)), null);
+});
+
+test("Windows: webfluent.exe is preferred, and a quoted entry is read", () => {
+  const exists = new Set(["C:\\A\\wf.exe", "D:\\Program Files\\WebFluent\\webfluent.exe"]);
+  const found = findOnPath({ PATH: 'C:\\A;"D:\\Program Files\\WebFluent"' }, "win32", (f) => exists.has(f));
+  assert.equal(found, "D:\\Program Files\\WebFluent\\webfluent.exe");
+});
+
+test("POSIX: an empty entry or `.` is not the current directory's wf", () => {
+  const exists = new Set(["wf", "./wf", "/opt/wf/bin/wf"]);
+  assert.equal(findOnPath({ PATH: ":.:rel:/opt/wf/bin" }, "linux", (f) => exists.has(f)), "/opt/wf/bin/wf");
+  assert.equal(findOnPath({ PATH: "::." }, "linux", (f) => exists.has(f)), null);
+  assert.equal(findOnPath({}, "linux", (f) => exists.has(f)), null);
+});
+
 test("a URL from the data cannot run script", () => {
   const html = Template.fromString('page P(path: "/") { Link("Pay", to: url) }').renderHtmlFragment({
     url: "javascript:alert(1)",
