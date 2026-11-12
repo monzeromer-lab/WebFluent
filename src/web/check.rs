@@ -94,6 +94,11 @@ pub fn check_project(p: &Project<'_>) -> Checked {
 /// [`check_project`], reading the project's files through `vfs`: an
 /// editor's unsaved config, translations and sources are checked as the
 /// build reading the same `vfs` would check them.
+///
+/// # Panics
+///
+/// When one of the checks, each run on a thread of its own, panics: its
+/// panic is passed on.
 pub fn check_project_via(vfs: &dyn Vfs, p: &Project<'_>) -> Checked {
     // Each declaration's file and that file's text, asked once here: the
     // checks below run side by side, on threads of their own, and are

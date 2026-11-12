@@ -145,7 +145,7 @@ pub fn compile_studio(
     diagnostics.sort_by(|a, b| a.code.cmp(b.code).then(a.line.cmp(&b.line)));
 
     // The preview boots from the static paint, then takes it over.
-    let mut js_gen = JsCodegen::new().with_options(crate::web::codegen::JsOptions {
+    let mut js_gen = JsCodegen::new().with_options(&crate::web::codegen::JsOptions {
         ssg: true,
         ..Default::default()
     });

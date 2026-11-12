@@ -272,11 +272,13 @@ pub fn provide_completions(
     }
 
     // Directly inside a `match { }`: the arms it still lacks.
-    if let Some(Statement {
-        kind: StatementKind::Match(m),
-        ..
-    }) = innermost
-        && !inside_child_body(innermost.unwrap(), anchor)
+    if let Some(
+        statement @ Statement {
+            kind: StatementKind::Match(m),
+            ..
+        },
+    ) = innermost
+        && !inside_child_body(statement, anchor)
         && statement_start(&previous, 0)
     {
         return match_arms(project, decl_ix, m, &scope);

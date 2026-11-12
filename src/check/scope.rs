@@ -608,10 +608,10 @@ pub mod paths {
             }
         }
 
-        fn shape(&self, ty: &Type) -> (Shape, bool, Option<String>) {
+        fn shape(ty: &Type) -> (Shape, bool, Option<String>) {
             match ty {
                 Type::Optional(inner) => {
-                    let (s, _, item) = self.shape(inner);
+                    let (s, _, item) = Self::shape(inner);
                     (s, true, item)
                 }
                 Type::Bool => (Shape::Bool, false, None),
@@ -665,7 +665,7 @@ pub mod paths {
                                 &f.name,
                                 None,
                                 group,
-                                t,
+                                &t,
                                 from,
                                 Some(f.span.line),
                                 depth + 1,
@@ -681,7 +681,7 @@ pub mod paths {
                             n,
                             None,
                             group,
-                            self.resolve(t.clone()),
+                            &self.resolve(t.clone()),
                             from,
                             None,
                             depth + 1,
@@ -701,7 +701,7 @@ pub mod paths {
                             n,
                             None,
                             group,
-                            t,
+                            &t,
                             from,
                             None,
                             depth + 1,
@@ -722,19 +722,19 @@ pub mod paths {
             name: &str,
             kind: Option<BindingKind>,
             group: Group,
-            ty: Type,
+            ty: &Type,
             from: &str,
             line: Option<u32>,
             depth: usize,
         ) -> Entry {
-            let (mut shape, optional, item) = self.shape(&ty);
+            let (mut shape, optional, item) = Self::shape(ty);
             if kind == Some(BindingKind::FormHandle) {
                 shape = Shape::Form;
             }
             let members = if kind == Some(BindingKind::FormHandle) {
                 form_members(path, from)
             } else {
-                self.members(path, &ty, group, from, depth)
+                self.members(path, ty, group, from, depth)
             };
             Entry {
                 path: path.to_string(),
@@ -919,7 +919,7 @@ pub mod paths {
                 &b.name,
                 Some(b.kind),
                 group,
-                ty,
+                &ty,
                 &from,
                 line_of(b),
                 0,
@@ -957,7 +957,7 @@ pub mod paths {
                     &m.name,
                     Some(m.kind),
                     Group::Stores,
-                    ty,
+                    &ty,
                     &from,
                     line_of(&m),
                     0,

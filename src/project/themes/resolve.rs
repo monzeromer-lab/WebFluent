@@ -207,11 +207,7 @@ fn available(themes: &[&ThemeDecl]) -> String {
 fn literal_value(expr: &Expr) -> Option<String> {
     match expr {
         Expr::StringLiteral(s) => Some(s.clone()),
-        Expr::NumberLiteral(n) => Some(if *n == (*n as i64) as f64 {
-            format!("{}", *n as i64)
-        } else {
-            format!("{n}")
-        }),
+        Expr::NumberLiteral(n) => Some(crate::base::text::number(*n)),
         _ => None,
     }
 }

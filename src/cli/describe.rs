@@ -3,11 +3,16 @@ use std::path::Path;
 use crate::diagnostics::error::Result;
 
 /// `wf registry --json`: every built-in, as a tool reads it.
+#[expect(
+    clippy::unnecessary_wraps,
+    reason = "a command returns a Result as every other does, so `run` dispatches them alike"
+)]
 pub(crate) fn run_registry(json: bool) -> Result<()> {
     if json {
         println!(
             "{}",
-            serde_json::to_string_pretty(&crate::registry::json::registry_json()).unwrap()
+            serde_json::to_string_pretty(&crate::registry::json::registry_json())
+                .expect("a JSON value always serialises")
         );
         return Ok(());
     }
@@ -60,7 +65,10 @@ pub(crate) fn run_types(project_dir: &Path, json: bool) -> Result<()> {
     };
     let value = crate::registry::json::declarations_json(&program, &file_of);
     if json {
-        println!("{}", serde_json::to_string_pretty(&value).unwrap());
+        println!(
+            "{}",
+            serde_json::to_string_pretty(&value).expect("a JSON value always serialises")
+        );
         return Ok(());
     }
     for (kind, key) in [

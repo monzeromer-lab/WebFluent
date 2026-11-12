@@ -374,6 +374,11 @@ pub fn full() -> String {
 /// The manifest as JSON, so the JavaScript tests assemble the runtime the
 /// same way this does. `modules/manifest.json` is written from it, and a
 /// test here fails when the file is stale.
+///
+/// # Panics
+///
+/// Never: the manifest is strings and lists of them, which always
+/// serialise.
 pub fn manifest_json() -> String {
     let modules: Vec<serde_json::Value> = MODULES
         .iter()

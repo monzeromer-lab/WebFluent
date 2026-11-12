@@ -56,7 +56,7 @@ pub fn capture_from<T>(files: Files, body: impl FnOnce() -> T) -> (T, Files) {
     // What was capturing before comes back however `body` ends: a panic a
     // server or an editor catches must not leave this thread's writes
     // going to memory for good.
-    let mut restore = Restore { outer: Some(outer) };
+    let mut restore = Restore { outer, done: false };
     let result = body();
     let memory = restore.finish().unwrap_or_default();
     (result, memory.files)
@@ -65,20 +65,24 @@ pub fn capture_from<T>(files: Files, body: impl FnOnce() -> T) -> (T, Files) {
 /// Puts back what was capturing before a [`capture_from`], when it ends or
 /// when its body panics.
 struct Restore {
-    outer: Option<Option<Memory>>,
+    /// What was capturing before, if anything.
+    outer: Option<Memory>,
+    /// Whether it has been put back.
+    done: bool,
 }
 
 impl Restore {
     /// End the capture, returning what it kept.
     fn finish(&mut self) -> Option<Memory> {
-        let outer = self.outer.take().flatten();
+        self.done = true;
+        let outer = self.outer.take();
         CAPTURE.with(|c| c.replace(outer))
     }
 }
 
 impl Drop for Restore {
     fn drop(&mut self) {
-        if self.outer.is_some() {
+        if !self.done {
             self.finish();
         }
     }

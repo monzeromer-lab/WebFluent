@@ -144,7 +144,7 @@ impl JsCodegen {
                         self.store_locals.borrow_mut().push(name.clone());
                         self.emit_line(&format!("let {} = {};", bare(name), value));
                     }
-                } else if let Some((Expr::Identifier(root), steps)) = path_of(&a.target)
+                } else if let (Expr::Identifier(root), steps) = path_of(&a.target)
                     && self.is_own_member(root, store_states)
                     && !steps.is_empty()
                 {

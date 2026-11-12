@@ -147,6 +147,10 @@ fn holds(rule: &str, x: &Operands) -> bool {
 }
 
 /// `i % 10 = 2..4,7` or `n != 1`.
+#[expect(
+    clippy::float_cmp,
+    reason = "CLDR's rule compares the number as written, exactly"
+)]
 fn relation_holds(relation: &str, x: &Operands) -> bool {
     let (left, right, negated) = match relation.split_once("!=") {
         Some((l, r)) => (l, r, true),

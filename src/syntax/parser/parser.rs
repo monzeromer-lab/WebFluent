@@ -1610,11 +1610,7 @@ impl Parser {
                 TokenType::Identifier(s) => s.clone(),
                 TokenType::StringLiteral(s) => format!("\"{}\"", s.spelling),
                 TokenType::NumberLiteral(n) => {
-                    if *n == (*n as i64) as f64 {
-                        format!("{}", *n as i64)
-                    } else {
-                        format!("{n}")
-                    }
+                    crate::base::text::number(*n)
                 }
                 TokenType::OpenParen => "(".to_string(),
                 TokenType::CloseParen => ")".to_string(),

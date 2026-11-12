@@ -12,7 +12,7 @@ use wf_lsp::project::Project;
 use wf_lsp::symbols::document_symbols;
 
 fn project(src: &str) -> Project {
-    Project::single(Url::parse("file:///test.wf").unwrap(), src)
+    Project::single(Url::parse("file:///test.wf").expect("a valid URL"), src)
 }
 
 /// A buffer mid-edit: `broken` is the text, `valid` the last parse of it that
@@ -21,10 +21,11 @@ fn mid_edit(valid: &str, broken: &str) -> Project {
     let mut project = project(valid);
     project.files[0].source = broken.into();
     project.files[0].index = wf_lsp::line_index::LineIndex::new(broken);
-    project.files[0].parsed = Project::single(Url::parse("file:///x.wf").unwrap(), broken)
-        .files
-        .remove(0)
-        .parsed;
+    project.files[0].parsed =
+        Project::single(Url::parse("file:///x.wf").expect("a valid URL"), broken)
+            .files
+            .remove(0)
+            .parsed;
     project.files[0].stale = project.files[0].parsed.is_err();
     project
 }
@@ -77,7 +78,12 @@ fn in_page(valid_body: &str, broken_body: &str) -> Vec<String> {
 
 fn hover_at(src: &str, needle: &str, nth: usize) -> Option<String> {
     let project = project(src);
-    let offset = src.match_indices(needle).nth(nth).unwrap().0 + 1;
+    let offset = src
+        .match_indices(needle)
+        .nth(nth)
+        .expect("the needle is in the source")
+        .0
+        + 1;
     let pos = project.files[0].index.offset_to_position(src, offset);
     provide_hover(&project, 0, pos).map(|h| match h.contents {
         HoverContents::Markup(m) => m.value,
@@ -88,12 +94,24 @@ fn hover_at(src: &str, needle: &str, nth: usize) -> Option<String> {
 fn apply(src: &str, edit: &WorkspaceEdit) -> String {
     let project = project(src);
     let file = &project.files[0];
-    let mut edits: Vec<&TextEdit> = edit.changes.as_ref().unwrap().values().flatten().collect();
+    let mut edits: Vec<&TextEdit> = edit
+        .changes
+        .as_ref()
+        .expect("the edit has changes")
+        .values()
+        .flatten()
+        .collect();
     edits.sort_by_key(|e| (e.range.start.line, e.range.start.character));
     let mut out = src.to_string();
     for e in edits.into_iter().rev() {
-        let s = file.index.position_to_offset(src, e.range.start).unwrap();
-        let t = file.index.position_to_offset(src, e.range.end).unwrap();
+        let s = file
+            .index
+            .position_to_offset(src, e.range.start)
+            .expect("the range is inside the source");
+        let t = file
+            .index
+            .position_to_offset(src, e.range.end)
+            .expect("the range is inside the source");
         out.replace_range(s..t, &e.new_text);
     }
     out
@@ -102,18 +120,31 @@ fn apply(src: &str, edit: &WorkspaceEdit) -> String {
 /// `src` with the name at the `nth` `needle` renamed to `to`.
 fn renamed(src: &str, needle: &str, nth: usize, to: &str) -> String {
     let project = project(src);
-    let offset = src.match_indices(needle).nth(nth).unwrap().0 + 1;
+    let offset = src
+        .match_indices(needle)
+        .nth(nth)
+        .expect("the needle is in the source")
+        .0
+        + 1;
     let pos = project.files[0].index.offset_to_position(src, offset);
     assert!(
         wf_lsp::rename::prepare_rename(&project, 0, pos).is_some(),
         "{needle} #{nth} cannot be renamed"
     );
-    apply(src, &wf_lsp::rename::rename(&project, 0, pos, to).unwrap())
+    apply(
+        src,
+        &wf_lsp::rename::rename(&project, 0, pos, to).expect("the rename applies"),
+    )
 }
 
 fn definition_line(src: &str, needle: &str, nth: usize) -> Option<u32> {
     let project = project(src);
-    let offset = src.match_indices(needle).nth(nth).unwrap().0 + 1;
+    let offset = src
+        .match_indices(needle)
+        .nth(nth)
+        .expect("the needle is in the source")
+        .0
+        + 1;
     let pos = project.files[0].index.offset_to_position(src, offset);
     match find_definition(&project, 0, pos)? {
         GotoDefinitionResponse::Scalar(l) => Some(l.range.start.line + 1),

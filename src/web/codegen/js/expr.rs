@@ -52,6 +52,10 @@ pub enum Holder {
 /// the first time its action ran, and nothing before this point could see
 /// it: parsing, the types and the linters all pass on the source that
 /// produces them.
+///
+/// # Panics
+///
+/// Never: a scalar method is looked up only once it is known to be one.
 pub fn method_to_js(method: &str, obj: &str, args: &[String], holder: Holder) -> String {
     let joined = args.join(", ");
     let with_obj = |name: &str| {
@@ -170,13 +174,7 @@ impl JsCodegen {
                 self.emit_expr_in(b, cx),
                 inclusive
             ),
-            (Expr::NumberLiteral(n), _) => {
-                if *n == (*n as i64) as f64 {
-                    format!("{}", *n as i64)
-                } else {
-                    format!("{n}")
-                }
-            }
+            (Expr::NumberLiteral(n), _) => crate::base::text::number(*n),
             (Expr::BoolLiteral(b), _) => format!("{b}"),
             (Expr::Null, _) => "null".to_string(),
             (Expr::Identifier(name), Cx::Page) => {

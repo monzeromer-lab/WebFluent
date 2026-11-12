@@ -14,7 +14,8 @@ pub(crate) fn run_translations(
 ) -> Result<()> {
     let json = report == super::Report::Json;
     if plurals {
-        return print_plurals(json);
+        print_plurals(json);
+        return Ok(());
     }
     let Some(table) = crate::i18n::table::table_via(&crate::vfs::FsVfs, dir)? else {
         println!("This project has no `i18n` in webfluent.app.json.");
@@ -84,7 +85,7 @@ pub(crate) fn run_translations(
 
 /// `--plurals`: CLDR's plural rules as the build and the page use them —
 /// every locale's forms, and the form each of a run of counts takes.
-fn print_plurals(json: bool) -> Result<()> {
+fn print_plurals(json: bool) {
     use crate::i18n::plurals;
     let mut counts: Vec<f64> = (0..=120).map(f64::from).collect();
     counts.extend([200.0, 1000.0, 1_000_000.0, 0.5, 1.5, 2.5]);
@@ -115,11 +116,10 @@ fn print_plurals(json: bool) -> Result<()> {
             "picks": picks,
         });
         println!("{}", serde_json::to_string_pretty(&out).unwrap_or_default());
-        return Ok(());
+        return;
     }
     println!("CLDR {}", crate::i18n::plurals_data::CLDR_VERSION);
     for l in locales {
         println!("  {l:<8} {}", plurals::categories(l).join(" "));
     }
-    Ok(())
 }

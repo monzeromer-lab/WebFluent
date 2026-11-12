@@ -2239,6 +2239,13 @@ pub struct FieldParts {
     /// The error argument as written: `Some(None)` when it is there but
     /// cannot be known at build time (the client will fill it in),
     /// `Some(Some(text))` when it can.
+    #[cfg_attr(
+        not(feature = "internals"),
+        expect(
+            clippy::option_option,
+            reason = "absent, known only on the page, or known now: the API `internals` exports"
+        )
+    )]
     pub error: Option<Option<String>>,
     id: String,
 }
@@ -3066,13 +3073,7 @@ fn resolve_text_scoped(
 fn resolve_text(expr: &Expr, messages: &HashMap<String, String>) -> Option<String> {
     match expr {
         Expr::StringLiteral(s) => Some(s.clone()),
-        Expr::NumberLiteral(n) => {
-            if *n == (*n as i64) as f64 {
-                Some(format!("{}", *n as i64))
-            } else {
-                Some(format!("{n}"))
-            }
-        }
+        Expr::NumberLiteral(n) => Some(crate::base::text::number(*n)),
         Expr::BoolLiteral(b) => Some(format!("{b}")),
         Expr::FunctionCall(name, args) if name == "t" => {
             // i18n: resolve from default locale

@@ -104,7 +104,8 @@ pub(crate) fn serve_directory_within(
             }
             let response = match std::fs::read(&file) {
                 Ok(body) => tiny_http::Response::from_data(body).with_header(
-                    tiny_http::Header::from_bytes("Content-Type", content_type(&file)).unwrap(),
+                    tiny_http::Header::from_bytes("Content-Type", content_type(&file))
+                        .expect("a content type is a valid header value"),
                 ),
                 Err(_) => tiny_http::Response::from_string("Not Found").with_status_code(404),
             };

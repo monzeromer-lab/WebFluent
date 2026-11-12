@@ -156,7 +156,10 @@ fn stops(list: &[GradientStop]) -> Vec<Stop> {
             while at[end].is_none() {
                 end += 1;
             }
-            let (a, b) = (at[start].unwrap(), at[end].unwrap());
+            // The first and the last stop are always measured, so a gap is
+            // bounded by measured stops on both sides.
+            let measured = "a gap lies between measured stops";
+            let (a, b) = (at[start].expect(measured), at[end].expect(measured));
             for (k, slot) in at.iter_mut().enumerate().take(end).skip(i) {
                 *slot = Some(a + (b - a) * (k - start) as f32 / (end - start) as f32);
             }
@@ -445,6 +448,7 @@ impl<'a> Painter<'a> {
         self.border(s, f, style, r);
     }
 
+    #[expect(clippy::float_cmp, reason = "two sides drawn alike only when their widths are the same number")]
     fn border(&mut self, s: &mut Surface<'_>, f: &Frag, style: &Style, r: [f32; 4]) {
         let b = &style.border;
         if !b.iter().any(super::style::BorderSide::visible) {

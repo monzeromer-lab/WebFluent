@@ -38,7 +38,7 @@ fn within<T: Send + 'static>(secs: u64, f: impl FnOnce() -> T + Send + 'static) 
     }
 }
 
-fn render(src: &str, data: Value) -> String {
+fn render(src: &str, data: &Value) -> String {
     Template::from_str(src)
         .unwrap_or_else(|e| panic!("{e}"))
         .render_html_fragment(&data)
@@ -71,7 +71,7 @@ fn data_cannot_add_declarations_to_a_style() {
         "expression(alert(1))",
         "</style><script>alert(1)</script>",
     ] {
-        let html = render(STYLED, json!({ "c": evil }));
+        let html = render(STYLED, &json!({ "c": evil }));
         assert!(!html.contains("position"), "{evil}: {html}");
         assert!(!html.to_lowercase().contains("url("), "{evil}: {html}");
         assert!(!html.contains("evil.example"), "{evil}: {html}");
@@ -92,7 +92,7 @@ fn a_style_value_from_the_data_that_is_one_value_is_kept() {
         "linear-gradient(90deg, red, blue)",
         "\"Inter\", sans-serif",
     ] {
-        let html = render(STYLED, json!({ "c": good }));
+        let html = render(STYLED, &json!({ "c": good }));
         let escaped = good.replace('"', "&quot;");
         assert!(
             html.contains(&format!("color: {escaped}")),
@@ -106,13 +106,13 @@ fn what_the_template_writes_around_a_splice_is_its_own() {
     let src = r#"page P(path: "/") {
     Text("hi") { style { background: url({img}) center } }
 }"#;
-    let html = render(src, json!({ "img": "/photo.png" }));
+    let html = render(src, &json!({ "img": "/photo.png" }));
     assert!(
         html.contains("background: url(/photo.png) center"),
         "{html}"
     );
     // The data's piece may not end the declaration the template opened.
-    let html = render(src, json!({ "img": "x); position: fixed; (" }));
+    let html = render(src, &json!({ "img": "x); position: fixed; (" }));
     assert!(!html.contains("position"), "{html}");
     assert!(!html.contains("background"), "{html}");
 }
@@ -127,7 +127,7 @@ fn a_class_from_the_data_cannot_close_its_attribute() {
 page P(path: "/") { Box2(class: c) }"#;
     let listed = r#"page P(path: "/") { Card(class: [c, { "on": true }]) { Text("x") } }"#;
     for src in [builtin, component, listed] {
-        let html = render(src, json!({ "c": evil }));
+        let html = render(src, &json!({ "c": evil }));
         assert!(!html.contains("onfocus=\""), "{html}");
         assert!(!html.contains(" autofocus"), "{html}");
         assert!(!html.contains("tabindex=\""), "{html}");
@@ -137,7 +137,7 @@ page P(path: "/") { Box2(class: c) }"#;
         );
     }
     // A class without anything to escape is written as it is.
-    let html = render(builtin, json!({ "c": "lead is-on" }));
+    let html = render(builtin, &json!({ "c": "lead is-on" }));
     assert!(html.contains("lead is-on"), "{html}");
 }
 
@@ -146,16 +146,16 @@ page P(path: "/") { Box2(class: c) }"#;
 #[test]
 fn a_frame_drawing_html_from_the_data_is_sandboxed() {
     let given = r#"page P(path: "/") { Frame(srcdoc: html, title: "Preview") }"#;
-    let html = render(given, json!({ "html": "<p>hi</p>" }));
+    let html = render(given, &json!({ "html": "<p>hi</p>" }));
     assert!(html.contains("sandbox=\"\""), "{html}");
     assert!(html.contains("srcdoc=\"&lt;p&gt;hi&lt;/p&gt;\""), "{html}");
     // The template's own HTML is its own.
     let literal = r#"page P(path: "/") { Frame(srcdoc: "<p>hi</p>", title: "Preview") }"#;
-    assert!(!render(literal, json!({})).contains("sandbox="));
+    assert!(!render(literal, &json!({})).contains("sandbox="));
     // A sandbox the template names is the one it gets.
     let named =
         r#"page P(path: "/") { Frame(srcdoc: html, title: "Preview", sandbox: "allow-scripts") }"#;
-    let html = render(named, json!({ "html": "<p>hi</p>" }));
+    let html = render(named, &json!({ "html": "<p>hi</p>" }));
     assert_eq!(html.matches("sandbox=").count(), 1, "{html}");
     assert!(html.contains("sandbox=\"allow-scripts\""), "{html}");
 }
@@ -259,7 +259,7 @@ fn by_the_build(src: &str) -> Option<String> {
 
 fn by_the_template(src: &str) -> String {
     let page = format!("page P(path: \"/\") {{\n    derived v = {src}\n    Text(\"⟦{{v}}⟧\")\n}}");
-    let html = render(&page, data());
+    let html = render(&page, &data());
     let start = html.find('⟦').unwrap() + '⟦'.len_utf8();
     let end = html.find('⟧').unwrap();
     html[start..end].to_string()

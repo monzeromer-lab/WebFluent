@@ -42,6 +42,10 @@ struct Segment {
 /// generated file's name, `sources` the source paths as the map names them,
 /// and `contents` each one's text, so a browser's tools can show it (none
 /// where it could not be read).
+///
+/// # Panics
+///
+/// Never: there is always a line to add to.
 pub fn extract(
     js: &str,
     file: &str,

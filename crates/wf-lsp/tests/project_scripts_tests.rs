@@ -15,23 +15,26 @@ use wf_lsp::project::{FileCache, Project};
 fn project(name: &str, wf: &str) -> (PathBuf, Project, usize) {
     let dir = std::env::temp_dir().join(format!("wf-lsp-scripts-{name}-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
-    std::fs::create_dir_all(dir.join("src/lib")).unwrap();
-    std::fs::write(dir.join("webfluent.app.json"), r#"{ "name": "s" }"#).unwrap();
+    std::fs::create_dir_all(dir.join("src/lib")).expect("create the fixture's folder");
+    std::fs::write(dir.join("webfluent.app.json"), r#"{ "name": "s" }"#)
+        .expect("write the fixture");
     std::fs::write(
         dir.join("src/lib/money.js"),
         "/**\n * Money, in dollars.\n * @param {number} n\n * @returns {string}\n */\nfunction money(n) { return \"$\" + n }\n",
     )
-    .unwrap();
+    .expect("write the fixture");
     std::fs::write(
         dir.join("src/cards.css"),
         ".feature { padding: 1rem }\n.feature--first::before { content: \"I\" }\n",
     )
-    .unwrap();
+    .expect("write the fixture");
     let path = dir.join("src/App.wf");
-    std::fs::write(&path, wf).unwrap();
-    let uri = Url::from_file_path(&path).unwrap();
+    std::fs::write(&path, wf).expect("write the fixture");
+    let uri = Url::from_file_path(&path).expect("an absolute path");
     let project = Project::load(&uri, &|_| None, &FileCache::default());
-    let ix = project.file_index(&uri).unwrap();
+    let ix = project
+        .file_index(&uri)
+        .expect("the file is in the project");
     (dir, project, ix)
 }
 

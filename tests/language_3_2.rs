@@ -16,7 +16,7 @@ fn painted(src: &str) -> String {
     raw_output(Backend::Ssg, src)
 }
 
-fn templated(src: &str, data: serde_json::Value) -> String {
+fn templated(src: &str, data: &serde_json::Value) -> String {
     Template::from_str(src)
         .expect("template parses")
         .render_html_fragment(&data)
@@ -49,7 +49,7 @@ fn a_scoped_slot_hands_the_fill_its_values() {
             && js.contains("const i = _s.index;"),
         "{js}"
     );
-    let html = templated(&src, json!({ "names": ["ann", "bob"] }));
+    let html = templated(&src, &json!({ "names": ["ann", "bob"] }));
     assert!(
         html.contains(">0: ann<") && html.contains(">1: bob<"),
         "template: {html}"
@@ -69,7 +69,7 @@ fn a_block_handed_on_reads_the_names_where_it_was_written() {
         page("Listing(lines: [], empty: \"Nothing here.\")")
     );
     for (backend, html) in [
-        ("template", templated(&src, json!({}))),
+        ("template", templated(&src, &json!({}))),
         ("paint", painted(&src)),
     ] {
         assert!(html.contains(">Nothing here.<"), "{backend}: {html}");
@@ -98,7 +98,7 @@ fn a_component_declares_parts_that_are_called_under_its_name() {
             || js.contains("Component_Panel_Header({ text: () => \"h\" })"),
         "{js}"
     );
-    let html = templated(&src, json!({}));
+    let html = templated(&src, &json!({}));
     assert!(
         html.contains(">h</h2>") && html.contains(">end<"),
         "template: {html}"
@@ -267,7 +267,7 @@ fn an_enum_prop_is_written_to_the_components_root_as_a_data_attribute() {
         js.contains("\"data-status\": () => WF.caseOf(_p.status)"),
         "{js}"
     );
-    let html = templated(&src, json!({}));
+    let html = templated(&src, &json!({}));
     assert!(
         html.contains("data-tone=\"loud\"") && html.contains("data-status=\"failed\""),
         "template: {html}"
@@ -341,9 +341,9 @@ fn an_if_let_binding_is_read_by_the_static_paint_and_the_template_engine() {
         "{html}"
     );
     let tpl = page("if let u = user { Text(\"Hi {u.name}\") } else { Text(\"nobody\") }");
-    let html = templated(&tpl, json!({ "user": { "name": "Bob" } }));
+    let html = templated(&tpl, &json!({ "user": { "name": "Bob" } }));
     assert!(html.contains(">Hi Bob<"), "template: {html}");
-    let html = templated(&tpl, json!({ "user": null }));
+    let html = templated(&tpl, &json!({ "user": null }));
     assert!(html.contains(">nobody<"), "template: {html}");
 }
 
@@ -400,7 +400,7 @@ fn a_code_with_a_language_is_coloured_by_every_backend() {
         !js.contains("language: \"wf\" }"),
         "the language is not an attribute: {js}"
     );
-    let html = templated(&src, json!({}));
+    let html = templated(&src, &json!({}));
     assert!(
         html.contains("<span class=\"wf-tok-kw\">page</span>"),
         "template: {html}"
@@ -418,7 +418,7 @@ fn a_derived_function_paints_what_it_gives_in_every_backend() {
     );
     for (name, out) in [
         ("ssg", painted(&src)),
-        ("template", templated(&src, json!({}))),
+        ("template", templated(&src, &json!({}))),
     ] {
         assert!(out.contains("a 7 none false"), "{name}: {out}");
         assert!(out.contains("b=2"), "{name}: {out}");

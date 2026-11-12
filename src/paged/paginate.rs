@@ -214,12 +214,15 @@ impl State<'_> {
             if pos == Position::Absolute || pos == Position::Fixed {
                 continue;
             }
-            if c.y < row_bottom - EPS && !rows.is_empty() {
-                rows.last_mut().unwrap().push(i);
-                row_bottom = row_bottom.max(c.y + c.h);
-            } else {
-                rows.push(vec![i]);
-                row_bottom = c.y + c.h;
+            match rows.last_mut() {
+                Some(row) if c.y < row_bottom - EPS => {
+                    row.push(i);
+                    row_bottom = row_bottom.max(c.y + c.h);
+                }
+                _ => {
+                    rows.push(vec![i]);
+                    row_bottom = c.y + c.h;
+                }
             }
         }
         for (i, c) in f.children.iter_mut().enumerate() {

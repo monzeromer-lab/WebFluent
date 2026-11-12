@@ -706,7 +706,7 @@ pub fn layers(program: &Program, file_of: &dyn Fn(usize) -> Option<String>) -> V
             start: span.start,
             end: span.end,
             line: span.line,
-            children: layer_body(body, &map, &owners, &file),
+            children: layer_body(body, &map, &owners, file.as_ref()),
         });
     }
     out
@@ -716,12 +716,12 @@ fn layer_body(
     stmts: &[Statement],
     map: &NodeMap,
     owners: &[String],
-    file: &Option<String>,
+    file: Option<&String>,
 ) -> Vec<Layer> {
     stmts.iter().map(|s| layer(s, map, owners, file)).collect()
 }
 
-fn layer(s: &Statement, map: &NodeMap, owners: &[String], file: &Option<String>) -> Layer {
+fn layer(s: &Statement, map: &NodeMap, owners: &[String], file: Option<&String>) -> Layer {
     let at = |kind: &'static str,
               label: String,
               source: Option<&'static str>,
@@ -731,7 +731,7 @@ fn layer(s: &Statement, map: &NodeMap, owners: &[String], file: &Option<String>)
         label,
         source,
         id,
-        file: file.clone(),
+        file: file.cloned(),
         start: s.span.start,
         end: s.span.end,
         line: s.span.line,
@@ -742,7 +742,7 @@ fn layer(s: &Statement, map: &NodeMap, owners: &[String], file: &Option<String>)
         label,
         source: None,
         id: None,
-        file: file.clone(),
+        file: file.cloned(),
         start: body.first().map_or(s.span.start, |b| b.span.start),
         end: body.last().map_or(s.span.end, |b| b.span.end),
         line: body.first().map_or(s.span.line, |b| b.span.line),
@@ -761,7 +761,7 @@ fn layer(s: &Statement, map: &NodeMap, owners: &[String], file: &Option<String>)
                     label: format!("on {}", h.event),
                     source: Some("handler"),
                     id: None,
-                    file: file.clone(),
+                    file: file.cloned(),
                     start: h.span.start,
                     end: h.span.end,
                     line: h.span.line,
@@ -774,7 +774,7 @@ fn layer(s: &Statement, map: &NodeMap, owners: &[String], file: &Option<String>)
                     label: fill.name.clone(),
                     source: None,
                     id: None,
-                    file: file.clone(),
+                    file: file.cloned(),
                     start: fill.span.start,
                     end: fill.span.end,
                     line: fill.span.line,
@@ -839,7 +839,7 @@ fn layer(s: &Statement, map: &NodeMap, owners: &[String], file: &Option<String>)
                     label: arm_head(a),
                     source: None,
                     id: None,
-                    file: file.clone(),
+                    file: file.cloned(),
                     start: a.span.start,
                     end: a.span.end,
                     line: a.span.line,

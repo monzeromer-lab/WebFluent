@@ -306,8 +306,9 @@ fn huffman_lengths(freqs: &[u32]) -> Vec<u8> {
         .map(|i| std::cmp::Reverse((weight[i], i)))
         .collect();
     while heap.len() > 1 {
-        let std::cmp::Reverse((w1, a)) = heap.pop().unwrap();
-        let std::cmp::Reverse((w2, b)) = heap.pop().unwrap();
+        let two = "the heap holds two nodes or more";
+        let std::cmp::Reverse((w1, a)) = heap.pop().expect(two);
+        let std::cmp::Reverse((w2, b)) = heap.pop().expect(two);
         let node = weight.len();
         weight.push(w1 + w2);
         parent.push(usize::MAX);
@@ -357,12 +358,18 @@ fn canonical_codes(lengths: &[u8]) -> Vec<u16> {
 }
 
 fn length_symbol(len: u16) -> (usize, u32, u8) {
-    let i = LEN_BASE.iter().rposition(|&b| b <= len).unwrap();
+    let i = LEN_BASE
+        .iter()
+        .rposition(|&b| b <= len)
+        .expect("a match is at least 3 long");
     (257 + i, u32::from(len - LEN_BASE[i]), LEN_EXTRA[i])
 }
 
 fn distance_symbol(dist: u16) -> (usize, u32, u8) {
-    let i = DIST_BASE.iter().rposition(|&b| b <= dist).unwrap();
+    let i = DIST_BASE
+        .iter()
+        .rposition(|&b| b <= dist)
+        .expect("a distance is at least 1");
     (i, u32::from(dist - DIST_BASE[i]), DIST_EXTRA[i])
 }
 
@@ -412,7 +419,11 @@ fn dynamic_block(tokens: &[Token], last: bool, bits: &mut BitWriter) {
     let lit_code = canonical_codes(&lit_len);
     let dist_code = canonical_codes(&dist_len);
 
-    let hlit = lit_len.iter().rposition(|&l| l > 0).unwrap() + 1;
+    let hlit = lit_len
+        .iter()
+        .rposition(|&l| l > 0)
+        .expect("the end-of-block code always has a length")
+        + 1;
     let hdist = dist_len.iter().rposition(|&l| l > 0).map_or(1, |i| i + 1);
 
     // The two length tables, run-length coded over the code-length alphabet.

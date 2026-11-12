@@ -20,6 +20,10 @@ pub struct Face {
     /// The lightest and heaviest weight it draws; equal for a static face.
     pub weights: (u16, u16),
     pub italic: bool,
+    #[cfg_attr(
+        not(feature = "internals"),
+        expect(clippy::rc_buffer, reason = "fontdb and krilla take the bytes as an Arc of a sized buffer")
+    )]
     pub data: Arc<Vec<u8>>,
     pub index: u32,
     pub source: Source,
@@ -301,6 +305,10 @@ pub fn alias(family: &str) -> Option<&'static str> {
 }
 
 /// Read a face's name, weight, slant and metrics from its own tables.
+#[expect(
+    clippy::rc_buffer,
+    reason = "fontdb and krilla take the bytes as an Arc of a sized buffer"
+)]
 fn read_face(data: Arc<Vec<u8>>, index: u32, source: Source) -> Option<Face> {
     let ttf = TtfFace::parse(&data, index).ok()?;
     let name = |id: u16| {
@@ -336,7 +344,7 @@ fn read_face(data: Arc<Vec<u8>>, index: u32, source: Source) -> Option<Face> {
         descent,
         line_gap,
         variable,
-        data: Arc::clone(&data),
+        data,
         index,
         source,
     })

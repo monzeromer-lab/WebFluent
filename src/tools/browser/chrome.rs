@@ -328,7 +328,7 @@ impl Browser {
         })
     }
 
-    fn call(&mut self, method: &str, params: Value, session: Option<&str>) -> Result<Value> {
+    fn call(&mut self, method: &str, params: &Value, session: Option<&str>) -> Result<Value> {
         let id = self.next;
         self.next += 1;
         let mut message = json!({ "id": id, "method": method, "params": params });
@@ -367,11 +367,15 @@ impl Browser {
     /// [`WebFluentError::IoError`] when the browser refuses a command or the
     /// connection to it fails.
     pub fn open(&mut self, url: &str, settle_ms: u64) -> Result<Page> {
-        let target = self.call("Target.createTarget", json!({ "url": "about:blank" }), None)?;
+        let target = self.call(
+            "Target.createTarget",
+            &json!({ "url": "about:blank" }),
+            None,
+        )?;
         let target_id = target["targetId"].as_str().unwrap_or_default().to_string();
         let attached = self.call(
             "Target.attachToTarget",
-            json!({ "targetId": target_id, "flatten": true }),
+            &json!({ "targetId": target_id, "flatten": true }),
             None,
         )?;
         let session = attached["sessionId"]
@@ -384,12 +388,12 @@ impl Browser {
             "Network.enable",
             "Page.enable",
         ] {
-            self.call(method, json!({}), Some(&session))?;
+            self.call(method, &json!({}), Some(&session))?;
         }
         if let Some(source) = &self.before_each {
             self.call(
                 "Page.addScriptToEvaluateOnNewDocument",
-                json!({ "source": source }),
+                &json!({ "source": source }),
                 Some(&session),
             )?;
         }
@@ -401,7 +405,7 @@ impl Browser {
                 ..Default::default()
             },
         };
-        self.call("Page.navigate", json!({ "url": url }), Some(&page.session))?;
+        self.call("Page.navigate", &json!({ "url": url }), Some(&page.session))?;
         self.settle(&mut page, settle_ms)?;
         Ok(page)
     }
@@ -448,7 +452,7 @@ impl Browser {
     pub fn eval(&mut self, page: &Page, expression: &str) -> Result<Value> {
         let result = self.call(
             "Runtime.evaluate",
-            json!({
+            &json!({
                 "expression": expression,
                 "returnByValue": true,
                 "awaitPromise": true,
@@ -474,7 +478,7 @@ impl Browser {
     pub fn close(&mut self, page: Page) -> Result<Visit> {
         self.call(
             "Target.closeTarget",
-            json!({ "targetId": page.target }),
+            &json!({ "targetId": page.target }),
             None,
         )?;
         Ok(page.visit)
@@ -493,7 +497,7 @@ impl Browser {
         // And what the page is, now that it has.
         let settled = self.call(
             "Runtime.evaluate",
-            json!({ "expression": PAGE_REPORT, "returnByValue": true }),
+            &json!({ "expression": PAGE_REPORT, "returnByValue": true }),
             Some(&session),
         )?;
         if let Some(text) = settled["result"]["value"].as_str() {

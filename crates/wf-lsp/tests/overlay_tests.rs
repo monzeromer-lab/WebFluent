@@ -16,19 +16,19 @@ use wf_lsp::project::{FileCache, Project};
 fn project(name: &str) -> PathBuf {
     let dir = std::env::temp_dir().join(format!("wf-lsp-overlay-{name}-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
-    std::fs::create_dir_all(dir.join("src/pages")).unwrap();
-    std::fs::create_dir_all(dir.join("src/stores")).unwrap();
+    std::fs::create_dir_all(dir.join("src/pages")).expect("create the fixture's folder");
+    std::fs::create_dir_all(dir.join("src/stores")).expect("create the fixture's folder");
     std::fs::write(
         dir.join("webfluent.app.json"),
         r#"{ "name": "deploys", "build": { "output": "build" } }"#,
     )
-    .unwrap();
+    .expect("write the fixture");
     std::fs::write(
         dir.join("src/stores/deploys.wf"),
         "store Deploys {\n    state live = 3\n    state queued = []\n}\n",
     )
-    .unwrap();
-    std::fs::write(dir.join("src/pages/Home.wf"), home("live")).unwrap();
+    .expect("write the fixture");
+    std::fs::write(dir.join("src/pages/Home.wf"), home("live")).expect("write the fixture");
     dir
 }
 
@@ -252,7 +252,7 @@ fn a_fix_that_edits_another_file_edits_that_file() {
         work_done_progress_params: WorkDoneProgressParams::default(),
         partial_result_params: PartialResultParams::default(),
     };
-    let actions = wf_lsp::code_actions::provide_code_actions(&uri, params);
+    let actions = wf_lsp::code_actions::provide_code_actions(&uri, &params);
     let Some(CodeActionOrCommand::CodeAction(action)) = actions.first() else {
         panic!("C06's fix is offered: {:?}", c06.data);
     };

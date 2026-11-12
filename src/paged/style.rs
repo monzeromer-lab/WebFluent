@@ -299,6 +299,10 @@ pub enum VerticalAlign {
 pub struct Style {
     // ─── Inherited ──────────────────────────────────────────────
     pub color: Rgba,
+    #[cfg_attr(
+        not(feature = "internals"),
+        expect(clippy::rc_buffer, reason = "a list a child shares with its parent until it names its own")
+    )]
     pub font_family: Rc<Vec<String>>,
     pub font_size: f32,
     pub font_weight: u16,
@@ -626,7 +630,7 @@ pub fn length(value: &str, u: &Units) -> Option<Length> {
                 return parts.first().copied();
             }
             return Some(Length::Pt(match f {
-                "clamp(" => *pts.last().unwrap(),
+                "clamp(" => *pts.last().expect("pts is not empty"),
                 "max(" => pts.iter().copied().fold(f32::MIN, f32::max),
                 _ => pts.iter().copied().fold(f32::MAX, f32::min),
             }));

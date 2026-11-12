@@ -5,6 +5,10 @@ use crate::diagnostics::error::Result;
 /// `wf motion [-d DIR] [--json]`: the animations an element can play — the
 /// engine's and the project's — the eases, the speeds, the route
 /// transitions and the project's default.
+#[expect(
+    clippy::unnecessary_wraps,
+    reason = "a command returns a Result as every other does, so `run` dispatches them alike"
+)]
 pub(crate) fn run_motion(dir: &Path, json: bool) -> Result<()> {
     let program = crate::build::read_project(dir).ok().map(|(p, _)| p);
     let config = crate::config::ProjectConfig::load(dir)

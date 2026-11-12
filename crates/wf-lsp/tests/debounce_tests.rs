@@ -6,10 +6,10 @@ use std::process::{Command, Stdio};
 use std::sync::mpsc;
 use std::time::{Duration, Instant};
 
-fn send(stdin: &mut impl Write, message: serde_json::Value) {
+fn send(stdin: &mut impl Write, message: &serde_json::Value) {
     let body = message.to_string();
-    write!(stdin, "Content-Length: {}\r\n\r\n{body}", body.len()).unwrap();
-    stdin.flush().unwrap();
+    write!(stdin, "Content-Length: {}\r\n\r\n{body}", body.len()).expect("write to the server");
+    stdin.flush().expect("write to the server");
 }
 
 /// Every message the server writes, as it writes it.
@@ -29,14 +29,17 @@ fn messages(stdout: impl Read + Send + 'static) -> mpsc::Receiver<serde_json::Va
                     break;
                 }
                 if let Some(n) = line.strip_prefix("Content-Length: ") {
-                    length = n.parse().unwrap();
+                    length = n.parse().expect("a Content-Length is a number");
                 }
             }
             let mut body = vec![0; length];
             if reader.read_exact(&mut body).is_err() {
                 return;
             }
-            if tx.send(serde_json::from_slice(&body).unwrap()).is_err() {
+            if tx
+                .send(serde_json::from_slice(&body).expect("the server sends JSON"))
+                .is_err()
+            {
                 return;
             }
         }
@@ -101,7 +104,7 @@ fn a_burst_of_edits_is_checked_once_and_reports_the_last() {
 
     send(
         &mut stdin,
-        serde_json::json!({ "jsonrpc": "2.0", "id": 1, "method": "initialize", "params": { "capabilities": {} } }),
+        &serde_json::json!({ "jsonrpc": "2.0", "id": 1, "method": "initialize", "params": { "capabilities": {} } }),
     );
     let until = Instant::now() + Duration::from_secs(20);
     while rx
@@ -112,11 +115,11 @@ fn a_burst_of_edits_is_checked_once_and_reports_the_last() {
     }
     send(
         &mut stdin,
-        serde_json::json!({ "jsonrpc": "2.0", "method": "initialized", "params": {} }),
+        &serde_json::json!({ "jsonrpc": "2.0", "method": "initialized", "params": {} }),
     );
     send(
         &mut stdin,
-        serde_json::json!({ "jsonrpc": "2.0", "method": "textDocument/didOpen", "params": {
+        &serde_json::json!({ "jsonrpc": "2.0", "method": "textDocument/didOpen", "params": {
             "textDocument": { "uri": uri, "languageId": "webfluent", "version": 1, "text": good } } }),
     );
     // Forty keystrokes at once, the last of which names a component that
@@ -130,7 +133,7 @@ fn a_burst_of_edits_is_checked_once_and_reports_the_last() {
         };
         send(
             &mut stdin,
-            serde_json::json!({ "jsonrpc": "2.0", "method": "textDocument/didChange", "params": {
+            &serde_json::json!({ "jsonrpc": "2.0", "method": "textDocument/didChange", "params": {
                 "textDocument": { "uri": uri, "version": v + 2 },
                 "contentChanges": [{ "text": text }] } }),
         );

@@ -1,5 +1,30 @@
 //! Small text utilities the rest of the crate shares.
 
+/// A number as the language writes it: a whole number with no fraction
+/// (`-0` as `0`), any other in Rust's shortest form that reads back the same.
+/// A whole number past what an `i64` holds keeps that form too, since `as`
+/// saturates and the round trip then misses.
+pub(crate) fn number(n: f64) -> String {
+    #[expect(
+        clippy::as_conversions,
+        clippy::cast_possible_truncation,
+        reason = "the round trip through i64 is the test"
+    )]
+    let truncated = n as i64;
+    #[expect(
+        clippy::as_conversions,
+        clippy::cast_precision_loss,
+        clippy::float_cmp,
+        reason = "the round trip through i64 is the test"
+    )]
+    let whole = truncated as f64 == n;
+    if whole {
+        truncated.to_string()
+    } else {
+        n.to_string()
+    }
+}
+
 /// Plain Levenshtein distance; the inputs are single words, so O(n·m) is fine.
 pub(crate) fn levenshtein(a: &str, b: &str) -> usize {
     let a: Vec<char> = a.chars().collect();

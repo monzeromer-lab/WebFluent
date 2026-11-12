@@ -855,6 +855,7 @@ fn repeat(word: &str) -> Option<Vec<Part>> {
 }
 
 /// `linear-gradient(…)` read into its direction and stops.
+#[expect(clippy::float_cmp, reason = "a stop written at exactly that percentage")]
 fn gradient(word: &str) -> Option<Value> {
     let (kind, inner) = ["repeating-linear", "repeating-radial", "linear", "radial"]
         .iter()
@@ -901,6 +902,7 @@ fn gradient(word: &str) -> Option<Value> {
 
 /// The value written back for `property`, in the narrowest form that says
 /// its parts.
+#[expect(clippy::float_cmp, reason = "a stop written at exactly that percentage")]
 pub fn print(property: &str, value: &Value) -> String {
     let join = |ps: &[Part]| ps.iter().map(Part::text).collect::<Vec<_>>().join(" ");
     match value {
@@ -1810,9 +1812,9 @@ mod tests {
     /// Where a placement puts a child on a 12-track axis, as CSS does for
     /// numbers, spans and `auto` (placed at `auto_at`): from, to, as
     /// lines. Named lines are out of this; `-1` is the last line.
-    fn resolve(start: &Line, end: &Option<Line>, auto_at: i64) -> Option<(i64, i64)> {
+    fn resolve(start: &Line, end: Option<&Line>, auto_at: i64) -> Option<(i64, i64)> {
         let at = |n: i64| if n > 0 { n } else { 14 + n };
-        Some(match (start, end.as_ref().unwrap_or(&Line::Auto)) {
+        Some(match (start, end.unwrap_or(&Line::Auto)) {
             (Line::At { n }, Line::Auto) => (at(*n), at(*n) + 1),
             (Line::At { n }, Line::Span { n: s }) => (at(*n), at(*n) + i64::from(*s)),
             (Line::At { n: a }, Line::At { n: b }) => {
@@ -1870,7 +1872,7 @@ mod tests {
                     "{written} → {printed}"
                 );
                 assert!(printed.len() <= written.len(), "{written} → {printed}");
-                if let (Some(w), Some(n)) = (resolve(&ws, &we, 4), resolve(&start, &end, 4)) {
+                if let (Some(w), Some(n)) = (resolve(&ws, we.as_ref(), 4), resolve(&start, end.as_ref(), 4)) {
                     assert_eq!(w, n, "{written} → {printed}");
                     checked += 1;
                 }

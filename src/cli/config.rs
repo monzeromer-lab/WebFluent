@@ -9,6 +9,10 @@ const CONFIG: &str = "webfluent.app.json";
 
 /// `wf config schema [--json]`: every setting, its type, its default and
 /// what it does.
+#[expect(
+    clippy::unnecessary_wraps,
+    reason = "a command returns a Result as every other does, so `run` dispatches them alike"
+)]
 pub(crate) fn run_schema(json: bool) -> Result<()> {
     if json {
         println!(

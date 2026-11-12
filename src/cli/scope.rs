@@ -11,16 +11,15 @@ pub(crate) fn run_scope(dir: &Path, place: &str, data: Option<&Path>, json: bool
     let bad = || WebFluentError::edit(format!("`{place}` is not FILE:LINE or FILE:LINE:COL"));
     let mut parts = place.rsplitn(3, ':').collect::<Vec<_>>();
     parts.reverse();
+    let number = |s: &str| s.parse::<usize>().ok();
     let (file, line, col) = match parts.as_slice() {
-        [f, l, c] if l.parse::<usize>().is_ok() && c.parse::<usize>().is_ok() => (
-            f.to_string(),
-            l.parse::<usize>().unwrap(),
-            c.parse::<usize>().unwrap(),
-        ),
-        [f, l, c] if c.parse::<usize>().is_ok() => {
-            (format!("{f}:{l}"), c.parse::<usize>().unwrap(), 1)
-        }
-        [f, l] if l.parse::<usize>().is_ok() => (f.to_string(), l.parse::<usize>().unwrap(), 1),
+        [f, l, c] => match (number(l), number(c)) {
+            (Some(l), Some(c)) => (f.to_string(), l, c),
+            // A colon in the file's own name: `a:b.wf:12`.
+            (None, Some(c)) => (format!("{f}:{l}"), c, 1),
+            (_, None) => return Err(bad()),
+        },
+        [f, l] => (f.to_string(), number(l).ok_or_else(bad)?, 1),
         _ => return Err(bad()),
     };
     let source = std::fs::read_to_string(dir.join(&file))?;

@@ -77,6 +77,11 @@ pub fn effect(command: &str) -> Option<&'static Effect> {
 /// The commands, as `commands.json` holds them: each with `name`,
 /// `summary`, `writes`, `preview` and `options`, and `subcommands` for one
 /// that has them.
+///
+/// # Panics
+///
+/// Never in practice: `commands.json` is compiled in, and a test holds it
+/// to the commands `wf` has.
 pub fn all() -> Value {
     serde_json::from_str(include_str!("commands.json")).expect("commands.json is JSON")
 }

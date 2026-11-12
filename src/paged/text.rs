@@ -555,6 +555,7 @@ impl Shaped {
         clippy::too_many_arguments,
         reason = "the line state the breaker carries; grouped into a struct when the paged engine is split"
     )]
+    #[expect(clippy::float_cmp, reason = "runs share a line box only at the very same font size")]
     fn build_line(
         &self,
         a: usize,
@@ -758,6 +759,7 @@ impl Shaped {
         }
     }
 
+    #[expect(clippy::float_cmp, reason = "runs share a line box only at the very same font size")]
     fn strut_metrics(&self) -> (f32, f32) {
         // The block's first face at its size.
         for c in &self.clusters {

@@ -119,9 +119,9 @@ multiple_unsafe_ops_per_block = "warn"
 dbg_macro = "warn"
 todo = "warn"
 expect_used = "allow"
-unwrap_used = "allow"                            # 380
+unwrap_used = "warn"
 panic_in_result_fn = "allow"                     # 1
-missing_panics_doc = "allow"                     # 16
+missing_panics_doc = "warn"
 missing_errors_doc = "warn"
 missing_assert_message = "allow"                 # 4
 allow_attributes = "allow"                       # 2, tests/common: shared helpers an expect cannot cover
@@ -130,7 +130,7 @@ fn_params_excessive_bools = "warn"
 struct_excessive_bools = "allow"                 # 7
 clone_on_ref_ptr = "warn"
 redundant_clone = "warn"
-rc_buffer = "allow"                              # 6
+rc_buffer = "warn"
 exhaustive_enums = "allow"                       # 103
 string_add = "warn"
 wildcard_imports = "warn"
@@ -177,6 +177,16 @@ assert_is_empty = "warn"
 format_collect = "warn"
 decimal_bitwise_operands = "warn"
 return_self_not_must_use = "warn"
+ref_option = "warn"
+unnecessary_wraps = "warn"
+option_option = "warn"
+self_only_used_in_recursion = "warn"
+float_cmp = "warn"
+needless_pass_by_value = "warn"
+# Every map the compiler passes around is its own, built with std's hasher;
+# generalising each function over BuildHasher would add a type parameter
+# that no caller ever sets.
+implicit_hasher = "allow"                        # 20
 module_name_repetitions = "allow"
 must_use_candidate = "allow"
 module_inception = "allow"

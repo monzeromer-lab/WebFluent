@@ -464,6 +464,13 @@ impl ChangeSet {
 
     /// What accepting writes for `rel`: the whole file, or only the hunks
     /// named. None for a file to delete, or one the set does not change.
+    #[cfg_attr(
+        not(feature = "internals"),
+        expect(
+            clippy::option_option,
+            reason = "no change, a deletion, or the new text: the API `internals` exports"
+        )
+    )]
     pub fn accepted(&self, rel: &str, hunks: Option<&[usize]>) -> Option<Option<String>> {
         let rel = inside(rel).ok()?;
         let change = self.changes.get(&rel)?;

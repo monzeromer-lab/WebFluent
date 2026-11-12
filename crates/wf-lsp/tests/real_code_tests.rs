@@ -22,7 +22,7 @@ fn workspace_root() -> PathBuf {
 
 /// The project a file belongs to, read from the disk.
 fn open(path: &Path) -> (Project, usize) {
-    let uri = Url::from_file_path(path).unwrap();
+    let uri = Url::from_file_path(path).expect("an absolute path");
     let project = Project::load(&uri, &|_| None, &FileCache::default());
     let ix = project.file_index(&uri).expect("file is in its project");
     (project, ix)

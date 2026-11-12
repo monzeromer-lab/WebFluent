@@ -8,7 +8,7 @@ fn run(arg: &str) -> String {
         .output()
         .expect("wf-lsp runs");
     assert!(out.status.success(), "{arg} exits 0");
-    String::from_utf8(out.stdout).unwrap()
+    String::from_utf8(out.stdout).expect("the output is UTF-8")
 }
 
 #[test]

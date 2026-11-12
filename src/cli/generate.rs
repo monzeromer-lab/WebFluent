@@ -23,7 +23,9 @@ pub(crate) fn run_generate(kind: &str, name: &str, project_dir: &Path) -> Result
             "Created {}: src/{}/{}",
             kind.label().to_lowercase(),
             kind.folder(),
-            path.file_name().unwrap().to_string_lossy()
+            path.file_name()
+                .expect("a file it wrote has a name")
+                .to_string_lossy()
         ),
         Written::Exists(_) => eprintln!("{} {stem} already exists", kind.label()),
     }

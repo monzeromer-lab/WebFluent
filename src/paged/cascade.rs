@@ -234,7 +234,7 @@ pub struct Styler {
 
 struct IndexedRule {
     selector: Selector,
-    declarations: Rc<Vec<Declaration>>,
+    declarations: Rc<[Declaration]>,
     order: usize,
     /// 0 for the browser's defaults, 1 for the page's sheets.
     origin: u8,
@@ -252,7 +252,7 @@ impl Styler {
         };
         for (origin, sheet) in [(0u8, ua), (1u8, author)] {
             for rule in &sheet.rules {
-                let decls = Rc::new(rule.declarations.clone());
+                let decls = Rc::<[Declaration]>::from(rule.declarations.clone());
                 for sel in &rule.selectors {
                     let ix = s.rules.len();
                     let order = ix;
@@ -280,7 +280,7 @@ impl Styler {
 
     /// The declarations that reach `node`, in cascade order (last wins), for
     /// the element itself or one of its generated boxes.
-    fn matched(&self, dom: &Dom, node: usize, pseudo: Option<Pseudo>) -> Vec<Declaration> {
+    fn matched(&self, dom: &Dom, node: usize, pseudo: Option<&Pseudo>) -> Vec<Declaration> {
         let Some(el) = dom.element(node) else {
             return Vec::new();
         };
@@ -305,7 +305,7 @@ impl Styler {
         let mut hits: Vec<Hit<'_>> = Vec::new();
         for ix in candidates {
             let rule = &self.rules[ix];
-            if !matches(dom, node, &rule.selector, pseudo.as_ref()) {
+            if !matches(dom, node, &rule.selector, pseudo) {
                 continue;
             }
             for d in rule.declarations.iter() {
@@ -351,7 +351,7 @@ impl Styler {
         } else {
             Pseudo::After
         };
-        let decls = self.matched(dom, node, Some(pseudo));
+        let decls = self.matched(dom, node, Some(&pseudo));
         if decls.is_empty() {
             return None;
         }

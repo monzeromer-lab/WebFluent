@@ -247,7 +247,7 @@ type GzipKey = (PathBuf, Option<std::time::SystemTime>, u64, Option<u64>);
 
 #[derive(Default)]
 struct GzipCache {
-    held: std::collections::HashMap<GzipKey, std::sync::Arc<Vec<u8>>>,
+    held: std::collections::HashMap<GzipKey, std::sync::Arc<[u8]>>,
     bytes: usize,
 }
 
@@ -260,7 +260,7 @@ impl Shared {
 
     /// `content`, the text of `file` (with the dev script when `dev_page`),
     /// compressed — from the cache when the file has not changed since.
-    fn gzip(&self, file: &Path, dev_page: bool, content: &[u8]) -> std::sync::Arc<Vec<u8>> {
+    fn gzip(&self, file: &Path, dev_page: bool, content: &[u8]) -> std::sync::Arc<[u8]> {
         let meta = fs::metadata(file).ok();
         // A dev page is drawn again on every build: the build is its key.
         let key: GzipKey = (
@@ -279,7 +279,7 @@ impl Shared {
             return std::sync::Arc::clone(gz);
         }
         // Compressed outside the lock, so other requests go on meanwhile.
-        let gz = std::sync::Arc::new(crate::codegen::gzip::gzip(content));
+        let gz = std::sync::Arc::<[u8]>::from(crate::codegen::gzip::gzip(content));
         let mut cache = self
             .gzipped
             .lock()
@@ -650,7 +650,7 @@ fn answer(shared: &Shared, request: tiny_http::Request) {
         let gz = shared.gzip(&served, dev_page, &content);
         respond(
             request,
-            tiny_http::Response::from_data(gz.as_slice().to_vec()),
+            tiny_http::Response::from_data(gz.to_vec()),
             &with(&[("Content-Encoding", "gzip")]),
         );
     } else {

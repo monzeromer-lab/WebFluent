@@ -1682,7 +1682,7 @@ fn render_ui_element_unmarked(ui: &UIElement, ctx: &mut RenderContext<'_>) -> St
                 let props = ctx.props_of(&component, ui);
                 ctx.locals.push();
                 ctx.locals.extend(props);
-                ctx.slots.push(slot_fills(&component, ui, caller));
+                ctx.slots.push(slot_fills(&component, ui, &caller));
                 let html = render_statements(&component.body, ctx);
                 ctx.slots.pop();
                 ctx.locals.pop();
@@ -1830,13 +1830,7 @@ fn safe_style_piece(text: &str) -> bool {
 
 /// An element's opening tag with what it carries as any element does
 /// (`own_attrs`) beside its class.
-fn with_own(
-    open: String,
-    tag: &str,
-    name: &str,
-    ui: &UIElement,
-    ctx: &RenderContext<'_>,
-) -> String {
+fn with_own(open: &str, tag: &str, name: &str, ui: &UIElement, ctx: &RenderContext<'_>) -> String {
     let own = own_attrs(name, ui, ctx, &[]);
     open.replacen(&format!("<{tag}"), &format!("<{tag}{own}"), 1)
 }
@@ -2106,7 +2100,7 @@ fn render_paged(
         )),
         "Chart" => {
             let chart = chart_of(ui, ctx);
-            let mut out = with_own(open(ctx, "figure", Vec::new()), "figure", name, ui, ctx);
+            let mut out = with_own(&open(ctx, "figure", Vec::new()), "figure", name, ui, ctx);
             out.push_str(&chart.svg());
             out.push_str(&format!("\n{indent}</figure>\n"));
             Some(out)
@@ -2119,7 +2113,7 @@ fn render_paged(
             let light = named(ctx, "background").unwrap_or_else(|| "#ffffff".to_string());
             let svg =
                 crate::web::codegen::charts::qr_svg(&value, &dark, &light).unwrap_or_default();
-            let mut out = with_own(open(ctx, "figure", Vec::new()), "figure", name, ui, ctx);
+            let mut out = with_own(&open(ctx, "figure", Vec::new()), "figure", name, ui, ctx);
             out.push_str(&svg);
             out.push_str(&format!("\n{indent}</figure>\n"));
             Some(out)
@@ -2141,7 +2135,7 @@ fn render_paged(
         }
         "Avatar" => {
             let initials = named(ctx, "initials").unwrap_or_default();
-            let mut out = with_own(open(ctx, "div", Vec::new()), "div", name, ui, ctx);
+            let mut out = with_own(&open(ctx, "div", Vec::new()), "div", name, ui, ctx);
             if let Some(src) = named(ctx, "src") {
                 let alt = named(ctx, "alt").unwrap_or_default();
                 let src = crate::project::url::guard_picture(&src).to_string();
@@ -2262,7 +2256,7 @@ fn render_tag(tag: &str, class: &str, ui: &UIElement, ctx: &mut RenderContext<'_
 fn slot_fills(
     component: &TemplateComponent,
     ui: &UIElement,
-    scope: Locals,
+    scope: &Locals,
 ) -> HashMap<String, Fill> {
     let mut slots: HashMap<String, Fill> = HashMap::new();
     slots.insert(

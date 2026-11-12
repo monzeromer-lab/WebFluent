@@ -23,7 +23,7 @@ pub(super) enum Step<'a> {
 }
 
 /// `a.b[i].c` as its root, `a`, and the steps to the place: `b`, `[i]`, `c`.
-pub(super) fn path_of(target: &Expr) -> Option<(&Expr, Vec<Step<'_>>)> {
+pub(super) fn path_of(target: &Expr) -> (&Expr, Vec<Step<'_>>) {
     let mut steps = Vec::new();
     let mut at = target;
     loop {
@@ -40,7 +40,7 @@ pub(super) fn path_of(target: &Expr) -> Option<(&Expr, Vec<Step<'_>>)> {
         }
     }
     steps.reverse();
-    Some((at, steps))
+    (at, steps)
 }
 
 /// What a `bind:` reads and writes, as JavaScript.
@@ -166,7 +166,7 @@ impl JsCodegen {
     /// place, the state kept the object it already had and nothing that
     /// read it repainted.
     pub(super) fn immutable_update(&self, target: &Expr, value: &str) -> Option<String> {
-        let (root, steps) = path_of(target)?;
+        let (root, steps) = path_of(target);
         if steps.is_empty() {
             return None;
         }

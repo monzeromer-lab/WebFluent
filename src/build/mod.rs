@@ -784,7 +784,7 @@ fn run(options: &BuildOptions<'_>, out: &Out<'_>) -> Result<()> {
         css.push_str(&crate::project::scoped_css::scoped_rules(&program));
         BTreeMap::default()
     };
-    let mut js_codegen = JsCodegen::new().with_options(crate::web::codegen::JsOptions {
+    let mut js_codegen = JsCodegen::new().with_options(&crate::web::codegen::JsOptions {
         ssg: config.build.pre_renders(),
         dev: options.dev,
         split_pages: config.build.split,

@@ -8,7 +8,7 @@ use std::collections::HashMap;
 /// each finding carries its fixes in `data` (see `diagnostics::to_lsp`),
 /// written by the compiler from what it knows — never read back out of the
 /// message.
-pub fn provide_code_actions(uri: &Url, params: CodeActionParams) -> Vec<CodeActionOrCommand> {
+pub fn provide_code_actions(uri: &Url, params: &CodeActionParams) -> Vec<CodeActionOrCommand> {
     let mut actions = Vec::new();
     for diag in &params.context.diagnostics {
         let Some(serde_json::Value::Array(fixes)) = &diag.data else {
@@ -265,7 +265,7 @@ mod tests {
             work_done_progress_params: WorkDoneProgressParams::default(),
             partial_result_params: PartialResultParams::default(),
         };
-        let actions = provide_code_actions(&uri, params);
+        let actions = provide_code_actions(&uri, &params);
         assert_eq!(actions.len(), 1);
         let CodeActionOrCommand::CodeAction(action) = &actions[0] else {
             panic!("not an action");

@@ -258,7 +258,7 @@ impl JsCodegen {
         }
 
         // Animation config (5th argument)
-        self.emit_animate_config(&if_stmt.animate);
+        self.emit_animate_config(if_stmt.animate.as_ref());
 
         self.indent -= 1;
         self.emit_line(");");
@@ -331,7 +331,7 @@ impl JsCodegen {
         // The options: the animation, `by key` — the identity of an item
         // across renders — and whether the body reads its index, in which
         // case an item is rebuilt when its position changes.
-        let mut parts = Self::animate_config_parts(&for_stmt.animate);
+        let mut parts = Self::animate_config_parts(for_stmt.animate.as_ref());
         if let Some(key) = &for_stmt.key {
             // The runtime calls the key with the item and its index, so a key
             // may read either. It was given the item alone, and `by n` read
@@ -384,13 +384,13 @@ impl JsCodegen {
         self.emit_line("},");
 
         // Animation config (4th argument)
-        self.emit_animate_config(&show_stmt.animate);
+        self.emit_animate_config(show_stmt.animate.as_ref());
 
         self.indent -= 1;
         self.emit_line(");");
     }
 
-    pub(in super::super) fn emit_animate_config(&mut self, config: &Option<AnimateConfig>) {
+    pub(in super::super) fn emit_animate_config(&mut self, config: Option<&AnimateConfig>) {
         let parts = Self::animate_config_parts(config);
         if parts.is_empty() {
             self.emit_line("null");
@@ -400,7 +400,7 @@ impl JsCodegen {
     }
 
     /// The fields of an animation config object, none for no animation.
-    pub(in super::super) fn animate_config_parts(config: &Option<AnimateConfig>) -> Vec<String> {
+    pub(in super::super) fn animate_config_parts(config: Option<&AnimateConfig>) -> Vec<String> {
         let mut parts = Vec::new();
         if let Some(anim) = config {
             parts.push(format!("enter: {}", js_str(&anim.enter)));

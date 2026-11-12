@@ -395,7 +395,7 @@ fn compute_patches(
                     // After the last declaration, before any rule.
                     let text = format!("{prop}: {value}");
                     if let Some(last) = sb.properties.last() {
-                        one(after_declaration(source, last, sb.body_span, text))
+                        one(after_declaration(source, last, sb.body_span, &text))
                     } else {
                         let indent =
                             format!("{}    ", line_indent(source, sb.body_span.end as usize));
@@ -521,7 +521,7 @@ fn compute_patches(
                     source,
                     last,
                     span,
-                    format!("{prop}: {value}"),
+                    &format!("{prop}: {value}"),
                 ))
             } else {
                 let indent = line_indent(source, span.start as usize);
@@ -1016,7 +1016,7 @@ fn after_declaration(
     source: &str,
     last: &crate::syntax::parser::ast::StyleProperty,
     within: Span,
-    text: String,
+    text: &str,
 ) -> Patch {
     let end = declaration_end(source, last);
     // On a line of its own the next declaration gets a line of its own. A

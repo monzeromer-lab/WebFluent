@@ -564,8 +564,7 @@ pub fn render(html: &str, css: &str, opts: &Options<'_>) -> Result<Output, Strin
     let finish = |stack: &mut Vec<(u8, krilla::outline::OutlineNode)>,
                   outline: &mut krilla::outline::Outline,
                   level: u8| {
-        while stack.last().is_some_and(|(l, _)| *l >= level) {
-            let (_, node) = stack.pop().unwrap();
+        while let Some((_, node)) = stack.pop_if(|(l, _)| *l >= level) {
             match stack.last_mut() {
                 Some((_, parent)) => parent.push_child(node),
                 None => outline.push_child(node),

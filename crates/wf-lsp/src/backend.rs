@@ -522,7 +522,7 @@ impl LanguageServer for Backend {
 
     async fn code_action(&self, params: CodeActionParams) -> Result<Option<CodeActionResponse>> {
         let uri = params.text_document.uri.clone();
-        let mut actions = provide_code_actions(&uri, params.clone());
+        let mut actions = provide_code_actions(&uri, &params.clone());
         if let Some(all) = self.published.get(&uri) {
             actions.extend(fix_all_actions(&uri, &params.context.diagnostics, &all));
             actions.extend(source_fix_all_action(&uri, &all));

@@ -5,6 +5,10 @@ use crate::registry::schema;
 
 /// `wf components [-d DIR] [--json]`: every component a call can name, the
 /// built-ins and the project's, with what each takes.
+#[expect(
+    clippy::unnecessary_wraps,
+    reason = "a command returns a Result as every other does, so `run` dispatches them alike"
+)]
 pub(crate) fn run_components(dir: &Path, json: bool) -> Result<()> {
     let catalog = schema::of_project_via(&crate::vfs::FsVfs, dir);
     if json {

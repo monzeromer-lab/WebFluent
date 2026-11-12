@@ -418,7 +418,7 @@ fn body_of(d: &Declaration) -> Option<(&str, &[Statement])> {
     }
 }
 
-fn message_of(rule: &str, written: &Option<Expr>) -> Message {
+fn message_of(rule: &str, written: Option<&Expr>) -> Message {
     match written {
         None => Message::Rule {
             text: rule_named(rule).map_or("That is not right", |r| r.message),
@@ -448,7 +448,7 @@ fn row(r: &Rule) -> Row {
         rule: r.name.clone(),
         args: r.args.iter().map(crate::syntax::print::expr).collect(),
         pattern,
-        message: message_of(&r.name, &r.message),
+        message: message_of(&r.name, r.message.as_ref()),
         check: r.body.as_ref().map(crate::syntax::print::expr),
         line: r.span.line,
         start: r.span.start,
@@ -469,7 +469,7 @@ fn implied(ty: &TypeRef, at: (u32, u32, u32)) -> Vec<Row> {
                 Expr::Regex(s, f) => named_pattern(s, f).map(|p| p.name),
                 _ => None,
             },
-            message: message_of(name, &None),
+            message: message_of(name, None),
             check: None,
             line: at.0,
             start: at.1,

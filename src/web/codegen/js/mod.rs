@@ -426,7 +426,7 @@ impl JsCodegen {
 
     /// A generator for a bundle built in `options`' modes.
     #[must_use]
-    pub fn with_options(mut self, options: JsOptions) -> Self {
+    pub fn with_options(mut self, options: &JsOptions) -> Self {
         let JsOptions {
             ssg,
             dev,
@@ -434,11 +434,11 @@ impl JsCodegen {
             full_runtime,
             offline,
         } = options;
-        self.ssg_mode = ssg;
-        self.dev = dev;
-        self.split_pages = split_pages;
-        self.full_runtime = full_runtime;
-        self.offline = offline;
+        self.ssg_mode = *ssg;
+        self.dev = *dev;
+        self.split_pages = *split_pages;
+        self.full_runtime = *full_runtime;
+        self.offline = *offline;
         self
     }
 
@@ -634,9 +634,9 @@ impl JsCodegen {
     }
 
     /// The declaration `key` is being emitted: its statements are marked.
-    fn map_start(&mut self, key: String) {
+    fn map_start(&mut self, key: &str) {
         if let Some(files) = &self.map_files {
-            self.map_file = files.get(&key).copied();
+            self.map_file = files.get(key).copied();
         }
     }
 
@@ -1013,7 +1013,7 @@ impl JsCodegen {
         // Emit services, which a store's actions may call.
         for decl in &program.declarations {
             if let Declaration::Api(a) = decl {
-                self.map_start(format!("api:{}", a.name));
+                self.map_start(&format!("api:{}", a.name));
                 self.emit_api(a);
                 self.map_end();
             }
@@ -1025,7 +1025,7 @@ impl JsCodegen {
         // still in its temporal dead zone. A derived value that first ran
         // there kept what it got, and followed nothing.
         for s in stores_in_use_order(program) {
-            self.map_start(format!("store:{}", s.name));
+            self.map_start(&format!("store:{}", s.name));
             self.emit_store(s);
             self.map_end();
         }
@@ -1033,7 +1033,7 @@ impl JsCodegen {
         // Emit components
         for decl in &program.declarations {
             if let Declaration::Component(c) = decl {
-                self.map_start(format!("component:{}", c.name));
+                self.map_start(&format!("component:{}", c.name));
                 self.emit_component(c);
                 self.map_end();
             }
@@ -1043,7 +1043,7 @@ impl JsCodegen {
         // registers itself with the runtime when it runs.
         for decl in &program.declarations {
             if let Declaration::Page(p) = decl {
-                self.map_start(format!("page:{}", p.name));
+                self.map_start(&format!("page:{}", p.name));
                 if self.split_pages {
                     let saved = std::mem::take(&mut self.output);
                     let indent = std::mem::replace(&mut self.indent, 0);
@@ -1063,7 +1063,7 @@ impl JsCodegen {
         // Emit app (router setup)
         for decl in &program.declarations {
             if let Declaration::App(a) = decl {
-                self.map_start("app".to_string());
+                self.map_start("app");
                 self.emit_app(a);
                 self.map_end();
             }

@@ -67,7 +67,7 @@ fn unbase64(text: &str) -> Option<Vec<u8>> {
     Some(out)
 }
 
-fn build(files_json: &str, config_json: Option<String>, options: Options) -> String {
+fn build(files_json: &str, config_json: Option<&str>, options: &Options) -> String {
     let files = match files_of(files_json) {
         Ok(files) => files,
         Err(e) => {
@@ -84,7 +84,7 @@ fn build(files_json: &str, config_json: Option<String>, options: Options) -> Str
     // There is no clock the compiler can read here; `ago(date)` measures
     // against the page's.
     webfluent::platform::set_unix_now((js_sys_now() / 1000.0) as i64);
-    let out = memory::compile_files(files, config_json.as_deref(), &options);
+    let out = memory::compile_files(files, config_json, options);
     serde_json::to_string(&out).unwrap_or_else(|e| {
         format!(r#"{{"ok":false,"files":{{}},"diagnostics":[],"error":"{e}","lines":[]}}"#)
     })
@@ -126,18 +126,26 @@ fn js_sys_now() -> f64 {
 /// diagnostics, error, lines }` — `diagnostics` exactly as
 /// `wf check --format json` lists them.
 #[wasm_bindgen]
+#[expect(
+    clippy::needless_pass_by_value,
+    reason = "wasm_bindgen hands an optional string from JavaScript over owned"
+)]
 pub fn compile(files: &str, config: Option<String>) -> String {
-    build(files, config, Options::default())
+    build(files, config.as_deref(), &Options::default())
 }
 
 /// Every finding, with nothing built — `wf check`. The same JSON as
 /// [`compile`], with no files.
 #[wasm_bindgen]
+#[expect(
+    clippy::needless_pass_by_value,
+    reason = "wasm_bindgen hands an optional string from JavaScript over owned"
+)]
 pub fn check(files: &str, config: Option<String>) -> String {
     build(
         files,
-        config,
-        Options {
+        config.as_deref(),
+        &Options {
             check_only: true,
             dev: false,
         },

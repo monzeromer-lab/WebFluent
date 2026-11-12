@@ -12,7 +12,7 @@ use wf_lsp::project::Project;
 use wf_lsp::symbols::document_symbols;
 
 fn project(src: &str) -> Project {
-    Project::single(Url::parse("file:///test.wf").unwrap(), src)
+    Project::single(Url::parse("file:///test.wf").expect("a valid URL"), src)
 }
 
 /// The position of `needle` in `src`, as the editor would send it.
@@ -34,7 +34,7 @@ fn hover_text(src: &str, needle: &str) -> Option<String> {
 
 fn labels_after(src: &str, needle: &str) -> Vec<String> {
     let project = project(src);
-    let offset = src.find(needle).unwrap() + needle.len();
+    let offset = src.find(needle).expect("the needle is in the source") + needle.len();
     let pos = project.files[0].index.offset_to_position(src, offset);
     provide_completions(&project, 0, pos)
         .into_iter()
@@ -48,17 +48,18 @@ fn mid_edit(valid: &str, broken: &str) -> Project {
     let mut project = project(valid);
     project.files[0].source = broken.into();
     project.files[0].index = wf_lsp::line_index::LineIndex::new(broken);
-    project.files[0].parsed = Project::single(Url::parse("file:///x.wf").unwrap(), broken)
-        .files
-        .remove(0)
-        .parsed;
+    project.files[0].parsed =
+        Project::single(Url::parse("file:///x.wf").expect("a valid URL"), broken)
+            .files
+            .remove(0)
+            .parsed;
     project.files[0].stale = project.files[0].parsed.is_err();
     project
 }
 
 fn labels_mid_edit(valid: &str, broken: &str, needle: &str) -> Vec<String> {
     let project = mid_edit(valid, broken);
-    let offset = broken.find(needle).unwrap() + needle.len();
+    let offset = broken.find(needle).expect("the needle is in the source") + needle.len();
     let pos = project.files[0].index.offset_to_position(broken, offset);
     provide_completions(&project, 0, pos)
         .into_iter()
@@ -543,12 +544,24 @@ fn an_indented_file_is_read_by_its_layout() {
 fn apply(src: &str, edit: &WorkspaceEdit) -> String {
     let project = project(src);
     let file = &project.files[0];
-    let mut edits: Vec<&TextEdit> = edit.changes.as_ref().unwrap().values().flatten().collect();
+    let mut edits: Vec<&TextEdit> = edit
+        .changes
+        .as_ref()
+        .expect("the edit has changes")
+        .values()
+        .flatten()
+        .collect();
     edits.sort_by_key(|e| (e.range.start.line, e.range.start.character));
     let mut out = src.to_string();
     for e in edits.into_iter().rev() {
-        let s = file.index.position_to_offset(src, e.range.start).unwrap();
-        let t = file.index.position_to_offset(src, e.range.end).unwrap();
+        let s = file
+            .index
+            .position_to_offset(src, e.range.start)
+            .expect("the range is inside the source");
+        let t = file
+            .index
+            .position_to_offset(src, e.range.end)
+            .expect("the range is inside the source");
         out.replace_range(s..t, &e.new_text);
     }
     out
@@ -649,7 +662,7 @@ fn a_misspelled_field_offers_the_field_it_meant() {
     let uri = Url::parse("file:///p/src/App.wf").unwrap();
     let actions = wf_lsp::code_actions::provide_code_actions(
         &uri,
-        CodeActionParams {
+        &CodeActionParams {
             text_document: TextDocumentIdentifier { uri: uri.clone() },
             range: t05.range,
             context: CodeActionContext {
@@ -677,14 +690,16 @@ fn a_misspelled_field_offers_the_field_it_meant() {
 fn disk_project(name: &str, files: &[(&str, &str)], open: &str) -> (Project, usize) {
     let root = std::env::temp_dir().join(format!("wf-lsp-{name}-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&root);
-    std::fs::create_dir_all(root.join("src")).unwrap();
-    std::fs::write(root.join("webfluent.app.json"), r#"{ "name": "t" }"#).unwrap();
+    std::fs::create_dir_all(root.join("src")).expect("create the fixture's folder");
+    std::fs::write(root.join("webfluent.app.json"), r#"{ "name": "t" }"#)
+        .expect("write the fixture");
     for (path, text) in files {
         let at = root.join(path);
-        std::fs::create_dir_all(at.parent().unwrap()).unwrap();
-        std::fs::write(at, text).unwrap();
+        std::fs::create_dir_all(at.parent().expect("a file has a folder"))
+            .expect("create the fixture's folder");
+        std::fs::write(at, text).expect("write the fixture");
     }
-    let uri = Url::from_file_path(root.join(open)).unwrap();
+    let uri = Url::from_file_path(root.join(open)).expect("an absolute path");
     let project = Project::load(&uri, &|_| None, &wf_lsp::project::FileCache::default());
     let ix = project
         .file_index(&uri)
@@ -752,7 +767,12 @@ const DECLS: &str = "const LIMIT = 3\ndata posts = \"p.json\"\nimage hero = \"h.
 /// `needle`.
 fn definition_line(src: &str, needle: &str, nth: usize) -> Option<u32> {
     let project = project(src);
-    let offset = src.match_indices(needle).nth(nth).unwrap().0 + 1;
+    let offset = src
+        .match_indices(needle)
+        .nth(nth)
+        .expect("the needle is in the source")
+        .0
+        + 1;
     let pos = project.files[0].index.offset_to_position(src, offset);
     match find_definition(&project, 0, pos)? {
         GotoDefinitionResponse::Scalar(l) => Some(l.range.start.line + 1),
@@ -802,13 +822,21 @@ fn hover_and_definition_read_a_string_s_splices_as_code() {
 /// `src` with the name at the `nth` `needle` renamed to `to`.
 fn renamed(src: &str, needle: &str, nth: usize, to: &str) -> String {
     let project = project(src);
-    let offset = src.match_indices(needle).nth(nth).unwrap().0 + 1;
+    let offset = src
+        .match_indices(needle)
+        .nth(nth)
+        .expect("the needle is in the source")
+        .0
+        + 1;
     let pos = project.files[0].index.offset_to_position(src, offset);
     assert!(
         wf_lsp::rename::prepare_rename(&project, 0, pos).is_some(),
         "{needle} cannot be renamed"
     );
-    apply(src, &wf_lsp::rename::rename(&project, 0, pos, to).unwrap())
+    apply(
+        src,
+        &wf_lsp::rename::rename(&project, 0, pos, to).expect("the rename applies"),
+    )
 }
 
 #[test]
@@ -1584,7 +1612,7 @@ fn references_and_highlights_are_every_place_a_name_is_named() {
 /// The signature shown at `‸` in `broken` (`valid` the last good parse), and
 /// the label of the argument it marks.
 fn signature_at(valid: &str, broken: &str) -> Option<(String, Option<String>)> {
-    let at = broken.find('‸').unwrap();
+    let at = broken.find('‸').expect("the needle is in the source");
     let text = broken.replacen('‸', "", 1);
     let project = mid_edit(valid, &text);
     let pos = project.files[0].index.offset_to_position(&text, at);

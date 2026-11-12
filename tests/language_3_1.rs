@@ -17,7 +17,7 @@ fn painted(src: &str) -> String {
 
 /// The template engine's fragment for `body`, over `data`: a template
 /// has no state, its names come from the data.
-fn templated(body: &str, data: serde_json::Value) -> String {
+fn templated(body: &str, data: &serde_json::Value) -> String {
     Template::from_str(&page(body))
         .expect("template parses")
         .render_html_fragment(&data)
@@ -39,7 +39,7 @@ fn if_let_as_a_value_binds_the_non_null_value() {
     );
     let html = templated(
         "Text(if let u = user { u.name } else { \"anon\" })\n Text(if let u = none { u.name } else { \"anon\" })",
-        json!({ "user": { "name": "Sam" }, "none": null }),
+        &json!({ "user": { "name": "Sam" }, "none": null }),
     );
     assert!(
         html.contains(">Sam<") && html.contains(">anon<"),
@@ -62,7 +62,7 @@ fn optional_chaining_reads_through_null_in_the_static_paint() {
     );
     let html = templated(
         body,
-        json!({ "user": { "profile": { "name": "Sam" } }, "none": null }),
+        &json!({ "user": { "profile": { "name": "Sam" } }, "none": null }),
     );
     assert!(
         html.contains(">Sam<") && html.contains(">nobody<") && html.contains(">still nobody<"),
@@ -80,7 +80,7 @@ fn regex_literals_test_match_replace_and_split_at_build_time() {
     for expect in [">valid<", ">Sam@…<", ">a#b#<", ">x+y+z<", ">42<", ">4<"] {
         assert!(html.contains(expect), "ssg lacks {expect}: {html}");
     }
-    let html = templated(body, json!({ "email": "Sam@example.org", "ratio": 8 }));
+    let html = templated(body, &json!({ "email": "Sam@example.org", "ratio": 8 }));
     for expect in [">valid<", ">Sam@…<", ">a#b#<", ">x+y+z<", ">42<", ">4<"] {
         assert!(html.contains(expect), "template lacks {expect}: {html}");
     }
@@ -115,7 +115,7 @@ fn list_and_string_helpers_run_at_build_time_and_in_the_browser() {
     }
     let html = templated(
         body,
-        json!({ "people": [{ "name": "Bo", "age": 40, "team": "a" }, { "name": "Al", "age": 30, "team": "a" }, { "name": "Cy", "age": 35, "team": "b" }] }),
+        &json!({ "people": [{ "name": "Bo", "age": 40, "team": "a" }, { "name": "Al", "age": 30, "team": "a" }, { "name": "Cy", "age": 35, "team": "b" }] }),
     );
     for expect in [
         ">Al,Cy,Bo<",
@@ -146,7 +146,7 @@ fn spread_and_ranges_build_lists_and_maps() {
     }
     let html = templated(
         body,
-        json!({ "tags": ["a", "b"], "user": { "name": "Al", "age": 3 } }),
+        &json!({ "tags": ["a", "b"], "user": { "name": "Al", "age": 3 } }),
     );
     for expect in [">a,b,c<", ">3<", ">Bo<", ">1,2,3<", ">1,2,3,4<", ">2<"] {
         assert!(html.contains(expect), "template lacks {expect}: {html}");
@@ -252,12 +252,12 @@ fn enum_cases_carry_payloads_that_match_binds() {
     assert!(js.contains("const $r = () => $$arm()[1];"), "{js}");
     assert!(js.contains("WF.payload(_s$(), \"failed\")"), "{js}");
     assert!(js.contains("(WF.caseOf(_s$()) === \"done\")"), "{js}");
-    let html = templated(body, json!({ "s": ["failed", "nope"] }));
+    let html = templated(body, &json!({ "s": ["failed", "nope"] }));
     assert!(
         html.contains(">failed: nope<") && html.contains(">nope<"),
         "template: {html}"
     );
-    let html = templated(body, json!({ "s": "idle" }));
+    let html = templated(body, &json!({ "s": "idle" }));
     assert!(
         html.contains(">idle<") && html.contains(">-<"),
         "template: {html}"
@@ -291,7 +291,7 @@ fn format_and_ago_speak_the_locale_at_build_time_and_in_the_browser() {
     assert!(js.contains("WF.ago(_d(), _now())"), "{js}");
     let html = templated(
         body,
-        json!({ "n": 1234.5, "share": 0.256, "d": "2024-03-05T14:07:00Z", "now": "2024-03-07T14:07:00Z", "locale": "de" }),
+        &json!({ "n": 1234.5, "share": 0.256, "d": "2024-03-05T14:07:00Z", "now": "2024-03-07T14:07:00Z", "locale": "de" }),
     );
     assert!(html.contains(">$1.234,50<"), "the data's locale: {html}");
     assert!(html.contains(">2 days ago<"), "{html}");

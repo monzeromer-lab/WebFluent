@@ -591,7 +591,7 @@ fn diff_body(
     let old_units = units(old);
     let new_units = new.iter().map(std::slice::from_ref).collect::<Vec<_>>();
     // A new destructuring `let` is one unit too.
-    let new_units = regroup(new, new_units);
+    let new_units = regroup(new, &new_units);
     let depth = old_units
         .first()
         .map_or(depth, |u| depth_at(source, u[0].span.start as usize));
@@ -695,7 +695,7 @@ fn diff_body(
 
 /// `new`'s statements as units, a destructuring `let` the printer would
 /// write as one kept together.
-fn regroup<'a>(new: &'a [Statement], singles: Vec<&'a [Statement]>) -> Vec<&'a [Statement]> {
+fn regroup<'a>(new: &'a [Statement], singles: &[&'a [Statement]]) -> Vec<&'a [Statement]> {
     let mut out = Vec::new();
     let mut i = 0;
     while i < new.len() {
@@ -1302,7 +1302,7 @@ fn lcs_by(a: &[&str], b: &[&str]) -> Vec<(usize, usize)> {
     out
 }
 
-fn with_doc(doc: &Option<String>, text: &str, depth: usize) -> String {
+fn with_doc(doc: Option<&str>, text: &str, depth: usize) -> String {
     print::documented(doc, text, depth)
 }
 
@@ -1469,7 +1469,7 @@ fn diff_declaration(
         }
         (Declaration::Type(x), Declaration::Type(y)) => {
             if !same(&x.doc, &y.doc) {
-                diff_doc(source, x.span.start as usize, &y.doc, out);
+                diff_doc(source, x.span.start as usize, y.doc.as_deref(), out);
             }
             if print::type_header(x) != print::type_header(y) {
                 out.push(Patch::new(
@@ -1488,13 +1488,13 @@ fn diff_declaration(
                         .map(|f| Item {
                             start: item_start(source, f.span.start as usize),
                             end: f.span.end as usize,
-                            text: with_doc(&f.doc, &print::field(f), depth),
+                            text: with_doc(f.doc.as_deref(), &print::field(f), depth),
                         })
                         .collect();
                     let new: Vec<String> = y
                         .fields
                         .iter()
-                        .map(|f| with_doc(&f.doc, &print::field(f), depth))
+                        .map(|f| with_doc(f.doc.as_deref(), &print::field(f), depth))
                         .collect();
                     diff_items(source, &old, &new, open + 1, depth, out);
                     true
@@ -1532,7 +1532,7 @@ fn diff_declaration(
 }
 
 /// The `///` above the declaration at `start` made `doc`.
-fn diff_doc(source: &str, start: usize, doc: &Option<String>, out: &mut Vec<Patch>) {
+fn diff_doc(source: &str, start: usize, doc: Option<&str>, out: &mut Vec<Patch>) {
     let line_start = source[..start].rfind('\n').map_or(0, |n| n + 1);
     let from = print::doc_start(source, start);
     out.push(Patch::new(
@@ -1556,7 +1556,7 @@ fn diff_component(
     let start = x.span.start as usize;
     let depth = depth_at(source, start);
     if !same(&x.doc, &y.doc) {
-        diff_doc(source, start, &y.doc, out);
+        diff_doc(source, start, y.doc.as_deref(), out);
     }
     // The header: one prop at a time where the list is the same props,
     // each with the `///` it had; otherwise the header again.
@@ -1593,13 +1593,13 @@ fn diff_component(
         .map(|e| Item {
             start: item_start(source, e.span.start as usize),
             end: e.span.end as usize,
-            text: with_doc(&e.doc, &print::event_decl(e), inner),
+            text: with_doc(e.doc.as_deref(), &print::event_decl(e), inner),
         })
         .collect();
     let events_new: Vec<String> = y
         .events
         .iter()
-        .map(|e| with_doc(&e.doc, &print::event_decl(e), inner))
+        .map(|e| with_doc(e.doc.as_deref(), &print::event_decl(e), inner))
         .collect();
     if events_old
         .iter()
@@ -1629,7 +1629,7 @@ fn diff_component(
     let parts_a = parts_of(pa, &x.name);
     let parts_b = parts_of(pb, &y.name);
     let part_text =
-        |p: &ComponentDecl| with_doc(&p.doc, &print::component_decl(p, &[], inner), inner);
+        |p: &ComponentDecl| with_doc(p.doc.as_deref(), &print::component_decl(p, &[], inner), inner);
     let parts_old: Vec<Item> = x
         .parts
         .iter()

@@ -74,13 +74,7 @@ impl Static {
     pub fn to_text(&self) -> String {
         match self {
             Static::Str(s) => s.clone(),
-            Static::Num(n) => {
-                if *n == (*n as i64) as f64 {
-                    format!("{}", *n as i64)
-                } else {
-                    format!("{n}")
-                }
-            }
+            Static::Num(n) => crate::base::text::number(*n),
             Static::Bool(b) => format!("{b}"),
             Static::Null => String::new(),
             Static::Regex(p, f) => format!("/{p}/{f}"),
@@ -2346,14 +2340,14 @@ mod scalars {
     }
 
     /// The part of a URL after the scheme and before the path, and the path.
-    fn url_parts(text: &str) -> Option<(String, String)> {
+    fn url_parts(text: &str) -> (String, String) {
         let rest = text.split_once("://").map_or(text, |(_, r)| r);
         let (host, path) = match rest.find('/') {
             Some(at) => (&rest[..at], &rest[at..]),
             None => (rest, "/"),
         };
         let path = path.split(['?', '#']).next().unwrap_or(path);
-        Some((host.to_string(), path.to_string()))
+        (host.to_string(), path.to_string())
     }
 
     /// A URL's search, as `URLSearchParams` reads it: `+` is a space and a
@@ -2621,7 +2615,7 @@ mod scalars {
                 if !text.contains("://") {
                     return None;
                 }
-                let (host, path) = url_parts(&text)?;
+                let (host, path) = url_parts(&text);
                 Some(Static::Str(if method == "host" { host } else { path }))
             }
             // `site.query()` and `site.with(query: { page: 2 })`, as the

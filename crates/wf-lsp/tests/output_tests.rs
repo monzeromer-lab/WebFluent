@@ -10,7 +10,7 @@ use wf_lsp::hover::provide_hover;
 use wf_lsp::project::Project;
 
 fn project(src: &str, output: OutputType) -> Project {
-    let mut p = Project::single(Url::parse("file:///test.wf").unwrap(), src);
+    let mut p = Project::single(Url::parse("file:///test.wf").expect("a valid URL"), src);
     p.output_type = output;
     p
 }
@@ -31,7 +31,7 @@ fn hover(src: &str, needle: &str, output: OutputType) -> String {
     let p = project(src, output);
     let pos = p.files[0]
         .index
-        .offset_to_position(src, src.find(needle).unwrap());
+        .offset_to_position(src, src.find(needle).expect("the needle is in the source"));
     match provide_hover(&p, 0, pos).expect("a hover").contents {
         HoverContents::Markup(m) => m.value,
         _ => panic!("markdown expected"),

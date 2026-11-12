@@ -620,7 +620,7 @@ impl<'a> Rewriter<'a> {
         };
         let optional_mark = text[..colon].trim_end().ends_with('?');
         if optional_mark {
-            let q = text[..colon].rfind('?').unwrap();
+            let q = text[..colon].rfind('?').expect("it ends with a `?`");
             self.patch(base + q, base + q + 1, "");
         }
         let after = &text[colon + 1..];

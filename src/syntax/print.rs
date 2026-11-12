@@ -411,6 +411,7 @@ fn typed(kind: &str, carrier: &Expr) -> String {
 }
 
 /// A length of time in the largest unit that holds it whole.
+#[expect(clippy::float_cmp, reason = "a unit is chosen only when it divides the value exactly")]
 fn duration(ms: f64) -> String {
     const UNITS: &[(&str, f64)] = &[
         ("weeks", 604_800_000.0),
@@ -563,7 +564,7 @@ pub fn type_ref(t: &TypeRef) -> String {
     }
 }
 
-fn typed_name(name: &str, ty: &Option<TypeRef>) -> String {
+fn typed_name(name: &str, ty: Option<&TypeRef>) -> String {
     match ty {
         Some(t) => format!("{name}: {}", type_ref(t)),
         None => name.to_string(),
@@ -856,6 +857,7 @@ pub fn statements(stmts: &[Statement], block: Block, indent: usize) -> Vec<Strin
 /// How many statements, from the first, are one destructuring `let`, and
 /// how it is written: the value under a `d__N` name, then a local for
 /// each of its fields or items.
+#[expect(clippy::float_cmp, reason = "an index is a whole number, compared exactly")]
 pub fn destructure(stmts: &[Statement]) -> Option<(String, usize)> {
     let StatementKind::State(first) = &stmts.first()?.kind else {
         return None;
@@ -921,7 +923,7 @@ pub fn statement(s: &Statement, block: Block, indent: usize) -> String {
     // A `state`, `derived` or `action` of a body is written under its `///`.
     match s.doc() {
         Some(_) if block != Block::Imperative => {
-            documented(&s.doc().map(str::to_string), &text, indent)
+            documented(s.doc(), &text, indent)
         }
         _ => text,
     }
@@ -933,12 +935,12 @@ fn bare_statement(s: &Statement, block: Block, indent: usize) -> String {
         StatementKind::UIElement(ui) => element(ui, indent),
         StatementKind::State(st) => {
             if block == Block::Imperative {
-                return format!("let {} = {}", typed_name(&st.name, &st.ty), expr(&st.value));
+                return format!("let {} = {}", typed_name(&st.name, st.ty.as_ref()), expr(&st.value));
             }
             let word = if st.persist { "persist" } else { "state" };
             let mut out = format!(
                 "{word} {} = {}",
-                typed_name(&st.name, &st.ty),
+                typed_name(&st.name, st.ty.as_ref()),
                 expr(&st.value)
             );
             if let Some(policy) = &st.policy {
@@ -949,7 +951,7 @@ fn bare_statement(s: &Statement, block: Block, indent: usize) -> String {
         StatementKind::Derived(d) => {
             format!(
                 "derived {} = {}",
-                typed_name(&d.name, &d.ty),
+                typed_name(&d.name, d.ty.as_ref()),
                 expr(&d.value)
             )
         }
@@ -1095,7 +1097,7 @@ fn bare_statement(s: &Statement, block: Block, indent: usize) -> String {
                 );
                 format!("fetch({})", args.join(", "))
             };
-            format!("resource {} = {value}", typed_name(&r.name, &r.ty))
+            format!("resource {} = {value}", typed_name(&r.name, r.ty.as_ref()))
         }
         StatementKind::Connection(c) => connection(c, indent),
         StatementKind::Validate(v) => {
@@ -1252,7 +1254,7 @@ fn connection(c: &ConnectionDecl, indent: usize) -> String {
 
 /// A `///` comment, one line of it a line, each at `indent`; nothing when
 /// there is none.
-pub fn doc(doc: &Option<String>, indent: usize) -> String {
+pub fn doc(doc: Option<&str>, indent: usize) -> String {
     match doc {
         Some(text) => text
             .lines()
@@ -1271,7 +1273,7 @@ pub fn doc(doc: &Option<String>, indent: usize) -> String {
 /// A member with its `///` above it, as a block's line: the comment's
 /// lines, then the member at `indent` — the first line left for the block
 /// to indent.
-pub fn documented(d: &Option<String>, text: &str, indent: usize) -> String {
+pub fn documented(d: Option<&str>, text: &str, indent: usize) -> String {
     let lines = doc(d, indent);
     if lines.is_empty() {
         text.to_string()
@@ -1347,7 +1349,7 @@ fn prop_list(props: &[PropDecl], indent: usize) -> String {
     }
     let mut out = String::from("(\n");
     for p in props {
-        out.push_str(&doc(&p.doc, indent + 1));
+        out.push_str(&doc(p.doc.as_deref(), indent + 1));
         out.push_str(&pad(indent + 1));
         out.push_str(&prop(p));
         out.push_str(",\n");
@@ -1401,7 +1403,7 @@ pub fn slot_decl(s: &SlotDecl) -> String {
 pub fn component_decl(c: &ComponentDecl, parts: &[&ComponentDecl], indent: usize) -> String {
     let mut lines: Vec<String> = Vec::new();
     for e in &c.events {
-        lines.push(documented(&e.doc, &event_decl(e), indent + 1));
+        lines.push(documented(e.doc.as_deref(), &event_decl(e), indent + 1));
     }
     for s in &c.slots {
         lines.push(slot_decl(s));
@@ -1410,7 +1412,7 @@ pub fn component_decl(c: &ComponentDecl, parts: &[&ComponentDecl], indent: usize
         let full = format!("{}.{name}", c.name);
         if let Some(p) = parts.iter().find(|p| p.name == full) {
             lines.push(documented(
-                &p.doc,
+                p.doc.as_deref(),
                 &component_decl(p, &[], indent + 1),
                 indent + 1,
             ));
@@ -1613,7 +1615,7 @@ pub fn declaration(d: &Declaration, program: &Program) -> String {
         .collect();
     match d {
         Declaration::Page(p) => page(p, 0),
-        Declaration::Component(c) => format!("{}{}", doc(&c.doc, 0), component_decl(c, &parts, 0)),
+        Declaration::Component(c) => format!("{}{}", doc(c.doc.as_deref(), 0), component_decl(c, &parts, 0)),
         Declaration::Store(s) => format!(
             "{}{}",
             store_header(s),
@@ -1632,11 +1634,11 @@ pub fn declaration(d: &Declaration, program: &Program) -> String {
             let lines: Vec<String> = t
                 .fields
                 .iter()
-                .map(|f| documented(&f.doc, &field(f), 1))
+                .map(|f| documented(f.doc.as_deref(), &field(f), 1))
                 .collect();
             format!(
                 "{}{}{}",
-                doc(&t.doc, 0),
+                doc(t.doc.as_deref(), 0),
                 type_header(t),
                 lines_block(lines, 0)
             )
@@ -1657,19 +1659,19 @@ pub fn declaration(d: &Declaration, program: &Program) -> String {
                     }
                 })
                 .collect();
-            format!("{}enum {}{}", doc(&e.doc, 0), e.name, lines_block(lines, 0))
+            format!("{}enum {}{}", doc(e.doc.as_deref(), 0), e.name, lines_block(lines, 0))
         }
         Declaration::Const(c) => format!(
             "{}const {} = {}",
-            doc(&c.doc, 0),
-            typed_name(&c.name, &c.ty),
+            doc(c.doc.as_deref(), 0),
+            typed_name(&c.name, c.ty.as_ref()),
             expr(&c.value)
         ),
         Declaration::Data(x) => format!(
             "{}{} {} = {}",
-            doc(&x.doc, 0),
+            doc(x.doc.as_deref(), 0),
             if x.is_image { "image" } else { "data" },
-            typed_name(&x.name, &x.ty),
+            typed_name(&x.name, x.ty.as_ref()),
             text_with_names(&x.file)
         ),
         Declaration::Animation(a) => {
@@ -1686,7 +1688,7 @@ pub fn declaration(d: &Declaration, program: &Program) -> String {
                 .collect();
             format!(
                 "{}animation {}{}",
-                doc(&a.doc, 0),
+                doc(a.doc.as_deref(), 0),
                 a.name,
                 lines_block(lines, 0)
             )
@@ -1757,14 +1759,14 @@ pub fn declaration(d: &Declaration, program: &Program) -> String {
                 lines.push(handler(h, 1));
             }
             for e in &a.endpoints {
-                lines.push(documented(&e.doc, &endpoint(e), 1));
+                lines.push(documented(e.doc.as_deref(), &endpoint(e), 1));
             }
             let body = if lines.is_empty() && a.from.is_some() {
                 String::new()
             } else {
                 lines_block(lines, 0)
             };
-            format!("{}{head}{body}", doc(&a.doc, 0))
+            format!("{}{head}{body}", doc(a.doc.as_deref(), 0))
         }
         // A project script is a file of its own, not source.
         Declaration::Script(_) => String::new(),

@@ -122,7 +122,7 @@ fn sources(dir: &Path, out: &mut Vec<PathBuf>) {
 
 #[test]
 fn an_edit_anywhere_builds_with_the_cache_what_it_builds_without() {
-    edits_agree(tutorial("medium-field-notes", "edits"));
+    edits_agree(&tutorial("medium-field-notes", "edits"));
 }
 
 /// The same over any project — Halyard, `site/` — too slow for every run:
@@ -134,16 +134,16 @@ fn an_edit_anywhere_in_a_named_project_builds_the_same() {
     let dir = std::env::temp_dir().join(format!("wf-build-cache-named-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
     copy(&from, &dir);
-    edits_agree(dir);
+    edits_agree(&dir);
 }
 
-fn edits_agree(project: PathBuf) {
+fn edits_agree(project: &PathBuf) {
     let cached_out = project.with_extension("cached");
     let full_out = project.with_extension("full");
     let cache = BuildCache::in_memory();
 
-    let original = built(&project, &FsVfs, &cached_out, Some(&cache)).expect("the tutorial builds");
-    assert_eq!(built(&project, &FsVfs, &full_out, None).unwrap(), original);
+    let original = built(project, &FsVfs, &cached_out, Some(&cache)).expect("the tutorial builds");
+    assert_eq!(built(project, &FsVfs, &full_out, None).unwrap(), original);
 
     let mut files = Vec::new();
     sources(&project.join("src"), &mut files);
@@ -165,8 +165,8 @@ fn edits_agree(project: PathBuf) {
             edited.replace_range(start..end, &format!("{}·", &text[start..end]));
             let mut vfs = OverlayVfs::over_disk();
             vfs.set(file, edited);
-            let with = built(&project, &vfs, &cached_out, Some(&cache));
-            let without = built(&project, &vfs, &full_out, None);
+            let with = built(project, &vfs, &cached_out, Some(&cache));
+            let without = built(project, &vfs, &full_out, None);
             assert_eq!(
                 with.is_ok(),
                 without.is_ok(),
@@ -189,7 +189,7 @@ fn edits_agree(project: PathBuf) {
         }
         // Undone, the cache gives back the site as it was.
         assert_eq!(
-            built(&project, &FsVfs, &cached_out, Some(&cache)).unwrap(),
+            built(project, &FsVfs, &cached_out, Some(&cache)).unwrap(),
             original,
             "after undoing an edit to {}",
             file.display()
@@ -211,11 +211,11 @@ fn edits_agree(project: PathBuf) {
     let mut vfs = OverlayVfs::over_disk();
     vfs.set(&config, edited);
     assert_eq!(
-        built(&project, &vfs, &cached_out, Some(&cache)).unwrap(),
-        built(&project, &vfs, &full_out, None).unwrap()
+        built(project, &vfs, &cached_out, Some(&cache)).unwrap(),
+        built(project, &vfs, &full_out, None).unwrap()
     );
 
-    for dir in [&project, &cached_out, &full_out] {
+    for dir in [project, &cached_out, &full_out] {
         let _ = std::fs::remove_dir_all(dir);
     }
 }

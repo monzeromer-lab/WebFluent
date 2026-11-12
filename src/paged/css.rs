@@ -495,7 +495,7 @@ fn parse_compound(s: &str) -> Option<(Compound, usize)> {
             }
             b'[' => {
                 let close = s[i..].find(']')? + i;
-                c.attrs.push(parse_attr(&s[i + 1..close])?);
+                c.attrs.push(parse_attr(&s[i + 1..close]));
                 i = close + 1;
             }
             b':' => {
@@ -581,7 +581,7 @@ fn unescape(s: &str) -> String {
     s.replace('\\', "")
 }
 
-fn parse_attr(inner: &str) -> Option<AttrTest> {
+fn parse_attr(inner: &str) -> AttrTest {
     let ops = [
         ("~=", AttrOp::Includes),
         ("|=", AttrOp::DashMatch),
@@ -601,16 +601,16 @@ fn parse_attr(inner: &str) -> Option<AttrTest> {
                 .trim()
                 .trim_matches(['"', '\''])
                 .to_string();
-            return Some(AttrTest {
+            return AttrTest {
                 name: name.trim().to_ascii_lowercase(),
                 op: Some((op, value)),
-            });
+            };
         }
     }
-    Some(AttrTest {
+    AttrTest {
         name: inner.trim().to_ascii_lowercase(),
         op: None,
-    })
+    }
 }
 
 /// `odd`, `even`, `3`, `2n+1`, `-n+3` → `(a, b)`.
