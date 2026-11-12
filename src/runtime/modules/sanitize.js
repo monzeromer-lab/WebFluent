@@ -79,9 +79,20 @@
         }
         kept.push([key, value]);
       }
-      // A link that opens elsewhere does not hand it a handle on this page.
-      if (name === "a" && kept.some(([k]) => k === "target") && !kept.some(([k]) => k === "rel")) {
-        kept.push(["rel", "noopener noreferrer"]);
+      // A link that opens elsewhere does not hand it a handle on this page:
+      // its `rel` has `noopener noreferrer`, whatever the author wrote, and
+      // no link keeps `opener`, which would ask for the handle back.
+      if (name === "a") {
+        const at = kept.findIndex(([k]) => k === "rel");
+        const opensElsewhere = kept.some(([k]) => k === "target");
+        if (at >= 0 || opensElsewhere) {
+          const words = at >= 0 ? kept[at][1].split(/\s+/).filter(Boolean) : [];
+          const left = words.filter((w) => !/^opener$/i.test(w) && !(opensElsewhere && /^(noopener|noreferrer)$/i.test(w)));
+          if (opensElsewhere) left.push("noopener", "noreferrer");
+          if (at < 0) kept.push(["rel", left.join(" ")]);
+          else if (left.length) kept[at] = ["rel", left.join(" ")];
+          else kept.splice(at, 1);
+        }
       }
       out += "<" + name;
       for (const [key, value] of kept) out += ` ${key}="${escapeAttr(value)}"`;

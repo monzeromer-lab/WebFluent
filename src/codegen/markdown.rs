@@ -56,8 +56,8 @@ pub fn render(text: &str) -> String {
 /// The HTML of `text`, drawn as `options` say.
 pub fn render_with(text: &str, options: Options) -> String {
     // The two characters the renderer marks its own places with (a held
-    // code span, a line break) cannot arrive in text somebody else wrote.
-    let text: std::borrow::Cow<str> = if options.inert && text.contains(['\u{0}', '\u{1}']) {
+    // code span, a line break) cannot arrive in the text it is given.
+    let text: std::borrow::Cow<str> = if text.contains(['\u{0}', '\u{1}']) {
         text.replace(['\u{0}', '\u{1}'], "\u{FFFD}").into()
     } else {
         text.into()
