@@ -1,6 +1,6 @@
 //! A project script's JSDoc types, read as the checker's.
 
-use super::*;
+use super::Type;
 
 /// What `Form(bind: form)` binds: whether every control is valid, the
 /// values by field name, and `reset()`.

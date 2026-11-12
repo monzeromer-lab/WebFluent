@@ -6,7 +6,10 @@ use crate::project::builtin::{
 use crate::project::config::ProjectConfig;
 use crate::project::static_eval::{Scope, Static, case_of, eval};
 use crate::syntax::node_id::NodeMap;
-use crate::syntax::parser::ast::*;
+use crate::syntax::parser::ast::{
+    Arg, ArmPattern, ComponentDecl, ComponentRef, Expr, ForStmt, IfStmt, PageDecl, Program,
+    StateDecl, Statement, StatementKind, StringPart, UIElement,
+};
 use std::collections::{BTreeMap, HashMap};
 use std::fmt::Write as _;
 
@@ -3112,6 +3115,7 @@ mod component_expansion_tests {
     //! empty, "genuine static site" was false of it, and an `h1` inside a component
     //! never reached the served HTML.
     use super::*;
+    use crate::syntax::parser::ast::Declaration;
 
     fn render(src: &str) -> String {
         let program = crate::syntax::parse_source(src, "<t>")
@@ -3326,6 +3330,7 @@ mod program_scope_tests {
     //! hands it to every page; a page painted with it must be the page
     //! painted with a scope of its own.
     use super::*;
+    use crate::syntax::parser::ast::Declaration;
 
     #[test]
     fn a_page_is_the_same_with_the_builds_program_scope() {

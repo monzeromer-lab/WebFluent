@@ -1,6 +1,9 @@
 //! What reads and writes state: actions that write, effects that feed themselves, live browser values.
 
-use super::*;
+use super::{
+    Body, Checker, Diagnostic, Expr, HashSet, Span, Statement, StatementKind, assigned, expr_text,
+    read_names,
+};
 
 impl Checker<'_, '_> {
     /// The names an action writes — its own body's assignments, and the

@@ -24,7 +24,7 @@
 //! is why an editor prints only the node it changed — [`crate::syntax::reprint`]
 //! keeps every other byte, comments and all.
 
-use crate::syntax::parser::ast::*;
+use crate::syntax::parser::ast::{BinOp, Expr, UnaryOp, StringPart, TypeRef, ComponentRef, Arg, UIElement, StatementKind, SlotFill, StyleBlock, StyleProperty, TransitionBlock, EventHandler, Statement, ArmPattern, PersistPolicy, ConnectionDecl, ConnectionKind, PropDecl, ParamDecl, ComponentDecl, EventDecl, SlotDecl, PageDecl, StoreDecl, StoreScope, FieldDecl, TypeDecl, ThemeToken, Endpoint, Declaration, Program, Step, Span};
 
 const INDENT: &str = "    ";
 

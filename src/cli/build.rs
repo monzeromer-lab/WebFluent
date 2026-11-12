@@ -6,11 +6,11 @@ use crate::diagnostics::format::Format;
 use crate::vfs::FsVfs;
 use std::path::Path;
 
-pub use crate::build::read_project;
+pub(crate) use crate::build::read_project;
 
 /// How a build, or a check, reports.
 #[derive(Debug, Clone, Copy, Default)]
-pub struct Options {
+pub(crate) struct Options {
     /// Print what the output weighs.
     pub stats: bool,
     /// How the findings are written: for a person, or for a tool.
@@ -31,12 +31,12 @@ pub struct Options {
 /// Build with `options`. With a format for a tool, the findings are written
 /// to standard output — once, as one document for JSON and SARIF, whether
 /// the build finished or stopped.
-pub fn run_build_opts(project_dir: &Path, options: Options) -> Result<()> {
+pub(crate) fn run_build_opts(project_dir: &Path, options: Options) -> Result<()> {
     run(project_dir, options, crate::build::build, true)
 }
 
 /// `wf check`: every finding of a build, with nothing written.
-pub fn run_check(project_dir: &Path, options: Options) -> Result<()> {
+pub(crate) fn run_check(project_dir: &Path, options: Options) -> Result<()> {
     run(project_dir, options, crate::build::check, false)
 }
 

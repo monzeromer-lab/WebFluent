@@ -26,7 +26,7 @@ use webfluent::syntax::parser::ast::*;
 /// Which renderer produced an element. Reported in assertion messages so a
 /// failure names the backend that drifted.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Backend {
+pub(crate) enum Backend {
     /// `wf build` — the JS bundle that paints the DOM at runtime.
     Spa,
     /// `wf build` with SSG enabled — pre-painted static HTML.
@@ -36,7 +36,7 @@ pub enum Backend {
 }
 
 impl Backend {
-    pub fn name(self) -> &'static str {
+    pub(crate) fn name(self) -> &'static str {
         match self {
             Backend::Spa => "SPA (codegen/js.rs)",
             Backend::Ssg => "SSG (codegen/ssg.rs)",
@@ -44,12 +44,12 @@ impl Backend {
         }
     }
 
-    pub const ALL: [Backend; 3] = [Backend::Spa, Backend::Ssg, Backend::Template];
+    pub(crate) const ALL: [Backend; 3] = [Backend::Spa, Backend::Ssg, Backend::Template];
 }
 
 /// One rendered element, normalised across backends.
 #[derive(Debug, Clone)]
-pub struct Elem {
+pub(crate) struct Elem {
     pub tag: String,
     pub classes: Vec<String>,
     /// Attribute name -> raw value, excluding `class`/`className`.
@@ -59,10 +59,10 @@ pub struct Elem {
 }
 
 impl Elem {
-    pub fn has_class(&self, c: &str) -> bool {
+    pub(crate) fn has_class(&self, c: &str) -> bool {
         self.classes.iter().any(|x| x == c)
     }
-    pub fn attr(&self, k: &str) -> Option<&str> {
+    pub(crate) fn attr(&self, k: &str) -> Option<&str> {
         self.attrs.get(k).map(std::string::String::as_str)
     }
 }
@@ -70,7 +70,7 @@ impl Elem {
 // ─── Source construction ────────────────────────────────────────────────
 
 /// Wrap a body snippet in a minimal page.
-pub fn page(body: &str) -> String {
+pub(crate) fn page(body: &str) -> String {
     format!("page P(path: \"/\", title: \"T\") {{\n{body}\n}}\n")
 }
 
@@ -80,7 +80,7 @@ pub fn page(body: &str) -> String {
     dead_code,
     reason = "used by some of the test binaries that share this module"
 )]
-pub fn migrated(src: &str) -> String {
+pub(crate) fn migrated(src: &str) -> String {
     let files = vec![(std::path::PathBuf::from("<test>.wf"), src.to_string())];
     let (_, result) = webfluent::migrate::migrate_project(&files).remove(0);
     let out = result.unwrap_or_else(|e| panic!("migration failed for:\n{src}\n{e}"));
@@ -93,12 +93,12 @@ pub fn migrated(src: &str) -> String {
     out.text
 }
 
-pub fn parse_program(src: &str) -> Result<Program, String> {
+pub(crate) fn parse_program(src: &str) -> Result<Program, String> {
     parse_program_as(src, "<test>")
 }
 
 /// Parsed under a file name, which picks the layout: `t.wfx` is indented.
-pub fn parse_program_as(src: &str, file: &str) -> Result<Program, String> {
+pub(crate) fn parse_program_as(src: &str, file: &str) -> Result<Program, String> {
     webfluent::parse_source(src, file)
         .map(webfluent::sema::lower)
         .map_err(|e| format!("parse error: {e:?}"))
@@ -111,21 +111,21 @@ fn test_config() -> ProjectConfig {
 // ─── Backend drivers ────────────────────────────────────────────────────
 
 /// The JS bundle `wf build` writes to `app.js`.
-pub fn spa_js(src: &str) -> String {
+pub(crate) fn spa_js(src: &str) -> String {
     spa_js_as(src, "<test>")
 }
 
-pub fn spa_js_as(src: &str, file: &str) -> String {
+pub(crate) fn spa_js_as(src: &str, file: &str) -> String {
     let program = parse_program_as(src, file).expect("source must parse");
     JsCodegen::new().generate(&program)
 }
 
 /// The static HTML `wf build` writes when SSG is on (full document).
-pub fn ssg_html(src: &str) -> String {
+pub(crate) fn ssg_html(src: &str) -> String {
     ssg_html_as(src, "<test>")
 }
 
-pub fn ssg_html_as(src: &str, file: &str) -> String {
+pub(crate) fn ssg_html_as(src: &str, file: &str) -> String {
     let program = parse_program_as(src, file).expect("source must parse");
     let components: HashMap<String, ComponentDecl> = program
         .declarations
@@ -169,7 +169,7 @@ pub fn ssg_html_as(src: &str, file: &str) -> String {
 }
 
 /// The template engine's fragment output.
-pub fn template_html(src: &str) -> String {
+pub(crate) fn template_html(src: &str) -> String {
     Template::from_str(src)
         .expect("source must parse")
         .render_html_fragment(&serde_json::json!({}))
@@ -180,7 +180,7 @@ pub fn template_html(src: &str) -> String {
 ///
 /// The runtime is hand-written; scanning it for codegen defects only produces
 /// false positives. It is everything up to the close of its closure.
-pub fn spa_generated(src: &str) -> String {
+pub(crate) fn spa_generated(src: &str) -> String {
     let js = spa_js(src);
     const END: &str = "\n})();\n";
     match js.find(END) {
@@ -190,7 +190,7 @@ pub fn spa_generated(src: &str) -> String {
 }
 
 /// Raw output of one backend, for hygiene checks that care about text, not structure.
-pub fn raw_output(backend: Backend, src: &str) -> String {
+pub(crate) fn raw_output(backend: Backend, src: &str) -> String {
     match backend {
         Backend::Spa => spa_js(src),
         Backend::Ssg => ssg_html(src),
@@ -201,7 +201,7 @@ pub fn raw_output(backend: Backend, src: &str) -> String {
 /// Raw output of one backend for a source under a file name; a `.wfx`
 /// source reaches the template engine as its braced spelling, as
 /// `Template::from_file` reads it.
-pub fn raw_output_as(backend: Backend, src: &str, file: &str) -> String {
+pub(crate) fn raw_output_as(backend: Backend, src: &str, file: &str) -> String {
     match backend {
         Backend::Spa => spa_js_as(src, file),
         Backend::Ssg => ssg_html_as(src, file),
@@ -217,7 +217,7 @@ pub fn raw_output_as(backend: Backend, src: &str, file: &str) -> String {
 }
 
 /// Every element one backend emits for `src`, in document order.
-pub fn elems(backend: Backend, src: &str) -> Vec<Elem> {
+pub(crate) fn elems(backend: Backend, src: &str) -> Vec<Elem> {
     match backend {
         Backend::Spa => parse_spa(&spa_js(src)),
         Backend::Ssg => parse_html(&strip_document(&ssg_html(src))),
@@ -227,7 +227,7 @@ pub fn elems(backend: Backend, src: &str) -> Vec<Elem> {
 
 /// The first element a backend emits — the root of the component under test.
 /// The raw output of one backend for a source, for substring checks.
-pub fn render(backend: Backend, src: &str) -> String {
+pub(crate) fn render(backend: Backend, src: &str) -> String {
     match backend {
         Backend::Spa => spa_js(src),
         Backend::Ssg => ssg_html(src),
@@ -235,12 +235,12 @@ pub fn render(backend: Backend, src: &str) -> String {
     }
 }
 
-pub fn root(backend: Backend, src: &str) -> Option<Elem> {
+pub(crate) fn root(backend: Backend, src: &str) -> Option<Elem> {
     elems(backend, src).into_iter().next()
 }
 
 /// The first element carrying `class`, skipping structural wrappers.
-pub fn first_with_class(backend: Backend, src: &str, class: &str) -> Option<Elem> {
+pub(crate) fn first_with_class(backend: Backend, src: &str, class: &str) -> Option<Elem> {
     elems(backend, src).into_iter().find(|e| e.has_class(class))
 }
 
@@ -532,7 +532,7 @@ fn split_classes(s: &str) -> Vec<String> {
 // ─── Reference data ─────────────────────────────────────────────────────
 
 /// HTML void elements — must never be given children or a closing tag.
-pub const VOID_ELEMENTS: &[&str] = &[
+pub(crate) const VOID_ELEMENTS: &[&str] = &[
     "area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source",
     "track", "wbr",
 ];
@@ -540,7 +540,7 @@ pub const VOID_ELEMENTS: &[&str] = &[
 /// Every modifier the parser accepts, from the single-source vocabulary table.
 /// Every class word a flag or case of the registry can produce: what the
 /// stylesheet's `.wf-x--word` rules must be keyed on to be reachable.
-pub fn all_modifiers() -> Vec<&'static str> {
+pub(crate) fn all_modifiers() -> Vec<&'static str> {
     use webfluent::registry::{self, Legacy, PropType};
     let mut words = Vec::new();
     for sig in registry::COMPONENTS {
@@ -571,12 +571,12 @@ pub fn all_modifiers() -> Vec<&'static str> {
 }
 
 /// The full stylesheet a default build ships.
-pub fn built_in_css() -> String {
+pub(crate) fn built_in_css() -> String {
     webfluent::codegen::generate_css(&webfluent::themes::tokens::default_tokens())
 }
 
 /// Whether the built-in stylesheet defines a rule for `class`.
-pub fn css_defines_class(css: &str, class: &str) -> bool {
+pub(crate) fn css_defines_class(css: &str, class: &str) -> bool {
     let needle = format!(".{class}");
     let mut rest = css;
     while let Some(i) = rest.find(&needle) {

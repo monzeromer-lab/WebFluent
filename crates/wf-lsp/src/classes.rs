@@ -6,7 +6,10 @@
 //! the editor offers the classes those sheets define, shows the rule on
 //! hover, and goes to it.
 
-use lsp_types::*;
+use lsp_types::{
+    CompletionItem, CompletionItemKind, Documentation, Location, MarkupContent, MarkupKind,
+    Position, Range, Url,
+};
 use webfluent::syntax::lexer::{Token, TokenType};
 
 use crate::project::Project;

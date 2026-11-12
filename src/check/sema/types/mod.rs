@@ -23,7 +23,11 @@ use std::collections::{HashMap, HashSet};
 use super::Findings;
 use crate::diagnostics::error::Diagnostic;
 use crate::registry::{self, PropType};
-use crate::syntax::parser::ast::*;
+use crate::syntax::parser::ast::{
+    ApiDecl, Arg, ArmPattern, BinOp, ComponentDecl, ComponentRef, Declaration, EmitStmt, Endpoint,
+    EnumDecl, EventHandler, Expr, FieldDecl, IfStmt, LayoutRef, MatchStmt, Program, PropDecl, Span,
+    Statement, StatementKind, StringPart, TypeDecl, TypeRef, UIElement, UnaryOp, awaits,
+};
 
 mod call;
 mod element;
@@ -51,21 +55,27 @@ internal! {
     pub use members::{Member, members};
 }
 pub(crate) use names::BUILT_IN_FUNCTIONS;
-use names::*;
+use names::{GRAMMAR_WORDS, global_type, own_name_for};
 internal! {
     pub use names::{built_in_functions, language_name};
 }
-use refine::*;
+use refine::{ill_formed, rule_wants};
 internal! {
     pub use refine::{VALIDATE_RULES, refinement_fault};
 }
-use tables::*;
-use ty::*;
+use tables::{
+    LIST_METHODS, NUMBER_METHODS, SECRET_SINKS, STRING_METHODS, bound_type, case_signature,
+    not_serialisable, scalar_method, scalar_methods_hint, string_method, takes_length,
+};
+use ty::{adds, counts, disjoint};
 internal! {
     pub use ty::{PRIMITIVE_TYPES, Scalar, Type};
 }
 pub use walk::expr_text;
-use walk::*;
+use walk::{
+    arg_value, assigned, bound_names, in_optional_chain, keeps_present, match_arm, narrowed_names,
+    non_empty_lists, null_names, read_names, written_names,
+};
 
 /// What the program declares, resolved once.
 struct World<'p> {

@@ -1,6 +1,6 @@
 //! Function calls: built-ins, project scripts, `format`, and the arguments each takes.
 
-use super::*;
+use super::{BUILT_IN_FUNCTIONS, Checker, Expr, Scalar, Type, expr_text, jsdoc_type};
 
 impl Checker<'_, '_> {
     pub(super) fn infer_arg(&mut self, args: &[Expr], i: usize, expected: Option<&Type>) -> Type {

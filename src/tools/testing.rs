@@ -27,7 +27,9 @@ use std::path::{Path, PathBuf};
 
 use crate::diagnostics::error::Result;
 use crate::project::config::project::ThemeConfig;
-use crate::syntax::parser::ast::*;
+use crate::syntax::parser::ast::{
+    ComponentRef, Declaration, Expr, PageDecl, Program, Statement, StatementKind, Step, TestDecl,
+};
 
 /// A project's tests, read and ready to run.
 pub struct Tests {

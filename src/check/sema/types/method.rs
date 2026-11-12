@@ -1,6 +1,9 @@
 //! Method calls on lists, strings, numbers, records, stores and the language's own types.
 
-use super::*;
+use super::{
+    Checker, Expr, LIST_METHODS, NUMBER_METHODS, SECRET_SINKS, STRING_METHODS, Scalar, Type,
+    expr_text, keeps_present, match_arm, narrowed_names, scalar_method, scalar_methods_hint,
+};
 
 impl Checker<'_, '_> {
     pub(super) fn method_call(&mut self, obj: &Expr, method: &str, args: &[Expr]) -> Type {

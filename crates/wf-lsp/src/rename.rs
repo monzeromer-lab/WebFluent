@@ -11,7 +11,10 @@
 
 use std::collections::HashMap;
 
-use lsp_types::*;
+use lsp_types::{
+    DocumentHighlight, DocumentHighlightKind, GotoDefinitionResponse, Location, Position,
+    PrepareRenameResponse, Range, TextEdit, Url, WorkspaceEdit,
+};
 use webfluent::syntax::lexer::{Token, TokenType};
 
 use crate::analysis;

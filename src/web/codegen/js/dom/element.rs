@@ -1,6 +1,12 @@
 //! One element: the generic pass over a built-in or a component call, its attributes, styles, motion and root handlers.
 
-use super::super::*;
+use super::super::{
+    Arg, ComponentRef, DRAG_PROPS, EventHandler, Expr, GESTURE_EVENTS, JsCodegen, Statement,
+    StatementKind, StringPart, UIElement, active_link, animation_of, attr_key, bare,
+    builtin_to_html, camel_to_kebab, element_tag, frame_origin, has_subcomponent, implicit_role,
+    input_type, is_root_attribute, is_void, js_component, js_str, landmark_label,
+    layout_arg_classes, modifier_to_class, sig, template_text,
+};
 
 impl JsCodegen {
     pub(in super::super) fn emit_ui_element(&mut self, ui: &UIElement, parent: &str) {

@@ -1,6 +1,6 @@
 //! Findings: errors and warnings, the names they suggest, and the fixes they carry.
 
-use super::*;
+use super::{Checker, Diagnostic, Expr, Span, Type, expr_text};
 
 impl Checker<'_, '_> {
     pub(super) fn warn(&mut self, code: &'static str, message: String, hint: &str) {

@@ -5,7 +5,7 @@ use crate::diagnostics::error::Result;
 /// `wf translations [-d DIR] [--missing LOCALE] [--unused] [--json]`: the
 /// translations as a table — each locale with its plural forms and what it
 /// lacks, each key with its messages and where a `t()` names it.
-pub fn run_translations(
+pub(crate) fn run_translations(
     dir: &Path,
     missing: Option<&str>,
     unused: bool,

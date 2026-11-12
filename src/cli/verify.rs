@@ -16,7 +16,7 @@ use crate::browser::Browser;
 use crate::config::ProjectConfig;
 use crate::diagnostics::error::{Result, WebFluentError};
 
-pub fn run_verify(
+pub(crate) fn run_verify(
     project_dir: &Path,
     report: super::Report,
     budget_ms: Option<u64>,

@@ -8,7 +8,7 @@ use crate::syntax::layout::{to_braces, to_offside};
 /// the one file named) in its canonical spelling, written back; `--check`
 /// writes nothing and fails when a file would change. With `--to wfx|wf`
 /// the files are rewritten in the other layout instead, and renamed.
-pub fn run_fmt(path: &Path, to: Option<&str>, check: bool, stdout: bool) -> Result<()> {
+pub(crate) fn run_fmt(path: &Path, to: Option<&str>, check: bool, stdout: bool) -> Result<()> {
     let files = if path.is_file() {
         vec![(path.to_path_buf(), std::fs::read_to_string(path)?)]
     } else {

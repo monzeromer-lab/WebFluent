@@ -3,7 +3,7 @@ use crate::generate::{Kind, Written, is_indented, source, write_source};
 use std::fs;
 use std::path::Path;
 
-pub fn run_generate(kind: &str, name: &str, project_dir: &Path) -> Result<()> {
+pub(crate) fn run_generate(kind: &str, name: &str, project_dir: &Path) -> Result<()> {
     let kind = match kind {
         "page" => Kind::Page,
         "component" => Kind::Component,

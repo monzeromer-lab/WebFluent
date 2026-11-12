@@ -3,10 +3,15 @@
 //! service's endpoint, an action, a project script's function, or one the
 //! language gives.
 
-use lsp_types::*;
+use lsp_types::{
+    Documentation, ParameterInformation, ParameterLabel, Position, SignatureHelp,
+    SignatureInformation,
+};
 use webfluent::registry::{self, PropType};
 use webfluent::syntax::lexer::{Token, TokenType};
-use webfluent::syntax::parser::ast::*;
+use webfluent::syntax::parser::ast::{
+    ActionDecl, Declaration, PropDecl, Statement, StatementKind, TypeRef,
+};
 
 use crate::analysis;
 use crate::project::Project;

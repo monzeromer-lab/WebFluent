@@ -63,7 +63,7 @@ fn guide() {
     names.sort();
     let root = std::env::var("CARGO_MANIFEST_DIR").unwrap_or_default();
     let mut out = String::from(
-        "/// Every chapter of `md-docs/`, by file name, in name order.\npub static FILES: &[(&str, &str)] = &[\n",
+        "/// Every chapter of `md-docs/`, by file name, in name order.\npub(crate) static FILES: &[(&str, &str)] = &[\n",
     );
     for name in &names {
         let path = Path::new(&root).join("md-docs").join(name);

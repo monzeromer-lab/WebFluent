@@ -12,9 +12,9 @@
 //! (`post.title`, `Post(title: …)`) in whichever type declares it. A
 //! string's `{…}` splices are code, and are read as such.
 
-use lsp_types::*;
+use lsp_types::{GotoDefinitionResponse, Location, Position, Range};
 use webfluent::syntax::lexer::Token;
-use webfluent::syntax::parser::ast::*;
+use webfluent::syntax::parser::ast::{Arg, ComponentDecl, ComponentRef, Declaration, Expr, Span};
 
 use crate::analysis::{self, Binding, ElementPart};
 use crate::line_index::word_at;

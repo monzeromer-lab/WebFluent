@@ -5,7 +5,7 @@ use std::path::Path;
 
 use crate::diagnostics::error::Result;
 
-pub fn run_docs(project_dir: &Path, out: &Path) -> Result<()> {
+pub(crate) fn run_docs(project_dir: &Path, out: &Path) -> Result<()> {
     let (html, builtins, declared) = crate::gallery::for_project(project_dir);
     std::fs::create_dir_all(out)?;
     let file = out.join("index.html");

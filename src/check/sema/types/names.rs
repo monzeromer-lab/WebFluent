@@ -1,6 +1,6 @@
 //! The names the language has: built-in functions, grammar words, and the browser's globals.
 
-use super::*;
+use super::{Scalar, Type};
 
 /// The types of the names every program can read.
 /// The functions the language gives a program, which it calls by name.

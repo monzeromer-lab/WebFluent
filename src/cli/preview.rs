@@ -10,7 +10,7 @@ use std::sync::Arc;
 
 use crate::diagnostics::error::{Result, WebFluentError};
 
-pub struct Preview {
+pub(crate) struct Preview {
     /// `http://127.0.0.1:<port>`, as a browser would ask for it.
     pub origin: String,
     server: Arc<tiny_http::Server>,
@@ -23,7 +23,7 @@ impl Preview {
     /// `unblock` is what makes the wait end: the accept loop is inside
     /// `incoming_requests()`, and nothing short of telling the server to
     /// stop brings it back out.
-    pub fn close(mut self) {
+    pub(crate) fn close(mut self) {
         self.server.unblock();
         if let Some(thread) = self.thread.take() {
             let _ = thread.join();
@@ -32,13 +32,13 @@ impl Preview {
 }
 
 /// Serve `dir` on a port the operating system picks.
-pub fn serve_directory(dir: PathBuf, base_path: &str) -> Result<Preview> {
+pub(crate) fn serve_directory(dir: PathBuf, base_path: &str) -> Result<Preview> {
     serve_directory_within(dir, base_path, Vec::new())
 }
 
 /// [`serve_directory`], where a link in `dir` may also lead into one of
 /// `also`: a test's site, whose `public/` files are links to the project's.
-pub fn serve_directory_within(
+pub(crate) fn serve_directory_within(
     dir: PathBuf,
     base_path: &str,
     also: Vec<PathBuf>,
@@ -125,13 +125,13 @@ pub fn serve_directory_within(
 /// that reaches, through a link, somewhere outside `root`. A path that
 /// names nothing on the disk is returned as it is, for the caller's 404 or
 /// its shell.
-pub fn resolve(root: &Path, url_path: &str) -> Option<PathBuf> {
+pub(crate) fn resolve(root: &Path, url_path: &str) -> Option<PathBuf> {
     resolve_within(root, &[], url_path)
 }
 
 /// [`resolve`], where a link may also lead into one of `also` (each
 /// resolved already).
-pub fn resolve_within(root: &Path, also: &[PathBuf], url_path: &str) -> Option<PathBuf> {
+pub(crate) fn resolve_within(root: &Path, also: &[PathBuf], url_path: &str) -> Option<PathBuf> {
     let decoded = percent_decode(url_path)?;
     for text in [url_path, decoded.as_str()] {
         if text.contains(['\\', '\0']) || text.split('/').any(|segment| segment == "..") {
@@ -187,7 +187,7 @@ fn percent_decode(text: &str) -> Option<String> {
 /// on, and — when it listens on every interface, for a phone — a `.local`
 /// name of this network. A request with no `Host` (HTTP/1.0) is no
 /// browser's.
-pub fn host_allowed(host: Option<&str>, bound: &str) -> bool {
+pub(crate) fn host_allowed(host: Option<&str>, bound: &str) -> bool {
     let Some(host) = host else {
         return true;
     };
@@ -228,7 +228,7 @@ pub fn host_allowed(host: Option<&str>, bound: &str) -> bool {
 /// answers with its shell: the browser says so (`Sec-Fetch-Mode:
 /// navigate`), or — from a client that does not say — the address has no
 /// file extension. A `fetch`, a script, an image or a stylesheet is not.
-pub fn is_page_request(path: &str, headers: &[tiny_http::Header]) -> bool {
+pub(crate) fn is_page_request(path: &str, headers: &[tiny_http::Header]) -> bool {
     if let Some(mode) = headers
         .iter()
         .find(|h| h.field.equiv("Sec-Fetch-Mode"))

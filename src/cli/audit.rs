@@ -4,7 +4,7 @@ use crate::audit::Report;
 use crate::diagnostics::error::Result;
 use std::path::Path;
 
-pub fn run_audit(project_dir: &Path, json: bool) -> Result<()> {
+pub(crate) fn run_audit(project_dir: &Path, json: bool) -> Result<()> {
     let report = crate::audit::audit_project(project_dir)?;
     if json {
         println!(

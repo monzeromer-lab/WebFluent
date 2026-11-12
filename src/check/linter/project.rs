@@ -3,7 +3,10 @@
 //! holds, and a persisted value whose shape changed since the last build.
 
 use crate::diagnostics::Diagnostic;
-use crate::syntax::parser::ast::*;
+use crate::syntax::parser::ast::{
+    Arg, ComponentRef, ConnectionKind, Declaration, Expr, Program, Statement, StatementKind,
+    UIElement,
+};
 pub(crate) use crate::syntax::parser::walk::visit;
 use std::collections::{BTreeMap, HashMap};
 use std::path::Path;

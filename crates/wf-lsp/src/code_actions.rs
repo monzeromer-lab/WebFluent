@@ -1,4 +1,7 @@
-use lsp_types::*;
+use lsp_types::{
+    CodeAction, CodeActionKind, CodeActionOrCommand, CodeActionParams, Diagnostic, NumberOrString,
+    Range, TextEdit, Url, WorkspaceEdit,
+};
 use std::collections::HashMap;
 
 /// The quick fixes the compiler offers for the diagnostics in the request:
@@ -186,6 +189,10 @@ pub fn fix_all_actions(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use lsp_types::{
+        CodeActionContext, PartialResultParams, Position, TextDocumentIdentifier,
+        WorkDoneProgressParams,
+    };
 
     fn finding(code: &str, line: u32, text: &str) -> Diagnostic {
         let edit = TextEdit {
@@ -274,7 +281,7 @@ mod tests {
 // ─── Extract component ──────────────────────────────────
 
 use webfluent::sema::types::Type;
-use webfluent::syntax::parser::ast::*;
+use webfluent::syntax::parser::ast::{Arg, Declaration, Expr, Statement, StatementKind};
 
 use crate::analysis::{self, Binding, BindingKind};
 use crate::project::Project;

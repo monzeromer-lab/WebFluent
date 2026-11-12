@@ -31,7 +31,7 @@ use crate::project::config::ProjectConfig;
 use crate::project::config::schema::{self, FieldType};
 use crate::project::media::plan::{Plan, size_text};
 use crate::registry::FileKind;
-use crate::syntax::parser::ast::*;
+use crate::syntax::parser::ast::{Span, Expr, StyleBlock, Statement, StatementKind, ComponentRef, Arg, ConnectionKind, Program, Declaration};
 
 /// What a file is, by its extension.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]

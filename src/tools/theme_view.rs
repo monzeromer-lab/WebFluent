@@ -16,7 +16,9 @@ use serde::Serialize;
 
 use crate::check::linter::contrast::{Pairing, pairings};
 use crate::project::config::project::ThemeConfig;
-use crate::syntax::parser::ast::*;
+use crate::syntax::parser::ast::{
+    Declaration, Expr, Program, Statement, StatementKind, StringPart, StyleProperty, ThemeDecl,
+};
 
 /// One token.
 #[derive(Debug, Clone, PartialEq, Serialize)]

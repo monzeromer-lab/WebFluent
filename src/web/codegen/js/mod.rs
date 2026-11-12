@@ -7,7 +7,13 @@ pub use crate::registry::browser::{
     BROWSER_GLOBALS, BROWSER_VALUES, DRAG_PROPS, GESTURE_EVENTS, SCALAR_METHODS,
 };
 use crate::syntax::node_id::NodeMap;
-use crate::syntax::parser::ast::*;
+use crate::syntax::parser::ast::{
+    ActionDecl, AnimateConfig, ApiDecl, AppDecl, Arg, ArmPattern, BinOp, ComponentDecl,
+    ComponentRef, ConnectionDecl, ConnectionKind, Declaration, DerivedDecl, EventHandler, Expr,
+    ForStmt, IfStmt, MatchStmt, PageDecl, Program, ResourceDecl, ShowStmt, Span, StateDecl,
+    Statement, StatementKind, StoreDecl, StringPart, StyleProperty, TypeDecl, TypeRef, UIElement,
+    UnaryOp, ValidateDecl,
+};
 use crate::web::runtime;
 use std::collections::HashMap;
 
@@ -25,17 +31,20 @@ mod tests;
 mod widgets;
 
 use crate::base::text::{camel_to_kebab, capitalize_first, kebab_case, to_camel_case};
-use expr::*;
+use expr::Cx;
 internal! {
     pub use expr::{Holder, LIST_AND_STRING_HELPERS, method_to_js, scalar_method};
 }
-use externals::*;
+use externals::BROWSER_CLASSES;
 pub use externals::{external_modules, externals_module};
-use names::*;
-use net::*;
-use reactive::*;
-use statement::*;
-use widgets::*;
+use names::{
+    action_names, bare, bare_list, body_signals, declared_names, js_component, js_str, sig,
+    template_text, top_level,
+};
+use net::{api_setting, fetch_word, resource_names};
+use reactive::{BindTarget, MUTATORS, frame_origin, path_of};
+use statement::{StmtCx, emitted, shows_optimistically};
+use widgets::{form_options, has_form, refinement_in, validated_names};
 
 /// What a connection's handle holds as signals.
 pub const CONNECTION_SIGNALS: &[&str] = &["state", "error", "pending", "messages", "closure"];

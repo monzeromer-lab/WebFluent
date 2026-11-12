@@ -1,6 +1,6 @@
 //! The handles a program is given: a form, a `ref:`, an image, and the browser's values.
 
-use super::*;
+use super::{Arg, ComponentRef, Expr, Statement, StatementKind, Type, global_type};
 
 pub fn form_type() -> Type {
     Type::Shape(vec![

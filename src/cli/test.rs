@@ -6,7 +6,7 @@ use std::path::Path;
 use crate::diagnostics::error::{Result, WebFluentError};
 use crate::testing::{self, Outcome};
 
-pub fn run_test(path: &Path, update: bool) -> Result<()> {
+pub(crate) fn run_test(path: &Path, update: bool) -> Result<()> {
     let tests = testing::collect(path)?;
     if tests.tests.is_empty() {
         println!("no tests: declare one as `test \"name\" {{ … expect \"text\" }}` under tests/");

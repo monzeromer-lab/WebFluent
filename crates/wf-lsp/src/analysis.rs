@@ -7,7 +7,9 @@
 //! word `Button`, and can tell which page or component a `count` belongs to.
 
 use webfluent::syntax::lexer::{Token, TokenType};
-use webfluent::syntax::parser::ast::*;
+use webfluent::syntax::parser::ast::{
+    Arg, ComponentRef, Declaration, Statement, StatementKind, StoreDecl, UIElement,
+};
 
 use crate::project::{Project, SourceFile};
 

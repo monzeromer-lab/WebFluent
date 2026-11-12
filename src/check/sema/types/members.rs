@@ -1,6 +1,8 @@
 //! What a value of a type has: its fields and methods, as a completion list reads them.
 
-use super::*;
+use super::{
+    LIST_METHODS, NUMBER_METHODS, STRING_METHODS, Scalar, Type, scalar_method, string_method,
+};
 
 /// One thing a value of some type has, as a tool offers it after `value.`:
 /// a field (`price.amount`) or a method (`due.plus(…)`).

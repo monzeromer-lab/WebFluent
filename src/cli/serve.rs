@@ -296,7 +296,7 @@ impl Shared {
     }
 }
 
-pub fn run_serve(project_dir: &Path, host: &str, allow_output_outside: bool) -> Result<()> {
+pub(crate) fn run_serve(project_dir: &Path, host: &str, allow_output_outside: bool) -> Result<()> {
     let config = ProjectConfig::load(project_dir)?;
     let output_dir =
         crate::build::project_output(project_dir, &config.build.output, allow_output_outside)?;

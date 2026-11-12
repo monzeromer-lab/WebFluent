@@ -12,7 +12,10 @@
 //!   is not a whole number of the twelve columns.
 
 use crate::diagnostics::error::Diagnostic;
-use crate::syntax::parser::ast::*;
+use crate::syntax::parser::ast::{
+    Arg, ComponentRef, Declaration, Expr, HeadTag, Program, Statement, StatementKind, UIElement,
+    UnaryOp,
+};
 
 /// Every finding of this module in `program`.
 pub fn lint_output(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<Diagnostic> {

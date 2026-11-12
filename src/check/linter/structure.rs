@@ -6,7 +6,10 @@
 //! of its options.
 
 use crate::diagnostics::Diagnostic;
-use crate::syntax::parser::ast::*;
+use crate::syntax::parser::ast::{
+    Arg, ComponentRef, Declaration, Expr, PageDecl, Program, Span, Statement, StatementKind,
+    StringPart, UIElement,
+};
 use std::collections::{HashMap, HashSet};
 
 /// One segment of a route's path.

@@ -1,6 +1,6 @@
 //! Walks over statements and expressions that collect names: what is read, written, bound and narrowed.
 
-use super::*;
+use super::{Arg, BinOp, Expr, HashSet, Statement, StatementKind, UnaryOp};
 
 /// The value an argument carries.
 pub(super) fn arg_value(arg: &Arg) -> &Expr {

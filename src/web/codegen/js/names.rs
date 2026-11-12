@@ -1,6 +1,6 @@
 //! What a program's names become in JavaScript: signals, bare names, top-level names, and the names a body declares.
 
-use super::*;
+use super::{Statement, StatementKind};
 
 /// A component's JavaScript name: a part's `Owner.Part` is `Owner_Part`.
 pub(super) fn js_component(name: &str) -> String {

@@ -1,7 +1,7 @@
 //! Format a document: the same formatter `wf fmt` runs, so the editor and
 //! the command line write a file the same way.
 
-use lsp_types::*;
+use lsp_types::{Position, Range, TextEdit};
 
 use crate::project::Project;
 

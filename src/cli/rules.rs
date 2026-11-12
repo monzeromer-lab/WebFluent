@@ -5,7 +5,7 @@ use crate::diagnostics::error::Result;
 /// `wf rules [-d DIR] [--json]`: every rule a `validate` block may hold,
 /// the named patterns and when a form shows its messages; then every state
 /// in the project held to a rule, with its rules in order.
-pub fn run_rules(dir: &Path, json: bool) -> Result<()> {
+pub(crate) fn run_rules(dir: &Path, json: bool) -> Result<()> {
     let catalogue = crate::validation::catalogue();
     let translated = crate::config::ProjectConfig::load(dir).is_ok_and(|c| c.i18n.is_some());
     let states = crate::build::read_project(dir)

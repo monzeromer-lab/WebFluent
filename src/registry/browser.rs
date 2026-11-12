@@ -138,7 +138,7 @@ pub const SCALAR_METHODS: &[(&str, &str)] = &[
 /// An attribute a component call hands its root element when the component
 /// takes no prop of that name: the ARIA and data families (not the motion
 /// markers, which `WF.mark` sets) and the global attributes.
-pub fn is_root_attribute(name: &str) -> bool {
+pub(crate) fn is_root_attribute(name: &str) -> bool {
     (name.starts_with("aria-") || (name.starts_with("data-") && !name.starts_with("data-wf-")))
         || matches!(
             name,

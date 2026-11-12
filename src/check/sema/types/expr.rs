@@ -1,6 +1,10 @@
 //! Expressions: what each one is, the property it reads, chains, matches and comparisons.
 
-use super::*;
+use super::{
+    BinOp, Checker, Expr, Scalar, StringPart, Type, UnaryOp, adds, case_signature, counts,
+    disjoint, expr_text, global_type, ill_formed, in_optional_chain, match_arm,
+    scalar_methods_hint,
+};
 
 impl Checker<'_, '_> {
     /// The type of `expr`; `expected` guides a case or a lambda.

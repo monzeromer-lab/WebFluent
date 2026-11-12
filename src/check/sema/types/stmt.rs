@@ -1,6 +1,10 @@
 //! Statements: declarations, assignments, `if`, `match`, handlers and the names a handler binds.
 
-use super::*;
+use super::{
+    ARM, ArmPattern, Body, Checker, DOM_SENDS, EmitStmt, EventHandler, Expr, IfStmt, MatchStmt,
+    Scalar, Span, Statement, StatementKind, Type, TypeRef, awaits, case_signature, expr_text,
+    narrowed_names, non_empty_lists, not_serialisable, null_names, refinement_fault, rule_wants,
+};
 
 impl Checker<'_, '_> {
     /// Binds the names a handler gives its event's values (`on menu(key, x,

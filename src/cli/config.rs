@@ -9,7 +9,7 @@ const CONFIG: &str = "webfluent.app.json";
 
 /// `wf config schema [--json]`: every setting, its type, its default and
 /// what it does.
-pub fn run_schema(json: bool) -> Result<()> {
+pub(crate) fn run_schema(json: bool) -> Result<()> {
     if json {
         println!(
             "{}",
@@ -46,7 +46,7 @@ fn read(dir: &Path) -> Result<String> {
 }
 
 /// `wf config get PATH`: what the project sets, or the default, said so.
-pub fn run_get(dir: &Path, dotted: &str) -> Result<()> {
+pub(crate) fn run_get(dir: &Path, dotted: &str) -> Result<()> {
     let text = read(dir)?;
     let (keys, field) = schema::path_of(dotted).ok_or_else(|| {
         WebFluentError::config(format!(
@@ -69,7 +69,7 @@ pub fn run_get(dir: &Path, dotted: &str) -> Result<()> {
 
 /// `wf config set PATH VALUE` and `wf config unset PATH`: the file edited
 /// in place, its shape kept, the value held to the setting's type.
-pub fn run_set(dir: &Path, dotted: &str, value: Option<&str>) -> Result<()> {
+pub(crate) fn run_set(dir: &Path, dotted: &str, value: Option<&str>) -> Result<()> {
     let text = read(dir)?;
     // A value is JSON when it reads as JSON — `true`, `3`, `["en", "ar"]` —
     // and a string otherwise, so `wf config set meta.lang ar` needs no quotes.

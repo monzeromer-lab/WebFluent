@@ -33,7 +33,7 @@ pub(crate) enum Report {
 
 impl Report {
     /// The report `--json` asks for.
-    pub fn from_json_flag(json: bool) -> Self {
+    pub(crate) fn from_json_flag(json: bool) -> Self {
         if json { Report::Json } else { Report::Text }
     }
 }

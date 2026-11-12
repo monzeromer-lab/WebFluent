@@ -1,6 +1,9 @@
 //! Control flow in the DOM: `if`, `for`, `show`, `match`, and a statement's place in a body.
 
-use super::super::*;
+use super::super::{
+    AnimateConfig, ArmPattern, ForStmt, IfStmt, JsCodegen, MatchStmt, ShowStmt, Statement,
+    StatementKind, bare, bare_list, js_str, shows_optimistically, sig,
+};
 
 impl JsCodegen {
     pub(in super::super) fn emit_statement_dom(&mut self, stmt: &Statement, parent: &str) {

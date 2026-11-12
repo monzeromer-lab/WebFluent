@@ -13,7 +13,10 @@
 use std::collections::{HashMap, HashSet};
 
 use crate::diagnostics::error::Diagnostic;
-use crate::syntax::parser::ast::*;
+use crate::syntax::parser::ast::{
+    Arg, ComponentRef, Declaration, Expr, PageDecl, Program, Span, Statement, StatementKind,
+    UIElement,
+};
 
 /// The unused declarations of a program, as warnings.
 pub fn lint_unused(program: &Program) -> Vec<Diagnostic> {

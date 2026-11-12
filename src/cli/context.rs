@@ -7,7 +7,12 @@ use crate::diagnostics::error::{Result, WebFluentError};
 /// [--json]`: what an agent is given — the files, the open file and its
 /// selection, the problems, the components, the theme's tokens, the
 /// config with only its public `env`, the guide, and what was withheld.
-pub fn run_context(dir: &Path, open: Option<&str>, guide_depth: &str, json: bool) -> Result<()> {
+pub(crate) fn run_context(
+    dir: &Path,
+    open: Option<&str>,
+    guide_depth: &str,
+    json: bool,
+) -> Result<()> {
     let depth = match guide_depth {
         "index" => Depth::Index,
         "full" => Depth::Full,

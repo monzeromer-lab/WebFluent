@@ -5,8 +5,12 @@
     reason = "lsp-types 0.94 still requires the `deprecated` field when building a symbol; it is set to None"
 )]
 
-use lsp_types::*;
-use webfluent::syntax::parser::ast::*;
+use lsp_types::{
+    DocumentSymbol, DocumentSymbolResponse, Location, Range, SymbolInformation, SymbolKind, Url,
+};
+use webfluent::syntax::parser::ast::{
+    ConnectionKind, Declaration, EventHandler, ParamDecl, Span, Statement, StatementKind,
+};
 
 use crate::line_index::LineIndex;
 use crate::project::{Project, SourceFile};

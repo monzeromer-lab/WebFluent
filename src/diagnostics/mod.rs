@@ -218,6 +218,7 @@ impl Diagnostic {
     }
 
     /// Another place the finding concerns.
+    #[must_use]
     pub fn with_related(
         mut self,
         message: impl Into<String>,

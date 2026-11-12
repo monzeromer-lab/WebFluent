@@ -253,6 +253,7 @@ impl Scope {
     }
 
     /// The scope as a template reads it: see [`Scope::lenient`]'s field.
+    #[must_use]
     pub fn lenient(mut self) -> Self {
         self.lenient = true;
         self
@@ -354,6 +355,7 @@ impl Scope {
     }
 
     /// Bind one name, for a loop body.
+    #[must_use]
     pub fn with(&self, name: &str, value: Static) -> Self {
         let mut next = self.clone();
         let mut frame = HashMap::new();
@@ -2476,7 +2478,7 @@ mod scalars {
 
     /// One method of one of the language's own types, or `None` when this
     /// is not one of them.
-    pub fn method(
+    pub(super) fn method(
         receiver: &Static,
         method: &str,
         arg: &dyn Fn(usize) -> Option<Static>,

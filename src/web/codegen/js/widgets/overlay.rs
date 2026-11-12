@@ -1,6 +1,8 @@
 //! Layers over the page: modals, dialogs, popovers, tooltips, menus and dropdowns.
 
-use super::super::*;
+use super::super::{
+    Arg, ComponentRef, Expr, JsCodegen, MENU_READS, StatementKind, UIElement, attr_key,
+};
 
 impl JsCodegen {
     pub(in super::super) fn emit_modal_dialog(

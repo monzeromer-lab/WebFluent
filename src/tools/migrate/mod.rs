@@ -30,7 +30,11 @@ use crate::diagnostics::error::{Result, WebFluentError};
 use crate::registry;
 use crate::syntax::lexer::Lexer;
 use crate::syntax::parser::Parser;
-use crate::syntax::parser::ast::*;
+use crate::syntax::parser::ast::{
+    AnimateConfig, Arg, ComponentDecl, ComponentRef, Declaration, EventHandler, Expr, FetchDecl,
+    PageDecl, Program, PropDecl, Span, Statement, StatementKind, StyleBlock, StyleProperty,
+    ThemeDecl, TransitionBlock, UIElement,
+};
 // Every statement list nested in a statement: the one list the editor's
 // scope reads too, so neither misses a body the other walks.
 use crate::check::scope::child_bodies;

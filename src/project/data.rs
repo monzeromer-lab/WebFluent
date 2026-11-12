@@ -10,7 +10,10 @@ pub use crate::base::vfs::stays_inside;
 use std::path::Path;
 
 use crate::diagnostics::error::{Result, WebFluentError};
-use crate::syntax::parser::ast::*;
+use crate::syntax::parser::ast::{
+    Arg, ComponentRef, ConstDecl, Declaration, Expr, LayoutRef, PageDecl, Program, Span, Statement,
+    StatementKind, UIElement,
+};
 
 /// The finding for a path a project names that leads out of it.
 pub fn outside_project(

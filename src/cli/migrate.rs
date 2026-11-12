@@ -6,7 +6,12 @@ use std::path::{Path, PathBuf};
 use crate::diagnostics::error::{Result, WebFluentError};
 use crate::migrate::project::{self, Plan};
 
-pub fn run_migrate(path: &Path, check: bool, stdout: bool, layout: super::Layout) -> Result<()> {
+pub(crate) fn run_migrate(
+    path: &Path,
+    check: bool,
+    stdout: bool,
+    layout: super::Layout,
+) -> Result<()> {
     let plan = project::plan(path, layout == super::Layout::Indented)?;
     // 4 → 4.2 first: `external` is gone, and nothing after this step can
     // parse a file that still has one.

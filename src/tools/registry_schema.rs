@@ -19,7 +19,9 @@
 use serde::Serialize;
 
 use crate::registry::{AttrFamily, Children, ComponentSig, Legacy, PropSig, PropType, Sink};
-use crate::syntax::parser::ast::*;
+use crate::syntax::parser::ast::{
+    ComponentDecl, Declaration, Expr, ParamDecl, Program, TypeRef, UnaryOp,
+};
 
 /// A component, built-in or the project's.
 #[derive(Debug, Clone, Serialize, PartialEq)]

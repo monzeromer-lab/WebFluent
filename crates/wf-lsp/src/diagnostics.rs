@@ -8,7 +8,10 @@
 //! to its entry in the guide, its whole range, the other places it
 //! concerns, and an `Unnecessary` tag where it points at code nothing needs.
 
-use lsp_types::*;
+use lsp_types::{
+    CodeDescription, Diagnostic, DiagnosticRelatedInformation, DiagnosticSeverity, DiagnosticTag,
+    Location, NumberOrString, Range, TextEdit, Url,
+};
 use std::collections::HashMap;
 use webfluent::diagnostics::{Diagnostic as WfDiagnostic, Severity, Tag};
 

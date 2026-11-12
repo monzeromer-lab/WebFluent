@@ -23,7 +23,7 @@
 //! [`crate::check::edit`] puts this behind its rewrites and holds the result to
 //! the tree the editor asked for.
 
-use crate::syntax::parser::ast::*;
+use crate::syntax::parser::ast::{Statement, StatementKind, ForStmt, ShowStmt, IfStmt, MatchStmt, EventHandler, UIElement, ComponentRef, Arg, StyleBlock, StyleProperty, Program, ComponentDecl, Declaration, PageDecl, HeadTag};
 use crate::syntax::print::{self, Block};
 use std::fmt::Write as _;
 

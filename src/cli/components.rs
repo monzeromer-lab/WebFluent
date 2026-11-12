@@ -5,7 +5,7 @@ use crate::registry::schema;
 
 /// `wf components [-d DIR] [--json]`: every component a call can name, the
 /// built-ins and the project's, with what each takes.
-pub fn run_components(dir: &Path, json: bool) -> Result<()> {
+pub(crate) fn run_components(dir: &Path, json: bool) -> Result<()> {
     let catalog = schema::of_project_via(&crate::vfs::FsVfs, dir);
     if json {
         println!(

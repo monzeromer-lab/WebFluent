@@ -1,7 +1,10 @@
 use std::collections::HashMap;
 
 use crate::diagnostics::error::Diagnostic;
-use crate::syntax::parser::ast::*;
+use crate::syntax::parser::ast::{
+    Arg, ComponentDecl, ComponentRef, Declaration, Expr, IfStmt, PageDecl, Program, Statement,
+    StatementKind, UIElement, UnaryOp,
+};
 
 /// Run all accessibility lint rules on the parsed program.
 /// Returns a list of warnings (non-fatal).

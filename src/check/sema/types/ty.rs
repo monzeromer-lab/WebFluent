@@ -1,6 +1,6 @@
 //! The types the checker reasons about: `Type`, the language's scalars, and what makes two types agree.
 
-use super::*;
+use super::TypeRef;
 
 /// A type the checker reasons about.
 #[derive(Debug, Clone, PartialEq)]

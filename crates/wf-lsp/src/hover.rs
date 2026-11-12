@@ -7,13 +7,16 @@
 //! is the `count` of the page the cursor is in — not the first `count` in
 //! the file.
 
-use lsp_types::*;
+use lsp_types::{Hover, HoverContents, MarkupContent, MarkupKind, Position, Range};
 use webfluent::codegen::builtin::{builtin_to_html, implicit_role, landmark_label};
 use webfluent::config::OutputType;
 use webfluent::registry::{self, Children, ComponentSig, Flag, PropSig, PropType, Sink};
 use webfluent::sema::types::Type;
 use webfluent::syntax::lexer::TokenType;
-use webfluent::syntax::parser::ast::*;
+use webfluent::syntax::parser::ast::{
+    Arg, ComponentDecl, ComponentRef, Declaration, EnumDecl, EventDecl, Expr, ThemeDecl,
+    ThemeToken, TypeDecl, TypeRef,
+};
 
 use crate::analysis::{self, Binding, BindingKind, ElementPart};
 use crate::line_index::word_at;

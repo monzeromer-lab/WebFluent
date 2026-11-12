@@ -5,7 +5,7 @@ use crate::diagnostics::error::Result;
 use crate::init::{Options, Template, create_with, parse_locales};
 use std::path::Path;
 
-pub fn run_init(name: &str, template: &str, locales: Option<&str>) -> Result<()> {
+pub(crate) fn run_init(name: &str, template: &str, locales: Option<&str>) -> Result<()> {
     let project_dir = Path::new(name);
 
     if project_dir.exists() {

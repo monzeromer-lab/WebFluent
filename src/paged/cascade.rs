@@ -9,7 +9,7 @@ use super::css::{
     parse_declarations, split_spaces, split_top_level,
 };
 use super::html::{Dom, Element, NodeKind};
-use super::style::*;
+use super::style::{Units, Style, substitute_vars, length, Rgba, color, parse_family_list, Length, font_weight, LineHeight, length_pt, TextAlign, TextTransform, WhiteSpace, Direction, Display, Position, four, BorderStyle, image, shadows, FlexDirection, align, tracks, grid_placement, VerticalAlign, ObjectFit, BorderSide, ListStyle, Break};
 
 /// What a browser draws before any author's rule: the display of each tag
 /// and the few typographic defaults a page relies on.

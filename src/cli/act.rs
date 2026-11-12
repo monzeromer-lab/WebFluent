@@ -9,13 +9,13 @@ use crate::browser::chrome::Page;
 use crate::diagnostics::error::Result;
 
 /// A browser, kept for as long as there are tests that need one.
-pub struct Stage {
+pub(crate) struct Stage {
     browser: Browser,
     work: PathBuf,
 }
 
 impl Stage {
-    pub fn open() -> Result<Self> {
+    pub(crate) fn open() -> Result<Self> {
         let browser = Browser::start()?;
         // A directory of this run's own, which nobody else could have made
         // first, and which goes with the stage.
@@ -28,7 +28,7 @@ impl Stage {
     }
 
     /// Where the tests' sites are built.
-    pub fn work(&self) -> &Path {
+    pub(crate) fn work(&self) -> &Path {
         &self.work
     }
 }

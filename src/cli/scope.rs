@@ -7,7 +7,7 @@ use crate::diagnostics::error::{Result, WebFluentError};
 /// values, its props, the bindings around the place, the members of the
 /// stores it uses, and a template's data — each with its type and where it
 /// comes from.
-pub fn run_scope(dir: &Path, place: &str, data: Option<&Path>, json: bool) -> Result<()> {
+pub(crate) fn run_scope(dir: &Path, place: &str, data: Option<&Path>, json: bool) -> Result<()> {
     let bad = || WebFluentError::edit(format!("`{place}` is not FILE:LINE or FILE:LINE:COL"));
     let mut parts = place.rsplitn(3, ':').collect::<Vec<_>>();
     parts.reverse();

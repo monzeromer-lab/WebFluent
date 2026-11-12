@@ -7,7 +7,9 @@
 //! props, state, derived values and actions, then the stores it `use`s —
 //! and, in `paths`, the same list typed, for a picker.
 
-use crate::syntax::parser::ast::*;
+use crate::syntax::parser::ast::{
+    Arg, ComponentRef, ConnectionKind, Declaration, Expr, Span, Statement, StatementKind, StoreDecl,
+};
 pub use crate::syntax::parser::walk::{body_of, child_bodies};
 
 /// Whether `offset` falls inside `span`.

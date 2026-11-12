@@ -10,7 +10,9 @@
 use serde_json::{Value, json};
 
 use crate::registry::{AttrFamily, Children, ComponentSig, Legacy, PropSig, PropType, Sink};
-use crate::syntax::parser::ast::*;
+use crate::syntax::parser::ast::{
+    ComponentRef, Declaration, Program, Statement, StatementKind, TypeRef,
+};
 
 /// Every built-in: components and parts, with their props, cases, flags,
 /// events, slots, parts and attribute families, plus the universal props

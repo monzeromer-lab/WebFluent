@@ -1,6 +1,10 @@
 //! Elements and component calls: their props, required arguments, bindings and classes.
 
-use super::*;
+use super::{
+    Arg, Body, Checker, ComponentDecl, ComponentRef, DOM_SENDS, Expr, LayoutRef, PropDecl,
+    PropType, Scalar, Span, Type, TypeRef, UIElement, arg_value, bound_type, expr_text, registry,
+    takes_length,
+};
 
 impl Checker<'_, '_> {
     /// A `class:` value: a string, a map whose values are conditions, a list

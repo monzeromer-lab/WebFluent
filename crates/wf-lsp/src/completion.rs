@@ -21,12 +21,18 @@
 //!
 //! Nothing is offered inside a string or a comment.
 
-use lsp_types::*;
+use lsp_types::{
+    CompletionItem, CompletionItemKind, Documentation, InsertTextFormat, MarkupContent, MarkupKind,
+    Position,
+};
 use webfluent::config::OutputType;
 use webfluent::linter;
 use webfluent::registry::{self, Children, ComponentSig, PropType};
 use webfluent::syntax::lexer::{Token, TokenType};
-use webfluent::syntax::parser::ast::*;
+use webfluent::syntax::parser::ast::{
+    ApiDecl, ArmPattern, ComponentDecl, ComponentRef, Declaration, EnumCase, EnumDecl,
+    EventHandler, Expr, MatchStmt, Statement, StatementKind, TypeRef,
+};
 
 use crate::analysis::{self, Binding, BindingKind};
 use crate::project::Project;

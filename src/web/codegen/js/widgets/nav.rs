@@ -1,6 +1,6 @@
 //! Navigation: tabs, the sidebar and breadcrumbs.
 
-use super::super::*;
+use super::super::{Arg, ComponentRef, Expr, JsCodegen, StatementKind, UIElement, active_link};
 
 impl JsCodegen {
     pub(in super::super) fn emit_tabs(&mut self, var: &str, ui: &UIElement, parent: &str) {

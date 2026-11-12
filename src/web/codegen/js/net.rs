@@ -1,6 +1,9 @@
 //! Resources and connections: the request, its cache, retry and refetch policies, sockets, streams, channels and peers.
 
-use super::*;
+use super::{
+    ConnectionDecl, ConnectionKind, Expr, JsCodegen, ResourceDecl, Statement, StatementKind, bare,
+    capitalize_first, refinement_in, sig,
+};
 
 /// The names of the resources a body declares, at any depth.
 pub(super) fn resource_names(stmts: &[Statement]) -> Vec<String> {

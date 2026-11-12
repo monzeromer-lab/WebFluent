@@ -1,6 +1,6 @@
 //! What shows data: avatars, skeletons, carousels, icon buttons, and pictures from the media pipeline.
 
-use super::super::*;
+use super::super::{Arg, ComponentRef, Expr, GESTURE_EVENTS, JsCodegen, StatementKind, UIElement};
 
 impl JsCodegen {
     pub(in super::super) fn emit_avatar(&mut self, var: &str, ui: &UIElement, parent: &str) {

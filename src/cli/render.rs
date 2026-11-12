@@ -5,7 +5,7 @@ use std::io::{self, IsTerminal, Read};
 use std::path::Path;
 
 /// How `wf render` renders: what it writes, where, and with what settings.
-pub struct RenderOptions<'a> {
+pub(crate) struct RenderOptions<'a> {
     pub format: &'a str,
     pub output: Option<&'a Path>,
     pub theme: Option<&'a str>,
@@ -14,7 +14,7 @@ pub struct RenderOptions<'a> {
     pub tokens: &'a [String],
 }
 
-pub fn run_render(
+pub(crate) fn run_render(
     template_path: &Path,
     data_path: Option<&Path>,
     options: &RenderOptions<'_>,

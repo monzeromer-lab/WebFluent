@@ -15,7 +15,7 @@ const ROUNDS: usize = 8;
 /// — or every one of a code — fixed, each by its first fix, as `wf check`
 /// and the editor offer it; then what is left is said. `--dry-run` writes
 /// nothing and says what would change.
-pub fn run_fix(dir: &Path, code: Option<&str>, dry_run: bool) -> Result<()> {
+pub(crate) fn run_fix(dir: &Path, code: Option<&str>, dry_run: bool) -> Result<()> {
     let mut fixed: BTreeMap<String, usize> = BTreeMap::new();
     let mut by_code: BTreeMap<&'static str, usize> = BTreeMap::new();
     // In a dry run nothing is written, so a second look sees the same.

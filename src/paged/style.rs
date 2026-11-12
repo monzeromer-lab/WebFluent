@@ -503,6 +503,7 @@ impl Style {
 
     /// A child's starting style: the inherited properties carried, the rest
     /// at their initial values.
+    #[must_use]
     pub fn inherit(&self) -> Style {
         let mut s = Style::root(self.font_size, "");
         s.color = self.color;

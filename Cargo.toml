@@ -108,7 +108,7 @@ serde_json = "1.0.149"
 unsafe_op_in_unsafe_fn = "warn"
 missing_debug_implementations = "allow"          # 58
 missing_docs = "allow"                           # 1570
-unreachable_pub = "allow"                        # 1697
+unreachable_pub = "warn"
 rust_2018_idioms = { level = "warn", priority = -1 }
 
 [workspace.lints.clippy]
@@ -133,7 +133,7 @@ redundant_clone = "warn"
 rc_buffer = "allow"                              # 6
 exhaustive_enums = "allow"                       # 103
 string_add = "warn"
-wildcard_imports = "allow"                       # 47
+wildcard_imports = "warn"
 print_stdout = "allow"                           # 183, nearly all the CLI's own output
 print_stderr = "allow"                           # 24
 as_conversions = "allow"                         # 981
@@ -176,6 +176,7 @@ match_wildcard_for_single_variants = "warn"
 assert_is_empty = "warn"
 format_collect = "warn"
 decimal_bitwise_operands = "warn"
+return_self_not_must_use = "warn"
 module_name_repetitions = "allow"
 must_use_candidate = "allow"
 module_inception = "allow"

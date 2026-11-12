@@ -1,6 +1,6 @@
 //! Refined types: the conditions a value is held to, and the literals that break them.
 
-use super::*;
+use super::{Expr, Scalar, Type, TypeRef};
 
 /// What a rule is a rule for, or `None` when there is no such rule.
 /// The rules a `validate` block may hold, for a tool to offer;

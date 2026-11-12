@@ -136,6 +136,12 @@
     not(feature = "internals"),
     allow(dead_code, reason = "the language server and the tests use these")
 )]
+// Without the feature those parts are the crate's own, but their items stay
+// `pub`: with it they are the language server's and the tests' to reach.
+#![cfg_attr(
+    not(feature = "internals"),
+    allow(unreachable_pub, reason = "public through the `internals` feature")
+)]
 
 /// The compiler's version, as `wf --version` prints it: what a program
 /// that builds through the library says it built with.

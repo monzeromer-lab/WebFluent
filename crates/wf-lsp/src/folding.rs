@@ -1,8 +1,8 @@
 //! Folding ranges: every declaration, and every statement with a block of
 //! its own, that runs over more than one line.
 
-use lsp_types::*;
-use webfluent::syntax::parser::ast::*;
+use lsp_types::{FoldingRange, FoldingRangeKind};
+use webfluent::syntax::parser::ast::{Span, Statement, StatementKind};
 
 use crate::analysis;
 use crate::project::Project;

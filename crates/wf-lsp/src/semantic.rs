@@ -5,10 +5,13 @@
 
 use std::collections::HashMap;
 
-use lsp_types::*;
+use lsp_types::{
+    Position, SemanticToken, SemanticTokenModifier, SemanticTokenType, SemanticTokens,
+    SemanticTokensLegend,
+};
 use webfluent::registry;
 use webfluent::syntax::lexer::TokenType;
-use webfluent::syntax::parser::ast::*;
+use webfluent::syntax::parser::ast::Declaration;
 
 use crate::analysis::{self, BindingKind};
 use crate::project::Project;

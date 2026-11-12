@@ -1,4 +1,7 @@
 use super::*;
+use crate::syntax::parser::ast::{
+    Assignment, EmitStmt, EventDecl, MatchArm, PropDecl, SlotDecl, SlotFill,
+};
 
 fn compile(src: &str) -> String {
     let program = crate::syntax::parse_source(src, "<t>").expect("parse");

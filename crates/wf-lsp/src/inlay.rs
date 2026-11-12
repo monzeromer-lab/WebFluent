@@ -1,8 +1,8 @@
 //! Inlay hints: the type the checker gives a `state`, `derived` value or
 //! `let` written without one — `state count = 0` shows `: Number`.
 
-use lsp_types::*;
-use webfluent::syntax::parser::ast::*;
+use lsp_types::{InlayHint, InlayHintKind, InlayHintLabel, InlayHintTooltip, Range};
+use webfluent::syntax::parser::ast::{Statement, StatementKind};
 
 use crate::analysis;
 use crate::project::Project;

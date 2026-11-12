@@ -6,7 +6,7 @@ use crate::diagnostics::codes::{self, CODES};
 use crate::diagnostics::error::{Result, WebFluentError};
 use crate::diagnostics::fixes::nearest;
 
-pub fn run_explain(code: Option<&str>) -> Result<()> {
+pub(crate) fn run_explain(code: Option<&str>) -> Result<()> {
     match code {
         None => {
             print!("{}", index());
@@ -30,7 +30,7 @@ pub fn run_explain(code: Option<&str>) -> Result<()> {
 }
 
 /// Every code, its severity and its title, by family.
-pub fn index() -> String {
+pub(crate) fn index() -> String {
     let mut out = String::new();
     let mut family = "";
     for c in CODES {
@@ -56,7 +56,7 @@ pub fn index() -> String {
 
 /// A code's entry: its title and severity, its summary, the guide's section
 /// for it, and where the guide is.
-pub fn explanation(code: &str) -> Option<String> {
+pub(crate) fn explanation(code: &str) -> Option<String> {
     let info = codes::info(&code.to_uppercase())?;
     let mut out = format!(
         "{} — {} ({})\n\n{}\n",

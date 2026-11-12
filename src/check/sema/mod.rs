@@ -18,7 +18,11 @@ pub mod types;
 
 use crate::diagnostics::error::Diagnostic;
 use crate::registry::{self, ComponentSig, Flag, Legacy, PropType, Sink};
-use crate::syntax::parser::ast::*;
+use crate::syntax::parser::ast::{
+    AnimateConfig, Arg, ArmPattern, ComponentDecl, ComponentRef, Declaration, EnumDecl,
+    EventHandler, Expr, IfStmt, Program, Span, Statement, StatementKind, StringPart, StyleBlock,
+    StyleProperty, TypeDecl, TypeRef, UIElement, walk_exprs_mut,
+};
 use std::collections::HashMap;
 
 /// What the resolver found: errors stop a build, warnings are printed.

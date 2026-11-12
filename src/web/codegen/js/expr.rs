@@ -1,6 +1,10 @@
 //! Expressions, and the list, string and scalar methods they call.
 
-use super::*;
+use super::{
+    BROWSER_CLASSES, BROWSER_GLOBALS, BROWSER_VALUES, BinOp, CONNECTION_SIGNALS, Expr, JsCodegen,
+    RESOURCE_SIGNALS, SCALAR_METHODS, StringPart, UnaryOp, bare, bare_list, js_str, sig,
+    template_text, top_level,
+};
 
 /// The runtime function a method of one of the language's own types
 /// compiles to: `due.plus(days: 3)` is `WF.plus(due, { days: 3 })`.

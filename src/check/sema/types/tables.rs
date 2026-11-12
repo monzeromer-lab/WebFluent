@@ -1,6 +1,6 @@
 //! The methods each kind of value has, and the places a secret may not go.
 
-use super::*;
+use super::{Scalar, Type};
 
 /// Whether a CSS property takes a length, which a bare number is not.
 pub(super) fn takes_length(name: &str) -> bool {
