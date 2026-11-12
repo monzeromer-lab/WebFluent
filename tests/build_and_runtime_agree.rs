@@ -45,11 +45,18 @@ fn runtime_exports() -> BTreeSet<String> {
 fn emitted_runtime_calls() -> BTreeSet<String> {
     let mut names = BTreeSet::new();
     // The code generator, and the files of it that sit in lower layers.
-    let mut paths: Vec<std::path::PathBuf> = std::fs::read_dir(root().join("src/web/codegen"))
-        .unwrap()
-        .flatten()
-        .map(|entry| entry.path())
-        .collect();
+    fn walk(dir: &std::path::Path, out: &mut Vec<std::path::PathBuf>) {
+        for entry in std::fs::read_dir(dir).unwrap().flatten() {
+            let path = entry.path();
+            if path.is_dir() {
+                walk(&path, out);
+            } else {
+                out.push(path);
+            }
+        }
+    }
+    let mut paths = Vec::new();
+    walk(&root().join("src/web/codegen"), &mut paths);
     paths.extend(
         [
             "src/syntax/node_id.rs",
@@ -65,10 +72,15 @@ fn emitted_runtime_calls() -> BTreeSet<String> {
         .map(|p| root().join(p)),
     );
     for path in paths {
-        if path.extension().is_none_or(|e| e != "rs") {
+        // A module's tests, in a file of their own or inline, are not the
+        // code generator.
+        if path.extension().is_none_or(|e| e != "rs") || path.ends_with("tests.rs") {
             continue;
         }
         let source = std::fs::read_to_string(&path).unwrap();
+        // `mod tests;` names a file of its own; anything else under
+        // `#[cfg(test)]` is tests written inline.
+        let source = source.replace("#[cfg(test)]\nmod tests;", "");
         let source = source.split("#[cfg(test)]").next().unwrap();
         for (at, _) in source.match_indices("WF.") {
             let name: String = source[at + 3..]
@@ -110,7 +122,7 @@ fn every_runtime_function_the_compiler_can_call_exists() {
 /// The methods `method_to_js` maps by name, read from its source: `push`,
 /// `remove`, `filter`, `toUpper`, `contains`, …
 fn mapped_methods() -> Vec<String> {
-    let source = std::fs::read_to_string(root().join("src/web/codegen/js.rs")).unwrap();
+    let source = std::fs::read_to_string(root().join("src/web/codegen/js/expr.rs")).unwrap();
     let start = source.find("pub fn method_to_js").expect("method_to_js");
     let body = &source[start..start + source[start..].find("\n}\n").unwrap()];
     let mut names = Vec::new();
